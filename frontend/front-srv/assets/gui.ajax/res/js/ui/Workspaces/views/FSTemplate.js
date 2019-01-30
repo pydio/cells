@@ -276,7 +276,7 @@ let FSTemplate = React.createClass({
                         <div id="workspace_toolbar" style={{flex:1, width:'calc(100% - 430px)'}}>
                             <span className="drawer-button"><IconButton iconStyle={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
                             <Breadcrumb {...props} startWithSeparator={false}/>
-                            <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex'}}>
+                            <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex', overflow:'hidden'}}>
                                 <ButtonMenu
                                     {...props}
                                     buttonStyle={{...styles.flatButtonStyle, marginRight: 4}}
@@ -291,23 +291,26 @@ let FSTemplate = React.createClass({
                                     controller={props.pydio.Controller}
                                     openOnEvent={'tutorial-open-create-menu'}
                                 />
-                                {!mobile &&
-                                <Toolbar
-                                    {...props}
-                                    id="main-toolbar"
-                                    toolbars={mainToolbars}
-                                    groupOtherList={mainToolbarsOthers}
-                                    renderingType="button"
-                                    flatButtonStyle={styles.flatButtonStyle}
-                                    buttonStyle={styles.flatButtonLabelStyle}
-                                />
-                                }
-                                {mobile && <span style={{flex:1}}></span>}
                                 <ListPaginator
                                     id="paginator-toolbar"
+                                    style={{height: 23, borderRadius: 2, background: 'rgba(255, 255, 255, 0.17)', marginRight: 5}}
                                     dataModel={props.pydio.getContextHolder()}
+                                    smallDisplay={true}
                                     toolbarDisplay={true}
                                 />
+                                {!mobile &&
+                                    <Toolbar
+                                        {...props}
+                                        id="main-toolbar"
+                                        toolbars={mainToolbars}
+                                        groupOtherList={mainToolbarsOthers}
+                                        renderingType="button"
+                                        toolbarStyle={{flex: 1, overflow:'hidden'}}
+                                        flatButtonStyle={styles.flatButtonStyle}
+                                        buttonStyle={styles.flatButtonLabelStyle}
+                                    />
+                                }
+                                {mobile && <span style={{flex:1}}/>}
                             </div>
                         </div>
                         <div style={{display:'flex', alignItems:'center'}}>

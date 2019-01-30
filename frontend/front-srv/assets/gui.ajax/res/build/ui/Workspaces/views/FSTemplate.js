@@ -367,7 +367,7 @@ var FSTemplate = _react2['default'].createClass({
                     _react2['default'].createElement(_Breadcrumb2['default'], _extends({}, props, { startWithSeparator: false })),
                     _react2['default'].createElement(
                         'div',
-                        { style: { height: 32, paddingLeft: 20, alignItems: 'center', display: 'flex' } },
+                        { style: { height: 32, paddingLeft: 20, alignItems: 'center', display: 'flex', overflow: 'hidden' } },
                         _react2['default'].createElement(ButtonMenu, _extends({}, props, {
                             buttonStyle: _extends({}, styles.flatButtonStyle, { marginRight: 4 }),
                             buttonLabelStyle: styles.flatButtonLabelStyle,
@@ -381,20 +381,23 @@ var FSTemplate = _react2['default'].createClass({
                             controller: props.pydio.Controller,
                             openOnEvent: 'tutorial-open-create-menu'
                         })),
+                        _react2['default'].createElement(ListPaginator, {
+                            id: 'paginator-toolbar',
+                            style: { height: 23, borderRadius: 2, background: 'rgba(255, 255, 255, 0.17)', marginRight: 5 },
+                            dataModel: props.pydio.getContextHolder(),
+                            smallDisplay: true,
+                            toolbarDisplay: true
+                        }),
                         !mobile && _react2['default'].createElement(Toolbar, _extends({}, props, {
                             id: 'main-toolbar',
                             toolbars: mainToolbars,
                             groupOtherList: mainToolbarsOthers,
                             renderingType: 'button',
+                            toolbarStyle: { flex: 1, overflow: 'hidden' },
                             flatButtonStyle: styles.flatButtonStyle,
                             buttonStyle: styles.flatButtonLabelStyle
                         })),
-                        mobile && _react2['default'].createElement('span', { style: { flex: 1 } }),
-                        _react2['default'].createElement(ListPaginator, {
-                            id: 'paginator-toolbar',
-                            dataModel: props.pydio.getContextHolder(),
-                            toolbarDisplay: true
-                        })
+                        mobile && _react2['default'].createElement('span', { style: { flex: 1 } })
                     )
                 ),
                 _react2['default'].createElement(

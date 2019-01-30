@@ -86,10 +86,17 @@ exports['default'] = _react2['default'].createClass({
     render: function render() {
         var _this2 = this;
 
-        if (!this.state.node || !this.state.node.getMetadata().get("paginationData")) {
+        var node = this.state.node;
+        var _props = this.props;
+        var toolbarDisplay = _props.toolbarDisplay;
+        var smallDisplay = _props.smallDisplay;
+        var style = _props.style;
+        var id = _props.id;
+
+        if (!node || !node.getMetadata().get("paginationData")) {
             return null;
         }
-        var pData = this.state.node.getMetadata().get("paginationData");
+        var pData = node.getMetadata().get("paginationData");
         var current = parseInt(pData.get("current"));
         var total = parseInt(pData.get("total"));
         var pages = [],
@@ -107,16 +114,39 @@ exports['default'] = _react2['default'].createClass({
         if (pages.length <= 1) {
             return null;
         }
-        previous = _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+        var whiteStyle = undefined;
+        var smallButtonsLabel = undefined,
+            smallButtonsIcStyle = undefined;
+        if (toolbarDisplay) {
+            whiteStyle = { color: 'white' };
+            if (smallDisplay) {
+                smallButtonsLabel = { fontSize: 13 };
+                smallButtonsIcStyle = { fontSize: 20 };
+            }
+        }
+
+        previous = _react2['default'].createElement(_materialUi.IconButton, {
+            onTouchTap: function () {
                 _this2.onMenuChange(null, 0, current - 1);
-            }, iconClassName: "mdi mdi-chevron-left", disabled: current === 1 });
-        next = _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+            },
+            iconClassName: "mdi mdi-chevron-left",
+            disabled: current === 1,
+            iconStyle: _extends({}, whiteStyle, smallButtonsIcStyle),
+            style: smallDisplay ? { marginRight: -20, width: 40, height: 40 } : null
+        });
+        next = _react2['default'].createElement(_materialUi.IconButton, {
+            onTouchTap: function () {
                 _this2.onMenuChange(null, 0, current + 1);
-            }, iconClassName: "mdi mdi-chevron-right", disabled: current === total, style: { marginLeft: -20 } });
+            },
+            iconClassName: "mdi mdi-chevron-right",
+            disabled: current === total,
+            style: smallDisplay ? { marginLeft: -40, width: 40, height: 40 } : { marginLeft: -20 },
+            iconStyle: _extends({}, whiteStyle, smallButtonsIcStyle)
+        });
 
         return _react2['default'].createElement(
             'div',
-            { id: this.props.id, style: _extends({ display: 'flex', alignItems: 'center' }, this.props.style) },
+            { id: id, style: _extends({ display: 'flex', alignItems: 'center' }, style) },
             previous,
             _react2['default'].createElement(
                 _materialUi.DropDownMenu,
@@ -125,7 +155,7 @@ exports['default'] = _react2['default'].createClass({
                     onChange: this.onMenuChange,
                     value: current,
                     underlineStyle: { display: 'none' },
-                    labelStyle: { color: 'white' }
+                    labelStyle: _extends({}, whiteStyle, smallButtonsLabel)
                 },
                 pages
             ),

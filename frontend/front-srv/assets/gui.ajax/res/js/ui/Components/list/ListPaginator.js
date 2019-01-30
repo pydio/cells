@@ -65,10 +65,12 @@ export default React.createClass({
     },
 
     render(){
-        if(!this.state.node || !this.state.node.getMetadata().get("paginationData")) {
+        const {node} = this.state;
+        const {toolbarDisplay, smallDisplay, style, id} = this.props;
+        if(!node || !node.getMetadata().get("paginationData")) {
             return null;
         }
-        const pData = this.state.node.getMetadata().get("paginationData");
+        const pData = node.getMetadata().get("paginationData");
         const current = parseInt(pData.get("current"));
         const total = parseInt(pData.get("total"));
         let pages = [], next, last, previous, first;
@@ -83,18 +85,44 @@ export default React.createClass({
         if(pages.length <= 1){
             return null;
         }
-        previous = <IconButton onTouchTap={() => {this.onMenuChange(null, 0, current-1)}} iconClassName={"mdi mdi-chevron-left"} disabled={current === 1}/>;
-        next = <IconButton onTouchTap={() => {this.onMenuChange(null, 0, current+1)}} iconClassName={"mdi mdi-chevron-right"} disabled={current === total} style={{marginLeft: -20}}/>;
+        let whiteStyle;
+        let smallButtonsLabel, smallButtonsIcStyle;
+        if(toolbarDisplay){
+            whiteStyle = {color:'white'};
+            if(smallDisplay){
+                smallButtonsLabel = {fontSize:13};
+                smallButtonsIcStyle = {fontSize:20};
+            }
+        }
+
+        previous = (
+            <IconButton
+                onTouchTap={() => {this.onMenuChange(null, 0, current-1)}}
+                iconClassName={"mdi mdi-chevron-left"}
+                disabled={current === 1}
+                iconStyle={{...whiteStyle, ...smallButtonsIcStyle}}
+                style={smallDisplay?{marginRight:-20, width:40, height: 40}:null}
+            />
+        );
+        next = (
+            <IconButton
+                onTouchTap={() => {this.onMenuChange(null, 0, current+1)}}
+                iconClassName={"mdi mdi-chevron-right"}
+                disabled={current === total}
+                style={smallDisplay?{marginLeft:-40, width:40, height: 40}:{marginLeft: -20}}
+                iconStyle={{...whiteStyle, ...smallButtonsIcStyle}}
+            />
+        );
 
         return (
-            <div id={this.props.id} style={{display:'flex', alignItems:'center', ...this.props.style}}>
+            <div id={id} style={{display:'flex', alignItems:'center', ...style}}>
                 {previous}
                 <DropDownMenu
                     style={{width: 150, marginTop: -6}}
                     onChange={this.onMenuChange}
                     value={current}
                     underlineStyle={{display: 'none'}}
-                    labelStyle={{color: 'white'}}
+                    labelStyle={{...whiteStyle, ...smallButtonsLabel}}
                 >{pages}</DropDownMenu>
                 {next}
             </div>

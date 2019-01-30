@@ -328,8 +328,8 @@ var StandardLayout = React.createClass({
                 React.createElement(ConfigLogo, { pydio: this.props.pydio, style: { height: 50 } }),
                 React.createElement(
                     'div',
-                    { id: 'workspace_toolbar', style: { display: 'flex', flex: 1 } },
-                    React.createElement(Breadcrumb, _extends({}, this.props, { rootStyle: { padding: 14, maxWidth: null } })),
+                    { id: 'workspace_toolbar', style: { display: 'flex', flex: 1, overflow: 'hidden' } },
+                    React.createElement(Breadcrumb, _extends({}, this.props, { rootStyle: { padding: '0 14px', height: 36, lineHeight: '36px', maxWidth: null } })),
                     showSearchForm && React.createElement(SearchForm, _extends({}, this.props, { uniqueSearchScope: 'ws', style: { marginTop: 5 } }))
                 ),
                 React.createElement(

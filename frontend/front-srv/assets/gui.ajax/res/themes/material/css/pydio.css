@@ -2461,7 +2461,7 @@ body,
 @media only screen and (max-width: 758px) {
   .react-mui-context .desktop-container #workspace_toolbar .drawer-button {
     display: block;
-    margin: 6px 0;
+    margin: 12px 10px;
   }
 }
 .react-mui-context .desktop-container #main_toolbar {

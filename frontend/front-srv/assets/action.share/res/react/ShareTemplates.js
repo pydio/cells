@@ -201,8 +201,8 @@ let StandardLayout = React.createClass({
             <div className="vertical_fit vertical_layout" style={bgStyle}>
                 <MaterialUI.Paper zDepth={1} rounded={false} style={styles.appBarStyle}>
                     <ConfigLogo pydio={this.props.pydio} style={{height:50}}/>
-                    <div id="workspace_toolbar" style={{display:'flex', flex: 1}}>
-                        <Breadcrumb {...this.props} rootStyle={{padding: 14, maxWidth:null}}/>
+                    <div id="workspace_toolbar" style={{display:'flex', flex: 1, overflow:'hidden'}}>
+                        <Breadcrumb {...this.props} rootStyle={{padding: '0 14px', height: 36, lineHeight: '36px', maxWidth:null}}/>
                         {showSearchForm && <SearchForm {...this.props} uniqueSearchScope="ws" style={{marginTop: 5}}/>}
                     </div>
                     <div style={{position:'relative'}}>
