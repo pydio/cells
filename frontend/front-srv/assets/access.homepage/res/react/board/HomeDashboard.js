@@ -32,7 +32,7 @@ class AltDashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {unreadStatus: 0, drawerOpen: true};
-        this.closeTimeout = setTimeout(()=>{this.setState({drawerOpen: false})}, 3000);
+        this.closeTimeout = setTimeout(()=>{this.setState({drawerOpen: false})}, 2500);
     }
 
     openDrawer(event) {
@@ -154,7 +154,7 @@ class AltDashboard extends React.Component {
                     </div>
                 </Paper>
                 <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle}>
-                    <div style={{flex:1, overflowY:'scroll', marginTop: 40}} id="history-block">
+                    <div style={{flex:1, overflowY:'auto', marginTop: 40}} id="history-block">
                         <SmartRecents {...this.props} style={{maxWidth: 610, width:'100%'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
                     </div>
                 </HomeSearchForm>

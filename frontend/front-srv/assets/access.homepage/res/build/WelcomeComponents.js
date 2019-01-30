@@ -7379,7 +7379,7 @@ var AltDashboard = (function (_React$Component) {
         this.state = { unreadStatus: 0, drawerOpen: true };
         this.closeTimeout = setTimeout(function () {
             _this.setState({ drawerOpen: false });
-        }, 3000);
+        }, 2500);
     }
 
     _createClass(AltDashboard, [{
@@ -7516,7 +7516,7 @@ var AltDashboard = (function (_React$Component) {
                     _extends({ zDepth: 0 }, this.props, { style: styles.wsListsContainerStyle }),
                     _react2['default'].createElement(
                         'div',
-                        { style: { flex: 1, overflowY: 'scroll', marginTop: 40 }, id: 'history-block' },
+                        { style: { flex: 1, overflowY: 'auto', marginTop: 40 }, id: 'history-block' },
                         _react2['default'].createElement(_recentSmartRecents2['default'], _extends({}, this.props, { style: { maxWidth: 610, width: '100%' }, emptyStateProps: { style: { backgroundColor: 'white' } } }))
                     )
                 )
