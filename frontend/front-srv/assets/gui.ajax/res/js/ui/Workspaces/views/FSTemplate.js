@@ -196,7 +196,11 @@ let FSTemplate = React.createClass({
         const {infoPanelOpen, drawerOpen, infoPanelToggle} = this.state;
         let {rightColumnState} = this.state;
 
-        let mainToolbars = ["info_panel", "info_panel_share"];
+        let mainToolbars = [
+            "change_main",
+            "info_panel",
+            "info_panel_share",
+        ];
         let mainToolbarsOthers = ["change", "other"];
 
         const {pydio} = this.props;

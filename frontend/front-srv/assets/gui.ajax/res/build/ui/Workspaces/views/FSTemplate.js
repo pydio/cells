@@ -268,7 +268,7 @@ var FSTemplate = _react2['default'].createClass({
         var infoPanelToggle = _state.infoPanelToggle;
         var rightColumnState = this.state.rightColumnState;
 
-        var mainToolbars = ["info_panel", "info_panel_share"];
+        var mainToolbars = ["change_main", "info_panel", "info_panel_share"];
         var mainToolbarsOthers = ["change", "other"];
 
         var pydio = this.props.pydio;

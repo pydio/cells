@@ -123,7 +123,7 @@
                 <gui text="222" title="223" iconClass="mdi mdi-file-restore" accessKey="restore_access_key" hasAccessKey="true">
                     <context selection="true" dir="" recycle="only"
                              actionBar="true" contextMenu="true" infoPanel="false"
-                             actionBarGroup="change_main">
+                             actionBarGroup="info_panel">
                     </context>
                     <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
@@ -135,7 +135,7 @@
                 <gui text="6" title="158" accessKey="rename_access_key" iconClass="mdi mdi-rename-box" hasAccessKey="true">
                     <context selection="true" dir="" recycle="hidden"
                              actionBar="true" contextMenu="true" infoPanel="false"
-                             actionBarGroup="change,change_main" inZip="false">
+                             actionBarGroup="change" inZip="false">
                     </context>
                     <selectionContext dir="true" file="true" recycle="false" unique="true" image="false" editable="false"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
@@ -161,7 +161,7 @@
                 <gui text="70" title="160" iconClass="mdi mdi-folder-move" accessKey="move_access_key" hasAccessKey="true">
                     <context selection="true" dir=""
                              actionBar="true" contextMenu="true" infoPanel="false"
-                             actionBarGroup="change,change_main" inZip="false">
+                             actionBarGroup="change" inZip="false">
                     </context>
                     <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
@@ -173,7 +173,7 @@
                 <gui text="7" title="161" iconClass="mdi mdi-delete" accessKey="delete_access_key" hasAccessKey="true" specialAccessKey="delete">
                     <context selection="true" dir="" recycle="false"
                              actionBar="true" contextMenu="true" infoPanel="false"
-                             actionBarGroup="change,change_main,minisite" inZip="false">
+                             actionBarGroup="change,minisite" inZip="false">
                     </context>
                     <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/>
                 </gui>
