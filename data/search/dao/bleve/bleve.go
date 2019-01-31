@@ -143,7 +143,7 @@ func (s *BleveServer) MakeIndexableNode(ctx context.Context, node *tree.Node) *I
 	indexNode.Basename = basename
 	if indexNode.Type == 1 {
 		indexNode.NodeType = "file"
-		indexNode.Extension = filepath.Ext(basename)
+		indexNode.Extension = strings.TrimLeft(filepath.Ext(basename), ".")
 	} else {
 		indexNode.NodeType = "folder"
 	}
@@ -152,7 +152,6 @@ func (s *BleveServer) MakeIndexableNode(ctx context.Context, node *tree.Node) *I
 	if s.IndexContent && indexNode.IsLeaf() {
 		logger := log.Logger(ctx)
 		reader, err := s.getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
-		//reader, err := node.ReadFile(ctx)
 		if err == nil {
 			convertResp, er := docconv.Convert(reader, docconv.MimeTypeByExtension(basename), true)
 			if er == nil {
