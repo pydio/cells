@@ -8,7 +8,7 @@ files:
         pt-BR: pt-br
         es-ES: es-es
         it: it
-        ja-JP: ja
+        ja: ja
   - source: '*/i18n/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -18,7 +18,7 @@ files:
         pt-BR: pt-br
         es-ES: es-es
         it: it
-        ja-JP: ja
+        ja: ja
   - source: '*/i18n/*/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -28,7 +28,7 @@ files:
         pt-BR: pt-br
         es-ES: es-es
         it: it
-        ja-JP: ja
+        ja: ja
   - source: '*/i18n/*/conf/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -38,4 +38,4 @@ files:
         pt-BR: pt-br
         es-ES: es-es
         it: it
-        ja-JP: ja
+        ja: ja
