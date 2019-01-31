@@ -19,48 +19,43 @@
  */
 
 import React from 'react';
-const {PydioContextConsumer} = require('pydio').requireLib('boot');
-
-import {Subheader, DropDownMenu, MenuItem, DatePicker, TextField, Toggle, FlatButton} from 'material-ui';
+import Pydio from 'pydio';
+const {ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {PydioContextConsumer} = Pydio.requireLib('boot');
+import {MenuItem, DatePicker} from 'material-ui';
 
 class SearchDatePanel extends React.Component {
 
     static get styles() {
         return {
-            dropdownLabel: {
-                padding: 0
-            },
-            dropdownUnderline: {
-                marginLeft: 0,
-                marginRight: 0
-            },
-            dropdownIcon: {
-                right: 0
-            },
             datePickerGroup: {
                 display: "flex",
                 justifyContent: "space-between"
             },
             datePicker: {
-                flex: 1
+                flex: 1,
+                position:"relative",
             },
             dateInput: {
                 width: "auto",
                 flex: 1
             },
             dateClose: {
-                lineHeight: "48px",
+                position: "absolute",
+                lineHeight: "50px",
                 right: 5,
-                position: "relative"
+                top: 0,
+                cursor: 'pointer',
+                color: 'rgba(0,0,0,0.5)'
             }
         }
     }
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
-            value:'custom',
+            value:'',
             startDate: null,
             endDate: null
         }
@@ -69,7 +64,7 @@ class SearchDatePanel extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         if (prevState !== this.state) {
             let {value, startDate, endDate} = this.state;
-            if (value === 'custom' && !startDate && !endDate) {
+            if (!value) {
                 this.props.onChange({ajxp_modiftime: null})
             }
             const startDay = (date) => {
@@ -142,45 +137,54 @@ class SearchDatePanel extends React.Component {
     render() {
         const today = new Date();
 
-        const {dropdownLabel, dropdownUnderline, dropdownIcon, datePickerGroup, datePicker, dateInput, dateClose} = SearchDatePanel.styles
-        const {inputStyle, getMessage} = this.props
+        const {datePickerGroup, datePicker, dateClose} = SearchDatePanel.styles;
+        const {inputStyle, getMessage} = this.props;
         const {value, startDate, endDate} = this.state;
 
         return (
             <div>
-                <DatePickerFeed pydio={this.props.pydio}>
-                {items =>
-                    <DropDownMenu autoWidth={false} labelStyle={dropdownLabel} underlineStyle={dropdownUnderline} iconStyle={dropdownIcon} style={inputStyle} value={value} onChange={(e, index, value) => this.setState({value})}>
-                        {items.map((item) => <MenuItem value={item.payload} label={item.text} primaryText={item.text} />)}
-                    </DropDownMenu>
-                }
-                </DatePickerFeed>
-
+                <div style={{margin:'0 16px'}}>
+                    <DatePickerFeed pydio={this.props.pydio}>
+                    {items =>
+                        <ModernSelectField
+                            hintText={getMessage(490)}
+                            value={value}
+                            fullWidth={true}
+                            onChange={(e, index, value) => this.setState({value})}>
+                            {items.map((item) => <MenuItem value={item.payload} label={item.text} primaryText={item.text} />)}
+                        </ModernSelectField>
+                    }
+                    </DatePickerFeed>
+                </div>
                 {value === 'custom' &&
                     <div style={{...datePickerGroup, ...inputStyle}}>
-                        <DatePicker
-                            textFieldStyle={dateInput}
-                            style={datePicker}
-                            value={startDate}
-                            onChange={(e, date) => this.setState({startDate: date})}
-                            hintText={getMessage(491)}
-                            autoOk={true}
-                            maxDate={endDate || today}
-                            defaultDate={startDate}
-                        />
-                        <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({startDate: null})} />
-                        <DatePicker
-                            textFieldStyle={dateInput}
-                            style={datePicker}
-                            value={endDate}
-                            onChange={(e, date) => this.setState({endDate: date})}
-                            hintText={getMessage(492)}
-                            autoOk={true}
-                            minDate={startDate}
-                            maxDate={today}
-                            defaultDate={endDate}
-                        />
-                        <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({endDate: null})} />
+                        <div style={{...datePicker, marginRight: 2}}>
+                            <DatePicker
+                                {...ModernStyles.textField}
+                                fullWidth={true}
+                                value={startDate}
+                                onChange={(e, date) => this.setState({startDate: date})}
+                                hintText={getMessage(491)}
+                                autoOk={true}
+                                maxDate={endDate || today}
+                                defaultDate={startDate}
+                            />
+                            <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({startDate: null})} />
+                        </div>
+                        <div style={{...datePicker, marginLeft: 2}}>
+                            <DatePicker
+                                {...ModernStyles.textField}
+                                fullWidth={true}
+                                value={endDate}
+                                onChange={(e, date) => this.setState({endDate: date})}
+                                hintText={getMessage(492)}
+                                autoOk={true}
+                                minDate={startDate}
+                                maxDate={today}
+                                defaultDate={endDate}
+                            />
+                            <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({endDate: null})} />
+                        </div>
                     </div>
                 }
             </div>
@@ -191,6 +195,7 @@ class SearchDatePanel extends React.Component {
 let DatePickerFeed = ({pydio, getMessage, children}) => {
 
     const items = [
+        {payload: '', text: ''},
         {payload: 'custom', text: getMessage('612')},
         {payload: 'PYDIO_SEARCH_RANGE_TODAY', text: getMessage('493')},
         {payload: 'PYDIO_SEARCH_RANGE_YESTERDAY', text: getMessage('494')},

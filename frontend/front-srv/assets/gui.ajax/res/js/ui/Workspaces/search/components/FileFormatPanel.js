@@ -19,14 +19,16 @@
  */
 
 import React, {Component} from 'react';
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
+import Pydio from 'pydio';
+const {ModernStyles, ModernTextField} = Pydio.requireLib('hoc');
+const {PydioContextConsumer} = Pydio.requireLib('boot')
 
-import {TextField, Toggle} from 'material-ui';
+import {Toggle} from 'material-ui';
 
 class SearchFileFormatPanel extends Component {
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             folder: this.props.values['ajxp_mime'] && this.props.values['ajxp_mime'] === 'ajxp_folder' ? true: undefined,
@@ -35,9 +37,11 @@ class SearchFileFormatPanel extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState === this.state) return
+        if (prevState === this.state) {
+            return;
+        }
 
-        const {folder, ext} = this.state
+        const {folder, ext} = this.state;
 
         this.props.onChange({
             ajxp_mime: (folder) ? 'ajxp_folder' : ext
@@ -46,20 +50,23 @@ class SearchFileFormatPanel extends Component {
 
     render() {
 
-        const {inputStyle, getMessage, ...props} = this.props
+        const {inputStyle, getMessage} = this.props;
 
         return (
             <div>
-                <Toggle
-                    style={inputStyle}
-                    name="toggleFolder"
-                    value="ajxp_folder"
-                    label={getMessage(502)}
-                    toggled={this.state.folder}
-                    onToggle={(e, toggled) => this.setState({folder: toggled})}
-                />
+                <div style={{...ModernStyles.div, margin:'6px 16px', padding:6, paddingRight:6}}>
+                    <Toggle
+                        fullWidth={true}
+                        name="toggleFolder"
+                        value="ajxp_folder"
+                        label={getMessage(502)}
+                        labelStyle={{fontSize:16, color:'rgba(0,0,0,.4)'}}
+                        toggled={this.state.folder}
+                        onToggle={(e, toggled) => this.setState({folder: toggled})}
+                    />
+                </div>
                 {!this.state.folder &&
-                    <TextField
+                    <ModernTextField
                         style={inputStyle}
                         className="mui-text-field"
                         hintText={getMessage(500)}
@@ -72,5 +79,5 @@ class SearchFileFormatPanel extends Component {
     }
 }
 
-SearchFileFormatPanel = PydioContextConsumer(SearchFileFormatPanel)
+SearchFileFormatPanel = PydioContextConsumer(SearchFileFormatPanel);
 export default SearchFileFormatPanel

@@ -35,6 +35,7 @@ import * as actions from './editor/actions';
 import withVerticalScroll from './scrollbar/withVerticalScroll';
 import dropProvider from './drop/dropProvider'
 import NativeFileDropProvider from './drop/NativeFileDropProvider'
+import * as Modern from './material/ModernComponents'
 
 const PydioHOCs = {
     EditorActions: actions,
@@ -61,13 +62,14 @@ const PydioHOCs = {
     withSelectionControls,
     withSelection,
     withVerticalScroll,
+    ...Modern,
     dropProvider,
     NativeFileDropProvider,
     ...Animations,
     PaletteModifier,
     URLProvider,
     SizeProviders,
-    ...controls
+    ...controls,
 };
 
 export {PydioHOCs as default}

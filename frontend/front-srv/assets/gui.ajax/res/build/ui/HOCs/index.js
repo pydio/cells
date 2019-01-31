@@ -84,6 +84,10 @@ var _dropNativeFileDropProvider = require('./drop/NativeFileDropProvider');
 
 var _dropNativeFileDropProvider2 = _interopRequireDefault(_dropNativeFileDropProvider);
 
+var _materialModernComponents = require('./material/ModernComponents');
+
+var Modern = _interopRequireWildcard(_materialModernComponents);
+
 var PydioHOCs = _extends({
     EditorActions: actions,
     EditorReducers: _editorReducersIndex2['default'],
@@ -108,7 +112,8 @@ var PydioHOCs = _extends({
     withAutoPlayControls: _selectionIndex.withAutoPlayControls,
     withSelectionControls: _selectionIndex.withSelectionControls,
     withSelection: _selectionIndex.withSelection,
-    withVerticalScroll: _scrollbarWithVerticalScroll2['default'],
+    withVerticalScroll: _scrollbarWithVerticalScroll2['default']
+}, Modern, {
     dropProvider: _dropDropProvider2['default'],
     NativeFileDropProvider: _dropNativeFileDropProvider2['default']
 }, Animations, {

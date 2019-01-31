@@ -24,8 +24,6 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -34,11 +32,20 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
-var _require$requireLib = require('pydio').requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
-var PydioContextConsumer = _require$requireLib.PydioContextConsumer;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
+
+var PydioContextConsumer = _Pydio$requireLib2.PydioContextConsumer;
 
 var SearchFileSizePanel = (function (_React$Component) {
     _inherits(SearchFileSizePanel, _React$Component);
@@ -50,15 +57,25 @@ var SearchFileSizePanel = (function (_React$Component) {
 
         this.state = {
             from: false,
-            to: null
+            to: null,
+            fromUnit: 'k',
+            toUnit: 'k'
         };
     }
 
-    SearchFileSizePanel.prototype.onChange = function onChange() {
-        this.setState({
-            from: this.refs.from.getValue() || 0,
-            to: this.refs.to.getValue() || 1099511627776
-        });
+    SearchFileSizePanel.prototype.multiple = function multiple(v, u) {
+        switch (u) {
+            case "k":
+                return v * 1024;
+            case "M":
+                return v * 1024 * 1024;
+            case "G":
+                return v * 1024 * 1024 * 1024;
+            case "T":
+                return v * 1024 * 1024 * 1024 * 1024;
+            default:
+                return v;
+        }
     };
 
     SearchFileSizePanel.prototype.componentWillUpdate = function componentWillUpdate(nextProps, nextState) {
@@ -68,34 +85,81 @@ var SearchFileSizePanel = (function (_React$Component) {
 
         var from = nextState.from;
         var to = nextState.to;
+        var fromUnit = nextState.fromUnit;
+        var toUnit = nextState.toUnit;
 
         this.props.onChange({
-            ajxp_bytesize: from || to ? { from: from, to: to } : null
+            ajxp_bytesize: from || to ? {
+                from: this.multiple(from, fromUnit),
+                to: this.multiple(to, toUnit)
+            } : null
         });
     };
 
     SearchFileSizePanel.prototype.render = function render() {
-        var _props = this.props;
-        var inputStyle = _props.inputStyle;
-        var getMessage = _props.getMessage;
+        var _this = this;
 
-        var props = _objectWithoutProperties(_props, ['inputStyle', 'getMessage']);
+        var sizeUnit = _pydio2['default'].getMessages()['byte_unit_symbol'] || 'B';
+        var getMessage = this.props.getMessage;
 
+        var blockStyle = { display: 'flex', margin: '0 16px' };
         return _react2['default'].createElement(
             'div',
             null,
-            _react2['default'].createElement(_materialUi.TextField, {
-                ref: 'from',
-                style: inputStyle,
-                hintText: getMessage(613),
-                onChange: this.onChange.bind(this)
-            }),
-            _react2['default'].createElement(_materialUi.TextField, {
-                ref: 'to',
-                style: inputStyle,
-                hintText: getMessage(614),
-                onChange: this.onChange.bind(this)
-            })
+            _react2['default'].createElement(
+                'div',
+                { style: blockStyle },
+                _react2['default'].createElement(ModernTextField, {
+                    style: { flex: 2, marginRight: 4 },
+                    type: "number",
+                    hintText: getMessage(613),
+                    onChange: function (e, v) {
+                        _this.setState({ from: v || 0 });
+                    }
+                }),
+                _react2['default'].createElement(
+                    ModernSelectField,
+                    {
+                        value: this.state.fromUnit,
+                        onChange: function (e, i, v) {
+                            _this.setState({ fromUnit: v });
+                        },
+                        style: { marginLeft: 4, flex: 1 }
+                    },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: sizeUnit }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'k', primaryText: 'K' + sizeUnit }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'M', primaryText: 'M' + sizeUnit }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'G', primaryText: 'G' + sizeUnit }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'T', primaryText: 'T' + sizeUnit })
+                )
+            ),
+            _react2['default'].createElement(
+                'div',
+                { style: blockStyle },
+                _react2['default'].createElement(ModernTextField, {
+                    style: { flex: 2, marginRight: 4 },
+                    type: "number",
+                    hintText: getMessage(614),
+                    onChange: function (e, v) {
+                        _this.setState({ to: v || 109951162 });
+                    }
+                }),
+                _react2['default'].createElement(
+                    ModernSelectField,
+                    {
+                        style: { marginLeft: 4, flex: 1 },
+                        value: this.state.toUnit,
+                        onChange: function (e, i, v) {
+                            _this.setState({ toUnit: v });
+                        }
+                    },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: sizeUnit }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'k', primaryText: 'K' + sizeUnit }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'M', primaryText: 'M' + sizeUnit }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'G', primaryText: 'G' + sizeUnit }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'T', primaryText: 'T' + sizeUnit })
+                )
+            )
         );
     };
 

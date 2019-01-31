@@ -1349,7 +1349,6 @@ div#multiple_download_container div div a:hover {
 .react-mui-context .top_search_form.advanced .search-advanced .advanced-search-stars {
   display: -ms-flexbox;
   display: flex;
-  margin: 16px 0 5px !important;
 }
 .react-mui-context .top_search_form.advanced .search-advanced .advanced-search-stars .stars-label {
   padding: 0 15px !important;

@@ -22,7 +22,9 @@
 import MetaClient from './MetaClient'
 import React from 'react'
 import Color from 'color'
-import {MenuItem, SelectField, Chip, AutoComplete, TextField, Checkbox, FlatButton} from 'material-ui'
+import {MenuItem, Chip, AutoComplete, TextField, Checkbox, FlatButton} from 'material-ui'
+import Pydio from 'pydio'
+const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 const colorsCache = {};
 
@@ -216,7 +218,7 @@ let MetaFieldRendererMixin = {
 
 };
 
-const starsStyle = { fontSize: 20, color: '#FBC02D' };
+const starsStyle = { fontSize: 20, color: '#FBC02D', marginTop:6, marginBottom: 6};
 
 let StarsFormPanel = React.createClass({
 
@@ -234,7 +236,7 @@ let StarsFormPanel = React.createClass({
             return <span key={"star-" + v} onClick={this.updateValue.bind(this, v+1)} className={"mdi mdi-" + ic} style={style}></span>;
         }.bind(this));
         return (
-            <div className="advanced-search-stars" style={starsStyle}>
+            <div className="advanced-search-stars" style={{...ModernStyles.div, ...starsStyle}}>
                 <div>{stars}</div>
             </div>
         );
@@ -332,10 +334,11 @@ let MetaSelectorFormPanel = React.createClass({
         menuItems.unshift(<MenuItem value={''} primaryText=""/>);
         return (
             <div>
-                <SelectField
+                <ModernSelectField
                     style={{width:'100%'}}
                     value={this.state.value}
-                    onChange={this.changeSelector}>{menuItems}</SelectField>
+                    hintText={this.props.label}
+                    onChange={this.changeSelector}>{menuItems}</ModernSelectField>
             </div>
         );
     }
@@ -467,19 +470,20 @@ let TagsCloud = React.createClass({
             tags = <div></div>
         }
         let autoCompleter;
-        let textField;
         if (this.props.editMode) {
             autoCompleter = <AutoComplete
-                                fullWidth={true}
-                                hintText={pydio.MessageHash['meta.user.10']}
-                                searchText={this.state.searchText}
-                                onUpdateInput={this.handleUpdateInput}
-                                onNewRequest={this.handleNewRequest}
-                                dataSource={this.state.dataSource}
-                                filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
-                                openOnFocus={true}
-                                menuProps={{maxHeight: 200}}
-                            />
+                fullWidth={true}
+                hintText={pydio.MessageHash['meta.user.10']}
+                searchText={this.state.searchText}
+                onUpdateInput={this.handleUpdateInput}
+                onNewRequest={this.handleNewRequest}
+                dataSource={this.state.dataSource}
+                filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
+                openOnFocus={true}
+                menuProps={{maxHeight: 200}}
+                style={{marginBottom: -8}}
+                {...ModernStyles.textField}
+            />
         } else {
             autoCompleter = <div></div>
 
@@ -624,10 +628,11 @@ class UserMetaPanel extends React.Component{
                     field = Renderer.formPanelTags(baseProps, configs);
                 }else{
                     field = (
-                        <TextField
+                        <ModernTextField
                             value={value}
                             fullWidth={true}
                             disabled={readonly}
+                            hintText={label}
                             onChange={(event, value)=>{this.updateValue(key, value);}}
                         />
                     );

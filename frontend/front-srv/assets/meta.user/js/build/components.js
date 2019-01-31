@@ -52,6 +52,16 @@ var _color2 = _interopRequireDefault(_color);
 
 var _materialUi = require('material-ui');
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+
 var colorsCache = {};
 
 function colorsFromString(s) {
@@ -287,7 +297,7 @@ var MetaFieldRendererMixin = {
 
 };
 
-var starsStyle = { fontSize: 20, color: '#FBC02D' };
+var starsStyle = { fontSize: 20, color: '#FBC02D', marginTop: 6, marginBottom: 6 };
 
 var StarsFormPanel = _react2['default'].createClass({
     displayName: 'StarsFormPanel',
@@ -307,7 +317,7 @@ var StarsFormPanel = _react2['default'].createClass({
         }).bind(this));
         return _react2['default'].createElement(
             'div',
-            { className: 'advanced-search-stars', style: starsStyle },
+            { className: 'advanced-search-stars', style: _extends({}, ModernStyles.div, starsStyle) },
             _react2['default'].createElement(
                 'div',
                 null,
@@ -436,10 +446,11 @@ var MetaSelectorFormPanel = _react2['default'].createClass({
             'div',
             null,
             _react2['default'].createElement(
-                _materialUi.SelectField,
+                ModernSelectField,
                 {
                     style: { width: '100%' },
                     value: this.state.value,
+                    hintText: this.props.label,
                     onChange: this.changeSelector },
                 menuItems
             )
@@ -603,9 +614,8 @@ var TagsCloud = _react2['default'].createClass({
             tags = _react2['default'].createElement('div', null);
         }
         var autoCompleter = undefined;
-        var textField = undefined;
         if (this.props.editMode) {
-            autoCompleter = _react2['default'].createElement(_materialUi.AutoComplete, {
+            autoCompleter = _react2['default'].createElement(_materialUi.AutoComplete, _extends({
                 fullWidth: true,
                 hintText: pydio.MessageHash['meta.user.10'],
                 searchText: this.state.searchText,
@@ -616,8 +626,9 @@ var TagsCloud = _react2['default'].createClass({
                     return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
                 },
                 openOnFocus: true,
-                menuProps: { maxHeight: 200 }
-            });
+                menuProps: { maxHeight: 200 },
+                style: { marginBottom: -8 }
+            }, ModernStyles.textField));
         } else {
             autoCompleter = _react2['default'].createElement('div', null);
         }
@@ -785,10 +796,11 @@ var UserMetaPanel = (function (_React$Component) {
                     } else if (type === 'tags') {
                         field = Renderer.formPanelTags(baseProps, configs);
                     } else {
-                        field = _react2['default'].createElement(_materialUi.TextField, {
+                        field = _react2['default'].createElement(ModernTextField, {
                             value: value,
                             fullWidth: true,
                             disabled: readonly,
+                            hintText: label,
                             onChange: function (event, value) {
                                 _this9.updateValue(key, value);
                             }

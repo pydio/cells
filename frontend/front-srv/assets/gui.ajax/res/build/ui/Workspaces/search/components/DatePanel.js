@@ -36,11 +36,20 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
-var _require$requireLib = require('pydio').requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
-var PydioContextConsumer = _require$requireLib.PydioContextConsumer;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
+
+var PydioContextConsumer = _Pydio$requireLib2.PydioContextConsumer;
 
 var SearchDatePanel = (function (_React$Component) {
     _inherits(SearchDatePanel, _React$Component);
@@ -49,31 +58,25 @@ var SearchDatePanel = (function (_React$Component) {
         key: 'styles',
         get: function get() {
             return {
-                dropdownLabel: {
-                    padding: 0
-                },
-                dropdownUnderline: {
-                    marginLeft: 0,
-                    marginRight: 0
-                },
-                dropdownIcon: {
-                    right: 0
-                },
                 datePickerGroup: {
                     display: "flex",
                     justifyContent: "space-between"
                 },
                 datePicker: {
-                    flex: 1
+                    flex: 1,
+                    position: "relative"
                 },
                 dateInput: {
                     width: "auto",
                     flex: 1
                 },
                 dateClose: {
-                    lineHeight: "48px",
+                    position: "absolute",
+                    lineHeight: "50px",
                     right: 5,
-                    position: "relative"
+                    top: 0,
+                    cursor: 'pointer',
+                    color: 'rgba(0,0,0,0.5)'
                 }
             };
         }
@@ -85,7 +88,7 @@ var SearchDatePanel = (function (_React$Component) {
         _React$Component.call(this, props);
 
         this.state = {
-            value: 'custom',
+            value: '',
             startDate: null,
             endDate: null
         };
@@ -98,7 +101,7 @@ var SearchDatePanel = (function (_React$Component) {
             var startDate = _state.startDate;
             var endDate = _state.endDate;
 
-            if (value === 'custom' && !startDate && !endDate) {
+            if (!value) {
                 this.props.onChange({ ajxp_modiftime: null });
             }
             var startDay = function startDay(date) {
@@ -174,12 +177,8 @@ var SearchDatePanel = (function (_React$Component) {
         var today = new Date();
 
         var _SearchDatePanel$styles = SearchDatePanel.styles;
-        var dropdownLabel = _SearchDatePanel$styles.dropdownLabel;
-        var dropdownUnderline = _SearchDatePanel$styles.dropdownUnderline;
-        var dropdownIcon = _SearchDatePanel$styles.dropdownIcon;
         var datePickerGroup = _SearchDatePanel$styles.datePickerGroup;
         var datePicker = _SearchDatePanel$styles.datePicker;
-        var dateInput = _SearchDatePanel$styles.dateInput;
         var dateClose = _SearchDatePanel$styles.dateClose;
         var _props = this.props;
         var inputStyle = _props.inputStyle;
@@ -193,54 +192,68 @@ var SearchDatePanel = (function (_React$Component) {
             'div',
             null,
             _react2['default'].createElement(
-                DatePickerFeed,
-                { pydio: this.props.pydio },
-                function (items) {
-                    return _react2['default'].createElement(
-                        _materialUi.DropDownMenu,
-                        { autoWidth: false, labelStyle: dropdownLabel, underlineStyle: dropdownUnderline, iconStyle: dropdownIcon, style: inputStyle, value: value, onChange: function (e, index, value) {
-                                return _this.setState({ value: value });
-                            } },
-                        items.map(function (item) {
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: item.payload, label: item.text, primaryText: item.text });
-                        })
-                    );
-                }
+                'div',
+                { style: { margin: '0 16px' } },
+                _react2['default'].createElement(
+                    DatePickerFeed,
+                    { pydio: this.props.pydio },
+                    function (items) {
+                        return _react2['default'].createElement(
+                            ModernSelectField,
+                            {
+                                hintText: getMessage(490),
+                                value: value,
+                                fullWidth: true,
+                                onChange: function (e, index, value) {
+                                    return _this.setState({ value: value });
+                                } },
+                            items.map(function (item) {
+                                return _react2['default'].createElement(_materialUi.MenuItem, { value: item.payload, label: item.text, primaryText: item.text });
+                            })
+                        );
+                    }
+                )
             ),
             value === 'custom' && _react2['default'].createElement(
                 'div',
                 { style: _extends({}, datePickerGroup, inputStyle) },
-                _react2['default'].createElement(_materialUi.DatePicker, {
-                    textFieldStyle: dateInput,
-                    style: datePicker,
-                    value: startDate,
-                    onChange: function (e, date) {
-                        return _this.setState({ startDate: date });
-                    },
-                    hintText: getMessage(491),
-                    autoOk: true,
-                    maxDate: endDate || today,
-                    defaultDate: startDate
-                }),
-                _react2['default'].createElement('span', { className: 'mdi mdi-close', style: dateClose, onClick: function () {
-                        return _this.setState({ startDate: null });
-                    } }),
-                _react2['default'].createElement(_materialUi.DatePicker, {
-                    textFieldStyle: dateInput,
-                    style: datePicker,
-                    value: endDate,
-                    onChange: function (e, date) {
-                        return _this.setState({ endDate: date });
-                    },
-                    hintText: getMessage(492),
-                    autoOk: true,
-                    minDate: startDate,
-                    maxDate: today,
-                    defaultDate: endDate
-                }),
-                _react2['default'].createElement('span', { className: 'mdi mdi-close', style: dateClose, onClick: function () {
-                        return _this.setState({ endDate: null });
-                    } })
+                _react2['default'].createElement(
+                    'div',
+                    { style: _extends({}, datePicker, { marginRight: 2 }) },
+                    _react2['default'].createElement(_materialUi.DatePicker, _extends({}, ModernStyles.textField, {
+                        fullWidth: true,
+                        value: startDate,
+                        onChange: function (e, date) {
+                            return _this.setState({ startDate: date });
+                        },
+                        hintText: getMessage(491),
+                        autoOk: true,
+                        maxDate: endDate || today,
+                        defaultDate: startDate
+                    })),
+                    _react2['default'].createElement('span', { className: 'mdi mdi-close', style: dateClose, onClick: function () {
+                            return _this.setState({ startDate: null });
+                        } })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _extends({}, datePicker, { marginLeft: 2 }) },
+                    _react2['default'].createElement(_materialUi.DatePicker, _extends({}, ModernStyles.textField, {
+                        fullWidth: true,
+                        value: endDate,
+                        onChange: function (e, date) {
+                            return _this.setState({ endDate: date });
+                        },
+                        hintText: getMessage(492),
+                        autoOk: true,
+                        minDate: startDate,
+                        maxDate: today,
+                        defaultDate: endDate
+                    })),
+                    _react2['default'].createElement('span', { className: 'mdi mdi-close', style: dateClose, onClick: function () {
+                            return _this.setState({ endDate: null });
+                        } })
+                )
             )
         );
     };
@@ -253,7 +266,7 @@ var DatePickerFeed = function DatePickerFeed(_ref) {
     var getMessage = _ref.getMessage;
     var children = _ref.children;
 
-    var items = [{ payload: 'custom', text: getMessage('612') }, { payload: 'PYDIO_SEARCH_RANGE_TODAY', text: getMessage('493') }, { payload: 'PYDIO_SEARCH_RANGE_YESTERDAY', text: getMessage('494') }, { payload: 'PYDIO_SEARCH_RANGE_LAST_WEEK', text: getMessage('495') }, { payload: 'PYDIO_SEARCH_RANGE_LAST_MONTH', text: getMessage('496') }, { payload: 'PYDIO_SEARCH_RANGE_LAST_YEAR', text: getMessage('497') }];
+    var items = [{ payload: '', text: '' }, { payload: 'custom', text: getMessage('612') }, { payload: 'PYDIO_SEARCH_RANGE_TODAY', text: getMessage('493') }, { payload: 'PYDIO_SEARCH_RANGE_YESTERDAY', text: getMessage('494') }, { payload: 'PYDIO_SEARCH_RANGE_LAST_WEEK', text: getMessage('495') }, { payload: 'PYDIO_SEARCH_RANGE_LAST_MONTH', text: getMessage('496') }, { payload: 'PYDIO_SEARCH_RANGE_LAST_YEAR', text: getMessage('497') }];
 
     return children(items);
 };

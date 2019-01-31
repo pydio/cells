@@ -19,14 +19,17 @@
  */
 
 import React, {Component} from 'react';
-import _ from 'lodash';
 
-import {Subheader, TextField, CardTitle} from 'material-ui';
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
+import XMLUtils from 'pydio/util/xml';
+import {Subheader} from 'material-ui';
+import Pydio from 'pydio'
+const {PydioContextConsumer} = Pydio.requireLib('boot');
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 import DatePanel from './DatePanel';
 import FileFormatPanel from './FileFormatPanel';
 import FileSizePanel from './FileSizePanel';
+import {debounce} from 'lodash';
 
 class AdvancedSearch extends Component {
 
@@ -40,30 +43,29 @@ class AdvancedSearch extends Component {
     }
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
-            value: props.values['basename'] || ''
+            basename: props.values['basename'] || ''
         };
     }
 
+    textFieldChange(fieldName, value){
+        this.setState({[fieldName]:value});
+        this.props.onChange({[fieldName]:value});
+    }
+
     onChange(values) {
-        if (values.hasOwnProperty('basename')) {
-            this.setState({
-                value: values.basename
-            })
-        }
         this.props.onChange(values)
     }
 
     renderField(key, val) {
 
-        const {text} = AdvancedSearch.styles
-
-        const fieldname = (key === 'basename') ? key : 'ajxp_meta_' + key
-        const value = this.props.values[fieldname];
+        const {text} = AdvancedSearch.styles;
+        const fieldname = (key === 'basename') ? key : 'ajxp_meta_' + key;
 
         if (typeof val === 'object') {
+            const value = this.props.values[fieldname];
             const {label, renderComponent} = val;
 
             // The field might have been assigned a method already
@@ -74,33 +76,29 @@ class AdvancedSearch extends Component {
                     value,
                     fieldname:key,
                     onChange: (object)=>{this.onChange(object)}
-                })
+                });
                 return (
-                    <div style={{margin:'0 16px'}}>
-                        <div style={{color: 'rgba(0,0,0,0.33)', fontSize: 12, marginBottom: -10, marginTop: 10}}>{label}</div>
-                        {component}
-                    </div>
+                    <div style={{margin:'0 16px'}}>{component}</div>
                 );
             }
         }
 
         return (
-            <TextField
+            <ModernTextField
                 key={fieldname}
-                value={this.state.value || ''}
+                value={this.state[fieldname] || ''}
                 style={text}
-                className="mui-text-field"
                 hintText={val}
-                onChange={(e,v) => {this.onChange({[fieldname]:v})}}
+                onChange={(e,v) => {this.textFieldChange(fieldname, v)}}
             />
         );
     }
 
     render() {
 
-        const {text} = AdvancedSearch.styles
+        const {text} = AdvancedSearch.styles;
 
-        const {pydio, onChange, getMessage, values} = this.props
+        const {pydio, getMessage, values} = this.props;
         const headerStyle = {fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10};
 
         return (
@@ -114,13 +112,9 @@ class AdvancedSearch extends Component {
                     }
                 </AdvancedMetaFields>
 
-                <Subheader style={headerStyle}>{getMessage(490)}</Subheader>
+                <Subheader style={{...headerStyle}}>{getMessage(498)}</Subheader>
                 <DatePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
-
-                <Subheader style={{...headerStyle, marginBottom: 10}}>{getMessage(498)}</Subheader>
                 <FileFormatPanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
-
-                <Subheader style={headerStyle}>{getMessage(503)}</Subheader>
                 <FileSizePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
             </div>
         )
@@ -132,16 +126,16 @@ AdvancedSearch = PydioContextConsumer(AdvancedSearch);
 class AdvancedMetaFields extends Component {
 
     constructor(props) {
-        super(props)
+        super(props);
 
-        const {pydio} = props
+        const {pydio} = props;
 
-        const registry = pydio.getXmlRegistry()
+        const registry = pydio.getXmlRegistry();
 
         // Parse client configs
         let options = JSON.parse(XMLUtils.XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
 
-        this.build = _.debounce(this.build, 500)
+        this.build = debounce(this.build, 500);
 
         this.state = {
             options,
@@ -155,8 +149,8 @@ class AdvancedMetaFields extends Component {
 
     build() {
 
-        const {options} = this.state
-        let {metaColumns, reactColumnsRenderers} = {...options}
+        const {options} = this.state;
+        let {metaColumns, reactColumnsRenderers} = {...options};
         if(!metaColumns){
             metaColumns = {};
         }
@@ -164,11 +158,11 @@ class AdvancedMetaFields extends Component {
             reactColumnsRenderers = {};
         }
 
-        const generic = {basename: this.props.getMessage(1)}
+        const generic = {basename: this.props.getMessage(1)};
 
         // Looping through the options to check if we have a special renderer for any
-        const specialRendererKeys = Object.keys({...reactColumnsRenderers})
-        const standardRendererKeys = Object.keys({...metaColumns}).filter((key) => specialRendererKeys.indexOf(key) === -1)
+        const specialRendererKeys = Object.keys({...reactColumnsRenderers});
+        const standardRendererKeys = Object.keys({...metaColumns}).filter((key) => specialRendererKeys.indexOf(key) === -1);
 
         const textFields = {};
         standardRendererKeys.forEach(k => {
@@ -176,8 +170,8 @@ class AdvancedMetaFields extends Component {
         });
 
         const renderers = Object.keys({...reactColumnsRenderers}).map((key) => {
-            const renderer = reactColumnsRenderers[key]
-            const namespace = renderer.split('.',1).shift()
+            const renderer = reactColumnsRenderers[key];
+            const namespace = renderer.split('.',1).shift();
 
             // If the renderer is not loaded in memory, we trigger the load and send to rebuild
             if (!window[namespace]) {
@@ -191,7 +185,7 @@ class AdvancedMetaFields extends Component {
                     renderComponent: FuncUtils.getFunctionByName(renderer, global)
                 }
             }
-        }).reduce((obj, current) => obj = {...obj, ...current}, [])
+        }).reduce((obj, current) => obj = {...obj, ...current}, []);
 
         const fields = {
             ...generic,

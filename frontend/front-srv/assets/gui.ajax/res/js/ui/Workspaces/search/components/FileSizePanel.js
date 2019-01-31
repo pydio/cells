@@ -19,9 +19,10 @@
  */
 
 import React from 'react';
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
-
-import {TextField} from 'material-ui';
+import Pydio from 'pydio';
+const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
+const {PydioContextConsumer} = Pydio.requireLib('boot');
+import {MenuItem} from 'material-ui'
 
 class SearchFileSizePanel extends React.Component {
 
@@ -30,15 +31,25 @@ class SearchFileSizePanel extends React.Component {
 
         this.state = {
             from:false,
-            to: null
+            to: null,
+            fromUnit: 'k',
+            toUnit: 'k'
         }
     }
 
-    onChange() {
-        this.setState({
-            from: this.refs.from.getValue() || 0,
-            to: this.refs.to.getValue() || 1099511627776
-        })
+    multiple(v, u){
+        switch(u){
+            case "k":
+                return v * 1024;
+            case "M":
+                return v * 1024 * 1024;
+            case "G":
+                return v * 1024 * 1024 * 1024;
+            case "T":
+                return v * 1024 * 1024 * 1024 * 1024;
+            default:
+                return v
+        }
     }
 
     componentWillUpdate(nextProps, nextState) {
@@ -46,35 +57,68 @@ class SearchFileSizePanel extends React.Component {
             return;
         }
 
-        const {from, to} = nextState;
+        const {from, to, fromUnit, toUnit} = nextState;
 
         this.props.onChange({
-            ajxp_bytesize: (from || to) ? {from,to} : null
+            ajxp_bytesize: (from || to) ? {
+                from:this.multiple(from, fromUnit),
+                to: this.multiple(to, toUnit)
+            } : null
         })
     }
 
     render() {
-
-        const {inputStyle, getMessage, ...props} = this.props;
-
+        const sizeUnit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
+        const {getMessage} = this.props;
+        const blockStyle={display:'flex', margin:'0 16px'};
         return (
             <div>
-                <TextField
-                    ref="from"
-                    style={inputStyle}
-                    hintText={getMessage(613)}
-                    onChange={this.onChange.bind(this)}
-                />
-                <TextField
-                    ref="to"
-                    style={inputStyle}
-                    hintText={getMessage(614)}
-                    onChange={this.onChange.bind(this)}
-                />
+                <div style={blockStyle}>
+                    <ModernTextField
+                        style={{flex: 2, marginRight: 4}}
+                        type={"number"}
+                        hintText={getMessage(613)}
+                        onChange={(e,v) => {
+                            this.setState({from:v || 0})
+                        }}
+                    />
+                    <ModernSelectField
+                        value={this.state.fromUnit}
+                        onChange={(e,i,v) => {this.setState({fromUnit: v})}}
+                        style={{marginLeft: 4, flex: 1}}
+                    >
+                        <MenuItem value={''} primaryText={sizeUnit}/>
+                        <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
+                        <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
+                        <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
+                        <MenuItem value={'T'} primaryText={'T' + sizeUnit}/>
+                    </ModernSelectField>
+                </div>
+                <div style={blockStyle}>
+                    <ModernTextField
+                        style={{flex: 2, marginRight: 4}}
+                        type={"number"}
+                        hintText={getMessage(614)}
+                        onChange={(e,v) => {
+                            this.setState({to:v || 109951162})
+                        }}
+                    />
+                    <ModernSelectField
+                        style={{marginLeft: 4, flex: 1}}
+                        value={this.state.toUnit}
+                        onChange={(e,i,v) => {this.setState({toUnit: v})}}
+                    >
+                        <MenuItem value={''} primaryText={sizeUnit}/>
+                        <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
+                        <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
+                        <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
+                        <MenuItem value={'T'} primaryText={'T' + sizeUnit}/>
+                    </ModernSelectField>
+                </div>
             </div>
         );
     }
 }
 
-SearchFileSizePanel = PydioContextConsumer(SearchFileSizePanel)
+SearchFileSizePanel = PydioContextConsumer(SearchFileSizePanel);
 export default SearchFileSizePanel

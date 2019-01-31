@@ -36,11 +36,15 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _lodash = require('lodash');
+var _pydioUtilXml = require('pydio/util/xml');
 
-var _lodash2 = _interopRequireDefault(_lodash);
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
 
 var _materialUi = require('material-ui');
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _DatePanel = require('./DatePanel');
 
@@ -54,9 +58,15 @@ var _FileSizePanel = require('./FileSizePanel');
 
 var _FileSizePanel2 = _interopRequireDefault(_FileSizePanel);
 
-var _require$requireLib = require('pydio').requireLib('boot');
+var _lodash = require('lodash');
 
-var PydioContextConsumer = _require$requireLib.PydioContextConsumer;
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+
+var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
 
 var AdvancedSearch = (function (_Component) {
     _inherits(AdvancedSearch, _Component);
@@ -79,16 +89,18 @@ var AdvancedSearch = (function (_Component) {
         _Component.call(this, props);
 
         this.state = {
-            value: props.values['basename'] || ''
+            basename: props.values['basename'] || ''
         };
     }
 
+    AdvancedSearch.prototype.textFieldChange = function textFieldChange(fieldName, value) {
+        var _setState, _props$onChange;
+
+        this.setState((_setState = {}, _setState[fieldName] = value, _setState));
+        this.props.onChange((_props$onChange = {}, _props$onChange[fieldName] = value, _props$onChange));
+    };
+
     AdvancedSearch.prototype.onChange = function onChange(values) {
-        if (values.hasOwnProperty('basename')) {
-            this.setState({
-                value: values.basename
-            });
-        }
         this.props.onChange(values);
     };
 
@@ -98,9 +110,9 @@ var AdvancedSearch = (function (_Component) {
         var text = AdvancedSearch.styles.text;
 
         var fieldname = key === 'basename' ? key : 'ajxp_meta_' + key;
-        var value = this.props.values[fieldname];
 
         if (typeof val === 'object') {
+            var value = this.props.values[fieldname];
             var label = val.label;
             var renderComponent = val.renderComponent;
 
@@ -117,26 +129,18 @@ var AdvancedSearch = (function (_Component) {
                 return _react2['default'].createElement(
                     'div',
                     { style: { margin: '0 16px' } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { color: 'rgba(0,0,0,0.33)', fontSize: 12, marginBottom: -10, marginTop: 10 } },
-                        label
-                    ),
                     component
                 );
             }
         }
 
-        return _react2['default'].createElement(_materialUi.TextField, {
+        return _react2['default'].createElement(ModernTextField, {
             key: fieldname,
-            value: this.state.value || '',
+            value: this.state[fieldname] || '',
             style: text,
-            className: 'mui-text-field',
             hintText: val,
             onChange: function (e, v) {
-                var _onChange;
-
-                _this.onChange((_onChange = {}, _onChange[fieldname] = v, _onChange));
+                _this.textFieldChange(fieldname, v);
             }
         });
     };
@@ -147,7 +151,6 @@ var AdvancedSearch = (function (_Component) {
         var text = AdvancedSearch.styles.text;
         var _props = this.props;
         var pydio = _props.pydio;
-        var onChange = _props.onChange;
         var getMessage = _props.getMessage;
         var values = _props.values;
 
@@ -176,25 +179,15 @@ var AdvancedSearch = (function (_Component) {
             ),
             _react2['default'].createElement(
                 _materialUi.Subheader,
-                { style: headerStyle },
-                getMessage(490)
+                { style: _extends({}, headerStyle) },
+                getMessage(498)
             ),
             _react2['default'].createElement(_DatePanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
                     return _this2.onChange(values);
                 } }),
-            _react2['default'].createElement(
-                _materialUi.Subheader,
-                { style: _extends({}, headerStyle, { marginBottom: 10 }) },
-                getMessage(498)
-            ),
             _react2['default'].createElement(_FileFormatPanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
                     return _this2.onChange(values);
                 } }),
-            _react2['default'].createElement(
-                _materialUi.Subheader,
-                { style: headerStyle },
-                getMessage(503)
-            ),
             _react2['default'].createElement(_FileSizePanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
                     return _this2.onChange(values);
                 } })
@@ -219,9 +212,9 @@ var AdvancedMetaFields = (function (_Component2) {
         var registry = pydio.getXmlRegistry();
 
         // Parse client configs
-        var options = JSON.parse(XMLUtils.XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
+        var options = JSON.parse(_pydioUtilXml2['default'].XPathGetSingleNodeText(registry, 'client_configs/template_part[@ajxpClass="SearchEngine" and @theme="material"]/@ajxpOptions'));
 
-        this.build = _lodash2['default'].debounce(this.build, 500);
+        this.build = _lodash.debounce(this.build, 500);
 
         this.state = {
             options: options,

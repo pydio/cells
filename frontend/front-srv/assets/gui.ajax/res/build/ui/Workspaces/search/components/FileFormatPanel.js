@@ -22,9 +22,9 @@
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -34,11 +34,20 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
-var _require$requireLib = require('pydio').requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
-var PydioContextConsumer = _require$requireLib.PydioContextConsumer;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
+
+var PydioContextConsumer = _Pydio$requireLib2.PydioContextConsumer;
 
 var SearchFileFormatPanel = (function (_Component) {
     _inherits(SearchFileFormatPanel, _Component);
@@ -55,7 +64,9 @@ var SearchFileFormatPanel = (function (_Component) {
     }
 
     SearchFileFormatPanel.prototype.componentDidUpdate = function componentDidUpdate(prevProps, prevState) {
-        if (prevState === this.state) return;
+        if (prevState === this.state) {
+            return;
+        }
 
         var _state = this.state;
         var folder = _state.folder;
@@ -73,22 +84,25 @@ var SearchFileFormatPanel = (function (_Component) {
         var inputStyle = _props.inputStyle;
         var getMessage = _props.getMessage;
 
-        var props = _objectWithoutProperties(_props, ['inputStyle', 'getMessage']);
-
         return _react2['default'].createElement(
             'div',
             null,
-            _react2['default'].createElement(_materialUi.Toggle, {
-                style: inputStyle,
-                name: 'toggleFolder',
-                value: 'ajxp_folder',
-                label: getMessage(502),
-                toggled: this.state.folder,
-                onToggle: function (e, toggled) {
-                    return _this.setState({ folder: toggled });
-                }
-            }),
-            !this.state.folder && _react2['default'].createElement(_materialUi.TextField, {
+            _react2['default'].createElement(
+                'div',
+                { style: _extends({}, ModernStyles.div, { margin: '6px 16px', padding: 6, paddingRight: 6 }) },
+                _react2['default'].createElement(_materialUi.Toggle, {
+                    fullWidth: true,
+                    name: 'toggleFolder',
+                    value: 'ajxp_folder',
+                    label: getMessage(502),
+                    labelStyle: { fontSize: 16, color: 'rgba(0,0,0,.4)' },
+                    toggled: this.state.folder,
+                    onToggle: function (e, toggled) {
+                        return _this.setState({ folder: toggled });
+                    }
+                })
+            ),
+            !this.state.folder && _react2['default'].createElement(ModernTextField, {
                 style: inputStyle,
                 className: 'mui-text-field',
                 hintText: getMessage(500),
