@@ -152,7 +152,7 @@ func TestMakeIndexableNode(t *testing.T) {
 		So(indexNode.NodeType, ShouldEqual, "file")
 		So(indexNode.ModifTime, ShouldResemble, mtimeNoNano)
 		So(indexNode.Basename, ShouldEqual, "node.txt")
-		So(indexNode.Extension, ShouldEqual, ".txt")
+		So(indexNode.Extension, ShouldEqual, "txt")
 		So(indexNode.Meta, ShouldResemble, map[string]interface{}{"name": "node.txt"})
 		So(indexNode.MetaStore, ShouldBeNil)
 	})
@@ -259,7 +259,7 @@ func TestSearchNode(t *testing.T) {
 		ctx := context.Background()
 
 		queryObject := &tree.Query{
-			Extension: ".txt",
+			Extension: "txt",
 		}
 
 		results, e := search(ctx, server, queryObject)
