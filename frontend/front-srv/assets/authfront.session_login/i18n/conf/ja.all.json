@@ -1,0 +1,29 @@
+{
+  "Display a standard user/password login screen": {
+    "other": "Display a standard user/password login screen"
+  },
+  "Enable/disable automatically based on the protocol used": {
+    "other": "Enable/disable automatically based on the protocol used"
+  },
+  "Order": {
+    "other": "Order"
+  },
+  "Order this plugin with other auth frontends": {
+    "other": "Order this plugin with other auth frontends"
+  },
+  "Protocol Type": {
+    "other": "Protocol Type"
+  },
+  "REST Only": {
+    "other": "REST Only"
+  },
+  "Session-based or Rest": {
+    "other": "Session-based or Rest"
+  },
+  "Sessions Only": {
+    "other": "Sessions Only"
+  },
+  "Standard login screen": {
+    "other": "Standard login screen"
+  }
+}
