@@ -19,7 +19,7 @@ files:
         es-ES: es-es
         it: it
         ja-JP: ja
-- source: '*/i18n/*/en-us.all.json'
+  - source: '*/i18n/*/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
