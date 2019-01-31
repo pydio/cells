@@ -8,7 +8,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -43,10 +43,25 @@ var WsAutoComplete = (function (_React$Component) {
         _get(Object.getPrototypeOf(WsAutoComplete.prototype), 'constructor', this).call(this, props);
         this.debounced = (0, _lodashDebounce2['default'])(this.loadValues.bind(this), 300);
         this.state = { searchText: props.value, value: props.value };
-        console.log(this.state);
     }
 
     _createClass(WsAutoComplete, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this = this;
+
+            var _state$value = this.state.value;
+            var value = _state$value === undefined ? "" : _state$value;
+
+            this.lastSearch = null;
+
+            this.loadValues(value, function () {
+                if (value != "") {
+                    _this.handleNewRequest(value);
+                }
+            });
+        }
+    }, {
         key: 'handleUpdateInput',
         value: function handleUpdateInput(searchText) {
             this.debounced();
@@ -92,21 +107,12 @@ var WsAutoComplete = (function (_React$Component) {
             this.loadValues(key);
         }
     }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.lastSearch = null;
-            var value = "";
-            if (this.props.value) {
-                value = this.props.value;
-            }
-            this.loadValues(value);
-        }
-    }, {
         key: 'loadValues',
         value: function loadValues() {
-            var _this = this;
+            var _this2 = this;
 
             var value = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+            var cb = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
             var searchText = this.state.searchText;
 
             var basePath = value;
@@ -126,9 +132,18 @@ var WsAutoComplete = (function (_React$Component) {
             listRequest.Node = treeNode;
             this.setState({ loading: true });
             api.listAdminTree(listRequest).then(function (nodesColl) {
-                _this.setState({ nodes: nodesColl.Children || [], loading: false });
+                if (!nodesColl.Children && nodesColl.Parent) {
+                    _this2.setState({ nodes: [nodesColl.Parent] || [], loading: false }, function () {
+                        return cb();
+                    });
+                }
+                _this2.setState({ nodes: nodesColl.Children || [], loading: false }, function () {
+                    return cb();
+                });
             })['catch'](function () {
-                _this.setState({ loading: false });
+                _this2.setState({ loading: false }, function () {
+                    return cb();
+                });
             });
         }
     }, {

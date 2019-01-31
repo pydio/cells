@@ -26,6 +26,7 @@ import DataSourcesBoard from './board/DataSourcesBoard'
 import MetadataBoard from './board/MetadataBoard'
 import DataSourceEditor from './editor/DataSourceEditor'
 import Workspace from './model/Ws'
+import DataSource from './model/DataSource'
 import WsAutoComplete from './editor/WsAutoComplete'
 import NodeCard from './virtual/NodeCard'
 import VirtualNode from './model/VirtualNode'
@@ -42,4 +43,5 @@ window.AdminWorkspaces = {
     TemplatePathEditor: NodeCard,
     TemplatePath:VirtualNode,
     Workspace,
+    DataSource,
 };

@@ -54,6 +54,10 @@ var _modelWs = require('./model/Ws');
 
 var _modelWs2 = _interopRequireDefault(_modelWs);
 
+var _modelDataSource = require('./model/DataSource');
+
+var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
+
 var _editorWsAutoComplete = require('./editor/WsAutoComplete');
 
 var _editorWsAutoComplete2 = _interopRequireDefault(_editorWsAutoComplete);
@@ -77,5 +81,6 @@ window.AdminWorkspaces = {
   WsAutoComplete: _editorWsAutoComplete2['default'],
   TemplatePathEditor: _virtualNodeCard2['default'],
   TemplatePath: _modelVirtualNode2['default'],
-  Workspace: _modelWs2['default']
+  Workspace: _modelWs2['default'],
+  DataSource: _modelDataSource2['default']
 };

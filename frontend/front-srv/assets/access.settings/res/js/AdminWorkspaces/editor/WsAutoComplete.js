@@ -10,7 +10,18 @@ export default class WsAutoComplete extends React.Component{
         super(props);
         this.debounced = debounce(this.loadValues.bind(this), 300);
         this.state = {searchText: props.value, value: props.value};
-        console.log(this.state);
+    }
+
+    componentDidMount(){
+        const {value = ""} = this.state
+
+        this.lastSearch = null;
+
+        this.loadValues(value, () => {
+            if (value != "") {
+                this.handleNewRequest(value)
+            }
+        });
     }
 
     handleUpdateInput(searchText) {
@@ -55,16 +66,9 @@ export default class WsAutoComplete extends React.Component{
         this.loadValues(key);
     }
 
-    componentDidMount(){
-        this.lastSearch = null;
-        let value = "";
-        if(this.props.value){
-            value = this.props.value;
-        }
-        this.loadValues(value);
-    }
 
-    loadValues(value = "") {
+
+    loadValues(value = "", cb = () => {}) {
         const {searchText} = this.state;
 
         let basePath = value;
@@ -84,9 +88,12 @@ export default class WsAutoComplete extends React.Component{
         listRequest.Node = treeNode;
         this.setState({loading: true});
         api.listAdminTree(listRequest).then(nodesColl => {
-            this.setState({nodes: nodesColl.Children || [], loading: false});
+            if (!nodesColl.Children && nodesColl.Parent) {
+                this.setState({nodes: [nodesColl.Parent] || [], loading: false}, () => cb());
+            }
+            this.setState({nodes: nodesColl.Children || [], loading: false}, () => cb());
         }).catch(() => {
-            this.setState({loading: false});
+            this.setState({loading: false}, () => cb());
         })
     }
 
@@ -188,4 +195,3 @@ export default class WsAutoComplete extends React.Component{
     }
 
 }
-
