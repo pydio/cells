@@ -26,10 +26,16 @@ class NodeCard extends React.Component{
     constructor(props){
         super(props);
         let value = props.node.getValue();
-        if(!value){
+        let dirty = false;
+        if (!value){
             value = "// Compute the Path variable that this node must resolve to. \n// Use Ctrl+Space to see the objects available for completion.\nPath = \"\";";
+        } else {
+            dirty = true
         }
-        this.state = {value: value, dirty: false};
+        this.state = {
+            value: value,
+            dirty: true
+        };
     }
 
     onChange(event, newValue){
@@ -40,10 +46,15 @@ class NodeCard extends React.Component{
     }
 
     save(){
-        let node = this.props.node;
-        node.setValue(this.state.value);
+        const {node, onSave = () => {}} = this.props;
+        const {value} = this.state;
+
+        node.setValue(value);
+
         node.save(() => {
-            this.setState({dirty: false});
+            this.setState({
+                dirty: false
+            }, onSave);
         });
     }
 
@@ -55,7 +66,8 @@ class NodeCard extends React.Component{
 
     render(){
 
-        const {dataSources, node, readonly, oneLiner} = this.props;
+        const {dataSources, node, readonly, oneLiner, onClose = () => {}} = this.props;
+
         let ds = {};
         if(dataSources){
             dataSources.map((d) => {
@@ -81,8 +93,11 @@ class NodeCard extends React.Component{
         if(oneLiner) {
             return (
                 <div style={{display:'flex'}}>
-                    <div style={{flex: 1}}>{codeMirrorField}</div>
-                    <div><IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"}/></div>
+                    <div style={{flex: 1, lineHeight: "40px"}}>{codeMirrorField}</div>
+                    <div style={{display: "flex"}}>
+                        <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"}/>
+                        <IconButton iconClassName={"mdi mdi-close"} onClick={() => onClose()} tooltip={"Close"}/>
+                    </div>
                 </div>
             );
         } else {
