@@ -32,7 +32,10 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/tree"
 )
 
 var (
@@ -145,7 +148,7 @@ func (s *BoltStore) DeleteJob(jobID string) error {
 
 }
 
-func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, taskCursor ...int32) (chan *jobs.Job, chan bool, error) {
+func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, chan bool, error) {
 
 	res := make(chan *jobs.Job)
 	done := make(chan bool)
@@ -163,6 +166,18 @@ func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 				}
 				if (owner != "" && j.Owner != owner) || (eventsOnly && len(j.EventNames) == 0) || (timersOnly && j.Schedule == nil) {
 					continue
+				}
+				if len(jobIDs) > 0 {
+					var found bool
+					for _, jID := range jobIDs {
+						if jID == j.ID {
+							found = true
+							break
+						}
+					}
+					if !found {
+						continue
+					}
 				}
 				if withTasks != jobs.TaskStatus_Unknown {
 					var offset, limit int32
@@ -197,6 +212,7 @@ func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 func (s *BoltStore) PutTask(task *jobs.Task) error {
 
 	jobId := task.JobID
+	s.stripTaskData(task)
 
 	return s.db.Update(func(tx *bolt.Tx) error {
 
@@ -277,13 +293,13 @@ func (s *BoltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, out
 	var index int32
 	var lastOnly = offset == 0 && limit == 1
 	var lastRecord *jobs.Task
-
 	c := bucket.Cursor()
 	for k, v := c.Last(); k != nil; k, v = c.Prev() {
 		task := &jobs.Task{}
 		if e := json.Unmarshal(v, task); e != nil {
 			continue
 		}
+		s.stripTaskData(task)
 		if status != jobs.TaskStatus_Any && task.Status != status {
 			continue
 		}
@@ -308,7 +324,6 @@ func (s *BoltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, out
 		}
 		index++
 	}
-
 	if lastOnly && lastRecord != nil {
 		if output != nil {
 			output <- lastRecord
@@ -320,4 +335,29 @@ func (s *BoltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, out
 
 	return sliceOutput
 
+}
+
+// stripTaskData removes unnecessary data from the task log
+// like fully loaded users, nodes, activities, etc.
+func (s *BoltStore) stripTaskData(task *jobs.Task) {
+	for _, l := range task.ActionsLogs {
+		if l.InputMessage != nil {
+			s.stripTaskMessage(l.InputMessage)
+		}
+		if l.OutputMessage != nil {
+			s.stripTaskMessage(l.OutputMessage)
+		}
+	}
+}
+
+func (s *BoltStore) stripTaskMessage(message *jobs.ActionMessage) {
+	for i, n := range message.Nodes {
+		message.Nodes[i] = &tree.Node{Uuid: n.Uuid, Path: n.Path}
+	}
+	for i, u := range message.Users {
+		message.Users[i] = &idm.User{Uuid: u.Uuid, Login: u.Login, GroupPath: u.GroupPath, GroupLabel: u.GroupLabel, IsGroup: u.IsGroup}
+	}
+	for i, a := range message.Activities {
+		message.Activities[i] = &activity.Object{Id: a.Id}
+	}
 }

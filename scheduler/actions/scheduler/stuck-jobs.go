@@ -70,7 +70,7 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 			jobs.TaskStatus_Finished,
 			jobs.TaskStatus_Interrupted,
 		},
-		PruneLimit: 1000,
+		PruneLimit: 400,
 	})
 	if e != nil {
 		return input.WithError(e), e

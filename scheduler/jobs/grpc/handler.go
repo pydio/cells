@@ -89,7 +89,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 	} else if request.CleanableJobs {
 
 		log.Logger(ctx).Debug("Delete jobs with AutoClean that are finished")
-		res, done, err := j.store.ListJobs("", false, false, proto.TaskStatus_Finished)
+		res, done, err := j.store.ListJobs("", false, false, proto.TaskStatus_Finished, []string{})
 		defer close(res)
 		if err != nil {
 			return err
@@ -128,7 +128,7 @@ func (j *JobsHandler) ListJobs(ctx context.Context, request *proto.ListJobsReque
 	log.Logger(ctx).Debug("Scheduler ListJobs", zap.Any("req", request))
 	defer streamer.Close()
 
-	res, done, err := j.store.ListJobs(request.Owner, request.EventsOnly, request.TimersOnly, request.LoadTasks, request.TasksOffset, request.TasksLimit)
+	res, done, err := j.store.ListJobs(request.Owner, request.EventsOnly, request.TimersOnly, request.LoadTasks, request.JobIDs, request.TasksOffset, request.TasksLimit)
 	defer close(res)
 	if err != nil {
 		return err
@@ -139,17 +139,7 @@ func (j *JobsHandler) ListJobs(ctx context.Context, request *proto.ListJobsReque
 		case <-done:
 			return nil
 		case j := <-res:
-			// Additional filter by JobIDs
-			if len(request.JobIDs) == 0 {
-				streamer.Send(&proto.ListJobsResponse{Job: j})
-			} else {
-				for _, id := range request.JobIDs {
-					if j.ID == id {
-						streamer.Send(&proto.ListJobsResponse{Job: j})
-						break
-					}
-				}
-			}
+			streamer.Send(&proto.ListJobsResponse{Job: j})
 		}
 	}
 }

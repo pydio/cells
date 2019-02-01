@@ -61,7 +61,7 @@ func TestNewBoltStore(t *testing.T) {
 func listAndCount(db *BoltStore, owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, taskCursor ...int32) (map[string]*jobs.Job, int, error) {
 
 	resCount := 0
-	res, done, err := db.ListJobs(owner, eventsOnly, timersOnly, withTasks, taskCursor...)
+	res, done, err := db.ListJobs(owner, eventsOnly, timersOnly, withTasks, []string{}, taskCursor...)
 	So(err, ShouldBeNil)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
