@@ -48,10 +48,16 @@ var NodeCard = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(NodeCard.prototype), 'constructor', this).call(this, props);
         var value = props.node.getValue();
+        var dirty = false;
         if (!value) {
             value = "// Compute the Path variable that this node must resolve to. \n// Use Ctrl+Space to see the objects available for completion.\nPath = \"\";";
+        } else {
+            dirty = true;
         }
-        this.state = { value: value, dirty: false };
+        this.state = {
+            value: value,
+            dirty: true
+        };
     }
 
     _createClass(NodeCard, [{
@@ -67,10 +73,18 @@ var NodeCard = (function (_React$Component) {
         value: function save() {
             var _this = this;
 
-            var node = this.props.node;
-            node.setValue(this.state.value);
+            var _props = this.props;
+            var node = _props.node;
+            var _props$onSave = _props.onSave;
+            var onSave = _props$onSave === undefined ? function () {} : _props$onSave;
+            var value = this.state.value;
+
+            node.setValue(value);
+
             node.save(function () {
-                _this.setState({ dirty: false });
+                _this.setState({
+                    dirty: false
+                }, onSave);
             });
         }
     }, {
@@ -85,11 +99,13 @@ var NodeCard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _props = this.props;
-            var dataSources = _props.dataSources;
-            var node = _props.node;
-            var readonly = _props.readonly;
-            var oneLiner = _props.oneLiner;
+            var _props2 = this.props;
+            var dataSources = _props2.dataSources;
+            var node = _props2.node;
+            var readonly = _props2.readonly;
+            var oneLiner = _props2.oneLiner;
+            var _props2$onClose = _props2.onClose;
+            var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
 
             var ds = {};
             if (dataSources) {
@@ -117,13 +133,16 @@ var NodeCard = (function (_React$Component) {
                     { style: { display: 'flex' } },
                     _react2['default'].createElement(
                         'div',
-                        { style: { flex: 1 } },
+                        { style: { flex: 1, lineHeight: "40px" } },
                         codeMirrorField
                     ),
                     _react2['default'].createElement(
                         'div',
-                        null,
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" })
+                        { style: { display: "flex" } },
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onClick: function () {
+                                return onClose();
+                            }, tooltip: "Close" })
                     )
                 );
             } else {

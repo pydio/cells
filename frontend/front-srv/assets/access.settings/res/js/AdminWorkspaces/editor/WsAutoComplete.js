@@ -9,7 +9,11 @@ export default class WsAutoComplete extends React.Component{
     constructor(props){
         super(props);
         this.debounced = debounce(this.loadValues.bind(this), 300);
-        this.state = {searchText: props.value, value: props.value};
+        this.state = {
+            nodes: [],
+            searchText: props.value,
+            value: props.value
+        };
     }
 
     componentDidMount(){
@@ -32,7 +36,12 @@ export default class WsAutoComplete extends React.Component{
     handleNewRequest(chosenValue) {
         let key;
         let chosenNode;
+
         const {nodes} = this.state;
+
+        console.log(nodes)
+        const {autofill = true, onChange = () => {}, onError = () => {}} = this.props;
+
         if (chosenValue.key === undefined) {
             if(chosenValue === ''){
                 this.props.onChange('');
@@ -40,12 +49,12 @@ export default class WsAutoComplete extends React.Component{
             key = chosenValue;
             let ok = false;
             nodes.map(node => {
-                if (node.Path === key) {
+                if (node.Path === key || node.Path === key + '/') {
                     chosenNode = node;
                     ok = true;
                 }
             });
-            if(!ok){
+            if(!ok && autofill){
                 nodes.map(node => {
                     if (node.Path.indexOf(key) === 0) {
                         key = node.Path;
@@ -55,6 +64,7 @@ export default class WsAutoComplete extends React.Component{
                 });
             }
             if(!ok) {
+                onError();
                 return;
             }
         } else {
@@ -62,13 +72,11 @@ export default class WsAutoComplete extends React.Component{
             chosenNode = chosenValue.node;
         }
         this.setState({value:key});
-        this.props.onChange(key, chosenNode);
-        this.loadValues(key);
+        onChange(key, chosenNode);
     }
 
-
-
     loadValues(value = "", cb = () => {}) {
+
         const {searchText} = this.state;
 
         let basePath = value;
@@ -90,8 +98,9 @@ export default class WsAutoComplete extends React.Component{
         api.listAdminTree(listRequest).then(nodesColl => {
             if (!nodesColl.Children && nodesColl.Parent) {
                 this.setState({nodes: [nodesColl.Parent] || [], loading: false}, () => cb());
+            } else {
+                this.setState({nodes: nodesColl.Children || [], loading: false}, () => cb());
             }
-            this.setState({nodes: nodesColl.Children || [], loading: false}, () => cb());
         }).catch(() => {
             this.setState({loading: false}, () => cb());
         })
@@ -120,7 +129,9 @@ export default class WsAutoComplete extends React.Component{
 
     render(){
 
+        const {searchText} = this.state;
         const {onDelete, skipTemplates, label, zDepth, pydio} = this.props;
+
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id] || id;
         const {nodes, loading} = this.state;
         let dataSource = [];
@@ -176,8 +187,9 @@ export default class WsAutoComplete extends React.Component{
                     <AutoComplete
                         fullWidth={true}
                         searchText={displayText}
-                        onUpdateInput={this.handleUpdateInput.bind(this)}
-                        onNewRequest={this.handleNewRequest.bind(this)}
+                        onUpdateInput={(value) => this.handleUpdateInput(value)}
+                        onNewRequest={(value) => this.handleNewRequest(value)}
+                        onClose={() => this.handleNewRequest(searchText)}
                         dataSource={dataSource}
                         floatingLabelText={label || m('ws.complete.label')}
                         floatingLabelStyle={{whiteSpace:'nowrap'}}
@@ -193,5 +205,4 @@ export default class WsAutoComplete extends React.Component{
             </Paper>
         );
     }
-
 }

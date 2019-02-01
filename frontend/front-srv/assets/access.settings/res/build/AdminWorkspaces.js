@@ -14453,30 +14453,36 @@ utils.intFromLE = intFromLE;
 
 },{"bn.js":15,"minimalistic-assert":106,"minimalistic-crypto-utils":107}],82:[function(require,module,exports){
 module.exports={
-  "_from": "elliptic@^6.0.0",
+  "_args": [
+    [
+      "elliptic@6.4.0",
+      "/Users/gregory/work/src/github.com/pydio/cells/frontend/front-srv/assets/access.settings"
+    ]
+  ],
+  "_development": true,
+  "_from": "elliptic@6.4.0",
   "_id": "elliptic@6.4.0",
   "_inBundle": false,
   "_integrity": "sha1-ysmvh2LIWDYYcAPI3+GT5eLq5d8=",
   "_location": "/elliptic",
   "_phantomChildren": {},
   "_requested": {
-    "type": "range",
+    "type": "version",
     "registry": true,
-    "raw": "elliptic@^6.0.0",
+    "raw": "elliptic@6.4.0",
     "name": "elliptic",
     "escapedName": "elliptic",
-    "rawSpec": "^6.0.0",
+    "rawSpec": "6.4.0",
     "saveSpec": null,
-    "fetchSpec": "^6.0.0"
+    "fetchSpec": "6.4.0"
   },
   "_requiredBy": [
     "/browserify-sign",
     "/create-ecdh"
   ],
   "_resolved": "https://registry.npmjs.org/elliptic/-/elliptic-6.4.0.tgz",
-  "_shasum": "cac9af8762c85836187003c8dfe193e5e2eae5df",
-  "_spec": "elliptic@^6.0.0",
-  "_where": "/Users/ghecquet/go/src/github.com/pydio/cells/frontend/front-srv/assets/access.settings/node_modules/browserify-sign",
+  "_spec": "6.4.0",
+  "_where": "/Users/gregory/work/src/github.com/pydio/cells/frontend/front-srv/assets/access.settings",
   "author": {
     "name": "Fedor Indutny",
     "email": "fedor@indutny.com"
@@ -14484,7 +14490,6 @@ module.exports={
   "bugs": {
     "url": "https://github.com/indutny/elliptic/issues"
   },
-  "bundleDependencies": false,
   "dependencies": {
     "bn.js": "^4.4.0",
     "brorand": "^1.0.1",
@@ -14494,7 +14499,6 @@ module.exports={
     "minimalistic-assert": "^1.0.0",
     "minimalistic-crypto-utils": "^1.0.0"
   },
-  "deprecated": false,
   "description": "EC cryptography",
   "devDependencies": {
     "brfs": "^1.4.3",
@@ -25534,7 +25538,15 @@ var WsAutoComplete = (function (_React$Component) {
         value: function handleNewRequest(chosenValue) {
             var key = undefined;
             var chosenNode = undefined;
+
             var nodes = this.state.nodes;
+            var _props = this.props;
+            var _props$autofill = _props.autofill;
+            var autofill = _props$autofill === undefined ? true : _props$autofill;
+            var _props$onChange = _props.onChange;
+            var onChange = _props$onChange === undefined ? function () {} : _props$onChange;
+            var _props$onError = _props.onError;
+            var onError = _props$onError === undefined ? function () {} : _props$onError;
 
             if (chosenValue.key === undefined) {
                 if (chosenValue === '') {
@@ -25543,12 +25555,12 @@ var WsAutoComplete = (function (_React$Component) {
                 key = chosenValue;
                 var ok = false;
                 nodes.map(function (node) {
-                    if (node.Path === key) {
+                    if (node.Path === key || node.Path === key + '/') {
                         chosenNode = node;
                         ok = true;
                     }
                 });
-                if (!ok) {
+                if (!ok && autofill) {
                     nodes.map(function (node) {
                         if (node.Path.indexOf(key) === 0) {
                             key = node.Path;
@@ -25558,6 +25570,7 @@ var WsAutoComplete = (function (_React$Component) {
                     });
                 }
                 if (!ok) {
+                    onError();
                     return;
                 }
             } else {
@@ -25565,8 +25578,7 @@ var WsAutoComplete = (function (_React$Component) {
                 chosenNode = chosenValue.node;
             }
             this.setState({ value: key });
-            this.props.onChange(key, chosenNode);
-            this.loadValues(key);
+            onChange(key, chosenNode);
         }
     }, {
         key: 'loadValues',
@@ -25611,12 +25623,15 @@ var WsAutoComplete = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _props = this.props;
-            var onDelete = _props.onDelete;
-            var skipTemplates = _props.skipTemplates;
-            var label = _props.label;
-            var zDepth = _props.zDepth;
-            var pydio = _props.pydio;
+            var _this3 = this;
+
+            var searchText = this.state.searchText;
+            var _props2 = this.props;
+            var onDelete = _props2.onDelete;
+            var skipTemplates = _props2.skipTemplates;
+            var label = _props2.label;
+            var zDepth = _props2.zDepth;
+            var pydio = _props2.pydio;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.' + id] || id;
@@ -25685,8 +25700,15 @@ var WsAutoComplete = (function (_React$Component) {
                     _react2['default'].createElement(_materialUi.AutoComplete, {
                         fullWidth: true,
                         searchText: displayText,
-                        onUpdateInput: this.handleUpdateInput.bind(this),
-                        onNewRequest: this.handleNewRequest.bind(this),
+                        onUpdateInput: function (value) {
+                            return _this3.handleUpdateInput(value);
+                        },
+                        onNewRequest: function (value) {
+                            return _this3.handleNewRequest(value);
+                        },
+                        onClose: function () {
+                            return _this3.handleNewRequest(searchText);
+                        },
                         dataSource: dataSource,
                         floatingLabelText: label || m('ws.complete.label'),
                         floatingLabelStyle: { whiteSpace: 'nowrap' },
@@ -27160,10 +27182,16 @@ var NodeCard = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(NodeCard.prototype), 'constructor', this).call(this, props);
         var value = props.node.getValue();
+        var dirty = false;
         if (!value) {
             value = "// Compute the Path variable that this node must resolve to. \n// Use Ctrl+Space to see the objects available for completion.\nPath = \"\";";
+        } else {
+            dirty = true;
         }
-        this.state = { value: value, dirty: false };
+        this.state = {
+            value: value,
+            dirty: true
+        };
     }
 
     _createClass(NodeCard, [{
@@ -27179,10 +27207,18 @@ var NodeCard = (function (_React$Component) {
         value: function save() {
             var _this = this;
 
-            var node = this.props.node;
-            node.setValue(this.state.value);
+            var _props = this.props;
+            var node = _props.node;
+            var _props$onSave = _props.onSave;
+            var onSave = _props$onSave === undefined ? function () {} : _props$onSave;
+            var value = this.state.value;
+
+            node.setValue(value);
+
             node.save(function () {
-                _this.setState({ dirty: false });
+                _this.setState({
+                    dirty: false
+                }, onSave);
             });
         }
     }, {
@@ -27197,11 +27233,13 @@ var NodeCard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _props = this.props;
-            var dataSources = _props.dataSources;
-            var node = _props.node;
-            var readonly = _props.readonly;
-            var oneLiner = _props.oneLiner;
+            var _props2 = this.props;
+            var dataSources = _props2.dataSources;
+            var node = _props2.node;
+            var readonly = _props2.readonly;
+            var oneLiner = _props2.oneLiner;
+            var _props2$onClose = _props2.onClose;
+            var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
 
             var ds = {};
             if (dataSources) {
@@ -27229,13 +27267,16 @@ var NodeCard = (function (_React$Component) {
                     { style: { display: 'flex' } },
                     _react2['default'].createElement(
                         'div',
-                        { style: { flex: 1 } },
+                        { style: { flex: 1, lineHeight: "40px" } },
                         codeMirrorField
                     ),
                     _react2['default'].createElement(
                         'div',
-                        null,
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" })
+                        { style: { display: "flex" } },
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onClick: function () {
+                                return onClose();
+                            }, tooltip: "Close" })
                     )
                 );
             } else {
