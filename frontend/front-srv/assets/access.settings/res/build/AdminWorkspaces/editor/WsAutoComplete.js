@@ -72,7 +72,15 @@ var WsAutoComplete = (function (_React$Component) {
         value: function handleNewRequest(chosenValue) {
             var key = undefined;
             var chosenNode = undefined;
+
             var nodes = this.state.nodes;
+            var _props = this.props;
+            var _props$autofill = _props.autofill;
+            var autofill = _props$autofill === undefined ? true : _props$autofill;
+            var _props$onChange = _props.onChange;
+            var onChange = _props$onChange === undefined ? function () {} : _props$onChange;
+            var _props$onError = _props.onError;
+            var onError = _props$onError === undefined ? function () {} : _props$onError;
 
             if (chosenValue.key === undefined) {
                 if (chosenValue === '') {
@@ -81,12 +89,12 @@ var WsAutoComplete = (function (_React$Component) {
                 key = chosenValue;
                 var ok = false;
                 nodes.map(function (node) {
-                    if (node.Path === key) {
+                    if (node.Path === key || node.Path === key + '/') {
                         chosenNode = node;
                         ok = true;
                     }
                 });
-                if (!ok) {
+                if (!ok && autofill) {
                     nodes.map(function (node) {
                         if (node.Path.indexOf(key) === 0) {
                             key = node.Path;
@@ -96,6 +104,7 @@ var WsAutoComplete = (function (_React$Component) {
                     });
                 }
                 if (!ok) {
+                    onError();
                     return;
                 }
             } else {
@@ -103,8 +112,7 @@ var WsAutoComplete = (function (_React$Component) {
                 chosenNode = chosenValue.node;
             }
             this.setState({ value: key });
-            this.props.onChange(key, chosenNode);
-            this.loadValues(key);
+            onChange(key, chosenNode);
         }
     }, {
         key: 'loadValues',
@@ -149,12 +157,15 @@ var WsAutoComplete = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _props = this.props;
-            var onDelete = _props.onDelete;
-            var skipTemplates = _props.skipTemplates;
-            var label = _props.label;
-            var zDepth = _props.zDepth;
-            var pydio = _props.pydio;
+            var _this3 = this;
+
+            var searchText = this.state.searchText;
+            var _props2 = this.props;
+            var onDelete = _props2.onDelete;
+            var skipTemplates = _props2.skipTemplates;
+            var label = _props2.label;
+            var zDepth = _props2.zDepth;
+            var pydio = _props2.pydio;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.' + id] || id;
@@ -223,8 +234,15 @@ var WsAutoComplete = (function (_React$Component) {
                     _react2['default'].createElement(_materialUi.AutoComplete, {
                         fullWidth: true,
                         searchText: displayText,
-                        onUpdateInput: this.handleUpdateInput.bind(this),
-                        onNewRequest: this.handleNewRequest.bind(this),
+                        onUpdateInput: function (value) {
+                            return _this3.handleUpdateInput(value);
+                        },
+                        onNewRequest: function (value) {
+                            return _this3.handleNewRequest(value);
+                        },
+                        onClose: function () {
+                            return _this3.handleNewRequest(searchText);
+                        },
                         dataSource: dataSource,
                         floatingLabelText: label || m('ws.complete.label'),
                         floatingLabelStyle: { whiteSpace: 'nowrap' },
