@@ -54,6 +54,15 @@ class SearchFileFormatPanel extends Component {
 
         return (
             <div>
+                {!this.state.folder &&
+                <ModernTextField
+                    style={inputStyle}
+                    className="mui-text-field"
+                    hintText={getMessage(500)}
+                    value={this.state.ext}
+                    onChange={(e) => this.setState({ext: e.target.value})}
+                />
+                }
                 <div style={{...ModernStyles.div, margin:'6px 16px', padding:6, paddingRight:6}}>
                     <Toggle
                         fullWidth={true}
@@ -65,15 +74,6 @@ class SearchFileFormatPanel extends Component {
                         onToggle={(e, toggled) => this.setState({folder: toggled})}
                     />
                 </div>
-                {!this.state.folder &&
-                    <ModernTextField
-                        style={inputStyle}
-                        className="mui-text-field"
-                        hintText={getMessage(500)}
-                        value={this.state.ext}
-                        onChange={(e) => this.setState({ext: e.target.value})}
-                    />
-                }
             </div>
         );
     }

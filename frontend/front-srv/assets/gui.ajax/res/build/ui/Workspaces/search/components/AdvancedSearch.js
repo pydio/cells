@@ -162,6 +162,15 @@ var AdvancedSearch = (function (_Component) {
             _react2['default'].createElement(
                 _materialUi.Subheader,
                 { style: _extends({}, headerStyle, { marginTop: 0 }) },
+                getMessage(341)
+            ),
+            this.renderField('basename', getMessage(1)),
+            _react2['default'].createElement(_FileFormatPanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
+                    return _this2.onChange(values);
+                } }),
+            _react2['default'].createElement(
+                _materialUi.Subheader,
+                { style: _extends({}, headerStyle, { marginTop: 0 }) },
                 getMessage(489)
             ),
             _react2['default'].createElement(
@@ -183,9 +192,6 @@ var AdvancedSearch = (function (_Component) {
                 getMessage(498)
             ),
             _react2['default'].createElement(_DatePanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
-                    return _this2.onChange(values);
-                } }),
-            _react2['default'].createElement(_FileFormatPanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
                     return _this2.onChange(values);
                 } }),
             _react2['default'].createElement(_FileSizePanel2['default'], { values: values, pydio: pydio, inputStyle: text, onChange: function (values) {
@@ -243,7 +249,8 @@ var AdvancedMetaFields = (function (_Component2) {
             reactColumnsRenderers = {};
         }
 
-        var generic = { basename: this.props.getMessage(1) };
+        //const generic = {basename: this.props.getMessage(1)};
+        var generic = {};
 
         // Looping through the options to check if we have a special renderer for any
         var specialRendererKeys = Object.keys(_extends({}, reactColumnsRenderers));

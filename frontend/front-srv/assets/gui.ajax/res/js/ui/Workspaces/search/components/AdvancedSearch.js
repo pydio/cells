@@ -103,6 +103,10 @@ class AdvancedSearch extends Component {
 
         return (
             <div className="search-advanced">
+                <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(341)}</Subheader>
+                {this.renderField('basename',getMessage(1))}
+                <FileFormatPanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
+
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(489)}</Subheader>
                 <AdvancedMetaFields {...this.props}>
                     {fields =>
@@ -114,7 +118,6 @@ class AdvancedSearch extends Component {
 
                 <Subheader style={{...headerStyle}}>{getMessage(498)}</Subheader>
                 <DatePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
-                <FileFormatPanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
                 <FileSizePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
             </div>
         )
@@ -158,7 +161,8 @@ class AdvancedMetaFields extends Component {
             reactColumnsRenderers = {};
         }
 
-        const generic = {basename: this.props.getMessage(1)};
+        //const generic = {basename: this.props.getMessage(1)};
+        const generic = {};
 
         // Looping through the options to check if we have a special renderer for any
         const specialRendererKeys = Object.keys({...reactColumnsRenderers});

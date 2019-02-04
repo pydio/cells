@@ -116,9 +116,11 @@ var FSTemplate = _react2['default'].createClass({
             if (name !== 'info-panel') {
                 infoPanelOpen = true;
             }
-            localStorage.setItem('pydio.layout.rightColumnState', name);
-            localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
-            localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen ? 'open' : 'closed');
+            if (name !== 'advanced-search') {
+                localStorage.setItem('pydio.layout.rightColumnState', name);
+                localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
+                localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen ? 'open' : 'closed');
+            }
             _this.setState({ infoPanelToggle: true, infoPanelOpen: infoPanelOpen }, function () {
                 return _this.resizeAfterTransition();
             });
@@ -128,11 +130,25 @@ var FSTemplate = _react2['default'].createClass({
     closeRightPanel: function closeRightPanel() {
         var _this2 = this;
 
-        this.setState({ infoPanelToggle: false }, function () {
-            _this2.resizeAfterTransition();
-        });
-        localStorage.setItem('pydio.layout.rightColumnState', '');
-        localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
+        var rightColumnState = this.state.rightColumnState;
+
+        if (rightColumnState === 'advanced-search') {
+            // Reopen last saved state
+            var rState = localStorage.getItem('pydio.layout.rightColumnState');
+            if (rState !== undefined && rState && rState !== 'advanced-search') {
+                this.openRightPanel(rState);
+            } else {
+                this.setState({ infoPanelToggle: false }, function () {
+                    _this2.resizeAfterTransition();
+                });
+            }
+        } else {
+            this.setState({ infoPanelToggle: false }, function () {
+                _this2.resizeAfterTransition();
+            });
+            localStorage.setItem('pydio.layout.rightColumnState', '');
+            localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
+        }
     },
 
     getInitialState: function getInitialState() {

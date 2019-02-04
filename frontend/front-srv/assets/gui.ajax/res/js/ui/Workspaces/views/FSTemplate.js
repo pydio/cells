@@ -58,19 +58,34 @@ let FSTemplate = React.createClass({
             if(name !== 'info-panel'){
                 infoPanelOpen = true;
             }
-            localStorage.setItem('pydio.layout.rightColumnState', name);
-            localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
-            localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen?'open':'closed');
+            if(name !== 'advanced-search'){
+                localStorage.setItem('pydio.layout.rightColumnState', name);
+                localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
+                localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen?'open':'closed');
+            }
             this.setState({infoPanelToggle:true, infoPanelOpen}, () => this.resizeAfterTransition())
         });
     },
 
     closeRightPanel() {
-        this.setState({infoPanelToggle: false}, () => {
-            this.resizeAfterTransition();
-        });
-        localStorage.setItem('pydio.layout.rightColumnState', '');
-        localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
+        const {rightColumnState} = this.state;
+        if(rightColumnState === 'advanced-search'){
+            // Reopen last saved state
+            const rState = localStorage.getItem('pydio.layout.rightColumnState');
+            if(rState !== undefined && rState && rState !== 'advanced-search'){
+                this.openRightPanel(rState);
+            } else {
+                this.setState({infoPanelToggle: false}, () => {
+                    this.resizeAfterTransition();
+                });
+            }
+        } else {
+            this.setState({infoPanelToggle: false}, () => {
+                this.resizeAfterTransition();
+            });
+            localStorage.setItem('pydio.layout.rightColumnState', '');
+            localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
+        }
     },
 
     getInitialState(){

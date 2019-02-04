@@ -87,6 +87,15 @@ var SearchFileFormatPanel = (function (_Component) {
         return _react2['default'].createElement(
             'div',
             null,
+            !this.state.folder && _react2['default'].createElement(ModernTextField, {
+                style: inputStyle,
+                className: 'mui-text-field',
+                hintText: getMessage(500),
+                value: this.state.ext,
+                onChange: function (e) {
+                    return _this.setState({ ext: e.target.value });
+                }
+            }),
             _react2['default'].createElement(
                 'div',
                 { style: _extends({}, ModernStyles.div, { margin: '6px 16px', padding: 6, paddingRight: 6 }) },
@@ -101,16 +110,7 @@ var SearchFileFormatPanel = (function (_Component) {
                         return _this.setState({ folder: toggled });
                     }
                 })
-            ),
-            !this.state.folder && _react2['default'].createElement(ModernTextField, {
-                style: inputStyle,
-                className: 'mui-text-field',
-                hintText: getMessage(500),
-                value: this.state.ext,
-                onChange: function (e) {
-                    return _this.setState({ ext: e.target.value });
-                }
-            })
+            )
         );
     };
 
