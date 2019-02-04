@@ -155,7 +155,7 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	}
 
 	err := j.store.PutTask(request.Task)
-	log.Logger(ctx).Debug("Scheduler PutTask", zap.Any("task", request.Task))
+	//log.Logger(ctx).Debug("Scheduler PutTask", zap.Any("task", request.Task))
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobServi
 			return err
 		}
 
-		log.Logger(ctx).Debug("PutTaskStream", zap.Any("task", request.Task))
+		//log.Logger(ctx).Debug("PutTaskStream", zap.Any("task", request.Task))
 		var response proto.PutTaskResponse
 		e := j.PutTask(ctx, request, &response)
 		if e != nil {

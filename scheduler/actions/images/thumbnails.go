@@ -78,7 +78,7 @@ type ThumbnailsMeta struct {
 }
 
 type ThumbnailExtractor struct {
-	Router     views.Handler
+	//Router     views.Handler
 	thumbSizes map[string]int
 	metaClient tree.NodeReceiverClient
 	Client     client.Client
@@ -92,10 +92,12 @@ func (t *ThumbnailExtractor) GetName() string {
 // Init passes parameters to the action.
 func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	// Todo : get sizes from parameters
+	/*
 	t.Router = views.NewStandardRouter(views.RouterOptions{
 		AdminView:     true,
 		WatchRegistry: false,
 	})
+	*/
 
 	if action.Parameters != nil {
 		t.thumbSizes = make(map[string]int)
@@ -166,7 +168,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	} else {
 		// TODO : tmp security until Router is transmitting nodes immutably
 		routerNode := proto.Clone(node).(*tree.Node)
-		reader, err = t.Router.GetObject(ctx, routerNode, &views.GetRequestData{Length: -1})
+		reader, err = getRouter().GetObject(ctx, routerNode, &views.GetRequestData{Length: -1})
 	}
 	if err != nil {
 		return err

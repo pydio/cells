@@ -49,6 +49,7 @@ import (
 	"github.com/pydio/cells/data/source/sync/lib/endpoints"
 	"github.com/pydio/cells/data/source/sync/lib/filters"
 	"github.com/pydio/cells/data/source/sync/lib/task"
+	"github.com/pydio/cells/scheduler/tasks"
 )
 
 // Handler structure
@@ -192,7 +193,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
 		theTask := req.Task
-		taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
+		autoClient := tasks.NewTaskReconnectingClient(subCtx)
+		taskChan := make(chan interface{})
+		autoClient.StartListening(taskChan)
 
 		theTask.StatusMessage = "Starting"
 		theTask.Progress = 0
@@ -202,7 +205,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
 			StringBody: "Starting Resync",
 		})
-		taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
+		taskChan <- theTask
 
 		go func() {
 			defer close(statusChan)
@@ -216,10 +219,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 					})
 					theTask.Progress = status.Progress
 					theTask.Status = jobs.TaskStatus_Running
-					_, e := taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
-					if e != nil {
-						log.Logger(subCtx).Error("Could not update sync task", zap.Any("s", status), zap.Error(e))
-					}
+					taskChan <- theTask
 				case <-doneChan:
 					theTask := req.Task
 					theTask.StatusMessage = "Complete"
@@ -229,10 +229,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 					fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
 						StringBody: "Sync complete",
 					})
-					_, e := taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
-					if e != nil {
-						log.Logger(subCtx).Error("Could not update sync task", zap.Error(e))
-					}
+					taskChan <- theTask
+					autoClient.Stop()
 					return
 				}
 			}

@@ -53,7 +53,7 @@ var (
 )
 
 type ExifProcessor struct {
-	Router     views.Handler
+	//Router     views.Handler
 	metaClient tree.NodeReceiverClient
 }
 
@@ -64,7 +64,7 @@ func (e *ExifProcessor) GetName() string {
 
 // Init passes parameters to the action
 func (e *ExifProcessor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	e.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
+	//e.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
 	e.metaClient = tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, cl)
 	return nil
 }
@@ -160,7 +160,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 		targetFileName := filepath.Join(localFolder, baseName)
 		reader, rer = os.Open(targetFileName)
 	} else {
-		reader, rer = e.Router.GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
+		reader, rer = getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
 	}
 
 	//reader, rer := node.ReadFile(ctx)

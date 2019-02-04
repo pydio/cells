@@ -29,11 +29,9 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
@@ -142,9 +140,12 @@ func (s *Subscriber) ListenToMainQueue() {
 // TaskChannelSubscription uses PubSub library to receive update messages from tasks
 func (s *Subscriber) TaskChannelSubscription() {
 	ch := PubSub.Sub(PubSubTopicTaskStatuses)
-	s.chanToStream(ch)
+	cli := NewTaskReconnectingClient(s.RootContext)
+	cli.StartListening(ch)
+//	s.chanToStream(ch)
 }
 
+/*
 func (s *Subscriber) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 
 	go func() {
@@ -191,6 +192,7 @@ func (s *Subscriber) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 	}()
 
 }
+*/
 
 // GetDispatcherForJob creates a new dispatcher for a job
 func (s *Subscriber) GetDispatcherForJob(job *jobs.Job) *Dispatcher {

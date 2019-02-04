@@ -41,14 +41,19 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
-type VersionAction struct {
-	Handler views.Handler
-	Pool    *views.ClientsPool
-}
+type VersionAction struct {}
 
 var (
 	versionActionName = "actions.versioning.create"
+	router *views.Router
 )
+
+func getRouter() *views.Router {
+	if router == nil {
+		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry:true})
+	}
+	return router
+}
 
 // GetName returns the Unique identifier for this VersionAction
 func (c *VersionAction) GetName() string {
@@ -57,9 +62,6 @@ func (c *VersionAction) GetName() string {
 
 // Init sets this VersionAction parameters.
 func (c *VersionAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
-	c.Pool = router.GetClientsPool()
-	c.Handler = router
 	return nil
 }
 
@@ -76,7 +78,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Default()))
 	var hasPolicy bool
-	if nodeSource, e := c.Pool.GetDataSourceInfo(node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)); e == nil {
+	if nodeSource, e := getRouter().GetClientsPool().GetDataSourceInfo(node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)); e == nil {
 		if nodeSource.VersioningPolicyName != "" {
 			hasPolicy = true
 		}
@@ -86,8 +88,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 
 	// TODO: find clients from pool so that they are considered the same by the CopyObject request
-
-	source, e := c.Pool.GetDataSourceInfo(common.PYDIO_VERSIONS_NAMESPACE)
+	source, e := getRouter().GetClientsPool().GetDataSourceInfo(common.PYDIO_VERSIONS_NAMESPACE)
 	if e != nil {
 		return input.WithError(e), e
 	}
@@ -116,7 +117,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 	targetNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, targetNode.Path)
 	sourceNode := proto.Clone(node).(*tree.Node)
-	written, err := c.Handler.CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
+	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
 
 	output := input
 	output.AppendOutput(&jobs.ActionOutput{
@@ -137,7 +138,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 			ctx = views.WithBranchInfo(ctx, "in", views.BranchInfo{LoadedSource: source})
 			deleteNode := &tree.Node{Path: node.Uuid + "__" + version.Uuid}
 			deleteNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, deleteNode.Path)
-			_, errDel := c.Handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode})
+			_, errDel := getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode})
 			if errDel != nil {
 				return input.WithError(errDel), errDel
 			}
