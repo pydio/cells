@@ -562,21 +562,20 @@ let AddressBook = React.createClass({
             );
         }
 
-        let dialogTitle, dialogContent;
+        let dialogTitle, dialogContent, dialogBodyStyle;
         if(createDialogItem){
             if(createDialogItem.actions.type === 'users'){
+                dialogBodyStyle = {display:'flex', flexDirection:'column', overflow: 'hidden'};
                 dialogTitle = getMessage(484, '');
                 dialogContent = (
-                    <div style={{height:500}}>
-                        <UserCreationForm
-                            zDepth={0}
-                            style={{height:500}}
-                            newUserName={""}
-                            onUserCreated={this.closeCreateDialogAndReload.bind(this)}
-                            onCancel={() => {this.setState({createDialogItem:null})}}
-                            pydio={this.props.pydio}
-                        />
-                    </div>
+                    <UserCreationForm
+                        zDepth={0}
+                        style={{display:'flex', flexDirection:'column', flex: 1, marginTop: -40}}
+                        newUserName={""}
+                        onUserCreated={this.closeCreateDialogAndReload.bind(this)}
+                        onCancel={() => {this.setState({createDialogItem:null})}}
+                        pydio={this.props.pydio}
+                    />
                 );
             }else if(createDialogItem.actions.type === 'teams'){
                 dialogTitle = getMessage(569, '');
@@ -609,7 +608,7 @@ let AddressBook = React.createClass({
                 {rightPanel}
                 <MaterialUI.Dialog
                     contentStyle={{width:380,minWidth:380,maxWidth:380, padding:0}}
-                    bodyStyle={{padding:0}}
+                    bodyStyle={{padding:0, ...dialogBodyStyle}}
                     title={<div style={{padding: 20}}>{dialogTitle}</div>}
                     actions={null}
                     modal={false}

@@ -635,24 +635,22 @@ var AddressBook = _react2['default'].createClass({
         }
 
         var dialogTitle = undefined,
-            dialogContent = undefined;
+            dialogContent = undefined,
+            dialogBodyStyle = undefined;
         if (createDialogItem) {
             if (createDialogItem.actions.type === 'users') {
+                dialogBodyStyle = { display: 'flex', flexDirection: 'column', overflow: 'hidden' };
                 dialogTitle = getMessage(484, '');
-                dialogContent = _react2['default'].createElement(
-                    'div',
-                    { style: { height: 500 } },
-                    _react2['default'].createElement(_UserCreationForm2['default'], {
-                        zDepth: 0,
-                        style: { height: 500 },
-                        newUserName: "",
-                        onUserCreated: this.closeCreateDialogAndReload.bind(this),
-                        onCancel: function () {
-                            _this5.setState({ createDialogItem: null });
-                        },
-                        pydio: this.props.pydio
-                    })
-                );
+                dialogContent = _react2['default'].createElement(_UserCreationForm2['default'], {
+                    zDepth: 0,
+                    style: { display: 'flex', flexDirection: 'column', flex: 1, marginTop: -40 },
+                    newUserName: "",
+                    onUserCreated: this.closeCreateDialogAndReload.bind(this),
+                    onCancel: function () {
+                        _this5.setState({ createDialogItem: null });
+                    },
+                    pydio: this.props.pydio
+                });
             } else if (createDialogItem.actions.type === 'teams') {
                 dialogTitle = getMessage(569, '');
                 dialogContent = _react2['default'].createElement(_TeamCreationForm2['default'], {
@@ -689,7 +687,7 @@ var AddressBook = _react2['default'].createClass({
                 MaterialUI.Dialog,
                 {
                     contentStyle: { width: 380, minWidth: 380, maxWidth: 380, padding: 0 },
-                    bodyStyle: { padding: 0 },
+                    bodyStyle: _extends({ padding: 0 }, dialogBodyStyle),
                     title: _react2['default'].createElement(
                         'div',
                         { style: { padding: 20 } },
