@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package configs provides tools for managing configurations
+// Package config provides tools for managing configurations
 package config
 
 import (
@@ -112,7 +112,7 @@ func Default() config.Config {
 				config.PollInterval(10*time.Second),
 			)}
 		} else if e != nil {
-			fmt.Errorf("[Configs] something whent wrong while upgrading configs: %s", e.Error())
+			fmt.Errorf("[Configs] something went wrong while upgrading configs: %s", e.Error())
 		}
 	})
 	return defaultConfig
@@ -141,6 +141,7 @@ func Get(path ...string) reader.Value {
 func Set(val interface{}, path ...string) {
 
 	if GetRemoteSource() {
+		fmt.Println("[Configs] Setting config on remote source for", strings.Join(path, "/"))
 		remote.UpdateRemote("config", val, path...)
 		return
 	}
@@ -179,9 +180,11 @@ func Set(val interface{}, path ...string) {
 		var all map[string]interface{}
 		json.Unmarshal(tmpConfig.Bytes(), &all)
 		for k, v := range all {
+			fmt.Printf("[DEBUG] Replacing config value k: %s with v: %s\n", k, v)
 			Default().Set(v, k)
 		}
 	} else {
+		fmt.Printf("[DEBUG] Just update default config at %s with v: %v\n", strings.Join(path, "/"), val)
 		// Just update default config
 		Default().Set(val, path...)
 	}

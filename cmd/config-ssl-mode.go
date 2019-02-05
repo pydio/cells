@@ -22,9 +22,9 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 
-	"github.com/micro/go-log"
 	"github.com/spf13/cobra"
 
 	"github.com/manifoldco/promptui"
@@ -47,14 +47,17 @@ Four modes are currently supported :
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		// Retrieve already defined conf
+		extURL, _ := url.Parse(config.Get("defaults", "url").String(""))
+		intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
+
+		// Get SSL info from end user
 		enabled, e := promptSslMode()
 		if e != nil {
 			log.Fatal(e)
 		}
 
 		// Replace Main URLS
-		extURL, _ := url.Parse(config.Get("defaults", "url").String(""))
-		intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
 		if enabled {
 			extURL.Scheme = "https"
 			intURL.Scheme = "https"
@@ -72,6 +75,12 @@ Four modes are currently supported :
 		cmd.Println(" Config has been updated, please restart now!")
 		cmd.Println("**************************************************************")
 
+		// fmt.Printf("[DEBUG] ssl enable: %v, certFile: %s, keyFile: %s, certEmail: %s, caUrl: %s\n",
+		// 	config.Get("cert", "proxy", "ssl").Bool(false),
+		// 	config.Get("cert", "proxy", "certFile").String(""),
+		// 	config.Get("cert", "proxy", "keyFile").String(""),
+		// 	config.Get("cert", "proxy", "email").String(""),
+		// 	config.Get("cert", "proxy", "caUrl").String(""))
 	},
 }
 
@@ -112,12 +121,12 @@ func promptSslMode() (enabled bool, e error) {
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certFile, "cert", "proxy", "certFile")
 		config.Set(keyFile, "cert", "proxy", "keyFile")
+		// insure unused values are unset
+		config.Del("cert", "proxy", "email")
+		config.Del("cert", "proxy", "caUrl")
 	case 1:
-		mailPrompt := promptui.Prompt{Label: "Please enter the mail address to use with which to generate the certificate", Default: certEmail}
+		mailPrompt := promptui.Prompt{Label: "Please enter the mail address for certificate generation", Default: certEmail}
 		acceptLeSa := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
-
-		// For the time being, we do not offer the option to use let's encrypt staging environment
-		// useStagingPrompt := promptui.Prompt{Label: "Use staging Certificate Authority URL? [Y/N] ", Default: "N"}
 
 		if certEmail, e = mailPrompt.Run(); e != nil {
 			return
@@ -133,40 +142,34 @@ func promptSslMode() (enabled bool, e error) {
 			return
 		}
 
-		// val, e1 := useStagingPrompt.Run()
-		// if e1 != nil {
-		// 	e = e1
-		// 	return
-		// }
-		// if val == "Y" || val == "y" {
-		// 	useStagingCA = true
-		// }
-
-		// TODO add checks before storing the provided config
 		enabled = true
 		config.Set(true, "cert", "proxy", "ssl")
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certEmail, "cert", "proxy", "email")
 		config.Set(caURL, "cert", "proxy", "caUrl")
-
-		// fmt.Println("### Configuring LE SSL, CA URL:", caUrl)
-		// fmt.Printf("[DEBUG] Right after set, certEmail: %s, caUrl: %s\n",
-		// 	config.Get("cert", "proxy", "email").String(""),
-		// 	config.Get("cert", "proxy", "caUrl").String(""))
-
-		// config.Set(useStagingCA, "cert", "proxy", "useStagingCA")
+		config.Del("cert", "proxy", "certFile")
+		config.Del("cert", "proxy", "keyFile")
 	case 2:
 		enabled = true
 		config.Set(true, "cert", "proxy", "ssl")
 		config.Set(true, "cert", "proxy", "self")
+		config.Del("cert", "proxy", "certFile")
+		config.Del("cert", "proxy", "keyFile")
+		config.Del("cert", "proxy", "email")
+		config.Del("cert", "proxy", "caUrl")
 	case 3:
 		config.Set(false, "cert", "proxy", "ssl")
+		config.Del("cert", "proxy", "self")
+		config.Del("cert", "proxy", "certFile")
+		config.Del("cert", "proxy", "keyFile")
+		config.Del("cert", "proxy", "email")
+		config.Del("cert", "proxy", "caUrl")
 	}
 
 	enableRedir := false
 	if enabled {
 		redirPrompt := promptui.Select{
-			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning, this require the right to bind to port 80 on this machine.",
+			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning: this require the right to bind to port 80 on this machine.",
 			Items: []string{
 				"Yes",
 				"No",
@@ -176,17 +179,11 @@ func promptSslMode() (enabled bool, e error) {
 		}
 	}
 	if enableRedir {
-		fmt.Println("Setting httpRedir flag")
 		config.Set(true, "cert", "proxy", "httpRedir")
 	} else {
 		config.Del("cert", "proxy", "httpRedir")
 	}
 
-	// fmt.Printf("[DEBUG] certFile: %s, keyFile: %s, certEmail: %s, caUrl: %s\n",
-	// 	config.Get("cert", "proxy", "certFile").String(""),
-	// 	config.Get("cert", "proxy", "keyFile").String(""),
-	// 	config.Get("cert", "proxy", "email").String(""),
-	// 	config.Get("cert", "proxy", "caUrl").String(""))
 	return
 }
 

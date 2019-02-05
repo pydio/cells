@@ -126,14 +126,17 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	externalHost = strings.TrimPrefix(externalHost, "http://")
 	externalHost = strings.TrimPrefix(externalHost, "https://")
 
-	_, e = promptSslMode()
+	sslEnabled, e := promptSslMode()
 	if e != nil {
 		return
 	}
 	scheme := "http"
-	if config.Get("cert", "proxy", "ssl").Bool(false) {
+	if sslEnabled {
+		// We cannot rely on this before the save
+		// if config.Get("cert", "proxy", "ssl").Bool(false)
 		scheme = "https"
 	}
+
 	externalUrl := fmt.Sprintf("%s://%s", scheme, externalHost)
 	internalUrl := fmt.Sprintf("%s://%s", scheme, internalHost)
 	internal, e = url.Parse(internalUrl)
