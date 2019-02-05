@@ -8,99 +8,107 @@ export default class WsAutoComplete extends React.Component{
 
     constructor(props){
         super(props);
-        this.debounced = debounce(this.loadValues.bind(this), 300);
+
+        const {value = ''} = props
+
+        this.debounced = debounce(() => {
+            const {value} = this.state
+            this.loadValues(value)
+        }, 300);
+
         this.state = {
             nodes: [],
-            searchText: props.value,
-            value: props.value
+            value: value
         };
     }
 
     componentDidMount(){
-        const {value = ""} = this.state
-
-        this.lastSearch = null;
+        const {value} = this.state
 
         this.loadValues(value, () => {
-            if (value != "") {
+            const {nodes, value} = this.state
+
+            let done = false;
+
+            // Checking if we have a collection and load deeper values if it's the case
+            const node = nodes
+                .filter((node) => node.Path === value && (!node.Type || (node.Type == "COLLECTION" && !node.MetaStore && !node.MetaStore.resolution)))
+                .map((node) => {
+                    done = true;
+
+                    this.loadValues(value + "/")
+                })
+
+            if (!done) {
                 this.handleNewRequest(value)
             }
         });
     }
 
-    handleUpdateInput(searchText) {
+    handleUpdateInput(input) {
         this.debounced();
-        this.setState({searchText: searchText});
+        this.setState({value: input});
     }
 
-    handleNewRequest(chosenValue) {
-        let key;
-        let chosenNode;
-
+    handleNewRequest(value) {
         const {nodes} = this.state;
 
-        console.log(nodes)
-        const {autofill = true, onChange = () => {}, onError = () => {}} = this.props;
+        const {onChange = () => {}, onDelete = () => {}, onError = () => {}} = this.props;
 
-        if (chosenValue.key === undefined) {
-            if(chosenValue === ''){
-                this.props.onChange('');
+        let key;
+        let node;
+
+        if (typeof value === 'string') {
+            if (value === '') {
+                onDelete()
+                return
             }
-            key = chosenValue;
-            let ok = false;
-            nodes.map(node => {
-                if (node.Path === key || node.Path === key + '/') {
-                    chosenNode = node;
-                    ok = true;
-                }
-            });
-            if(!ok && autofill){
-                nodes.map(node => {
-                    if (node.Path.indexOf(key) === 0) {
-                        key = node.Path;
-                        chosenNode = node;
-                        ok = true;
-                    }
-                });
+
+            key = value
+
+            // First we try to find an exact match
+            node = nodes.filter(node => node.Path === value)[0]
+
+            // Then we try to retrieve the first node that starts with what we are looking at
+            if (!node) {
+                node = nodes.filter(node => node.Path.indexOf(value) === 0)[0]
             }
-            if(!ok) {
-                onError();
-                return;
-            }
-        } else {
-            key = chosenValue.key;
-            chosenNode = chosenValue.node;
+        } else if (typeof value === 'object') {
+            key = value.key
+            node = value.node
         }
-        this.setState({value:key});
-        onChange(key, chosenNode);
+
+        if (!node) {
+            return onError()
+        }
+
+        this.setState({value: key});
+
+        onChange(key, node)
     }
 
-    loadValues(value = "", cb = () => {}) {
+    loadValues(value, cb = () => {}) {
 
-        const {searchText} = this.state;
+        const last = value.lastIndexOf('/');
+        const basePath = value.substr(0, last)
 
-        let basePath = value;
-        if (!value && searchText){
-            let last = searchText.lastIndexOf('/');
-            basePath = searchText.substr(0, last);
-        }
-        if(this.lastSearch !== null && this.lastSearch === basePath){
+        if (this.lastSearch !== null && this.lastSearch === basePath) {
             return;
         }
+
         this.lastSearch = basePath;
 
-        const api = new AdminTreeServiceApi(PydioApi.getRestClient());
-        let listRequest = new TreeListNodesRequest();
-        let treeNode = new TreeNode();
-        treeNode.Path = basePath;
-        listRequest.Node = treeNode;
         this.setState({loading: true});
+
+        const api = new AdminTreeServiceApi(PydioApi.getRestClient());
+        const listRequest = new TreeListNodesRequest();
+        const treeNode = new TreeNode();
+
+        treeNode.Path = basePath + "/";
+        listRequest.Node = treeNode;
+
         api.listAdminTree(listRequest).then(nodesColl => {
-            if (!nodesColl.Children && nodesColl.Parent) {
-                this.setState({nodes: [nodesColl.Parent] || [], loading: false}, () => cb());
-            } else {
-                this.setState({nodes: nodesColl.Children || [], loading: false}, () => cb());
-            }
+            this.setState({nodes: nodesColl.Children || [], loading: false}, () => cb());
         }).catch(() => {
             this.setState({loading: false}, () => cb());
         })
@@ -110,7 +118,7 @@ export default class WsAutoComplete extends React.Component{
         let label = <span>{node.Path}</span>;
         let icon = "mdi mdi-folder";
         let categ = "folder";
-        if(node.MetaStore && node.MetaStore["resolution"]){
+        if (node.MetaStore && node.MetaStore["resolution"]){
             icon = "mdi mdi-file-tree";
             categ = "templatePath";
             const resolutionPart = node.MetaStore["resolution"].split("\n").pop();
@@ -129,13 +137,14 @@ export default class WsAutoComplete extends React.Component{
 
     render(){
 
-        const {searchText} = this.state;
-        const {onDelete, skipTemplates, label, zDepth, pydio} = this.props;
+        const {value, nodes, loading} = this.state;
+
+        const {pydio, onDelete, skipTemplates, label, zDepth = 0} = this.props;
 
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id] || id;
-        const {nodes, loading} = this.state;
+
         let dataSource = [];
-        if (nodes){
+        if (nodes) {
             let categs = {};
             nodes.forEach((node) => {
                 if (node.MetaStore && node.MetaStore["resolution"] && node.Uuid === "cells"){
@@ -146,12 +155,14 @@ export default class WsAutoComplete extends React.Component{
                     return;
                 }
                 const data = WsAutoComplete.renderNode(node, m);
-                if(!categs[data.categ]) {
+                if (!categs[data.categ]) {
                     categs[data.categ] = [];
                 }
+
                 categs[data.categ].push(data);
             });
-            if(Object.keys(categs).length > 1) {
+
+            if (Object.keys(categs).length > 1) {
                 dataSource.push({key: "h1", text: '', value: <MenuItem primaryText={m('ws.complete.datasources')} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
                 const dValues = categs[Object.keys(categs)[0]];
                 dValues.sort(LangUtils.arraySorter("text"));
@@ -167,14 +178,8 @@ export default class WsAutoComplete extends React.Component{
             }
         }
 
-        let displayText = this.state.value;
-        let depth = 0;
-        if(zDepth !== undefined){
-            depth = zDepth;
-        }
-
         return (
-            <Paper zDepth={depth} style={{display:'flex', alignItems: 'baseline', margin:'10px 0 0 -8px', padding:'0 8px 10px', backgroundColor:'#fafafa', ...this.props.style}}>
+            <Paper zDepth={zDepth} style={{display:'flex', alignItems: 'baseline', margin:'10px 0 0 -8px', padding:'0 8px 10px', backgroundColor:'#fafafa', ...this.props.style}}>
                 <div style={{position:'relative', flex: 1, marginTop: -5}}>
                     <div style={{position:'absolute', right: 0, top: 30, width: 30}}>
                         <RefreshIndicator
@@ -186,10 +191,10 @@ export default class WsAutoComplete extends React.Component{
                     </div>
                     <AutoComplete
                         fullWidth={true}
-                        searchText={displayText}
+                        searchText={value}
                         onUpdateInput={(value) => this.handleUpdateInput(value)}
                         onNewRequest={(value) => this.handleNewRequest(value)}
-                        onClose={() => this.handleNewRequest(searchText)}
+                        onClose={() => this.handleNewRequest(value)}
                         dataSource={dataSource}
                         floatingLabelText={label || m('ws.complete.label')}
                         floatingLabelStyle={{whiteSpace:'nowrap'}}
@@ -200,7 +205,7 @@ export default class WsAutoComplete extends React.Component{
                     />
                 </div>
                 {onDelete &&
-                <IconButton iconClassName={"mdi mdi-delete"} onTouchTap={onDelete}/>
+                    <IconButton iconClassName={"mdi mdi-delete"} onTouchTap={onDelete}/>
                 }
             </Paper>
         );
