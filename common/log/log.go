@@ -111,7 +111,7 @@ func initLogger() *zap.Logger {
 		}
 	}
 	nop := zap.NewNop()
-	_ = zap.RedirectStdLog(logger)
+	_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
 	micro.SetLogger(micrologger{nop})
 
 	// Catch StdOut

@@ -35,6 +35,10 @@ import (
 type contextType int
 
 const (
+	ServiceColorRest  = 32
+	ServiceColorGrpc  = 35
+	ServiceColorOther = 36
+
 	serviceColorKey contextType = iota
 	serviceNameKey
 	requestIDKey

@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -49,6 +50,7 @@ var (
 	}
 	restartChan     chan bool
 	restartRequired bool
+	gatewayCtx      = servicecontext.WithServiceName(servicecontext.WithServiceColor(context.Background(), servicecontext.ServiceColorOther), common.SERVICE_GATEWAY_PROXY)
 )
 
 func init() {
@@ -168,7 +170,7 @@ func restart() error {
 		return err
 	}
 
-	log.Info("Restarting Gateway Proxy", zap.ByteString("caddyfile", caddyfile.Body()))
+	log.Logger(gatewayCtx).Info("Restarting proxy", zap.ByteString("caddyfile", caddyfile.Body()))
 
 	// start caddy server
 	instance, err := mainCaddy.instance.Restart(caddyfile)
@@ -176,7 +178,7 @@ func restart() error {
 		return err
 	}
 
-	log.Info("Restart Finished")
+	log.Logger(gatewayCtx).Info("Restart done")
 	mainCaddy.instance = instance
 	return nil
 }

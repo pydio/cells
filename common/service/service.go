@@ -182,16 +182,16 @@ func NewService(opts ...ServiceOption) Service {
 	ctx = servicecontext.WithServiceName(ctx, s.opts.Name)
 
 	if s.IsGRPC() {
-		ctx = servicecontext.WithServiceColor(ctx, 35)
+		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
 	} else if s.IsREST() {
-		ctx = servicecontext.WithServiceColor(ctx, 32)
+		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
 
 		// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
 		if s.Options().Name != common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL {
 			s.Init(WithWebAuth())
 		}
 	} else {
-		ctx = servicecontext.WithServiceColor(ctx, 34)
+		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
 	}
 
 	// Setting config
