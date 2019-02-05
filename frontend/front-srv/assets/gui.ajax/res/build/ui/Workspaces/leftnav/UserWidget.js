@@ -135,7 +135,7 @@ var UserWidget = (function (_React$Component) {
                 'div',
                 { onClick: function (e) {
                         _this.showMenu(e);
-                    }, style: { cursor: 'pointer', maxWidth: 200 } },
+                    }, style: { cursor: 'pointer', maxWidth: 155 } },
                 React.createElement(UserAvatar, {
                     pydio: pydio,
                     userId: user.id,
@@ -144,8 +144,10 @@ var UserWidget = (function (_React$Component) {
                     labelClassName: 'userLabel',
                     displayLabel: displayLabel,
                     displayLabelChevron: true,
-                    labelStyle: { flex: 1, marginLeft: 5, color: color },
-                    avatarSize: 30
+                    labelChevronStyle: { color: color },
+                    labelMaxChars: 8,
+                    labelStyle: { flex: 1, marginLeft: 8, color: color },
+                    avatarSize: 38
                 }),
                 React.createElement(
                     Popover,

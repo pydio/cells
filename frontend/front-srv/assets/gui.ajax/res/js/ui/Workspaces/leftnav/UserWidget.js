@@ -85,7 +85,7 @@ class UserWidget extends React.Component {
                 desktop:true,
             };
             avatar = (
-                <div onClick={(e)=>{this.showMenu(e)}} style={{cursor:'pointer', maxWidth:200}}>
+                <div onClick={(e)=>{this.showMenu(e)}} style={{cursor:'pointer', maxWidth:155}}>
                     <UserAvatar
                         pydio={pydio}
                         userId={user.id}
@@ -94,8 +94,10 @@ class UserWidget extends React.Component {
                         labelClassName="userLabel"
                         displayLabel={displayLabel}
                         displayLabelChevron={true}
-                        labelStyle={{flex: 1, marginLeft: 5, color: color}}
-                        avatarSize={30}
+                        labelChevronStyle={{color: color}}
+                        labelMaxChars={8}
+                        labelStyle={{flex: 1, marginLeft: 8, color: color}}
+                        avatarSize={38}
                     />
                     <Popover
                         zDepth={2}

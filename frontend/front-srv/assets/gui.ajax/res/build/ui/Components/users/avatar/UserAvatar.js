@@ -183,18 +183,20 @@ var UserAvatar = (function (_React$Component) {
         var avatarStyle = _props2.avatarStyle;
         var avatarSize = _props2.avatarSize;
         var className = _props2.className;
+        var labelMaxChars = _props2.labelMaxChars;
         var labelClassName = _props2.labelClassName;
         var displayLabel = _props2.displayLabel;
         var displayLocalLabel = _props2.displayLocalLabel;
         var displayLabelChevron = _props2.displayLabelChevron;
+        var labelChevronStyle = _props2.labelChevronStyle;
         var displayAvatar = _props2.displayAvatar;
         var useDefaultAvatar = _props2.useDefaultAvatar;
         var richCard = _props2.richCard;
-        var cardSize = _props2.cardSize;
         var muiTheme = _props2.muiTheme;
         var noActionsPanel = _props2.noActionsPanel;
         var label = this.state.label;
 
+        var labelTitle = undefined;
         var userTypeLabel = undefined;
         var userNotFound = loadError;
         var userIsPublic = false;
@@ -207,6 +209,24 @@ var UserAvatar = (function (_React$Component) {
         }
         if (local && displayLocalLabel) {
             label = pydio.MessageHash['634'];
+        }
+
+        if (labelMaxChars && label && label.length > labelMaxChars) {
+            if (label.split(' ').length > 1) {
+                labelTitle = label;
+                label = label.split(' ').map(function (word) {
+                    return word[0];
+                }).join('');
+            } else if (label.split('@').length > 1) {
+                labelTitle = label;
+                if (label.split('@')[0].split('.').length > 1) {
+                    label = label.split('@')[0].split('.').map(function (word) {
+                        return word[0];
+                    }).join('');
+                } else {
+                    label = label.split('@')[0];
+                }
+            }
         }
 
         var avatarContent = undefined,
@@ -445,7 +465,7 @@ var UserAvatar = (function (_React$Component) {
         }
         var labelChevron = undefined;
         if (displayLabel && displayLabelChevron) {
-            labelChevron = React.createElement('span', { className: "mdi mdi-chevron-down", style: { marginLeft: 4, fontSize: '0.8em' } });
+            labelChevron = React.createElement('span', { className: "mdi mdi-chevron-down", style: _extends({}, labelChevronStyle, { marginLeft: 4, fontSize: '0.8em' }) });
         }
 
         return React.createElement(
@@ -455,11 +475,12 @@ var UserAvatar = (function (_React$Component) {
             displayLabel && !richCard && React.createElement(
                 'div',
                 {
+                    title: labelTitle,
                     className: labelClassName,
                     style: labelStyle },
-                label,
-                labelChevron
+                label
             ),
+            labelChevron,
             displayLabel && richCard && React.createElement(CardTitle, { style: { textAlign: 'center' }, title: label, subtitle: userTypeLabel }),
             richCard && user && !noActionsPanel && React.createElement(_ActionsPanel2['default'], _extends({}, this.state, this.props, { reloadAction: reloadAction, onEditAction: onEditAction })),
             richCard && graph && !noActionsPanel && React.createElement(_GraphPanel2['default'], _extends({ graph: graph }, this.props, { userLabel: label, reloadAction: reloadAction, onEditAction: onEditAction })),

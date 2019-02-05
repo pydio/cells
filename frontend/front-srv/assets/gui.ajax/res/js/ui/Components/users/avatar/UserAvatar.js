@@ -119,9 +119,11 @@ class UserAvatar extends React.Component{
 
         const {user, avatar, graph, local, loadError} = this.state;
         let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, className,
-            labelClassName, displayLabel, displayLocalLabel, displayLabelChevron, displayAvatar, useDefaultAvatar, richCard, cardSize, muiTheme, noActionsPanel} = this.props;
+            labelMaxChars, labelClassName, displayLabel, displayLocalLabel, displayLabelChevron, labelChevronStyle,
+            displayAvatar, useDefaultAvatar, richCard, muiTheme, noActionsPanel} = this.props;
 
         let {label} = this.state;
+        let labelTitle;
         let userTypeLabel;
         let userNotFound = loadError;
         let userIsPublic = false;
@@ -134,6 +136,20 @@ class UserAvatar extends React.Component{
         }
         if(local && displayLocalLabel) {
             label = pydio.MessageHash['634'];
+        }
+
+        if(labelMaxChars && label && label.length > labelMaxChars) {
+            if(label.split(' ').length > 1){
+                labelTitle = label;
+                label = label.split(' ').map((word)=>word[0]).join('');
+            } else if(label.split('@').length > 1) {
+                labelTitle = label;
+                if(label.split('@')[0].split('.').length > 1){
+                    label = label.split('@')[0].split('.').map((word)=>word[0]).join('');
+                } else {
+                    label = label.split('@')[0];
+                }
+            }
         }
 
         let avatarContent, avatarColor, avatarIcon;
@@ -341,15 +357,17 @@ class UserAvatar extends React.Component{
         }
         let labelChevron;
         if(displayLabel && displayLabelChevron){
-            labelChevron = <span className={"mdi mdi-chevron-down"} style={{marginLeft: 4, fontSize:'0.8em'}}/>
+            labelChevron = <span className={"mdi mdi-chevron-down"} style={{...labelChevronStyle, marginLeft: 4, fontSize:'0.8em'}}/>
         }
 
         return (
             <div className={className} style={style} onMouseOver={onMouseOver} onMouseOut={onMouseOut} onClick={onClick}>
                 {displayAvatar && (avatar || avatarContent || avatarIcon) && avatarComponent}
                 {displayLabel && !richCard && <div
+                    title={labelTitle}
                     className={labelClassName}
-                    style={labelStyle}>{label}{labelChevron}</div>}
+                    style={labelStyle}>{label}</div>}
+                {labelChevron}
                 {displayLabel && richCard && <CardTitle style={{textAlign:'center'}} title={label} subtitle={userTypeLabel}/>}
                 {richCard && user && !noActionsPanel && <ActionsPanel {...this.state} {...this.props} reloadAction={reloadAction} onEditAction={onEditAction}/>}
                 {richCard && graph && !noActionsPanel && <GraphPanel graph={graph} {...this.props} userLabel={label} reloadAction={reloadAction} onEditAction={onEditAction}/>}
