@@ -141,7 +141,6 @@ func Get(path ...string) reader.Value {
 func Set(val interface{}, path ...string) {
 
 	if GetRemoteSource() {
-		fmt.Println("[Configs] Setting config on remote source for", strings.Join(path, "/"))
 		remote.UpdateRemote("config", val, path...)
 		return
 	}
@@ -180,11 +179,9 @@ func Set(val interface{}, path ...string) {
 		var all map[string]interface{}
 		json.Unmarshal(tmpConfig.Bytes(), &all)
 		for k, v := range all {
-			fmt.Printf("[DEBUG] Replacing config value k: %s with v: %s\n", k, v)
 			Default().Set(v, k)
 		}
 	} else {
-		fmt.Printf("[DEBUG] Just update default config at %s with v: %v\n", strings.Join(path, "/"), val)
 		// Just update default config
 		Default().Set(val, path...)
 	}
