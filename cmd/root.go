@@ -170,6 +170,7 @@ func init() {
 	flags.String("grpc_key", "", "Certificates used for communication via grpc")
 	flags.BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 	flags.Bool("enable_metrics", false, "Instrument code to expose internal metrics")
+	flags.Bool("enable_pprof", false, "Enable pprof remote debugging")
 
 	viper.BindPFlag("registry", flags.Lookup("registry"))
 	viper.BindPFlag("registry_address", flags.Lookup("registry_address"))
@@ -187,6 +188,7 @@ func init() {
 	viper.BindPFlag("grpc_key", flags.Lookup("grpc_key"))
 
 	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
+	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))
 
 }
 
