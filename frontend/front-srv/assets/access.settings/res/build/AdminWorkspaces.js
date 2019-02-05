@@ -25474,7 +25474,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -25504,118 +25504,139 @@ var WsAutoComplete = (function (_React$Component) {
     _inherits(WsAutoComplete, _React$Component);
 
     function WsAutoComplete(props) {
+        var _this = this;
+
         _classCallCheck(this, WsAutoComplete);
 
         _get(Object.getPrototypeOf(WsAutoComplete.prototype), 'constructor', this).call(this, props);
-        this.debounced = (0, _lodashDebounce2['default'])(this.loadValues.bind(this), 300);
-        this.state = { searchText: props.value, value: props.value };
+
+        var _props$value = props.value;
+        var value = _props$value === undefined ? '' : _props$value;
+
+        this.debounced = (0, _lodashDebounce2['default'])(function () {
+            var value = _this.state.value;
+
+            _this.loadValues(value);
+        }, 300);
+
+        this.state = {
+            nodes: [],
+            value: value
+        };
     }
 
     _createClass(WsAutoComplete, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this = this;
+            var _this2 = this;
 
-            var _state$value = this.state.value;
-            var value = _state$value === undefined ? "" : _state$value;
-
-            this.lastSearch = null;
+            var value = this.state.value;
 
             this.loadValues(value, function () {
-                if (value != "") {
-                    _this.handleNewRequest(value);
+                var _state = _this2.state;
+                var nodes = _state.nodes;
+                var value = _state.value;
+
+                var done = false;
+
+                // Checking if we have a collection and load deeper values if it's the case
+                var node = nodes.filter(function (node) {
+                    return node.Path === value && (!node.Type || node.Type == "COLLECTION" && !node.MetaStore && !node.MetaStore.resolution);
+                }).map(function (node) {
+                    done = true;
+
+                    _this2.loadValues(value + "/");
+                });
+
+                if (!done) {
+                    _this2.handleNewRequest(value);
                 }
             });
         }
     }, {
         key: 'handleUpdateInput',
-        value: function handleUpdateInput(searchText) {
+        value: function handleUpdateInput(input) {
             this.debounced();
-            this.setState({ searchText: searchText });
+            this.setState({ value: input });
         }
     }, {
         key: 'handleNewRequest',
-        value: function handleNewRequest(chosenValue) {
-            var key = undefined;
-            var chosenNode = undefined;
-
+        value: function handleNewRequest(value) {
             var nodes = this.state.nodes;
             var _props = this.props;
-            var _props$autofill = _props.autofill;
-            var autofill = _props$autofill === undefined ? true : _props$autofill;
             var _props$onChange = _props.onChange;
             var onChange = _props$onChange === undefined ? function () {} : _props$onChange;
+            var _props$onDelete = _props.onDelete;
+            var onDelete = _props$onDelete === undefined ? function () {} : _props$onDelete;
             var _props$onError = _props.onError;
             var onError = _props$onError === undefined ? function () {} : _props$onError;
 
-            if (chosenValue.key === undefined) {
-                if (chosenValue === '') {
-                    this.props.onChange('');
-                }
-                key = chosenValue;
-                var ok = false;
-                nodes.map(function (node) {
-                    if (node.Path === key || node.Path === key + '/') {
-                        chosenNode = node;
-                        ok = true;
-                    }
-                });
-                if (!ok && autofill) {
-                    nodes.map(function (node) {
-                        if (node.Path.indexOf(key) === 0) {
-                            key = node.Path;
-                            chosenNode = node;
-                            ok = true;
-                        }
-                    });
-                }
-                if (!ok) {
-                    onError();
+            var key = undefined;
+            var node = undefined;
+
+            if (typeof value === 'string') {
+                if (value === '') {
+                    onDelete();
                     return;
                 }
-            } else {
-                key = chosenValue.key;
-                chosenNode = chosenValue.node;
+
+                key = value;
+
+                // First we try to find an exact match
+                node = nodes.filter(function (node) {
+                    return node.Path === value;
+                })[0];
+
+                // Then we try to retrieve the first node that starts with what we are looking at
+                if (!node) {
+                    node = nodes.filter(function (node) {
+                        return node.Path.indexOf(value) === 0;
+                    })[0];
+                }
+            } else if (typeof value === 'object') {
+                key = value.key;
+                node = value.node;
             }
+
+            if (!node) {
+                return onError();
+            }
+
             this.setState({ value: key });
-            onChange(key, chosenNode);
+
+            onChange(key, node);
         }
     }, {
         key: 'loadValues',
-        value: function loadValues() {
-            var _this2 = this;
+        value: function loadValues(value) {
+            var _this3 = this;
 
-            var value = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
             var cb = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
-            var searchText = this.state.searchText;
 
-            var basePath = value;
-            if (!value && searchText) {
-                var last = searchText.lastIndexOf('/');
-                basePath = searchText.substr(0, last);
-            }
+            var last = value.lastIndexOf('/');
+            var basePath = value.substr(0, last);
+
             if (this.lastSearch !== null && this.lastSearch === basePath) {
                 return;
             }
+
             this.lastSearch = basePath;
+
+            this.setState({ loading: true });
 
             var api = new _pydioHttpRestApi.AdminTreeServiceApi(PydioApi.getRestClient());
             var listRequest = new _pydioHttpRestApi.TreeListNodesRequest();
             var treeNode = new _pydioHttpRestApi.TreeNode();
-            treeNode.Path = basePath;
+
+            treeNode.Path = basePath + "/";
             listRequest.Node = treeNode;
-            this.setState({ loading: true });
+
             api.listAdminTree(listRequest).then(function (nodesColl) {
-                if (!nodesColl.Children && nodesColl.Parent) {
-                    _this2.setState({ nodes: [nodesColl.Parent] || [], loading: false }, function () {
-                        return cb();
-                    });
-                }
-                _this2.setState({ nodes: nodesColl.Children || [], loading: false }, function () {
+                _this3.setState({ nodes: nodesColl.Children || [], loading: false }, function () {
                     return cb();
                 });
             })['catch'](function () {
-                _this2.setState({ loading: false }, function () {
+                _this3.setState({ loading: false }, function () {
                     return cb();
                 });
             });
@@ -25623,22 +25644,23 @@ var WsAutoComplete = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
-            var searchText = this.state.searchText;
+            var _state2 = this.state;
+            var value = _state2.value;
+            var nodes = _state2.nodes;
+            var loading = _state2.loading;
             var _props2 = this.props;
+            var pydio = _props2.pydio;
             var onDelete = _props2.onDelete;
             var skipTemplates = _props2.skipTemplates;
             var label = _props2.label;
-            var zDepth = _props2.zDepth;
-            var pydio = _props2.pydio;
+            var _props2$zDepth = _props2.zDepth;
+            var zDepth = _props2$zDepth === undefined ? 0 : _props2$zDepth;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.' + id] || id;
             };
-            var _state = this.state;
-            var nodes = _state.nodes;
-            var loading = _state.loading;
 
             var dataSource = [];
             if (nodes) {
@@ -25656,8 +25678,10 @@ var WsAutoComplete = (function (_React$Component) {
                         if (!categs[data.categ]) {
                             categs[data.categ] = [];
                         }
+
                         categs[data.categ].push(data);
                     });
+
                     if (Object.keys(categs).length > 1) {
                         dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.datasources'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
                         var dValues = categs[Object.keys(categs)[0]];
@@ -25675,15 +25699,9 @@ var WsAutoComplete = (function (_React$Component) {
                 })();
             }
 
-            var displayText = this.state.value;
-            var depth = 0;
-            if (zDepth !== undefined) {
-                depth = zDepth;
-            }
-
             return _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: depth, style: _extends({ display: 'flex', alignItems: 'baseline', margin: '10px 0 0 -8px', padding: '0 8px 10px', backgroundColor: '#fafafa' }, this.props.style) },
+                { zDepth: zDepth, style: _extends({ display: 'flex', alignItems: 'baseline', margin: '10px 0 0 -8px', padding: '0 8px 10px', backgroundColor: '#fafafa' }, this.props.style) },
                 _react2['default'].createElement(
                     'div',
                     { style: { position: 'relative', flex: 1, marginTop: -5 } },
@@ -25699,15 +25717,15 @@ var WsAutoComplete = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(_materialUi.AutoComplete, {
                         fullWidth: true,
-                        searchText: displayText,
+                        searchText: value,
                         onUpdateInput: function (value) {
-                            return _this3.handleUpdateInput(value);
+                            return _this4.handleUpdateInput(value);
                         },
                         onNewRequest: function (value) {
-                            return _this3.handleNewRequest(value);
+                            return _this4.handleNewRequest(value);
                         },
                         onClose: function () {
-                            return _this3.handleNewRequest(searchText);
+                            return _this4.handleNewRequest(value);
                         },
                         dataSource: dataSource,
                         floatingLabelText: label || m('ws.complete.label'),
