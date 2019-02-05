@@ -86,7 +86,12 @@ class UserPanel extends React.Component {
     }
 
     render() {
-
+        const {pydio, iconStyle} = this.props;
+        const {open, anchorEl} = this.state;
+        let buttonStyle = {borderRadius: '50%'};
+        if(open){
+            buttonStyle = {...buttonStyle, backgroundColor: 'rgba(255, 255, 255, 0.098)'}
+        }
         return (
             <span>
                 <Badge
@@ -100,12 +105,13 @@ class UserPanel extends React.Component {
                         iconClassName={this.props.iconClassName || "icon-bell"}
                         tooltip={this.props.pydio.MessageHash['notification_center.4']}
                         className="userActionButton alertsButton"
-                        iconStyle={this.props.iconStyle}
+                        iconStyle={iconStyle}
+                        style={buttonStyle}
                     />
                 </Badge>
                 <Popover
-                    open={this.state.open}
-                    anchorEl={this.state.anchorEl}
+                    open={open}
+                    anchorEl={anchorEl}
                     anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
                     targetOrigin={{horizontal: 'left', vertical: 'top'}}
                     onRequestClose={this.handleRequestClose.bind(this)}
@@ -113,6 +119,8 @@ class UserPanel extends React.Component {
                     zDepth={2}
 
                 >
+                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', padding: '12px 16px', width: '100%',
+                        backgroundColor: 'rgb(238, 238, 238)', borderBottom: '1px solid rgb(224, 224, 224)'}}>{pydio.MessageHash['notification_center.1']}</div>
                     {this.state.data &&
                         <ActivityList
                             items={this.state.data.items}

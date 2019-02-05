@@ -21,6 +21,8 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -139,13 +141,12 @@ var BookmarksList = (function (_React$Component) {
         if (!pydio.user.activeRepository) {
             return null;
         }
-        var mainColor = _color2['default'](muiTheme.palette.primary1Color);
         var items = undefined;
         if (bookmarks) {
             items = bookmarks.map(function (n) {
                 return _react2['default'].createElement(_materialUi.ListItem, {
                     primaryText: _pydioUtilPath2['default'].getBasename(n.Path),
-                    secondaryText: "Appears in:" + n.AppearsIn.map(function (ws) {
+                    secondaryText: n.AppearsIn.map(function (ws) {
                         return ws.WsLabel;
                     }).join(', '),
                     onTouchTap: function () {
@@ -161,6 +162,11 @@ var BookmarksList = (function (_React$Component) {
             });
         }
 
+        var buttonStyle = { borderRadius: '50%' };
+        if (open) {
+            buttonStyle = _extends({}, buttonStyle, { backgroundColor: 'rgba(255, 255, 255, 0.098)' });
+        }
+
         return _react2['default'].createElement(
             'span',
             null,
@@ -169,7 +175,8 @@ var BookmarksList = (function (_React$Component) {
                 iconClassName: "userActionIcon mdi mdi-star-outline",
                 tooltip: pydio.MessageHash['147'],
                 className: 'userActionButton',
-                iconStyle: iconStyle
+                iconStyle: iconStyle,
+                style: buttonStyle
             }),
             _react2['default'].createElement(
                 _materialUi.Popover,
@@ -183,20 +190,26 @@ var BookmarksList = (function (_React$Component) {
                     zDepth: 2
 
                 },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', borderRadius: '2px 2px 0 0', padding: '12px 16px', width: '100%',
+                            backgroundColor: 'rgb(238, 238, 238)', borderBottom: '1px solid rgb(224, 224, 224)' } },
+                    pydio.MessageHash[147]
+                ),
                 loading && _react2['default'].createElement(
                     'div',
-                    { style: { height: 200, backgroundColor: mainColor.lightness(97).rgb().toString() } },
+                    { style: { height: 260, backgroundColor: 'white' } },
                     _react2['default'].createElement(_materialUi.RefreshIndicator, {
                         size: 40,
                         left: 140,
-                        top: 40,
+                        top: 120,
                         status: 'loading',
                         style: {}
                     })
                 ),
                 !loading && items && items.length && _react2['default'].createElement(
                     _materialUi.List,
-                    null,
+                    { style: { maxHeight: 280, overflowY: 'auto', padding: 0 } },
                     items
                 ),
                 !loading && (!items || !items.length) && _react2['default'].createElement(EmptyStateView, {
@@ -204,7 +217,7 @@ var BookmarksList = (function (_React$Component) {
                     iconClassName: 'mdi mdi-star-outline',
                     primaryTextId: '145',
                     secondaryTextId: "482",
-                    style: { minHeight: 260 }
+                    style: { minHeight: 260, backgroundColor: 'white' }
                 })
             )
         );

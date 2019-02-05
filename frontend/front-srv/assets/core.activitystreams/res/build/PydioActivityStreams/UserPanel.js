@@ -23,6 +23,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -131,7 +133,17 @@ var UserPanel = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var iconStyle = _props.iconStyle;
+            var _state = this.state;
+            var open = _state.open;
+            var anchorEl = _state.anchorEl;
 
+            var buttonStyle = { borderRadius: '50%' };
+            if (open) {
+                buttonStyle = _extends({}, buttonStyle, { backgroundColor: 'rgba(255, 255, 255, 0.098)' });
+            }
             return _react2['default'].createElement(
                 'span',
                 null,
@@ -148,14 +160,15 @@ var UserPanel = (function (_React$Component) {
                         iconClassName: this.props.iconClassName || "icon-bell",
                         tooltip: this.props.pydio.MessageHash['notification_center.4'],
                         className: 'userActionButton alertsButton',
-                        iconStyle: this.props.iconStyle
+                        iconStyle: iconStyle,
+                        style: buttonStyle
                     })
                 ),
                 _react2['default'].createElement(
                     _materialUi.Popover,
                     {
-                        open: this.state.open,
-                        anchorEl: this.state.anchorEl,
+                        open: open,
+                        anchorEl: anchorEl,
                         anchorOrigin: { horizontal: 'left', vertical: 'bottom' },
                         targetOrigin: { horizontal: 'left', vertical: 'top' },
                         onRequestClose: this.handleRequestClose.bind(this),
@@ -163,6 +176,12 @@ var UserPanel = (function (_React$Component) {
                         zDepth: 2
 
                     },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', alignItems: 'center', borderRadius: '2px 2px 0 0', padding: '12px 16px', width: '100%',
+                                backgroundColor: 'rgb(238, 238, 238)', borderBottom: '1px solid rgb(224, 224, 224)' } },
+                        pydio.MessageHash['notification_center.1']
+                    ),
                     this.state.data && _react2['default'].createElement(_ActivityList2['default'], {
                         items: this.state.data.items,
                         style: { overflowY: 'scroll', maxHeight: 330, paddingTop: 20 },

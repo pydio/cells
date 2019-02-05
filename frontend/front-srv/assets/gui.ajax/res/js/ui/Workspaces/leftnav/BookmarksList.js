@@ -95,13 +95,12 @@ class BookmarksList extends React.Component {
         if(!pydio.user.activeRepository){
             return null;
         }
-        const mainColor = Color(muiTheme.palette.primary1Color);
         let items;
         if (bookmarks) {
             items = bookmarks.map(n=>{
                 return <ListItem
                     primaryText={PathUtils.getBasename(n.Path)}
-                    secondaryText={"Appears in:" + n.AppearsIn.map(ws => ws.WsLabel).join(', ')}
+                    secondaryText={n.AppearsIn.map(ws => ws.WsLabel).join(', ')}
                     onTouchTap={() => {
                         let path = n.AppearsIn[0].Path;
                         if(!path) {
@@ -115,6 +114,11 @@ class BookmarksList extends React.Component {
             });
         }
 
+        let buttonStyle = {borderRadius: '50%'};
+        if(open){
+            buttonStyle = {...buttonStyle, backgroundColor: 'rgba(255, 255, 255, 0.098)'}
+        }
+
         return (
             <span>
                 <IconButton
@@ -123,6 +127,7 @@ class BookmarksList extends React.Component {
                     tooltip={pydio.MessageHash['147']}
                     className="userActionButton"
                     iconStyle={iconStyle}
+                    style={buttonStyle}
                 />
                 <Popover
                     open={open}
@@ -134,19 +139,21 @@ class BookmarksList extends React.Component {
                     zDepth={2}
 
                 >
+                    <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', padding: '12px 16px', width: '100%',
+                        backgroundColor: 'rgb(238, 238, 238)', borderBottom: '1px solid rgb(224, 224, 224)'}}>{pydio.MessageHash[147]}</div>
                     {loading &&
-                        <div style={{height: 200, backgroundColor:mainColor.lightness(97).rgb().toString()}}>
+                        <div style={{height: 260, backgroundColor:'white'}}>
                             <RefreshIndicator
                                 size={40}
                                 left={140}
-                                top={40}
+                                top={120}
                                 status="loading"
                                 style={{}}
                             />
                         </div>
                     }
                     {!loading && items && items.length &&
-                        <List>{items}</List>
+                        <List style={{maxHeight:280, overflowY:'auto', padding: 0}}>{items}</List>
                     }
                     {!loading && (!items || !items.length) &&
                         <EmptyStateView
@@ -154,7 +161,7 @@ class BookmarksList extends React.Component {
                             iconClassName="mdi mdi-star-outline"
                             primaryTextId="145"
                             secondaryTextId={"482"}
-                            style={{minHeight: 260}}
+                            style={{minHeight: 260, backgroundColor:'white'}}
                         />
                     }
                 </Popover>
