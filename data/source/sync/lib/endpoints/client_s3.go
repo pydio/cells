@@ -419,6 +419,7 @@ func (c *S3Client) readOrCreateFolderId(folderPath string) (uid string, created 
 	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
 	object, err := c.Mc.GetObject(c.Bucket, hiddenPath, minio.GetObjectOptions{})
 	if err == nil {
+		defer object.Close()
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(object)
 		uid = buf.String()

@@ -92,6 +92,9 @@ func buildForkStartParams(name string) []string {
 	if viper.GetBool("enable_metrics") {
 		params = append(params, "--enable_metrics")
 	}
+	if viper.GetBool("enable_pprof") {
+		params = append(params, "--enable_pprof")
+	}
 	params = append(params, name)
 	return params
 }
