@@ -224,11 +224,20 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	login := req.PathParameter("Login")
 	ctx := req.Request.Context()
 	singleQ := &idm.UserSingleQuery{}
+	uName, claims := utils.FindUserNameInContext(ctx)
 	if strings.HasSuffix(req.Request.RequestURI, "%2F") {
-		log.Logger(req.Request.Context()).Debug("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
+		log.Logger(req.Request.Context()).Info("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("crtGroup", claims.GroupPath), zap.String("request", req.Request.RequestURI))
+		if strings.HasPrefix(claims.GroupPath, "/"+login) {
+			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "You are about to delete your own group!"))
+			return
+		}
 		singleQ.GroupPath = login
 		singleQ.Recursive = true
 	} else {
+		if uName == login {
+			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "Please make sure not to delete yourself!"))
+			return
+		}
 		log.Logger(req.Request.Context()).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
 		singleQ.Login = login
 	}
