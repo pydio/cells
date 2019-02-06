@@ -25530,6 +25530,7 @@ var WsAutoComplete = (function (_React$Component) {
         value: function componentDidMount() {
             var _this2 = this;
 
+            var validateOnLoad = this.props.validateOnLoad;
             var value = this.state.value;
 
             this.loadValues(value, function () {
@@ -25537,18 +25538,16 @@ var WsAutoComplete = (function (_React$Component) {
                 var nodes = _state.nodes;
                 var value = _state.value;
 
-                var done = false;
-
                 // Checking if we have a collection and load deeper values if it's the case
                 var node = nodes.filter(function (node) {
                     return node.Path === value && (!node.Type || node.Type == "COLLECTION" && !node.MetaStore && !node.MetaStore.resolution);
                 }).map(function (node) {
-                    done = true;
 
                     _this2.loadValues(value + "/");
                 });
 
-                if (!done) {
+                if (validateOnLoad) {
+                    console.log("Checking value");
                     _this2.handleNewRequest(value);
                 }
             });
@@ -25597,6 +25596,8 @@ var WsAutoComplete = (function (_React$Component) {
                 key = value.key;
                 node = value.node;
             }
+
+            console.log("Node is ", node);
 
             if (!node) {
                 return onError();

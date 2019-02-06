@@ -22,24 +22,23 @@ export default class WsAutoComplete extends React.Component{
         };
     }
 
-    componentDidMount(){
+    componentDidMount() {
+        const {validateOnLoad} = this.props
         const {value} = this.state
 
         this.loadValues(value, () => {
             const {nodes, value} = this.state
 
-            let done = false;
-
             // Checking if we have a collection and load deeper values if it's the case
             const node = nodes
                 .filter((node) => node.Path === value && (!node.Type || (node.Type == "COLLECTION" && !node.MetaStore && !node.MetaStore.resolution)))
                 .map((node) => {
-                    done = true;
 
                     this.loadValues(value + "/")
                 })
 
-            if (!done) {
+            if (validateOnLoad) {
+                console.log("Checking value")
                 this.handleNewRequest(value)
             }
         });
@@ -78,9 +77,12 @@ export default class WsAutoComplete extends React.Component{
             node = value.node
         }
 
+        console.log("Node is ", node)
+
         if (!node) {
             return onError()
         }
+
 
         this.setState({value: key});
 
