@@ -175,7 +175,7 @@ var AltDashboard = (function (_React$Component) {
             var leftPanelProps = {
                 style: { backgroundColor: 'transparent' },
                 headerHeight: headerHeight,
-                onClick: function onClick() {
+                onMouseOver: function onMouseOver() {
                     _this2.clearCloseTimeout();
                 },
                 userWidgetProps: {

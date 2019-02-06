@@ -199,7 +199,7 @@ var HomeSearchForm = (function (_Component) {
 
             return React.createElement(
                 _materialUi.Paper,
-                { style: style, zDepth: zDepth, className: 'vertical-layout home-center-paper' },
+                { style: style, zDepth: zDepth, className: 'vertical-layout home-center-paper', rounded: false },
                 React.createElement(
                     _materialUi.Paper,
                     { zDepth: searchFocus || queryString ? 1 : 0, style: styles.textFieldContainer, className: 'home-search-form' },

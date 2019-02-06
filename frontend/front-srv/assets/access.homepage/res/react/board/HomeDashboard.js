@@ -118,7 +118,7 @@ class AltDashboard extends React.Component {
         const leftPanelProps = {
             style: {backgroundColor: 'transparent'},
             headerHeight:headerHeight,
-            onClick:()=>{this.clearCloseTimeout()},
+            onMouseOver:()=>{this.clearCloseTimeout()},
             userWidgetProps: {
                 color: fontColor,
                 mergeButtonInAvatar:true,

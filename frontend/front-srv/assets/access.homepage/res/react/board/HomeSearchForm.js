@@ -124,7 +124,7 @@ class HomeSearchForm extends Component{
         };
 
         return (
-            <Paper style={style} zDepth={zDepth} className="vertical-layout home-center-paper">
+            <Paper style={style} zDepth={zDepth} className="vertical-layout home-center-paper" rounded={false}>
                 <Paper zDepth={searchFocus || queryString ? 1 : 0} style={styles.textFieldContainer} className="home-search-form">
                     <FontIcon className="mdi mdi-magnify" style={styles.magnifier}/>
                     <TextField
