@@ -239,11 +239,19 @@ var WelcomeTour = (function (_Component2) {
         key: 'discard',
         value: function discard() {
             var finished = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-            var user = this.props.pydio.user;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var onFinish = _props.onFinish;
+            var user = pydio.user;
 
             var guiPrefs = user.getPreference('gui_preferences', true);
             guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
-            if (finished) guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] = true;
+            if (finished) {
+                guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] = true;
+                if (onFinish) {
+                    onFinish();
+                }
+            }
             user.setPreference('gui_preferences', guiPrefs, true);
             user.savePreference('gui_preferences');
         }
@@ -260,7 +268,6 @@ var WelcomeTour = (function (_Component2) {
             var message = function message(id) {
                 return getMessage('ajax_gui.tour.' + id);
             };
-            var widgetBarEnabled = !!!this.props.pydio.getPluginConfigs('access.homepage').get('DISABLE_WIDGET_BAR');
 
             var tourguideSteps = [{
                 title: message('workspaces.title'),

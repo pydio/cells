@@ -40,19 +40,21 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
+
 var _ConfigLogo = require('./ConfigLogo');
 
 var _ConfigLogo2 = _interopRequireDefault(_ConfigLogo);
 
-var _materialUi = require('material-ui');
-
 var _WelcomeTour = require('./WelcomeTour');
 
 var _WelcomeTour2 = _interopRequireDefault(_WelcomeTour);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
 
 var _HomeSearchForm = require('./HomeSearchForm');
 
@@ -76,12 +78,23 @@ var AltDashboard = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(AltDashboard.prototype), 'constructor', this).call(this, props);
         this.state = { unreadStatus: 0, drawerOpen: true };
-        this.closeTimeout = setTimeout(function () {
-            _this.setState({ drawerOpen: false });
-        }, 2500);
+        if (!this.showTutorial()) {
+            this.closeTimeout = setTimeout(function () {
+                _this.setState({ drawerOpen: false });
+            }, 2500);
+        }
     }
 
     _createClass(AltDashboard, [{
+        key: 'showTutorial',
+        value: function showTutorial() {
+            var pydio = this.props.pydio;
+
+            var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
+            var wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+            return wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'];
+        }
+    }, {
         key: 'openDrawer',
         value: function openDrawer(event) {
             event.stopPropagation();
@@ -106,8 +119,6 @@ var AltDashboard = (function (_React$Component) {
             var drawerOpen = this.state.drawerOpen;
 
             var appBarColor = new _materialUi.Color(muiTheme.appBar.color);
-            var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
-            var wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
             var colorHue = (0, _materialUi.Color)(muiTheme.palette.primary1Color).hsl().array()[0];
             var lightBg = new _materialUi.Color({ h: colorHue, s: 35, l: 98 });
             var fontColor = (0, _materialUi.Color)(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
@@ -143,8 +154,12 @@ var AltDashboard = (function (_React$Component) {
             var mainClasses = ['vertical_layout', 'vertical_fit', 'react-fs-template', 'user-dashboard-template'];
 
             var tutorialComponent = undefined;
-            if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome']) {
-                tutorialComponent = _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: pydio });
+            if (this.showTutorial()) {
+                tutorialComponent = _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: pydio, onFinish: function () {
+                        _this2.closeTimeout = setTimeout(function () {
+                            _this2.setState({ drawerOpen: false });
+                        }, 1500);
+                    } });
             }
 
             // Not used - to be used for toggling left menu
@@ -192,6 +207,9 @@ var AltDashboard = (function (_React$Component) {
                     leftPanelProps: leftPanelProps,
                     drawerOpen: drawerOpen,
                     onCloseDrawerRequested: function () {
+                        if (tutorialComponent !== undefined) {
+                            return;
+                        }
                         _this2.setState({ drawerOpen: false });
                     }
                 },
@@ -226,7 +244,7 @@ var AltDashboard = (function (_React$Component) {
     return AltDashboard;
 })(_react2['default'].Component);
 
-exports['default'] = AltDashboard = MaterialUI.Style.muiThemeable()(AltDashboard);
+exports['default'] = AltDashboard = (0, _materialUiStyles.muiThemeable)()(AltDashboard);
 
 exports['default'] = AltDashboard;
 module.exports = exports['default'];

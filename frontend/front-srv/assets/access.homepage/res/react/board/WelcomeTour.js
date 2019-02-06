@@ -135,10 +135,16 @@ class WelcomeTour extends Component{
     }
 
     discard(finished = false){
-        const {user} =  this.props.pydio;
+        const {pydio, onFinish} = this.props;
+        const {user} =  pydio;
         let guiPrefs = user.getPreference('gui_preferences', true);
         guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
-        if(finished) guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] = true;
+        if(finished) {
+            guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] = true;
+            if(onFinish){
+                onFinish();
+            }
+        }
         user.setPreference('gui_preferences', guiPrefs, true);
         user.savePreference('gui_preferences');
     }
@@ -150,7 +156,6 @@ class WelcomeTour extends Component{
         }
         const {getMessage} = this.props;
         const message = (id) => getMessage('ajax_gui.tour.' + id);
-        const widgetBarEnabled = !!! this.props.pydio.getPluginConfigs('access.homepage').get('DISABLE_WIDGET_BAR');
 
         let tourguideSteps = [
             {

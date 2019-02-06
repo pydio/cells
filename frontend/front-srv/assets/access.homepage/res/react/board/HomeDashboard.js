@@ -19,10 +19,11 @@
  */
 
 import React from 'react'
-import ConfigLogo from './ConfigLogo'
-import {Paper, IconButton, Badge, Color} from 'material-ui'
-import WelcomeTour from './WelcomeTour'
 import Pydio from 'pydio'
+import {Paper, IconButton, Badge, Color} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
+import ConfigLogo from './ConfigLogo'
+import WelcomeTour from './WelcomeTour'
 import HomeSearchForm from './HomeSearchForm'
 import SmartRecents from '../recent/SmartRecents'
 const {MasterLayout} = Pydio.requireLib('workspaces');
@@ -32,7 +33,16 @@ class AltDashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {unreadStatus: 0, drawerOpen: true};
-        this.closeTimeout = setTimeout(()=>{this.setState({drawerOpen: false})}, 2500);
+        if (!this.showTutorial()) {
+            this.closeTimeout = setTimeout(()=>{this.setState({drawerOpen: false})}, 2500);
+        }
+    }
+
+    showTutorial(){
+        const {pydio} = this.props;
+        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
+        const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+        return wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'];
     }
 
     openDrawer(event) {
@@ -53,8 +63,6 @@ class AltDashboard extends React.Component {
         const {drawerOpen} = this.state;
 
         const appBarColor = new Color(muiTheme.appBar.color);
-        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
-        const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
         const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
         const lightBg = new Color({h:colorHue,s:35,l:98});
         const fontColor =  Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
@@ -91,8 +99,10 @@ class AltDashboard extends React.Component {
         let mainClasses = ['vertical_layout', 'vertical_fit', 'react-fs-template', 'user-dashboard-template'];
 
         let tutorialComponent;
-        if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome']) {
-            tutorialComponent = <WelcomeTour ref="welcome" pydio={pydio}/>;
+        if (this.showTutorial()) {
+            tutorialComponent = <WelcomeTour ref="welcome" pydio={pydio} onFinish={()=>{
+                this.closeTimeout = setTimeout(()=>{this.setState({drawerOpen: false})}, 1500);
+            }}/>;
         }
 
         // Not used - to be used for toggling left menu
@@ -139,6 +149,9 @@ class AltDashboard extends React.Component {
                 leftPanelProps={leftPanelProps}
                 drawerOpen={drawerOpen}
                 onCloseDrawerRequested={() => {
+                    if(tutorialComponent !== undefined) {
+                        return
+                    }
                     this.setState({drawerOpen: false})
                 }}
             >
@@ -165,6 +178,6 @@ class AltDashboard extends React.Component {
     }
 }
 
-AltDashboard = MaterialUI.Style.muiThemeable()(AltDashboard);
+AltDashboard = muiThemeable()(AltDashboard);
 
 export {AltDashboard as default};
