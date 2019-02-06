@@ -72,6 +72,7 @@ func (v *VirtualNodesBrowser) ListNodes(ctx context.Context, in *tree.ListNodesR
 	}
 	s := NewWrappingStreamer()
 	go func() {
+		vManager.Load(true)
 		defer stream.Close()
 		defer s.Close()
 		for {

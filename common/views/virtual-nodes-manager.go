@@ -34,10 +34,10 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
 )
@@ -68,12 +68,14 @@ func GetVirtualNodesManager() *VirtualNodesManager {
 }
 
 // Load requests the virtual nodes from the DocStore service.
-func (m *VirtualNodesManager) Load() {
-	if vNodes, found := vManagerCache.Get("virtual-nodes"); found {
-		m.VirtualNodes = vNodes.([]*tree.Node)
-		//log.Logger(context.Background()).Debug("Loaded nodes from cache: ", zap.Any("nodes", m.VirtualNodes))
-		return
+func (m *VirtualNodesManager) Load(forceReload ...bool) {
+	if len(forceReload) == 0 || !forceReload[0] {
+		if vNodes, found := vManagerCache.Get("virtual-nodes"); found {
+			m.VirtualNodes = vNodes.([]*tree.Node)
+			return
+		}
 	}
+	log.Logger(context.Background()).Debug("Reloading virtual nodes to cache")
 	m.VirtualNodes = []*tree.Node{}
 	cli := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	stream, e := cli.ListDocuments(context.Background(), &docstore.ListDocumentsRequest{
