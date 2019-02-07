@@ -82,13 +82,40 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 		// Clone email and set unique user
 		m := protobuf.Clone(mail).(*proto.Mail)
 		m.To = []*proto.User{to}
-		if m.From == nil {
-			m.From = &proto.User{
-				Address: configs.From,
-				Name:    configs.Title,
+		if configs.FromCtl == "default" {
+			if m.From == nil {
+				m.From = &proto.User{
+					Address: configs.From,
+					Name:    configs.FromName,
+				}
+			} else {
+				m.From.Address = configs.From
+				m.From.Name = configs.FromName
 			}
-		} else if m.From.Address == "" {
-			m.From.Address = configs.From
+		} else if configs.FromCtl == "sender" {
+			if m.From == nil {
+				m.From = &proto.User{
+					Address: configs.From,
+					Name:    configs.FromName,
+				}
+			} else if m.From.Address == "" {
+				m.From.Address = configs.From
+			}
+			if m.From.Address != configs.From {
+				m.Sender = &proto.User{
+					Address: configs.From,
+					Name:    configs.FromName,
+				}
+			}
+		} else {
+			if m.From == nil {
+				m.From = &proto.User{
+					Address: configs.From,
+					Name:    configs.FromName,
+				}
+			} else if m.From.Address == "" {
+				m.From.Address = configs.From
+			}
 		}
 		he := templates.GetHermes(languages...)
 		if m.ContentHtml == "" {

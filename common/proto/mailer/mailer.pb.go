@@ -89,6 +89,7 @@ type Mail struct {
 	TemplateData map[string]string `protobuf:"bytes,14,rep,name=TemplateData" json:"TemplateData,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Retries      int32             `protobuf:"varint,15,opt,name=Retries" json:"Retries,omitempty"`
 	SendErrors   []string          `protobuf:"bytes,16,rep,name=sendErrors" json:"sendErrors,omitempty"`
+	Sender          *User    `protobuf:"bytes,17,opt,name=Sender" json:"Sender,omitempty"`
 }
 
 func (m *Mail) Reset()                    { *m = Mail{} }
@@ -197,6 +198,13 @@ func (m *Mail) GetRetries() int32 {
 func (m *Mail) GetSendErrors() []string {
 	if m != nil {
 		return m.SendErrors
+	}
+	return nil
+}
+
+func (m *Mail) GetSender() *User {
+	if m != nil {
+		return m.Sender
 	}
 	return nil
 }

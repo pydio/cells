@@ -208,5 +208,26 @@
   },
   "Mail.Config.Sendmail.Executable.Other": {
     "other": "Anderer Pfad (manuell in pydio.json setzen)"
+  },
+  "Mail.Config.FromName.Label": {
+    "other" : "Standard FROM Name"
+  },
+  "Mail.Config.FromName.Description": {
+    "other" : "Anzeigename für den Standardabsender."
+  },
+  "Mail.Config.FromCtl.Label": {
+    "other": "Handhabung von From/Sender"
+  },
+  "Mail.Config.FromCtl.Description": {
+    "other": "Legt fest, wie From/Sender zu setzen sind."
+  },
+  "Mail.Config.FromCtlUser.Label": {
+    "other": "Benutzer Adresse"
+  },
+  "Mail.Config.FromCtlSender.Label": {
+    "other": "Benutzer Adresse und Sender Header"
+  },
+  "Mail.Config.FromCtlDefault.Label": {
+    "other": "Standard Adresse"
   }
 }
