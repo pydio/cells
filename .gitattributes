@@ -1,3 +1,2 @@
-assets/src/* linguist-vendored
-vendor/* linguist-vendored
-frontend/front-srv/assets/* linguist-vendored
+vendor/* linguist-vendored=true
+frontend/front-srv/assets/* linguist-vendored=true
