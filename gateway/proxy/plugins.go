@@ -59,10 +59,16 @@ var (
 			insecure_skip_verify
 		}
 		proxy /io   {{.Gateway | serviceAddress}} {
-			transparent
+			header_upstream Host {{.ExternalHost}}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-For {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 		proxy /data {{.Gateway | serviceAddress}} {
-			transparent
+			header_upstream Host {{.ExternalHost}}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-For {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 		proxy /ws   {{.WebSocket | urls}} {
 			websocket
@@ -133,6 +139,7 @@ var (
 	caddyconf = struct {
 		// Main site URL
 		Bind         string
+		ExternalHost string
 		Micro        string
 		Dex          string
 		Gateway      string
@@ -324,6 +331,11 @@ func LoadCaddyConf() error {
 		} else {
 			return fmt.Errorf("cannot find url configuration")
 		}
+	}
+
+	uExt, err := url.Parse(config.Get("defaults", "url").String(""))
+	if err == nil {
+		caddyconf.ExternalHost = uExt.Host
 	}
 
 	return nil
