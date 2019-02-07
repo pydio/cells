@@ -136,7 +136,7 @@ export const withImageSize = (Component) => {
     return class extends React.PureComponent {
         static get propTypes() {
             return {
-                url: React.PropTypes.string.isRequired,
+                src: React.PropTypes.string.isRequired,
                 node: React.PropTypes.instanceOf(AjxpNode).isRequired,
                 children: React.PropTypes.func.isRequired
             }
@@ -162,14 +162,14 @@ export const withImageSize = (Component) => {
         }
 
         componentWillReceiveProps(nextProps) {
-            const {url, node} = nextProps
+            const {src, node} = nextProps
             const meta = node.getMetadata()
-            if(!url){
+            if(!src){
                 return
             }
 
             const update = this.updateSize
-            this.getImageSize(url, function() {
+            this.getImageSize(src, function() {
                 if (!meta.has('image_width')){
                     meta.set("image_width", this.width);
                     meta.set("image_height", this.height);

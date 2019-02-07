@@ -67,6 +67,7 @@ var withResize = function withResize(Component) {
             };
 
             ComponentWithResize.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+                var src = nextProps.src;
                 var scale = nextProps.scale;
                 var size = nextProps.size;
                 var containerWidth = nextProps.containerWidth;
@@ -74,7 +75,7 @@ var withResize = function withResize(Component) {
                 var containerHeight = nextProps.containerHeight;
                 var height = nextProps.height;
 
-                if (size !== this.props.size || width !== this.props.width || height !== this.props.height || containerWidth !== this.props.containerWidth || containerHeight !== this.props.containerHeight) {
+                if (src !== this.props.src || size !== this.props.size || width !== this.props.width || height !== this.props.height || containerWidth !== this.props.containerWidth || containerHeight !== this.props.containerHeight) {
                     this.loadSize(nextProps);
                 }
             };

@@ -52,9 +52,10 @@ export const withResize = (Component) => {
             }
 
             componentWillReceiveProps(nextProps) {
-                const {scale, size, containerWidth, width, containerHeight, height} = nextProps
+                const {src, scale, size, containerWidth, width, containerHeight, height} = nextProps
 
                 if (
+                    src !== this.props.src ||
                     size !== this.props.size ||
                     width !== this.props.width ||
                     height !== this.props.height ||
