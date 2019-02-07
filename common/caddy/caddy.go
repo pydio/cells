@@ -170,7 +170,11 @@ func restart() error {
 		return err
 	}
 
-	log.Logger(gatewayCtx).Info("Restarting proxy", zap.ByteString("caddyfile", caddyfile.Body()))
+	if common.LogLevel == zap.DebugLevel {
+		fmt.Println(string(caddyfile.Body()))
+	} else {
+		log.Logger(gatewayCtx).Info("Restarting proxy", zap.ByteString("caddyfile", caddyfile.Body()))
+	}
 
 	// start caddy server
 	instance, err := mainCaddy.instance.Restart(caddyfile)
