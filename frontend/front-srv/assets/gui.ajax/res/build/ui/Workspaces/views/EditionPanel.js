@@ -56,6 +56,9 @@ var EditionPanel = (function (_React$Component) {
     EditionPanel.prototype.componentDidMount = function componentDidMount() {
         var _this = this;
 
+        this._updateObserver = function (nodes) {
+            return _this._handleUpdate(nodes);
+        };
         this._nodesModelObserver = function (node) {
             return _this._handleNodePushed(node);
         };
@@ -66,15 +69,30 @@ var EditionPanel = (function (_React$Component) {
             return _this.forceUpdate();
         };
 
+        _OpenNodesModel2['default'].getInstance().observe("update", this._updateObserver);
         _OpenNodesModel2['default'].getInstance().observe("nodePushed", this._nodesModelObserver);
         _OpenNodesModel2['default'].getInstance().observe("nodeRemovedAtIndex", this._nodesRemoveObserver);
         _OpenNodesModel2['default'].getInstance().observe("titlesUpdated", this._titlesObserver);
     };
 
     EditionPanel.prototype.componentWillUnmount = function componentWillUnmount() {
+        // When unmounting, making sure all tabs are deleted
+        var tabDeleteAll = this.props.tabDeleteAll;
+
+        tabDeleteAll();
+
+        _OpenNodesModel2['default'].getInstance().stopObserving("update", this._updateObserver);
         _OpenNodesModel2['default'].getInstance().stopObserving("nodePushed", this._nodesModelObserver);
         _OpenNodesModel2['default'].getInstance().stopObserving("nodeRemovedAtIndex", this._nodesRemoveObserver);
         _OpenNodesModel2['default'].getInstance().stopObserving("titlesUpdated", this._titlesObserver);
+    };
+
+    EditionPanel.prototype._handleUpdate = function _handleUpdate(nodes) {
+        var tabDeleteAll = this.props.tabDeleteAll;
+
+        if (nodes.length === 0) {
+            tabDeleteAll();
+        }
     };
 
     EditionPanel.prototype._handleNodePushed = function _handleNodePushed(object) {

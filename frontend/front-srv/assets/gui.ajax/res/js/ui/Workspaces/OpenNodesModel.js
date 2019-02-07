@@ -25,9 +25,11 @@ class OpenNodesModel extends Observable{
         this._openNodes = [];
         this._updatedTitles = new Map();
         pydio.UI.registerEditorOpener(this);
-        pydio.observe("repository_list_refreshed", function(){
+
+        pydio.observe("repository_list_refreshed", () => {
             this._openNodes = [];
-        }.bind(this));
+            this.notify('update', this._openNodes);
+        });
     }
 
     static getInstance(){

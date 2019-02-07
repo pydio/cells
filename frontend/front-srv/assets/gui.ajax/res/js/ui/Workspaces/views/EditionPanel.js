@@ -32,19 +32,35 @@ class EditionPanel extends React.Component {
     }
 
     componentDidMount() {
+        this._updateObserver = (nodes) => this._handleUpdate(nodes);
         this._nodesModelObserver = (node) => this._handleNodePushed(node);
         this._nodesRemoveObserver = (index) => this._handleNodeRemoved(index);
         this._titlesObserver = () => this.forceUpdate()
 
+        OpenNodesModel.getInstance().observe("update", this._updateObserver);
         OpenNodesModel.getInstance().observe("nodePushed", this._nodesModelObserver);
         OpenNodesModel.getInstance().observe("nodeRemovedAtIndex", this._nodesRemoveObserver);
         OpenNodesModel.getInstance().observe("titlesUpdated", this._titlesObserver);
     }
 
     componentWillUnmount() {
+        // When unmounting, making sure all tabs are deleted
+        const {tabDeleteAll} = this.props
+
+        tabDeleteAll();
+
+        OpenNodesModel.getInstance().stopObserving("update", this._updateObserver);
         OpenNodesModel.getInstance().stopObserving("nodePushed", this._nodesModelObserver);
         OpenNodesModel.getInstance().stopObserving("nodeRemovedAtIndex", this._nodesRemoveObserver);
         OpenNodesModel.getInstance().stopObserving("titlesUpdated", this._titlesObserver);
+    }
+
+    _handleUpdate(nodes) {
+        const {tabDeleteAll} = this.props
+
+        if (nodes.length === 0) {
+            tabDeleteAll();
+        }
     }
 
     _handleNodePushed(object) {
