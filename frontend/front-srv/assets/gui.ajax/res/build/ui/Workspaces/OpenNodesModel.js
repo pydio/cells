@@ -30,15 +30,19 @@ var OpenNodesModel = (function (_Observable) {
     _inherits(OpenNodesModel, _Observable);
 
     function OpenNodesModel() {
+        var _this = this;
+
         _classCallCheck(this, OpenNodesModel);
 
         _Observable.call(this);
         this._openNodes = [];
         this._updatedTitles = new Map();
         pydio.UI.registerEditorOpener(this);
-        pydio.observe("repository_list_refreshed", (function () {
-            this._openNodes = [];
-        }).bind(this));
+
+        pydio.observe("repository_list_refreshed", function () {
+            _this._openNodes = [];
+            _this.notify('update', _this._openNodes);
+        });
     }
 
     OpenNodesModel.getInstance = function getInstance() {
