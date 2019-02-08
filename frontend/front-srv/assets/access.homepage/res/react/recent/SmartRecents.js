@@ -20,7 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper} from 'material-ui'
+import {Paper,CircularProgress} from 'material-ui'
 import Node from 'pydio/model/node'
 import PathUtils from 'pydio/util/path'
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
@@ -29,7 +29,6 @@ const {FilePreview} = Pydio.requireLib('workspaces');
 const {ASClient} = Pydio.requireLib('PydioActivityStreams');
 import PydioApi from 'pydio/http/api'
 import {UserMetaServiceApi, RestUserBookmarksRequest} from 'pydio/http/rest-api'
-
 
 class Loader {
     constructor(pydio) {
@@ -231,19 +230,22 @@ class SmartRecents extends React.Component{
     constructor(props){
         super(props);
         this.loader = new Loader(props.pydio);
-        this.state = {nodes:[]};
+        this.state = {nodes:[], loading:false};
     }
 
     componentDidMount(){
+        this.setState({loading: true});
         this.loader.load().then(nodes => {
-            this.setState({nodes});
+            this.setState({nodes, loading: false});
+        }).catch(()=>{
+            this.setState({loading: false});
         });
     }
 
     render(){
 
         const {pydio, style} = this.props;
-        const {nodes} = this.state;
+        const {nodes, loading} = this.state;
 
         if (!pydio.user || pydio.user.lock) {
             return <div></div>;
@@ -268,6 +270,9 @@ class SmartRecents extends React.Component{
 
         return (
             <div style={{display:'flex', flexWrap: 'wrap', justifyContent:'center', ...style}}>
+                {loading && !cards.length &&
+                    <div style={{width:32, paddingTop:120}}><CircularProgress size={30} thickness={1.5}/></div>
+                }
                 {cards}
             </div>
         );

@@ -8936,7 +8936,7 @@ var SmartRecents = (function (_React$Component2) {
 
         _get(Object.getPrototypeOf(SmartRecents.prototype), 'constructor', this).call(this, props);
         this.loader = new Loader(props.pydio);
-        this.state = { nodes: [] };
+        this.state = { nodes: [], loading: false };
     }
 
     _createClass(SmartRecents, [{
@@ -8944,8 +8944,11 @@ var SmartRecents = (function (_React$Component2) {
         value: function componentDidMount() {
             var _this6 = this;
 
+            this.setState({ loading: true });
             this.loader.load().then(function (nodes) {
-                _this6.setState({ nodes: nodes });
+                _this6.setState({ nodes: nodes, loading: false });
+            })['catch'](function () {
+                _this6.setState({ loading: false });
             });
         }
     }, {
@@ -8954,7 +8957,9 @@ var SmartRecents = (function (_React$Component2) {
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var style = _props2.style;
-            var nodes = this.state.nodes;
+            var _state = this.state;
+            var nodes = _state.nodes;
+            var loading = _state.loading;
 
             if (!pydio.user || pydio.user.lock) {
                 return _react2['default'].createElement('div', null);
@@ -8979,6 +8984,11 @@ var SmartRecents = (function (_React$Component2) {
             return _react2['default'].createElement(
                 'div',
                 { style: _extends({ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }, style) },
+                loading && !cards.length && _react2['default'].createElement(
+                    'div',
+                    { style: { width: 32, paddingTop: 120 } },
+                    _react2['default'].createElement(_materialUi.CircularProgress, { size: 30, thickness: 1.5 })
+                ),
                 cards
             );
         }
