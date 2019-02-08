@@ -225,7 +225,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	singleQ := &idm.UserSingleQuery{}
 	uName, claims := utils.FindUserNameInContext(ctx)
-	if strings.HasSuffix(req.Request.RequestURI, "%2F") {
+	if strings.HasSuffix(req.Request.RequestURI, "%2F") || strings.HasSuffix(req.Request.RequestURI, "/") {
 		log.Logger(req.Request.Context()).Info("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("crtGroup", claims.GroupPath), zap.String("request", req.Request.RequestURI))
 		if strings.HasPrefix(claims.GroupPath, "/"+login) {
 			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "You are about to delete your own group!"))
