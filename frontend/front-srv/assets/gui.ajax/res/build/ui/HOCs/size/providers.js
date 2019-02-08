@@ -204,7 +204,7 @@ var withImageSize = function withImageSize(Component) {
             key: 'propTypes',
             get: function get() {
                 return {
-                    url: _react2['default'].PropTypes.string.isRequired,
+                    src: _react2['default'].PropTypes.string.isRequired,
                     node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
                     children: _react2['default'].PropTypes.func.isRequired
                 };
@@ -234,16 +234,16 @@ var withImageSize = function withImageSize(Component) {
         }
 
         _class2.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-            var url = nextProps.url;
+            var src = nextProps.src;
             var node = nextProps.node;
 
             var meta = node.getMetadata();
-            if (!url) {
+            if (!src) {
                 return;
             }
 
             var update = this.updateSize;
-            this.getImageSize(url, function () {
+            this.getImageSize(src, function () {
                 if (!meta.has('image_width')) {
                     meta.set("image_width", this.width);
                     meta.set("image_height", this.height);
