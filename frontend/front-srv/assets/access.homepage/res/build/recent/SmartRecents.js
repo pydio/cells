@@ -26,7 +26,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -90,22 +90,42 @@ var Loader = (function () {
     _createClass(Loader, [{
         key: 'load',
         value: function load() {
+            var _this = this;
+
             var allLoaders = [this.loadActivities(), this.loadBookmarks(), this.workspacesAsNodes()];
             return Promise.all(allLoaders).then(function (results) {
+                var allResolvers = [];
                 var allNodes = [];
-                results.map(function (nodes) {
-                    // Filter empty nodes
-                    allNodes = [].concat(_toConsumableArray(allNodes), _toConsumableArray(nodes.filter(function (n) {
-                        return !!n;
-                    })));
+                var allKeys = {};
+                results.map(function (resolvers) {
+                    allResolvers = [].concat(_toConsumableArray(allResolvers), _toConsumableArray(resolvers));
                 });
-                return allNodes;
+                return _this.resolveNext(allResolvers, allNodes, allKeys, 8);
+            });
+        }
+    }, {
+        key: 'resolveNext',
+        value: function resolveNext(allResolvers, allNodes, allKeys) {
+            var _this2 = this;
+
+            var max = arguments.length <= 3 || arguments[3] === undefined ? 8 : arguments[3];
+
+            if (allNodes.length > max || !allResolvers.length) {
+                return Promise.resolve(allNodes);
+            }
+            var next = allResolvers.shift();
+            return new Promise(next).then(function (node) {
+                if (node && !allKeys[node.getMetadata().get("uuid")]) {
+                    allNodes.push(node);
+                    allKeys[node.getMetadata().get("uuid")] = node.getMetadata().get("uuid");
+                }
+                return _this2.resolveNext(allResolvers, allNodes, allKeys, max);
             });
         }
     }, {
         key: 'loadBookmarks',
         value: function loadBookmarks() {
-            var _this = this;
+            var _this3 = this;
 
             var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
             return new Promise(function (resolve) {
@@ -115,7 +135,7 @@ var Loader = (function () {
                         resolve([]);
                         return;
                     }
-                    collection.Nodes.forEach(function (n) {
+                    collection.Nodes.slice(0, 4).forEach(function (n) {
                         if (!n.AppearsIn) {
                             return;
                         }
@@ -125,28 +145,24 @@ var Loader = (function () {
                         }
                         var fakeNode = new _pydioModelNode2['default'](path, n.Type === 'LEAF');
                         fakeNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
-                        nodes.push(new Promise(function (resolve1) {
-                            _this.metaProvider.refreshNodeAndReplace(fakeNode, function (freshNode) {
+                        nodes.push(function (resolve1) {
+                            _this3.metaProvider.refreshNodeAndReplace(fakeNode, function (freshNode) {
                                 freshNode.getMetadata().set('card_legend', 'Bookmarked');
                                 freshNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
                                 resolve1(freshNode);
                             }, function () {
                                 resolve1(null);
                             });
-                        }));
+                        });
                     });
-                    Promise.all(nodes).then(function (nodes) {
-                        resolve(nodes);
-                    })['catch'](function (e) {
-                        resolve([]);
-                    });
+                    resolve(nodes);
                 });
             });
         }
     }, {
         key: 'loadActivities',
         value: function loadActivities() {
-            var _this2 = this;
+            var _this4 = this;
 
             return new Promise(function (resolve) {
                 ASClient.loadActivityStreams(function (json) {
@@ -159,12 +175,12 @@ var Loader = (function () {
                         return !!a.object;
                     }).forEach(function (activity) {
                         var mom = moment(activity.updated);
-                        var n = _this2.nodeFromActivityObject(activity.object);
+                        var n = _this4.nodeFromActivityObject(activity.object);
                         if (n) {
-                            nodes.push(new Promise(function (resolve1) {
+                            nodes.push(function (resolve1) {
                                 var wsId = n.getMetadata().get('repository_id');
                                 var wsLabel = n.getMetadata().get('repository_label');
-                                _this2.metaProvider.refreshNodeAndReplace(n, function (freshNode) {
+                                _this4.metaProvider.refreshNodeAndReplace(n, function (freshNode) {
                                     freshNode.getMetadata().set('repository_id', wsId);
                                     if (freshNode.getPath() === '' || freshNode.getPath() === '/') {
                                         freshNode.setLabel(wsLabel);
@@ -174,24 +190,24 @@ var Loader = (function () {
                                 }, function () {
                                     resolve1(null);
                                 });
-                            }));
+                            });
                         }
                     });
-                    Promise.all(nodes).then(function (nodes) {
-                        resolve(nodes);
-                    })['catch'](function (e) {
-                        resolve([]);
-                    });
-                }, 'USER_ID', _this2.pydio.user.id, 'outbox', 'ACTOR', 0, 30);
+                    resolve(nodes);
+                }, 'USER_ID', _this4.pydio.user.id, 'outbox', 'ACTOR', 0, 20);
             });
         }
     }, {
         key: 'workspacesAsNodes',
         value: function workspacesAsNodes() {
-            var _this3 = this;
+            var _this5 = this;
 
             var ws = [];
-            this.pydio.user.getRepositoriesList().forEach(function (repoObject) {
+            var repos = [];
+            this.pydio.user.getRepositoriesList().forEach(function (repo) {
+                repos.push(repo);
+            });
+            repos.slice(0, 10).forEach(function (repoObject) {
                 if (repoObject.getId() === 'homepage' || repoObject.getId() === 'settings') {
                     return;
                 }
@@ -204,9 +220,9 @@ var Loader = (function () {
                     fontIcon = 'icomoon-cells';
                     legend = 'Cell';
                 }
-                ws.push(new Promise(function (resolve) {
+                ws.push(function (resolve) {
                     node.getMetadata().set("repository_id", repoObject.getId());
-                    _this3.metaProvider.refreshNodeAndReplace(node, function (freshNode) {
+                    _this5.metaProvider.refreshNodeAndReplace(node, function (freshNode) {
                         freshNode.setLabel(repoObject.getLabel());
                         freshNode.getMetadata().set("repository_id", repoObject.getId());
                         freshNode.getMetadata().set("card_legend", legend);
@@ -215,15 +231,9 @@ var Loader = (function () {
                     }, function () {
                         resolve(null);
                     });
-                }));
-            });
-            return new Promise(function (resolve) {
-                Promise.all(ws).then(function (res) {
-                    resolve(res);
-                })['catch'](function (e) {
-                    resolve([]);
                 });
             });
+            return Promise.resolve(ws);
         }
     }, {
         key: 'nodeFromActivityObject',
@@ -329,10 +339,10 @@ var SmartRecents = (function (_React$Component2) {
     _createClass(SmartRecents, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this4 = this;
+            var _this6 = this;
 
             this.loader.load().then(function (nodes) {
-                _this4.setState({ nodes: nodes });
+                _this6.setState({ nodes: nodes });
             });
         }
     }, {

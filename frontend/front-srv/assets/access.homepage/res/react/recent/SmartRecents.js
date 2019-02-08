@@ -44,13 +44,28 @@ class Loader {
             this.workspacesAsNodes()
         ];
         return Promise.all(allLoaders).then(results => {
+            let allResolvers = [];
             let allNodes = [];
-            results.map(nodes => {
-                // Filter empty nodes
-                allNodes = [...allNodes, ...nodes.filter(n => !!n)]
+            let allKeys = {};
+            results.map(resolvers => {
+                allResolvers = [...allResolvers, ...resolvers];
             });
-            return allNodes;
+            return this.resolveNext(allResolvers, allNodes, allKeys, 8);
         });
+    }
+
+    resolveNext(allResolvers, allNodes, allKeys, max = 8) {
+        if(allNodes.length > max || !allResolvers.length) {
+            return Promise.resolve(allNodes);
+        }
+        let next = allResolvers.shift();
+        return new Promise(next).then(node => {
+            if(node && !allKeys[node.getMetadata().get("uuid")]) {
+                allNodes.push(node);
+                allKeys[node.getMetadata().get("uuid")] = node.getMetadata().get("uuid");
+            }
+            return this.resolveNext(allResolvers, allNodes, allKeys, max);
+        })
     }
 
     loadBookmarks(){
@@ -62,7 +77,7 @@ class Loader {
                     resolve([]);
                     return;
                 }
-                collection.Nodes.forEach(n => {
+                collection.Nodes.slice(0, 4).forEach(n => {
                     if(!n.AppearsIn){
                         return;
                     }
@@ -72,7 +87,7 @@ class Loader {
                     }
                     const fakeNode = new Node(path, n.Type === 'LEAF');
                     fakeNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
-                    nodes.push(new Promise((resolve1 => {
+                    nodes.push(resolve1 => {
                         this.metaProvider.refreshNodeAndReplace(fakeNode, (freshNode)=>{
                             freshNode.getMetadata().set('card_legend', 'Bookmarked');
                             freshNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
@@ -80,13 +95,9 @@ class Loader {
                         }, ()=>{
                             resolve1(null)
                         })
-                    })));
+                    });
                 });
-                Promise.all(nodes).then(nodes => {
-                    resolve(nodes);
-                }).catch(e => {
-                    resolve([])
-                });
+                resolve(nodes);
             });
         });
     }
@@ -103,7 +114,7 @@ class Loader {
                     const mom = moment(activity.updated);
                     const n = this.nodeFromActivityObject(activity.object);
                     if(n){
-                        nodes.push(new Promise(resolve1 => {
+                        nodes.push(resolve1 => {
                             const wsId = n.getMetadata().get('repository_id');
                             const wsLabel = n.getMetadata().get('repository_label');
                             this.metaProvider.refreshNodeAndReplace(n, (freshNode)=>{
@@ -116,21 +127,19 @@ class Loader {
                             }, ()=>{
                                 resolve1(null)
                             })
-                        }))
+                        })
                     }
                 });
-                Promise.all(nodes).then(nodes => {
-                    resolve(nodes);
-                }).catch(e => {
-                    resolve([])
-                });
-            }, 'USER_ID', this.pydio.user.id, 'outbox', 'ACTOR', 0, 30)
+                resolve(nodes);
+            }, 'USER_ID', this.pydio.user.id, 'outbox', 'ACTOR', 0, 20)
         })
     }
 
     workspacesAsNodes() {
         const ws = [];
-        this.pydio.user.getRepositoriesList().forEach(repoObject => {
+        const repos = [];
+        this.pydio.user.getRepositoriesList().forEach(repo => {repos.push(repo)});
+        repos.slice(0, 10).forEach(repoObject => {
             if(repoObject.getId() === 'homepage' || repoObject.getId() === 'settings'){
                 return;
             }
@@ -143,7 +152,7 @@ class Loader {
                 fontIcon = 'icomoon-cells';
                 legend = 'Cell';
             }
-            ws.push(new Promise(resolve => {
+            ws.push(resolve => {
                 node.getMetadata().set("repository_id", repoObject.getId());
                 this.metaProvider.refreshNodeAndReplace(node, (freshNode)=>{
                     freshNode.setLabel(repoObject.getLabel());
@@ -154,15 +163,9 @@ class Loader {
                 }, ()=>{
                     resolve(null)
                 })
-            }));
+            });
         });
-        return new Promise(resolve => {
-            Promise.all(ws).then(res => {
-                resolve(res);
-            }).catch(e => {
-                resolve([]);
-            })
-        });
+        return Promise.resolve(ws);
     }
 
     nodeFromActivityObject(object){
