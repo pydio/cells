@@ -131,7 +131,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			rootNode := &tree.Node{Path: p}
 			ctx, rootNode, e = inputFilter(ctx, rootNode, "search-"+p)
 			if e != nil {
-				return e
+				continue
 			}
 			log.Logger(ctx).Debug("Filtered Node & Context", zap.String("path", rootNode.Path))
 			nodesPrefixes[rootNode.Path] = p
