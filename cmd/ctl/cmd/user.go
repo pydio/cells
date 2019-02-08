@@ -94,7 +94,7 @@ func searchUser(ctx context.Context, cli idm.UserServiceClient, login string) ([
 func deleteUser(ctx context.Context, login string) error {
 
 	singleQ := &idm.UserSingleQuery{}
-	if strings.HasSuffix(login, "%2F") {
+	if strings.HasSuffix(login, "%2F") || strings.HasSuffix(login, "/") {
 		// log.Logger(ctx).Debug("Received User.Delete API request (GROUP)", zap.String("login", login))
 		singleQ.GroupPath = login
 		singleQ.Recursive = true
