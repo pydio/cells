@@ -237,6 +237,12 @@ func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 		}
 		logger = logger.With(zap.String(common.KEY_SPAN_UUID, span.SpanId))
 	}
+	if opId, opLabel := servicecontext.GetOperationID(ctx); opId != "" {
+		logger = logger.With(zap.String(common.KEY_OPERATION_UUID, opId))
+		if opLabel != "" {
+			logger = logger.With(zap.String(common.KEY_OPERATION_LABEL, opLabel))
+		}
+	}
 	if ctxMeta, has := metadata.FromContext(ctx); has {
 		for _, key := range []string{
 			servicecontext.HttpMetaRemoteAddress,
