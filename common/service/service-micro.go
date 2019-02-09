@@ -65,6 +65,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.Name(name),
 				micro.WrapClient(servicecontext.SpanClientWrapper),
 				micro.WrapHandler(servicecontext.SpanHandlerWrapper),
+				micro.WrapSubscriber(servicecontext.SpanSubscriberWrapper),
 				micro.Metadata(meta),
 				micro.BeforeStart(func() error {
 					return f(s.Options().Micro)

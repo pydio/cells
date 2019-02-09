@@ -235,7 +235,7 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 		return nil, nil
 	}
 
-	log.Logger(ctx).Info(fmt.Sprintf("Retrieved datasource [%s]", dsName), zap.Any("datasource", ds))
+	log.Logger(ctx).Debug(fmt.Sprintf("Retrieved datasource [%s]", dsName), zap.Any("datasource", ds))
 	return ds, nil
 }
 

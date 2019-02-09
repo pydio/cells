@@ -50,3 +50,7 @@ func (task *Task) Zap() zapcore.Field {
 func (task *Task) ZapId() zapcore.Field {
 	return zap.String(common.KEY_TASK_ID, task.GetID())
 }
+
+func (task *Task) GetCtxOperationID() string {
+	return task.GetJobID() + "-" + task.GetID()[0:8]
+}

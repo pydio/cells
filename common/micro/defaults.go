@@ -33,6 +33,8 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/transport"
+
+	"github.com/pydio/cells/common/service/context"
 )
 
 var (
@@ -65,6 +67,7 @@ func NewClient(new ...client.Option) client.Client {
 	}
 
 	opts = append(opts, client.RequestTimeout(10*time.Minute))
+	opts = append(opts, client.Wrap(servicecontext.SpanClientWrapper))
 
 	return grpcclient.NewClient(
 		opts...,

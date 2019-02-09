@@ -157,11 +157,12 @@ func Logger(ctx context.Context) *zap.Logger {
 				newLogger = newLogger.Named(serviceName)
 			}
 		}
-		if ctxReqID := servicecontext.GetRequestID(ctx); ctxReqID != "" {
-			newLogger = newLogger.With(zap.String("rqID", ctxReqID))
-		}
-		if ctxSessionID := servicecontext.GetSessionID(ctx); ctxSessionID != "" {
-			newLogger = newLogger.With(zap.String("sessionID", ctxSessionID))
+		if opID, opLabel := servicecontext.GetOperationID(ctx); opID != "" {
+			if opLabel != "" {
+				newLogger = newLogger.With(zap.String(common.KEY_OPERATION_UUID, opID), zap.String(common.KEY_OPERATION_LABEL, opLabel))
+			} else {
+				newLogger = newLogger.With(zap.String(common.KEY_OPERATION_UUID, opID))
+			}
 		}
 		if common.LogConfig == common.LogConfigProduction {
 			newLogger = fillLogContext(ctx, newLogger)

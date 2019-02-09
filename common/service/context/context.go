@@ -41,10 +41,9 @@ const (
 
 	serviceColorKey contextType = iota
 	serviceNameKey
-	requestIDKey
-	sessionIDKey
+	operationIDKey
+	operationLabelKey
 	daoKey
-	connKey
 	configKey
 )
 
@@ -65,24 +64,18 @@ func WithServiceName(ctx context.Context, serviceName string) context.Context {
 	return context.WithValue(ctx, serviceNameKey, serviceName)
 }
 
-// WithRequestID returns a context which knows its request ID
-func WithRequestID(ctx context.Context, requestID string) context.Context {
-	return context.WithValue(ctx, requestIDKey, requestID)
-}
-
 // WithSessionID returns a context which knows its session ID
-func WithSessionID(ctx context.Context, sessionID string) context.Context {
-	return context.WithValue(ctx, sessionIDKey, sessionID)
+func WithOperationID(ctx context.Context, operationID string, operationLabel ...string) context.Context {
+	c := context.WithValue(ctx, operationIDKey, operationID)
+	if len(operationLabel) > 0 {
+		c = context.WithValue(c, operationLabelKey, operationLabel[0])
+	}
+	return c
 }
 
 // WithDAO links a dao to the context
 func WithDAO(ctx context.Context, dao dao.DAO) context.Context {
 	return context.WithValue(ctx, daoKey, dao)
-}
-
-// WithConn links a storage connection to the context
-func WithConn(ctx context.Context, conn dao.Conn) context.Context {
-	return context.WithValue(ctx, connKey, conn)
 }
 
 // WithConfig links a config to the context
@@ -107,19 +100,15 @@ func GetServiceName(ctx context.Context) string {
 }
 
 // GetRequestID returns the session id associated to this context
-func GetRequestID(ctx context.Context) string {
-	if id, ok := ctx.Value(requestIDKey).(string); ok {
-		return id
+func GetOperationID(ctx context.Context) (string, string) {
+	if id, ok := ctx.Value(operationIDKey).(string); ok {
+		var label string
+		if l, o := ctx.Value(operationLabelKey).(string); o {
+			label = l
+		}
+		return id, label
 	}
-	return ""
-}
-
-// GetSessionID returns the session id associated to this context
-func GetSessionID(ctx context.Context) string {
-	if id, ok := ctx.Value(sessionIDKey).(string); ok {
-		return id
-	}
-	return ""
+	return "", ""
 }
 
 // GetDAO returns the dao from the context in argument

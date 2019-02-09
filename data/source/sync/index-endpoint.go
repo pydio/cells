@@ -170,9 +170,8 @@ func (i *IndexEndpoint) MoveNode(ctx context.Context, oldPath string, newPath st
 }
 
 func (i *IndexEndpoint) StartSession(ctx context.Context, rootNode *tree.Node) (*tree.IndexationSession, error) {
-	id := uuid.NewUUID().String()
 	sess := &tree.IndexationSession{
-		Uuid:        id,
+		Uuid:        uuid.New(),
 		Description: "Indexation",
 		RootNode:    rootNode,
 	}
