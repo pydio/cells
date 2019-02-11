@@ -43,6 +43,14 @@ var _modelJobsListJobsRequest = require('../model/JobsListJobsRequest');
 
 var _modelJobsListJobsRequest2 = _interopRequireDefault(_modelJobsListJobsRequest);
 
+var _modelLogListLogRequest = require('../model/LogListLogRequest');
+
+var _modelLogListLogRequest2 = _interopRequireDefault(_modelLogListLogRequest);
+
+var _modelRestLogMessageCollection = require('../model/RestLogMessageCollection');
+
+var _modelRestLogMessageCollection2 = _interopRequireDefault(_modelRestLogMessageCollection);
+
 var _modelRestUserJobRequest = require('../model/RestUserJobRequest');
 
 var _modelRestUserJobRequest2 = _interopRequireDefault(_modelRestUserJobRequest);
@@ -76,6 +84,45 @@ var JobsServiceApi = (function () {
 
     this.apiClient = apiClient || _ApiClient2['default'].instance;
   }
+
+  /**
+   * Technical Logs, in Json or CSV format
+   * @param {module:model/LogListLogRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response
+   */
+
+  JobsServiceApi.prototype.listTasksLogsWithHttpInfo = function listTasksLogsWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling listTasksLogs");
+    }
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestLogMessageCollection2['default'];
+
+    return this.apiClient.callApi('/jobs/tasks/logs', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Technical Logs, in Json or CSV format
+   * @param {module:model/LogListLogRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}
+   */
+
+  JobsServiceApi.prototype.listTasksLogs = function listTasksLogs(body) {
+    return this.listTasksLogsWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
 
   /**
    * Send Control Commands to one or many jobs / tasks

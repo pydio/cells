@@ -23,6 +23,7 @@ import Pydio from 'pydio'
 import {IconButton, FontIcon, FlatButton, RaisedButton, Paper, Dialog, Divider} from 'material-ui'
 const {JobsStore} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
+import TaskActivity from './TaskActivity'
 
 class ActionsLog extends React.Component {
 
@@ -195,7 +196,7 @@ class JobBoard extends React.Component {
                     autoScrollBodyContent={true}
                     autoDetectWindowHeight={true}
                 >
-                    {taskLogs && <ActionsLog pydio={this.props.pydio} task={taskLogs}/>}
+                    {taskLogs && <TaskActivity pydio={this.props.pydio} task={taskLogs}/>}
                 </Dialog>
                 <AdminComponents.Header
                     title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={onRequestClose}>{pydio.MessageHash['action.scheduler.18']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}

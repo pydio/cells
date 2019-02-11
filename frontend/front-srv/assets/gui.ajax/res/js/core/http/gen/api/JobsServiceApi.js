@@ -18,6 +18,8 @@ import JobsCtrlCommandResponse from '../model/JobsCtrlCommandResponse';
 import JobsDeleteTasksRequest from '../model/JobsDeleteTasksRequest';
 import JobsDeleteTasksResponse from '../model/JobsDeleteTasksResponse';
 import JobsListJobsRequest from '../model/JobsListJobsRequest';
+import LogListLogRequest from '../model/LogListLogRequest';
+import RestLogMessageCollection from '../model/RestLogMessageCollection';
 import RestUserJobRequest from '../model/RestUserJobRequest';
 import RestUserJobResponse from '../model/RestUserJobResponse';
 import RestUserJobsCollection from '../model/RestUserJobsCollection';
@@ -40,6 +42,54 @@ export default class JobsServiceApi {
         this.apiClient = apiClient || ApiClient.instance;
     }
 
+
+
+    /**
+     * Technical Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response
+     */
+    listTasksLogsWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling listTasksLogs");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestLogMessageCollection;
+
+      return this.apiClient.callApi(
+        '/jobs/tasks/logs', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Technical Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}
+     */
+    listTasksLogs(body) {
+      return this.listTasksLogsWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
 
 
     /**

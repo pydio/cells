@@ -60,6 +60,8 @@ var LogLogMessage = (function () {
         this.SpanUuid = undefined;
         this.SpanParentUuid = undefined;
         this.SpanRootUuid = undefined;
+        this.OperationUuid = undefined;
+        this.OperationLabel = undefined;
     }
 
     /**
@@ -133,6 +135,12 @@ var LogLogMessage = (function () {
             }
             if (data.hasOwnProperty('SpanRootUuid')) {
                 obj['SpanRootUuid'] = _ApiClient2['default'].convertToType(data['SpanRootUuid'], 'String');
+            }
+            if (data.hasOwnProperty('OperationUuid')) {
+                obj['OperationUuid'] = _ApiClient2['default'].convertToType(data['OperationUuid'], 'String');
+            }
+            if (data.hasOwnProperty('OperationLabel')) {
+                obj['OperationLabel'] = _ApiClient2['default'].convertToType(data['OperationLabel'], 'String');
             }
         }
         return obj;
@@ -221,4 +229,12 @@ module.exports = exports['default'];
 
 /**
 * @member {String} SpanRootUuid
+*/
+
+/**
+* @member {String} OperationUuid
+*/
+
+/**
+* @member {String} OperationLabel
 */

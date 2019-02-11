@@ -117,6 +117,12 @@ export default class LogLogMessage {
             if (data.hasOwnProperty('SpanRootUuid')) {
                 obj['SpanRootUuid'] = ApiClient.convertToType(data['SpanRootUuid'], 'String');
             }
+            if (data.hasOwnProperty('OperationUuid')) {
+                obj['OperationUuid'] = ApiClient.convertToType(data['OperationUuid'], 'String');
+            }
+            if (data.hasOwnProperty('OperationLabel')) {
+                obj['OperationLabel'] = ApiClient.convertToType(data['OperationLabel'], 'String');
+            }
         }
         return obj;
     }
@@ -201,6 +207,14 @@ export default class LogLogMessage {
     * @member {String} SpanRootUuid
     */
     SpanRootUuid = undefined;
+    /**
+    * @member {String} OperationUuid
+    */
+    OperationUuid = undefined;
+    /**
+    * @member {String} OperationLabel
+    */
+    OperationLabel = undefined;
 
 
 

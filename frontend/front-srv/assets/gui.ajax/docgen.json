@@ -1543,11 +1543,30 @@
           },
           {
             "name": "filterNodes",
-            "docblock": null,
+            "docblock": "Filter nodes\n@param node\n@return {boolean}",
             "modifiers": [],
             "params": [
               {
                 "name": "node",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "boolean"
+              }
+            },
+            "description": "Filter nodes"
+          },
+          {
+            "name": "applyFilter",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "profile",
                 "type": null
               }
             ],
@@ -4392,6 +4411,26 @@
         ]
       }
     ],
+    "AdminScheduler/board/TaskActivity.js": [
+      {
+        "description": "",
+        "displayName": "TaskActivity",
+        "methods": [
+          {
+            "name": "loadActivity",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "props",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminServices/board/Dashboard.js": [
       {
         "description": "",
@@ -5545,7 +5584,7 @@
             "modifiers": [],
             "params": [
               {
-                "name": "searchText",
+                "name": "input",
                 "type": null
               }
             ],
@@ -5557,7 +5596,7 @@
             "modifiers": [],
             "params": [
               {
-                "name": "chosenValue",
+                "name": "value",
                 "type": null
               }
             ],
@@ -5570,6 +5609,10 @@
             "params": [
               {
                 "name": "value",
+                "type": null
+              },
+              {
+                "name": "cb",
                 "type": null
               }
             ],
@@ -8126,7 +8169,7 @@
           },
           {
             "name": "listUsersGroups",
-            "docblock": "@param baseGroup string\n@param recursive boolean\n@param offset integer\n@param limit integer\n@return Promise<RestUsersCollection>",
+            "docblock": "@param baseGroup string\n@param recursive boolean\n@param offset integer\n@param limit integer\n@param profile string\n@return Promise<RestUsersCollection>",
             "modifiers": [],
             "params": [
               {
@@ -8147,6 +8190,11 @@
               {
                 "name": "limit",
                 "description": "integer",
+                "type": null
+              },
+              {
+                "name": "profile",
+                "description": "string",
                 "type": null
               }
             ],
@@ -13061,6 +13109,48 @@
             ],
             "returns": null,
             "description": "Constructs a new JobsServiceApi."
+          },
+          {
+            "name": "listTasksLogsWithHttpInfo",
+            "docblock": "Technical Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogListLogRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Technical Logs, in Json or CSV format"
+          },
+          {
+            "name": "listTasksLogs",
+            "docblock": "Technical Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogListLogRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Technical Logs, in Json or CSV format"
           },
           {
             "name": "userControlJobWithHttpInfo",
@@ -25298,6 +25388,20 @@
             "description": "Changes loaded status"
           },
           {
+            "name": "setLoading",
+            "docblock": "Manually change loading status\n@param bool",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "bool",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": null,
+            "description": "Manually change loading status"
+          },
+          {
             "name": "updateProvider",
             "docblock": "Update node provider\n@param iAjxpNodeProvider",
             "modifiers": [],
@@ -37111,6 +37215,22 @@
             "returns": null
           },
           {
+            "name": "textFieldChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "fieldName",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "onChange",
             "docblock": null,
             "modifiers": [],
@@ -37196,10 +37316,19 @@
         "displayName": "SearchFileSizePanel",
         "methods": [
           {
-            "name": "onChange",
+            "name": "multiple",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "v",
+                "type": null
+              },
+              {
+                "name": "u",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ],
@@ -37341,6 +37470,18 @@
             "params": [
               {
                 "name": "newValues",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "changeSearchScope",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "scope",
                 "type": null
               }
             ],
@@ -37505,6 +37646,18 @@
         "description": "",
         "displayName": "EditionPanel",
         "methods": [
+          {
+            "name": "_handleUpdate",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "nodes",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
           {
             "name": "_handleNodePushed",
             "docblock": null,
@@ -38768,6 +38921,13 @@
         "description": "",
         "displayName": "AltDashboard",
         "methods": [
+          {
+            "name": "showTutorial",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
           {
             "name": "openDrawer",
             "docblock": null,
