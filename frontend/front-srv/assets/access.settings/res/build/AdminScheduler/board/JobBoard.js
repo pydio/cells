@@ -46,6 +46,10 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
+var _TaskActivity = require('./TaskActivity');
+
+var _TaskActivity2 = _interopRequireDefault(_TaskActivity);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -302,7 +306,7 @@ var JobBoard = (function (_React$Component2) {
                         autoScrollBodyContent: true,
                         autoDetectWindowHeight: true
                     },
-                    taskLogs && _react2['default'].createElement(ActionsLog, { pydio: this.props.pydio, task: taskLogs })
+                    taskLogs && _react2['default'].createElement(_TaskActivity2['default'], { pydio: this.props.pydio, task: taskLogs })
                 ),
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: _react2['default'].createElement(
