@@ -1085,6 +1085,9 @@
   "user.filter.all":{
     "other": "All users"
   },
+  "user.filter.anon":{
+    "other": "Show anonymous"
+  },
   "versions.editor.delete": {
     "other": "Delete Policy"
   },

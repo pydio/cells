@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {IconButton, IconMenu, MenuItem, Paper, FlatButton, FontIcon} from 'material-ui'
+import {IconButton, IconMenu, MenuItem, Divider, Paper, FlatButton, FontIcon} from 'material-ui'
 import Editor from '../editor/Editor'
 import PydioDataModel from 'pydio/model/data-model'
 import {muiThemeable} from 'material-ui/styles'
@@ -40,11 +40,12 @@ let Dashboard = React.createClass({
     },
 
     getInitialState(){
+        const {currentNode, dataModel} = this.props;
         return {
             searchResultData: false,
-            currentNode:this.props.currentNode,
-            dataModel:this.props.dataModel,
-            filterValue:1,
+            currentNode:currentNode,
+            dataModel:dataModel,
+            showAnon: false,
         };
     },
 
@@ -247,20 +248,24 @@ let Dashboard = React.createClass({
         if(!node.getMetadata().has("IdmUser")){
             return true;
         }
-        const attributes = node.getMetadata().get("IdmUser").Attributes || {};
-        const profile = attributes['profile'];
-        const isAdmin = profile === 'admin';
-        const {filterValue} = this.state;
-        switch(filterValue) {
-            case 1:
-                return profile !== "shared" && profile !== "anon";
-            case 2:
-                return profile === "shared" && profile !== "anon";
-            case 3:
-                return isAdmin;
-            default:
-                return true;
+        const {showAnon, displaySearchResult} = this.state;
+        if(displaySearchResult || showAnon){
+            return true;
         }
+        const attributes = node.getMetadata().get("IdmUser").Attributes || {};
+        return (attributes['profile'] !== 'anon');
+
+    },
+
+    applyFilter(profile){
+        if(profile === 'toggle-anon') {
+            this.setState({showAnon:!this.state.showAnon});
+            return;
+        }
+        const {currentNode} = this.props;
+        currentNode.getMetadata().set('userProfileFilter', profile);
+        currentNode.getMetadata().delete('paginationData');
+        this.setState({currentNode}, () => {this.reloadList();});
     },
 
     render(){
@@ -280,7 +285,7 @@ let Dashboard = React.createClass({
             }
         };
 
-        const {searchResultData, filterValue, currentNode, dataModel} = this.state;
+        const {searchResultData, currentNode, dataModel, showAnon} = this.state;
 
         let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
         if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
@@ -325,20 +330,27 @@ let Dashboard = React.createClass({
                 width: 0
             };
         }
+        let profileFilter = '';
+        if(currentNode.getMetadata().has('userProfileFilter')){
+            profileFilter = currentNode.getMetadata().get('userProfileFilter');
+        }
 
-        const iconColor = (filterValue === 1 ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color);
+        const iconColor = (profileFilter === '' ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color);
         const filterIcon = (
             <IconMenu
-                iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:iconColor}} iconClassName={"mdi mdi-filter-variant"} tooltip={this.context.getMessage('user.filter.tooltip')}/>}
+                iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:iconColor}} iconClassName={"mdi mdi-filter-variant"} tooltip={this.context.getMessage('user.filter.tooltip')} tooltipPosition={"bottom-left"}/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                value={filterValue}
-                onChange={(e,val)=>{this.setState({filterValue:val})}}
+                value={profileFilter}
+                onChange={(e,val)=>{this.applyFilter(val)}}
+                desktop={true}
             >
-                <MenuItem value={1} primaryText={this.context.getMessage('user.filter.internal')} />
-                <MenuItem value={2} primaryText={this.context.getMessage('user.filter.shared')} />
-                <MenuItem value={3} primaryText={this.context.getMessage('user.filter.admins')} />
-                <MenuItem value={4} primaryText={this.context.getMessage('user.filter.all')} />
+                <MenuItem value={""} primaryText={this.context.getMessage('user.filter.all')} />
+                <MenuItem value={"!shared"} primaryText={this.context.getMessage('user.filter.internal')} />
+                <MenuItem value={"shared"} primaryText={this.context.getMessage('user.filter.shared')} />
+                <MenuItem value={"admin"} primaryText={this.context.getMessage('user.filter.admins')} />
+                <Divider/>
+                <MenuItem value={"toggle-anon"} primaryText={this.context.getMessage('user.filter.anon')} secondaryText={showAnon?<FontIcon className={"mdi mdi-check"}/>:null} />
             </IconMenu>
         );
 
@@ -385,7 +397,7 @@ let Dashboard = React.createClass({
                             toolbarStyle={{backgroundColor: '#f5f5f5', height:48, borderBottom: '1px solid #e4e4e4'}}
                             multipleActions={[this.props.pydio.Controller.getActionByName('delete')]}
                             additionalActions={filterIcon}
-                            filterNodes={this.filterNodes}
+                            filterNodes={this.filterNodes.bind(this)}
                         />
                     </div>
 

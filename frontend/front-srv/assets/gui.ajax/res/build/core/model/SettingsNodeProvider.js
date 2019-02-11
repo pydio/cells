@@ -108,8 +108,14 @@ var SettingsNodeProvider = (function () {
                     newPage = pData.get('new_page');
                     offset = (newPage - 1) * limit;
                 }
+                // Check if there is profile filter
+                var profile = '';
+                console.log(node);
+                if (node.getMetadata().has('userProfileFilter')) {
+                    profile = node.getMetadata().get('userProfileFilter');
+                }
                 _Pydio2['default'].startLoading();
-                _httpPydioApi2['default'].getRestClient().getIdmApi().listUsersGroups(basePath, recursive, offset, limit).then(function (collection) {
+                _httpPydioApi2['default'].getRestClient().getIdmApi().listUsersGroups(basePath, recursive, offset, limit, profile).then(function (collection) {
                     _Pydio2['default'].endLoading();
                     var childrenNodes = [];
                     var count = 0;

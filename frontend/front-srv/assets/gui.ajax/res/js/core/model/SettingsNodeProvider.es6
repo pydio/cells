@@ -73,8 +73,14 @@ export default class SettingsNodeProvider{
                 newPage = pData.get('new_page');
                 offset = (newPage - 1) * limit;
             }
+            // Check if there is profile filter
+            let profile = '';
+            console.log(node);
+            if(node.getMetadata().has('userProfileFilter')){
+                profile = node.getMetadata().get('userProfileFilter');
+            }
             Pydio.startLoading();
-            PydioApi.getRestClient().getIdmApi().listUsersGroups(basePath, recursive, offset, limit).then(collection => {
+            PydioApi.getRestClient().getIdmApi().listUsersGroups(basePath, recursive, offset, limit, profile).then(collection => {
                 Pydio.endLoading();
                 let childrenNodes = [];
                 let count = 0;

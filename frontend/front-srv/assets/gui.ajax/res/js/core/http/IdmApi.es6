@@ -114,12 +114,13 @@ class IdmApi {
      * @param recursive boolean
      * @param offset integer
      * @param limit integer
+     * @param profile string
      * @return Promise<RestUsersCollection>
      */
-    listUsersGroups(baseGroup='/', recursive = false, offset = 0, limit = -1){
+    listUsersGroups(baseGroup='/', recursive = false, offset = 0, limit = -1, profile = ""){
 
         const p1 = this.listGroups(baseGroup, '', recursive, 0, 1000);
-        const p2 = this.listUsers(baseGroup, '', recursive, offset, limit);
+        const p2 = this.listUsers(baseGroup, '', recursive, offset, limit, profile);
         return Promise.all([p1, p2]).then(result => {
             const [resGroups, resUsers] = result;
             return {
@@ -130,33 +131,6 @@ class IdmApi {
                 Limit: limit
             }
         });
-        /*
-        const api = new UserServiceApi(this.client);
-        const request = new RestSearchUserRequest();
-        request.Operation = ServiceOperationType.constructFromObject('AND');
-        request.Queries = [];
-        const query = new IdmUserSingleQuery();
-        query.GroupPath = baseGroup || '/';
-        query.Recursive = recursive;
-        query.NodeType = IdmNodeType.constructFromObject('UNKNOWN');
-        request.Queries.push(query);
-
-        const query2 = new IdmUserSingleQuery();
-        query2.AttributeName = 'hidden';
-        query2.AttributeValue = 'true';
-        query2.not = true;
-        request.Queries.push(query2);
-        if(offset > 0){
-            request.Offset = offset + '';
-        }
-        if(limit > -1){
-            request.Limit = limit + '';
-        } else {
-            request.Limit = '10000';
-        }
-
-        return api.searchUsers(request);
-        */
 
     }
 

@@ -172,6 +172,7 @@ var IdmApi = (function () {
      * @param recursive boolean
      * @param offset integer
      * @param limit integer
+     * @param profile string
      * @return Promise<RestUsersCollection>
      */
 
@@ -180,9 +181,10 @@ var IdmApi = (function () {
         var recursive = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
         var offset = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
         var limit = arguments.length <= 3 || arguments[3] === undefined ? -1 : arguments[3];
+        var profile = arguments.length <= 4 || arguments[4] === undefined ? "" : arguments[4];
 
         var p1 = this.listGroups(baseGroup, '', recursive, 0, 1000);
-        var p2 = this.listUsers(baseGroup, '', recursive, offset, limit);
+        var p2 = this.listUsers(baseGroup, '', recursive, offset, limit, profile);
         return Promise.all([p1, p2]).then(function (result) {
             var resGroups = result[0];
             var resUsers = result[1];
@@ -195,31 +197,6 @@ var IdmApi = (function () {
                 Limit: limit
             };
         });
-        /*
-        const api = new UserServiceApi(this.client);
-        const request = new RestSearchUserRequest();
-        request.Operation = ServiceOperationType.constructFromObject('AND');
-        request.Queries = [];
-        const query = new IdmUserSingleQuery();
-        query.GroupPath = baseGroup || '/';
-        query.Recursive = recursive;
-        query.NodeType = IdmNodeType.constructFromObject('UNKNOWN');
-        request.Queries.push(query);
-         const query2 = new IdmUserSingleQuery();
-        query2.AttributeName = 'hidden';
-        query2.AttributeValue = 'true';
-        query2.not = true;
-        request.Queries.push(query2);
-        if(offset > 0){
-            request.Offset = offset + '';
-        }
-        if(limit > -1){
-            request.Limit = limit + '';
-        } else {
-            request.Limit = '10000';
-        }
-         return api.searchUsers(request);
-        */
     };
 
     /**

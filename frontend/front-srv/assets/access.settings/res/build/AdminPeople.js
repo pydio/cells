@@ -14509,34 +14509,51 @@ utils.intFromLE = intFromLE;
 module.exports={
   "_args": [
     [
-      "elliptic@6.4.0",
-      "/Users/gregory/work/src/github.com/pydio/cells/frontend/front-srv/assets/access.settings"
+      {
+        "raw": "elliptic@^6.0.0",
+        "scope": null,
+        "escapedName": "elliptic",
+        "name": "elliptic",
+        "rawSpec": "^6.0.0",
+        "spec": ">=6.0.0 <7.0.0",
+        "type": "range"
+      },
+      "/Users/charles/Sources/go/src/github.com/pydio/cells/frontend/front-srv/assets/access.settings/node_modules/browserify-sign"
     ]
   ],
-  "_development": true,
-  "_from": "elliptic@6.4.0",
+  "_from": "elliptic@>=6.0.0 <7.0.0",
   "_id": "elliptic@6.4.0",
-  "_inBundle": false,
-  "_integrity": "sha1-ysmvh2LIWDYYcAPI3+GT5eLq5d8=",
+  "_inCache": true,
   "_location": "/elliptic",
+  "_nodeVersion": "7.0.0",
+  "_npmOperationalInternal": {
+    "host": "packages-18-east.internal.npmjs.com",
+    "tmp": "tmp/elliptic-6.4.0.tgz_1487798866428_0.30510620190761983"
+  },
+  "_npmUser": {
+    "name": "indutny",
+    "email": "fedor@indutny.com"
+  },
+  "_npmVersion": "3.10.8",
   "_phantomChildren": {},
   "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "elliptic@6.4.0",
-    "name": "elliptic",
+    "raw": "elliptic@^6.0.0",
+    "scope": null,
     "escapedName": "elliptic",
-    "rawSpec": "6.4.0",
-    "saveSpec": null,
-    "fetchSpec": "6.4.0"
+    "name": "elliptic",
+    "rawSpec": "^6.0.0",
+    "spec": ">=6.0.0 <7.0.0",
+    "type": "range"
   },
   "_requiredBy": [
     "/browserify-sign",
     "/create-ecdh"
   ],
   "_resolved": "https://registry.npmjs.org/elliptic/-/elliptic-6.4.0.tgz",
-  "_spec": "6.4.0",
-  "_where": "/Users/gregory/work/src/github.com/pydio/cells/frontend/front-srv/assets/access.settings",
+  "_shasum": "cac9af8762c85836187003c8dfe193e5e2eae5df",
+  "_shrinkwrap": null,
+  "_spec": "elliptic@^6.0.0",
+  "_where": "/Users/charles/Sources/go/src/github.com/pydio/cells/frontend/front-srv/assets/access.settings/node_modules/browserify-sign",
   "author": {
     "name": "Fedor Indutny",
     "email": "fedor@indutny.com"
@@ -14570,9 +14587,15 @@ module.exports={
     "jshint": "^2.6.0",
     "mocha": "^2.1.0"
   },
+  "directories": {},
+  "dist": {
+    "shasum": "cac9af8762c85836187003c8dfe193e5e2eae5df",
+    "tarball": "https://registry.npmjs.org/elliptic/-/elliptic-6.4.0.tgz"
+  },
   "files": [
     "lib"
   ],
+  "gitHead": "6b0d2b76caae91471649c8e21f0b1d3ba0f96090",
   "homepage": "https://github.com/indutny/elliptic",
   "keywords": [
     "EC",
@@ -14582,7 +14605,15 @@ module.exports={
   ],
   "license": "MIT",
   "main": "lib/elliptic.js",
+  "maintainers": [
+    {
+      "name": "indutny",
+      "email": "fedor@indutny.com"
+    }
+  ],
   "name": "elliptic",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/indutny/elliptic.git"
@@ -22300,11 +22331,15 @@ var Dashboard = _react2['default'].createClass({
     },
 
     getInitialState: function getInitialState() {
+        var _props = this.props;
+        var currentNode = _props.currentNode;
+        var dataModel = _props.dataModel;
+
         return {
             searchResultData: false,
-            currentNode: this.props.currentNode,
-            dataModel: this.props.dataModel,
-            filterValue: 1
+            currentNode: currentNode,
+            dataModel: dataModel,
+            showAnon: false
         };
     },
 
@@ -22447,9 +22482,9 @@ var Dashboard = _react2['default'].createClass({
         var _this = this;
 
         var initialSection = arguments.length <= 1 || arguments[1] === undefined ? 'activity' : arguments[1];
-        var _props = this.props;
-        var advancedAcl = _props.advancedAcl;
-        var pydio = _props.pydio;
+        var _props2 = this.props;
+        var advancedAcl = _props2.advancedAcl;
+        var pydio = _props2.pydio;
 
         if (this.refs.editor && this.refs.editor.isDirty()) {
             if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
@@ -22538,25 +22573,35 @@ var Dashboard = _react2['default'].createClass({
         if (!node.getMetadata().has("IdmUser")) {
             return true;
         }
-        var attributes = node.getMetadata().get("IdmUser").Attributes || {};
-        var profile = attributes['profile'];
-        var isAdmin = profile === 'admin';
-        var filterValue = this.state.filterValue;
+        var _state = this.state;
+        var showAnon = _state.showAnon;
+        var displaySearchResult = _state.displaySearchResult;
 
-        switch (filterValue) {
-            case 1:
-                return profile !== "shared" && profile !== "anon";
-            case 2:
-                return profile === "shared" && profile !== "anon";
-            case 3:
-                return isAdmin;
-            default:
-                return true;
+        if (displaySearchResult || showAnon) {
+            return true;
         }
+        var attributes = node.getMetadata().get("IdmUser").Attributes || {};
+        return attributes['profile'] !== 'anon';
+    },
+
+    applyFilter: function applyFilter(profile) {
+        var _this3 = this;
+
+        if (profile === 'toggle-anon') {
+            this.setState({ showAnon: !this.state.showAnon });
+            return;
+        }
+        var currentNode = this.props.currentNode;
+
+        currentNode.getMetadata().set('userProfileFilter', profile);
+        currentNode.getMetadata()['delete']('paginationData');
+        this.setState({ currentNode: currentNode }, function () {
+            _this3.reloadList();
+        });
     },
 
     render: function render() {
-        var _this3 = this;
+        var _this4 = this;
 
         var fontIconStyle = {
             style: {
@@ -22573,11 +22618,11 @@ var Dashboard = _react2['default'].createClass({
             }
         };
 
-        var _state = this.state;
-        var searchResultData = _state.searchResultData;
-        var filterValue = _state.filterValue;
-        var currentNode = _state.currentNode;
-        var dataModel = _state.dataModel;
+        var _state2 = this.state;
+        var searchResultData = _state2.searchResultData;
+        var currentNode = _state2.currentNode;
+        var dataModel = _state2.dataModel;
+        var showAnon = _state2.showAnon;
 
         var importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, fontIconStyle, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), onTouchTap: this.openUsersImporter }));
         if (!_pydioHttpResourcesManager2['default'].moduleIsAvailable('EnterprisePeople')) {
@@ -22617,23 +22662,30 @@ var Dashboard = _react2['default'].createClass({
                 width: 0
             };
         }
+        var profileFilter = '';
+        if (currentNode.getMetadata().has('userProfileFilter')) {
+            profileFilter = currentNode.getMetadata().get('userProfileFilter');
+        }
 
-        var iconColor = filterValue === 1 ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color;
+        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color;
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant", tooltip: this.context.getMessage('user.filter.tooltip') }),
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant", tooltip: this.context.getMessage('user.filter.tooltip'), tooltipPosition: "bottom-left" }),
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
-                value: filterValue,
+                value: profileFilter,
                 onChange: function (e, val) {
-                    _this3.setState({ filterValue: val });
-                }
+                    _this4.applyFilter(val);
+                },
+                desktop: true
             },
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 1, primaryText: this.context.getMessage('user.filter.internal') }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 2, primaryText: this.context.getMessage('user.filter.shared') }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 3, primaryText: this.context.getMessage('user.filter.admins') }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 4, primaryText: this.context.getMessage('user.filter.all') })
+            _react2['default'].createElement(_materialUi.MenuItem, { value: "", primaryText: this.context.getMessage('user.filter.all') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: "!shared", primaryText: this.context.getMessage('user.filter.internal') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: "shared", primaryText: this.context.getMessage('user.filter.shared') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: "admin", primaryText: this.context.getMessage('user.filter.admins') }),
+            _react2['default'].createElement(_materialUi.Divider, null),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: "toggle-anon", primaryText: this.context.getMessage('user.filter.anon'), secondaryText: showAnon ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
         );
 
         return _react2['default'].createElement(
@@ -22690,7 +22742,7 @@ var Dashboard = _react2['default'].createClass({
                         toolbarStyle: { backgroundColor: '#f5f5f5', height: 48, borderBottom: '1px solid #e4e4e4' },
                         multipleActions: [this.props.pydio.Controller.getActionByName('delete')],
                         additionalActions: filterIcon,
-                        filterNodes: this.filterNodes
+                        filterNodes: this.filterNodes.bind(this)
                     })
                 )
             )
