@@ -591,6 +591,13 @@ service JobsService {
             body: "*"
         };
     }
+    // Technical Logs, in Json or CSV format
+    rpc ListTasksLogs(log.ListLogRequest) returns (LogMessageCollection) {
+        option (google.api.http) =  {
+            post: "/jobs/tasks/logs"
+            body: "*"
+        };
+    }
 }
 
 // Admin Tree service is a specific endpoint to list all data from the root

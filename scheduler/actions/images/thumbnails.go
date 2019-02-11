@@ -93,10 +93,10 @@ func (t *ThumbnailExtractor) GetName() string {
 func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	// Todo : get sizes from parameters
 	/*
-	t.Router = views.NewStandardRouter(views.RouterOptions{
-		AdminView:     true,
-		WatchRegistry: false,
-	})
+		t.Router = views.NewStandardRouter(views.RouterOptions{
+			AdminView:     true,
+			WatchRegistry: false,
+		})
 	*/
 
 	if action.Parameters != nil {
@@ -135,10 +135,8 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 
 	output := input
 	output.Nodes[0] = node
-	output.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: "Created thumbnails for image",
-	})
+	log.TasksLogger(ctx).Info("Created thumbnails for image", node.Zap())
+	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
 	return output, nil
 }

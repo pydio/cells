@@ -31,9 +31,9 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
@@ -41,16 +41,16 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
-type VersionAction struct {}
+type VersionAction struct{}
 
 var (
 	versionActionName = "actions.versioning.create"
-	router *views.Router
+	router            *views.Router
 )
 
 func getRouter() *views.Router {
 	if router == nil {
-		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry:true})
+		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
 	}
 	return router
 }
@@ -120,20 +120,16 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
 
 	output := input
-	output.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: T("Job.Version.StatusFile", resp.Version),
-	})
+	log.TasksLogger(ctx).Info(T("Job.Version.StatusFile", resp.Version))
+	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
 	if err == nil && written > 0 {
 		response, err2 := versionClient.StoreVersion(ctx, &tree.StoreVersionRequest{Node: node, Version: resp.Version})
 		if err2 != nil {
 			return input.WithError(err2), err2
 		}
-		output.AppendOutput(&jobs.ActionOutput{
-			Success:    true,
-			StringBody: T("Job.Version.StatusMeta", resp.Version),
-		})
+		log.TasksLogger(ctx).Info(T("Job.Version.StatusMeta", resp.Version))
+		output.AppendOutput(&jobs.ActionOutput{Success: true})
 		for _, version := range response.PruneVersions {
 			ctx = views.WithBranchInfo(ctx, "in", views.BranchInfo{LoadedSource: source})
 			deleteNode := &tree.Node{Path: node.Uuid + "__" + version.Uuid}
@@ -144,10 +140,8 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 			}
 		}
 		if len(response.PruneVersions) > 0 {
-			output.AppendOutput(&jobs.ActionOutput{
-				Success:    true,
-				StringBody: T("Job.Version.StatusPrune", struct{ Count int }{Count: len(response.PruneVersions)}),
-			})
+			log.TasksLogger(ctx).Info(T("Job.Version.StatusPrune", struct{ Count int }{Count: len(response.PruneVersions)}))
+			output.AppendOutput(&jobs.ActionOutput{Success: true})
 		}
 	}
 

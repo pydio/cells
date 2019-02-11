@@ -38,7 +38,7 @@ var (
 func init() {
 	var err error
 
-	server, err = NewSyslogServer("")
+	server, err = NewSyslogServer("", "sysLog")
 	if err != nil {
 		panic("Failed to create Syslog server")
 	}

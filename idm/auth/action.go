@@ -100,10 +100,8 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {
-		output.AppendOutput(&jobs.ActionOutput{
-			Success:    true,
-			StringBody: T("Auth.PruneJob.Revoked", struct{ Count int }{Count: len(pruneResp.Tokens)}),
-		})
+		log.TasksLogger(ctx).Info(T("Auth.PruneJob.Revoked", struct{ Count int }{Count: len(pruneResp.Tokens)}))
+		output.AppendOutput(&jobs.ActionOutput{Success: true})
 	}
 
 	// Prune reset password tokens
@@ -117,10 +115,8 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	if er != nil {
 		return output.WithError(er), er
 	} else {
-		output.AppendOutput(&jobs.ActionOutput{
-			Success:    true,
-			StringBody: T("Auth.PruneJob.ResetToken", deleteResponse),
-		})
+		log.TasksLogger(ctx).Info(T("Auth.PruneJob.ResetToken", deleteResponse))
+		output.AppendOutput(&jobs.ActionOutput{Success: true})
 	}
 
 	return output, nil

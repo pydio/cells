@@ -1440,6 +1440,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/jobs/tasks/logs": {
+      "post": {
+        "summary": "Technical Logs, in Json or CSV format",
+        "operationId": "ListTasksLogs",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restLogMessageCollection"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/logListLogRequest"
+            }
+          }
+        ],
+        "tags": [
+          "JobsService"
+        ]
+      }
+    },
     "/jobs/user": {
       "post": {
         "summary": "List jobs associated with current user",
@@ -4910,6 +4937,13 @@ var SwaggerJson = `{
           "type": "string"
         },
         "SpanRootUuid": {
+          "type": "string"
+        },
+        "OperationUuid": {
+          "type": "string",
+          "title": "High Level Operation Info"
+        },
+        "OperationLabel": {
           "type": "string"
         }
       },

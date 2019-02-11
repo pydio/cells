@@ -25,11 +25,13 @@ import (
 	"path"
 
 	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
 
+	"github.com/pydio/cells/broker/log"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
 	proto "github.com/pydio/cells/common/proto/jobs"
+	log2 "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/scheduler/jobs"
 )
@@ -50,10 +52,16 @@ func init() {
 				if err != nil {
 					return err
 				}
+				logStore, err := log.NewSyslogServer(path.Join(serviceDir, "tasklogs.bleve"), "tasksLog")
+				if err != nil {
+					return err
+				}
 				handler := &JobsHandler{
 					store: store,
 				}
+				handler.Handler.Repo = logStore
 				proto.RegisterJobServiceHandler(m.Options().Server, handler)
+				log2.RegisterLogRecorderHandler(m.Options().Server, handler)
 
 				m.Init(
 					micro.BeforeStop(func() error {

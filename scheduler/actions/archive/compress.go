@@ -108,7 +108,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	c.Router.PutObject(ctx, &tree.Node{Path: targetFile}, reader, &views.PutRequestData{Size: -1})
 
 	if err != nil {
-		log.Logger(ctx).Error("Error PutObject", zap.Error(err))
+		log.TasksLogger(ctx).Error("Error PutObject", zap.Error(err))
 		return input.WithError(err), err
 	}
 

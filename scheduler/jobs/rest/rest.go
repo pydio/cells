@@ -34,11 +34,12 @@ import (
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
+	log2 "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
@@ -122,8 +123,8 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 	}
 	ctx := req.Request.Context()
 	if cmd.Cmd == jobs.Command_Delete {
-
-		cli := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+		sName, jC := registry.GetClient(common.SERVICE_JOBS)
+		cli := jobs.NewJobServiceClient(sName, jC)
 		delRequest := &jobs.DeleteTasksRequest{
 			JobId:  cmd.JobId,
 			TaskID: []string{cmd.TaskId},
@@ -291,5 +292,37 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		JobUuid: jobUuid,
 	}
 	rsp.WriteEntity(response)
+
+}
+
+// Syslog retrieves the technical logs items matched by the query and export them in JSON, XLSX or CSV format
+func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response) {
+
+	var input log2.ListLogRequest
+	if e := req.ReadEntity(&input); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	ctx := req.Request.Context()
+
+	c := log2.NewLogRecorderClient(registry.GetClient(common.SERVICE_JOBS))
+
+	res, err := c.ListLogs(ctx, &input)
+	if err != nil {
+		service.RestError500(req, rsp, err)
+		return
+	}
+	defer res.Close()
+
+	logColl := &rest.LogMessageCollection{}
+	for {
+		response, err := res.Recv()
+		if err != nil {
+			break
+		}
+		logColl.Logs = append(logColl.Logs, response.GetLogMessage())
+	}
+
+	rsp.WriteEntity(logColl)
 
 }

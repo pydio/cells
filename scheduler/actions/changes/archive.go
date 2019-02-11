@@ -72,7 +72,7 @@ func (a *ArchiveAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	c := service.NewArchiverService(registry.GetClient(common.SERVICE_CHANGES))
 
-	log.Logger(ctx).Debug(fmt.Sprintf("Launching archive action with param RemainingRows=%d", a.RemainingRows))
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Launching archive action with param RemainingRows=%d", a.RemainingRows))
 
 	query, err := ptypes.MarshalAny(&service.ChangesArchiveQuery{RemainingRows: a.RemainingRows})
 	if err != nil {
@@ -85,7 +85,7 @@ func (a *ArchiveAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	resp, err := c.Archive(ctx, req)
 	if err != nil {
-		log.Logger(ctx).Debug("could not archive", zap.Any("ArchiveRequest", req), zap.Error(err))
+		log.TasksLogger(ctx).Info("could not archive", zap.Any("ArchiveRequest", req), zap.Error(err))
 		return input.WithError(err), err
 	}
 

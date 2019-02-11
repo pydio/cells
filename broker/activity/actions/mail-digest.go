@@ -119,10 +119,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		collection = append(collection, resp.Activity)
 	}
 	if len(collection) == 0 {
-		input.AppendOutput(&jobs.ActionOutput{
-			Ignored:    true,
-			StringBody: "No activities to send",
-		})
+		log.TasksLogger(ctx).Info("No activities found for "+userObject.Login, userObject.ZapLogin())
 		return input, nil
 	}
 
@@ -152,10 +149,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		return input.WithError(err), err
 	}
 
-	input.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: "Daily Digest sent to user " + userObject.Uuid,
-	})
+	log.TasksLogger(ctx).Info("Daily Digest sent to user "+userObject.Login, userObject.ZapLogin())
 	if len(collection) > 0 && !m.dryRun {
 		lastActivity := collection[0] // Activities are in reverse order, the first one is the last id
 		_, err := m.activityClient.SetUserLastActivity(ctx, &activity.UserLastActivityRequest{

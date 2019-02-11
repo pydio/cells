@@ -202,9 +202,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		theTask.Status = jobs.TaskStatus_Running
 		theTask.StartTime = int32(time.Now().Unix())
 		theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
-		fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
-			StringBody: "Starting Resync",
-		})
+		log.TasksLogger(c).Info("Starting Resync")
 		taskChan <- theTask
 
 		go func() {
@@ -214,11 +212,13 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 				select {
 				case status := <-statusChan:
 					theTask.StatusMessage = status.StatusString
-					fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
-						StringBody: status.StatusString,
-					})
 					theTask.Progress = status.Progress
 					theTask.Status = jobs.TaskStatus_Running
+					if status.IsError {
+						log.TasksLogger(c).Error(status.StatusString)
+					} else {
+						log.TasksLogger(c).Info(status.StatusString)
+					}
 					taskChan <- theTask
 				case <-doneChan:
 					theTask := req.Task
@@ -226,9 +226,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 					theTask.Progress = 1
 					theTask.EndTime = int32(time.Now().Unix())
 					theTask.Status = jobs.TaskStatus_Finished
-					fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
-						StringBody: "Sync complete",
-					})
+					log.TasksLogger(c).Info("Sync completed")
 					taskChan <- theTask
 					autoClient.Stop()
 					return
@@ -246,9 +244,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			theTask.Progress = 1
 			theTask.EndTime = int32(time.Now().Unix())
 			theTask.Status = jobs.TaskStatus_Error
-			fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
-				ErrorString: e.Error(),
-			})
+			log.TasksLogger(c).Error("Error during sync task", zap.Error(e))
 			theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
 			taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
 		}

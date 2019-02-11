@@ -45,7 +45,7 @@ func init() {
 				if e != nil {
 					return e
 				}
-				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"))
+				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog")
 				if err != nil {
 					return err
 				}

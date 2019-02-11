@@ -7,6 +7,8 @@ service LogRecorder {
     rpc PutLog(stream Log) returns (RecorderPutResponse) {}
     // ListLogs performs a paginated search query in the log repository.
     rpc ListLogs(ListLogRequest) returns (stream ListLogResponse) {}
+    // DeleteLogs deletes logs based on a request (cannot be empty)
+    rpc DeleteLogs(ListLogRequest) returns (DeleteLogsResponse) {}
     // AggregatedLogs performs a query to retrieve log events of the given type, faceted by time range.
     rpc AggregatedLogs(TimeRangeRequest) returns (stream TimeRangeResponse) {}
 }
@@ -78,6 +80,9 @@ message ListLogResponse {
     LogMessage LogMessage = 1;
 }
 
+message DeleteLogsResponse {
+    int64 Deleted = 1;
+}
 
 /* TIME RANGE REQUESTS */ 
 

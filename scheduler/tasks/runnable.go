@@ -123,10 +123,9 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 
 	defer func() {
 		if re := recover(); re != nil {
-			log.Logger(r.Context).Error("Recovered scheduler task", zap.Any("task", r.Task))
 			r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
 			if e, ok := re.(error); ok {
-				log.Logger(r.Context).Error("Recovered scheduler task", zap.Any("task", r.Task), zap.Error(e))
+				log.TasksLogger(r.Context).Error("Recovered scheduler task", zap.Any("task", r.Task), zap.Error(e))
 				r.Task.GlobalError(e)
 			}
 			r.Task.Save()
@@ -144,10 +143,14 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 	r.Task.Save()
 
 	runnableChannels, done := r.Task.GetRunnableChannels()
+
+	log.TasksLogger(r.Context).Info("Starting action " + r.ID)
 	outputMessage, err := r.Implementation.Run(r.Context, runnableChannels, r.Message)
 	done <- true
 	r.Task.Done(1)
+
 	if err != nil {
+		log.TasksLogger(r.Context).Error("Error while running action "+r.ID, zap.Error(err))
 		r.Task.SetStatus(jobs.TaskStatus_Error, "Error: "+err.Error())
 		r.Task.SetEndTime(time.Now())
 		r.Task.Save()

@@ -42,9 +42,10 @@ import (
 )
 
 var (
-	logger      *zap.Logger
-	AuditLogger *zap.Logger
-	StdOut      *os.File
+	logger          *zap.Logger
+	AuditLogger     *zap.Logger
+	TasksLoggerImpl *zap.Logger
+	StdOut          *os.File
 
 	// Parse log lines like below:
 	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
@@ -179,6 +180,23 @@ func Auditer(ctx context.Context) *zap.Logger {
 	newLogger := AuditLogger //initAuditLogger()
 	if ctx != nil {
 		newLogger = newLogger.With(zap.String("LogType", "audit"))
+		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
+			newLogger = newLogger.Named(serviceName)
+		}
+		// Add context info to the logger
+		newLogger = fillLogContext(ctx, newLogger)
+	}
+	return newLogger
+}
+
+// Auditer returns a zap logger with as much context as possible
+func TasksLogger(ctx context.Context) *zap.Logger {
+	if TasksLoggerImpl == nil {
+		return zap.New(nil)
+	}
+	newLogger := TasksLoggerImpl
+	if ctx != nil {
+		newLogger = newLogger.With(zap.String("LogType", "tasks"))
 		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
 			newLogger = newLogger.Named(serviceName)
 		}

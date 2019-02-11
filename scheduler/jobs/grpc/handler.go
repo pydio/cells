@@ -28,15 +28,18 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	logcore "github.com/pydio/cells/broker/log/grpc"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/jobs"
+	log2 "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/scheduler/jobs"
 	"github.com/pydio/cells/scheduler/lang"
 )
 
 // JobsHandler implements the JobService API
 type JobsHandler struct {
+	logcore.Handler
 	store jobs.DAO
 }
 
@@ -84,6 +87,9 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 		client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_CONFIG_EVENT, &proto.JobChangeEvent{
 			JobRemoved: request.JobID,
 		}))
+		go func() {
+			j.DeleteLogsFor(ctx, request.JobID, "")
+		}()
 		response.Success = true
 
 	} else if request.CleanableJobs {
@@ -115,6 +121,10 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_CONFIG_EVENT, &proto.JobChangeEvent{
 					JobRemoved: id,
 				}))
+				go func() {
+					j.DeleteLogsFor(ctx, id, "")
+				}()
+
 			}
 		}
 		response.DeleteCount = deleted
@@ -259,6 +269,11 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 				return e
 			}
 			response.Deleted = append(response.Deleted, tasks...)
+			go func() {
+				for _, tId := range tasks {
+					j.DeleteLogsFor(ctx, jId, tId)
+				}
+			}()
 		}
 		return nil
 
@@ -266,6 +281,11 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 		if e := j.store.DeleteTasks(request.JobId, request.TaskID); e == nil {
 			response.Deleted = append(response.Deleted, request.TaskID...)
+			go func() {
+				for _, tId := range request.TaskID {
+					j.DeleteLogsFor(ctx, request.JobId, tId)
+				}
+			}()
 			return nil
 		} else {
 			return e
@@ -277,6 +297,23 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 	}
 
+}
+
+func (j *JobsHandler) DeleteLogsFor(ctx context.Context, job string, task string) (int64, error) {
+	var req = &log2.ListLogRequest{}
+	if task == "" {
+		req.Query = "+OperationUuid:\"" + job + "*\""
+	} else {
+		req.Query = "+OperationUuid:\"" + job + "-" + task[0:8] + "\""
+	}
+	resp := &log2.DeleteLogsResponse{}
+	if e := j.DeleteLogs(ctx, req, resp); e != nil {
+		log.Logger(ctx).Error("Deleting logs in background for ", zap.String("j", job), zap.String("t", task), zap.Error(e))
+		return 0, e
+	} else {
+		log.Logger(ctx).Debug("Deleting logs in background for ", zap.String("j", job), zap.String("t", task), zap.Any("count", resp.Deleted))
+		return resp.Deleted, nil
+	}
 }
 
 func (j *JobsHandler) DetectStuckTasks(ctx context.Context, request *proto.DetectStuckTasksRequest, response *proto.DetectStuckTasksResponse) error {

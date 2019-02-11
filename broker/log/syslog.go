@@ -36,7 +36,7 @@ type SyslogServer struct {
 }
 
 // NewSyslogServer creates and configures a default Bleve instance to store technical logs
-func NewSyslogServer(bleveIndexPath string, deleteOnClose ...bool) (*SyslogServer, error) {
+func NewSyslogServer(bleveIndexPath string, mappingName string, deleteOnClose ...bool) (*SyslogServer, error) {
 
 	index, err := bleve.Open(bleveIndexPath)
 	if err == nil {
@@ -45,22 +45,11 @@ func NewSyslogServer(bleveIndexPath string, deleteOnClose ...bool) (*SyslogServe
 	}
 
 	indexMapping := bleve.NewIndexMapping()
-
 	// Create, configure and add a specific document mapping
 	logMapping := bleve.NewDocumentMapping()
+	indexMapping.AddDocumentMapping(mappingName, logMapping)
 
-	// Specific fields
-	// standardFieldMapping := bleve.NewTextFieldMapping()
-	// logMapping.AddFieldMappingsAt("level", standardFieldMapping)
-	// dateFieldMapping := bleve.NewDateTimeFieldMapping()
-	// logMapping.AddFieldMappingsAt("ts", dateFieldMapping)
-	// keywordFieldMapping := bleve.NewTextFieldMapping()
-	// keywordFieldMapping.Analyzer = keyword.Name
-	// logMapping.AddFieldMappingsAt("msg", keywordFieldMapping)
-
-	indexMapping.AddDocumentMapping("sysLog", logMapping)
-
-	// Creates the new index and initialises the server
+	// Creates the new index and initializes the server
 	if bleveIndexPath == "" {
 		index, err = bleve.NewMemOnly(indexMapping)
 	} else {
@@ -82,6 +71,10 @@ func (s *SyslogServer) PutLog(line map[string]string) error {
 // Results are ordered by descending timestamp rather than by score.
 func (s *SyslogServer) ListLogs(str string, page, size int32) (chan log.ListLogResponse, error) {
 	return BleveListLogs(s.Index, str, page, size)
+}
+
+func (s *SyslogServer) DeleteLogs(query string) (int64, error) {
+	return BleveDeleteLogs(s.Index, query)
 }
 
 // AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.

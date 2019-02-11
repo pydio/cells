@@ -89,7 +89,7 @@ func (f *FakeUsersAction) Init(job *jobs.Job, cl client.Client, action *jobs.Act
 
 // Run the actual action code
 func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
-	log.Logger(ctx).Info("Starting fake users creation")
+	log.TasksLogger(ctx).Info("Starting fake users creation")
 
 	outputMessage := input
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Creating random users"})
@@ -166,6 +166,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 			output := input.WithError(err)
 			return output, err
 		} else {
+			log.TasksLogger(ctx).Info("Created user " + label)
 			_, e := rolesServiceClient.CreateRole(ctx, &idm.CreateRoleRequest{
 				Role: &idm.Role{
 					Uuid:     response.User.Uuid,
@@ -181,7 +182,6 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		step = float32(i)
 		channels.Progress <- step / steps
 		channels.StatusMsg <- "Created user " + label
-		outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Created user " + label})
 		<-time.After(100 * time.Millisecond)
 	}
 

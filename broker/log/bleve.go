@@ -109,6 +109,39 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 	return res, nil
 }
 
+// BleveDeleteLogs queries the bleve index, based on the passed query string and deletes the results
+func BleveDeleteLogs(idx bleve.Index, str string) (int64, error) {
+
+	//fmt.Printf("## [DEBUG] ## Query [%s] should execute \n", str)
+
+	var q query.Query
+	if str == "" {
+		return 0, fmt.Errorf("cannot pass an empty query for deletion")
+	}
+	q = bleve.NewQueryStringQuery(str)
+	req := bleve.NewSearchRequest(q)
+	req.Size = 100000
+
+	sr, err := idx.Search(req)
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+	var count int64
+	for _, hit := range sr.Hits {
+		// fmt.Printf("## Hit#%d:\n", i)
+		// fmt.Printf("%v\n", *hit)
+
+		err := idx.Delete(hit.ID)
+		if err != nil {
+			continue
+		}
+		count++
+	}
+
+	return count, nil
+}
+
 // MarshallLogMsg creates an IndexableLog object and populates the inner LogMessage with known fields of the passed JSON line.
 func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 

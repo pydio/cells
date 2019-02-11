@@ -56,7 +56,8 @@ func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.
 		for {
 			select {
 			case val := <-ch:
-				if task, ok := val.(*jobs.Task); ok {
+				if t, ok := val.(*jobs.Task); ok {
+					task := t.WithoutLogs()
 					e := streamer.Send(&jobs.PutTaskRequest{Task: task})
 					if e != nil {
 						log.Logger(s.parentCtx).Debug("Cannot post task - break and reconnect streamer", zap.Error(e))

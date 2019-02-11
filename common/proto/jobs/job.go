@@ -54,3 +54,20 @@ func (task *Task) ZapId() zapcore.Field {
 func (task *Task) GetCtxOperationID() string {
 	return task.GetJobID() + "-" + task.GetID()[0:8]
 }
+
+func (task *Task) WithoutLogs() *Task {
+	return &Task{
+		ID:            task.ID,
+		JobID:         task.JobID,
+		Status:        task.Status,
+		StatusMessage: task.StatusMessage,
+		StartTime:     task.StartTime,
+		EndTime:       task.EndTime,
+		HasProgress:   task.HasProgress,
+		Progress:      task.Progress,
+		TriggerOwner:  task.TriggerOwner,
+		CanPause:      task.CanPause,
+		CanStop:       task.CanStop,
+		ActionsLogs:   []*ActionLog{},
+	}
+}

@@ -13,6 +13,7 @@ It has these top-level messages:
 	LogMessage
 	ListLogRequest
 	ListLogResponse
+	DeleteLogsResponse
 	TimeRangeResponse
 	TimeRangeResult
 	TimeRangeRequest
@@ -53,6 +54,8 @@ type LogRecorderClient interface {
 	PutLog(ctx context.Context, opts ...client.CallOption) (LogRecorder_PutLogClient, error)
 	// ListLogs performs a paginated search query in the log repository.
 	ListLogs(ctx context.Context, in *ListLogRequest, opts ...client.CallOption) (LogRecorder_ListLogsClient, error)
+	// DeleteLogs deletes logs based on a request (cannot be empty)
+	DeleteLogs(ctx context.Context, in *ListLogRequest, opts ...client.CallOption) (*DeleteLogsResponse, error)
 	// AggregatedLogs performs a query to retrieve log events of the given type, faceted by time range.
 	AggregatedLogs(ctx context.Context, in *TimeRangeRequest, opts ...client.CallOption) (LogRecorder_AggregatedLogsClient, error)
 }
@@ -155,6 +158,16 @@ func (x *logRecorderListLogsClient) Recv() (*ListLogResponse, error) {
 	return m, nil
 }
 
+func (c *logRecorderClient) DeleteLogs(ctx context.Context, in *ListLogRequest, opts ...client.CallOption) (*DeleteLogsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "LogRecorder.DeleteLogs", in)
+	out := new(DeleteLogsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *logRecorderClient) AggregatedLogs(ctx context.Context, in *TimeRangeRequest, opts ...client.CallOption) (LogRecorder_AggregatedLogsClient, error) {
 	req := c.c.NewRequest(c.serviceName, "LogRecorder.AggregatedLogs", &TimeRangeRequest{})
 	stream, err := c.c.Stream(ctx, req, opts...)
@@ -206,6 +219,8 @@ type LogRecorderHandler interface {
 	PutLog(context.Context, LogRecorder_PutLogStream) error
 	// ListLogs performs a paginated search query in the log repository.
 	ListLogs(context.Context, *ListLogRequest, LogRecorder_ListLogsStream) error
+	// DeleteLogs deletes logs based on a request (cannot be empty)
+	DeleteLogs(context.Context, *ListLogRequest, *DeleteLogsResponse) error
 	// AggregatedLogs performs a query to retrieve log events of the given type, faceted by time range.
 	AggregatedLogs(context.Context, *TimeRangeRequest, LogRecorder_AggregatedLogsStream) error
 }
@@ -286,6 +301,10 @@ func (x *logRecorderListLogsStream) RecvMsg(m interface{}) error {
 
 func (x *logRecorderListLogsStream) Send(m *ListLogResponse) error {
 	return x.stream.Send(m)
+}
+
+func (h *LogRecorder) DeleteLogs(ctx context.Context, in *ListLogRequest, out *DeleteLogsResponse) error {
+	return h.LogRecorderHandler.DeleteLogs(ctx, in, out)
 }
 
 func (h *LogRecorder) AggregatedLogs(ctx context.Context, stream server.Streamer) error {
