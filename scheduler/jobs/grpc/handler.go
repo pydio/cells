@@ -28,6 +28,8 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"strings"
+
 	logcore "github.com/pydio/cells/broker/log/grpc"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -122,7 +124,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 					JobRemoved: id,
 				}))
 				go func() {
-					j.DeleteLogsFor(ctx, id, "")
+					j.DeleteLogsFor(ctx, id)
 				}()
 
 			}
@@ -270,9 +272,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 			}
 			response.Deleted = append(response.Deleted, tasks...)
 			go func() {
-				for _, tId := range tasks {
-					j.DeleteLogsFor(ctx, jId, tId)
-				}
+				j.DeleteLogsFor(ctx, jId, tasks...)
 			}()
 		}
 		return nil
@@ -282,9 +282,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 		if e := j.store.DeleteTasks(request.JobId, request.TaskID); e == nil {
 			response.Deleted = append(response.Deleted, request.TaskID...)
 			go func() {
-				for _, tId := range request.TaskID {
-					j.DeleteLogsFor(ctx, request.JobId, tId)
-				}
+				j.DeleteLogsFor(ctx, request.JobId, request.TaskID...)
 			}()
 			return nil
 		} else {
@@ -299,19 +297,23 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 }
 
-func (j *JobsHandler) DeleteLogsFor(ctx context.Context, job string, task string) (int64, error) {
+func (j *JobsHandler) DeleteLogsFor(ctx context.Context, job string, tasks ...string) (int64, error) {
 	var req = &log2.ListLogRequest{}
-	if task == "" {
-		req.Query = "+OperationUuid:\"" + job + "*\""
+	if len(tasks) == 0 {
+		req.Query = "OperationUuid:\"" + job + "*\""
 	} else {
-		req.Query = "+OperationUuid:\"" + job + "-" + task[0:8] + "\""
+		qs := []string{}
+		for _, task := range tasks {
+			qs = append(qs, "OperationUuid:\""+job+"-"+task[0:8]+"\"")
+		}
+		req.Query = strings.Join(qs, " ")
 	}
 	resp := &log2.DeleteLogsResponse{}
 	if e := j.DeleteLogs(ctx, req, resp); e != nil {
-		log.Logger(ctx).Error("Deleting logs in background for ", zap.String("j", job), zap.String("t", task), zap.Error(e))
+		log.Logger(ctx).Error("Deleting logs in background for ", zap.String("j", job), zap.Strings("t", tasks), zap.Error(e))
 		return 0, e
 	} else {
-		log.Logger(ctx).Debug("Deleting logs in background for ", zap.String("j", job), zap.String("t", task), zap.Any("count", resp.Deleted))
+		log.Logger(ctx).Debug("Deleting logs in background for ", zap.String("j", job), zap.Strings("t", tasks), zap.Any("count", resp.Deleted))
 		return resp.Deleted, nil
 	}
 }

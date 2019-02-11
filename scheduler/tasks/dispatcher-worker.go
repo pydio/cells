@@ -22,7 +22,6 @@ package tasks
 
 import (
 	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
 )
 
 var (
@@ -61,7 +60,6 @@ func (w Worker) Start() {
 			select {
 			case runnable := <-w.JobChannel:
 				// we have received a work request.
-				log.Logger(runnable.Context).Debug("Received Runnable in dispatcher", zap.String("runnable", runnable.ID))
 				w.activeChan <- 1
 				err := runnable.RunAction(w.JobReQueue)
 				// TODO : do something with errors

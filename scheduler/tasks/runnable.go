@@ -143,8 +143,6 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 	r.Task.Save()
 
 	runnableChannels, done := r.Task.GetRunnableChannels()
-
-	log.TasksLogger(r.Context).Info("Starting action " + r.ID)
 	outputMessage, err := r.Implementation.Run(r.Context, runnableChannels, r.Message)
 	done <- true
 	r.Task.Done(1)

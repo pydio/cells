@@ -112,7 +112,7 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 // BleveDeleteLogs queries the bleve index, based on the passed query string and deletes the results
 func BleveDeleteLogs(idx bleve.Index, str string) (int64, error) {
 
-	//fmt.Printf("## [DEBUG] ## Query [%s] should execute \n", str)
+	//fmt.Printf("## [DEBUG] ## Delete Query [%s] should execute \n", str)
 
 	var q query.Query
 	if str == "" {
@@ -120,12 +120,17 @@ func BleveDeleteLogs(idx bleve.Index, str string) (int64, error) {
 	}
 	q = bleve.NewQueryStringQuery(str)
 	req := bleve.NewSearchRequest(q)
-	req.Size = 100000
+	req.Size = 30
 
 	sr, err := idx.Search(req)
 	if err != nil {
 		fmt.Println(err)
 		return 0, err
+	}
+	//fmt.Printf("Switching to a request of %d size \n", sr.Total)
+	if sr.Total > 30 {
+		req.Size = int(sr.Total)
+		sr, _ = idx.Search(req)
 	}
 	var count int64
 	for _, hit := range sr.Hits {
