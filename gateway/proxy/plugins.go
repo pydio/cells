@@ -52,22 +52,24 @@ var (
 		{{.Bind}} {
 		proxy /a  {{.Micro | urls}} {
 			without /a
-			transparent
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 		proxy /auth/dex {{.Dex | urls}} {
-			transparent
 			insecure_skip_verify
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 		proxy /io   {{.Gateway | serviceAddress}} {
 			header_upstream Host {{.ExternalHost}}
 			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-For {remote}
 			header_upstream X-Forwarded-Proto {scheme}
 		}
 		proxy /data {{.Gateway | serviceAddress}} {
 			header_upstream Host {{.ExternalHost}}
 			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-For {remote}
 			header_upstream X-Forwarded-Proto {scheme}
 		}
 		proxy /ws   {{.WebSocket | urls}} {
@@ -75,28 +77,40 @@ var (
 			without /ws
 		}
 		proxy /plug/ {{.FrontPlugins | urls}} {
-			transparent
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 			header_downstream Cache-Control "public, max-age=31536000"
 		}
 		proxy /dav/ {{.DAV | urls}} {
-			transparent
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 
 		proxy /public/ {{.FrontPlugins | urls}} {
-			transparent
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 
 		proxy /user/reset-password/ {{.FrontPlugins | urls}} {
-			transparent
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 
 		proxy /robots.txt {{.FrontPlugins | urls}} {
-			transparent
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 
 		proxy /login {{urls .FrontPlugins "/gui"}} {
-			transparent
 			without /login
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
 		}
 
 		redir 302 {
@@ -127,6 +141,8 @@ var (
 
 		{{if .TLS}}tls {{.TLS}}{{end}}
 		errors "{{.Logs}}/caddy_errors.log"
+		# Enable this to ease debuging proxy issues
+		#log  / "{{.Logs}}/access.log" "{>X-Forwarded-For} - [{when}] \"{method} {uri} {proto}\" {status} {size}"
 		}
 
 		{{if .HTTPRedirectSource}}

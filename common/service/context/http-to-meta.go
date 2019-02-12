@@ -42,7 +42,7 @@ const (
 	ServerTime             = "ServerTime"
 )
 
-// Try to extract as much HTTP metadata as possible and store it in context metadata
+// HttpRequestInfoToMetadata extracts as much HTTP metadata as possible and stores it in the context as metadata.
 func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.Context {
 
 	meta := metadata.Metadata{}
@@ -66,6 +66,11 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	meta[ServerTime] = t.Format(layout)
 	meta[ClientTime] = t.Format(layout)
 
+	// // TODO we should also support "Forwarded" standard header
+	// if h, ok := req.Header["Forwarded"]; ok {
+	// 	forwarded := strings.Join(h, "")
+	// 	meta[HttpMetaRemoteAddress] = forwarded
+	// } else
 	if h, ok := req.Header["X-Forwarded-For"]; ok {
 		forwarded := strings.Join(h, "")
 		meta[HttpMetaRemoteAddress] = forwarded
@@ -108,7 +113,7 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	return metadata.NewContext(ctx, meta)
 }
 
-// Extract data from request and put it in context Metadata field
+// HttpMetaExtractorWrapper extracts data from the request and puts it in a context Metadata field.
 func HttpMetaExtractorWrapper(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(HttpRequestInfoToMetadata(r.Context(), r))
