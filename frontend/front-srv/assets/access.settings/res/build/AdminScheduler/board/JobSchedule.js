@@ -76,11 +76,6 @@ var JobSchedule = (function (_React$Component) {
     }
 
     _createClass(JobSchedule, [{
-        key: 'componentDidUpdate',
-        value: function componentDidUpdate() {
-            console.log(JobSchedule.makeIso8601FromState(this.state));
-        }
-    }, {
         key: 'updateJob',
         value: function updateJob() {
             var _this = this;
@@ -346,12 +341,12 @@ var JobSchedule = (function (_React$Component) {
 
             var startDate = new Date(d);
             if (i === 'P1M') {
-                return { frequency: 'monthly', monthday: startDate.getDate() };
+                return { frequency: 'monthly', monthday: startDate.getDate(), daytime: startDate };
             } else if (i === 'P7D') {
                 var m = moment(startDate);
-                return { frequency: 'weekly', weekday: m.day() };
+                return { frequency: 'weekly', weekday: m.day(), daytime: startDate };
             } else if (i === 'PT24H' || i === 'P1D') {
-                return { frequency: 'daily', daytime: startDate.getTime() };
+                return { frequency: 'daily', daytime: startDate };
             } else {
                 var _d = moment.duration(i);
                 if (_d.isValid()) {
@@ -377,10 +372,16 @@ var JobSchedule = (function (_React$Component) {
                 case "manual":
                     return "";
                 case "monthly":
+                    if (daytime) {
+                        startDate.setTime(daytime.getTime());
+                    }
                     startDate.setDate(monthday || 1);
                     duration = moment.duration(1, 'months');
                     break;
                 case "weekly":
+                    if (daytime) {
+                        startDate.setTime(daytime.getTime());
+                    }
                     var m = moment(startDate);
                     m.day(weekday === undefined ? 1 : weekday);
                     startDate = m.toDate();

@@ -39,23 +39,19 @@ func init() {
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TASKS, []string{}),
 			service.Description("Triggers events based on a scheduler pattern"),
 			service.WithMicro(func(m micro.Service) error {
-				m.Init(micro.AfterStart(func() error {
 
-					producer := timer.NewEventProducer(m.Options().Context)
-					subscriber := &timer.JobsEventsSubscriber{
-						Producer: producer,
-					}
-					m.Options().Server.Subscribe(
-						m.Options().Server.NewSubscriber(
-							common.TOPIC_JOB_CONFIG_EVENT,
-							subscriber,
-						),
-					)
+				producer := timer.NewEventProducer(m.Options().Context)
+				subscriber := &timer.JobsEventsSubscriber{
+					Producer: producer,
+				}
+				m.Options().Server.Subscribe(
+					m.Options().Server.NewSubscriber(
+						common.TOPIC_JOB_CONFIG_EVENT,
+						subscriber,
+					),
+				)
 
-					producer.Start()
-
-					return nil
-				}))
+				producer.Start()
 
 				return nil
 			}),
