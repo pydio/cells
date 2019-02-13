@@ -70,10 +70,15 @@ func validPortNumber(input string) error {
 	return e
 }
 
+func validUrl(input string) error {
+	_, e := url.Parse(input)
+	return e
+}
+
 func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) {
 
 	defaultPort := "8080"
-	var internalHost, externalHost string
+	var internalHost string
 	defaultIps, e := utils.GetAvailableIPs()
 	if e != nil {
 		return
@@ -93,7 +98,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
 
 	prompt := p.SelectWithAdd{
-		Label:    "Binding Host (ip:port or yourdomain.tld that the webserver will listen. If internal and external urls differ, use internal here)",
+		Label:    "Internal Url (address that the web server will listen to, use ip:port or yourdomain.tld, without http/https)",
 		Items:    items,
 		AddLabel: "Other",
 		Validate: validHostPort,
@@ -113,18 +118,6 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	if parts[1] == "80" || parts[1] == "443" {
 		defaultExternal = parts[0]
 	}
-	extPrompt := p.Prompt{
-		Label:    "External Host (used to access this machine from outside world if it differs from Bind Host)",
-		Validate: notEmpty,
-		Default:  defaultExternal,
-	}
-	externalHost, e = extPrompt.Run()
-	if e != nil {
-		return
-	}
-	externalHost = strings.TrimSuffix(externalHost, "/")
-	externalHost = strings.TrimPrefix(externalHost, "http://")
-	externalHost = strings.TrimPrefix(externalHost, "https://")
 
 	sslEnabled, e := promptSslMode()
 	if e != nil {
@@ -136,13 +129,23 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 		// if config.Get("cert", "proxy", "ssl").Bool(false)
 		scheme = "https"
 	}
-
-	externalUrl := fmt.Sprintf("%s://%s", scheme, externalHost)
 	internalUrl := fmt.Sprintf("%s://%s", scheme, internalHost)
 	internal, e = url.Parse(internalUrl)
 	if e != nil {
 		return
 	}
+
+	extPrompt := p.Prompt{
+		Label:    "External Url, used to access application from outside world (it can differ from internal url if you are behind a proxy or inside a private network)",
+		Validate: validUrl,
+		Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
+	}
+	externalUrl, er := extPrompt.Run()
+	if er != nil {
+		e = er
+		return
+	}
+	externalUrl = strings.TrimSuffix(externalUrl, "/")
 	external, e = url.Parse(externalUrl)
 	if e != nil {
 		return
