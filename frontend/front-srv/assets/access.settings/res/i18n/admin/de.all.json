@@ -1085,6 +1085,9 @@
   "user.filter.all": {
     "other": "Alle Benutzer"
   },
+  "user.filter.anon": {
+    "other": "Show anonymous"
+  },
   "versions.editor.delete": {
     "other": "Richtlinie löschen"
   },
@@ -1550,6 +1553,12 @@
   "services.service.datasource.index": {
     "other": "Indizierung"
   },
+  "scheduler.title": {
+    "other": "Scheduler"
+  },
+  "scheduler.legend": {
+    "other": "Jobs, die regelmäßig im Hintergrund laufen oder durch Ereignisse ausgelöst werden"
+  },
   "scheduler.system.title": {
     "other": "Systemjobs"
   },
@@ -1567,6 +1576,15 @@
   },
   "scheduler.users.empty": {
     "other": "Keine Jobs von Benutzern gestartet"
+  },
+  "scheduler.job.label": {
+    "other": "Titel"
+  },
+  "scheduler.job.endTime": {
+    "other": "Letzte Ausführung"
+  },
+  "scheduler.job.status": {
+    "other": "Zustand"
   },
   "scheduler.job.owner": {
     "other": "Eigentümer"
@@ -1669,6 +1687,60 @@
   },
   "scheduler.tasks.bulk.clear": {
     "other": "Alle entfernen"
+  },
+  "scheduler.schedule.monthly": {
+    "other": "Am %1 jedes Monats um %2 Uhr"
+  },
+  "scheduler.schedule.monthly.short": {
+    "other": "Am %1 jedes Monats"
+  },
+  "scheduler.schedule.weekly": {
+    "other": "Jeder %1 um %2 Uhr"
+  },
+  "scheduler.schedule.weekly.short": {
+    "other": "Jeder %1"
+  },
+  "scheduler.schedule.daily": {
+    "other": "Täglich um %1"
+  },
+  "scheduler.schedule.daily.short": {
+    "other": "Um %1"
+  },
+  "scheduler.schedule.timely": {
+    "other": "Jeder %1"
+  },
+  "scheduler.schedule.title": {
+    "other": "Job-Zeitplan"
+  },
+  "scheduler.schedule.type": {
+    "other": "Zeitplan Typ"
+  },
+  "scheduler.schedule.type.manual": {
+    "other": "Manuell"
+  },
+  "scheduler.schedule.type.monthly": {
+    "other": "Monatlich"
+  },
+  "scheduler.schedule.type.weekly": {
+    "other": "Wöchentlich"
+  },
+  "scheduler.schedule.type.daily": {
+    "other": "Täglich"
+  },
+  "scheduler.schedule.type.timely": {
+    "other": "Jeder %1..."
+  },
+  "scheduler.schedule.detail.monthday": {
+    "other": "Tag des Monats"
+  },
+  "scheduler.schedule.detail.weekday": {
+    "other": "Tag der Woche"
+  },
+  "scheduler.schedule.detail.daytime": {
+    "other": "Uhrzeit"
+  },
+  "scheduler.schedule.detail.minutes": {
+    "other": "Zeitraum in Minuten"
   },
   "developer.rest.apis": {
     "other": "REST-API Dokumentation"
