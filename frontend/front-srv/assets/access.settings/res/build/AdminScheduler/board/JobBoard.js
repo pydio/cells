@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -50,6 +50,10 @@ var _TaskActivity = require('./TaskActivity');
 
 var _TaskActivity2 = _interopRequireDefault(_TaskActivity);
 
+var _JobSchedule = require('./JobSchedule');
+
+var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -58,77 +62,8 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib2.MaterialTable;
 
-var ActionsLog = (function (_React$Component) {
-    _inherits(ActionsLog, _React$Component);
-
-    function ActionsLog() {
-        _classCallCheck(this, ActionsLog);
-
-        _get(Object.getPrototypeOf(ActionsLog.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(ActionsLog, [{
-        key: 'render',
-        value: function render() {
-            var task = this.props.task;
-            var ActionsLogs = task.ActionsLogs;
-
-            var lines = [],
-                error = undefined;
-            if (ActionsLogs) {
-                ActionsLogs.map(function (log) {
-                    lines.push(_react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { border: '1px solid #9e9e9e', margin: '20px 0' } },
-                            _react2['default'].createElement(AdminComponents.CodeMirrorField, {
-                                mode: 'json',
-                                globalScope: {},
-                                value: JSON.stringify(log.OutputMessage, null, 4),
-                                readOnly: true
-                            })
-                        )
-                    ));
-                    lines.push(_react2['default'].createElement(_materialUi.Divider, null));
-                });
-                lines.pop();
-            }
-
-            if (task.Status === "Error" && task.StatusMessage) {
-                error = _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '12px 0', fontWeight: 500, fontSize: 14, color: '#e53935' } },
-                    task.StatusMessage
-                );
-            }
-            if (!error && !lines.length) {
-                return _react2['default'].createElement(
-                    'div',
-                    null,
-                    'No actions taken'
-                );
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                { style: { fontSize: 13 } },
-                error,
-                _react2['default'].createElement(
-                    'div',
-                    null,
-                    lines
-                )
-            );
-        }
-    }]);
-
-    return ActionsLog;
-})(_react2['default'].Component);
-
-var JobBoard = (function (_React$Component2) {
-    _inherits(JobBoard, _React$Component2);
+var JobBoard = (function (_React$Component) {
+    _inherits(JobBoard, _React$Component);
 
     function JobBoard(props) {
         _classCallCheck(this, JobBoard);
@@ -232,7 +167,9 @@ var JobBoard = (function (_React$Component2) {
         value: function render() {
             var _this3 = this;
 
-            var pydio = this.props.pydio;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var jobsEditable = _props.jobsEditable;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -246,9 +183,9 @@ var JobBoard = (function (_React$Component2) {
                     );else return row.StatusMessage;
                 } }, { name: 'Actions', label: '', style: { textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
 
-            var _props = this.props;
-            var job = _props.job;
-            var onRequestClose = _props.onRequestClose;
+            var _props2 = this.props;
+            var job = _props2.job;
+            var onRequestClose = _props2.onRequestClose;
             var _state = this.state;
             var selectedRows = _state.selectedRows;
             var working = _state.working;
@@ -266,6 +203,9 @@ var JobBoard = (function (_React$Component2) {
             });
 
             var actions = [];
+            if (jobsEditable) {
+                actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
+            }
             if (!job.EventNames) {
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
                         JobsStore.getInstance().controlJob(job, 'RunOnce');
@@ -298,13 +238,14 @@ var JobBoard = (function (_React$Component2) {
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
-                        title: job.Label,
+                        title: job.Label + (taskLogs ? ' - ' + taskLogs.ID.substr(0, 8) : ''),
                         onRequestClose: function () {
                             _this3.setState({ taskLogs: null });
                         },
                         open: taskLogs !== null,
                         autoScrollBodyContent: true,
-                        autoDetectWindowHeight: true
+                        autoDetectWindowHeight: true,
+                        bodyStyle: { padding: 0 }
                     },
                     taskLogs && _react2['default'].createElement(_TaskActivity2['default'], { pydio: this.props.pydio, task: taskLogs })
                 ),
@@ -315,7 +256,7 @@ var JobBoard = (function (_React$Component2) {
                         _react2['default'].createElement(
                             'a',
                             { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onTouchTap: onRequestClose },
-                            pydio.MessageHash['action.scheduler.18']
+                            pydio.MessageHash['ajxp_admin.scheduler.title']
                         ),
                         ' / ',
                         job.Label,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -124,22 +124,12 @@ var TaskActivity = (function (_React$Component) {
             return _react2["default"].createElement(
                 "div",
                 { style: { height: 600 } },
-                _react2["default"].createElement(
-                    "div",
-                    { style: { padding: 16 } },
-                    "Activity recorded during task ",
-                    task.ID
-                ),
-                _react2["default"].createElement(
-                    "div",
-                    { className: "layout-fill vertical-layout" },
-                    _react2["default"].createElement(MaterialTable, {
-                        columns: columns,
-                        data: activity,
-                        showCheckboxes: false,
-                        emptyStateString: 'No activity found'
-                    })
-                )
+                _react2["default"].createElement(MaterialTable, {
+                    columns: columns,
+                    data: activity,
+                    showCheckboxes: false,
+                    emptyStateString: 'No activity found'
+                })
             );
         }
     }]);

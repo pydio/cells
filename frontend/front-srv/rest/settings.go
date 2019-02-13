@@ -128,8 +128,8 @@ var settingsNode = &rest.SettingsMenuResponse{
 				},
 				{
 					Key:         "scheduler",
-					Label:       "action.scheduler.18",
-					Description: "action.scheduler.22",
+					Label:       "ajxp_admin.scheduler.title",
+					Description: "ajxp_admin.scheduler.legend",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-timetable",
 						Component: "AdminScheduler.Dashboard",

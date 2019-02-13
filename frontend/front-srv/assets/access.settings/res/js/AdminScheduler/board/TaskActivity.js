@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -81,15 +81,12 @@ class TaskActivity extends React.Component{
         ];
         return (
             <div style={{height:600}}>
-                <div style={{padding:16}}>Activity recorded during task {task.ID}</div>
-                <div className="layout-fill vertical-layout">
-                    <MaterialTable
-                        columns={columns}
-                        data={activity}
-                        showCheckboxes={false}
-                        emptyStateString={'No activity found'}
-                    />
-                </div>
+                <MaterialTable
+                    columns={columns}
+                    data={activity}
+                    showCheckboxes={false}
+                    emptyStateString={'No activity found'}
+                />
             </div>
         )
     }

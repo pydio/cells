@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,49 +24,7 @@ import {IconButton, FontIcon, FlatButton, RaisedButton, Paper, Dialog, Divider} 
 const {JobsStore} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 import TaskActivity from './TaskActivity'
-
-class ActionsLog extends React.Component {
-
-    render(){
-        const {task} = this.props;
-        const {ActionsLogs} = task;
-        let lines = [], error;
-        if(ActionsLogs){
-            ActionsLogs.map(log => {
-                lines.push(
-                    <div>
-                        <div style={{border: '1px solid #9e9e9e', margin:'20px 0'}}>
-                            <AdminComponents.CodeMirrorField
-                                mode="json"
-                                globalScope={{}}
-                                value={JSON.stringify(log.OutputMessage, null, 4)}
-                                readOnly={true}
-                            />
-                        </div>
-                    </div>
-                );
-                lines.push(<Divider/>)
-            });
-            lines.pop();
-        }
-
-        if (task.Status === "Error" && task.StatusMessage) {
-            error = <div style={{padding: '12px 0', fontWeight: 500, fontSize: 14, color:'#e53935'}}>{task.StatusMessage}</div>
-        }
-        if (!error && !lines.length) {
-            return <div>No actions taken</div>
-        }
-
-        return (
-            <div style={{fontSize: 13}}>
-                {error}
-                <div>{lines}</div>
-            </div>
-        );
-
-    }
-}
-
+import JobSchedule from './JobSchedule'
 
 class JobBoard extends React.Component {
 
@@ -143,7 +101,7 @@ class JobBoard extends React.Component {
 
     render(){
 
-        const {pydio} = this.props;
+        const {pydio, jobsEditable} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
         const keys = [
@@ -171,6 +129,9 @@ class JobBoard extends React.Component {
         });
 
         let actions = [];
+        if(jobsEditable){
+            actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
+        }
         if(!job.EventNames){
             actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} />);
         }
@@ -190,16 +151,17 @@ class JobBoard extends React.Component {
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
                 <Dialog
-                    title={job.Label}
+                    title={job.Label + (taskLogs ? ' - ' + taskLogs.ID.substr(0, 8)  : '')}
                     onRequestClose={()=>{this.setState({taskLogs: null})}}
                     open={taskLogs !== null}
                     autoScrollBodyContent={true}
                     autoDetectWindowHeight={true}
+                    bodyStyle={{padding:0}}
                 >
                     {taskLogs && <TaskActivity pydio={this.props.pydio} task={taskLogs}/>}
                 </Dialog>
                 <AdminComponents.Header
-                    title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={onRequestClose}>{pydio.MessageHash['action.scheduler.18']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
+                    title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={onRequestClose}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
                     backButtonAction={onRequestClose}
                     actions={actions}
                     loading={working}

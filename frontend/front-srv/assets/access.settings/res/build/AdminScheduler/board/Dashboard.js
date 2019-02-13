@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -41,6 +41,10 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _JobBoard = require('./JobBoard');
 
 var _JobBoard2 = _interopRequireDefault(_JobBoard);
+
+var _JobSchedule = require('./JobSchedule');
+
+var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
 
 var _lodashDebounce = require('lodash.debounce');
 
@@ -219,7 +223,7 @@ var Dashboard = _react2['default'].createClass({
             }
 
             if (job.Schedule) {
-                data.Trigger = m('trigger.periodic');
+                data.Trigger = _react2['default'].createElement(_JobSchedule2['default'], { job: job }); // m('trigger.periodic');
                 data.TriggerValue = 1;
             } else if (job.EventNames) {
                 data.TriggerValue = 2;
@@ -261,7 +265,9 @@ var Dashboard = _react2['default'].createClass({
     render: function render() {
         var _this6 = this;
 
-        var pydio = this.props.pydio;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var jobsEditable = _props.jobsEditable;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -269,7 +275,7 @@ var Dashboard = _react2['default'].createClass({
 
         var keys = [{
             name: 'Label',
-            label: this.context.getMessage('12', 'action.scheduler'),
+            label: m('job.label'),
             style: { width: '35%', fontSize: 15 },
             headerStyle: { width: '35%' }
         }, {
@@ -286,13 +292,13 @@ var Dashboard = _react2['default'].createClass({
             hideSmall: true
         }, {
             name: 'TaskEndTime',
-            label: this.context.getMessage('14', 'action.scheduler'),
+            label: m('job.endTime'),
             style: { width: '15%' },
             headerStyle: { width: '15%' },
             hideSmall: true
         }, {
             name: 'TaskStatus',
-            label: this.context.getMessage('13', 'action.scheduler')
+            label: m('job.status')
         }, {
             name: 'More',
             label: '',
@@ -314,7 +320,7 @@ var Dashboard = _react2['default'].createClass({
                 return j.ID === selectJob;
             });
             if (found.length) {
-                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], onRequestClose: function () {
+                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onRequestClose: function () {
                         return _this6.setState({ selectJob: null });
                     } });
             }
@@ -329,15 +335,13 @@ var Dashboard = _react2['default'].createClass({
             return a.TriggerValue === b.TriggerValue ? 0 : a.TriggerValue > b.TriggerValue ? 1 : -1;
         });
 
-        var headerButtons = [];
-
         return _react2['default'].createElement(
             'div',
             { style: { height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' } },
             _react2['default'].createElement(AdminComponents.Header, {
-                title: this.context.getMessage('18', 'action.scheduler'),
+                title: m('title'),
                 icon: 'mdi mdi-timetable',
-                actions: headerButtons,
+                actions: [],
                 reloadAction: this.load.bind(this),
                 loading: loading
             }),
