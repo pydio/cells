@@ -404,11 +404,12 @@ var SearchForm = (function (_Component) {
                 )
             );
         } else {
+            var formStyles = this.props.formStyles;
 
             return _react2['default'].createElement(
                 _materialUi.Paper,
                 { ref: 'root', zDepth: 0, className: "top_search_form " + display, style: style, id: id },
-                _react2['default'].createElement(_MainSearch2['default'], {
+                _react2['default'].createElement(_MainSearch2['default'], _extends({
                     mode: display,
                     value: values.basename,
                     onOpen: function () {
@@ -431,7 +432,7 @@ var SearchForm = (function (_Component) {
                         value: searchScope,
                         onChange: this.changeSearchScope.bind(this)
                     }
-                }),
+                }, formStyles)),
                 results
             );
         }

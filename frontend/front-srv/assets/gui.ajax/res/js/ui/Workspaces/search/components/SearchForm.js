@@ -295,7 +295,7 @@ class SearchForm extends Component {
                 </Paper>
             );
         } else {
-
+            const {formStyles} = this.props;
             return (
                 <Paper ref="root" zDepth={0} className={"top_search_form " + display} style={style} id={id}>
                     <MainSearch
@@ -313,6 +313,7 @@ class SearchForm extends Component {
                             value:searchScope,
                             onChange:this.changeSearchScope.bind(this)
                         }}
+                        {...formStyles}
                     />
                     {results}
                 </Paper>

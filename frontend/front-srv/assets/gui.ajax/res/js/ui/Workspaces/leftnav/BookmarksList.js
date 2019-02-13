@@ -115,8 +115,9 @@ class BookmarksList extends React.Component {
         }
 
         let buttonStyle = {borderRadius: '50%'};
-        if(open){
-            buttonStyle = {...buttonStyle, backgroundColor: 'rgba(255, 255, 255, 0.098)'}
+        if(open && iconStyle && iconStyle.color){
+            const c = Color(iconStyle.color);
+            buttonStyle = {...buttonStyle, backgroundColor: c.fade(0.9).toString()}
         }
 
         return (

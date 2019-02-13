@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ import {Badge, IconButton, Popover, Divider, List} from 'material-ui'
 import Client from './Client'
 import ActivityList from './ActivityList'
 import debounce from 'lodash.debounce'
+import Color from 'color'
 
 class UserPanel extends React.Component {
 
@@ -89,8 +90,8 @@ class UserPanel extends React.Component {
         const {pydio, iconStyle} = this.props;
         const {open, anchorEl} = this.state;
         let buttonStyle = {borderRadius: '50%'};
-        if(open){
-            buttonStyle = {...buttonStyle, backgroundColor: 'rgba(255, 255, 255, 0.098)'}
+        if(open && iconStyle && iconStyle.color){
+            buttonStyle = {...buttonStyle, backgroundColor: Color(iconStyle.color).fade(0.9).toString()}
         }
         return (
             <span>

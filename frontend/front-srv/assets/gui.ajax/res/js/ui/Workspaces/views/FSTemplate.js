@@ -47,6 +47,27 @@ let FSTemplate = React.createClass({
         INFO_PANEL_WIDTH: 270
     },
 
+    componentDidMount(){
+        const {pydio} = this.props;
+        this._themeObserver = (user => {
+            if(user){
+                let uTheme;
+                if(!user.getPreference('theme') || user.getPreference('theme') === 'default'){
+                    uTheme = pydio.getPluginConfigs('gui.ajax').get('GUI_THEME');
+                } else {
+                    uTheme = user.getPreference('theme');
+                }
+                this.setState({themeLight: uTheme === 'light'});
+            }
+        });
+        pydio.observe('user_logged', this._themeObserver);
+    },
+
+    componentWillUnmount(){
+        const {pydio} = this.props;
+        pydio.stopObserving('user_logged', this._themeObserver);
+    },
+
     openRightPanel(name){
         const {rightColumnState} = this.state;
         if(name === rightColumnState){
@@ -95,12 +116,20 @@ let FSTemplate = React.createClass({
         }
         const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
         const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
+        const {pydio} = this.props;
+        let themeLight = false;
+        if(pydio.user && pydio.user.getPreference('theme') && pydio.user.getPreference('theme') !== 'default' ){
+            themeLight = pydio.user.getPreference('theme') === 'light';
+        } else if (pydio.getPluginConfigs('gui.ajax').get('GUI_THEME') === 'light'){
+            themeLight = true;
+        }
         return {
             infoPanelOpen: !closedInfo,
             infoPanelToggle: !closedToggle,
             drawerOpen: false,
             rightColumnState: rState,
-            searchFormState: {}
+            searchFormState: {},
+            themeLight: themeLight
         };
     },
 
@@ -126,9 +155,19 @@ let FSTemplate = React.createClass({
 
     render () {
 
+        const {muiTheme} = this.props;
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
         const Color = MaterialUI.Color;
-        const appBarTextColor = Color(this.props.muiTheme.appBar.textColor);
+
+        let appBarTextColor = Color(muiTheme.appBar.textColor);
+        let appBarBackColor = Color(muiTheme.appBar.color);
+
+        // Load from user prefs
+        const {themeLight} = this.state;
+        if(themeLight){
+            appBarBackColor = Color('#fafafa');
+            appBarTextColor = Color(muiTheme.appBar.color);
+        }
 
         const headerHeight = 72;
         const buttonsHeight = 23;
@@ -137,9 +176,10 @@ let FSTemplate = React.createClass({
         let styles = {
             appBarStyle : {
                 zIndex: 1,
-                backgroundColor: this.props.muiTheme.appBar.color,
+                backgroundColor: appBarBackColor.toString(),
                 height: headerHeight,
-                display:'flex'
+                display:'flex',
+                borderBottom: themeLight?'1px solid #e0e0e0':null
             },
             buttonsStyle : {
                 width: 40,
@@ -157,7 +197,7 @@ let FSTemplate = React.createClass({
                 backgroundColor: appBarTextColor.fade(0.9).toString()
             },
             activeButtonIconStyle: {
-                color: 'rgba(255,255,255,0.97)'
+                color: appBarTextColor.fade(0.03).toString()//'rgba(255,255,255,0.97)'
             },
             raisedButtonStyle : {
                 height: buttonsHeight,
@@ -201,7 +241,9 @@ let FSTemplate = React.createClass({
                 display:'flex',
                 flexDirection:'column',
                 backgroundColor:'white'
-            }
+            },
+            breadcrumbStyle:{},
+            searchForm:{},
         };
 
         // Merge active styles
@@ -250,10 +292,25 @@ let FSTemplate = React.createClass({
             tutorialComponent = <WelcomeTour ref="welcome" pydio={this.props.pydio}/>;
         }
 
-        const leftPanelProps = {
+        let uWidgetColor = 'rgba(255,255,255,.93)';
+        let uWidgetBack = null;
+        if(themeLight){
+            const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
+            uWidgetColor = Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
+            uWidgetBack = new Color({h:colorHue,s:35,l:98});
+        }
+
+        let newButtonProps = {
+            buttonStyle:{...styles.flatButtonStyle, marginRight: 4},
+            buttonLabelStyle:{...styles.flatButtonLabelStyle},
+            buttonBackgroundColor:'rgba(255,255,255,0.17)',
+            buttonHoverColor:'rgba(255,255,255,0.33)',
+        };
+
+        let leftPanelProps = {
             headerHeight:headerHeight,
             userWidgetProps: {
-                color:'rgba(255,255,255,.93)',
+                color: uWidgetColor,
                 mergeButtonInAvatar:true,
                 popoverDirection:'left',
                 actionBarStyle:{
@@ -262,15 +319,38 @@ let FSTemplate = React.createClass({
                 style:{
                     height: headerHeight,
                     display:'flex',
-                    alignItems:'center'
+                    alignItems:'center',
                 }
             }
         };
+        if(themeLight){
+            leftPanelProps.userWidgetProps.style = {
+                ...leftPanelProps.userWidgetProps.style,
+                boxShadow: 'none',
+                backgroundColor: uWidgetBack,
+                borderRight: '1px solid #e0e0e0'
+            };
+            styles.breadcrumbStyle = {
+                color: appBarTextColor.toString()// '#616161',
+            };
+            styles.searchForm = {
+                mainStyle:{border:'1px solid ' + appBarTextColor.fade(0.8).toString()},
+                inputStyle:{color: appBarTextColor.toString()},
+                hintStyle:{color: appBarTextColor.fade(0.5).toString()},
+                magnifierStyle:{color: appBarTextColor.fade(0.1).toString()}
+            };
+            newButtonProps.buttonLabelStyle.color = muiTheme.palette.accent1Color;
+            newButtonProps.buttonBackgroundColor = 'rgba(0,0,0,0.05)';
+            newButtonProps.buttonHoverColor = 'rgba(0,0,0,0.10)';
+
+        }
+
 
         const searchForm = (
             <SearchForm
                 {...props}
                 {...this.state.searchFormState}
+                formStyles={styles.searchForm}
                 style={rightColumnState === "advanced-search" ? styles.searchFormPanelStyle : {}}
                 id={rightColumnState === "advanced-search" ? "info_panel": null}
                 headerHeight={headerHeight}
@@ -291,17 +371,14 @@ let FSTemplate = React.createClass({
                 leftPanelProps={leftPanelProps}
                 onCloseDrawerRequested={()=>{this.setState({drawerOpen:false})}}
             >
-                    <Paper zDepth={1} style={styles.appBarStyle} rounded={false}>
+                    <Paper zDepth={themeLight?0:1} style={styles.appBarStyle} rounded={false}>
                         <div id="workspace_toolbar" style={{flex:1, width:'calc(100% - 430px)'}}>
-                            <span className="drawer-button"><IconButton iconStyle={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
-                            <Breadcrumb {...props} startWithSeparator={false}/>
+                            <span className="drawer-button"><IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
+                            <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>
                             <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex', overflow:'hidden'}}>
                                 <ButtonMenu
                                     {...props}
-                                    buttonStyle={{...styles.flatButtonStyle, marginRight: 4}}
-                                    buttonLabelStyle={styles.flatButtonLabelStyle}
-                                    buttonBackgroundColor={'rgba(255,255,255,0.17)'}
-                                    buttonHoverColor={'rgba(255,255,255,0.33)'}
+                                    {...newButtonProps}
                                     id="create-button-menu"
                                     toolbars={["upload", "create"]}
                                     buttonTitle={this.props.pydio.MessageHash['198']}

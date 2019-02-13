@@ -163,8 +163,9 @@ var BookmarksList = (function (_React$Component) {
         }
 
         var buttonStyle = { borderRadius: '50%' };
-        if (open) {
-            buttonStyle = _extends({}, buttonStyle, { backgroundColor: 'rgba(255, 255, 255, 0.098)' });
+        if (open && iconStyle && iconStyle.color) {
+            var c = _color2['default'](iconStyle.color);
+            buttonStyle = _extends({}, buttonStyle, { backgroundColor: c.fade(0.9).toString() });
         }
 
         return _react2['default'].createElement(

@@ -174,6 +174,11 @@ var MainSearch = (function (_Component) {
         var input = _MainSearch$styles.input;
         var hint = _MainSearch$styles.hint;
         var magnifier = _MainSearch$styles.magnifier;
+        var _props2 = this.props;
+        var mainStyle = _props2.mainStyle;
+        var inputStyle = _props2.inputStyle;
+        var hintStyle = _props2.hintStyle;
+        var magnifierStyle = _props2.magnifierStyle;
 
         return _react2['default'].createElement(
             'div',
@@ -201,15 +206,15 @@ var MainSearch = (function (_Component) {
             ),
             mode !== 'advanced' && _react2['default'].createElement(
                 'div',
-                { style: main },
-                _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-magnify', style: magnifier }),
+                { style: _extends({}, main, mainStyle) },
+                _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-magnify', style: _extends({}, magnifier, magnifierStyle) }),
                 _react2['default'].createElement(_materialUi.TextField, {
                     ref: function (input) {
                         return _this2.input = input;
                     },
                     style: { flex: 1, height: main.height },
-                    inputStyle: input,
-                    hintStyle: hint,
+                    inputStyle: _extends({}, input, inputStyle),
+                    hintStyle: _extends({}, hint, hintStyle),
                     fullWidth: true,
                     underlineShow: false,
                     onFocus: onOpen,
