@@ -90,7 +90,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			JobRemoved: request.JobID,
 		}))
 		go func() {
-			j.DeleteLogsFor(ctx, request.JobID, "")
+			j.DeleteLogsFor(ctx, request.JobID)
 		}()
 		response.Success = true
 
