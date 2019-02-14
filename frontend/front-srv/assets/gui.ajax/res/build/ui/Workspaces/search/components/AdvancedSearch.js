@@ -153,12 +153,13 @@ var AdvancedSearch = (function (_Component) {
         var pydio = _props.pydio;
         var getMessage = _props.getMessage;
         var values = _props.values;
+        var rootStyle = _props.rootStyle;
 
         var headerStyle = { fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10 };
 
         return _react2['default'].createElement(
             'div',
-            { className: 'search-advanced' },
+            { className: 'search-advanced', style: _extends({}, rootStyle) },
             _react2['default'].createElement(
                 _materialUi.Subheader,
                 { style: _extends({}, headerStyle, { marginTop: 0 }) },

@@ -118,12 +118,21 @@ var FSTemplate = _react2['default'].createClass({
             }
         };
         pydio.observe('user_logged', this._themeObserver);
+        this._resizer = function () {
+            var w = _pydioUtilDom2['default'].getViewportWidth();
+            _this.setState({
+                smallScreen: w < 758,
+                xtraSmallScreen: w <= 420
+            });
+        };
+        _pydioUtilDom2['default'].observeWindowResize(this._resizer);
     },
 
     componentWillUnmount: function componentWillUnmount() {
         var pydio = this.props.pydio;
 
         pydio.stopObserving('user_logged', this._themeObserver);
+        _pydioUtilDom2['default'].stopObservingWindowResize(this._resizer);
     },
 
     openRightPanel: function openRightPanel(name) {
@@ -191,13 +200,16 @@ var FSTemplate = _react2['default'].createClass({
         } else if (pydio.getPluginConfigs('gui.ajax').get('GUI_THEME') === 'light') {
             themeLight = true;
         }
+        var w = _pydioUtilDom2['default'].getViewportWidth();
         return {
             infoPanelOpen: !closedInfo,
             infoPanelToggle: !closedToggle,
             drawerOpen: false,
             rightColumnState: rState,
             searchFormState: {},
-            themeLight: themeLight
+            themeLight: themeLight,
+            smallScreen: w <= 758,
+            xtraSmallScreen: w <= 420
         };
     },
 
@@ -238,26 +250,33 @@ var FSTemplate = _react2['default'].createClass({
         var appBarTextColor = Color(muiTheme.appBar.textColor);
         var appBarBackColor = Color(muiTheme.appBar.color);
 
+        var colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
+        var superLightBack = new Color({ h: colorHue, s: 35, l: 98 });
+
         // Load from user prefs
-        var themeLight = this.state.themeLight;
+        var _state = this.state;
+        var themeLight = _state.themeLight;
+        var smallScreen = _state.smallScreen;
+        var xtraSmallScreen = _state.xtraSmallScreen;
 
         if (themeLight) {
-            appBarBackColor = Color('#fafafa');
+            appBarBackColor = superLightBack; //Color('#fafafa');
             appBarTextColor = Color(muiTheme.appBar.color);
         }
 
         var headerHeight = 72;
         var buttonsHeight = 23;
         var buttonsFont = 11;
+        var crtWidth = _pydioUtilDom2['default'].getViewportWidth();
 
         var styles = {
             appBarStyle: {
                 zIndex: 1,
                 backgroundColor: appBarBackColor.toString(),
                 height: headerHeight,
-                display: 'flex',
-                borderBottom: themeLight ? '1px solid #e0e0e0' : null
+                display: 'flex'
             },
+            //borderBottom: themeLight?'1px solid #e0e0e0':null
             buttonsStyle: {
                 width: 40,
                 height: 40,
@@ -313,7 +332,8 @@ var FSTemplate = _react2['default'].createClass({
                 top: headerHeight,
                 borderLeft: 0,
                 margin: 10,
-                width: 520,
+                width: smallScreen ? xtraSmallScreen ? crtWidth : 420 : 520,
+                right: xtraSmallScreen ? -10 : null,
                 overflowY: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
@@ -327,10 +347,10 @@ var FSTemplate = _react2['default'].createClass({
         styles.activeButtonStyle = _extends({}, styles.buttonsStyle, styles.activeButtonStyle);
         styles.activeButtonIconStyle = _extends({}, styles.buttonsIconStyle, styles.activeButtonIconStyle);
 
-        var _state = this.state;
-        var infoPanelOpen = _state.infoPanelOpen;
-        var drawerOpen = _state.drawerOpen;
-        var infoPanelToggle = _state.infoPanelToggle;
+        var _state2 = this.state;
+        var infoPanelOpen = _state2.infoPanelOpen;
+        var drawerOpen = _state2.drawerOpen;
+        var infoPanelToggle = _state2.infoPanelToggle;
         var rightColumnState = this.state.rightColumnState;
 
         var mainToolbars = ["change_main", "info_panel", "info_panel_share"];
@@ -342,7 +362,8 @@ var FSTemplate = _react2['default'].createClass({
         var wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
 
         var showChatTab = !pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS");
-        var showAddressBook = !pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK");
+        var showAddressBook = !pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK") && !smallScreen;
+        var showInfoPanel = !xtraSmallScreen;
         if (showChatTab) {
             var repo = pydio.user.getRepositoriesList().get(pydio.user.activeRepository);
             if (repo && !repo.getOwner()) {
@@ -351,6 +372,9 @@ var FSTemplate = _react2['default'].createClass({
         }
         if (!showChatTab && rightColumnState === 'chat') {
             rightColumnState = 'info-panel';
+        }
+        if (!showInfoPanel && rightColumnState === 'info-panel') {
+            rightColumnState = '';
         }
 
         var classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
@@ -375,9 +399,9 @@ var FSTemplate = _react2['default'].createClass({
         var uWidgetColor = 'rgba(255,255,255,.93)';
         var uWidgetBack = null;
         if (themeLight) {
-            var colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
+            var _colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
             uWidgetColor = Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
-            uWidgetBack = new Color({ h: colorHue, s: 35, l: 98 });
+            uWidgetBack = new Color({ h: _colorHue, s: 35, l: 98 });
         }
 
         var newButtonProps = {
@@ -437,7 +461,9 @@ var FSTemplate = _react2['default'].createClass({
             },
             onUpdateState: function (s) {
                 _this6.setState({ searchFormState: s });
-            }
+            },
+            smallScreen: smallScreen,
+            xtraSmallScreen: xtraSmallScreen
         }));
 
         return _react2['default'].createElement(
@@ -458,42 +484,46 @@ var FSTemplate = _react2['default'].createClass({
                 { zDepth: themeLight ? 0 : 1, style: styles.appBarStyle, rounded: false },
                 _react2['default'].createElement(
                     'div',
-                    { id: 'workspace_toolbar', style: { flex: 1, width: 'calc(100% - 430px)' } },
+                    { id: 'workspace_toolbar', style: { flex: 1, width: 'calc(100% - 430px)', display: 'flex' } },
                     _react2['default'].createElement(
                         'span',
-                        { className: 'drawer-button' },
+                        { className: 'drawer-button', style: { marginLeft: 12, marginRight: -6 } },
                         _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: appBarTextColor.fade(0.03).toString() }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
                     ),
-                    _react2['default'].createElement(_Breadcrumb2['default'], _extends({}, props, { startWithSeparator: false, rootStyle: styles.breadcrumbStyle })),
                     _react2['default'].createElement(
                         'div',
-                        { style: { height: 32, paddingLeft: 20, alignItems: 'center', display: 'flex', overflow: 'hidden' } },
-                        _react2['default'].createElement(ButtonMenu, _extends({}, props, newButtonProps, {
-                            id: 'create-button-menu',
-                            toolbars: ["upload", "create"],
-                            buttonTitle: this.props.pydio.MessageHash['198'],
-                            raised: false,
-                            secondary: true,
-                            controller: props.pydio.Controller,
-                            openOnEvent: 'tutorial-open-create-menu'
-                        })),
-                        _react2['default'].createElement(ListPaginator, {
-                            id: 'paginator-toolbar',
-                            style: { height: 23, borderRadius: 2, background: 'rgba(255, 255, 255, 0.17)', marginRight: 5 },
-                            dataModel: props.pydio.getContextHolder(),
-                            smallDisplay: true,
-                            toolbarDisplay: true
-                        }),
-                        !mobile && _react2['default'].createElement(Toolbar, _extends({}, props, {
-                            id: 'main-toolbar',
-                            toolbars: mainToolbars,
-                            groupOtherList: mainToolbarsOthers,
-                            renderingType: 'button',
-                            toolbarStyle: { flex: 1, overflow: 'hidden' },
-                            flatButtonStyle: styles.flatButtonStyle,
-                            buttonStyle: styles.flatButtonLabelStyle
-                        })),
-                        mobile && _react2['default'].createElement('span', { style: { flex: 1 } })
+                        { style: { flex: 1, overflow: 'hidden' } },
+                        _react2['default'].createElement(_Breadcrumb2['default'], _extends({}, props, { startWithSeparator: false, rootStyle: styles.breadcrumbStyle })),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { height: 32, paddingLeft: 20, alignItems: 'center', display: 'flex', overflow: 'hidden' } },
+                            _react2['default'].createElement(ButtonMenu, _extends({}, props, newButtonProps, {
+                                id: 'create-button-menu',
+                                toolbars: ["upload", "create"],
+                                buttonTitle: this.props.pydio.MessageHash['198'],
+                                raised: false,
+                                secondary: true,
+                                controller: props.pydio.Controller,
+                                openOnEvent: 'tutorial-open-create-menu'
+                            })),
+                            _react2['default'].createElement(ListPaginator, {
+                                id: 'paginator-toolbar',
+                                style: { height: 23, borderRadius: 2, background: 'rgba(255, 255, 255, 0.17)', marginRight: 5 },
+                                dataModel: props.pydio.getContextHolder(),
+                                smallDisplay: true,
+                                toolbarDisplay: true
+                            }),
+                            !mobile && _react2['default'].createElement(Toolbar, _extends({}, props, {
+                                id: 'main-toolbar',
+                                toolbars: mainToolbars,
+                                groupOtherList: mainToolbarsOthers,
+                                renderingType: 'button',
+                                toolbarStyle: { flex: 1, overflow: 'hidden' },
+                                flatButtonStyle: styles.flatButtonStyle,
+                                buttonStyle: styles.flatButtonLabelStyle
+                            })),
+                            mobile && _react2['default'].createElement('span', { style: { flex: 1 } })
+                        )
                     )
                 ),
                 _react2['default'].createElement(
@@ -511,23 +541,23 @@ var FSTemplate = _react2['default'].createClass({
                     })),
                     _react2['default'].createElement(
                         'div',
-                        { style: { position: 'relative', width: rightColumnState === "advanced-search" ? 40 : 150, transition: _pydioUtilDom2['default'].getBeziersTransition() } },
-                        rightColumnState !== "advanced-search" && searchForm,
-                        rightColumnState === "advanced-search" && _react2['default'].createElement(_materialUi.IconButton, {
+                        { style: { position: 'relative', width: rightColumnState === "advanced-search" || smallScreen ? 40 : 150, transition: _pydioUtilDom2['default'].getBeziersTransition() } },
+                        !smallScreen && rightColumnState !== "advanced-search" && searchForm,
+                        (rightColumnState === "advanced-search" || smallScreen) && _react2['default'].createElement(_materialUi.IconButton, {
                             iconClassName: "mdi mdi-magnify",
-                            style: styles.activeButtonStyle,
-                            iconStyle: styles.activeButtonIconStyle,
+                            style: rightColumnState === "advanced-search" ? styles.activeButtonStyle : styles.buttonsStyle,
+                            iconStyle: rightColumnState === "advanced-search" ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
                             onTouchTap: function () {
                                 _this6.openRightPanel('advanced-search');
                             },
-                            tooltip: pydio.MessageHash['86']
+                            tooltip: pydio.MessageHash[rightColumnState === 'info-panel' ? '86' : '87']
                         })
                     ),
                     _react2['default'].createElement('div', { style: { borderLeft: '1px solid ' + appBarTextColor.fade(0.77).toString(), margin: '0 10px', height: headerHeight, display: 'none' } }),
                     _react2['default'].createElement(
                         'div',
                         { style: { display: 'flex', paddingRight: 10 } },
-                        _react2['default'].createElement(_materialUi.IconButton, {
+                        showInfoPanel && _react2['default'].createElement(_materialUi.IconButton, {
                             iconClassName: "mdi mdi-information",
                             style: rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle,
                             iconStyle: rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,

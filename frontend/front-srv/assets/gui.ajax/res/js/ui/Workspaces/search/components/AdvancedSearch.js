@@ -98,11 +98,11 @@ class AdvancedSearch extends Component {
 
         const {text} = AdvancedSearch.styles;
 
-        const {pydio, getMessage, values} = this.props;
+        const {pydio, getMessage, values, rootStyle} = this.props;
         const headerStyle = {fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10};
 
         return (
-            <div className="search-advanced">
+            <div className="search-advanced" style={{...rootStyle}}>
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(341)}</Subheader>
                 {this.renderField('basename',getMessage(1))}
                 <FileFormatPanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />

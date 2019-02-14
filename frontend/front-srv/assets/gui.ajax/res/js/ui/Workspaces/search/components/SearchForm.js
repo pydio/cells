@@ -169,7 +169,7 @@ class SearchForm extends Component {
 
     render() {
 
-        const {crossWorkspace, pydio, getMessage, advancedPanel, onOpenAdvanced, onCloseAdvanced, id} = this.props;
+        const {crossWorkspace, pydio, getMessage, advancedPanel, onOpenAdvanced, onCloseAdvanced, id, xtraSmallScreen} = this.props;
         const {searchScope, display, loading, dataModel, empty, values} = this.state;
 
         let renderSecondLine = null, renderIcon = null, elementHeight = 49;
@@ -219,6 +219,10 @@ class SearchForm extends Component {
                 display:'block',
                 width: 256
             };
+        }
+        if(xtraSmallScreen){
+            searchResultsStyle.width = '100%';
+            searchResultsStyle.flex = 2;
         }
 
         const results = (
@@ -283,12 +287,13 @@ class SearchForm extends Component {
                             onTouchTap={() => {onCloseAdvanced()}}
                         />
                     </div>
-                    <div style={{flex:1, display:'flex'}}>
+                    <div style={{flex:1, display:'flex',  flexDirection:xtraSmallScreen?'column':'row'}}>
                         <AdvancedSearch
                             {...this.props}
                             values={values}
                             onChange={(values) => this.update(values)}
                             onSubmit={() => this.submit()}
+                            rootStyle={xtraSmallScreen?{flex:1, width: '100%', borderRight:0}:{}}
                         />
                         {results}
                     </div>
