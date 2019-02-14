@@ -98,15 +98,48 @@ func init() {
 					sqlConfig.File = dsn
 				}
 
-				router, err := serve(c, ctx, log.Logger(ctx))
-				if err != nil {
+				setup := func() error {
+					router, err := serve(c, ctx, log.Logger(ctx))
+					if err != nil {
+						return err
+					}
+
+					hd := srv.NewHandler(router)
+
+					if err := srv.Handle(hd); err != nil {
+						return err
+					}
+
+					return nil
+				}
+
+				if err := setup(); err != nil {
 					return nil, err
 				}
 
-				hd := srv.NewHandler(router)
-
-				if err := srv.Handle(hd); err != nil {
+				// Watching plugins
+				if w, err := config.Watch("services", "pydio.grpc.auth"); err != nil {
 					return nil, err
+				} else {
+					go func() {
+						defer w.Stop()
+						for {
+							_, err := w.Next()
+							if err != nil {
+								break
+							}
+
+							log.Logger(ctx).Info("Restarting dex after config change")
+
+							srv.Stop()
+
+							if err := setup(); err != nil {
+								log.Logger(ctx).Error("Error restarting dex", zap.Error(err))
+								continue
+							}
+							srv.Start()
+						}
+					}()
 				}
 
 				return micro.Server(srv), nil
