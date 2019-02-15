@@ -56,29 +56,20 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	}
 	meta[HttpMetaExtracted] = HttpMetaExtracted
 
-	if req.RemoteAddr != "" {
-		meta[HttpMetaRemoteAddress] = req.RemoteAddr
-	}
-
-	// TODO add client time and locale via JS on the client side and retrieve it here
 	layout := "2006-01-02T15:04-0700"
 	t := time.Now()
 	meta[ServerTime] = t.Format(layout)
+	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
 	meta[ClientTime] = t.Format(layout)
 
-	// // TODO we should also support "Forwarded" standard header
-	// if h, ok := req.Header["Forwarded"]; ok {
-	// 	forwarded := strings.Join(h, "")
-	// 	meta[HttpMetaRemoteAddress] = forwarded
-	// } else
+	// We might want to also support new standard "Forwarded" header.
 	if h, ok := req.Header["X-Forwarded-For"]; ok {
-		forwarded := strings.Join(h, "")
-		meta[HttpMetaRemoteAddress] = forwarded
+		ips := strings.Split(strings.Join(h, ""), ",")
+		meta[HttpMetaRemoteAddress] = ips[0]
+	} else if req.RemoteAddr != "" {
+		meta[HttpMetaRemoteAddress] = req.RemoteAddr
 	}
-	// Override RemoteAddr if set by the php frontend
-	if h, ok := req.Header["X-Pydio-Front-Client"]; ok {
-		meta[HttpMetaRemoteAddress] = strings.Join(h, "")
-	}
+
 	if h, ok := req.Header["User-Agent"]; ok {
 		meta[HttpMetaUserAgent] = strings.Join(h, "")
 	}
