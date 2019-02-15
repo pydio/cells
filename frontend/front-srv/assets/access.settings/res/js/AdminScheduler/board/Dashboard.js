@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@ import Pydio from 'pydio'
 const {JobsStore, moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 import JobBoard from './JobBoard'
+import JobSchedule from './JobSchedule'
 import debounce from 'lodash.debounce'
 
 const Dashboard = React.createClass({
@@ -152,7 +153,7 @@ const Dashboard = React.createClass({
             }
 
             if(job.Schedule) {
-                data.Trigger = m('trigger.periodic');
+                data.Trigger = <JobSchedule job={job}/>;// m('trigger.periodic');
                 data.TriggerValue = 1;
             } else if(job.EventNames) {
                 data.TriggerValue = 2;
@@ -187,13 +188,13 @@ const Dashboard = React.createClass({
 
     render(){
 
-        const {pydio} = this.props;
+        const {pydio, jobsEditable} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
         const keys = [
             {
                 name:'Label',
-                label:this.context.getMessage('12', 'action.scheduler'),
+                label:m('job.label'),
                 style:{width:'35%', fontSize: 15},
                 headerStyle:{width:'35%'},
             },
@@ -213,14 +214,14 @@ const Dashboard = React.createClass({
             },
             {
                 name:'TaskEndTime',
-                label:this.context.getMessage('14', 'action.scheduler'),
+                label:m('job.endTime'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
                 hideSmall: true
             },
             {
                 name:'TaskStatus',
-                label:this.context.getMessage('13', 'action.scheduler'),
+                label:m('job.status'),
             },
             {
                 name:'More',
@@ -234,7 +235,7 @@ const Dashboard = React.createClass({
         if(selectJob && result && result.Jobs){
             const found = result.Jobs.filter((j) => j.ID === selectJob);
             if(found.length){
-                return <JobBoard pydio={pydio} job={found[0]} onRequestClose={()=>this.setState({selectJob: null})}/>;
+                return <JobBoard pydio={pydio} job={found[0]} jobsEditable={jobsEditable} onRequestClose={()=>this.setState({selectJob: null})}/>;
             }
         }
         let {system, other} = this.extractRowsInfo(result ? result.Jobs : [], m);
@@ -242,14 +243,12 @@ const Dashboard = React.createClass({
             return a.TriggerValue === b.TriggerValue ? 0 : (a.TriggerValue > b.TriggerValue ? 1 : -1 );
         });
 
-        const headerButtons = [];
-
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
                 <AdminComponents.Header
-                    title={this.context.getMessage('18', 'action.scheduler')}
+                    title={m('title')}
                     icon="mdi mdi-timetable"
-                    actions={headerButtons}
+                    actions={[]}
                     reloadAction={this.load.bind(this)}
                     loading={loading}
                 />

@@ -83,7 +83,9 @@ func init() {
 				jobsClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
 				ctx, _ := context.WithTimeout(m.Options().Context, time.Second*1)
 				for _, j := range getDefaultJobs() {
-					jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j})
+					if _, err := jobsClient.GetJob(m.Options().Context, &jobs.GetJobRequest{JobID: j.ID}); err != nil {
+						jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j})
+					}
 				}
 
 				return nil

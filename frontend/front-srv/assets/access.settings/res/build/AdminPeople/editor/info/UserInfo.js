@@ -152,6 +152,18 @@ var UserInfo = (function (_React$Component) {
                     var role = user.getRole();
                     if (idmUser.Attributes['locks']) {
                         locks = JSON.parse(idmUser.Attributes['locks']) || [];
+                        if (typeof locks === 'object') {
+                            (function () {
+                                // Backward compat issue
+                                var arrL = [];
+                                Object.keys(locks).forEach(function (k) {
+                                    if (locks[k] === true) {
+                                        arrL.push(k);
+                                    }
+                                });
+                                locks = arrL;
+                            })();
+                        }
                     }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
                         roles: idmUser.Roles,

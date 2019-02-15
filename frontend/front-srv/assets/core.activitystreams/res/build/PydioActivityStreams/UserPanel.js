@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -52,6 +52,10 @@ var _ActivityList2 = _interopRequireDefault(_ActivityList);
 var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
+
+var _color = require('color');
+
+var _color2 = _interopRequireDefault(_color);
 
 var UserPanel = (function (_React$Component) {
     _inherits(UserPanel, _React$Component);
@@ -141,8 +145,8 @@ var UserPanel = (function (_React$Component) {
             var anchorEl = _state.anchorEl;
 
             var buttonStyle = { borderRadius: '50%' };
-            if (open) {
-                buttonStyle = _extends({}, buttonStyle, { backgroundColor: 'rgba(255, 255, 255, 0.098)' });
+            if (open && iconStyle && iconStyle.color) {
+                buttonStyle = _extends({}, buttonStyle, { backgroundColor: (0, _color2['default'])(iconStyle.color).fade(0.9).toString() });
             }
             return _react2['default'].createElement(
                 'span',

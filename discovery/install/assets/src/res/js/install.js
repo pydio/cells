@@ -477,18 +477,6 @@ class InstallForm extends React.Component {
                                 <div style={{flex: 1, marginRight: 2}}><Field name="externalDexID" component={renderTextField} floatingLabel="OIDC Client ID" label="Use default if not sure" /></div>
                                 <div style={{flex: 1, marginLeft: 2}}><Field name="externalDexSecret" component={renderTextField} floatingLabel="OIDC Client Secret" label="Leave blank if not required" /></div>
                             </div>
-                            <div style={{marginTop: 20}}>
-                                Services will detect available ports automatically and this is hidden by the unique http access. You may choose ports that suits your security
-                                policies or just leave default values.
-                            </div>
-                            <div style={{display:'flex'}}>
-                                <div style={{flex: 1, marginRight: 2}}><Field name="externalDex" component={renderTextField} floatingLabel="OIDC" label="OIDC" /></div>
-                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalMicro" component={renderTextField} floatingLabel="API" label="API" /></div>
-                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalGateway" component={renderTextField} floatingLabel="Data" label="Data" /></div>
-                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalWebsocket" component={renderTextField} floatingLabel="WebSocket" label="Websocket" /></div>
-                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalDAV" component={renderTextField} floatingLabel="DAV" label="DAV" /></div>
-                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalWOPI" component={renderTextField} floatingLabel="WOPI" label="WOPI" /></div>
-                            </div>
                         </div>
                         }
                     </div>

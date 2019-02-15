@@ -120,6 +120,7 @@ class MainSearch extends Component {
     render() {
         const {title, mode, onOpen, onAdvanced, onMore, onClose, hintText, loading, scopeSelectorProps, showAdvanced, getMessage} = this.props;
         let {main, input, hint, magnifier} = MainSearch.styles;
+        const {mainStyle, inputStyle, hintStyle, magnifierStyle} = this.props;
 
         return (
             <div className="search-input">
@@ -140,15 +141,15 @@ class MainSearch extends Component {
                 </div>
 
                 {mode !== 'advanced' &&
-                <div style={main}>
+                <div style={{...main, ...mainStyle}}>
 
-                    <FontIcon className="mdi mdi-magnify" style={magnifier}/>
+                    <FontIcon className="mdi mdi-magnify" style={{...magnifier, ...magnifierStyle}}/>
 
                     <TextField
                         ref={(input) => this.input = input}
                         style={{flex: 1, height:main.height}}
-                        inputStyle={input}
-                        hintStyle={hint}
+                        inputStyle={{...input, ...inputStyle}}
+                        hintStyle={{...hint, ...hintStyle}}
                         fullWidth={true}
                         underlineShow={false}
                         onFocus={onOpen}

@@ -329,7 +329,7 @@ var MainFilesList = _react2['default'].createClass({
             var _ret3 = (function () {
                 var ContextMenuModel = require('pydio/model/context-menu');
                 return {
-                    v: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-dots-vertical', tooltip: 'Info', onClick: function (event) {
+                    v: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-dots-vertical', style: { zIndex: 0, padding: 10 }, tooltip: 'Info', onClick: function (event) {
                             pydio.observeOnce('actions_refreshed', function () {
                                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
                             });

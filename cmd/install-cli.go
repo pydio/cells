@@ -70,10 +70,15 @@ func validPortNumber(input string) error {
 	return e
 }
 
+func validUrl(input string) error {
+	_, e := url.Parse(input)
+	return e
+}
+
 func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) {
 
 	defaultPort := "8080"
-	var internalHost, externalHost string
+	var internalHost string
 	defaultIps, e := utils.GetAvailableIPs()
 	if e != nil {
 		return
@@ -93,7 +98,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
 
 	prompt := p.SelectWithAdd{
-		Label:    "Binding Host (ip:port or yourdomain.tld that the webserver will listen. If internal and external urls differ, use internal here)",
+		Label:    "Internal Url (address that the web server will listen to, use ip:port or yourdomain.tld, without http/https)",
 		Items:    items,
 		AddLabel: "Other",
 		Validate: validHostPort,
@@ -113,18 +118,6 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	if parts[1] == "80" || parts[1] == "443" {
 		defaultExternal = parts[0]
 	}
-	extPrompt := p.Prompt{
-		Label:    "External Host (used to access this machine from outside world if it differs from Bind Host)",
-		Validate: notEmpty,
-		Default:  defaultExternal,
-	}
-	externalHost, e = extPrompt.Run()
-	if e != nil {
-		return
-	}
-	externalHost = strings.TrimSuffix(externalHost, "/")
-	externalHost = strings.TrimPrefix(externalHost, "http://")
-	externalHost = strings.TrimPrefix(externalHost, "https://")
 
 	sslEnabled, e := promptSslMode()
 	if e != nil {
@@ -136,13 +129,23 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 		// if config.Get("cert", "proxy", "ssl").Bool(false)
 		scheme = "https"
 	}
-
-	externalUrl := fmt.Sprintf("%s://%s", scheme, externalHost)
 	internalUrl := fmt.Sprintf("%s://%s", scheme, internalHost)
 	internal, e = url.Parse(internalUrl)
 	if e != nil {
 		return
 	}
+
+	extPrompt := p.Prompt{
+		Label:    "External Url, used to access application from outside world (it can differ from internal url if you are behind a proxy or inside a private network)",
+		Validate: validUrl,
+		Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
+	}
+	externalUrl, er := extPrompt.Run()
+	if er != nil {
+		e = er
+		return
+	}
+	externalUrl = strings.TrimSuffix(externalUrl, "/")
 	external, e = url.Parse(externalUrl)
 	if e != nil {
 		return
@@ -307,12 +310,14 @@ func promptAdvanced(c *install.InstallConfig) error {
 	oidcId := p.Prompt{Label: "OpenIdConnect ClientID (for frontend)", Default: c.ExternalDexID, Validate: notEmpty}
 	oidcSecret := p.Prompt{Label: "OpenIdConnect ClientID (for frontend)", Default: c.ExternalDexSecret, Validate: notEmpty}
 
-	dexPort := p.Prompt{Label: "OpenIdConnect Server Port", Default: c.ExternalDex, Validate: validPortNumber}
-	microPort := p.Prompt{Label: "Rest Gateway Port", Default: c.ExternalMicro, Validate: validPortNumber}
-	gatewayPort := p.Prompt{Label: "Data Gateway Port", Default: c.ExternalGateway, Validate: validPortNumber}
-	websocketPort := p.Prompt{Label: "WebSocket Port", Default: c.ExternalWebsocket, Validate: validPortNumber}
-	davPort := p.Prompt{Label: "WebDAV Gateway Port", Default: c.ExternalDAV, Validate: validPortNumber}
-	wopiPort := p.Prompt{Label: "WOPI Api Port (for Collabora support)", Default: c.ExternalWOPI, Validate: validPortNumber}
+	/*
+		dexPort := p.Prompt{Label: "OpenIdConnect Server Port", Default: c.ExternalDex, Validate: validPortNumber}
+		microPort := p.Prompt{Label: "Rest Gateway Port", Default: c.ExternalMicro, Validate: validPortNumber}
+		gatewayPort := p.Prompt{Label: "Data Gateway Port", Default: c.ExternalGateway, Validate: validPortNumber}
+		websocketPort := p.Prompt{Label: "WebSocket Port", Default: c.ExternalWebsocket, Validate: validPortNumber}
+		davPort := p.Prompt{Label: "WebDAV Gateway Port", Default: c.ExternalDAV, Validate: validPortNumber}
+		wopiPort := p.Prompt{Label: "WOPI Api Port (for Collabora support)", Default: c.ExternalWOPI, Validate: validPortNumber}
+	*/
 
 	if folder, e := dsPath.Run(); e == nil {
 		c.DsFolder = folder
@@ -327,24 +332,26 @@ func promptAdvanced(c *install.InstallConfig) error {
 	if c.ExternalDexSecret, e = oidcSecret.Run(); e != nil {
 		return e
 	}
-	if c.ExternalDex, e = dexPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalMicro, e = microPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalGateway, e = gatewayPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalWebsocket, e = websocketPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalDAV, e = davPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalWOPI, e = wopiPort.Run(); e != nil {
-		return e
-	}
+	/*
+		if c.ExternalDex, e = dexPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalMicro, e = microPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalGateway, e = gatewayPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalWebsocket, e = websocketPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalDAV, e = davPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalWOPI, e = wopiPort.Run(); e != nil {
+			return e
+		}
+	*/
 
 	return nil
 }

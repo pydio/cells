@@ -11,7 +11,6 @@
 			<i18n namespace="pydio_role" remote="plug/access.settings/res/i18n/editor" />
             <i18n namespace="ajxp_admin" remote="plug/access.settings/res/i18n/admin" />
             <i18n namespace="admin_dashboard" remote="plug/access.settings/res/i18n/dashboard" />
-            <i18n namespace="action.scheduler" remote="plug/access.settings/res/i18n/scheduler" />
             <i18n namespace="updater" remote="plug/access.settings/res/i18n/updater" />
 
             <css file="plug/access.settings/res/css/ajxp_admin.css" autoload="true"/>

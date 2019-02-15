@@ -70,7 +70,9 @@ func init() {
 					}),
 					micro.AfterStart(func() error {
 						for _, j := range getDefaultJobs() {
-							handler.PutJob(m.Options().Context, &proto.PutJobRequest{Job: j}, &proto.PutJobResponse{})
+							if e := handler.GetJob(m.Options().Context, &proto.GetJobRequest{JobID: j.ID}, &proto.GetJobResponse{}); e != nil {
+								handler.PutJob(m.Options().Context, &proto.PutJobRequest{Job: j}, &proto.PutJobResponse{})
+							}
 						}
 						// Clean tasks stuck in "Running" status
 						handler.CleanStuckTasks(m.Options().Context)

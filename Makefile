@@ -62,6 +62,11 @@ ctl:
 	 -o cells-ctl\
 	 cmd/ctl/main.go
 
+start:
+	./cells start
+
+ds: dev start
+
 linux:
 	CC=x86_64-pc-linux-gcc GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -ldflags "-X main.version=0.2 -X main.buildStamp=`date -u +%Y-%m-%dT%H:%M:%S` -X main.buildRevision=`git rev-parse HEAD`" -o dist/linux/cells main.go
 

@@ -745,45 +745,6 @@ var InstallForm = function (_React$Component) {
                                     { style: { flex: 1, marginLeft: 2 } },
                                     _react2.default.createElement(_reduxForm.Field, { name: 'externalDexSecret', component: renderTextField, floatingLabel: 'OIDC Client Secret', label: 'Leave blank if not required' })
                                 )
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { style: { marginTop: 20 } },
-                                'Services will detect available ports automatically and this is hidden by the unique http access. You may choose ports that suits your security policies or just leave default values.'
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { style: { display: 'flex' } },
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1, marginRight: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDex', component: renderTextField, floatingLabel: 'OIDC', label: 'OIDC' })
-                                ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalMicro', component: renderTextField, floatingLabel: 'API', label: 'API' })
-                                ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalGateway', component: renderTextField, floatingLabel: 'Data', label: 'Data' })
-                                ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalWebsocket', component: renderTextField, floatingLabel: 'WebSocket', label: 'Websocket' })
-                                ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDAV', component: renderTextField, floatingLabel: 'DAV', label: 'DAV' })
-                                ),
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalWOPI', component: renderTextField, floatingLabel: 'WOPI', label: 'WOPI' })
-                                )
                             )
                         )
                     ),

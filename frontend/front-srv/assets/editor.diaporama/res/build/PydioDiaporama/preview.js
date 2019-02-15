@@ -86,6 +86,9 @@ var Preview = (function (_Component) {
                 } else {
                     remainingProps.className = 'ort-rotate-' + orientation;
                 }
+                if (parseInt(orientation) >= 5 && remainingProps.style && remainingProps.style.height === 200) {
+                    remainingProps.style.height = 250;
+                }
             }
 
             var src = this.state.src;

@@ -245,6 +245,7 @@ var SearchForm = (function (_Component) {
         var onOpenAdvanced = _props2.onOpenAdvanced;
         var onCloseAdvanced = _props2.onCloseAdvanced;
         var id = _props2.id;
+        var xtraSmallScreen = _props2.xtraSmallScreen;
         var _state3 = this.state;
         var searchScope = _state3.searchScope;
         var display = _state3.display;
@@ -310,6 +311,10 @@ var SearchForm = (function (_Component) {
                 display: 'block',
                 width: 256
             };
+        }
+        if (xtraSmallScreen) {
+            searchResultsStyle.width = '100%';
+            searchResultsStyle.flex = 2;
         }
 
         var results = _react2['default'].createElement(
@@ -390,7 +395,7 @@ var SearchForm = (function (_Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { flex: 1, display: 'flex' } },
+                    { style: { flex: 1, display: 'flex', flexDirection: xtraSmallScreen ? 'column' : 'row' } },
                     _react2['default'].createElement(_AdvancedSearch2['default'], _extends({}, this.props, {
                         values: values,
                         onChange: function (values) {
@@ -398,17 +403,19 @@ var SearchForm = (function (_Component) {
                         },
                         onSubmit: function () {
                             return _this5.submit();
-                        }
+                        },
+                        rootStyle: xtraSmallScreen ? { flex: 1, width: '100%', borderRight: 0 } : {}
                     })),
                     results
                 )
             );
         } else {
+            var formStyles = this.props.formStyles;
 
             return _react2['default'].createElement(
                 _materialUi.Paper,
                 { ref: 'root', zDepth: 0, className: "top_search_form " + display, style: style, id: id },
-                _react2['default'].createElement(_MainSearch2['default'], {
+                _react2['default'].createElement(_MainSearch2['default'], _extends({
                     mode: display,
                     value: values.basename,
                     onOpen: function () {
@@ -431,7 +438,7 @@ var SearchForm = (function (_Component) {
                         value: searchScope,
                         onChange: this.changeSearchScope.bind(this)
                     }
-                }),
+                }, formStyles)),
                 results
             );
         }
