@@ -78,27 +78,28 @@ func init() {
 				conf := make(config.Map)
 				config.Get("services", "pydio.grpc.auth").Scan(&conf)
 
-				log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
-				configDex := conf.Get("dex")
-				var c auth.Config
-				remarshall, _ := json.Marshal(configDex)
-				if err := json.Unmarshal(remarshall, &c); err != nil {
-					return nil, fmt.Errorf("error parsing config file %s: %v", configDex, err)
-				}
+				setup := func(conf config.Map) error {
 
-				driver, dsn := conf.Database("dsn")
+					log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
+					configDex := conf.Get("dex")
 
-				switch driver {
-				case "mysql":
-					sqlConfig := new(sql.MySQL)
-					sqlConfig.DSN = dsn
-					c.Storage.Config = sqlConfig
-				case "sqlite3":
-					sqlConfig := new(sql.SQLite3)
-					sqlConfig.File = dsn
-				}
+					var c auth.Config
+					remarshall, _ := json.Marshal(configDex)
+					if err := json.Unmarshal(remarshall, &c); err != nil {
+						return fmt.Errorf("error parsing config file %s: %v", configDex, err)
+					}
 
-				setup := func() error {
+					driver, dsn := conf.Database("dsn")
+					switch driver {
+					case "mysql":
+						sqlConfig := new(sql.MySQL)
+						sqlConfig.DSN = dsn
+						c.Storage.Config = sqlConfig
+					case "sqlite3":
+						sqlConfig := new(sql.SQLite3)
+						sqlConfig.File = dsn
+					}
+
 					router, err := serve(c, ctx, log.Logger(ctx))
 					if err != nil {
 						return err
@@ -113,7 +114,7 @@ func init() {
 					return nil
 				}
 
-				if err := setup(); err != nil {
+				if err := setup(conf); err != nil {
 					return nil, err
 				}
 
@@ -124,7 +125,7 @@ func init() {
 					go func() {
 						defer w.Stop()
 						for {
-							_, err := w.Next()
+							new, err := w.Next()
 							if err != nil {
 								break
 							}
@@ -133,7 +134,10 @@ func init() {
 
 							srv.Stop()
 
-							if err := setup(); err != nil {
+							conf := make(config.Map)
+							new.Scan(&conf)
+
+							if err := setup(conf); err != nil {
 								log.Logger(ctx).Error("Error restarting dex", zap.Error(err))
 								continue
 							}
