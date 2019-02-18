@@ -117,13 +117,15 @@ func promptSslMode() (enabled bool, e error) {
 			return
 		}
 		enabled = true
+		// insure unused values are unset
+		config.Del("cert", "proxy", "email")
+		config.Del("cert", "proxy", "caUrl")
+
 		config.Set(true, "cert", "proxy", "ssl")
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certFile, "cert", "proxy", "certFile")
 		config.Set(keyFile, "cert", "proxy", "keyFile")
-		// insure unused values are unset
-		config.Del("cert", "proxy", "email")
-		config.Del("cert", "proxy", "caUrl")
+
 	case 1:
 		mailPrompt := promptui.Prompt{Label: "Please enter the mail address for certificate generation", Default: certEmail}
 		acceptLeSa := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
@@ -143,33 +145,36 @@ func promptSslMode() (enabled bool, e error) {
 		}
 
 		enabled = true
+		config.Del("cert", "proxy", "certFile")
+		config.Del("cert", "proxy", "keyFile")
+
 		config.Set(true, "cert", "proxy", "ssl")
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certEmail, "cert", "proxy", "email")
 		config.Set(caURL, "cert", "proxy", "caUrl")
-		config.Del("cert", "proxy", "certFile")
-		config.Del("cert", "proxy", "keyFile")
 	case 2:
-		enabled = true
-		config.Set(true, "cert", "proxy", "ssl")
-		config.Set(true, "cert", "proxy", "self")
 		config.Del("cert", "proxy", "certFile")
 		config.Del("cert", "proxy", "keyFile")
 		config.Del("cert", "proxy", "email")
 		config.Del("cert", "proxy", "caUrl")
+
+		enabled = true
+		config.Set(true, "cert", "proxy", "ssl")
+		config.Set(true, "cert", "proxy", "self")
 	case 3:
-		config.Set(false, "cert", "proxy", "ssl")
 		config.Del("cert", "proxy", "self")
 		config.Del("cert", "proxy", "certFile")
 		config.Del("cert", "proxy", "keyFile")
 		config.Del("cert", "proxy", "email")
 		config.Del("cert", "proxy", "caUrl")
+
+		config.Set(false, "cert", "proxy", "ssl")
 	}
 
 	enableRedir := false
 	if enabled {
 		redirPrompt := promptui.Select{
-			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning: this require the right to bind to port 80 on this machine.",
+			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning: this requires the right to bind to port 80 on this machine.",
 			Items: []string{
 				"Yes",
 				"No",
@@ -180,10 +185,10 @@ func promptSslMode() (enabled bool, e error) {
 	}
 	if enableRedir {
 		config.Set(true, "cert", "proxy", "httpRedir")
-	} else {
+	} else if config.Get("cert", "proxy", "httpRedir").Bool(false) {
 		config.Del("cert", "proxy", "httpRedir")
 	}
-
+	// config.Save("cli", "Install / Configure internal proxy")
 	return
 }
 
