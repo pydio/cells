@@ -52,6 +52,8 @@ var _IconButtonPopover2 = _interopRequireDefault(_IconButtonPopover);
 
 var _materialUi = require('material-ui');
 
+var _lodash = require('lodash');
+
 exports['default'] = _react2['default'].createClass({
     displayName: 'Toolbar',
 
@@ -67,12 +69,13 @@ exports['default'] = _react2['default'].createClass({
     },
 
     componentDidMount: function componentDidMount() {
-        this._observer = (function () {
+        var observer = (function () {
             if (!this.isMounted()) return;
             this.setState({
                 groups: this.props.controller.getToolbarsActions(this.props.toolbars, this.props.groupOtherList)
             });
         }).bind(this);
+        this._observer = _lodash.debounce(observer, 50);
         if (this.props.controller === pydio.Controller) {
             pydio.observe("actions_refreshed", this._observer);
         } else {

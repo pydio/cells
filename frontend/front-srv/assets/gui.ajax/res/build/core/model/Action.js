@@ -154,6 +154,8 @@ var Action = (function (_Observable) {
   */
 
 	Action.prototype.setManager = function setManager(manager) {
+		var _this = this;
+
 		this.manager = manager;
 		if (this.options.subMenu) {
 			if (this.subMenuItems.staticItems) {
@@ -162,7 +164,10 @@ var Action = (function (_Observable) {
 			if (this.subMenuItems.dynamicItems || this.subMenuItems.dynamicBuilderCode) {
 				this.prepareSubmenuDynamicBuilder();
 			} else if (this.subMenuItems.dynamicBuilderModule) {
-				_httpResourcesManager2['default'].detectModuleToLoadAndApply(this.subMenuItems.dynamicBuilderModule, this.prepareSubmenuDynamicBuilder.bind(this));
+				_httpResourcesManager2['default'].detectModuleToLoadAndApply(this.subMenuItems.dynamicBuilderModule, function () {
+					_this.prepareSubmenuDynamicBuilder();
+					manager.notify('actions_refreshed');
+				});
 			}
 		}
 		if (this.options.listeners['init']) {
@@ -429,7 +434,7 @@ var Action = (function (_Observable) {
   */
 
 	Action.prototype.createFromXML = function createFromXML(xmlNode) {
-		var _this = this;
+		var _this2 = this;
 
 		this.options.name = xmlNode.getAttribute('name');
 		for (var i = 0; i < xmlNode.childNodes.length; i++) {
@@ -458,13 +463,13 @@ var Action = (function (_Observable) {
 						if (processNode.getAttribute('module')) {
 							(function () {
 								var fName = processNode.getAttribute('module');
-								_this.options.callback = function (manager, otherArguments) {
+								_this2.options.callback = function (manager, otherArguments) {
 									_httpResourcesManager2['default'].detectModuleToLoadAndApply(fName, function () {
 										_utilFuncUtils2['default'].executeFunctionByName(fName, window, manager, otherArguments);
 									});
 								};
-								if (_this.defaults && (_this.defaults['dragndrop'] || _this.defaults['ctrldragndrop'])) {
-									_this.options.dragndropCheckModule = fName;
+								if (_this2.defaults && (_this2.defaults['dragndrop'] || _this2.defaults['ctrldragndrop'])) {
+									_this2.options.dragndropCheckModule = fName;
 								}
 							})();
 						} else if (processNode.firstChild) {
@@ -474,12 +479,12 @@ var Action = (function (_Observable) {
 						if (processNode.getAttribute('module')) {
 							(function () {
 								var moduleName = processNode.getAttribute('module');
-								_this.options.listeners[processNode.getAttribute('name')] = (function () {
+								_this2.options.listeners[processNode.getAttribute('name')] = (function () {
 									_httpResourcesManager2['default'].detectModuleToLoadAndApply(moduleName, (function () {
 										var func = _utilFuncUtils2['default'].getFunctionByName(moduleName, window);
 										if (func) func.apply(this);
 									}).bind(this));
-								}).bind(_this);
+								}).bind(_this2);
 							})();
 						} else if (processNode.firstChild) {
 							this.options.listeners[processNode.getAttribute('name')] = processNode.firstChild.nodeValue.trim();

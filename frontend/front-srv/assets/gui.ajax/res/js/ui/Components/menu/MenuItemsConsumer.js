@@ -22,6 +22,7 @@
 const React = require('react')
 const Controller = require('pydio/model/controller')
 import Utils from './Utils'
+import {debounce} from 'lodash'
 
 export default function(Component){
 
@@ -37,11 +38,12 @@ export default function(Component){
         componentDidMount(){
 
             if(this.props.controller && !this.props.menuItems){
-                this._observer = () => {
+                const observer = () => {
                     const actions = this.props.controller.getContextActions('genericContext', null, this.props.toolbars);
                     const menuItems = Utils.pydioActionsToItems(actions);
                     this.setState({menuItems: menuItems});
                 };
+                this._observer = debounce(observer, 50);
                 if(this.props.controller === this.props.pydio.Controller){
                     this.props.pydio.observe("actions_refreshed", this._observer);
                 }else{

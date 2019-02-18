@@ -131,7 +131,10 @@ export default class Action extends Observable{
 			if(this.subMenuItems.dynamicItems || this.subMenuItems.dynamicBuilderCode){
 				this.prepareSubmenuDynamicBuilder();
 			}else if(this.subMenuItems.dynamicBuilderModule){
-                ResourcesManager.detectModuleToLoadAndApply(this.subMenuItems.dynamicBuilderModule, this.prepareSubmenuDynamicBuilder.bind(this));
+                ResourcesManager.detectModuleToLoadAndApply(this.subMenuItems.dynamicBuilderModule, () => {
+                    this.prepareSubmenuDynamicBuilder();
+                    manager.notify('actions_refreshed');
+                });
             }
 		}
 		if(this.options.listeners['init']){				

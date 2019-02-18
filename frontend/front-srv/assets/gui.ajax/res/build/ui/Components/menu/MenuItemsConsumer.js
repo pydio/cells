@@ -34,6 +34,8 @@ var _Utils = require('./Utils');
 
 var _Utils2 = _interopRequireDefault(_Utils);
 
+var _lodash = require('lodash');
+
 var React = require('react');
 var Controller = require('pydio/model/controller');
 
@@ -54,11 +56,12 @@ exports['default'] = function (Component) {
             var _this = this;
 
             if (this.props.controller && !this.props.menuItems) {
-                this._observer = function () {
+                var observer = function observer() {
                     var actions = _this.props.controller.getContextActions('genericContext', null, _this.props.toolbars);
                     var menuItems = _Utils2['default'].pydioActionsToItems(actions);
                     _this.setState({ menuItems: menuItems });
                 };
+                this._observer = _lodash.debounce(observer, 50);
                 if (this.props.controller === this.props.pydio.Controller) {
                     this.props.pydio.observe("actions_refreshed", this._observer);
                 } else {

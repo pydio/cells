@@ -25,6 +25,7 @@ import ButtonMenu from './ButtonMenu'
 import ButtonComposed from './ButtonComposed'
 import IconButtonPopover from './IconButtonPopover'
 import {FlatButton, IconButton, FloatingActionButton} from 'material-ui'
+import {debounce} from 'lodash';
 
 export default React.createClass({
 
@@ -40,12 +41,13 @@ export default React.createClass({
     },
 
     componentDidMount(){
-        this._observer = function(){
+        const observer = function(){
             if(!this.isMounted()) return;
             this.setState({
                 groups:this.props.controller.getToolbarsActions(this.props.toolbars, this.props.groupOtherList)
             });
         }.bind(this);
+        this._observer = debounce(observer, 50);
         if(this.props.controller === pydio.Controller){
             pydio.observe("actions_refreshed", this._observer);
         }else{
