@@ -54,7 +54,7 @@ let CreateCellDialog = React.createClass({
     },
 
     getInitialState(){
-        return {step:'users', model:new CellModel()};
+        return {step:'users', model:new CellModel(), saving: false};
     },
 
     componentDidMount(){
@@ -68,10 +68,13 @@ let CreateCellDialog = React.createClass({
 
     submit(){
         const {model} = this.state;
+        this.setState({saving: true});
         model.save().then(result => {
             this.props.onDismiss();
+            this.setState({saving: false});
         }).catch(reason => {
             pydio.UI.displayMessage('ERROR', reason.message);
+            this.setState({saving: false});
         });
     },
 
@@ -110,8 +113,8 @@ let CreateCellDialog = React.createClass({
 
         let buttons = [];
         let content;
-        const {pydio, muiTheme} = this.props;
-        const {step, model} = this.state;
+        const {pydio} = this.props;
+        const {step, model, saving} = this.state;
         let dialogLabel = pydio.MessageHash['418'];
         if(step !== 'users'){
             dialogLabel = model.getLabel();
@@ -132,7 +135,7 @@ let CreateCellDialog = React.createClass({
                 buttons.push(<FlatButton
                     key="quick"
                     primary={true}
-                    disabled={!model.getLabel()}
+                    disabled={!model.getLabel() || saving}
                     label={this.m('cells.create.advanced')} // Advanced
                     onTouchTap={()=>{this.setState({step:'data'})}} />
                 );
@@ -141,7 +144,7 @@ let CreateCellDialog = React.createClass({
 
             buttons.push(<RaisedButton
                 key="next1"
-                disabled={!model.getLabel()}
+                disabled={!model.getLabel() || saving}
                 primary={true}
                 label={this.m(279)} // Create Cell
                 onTouchTap={()=>{this.submit()}} />
@@ -181,7 +184,7 @@ let CreateCellDialog = React.createClass({
             );
 
             buttons.push(<FlatButton key="prev2" primary={false} label={pydio.MessageHash['304']} onTouchTap={()=>{this.setState({step:'data'})}} />);
-            buttons.push(<RaisedButton key="submit" primary={true} label={this.m(279)} onTouchTap={this.submit.bind(this)} />);
+            buttons.push(<RaisedButton key="submit" disabled={saving} primary={true} label={this.m(279)} onTouchTap={this.submit.bind(this)} />);
 
         }
 

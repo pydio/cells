@@ -78,7 +78,7 @@ var CreateCellDialog = _react2['default'].createClass({
     },
 
     getInitialState: function getInitialState() {
-        return { step: 'users', model: new _pydioModelCell2['default']() };
+        return { step: 'users', model: new _pydioModelCell2['default'](), saving: false };
     },
 
     componentDidMount: function componentDidMount() {
@@ -99,10 +99,13 @@ var CreateCellDialog = _react2['default'].createClass({
 
         var model = this.state.model;
 
+        this.setState({ saving: true });
         model.save().then(function (result) {
             _this2.props.onDismiss();
+            _this2.setState({ saving: false });
         })['catch'](function (reason) {
             pydio.UI.displayMessage('ERROR', reason.message);
+            _this2.setState({ saving: false });
         });
     },
 
@@ -141,12 +144,11 @@ var CreateCellDialog = _react2['default'].createClass({
 
         var buttons = [];
         var content = undefined;
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var muiTheme = _props.muiTheme;
+        var pydio = this.props.pydio;
         var _state = this.state;
         var step = _state.step;
         var model = _state.model;
+        var saving = _state.saving;
 
         var dialogLabel = pydio.MessageHash['418'];
         if (step !== 'users') {
@@ -175,7 +177,7 @@ var CreateCellDialog = _react2['default'].createClass({
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, {
                     key: 'quick',
                     primary: true,
-                    disabled: !model.getLabel(),
+                    disabled: !model.getLabel() || saving,
                     label: this.m('cells.create.advanced'), // Advanced
                     onTouchTap: function () {
                         _this3.setState({ step: 'data' });
@@ -189,7 +191,7 @@ var CreateCellDialog = _react2['default'].createClass({
 
             buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, {
                 key: 'next1',
-                disabled: !model.getLabel(),
+                disabled: !model.getLabel() || saving,
                 primary: true,
                 label: this.m(279), // Create Cell
                 onTouchTap: function () {
@@ -247,7 +249,7 @@ var CreateCellDialog = _react2['default'].createClass({
             buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'prev2', primary: false, label: pydio.MessageHash['304'], onTouchTap: function () {
                     _this3.setState({ step: 'data' });
                 } }));
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'submit', primary: true, label: this.m(279), onTouchTap: this.submit.bind(this) }));
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'submit', disabled: saving, primary: true, label: this.m(279), onTouchTap: this.submit.bind(this) }));
         }
 
         return _react2['default'].createElement(
