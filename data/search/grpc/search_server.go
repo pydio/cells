@@ -128,7 +128,7 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 			case node := <-resultsChan:
 				if node != nil {
 
-					log.Logger(ctx).Info("Search", zap.String("uuid", node.Uuid))
+					log.Logger(ctx).Debug("Search", zap.String("uuid", node.Uuid))
 
 					if req.Details {
 						response, e := s.TreeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{
@@ -147,7 +147,7 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 
 						}
 					} else {
-						log.Logger(ctx).Info("No Details needed, sending back %v", zap.String("uuid", node.Uuid))
+						log.Logger(ctx).Debug("No Details needed, sending back node", zap.String("uuid", node.Uuid))
 						streamer.Send(&tree.SearchResponse{Node: node})
 					}
 
