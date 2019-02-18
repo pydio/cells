@@ -80,10 +80,11 @@ var _Pydio$requireLib3 = _pydio2['default'].requireLib('PydioActivityStreams');
 var ASClient = _Pydio$requireLib3.ASClient;
 
 var Loader = (function () {
-    function Loader(pydio) {
+    function Loader(pydio, stater) {
         _classCallCheck(this, Loader);
 
         this.pydio = pydio;
+        this.stater = stater;
         this.metaProvider = new _pydioModelMetaNodeProvider2['default']();
     }
 
@@ -118,6 +119,7 @@ var Loader = (function () {
                 if (node && !allKeys[node.getMetadata().get("uuid")]) {
                     allNodes.push(node);
                     allKeys[node.getMetadata().get("uuid")] = node.getMetadata().get("uuid");
+                    _this2.stater.setState({ nodes: [].concat(_toConsumableArray(allNodes)), loading: false });
                 }
                 return _this2.resolveNext(allResolvers, allNodes, allKeys, max);
             });
@@ -272,30 +274,48 @@ var Loader = (function () {
 var RecentCard = (function (_React$Component) {
     _inherits(RecentCard, _React$Component);
 
-    function RecentCard() {
+    function RecentCard(props) {
         _classCallCheck(this, RecentCard);
 
-        _get(Object.getPrototypeOf(RecentCard.prototype), 'constructor', this).apply(this, arguments);
+        _get(Object.getPrototypeOf(RecentCard.prototype), 'constructor', this).call(this, props);
+        this.state = { opacity: 0 };
     }
 
     _createClass(RecentCard, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this6 = this;
+
+            setTimeout(function () {
+                _this6.setState({ opacity: 1 });
+            }, 200);
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var opacity = this.state.opacity;
+
             var styles = {
                 paper: {
                     width: 120, height: 140, margin: 16, display: 'flex', flexDirection: 'column', cursor: 'pointer',
-                    alignItems: 'center', textAlign: 'center' },
-                /*backgroundColor:'rgb(236, 239, 241)',*/
+                    alignItems: 'center', textAlign: 'center',
+                    opacity: opacity,
+                    transition: 'all 1000ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'
+                },
                 preview: {
                     boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px',
                     borderRadius: '50%',
                     width: 90,
-                    flex: 1, alignItems: 'center', justifyContent: 'center', display: 'flex'
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    display: 'flex'
                 },
                 label: { fontSize: 14, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' },
                 title: { fontSize: 14, marginTop: 10 },
                 legend: { fontSize: 11, fontWeight: 500, color: '#9E9E9E' }
             };
+
             var _props = this.props;
             var title = _props.title;
             var legend = _props.legend;
@@ -332,20 +352,20 @@ var SmartRecents = (function (_React$Component2) {
         _classCallCheck(this, SmartRecents);
 
         _get(Object.getPrototypeOf(SmartRecents.prototype), 'constructor', this).call(this, props);
-        this.loader = new Loader(props.pydio);
+        this.loader = new Loader(props.pydio, this);
         this.state = { nodes: [], loading: false };
     }
 
     _createClass(SmartRecents, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this6 = this;
+            var _this7 = this;
 
             this.setState({ loading: true });
             this.loader.load().then(function (nodes) {
-                _this6.setState({ nodes: nodes, loading: false });
+                _this7.setState({ nodes: nodes, loading: false });
             })['catch'](function () {
-                _this6.setState({ loading: false });
+                _this7.setState({ loading: false });
             });
         }
     }, {

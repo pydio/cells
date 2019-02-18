@@ -31,8 +31,9 @@ import PydioApi from 'pydio/http/api'
 import {UserMetaServiceApi, RestUserBookmarksRequest} from 'pydio/http/rest-api'
 
 class Loader {
-    constructor(pydio) {
+    constructor(pydio, stater) {
         this.pydio = pydio;
+        this.stater = stater;
         this.metaProvider = new MetaNodeProvider();
     }
 
@@ -62,6 +63,7 @@ class Loader {
             if(node && !allKeys[node.getMetadata().get("uuid")]) {
                 allNodes.push(node);
                 allKeys[node.getMetadata().get("uuid")] = node.getMetadata().get("uuid");
+                this.stater.setState({nodes: [...allNodes], loading: false});
             }
             return this.resolveNext(allResolvers, allNodes, allKeys, max);
         })
@@ -198,22 +200,39 @@ class Loader {
 }
 
 class RecentCard extends React.Component{
+
+    constructor(props){
+        super(props);
+        this.state = {opacity: 0};
+    }
+
+    componentDidMount(){
+        setTimeout(()=>{this.setState({opacity: 1});}, 200);
+    }
+
     render(){
+        const {opacity} = this.state;
         const styles={
             paper:{
                 width: 120, height: 140, margin: 16, display:'flex', flexDirection:'column', cursor:'pointer',
-                alignItems:'center', textAlign:'center', /*backgroundColor:'rgb(236, 239, 241)',*/
+                alignItems:'center', textAlign:'center',
+                opacity: opacity,
+                transition:'all 1000ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'
             },
             preview:{
                 boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px',
                 borderRadius: '50%',
                 width: 90,
-                flex:1, alignItems: 'center',justifyContent: 'center', display: 'flex'
+                flex:1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                display: 'flex'
             },
             label:{fontSize:14, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', width: '100%'},
             title:{fontSize:14, marginTop: 10},
             legend:{fontSize: 11, fontWeight: 500, color: '#9E9E9E'},
         };
+
         const {title, legend, node, pydio} = this.props;
         return (
             <Paper zDepth={0} style={styles.paper} onClick={() => {pydio.goTo(node);}}>
@@ -229,7 +248,7 @@ class SmartRecents extends React.Component{
 
     constructor(props){
         super(props);
-        this.loader = new Loader(props.pydio);
+        this.loader = new Loader(props.pydio, this);
         this.state = {nodes:[], loading:false};
     }
 

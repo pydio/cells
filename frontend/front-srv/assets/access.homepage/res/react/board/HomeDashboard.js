@@ -167,9 +167,7 @@ class AltDashboard extends React.Component {
                     </div>
                 </Paper>
                 <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle}>
-                    <div style={{flex:1, overflowY:'auto', marginTop: 40}} id="history-block">
-                        <SmartRecents {...this.props} style={{maxWidth: 610, width:'100%'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
-                    </div>
+                    <SmartRecents {...this.props} style={{maxWidth: 610, width:'100%'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
                 </HomeSearchForm>
             </MasterLayout>
 

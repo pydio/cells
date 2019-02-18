@@ -231,11 +231,7 @@ var AltDashboard = (function (_React$Component) {
                 _react2['default'].createElement(
                     _HomeSearchForm2['default'],
                     _extends({ zDepth: 0 }, this.props, { style: styles.wsListsContainerStyle }),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { flex: 1, overflowY: 'auto', marginTop: 40 }, id: 'history-block' },
-                        _react2['default'].createElement(_recentSmartRecents2['default'], _extends({}, this.props, { style: { maxWidth: 610, width: '100%' }, emptyStateProps: { style: { backgroundColor: 'white' } } }))
-                    )
+                    _react2['default'].createElement(_recentSmartRecents2['default'], _extends({}, this.props, { style: { maxWidth: 610, width: '100%' }, emptyStateProps: { style: { backgroundColor: 'white' } } }))
                 )
             );
         }

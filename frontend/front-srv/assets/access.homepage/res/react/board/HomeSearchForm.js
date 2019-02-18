@@ -170,7 +170,10 @@ class HomeSearchForm extends Component{
                         }}
                     />
                 }
-                {empty && this.props.children}
+                {this.props.children &&
+                    <div style={{display:empty?'block':'none', flex:1, overflowY:'auto', marginTop: 40}} id="history-block">{this.props.children}</div>
+                }
+
             </Paper>
         );
 

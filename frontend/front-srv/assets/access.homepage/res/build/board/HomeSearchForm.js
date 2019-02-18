@@ -263,7 +263,11 @@ var HomeSearchForm = (function (_Component) {
                         style: { backgroundColor: 'transparent' }
                     }
                 }),
-                empty && this.props.children
+                this.props.children && React.createElement(
+                    'div',
+                    { style: { display: empty ? 'block' : 'none', flex: 1, overflowY: 'auto', marginTop: 40 }, id: 'history-block' },
+                    this.props.children
+                )
             );
         }
     }]);
