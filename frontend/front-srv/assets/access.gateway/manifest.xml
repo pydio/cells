@@ -87,7 +87,17 @@
                 <gui text="220" title="221" iconClass="mdi mdi-delete-forever" accessKey="empty_recycle_access_key" hasAccessKey="true">
                     <context selection="false" dir="true" recycle="only" actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="info_panel,change_main"/>
                 </gui>
-                <rightsContext noUser="true" userLogged="" read="true" write="true" adminOnly=""/>
+                <rightsContext userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.emptyRecycle"/>
+                </processing>
+            </action>
+            <action name="empty_recycle_select">
+                <gui text="220" title="221" iconClass="mdi mdi-delete-forever" accessKey="empty_recycle_access_key" hasAccessKey="true">
+                    <context selection="true" dir="true" actionBar="false" contextMenu="true" infoPanel="false" actionBarGroup="change_main"/>
+                    <selectionContext dir="false" file="false" recycle="true" unique="true" allowedMimes="ajxp_recycle" behaviour="hidden"/>
+                </gui>
+                <rightsContext userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>
                     <clientCallback module="FSActions.Callbacks.emptyRecycle"/>
                 </processing>
