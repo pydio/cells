@@ -508,10 +508,11 @@ var FSTemplate = _react2['default'].createClass({
                             })),
                             _react2['default'].createElement(ListPaginator, {
                                 id: 'paginator-toolbar',
-                                style: { height: 23, borderRadius: 2, background: 'rgba(255, 255, 255, 0.17)', marginRight: 5 },
+                                style: { height: 23, borderRadius: 2, background: newButtonProps.buttonBackgroundColor, marginRight: 5 },
                                 dataModel: props.pydio.getContextHolder(),
                                 smallDisplay: true,
-                                toolbarDisplay: true
+                                toolbarDisplay: true,
+                                toolbarColor: appBarTextColor
                             }),
                             !mobile && _react2['default'].createElement(Toolbar, _extends({}, props, {
                                 id: 'main-toolbar',

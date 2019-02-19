@@ -89,6 +89,7 @@ exports['default'] = _react2['default'].createClass({
         var node = this.state.node;
         var _props = this.props;
         var toolbarDisplay = _props.toolbarDisplay;
+        var toolbarColor = _props.toolbarColor;
         var smallDisplay = _props.smallDisplay;
         var style = _props.style;
         var id = _props.id;
@@ -118,7 +119,7 @@ exports['default'] = _react2['default'].createClass({
         var smallButtonsLabel = undefined,
             smallButtonsIcStyle = undefined;
         if (toolbarDisplay) {
-            whiteStyle = { color: 'white' };
+            whiteStyle = { color: toolbarColor ? toolbarColor : 'white' };
             if (smallDisplay) {
                 smallButtonsLabel = { fontSize: 13 };
                 smallButtonsIcStyle = { fontSize: 20 };

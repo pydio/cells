@@ -66,7 +66,7 @@ export default React.createClass({
 
     render(){
         const {node} = this.state;
-        const {toolbarDisplay, smallDisplay, style, id} = this.props;
+        const {toolbarDisplay, toolbarColor, smallDisplay, style, id} = this.props;
         if(!node || !node.getMetadata().get("paginationData")) {
             return null;
         }
@@ -88,7 +88,7 @@ export default React.createClass({
         let whiteStyle;
         let smallButtonsLabel, smallButtonsIcStyle;
         if(toolbarDisplay){
-            whiteStyle = {color:'white'};
+            whiteStyle = {color:toolbarColor?toolbarColor:'white'};
             if(smallDisplay){
                 smallButtonsLabel = {fontSize:13};
                 smallButtonsIcStyle = {fontSize:20};
