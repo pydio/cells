@@ -1,18 +1,158 @@
-# Changes between v1.2.4 and v1.2.5
+# Changes between v1.2.5 and v1.4.0
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v1.2.4...v1.2.5)
+[See Full Changelog](https://github.com/pydio/cells/compare/v1.2.5...v1.4.0)
 
-- [#fe65697](https://github.com/pydio/cells/commit/fe6569779816b5202a4b8aab6081ea22983cadaf): Rebuild js
-- [#4eead08](https://github.com/pydio/cells/commit/4eead08d023b2970ec1700f1e0b35590a85b455d): Fix js error
-- [#7ba9589](https://github.com/pydio/cells/commit/7ba95893ce6743aae7f14486e60e1f009af71ffe): Fix FF scrolling issues (flexbox+overflow)
-- [#cdcb097](https://github.com/pydio/cells/commit/cdcb097b6ccdfea2a1271ae74fd44ea2fb1f0d35): Audit public link access
-- [#9c0ca70](https://github.com/pydio/cells/commit/9c0ca70178105d9addd2072b61c4ae5a00260e9c): Fix multiple read events when streaming a file : log only when offset if 0.
-- [#f9fd187](https://github.com/pydio/cells/commit/f9fd18720e858d982faacba0eb6554ef5a878416): New translations from Crowdin
-- [#58eb9fa](https://github.com/pydio/cells/commit/58eb9fad25868c70f1e64be7d267b62ab8154d66): Fix rename / mkdir / mkfile dialogs: prevent using / in filename, pre-select the base of the name (without extension).
-- [#5b69ba0](https://github.com/pydio/cells/commit/5b69ba07e6f53ca22c853bd6a8872a335e83c762): Add parameter to form configs for insecureSkipVerify
-- [#de5632d](https://github.com/pydio/cells/commit/de5632d03c9792be2bc117df0b9033971d0c0cc4): fix param name in pydio.json
-- [#57f1fe6](https://github.com/pydio/cells/commit/57f1fe66b66d9abeab83398fa3557259ce58354d): add UnsecuredSkipVerify smtp cert
-- [#b07ad7c](https://github.com/pydio/cells/commit/b07ad7c497ddcf279eab602229a506e1c761e76b): Prevent creating user with an existing login
-- [#b8d2041](https://github.com/pydio/cells/commit/b8d204117cd2f5e52fee0a959f83542c6fc0fcb0): Fix AddressBook messages when opening in popover: context is not transmitted, wrap component in a PydioContextProvider
-- [#27b97a0](https://github.com/pydio/cells/commit/27b97a0221a7246f0b8c72d9a5bb52608c6197aa): Fix issue with updates on encrypted datasource
-- [#c1c7d01](https://github.com/pydio/cells/commit/c1c7d017e672dc4d1986bc1f3423367f96e01661): Make sure to initialize zapFields event to an empty string, as a nil field crashes...
+- [#49e6194](https://github.com/pydio/cells/commit/49e6194a3a03c52e372a6b6c2ba39177cf0ba83c): Fix paginator on light theme
+- [#c4ad8ec](https://github.com/pydio/cells/commit/c4ad8ec6e3dafecfa27bb915797f8bdb4d92ca19): Remove also tasks from resync-changes-job as it fills up the scheduler
+- [#29033f2](https://github.com/pydio/cells/commit/29033f222ba6e1f0ac717953622acc3aeb57ae6e): Scheduler: add small migration to clear user activities tasks
+- [#dd9c67f](https://github.com/pydio/cells/commit/dd9c67f7985ae93975a116cebf17cee52ac265d2): fix url parsing
+- [#9cf34a6](https://github.com/pydio/cells/commit/9cf34a67aab3a590cb593d645fc4489a094bcbe0): Missing js build file
+- [#45e1246](https://github.com/pydio/cells/commit/45e12466011c39e42702a135c00af4a34551cc5f): Make homepage history load smoother, do not reload after search.
+- [#8e40b9a](https://github.com/pydio/cells/commit/8e40b9ae539905c348d7e7c66c5ca37eb70d2539): Fix race condition when preparing subMenu dynamic builder from module. Debounce action_refreshed events listeners.
+- [#5a5f0dc](https://github.com/pydio/cells/commit/5a5f0dc96caee9f056991f89594f84c742b9ac3f): Add right-click menu for emptying recycle
+- [#a35dac2](https://github.com/pydio/cells/commit/a35dac2d1d6e2b364300bc526e6b0f9ddd7f012f): Prevent multiple clicks for cells creation (in case of slow network)
+- [#5801144](https://github.com/pydio/cells/commit/5801144f6cc098db5f2af405ed91126102b111bb): Reorder deletions before sets.
+- [#2d1307c](https://github.com/pydio/cells/commit/2d1307c327e3bbd6d794702203c4bdfad4a278ff): Lower log level inside search
+- [#953b841](https://github.com/pydio/cells/commit/953b84183f39b1efc7d2d6ea2c97f8bddc16e4fb): Not passing config
+- [#05505c7](https://github.com/pydio/cells/commit/05505c7969ccacac34cc66a611a064baf3dcc368): Rathersplit X-Forwarded-For header to retrieve client IP address
+- [#c1340d4](https://github.com/pydio/cells/commit/c1340d438d1bca377d95efa9754410c773fb66f9): Restarting dex when config has changed
+- [#afd1a23](https://github.com/pydio/cells/commit/afd1a23c6b8f78cee2fa0a28cbdc873af95107f3): Hack image preview Height when CSS rotation is applied
+- [#cbbfbf7](https://github.com/pydio/cells/commit/cbbfbf7d3807ec7b51875d074fc4bcca48437ba1): Handle responsiveness in new UX
+- [#cc95831](https://github.com/pydio/cells/commit/cc95831704b850cae98808c92778685a8b580801): Backward compat issue with locks in JS
+- [#825fdc0](https://github.com/pydio/cells/commit/825fdc0ae23ac4855c36ce9c067ed855ede89bd3): Rephrase installer for internal / external
+- [#b28a947](https://github.com/pydio/cells/commit/b28a94779449655964162b9d4a604b8e34ce8549): Remove ports configs from install advanced settings (both cli and web)
+- [#d389665](https://github.com/pydio/cells/commit/d389665dab10f3116bdd089bc4887f7d21ca7b3e): Dark/light themes
+- [#0ed6517](https://github.com/pydio/cells/commit/0ed6517c1a4777497f59f6f4cc3d9ac431779331): Dev shortcut: 'make ds' builds and start cells
+- [#8a1a4c9](https://github.com/pydio/cells/commit/8a1a4c9f2b95d83593614426df5aec561f15e23e): Add i18n to scheduler configuration
+- [#800d64a](https://github.com/pydio/cells/commit/800d64a5a413511710664e47340b9996d90dbb71): Add i18n to scheduler configuration
+- [#89d0ca8](https://github.com/pydio/cells/commit/89d0ca82dc8dc543ab371e28a627ae975770d435): fix timer not receiving events from jobs (service init) Do not reinsert job on each start (check if exists already)
+- [#407b563](https://github.com/pydio/cells/commit/407b56320f5a1a06999a7978517cfd49a3e1687e): Merge remote-tracking branch 'origin/master'
+- [#dd11521](https://github.com/pydio/cells/commit/dd11521e3c69973f3bd9d5b0df87278e15d4be8f): Remove unused i18n lib - nice display for job schedule
+- [#3bf4eb4](https://github.com/pydio/cells/commit/3bf4eb4638e3574936b523074bfa9bca10befe02): Remove log
+- [#d2505b1](https://github.com/pydio/cells/commit/d2505b197fc31de01bb01c438b01ca8f47f10f44): Rather use explicit proxy directive than transparent shortcut.
+- [#a105999](https://github.com/pydio/cells/commit/a105999f78a84ce8aac2c9db93375b89cc54a183): Fix invalid method call when no task ID
+- [#58d27e9](https://github.com/pydio/cells/commit/58d27e954719901ea71de9d60a2b603b2005958e): fix DeleteLogs query
+- [#b2fd572](https://github.com/pydio/cells/commit/b2fd572f6972d14ebb4740535a006bd391a785c6): Attach a new logger log.TasksLogger to the pydio.grpc.job service instead of feeding huge structs inside tasks.
+- [#3618847](https://github.com/pydio/cells/commit/361884770dc61d271b3bcea70a06f96f26e3cc57): Scheduler js build
+- [#9751440](https://github.com/pydio/cells/commit/9751440777ff71c706c7d60ad0dbc6fa3e33c067): Update Api
+- [#9faca95](https://github.com/pydio/cells/commit/9faca95f60a724af649b780079d1b307f156a50d): Fix users pagination and filtering
+- [#1e0f9dc](https://github.com/pydio/cells/commit/1e0f9dcd75a7792669caf4bdc7c47769a0fa9dbd): fix unit test
+- [#e9ad702](https://github.com/pydio/cells/commit/e9ad7020cb90bb4fcd3c2634ea2a253eea32d3fb): FillLogContext with OperationUuid
+- [#77c7a0a](https://github.com/pydio/cells/commit/77c7a0a6db8a160c308e2d6b75bb0a14fc35bada): Grpc client wrapper was in fact not really used, put it on default client instead. Clean unused ctx fields and implement OperationUuid field instead.
+- [#59](https://github.com/pydio/cells/pull/59): Fix: IDM groups can not be deleted if %2F value is decode by a proxy
+- [#3e27a67](https://github.com/pydio/cells/commit/3e27a67fd1f61d13ff1d75097a77deb0f74b640d): Ignore invalid root nodes on multi-workspace search
+- [#83c9b3a](https://github.com/pydio/cells/commit/83c9b3a329ddd9a9ffbc0e41adeeb7dad803af00): Add loader to SmartRecents
+- [#ce2a47f](https://github.com/pydio/cells/commit/ce2a47fb35347947c253c64154edbb604c8cfe2a): Fix loading of SmartRecents in homepage to avoid unnecessary /tree/get requests
+- [#06f46f6](https://github.com/pydio/cells/commit/06f46f6f1ccfccafd86f2cab1eaa16e45b3e2007): Fix: IDM groups can not be deleted
+- [#b33ae57](https://github.com/pydio/cells/commit/b33ae57989b0fdd5ca5e621dd3fbf1b9b7b9bb22): Fixing image resize
+- [#3178f08](https://github.com/pydio/cells/commit/3178f08147c4e2ab42e93a79336eacc7b87e343a): Update linguist attributes
+- [#1257e00](https://github.com/pydio/cells/commit/1257e00c6e70c014df2dbc337555ed95e035388b): Force Host inside proxy to minio to avoid Signature Mismatch issues
+- [#9c1101d](https://github.com/pydio/cells/commit/9c1101d2e8e34278abf5ef18c52355d36ab5d971): Fixing editor when user is logging out or changing workspace
+- [#d96eed9](https://github.com/pydio/cells/commit/d96eed95a34f5d154db0b6807cc7f9b777a450e9): Print caddy file in a readable manner when in debug mode
+- [#d9ed6f2](https://github.com/pydio/cells/commit/d9ed6f249eb8c912579a9683cb36f9a7443c8eb0): Reload virtual nodes cache on browsing
+- [#b8e79a1](https://github.com/pydio/cells/commit/b8e79a10e2ccccbf7d1c297b12f9d76c36376f15): Homepage: disable left column auto close on mouse over
+- [#9d94a4f](https://github.com/pydio/cells/commit/9d94a4f33f35bfdfa38f64fdc3710f16bb196cb4): Homepage: do not close left menu while performing WelcomeTour
+- [#7823733](https://github.com/pydio/cells/commit/7823733d0e145e53cb0da1c258855de949c6ae45): Prevent admin from deleting himself...
+- [#460522e](https://github.com/pydio/cells/commit/460522ec5a78505e25aed570b4f8aa2c4be0df06): Fixing autocomplete
+- [#9553748](https://github.com/pydio/cells/commit/95537484c11b4277a2c6145eabc88011a7445414): Fix bookmarks list and notifications list
+- [#ca0897b](https://github.com/pydio/cells/commit/ca0897bf3c86ba0c7dd493080db4909f8fdf0939): Refix avatar width
+- [#1998f41](https://github.com/pydio/cells/commit/1998f41a4a1dc9e799282bcceca6a5247ff2e8dc): Clean logs
+- [#9122f28](https://github.com/pydio/cells/commit/9122f28afc21a09b4cf5a2094c525c8604c30974): Fix unclosed object in sync
+- [#70f95f7](https://github.com/pydio/cells/commit/70f95f7bce3983600979bd1d10b58b6c750d2916): Remove superfluous debug messages.
+- [#a68af1d](https://github.com/pydio/cells/commit/a68af1d1015d63fa0ca493b3173c56df7b95f677): Fixing workspace autocomplete
+- [#704aa0f](https://github.com/pydio/cells/commit/704aa0ffe31131826e71a43890210b3c57e513ee): Fix config issue on SSL mode configuration
+- [#e8540e6](https://github.com/pydio/cells/commit/e8540e654a295ee91d231ab244d5e561844dd158): Add flag
+- [#5c3993c](https://github.com/pydio/cells/commit/5c3993c1910bbc004edb54a4ca070203be39a27e): Identified some bottlenecks on massive production of events: better to maintain a package router than to instanciate once on each task. Use TaskStream when posting status during indexation.
+- [#424d2c8](https://github.com/pydio/cells/commit/424d2c851db7f6902a8a71676640bf4cb4a633e7): Fix Create User form for small height screen
+- [#fc63b61](https://github.com/pydio/cells/commit/fc63b614273ce3391b9da0dec6ebaa3d0526a05a): Merge remote-tracking branch 'origin/master'
+- [#f2677ed](https://github.com/pydio/cells/commit/f2677ed6565f263948ca465aa887dae878d61118): Split File info from "Metadata" in advanced search. Do not save advanced search status and reopen the last panel on close.
+- [#2033d86](https://github.com/pydio/cells/commit/2033d86a74f1300964b83e95909d2c1df0b6730f): Adapt after typo fix in EN
+- [#5d71dad](https://github.com/pydio/cells/commit/5d71dad49d353b52407e180c16c667f5b481e804): Adapt after typo fix in EN
+- [#12873f0](https://github.com/pydio/cells/commit/12873f09c60eaa24aae227745318d7fefe031f53): Refix scheduler performance : strip data from task Logs to avoid storing huge structs in bolt. Better filtering by JobIDs.
+- [#3ec08eb](https://github.com/pydio/cells/commit/3ec08eb0a6f1629dfbf444a804ac52a83b8de592): Fix typo in EN message
+- [#a6c4001](https://github.com/pydio/cells/commit/a6c4001db118b5f9ca1d206e1c7bf2b49486119e): Small fix
+- [#24a978d](https://github.com/pydio/cells/commit/24a978d780bae67c864bee0a50152692a8295f9d): Workspace autocomplete
+- [#9e52cd8](https://github.com/pydio/cells/commit/9e52cd8cd36bc74cc8fc991bb7644611fe5352ff): Enhancing template paths
+- [#740ff13](https://github.com/pydio/cells/commit/740ff139cdade189c9bb36807c079a7ab741ba45): Fix test after changing how we index extension
+- [#311b39b](https://github.com/pydio/cells/commit/311b39bde7376dc6648a17c2490ee0e9ba90a2cb): Rework search form UX
+- [#df1b994](https://github.com/pydio/cells/commit/df1b994d4f936d959e2c59c7afaf129dfe636a1c): Change to auto-completion for Workspaces
+- [#771f0eb](https://github.com/pydio/cells/commit/771f0eb758bfea23e8beee81efcdc2617833bfab): Merge pull request 55 from pydio-i18n/master
+- [#0219c69](https://github.com/pydio/cells/commit/0219c697290a69546c1e1d65cc890c2c847d0853): Create Japanese i18n files
+- [#22771e8](https://github.com/pydio/cells/commit/22771e8697d273f0bdcc398e2937eb5211a4e2ce): Update Crowdin configuration file
+- [#cc7de66](https://github.com/pydio/cells/commit/cc7de66cb4be8f0b2330b47ed0215753e5b36553): Add missing space
+- [#2a530e1](https://github.com/pydio/cells/commit/2a530e134251296de990da177c7c2343ecf50b38): Trim leading point while indexing file extension
+- [#74dd4fa](https://github.com/pydio/cells/commit/74dd4fa4e79385245b64342fdbf31d30944bd9d2): Prepare Japanese translation addition
+- [#d7571ac](https://github.com/pydio/cells/commit/d7571ac7b553b7abf2dc04c06bb3ac281418924c): Display details
+- [#985338c](https://github.com/pydio/cells/commit/985338c2b6bd5cfcfeb087c579823b190f8ffcb0): Fix preferences and active workspace
+- [#b8253c9](https://github.com/pydio/cells/commit/b8253c9ea07cf3c3d74a7efd37eda8e84630f459): Fix small issues with locks
+- [#fa4566e](https://github.com/pydio/cells/commit/fa4566e5e9cabd2d16cd2a56991a0a20aa532579): Fix toolbar name
+- [#acc25ff](https://github.com/pydio/cells/commit/acc25ffad3081dbd252e53060b627110831f4acc): Fix paginator - fix shares templates
+- [#da5ce0a](https://github.com/pydio/cells/commit/da5ce0a6007f661f517135162b850ca58b232229): Rework advanced search
+- [#b49c536](https://github.com/pydio/cells/commit/b49c5368d2a5a7856c1b3f3d372e974ccd97a514): Lower log level
+- [#e5d467d](https://github.com/pydio/cells/commit/e5d467d1aea49f4883500386d01b1d9d4e78b759): Disable advanced search for the moment
+- [#f28ef95](https://github.com/pydio/cells/commit/f28ef952eb7c7116f7269eb8b084516a1b8d6aff): More translation, mainly Italian
+- [#635328a](https://github.com/pydio/cells/commit/635328a86744f1b68126d6881ca3ffe7484a6a40): More translation, mainly Italian
+- [#64ae166](https://github.com/pydio/cells/commit/64ae166cc34fe451ce203ccbb77d2b15e076a589): Fix some details: composed button
+- [#6433ca8](https://github.com/pydio/cells/commit/6433ca84a538da2d731013a308f495b4e724d033): Homepage recent items
+- [#a30a34e](https://github.com/pydio/cells/commit/a30a34ef3a35f730209bf827282753acc079e885): Rework homepage
+- [#9054818](https://github.com/pydio/cells/commit/905481898d36ac08765c227c97f54a34bf16ea6f): UX rework
+- [#beff71e](https://github.com/pydio/cells/commit/beff71e38b62c1e724d1d1bc62b8329ecc2eb30e): While writing archives on-the-fly, the ListNodes request may expire. Put a much higher timeout on this request.
+- [#88bbc0d](https://github.com/pydio/cells/commit/88bbc0d1f394423c3577dea0674f9b276088f50f): Add parameters for GetOrCreateHiddenUser
+- [#b0b2b3a](https://github.com/pydio/cells/commit/b0b2b3a1b92e2d9c5170f81964a06d5cf6043bc3): Change ThumbnailsMetadata struct - Do not compute thumb if image is smaller than target size (except small version)
+- [#b373e92](https://github.com/pydio/cells/commit/b373e923632b8810a13323cabd8c0cb08e6bc549): Read thumbnails sizes from metadata instead of hardcoding 512/256
+- [#67ebc51](https://github.com/pydio/cells/commit/67ebc51dfe222248ab77bcdc61471147003613d4): Improve tests coverage
+- [#8c039be](https://github.com/pydio/cells/commit/8c039be3001fb0f190f591ee6682d368d4642b78): Factorise attributes keys in constants - ability to pass a hashed password
+- [#df0733f](https://github.com/pydio/cells/commit/df0733fef3bdeccd1b54693b3a52c392a14e7a9c): Adding missing structs
+- [#ec8e37f](https://github.com/pydio/cells/commit/ec8e37f778c7ddbdc59f522e9a5ef5916de5dbc8): Fix meta flags issue when listing multiple roots from preloaded nodes
+- [#7e7ecde](https://github.com/pydio/cells/commit/7e7ecde82a9be24c26ae7f447bb3982d709aa18f): Add Opention Uuid and Label field.
+- [#8996df1](https://github.com/pydio/cells/commit/8996df1c5ecf1b7898d7ecfd431adb7960d0f141): Add new fields in Log object
+- [#979e0dc](https://github.com/pydio/cells/commit/979e0dc29588da796b2a05b665c32059bfda8d6f): Rework JS master layout to avoid blinking when switching from home to a workspace
+- [#cbd65f7](https://github.com/pydio/cells/commit/cbd65f7818135ef7328e2db471f85befd884d84a): Re-implement ForceOverride feature - Add a new column in DB (table idm_roles)
+- [#c568cbc](https://github.com/pydio/cells/commit/c568cbc33388ca57aece0fbc445d19914fc52a8f): Makes scheduler board loading quicker by using filtering options on ListJobsRequest.
+- [#f0eadef](https://github.com/pydio/cells/commit/f0eadefb2a682e8d6cd2a4a5fc219dc83c3d0e31): Pass additional parameters to listJobs query, including a cursor. When asking for (0,1), select very last task by StartTime.
+- [#0b1742c](https://github.com/pydio/cells/commit/0b1742cdd11c5c0c94e09de24d547be646f33211): Fix tests
+- [#72ff82f](https://github.com/pydio/cells/commit/72ff82f59bf18e23077ec817936536f7eb216161): Views: ability to preset an AccessList to impersonate user Shares: refactor to remove claims from generic lib
+- [#5b65147](https://github.com/pydio/cells/commit/5b65147bc098f4020289e1a7439e43cf145c13a1): Refactor rest/share to move tooling functions out of package
+- [#dbfe681](https://github.com/pydio/cells/commit/dbfe68174f420c5b84a6817aa48f84bea8abb6e3): Fix register_ttl double flag panic
+- [#435bc8e](https://github.com/pydio/cells/commit/435bc8e7be1820a37c56ced94436570585a411cb): Last build
+- [#9e30d4b](https://github.com/pydio/cells/commit/9e30d4b3396d2f0867ede886feb5cae33b517676): Merge
+- [#691585d](https://github.com/pydio/cells/commit/691585d70172385ca0b660f34dc7ed5f2f74664e): Maintain a list of running processes in registry - Add generic framework for instrumenting code
+- [#a09b760](https://github.com/pydio/cells/commit/a09b76047e56353e05b7de0f51f530eb5fef2512): Merge 49 from pydio-i18n
+- [#ffc3127](https://github.com/pydio/cells/commit/ffc3127f8491e1cae16bb8e94d5a0c9cbca30488): Translations: mainly Italian enhancements
+- [#2483263](https://github.com/pydio/cells/commit/2483263f756969637e55d74f3c466dc67ac60cda): Merge back after 1.2.5 hotfix release
+- [#04f47ab](https://github.com/pydio/cells/commit/04f47ab5b921b9e98dfedb6b747b11ecd70f624d): Add missing space
+- [#e0b36e6](https://github.com/pydio/cells/commit/e0b36e628ed5011f94fce1a9204a583e77acf532): Admin Console harmonization
+- [#160f681](https://github.com/pydio/cells/commit/160f681e27b1aae5bde600fe81692fbf8a4923a8): Merge pull request from pydio-i18n
+- [#f8e5925](https://github.com/pydio/cells/commit/f8e5925ad54ba13d9e663a96e314191dfc3e3057): New Crowdin translations
+- [#7130008](https://github.com/pydio/cells/commit/71300084f3a275f1f614936d93e18ddb75ec0ebf): Fix typo
+- [#f926a9c](https://github.com/pydio/cells/commit/f926a9cf8ed7b34a1016ffca3b1bad5495852af0): Read parameter for client_timeout_warning
+- [#1e24781](https://github.com/pydio/cells/commit/1e24781d47dbb1615bcd05bfaaf245531a88f0f3): Remove unused parameter
+- [#a2946b4](https://github.com/pydio/cells/commit/a2946b44026bb81d819f8d2016df05bf764e041e): Merge pull request 47 from pydio-i18n
+- [#35f6920](https://github.com/pydio/cells/commit/35f6920c3263e5f19cc6572da6c098400820ee0b): New Crowdin translations
+- [#4d2e7eb](https://github.com/pydio/cells/commit/4d2e7ebecf9dd723514be3d8a12b8b69904bfb1b): Merge pull request from pydio-i18n
+- [#fccccdf](https://github.com/pydio/cells/commit/fccccdf0d32d80f60c96367cdf18070f966f98af): More translations
+- [#92946e1](https://github.com/pydio/cells/commit/92946e1b1f9f11432818d28f743b07e19223fc91): Fix a few en messages
+- [#7c1feea](https://github.com/pydio/cells/commit/7c1feeab88074a0d3e6b1291c062f86f9ccb2eec): Fix ugly logout on public links
+- [#2116350](https://github.com/pydio/cells/commit/2116350b27f9a6c11ac022c93724c0d5478b5083): Fix js error
+- [#7dfd247](https://github.com/pydio/cells/commit/7dfd247d7755c6785b252546291fd5b426ef8d86): Fix FF scrolling issues (flexbox+overflow)
+- [#3ae7720](https://github.com/pydio/cells/commit/3ae772035f2a1e3afee1f2345381bd91e630641b): Change default MaterialTable header style
+- [#0688e98](https://github.com/pydio/cells/commit/0688e98da2ae55b25797d510bd474d7027fa761f): Missing import
+- [#e710195](https://github.com/pydio/cells/commit/e710195adb824f11fa20468b1bbaa9832210846b): Audit public link access
+- [#36d5c62](https://github.com/pydio/cells/commit/36d5c625a62343e62db92290d2c1c411640c33cf): Dashboard and activity
+- [#b832ae3](https://github.com/pydio/cells/commit/b832ae3abb34879c55e3d65bec2f16f0879b18ce): For quickness
+- [#6842733](https://github.com/pydio/cells/commit/6842733915355a73438571a267c6181d26d7c0a1): Implement GetUser to comply with api
+- [#cc3cb06](https://github.com/pydio/cells/commit/cc3cb065c787a2f6ab0d35d04c7b9915b854a262): Fix unit test after renaming files
+- [#3481edc](https://github.com/pydio/cells/commit/3481edc91192f746e9b46074d55c63697fd5ecb6): Fix multiple read events when streaming a file : log only when offset if 0.
+- [#2e01e1f](https://github.com/pydio/cells/commit/2e01e1fbbc9f2ee119dfabb3ae57aea1ed7b8873): Rename and reorder embedded file templates
+- [#9749344](https://github.com/pydio/cells/commit/97493441cb6ae9dc7434fcb63ee3be27ca4fecec): Fix notification email subject
+- [#2ee77e9](https://github.com/pydio/cells/commit/2ee77e95db343d90a515f69f7a57208f74089e04): Merge back from pydio-i18n
+- [#38df9ab](https://github.com/pydio/cells/commit/38df9ab118ea371c914c547b4f0342595a85bff1): New translations from Crowdin
+- [#b49e554](https://github.com/pydio/cells/commit/b49e5549ffa7cf34dcde1802fda8fb096b28cca4): Add parameter to form configs for insecureSkipVerify
+- [#d213676](https://github.com/pydio/cells/commit/d213676acaadf14ec8c8d80386c5fa0f9b75bf5f): Fix rename / mkdir / mkfile dialogs: prevent using / in filename, pre-select the base of the name (without extension).
+- [#a2fdc0a](https://github.com/pydio/cells/commit/a2fdc0a72a361b2a51818faa2578987ae5cfd430): fix param name in pydio.json
+- [#47d5963](https://github.com/pydio/cells/commit/47d5963cc30a51b7bafd910600692f5977ea16b0): add UnsecuredSkipVerify smtp cert
+- [#1957d5d](https://github.com/pydio/cells/commit/1957d5d46041418dd6d4f689dce6f5e4ccc0cb8d): Prevent creating user with an existing login
+- [#582424f](https://github.com/pydio/cells/commit/582424fa6ea164dc5f8e9c46378a11a3c85ecaa0): Adapt GenericEditor with to one column when necessary. Expose a SimpleLinkCard component.
+- [#b45a3aa](https://github.com/pydio/cells/commit/b45a3aabd595b44742f77ae20b858b426d51c58c): Fix AddressBook messages when opening in popover: context is not transmitted, wrap component in a PydioContextProvider
+- [#0a69a2a](https://github.com/pydio/cells/commit/0a69a2ac04a5b746a6260fdd2fbc90f6a074febd): Fix issue with updates on encrypted datasource
+- [#2196097](https://github.com/pydio/cells/commit/21960973021271ef44c52e2f0de911a6ece0be7b): Make sure to initialize zapFields event to an empty string, as a nil field crashes...
