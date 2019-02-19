@@ -68,7 +68,7 @@ class Editor extends Component {
 
         let alwaysOpenLinksInBrowser = (configs.get('OPEN_LINK_IN_TAB') === 'browser');
 
-        PydioApi.getClient().getPlainContent(node, ({responseText: url}) => {
+        PydioApi.getClient().getPlainContent(node, (url) => {
             if (url.indexOf('URL=') !== -1) {
                 url = url.split('URL=')[1];
                 if(url.indexOf('\n') !== -1){
