@@ -148,7 +148,7 @@ var Editor = (function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            return _react2['default'].createElement('iframe', { style: Editor.styles.iframe, src: this.state.frameSrc });
+            return _react2['default'].createElement('iframe', { style: Editor.styles.iframe, src: this.state.frameSrc, sandbox: "" });
         }
     }]);
 

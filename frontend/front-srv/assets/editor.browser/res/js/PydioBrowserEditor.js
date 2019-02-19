@@ -106,7 +106,7 @@ class Editor extends Component {
 
     render() {
         return (
-            <iframe  style={Editor.styles.iframe} src={this.state.frameSrc} />
+            <iframe  style={Editor.styles.iframe} src={this.state.frameSrc} sandbox={""} />
         )
     }
 }
