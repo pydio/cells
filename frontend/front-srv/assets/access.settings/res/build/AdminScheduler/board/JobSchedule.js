@@ -52,6 +52,8 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 var _materialUi = require('material-ui');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
@@ -86,9 +88,15 @@ var JobSchedule = (function (_React$Component) {
             var frequency = this.state.frequency;
 
             if (frequency === 'manual') {
-                job.Schedule = null;
+                if (job.Schedule !== undefined) {
+                    delete job.Schedule;
+                }
+                job.AutoStart = true;
             } else {
                 job.Schedule = { Iso8601Schedule: JobSchedule.makeIso8601FromState(this.state) };
+                if (job.AutoStart !== undefined) {
+                    delete job.AutoStart;
+                }
             }
             _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                 var SchedulerServiceApi = sdk.SchedulerServiceApi;
@@ -96,7 +104,11 @@ var JobSchedule = (function (_React$Component) {
 
                 var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
                 var req = new JobsPutJobRequest();
-                req.Job = job;
+                // Clone and remove tasks
+                req.Job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+                if (req.Job.Tasks !== undefined) {
+                    delete req.Job.Tasks;
+                }
                 api.putJob(req).then(function () {
                     onUpdate();
                     _this.setState({ open: false });
@@ -125,7 +137,7 @@ var JobSchedule = (function (_React$Component) {
             }
             if (daytime === undefined) {
                 daytime = moment();
-                daytime.years(2012);
+                daytime.year(2012);
                 daytime.hours(9);
                 daytime.minutes(0);
                 daytime = daytime.toDate();

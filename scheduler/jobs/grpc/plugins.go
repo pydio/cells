@@ -22,18 +22,25 @@
 package grpc
 
 import (
+	"context"
 	"path"
 
 	"github.com/micro/go-micro"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/broker/log"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	log3 "github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	proto "github.com/pydio/cells/common/proto/jobs"
 	log2 "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/scheduler/jobs"
+)
+
+var (
+	Migration140 = false
 )
 
 func init() {
@@ -43,6 +50,16 @@ func init() {
 			service.Tag(common.SERVICE_TAG_SCHEDULER),
 			service.Description("Store for scheduler jobs description"),
 			service.Unique(true),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.ValidVersion("1.4.0"),
+					Up: func(ctx context.Context) error {
+						// Set flag for migration script to be run AfterStart (see below, handler cannot be shared)
+						Migration140 = true
+						return nil
+					},
+				},
+			}),
 			service.WithMicro(func(m micro.Service) error {
 				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_JOBS)
 				if e != nil {
@@ -76,6 +93,18 @@ func init() {
 						}
 						// Clean tasks stuck in "Running" status
 						handler.CleanStuckTasks(m.Options().Context)
+						if Migration140 {
+							response := &proto.DeleteTasksResponse{}
+							if e = handler.DeleteTasks(m.Options().Context, &proto.DeleteTasksRequest{
+								JobId:      "users-activity-digest",
+								Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+								PruneLimit: 1,
+							}, response); e == nil {
+								log3.Logger(m.Options().Context).Info("Migration 1.4.0: removed tasks that could fill up the scheduler", zap.Any("number", len(response.Deleted)))
+							} else {
+								return e
+							}
+						}
 						return nil
 					}),
 				)

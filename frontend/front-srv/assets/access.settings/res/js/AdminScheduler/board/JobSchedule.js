@@ -22,6 +22,7 @@ import React from 'react'
 import Pydio from 'pydio'
 import ResourcesManager from 'pydio/http/resources-manager'
 import PydioApi from 'pydio/http/api'
+import {JobsJob} from 'pydio/http/rest-api'
 const {moment} = Pydio.requireLib('boot');
 import {Dialog, FlatButton, SelectField, MenuItem, TimePicker, TextField, FontIcon} from 'material-ui'
 
@@ -42,15 +43,25 @@ class JobSchedule extends React.Component {
         const {job, onUpdate} = this.props;
         const {frequency} = this.state;
         if(frequency === 'manual'){
-            job.Schedule = null;
+            if(job.Schedule !== undefined){
+                delete job.Schedule;
+            }
+            job.AutoStart = true;
         } else {
             job.Schedule = {Iso8601Schedule: JobSchedule.makeIso8601FromState(this.state)};
+            if(job.AutoStart !== undefined){
+                delete job.AutoStart;
+            }
         }
         ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
             const {SchedulerServiceApi, JobsPutJobRequest} = sdk;
             const api = new SchedulerServiceApi(PydioApi.getRestClient());
             const req = new JobsPutJobRequest();
-            req.Job = job;
+            // Clone and remove tasks
+            req.Job = JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+            if(req.Job.Tasks !== undefined){
+                delete req.Job.Tasks;
+            }
             api.putJob(req).then(()=>{
                 onUpdate();
                 this.setState({open: false});
@@ -134,7 +145,7 @@ class JobSchedule extends React.Component {
         }
         if(daytime === undefined){
             daytime = moment();
-            daytime.years(2012);
+            daytime.year(2012);
             daytime.hours(9);
             daytime.minutes(0);
             daytime = daytime.toDate();
