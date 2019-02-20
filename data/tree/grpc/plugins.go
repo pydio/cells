@@ -28,9 +28,9 @@ import (
 	"github.com/micro/go-micro/server"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {

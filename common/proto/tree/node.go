@@ -39,7 +39,7 @@ import (
 /* VARIOUS HELPERS TO MANAGE NODES */
 
 // Clone node to avoid modifying it directly
-func (node *Node) Clone() *Node{
+func (node *Node) Clone() *Node {
 	return proto.Clone(node).(*Node)
 }
 

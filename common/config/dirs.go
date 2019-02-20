@@ -25,8 +25,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/shibukawa/configdir"
 	"runtime"
+
+	"github.com/shibukawa/configdir"
 )
 
 // ApplicationDataDir creates a local file to store pydio system data

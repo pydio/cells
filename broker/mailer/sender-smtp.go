@@ -22,8 +22,8 @@ package mailer
 
 import (
 	"context"
-	"fmt"
 	"crypto/tls"
+	"fmt"
 	"strconv"
 
 	"go.uber.org/zap"
@@ -35,10 +35,10 @@ import (
 )
 
 type Smtp struct {
-	User     string
-	Password string
-	Host     string
-	Port     int
+	User               string
+	Password           string
+	Host               string
+	Port               int
 	InsecureSkipVerify bool
 }
 
@@ -80,7 +80,7 @@ func (gm *Smtp) Configure(conf config.Map) error {
 		gm.Port = int(portConf.(float64))
 	}
 	// Set defaul to be false.
-	gm.InsecureSkipVerify = false	
+	gm.InsecureSkipVerify = false
 	if conf.Get("insecureSkipVerify") != nil {
 		gm.InsecureSkipVerify = conf.Get("insecureSkipVerify").(bool)
 	}
@@ -98,7 +98,7 @@ func (gm *Smtp) Send(email *mailer.Mail) error {
 	d := gomail.NewDialer(gm.Host, gm.Port, gm.User, gm.Password)
 	tlsConfig := tls.Config{
 		InsecureSkipVerify: gm.InsecureSkipVerify,
-		ServerName: gm.Host,
+		ServerName:         gm.Host,
 	}
 	d.TLSConfig = &tlsConfig
 	return d.DialAndSend(m)

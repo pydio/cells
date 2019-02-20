@@ -29,11 +29,11 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils"
 	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/minio-srv/cmd/gateway/pydio"
-	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 )
 

@@ -53,7 +53,7 @@ type EncryptionClientMock struct{}
 func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	handler := &EncryptionHandler{
-		// 		UserTools: &EncryptionClientMock{},
+	// 		UserTools: &EncryptionClientMock{},
 	}
 	mock := NewHandlerMock()
 	mock.Nodes["test"] = &tree.Node{Path: "test"}

@@ -27,9 +27,9 @@ import (
 	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/plugins"
 )
 
 var (

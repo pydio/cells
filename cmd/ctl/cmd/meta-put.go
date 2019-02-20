@@ -26,8 +26,8 @@ import (
 	"log"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/spf13/cobra"
 )
 
