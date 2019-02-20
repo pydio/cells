@@ -27,8 +27,8 @@ import (
 	"github.com/jcuga/golongpoll"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/common/service"
 )
 
 var (

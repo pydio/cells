@@ -1,4 +1,5 @@
 package rest
+
 var SwaggerJson = `{
   "swagger": "2.0",
   "info": {

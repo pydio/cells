@@ -36,8 +36,8 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/chat"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/chat"
 	"github.com/pydio/cells/common/views"
 )
 

@@ -31,9 +31,9 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 	"github.com/spf13/cobra"
 )

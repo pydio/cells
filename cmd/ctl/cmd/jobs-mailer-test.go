@@ -24,8 +24,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/spf13/cobra"
 )
 

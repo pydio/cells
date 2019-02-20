@@ -35,7 +35,10 @@ import (
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
+	"context"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
@@ -45,8 +48,6 @@ import (
 	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/idm/share"
-	"github.com/pydio/cells/common/auth/claim"
-	"context"
 )
 
 // SharesHandler implements handler methods for the share REST service.
@@ -78,9 +79,9 @@ func (h *SharesHandler) IdmUserFromClaims(ctx context.Context) *idm.User {
 	userId, _ := claims.DecodeUserUuid()
 	userName := claims.Name
 	return &idm.User{
-		Uuid:userId,
-		Login:userName,
-		GroupPath:claims.GroupPath,
+		Uuid:      userId,
+		Login:     userName,
+		GroupPath: claims.GroupPath,
 	}
 }
 

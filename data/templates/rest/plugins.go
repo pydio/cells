@@ -22,9 +22,9 @@ package rest
 
 import (
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/templates"
-	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {

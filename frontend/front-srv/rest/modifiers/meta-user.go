@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/frontend"
 )
 

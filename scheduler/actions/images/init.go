@@ -22,8 +22,8 @@
 package images
 
 import (
-	"github.com/pydio/cells/scheduler/actions"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/scheduler/actions"
 )
 
 // init auto registers image-related tasks.
@@ -51,7 +51,7 @@ var (
 
 func getRouter() *views.Router {
 	if router == nil {
-		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry:true})
+		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
 	}
 	return router
 }

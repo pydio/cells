@@ -8,9 +8,9 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
 )
