@@ -76,11 +76,11 @@ $ pydioctl user create -u 'user' -p 'a password'
 		}
 
 		newUser := &idm.User{
-			Login:    userCreateLogin,
-			Password: userCreatePassword,
-			Policies: policies,
+			Login:      userCreateLogin,
+			Password:   userCreatePassword,
+			Policies:   policies,
+			Attributes: map[string]string{"profile": common.PYDIO_PROFILE_STANDARD},
 		}
-		newUser.Attributes["profile"] = common.PYDIO_PROFILE_STANDARD
 
 		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 		response, err := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: newUser})
