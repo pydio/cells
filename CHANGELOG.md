@@ -2,6 +2,8 @@
 
 [See Full Changelog](https://github.com/pydio/cells/compare/v1.2.5...v1.4.0)
 
+- [#3708045](https://github.com/pydio/cells/commit/3708045755131242c651710aa5d00fce09ac1194): Do not set configs inside promptSslMode()
+- [#d12f129](https://github.com/pydio/cells/commit/d12f1296b57cf1923a0e86a869780030bff08865): Release v1.4.0
 - [#49e6194](https://github.com/pydio/cells/commit/49e6194a3a03c52e372a6b6c2ba39177cf0ba83c): Fix paginator on light theme
 - [#c4ad8ec](https://github.com/pydio/cells/commit/c4ad8ec6e3dafecfa27bb915797f8bdb4d92ca19): Remove also tasks from resync-changes-job as it fills up the scheduler
 - [#29033f2](https://github.com/pydio/cells/commit/29033f222ba6e1f0ac717953622acc3aeb57ae6e): Scheduler: add small migration to clear user activities tasks
