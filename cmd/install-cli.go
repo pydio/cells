@@ -119,7 +119,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 		defaultExternal = parts[0]
 	}
 
-	sslEnabled, e := promptSslMode()
+	sslEnabled, certData, e := promptSslMode()
 	if e != nil {
 		return
 	}
@@ -153,6 +153,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 
 	config.Set(externalUrl, "defaults", "url")
 	config.Set(internalUrl, "defaults", "urlInternal")
+	config.Set(certData, "cert")
 	config.Save("cli", "Install / Setting default URLs")
 
 	return

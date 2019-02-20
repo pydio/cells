@@ -52,7 +52,7 @@ Four modes are currently supported :
 		intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
 
 		// Get SSL info from end user
-		enabled, e := promptSslMode()
+		enabled, certData, e := promptSslMode()
 		if e != nil {
 			log.Fatal(e)
 		}
@@ -67,6 +67,7 @@ Four modes are currently supported :
 		}
 		config.Set(extURL.String(), "defaults", "url")
 		config.Set(intURL.String(), "defaults", "urlInternal")
+		config.Set(certData, "cert")
 		if e := config.Save("cli", "Update SSL mode"); e != nil {
 			cmd.Println("Error while saving config: " + e.Error())
 		}
@@ -75,17 +76,17 @@ Four modes are currently supported :
 		cmd.Println(" Config has been updated, please restart now!")
 		cmd.Println("**************************************************************")
 
-		// fmt.Printf("[DEBUG] ssl enable: %v, certFile: %s, keyFile: %s, certEmail: %s, caUrl: %s\n",
-		// 	config.Get("cert", "proxy", "ssl").Bool(false),
-		// 	config.Get("cert", "proxy", "certFile").String(""),
-		// 	config.Get("cert", "proxy", "keyFile").String(""),
-		// 	config.Get("cert", "proxy", "email").String(""),
-		// 	config.Get("cert", "proxy", "caUrl").String(""))
 	},
 }
 
-func promptSslMode() (enabled bool, e error) {
+func promptSslMode() (enabled bool, certData map[string]interface{}, e error) {
 
+	proxyData := make(map[string]interface{})
+	certData = map[string]interface{}{
+		"proxy": proxyData,
+	}
+
+	// Load defaults
 	certFile := config.Get("cert", "proxy", "certFile").String("")
 	keyFile := config.Get("cert", "proxy", "keyFile").String("")
 	certEmail := config.Get("cert", "proxy", "email").String("")
@@ -117,14 +118,10 @@ func promptSslMode() (enabled bool, e error) {
 			return
 		}
 		enabled = true
-		// insure unused values are unset
-		config.Del("cert", "proxy", "email")
-		config.Del("cert", "proxy", "caUrl")
-
-		config.Set(true, "cert", "proxy", "ssl")
-		config.Set(false, "cert", "proxy", "self")
-		config.Set(certFile, "cert", "proxy", "certFile")
-		config.Set(keyFile, "cert", "proxy", "keyFile")
+		proxyData["ssl"] = true
+		proxyData["self"] = false
+		proxyData["certFile"] = certFile
+		proxyData["keyFile"] = keyFile
 
 	case 1:
 		mailPrompt := promptui.Prompt{Label: "Please enter the mail address for certificate generation", Default: certEmail}
@@ -143,35 +140,20 @@ func promptSslMode() (enabled bool, e error) {
 			e = fmt.Errorf("You must agree to Let's Encrypt SA to use automated certificate generation feature.")
 			return
 		}
-
 		enabled = true
-		config.Del("cert", "proxy", "certFile")
-		config.Del("cert", "proxy", "keyFile")
+		proxyData["ssl"] = true
+		proxyData["self"] = false
+		proxyData["email"] = certEmail
+		proxyData["caUrl"] = caURL
 
-		config.Set(true, "cert", "proxy", "ssl")
-		config.Set(false, "cert", "proxy", "self")
-		config.Set(certEmail, "cert", "proxy", "email")
-		config.Set(caURL, "cert", "proxy", "caUrl")
 	case 2:
-		config.Del("cert", "proxy", "certFile")
-		config.Del("cert", "proxy", "keyFile")
-		config.Del("cert", "proxy", "email")
-		config.Del("cert", "proxy", "caUrl")
-
 		enabled = true
-		config.Set(true, "cert", "proxy", "ssl")
-		config.Set(true, "cert", "proxy", "self")
+		proxyData["ssl"] = true
+		proxyData["self"] = true
 	case 3:
-		config.Del("cert", "proxy", "self")
-		config.Del("cert", "proxy", "certFile")
-		config.Del("cert", "proxy", "keyFile")
-		config.Del("cert", "proxy", "email")
-		config.Del("cert", "proxy", "caUrl")
-
-		config.Set(false, "cert", "proxy", "ssl")
+		proxyData["ssl"] = false
 	}
 
-	enableRedir := false
 	if enabled {
 		redirPrompt := promptui.Select{
 			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning: this requires the right to bind to port 80 on this machine.",
@@ -180,15 +162,10 @@ func promptSslMode() (enabled bool, e error) {
 				"No",
 			}}
 		if i, _, e = redirPrompt.Run(); e == nil && i == 0 {
-			enableRedir = true
+			proxyData["httpRedir"] = true
 		}
 	}
-	if enableRedir {
-		config.Set(true, "cert", "proxy", "httpRedir")
-	} else if config.Get("cert", "proxy", "httpRedir").Bool(false) {
-		config.Del("cert", "proxy", "httpRedir")
-	}
-	// config.Save("cli", "Install / Configure internal proxy")
+
 	return
 }
 
