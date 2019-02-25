@@ -28,6 +28,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
@@ -40,7 +41,7 @@ import (
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/discovery/install/assets"
@@ -151,11 +152,15 @@ var installCmd = &cobra.Command{
 			internal, _ = url.Parse(prefix + niBindUrl)
 			config.Set(internal.String(), "defaults", "urlInternal")
 
-			external, _ = url.Parse(prefix + niExtUrl)
+			// Enables more complex configs with a proxy.
+			if strings.HasPrefix(niExtUrl, "http://") || strings.HasPrefix(niExtUrl, "https://") {
+				external, _ = url.Parse(niExtUrl)
+			} else {
+				external, _ = url.Parse(prefix + niExtUrl)
+			}
 			config.Set(external.String(), "defaults", "url")
 
 			config.Save("cli", saveMsg)
-
 		} else {
 			// Gather necessary basic info via the command line
 			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
