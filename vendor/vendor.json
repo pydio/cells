@@ -4,6 +4,10 @@
 	"ignore": "test",
 	"package": [
 		{
+			"path": "appengine/cloudsql",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "ZLRh6zW4/DnVsGpgtt+ZiIaEFKc=",
 			"path": "cloud.google.com/go/compute/metadata",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
@@ -710,8 +714,8 @@
 		{
 			"checksumSHA1": "gJqPpMcZ+8pC1D1dMIvnO09vO6w=",
 			"path": "github.com/coreos/dex",
-			"revision": "5555f3fbe1580749a295466e00e0fa136776656c",
-			"revisionTime": "2018-07-25T16:52:35Z"
+			"revision": "ccc655d04a4252d135b951565dcf3102f20cdb4c",
+			"revisionTime": "2019-02-27T14:54:11Z"
 		},
 		{
 			"checksumSHA1": "0a1SxY6u2ChUk16fhbO3pcFf41M=",
@@ -798,10 +802,10 @@
 			"revisionTime": "2018-09-03T10:08:24Z"
 		},
 		{
-			"checksumSHA1": "Ph8SuDDlbM1I5dqe6Ph5n1pB5/4=",
+			"checksumSHA1": "ysxynOf3GZSmzO8iwbJfEkpcOvE=",
 			"path": "github.com/coreos/dex/storage/sql",
-			"revision": "b74f7426e984abdcec4e7a5622f09fb1b841b853",
-			"revisionTime": "2018-11-22T17:30:00Z"
+			"revision": "ccc655d04a4252d135b951565dcf3102f20cdb4c",
+			"revisionTime": "2019-02-27T14:54:11Z"
 		},
 		{
 			"checksumSHA1": "bUKVUnGHjs8pb4RNhoO+j6P5hKc=",
@@ -1095,10 +1099,12 @@
 			"revisionTime": "2018-03-02T19:28:43Z"
 		},
 		{
-			"checksumSHA1": "K6icEVf2CuBzhLm/MGpRd1btshM=",
+			"checksumSHA1": "yg01DVQJjQgMeXf9C7Fpl2Yo5+Y=",
 			"path": "github.com/go-sql-driver/mysql",
-			"revision": "1a676ac6e4dce68e9303a1800773861350374a9e",
-			"revisionTime": "2018-03-08T10:03:10Z"
+			"revision": "72cd26f257d44c1114970e19afddcd812016007e",
+			"revisionTime": "2018-11-14T12:08:49Z",
+			"version": "=v1.4.1",
+			"versionExact": "v1.4.1"
 		},
 		{
 			"checksumSHA1": "mBilwl7QZtl//Lzq/XwAIuISIlc=",
@@ -4383,6 +4389,12 @@
 			"path": "google.golang.org/appengine",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
 			"revisionTime": "2018-04-06T17:35:14Z"
+		},
+		{
+			"checksumSHA1": "LiyXfqOzaeQ8vgYZH3t2hUEdVTw=",
+			"path": "google.golang.org/appengine/cloudsql",
+			"revision": "54a98f90d1c46b7731eb8fb305d2a321c30ef610",
+			"revisionTime": "2019-02-15T20:43:44Z"
 		},
 		{
 			"checksumSHA1": "0cJZ65GnkujQ8FS245++cBBmNVM=",

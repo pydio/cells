@@ -58,7 +58,7 @@ func init() {
 					StopService = s.Stop
 					return nil
 				})
-				o.BeforeStop = append(o.BeforeStop, func(s service.Service) (e error) {
+				o.AfterStop = append(o.AfterStop, func(s service.Service) (e error) {
 					defer func() {
 						// ignore
 						recover()

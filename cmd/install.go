@@ -235,7 +235,16 @@ var installCmd = &cobra.Command{
 			s.Start()
 		}
 
-		installFinished := make(chan bool, 1)
+		config.Save("cli", "Install / Saving final configs")
+
+		caddy.Enable(caddyfile, play)
+
+		if err := caddy.Start(); err != nil {
+			cmd.Print(err)
+			os.Exit(1)
+		}
+
+		// installFinished := make(chan bool, 1)
 		// starting the installation REST service
 		for _, s := range registry.Default.GetServicesByName(common.SERVICE_INSTALL) {
 			sServ := s.(service.Service)
@@ -249,34 +258,19 @@ var installCmd = &cobra.Command{
 				newFlags = append(newFlags, f)
 			}
 			sServ.Options().Web.Options().Cmd.App().Flags = newFlags
-			sServ.Options().Web.Init(web.AfterStop(func() error {
-				installFinished <- true
-				return nil
-			}))
+			sServ.Options().Web.Init(
+				web.AfterStart(func() error {
+					open(external.String())
+
+					return nil
+				}),
+			)
+
 			s.Start()
 		}
 
-		config.Save("cli", "Install / Saving final configs")
-
-		caddy.Enable(caddyfile, play)
-
-		if err := caddy.Start(); err != nil {
-			cmd.Print(err)
-			os.Exit(1)
-		}
-
 		instance := caddy.GetInstance()
-
-		open(external.String())
-
-		go func() {
-			// Waiting on caddy
-			instance.Wait()
-		}()
-
-		<-installFinished
-		instance.ShutdownCallbacks()
-		instance.Stop()
+		instance.Wait()
 
 		fmt.Println("")
 		fmt.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")

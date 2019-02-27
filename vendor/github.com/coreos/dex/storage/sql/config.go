@@ -9,6 +9,7 @@ import (
 	"github.com/coreos/dex/storage"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	sqlite3 "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 )
 
@@ -48,12 +49,11 @@ func (s *SQLite3) open(logger logrus.FieldLogger) (*conn, error) {
 	}
 
 	errCheck := func(err error) bool {
-		return false
-		/*sqlErr, ok := err.(sqlite3.Error)
+		sqlErr, ok := err.(sqlite3.Error)
 		if !ok {
 			return false
 		}
-		return sqlErr.ExtendedCode == sqlite3.ErrConstraintPrimaryKey*/
+		return sqlErr.ExtendedCode == sqlite3.ErrConstraintPrimaryKey
 	}
 
 	c := &conn{db, flavorSQLite3, logger, errCheck}
@@ -175,7 +175,6 @@ func (s *MySQL) open(logger logrus.FieldLogger) (*conn, error) {
 
 	params := make(map[string]string)
 	params["autocommit"] = "false"
-	params["tx_isolation"] = "SERIALIZABLE"
 	dexDSN.Params = params
 
 	db, err := sql.Open("mysql", dexDSN.FormatDSN())
@@ -198,6 +197,11 @@ func (s *MySQL) open(logger logrus.FieldLogger) (*conn, error) {
 	}
 
 	c := &conn{db, flavorMySQL, logger, errCheck}
+
+	if _, err := c.Exec("SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE"); err != nil {
+		return nil, fmt.Errorf("failed to set transaction isolation level: %v", err)
+	}
+
 	if _, err := c.migrate(); err != nil {
 		return nil, fmt.Errorf("failed to open migrations: %v", err)
 	}
