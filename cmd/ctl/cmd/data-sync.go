@@ -22,13 +22,12 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/spf13/cobra"
 
-	"time"
-
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/sync"
 	context2 "github.com/pydio/cells/common/utils/context"
 )
@@ -38,7 +37,7 @@ var (
 	syncPath    string
 )
 
-// syncCmd represents the resync command
+// dataSyncCmd represents the resync command
 var dataSyncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Trigger index resync",
