@@ -40,6 +40,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/boltdb"
+	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/common/sql"
+
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
@@ -49,14 +53,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 
-	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/utils"
 )
 
@@ -324,26 +325,6 @@ func NewService(opts ...ServiceOption) Service {
 			log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
 
 			return nil
-		}),
-
-		// Checking the service is running
-		AfterStart(func(_ Service) error {
-			log.Logger(ctx).Debug("AfterStart - Check service is running")
-
-			tick := time.Tick(10 * time.Millisecond)
-
-			for {
-				select {
-				case <-ctx.Done():
-					// We have stopped properly - errorr should be logged elsewhere if there was one
-					return nil
-				case <-tick:
-					if s.IsRunning() {
-						log.Logger(ctx).Debug("AfterStart - Service is running")
-						return nil
-					}
-				}
-			}
 		}),
 	)
 
