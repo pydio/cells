@@ -48,7 +48,7 @@ var servicesDepsCmd = &cobra.Command{
 	},
 }
 
-// List dependencies recursively. Ignore nats or consul.
+// List dependencies recursively. Ignore nats.
 func listDeps(service registry.Service, sep string) {
 	for _, dep := range service.GetDependencies() {
 		var sub string

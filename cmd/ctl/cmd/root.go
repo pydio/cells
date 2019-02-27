@@ -33,7 +33,6 @@ import (
 	// commonlog "github.com/pydio/cells/common/log"
 
 	// All registries
-	consulregistry "github.com/pydio/cells/common/micro/registry/consul"
 	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
 
 	"log"
@@ -94,8 +93,6 @@ func handleRegistry() {
 	switch viper.Get("registry") {
 	case "nats":
 		natsregistry.Enable()
-	case "consul":
-		consulregistry.Enable()
 	default:
 		log.Fatal("registry not supported")
 	}

@@ -37,8 +37,7 @@ type (
 
 // Defines all constants for services names.
 const (
-	SERVICE_CONSUL = "consul"
-	SERVICE_NATS   = "nats"
+	SERVICE_NATS = "nats"
 
 	SERVICE_LOG     = "log"
 	SERVICE_CONFIG  = "config"

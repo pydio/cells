@@ -50,7 +50,6 @@ import (
 	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
 
 	// All registries
-	consulregistry "github.com/pydio/cells/common/micro/registry/consul"
 	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
 
 	// All transports
@@ -93,9 +92,8 @@ variable to one of the following values:
 
 ### Services Discovery
 
-Micro services need a registry mechanism to discover each other. By default, Pydio Cells ships with Nats.io and Consul.io implementations.
-You don't need to install any dependency. By default, Cells uses the NATS implementation. You can switch to consul by using
-the flag --registry=consul.
+Micro services need a registry mechanism to discover each other. You don't need to install any dependency. 
+Cells currently only supports NATS (nats.io) implementation. If a gnatsd service is already running, it will be detected.
 
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {},
@@ -156,16 +154,16 @@ func init() {
 
 	flags := RootCmd.PersistentFlags()
 
-	flags.String("registry", "nats", "Registry used to manage services")
-	flags.String("registry_address", ":4222", "Registry used to manage services")
-	flags.String("registry_cluster_address", ":5222", "Registry used to manage services")
-	flags.String("registry_cluster_routes", "", "Registry used to manage services")
+	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
+	flags.String("registry_address", ":4222", "Registry connection address")
+	flags.String("registry_cluster_address", ":5222", "Registry cluster address")
+	flags.String("registry_cluster_routes", "", "Registry cluster routes")
 
-	flags.String("broker", "nats", "Registry used to manage services")
-	flags.String("broker_address", ":4222", "Registry used to manage services")
+	flags.String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
+	flags.String("broker_address", ":4222", "Broker port")
 
-	flags.String("transport", "grpc", "Registry used to manage services")
-	flags.String("transport_address", ":4222", "Registry used to manage services")
+	flags.String("transport", "grpc", "Transport protocol for RPC")
+	flags.String("transport_address", ":4222", "Transport protocol port")
 
 	flags.String("log", "info", "Sets the log level mode")
 	flags.String("grpc_cert", "", "Certificates used for communication via grpc")
@@ -200,7 +198,6 @@ func Execute() {
 
 	nats.Init()
 	metrics.Init()
-	// consul.Init()
 
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -246,10 +243,8 @@ func handleRegistry() {
 	switch viper.Get("registry") {
 	case "nats":
 		natsregistry.Enable()
-	case "consul":
-		consulregistry.Enable()
 	default:
-		log.Fatal("registry not supported")
+		log.Fatal("registry not supported - currently only nats is supported")
 	}
 }
 

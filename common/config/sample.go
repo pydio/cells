@@ -39,11 +39,6 @@ var SampleConfig = `{
         }
     },
     "services":{
-        "consul": {
-            "data_dir": "/tmp/consul",
-            "server": true,
-            "bootstrap": true
-        },
         "pydio.grpc.config":{
             "dsn": "default"
         },

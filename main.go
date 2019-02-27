@@ -24,7 +24,6 @@ import (
 	"github.com/pydio/cells/cmd"
 
 	// Making sure they are initialised first
-	_ "github.com/pydio/cells/discovery/consul"
 	_ "github.com/pydio/cells/discovery/nats"
 
 	_ "github.com/pydio/cells/discovery/config/grpc"
