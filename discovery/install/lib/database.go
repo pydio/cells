@@ -64,8 +64,6 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 	// Check DB Connection
 	dsn := conf.FormatDSN()
 
-	fmt.Println(dsn)
-
 	return dsn, nil
 
 }
