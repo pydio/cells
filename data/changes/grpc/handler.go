@@ -27,6 +27,9 @@ import (
 	"strings"
 	"time"
 
+	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/scheduler/tasks"
+
 	"go.uber.org/zap"
 
 	"github.com/micro/protobuf/ptypes"
@@ -111,20 +114,27 @@ func (h Handler) OnTreeEvent(ctx context.Context, event *tree.NodeChangeEvent) e
 // TriggerResync allows a resync to be triggered by the pydio client
 func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, resp *sync.ResyncResponse) error {
 
-	log.Logger(ctx).Info("[Changes] Starting Resync Action For Changes")
+	log.Logger(ctx).Debug("[Changes] Starting Resync Action For Changes")
 
 	var outputError error
-	var taskClient jobs.JobServiceClient
+	subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
+	taskClient := tasks.NewTaskReconnectingClient(subCtx)
+	taskChan := make(chan interface{})
+	taskClient.StartListening(taskChan)
 	var theTask *jobs.Task
 	if req.Task != nil {
-		taskClient = jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
 		theTask = req.Task
+		theTask.StatusMessage = "Starting"
+		theTask.Progress = 0
+		theTask.Status = jobs.TaskStatus_Running
 		theTask.StartTime = int32(time.Now().Unix())
+		log.TasksLogger(ctx).Info("Starting Resync")
 		defer func() {
+			theTask.EndTime = int32(time.Now().Unix())
 			if outputError != nil {
 				theTask.StatusMessage = outputError.Error()
 				theTask.Status = jobs.TaskStatus_Error
-				theTask.EndTime = int32(time.Now().Unix())
+				log.TasksLogger(ctx).Error(outputError.Error(), zap.Error(outputError))
 				theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
 					OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{
 						Time:        int32(time.Now().Unix()),
@@ -136,9 +146,7 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 				theTask.Status = jobs.TaskStatus_Finished
 				theTask.EndTime = int32(time.Now().Unix())
 			}
-			if _, e := taskClient.PutTask(ctx, &jobs.PutTaskRequest{Task: theTask}); e != nil {
-				log.Logger(ctx).Error("[Changes] Could not update task", zap.Error(e))
-			}
+			taskChan <- theTask
 		}()
 	}
 
@@ -168,6 +176,8 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 		if listResp == nil {
 			continue
 		}
+		log.Logger(ctx).Debug("[Changes] Listing node", listResp.Node.ZapPath())
+
 		node := listResp.Node
 		if strings.HasSuffix(node.GetPath(), common.PYDIO_SYNC_HIDDEN_FILE_META) ||
 			strings.HasSuffix(node.GetPath(), ".ajxp_recycle_cache.ser") ||
@@ -177,26 +187,21 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 		if ok, err := dao.HasNodeById(node.Uuid); ok && err == nil {
 			continue
 		}
-		log.Logger(ctx).Debug("Manually creating node during changes re-indexation", node.Zap())
-		dao.Put(&tree.SyncChange{
+
+		e1 := dao.Put(&tree.SyncChange{
 			Type:   tree.SyncChange_create,
 			NodeId: node.Uuid,
 			Source: "",
 			Target: node.Path,
 		})
-		if req.Task != nil {
-			theTask.StatusMessage = "Indexing node " + node.GetPath()
+		if e1 != nil {
+			log.Logger(ctx).Error("Cannot update DAO", zap.Error(e1))
+		}
+		if theTask != nil {
+			theTask.StatusMessage = "Indexed missing node " + node.GetPath()
 			theTask.Status = jobs.TaskStatus_Running
-			theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-				OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{
-					StringBody: theTask.StatusMessage,
-					Time:       int32(time.Now().Unix()),
-				}}},
-			})
-			_, e := taskClient.PutTask(ctx, &jobs.PutTaskRequest{Task: theTask})
-			if e != nil {
-				log.Logger(ctx).Error("[Changes] Could not update task", zap.Error(e))
-			}
+			log.TasksLogger(ctx).Info(theTask.StatusMessage, node.Zap())
+			taskChan <- theTask
 		}
 	}
 

@@ -43,6 +43,10 @@ func init() {
 				ctx := m.Options().Context
 
 				engine := NewMetaServer()
+				m.Init(micro.BeforeStop(func() error {
+					engine.Stop()
+					return nil
+				}))
 
 				tree.RegisterNodeProviderHandler(m.Options().Server, engine)
 				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)

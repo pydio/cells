@@ -170,23 +170,25 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		if meta.Uuid != "" {
 			loadUuids = append(loadUuids, meta.Uuid)
 		}
-		// Special case for tags: automatically update stored list
-		var nsDef map[string]interface{}
-		if jE := json.Unmarshal([]byte(ns.JsonDefinition), &nsDef); jE == nil {
-			if _, ok := nsDef["type"]; ok {
-				nsType := nsDef["type"].(string)
-				if nsType == "tags" {
-					var currentValue string
-					json.Unmarshal([]byte(meta.JsonValue), &currentValue)
-					log.Logger(ctx).Debug("jsonDef for namespace "+ns.Namespace, zap.Any("d", nsDef), zap.Any("v", currentValue))
-					e := s.putTagsIfNecessary(ctx, ns.Namespace, strings.Split(currentValue, ","))
-					if e != nil {
-						log.Logger(ctx).Error("Could not store meta tags for namespace "+ns.Namespace, zap.Error(e))
+		if ns.JsonDefinition != "" {
+			// Special case for tags: automatically update stored list
+			var nsDef map[string]interface{}
+			if jE := json.Unmarshal([]byte(ns.JsonDefinition), &nsDef); jE == nil {
+				if _, ok := nsDef["type"]; ok {
+					nsType := nsDef["type"].(string)
+					if nsType == "tags" {
+						var currentValue string
+						json.Unmarshal([]byte(meta.JsonValue), &currentValue)
+						log.Logger(ctx).Debug("jsonDef for namespace "+ns.Namespace, zap.Any("d", nsDef), zap.Any("v", currentValue))
+						e := s.putTagsIfNecessary(ctx, ns.Namespace, strings.Split(currentValue, ","))
+						if e != nil {
+							log.Logger(ctx).Error("Could not store meta tags for namespace "+ns.Namespace, zap.Error(e))
+						}
 					}
 				}
+			} else {
+				log.Logger(ctx).Error("Cannot decode jsonDef "+ns.Namespace+": "+ns.JsonDefinition, zap.Error(jE))
 			}
-		} else {
-			log.Logger(ctx).Error("Cannot decode jsonDef "+ns.Namespace, zap.Error(jE))
 		}
 	}
 	// Some existing meta will be updated / deleted : load their policies and check their rights!
