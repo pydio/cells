@@ -54,7 +54,10 @@ func init() {
 				ctx := m.Options().Context
 				server := NewHandler()
 				m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
-
+				m.Init(micro.BeforeStop(func() error {
+					server.Stop()
+					return nil
+				}))
 				idm.RegisterUserMetaServiceHandler(m.Options().Server, server)
 				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, server)
 

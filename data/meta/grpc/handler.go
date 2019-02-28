@@ -24,7 +24,6 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/allegro/bigcache"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -35,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/data/meta"
 )
 
@@ -43,13 +42,17 @@ import (
 type MetaServer struct {
 	//	Dao           DAO
 	eventsChannel chan *event.EventWithContext
-	cache         *bigcache.BigCache
+	cache         *cache.InstrumentedCache
 }
 
 func NewMetaServer() *MetaServer {
 	m := &MetaServer{}
-	m.cache, _ = bigcache.NewBigCache(utils.DefaultBigCacheConfig())
+	m.cache = cache.NewInstrumentedCache(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_META)
 	return m
+}
+
+func (s *MetaServer) Stop() {
+	s.cache.Close()
 }
 
 // CreateNodeChangeSubscriber that will treat events for the meta server

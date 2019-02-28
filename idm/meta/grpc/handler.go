@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/allegro/bigcache"
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
@@ -37,20 +36,24 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/meta"
 )
 
 // Handler definition.
 type Handler struct {
-	searchCache *bigcache.BigCache
+	searchCache *cache.InstrumentedCache
 }
 
 func NewHandler() *Handler {
 	h := &Handler{}
-	h.searchCache, _ = bigcache.NewBigCache(utils.DefaultBigCacheConfig())
+	h.searchCache = cache.NewInstrumentedCache(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER_META)
 	return h
+}
+
+func (h *Handler) Stop() {
+	h.searchCache.Close()
 }
 
 // UpdateUserMeta adds, updates or deletes user meta.
