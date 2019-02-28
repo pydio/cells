@@ -31,6 +31,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
+	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/registry"
 	"go.uber.org/zap"
 
@@ -150,6 +151,14 @@ func Start() error {
 	return nil
 }
 
+func Stop() error {
+	instance := GetInstance()
+	instance.ShutdownCallbacks()
+	instance.Stop()
+
+	return nil
+}
+
 func Restart() error {
 	go func() {
 		restartChan <- true
@@ -183,7 +192,11 @@ func restart() error {
 	}
 
 	log.Logger(gatewayCtx).Info("Restart done")
+
 	mainCaddy.instance = instance
+
+	broker.Publish(common.TOPIC_PROXY_RESTART, &broker.Message{Body: []byte("")})
+
 	return nil
 }
 

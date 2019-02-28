@@ -22,8 +22,6 @@
 package rest
 
 import (
-	"context"
-
 	"github.com/jcuga/golongpoll"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -33,7 +31,6 @@ import (
 
 var (
 	eventManager *golongpoll.LongpollManager
-	StopService  context.CancelFunc
 )
 
 func init() {
@@ -55,7 +52,6 @@ func init() {
 					}
 					s.Options().Web.HandleFunc("/install/events", eventManager.SubscriptionHandler)
 					log.Logger(o.Context).Info("Registering /install/events for Polling")
-					StopService = s.Stop
 					return nil
 				})
 				o.AfterStop = append(o.AfterStop, func(s service.Service) (e error) {

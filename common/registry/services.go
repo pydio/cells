@@ -66,6 +66,19 @@ type Service interface {
 }
 
 // GetServicesByName returns a list of service that match the name given in argument
+func (c *pydioregistry) GetServiceByName(name string) Service {
+	for _, ss := range c.register {
+		if matched, _ := regexp.MatchString(name, ss.Name()); matched {
+			if !ss.IsExcluded() {
+				return ss
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetServicesByName returns a list of service that match the name given in argument
 func (c *pydioregistry) GetServicesByName(name string) []Service {
 	var s []Service
 

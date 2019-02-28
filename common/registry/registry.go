@@ -46,7 +46,7 @@ type Registry interface {
 	Init(...Option)
 	Register(Service, ...RegisterOption) error
 	Deregister(Service) error
-	GetService(string) ([]Service, error)
+	GetServiceByName(string) Service
 	GetServicesByName(string) []Service
 	GetPeers() map[string]*Peer
 	GetProcesses() map[string]*Process
@@ -169,11 +169,6 @@ func (c *pydioregistry) Register(s Service, opts ...RegisterOption) error {
 	}
 
 	return nil
-}
-
-// GetService returns the service by name
-func (c *pydioregistry) GetService(string) ([]Service, error) {
-	return nil, nil
 }
 
 // GetClient returns the default client for the service name

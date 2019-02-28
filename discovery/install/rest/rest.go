@@ -21,6 +21,8 @@
 package rest
 
 import (
+	"time"
+
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 
@@ -105,12 +107,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		rsp.WriteEntity(response)
 	}
 
-	// <-time.After(2 * time.Second)
+	<-time.After(2 * time.Second)
 
-	instance := caddy.GetInstance()
-	instance.ShutdownCallbacks()
-	instance.Stop()
-
-	StopService()
-
+	caddy.Stop()
 }
