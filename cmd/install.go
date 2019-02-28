@@ -33,7 +33,7 @@ import (
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
 	"github.com/mholt/caddy/caddytls"
-	"github.com/micro/go-web"
+	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
 
 	"github.com/micro/cli"
@@ -41,7 +41,6 @@ import (
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/discovery/install/assets"
@@ -176,15 +175,12 @@ var installCmd = &cobra.Command{
 						cmd.Help()
 						log.Fatal(err.Error())
 					}
-					cmd.Printf("About to launch browser install, install URLs:\ninternal: %s\nexternal: %s\n", internal, external)
-
 				} else {
 					// Launch install cli then
 					installCliCmd.Run(cmd, args)
 					return
 				}
 			}
-
 		}
 
 		// Installing the JS data
@@ -219,23 +215,35 @@ var installCmd = &cobra.Command{
 			}
 		}
 
+		config.Save("cli", "Install / Saving final configs")
+
+		// starting the micro service
+		micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)
+		micro.Start()
+
+		// starting the installation REST service
+		install := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
+
+		installServ := install.(service.Service)
+		// Strip some flag to avoid panic on re-registering a flag twice
+		flags := installServ.Options().Web.Options().Cmd.App().Flags
+		var newFlags []cli.Flag
+		for _, f := range flags {
+			if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
+				continue
+			}
+			newFlags = append(newFlags, f)
+		}
+		installServ.Options().Web.Options().Cmd.App().Flags = newFlags
+
+		// Starting service install
+		install.Start()
+
 		// Creating temporary caddy file
 		caddyconf.URL = internal
 		caddyconf.Root = dir
 		caddyconf.Micro = common.SERVICE_MICRO_API
 		caddyconf.TLS = tls
-
-		// starting the registry service
-		for _, s := range registry.Default.GetServicesByName(defaults.Registry().String()) {
-			s.Start()
-		}
-
-		// starting the micro service
-		for _, s := range registry.Default.GetServicesByName(common.SERVICE_MICRO_API) {
-			s.Start()
-		}
-
-		config.Save("cli", "Install / Saving final configs")
 
 		caddy.Enable(caddyfile, play)
 
@@ -244,37 +252,36 @@ var installCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// installFinished := make(chan bool, 1)
-		// starting the installation REST service
-		for _, s := range registry.Default.GetServicesByName(common.SERVICE_INSTALL) {
-			sServ := s.(service.Service)
-			// Strip some flag to avoid panic on re-registering a flag twice
-			flags := sServ.Options().Web.Options().Cmd.App().Flags
-			var newFlags []cli.Flag
-			for _, f := range flags {
-				if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
-					continue
-				}
-				newFlags = append(newFlags, f)
-			}
-			sServ.Options().Web.Options().Cmd.App().Flags = newFlags
-			sServ.Options().Web.Init(
-				web.AfterStart(func() error {
-					open(external.String())
+		cmd.Println("")
+		cmd.Println(promptui.Styler(promptui.FGWhite)("Installation Server is starting ") + promptui.Styler(promptui.FGYellow)("..."))
+		cmd.Println(promptui.Styler(promptui.FGWhite)(" internal URL: " + internal.String()))
+		cmd.Println(promptui.Styler(promptui.FGWhite)(" external URL: " + external.String()))
+		cmd.Println("")
 
-					return nil
-				}),
-			)
+		subscriber, err := broker.Subscribe(common.TOPIC_PROXY_RESTART, func(p broker.Publication) error {
+			cmd.Println("")
+			cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(external.String()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
+			cmd.Println("")
 
-			s.Start()
+			open(external.String())
+
+			return nil
+		})
+
+		if err != nil {
+			cmd.Print(err)
+			os.Exit(1)
 		}
 
 		instance := caddy.GetInstance()
 		instance.Wait()
 
-		fmt.Println("")
-		fmt.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
-		fmt.Println("")
+		subscriber.Unsubscribe()
+		install.Stop()
+
+		cmd.Println("")
+		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
+		cmd.Println("")
 
 		// Re-building allServices list
 		if s, err := registry.Default.ListServices(); err != nil {
@@ -313,7 +320,6 @@ var installCmd = &cobra.Command{
 
 		wg.Add(1)
 		wg.Wait()
-
 	},
 }
 
@@ -332,7 +338,6 @@ func play() (*bytes.Buffer, error) {
 func open(url string) error {
 	var cmd string
 	var args []string
-	fmt.Println("Opening URL " + url + " in your browser. Please copy/paste it if the browser is not on the same machine.")
 	switch runtime.GOOS {
 	case "windows":
 		cmd = "cmd"
