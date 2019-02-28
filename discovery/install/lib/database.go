@@ -42,7 +42,7 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 
 	var err error
 
-	conf := new(mysql.Config)
+	conf := mysql.NewConfig()
 
 	switch c.GetDbConnectionType() {
 	case "tcp":
@@ -102,25 +102,25 @@ func actionDatabaseAdd(c *install.InstallConfig) error {
 }
 
 func addDatabaseTCPConnection(c *install.InstallConfig) (*mysql.Config, error) {
-	conf := &mysql.Config{
-		User:   c.GetDbTCPUser(),
-		Passwd: c.GetDbTCPPassword(),
-		Net:    "tcp",
-		Addr:   fmt.Sprintf("%s:%s", c.GetDbTCPHostname(), c.GetDbTCPPort()),
-		DBName: c.GetDbTCPName(),
-	}
+	conf := mysql.NewConfig()
+
+	conf.User = c.GetDbTCPUser()
+	conf.Passwd = c.GetDbTCPPassword()
+	conf.Net = "tcp"
+	conf.Addr = fmt.Sprintf("%s:%s", c.GetDbTCPHostname(), c.GetDbTCPPort())
+	conf.DBName = c.GetDbTCPName()
 
 	return conf, nil
 }
 
 func addDatabaseSocketConnection(c *install.InstallConfig) (*mysql.Config, error) {
-	conf := &mysql.Config{
-		User:   c.GetDbSocketUser(),
-		Passwd: c.GetDbSocketPassword(),
-		Net:    "unix",
-		Addr:   c.GetDbSocketFile(),
-		DBName: c.GetDbSocketName(),
-	}
+	conf := mysql.NewConfig()
+
+	conf.User = c.GetDbSocketUser()
+	conf.Passwd = c.GetDbSocketPassword()
+	conf.Net = "unix"
+	conf.Addr = c.GetDbSocketFile()
+	conf.DBName = c.GetDbSocketName()
 
 	return conf, nil
 }
