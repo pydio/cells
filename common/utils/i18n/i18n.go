@@ -75,7 +75,11 @@ var (
 
 // GetDefaultLanguage reads default language from config
 func GetDefaultLanguage(conf config.Config) string {
-	return conf.Get("defaults", "lang").String("en")
+	if l := conf.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String(""); l != "" {
+		return l
+	} else {
+		return conf.Get("defaults", "lang").String("en")
+	}
 }
 
 // UserLanguagesFromRestRequest tries to find user language from various sources:
@@ -130,17 +134,14 @@ func UserLanguage(ctx context.Context, user *idm.User, conf config.Config) strin
 	if len(langActions) == 0 {
 		return defaultLanguage
 	}
-	for i := len(user.Roles) - 1; i > 0; i-- {
-		found := ""
+	var lang string
+	for i := len(user.Roles) - 1; i >= 0; i-- {
 		for _, a := range langActions {
-			if a.RoleID == user.Roles[i].Uuid {
-				found = a.Action.Value
+			if a.RoleID == user.Roles[i].Uuid && a.Action.Value != "-1" {
+				if e := json.Unmarshal([]byte(a.Action.Value), &lang); e == nil {
+					return lang
+				}
 			}
-		}
-		if found != "" {
-			var lang string
-			json.Unmarshal([]byte(found), &lang)
-			return lang
 		}
 	}
 

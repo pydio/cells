@@ -31,11 +31,13 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 )
 
 var (
@@ -133,6 +135,7 @@ func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*m
 			} else {
 				output.Name = emailOrAddress
 			}
+			output.Language = i18n.UserLanguage(ctx, u, config.Default())
 			return output, nil
 		} else {
 			return nil, fmt.Errorf("user %s has no email set", emailOrAddress)

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pydio/cells/common/utils/i18n"
+
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -140,7 +142,7 @@ func (u *User) LoadActiveLanguage(parameter string) string {
 	if parameter != "" {
 		return parameter
 	}
-	lang := "en"
+	lang := i18n.GetDefaultLanguage(config.Default())
 	if v := u.FlattenedRolesConfigByName("core.conf", "lang"); v != "" {
 		lang = v
 	}

@@ -128,9 +128,10 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	}
 
 	user := &mailer.User{
-		Uuid:    userObject.Uuid,
-		Address: email,
-		Name:    displayName,
+		Uuid:     userObject.Uuid,
+		Address:  email,
+		Name:     displayName,
+		Language: lang,
 	}
 	if m.dryRun && m.dryMail != "" {
 		user.Address = m.dryMail
