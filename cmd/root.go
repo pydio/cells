@@ -92,7 +92,7 @@ variable to one of the following values:
 
 ### Services Discovery
 
-Micro services need a registry mechanism to discover each other. You don't need to install any dependency. 
+Micro services need a registry mechanism to discover each other. You don't need to install any dependency.
 Cells currently only supports NATS (nats.io) implementation. If a gnatsd service is already running, it will be detected.
 
 `,
@@ -190,6 +190,8 @@ func init() {
 	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
 	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))
 
+	flags.String("consul_config", "", "Configuration file for consul")
+	viper.BindPFlag("consul_config", flags.Lookup("consul_config"))
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
