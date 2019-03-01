@@ -24,7 +24,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 
