@@ -230,12 +230,12 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 func (dao *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	whereExpression := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver())
-	queryString, err := sql.DeleteStringFromExpression("idm_acls", dao.Driver(), whereExpression)
+	queryString, args, err := sql.DeleteStringFromExpression("idm_acls", dao.Driver(), whereExpression)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := dao.DB().Exec(queryString)
+	res, err := dao.DB().Exec(queryString, args...)
 	if err != nil {
 		return 0, err
 	}

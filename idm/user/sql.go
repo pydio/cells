@@ -359,12 +359,12 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	queryString, err := s.makeSearchQuery(query, true, false, false)
+	queryString, args, err := s.makeSearchQuery(query, true, false, false)
 	if err != nil {
 		return 0, err
 	}
 
-	row := s.DB().QueryRow(queryString)
+	row := s.DB().QueryRow(queryString, args...)
 	total := new(int)
 	err = row.Scan(
 		&total,
@@ -384,13 +384,13 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		includeParents = withParents[0]
 	}
 
-	queryString, err := s.makeSearchQuery(query, false, includeParents, false)
+	queryString, args, err := s.makeSearchQuery(query, false, includeParents, false)
 	if err != nil {
 		return err
 	}
 
 	log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), zap.Any("q2", query.GetSubQueries()))
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return err
 	}
@@ -467,14 +467,14 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 // Del from the mysql DB
 func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
-	queryString, err := s.makeSearchQuery(query, false, true, true)
+	queryString, args, err := s.makeSearchQuery(query, false, true, true)
 	if err != nil {
 		return 0, err
 	}
 
 	log.Logger(context.Background()).Debug("Delete", zap.String("q", queryString))
 
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return 0, err
 	}
