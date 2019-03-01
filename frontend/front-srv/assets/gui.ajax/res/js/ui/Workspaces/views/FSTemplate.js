@@ -317,8 +317,8 @@ let FSTemplate = React.createClass({
         let uWidgetBack = null;
         if(themeLight){
             const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
-            uWidgetColor = Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
-            uWidgetBack = new Color({h:colorHue,s:35,l:98});
+            uWidgetColor = Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87).toString();
+            uWidgetBack = new Color({h:colorHue,s:35,l:98}).toString();
         }
 
         let newButtonProps = {
