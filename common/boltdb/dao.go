@@ -22,7 +22,7 @@
 package boltdb
 
 import (
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
 )

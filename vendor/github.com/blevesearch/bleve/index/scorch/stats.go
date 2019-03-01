@@ -33,6 +33,10 @@ type Stats struct {
 	TotBatchIntroTime uint64
 	MaxBatchIntroTime uint64
 
+	CurRootEpoch       uint64
+	LastPersistedEpoch uint64
+	LastMergedEpoch    uint64
+
 	TotOnErrors uint64
 
 	TotAnalysisTime uint64
@@ -65,10 +69,14 @@ type Stats struct {
 	TotPersistLoopEnd          uint64
 
 	TotPersistedItems    uint64
+	TotItemsToPersist    uint64
 	TotPersistedSegments uint64
 
 	TotPersisterSlowMergerPause  uint64
 	TotPersisterSlowMergerResume uint64
+
+	TotPersisterNapPauseCompleted uint64
+	TotPersisterMergerNapBreak    uint64
 
 	TotFileMergeLoopBeg uint64
 	TotFileMergeLoopErr uint64
@@ -87,6 +95,7 @@ type Stats struct {
 
 	TotFileMergeSegmentsEmpty uint64
 	TotFileMergeSegments      uint64
+	TotFileSegmentsAtRoot     uint64
 	TotFileMergeWrittenBytes  uint64
 
 	TotFileMergeZapBeg  uint64
@@ -94,17 +103,19 @@ type Stats struct {
 	TotFileMergeZapTime uint64
 	MaxFileMergeZapTime uint64
 
-	TotFileMergeIntroductions     uint64
-	TotFileMergeIntroductionsDone uint64
+	TotFileMergeIntroductions        uint64
+	TotFileMergeIntroductionsDone    uint64
+	TotFileMergeIntroductionsSkipped uint64
 
-	TotMemMergeBeg      uint64
-	TotMemMergeErr      uint64
-	TotMemMergeDone     uint64
-	TotMemMergeZapBeg   uint64
-	TotMemMergeZapEnd   uint64
-	TotMemMergeZapTime  uint64
-	MaxMemMergeZapTime  uint64
-	TotMemMergeSegments uint64
+	TotMemMergeBeg          uint64
+	TotMemMergeErr          uint64
+	TotMemMergeDone         uint64
+	TotMemMergeZapBeg       uint64
+	TotMemMergeZapEnd       uint64
+	TotMemMergeZapTime      uint64
+	MaxMemMergeZapTime      uint64
+	TotMemMergeSegments     uint64
+	TotMemorySegmentsAtRoot uint64
 }
 
 // atomically populates the returned map
