@@ -154,8 +154,8 @@ func (dao *sqlimpl) Add(in interface{}) error {
 // Search in the mysql DB
 func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 
-	var db *goqu.Database
-	db = goqu.New(dao.Driver(), nil)
+	db := goqu.New(dao.Driver(), dao.DB())
+
 	expressions := []goqu.Expression{
 		goqu.I("n.id").Eq(goqu.I("a.node_id")),
 		goqu.I("w.id").Eq(goqu.I("a.workspace_id")),
@@ -175,38 +175,49 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 		limit = query.GetLimit()
 	}
 
-	dataset := db.From(goqu.I("idm_acls").As("a"),
-		goqu.I("idm_acl_nodes").As("n"), goqu.I("idm_acl_workspaces").As("w"), goqu.I("idm_acl_roles").As("r"))
+	dataset := db.From(
+		goqu.I("idm_acls").As("a"),
+		goqu.I("idm_acl_nodes").As("n"),
+		goqu.I("idm_acl_workspaces").As("w"),
+		goqu.I("idm_acl_roles").As("r"),
+	).Prepared(true).Select(
+		goqu.I("a.id").As("acl_id"),
+		goqu.I("n.uuid").As("node_uuid"),
+		goqu.I("a.action_name").As("acl_action_name"),
+		goqu.I("a.action_value").As("acl_action_value"),
+		goqu.I("r.uuid").As("role_uuid"),
+		goqu.I("w.name").As("workspace_name"),
+	)
 
-	dataset = dataset.Select(goqu.I("a.id"), goqu.I("n.uuid"), goqu.I("a.action_name"), goqu.I("a.action_value"), goqu.I("r.uuid"), goqu.I("w.name"))
 	if limit > -1 {
 		dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
 	}
 
 	dataset = dataset.Where(expressions...)
-	queryString, _, err := dataset.ToSql()
-	if err != nil {
+
+	var items []struct {
+		AclID          string `db:"acl_id"`
+		NodeUUID       string `db:"node_uuid"`
+		ACLActionName  string `db:"acl_action_name"`
+		ACLActionValue string `db:"acl_action_value"`
+		RoleUUID       string `db:"role_uuid"`
+		WorkspaceName  string `db:"workspace_name"`
+	}
+	if err := dataset.ScanStructs(&items); err != nil {
 		return err
 	}
 
-	res, err := dao.DB().Query(queryString)
-	if err != nil {
-		return err
-	}
-
-	defer res.Close()
-	for res.Next() {
+	for _, item := range items {
 		val := new(idm.ACL)
 		action := new(idm.ACLAction)
 
-		res.Scan(
-			&val.ID,
-			&val.NodeID,
-			&action.Name,
-			&action.Value,
-			&val.RoleID,
-			&val.WorkspaceID,
-		)
+		val.ID = item.AclID
+		val.NodeID = item.NodeUUID
+		val.RoleID = item.RoleUUID
+		val.WorkspaceID = item.WorkspaceName
+
+		action.Name = item.ACLActionName
+		action.Value = item.ACLActionValue
 
 		val.Action = action
 		*acls = append(*acls, val)

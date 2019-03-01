@@ -195,13 +195,15 @@ func (dao *sqlimpl) Del(meta *idm.UserMeta) (e error) {
 }
 
 // Search meta on their conditions
-func (dao *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) (result []*idm.UserMeta, e error) {
+func (dao *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
+
+	db := goqu.New(dao.Driver(), dao.DB())
 
 	var wheres []goqu.Expression
 
-	policyQ, e := dao.BuildPolicyConditionForAction(resourceQuery, service.ResourcePolicyAction_READ)
-	if e != nil {
-		return
+	policyQ, err := dao.BuildPolicyConditionForAction(resourceQuery, service.ResourcePolicyAction_READ)
+	if err != nil {
+		return nil, err
 	}
 	if policyQ != nil {
 		wheres = append(wheres, policyQ)
@@ -228,47 +230,44 @@ func (dao *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace strin
 		wheres = append(wheres, goqu.I("owner").Eq(ownerSubject))
 	}
 	if len(wheres) == 0 {
-		return
+		return nil, err
 	}
 
-	q, _, err := goqu.New(dao.Driver(), nil).From("idm_usr_meta").Where(goqu.And(wheres...)).ToSql()
-	if err != nil {
-		e = err
-		return
+	dataset := db.
+		From("idm_usr_meta").
+		Prepared(true).
+		Where(goqu.And(wheres...))
+
+	var items []struct {
+		UUID      string `db:"uuid"`
+		NodeUUID  string `db:"node_uuid"`
+		Namespace string `db:"namespace"`
+		JSONValue string `db:"data"`
 	}
 
-	res, err := dao.DB().Query(q)
-	if err != nil {
-		e = err
-		return
+	if err := dataset.ScanStructs(&items); err != nil {
+		return nil, err
 	}
-	defer res.Close()
-	for res.Next() {
+
+	var results []*idm.UserMeta
+
+	for _, item := range items {
 		userMeta := new(idm.UserMeta)
-		var owner string
-		var format string
-		var lastUpdated int32
-		if err := res.Scan(
-			&userMeta.Uuid,
-			&userMeta.NodeUuid,
-			&userMeta.Namespace,
-			&owner,
-			&lastUpdated,
-			&format,
-			&userMeta.JsonValue,
-		); err != nil {
-			return result, err
-		}
+
+		userMeta.Uuid = item.UUID
+		userMeta.NodeUuid = item.NodeUUID
+		userMeta.Namespace = item.Namespace
+		userMeta.JsonValue = item.JSONValue
 
 		if policies, e := dao.GetPoliciesForResource(userMeta.Uuid); e == nil {
 			userMeta.Policies = policies
 		} else {
 			log.Logger(context.Background()).Error("cannot load resource policies for uuid: "+userMeta.Uuid, zap.Error(e))
 		}
-		result = append(result, userMeta)
+		results = append(results, userMeta)
 	}
 
-	return
+	return results, nil
 }
 
 func (*sqlimpl) extractOwner(policies []*service.ResourcePolicy) (owner string) {
