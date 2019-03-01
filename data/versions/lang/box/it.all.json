@@ -9,15 +9,15 @@
     "other": "Creati i metadati della versione per {{.Uuid}}"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "Versione sfrondata {{.Count}}",
+    "other": "Versioni sfrondate {{.Count}}"
   },
   "Job.Pruning.Title": {
     "other": "Pulizia delle versioni dei file per i nodi cancellati"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "Versione {{.Count}} rimossa con successo",
+    "other": "Versioni {{.Count}} rimosse con successo."
   },
   "Config.GroupPolicy.Title": {
     "other": "Policy"
