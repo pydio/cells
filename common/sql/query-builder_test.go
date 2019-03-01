@@ -8,8 +8,9 @@ import (
 
 func TestDeleteStringFromExpression(t *testing.T) {
 	Convey("Test Delete String Expr", t, func() {
-		s, e := DeleteStringFromExpression("tableName", "mysql", nil)
+		s, args, e := DeleteStringFromExpression("tableName", "mysql", nil)
 		So(s, ShouldBeEmpty)
+		So(args, ShouldBeNil)
 		So(e, ShouldNotBeNil)
 	})
 }
