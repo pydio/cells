@@ -445,7 +445,7 @@ let FSTemplate = React.createClass({
                                 renderingType="icon-font"
                                 mergeItemsAsOneMenu={true}
                                 mergedMenuIcom={"mdi mdi-settings"}
-                                mergedMenuTitle={"Display Settings"}
+                                mergedMenuTitle={this.props.pydio.MessageHash['151']}
                                 buttonStyle={styles.buttonsIconStyle}
                                 flatButtonStyle={styles.buttonsStyle}
                             />

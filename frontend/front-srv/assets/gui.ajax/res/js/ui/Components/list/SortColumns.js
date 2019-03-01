@@ -67,7 +67,7 @@ let SortColumns = React.createClass({
                     this.props.sortingInfo.attribute === key
                     || this.props.sortingInfo.attribute === data['sortAttribute']
                     || this.props.sortingInfo.attribute === data['remoteSortAttribute'])){
-                    icon = this.props.sortingInfo.direction === 'asc' ? 'mdi mdi-arrow-up' : 'mdi mdi-arrow-down';
+                    icon = this.props.sortingInfo.direction === 'asc' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending';
                     className += ' active-sort-' + this.props.sortingInfo.direction;
                 }
             }
@@ -82,7 +82,7 @@ let SortColumns = React.createClass({
                 items.push({
                     name            : data['label'],
                     callback        : () => { this.onHeaderClick(key, callback) },
-                    icon_class      : icon || '__INSET__'
+                    icon_class      : icon || (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric':'mdi mdi-sort-alphabetical')// '__INSET__'
                 });
             }else{
                 items.push(<span
@@ -91,7 +91,6 @@ let SortColumns = React.createClass({
                     style={style}
                     onClick={ () => {this.onHeaderClick(key, callback)} }
                 >{data['label']}</span>);
-
             }
         }
         return items;
