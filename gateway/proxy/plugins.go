@@ -141,8 +141,6 @@ var (
 
 		{{if .TLS}}tls {{.TLS}}{{end}}
 		errors "{{.Logs}}/caddy_errors.log"
-		# Enable this to ease debuging proxy issues
-		#log  / "{{.Logs}}/access.log" "{>X-Forwarded-For} - [{when}] \"{method} {uri} {proto}\" {status} {size}"
 		}
 
 		{{if .HTTPRedirectSource}}
@@ -304,8 +302,8 @@ func play() (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-// LoadCaddyConf reads the pydio config and fill a CaddyTemplateConf object ready
-// to be executed by template
+// LoadCaddyConf reads the pydio config and fills a CaddyTemplateConf object ready
+// to be executed by template.
 func LoadCaddyConf() error {
 
 	caddyconf.Logs = filepath.Join(config.ApplicationDataDir(), "logs")
