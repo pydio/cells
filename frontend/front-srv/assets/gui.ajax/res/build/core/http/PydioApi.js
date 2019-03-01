@@ -65,6 +65,10 @@ var _modelAjxpNode = require("../model/AjxpNode");
 
 var _modelAjxpNode2 = _interopRequireDefault(_modelAjxpNode);
 
+var _lscache = require('lscache');
+
+var _lscache2 = _interopRequireDefault(_lscache);
+
 // Extend S3 ManagedUpload to get progress info about each part
 
 var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
@@ -445,18 +449,15 @@ var PydioApi = (function () {
         }
 
         var resolver = function resolver(jwt, cb) {
-            var meta = node.getMetadata().get('presignedUrls');
-            var cacheKey = jwt + params.Key;
+            var cacheKey = node.getMetadata().get('uuid') + jwt + params.Key;
             if (cType) {
                 cacheKey += "#" + cType;
             }
-            var cached = meta ? meta.get(cacheKey) : null;
+            _lscache2['default'].setBucket('cells.presigned');
+            var cached = _lscache2['default'].get(cacheKey);
             if (cached) {
                 cb(cached);
                 return;
-            }
-            if (!meta) {
-                meta = new Map();
             }
 
             _awsSdk2['default'].config.update({
@@ -468,8 +469,9 @@ var PydioApi = (function () {
             var signed = s3.getSignedUrl('getObject', params);
             var output = signed + '&pydio_jwt=' + jwt;
             cb(output);
-            meta.set(cacheKey, output);
-            node.getMetadata().set('presignedUrls', meta);
+
+            _lscache2['default'].set(cacheKey, output, 120);
+            _lscache2['default'].resetBucket();
         };
 
         if (callback === null) {
