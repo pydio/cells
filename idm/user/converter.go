@@ -41,7 +41,7 @@ import (
 	"gopkg.in/doug-martin/goqu.v4"
 )
 
-func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includeParent bool, checkEmpty bool) (string, error) {
+func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includeParent bool, checkEmpty bool) (string, []interface{}, error) {
 
 	converter := &queryConverter{
 		treeDao:       s.IndexSQL,
@@ -49,13 +49,13 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 	}
 
 	var db *goqu.Database
-	db = goqu.New(s.Driver(), nil)
+	db = goqu.New(s.Driver(), s.DB())
 	var wheres []goqu.Expression
 
 	if query.GetResourcePolicyQuery() != nil {
 		resourceExpr, e := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
 		if e != nil {
-			return "", e
+			return "", nil, e
 		}
 		if resourceExpr != nil {
 			wheres = append(wheres, resourceExpr)
@@ -67,13 +67,12 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 		wheres = append(wheres, expression)
 	} else {
 		if checkEmpty {
-			return "", fmt.Errorf("condition cannot be empty")
+			return "", nil, fmt.Errorf("condition cannot be empty")
 		}
 		wheres = append(wheres, goqu.I("t.uuid").Eq(goqu.I("n.uuid")))
 	}
 
-	dataset := db.From()
-	dataset = dataset.From(goqu.I("idm_user_idx_tree").As("t"), goqu.I("idm_user_idx_nodes").As("n"))
+	dataset := db.From(goqu.I("idm_user_idx_tree").As("t"), goqu.I("idm_user_idx_nodes").As("n")).Prepared(true)
 	dataset = dataset.Where(goqu.And(wheres...))
 
 	if countOnly {
@@ -97,9 +96,7 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 
 	}
 
-	queryString, _, err := dataset.ToSql()
-	return queryString, err
-
+	return dataset.ToSql()
 }
 
 type queryConverter struct {

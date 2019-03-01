@@ -179,7 +179,7 @@ var AltDashboard = (function (_React$Component) {
                     _this2.clearCloseTimeout();
                 },
                 userWidgetProps: {
-                    color: fontColor,
+                    color: fontColor.toString(),
                     mergeButtonInAvatar: true,
                     popoverDirection: 'left',
                     actionBarStyle: {

@@ -160,12 +160,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 	if e != nil {
 		return e
 	}
-	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, -1)
+	queryString, args, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, -1)
 	if err != nil {
 		return err
 	}
 
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return err
 	}
@@ -189,12 +189,12 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	//whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
 	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
-	queryString, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
+	queryString, args, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := s.DB().Exec(queryString)
+	res, err := s.DB().Exec(queryString, args...)
 	if err != nil {
 		return 0, err
 	}

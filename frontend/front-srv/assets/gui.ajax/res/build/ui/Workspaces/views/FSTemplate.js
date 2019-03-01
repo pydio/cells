@@ -400,8 +400,8 @@ var FSTemplate = _react2['default'].createClass({
         var uWidgetBack = null;
         if (themeLight) {
             var _colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
-            uWidgetColor = Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
-            uWidgetBack = new Color({ h: _colorHue, s: 35, l: 98 });
+            uWidgetColor = Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87).toString();
+            uWidgetBack = new Color({ h: _colorHue, s: 35, l: 98 }).toString();
         }
 
         var newButtonProps = {
