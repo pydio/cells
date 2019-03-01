@@ -156,7 +156,7 @@
     "other": "Informazioni Personali"
   },
   "9": {
-    "other": "Seleziona i workspaces ai quali gli utenti con questo ruolo avranno accesso. Usa il 'Nega' per sovrascrivere un valore impostato in un ruolo precedente, oppure per negare definitivamente l'accesso a questo workspace, anche per i ruoli ereditati."
+    "other": "Seleziona i workspace a cui avranno accesso gli utenti. Usa 'Nega' per sovrascrivere un valore impostato da un ruolo precedente, oppure per negare definitivamente l'accesso a questo workspace anche ai ruoli ereditati."
   },
   "dashboard.description": {
     "other": "I ruoli sono contenitori per gli elenchi degli accessi, per consentire l'accesso a qualsiasi workspace o personalizzare i parametri e le azioni. Essi possono essere assegnati manualmente a tutti gli utenti."

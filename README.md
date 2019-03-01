@@ -1,6 +1,6 @@
 <img src="https://github.com/pydio/cells/wiki/images/PydioCellsColor.png" width="400" />
 
-[Homepage](https://pydio.com/) | [Wiki](https://github.com/pydio/cells/wiki) | [GitHub-Repository](https://github.com/pydio/cells) |
+[Homepage](https://pydio.com/) | [Dev Guide](https://pydio.com/en/docs/developer-guide) | [GitHub-Repository](https://github.com/pydio/cells) |
 [Issue-Tracker](https://github.com/pydio/cells/issues)
 
 [![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
@@ -9,6 +9,10 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells?rand=3)](https://goreportcard.com/report/github.com/pydio/cells)
 
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture.
+
+<p align="center"> 
+  <img src="https://github.com/pydio/cells-dist/raw/master/resources/v1.4.0/homepage.png" width="600" style="border: 3px solid #e0e0e0; border-radius: 5px;"/>
+</p>
 
 ## Getting Started
 
@@ -74,7 +78,7 @@ Pydio Cells uses many open source golang libraries. Most important ones are list
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us. You ca find a comprehensive [Developer Guide](https://pydio.com/en/docs/developer-guide) on our web site. Our online docs are open source as well, feel free to improve them by contributing!
 
 ## Versioning
 

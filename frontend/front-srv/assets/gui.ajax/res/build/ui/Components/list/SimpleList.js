@@ -1021,14 +1021,19 @@ var SimpleList = React.createClass({
                         if (a.parent) {
                             return -1;
                         }
-                        var aMeta = a.node.getMetadata().get(attribute) || "";
-                        var bMeta = b.node.getMetadata().get(attribute) || "";
+                        if (b.parent) {
+                            return 1;
+                        }
                         var res = undefined;
                         if (sortType === 'number') {
+                            var aMeta = a.node.getMetadata().get(attribute) || 0;
+                            var bMeta = b.node.getMetadata().get(attribute) || 0;
                             aMeta = parseFloat(aMeta);
                             bMeta = parseFloat(bMeta);
                             res = direction === 'asc' ? aMeta - bMeta : bMeta - aMeta;
                         } else if (sortType === 'string') {
+                            var aMeta = a.node.getMetadata().get(attribute) || "";
+                            var bMeta = b.node.getMetadata().get(attribute) || "";
                             res = direction === 'asc' ? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta);
                         }
                         if (res === 0) {

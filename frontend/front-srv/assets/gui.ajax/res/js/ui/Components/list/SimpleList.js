@@ -954,14 +954,19 @@ let SimpleList = React.createClass({
                     if (a.parent){
                         return -1;
                     }
-                    let aMeta = a.node.getMetadata().get(attribute) || "";
-                    let bMeta = b.node.getMetadata().get(attribute) || "";
+                    if (b.parent){
+                        return 1;
+                    }
                     let res;
                     if(sortType === 'number'){
+                        let aMeta = a.node.getMetadata().get(attribute) || 0;
+                        let bMeta = b.node.getMetadata().get(attribute) || 0;
                         aMeta = parseFloat(aMeta);
                         bMeta = parseFloat(bMeta);
                         res  = (direction === 'asc' ? aMeta - bMeta : bMeta - aMeta);
                     }else if(sortType === 'string'){
+                        let aMeta = a.node.getMetadata().get(attribute) || "";
+                        let bMeta = b.node.getMetadata().get(attribute) || "";
                         res = (direction === 'asc'? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta));
                     }
                     if(res === 0){

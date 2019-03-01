@@ -120,7 +120,7 @@ class AltDashboard extends React.Component {
             headerHeight:headerHeight,
             onMouseOver:()=>{this.clearCloseTimeout()},
             userWidgetProps: {
-                color: fontColor,
+                color: fontColor.toString(),
                 mergeButtonInAvatar:true,
                 popoverDirection:'left',
                 actionBarStyle:{

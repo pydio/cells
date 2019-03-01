@@ -82,7 +82,7 @@ var SortColumns = React.createClass({
             if (data['sortType']) {
                 className += ' sortable';
                 if (_this.props.sortingInfo && (_this.props.sortingInfo.attribute === key || _this.props.sortingInfo.attribute === data['sortAttribute'] || _this.props.sortingInfo.attribute === data['remoteSortAttribute'])) {
-                    icon = _this.props.sortingInfo.direction === 'asc' ? 'mdi mdi-arrow-up' : 'mdi mdi-arrow-down';
+                    icon = _this.props.sortingInfo.direction === 'asc' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending';
                     className += ' active-sort-' + _this.props.sortingInfo.direction;
                 }
             }
@@ -99,22 +99,22 @@ var SortColumns = React.createClass({
                     callback: function callback() {
                         _this.onHeaderClick(key, _callback);
                     },
-                    icon_class: icon || '__INSET__'
+                    icon_class: icon || (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric' : 'mdi mdi-sort-alphabetical') // '__INSET__'
                 });
             } else {
-                items.push(React.createElement(
-                    'span',
-                    {
-                        key: key,
-                        className: className,
-                        style: style,
-                        onClick: function () {
-                            _this.onHeaderClick(key, _callback);
-                        }
-                    },
-                    data['label']
-                ));
-            }
+                    items.push(React.createElement(
+                        'span',
+                        {
+                            key: key,
+                            className: className,
+                            style: style,
+                            onClick: function () {
+                                _this.onHeaderClick(key, _callback);
+                            }
+                        },
+                        data['label']
+                    ));
+                }
         };
 
         for (var key in this.props.tableKeys) {

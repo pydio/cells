@@ -26,6 +26,7 @@ import RestCreateSelectionRequest from './gen/model/RestCreateSelectionRequest'
 import TreeNode from "./gen/model/TreeNode";
 import TreeServiceApi from "./gen/api/TreeServiceApi";
 import AjxpNode from "../model/AjxpNode";
+import lscache from 'lscache'
 
 // Extend S3 ManagedUpload to get progress info about each part
 class ManagedMultipart extends AWS.S3.ManagedUpload{
@@ -363,18 +364,15 @@ class PydioApi{
         }
 
         const resolver = (jwt, cb) => {
-            let meta = node.getMetadata().get('presignedUrls');
-            let cacheKey = jwt + params.Key;
+            let cacheKey = node.getMetadata().get('uuid') + jwt + params.Key;
             if(cType){
                cacheKey += "#" + cType;
             }
-            const cached = meta ? meta.get(cacheKey) : null;
+            lscache.setBucket('cells.presigned');
+            const cached = lscache.get(cacheKey);
             if(cached){
                 cb(cached);
                 return;
-            }
-            if(!meta) {
-                meta = new Map();
             }
 
             AWS.config.update({
@@ -386,8 +384,9 @@ class PydioApi{
             const signed = s3.getSignedUrl('getObject', params);
             const output = signed + '&pydio_jwt=' + jwt;
             cb(output);
-            meta.set(cacheKey, output);
-            node.getMetadata().set('presignedUrls', meta);
+
+            lscache.set(cacheKey, output, 120);
+            lscache.resetBucket();
         };
 
         if (callback === null) {
