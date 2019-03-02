@@ -282,6 +282,22 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 			return
 		}
 	}
+	// Validate input
+	type jsonCheck struct {
+		Type string
+		Data interface{} `json:"data,omitempty"`
+	}
+	for _, ns := range input.Namespaces {
+		if !strings.HasPrefix(ns.Namespace, "usermeta-") {
+			service.RestError500(req, rsp, fmt.Errorf("user defined meta must start with usermeta- prefix"))
+			return
+		}
+		var check jsonCheck
+		if e := json.Unmarshal([]byte(ns.JsonDefinition), &check); e != nil {
+			service.RestError500(req, rsp, fmt.Errorf("invalid json definition for namespace: "+e.Error()))
+			return
+		}
+	}
 
 	nsClient := idm.NewUserMetaServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META, defaults.NewClient())
 	response, err := nsClient.UpdateUserMetaNamespace(ctx, &input)
