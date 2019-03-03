@@ -176,7 +176,9 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 	// Canon are supported.
 	// exif.RegisterParsers(mknote.All...)
 	x, err := exif.Decode(reader)
-	if err != nil {
+
+	// Do not throw an error when there are no exif data
+	if err != nil && err.Error() != "EOF" {
 		return nil, err
 	}
 
