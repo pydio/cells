@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,29 +18,25 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package utils
+package net
 
-import "time"
-import "github.com/beevik/ntp"
+import (
+	"testing"
+	//	"time"
 
-func GetTimeFromNtp() (time.Time, error) {
-	var ntpTime time.Time
-	var err error
-	if ntpTime, err = ntp.Time("0.pool.ntp.org"); err == nil {
-		return ntpTime, nil
-	} else {
-		if ntpTime, err = ntp.Time("1.pool.ntp.org"); err == nil {
-			return ntpTime, nil
-		} else {
-			if ntpTime, err = ntp.Time("2.pool.ntp.org"); err == nil {
-				return ntpTime, nil
-			} else {
-				if ntpTime, err = ntp.Time("3.pool.ntp.org"); err == nil {
-					return ntpTime, nil
-				} else {
-					return time.Now(), err
-				}
-			}
-		}
-	}
+	. "github.com/smartystreets/goconvey/convey"
+)
+
+func TestGetTimeFromNtp(t *testing.T) {
+
+	Convey("Test GetTimeFromNtp", t, func() {
+
+		//serverTimeStart := time.Now()
+		_, err := GetTimeFromNtp()
+		//serverTimeStop := time.Now()
+		So(err, ShouldBeNil)
+		//So(ntpTime.Unix(), ShouldBeBetweenOrEqual, serverTimeStart.Unix()-5, serverTimeStop.Unix()+5)
+
+	})
+
 }

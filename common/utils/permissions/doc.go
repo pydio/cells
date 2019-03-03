@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,22 +18,5 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package utils
-
-import (
-	"net"
-)
-
-func GetAvailablePort() int {
-	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
-	if err != nil {
-		return 0
-	}
-
-	l, err := net.ListenTCP("tcp", addr)
-	if err != nil {
-		return 0
-	}
-	defer l.Close()
-	return l.Addr().(*net.TCPAddr).Port
-}
+// Package permissions provides high-level tools for computing permissions from ACLs
+package permissions

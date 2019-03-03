@@ -46,7 +46,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/update"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 // LoadUpdates will post a Json query to the update server to detect if there are any
@@ -147,25 +147,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 		dataDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_UPDATE)
 		oldPath := filepath.Join(dataDir, "revision-"+common.BuildStamp)
 
-		/*
-			pg := make(chan float64)
-			done := make(chan bool, 1)
-			go func() {
-				defer close(pg)
-				defer close(done)
-				for {
-					select {
-					case progress := <-pg:
-						log.Logger(ctx).Info("Download Progress", zap.Any("pg", progress))
-					case <-done:
-						log.Logger(ctx).Info("Download Finished")
-						return
-					}
-				}
-			}()
-		*/
-
-		reader := utils.BodyWithProgressMonitor(resp, pgChan, nil)
+		reader := net.BodyWithProgressMonitor(resp, pgChan, nil)
 
 		er := update2.Apply(reader, update2.Options{
 			Checksum:    checksum,

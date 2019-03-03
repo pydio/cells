@@ -40,10 +40,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/boltdb"
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/sql"
-
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
@@ -53,12 +49,14 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
-
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/sql"
+	net2 "github.com/pydio/cells/common/utils/net"
 )
 
 const (
@@ -160,21 +158,9 @@ func NewService(opts ...ServiceOption) Service {
 	// Checking that the service is not bound to a certain IP
 	peerAddress := config.Get("services", s.opts.Name, "PeerAddress").String("")
 
-	if peerAddress != "" {
-		peerIP := net.ParseIP(peerAddress)
-		localIPs, _ := utils.GetAvailableIPs()
-
-		found := false
-		for _, localIP := range localIPs {
-			if peerIP.Equal(localIP) {
-				found = true
-			}
-		}
-
-		if !found {
-			// log.Debug("Service bound", zap.String("name", s.opts.Name), zap.String("ip", peerAddress))
-			return nil
-		}
+	if peerAddress != "" && !net2.PeerAddressIsLocal(peerAddress) {
+		log.Debug("Ignoring this service as peerAddress is not local", zap.String("name", s.opts.Name), zap.String("ip", peerAddress))
+		return nil
 	}
 
 	// Setting context
@@ -200,7 +186,6 @@ func NewService(opts ...ServiceOption) Service {
 		Context(ctx),
 		Cancel(cancel),
 		Version(common.Version().String()),
-
 		// Adding the config to the context
 		AfterInit(func(_ Service) error {
 			cfg := make(config.Map)

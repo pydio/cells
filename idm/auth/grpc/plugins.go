@@ -36,7 +36,7 @@ import (
 	proto "github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/idm/auth"
 )
 
@@ -89,7 +89,7 @@ func init() {
 					c.Web.TLSKey = keyFile
 
 					if config.Get("cert", "http", "self").Bool(false) {
-						ips, _ := utils.GetAvailableIPs()
+						ips, _ := net.GetAvailableIPs()
 						for _, ip := range ips {
 							c.Web.AllowedOrigins = append(c.Web.AllowedOrigins, ip.String())
 						}

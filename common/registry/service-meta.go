@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -17,26 +17,33 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-package utils
+package registry
 
 import (
-	"testing"
-	//	"time"
+	"fmt"
+	"os"
+	"strings"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/pydio/cells/common/service/metrics"
 )
 
-func TestGetTimeFromNtp(t *testing.T) {
+const (
+	serviceMetaPID       = "PID"
+	serviceMetaParentPID = "parentPID"
+	serviceMetaMetrics   = "metrics"
+	serviceMetaStartTag  = "start"
+	serviceMetaHostname  = "hostname"
+)
 
-	Convey("Test GetTimeFromNtp", t, func() {
-
-		//serverTimeStart := time.Now()
-		_, err := GetTimeFromNtp()
-		//serverTimeStop := time.Now()
-		So(err, ShouldBeNil)
-		//So(ntpTime.Unix(), ShouldBeBetweenOrEqual, serverTimeStart.Unix()-5, serverTimeStop.Unix()+5)
-
-	})
-
+func BuildServiceMeta() map[string]string {
+	meta := map[string]string{
+		serviceMetaPID:       fmt.Sprintf("%d", os.Getpid()),
+		serviceMetaParentPID: fmt.Sprintf("%d", os.Getppid()),
+		serviceMetaMetrics:   fmt.Sprintf("%d", metrics.GetExposedPort()),
+		serviceMetaStartTag:  strings.Join(ProcessStartTags, ","),
+	}
+	if h, e := os.Hostname(); e == nil {
+		meta[serviceMetaHostname] = h
+	}
+	return meta
 }

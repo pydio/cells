@@ -35,8 +35,8 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 /*****************************
@@ -62,7 +62,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	httpProtocol := "http"
 	wsProtocol := "ws"
 
-	ip, _ := utils.GetExternalIP()
+	ip, _ := net.GetExternalIP()
 	s3Port := cfg.Get("services", "pydio.grpc.gateway.data", "port").String("")
 
 	mainUrl := cfg.Get("defaults", "url").String("")
@@ -97,7 +97,7 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 	cfg := config.Default()
 	ssl := cfg.Get("cert", "proxy", "ssl").Bool(false)
 	restPort := cfg.Get("services", "micro.web", "port").String("")
-	ip, _ := utils.GetExternalIP()
+	ip, _ := net.GetExternalIP()
 	protocol := "http"
 	if ssl {
 		protocol = "https"

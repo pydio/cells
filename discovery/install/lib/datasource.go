@@ -29,10 +29,11 @@ import (
 
 	"github.com/dchest/uniuri"
 	"github.com/gogo/protobuf/proto"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 // DATASOURCE Action
@@ -123,7 +124,7 @@ func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {
 	if runtime.GOOS == "darwin" {
 		normalize = "true"
 	}
-	ip, _ := utils.GetExternalIP()
+	ip, _ := net.GetExternalIP()
 	conf.PeerAddress = ip.String()
 	conf.StorageConfiguration = map[string]string{
 		"folder":    folder,

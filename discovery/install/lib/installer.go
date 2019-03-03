@@ -23,15 +23,14 @@ package lib
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"go.uber.org/zap"
 
-	"encoding/json"
-
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 type InstallProgressEvent struct {
@@ -55,7 +54,7 @@ func Install(ctx context.Context, c *install.InstallConfig, publisher func(event
 	}
 	publisher(&InstallProgressEvent{Message: "Created default datasources", Progress: 60})
 
-	c.ExternalFrontPlugins = fmt.Sprintf("%d", utils.GetAvailablePort())
+	c.ExternalFrontPlugins = fmt.Sprintf("%d", net.GetAvailablePort())
 	if err := actionConfigsSet(c); err != nil {
 		log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
 		return err

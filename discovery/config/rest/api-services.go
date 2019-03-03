@@ -29,8 +29,6 @@ import (
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
-	registry2 "github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/selector"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -96,15 +94,13 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 	response := &rest.ListPeersAddressesResponse{}
 	accu := make(map[string]string)
 
-	running, err := registry.ListRunningServices()
-	if err != nil {
-		service.RestError500(req, resp, err)
-		return
-	}
-
-	for _, s := range running {
-		for _, n := range s.RunningNodes() {
-			accu[n.Address] = n.Address
+	for _, p := range registry.GetPeers() {
+		if p.IsInitial() {
+			continue
+		}
+		accu[p.GetAddress()] = p.GetAddress()
+		if h := p.GetHostname(); h != "" {
+			accu[h] = h
 		}
 	}
 
@@ -130,7 +126,7 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 	// Use a selector to make sure to we call the service that is running on the specific node
 	streamer, e := cl.ListNodes(req.Request.Context(), &tree.ListNodesRequest{
 		Node: &tree.Node{Path: listReq.Path},
-	}, client.WithSelectOption(h.PeerClientSelector(srvName, listReq.PeerAddress)))
+	}, client.WithSelectOption(registry.PeerClientSelector(srvName, listReq.PeerAddress)))
 	if e != nil {
 		service.RestError500(req, resp, e)
 		return
@@ -201,7 +197,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 
 	folder := newSource.StorageConfiguration["folder"]
 	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
-	selectorOption := client.WithSelectOption(h.PeerClientSelector(srvName, newSource.PeerAddress))
+	selectorOption := client.WithSelectOption(registry.PeerClientSelector(srvName, newSource.PeerAddress))
 	defClient := defaults.NewClient()
 
 	cl := tree.NewNodeProviderClient(srvName, defClient)
@@ -248,29 +244,6 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	}
 
 	return nil
-}
-
-// PeerClientSelector creates a Selector Filter to restrict call to a given PeerAddress
-func (h *Handler) PeerClientSelector(srvName string, targetPeer string) selector.SelectOption {
-	return selector.WithFilter(func(services []*registry2.Service) (out []*registry2.Service) {
-		for _, srv := range services {
-			if srv.Name != srvName {
-				continue
-			}
-			var nodes []*registry2.Node
-			for _, n := range srv.Nodes {
-				if n.Address == targetPeer {
-					nodes = append(nodes, n)
-					break
-				}
-			}
-			if len(nodes) > 0 {
-				srv.Nodes = nodes
-				out = append(out, srv)
-			}
-		}
-		return
-	})
 }
 
 // Start Stop services

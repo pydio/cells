@@ -94,7 +94,7 @@ func (c *pydioregistry) maintainRunningServicesList() {
 	running, _ := defaults.Registry().ListServices()
 	for _, r := range running {
 		// Initially, nodes are not set on the service, so we fake it
-		c.GetPeer("INITIAL").Add(r, r.Name)
+		c.GetInitialPeer().Add(r, r.Name)
 	}
 
 	go func() {
@@ -121,13 +121,13 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			switch a {
 			case "create":
 				for _, n := range s.Nodes {
-					c.GetPeer(n.Address).Add(s, fmt.Sprintf("%d", n.Port))
-					c.GetPeer("INITIAL").Delete(s, s.Name)
+					c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
+					c.GetInitialPeer().Delete(s, s.Name)
 					c.registerProcessFromNode(n, s.Name)
 				}
 			case "delete":
 				for _, n := range s.Nodes {
-					c.GetPeer(n.Address).Delete(s, fmt.Sprintf("%d", n.Port))
+					c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port))
 					c.deregisterProcessFromNode(n, s.Name)
 				}
 			}

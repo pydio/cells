@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package utils
+package net
 
 import (
 	"errors"
 	"net"
+	"os"
 	"time"
 )
 
@@ -119,4 +120,37 @@ func GetOutboundIP() (net.IP, error) {
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
 	return localAddr.IP, nil
+}
+
+// PeerAddressIsLocal compares and address (can be an IP or Hostname) to the current server values
+func PeerAddressIsLocal(address string) bool {
+	if host, e := os.Hostname(); e == nil && address == host {
+		return true
+	}
+	peerIP := net.ParseIP(address)
+	localIPs, _ := GetAvailableIPs()
+
+	found := false
+	for _, localIP := range localIPs {
+		if peerIP.Equal(localIP) {
+			found = true
+		}
+	}
+
+	return found
+}
+
+// GetAvailablePort finds an available TCP port on which to listen to.
+func GetAvailablePort() int {
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	if err != nil {
+		return 0
+	}
+
+	l, err := net.ListenTCP("tcp", addr)
+	if err != nil {
+		return 0
+	}
+	defer l.Close()
+	return l.Addr().(*net.TCPAddr).Port
 }
