@@ -22,26 +22,23 @@ package views
 
 import (
 	"context"
+	"encoding/json"
 	"io"
+	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
-
-	"encoding/json"
-
-	"path"
-
-	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type selectionProvider interface {
@@ -332,7 +329,7 @@ func (a *ArchiveHandler) getSelectionByUuid(ctx context.Context, selectionUuid s
 		DocumentID: selectionUuid,
 	}); e == nil {
 		doc := resp.Document
-		username, _ := utils.FindUserNameInContext(ctx)
+		username, _ := permissions.FindUserNameInContext(ctx)
 		if username != doc.Owner {
 			return false, data, errors.Forbidden("selection.forbidden", "this selection does not belong to you")
 		}

@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type UuidNodeHandler struct {
@@ -58,7 +59,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 		return ctx, node, nil
 	}
 
-	accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
+	accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 	if !ok {
 		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot load access list")
 	}
@@ -102,12 +103,12 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	var branchInfo BranchInfo
-	var accessList *utils.AccessList
+	var accessList *permissions.AccessList
 	var ok bool
 	if branchInfo, ok = GetBranchInfo(ctx, identifier); !ok {
 		return ctx, node, nil
 	}
-	if accessList, ok = ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList); !ok {
+	if accessList, ok = ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList); !ok {
 		return ctx, node, nil
 	}
 	if branchInfo.AncestorsList != nil {

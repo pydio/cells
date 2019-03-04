@@ -10,8 +10,8 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
 	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/minio-srv/cmd/logger"
 	auth2 "github.com/pydio/minio-srv/pkg/auth"
 )
@@ -98,7 +98,7 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if a.gateway {
 
-			if user, er := utils.SearchUniqueUser(ctx, common.PYDIO_S3ANON_USERNAME, ""); er == nil {
+			if user, er := permissions.SearchUniqueUser(ctx, common.PYDIO_S3ANON_USERNAME, ""); er == nil {
 				userName = common.PYDIO_S3ANON_USERNAME
 				var s []string
 				for _, role := range user.Roles {

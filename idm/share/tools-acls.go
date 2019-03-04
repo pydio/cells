@@ -19,7 +19,7 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type ContextEditableChecker interface {
@@ -179,7 +179,7 @@ func LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*rest.CellAcl,
 // CommonAclsForWorkspace makes successive calls to ACL service to get all ACLs for a given workspace.
 func CommonAclsForWorkspace(ctx context.Context, workspaceId string) (result []*idm.ACL, detectedRoots []string, err error) {
 
-	result, err = utils.GetACLsForWorkspace(ctx, []string{workspaceId}, utils.ACL_READ, utils.ACL_WRITE, utils.ACL_POLICY)
+	result, err = permissions.GetACLsForWorkspace(ctx, []string{workspaceId}, permissions.ACL_READ, permissions.ACL_WRITE, permissions.ACL_POLICY)
 	if err != nil {
 		return
 	}
@@ -232,7 +232,7 @@ func DiffReadRoles(ctx context.Context, initial []*idm.ACL, newOnes []*idm.ACL) 
 	filter := func(acls []*idm.ACL) (roles map[string]bool) {
 		roles = make(map[string]bool)
 		for _, acl := range acls {
-			if acl.Action.Name == utils.ACL_READ.Name {
+			if acl.Action.Name == permissions.ACL_READ.Name {
 				roles[acl.RoleID] = true
 			}
 		}
@@ -265,7 +265,7 @@ func ComputeTargetAcls(ctx context.Context, ownerUser *idm.User, cell *rest.Cell
 		for _, acl := range cell.ACLs {
 			for _, action := range acl.Actions {
 				// Recheck just in case
-				if readonly && action.Name == utils.ACL_WRITE.Name {
+				if readonly && action.Name == permissions.ACL_WRITE.Name {
 					continue
 				}
 				targetAcls = append(targetAcls, &idm.ACL{
@@ -285,14 +285,14 @@ func ComputeTargetAcls(ctx context.Context, ownerUser *idm.User, cell *rest.Cell
 				NodeID:      node.Uuid,
 				RoleID:      userId,
 				WorkspaceID: workspaceId,
-				Action:      utils.ACL_READ,
+				Action:      permissions.ACL_READ,
 			})
 			if !readonly {
 				targetAcls = append(targetAcls, &idm.ACL{
 					NodeID:      node.Uuid,
 					RoleID:      userId,
 					WorkspaceID: workspaceId,
-					Action:      utils.ACL_WRITE,
+					Action:      permissions.ACL_WRITE,
 				})
 			}
 		}

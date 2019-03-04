@@ -26,16 +26,16 @@ import (
 	"io"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type HandlerEventRead struct {
@@ -134,13 +134,13 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 
 func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *docstore.Document, linkData *docstore.ShareDocument) {
 
-	userLogin, claims := utils.FindUserNameInContext(ctx)
+	userLogin, claims := permissions.FindUserNameInContext(ctx)
 	// TODO - Have the 'hidden' info directly in claims => could it be a profile instead ?
 	if claims.Profile != common.PYDIO_PROFILE_SHARED {
 		return
 	}
 	bgContext := context.Background()
-	user, e := utils.SearchUniqueUser(bgContext, userLogin, "", &idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
+	user, e := permissions.SearchUniqueUser(bgContext, userLogin, "", &idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
 	if e != nil || user == nil {
 		return
 	}

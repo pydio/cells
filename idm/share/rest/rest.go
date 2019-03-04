@@ -24,6 +24,7 @@
 package rest
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -35,8 +36,6 @@ import (
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"context"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
@@ -46,7 +45,7 @@ import (
 	"github.com/pydio/cells/common/service"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/share"
 )
 
@@ -138,7 +137,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 				ACL: &idm.ACL{
 					NodeID:      node.Uuid,
 					WorkspaceID: workspace.UUID,
-					Action:      &idm.ACLAction{Name: utils.ACL_WSROOT_ACTION_NAME, Value: "uuid:" + node.Uuid},
+					Action:      &idm.ACLAction{Name: permissions.ACL_WSROOT_ACTION_NAME, Value: "uuid:" + node.Uuid},
 				},
 			})
 		}
@@ -148,7 +147,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 				ACL: &idm.ACL{
 					NodeID:      createdCellNode.Uuid,
 					WorkspaceID: workspace.UUID,
-					Action:      utils.ACL_RECYCLE_ROOT,
+					Action:      permissions.ACL_RECYCLE_ROOT,
 				},
 			})
 		}

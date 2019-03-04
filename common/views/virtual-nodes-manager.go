@@ -26,12 +26,12 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var (
@@ -143,7 +143,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
 
 	resolved := &tree.Node{}
-	userName, _ := utils.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
+	userName, _ := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
 		return nil, errors.New(VIEWS_LIBRARY_NAME, "No Claims found in context", 500)
@@ -160,13 +160,13 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			datasourceKeys[key] = key
 		}
 		in := map[string]interface{}{
-			"User":        &utils.JsUser{Name: userName},
+			"User":        &permissions.JsUser{Name: userName},
 			"DataSources": datasourceKeys,
 		}
 		out := map[string]interface{}{
 			"Path": "",
 		}
-		if e := utils.RunJavaScript(ctx, resolutionString, in, out); e == nil {
+		if e := permissions.RunJavaScript(ctx, resolutionString, in, out); e == nil {
 			resolved.Path = out["Path"].(string)
 			//log.Logger(ctx).Debug("Javascript Resolved Objects", zap.Any("in", in), zap.Any("out", out))
 		} else {
@@ -205,7 +205,7 @@ func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tre
 	// Check if vNode has this flag set
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: []string{vNode.Uuid},
-		Actions: []*idm.ACLAction{utils.ACL_RECYCLE_ROOT},
+		Actions: []*idm.ACLAction{permissions.ACL_RECYCLE_ROOT},
 	})
 	st, e := cl.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {
@@ -229,7 +229,7 @@ func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tre
 	cl.CreateACL(ctx, &idm.CreateACLRequest{
 		ACL: &idm.ACL{
 			NodeID: resolved.Uuid,
-			Action: utils.ACL_RECYCLE_ROOT,
+			Action: permissions.ACL_RECYCLE_ROOT,
 		},
 	})
 

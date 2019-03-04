@@ -25,7 +25,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/policy/conditions"
 )
 
@@ -195,7 +195,7 @@ var (
 						servicecontext.HttpMetaRemoteAddress: &conditions.StringNotMatchCondition{
 							Matches: "localhost|127.0.0.1|::1",
 						},
-						utils.PolicyNodeMetaName: &ladon.StringMatchCondition{
+						permissions.PolicyNodeMetaName: &ladon.StringMatchCondition{
 							Matches: "target",
 						},
 					},
@@ -211,7 +211,7 @@ var (
 						servicecontext.HttpMetaRemoteAddress: &conditions.StringNotMatchCondition{
 							Matches: "localhost|127.0.0.1|::1",
 						},
-						utils.PolicyNodeMetaName: &ladon.StringMatchCondition{
+						permissions.PolicyNodeMetaName: &ladon.StringMatchCondition{
 							Matches: "(.+)\\.png",
 						},
 					},

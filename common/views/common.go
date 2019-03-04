@@ -41,6 +41,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/minio-go"
 )
 
@@ -154,16 +155,16 @@ func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, bool) {
 
 func UserWorkspacesFromContext(ctx context.Context) map[string]*idm.Workspace {
 	if value := ctx.Value(CtxUserAccessListKey{}); value != nil {
-		accessList := value.(*utils.AccessList)
+		accessList := value.(*permissions.AccessList)
 		return accessList.Workspaces
 	} else {
 		return make(map[string]*idm.Workspace)
 	}
 }
 
-func AccessListFromContext(ctx context.Context) (*utils.AccessList, error) {
+func AccessListFromContext(ctx context.Context) (*permissions.AccessList, error) {
 	if value := ctx.Value(CtxUserAccessListKey{}); value != nil {
-		accessList := value.(*utils.AccessList)
+		accessList := value.(*permissions.AccessList)
 		return accessList, nil
 	} else {
 		return nil, errors.New("Cannot find access list in context")

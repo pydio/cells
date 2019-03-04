@@ -22,14 +22,13 @@ package rest
 
 import (
 	"context"
-	"time"
-
-	"github.com/pborman/uuid"
-
 	"fmt"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pborman/uuid"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -37,7 +36,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	service2 "github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var (
@@ -130,10 +129,10 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 		return e
 	}
 	acls := []*idm.ACL{
-		{NodeID: rootUuid, Action: utils.ACL_READ, RoleID: "ROOT_GROUP", WorkspaceID: ws.UUID},
-		{NodeID: rootUuid, Action: utils.ACL_WRITE, RoleID: "ROOT_GROUP", WorkspaceID: ws.UUID},
-		{NodeID: rootUuid, Action: &idm.ACLAction{Name: utils.ACL_WSROOT_ACTION_NAME, Value: rootPath}, WorkspaceID: ws.UUID},
-		{NodeID: rootUuid, Action: utils.ACL_RECYCLE_ROOT, WorkspaceID: ws.UUID},
+		{NodeID: rootUuid, Action: permissions.ACL_READ, RoleID: "ROOT_GROUP", WorkspaceID: ws.UUID},
+		{NodeID: rootUuid, Action: permissions.ACL_WRITE, RoleID: "ROOT_GROUP", WorkspaceID: ws.UUID},
+		{NodeID: rootUuid, Action: &idm.ACLAction{Name: permissions.ACL_WSROOT_ACTION_NAME, Value: rootPath}, WorkspaceID: ws.UUID},
+		{NodeID: rootUuid, Action: permissions.ACL_RECYCLE_ROOT, WorkspaceID: ws.UUID},
 	}
 	service2.Retry(func() error {
 		log.Logger(ctx).Info("Settings ACLS for workspace")

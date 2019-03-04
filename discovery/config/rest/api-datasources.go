@@ -25,11 +25,11 @@ import (
 	"fmt"
 
 	"github.com/emicklei/go-restful"
-	"go.uber.org/zap"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -40,7 +40,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 /*********************
@@ -116,7 +116,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	config.SourceNamesToConfig(currentSources)
 	config.MinioConfigNamesToConfig(currentMinios)
 
-	u, _ := utils.FindUserNameInContext(ctx)
+	u, _ := permissions.FindUserNameInContext(ctx)
 	if u == "" {
 		u = "rest"
 	}
@@ -176,7 +176,7 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		config.MinioConfigNamesToConfig(currentMinios)
 	}
 
-	u, _ := utils.FindUserNameInContext(req.Request.Context())
+	u, _ := permissions.FindUserNameInContext(req.Request.Context())
 	if u == "" {
 		u = "rest"
 	}

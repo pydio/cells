@@ -36,8 +36,8 @@ import (
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var (
@@ -127,7 +127,7 @@ func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*m
 	}
 	emailOrAddress := user.Uuid
 	// Check if it's a user Login
-	if u, e := utils.SearchUniqueUser(ctx, emailOrAddress, ""); e == nil && u != nil {
+	if u, e := permissions.SearchUniqueUser(ctx, emailOrAddress, ""); e == nil && u != nil {
 		if email, has := u.GetAttributes()["email"]; has {
 			output := &mailer.User{Uuid: u.GetUuid(), Address: email}
 			if display, has := u.GetAttributes()["displayName"]; has {

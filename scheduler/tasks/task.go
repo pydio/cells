@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
@@ -47,7 +47,7 @@ type Task struct {
 }
 
 func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Task {
-	ctxUserName, _ := utils.FindUserNameInContext(ctx)
+	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
 	taskID := uuid.New()
 	operationID := job.ID + "-" + taskID[0:8]
 	c := servicecontext.WithOperationID(ctx, operationID)

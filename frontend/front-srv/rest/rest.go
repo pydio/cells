@@ -40,7 +40,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/frontend/front-srv/rest/modifiers"
 )
@@ -255,7 +255,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 
 	if binaryType == "USER" {
 
-		user, e := utils.SearchUniqueUser(ctx, binaryUuid, "")
+		user, e := permissions.SearchUniqueUser(ctx, binaryUuid, "")
 		if e != nil {
 			service.RestError404(req, rsp, e)
 			return
@@ -280,7 +280,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 
 	if readNode != nil {
 		// If anonymous GET, add system user in context before querying object service
-		if ctxUser, _ := utils.FindUserNameInContext(ctx); ctxUser == "" {
+		if ctxUser, _ := permissions.FindUserNameInContext(ctx); ctxUser == "" {
 			ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
 		}
 		ctx = ctxWithoutCookies(ctx)
@@ -316,7 +316,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	cType := strings.Split(f2.Header.Get("Content-Type"), "/")
 	extension := cType[1]
 	binaryId := uuid.New()[0:12] + "." + extension
-	ctxUser, ctxClaims := utils.FindUserNameInContext(ctx)
+	ctxUser, ctxClaims := permissions.FindUserNameInContext(ctx)
 
 	log.Logger(ctx).Debug("Upload Binary", zap.String("type", binaryType), zap.Any("header", f2))
 	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
@@ -331,7 +331,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			return
 		}
 
-		user, e := utils.SearchUniqueUser(ctx, binaryUuid, "")
+		user, e := permissions.SearchUniqueUser(ctx, binaryUuid, "")
 		if e != nil {
 			service.RestError404(req, rsp, e)
 			return

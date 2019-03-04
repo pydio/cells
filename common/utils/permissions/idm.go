@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -17,22 +17,20 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-package utils
+package permissions
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
-
-	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"

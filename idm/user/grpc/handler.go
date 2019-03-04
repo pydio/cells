@@ -22,21 +22,19 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"time"
-
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
-
 	"encoding/json"
-	"strings"
-
+	"fmt"
 	"sort"
+	"strings"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
@@ -44,7 +42,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/user"
 )
 
@@ -113,7 +111,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 	out := newUser.(*idm.User)
 	if passChange != "" {
 		// Check if it is a "force pass change operation".
-		ctxLogin, _ := utils.FindUserNameInContext(ctx)
+		ctxLogin, _ := permissions.FindUserNameInContext(ctx)
 		if l, ok := out.Attributes["locks"]; ok && strings.Contains(l, "pass_change") && ctxLogin == out.Login {
 			if req.User.OldPassword == out.Password {
 				return fmt.Errorf("new password is the same as the old password, please use a different one")

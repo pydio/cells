@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"strings"
 
-	"go.uber.org/zap"
-
 	"github.com/gosimple/slug"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -26,7 +26,7 @@ func LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNod
 	router := views.NewUuidRouter(views.RouterOptions{})
 	metaClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
 	eventFilter := views.NewRouterEventFilter(views.RouterOptions{AdminView: false})
-	accessList, _ := utils.AccessListFromContextClaims(ctx)
+	accessList, _ := permissions.AccessListFromContextClaims(ctx)
 	for _, rootId := range detectedRoots {
 		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}
 		if resp, err := router.ReadNode(ctx, request); err == nil {
@@ -128,7 +128,7 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 	if hasReadonly {
 		for _, a := range shareRequest.Room.GetACLs() {
 			for _, action := range a.GetActions() {
-				if action.Name == utils.ACL_WRITE.Name {
+				if action.Name == permissions.ACL_WRITE.Name {
 					return errors.Forbidden(common.SERVICE_SHARE, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell."), nil, true
 				}
 			}

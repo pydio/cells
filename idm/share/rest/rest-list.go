@@ -21,13 +21,13 @@
 package rest
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-
-	"context"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
@@ -40,10 +40,9 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/share"
-	"go.uber.org/zap"
 )
 
 // ListSharedResources implements the corresponding Rest API operation
@@ -122,7 +121,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		return
 	}
 
-	acls, e := utils.GetACLsForWorkspace(ctx, workspaceIds, utils.ACL_READ, utils.ACL_WRITE, utils.ACL_POLICY)
+	acls, e := permissions.GetACLsForWorkspace(ctx, workspaceIds, permissions.ACL_READ, permissions.ACL_WRITE, permissions.ACL_POLICY)
 	if e != nil {
 		service.RestError500(req, rsp, e)
 		return

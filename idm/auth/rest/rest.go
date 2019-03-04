@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type TokenHandler struct{}
@@ -107,10 +107,10 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	response := &rest.ResetPasswordTokenResponse{}
 
 	// Search for user by login
-	u, e := utils.SearchUniqueUser(ctx, userLogin, "")
+	u, e := permissions.SearchUniqueUser(ctx, userLogin, "")
 	if e != nil {
 		// Search by email
-		u, e = utils.SearchUniqueUser(ctx, "", "", &idm.UserSingleQuery{AttributeName: "email", AttributeValue: userLogin})
+		u, e = permissions.SearchUniqueUser(ctx, "", "", &idm.UserSingleQuery{AttributeName: "email", AttributeValue: userLogin})
 		if e != nil || u.Attributes["email"] == "" {
 			response.Success = false
 			response.Message = "Cannot find corresponding email address"
@@ -210,7 +210,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		response.Message = "Token is does not correspond to this user identifier!"
 		return
 	}
-	u, e := utils.SearchUniqueUser(ctx, storedToken.UserLogin, "")
+	u, e := permissions.SearchUniqueUser(ctx, storedToken.UserLogin, "")
 	if e != nil {
 		response.Success = false
 		response.Message = "Cannot find corresponding user"

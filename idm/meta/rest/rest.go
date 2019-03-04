@@ -27,11 +27,11 @@ import (
 	"strings"
 
 	"github.com/emicklei/go-restful"
-	"go.uber.org/zap"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
@@ -44,7 +44,7 @@ import (
 	"github.com/pydio/cells/common/service"
 	serviceproto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/meta/namespace"
 )
@@ -80,9 +80,9 @@ func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, op
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: []string{nodeUuid},
-		Actions: []*idm.ACLAction{{Name: utils.ACL_CONTENT_LOCK.Name}},
+		Actions: []*idm.ACLAction{{Name: permissions.ACL_CONTENT_LOCK.Name}},
 	})
-	userName, _ := utils.FindUserNameInContext(ctx)
+	userName, _ := permissions.FindUserNameInContext(ctx)
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &serviceproto.Query{SubQueries: []*any.Any{q}}})
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, e)
 			return
 		}
-		if meta.Namespace == utils.ACL_CONTENT_LOCK.Name {
+		if meta.Namespace == permissions.ACL_CONTENT_LOCK.Name {
 			e := s.updateLock(ctx, meta, input.Operation)
 			if e != nil {
 				service.RestErrorDetect(req, rsp, e)

@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pydio/cells/common/utils/i18n"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -16,14 +14,15 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
 type User struct {
 	Logged           bool
 	Claims           claim.Claims
-	AccessList       *utils.AccessList
+	AccessList       *permissions.AccessList
 	Workspaces       map[string]*Workspace
 	UserObject       *idm.User
 	ActiveWorkspace  string
@@ -51,8 +50,8 @@ func (u *User) Load(ctx context.Context) error {
 	u.Claims = claims
 
 	// Load user object
-	userName, _ := utils.FindUserNameInContext(ctx)
-	if user, err := utils.SearchUniqueUser(ctx, userName, ""); err != nil {
+	userName, _ := permissions.FindUserNameInContext(ctx)
+	if user, err := permissions.SearchUniqueUser(ctx, userName, ""); err != nil {
 		return err
 	} else {
 		u.UserObject = user
@@ -70,14 +69,14 @@ func (u *User) Load(ctx context.Context) error {
 		}
 	}
 
-	accessList, err := utils.AccessListFromContextClaims(ctx)
+	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
 		return err
 	}
 	u.AccessList = accessList
 	u.LoadWorkspaces(ctx, u.AccessList)
 
-	utils.AccessListLoadFrontValues(ctx, u.AccessList)
+	permissions.AccessListLoadFrontValues(ctx, u.AccessList)
 
 	return nil
 }
@@ -227,7 +226,7 @@ func (u *User) FlattenedFrontValues() *config.Map {
 	return output
 }
 
-func (u *User) LoadWorkspaces(ctx context.Context, accessList *utils.AccessList) error {
+func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.AccessList) error {
 
 	workspacesAccesses := accessList.GetAccessibleWorkspaces(ctx)
 	for wsId, _ := range workspacesAccesses {

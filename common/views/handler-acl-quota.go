@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type AclQuotaFilter struct {
@@ -147,7 +148,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 		return
 	}
 
-	ownerAcls, userObject, e := utils.AccessListFromUser(ctx, ownerUuid, true)
+	ownerAcls, userObject, e := permissions.AccessListFromUser(ctx, ownerUuid, true)
 	if e != nil {
 		err = e
 		return
@@ -179,7 +180,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("resolved", resolvedRoot))
 				realId = resolvedRoot.Uuid
 			}
-			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, utils.FLAG_READ) && !aclNodeMask.HasFlag(ctx, utils.FLAG_DENY) {
+			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, permissions.FLAG_READ) && !aclNodeMask.HasFlag(ctx, permissions.FLAG_DENY) {
 				ownerWsRoots[realId] = ws
 			}
 		}
@@ -239,7 +240,7 @@ func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.W
 		if e != nil {
 			break
 		}
-		if resp.ACL.Action.Name == utils.ACL_QUOTA.Name {
+		if resp.ACL.Action.Name == permissions.ACL_QUOTA.Name {
 			if resp.ACL.Action.Value != "" {
 				roleValues[resp.ACL.RoleID] = resp.ACL.Action.Value
 			}

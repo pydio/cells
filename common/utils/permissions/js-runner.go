@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -17,8 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-package utils
+package permissions
 
 import (
 	"context"

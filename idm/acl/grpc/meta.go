@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/acl"
 )
 
@@ -62,8 +62,8 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 			NodeIDs: []string{node.Uuid},
 			Actions: []*idm.ACLAction{
 				{Name: "content_lock"},
-				utils.ACL_READ,
-				utils.ACL_WRITE,
+				permissions.ACL_READ,
+				permissions.ACL_WRITE,
 			},
 		})
 		dao.Search(&service.Query{SubQueries: []*any.Any{q}}, acls)

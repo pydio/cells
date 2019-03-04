@@ -25,7 +25,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/docs"
 )
 
 var docPath string
@@ -44,7 +44,7 @@ This command also generates yaml files for pydio.com documentation format.
 			log.Fatal("Please provide a path to store output files")
 		} else {
 
-			err := utils.GenMarkdownTree(RootCmd, docPath)
+			err := docs.GenMarkdownTree(RootCmd, docPath)
 			if err != nil {
 				log.Fatal(err)
 			}

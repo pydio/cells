@@ -9,13 +9,14 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	permissions2 "github.com/pydio/cells/common/utils/permissions"
 )
 
 // GetOrCreateHiddenUser will load or create a user to create a ShareLink with.
@@ -134,7 +135,7 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 				RoleID:      roleId,
 				WorkspaceID: workspaceId,
 				NodeID:      rootNode.Uuid,
-				Action:      utils.ACL_READ,
+				Action:      permissions2.ACL_READ,
 			})
 		}
 
@@ -143,7 +144,7 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 				RoleID:      roleId,
 				WorkspaceID: workspaceId,
 				NodeID:      rootNode.Uuid,
-				Action:      utils.ACL_WRITE,
+				Action:      permissions2.ACL_WRITE,
 			})
 		}
 	}

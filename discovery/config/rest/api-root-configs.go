@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 /*********************
@@ -45,7 +45,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
-	u, _ := utils.FindUserNameInContext(ctx)
+	u, _ := permissions.FindUserNameInContext(ctx)
 	if u == "" {
 		u = "rest"
 	}

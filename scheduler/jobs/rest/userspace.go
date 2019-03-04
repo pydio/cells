@@ -23,14 +23,13 @@ package rest
 import (
 	"context"
 	"path/filepath"
+	"strings"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"strings"
-
-	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
@@ -38,7 +37,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
 )
@@ -198,7 +197,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 				return e
 			}
 			if move {
-				if e := utils.CheckContentLock(ctx, r.Node); e != nil {
+				if e := permissions.CheckContentLock(ctx, r.Node); e != nil {
 					return e
 				}
 			}

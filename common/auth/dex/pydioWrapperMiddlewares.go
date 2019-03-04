@@ -14,7 +14,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 // WrapperConnectorOperation holds all necessary information to perform auth actions using the middleware pattern.
@@ -72,7 +72,7 @@ func WrapWithIdmUser(middleware WrapperConnectorProvider) WrapperConnectorProvid
 			return op, e
 		}
 		if op.ValidUsername != "" {
-			u, er := utils.SearchUniqueUser(ctx, op.ValidUsername, "")
+			u, er := permissions.SearchUniqueUser(ctx, op.ValidUsername, "")
 			if e != nil {
 				return op, er
 			}
@@ -96,8 +96,8 @@ func WrapWithPolicyCheck(middleware WrapperConnectorProvider) WrapperConnectorPr
 		user := op.User
 		cli := idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
 		policyContext := make(map[string]string)
-		utils.PolicyContextFromMetadata(policyContext, ctx)
-		subjects := utils.PolicyRequestSubjectsFromUser(user)
+		permissions.PolicyContextFromMetadata(policyContext, ctx)
+		subjects := permissions.PolicyRequestSubjectsFromUser(user)
 
 		// Check all subjects, if one has deny return false
 		policyRequest := &idm.PolicyEngineRequest{
@@ -134,7 +134,7 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 		if user := op.User; user != nil {
 
 			// Insure user has not been locked out
-			if utils.IsUserLocked(user) {
+			if permissions.IsUserLocked(user) {
 				log.Auditer(ctx).Error(
 					"Locked user ["+user.Login+"] tried to log in.",
 					log.GetAuditId(common.AUDIT_LOGIN_POLICY_DENIAL),
@@ -160,10 +160,10 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 
 			const maxFailedLogins = 10
 
-			if u, e := utils.SearchUniqueUser(ctx, op.Login, ""); e == nil && u != nil {
+			if u, e := permissions.SearchUniqueUser(ctx, op.Login, ""); e == nil && u != nil {
 
 				// double check if user was already locked to reduce work load
-				if utils.IsUserLocked(u) {
+				if permissions.IsUserLocked(u) {
 					msg := fmt.Sprintf("locked user %s is still trying to connect", u.GetLogin())
 					log.Logger(ctx).Warn(msg, u.ZapLogin())
 					return op, opE
