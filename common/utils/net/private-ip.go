@@ -61,12 +61,11 @@ func DetectHasPrivateIP() (bool, string, error) {
 			continue
 		}
 
+		ipAddr = ip
+
 		if isPrivateIP(ip.String()) {
 			return true, "", nil
 		}
-
-		ipAddr = ip
-		break
 	}
 
 	if ipAddr == nil {
