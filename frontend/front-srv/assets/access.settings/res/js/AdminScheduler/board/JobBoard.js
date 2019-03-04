@@ -129,10 +129,10 @@ class JobBoard extends React.Component {
         });
 
         let actions = [];
-        if(jobsEditable){
-            actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
-        }
         if(!job.EventNames){
+            if(jobsEditable){
+                actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
+            }
             actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} />);
         }
         if(job.Inactive) {
