@@ -37,7 +37,9 @@ import (
 	"syscall"
 	"testing"
 
-	ptypes "github.com/golang/protobuf/ptypes"
+	"github.com/pydio/cells/common/utils/std"
+
+	"github.com/golang/protobuf/ptypes"
 	ptypes_any "github.com/golang/protobuf/ptypes/any"
 
 	"github.com/micro/go-micro/client"
@@ -46,8 +48,6 @@ import (
 
 	"github.com/pydio/cells/common/proto/idm"
 	serviceproto "github.com/pydio/cells/common/service/proto"
-
-	"github.com/pydio/cells/common/utils"
 )
 
 const (
@@ -423,7 +423,7 @@ func clearRandoms() {
 
 func addRandomToList() string {
 
-	r := utils.Randkey(50)
+	r := std.Randkey(50)
 
 	randomMutex.Lock()
 	defer randomMutex.Unlock()

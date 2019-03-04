@@ -40,7 +40,6 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/minio-go"
 )
@@ -177,9 +176,9 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 	if hasBranchInfo && len(branchInfo.AncestorsList) > 0 {
 		return ctx, branchInfo.AncestorsList, nil
 	}
-	searchFunc := utils.BuildAncestorsList
+	searchFunc := tree.BuildAncestorsList
 	if orParents {
-		searchFunc = utils.BuildAncestorsListOrParent
+		searchFunc = tree.BuildAncestorsListOrParent
 	}
 	if parents, err := searchFunc(ctx, p.GetTreeClient(), node); err != nil {
 		return ctx, nil, err

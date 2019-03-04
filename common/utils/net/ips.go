@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+// Package net provides tools for reading IPs, available Ports, extending HTTP requests, etc.
 package net
 
 import (

@@ -1,3 +1,4 @@
+// Package mtree provides advanced tools for encoding tree paths in a material format
 package mtree
 
 import (

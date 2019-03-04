@@ -1,3 +1,4 @@
+// Package context manipulates context metadata
 package context
 
 import (

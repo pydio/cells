@@ -1,3 +1,4 @@
+// Package meta provides tool for reading metadata from services declaring "MetaProvider" support
 package meta
 
 import (

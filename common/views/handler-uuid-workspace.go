@@ -30,7 +30,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -84,7 +83,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 		}
 	}
 
-	parents, err := utils.BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
+	parents, err := tree.BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
 	if err != nil {
 		return ctx, node, err
 	}
