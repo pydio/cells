@@ -25,13 +25,13 @@ import (
 	"strings"
 
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
 // NewNode utils
-func NewNode(treeNode *tree.Node, path utils.MPath, filenames []string) *utils.TreeNode {
+func NewNode(treeNode *tree.Node, path mtree.MPath, filenames []string) *mtree.TreeNode {
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.Node = treeNode
 
 	node.SetMPath(path...)

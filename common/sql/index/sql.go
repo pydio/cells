@@ -34,6 +34,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/pydio/cells/common/utils/mtree"
+
 	"github.com/gobuffalo/packr"
 	"github.com/pborman/uuid"
 	"github.com/rubenv/sql-migrate"
@@ -43,7 +45,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils"
 )
 
 var (
@@ -65,7 +66,7 @@ var (
 
 // BatchSend sql structure
 type BatchSend struct {
-	in  chan *utils.TreeNode
+	in  chan *mtree.TreeNode
 	out chan error
 }
 
@@ -320,7 +321,7 @@ func (dao *IndexSQL) CleanResourcesOnDeletion() (error, string) {
 }
 
 // AddNode to the mysql database
-func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
+func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -413,9 +414,9 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 }
 
 // AddNodeStream creates a channel to write to the database to the mysql database
-func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
+func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 	e := make(chan error)
 
 	go func() {
@@ -532,7 +533,7 @@ func (dao *IndexSQL) Flush(final bool) error {
 }
 
 // SetNode in replacement of previous node
-func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
+func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -620,7 +621,7 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 }
 
 // PushCommit adds a commit version to the node
-func (dao *IndexSQL) PushCommit(node *utils.TreeNode) error {
+func (dao *IndexSQL) PushCommit(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -664,7 +665,7 @@ func (dao *IndexSQL) PushCommit(node *utils.TreeNode) error {
 }
 
 // DeleteCommits removes the commit versions of the node
-func (dao *IndexSQL) DeleteCommits(node *utils.TreeNode) error {
+func (dao *IndexSQL) DeleteCommits(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -683,7 +684,7 @@ func (dao *IndexSQL) DeleteCommits(node *utils.TreeNode) error {
 }
 
 // ListCommits returns a list of all commit versions for a node
-func (dao *IndexSQL) ListCommits(node *utils.TreeNode) (commits []*tree.ChangeLog, err error) {
+func (dao *IndexSQL) ListCommits(node *mtree.TreeNode) (commits []*tree.ChangeLog, err error) {
 
 	dao.Lock()
 
@@ -732,7 +733,7 @@ func (dao *IndexSQL) ListCommits(node *utils.TreeNode) (commits []*tree.ChangeLo
 	return commits, err
 }
 
-func (dao *IndexSQL) etagFromChildren(node *utils.TreeNode) (string, error) {
+func (dao *IndexSQL) etagFromChildren(node *mtree.TreeNode) (string, error) {
 
 	SEPARATOR := "."
 	hasher := md5.New()
@@ -776,7 +777,7 @@ func (dao *IndexSQL) etagFromChildren(node *utils.TreeNode) (string, error) {
 }
 
 // ResyncDirtyEtags ensures that etags are rightly calculated
-func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
+func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 
 	dao.Lock()
 
@@ -795,7 +796,7 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
 	} else {
 		return fmt.Errorf("Empty statement")
 	}
-	var nodesToUpdate []*utils.TreeNode
+	var nodesToUpdate []*mtree.TreeNode
 	for rows.Next() {
 		node, e := dao.scanDbRowToTreeNode(rows)
 		if e != nil {
@@ -907,7 +908,7 @@ func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 }
 
 // DelNode from database
-func (dao *IndexSQL) DelNode(node *utils.TreeNode) error {
+func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -970,7 +971,7 @@ func (dao *IndexSQL) DelNode(node *utils.TreeNode) error {
 }
 
 // GetNode from path
-func (dao *IndexSQL) GetNode(path utils.MPath) (*utils.TreeNode, error) {
+func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -979,7 +980,7 @@ func (dao *IndexSQL) GetNode(path utils.MPath) (*utils.TreeNode, error) {
 		return nil, fmt.Errorf("Empty path")
 	}
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetMPath(path...)
 
 	mpath := node.MPath.String()
@@ -999,7 +1000,7 @@ func (dao *IndexSQL) GetNode(path utils.MPath) (*utils.TreeNode, error) {
 }
 
 // GetNodeByUUID returns the node stored with the unique uuid
-func (dao *IndexSQL) GetNodeByUUID(uuid string) (*utils.TreeNode, error) {
+func (dao *IndexSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -1020,11 +1021,11 @@ func (dao *IndexSQL) GetNodeByUUID(uuid string) (*utils.TreeNode, error) {
 }
 
 // GetNodes List
-func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
+func (dao *IndexSQL) GetNodes(mpathes ...mtree.MPath) chan *mtree.TreeNode {
 
 	dao.Lock()
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 
 	go func() {
 
@@ -1077,12 +1078,12 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 }
 
 // GetNodeChild from node path whose name matches
-func (dao *IndexSQL) GetNodeChild(reqPath utils.MPath, reqName string) (*utils.TreeNode, error) {
+func (dao *IndexSQL) GetNodeChild(reqPath mtree.MPath, reqName string) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetMPath(reqPath...)
 
 	mpath := node.MPath
@@ -1102,12 +1103,12 @@ func (dao *IndexSQL) GetNodeChild(reqPath utils.MPath, reqName string) (*utils.T
 }
 
 // GetNodeLastChild from path
-func (dao *IndexSQL) GetNodeLastChild(reqPath utils.MPath) (*utils.TreeNode, error) {
+func (dao *IndexSQL) GetNodeLastChild(reqPath mtree.MPath) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetMPath(reqPath...)
 
 	mpath := node.MPath
@@ -1127,7 +1128,7 @@ func (dao *IndexSQL) GetNodeLastChild(reqPath utils.MPath) (*utils.TreeNode, err
 }
 
 // GetNodeFirstAvailableChildIndex from path
-func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath utils.MPath) (uint64, error) {
+func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (uint64, error) {
 
 	all := []int{}
 
@@ -1162,12 +1163,12 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath utils.MPath) (uint6
 }
 
 // GetNodeChildrenCount List
-func (dao *IndexSQL) GetNodeChildrenCount(path utils.MPath) int {
+func (dao *IndexSQL) GetNodeChildrenCount(path mtree.MPath) int {
 
 	dao.Lock()
 	defer dao.Unlock()
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetMPath(path...)
 
 	mpath := node.MPath
@@ -1190,11 +1191,11 @@ func (dao *IndexSQL) GetNodeChildrenCount(path utils.MPath) int {
 }
 
 // GetNodeChildren List
-func (dao *IndexSQL) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
+func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 
 	dao.Lock()
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 
 	go func() {
 		var rows *databasesql.Rows
@@ -1208,7 +1209,7 @@ func (dao *IndexSQL) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
 			dao.Unlock()
 		}()
 
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.SetMPath(path...)
 
 		mpath := node.MPath
@@ -1236,11 +1237,11 @@ func (dao *IndexSQL) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
+func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 
 	dao.Lock()
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 
 	go func() {
 		var rows *databasesql.Rows
@@ -1255,7 +1256,7 @@ func (dao *IndexSQL) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 			dao.Unlock()
 		}()
 
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.SetMPath(path...)
 
 		mpath := node.MPath
@@ -1284,10 +1285,10 @@ func (dao *IndexSQL) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
-func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNode) error {
+func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
 
 	var err error
-	var pathFrom, pathTo utils.MPath
+	var pathFrom, pathTo mtree.MPath
 	pathFrom = nodeFrom.MPath
 	pathTo = nodeTo.MPath
 
@@ -1301,7 +1302,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 		return fmt.Errorf("Cannot replace root")
 	}
 
-	pf0, psf0, pf1, psf1 := utils.NewRat(), utils.NewRat(), utils.NewRat(), utils.NewRat()
+	pf0, psf0, pf1, psf1 := mtree.NewRat(), mtree.NewRat(), mtree.NewRat(), mtree.NewRat()
 	pf0.SetMPath(ppf...)
 	psf0.SetMPath(ppf.Sibling()...)
 
@@ -1318,16 +1319,16 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 	m.SetUint64(idx)
 	n.SetUint64(uint64(pathFrom[len(pathFrom)-1]))
 
-	p0 := utils.NewMatrix(pf0.Num(), psf0.Num(), pf0.Denom(), psf0.Denom())
-	p1 := utils.NewMatrix(pf1.Num(), psf1.Num(), pf1.Denom(), psf1.Denom())
+	p0 := mtree.NewMatrix(pf0.Num(), psf0.Num(), pf0.Denom(), psf0.Denom())
+	p1 := mtree.NewMatrix(pf1.Num(), psf1.Num(), pf1.Denom(), psf1.Denom())
 	toPath := nodeTo.Path
 
 	var updateErrors []error
 
-	update := func(node *utils.TreeNode) {
-		M0 := utils.NewMatrix(node.NV(), node.SNV(), node.DV(), node.SDV())
-		M1 := utils.MoveSubtree(p0, m, p1, n, M0)
-		rat := utils.NewRat()
+	update := func(node *mtree.TreeNode) {
+		M0 := mtree.NewMatrix(node.NV(), node.SNV(), node.DV(), node.SDV())
+		M1 := mtree.MoveSubtree(p0, m, p1, n, M0)
+		rat := mtree.NewRat()
 		rat.SetFrac(M1.GetA11(), M1.GetA12())
 		node.SetRat(rat)
 
@@ -1347,7 +1348,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 	// Updating the original node
 	update(nodeFrom)
 
-	var nodes []*utils.TreeNode
+	var nodes []*mtree.TreeNode
 
 	for node := range dao.GetNodeTree(pathFrom) {
 		nodes = append(nodes, node)
@@ -1364,7 +1365,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 	return nil
 }
 
-func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*utils.TreeNode, error) {
+func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, error) {
 	var (
 		uuid  string
 		rat   []byte
@@ -1385,7 +1386,7 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*utils.TreeNode, erro
 		nodeType = tree.NodeType_COLLECTION
 	}
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetBytes(rat)
 
 	metaName, _ := json.Marshal(name)
@@ -1402,12 +1403,12 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*utils.TreeNode, erro
 	return node, nil
 }
 
-func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (utils.MPath, []*utils.TreeNode, error) {
+func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 
-	var path utils.MPath
+	var path mtree.MPath
 	var err error
 
-	created := []*utils.TreeNode{}
+	created := []*mtree.TreeNode{}
 
 	if len(strpath) == 0 || strpath == "/" {
 		return []uint64{1}, created, nil
@@ -1417,7 +1418,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 
 	path = make([]uint64, len(names))
 	path[0] = 1
-	parents := make([]*utils.TreeNode, len(names))
+	parents := make([]*mtree.TreeNode, len(names))
 
 	// Reading root path
 	node, err := dao.GetNode(path[0:1])
@@ -1592,7 +1593,7 @@ func (dao *IndexSQL) unlock() {
 // NewBatchSend Creation of the channels
 func NewBatchSend() *BatchSend {
 	b := new(BatchSend)
-	b.in = make(chan *utils.TreeNode)
+	b.in = make(chan *mtree.TreeNode)
 	b.out = make(chan error, 1)
 
 	return b
@@ -1600,7 +1601,7 @@ func NewBatchSend() *BatchSend {
 
 // Send a node to the batch
 func (b *BatchSend) Send(arg interface{}) {
-	if node, ok := arg.(*utils.TreeNode); ok {
+	if node, ok := arg.(*mtree.TreeNode); ok {
 		b.in <- node
 	}
 }

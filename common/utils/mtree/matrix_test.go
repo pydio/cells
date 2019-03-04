@@ -1,29 +1,10 @@
-/*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
- * This file is part of Pydio Cells.
- *
- * Pydio Cells is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio Cells is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-package utils
+package mtree
 
 import (
 	"math/big"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -42,22 +23,22 @@ func init() {
 
 func TestMatrix(t *testing.T) {
 
-	Convey("Test creation of a matrix", t, func() {
+	convey.Convey("Test creation of a matrix", t, func() {
 		m := NewMatrix(big.NewInt(65), big.NewInt(82), big.NewInt(23), big.NewInt(29))
 
-		So(m, ShouldResemble, mockMatrix)
+		convey.So(m, convey.ShouldResemble, mockMatrix)
 	})
 
-	Convey("Test creation of a matrix from materialised path", t, func() {
+	convey.Convey("Test creation of a matrix from materialised path", t, func() {
 		f := NewFractionFromMaterializedPath(2, 4, 3)
 		sf := NewFractionFromMaterializedPath(2, 4, 4)
 
 		m := NewMatrix(f.Num(), sf.Num(), f.Den(), sf.Den())
 
-		So(m, ShouldResemble, mockMatrix)
+		convey.So(m, convey.ShouldResemble, mockMatrix)
 	})
 
-	Convey("Test multiplication of two matrices 1", t, func() {
+	convey.Convey("Test multiplication of two matrices 1", t, func() {
 		pf := NewFractionFromMaterializedPath(2, 4)
 		spf := NewFractionFromMaterializedPath(2, 5)
 
@@ -70,10 +51,10 @@ func TestMatrix(t *testing.T) {
 		// So we multiply the matrix of the materialized path 2.4 by 3
 		// And it should give us the result of 2.4.3
 		m := multiply(m1, m2)
-		So(m, ShouldResemble, mockMatrix)
+		convey.So(m, convey.ShouldResemble, mockMatrix)
 	})
 
-	Convey("Test multiplication of two matrices 2", t, func() {
+	convey.Convey("Test multiplication of two matrices 2", t, func() {
 		pf := NewFractionFromMaterializedPath(2)
 		spf := NewFractionFromMaterializedPath(3)
 
@@ -89,10 +70,10 @@ func TestMatrix(t *testing.T) {
 		// So we multiply the matrix of the materialized path 2 by 4.3
 		// And it should give us the result of 2.4.3
 		m := multiply(m1, m2)
-		So(m, ShouldResemble, NewMatrix(newf.Num(), newspf.Num(), newf.Den(), newspf.Den()))
+		convey.So(m, convey.ShouldResemble, NewMatrix(newf.Num(), newspf.Num(), newf.Den(), newspf.Den()))
 	})
 
-	Convey("Test multiplication of two matrices 3", t, func() {
+	convey.Convey("Test multiplication of two matrices 3", t, func() {
 		pf := NewFractionFromMaterializedPath(2, 4, 1, 10)
 		spf := NewFractionFromMaterializedPath(2, 4, 1, 11)
 
@@ -108,10 +89,10 @@ func TestMatrix(t *testing.T) {
 		// So we multiply the matrix of the materialized path 2.4.1.10 by 3.4.15.1.3
 		// And it should give us the result of 2.4.1.10.3.4.15.1.3
 		m := multiply(m1, m2)
-		So(m, ShouldResemble, NewMatrix(newf.Num(), newspf.Num(), newf.Den(), newspf.Den()))
+		convey.So(m, convey.ShouldResemble, NewMatrix(newf.Num(), newspf.Num(), newf.Den(), newspf.Den()))
 	})
 
-	Convey("Test moving subtree", t, func() {
+	convey.Convey("Test moving subtree", t, func() {
 		// We want to move everything in 1.6.5 to 2.4.3
 
 		// First we retrieve the parent matrices
@@ -134,7 +115,7 @@ func TestMatrix(t *testing.T) {
 		mt := MoveSubtree(mpf, big.NewInt(3), mpt, big.NewInt(5), mf)
 
 		// Checking
-		So(mt, ShouldResemble, mockMatrix)
+		convey.So(mt, convey.ShouldResemble, mockMatrix)
 
 		// ----------------------------------
 		// Testing 3.1.10 path inside 1.6.5
@@ -149,7 +130,7 @@ func TestMatrix(t *testing.T) {
 		tf := NewFractionFromMaterializedPath(2, 4, 3, 3, 1, 10)
 		tsf := NewFractionFromMaterializedPath(2, 4, 3, 3, 1, 11)
 
-		So(mt, ShouldResemble, NewMatrix(tf.Num(), tsf.Num(), tf.Den(), tsf.Den()))
+		convey.So(mt, convey.ShouldResemble, NewMatrix(tf.Num(), tsf.Num(), tf.Den(), tsf.Den()))
 
 	})
 }
