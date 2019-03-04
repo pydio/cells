@@ -560,6 +560,9 @@
   "logs.export.disabled": {
     "other": "Pick a date or filter result"
   },
+  "logs.export.clicklink": {
+    "other": "Click on the link to download"
+  },
   "logs.filter.period": {
     "other": "Time Period"
   },

@@ -22,14 +22,6 @@ var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
 var _modelLog = require('../model/Log');
 
 var _modelLog2 = _interopRequireDefault(_modelLog);
@@ -84,6 +76,8 @@ var LogTools = (function (_React$Component) {
     }, {
         key: 'handleExport',
         value: function handleExport(format) {
+            var _this = this;
+
             var _state2 = this.state;
             var filter = _state2.filter;
             var date = _state2.date;
@@ -94,7 +88,6 @@ var LogTools = (function (_React$Component) {
             var query = _modelLog2['default'].buildQuery(filter, date, endDate);
             _modelLog2['default'].downloadLogs(service || 'sys', query, format).then(function (blob) {
                 var url = window.URL.createObjectURL(blob);
-                var link = document.createElement('a');
                 var filename = 'cells-logs-';
                 if (dateString) {
                     filename += dateString;
@@ -102,7 +95,20 @@ var LogTools = (function (_React$Component) {
                     filename += 'filtered';
                 }
                 filename += '.' + format.toLowerCase();
-
+                if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+                    _this.setState({
+                        exportUrl: url,
+                        exportFilename: filename,
+                        exportOnClick: function exportOnClick() {
+                            setTimeout(function () {
+                                window.URL.revokeObjectURL(url);
+                            }, 100);
+                            _this.setState({ exportUrl: null, exportFilename: null });
+                        }
+                    });
+                    return;
+                }
+                var link = document.createElement('a');
                 link.href = url;
                 link.download = filename;
                 link.click();
@@ -119,7 +125,7 @@ var LogTools = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this = this;
+            var _this2 = this;
 
             var _props = this.props;
             var pydio = _props.pydio;
@@ -128,6 +134,9 @@ var LogTools = (function (_React$Component) {
             var filter = _state3.filter;
             var date = _state3.date;
             var filterMode = _state3.filterMode;
+            var exportUrl = _state3.exportUrl;
+            var exportFilename = _state3.exportFilename;
+            var exportOnClick = _state3.exportOnClick;
             var MessageHash = pydio.MessageHash;
 
             var hasFilter = filter || date;
@@ -136,35 +145,35 @@ var LogTools = (function (_React$Component) {
                 'div',
                 { style: { display: 'flex', alignItems: 'center', width: '100%' } },
                 filterMode === 'fulltext' && _react2['default'].createElement(_materialUi.TextField, { hintText: MessageHash["ajxp_admin.logs.3"], onChange: function (e) {
-                        return _this.handleFilterChange(e.target.value);
+                        return _this2.handleFilterChange(e.target.value);
                     }, style: { margin: '0 5px', width: 180 } }),
                 filterMode === 'oneday' && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center' } },
                     _react2['default'].createElement(_materialUi.DatePicker, { hintText: MessageHash["ajxp_admin.logs.2"], onChange: function (e, date) {
-                            return _this.handleDateChange(date);
+                            return _this2.handleDateChange(date);
                         },
                         autoOk: true, maxDate: new Date(), value: this.state.date,
                         showYearSelector: true, style: { margin: '0 5px', width: 100 }, textFieldStyle: { width: 80 } }),
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
-                            _this.handleDateChange(undefined);
+                            _this2.handleDateChange(undefined);
                         } })
                 ),
                 filterMode === 'period' && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center' } },
                     _react2['default'].createElement(_materialUi.DatePicker, { hintText: 'From', onChange: function (e, date) {
-                            return _this.handleDateChange(date);
+                            return _this2.handleDateChange(date);
                         },
                         autoOk: true, maxDate: new Date(), value: this.state.date,
                         showYearSelector: true, style: { margin: '0 5px', width: 100 }, textFieldStyle: { width: 80 } }),
                     _react2['default'].createElement(_materialUi.DatePicker, { hintText: 'To', onChange: function (e, date) {
-                            return _this.handleEndDateChange(date);
+                            return _this2.handleEndDateChange(date);
                         },
                         autoOk: true, minDate: this.state.date, maxDate: new Date(), value: this.state.endDate,
                         showYearSelector: true, style: { margin: '0 5px', width: 100 }, textFieldStyle: { width: 80 } }),
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
-                            _this.handleDateChange(undefined);_this.handleEndDateChange(undefined);
+                            _this2.handleDateChange(undefined);_this2.handleEndDateChange(undefined);
                         } })
                 ),
                 _react2['default'].createElement(
@@ -181,13 +190,13 @@ var LogTools = (function (_React$Component) {
                         MessageHash['ajxp_admin.logs.filter.legend']
                     ),
                     _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.fulltext'], rightIcon: filterMode === 'fulltext' ? checkIcon : null, onTouchTap: function () {
-                            _this.handleFilterMode('fulltext');
+                            _this2.handleFilterMode('fulltext');
                         } }),
                     _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: filterMode === 'oneday' ? checkIcon : null, onTouchTap: function () {
-                            _this.handleFilterMode('oneday');
+                            _this2.handleFilterMode('oneday');
                         } }),
                     _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: filterMode === 'period' ? checkIcon : null, onTouchTap: function () {
-                            _this.handleFilterMode('period');
+                            _this2.handleFilterMode('period');
                         } })
                 ),
                 !disableExport && _react2['default'].createElement(
@@ -209,11 +218,40 @@ var LogTools = (function (_React$Component) {
                         MessageHash['ajxp_admin.logs.11']
                     ),
                     _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'CSV', rightIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-file-delimited" }), onTouchTap: function () {
-                            _this.handleExport('CSV');
+                            _this2.handleExport('CSV');
                         }, disabled: !hasFilter }),
                     _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'XLSX', rightIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-file-excel" }), onTouchTap: function () {
-                            _this.handleExport('XLSX');
-                        }, disabled: !hasFilter })
+                            _this2.handleExport('XLSX');
+                        }, disabled: !hasFilter }),
+                    exportUrl && _react2['default'].createElement(
+                        _materialUi.Subheader,
+                        null,
+                        _react2['default'].createElement(
+                            'a',
+                            { href: exportUrl, download: exportFilename },
+                            exportFilename
+                        )
+                    )
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Dialog,
+                    {
+                        open: !!exportUrl,
+                        modal: true,
+                        title: MessageHash['ajxp_admin.logs.11'],
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: exportOnClick })]
+                    },
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { fontSize: 13 } },
+                        MessageHash['ajxp_admin.logs.export.clicklink'],
+                        ': ',
+                        _react2['default'].createElement(
+                            'a',
+                            { style: { textDecoration: 'underline' }, href: exportUrl, download: exportFilename, onClick: exportOnClick },
+                            exportFilename
+                        )
+                    )
                 )
             );
         }

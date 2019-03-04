@@ -1,9 +1,7 @@
 import React from 'react'
 import debounce from 'lodash.debounce'
-import PydioApi from 'pydio/http/api'
-import PydioDataModel from 'pydio/model/data-model'
 import Log from '../model/Log'
-import {RaisedButton, TextField, DatePicker, IconButton, FontIcon, IconMenu, MenuItem, Subheader} from 'material-ui'
+import {RaisedButton, TextField, DatePicker, IconButton, FlatButton, FontIcon, IconMenu, MenuItem, Subheader, Dialog} from 'material-ui'
 
 class LogTools extends React.Component{
 
@@ -48,7 +46,6 @@ class LogTools extends React.Component{
         const query = Log.buildQuery(filter, date, endDate);
         Log.downloadLogs(service || 'sys', query, format).then(blob => {
             const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
             let filename = 'cells-logs-';
             if (dateString){
                 filename += dateString;
@@ -56,7 +53,20 @@ class LogTools extends React.Component{
                 filename += 'filtered';
             }
             filename += '.' + format.toLowerCase();
-
+            if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+                this.setState({
+                    exportUrl:url,
+                    exportFilename:filename,
+                    exportOnClick:()=>{
+                        setTimeout(()=>{
+                            window.URL.revokeObjectURL(url);
+                        }, 100);
+                        this.setState({exportUrl:null, exportFilename: null});
+                    }
+                });
+                return;
+            }
+            const link = document.createElement('a');
             link.href = url;
             link.download = filename;
             link.click();
@@ -72,7 +82,7 @@ class LogTools extends React.Component{
 
     render(){
         const {pydio, disableExport} = this.props;
-        const {filter, date, filterMode} = this.state;
+        const {filter, date, filterMode, exportUrl, exportFilename, exportOnClick} = this.state;
         const {MessageHash} = pydio;
         const hasFilter = filter || date;
         const checkIcon = <FontIcon style={{top: 0}} className={"mdi mdi-check"}/>;
@@ -123,8 +133,19 @@ class LogTools extends React.Component{
                         {hasFilter && <Subheader>{MessageHash['ajxp_admin.logs.11']}</Subheader>}
                         <MenuItem primaryText="CSV" rightIcon={<FontIcon style={{top: 0}} className={"mdi mdi-file-delimited"}/>} onTouchTap={()=>{this.handleExport('CSV')}} disabled={!hasFilter} />
                         <MenuItem primaryText="XLSX" rightIcon={<FontIcon style={{top: 0}} className={"mdi mdi-file-excel"}/>} onTouchTap={()=>{this.handleExport('XLSX')}} disabled={!hasFilter} />
+                        {exportUrl && <Subheader><a href={exportUrl} download={exportFilename}>{exportFilename}</a></Subheader>}
                     </IconMenu>
                 }
+                <Dialog
+                    open={!!exportUrl}
+                    modal={true}
+                    title={MessageHash['ajxp_admin.logs.11']}
+                    actions={[<FlatButton label={"Cancel"} onTouchTap={exportOnClick}/>]}
+                >
+                    <span style={{fontSize:13}}>
+                        {MessageHash['ajxp_admin.logs.export.clicklink']}: <a style={{textDecoration:'underline'}} href={exportUrl} download={exportFilename} onClick={exportOnClick}>{exportFilename}</a>
+                    </span>
+                </Dialog>
 
             </div>
         )
