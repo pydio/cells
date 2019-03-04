@@ -24,6 +24,7 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+	log2 "log"
 	"os"
 	"os/signal"
 	"regexp"
@@ -31,6 +32,11 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/micro/go-micro/server"
+	"github.com/micro/go-web"
+
+	"github.com/pydio/cells/common/utils/net"
 
 	"github.com/micro/go-micro/broker"
 	microregistry "github.com/micro/go-micro/registry"
@@ -198,6 +204,9 @@ func init() {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 
+	// Check PrivateIP and setup Advertise
+	initAdvertiseIP()
+
 	nats.Init()
 	metrics.Init()
 
@@ -238,6 +247,21 @@ func initServices() {
 	registry.Init()
 
 	registry.Default.AfterInit()
+}
+
+func initAdvertiseIP() {
+	ok, advertise, err := net.DetectHasPrivateIP()
+	if err != nil {
+		log2.Fatal(err.Error())
+	}
+	if !ok {
+		net.DefaultAdvertiseAddress = advertise
+		web.DefaultAddress = advertise + ":0"
+		server.DefaultAddress = advertise + ":0"
+		if advertise != "127.0.0.1" {
+			log2.Println("Warning: no private IP detected for binding broker. Will bind to " + net.DefaultAdvertiseAddress + " instead.")
+		}
+	}
 }
 
 func handleRegistry() {

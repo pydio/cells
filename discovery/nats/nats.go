@@ -27,6 +27,8 @@ import (
 	"strconv"
 	"time"
 
+	net2 "github.com/pydio/cells/common/utils/net"
+
 	"github.com/nats-io/gnatsd/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -49,6 +51,9 @@ func run() {
 
 	if reg == "nats" {
 		opts := new(server.Options)
+		if len(net2.DefaultAdvertiseAddress) > 0 {
+			opts.ClientAdvertise = net2.DefaultAdvertiseAddress
+		}
 
 		host, p, err := net.SplitHostPort(regAddress)
 		if err != nil {
