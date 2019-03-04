@@ -259,7 +259,7 @@ func initAdvertiseIP() {
 		web.DefaultAddress = advertise + ":0"
 		server.DefaultAddress = advertise + ":0"
 		if advertise != "127.0.0.1" {
-			log2.Println("Warning: no private IP detected for binding broker. Will bind to " + net.DefaultAdvertiseAddress + " instead.")
+			fmt.Println("Warning: no private IP detected for binding broker. Will bind to " + net.DefaultAdvertiseAddress + ", which may give public access to the broker.")
 		}
 	}
 }
