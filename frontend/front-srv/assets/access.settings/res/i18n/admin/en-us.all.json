@@ -263,6 +263,9 @@
   "ds.status.ko": {
     "other": "Services stopped"
   },
+  "ds.status.ko-peers": {
+    "other": "Node %s not found"
+  },
   "ds.status.na": {
     "other": "N/A"
   },
