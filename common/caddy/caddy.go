@@ -167,6 +167,19 @@ func Restart() error {
 	return nil
 }
 
+func StartWithFastRestart() error {
+	e := Start()
+	go func() {
+		<-time.After(2 * time.Second)
+		if restartRequired {
+			log.Logger(context.Background()).Debug("Restarting Proxy Now (fast restart)")
+			restartRequired = false
+			restart()
+		}
+	}()
+	return e
+}
+
 func restart() error {
 
 	if mainCaddy.instance == nil {
