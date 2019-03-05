@@ -2,7 +2,11 @@ package config
 
 import (
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 	"strings"
+
+	"github.com/hashicorp/go-version"
 
 	"github.com/pydio/cells/common"
 )
@@ -26,7 +30,7 @@ var (
 )
 
 func init() {
-	configsMigrations = append(configsMigrations, renameServices1, setDefaultConfig, forceDefaultConfig)
+	configsMigrations = append(configsMigrations, renameServices1, setDefaultConfig, forceDefaultConfig, dsnRemoveAllowNativePassword)
 }
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
@@ -103,6 +107,26 @@ func forceDefaultConfig(config *Config) (bool, error) {
 	}
 
 	return save, nil
+}
+
+// dsnRemoveAllowNativePassword removes this part from default DSN
+func dsnRemoveAllowNativePassword(config *Config) (bool, error) {
+	testFile := filepath.Join(ApplicationDataDir(), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, "version")
+	if data, e := ioutil.ReadFile(testFile); e == nil && len(data) > 0 {
+		ref, _ := version.NewVersion("1.4.1")
+		if v, e2 := version.NewVersion(strings.TrimSpace(string(data))); e2 == nil && v.LessThan(ref) {
+			dbId := config.Get("defaults", "database").String("")
+			if dbId != "" {
+				if dsn := config.Get("databases", dbId, "dsn").String(""); dsn != "" && strings.Contains(dsn, "allowNativePasswords=false\u0026") {
+					dsn = strings.Replace(dsn, "allowNativePasswords=false\u0026", "", 1)
+					fmt.Println("[Configs] Upgrading DSN to support new MySQL authentication plugin")
+					config.Set(dsn, "databases", dbId, "dsn")
+					return true, nil
+				}
+			}
+		}
+	}
+	return false, nil
 }
 
 // Do not append to the standard migration, it is called directly inside the
