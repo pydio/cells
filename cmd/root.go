@@ -195,9 +195,6 @@ func init() {
 
 	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
 	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))
-
-	flags.String("consul_config", "", "Configuration file for consul")
-	viper.BindPFlag("consul_config", flags.Lookup("consul_config"))
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
