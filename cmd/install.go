@@ -247,7 +247,7 @@ var installCmd = &cobra.Command{
 
 		caddy.Enable(caddyfile, play)
 
-		if err := caddy.Start(); err != nil {
+		if err := caddy.StartWithFastRestart(); err != nil {
 			cmd.Print(err)
 			os.Exit(1)
 		}

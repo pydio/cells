@@ -75,8 +75,8 @@ var Client = function (_ApiClient) {
             var _this3 = this;
 
             _get(Client.prototype.__proto__ || Object.getPrototypeOf(Client.prototype), 'callApi', this).call(this, "/a/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(function (response) {
-                // A proper response means that server is ready
-                reloadObserver();
+                // A proper response means that server is ready - but gateway may be restarting!
+                setTimeout(reloadObserver, 6000);
             }).catch(function (reason) {
                 // API error means services are not available yet
                 setTimeout(function () {

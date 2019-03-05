@@ -35,8 +35,8 @@ class Client extends ApiClient{
 
     pollDiscovery(reloadObserver) {
         super.callApi("/a/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(response => {
-            // A proper response means that server is ready
-            reloadObserver();
+            // A proper response means that server is ready - but gateway may be restarting!
+            setTimeout(reloadObserver, 6000);
         }).catch(reason => {
             // API error means services are not available yet
             setTimeout(() => {
