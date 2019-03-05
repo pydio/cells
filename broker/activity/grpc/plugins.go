@@ -27,6 +27,7 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/broker/activity"
@@ -105,8 +106,10 @@ func RegisterDigestJob(ctx context.Context) error {
 		},
 	}
 
-	cliJob := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
-	_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
-	return e
+	return service.Retry(func() error {
+		cliJob := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		return e
+	}, 5*time.Second, 20*time.Second)
 
 }
