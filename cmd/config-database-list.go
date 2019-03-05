@@ -21,8 +21,10 @@
 package cmd
 
 import (
-	"log"
+	"os"
+	"strings"
 
+	"github.com/micro/go-micro/registry"
 	"github.com/olekukonko/tablewriter"
 	"github.com/pydio/cells/common/config"
 	"github.com/spf13/cobra"
@@ -39,15 +41,36 @@ This command llists all databases connections from all servers registered with c
 
 		cfg := config.Default().(*config.Config)
 
-		var m map[string]map[string]string
+		var m map[string]interface{}
 		if err := cfg.UnmarshalKey("databases", &m); err != nil {
-			log.Fatal(err)
+			cmd.Println(err)
+			os.Exit(1)
 		}
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"ID", "DSN", "Driver"})
+		table.SetHeader([]string{"DSN", "Driver", "Services"})
 
-		for id, db := range m {
+		defaultDatabaseID := cfg.Get("defaults", "database").String("")
+		defaultDatabase, ok := m[defaultDatabaseID].(map[string]interface{})
+
+		if !ok {
+			cmd.Println("Default database not found")
+			os.Exit(1)
+		}
+
+		table.Append([]string{defaultDatabase["dsn"].(string), defaultDatabase["driver"].(string), "default"})
+
+		// List all databases value
+		for id, v := range m {
+			if id == defaultDatabaseID {
+				continue
+			}
+
+			db, ok := v.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
 			driver, ok := db["driver"]
 			if !ok {
 				continue
@@ -58,7 +81,23 @@ This command llists all databases connections from all servers registered with c
 				continue
 			}
 
-			table.Append([]string{id, dsn, driver})
+			var services []string
+			if s, err := registry.GetService(id); err == nil && s != nil {
+				services = append(services, id)
+			}
+
+			for sid, vs := range m {
+				dbid, ok := vs.(string)
+				if !ok {
+					continue
+				}
+
+				if dbid == id {
+					services = append(services, sid)
+				}
+			}
+
+			table.Append([]string{dsn.(string), driver.(string), strings.Join(services, ",")})
 		}
 
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
