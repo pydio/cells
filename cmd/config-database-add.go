@@ -22,7 +22,7 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"os"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -43,14 +43,17 @@ To assign the database connection to a service, you need to use the config datab
 	Run: func(cmd *cobra.Command, args []string) {
 
 		installConfig := lib.GenerateDefaultConfig()
-		promptDB(installConfig)
+		if err := promptDB(installConfig); err != nil {
+			cmd.Println(err)
+			os.Exit(1)
+		}
 
 		cmd.Println("\033[1m## Performing Installation\033[0m")
-		e := lib.Install(context.Background(), installConfig, func(event *lib.InstallProgressEvent) {
+		if err := lib.Install(context.Background(), installConfig, lib.INSTALL_DB, func(event *lib.InstallProgressEvent) {
 			cmd.Println(promptui.IconGood + " " + event.Message)
-		})
-		if e != nil {
-			log.Fatal("Error while performing installation: " + e.Error())
+		}); err != nil {
+			cmd.Println(err)
+			os.Exit(1)
 		}
 
 		cmd.Println("*************************************************************")

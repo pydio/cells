@@ -93,7 +93,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Received Install.Post request", zap.Any("input", input))
 
 	response := &install.InstallResponse{}
-	if er := lib.Install(ctx, input.GetConfig(), func(event *lib.InstallProgressEvent) {
+	if er := lib.Install(ctx, input.GetConfig(), lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 		eventManager.Publish("install", event)
 	}); er != nil {
 		eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})

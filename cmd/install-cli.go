@@ -199,7 +199,7 @@ var installCliCmd = &cobra.Command{
 
 		fmt.Println("")
 		fmt.Println("\033[1m## Performing Installation\033[0m")
-		e := lib.Install(context.Background(), installConfig, func(event *lib.InstallProgressEvent) {
+		e := lib.Install(context.Background(), installConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 			fmt.Println(p.IconGood + " " + event.Message)
 		})
 		if e != nil {
