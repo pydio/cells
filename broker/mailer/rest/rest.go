@@ -76,6 +76,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Sending Email", zap.Any("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
+	langs := i18n.UserLanguagesFromRestRequest(req, config.Default())
 	cli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
@@ -94,6 +95,9 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	var resolvedTos []*mailer.User
 	for _, to := range message.To {
 		if resolved, e := mh.ResolveUser(ctx, to); e == nil {
+			if resolved.Language == "" && len(langs) > 0 {
+				resolved.Language = langs[0]
+			}
 			resolvedTos = append(resolvedTos, resolved)
 		} else {
 			log.Logger(ctx).Error("ignoring sendmail for user as no email was found", zap.Any("user", to))
