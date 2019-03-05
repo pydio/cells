@@ -29,6 +29,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
+	"github.com/pydio/cells/common/service"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -93,13 +94,12 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 // Init subscriber with current list of jobs from Jobs service
 func (s *Subscriber) Init() error {
 
-	go func() {
-		<-time.After(1 * time.Second)
+	go service.Retry(func() error {
 		// Load Jobs Definitions
 		jobClients := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, s.Client)
 		streamer, e := jobClients.ListJobs(s.RootContext, &jobs.ListJobsRequest{})
 		if e != nil {
-			return
+			return e
 		}
 
 		s.jobsLock.Lock()
@@ -118,7 +118,9 @@ func (s *Subscriber) Init() error {
 			s.JobsDefinitions[resp.Job.ID] = resp.Job
 			s.GetDispatcherForJob(resp.Job)
 		}
-	}()
+		return nil
+	}, 3*time.Second, 20*time.Second)
+
 	return nil
 }
 
