@@ -36,10 +36,9 @@ var ConfigDatabaseSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Assign a database connection to a service",
 	Long: `
-This command lets you assign a new database to a service.
-` + promptui.IconWarn + `
-Note that the database data will not be transferred to the new database.
-`,
+This command let you assign a different database connection to a service.
+
+` + promptui.IconWarn + `  Note that the database data will not be transferred to the new database.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.New("Requires at least an argument, please see 'pydio config database set --help'")
