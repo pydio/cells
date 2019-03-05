@@ -68,8 +68,6 @@ $ ` + os.Args[0] + ` config set pydio.grpc.yourservice configName '{"key":"value
 
 		config.Set(data, "services", id, path)
 
-		fmt.Println(config.Get("services"))
-
 		if err := config.Save("cli", fmt.Sprintf("Set by path %s/%s", id, path)); err == nil {
 			cmd.Println("Config set")
 		} else {

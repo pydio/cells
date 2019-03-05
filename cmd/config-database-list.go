@@ -21,9 +21,7 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
-	"sort"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/pydio/cells/common/config"
@@ -47,24 +45,20 @@ This command llists all databases connections from all servers registered with c
 		}
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"DSN", "Driver"})
+		table.SetHeader([]string{"ID", "DSN", "Driver"})
 
-		var skeys []string
-		for k := range m {
-			skeys = append(skeys, k)
-		}
-
-		sort.Strings(skeys)
-
-		for _, sk := range skeys {
-			var ckeys []string
-			for k := range m[sk] {
-				ckeys = append(ckeys, k)
+		for id, db := range m {
+			driver, ok := db["driver"]
+			if !ok {
+				continue
 			}
-			sort.Strings(ckeys)
-			for _, ck := range ckeys {
-				table.Append([]string{sk, ck, fmt.Sprintf("%v", m[sk][ck])})
+
+			dsn, ok := db["dsn"]
+			if !ok {
+				continue
 			}
+
+			table.Append([]string{id, dsn, driver})
 		}
 
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
@@ -74,5 +68,5 @@ This command llists all databases connections from all servers registered with c
 }
 
 func init() {
-	ConfigDatabaseCmd.AddCommand(ConfigDatabaseAddCmd)
+	ConfigDatabaseCmd.AddCommand(ConfigDatabaseListCmd)
 }
