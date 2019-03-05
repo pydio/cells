@@ -1,29 +1,10 @@
-/*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
- * This file is part of Pydio Cells.
- *
- * Pydio Cells is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio Cells is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-package utils
+package mtree
 
 import (
 	"math/big"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -39,14 +20,14 @@ func init() {
 
 func TestFloat(t *testing.T) {
 
-	Convey("Test SetRat", t, func() {
+	convey.Convey("Test SetRat", t, func() {
 		f := NewFloat()
 		f.SetRat(mockRat.Rat)
 
-		So(f, ShouldResemble, mockFloat)
+		convey.So(f, convey.ShouldResemble, mockFloat)
 	})
 
-	Convey("Small test", t, func() {
+	convey.Convey("Small test", t, func() {
 		rp1 := new(Rat)
 		rp1.SetMPath(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 1)
 
@@ -66,7 +47,7 @@ func TestFloat(t *testing.T) {
 		fc2.SetRat(rc2.Rat)
 	})
 
-	Convey("Test Float Comparison", t, func() {
+	convey.Convey("Test Float Comparison", t, func() {
 		rp1 := new(Rat)
 		rp1.SetMPath(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 1)
 
@@ -84,12 +65,12 @@ func TestFloat(t *testing.T) {
 		cmp1 := fc1.Cmp(fp1.Float)
 		cmp2 := fc1.Cmp(fp2.Float)
 
-		So(fp1, ShouldNotResemble, fc1)
-		So(cmp1, ShouldEqual, 1)
-		So(cmp2, ShouldEqual, -1)
+		convey.So(fp1, convey.ShouldNotResemble, fc1)
+		convey.So(cmp1, convey.ShouldEqual, 1)
+		convey.So(cmp2, convey.ShouldEqual, -1)
 	})
 
-	Convey("Test Float Comparison - Even bigger", t, func() {
+	convey.Convey("Test Float Comparison - Even bigger", t, func() {
 		rp1 := new(Rat)
 		rp1.SetMPath(200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 1)
 
@@ -111,8 +92,8 @@ func TestFloat(t *testing.T) {
 		cmp1 := fc1.Cmp(fp1.Float)
 		cmp2 := fc1.Cmp(fp2.Float)
 
-		So(fp1, ShouldNotResemble, fc1)
-		So(cmp1, ShouldEqual, 1)
-		So(cmp2, ShouldEqual, -1)
+		convey.So(fp1, convey.ShouldNotResemble, fc1)
+		convey.So(cmp1, convey.ShouldEqual, 1)
+		convey.So(cmp2, convey.ShouldEqual, -1)
 	})
 }

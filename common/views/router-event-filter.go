@@ -32,7 +32,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
 )
 
 // Extended Router used mainly to filter events sent from inside to outside the application
@@ -77,7 +76,7 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *
 	if node == nil {
 		return node, false
 	}
-	if utils.IgnoreNodeForOutput(ctx, node) {
+	if tree.IgnoreNodeForOutput(ctx, node) {
 		return node, false
 	}
 	roots := workspace.RootUUIDs

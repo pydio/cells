@@ -28,7 +28,7 @@ import LangUtils from 'pydio/util/lang'
 import Pydio from 'pydio'
 const {MaterialTable} = Pydio.requireLib('components');
 import DataSource from '../model/DataSource'
-import {TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'pydio/http/rest-api'
+import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'pydio/http/rest-api'
 import uuid from 'uuid4'
 import VersionPolicyPeriods from '../editor/VersionPolicyPeriods'
 import EncryptionKeys from './EncryptionKeys'
@@ -48,15 +48,20 @@ class DataSourcesBoard extends React.Component {
             importResult: null,
             keyOperationError: null,
             startedServices: [],
+            peerAddresses:[],
             m: (id) => props.pydio.MessageHash["ajxp_admin.ds." + id] || id,
         };
     }
 
     componentDidMount(){
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
         this.statusPoller = setInterval(()=>{
             DataSource.loadStatuses().then(data => {
                 this.setState({startedServices: data.Services});
             });
+            api.listPeersAddresses().then(res => {
+                this.setState({peerAddresses: res.PeerAddresses || []});
+            })
         }, 2500);
         this.load();
     }
@@ -104,7 +109,7 @@ class DataSourcesBoard extends React.Component {
     }
 
     computeStatus(dataSource) {
-        const {startedServices, m} = this.state;
+        const {startedServices, peerAddresses, m} = this.state;
         if(!startedServices.length){
             return m('status.na');
         }
@@ -119,9 +124,13 @@ class DataSourcesBoard extends React.Component {
             }
         });
         if(index && sync && object){
-            return m('status.ok');
+            return <span style={{color:'#1b5e20'}}><span className={"mdi mdi-check"}/> {m('status.ok')}</span>;
         } else if (!index && !sync && !object) {
-            return <span style={{color:'#e53935'}}>{m('status.ko')}</span>;
+            let koMessage = m('status.ko');
+            if(peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1){
+                koMessage = m('status.ko-peers').replace('%s', dataSource.PeerAddress);
+            }
+            return <span style={{color:'#e53935'}}><span className={"mdi mdi-alert"}/> {koMessage}</span>;
         } else {
             let services = [];
             if(!index) {
@@ -133,7 +142,7 @@ class DataSourcesBoard extends React.Component {
             if(!object) {
                 services.push(m('status.object'));
             }
-            return <span style={{color:'#e53935'}}>{services.join(' - ')}</span>;
+            return <span style={{color:'#e53935'}}><span className={"mdi mdi-alert"}/> {services.join(' - ')}</span>;
         }
     }
 
@@ -192,8 +201,11 @@ class DataSourcesBoard extends React.Component {
 
         const {currentNode, pydio, versioningReadonly} = this.props;
         const dsColumns = [
-            {name:'Name', label:m('name'), style:{fontSize: 15}},
-            {name:'StorageType', label:m('storage'), renderCell:(row)=>{
+            {name:'Name', label:m('name'), style:{fontSize: 15, width: '20%'}, headerStyle:{width: '20%'}},
+            {name:'Status', label:m('status'), renderCell:(row)=>{
+                return row.Disabled ? <span style={{color:'#757575'}}><span className={"mdi mdi-checkbox-blank-circle-outline"}/> {m('status.disabled')}</span> : this.computeStatus(row);
+            }},
+            {name:'StorageType', label:m('storage'), hideSmall:true, style:{width:'20%'}, headerStyle:{width:'20%'}, renderCell:(row)=>{
                 let s = 'storage.fs';
                 switch (row.StorageType) {
                     case "S3":
@@ -210,19 +222,16 @@ class DataSourcesBoard extends React.Component {
                 }
                 return m(s);
             }},
-            {name:'Status', label:m('status'), hideSmall:true, renderCell:(row)=>{
-                    return row.Disabled ? m('status.disabled') : this.computeStatus(row);
-            }},
-            {name:'EncryptionMode', label:m('encryption'), hideSmall:true, renderCell:(row) => {
-                return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'] ;
-            }},
-            {name:'VersioningPolicyName', label:m('versioning'), hideSmall:true, renderCell:(row) => {
+            {name:'VersioningPolicyName', label:m('versioning'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall:true, renderCell:(row) => {
                 const pol = versioningPolicies.find((obj)=>obj.Uuid === row['VersioningPolicyName']);
                 if (pol) {
                     return pol.Name;
                 } else {
-                    return row['VersioningPolicyName'];
+                    return row['VersioningPolicyName'] || '-';
                 }
+            }},
+            {name:'EncryptionMode', label:m('encryption'), hideSmall:true, style:{width:'10%', textAlign:'center'}, headerStyle:{width:'10%'}, renderCell:(row) => {
+                return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'] ;
             }},
         ];
         const title = currentNode.getLabel();

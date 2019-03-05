@@ -24,10 +24,11 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/pydio/cells/common/utils/std"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/net"
 )
 
@@ -56,7 +57,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.ExternalDAV = fmt.Sprintf("%d", net.GetAvailablePort())
 	c.ExternalDex = fmt.Sprintf("%d", net.GetAvailablePort())
 	c.ExternalDexID = "cells-front"
-	c.ExternalDexSecret = utils.Randkey(24)
+	c.ExternalDexSecret = std.Randkey(24)
 	c.FrontendApplicationTitle = "Pydio Cells"
 	c.FrontendDefaultLanguage = "en"
 	c.FrontendLogin = "admin"

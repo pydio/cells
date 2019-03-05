@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/data/versions/lang"
@@ -73,7 +72,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 	node := input.Nodes[0]
 
-	if node.Etag == common.NODE_FLAG_ETAG_TEMPORARY || utils.IgnoreNodeForOutput(ctx, node) {
+	if node.Etag == common.NODE_FLAG_ETAG_TEMPORARY || tree.IgnoreNodeForOutput(ctx, node) {
 		return input.WithIgnore(), nil // Ignore
 	}
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Default()))

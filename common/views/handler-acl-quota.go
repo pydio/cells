@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -199,7 +198,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 			root = resolvedRoot.Uuid
 		}
 
-		ancestors, er := utils.BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
+		ancestors, er := tree.BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
 		if er != nil {
 			log.Logger(ctx).Error("AncestorsList for rootNode", zap.Any("r", root), zap.Any("ancestors", ancestors), zap.Any("ownerWsRoots", ownerWsRoots))
 			err = er

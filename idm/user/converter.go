@@ -22,13 +22,13 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"go.uber.org/zap"
-
-	"fmt"
+	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -37,8 +37,7 @@ import (
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
-	"github.com/pydio/cells/common/utils"
-	"gopkg.in/doug-martin/goqu.v4"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
 func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includeParent bool, checkEmpty bool) (string, []interface{}, error) {
@@ -285,7 +284,7 @@ func groupToNode(g *idm.User) *tree.Node {
 	return n
 }
 
-func nodeToUser(t *utils.TreeNode) *idm.User {
+func nodeToUser(t *mtree.TreeNode) *idm.User {
 	u := &idm.User{
 		Uuid:      t.Uuid,
 		Login:     t.Name(),
@@ -307,7 +306,7 @@ func nodeToUser(t *utils.TreeNode) *idm.User {
 	return u
 }
 
-func nodeToGroup(t *utils.TreeNode) *idm.User {
+func nodeToGroup(t *mtree.TreeNode) *idm.User {
 	return &idm.User{
 		Uuid:       t.Uuid,
 		IsGroup:    true,

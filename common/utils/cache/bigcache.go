@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+// Package cache provides ready-to-use in-memory cache mechanisms
 package cache
 
 import (

@@ -22224,6 +22224,7 @@ var DataSourcesBoard = (function (_React$Component) {
             importResult: null,
             keyOperationError: null,
             startedServices: [],
+            peerAddresses: [],
             m: function m(id) {
                 return props.pydio.MessageHash["ajxp_admin.ds." + id] || id;
             }
@@ -22235,9 +22236,13 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function componentDidMount() {
             var _this = this;
 
+            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
             this.statusPoller = setInterval(function () {
                 _modelDataSource2['default'].loadStatuses().then(function (data) {
                     _this.setState({ startedServices: data.Services });
+                });
+                api.listPeersAddresses().then(function (res) {
+                    _this.setState({ peerAddresses: res.PeerAddresses || [] });
                 });
             }, 2500);
             this.load();
@@ -22295,6 +22300,7 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function computeStatus(dataSource) {
             var _state = this.state;
             var startedServices = _state.startedServices;
+            var peerAddresses = _state.peerAddresses;
             var m = _state.m;
 
             if (!startedServices.length) {
@@ -22313,12 +22319,24 @@ var DataSourcesBoard = (function (_React$Component) {
                 }
             });
             if (index && sync && object) {
-                return m('status.ok');
+                return _react2['default'].createElement(
+                    'span',
+                    { style: { color: '#1b5e20' } },
+                    _react2['default'].createElement('span', { className: "mdi mdi-check" }),
+                    ' ',
+                    m('status.ok')
+                );
             } else if (!index && !sync && !object) {
+                var koMessage = m('status.ko');
+                if (peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1) {
+                    koMessage = m('status.ko-peers').replace('%s', dataSource.PeerAddress);
+                }
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#e53935' } },
-                    m('status.ko')
+                    _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
+                    ' ',
+                    koMessage
                 );
             } else {
                 var services = [];
@@ -22334,6 +22352,8 @@ var DataSourcesBoard = (function (_React$Component) {
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#e53935' } },
+                    _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
+                    ' ',
                     services.join(' - ')
                 );
             }
@@ -22411,7 +22431,15 @@ var DataSourcesBoard = (function (_React$Component) {
             var pydio = _props2.pydio;
             var versioningReadonly = _props2.versioningReadonly;
 
-            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15 } }, { name: 'StorageType', label: m('storage'), renderCell: function renderCell(row) {
+            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '20%' }, headerStyle: { width: '20%' } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
+                    return row.Disabled ? _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#757575' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle-outline" }),
+                        ' ',
+                        m('status.disabled')
+                    ) : _this3.computeStatus(row);
+                } }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '20%' }, headerStyle: { width: '20%' }, renderCell: function renderCell(row) {
                     var s = 'storage.fs';
                     switch (row.StorageType) {
                         case "S3":
@@ -22427,19 +22455,17 @@ var DataSourcesBoard = (function (_React$Component) {
                             break;
                     }
                     return m(s);
-                } }, { name: 'Status', label: m('status'), hideSmall: true, renderCell: function renderCell(row) {
-                    return row.Disabled ? m('status.disabled') : _this3.computeStatus(row);
-                } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, renderCell: function renderCell(row) {
-                    return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
-                } }, { name: 'VersioningPolicyName', label: m('versioning'), hideSmall: true, renderCell: function renderCell(row) {
+                } }, { name: 'VersioningPolicyName', label: m('versioning'), style: { width: '15%' }, headerStyle: { width: '15%' }, hideSmall: true, renderCell: function renderCell(row) {
                     var pol = versioningPolicies.find(function (obj) {
                         return obj.Uuid === row['VersioningPolicyName'];
                     });
                     if (pol) {
                         return pol.Name;
                     } else {
-                        return row['VersioningPolicyName'];
+                        return row['VersioningPolicyName'] || '-';
                     }
+                } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%' }, renderCell: function renderCell(row) {
+                    return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
                 } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');

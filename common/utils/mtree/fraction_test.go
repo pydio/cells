@@ -1,29 +1,10 @@
-/*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
- * This file is part of Pydio Cells.
- *
- * Pydio Cells is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio Cells is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-package utils
+package mtree
 
 import (
 	"math/big"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -41,41 +22,41 @@ func init() {
 
 func TestFraction(t *testing.T) {
 
-	Convey("Test New Fraction", t, func() {
+	convey.Convey("Test New Fraction", t, func() {
 		f := NewFraction(big.NewInt(48), big.NewInt(17))
 
-		So(f, ShouldResemble, mockFraction)
+		convey.So(f, convey.ShouldResemble, mockFraction)
 	})
 
-	Convey("Test New Fraction from path", t, func() {
+	convey.Convey("Test New Fraction from path", t, func() {
 		f := NewFractionFromMaterializedPath(2, 4, 2)
 
-		So(f, ShouldResemble, mockFraction)
+		convey.So(f, convey.ShouldResemble, mockFraction)
 
 	})
 
-	Convey("Test Revert Fraction to Path", t, func() {
+	convey.Convey("Test Revert Fraction to Path", t, func() {
 
 		p := ToPath(mockFraction)
 
-		So(p, ShouldResemble, "2.4.2")
+		convey.So(p, convey.ShouldResemble, "2.4.2")
 	})
 
-	Convey("Test Revert Fraction to PathUInt", t, func() {
+	convey.Convey("Test Revert Fraction to PathUInt", t, func() {
 
 		p := ToPathUint(mockFraction)
 		ref := []uint64{2, 4, 2}
-		So(p, ShouldResemble, ref)
+		convey.So(p, convey.ShouldResemble, ref)
 	})
 
-	Convey("Test Decimal Fraction", t, func() {
+	convey.Convey("Test Decimal Fraction", t, func() {
 
 		d := mockFraction.Decimal()
 
-		So(d.FloatString(30), ShouldResemble, "2.823529411764705882352941176471")
+		convey.So(d.FloatString(30), convey.ShouldResemble, "2.823529411764705882352941176471")
 	})
 
-	Convey("Test bigint", t, func() {
+	convey.Convey("Test bigint", t, func() {
 		var i big.Int
 		var j big.Int
 		var diff big.Rat

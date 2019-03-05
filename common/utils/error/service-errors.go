@@ -1,3 +1,4 @@
+// Package error creates and parses common errors
 package error
 
 import (

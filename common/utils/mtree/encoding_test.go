@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-package utils
+package mtree
 
 import (
 	"testing"
@@ -25,20 +25,34 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var mockPath = MPath{2, 4, 2}
+var (
+	mockMPath    MPath
+	mockTreeNode *TreeNode
+)
 
-func TestPath(t *testing.T) {
-	Convey("Test generation of a sibling path", t, func() {
+func init() {
+	mockMPath = MPath{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 1}
+	// 48 / 17 corresponds to the node 2.4.2 in materialized path
+	mockTreeNode = NewTreeNode()
+	mockTreeNode.SetMPath(mockMPath...)
+}
 
-		p := mockPath.Sibling()
+func TestTreeNode(t *testing.T) {
 
-		So(p, ShouldResemble, MPath{2, 4, 3})
+	Convey("Test SetRat", t, func() {
+		f := NewFloat()
+		f.SetRat(mockRat.Rat)
+
+		So(f, ShouldResemble, mockFloat)
 	})
 
-	Convey("Test generation of a parent path", t, func() {
+	Convey("Test SetRat", t, func() {
+		r := NewRat()
+		r.SetMPath(mockMPath...)
 
-		p := mockPath.Parent()
+		n := NewTreeNode()
+		n.SetRat(r)
 
-		So(p, ShouldResemble, MPath{2, 4})
+		So(n.MPath, ShouldResemble, mockMPath)
 	})
 }

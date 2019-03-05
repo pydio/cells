@@ -124,8 +124,12 @@ func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {
 	if runtime.GOOS == "darwin" {
 		normalize = "true"
 	}
-	ip, _ := net.GetExternalIP()
-	conf.PeerAddress = ip.String()
+	if h, e := os.Hostname(); e == nil {
+		conf.PeerAddress = h
+	} else {
+		ip, _ := net.GetExternalIP()
+		conf.PeerAddress = ip.String()
+	}
 	conf.StorageConfiguration = map[string]string{
 		"folder":    folder,
 		"normalize": normalize,

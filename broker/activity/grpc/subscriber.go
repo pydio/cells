@@ -35,7 +35,6 @@ import (
 	activity2 "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
 )
 
 type MicroEventsSubscriber struct {
@@ -78,7 +77,7 @@ func (e *MicroEventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChange
 	if Node != nil && Node.Uuid != "" {
 
 		// Ignore hidden files
-		if utils.IgnoreNodeForOutput(ctx, Node) {
+		if tree.IgnoreNodeForOutput(ctx, Node) {
 			return nil
 		}
 

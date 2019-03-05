@@ -29,7 +29,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
-	migrate "github.com/rubenv/sql-migrate"
+	"github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -41,7 +41,7 @@ import (
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/sql/resources"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
 const (
@@ -183,8 +183,8 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 				reqFromPath := "/" + strings.Trim(node.Path, "/")
 				reqToPath := objectPath
 
-				var pathFrom, pathTo utils.MPath
-				var nodeFrom, nodeTo *utils.TreeNode
+				var pathFrom, pathTo mtree.MPath
+				var nodeFrom, nodeTo *mtree.TreeNode
 
 				if pathFrom, _, err = s.IndexSQL.Path(reqFromPath, false); err != nil || pathFrom == nil {
 					return nil, createdNodes, err
@@ -234,7 +234,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 
 	if len(created) == 0 && node.Etag != "" {
 		log.Logger(context.Background()).Debug("User update w/ password")
-		updateNode := utils.NewTreeNode()
+		updateNode := mtree.NewTreeNode()
 		updateNode.SetMPath(mPath...)
 		if err := s.IndexSQL.DelNode(updateNode); err != nil {
 			return nil, createdNodes, err
@@ -412,7 +412,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 			&leaf,
 			&etag,
 		)
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.SetBytes(rat)
 		node.Uuid = uuid
 		node.Etag = etag
@@ -481,7 +481,7 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	rows := int64(0)
 
-	var nodes []*utils.TreeNode
+	var nodes []*mtree.TreeNode
 	for res.Next() {
 		var uuid string
 		var level uint32
@@ -497,7 +497,7 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 			&leaf,
 			&etag,
 		)
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.SetBytes(rat)
 		node.Uuid = uuid
 		node.Level = int(level)
@@ -550,7 +550,7 @@ func (s *sqlimpl) deleteNodeData(uuid string) error {
 	return nil
 }
 
-func (s *sqlimpl) rebuildGroupPath(node *utils.TreeNode) {
+func (s *sqlimpl) rebuildGroupPath(node *mtree.TreeNode) {
 	if len(node.Path) == 0 {
 		var path []string
 		roles := []string{}

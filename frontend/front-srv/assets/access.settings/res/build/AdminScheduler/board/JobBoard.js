@@ -203,10 +203,10 @@ var JobBoard = (function (_React$Component) {
             });
 
             var actions = [];
-            if (jobsEditable) {
-                actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
-            }
             if (!job.EventNames) {
+                if (jobsEditable) {
+                    actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
+                }
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
                         JobsStore.getInstance().controlJob(job, 'RunOnce');
                     } }));

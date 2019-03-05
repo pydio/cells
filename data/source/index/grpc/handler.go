@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/data/source/index"
 	"github.com/pydio/cells/data/source/index/sessions"
 )
@@ -89,7 +89,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	dao := getDAO(ctx, req.GetIndexationSession())
 	name := servicecontext.GetServiceName(ctx)
 
-	var node *utils.TreeNode
+	var node *mtree.TreeNode
 	var previousEtag string
 	eventType := tree.NodeChangeEvent_CREATE
 
@@ -127,7 +127,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	if len(created) == 0 {
 		if update {
 			eventType = tree.NodeChangeEvent_UPDATE_CONTENT
-			node = utils.NewTreeNode()
+			node = mtree.NewTreeNode()
 			node.SetMPath(path...)
 			if previousNode, e := dao.GetNode(path); e == nil && previousNode != nil {
 				previousEtag = previousNode.Etag
@@ -196,7 +196,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 	dao := servicecontext.GetDAO(ctx).(index.DAO)
 	name := servicecontext.GetServiceName(ctx)
 
-	var node *utils.TreeNode
+	var node *mtree.TreeNode
 	var err error
 
 	if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
@@ -281,12 +281,12 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		return errors.InternalServerError(name, "Please use either Recursive (children) or Ancestors (parents) flag, but not both.")
 	}
 
-	var c chan *utils.TreeNode
+	var c chan *mtree.TreeNode
 
 	// Special case for  "Ancestors", node can have either Path or Uuid
 	if req.Ancestors {
 
-		var node *utils.TreeNode
+		var node *mtree.TreeNode
 		var err error
 		if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
 
@@ -314,7 +314,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 		// Get Ancestors tree and rebuild pathes for each
 		var path []string
-		nodes := []*utils.TreeNode{}
+		nodes := []*mtree.TreeNode{}
 		for pnode := range dao.GetNodes(node.MPath.Parents()...) {
 			path = append(path, pnode.Name())
 			pnode.Path = safePath(strings.Join(path, "/"))
@@ -416,8 +416,8 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	reqFromPath := safePath(req.GetFrom().GetPath())
 	reqToPath := safePath(req.GetTo().GetPath())
 
-	var pathFrom, pathTo utils.MPath
-	var nodeFrom, nodeTo *utils.TreeNode
+	var pathFrom, pathTo mtree.MPath
+	var nodeFrom, nodeTo *mtree.TreeNode
 
 	if pathFrom, _, err = dao.Path(reqFromPath, false); err != nil {
 		return errors.InternalServerError(name, "Error while reading source path "+reqFromPath, err)
@@ -571,7 +571,7 @@ func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *ob
 }
 
 // UpdateParentsAndNotify update the parents nodes and notify the tree of the event that occurred.
-func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, deltaSize int64, eventType tree.NodeChangeEvent_EventType, sourceNode *utils.TreeNode, targetNode *utils.TreeNode, sessionUuid string) error {
+func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, deltaSize int64, eventType tree.NodeChangeEvent_EventType, sourceNode *mtree.TreeNode, targetNode *mtree.TreeNode, sessionUuid string) error {
 
 	var batcher sessions.SessionBatcher
 	if sessionUuid != "" {
@@ -585,7 +585,7 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	// INIT EVENTS AND PATHES TO UPDATE
 	//
 	var event *tree.NodeChangeEvent
-	mpathes := make(map[*utils.MPath]int64)
+	mpathes := make(map[*mtree.MPath]int64)
 	if sourceNode == nil {
 		// CREATE
 		mpathes[&targetNode.MPath] = deltaSize
@@ -643,7 +643,7 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	return nil
 }
 
-func (s *TreeServer) batcherUpdateParents(batcher sessions.SessionBatcher, delta int64, mPath utils.MPath) {
+func (s *TreeServer) batcherUpdateParents(batcher sessions.SessionBatcher, delta int64, mPath mtree.MPath) {
 
 	mp := mPath.Parent()
 	for len(mp) > 0 {
@@ -654,12 +654,12 @@ func (s *TreeServer) batcherUpdateParents(batcher sessions.SessionBatcher, delta
 }
 
 // Batch update nodes on parents.
-func (s *TreeServer) daoUpdateParents(dao index.DAO, delta int64, mPath utils.MPath) error {
+func (s *TreeServer) daoUpdateParents(dao index.DAO, delta int64, mPath mtree.MPath) error {
 
 	b := dao.SetNodes("-1", delta)
 	mp := mPath.Parent()
 	for len(mp) > 0 {
-		parent := utils.NewTreeNode()
+		parent := mtree.NewTreeNode()
 		parent.SetMPath(mp...)
 		b.Send(parent)
 		mp = mp.Parent()
