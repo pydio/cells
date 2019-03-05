@@ -34,7 +34,7 @@ import (
 // ConfigDatabaseSetCmd permits configuration of a new database connection.
 var ConfigDatabaseSetCmd = &cobra.Command{
 	Use:   "set",
-	Short: "Set a database connection to a service",
+	Short: "Assign a database connection to a service",
 	Long: `
 This command lets you assign a new database to a service.
 ` + promptui.IconWarn + `
