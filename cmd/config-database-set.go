@@ -52,16 +52,22 @@ This command let you assign a different database connection to a service.
 
 		cfg := config.Default().(*config.Config)
 
-		var m map[string]map[string]string
+		var m map[string]interface{}
 		if err := cfg.UnmarshalKey("databases", &m); err != nil {
-			log.Fatal(err)
+			cmd.Println(err)
+			os.Exit(1)
 		}
 
 		var ids []string
 		var items []string
-		for id, db := range m {
+		for id, v := range m {
+			db, ok := v.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
 			ids = append(ids, id)
-			items = append(items, db["driver"]+" - "+db["dsn"])
+			items = append(items, db["driver"].(string)+" - "+db["dsn"].(string))
 		}
 
 		selector := promptui.Select{
@@ -75,7 +81,7 @@ This command let you assign a different database connection to a service.
 			os.Exit(1)
 		}
 
-		config.Set(ids[i], "services", id, "dsn")
+		config.Set(ids[i], "databases", id)
 
 		if err := config.Save("cli", fmt.Sprintf("Set database for service %s : %s", id, ids[i])); err == nil {
 			cmd.Println("Config set")
