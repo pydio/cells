@@ -23,7 +23,7 @@ These instructions will get you a copy of the project up and running on your loc
 The following elements are required to compile and run pydio on your machine
 
 - Go language v1.10 or higher (tested with 1.10.5 and 1.11.5), with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
-- MySQL database 5.6 or higher (or MariaDB equivalent), we do not support yet the new mysql 8 authentication method, Mysql 8 can only be used with the legacy auth method (on our roadmap).
+- MySQL database 5.6 or higher (or MariaDB equivalent). The new mysql 8 authentication method is supported starting at Cells 1.4.1.
 
 _Note: We have developped and tested Pydio Cells on MacOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
 
