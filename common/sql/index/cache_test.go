@@ -464,7 +464,6 @@ func TestMysqlWithCache(t *testing.T) {
 
 		e = getDAO(ctxWithCache).Flush(true)
 		So(e, ShouldBeNil)
-
 		e = getDAO(ctxWithCache).ResyncDirtyEtags(node)
 		So(e, ShouldBeNil)
 		intermediaryNode, e := getDAO(ctxWithCache).GetNode(node13.MPath)

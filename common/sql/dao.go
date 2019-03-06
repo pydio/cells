@@ -43,6 +43,7 @@ type DAO interface {
 	DB() *sql.DB
 	Prepare(string, interface{}) error
 	GetStmt(string, ...interface{}) *sql.Stmt
+	GetStmtWithArgs(string, ...interface{}) (*sql.Stmt, []interface{})
 	UseExclusion()
 	Lock()
 	Unlock()
@@ -52,11 +53,12 @@ type DAO interface {
 type Handler struct {
 	dao.DAO
 
-	stmts    map[string]string
-	ifuncs   map[string]func(...interface{}) string // TODO - replace next with this
-	funcs    map[string]func(...string) string      // Queries that need to be run before we get a statement
-	mu       atomic.Value
-	replacer *strings.Replacer
+	stmts         map[string]string
+	ifuncs        map[string]func(...interface{}) string // TODO - replace next with this
+	funcs         map[string]func(...string) string      // Queries that need to be run before we get a statement
+	funcsWithArgs map[string]func(...string) (string, []interface{})
+	mu            atomic.Value
+	replacer      *strings.Replacer
 }
 
 func NewDAO(driver string, dsn string, prefix string) DAO {
@@ -70,12 +72,13 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 		mu.Store(&sync.Mutex{})
 	}
 	return &Handler{
-		DAO:      dao.NewDAO(conn, driver, prefix),
-		stmts:    make(map[string]string),
-		ifuncs:   make(map[string]func(...interface{}) string),
-		funcs:    make(map[string]func(...string) string),
-		replacer: strings.NewReplacer("%%PREFIX%%", prefix, "%PREFIX%", prefix),
-		mu:       mu,
+		DAO:           dao.NewDAO(conn, driver, prefix),
+		stmts:         make(map[string]string),
+		ifuncs:        make(map[string]func(...interface{}) string),
+		funcs:         make(map[string]func(...string) string),
+		funcsWithArgs: make(map[string]func(...string) (string, []interface{})),
+		replacer:      strings.NewReplacer("%%PREFIX%%", prefix, "%PREFIX%", prefix),
+		mu:            mu,
 	}
 }
 
@@ -95,6 +98,8 @@ func (h *Handler) Prepare(key string, query interface{}) error {
 		h.ifuncs[key] = v
 	case func(...string) string:
 		h.funcs[key] = v
+	case func(...string) (string, []interface{}):
+		h.funcsWithArgs[key] = v
 	case string:
 		v = h.replacer.Replace(v)
 		h.stmts[key] = v
@@ -141,6 +146,26 @@ func (h *Handler) GetStmt(key string, args ...interface{}) *sql.Stmt {
 	}
 
 	return nil
+}
+
+// GetStmt returns a list of all statements used by the dao
+func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (*sql.Stmt, []interface{}) {
+	if v, ok := h.funcsWithArgs[key]; ok {
+		var sparams []string
+		for _, s := range params {
+			sparams = append(sparams, fmt.Sprintf("%v", s))
+		}
+		query, args := v(sparams...)
+		query = h.replacer.Replace(query)
+
+		stmt, err := h.DB().Prepare(query)
+		if err != nil {
+			return nil, nil
+		}
+		return stmt, args
+	}
+
+	return nil, nil
 }
 
 func (h *Handler) UseExclusion() {

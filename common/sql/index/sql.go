@@ -157,98 +157,115 @@ func init() {
 		return `select count(uuid) from %%PREFIX%%_idx_nodes where uuid not in (select uuid from %%PREFIX%%_idx_tree)`
 	}
 
-	queries["updateNodes"] = func(mpathes ...string) string {
+	queries["updateNodes"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathesIn("", mpathes...)
+
 		return fmt.Sprintf(`
 			update %%PREFIX%%_idx_nodes set mtime = ?, etag = ?, size = size + ?
 			where uuid in (
 				select uuid from %%PREFIX%%_idx_tree where (%s)
-			)`, getMPathesIn("", mpathes...))
+			)`, sub), args
 	}
 
-	queries["deleteTree"] = func(mpathes ...string) string {
+	queries["deleteTree"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEqualsOrLike("", []byte(mpathes[0]))
+
 		return fmt.Sprintf(`
 			delete from %%PREFIX%%_idx_tree
-			where (%s)`, getMPathEqualsOrLike("", []byte(mpathes[0])))
+			where (%s)`, sub), args
 	}
 
-	queries["deleteNode"] = func(mpathes ...string) string {
+	queries["deleteNode"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEqualsOrLike("", []byte(mpathes[0]))
+
 		return fmt.Sprintf(`
 		delete from %%PREFIX%%_idx_nodes
 		where uuid in (
 			select uuid
 			from %%PREFIX%%_idx_tree
 			where (%s)
-		)`, getMPathEqualsOrLike("", []byte(mpathes[0])))
+		)`, sub), args
 	}
 
-	queries["selectNode"] = func(mpathes ...string) string {
+	queries["selectNode"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEquals("t", []byte(mpathes[0]))
+
 		return fmt.Sprintf(`
 		select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 		from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 		where %s
-		and n.uuid = t.uuid`, getMPathEquals("t", []byte(mpathes[0])))
+		and n.uuid = t.uuid`, sub), args
 	}
 
-	queries["selectNodes"] = func(mpathes ...string) string {
+	queries["selectNodes"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathesIn("t", mpathes...)
+
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where (%s)
 			and n.uuid = t.uuid
-			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, getMPathesIn("t", mpathes...))
+			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, sub), args
 	}
 
-	queries["tree"] = func(mpathes ...string) string {
+	queries["tree"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
+
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level >= ?
-			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, getMPathLike("t", []byte(mpathes[0])))
+			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, sub), args
 	}
 
-	queries["children"] = func(mpathes ...string) string {
+	queries["children"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			order by n.name`, getMPathLike("t", []byte(mpathes[0])))
+			order by n.name`, sub), args
 	}
 
-	queries["child"] = func(mpathes ...string) string {
+	queries["child"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			and n.name like ?`, getMPathLike("t", []byte(mpathes[0])))
+			and n.name like ?`, sub), args
 	}
 
-	queries["lastChild"] = func(mpathes ...string) string {
+	queries["lastChild"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			order by t.mpath4, t.mpath3, t.mpath2, t.mpath1 desc limit 1`, getMPathLike("t", []byte(mpathes[0])))
+			order by t.mpath4, t.mpath3, t.mpath2, t.mpath1 desc limit 1`, sub), args
 	}
 
-	queries["childrenEtags"] = func(mpathes ...string) string {
+	queries["childrenEtags"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select n.etag
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			order by n.name`, getMPathLike("t", []byte(mpathes[0])))
+			order by n.name`, sub), args
 	}
 
-	queries["dirtyEtags"] = func(mpathes ...string) string {
+	queries["dirtyEtags"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEqualsOrLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
@@ -256,17 +273,18 @@ func init() {
 			and (%s)
 		    and t.uuid = n.uuid
 		    and t.level >= ?
-			order by t.level DESC`, getMPathEqualsOrLike("t", []byte(mpathes[0])))
+			order by t.level DESC`, sub), args
 	}
 
-	queries["childrenCount"] = func(mpathes ...string) string {
+	queries["childrenCount"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select count(t.uuid)
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			order by n.name`, getMPathLike("t", []byte(mpathes[0])))
+			order by n.name`, sub), args
 	}
 
 }
@@ -751,10 +769,10 @@ func (dao *IndexSQL) etagFromChildren(node *mtree.TreeNode) (string, error) {
 	mpath := node.MPath
 
 	// First we check if we already have an object with the same key
-	if stmt := dao.GetStmt("childrenEtags", mpath.String()); stmt != nil {
+	if stmt, args := dao.GetStmtWithArgs("childrenEtags", mpath.String()); stmt != nil {
 		defer stmt.Close()
 
-		rows, err = stmt.Query(len(mpath) + 1)
+		rows, err = stmt.Query(append(args, len(mpath)+1)...)
 		if err != nil {
 			return "", err
 		}
@@ -785,10 +803,10 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 	var err error
 
 	mpath := rootNode.MPath
-	if stmt := dao.GetStmt("dirtyEtags", mpath.String()); stmt != nil {
+	if stmt, args := dao.GetStmtWithArgs("dirtyEtags", mpath.String()); stmt != nil {
 		defer stmt.Close()
 
-		rows, err = stmt.Query(len(mpath)) // Start at root level
+		rows, err = stmt.Query(append(args, len(mpath))...) // Start at root level
 		if err != nil {
 			dao.Unlock()
 			return err
@@ -872,12 +890,12 @@ func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 				}
 			}()
 
-			updateNodes := dao.GetStmt("updateNodes", mpathes...)
+			updateNodes, args := dao.GetStmtWithArgs("updateNodes", mpathes...)
 
 			if stmt := tx.Stmt(updateNodes); stmt != nil {
 				defer stmt.Close()
 
-				if _, err = stmt.Exec(time.Now().Unix(), etag, deltaSize); err != nil {
+				if _, err = stmt.Exec(append([]interface{}{time.Now().Unix(), etag, deltaSize}, args...)...); err != nil {
 					b.out <- err
 				}
 			} else {
@@ -933,20 +951,20 @@ func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 	// Node
 	mpath := node.MPath.String()
 
-	if stmt := dao.GetStmt("deleteNode", mpath); stmt != nil {
+	if stmt, args := dao.GetStmtWithArgs("deleteNode", mpath); stmt != nil {
 		defer stmt.Close()
 
-		if _, err = stmt.Exec(); err != nil {
+		if _, err = stmt.Exec(args...); err != nil {
 			return err
 		}
 	} else {
 		return fmt.Errorf("Empty statement")
 	}
 
-	if stmt := dao.GetStmt("deleteTree", mpath); stmt != nil {
+	if stmt, args := dao.GetStmtWithArgs("deleteTree", mpath); stmt != nil {
 		defer stmt.Close()
 
-		if _, err = stmt.Exec(); err != nil {
+		if _, err = stmt.Exec(args...); err != nil {
 			return err
 		}
 	} else {
@@ -985,10 +1003,10 @@ func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 
 	mpath := node.MPath.String()
 
-	if stmt := dao.GetStmt("selectNode", mpath); stmt != nil {
+	if stmt, args := dao.GetStmtWithArgs("selectNode", mpath); stmt != nil {
 		defer stmt.Close()
 
-		row := stmt.QueryRow()
+		row := stmt.QueryRow(args...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
@@ -1035,11 +1053,11 @@ func (dao *IndexSQL) GetNodes(mpathes ...mtree.MPath) chan *mtree.TreeNode {
 		}()
 
 		get := func(mpathes ...interface{}) {
-			if stmt := dao.GetStmt("selectNodes", mpathes...); stmt != nil {
+			if stmt, args := dao.GetStmtWithArgs("selectNodes", mpathes...); stmt != nil {
 
 				defer stmt.Close()
 
-				rows, err := stmt.Query()
+				rows, err := stmt.Query(args...)
 				if err != nil {
 					return
 				}
@@ -1088,10 +1106,10 @@ func (dao *IndexSQL) GetNodeChild(reqPath mtree.MPath, reqName string) (*mtree.T
 
 	mpath := node.MPath
 
-	if stmt := dao.GetStmt("child", mpath.String()); stmt != nil {
+	if stmt, args := dao.GetStmtWithArgs("child", mpath.String()); stmt != nil {
 		defer stmt.Close()
 
-		row := stmt.QueryRow(len(reqPath)+1, reqName)
+		row := stmt.QueryRow(append(args, len(reqPath)+1, reqName)...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
@@ -1113,10 +1131,10 @@ func (dao *IndexSQL) GetNodeLastChild(reqPath mtree.MPath) (*mtree.TreeNode, err
 
 	mpath := node.MPath
 
-	if stmt := dao.GetStmt("lastChild", mpath.String()); stmt != nil {
+	if stmt, args := dao.GetStmtWithArgs("lastChild", mpath.String()); stmt != nil {
 		defer stmt.Close()
 
-		row := stmt.QueryRow(len(reqPath) + 1)
+		row := stmt.QueryRow(append(args, len(reqPath)+1)...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
@@ -1176,10 +1194,10 @@ func (dao *IndexSQL) GetNodeChildrenCount(path mtree.MPath) int {
 	res := 0
 
 	// First we check if we already have an object with the same key
-	if stmt := dao.GetStmt("childrenCount", mpath.String()); stmt != nil {
+	if stmt, args := dao.GetStmtWithArgs("childrenCount", mpath.String()); stmt != nil {
 		defer stmt.Close()
 
-		row := stmt.QueryRow(len(path) + 1)
+		row := stmt.QueryRow(append(args, len(path)+1)...)
 		if row == nil {
 			return 0
 		}
@@ -1215,10 +1233,10 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt := dao.GetStmt("children", mpath.String()); stmt != nil {
+		if stmt, args := dao.GetStmtWithArgs("children", mpath.String()); stmt != nil {
 			defer stmt.Close()
 
-			rows, err = stmt.Query(len(path) + 1)
+			rows, err = stmt.Query(append(args, len(path)+1)...)
 			if err != nil {
 				return
 			}
@@ -1262,10 +1280,10 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt := dao.GetStmt("tree", mpath.String()); stmt != nil {
+		if stmt, args := dao.GetStmtWithArgs("tree", mpath.String()); stmt != nil {
 			defer stmt.Close()
 
-			rows, err = stmt.Query(len(mpath) + 1)
+			rows, err = stmt.Query(append(args, len(mpath)+1)...)
 			if err != nil {
 				return
 			}
@@ -1616,8 +1634,9 @@ func (b *BatchSend) Close() error {
 }
 
 // where t.mpath = ?
-func getMPathEquals(tableAlias string, mpath []byte) string {
+func getMPathEquals(tableAlias string, mpath []byte) (string, []interface{}) {
 	var res []string
+	var args []interface{}
 
 	if tableAlias != "" {
 		tableAlias = tableAlias + "."
@@ -1626,7 +1645,8 @@ func getMPathEquals(tableAlias string, mpath []byte) string {
 	for {
 		var cnt int
 		cnt = (len(mpath) - 1) / indexLen
-		res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+		res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+		args = append(args, mpath[(cnt*indexLen):])
 
 		if idx := cnt * indexLen; idx == 0 {
 			break
@@ -1635,12 +1655,13 @@ func getMPathEquals(tableAlias string, mpath []byte) string {
 		mpath = mpath[0 : cnt*indexLen]
 	}
 
-	return strings.Join(res, " and ")
+	return strings.Join(res, " and "), args
 }
 
 // t.mpath LIKE ?
-func getMPathLike(tableAlias string, mpath []byte) string {
+func getMPathLike(tableAlias string, mpath []byte) (string, []interface{}) {
 	var res []string
+	var args []interface{}
 
 	if tableAlias != "" {
 		tableAlias = tableAlias + "."
@@ -1654,10 +1675,12 @@ func getMPathLike(tableAlias string, mpath []byte) string {
 		cnt = (len(mpath) - 1) / indexLen
 
 		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			args = append(args, mpath[(cnt*indexLen):])
 			done = true
 		} else {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			args = append(args, mpath[(cnt*indexLen):])
 		}
 
 		if idx := cnt * indexLen; idx == 0 {
@@ -1667,12 +1690,13 @@ func getMPathLike(tableAlias string, mpath []byte) string {
 		mpath = mpath[0 : cnt*indexLen]
 	}
 
-	return strings.Join(res, " and ")
+	return strings.Join(res, " and "), args
 }
 
 // and (t.mpath = ? OR t.mpath LIKE ?)
-func getMPathEqualsOrLike(tableAlias string, mpath []byte) string {
+func getMPathEqualsOrLike(tableAlias string, mpath []byte) (string, []interface{}) {
 	var res []string
+	var args []interface{}
 
 	if tableAlias != "" {
 		tableAlias = tableAlias + "."
@@ -1686,8 +1710,11 @@ func getMPathEqualsOrLike(tableAlias string, mpath []byte) string {
 		cnt = (len(mpath) - 1) / indexLen
 
 		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):len(mpath)-2]))
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+
+			args = append(args, mpath[(cnt*indexLen):len(mpath)-2], mpath[(cnt*indexLen):])
+
 			done = true
 		} else {
 			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
@@ -1700,16 +1727,19 @@ func getMPathEqualsOrLike(tableAlias string, mpath []byte) string {
 		mpath = mpath[0 : cnt*indexLen]
 	}
 
-	return strings.Join(res, " or ")
+	return strings.Join(res, " or "), args
 }
 
 // where t.mpath in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-func getMPathesIn(tableAlias string, mpathes ...string) string {
-
+func getMPathesIn(tableAlias string, mpathes ...string) (string, []interface{}) {
 	var res []string
+	var args []interface{}
+
 	for _, mpath := range mpathes {
-		res = append(res, fmt.Sprintf(`(%s)`, getMPathEquals(tableAlias, []byte(mpath))))
+		r, a := getMPathEquals(tableAlias, []byte(mpath))
+		res = append(res, fmt.Sprintf(`(%s)`, r))
+		args = append(args, a...)
 	}
 
-	return strings.Join(res, " or ")
+	return strings.Join(res, " or "), args
 }
