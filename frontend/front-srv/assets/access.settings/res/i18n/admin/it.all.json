@@ -263,9 +263,6 @@
   "ds.status.ko": {
     "other": "Servizi interrotti"
   },
-  "ds.status.ko-peers": {
-    "other": "Node %s non trovato"
-  },
   "ds.status.na": {
     "other": "N/A"
   },
@@ -559,9 +556,6 @@
   },
   "logs.export.disabled": {
     "other": "Scegli una data o filtra i risultati"
-  },
-  "logs.export.clicklink": {
-    "other": "Clicca sul link per scaricare"
   },
   "logs.filter.period": {
     "other": "Periodo di tempo"
@@ -921,592 +915,592 @@
     "other": "Risorse OpenId Connect"
   },
   "policies.type.rest.legend": {
-    "other": "Queste policy proteggono le API REST su base per URI / per metodo. Esse concedono l'accesso di base ad alcune API specifiche per la scoperta pubblica, e un accesso limitato a molte API per assicurarsi che siano accessibili solo da applicazione frontend. In generale non dovresti toccarle a meno che tu non sappia esattamente quello che fai."
+    "other": "These policies are protecting the REST APIs on a per-uri / per-method basis. They grant basic access to some specific APIs for public discovery, and a restriction access to many APIs to make sure they are accessed only by frontend application. You should generally not touch these unless you know exactly what you do."
   },
   "policies.type.rest.title": {
-    "other": "Risorse REST"
+    "other": "REST Resources"
   },
   "react.1": {
-    "other": "cartella superiore"
+    "other": "parent folder"
   },
   "react.10": {
-    "other": "Eredita i permessi"
+    "other": "Inherit Permissions"
   },
   "react.11": {
-    "other": "Svuota i permessi"
+    "other": "Empty Permissions"
   },
   "react.12": {
-    "other": "Cancella i Permessi"
+    "other": "Clear Permissions"
   },
   "react.13": {
-    "other": "Mostra permessi completi"
+    "other": "Show full permissions"
   },
   "react.14": {
-    "other": "Visualizza la struttura ad albero"
+    "other": "Show resulting tree"
   },
   "react.2": {
-    "other": "azioni massive"
+    "other": "bulk actions"
   },
   "react.3": {
-    "other": "Risultati della Ricerca per: %s"
+    "other": "Search Results for '%s'"
   },
   "react.4": {
-    "other": "Risultati Ravvicinati"
+    "other": "Close Results"
   },
   "react.5": {
-    "other": "rifiuta"
+    "other": "deny"
   },
   "react.5a": {
-    "other": "leggi"
+    "other": "read"
   },
   "react.5b": {
-    "other": "scrivi"
+    "other": "write"
   },
   "react.6": {
-    "other": "figli"
+    "other": "children"
   },
   "react.7": {
-    "other": "Crea una regola"
+    "other": "Create a rule"
   },
   "react.8": {
-    "other": "Stai per gestire le autorizzazioni a un livello inferiore. Questa cartella verrà letta\n                        solo per impostazione predefinita, e potrai gestire le autorizzazioni in modo selettivo sul livello inferiore. Scegli\n                        se copiare le autorizzazioni correnti al livello inferiore, o cancellare le relative autorizzazioni, che le rendono\n                        inaccessibili per impostazione predefinita."
+    "other": "You are about to manage permissions at the lower level. This folder will be read\n                        only by default, and you will manage permissions selectively on its children. Choose\n                        whether to copy the current permissions to its children, or to clear their permissions, which would make\n                        them inaccessible by default."
   },
   "react.9": {
-    "other": "Stai per disabilitare la gestione dei permessi sul sottolivello: tutte le cartelle figlio                        ereditano automaticamente i permessi di questa cartella, e le impostazioni attuali\n                        di queste cartelle figlio verranno perse. Sei sicuro di confermare?"
+    "other": "You are about to disable the permissions management at the sub-level: all\n                        children will automatically inherit this folder permissions, and you current settings\n                        for these children will be lost. Are you sure to confirm ?"
   },
   "scheduler.1": {
-    "other": "Lo Scheduler viene usato per lanciare i task automaticamente su base regolare. Richiede il lancio regolare di un comando master: se stai usando Pydio Booster, dovrebbe attivarlo in modo automatico. Altrimenti, usa CRON per avviare il comando master ogni minuto."
+    "other": "Scheduler is used to trigger tasks automatically on a regular basis. It requires the launch of a master command regularly: if you are using Pydio Booster, it should trigger this for you. Otherwise, use a CRON to launch master command every minute."
   },
   "scheduler.2": {
-    "other": "La linea di comando non è abilitata in %1, per cui lo scheduler non sarà in grado di eseguire il lavoro."
+    "other": "Command-line is not enabled in the %1, the scheduler will not be able to run the jobs."
   },
   "scheduler.3": {
-    "other": "configurazioni globali"
+    "other": "global configurations"
   },
   "user.1": {
-    "other": "+ Utente"
+    "other": "+ User"
   },
   "user.10": {
-    "other": "Accesso a %i workspace"
+    "other": "Access to %i workspaces"
   },
   "user.11": {
-    "other": "%i ruoli"
+    "other": "%i roles"
   },
   "user.12": {
-    "other": "Percorso del Gruppo"
+    "other": "Group path"
   },
   "user.13": {
-    "other": "condiviso"
+    "other": "shared"
   },
   "user.14": {
-    "other": "Crea un nuovo ruolo"
+    "other": "Create a new role"
   },
   "user.15": {
-    "other": "Crea un nuovo gruppo"
+    "other": "Create a new group"
   },
   "user.16": {
-    "other": "Identificatore del gruppo"
+    "other": "Group Identifier"
   },
   "user.16.empty": {
-    "other": "Si prega di fornire un identificatore univoco"
+    "other": "Please provide a unique identifier"
   },
   "user.16.format": {
-    "other": "Si prega di utilizzare solo caratteri alfanumerici"
+    "other": "Please use only alphanumeric characters"
   },
   "user.17": {
-    "other": "Etichetta di gruppo"
+    "other": "Group Label"
   },
   "user.17.empty": {
-    "other": "Si prega di fornire un'etichetta per questo gruppo"
+    "other": "Please provide a label for this group"
   },
   "user.18": {
-    "other": "Identificatore del ruolo"
+    "other": "Role Identifier"
   },
   "user.18.empty": {
-    "other": "Si prega di fornire un'etichetta per questo ruolo"
+    "other": "Please provide a label for this role"
   },
   "user.19": {
-    "other": "Crea un nuovo utente"
+    "other": "Create a new user"
   },
   "user.2": {
-    "other": "+ Gruppo"
+    "other": "+ Group"
   },
   "user.20": {
-    "other": "L'utente verrà creato nel gruppo %s"
+    "other": "User will be created in group %s"
   },
   "user.21": {
-    "other": "Login utente"
+    "other": "User login"
   },
   "user.22": {
-    "other": "Password utente"
+    "other": "User password"
   },
   "user.23": {
-    "other": "Conferma password"
+    "other": "Confirm password"
   },
   "user.24": {
-    "other": "Gruppo root"
+    "other": "Root Group"
   },
   "user.25": {
-    "other": "Ruolo del Gruppo Root"
+    "other": "Root Group Role"
   },
   "user.26": {
-    "other": "Ruolo del gruppo %s"
+    "other": "%s Group Role"
   },
   "user.27": {
-    "other": "Ruolo personale dell'utente"
+    "other": "User Personal Role"
   },
   "user.3": {
-    "other": "Gruppi"
+    "other": "Groups"
   },
   "user.4": {
-    "other": "Ruoli"
+    "other": "Roles"
   },
   "user.5": {
-    "other": "Gruppi & utenti"
+    "other": "Groups & Users"
   },
   "user.6": {
-    "other": "+ Ruolo"
+    "other": "+ Role"
   },
   "user.7": {
-    "other": "Cerca utenti & gruppi"
+    "other": "Search users & groups"
   },
   "user.8": {
-    "other": "Imposta i parametri su questo gruppo per applicarli a tutti i gruppi e agli utenti."
+    "other": "Set parameters on this group to apply them all groups and users."
   },
   "user.9": {
-    "other": "Ultima conessione"
+    "other": "Last connected"
   },
   "user.filter.tooltip": {
-    "other": "Filtra elenco utenti..."
+    "other": "Filter users list..."
   },
   "user.filter.internal": {
-    "other": "Utenti Interni"
+    "other": "Internal users"
   },
   "user.filter.shared": {
-    "other": "Utenti condivisi"
+    "other": "Shared users"
   },
   "user.filter.admins": {
-    "other": "Solo amministratori"
+    "other": "Admins only"
   },
   "user.filter.all": {
-    "other": "Tutti gli utenti"
+    "other": "All users"
   },
   "user.filter.anon": {
-    "other": "Mostra anonimo"
+    "other": "Show anonymous"
   },
   "versions.editor.delete": {
-    "other": "Elimina Policy"
+    "other": "Delete Policy"
   },
   "versions.editor.delete.confirm": {
-    "other": "Sei sicuro di voler eliminare questa policy? Questo è irreversibile!"
+    "other": "Are you sure you want to delete this policy? This is undoable!"
   },
   "versions.editor.error.lastdelete": {
-    "other": "L'ultimo periodo è configurato per eliminare tutte le versioni, non puoi aggiungerne una nuova!"
+    "other": "The last period is configured to delete all versions, you cannot add a new one!"
   },
   "versions.editor.title": {
     "other": "Policy %s"
   },
   "versions.period.keep-all": {
-    "other": "Mantieni tutto"
+    "other": "Keep all"
   },
   "versions.period.keep-all.always": {
-    "other": "Mantieni sempre tutte le versioni"
+    "other": "Always keep all versions"
   },
   "versions.period.keep-n": {
-    "other": "Mantieni %s versioni"
+    "other": "Keep %s versions"
   },
   "versions.period.keep-n-after": {
-    "other": "Mantieni %1 versioni dopo %2"
+    "other": "Keep %1 versions after %2"
   },
   "versions.period.max-n": {
-    "other": "Max. %s versioni"
+    "other": "Max. %s versions"
   },
   "versions.period.remove-all": {
-    "other": "Rimuovi tutto"
+    "other": "Remove all"
   },
   "versions.period.remove-all-after": {
-    "other": "Rimuovi tutto dopo %s"
+    "other": "Remove all after %s"
   },
   "versions.period.retentions-n": {
-    "other": "%s periodi di conservazione"
+    "other": "%s retention periods"
   },
   "virtual.create": {
-    "other": "+ Percorso dei modelli"
+    "other": "+ Template Path"
   },
   "virtual.create.button": {
-    "other": "Crea"
+    "other": "Create"
   },
   "virtual.label": {
-    "other": "Etichetta"
+    "other": "Label"
   },
   "virtual.legend.1": {
-    "other": "I percorsi dei modelli sono calcolati in modo dinamico a seconda del contesto. Possono essere usati come root per i workspace in sostituzione di un percorso fisso di origine dei dati.     Sono usati come predefiniti per creare il workspace dei file personali che punta a una cartella diversa per ogni utente e per calcolare la posizione delle cartelle degli utenti Cells."
+    "other": "Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.     They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders."
   },
   "virtual.legend.2": {
-    "other": "Usa Ctrl+Space all'interno dell'editor per avere un suggerimento sui possibili valori. Gli attuali valori supportati sono: User.Name (risolto dinamicamente al login dell'utente attuale loggato) e DataSources (per scegliere dinamicamente una sorgente dei dati)."
+    "other": "Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically)."
   },
   "virtual.title": {
-    "other": "Percorso dei modelli"
+    "other": "Template Paths"
   },
   "ws.1": {
-    "other": "Gestisci i DataSource"
+    "other": "Manage DataSources"
   },
   "ws.10": {
-    "other": "Seleziona un DataSource"
+    "other": "Select a DataSource"
   },
   "ws.11": {
-    "other": "Workspace basato su..."
+    "other": "Workspace based on ..."
   },
   "ws.12": {
-    "other": "Modello %s"
+    "other": "Template %s"
   },
   "ws.13": {
-    "other": "Opzioni del modello"
+    "other": "Template Options"
   },
   "ws.14": {
-    "other": "Imposta opzioni generiche"
+    "other": "Set Generic Options"
   },
   "ws.15": {
-    "other": "Opzioni del Workspace"
+    "other": "Workspace Options"
   },
   "ws.16": {
-    "other": "Scegli il Driver dello Storage"
+    "other": "Choose Storage Driver"
   },
   "ws.17": {
-    "other": "Seleziona il Tipo di Storage"
+    "other": "Select Storage Type"
   },
   "ws.18": {
-    "other": "Caricamento dei driver"
+    "other": "Loading drivers"
   },
   "ws.19": {
-    "other": "Salva per aggiungere funzionalità"
+    "other": "Save to add features"
   },
   "ws.2": {
-    "other": "Chiudi i DataSource"
+    "other": "Close DataSources"
   },
   "ws.20": {
-    "other": "Crea"
+    "other": "Create"
   },
   "ws.21": {
-    "other": "Opzioni generali del modello"
+    "other": "Template General Options"
   },
   "ws.22": {
-    "other": "Opzioni generali del workspace"
+    "other": "Workspace General Options"
   },
   "ws.23": {
-    "other": "Cancella il workspace"
+    "other": "Delete workspace"
   },
   "ws.24": {
-    "other": "Workspace Figli"
+    "other": "Children Workspaces"
   },
   "ws.25": {
-    "other": "Condivisioni"
+    "other": "Shares"
   },
   "ws.26": {
-    "other": "Permessi delle Cartelle"
+    "other": "Folders Permissions"
   },
   "ws.27": {
-    "other": "Funzionalità aggiuntive"
+    "other": "Additional Features"
   },
   "ws.28": {
-    "other": "Riepilogo"
+    "other": "Summary"
   },
   "ws.29": {
-    "other": "Parametri"
+    "other": "Parameters"
   },
   "ws.3": {
     "other": "+ workspace"
   },
   "ws.30": {
-    "other": "Opzioni generali"
+    "other": "General Options"
   },
   "ws.31": {
-    "other": "Rimuovi la funzione"
+    "other": "Remove Feature"
   },
   "ws.32": {
-    "other": "Aggiungi una funzione..."
+    "other": "Add a feature..."
   },
   "ws.33": {
-    "other": "Attività Recenti"
+    "other": "Recent Activity"
   },
   "ws.34": {
-    "other": "Ultimi eventi su questo workspace"
+    "other": "Last events on this workspace"
   },
   "ws.35": {
-    "other": "Accessibile a %i utenti"
+    "other": "Accessible to %i users"
   },
   "ws.36": {
-    "other": "+ %i file o cartelle condivisi"
+    "other": "+ %i files or folders shared"
   },
   "ws.37": {
-    "other": "Workspace che usano questo modello"
+    "other": "Workspaces using this template"
   },
   "ws.38": {
-    "other": "Elementi condivisi in questo workspace"
+    "other": "Shared Items in this workspace"
   },
   "ws.39": {
-    "other": "Proprietario"
+    "other": "Owner"
   },
   "ws.4": {
-    "other": "+ dataSource"
+    "other": "+ datasource"
   },
   "ws.40": {
-    "other": "Tipo Condivisione"
+    "other": "Share Type"
   },
   "ws.41": {
-    "other": "Percorso"
+    "other": "Path"
   },
   "ws.42": {
-    "other": "Autorizzazioni a livello di cartella"
+    "other": "Folder Level Permissions"
   },
   "ws.43": {
-    "other": "Specifica qui i permessi di accesso predefiniti per questa cartella di lavoro.\n                                Per abilitare la gestione dei permessi su un sottolivello, seleziona il 'CHILDREN' in una determinata cartella.\n                                Questo imposterà la cartella corrente come sola lettura per impostazione predefinita, e sarai in grado di aprire gli accessi\n                                in modo selettivo a qualsiasi cartella sul livello inferiore."
+    "other": "Specify here the default access permissions to this workspace folders.\n                                To enable the permissions management at a sub-level, select the 'CHILDREN' on a given folder.\n                                This will set the current folder as readonly by default, and you will be able to open accesses\n                                selectively to any of its children folders."
   },
   "ws.44": {
-    "other": "Siate consapevoli che questa è solo una maschera: se modifichi direttamente le cartelle reali, potresti dover\n                                modificare questa maschera in modo coerente. Inoltre, questi permessi possono essere limitati a livello globale dai 'Diritti Predefiniti'\n                                impostati per questo progetto (vedi la scheda generale)."
+    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                paremeter set for this workspace (see the General tab)."
   },
   "ws.45": {
-    "other": "Siccome i suoi parametri usano le parole chiave 'PYDIO_USER' o 'PYDIO_GROUP_ *', i contenuti di\n                                questo workspace variano a seconda dell'utente autenticato attualmente. Per questo motivo, non è possibile sfogliare le cartelle\n                                direttamente e assegnare loro le autorizzazioni, ma è possibile definire liberamente alcuni percorsi generici che verranno utilizzati come maschere."
+    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic pathes that will be used as masks."
   },
   "ws.46": {
-    "other": "Aggiungi una funzionalità"
+    "other": "Add a feature"
   },
   "ws.47": {
-    "other": "Seleziona una funzionalità"
+    "other": "Select a feature"
   },
   "ws.48": {
-    "other": "Attenzione, questo workspace/modello non è modificabile, poiché è definito direttamente nel file conf/bootstrap_repository.php."
+    "other": "Beware, this workspace/template is not editable, as it is defined directly in the conf/bootstrap_repositories.php file."
   },
   "ws.49": {
     "other": ""
   },
   "ws.4b": {
-    "other": "+ policy di versionamento"
+    "other": "+ version policy"
   },
   "ws.5": {
     "other": "Slug"
   },
   "ws.50": {
-    "other": "Indicizzazione"
+    "other": "Indexation"
   },
   "ws.51": {
-    "other": "Questo workspace dispone di un indicizzatore (%s). Normalmente, l'indicizzazione viene fatta \"on-the-fly\" quando i file vengono aggiunti o rimossi\n                    tramite le interfacce delle applicazioni. Tuttavia, se le modifiche vengono effettuate direttamente a livello di storage, potrebbe essere\n                    necessario riattivare manualmente l'indicizzazione di tanto in tanto. Utilizzare i pulsanti qui sotto per indicizzare adesso, o programmare un'attività nello scheduler\n                    per eseguire l'indicizzazione su base regolare."
+    "other": "This workspace has an indexer (%s). Normally, indexation is done \"on-the-fly\" when files are added/removed\n                    through the application interfaces. However if you are doing some modifications directly at the storage level, you may have\n                    to manually re-trigger an indexation from time to time. Use buttons below to either index now, or program a task in the scheduler\n                    to run indexation on a regular basis."
   },
   "ws.52": {
-    "other": "Nota: poiché questo workspace ha contenuti specifici per l'utente, l'indicizzazione verrà lanciata per ogni utente."
+    "other": "Please note: as this worksace has user-specific contents, indexation will be launched for each user."
   },
   "ws.53": {
-    "other": "Avvia l'indicizzazione"
+    "other": "Launch indexation now"
   },
   "ws.54": {
-    "other": "Pianifica ogni giorno alle 3 (della notte)"
+    "other": "Schedule every day at 3AM"
   },
   "ws.55": {
-    "other": "Pulizia automatica"
+    "other": "Automatic Purge"
   },
   "ws.56": {
-    "other": "Questo workspace ha un'impostazione \"purge\" per rimuovere automaticamente i documenti che sono rimasti inutilizzati da %s giorni. Assicurati di aggiungere un'attività nello\n                    scheduler per elaborare regolarmente questo workspace e cercare i documenti scaduti. Puoi utilizzare i pulsanti qui sotto per creare automaticamente questa zione,\n                    o eseguire la pulizia direttamente."
+    "other": "This workspace has a \"purge\" setup, to automatically remove documents that were left untouched since %s days. Make sure to add a task in the\n                    scheduler to regularly process this workspace and look for expired document. You can use the buttons below to create this task automatically,\n                    ok run the purge directly."
   },
   "ws.57": {
-    "other": "Nota: poiché questo workspace ha contenuti specifici per l'utente, l'indicizzazione verrà lanciata per ogni utente."
+    "other": "Please note: as this worksace has user-specific contents, purge will be running for each user."
   },
   "ws.58": {
-    "other": "Effettua la pulizia"
+    "other": "Purge now"
   },
   "ws.59": {
-    "other": "Pianifica ogni giorno alle 4 (della notte)"
+    "other": "Schedule every day at 4AM"
   },
   "ws.6": {
-    "other": "Nuovo Workspace"
+    "other": "New Workspace"
   },
   "ws.60": {
-    "other": "Attività sul Workspace"
+    "other": "Workspace Activity"
   },
   "ws.61": {
-    "other": "L'attività nel workspace viene mostrata agli utenti nel pannello a destra. Puoi cancellare tutte le attività\n                            per questo workspace, il che può essere comodo se per esempio stai andando \"live\" in produzione dopo un periodo di staging in cui hai\n                            effettuato alcuni test su questo workspace."
+    "other": "Activity of the workspace is displayed to the users in the right-hand panel. You can clear all activity\n                            for this workspace, which can be handy e.g. if you are going \"live\" in production after a staging period where you have\n                            made some tests in this workspace."
   },
   "ws.62": {
-    "other": "Cancella l'attività"
+    "other": "Clear Activity"
   },
   "ws.63": {
-    "other": "Attenzione, questo cancellerà tutte le attività di questo workspace mostrate agli utenti. Sei sicuro di volerlo fare?"
+    "other": "Warning, this will clear all activity of this workspace displayed to users. Are you sure you want to do that?"
   },
   "ws.64": {
-    "other": "%s eventi cancellati"
+    "other": "Cleared %s events"
   },
   "ws.65": {
-    "other": "Manutenzione Workspace"
+    "other": "Workspace Maintenance"
   },
   "ws.66": {
-    "other": "Attività in esecuzione"
+    "other": "Running Tasks"
   },
   "ws.67": {
-    "other": "Nessuna attività in esecuzione"
+    "other": "No tasks running"
   },
   "ws.68": {
-    "other": "Nessun parametro"
+    "other": "No Parameters"
   },
   "ws.69": {
-    "other": "Workspace basato su modelli"
+    "other": "Template-based workspace"
   },
   "ws.7": {
-    "other": "Nuovo DataSource"
+    "other": "New DataSource"
   },
   "ws.70": {
-    "other": "Workspace basato su driver"
+    "other": "Driver-based workspace"
   },
   "ws.71": {
-    "other": "Completa i passaggi qui sotto"
+    "other": "Complete the steps below"
   },
   "ws.72": {
-    "other": "Compila il modulo a destra"
+    "other": "Fill in the form on the right"
   },
   "ws.73": {
-    "other": "Scegli il valore prima di continuare"
+    "other": "Pick value before continuing"
   },
   "ws.74": {
-    "other": "Usa il modulo a destra per creare un nuovo DataSource. "
+    "other": "Use the form on the right to create a new DataSource. "
   },
   "ws.75": {
-    "other": "Un DataSource definisce dove vengono memorizzati i tuoi dati."
+    "other": "A DataSource defines where your data is stored."
   },
   "ws.76": {
-    "other": "Pydio aggrega tutte le tue fonti di dati in un albero master, su cui è possibile assegnare i diritti utilizzando i workspace."
+    "other": "Pydio will aggregate all your datasources into one master tree, on which you can assign rights using workspaces."
   },
   "ws.8": {
-    "other": "DataSource esistente"
+    "other": "Existing DataSource"
   },
   "ws.9": {
-    "other": "Nodi dei DataSource"
+    "other": "Datasource Nodes"
   },
   "ws.board.empty": {
-    "other": "Nessun workspace definito"
+    "other": "No workspaces defined"
   },
   "ws.board.summary": {
-    "other": "Root del workspace"
+    "other": "Workspace Roots"
   },
   "ws.complete.datasources": {
-    "other": "DataSource e cartelle"
+    "other": "DataSources and Folders"
   },
   "ws.complete.label": {
-    "other": "Seleziona una cartella o un percorso predefinito per i modelli"
+    "other": "Select a folder or a predefined template path"
   },
   "ws.complete.resolves": {
-    "other": "Risolvi su"
+    "other": "Resolves to"
   },
   "ws.complete.templates": {
-    "other": "Percorsi predefiniti dei modelli"
+    "other": "Preset Template Paths"
   },
   "ws.dashboard": {
-    "other": "I workspace definiscono il punto di accesso principale ai tuoi dati per gli utenti. Assicurati di definire almeno un datasource per poter creare un workspace che punti a un percorso di questo datasource."
+    "other": "Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource."
   },
   "ws.editor.data.legend": {
-    "other": "Il workspace espone una o molte 'root' agli utenti: scegli uno o più percorsi da qualsiasi DataSource o un percorso Template che verrà risolto automaticamente al runtime."
+    "other": "Workspace exposes one or many 'roots' to the users: choose on or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
   },
   "ws.editor.data.title": {
-    "other": "Accesso ai Dati"
+    "other": "Data Access"
   },
   "ws.editor.default_rights": {
-    "other": "Imposta i permessi di default per questo workspace (applicati a tutti gli utenti interni dell'applicazione). È possibile sovrascrivere questi permessi su base per utente / per ruolo / per gruppo nella sezione Persone."
+    "other": "Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section."
   },
   "ws.editor.default_rights.none": {
-    "other": "Nessuno"
+    "other": "None"
   },
   "ws.editor.default_rights.read": {
-    "other": "Solo lettura"
+    "other": "Read only"
   },
   "ws.editor.default_rights.readwrite": {
-    "other": "Lettura e Scrittura"
+    "other": "Read and Write"
   },
   "ws.editor.default_rights.write": {
-    "other": "Sola scrittura"
+    "other": "Write only"
   },
   "ws.editor.description": {
-    "other": "Descrizione aggiuntiva (opzionale)"
+    "other": "Additional description (optional)"
   },
   "ws.editor.help.1": {
-    "other": "I workspace garantiscono l'accesso ai tuoi dati agli utenti. Essi espongono una o più cartelle selezionate all'interno dei tuoi datasource."
+    "other": "Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources."
   },
   "ws.editor.help.2": {
-    "other": "È importante organizzare in modo adeguato i dati che vengono presentati ai tuoi utenti. Puoi creare workspace per diverse parti della tua organizzazione (finanza, marketing, dati tecnici, ecc.), su base per progetto, ecc. Puoi quindi assegnare gli accessi ai workspace su base per utente / per ruolo / per gruppo."
+    "other": "It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis."
   },
   "ws.editor.help.delete": {
-    "other": "Attenzione, operazione pericolosa! Non è reversibile."
+    "other": "Warning, dangerous operation! This is not reversible."
   },
   "ws.editor.label.legend": {
-    "other": "Etichetta facile da comprendere per questo workspace"
+    "other": "Human-friendly label for this workspace"
   },
   "ws.editor.options.legend": {
-    "other": "Etichetta e descrizione vengono mostrate agli utenti. Scegli un nome autoesplicativo per aiutare gli utenti a organizzare meglio i dati."
+    "other": "Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data."
   },
   "ws.editor.other": {
-    "other": "Altre proprietà"
+    "other": "Other Properties"
   },
   "ws.editor.other.layout": {
-    "other": "Layout del Workspace"
+    "other": "Workspace Layout"
   },
   "ws.editor.other.layout.default": {
     "other": "Default"
   },
   "ws.editor.other.layout.easy": {
-    "other": "Layout facile per il trasferimento (solo aziende)"
+    "other": "Easy Transfer Layout (enterprise only)"
   },
   "ws.editor.other.sync": {
-    "other": "Consenti la sincronizzazione dei desktop (ancora sperimentale)"
+    "other": "Allow desktop synchronisation (still experimental)"
   },
   "ws.editor.path.folder": {
-    "other": "Percorso della Cartella"
+    "other": "Folder Path"
   },
   "ws.editor.path.template": {
-    "other": "Percorso dei modelli"
+    "other": "Template Path"
   },
   "ws.editor.slug.legend": {
-    "other": "Nome tecnico utilizzato per esempio negli URL, calcolato in modo automatico ma personalizzabile."
+    "other": "Technical name used for example in URLs, automatically computed but you can customize it."
   },
   "services.filter.nofilter": {
-    "other": "Tutti i Servizi"
+    "other": "All Services"
   },
   "services.filter.started": {
-    "other": "Solo in esecuzione"
+    "other": "Running Only"
   },
   "services.filter.stopped": {
-    "other": "Solo fermati"
+    "other": "Stopped Only"
   },
   "services.peerfilter.title": {
-    "other": "Seleziona Nodo"
+    "other": "Select Node"
   },
   "services.toggle.details": {
-    "other": "Mostra i dettagli"
+    "other": "Show Details"
   },
   "services.column.name": {
-    "other": "Nome del Servizio"
+    "other": "Service Name"
   },
   "services.column.description": {
-    "other": "Descrizione"
+    "other": "Description"
   },
   "services.column.version": {
-    "other": "Versione"
+    "other": "Version"
   },
   "services.column.tag": {
     "other": "Tag"
   },
   "services.column.peers": {
-    "other": "Pari"
+    "other": "Peers"
   },
   "services.tag.gateway.title": {
     "other": "Gateways"
   },
   "services.tag.gateway.description": {
-    "other": "Servizi esposti all'esterno per accedere alla piattaforma"
+    "other": "World-facing services for accessing the platform"
   },
   "services.tag.datasource.title": {
     "other": "Data Sources"
   },
   "services.tag.datasource.description": {
-    "other": "Endpoint di archiviazione usati per accedere a storage concreti dei file. I servizi principali hanno il compito di lanciare i sotto-servizi (per datasource)."
+    "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
   },
   "services.tag.data.title": {
-    "other": "Dati"
+    "other": "Data"
   },
   "services.tag.data.description": {
     "other": "Servizi di gestione dei dati e dei metadati."
@@ -1527,130 +1521,130 @@
     "other": "Broker"
   },
   "services.tag.broker.description": {
-    "other": "Servizi che inviano ed elaborano eventi (generalmente verso gli utenti) attraverso l'applicazione."
+    "other": "Services dispatching and processing events (generally toward users) across the application."
   },
   "services.tag.frontend.title": {
     "other": "Frontend"
   },
   "services.tag.frontend.description": {
-    "other": "Servizi web per interfacce utente nel browser"
+    "other": "Web services for user interfaces in the browser"
   },
   "services.tag.discovery.title": {
-    "other": "Scoperta"
+    "other": "Discovery"
   },
   "services.tag.discovery.description": {
-    "other": "Configurazione di base e registro dei servizi chiamati dagli altri servizi."
+    "other": "Basic configurations and services registries called by all other services."
   },
   "services.service.ip": {
-    "other": "Esecuzione su %s"
+    "other": "Running on %s"
   },
   "services.service.datasource.sync": {
-    "other": "Sincronizza"
+    "other": "Sync"
   },
   "services.service.datasource.objects": {
-    "other": "Oggetti"
+    "other": "Objects"
   },
   "services.service.datasource.objects.legend": {
-    "other": "Livello S3 per servire i dati come oggetti di storage"
+    "other": "S3 layer to serve data as object storage"
   },
   "services.service.datasource.legend": {
-    "other": "Il datasource sta sincronizzando i dati dal layer degli oggetti all'indice del DB."
+    "other": "Datasource is synchronizing data from objects layer to index DB."
   },
   "services.service.datasource.index": {
-    "other": "Indicizzazione"
+    "other": "Indexation"
   },
   "scheduler.title": {
     "other": "Scheduler"
   },
   "scheduler.legend": {
-    "other": "Job eseguito in background su base periodica o attivato dagli eventi"
+    "other": "Jobs running in background on a periodical basis or triggered by events"
   },
   "scheduler.system.title": {
-    "other": "Job di sistema"
+    "other": "System Jobs"
   },
   "scheduler.system.legend": {
-    "other": "Questi job sono predefiniti all'interno dell'applicazione. Sono generalmente incaricati di estrarre informazioni dal nodo in background o di eseguire alcune operazioni di pulizia."
+    "other": "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
   "scheduler.system.empty": {
-    "other": "Nessun job pianificato."
+    "other": "No jobs scheduled."
   },
   "scheduler.users.title": {
-    "other": "Job degli Utenti"
+    "other": "Users Jobs"
   },
   "scheduler.users.legend": {
-    "other": "Questi job sono creati dinamicamente e lanciati da azioni degli utenti."
+    "other": "These jobs are dynamically created and trigged by user actions."
   },
   "scheduler.users.empty": {
-    "other": "Nessun job lanciato dagli utenti"
+    "other": "No jobs launched by users"
   },
   "scheduler.job.label": {
-    "other": "Etichetta"
+    "other": "Label"
   },
   "scheduler.job.endTime": {
-    "other": "Ultima Esecuzione"
+    "other": "Last Execution"
   },
   "scheduler.job.status": {
-    "other": "Stato"
+    "other": "Status"
   },
   "scheduler.job.owner": {
-    "other": "Proprietario"
+    "other": "Owner"
   },
   "scheduler.job.trigger": {
-    "other": "Attiva"
+    "other": "Trigger"
   },
   "scheduler.trigger.create.node": {
-    "other": "Crea Nodo"
+    "other": "Create Node"
   },
   "scheduler.trigger.read.node": {
-    "other": "Leggi Nodo"
+    "other": "Read Node"
   },
   "scheduler.trigger.update.path": {
-    "other": "Aggiorna percorso"
+    "other": "Update Path"
   },
   "scheduler.trigger.update.content": {
-    "other": "Aggiorna Contenuto"
+    "other": "Update Content"
   },
   "scheduler.trigger.update.metadata": {
-    "other": "Aggiorna Metadati"
+    "other": "Update Metadata"
   },
   "scheduler.trigger.delete.node": {
-    "other": "Elimina il Nodo"
+    "other": "Delete Node"
   },
   "scheduler.trigger.events": {
-    "other": "Eventi"
+    "other": "Events"
   },
   "scheduler.trigger.manual": {
-    "other": "Attivazione Manuale"
+    "other": "Manual Trigger"
   },
   "scheduler.trigger.periodic": {
-    "other": "Pianificazione periodica"
+    "other": "Periodic Schedule"
   },
   "scheduler.job.disabled": {
-    "other": "disabilitato"
+    "other": "disabled"
   },
   "scheduler.tasks.running.count": {
-    "other": "%s attività in esecuzione"
+    "other": "%s tasks running"
   },
   "scheduler.task.action.pause": {
-    "other": "Attività in pausa"
+    "other": "Pause Task"
   },
   "scheduler.task.action.resume": {
-    "other": "Riprendi l'attività"
+    "other": "Resume Task"
   },
   "scheduler.task.action.stop": {
-    "other": "Stop"
+    "other": "Stop Now"
   },
   "scheduler.task.action.delete": {
-    "other": "Elimina"
+    "other": "Delete"
   },
   "scheduler.task.action.enable": {
-    "other": "Abilita Job"
+    "other": "Enable Job"
   },
   "scheduler.task.action.run": {
-    "other": "Esegui ora"
+    "other": "Run Now"
   },
   "scheduler.task.action.disable": {
-    "other": "Disabilita Job"
+    "other": "Disable Job"
   },
   "scheduler.task.id": {
     "other": "ID"
