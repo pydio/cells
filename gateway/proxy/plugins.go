@@ -264,20 +264,21 @@ func init() {
 				}
 
 				// Watching plugins
-				if w, err := config.Watch("frontend", "plugin"); err != nil {
-					return err
-				} else {
-					go func() {
-						defer w.Stop()
-						for {
-							_, err := w.Next()
-							if err != nil {
-								break
+				for _, cPath := range caddy.GetConfigPaths() {
+					if w, err := config.Watch(cPath...); err != nil {
+						return err
+					} else {
+						go func() {
+							defer w.Stop()
+							for {
+								_, err := w.Next()
+								if err != nil {
+									break
+								}
+								caddy.Restart()
 							}
-
-							caddy.Restart()
-						}
-					}()
+						}()
+					}
 				}
 
 				return nil
