@@ -92,13 +92,16 @@ class DataSourceEditor extends React.Component{
     }
 
     confirmEncryption(value){
-        const {model} = this.state;
+        const {model, encryptionKeys} = this.state;
         model.EncryptionMode = (value?"MASTER":"CLEAR");
+        if(value && !model.EncryptionKey && encryptionKeys && encryptionKeys.length){
+            model.EncryptionKey = encryptionKeys[0].ID;
+        }
         this.setState({showDialog: false, dialogTargetValue: null});
     }
 
     render(){
-        const {storageTypes} = this.props;
+        const {storageTypes, pydio} = this.props;
         const {model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, m} = this.state;
 
         let titleActionBarButtons = [];
@@ -193,6 +196,8 @@ class DataSourceEditor extends React.Component{
             storageData[model.StorageType] = storages[model.StorageType];
         }
 
+        const cannotEnableEnc = model.EncryptionMode !== 'MASTER' && (!encryptionKeys || !encryptionKeys.length);
+
         return (
             <PydioComponents.PaperEditorLayout
                 title={title}
@@ -277,7 +282,10 @@ class DataSourceEditor extends React.Component{
                             return <MenuItem value={key.Uuid} primaryText={key.Name}/>
                         })}
                     </SelectField>
-                    <div style={styles.toggleDiv}><Toggle labelPosition={"right"} label={m('enc')} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}/></div>
+                    <div style={styles.toggleDiv}>
+                        <Toggle labelPosition={"right"} label={m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState']+')' :'')} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}
+                                disabled={cannotEnableEnc}/>
+                    </div>
                     {model.EncryptionMode === "MASTER" &&
                         <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('enc.key')} value={model.EncryptionKey} onChange={(e,i,v)=>{model.EncryptionKey = v}}>
                             {encryptionKeys.map(key => {
