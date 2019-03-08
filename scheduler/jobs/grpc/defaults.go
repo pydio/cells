@@ -135,7 +135,7 @@ func getDefaultJobs() []*jobs.Job {
 		MaxConcurrency: 1,
 		Actions: []*jobs.Action{
 			{
-				ID: "FAKE",
+				ID: "actions.test.fake",
 				Parameters: map[string]string{
 					"timer":  "10000",
 					"ticker": "5",
@@ -148,7 +148,7 @@ func getDefaultJobs() []*jobs.Job {
 		ID:             "fake-users-job",
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
 		Label:          "Jobs.Default.FakeUsersJob",
-		Inactive:       false,
+		Inactive:       true,
 		MaxConcurrency: 1,
 		Actions: []*jobs.Action{
 			{
@@ -162,10 +162,11 @@ func getDefaultJobs() []*jobs.Job {
 	}
 
 	fakeRPCJob := &jobs.Job{
-		ID:             "fake-long-job",
+		ID:             "fake-rpc-job",
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
 		Label:          "Jobs.Default.FakeGrpcJob",
 		MaxConcurrency: 1,
+		Inactive:       true,
 		Actions: []*jobs.Action{
 			{
 				ID: "actions.cmd.rpc",
@@ -173,6 +174,35 @@ func getDefaultJobs() []*jobs.Job {
 					"service": "pydio.grpc.role",
 					"method":  "RoleService.CreateRole",
 					"request": `{"Role": {"Label": "test"}}`,
+				},
+			},
+		},
+	}
+
+	selectorQuery, _ := ptypes.MarshalAny(&tree.Query{
+		// Use the Tree search
+		MaxSize:    5 * 1024 * 1024,
+		Type:       tree.NodeType_LEAF,
+		PathPrefix: []string{"/"},
+		Extension:  "jpg|png",
+		// Use the Search Server instead
+		//FreeString: "+Meta.ImageDimensions.Height:>=2000",
+	})
+	fakeSelectorJob := &jobs.Job{
+		ID:             "fake-nodes-selector",
+		Owner:          common.PYDIO_SYSTEM_USERNAME,
+		Label:          "Perform a fake action on a subset (images smaller than 5MB)",
+		MaxConcurrency: 1,
+		Inactive:       true,
+		Actions: []*jobs.Action{
+			{
+				ID: "actions.test.fake",
+				Parameters: map[string]string{
+					"timer":  "100",
+					"ticker": "1",
+				},
+				NodesSelector: &jobs.NodesSelector{
+					Query: &service.Query{SubQueries: []*any.Any{selectorQuery}},
 				},
 			},
 		},
@@ -187,6 +217,7 @@ func getDefaultJobs() []*jobs.Job {
 		fakeLongJob,
 		fakeRPCJob,
 		fakeUsersJob,
+		fakeSelectorJob,
 	}
 
 	return defJobs

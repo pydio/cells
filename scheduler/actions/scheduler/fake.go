@@ -79,11 +79,15 @@ func (f *FakeAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) 
 	return nil
 }
 
-// Run the actual action code
+// Run performs the actual action code
 func (f *FakeAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	log.Logger(ctx).Info("Starting FAKE task")
 	outputMessage := input
+	if len(input.Nodes) > 0 {
+		log.TasksLogger(ctx).Info("Fake task received node "+input.Nodes[0].Path, input.Nodes[0].Zap())
+		return outputMessage, nil
+	}
+	log.TasksLogger(ctx).Info("Starting fake long task")
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Hello World"})
 	ticker := time.NewTicker(time.Second * time.Duration(f.ticker))
 	go func() {
@@ -99,13 +103,15 @@ loop:
 		case t := <-ticker.C:
 			channels.Progress <- step * 100 / steps
 			step++
-			channels.StatusMsg <- fmt.Sprintf("Ticking Now %v", t)
+			message := fmt.Sprintf("Ticking Now %v", t)
+			log.TasksLogger(ctx).Info(message)
+			channels.StatusMsg <- message
 		case <-channels.Pause:
-			log.Logger(ctx).Info("fake task received pause from channels, should pause here")
+			log.TasksLogger(ctx).Info("fake task received pause from channels, should pause here")
 			<-channels.BlockUntilResume()
-			log.Logger(ctx).Info("blockuntilresume passed, received resume, continue")
+			log.TasksLogger(ctx).Info("blockuntilresume passed, received resume, continue")
 		case <-channels.Stop:
-			log.Logger(ctx).Info("received stop from channels")
+			log.TasksLogger(ctx).Info("received stop from channels: interrupting")
 			ticker.Stop()
 			break loop
 		}
