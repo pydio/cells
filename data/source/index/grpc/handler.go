@@ -330,7 +330,8 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		}
 
 	} else {
-		reqPath := safePath(req.GetNode().GetPath())
+		reqNode := req.GetNode()
+		reqPath := safePath(reqNode.GetPath())
 
 		path, _, err := dao.Path(reqPath, false)
 		if err != nil {
@@ -354,14 +355,22 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 			c = dao.GetNodeChildren(path)
 		}
 
-		names := strings.Split(reqPath, "/")
+		// Additional filters
+		metaFilter := &MetaFilter{
+			reqNode: reqNode,
+		}
+		hasFilter := metaFilter.parse()
 
+		names := strings.Split(reqPath, "/")
 		for node := range c {
 
 			if req.FilterType == tree.NodeType_COLLECTION && node.Type == tree.NodeType_LEAF {
 				continue
 			}
 			if req.Recursive && node.Path == reqPath {
+				continue
+			}
+			if hasFilter && !metaFilter.Match(node.Name(), node.Node) {
 				continue
 			}
 

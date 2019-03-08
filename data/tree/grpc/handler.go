@@ -21,12 +21,11 @@
 package grpc
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
-
-	"context"
 
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -296,25 +295,29 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 
 	if dsName == "" {
 
+		log.Logger(ctx).Debug("Should List datasources", zap.Any("ds", s.DataSources))
 		for name := range s.DataSources {
 
 			if offset > 0 && offset < int64(len(s.DataSources)) && offset > *cursorIndex {
 				*cursorIndex++
 				continue
 			}
-			log.Logger(ctx).Debug("Should List datasources", zap.Any("ds", s.DataSources))
 			outputNode := &tree.Node{
 				Uuid: "DATASOURCE:" + name,
 				Path: name,
 			}
 			outputNode.SetMeta("name", name)
-			resp.Send(&tree.ListNodesResponse{
-				Node: outputNode,
-			})
+			if req.FilterType != tree.NodeType_LEAF {
+				resp.Send(&tree.ListNodesResponse{
+					Node: outputNode,
+				})
+			}
 			*cursorIndex++
 			if req.Recursive {
+				subNode := node.Clone()
+				subNode.Path = name
 				s.ListNodesWithLimit(ctx, &tree.ListNodesRequest{
-					Node:      &tree.Node{Path: name},
+					Node:      subNode,
 					Recursive: true,
 				}, resp, cursorIndex, numberSent)
 			}
@@ -327,12 +330,14 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 
 	if ds, ok := s.DataSources[dsName]; ok {
 
+		reqNode := node.Clone()
+		reqNode.Path = dsPath
 		req := &tree.ListNodesRequest{
-			Node:      &tree.Node{Path: dsPath},
+			Node:      reqNode,
 			Recursive: req.Recursive,
 			//Limit:      req.Limit,
 			WithCommits: req.WithCommits,
-			//FilterType: req.FilterType,
+			FilterType:  req.FilterType,
 		}
 
 		log.Logger(ctx).Debug("List Nodes With Offset / Limit", zap.Int64("offset", offset), zap.Int64("limit", limit))
