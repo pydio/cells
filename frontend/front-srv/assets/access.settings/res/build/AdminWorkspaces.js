@@ -24337,6 +24337,23 @@ var AutocompleteTree = (function (_React$Component) {
                         base
                     )
                 );
+            } else if (node.MetaStore && node.MetaStore['symlink']) {
+                // Symbolic link
+                label = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement(
+                        'span',
+                        null,
+                        dir
+                    ),
+                    '/',
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#1976d2' } },
+                        base
+                    )
+                );
             }
             return {
                 key: node.Path,

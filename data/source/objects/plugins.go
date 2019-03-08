@@ -90,6 +90,28 @@ type TreeHandler struct {
 	FS afero.Fs
 }
 
+func (t *TreeHandler) SymlinkInfo(path string, info os.FileInfo) (bool, tree.NodeType, string) {
+	if info.Mode()&os.ModeSymlink != 0 {
+		if t, e := os.Readlink(path); e == nil {
+			target, er := os.Stat(t)
+			if er != nil {
+				// If error on stat, try to resolve absolute path
+				if t, er = filepath.Abs(filepath.Join(filepath.Dir(path), t)); er == nil {
+					target, er = os.Stat(t)
+				}
+			}
+			if er == nil {
+				if target.IsDir() {
+					return true, tree.NodeType_COLLECTION, t
+				} else {
+					return true, tree.NodeType_LEAF, t
+				}
+			}
+		}
+	}
+	return false, tree.NodeType_UNKNOWN, ""
+}
+
 func (t *TreeHandler) FileInfoToNode(nodePath string, fileInfo os.FileInfo) *tree.Node {
 	node := &tree.Node{
 		Path:  nodePath,
@@ -103,7 +125,12 @@ func (t *TreeHandler) FileInfoToNode(nodePath string, fileInfo os.FileInfo) *tre
 	if fileInfo.IsDir() {
 		node.Type = tree.NodeType_COLLECTION
 	} else {
-		node.Type = tree.NodeType_LEAF
+		if yes, typ, target := t.SymlinkInfo(nodePath, fileInfo); yes {
+			node.Type = typ
+			node.MetaStore["symlink"] = target
+		} else {
+			node.Type = tree.NodeType_LEAF
+		}
 	}
 	return node
 }
@@ -125,10 +152,10 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 
 	if fileInfos, e := afero.ReadDir(t.FS, request.Node.Path); e == nil {
 		for _, info := range fileInfos {
-			if strings.HasPrefix(info.Name(), ".") || !info.IsDir() {
+			path := filepath.Join(request.Node.Path, info.Name())
+			if isSymLink, _, _ := t.SymlinkInfo(path, info); !isSymLink && (strings.HasPrefix(info.Name(), ".") || !info.IsDir()) {
 				continue
 			}
-			path := filepath.Join(request.Node.Path, info.Name())
 			stream.Send(&tree.ListNodesResponse{
 				Node: t.FileInfoToNode(path, info),
 			})

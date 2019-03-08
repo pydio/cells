@@ -92,6 +92,9 @@ class AutocompleteTree extends React.Component{
         let invalid = false;
         if(LangUtils.computeStringSlug(base) !== base) {
             label = <span><span>{dir}</span>/<span style={{color:'#c62828'}}>{base}</span></span>
+        } else if (node.MetaStore && node.MetaStore['symlink']) {
+            // Symbolic link
+            label = <span><span>{dir}</span>/<span style={{color:'#1976d2'}}>{base}</span></span>
         }
         return {
             key         : node.Path,
