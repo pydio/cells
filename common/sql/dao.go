@@ -120,6 +120,11 @@ func (h *Handler) addStmt(query string) (*sql.Stmt, error) {
 		return nil, err
 	}
 
+	if h.Driver() == "sqlite3" {
+		// We don't keep statements open with sqlite3
+		return stmt, nil
+	}
+
 	h.preparedLock.Lock()
 	defer h.preparedLock.Unlock()
 
