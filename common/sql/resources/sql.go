@@ -81,7 +81,6 @@ func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePoli
 	if prepared == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer prepared.Close()
 
 	_, err := prepared.Exec(resourceId, policy.Action.String(), policy.Subject, policy.Effect.String(), policy.JsonConditions)
 	return err
@@ -112,7 +111,6 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 	if prepared == nil {
 		return nil, fmt.Errorf("Unknown statement")
 	}
-	defer prepared.Close()
 
 	rows, err := prepared.Query(resourceId)
 	if err != nil {
@@ -141,7 +139,6 @@ func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 	if prepared == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer prepared.Close()
 
 	_, err := prepared.Exec(resourceId)
 	return err
@@ -155,7 +152,6 @@ func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 	if prepared == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer prepared.Close()
 
 	_, err := prepared.Exec(subject)
 	return err
@@ -169,7 +165,6 @@ func (s *ResourcesSQL) DeletePoliciesForResourceAndAction(resourceId string, act
 	if prepared == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer prepared.Close()
 
 	_, err := prepared.Exec(resourceId, action.String())
 	return err

@@ -263,7 +263,6 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		user.Attributes[idm.UserAttrLabelLike] = user.Login
 	}
 	if stmt := s.GetStmt("DeleteAttributes"); stmt != nil {
-		defer stmt.Close()
 
 		if _, err := stmt.Exec(user.Uuid); err != nil {
 			return nil, createdNodes, err
@@ -273,7 +272,6 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	}
 	for attr, val := range user.Attributes {
 		if stmt := s.GetStmt("AddAttribute"); stmt != nil {
-			defer stmt.Close()
 
 			if _, err := stmt.Exec(
 				user.Uuid,
@@ -288,7 +286,6 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	}
 
 	if stmt := s.GetStmt("DeleteUserRoles"); stmt != nil {
-		defer stmt.Close()
 
 		if _, err := stmt.Exec(user.Uuid); err != nil {
 			return nil, createdNodes, err
@@ -302,7 +299,6 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		}
 
 		if stmt := s.GetStmt("AddRole"); stmt != nil {
-			defer stmt.Close()
 
 			if _, err := stmt.Exec(
 				user.Uuid,

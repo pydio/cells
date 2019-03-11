@@ -23,11 +23,17 @@ package dao
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 
 	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service/metrics"
+)
+
+var (
+	conns = make(map[string]Conn)
+	lock  = new(sync.RWMutex)
 )
 
 type conn struct{}
@@ -38,7 +44,7 @@ type driver interface {
 	Open(dsn string) (Conn, error)
 }
 
-func NewConn(d string, dsn string) (Conn, error) {
+func addConn(d string, dsn string) (Conn, error) {
 	var drv driver
 	switch d {
 	case "mysql":
@@ -51,12 +57,40 @@ func NewConn(d string, dsn string) (Conn, error) {
 		return nil, fmt.Errorf("wrong driver")
 	}
 
-	if db, err := drv.Open(dsn); err != nil {
+	db, err := drv.Open(dsn)
+	if err != nil {
 		return nil, err
-	} else {
-		return db, nil
 	}
 
+	lock.Lock()
+	defer lock.Unlock()
+
+	conns[d+":"+dsn] = db
+
+	return db, nil
+}
+
+func readConn(d string, dsn string) Conn {
+	lock.RLock()
+	defer lock.RUnlock()
+
+	if conn, ok := conns[d+":"+dsn]; ok {
+		return conn
+	}
+
+	return nil
+}
+
+func getConn(d string, dsn string) (Conn, error) {
+	if conn := readConn(d, dsn); conn != nil {
+		return conn, nil
+	}
+
+	return addConn(d, dsn)
+}
+
+func NewConn(d string, dsn string) (Conn, error) {
+	return getConn(d, dsn)
 }
 
 func getSqlConnection(driver string, dsn string) (*sql.DB, error) {

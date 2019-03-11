@@ -87,7 +87,6 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 		if stmt == nil {
 			return fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 
 		stmt.Exec(
 			nodeId,
@@ -106,7 +105,6 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 				if stmt == nil {
 					return fmt.Errorf("Unknown statement")
 				}
-				defer stmt.Close()
 
 				stmt.Exec(ns)
 			} else {
@@ -117,7 +115,6 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 				if stmt == nil {
 					return fmt.Errorf("Unknown statement")
 				}
-				defer stmt.Close()
 
 				stmt.Exec(
 					nodeId,
@@ -144,7 +141,6 @@ func (h *sqlimpl) GetMetadata(nodeId string) (metadata map[string]string, err er
 	if stmt == nil {
 		return nil, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	r, err := stmt.Query(nodeId)
 	if err != nil {
@@ -188,7 +184,6 @@ func (h *sqlimpl) ListMetadata(query string) (metaByUuid map[string]map[string]s
 	if stmt == nil {
 		return nil, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	r, err := stmt.Query()
 	if err != nil {

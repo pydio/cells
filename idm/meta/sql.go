@@ -117,7 +117,6 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 	owner := dao.extractOwner(meta.Policies)
 
 	if stmt := dao.GetStmt("Exists"); stmt != nil {
-		defer stmt.Close()
 
 		exists := stmt.QueryRow(meta.NodeUuid, meta.Namespace, owner)
 		if err := exists.Scan(&metaId); err == nil && metaId != "" {
@@ -133,7 +132,6 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 		if stmt == nil {
 			return nil, false, fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 
 		if _, err := stmt.Exec(
 			meta.NodeUuid,
@@ -151,7 +149,6 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 		if stmt == nil {
 			return nil, false, fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 
 		if _, err := stmt.Exec(
 			metaId,
@@ -184,7 +181,6 @@ func (dao *sqlimpl) Del(meta *idm.UserMeta) (e error) {
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	if _, e := stmt.Exec(meta.Uuid); e != nil {
 		return e

@@ -89,19 +89,19 @@ func (h *sqlimpl) InsertNode(nodeUuid string, nonce []byte, blockSize int32) err
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	rows, err := stmt.Query(nodeUuid)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
+	defer rows.Close()
+
 	if rows.Next() {
 		stmt := h.GetStmt("enc_nodes_update")
 		if stmt == nil {
 			return fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 		log.Logger(context.Background()).Debug("Updating Material for node "+nodeUuid, zap.Any("nonce", string([]byte(nonce))), zap.Any("s", blockSize))
 		_, err = stmt.Exec(
 			nonce,
@@ -113,7 +113,6 @@ func (h *sqlimpl) InsertNode(nodeUuid string, nonce []byte, blockSize int32) err
 		if stmt == nil {
 			return fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 		log.Logger(context.Background()).Debug("Inserting Material for node "+nodeUuid, zap.Any("nonce", string([]byte(nonce))), zap.Any("s", blockSize))
 		_, err = stmt.Exec(
 			nodeUuid,
@@ -129,7 +128,6 @@ func (h *sqlimpl) DeleteNode(nodeUuid string) error {
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(
 		nodeUuid,
@@ -143,7 +141,6 @@ func (h *sqlimpl) SetNodeKey(nodeUuid string, ownerId string, userId string, key
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(
 		nodeUuid,
@@ -160,7 +157,6 @@ func (h *sqlimpl) GetNodeKey(node string, user string) (*encryption.NodeKey, err
 	if stmt == nil {
 		return nil, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	rows, err := stmt.Query(
 		node,
@@ -190,7 +186,6 @@ func (h *sqlimpl) DeleteNodeKey(node string, user string) error {
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(
 		node, user,
@@ -204,7 +199,6 @@ func (h *sqlimpl) DeleteNodeSharedKey(node string, ownerId string, userId string
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(
 		node, ownerId, userId,
@@ -218,7 +212,6 @@ func (h *sqlimpl) DeleteNodeAllSharedKey(node string, ownerId string) error {
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(
 		node, ownerId,
