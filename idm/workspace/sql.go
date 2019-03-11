@@ -99,7 +99,6 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 	if stmt == nil {
 		return false, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	exists := stmt.QueryRow(workspace.UUID)
 	count := new(int)
@@ -123,7 +122,6 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 	if stmt == nil {
 		return false, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(workspace.UUID, workspace.Label, workspace.Description, workspace.Attributes, workspace.Slug, workspace.Scope, time.Now().Unix())
 	if err != nil {
@@ -142,7 +140,6 @@ func (s *sqlimpl) slugExists(slug string) bool {
 	if stmt == nil {
 		return false
 	}
-	defer stmt.Close()
 
 	exists := stmt.QueryRow(slug)
 	count := new(int)

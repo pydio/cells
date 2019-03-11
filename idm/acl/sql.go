@@ -134,8 +134,6 @@ func (dao *sqlimpl) Add(in interface{}) error {
 		return fmt.Errorf("Unknown statement")
 	}
 
-	defer stmt.Close()
-
 	res, err := stmt.Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
 	if err != nil {
 		return err
@@ -248,21 +246,18 @@ func (dao *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 	if rows > 0 {
 		// Perform clean up
 		if stmt := dao.GetStmt("CleanWorkspaces"); stmt != nil {
-			defer stmt.Close()
 			stmt.Exec()
 		} else {
 			return 0, fmt.Errorf("Unknown statement")
 		}
 
 		if stmt := dao.GetStmt("CleanRoles"); stmt != nil {
-			defer stmt.Close()
 			stmt.Exec()
 		} else {
 			return 0, fmt.Errorf("Unknown statement")
 		}
 
 		if stmt := dao.GetStmt("CleanNodes"); stmt != nil {
-			defer stmt.Close()
 			stmt.Exec()
 		} else {
 			return 0, fmt.Errorf("Unknown statement")
@@ -275,7 +270,6 @@ func (dao *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 func (dao *sqlimpl) addWorkspace(uuid string) (string, error) {
 
 	if stmt := dao.GetStmt("AddACLWorkspace"); stmt != nil {
-		defer stmt.Close()
 
 		res, err := stmt.Exec(uuid)
 		if err == nil {
@@ -299,7 +293,6 @@ func (dao *sqlimpl) addWorkspace(uuid string) (string, error) {
 
 	var id string
 	if stmt := dao.GetStmt("GetACLWorkspace"); stmt != nil {
-		defer stmt.Close()
 
 		row := stmt.QueryRow(uuid)
 		if row == nil {
@@ -316,7 +309,6 @@ func (dao *sqlimpl) addWorkspace(uuid string) (string, error) {
 func (dao *sqlimpl) addNode(uuid string) (string, error) {
 
 	if stmt := dao.GetStmt("AddACLNode"); stmt != nil {
-		defer stmt.Close()
 
 		res, err := stmt.Exec(uuid)
 		if err == nil {
@@ -341,7 +333,6 @@ func (dao *sqlimpl) addNode(uuid string) (string, error) {
 	// Checking we didn't have a duplicate
 	var id string
 	if stmt := dao.GetStmt("GetACLNode"); stmt != nil {
-		defer stmt.Close()
 
 		row := stmt.QueryRow(uuid)
 		if row == nil {
@@ -358,7 +349,6 @@ func (dao *sqlimpl) addNode(uuid string) (string, error) {
 func (dao *sqlimpl) addRole(uuid string) (string, error) {
 
 	if stmt := dao.GetStmt("AddACLRole"); stmt != nil {
-		defer stmt.Close()
 
 		res, err := stmt.Exec(uuid)
 		if err == nil {
@@ -381,8 +371,6 @@ func (dao *sqlimpl) addRole(uuid string) (string, error) {
 	// Checking we didn't have a duplicate
 	var id string
 	if stmt := dao.GetStmt("GetACLRole"); stmt != nil {
-		defer stmt.Close()
-
 		row := stmt.QueryRow(uuid)
 		if row == nil {
 			return "", fmt.Errorf("Did not found acl role")

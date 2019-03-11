@@ -107,7 +107,6 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		if stmt == nil {
 			return nil, fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 
 		_, err := stmt.Exec(group.Uuid)
 		if err != nil {
@@ -150,7 +149,6 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	if stmt == nil {
 		return nil, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(
 		group.Uuid, group.Name, group.Description, group.OwnerUuid, group.ResourceGroup, now, // INSERT
@@ -166,7 +164,6 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		if stmt == nil {
 			return nil, fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 
 		if _, err := stmt.Exec(group.Uuid, policy.Id); err != nil {
 			log.Logger(ctx).Error(fmt.Sprintf("cannot insert relation between group %s and policy %s", group.Uuid, policy.Id), zap.Error(err))
@@ -184,7 +181,6 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGro
 	if stmt == nil {
 		return nil, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	res, err := stmt.Query()
 	if err != nil {
@@ -229,7 +225,6 @@ func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup)
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	if res, err := stmt.Query(group.Uuid); err == nil {
 		defer res.Close()
@@ -244,7 +239,6 @@ func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup)
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	if _, err := stmt.Exec(group.Uuid); err != nil {
 		return err
@@ -254,7 +248,6 @@ func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup)
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 	if _, err := stmt.Exec(group.Uuid); err != nil {
 		return err
 	}

@@ -102,7 +102,6 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 	var update bool
 	if role.Uuid != "" {
 		if stmt := s.GetStmt("Exists"); stmt != nil {
-			defer stmt.Close()
 			exists := stmt.QueryRow(role.Uuid)
 			count := new(int)
 			if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
@@ -123,7 +122,6 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 	if !update {
 		if stmt := s.GetStmt("AddRole"); stmt != nil {
-			defer stmt.Close()
 
 			if _, err := stmt.Exec(
 				role.Uuid,
@@ -142,7 +140,6 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 		}
 	} else {
 		if stmt := s.GetStmt("UpdateRole"); stmt != nil {
-			defer stmt.Close()
 
 			if _, err := stmt.Exec(
 				role.Label,

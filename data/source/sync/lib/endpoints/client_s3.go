@@ -536,6 +536,8 @@ func (c *S3Client) Watch(recursivePath string) (*common.WatchObject, error) {
 					continue
 				}
 				objectPath = c.getLocalPath(objectPath)
+
+				fmt.Println("HERE WE ARE ", record)
 				if strings.HasPrefix(record.EventName, "s3:ObjectCreated:") {
 					log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.Any("event", record))
 					eventChan <- common.EventInfo{
