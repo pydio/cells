@@ -205,6 +205,11 @@ func extractReqParams(r *http.Request) map[string]string {
 			meta[k] = v
 		}
 	}
+	if reqMeta, err := extractMetadata(context.Background(), r); err == nil {
+		if session, ok := reqMeta["X-Amz-Meta-X-Pydio-Session"]; ok {
+			meta["X-Pydio-Session"] = session
+		}
+	}
 	return meta
 }
 
