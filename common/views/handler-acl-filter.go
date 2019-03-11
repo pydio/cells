@@ -148,7 +148,7 @@ func (a *AclFilterHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRe
 	if !accessList.CanRead(ctx, fromParents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Source Node is not readable")
 	}
-	ctx, toParents, err := AncestorsListFromContext(ctx, in.To, "to", a.clientsPool, false)
+	ctx, toParents, err := AncestorsListFromContext(ctx, in.To, "to", a.clientsPool, true)
 	if err != nil {
 		return nil, err
 	}

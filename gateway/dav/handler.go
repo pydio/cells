@@ -24,8 +24,13 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"path"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/service/context"
 
 	"go.uber.org/zap"
 	"golang.org/x/net/webdav"
@@ -44,14 +49,16 @@ type ValidUser struct {
 
 func logRequest(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Logger(r.Context()).Debug("DAV LOGGER", zap.String("Method", r.Method), zap.String("path", r.URL.Path))
+		c := servicecontext.WithServiceName(r.Context(), common.SERVICE_GATEWAY_DAV)
+		c = servicecontext.WithServiceColor(c, servicecontext.ServiceColorOther)
+		r = r.WithContext(c)
+		log.Logger(c).Info("-- DAV ENTER", zap.String("Method", r.Method), zap.String("path", r.URL.Path))
 		handler.ServeHTTP(w, r)
 	})
 }
 
-func newHandler(ctx context.Context) http.Handler {
+func newHandler(ctx context.Context, router *views.Router) http.Handler {
 
-	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
 	basicAuthenticator := auth.NewBasicAuthenticator("Pydio WebDAV", time.Duration(20*time.Minute))
 
 	fs := &FileSystem{
@@ -65,6 +72,10 @@ func newHandler(ctx context.Context) http.Handler {
 		Prefix:     "/dav",
 		LockSystem: webdav.NewMemLS(),
 		Logger: func(r *http.Request, err error) {
+			if strings.HasPrefix(path.Base(r.URL.Path), ".") {
+				// Ignore dot files
+				return
+			}
 			switch r.Method {
 			case "COPY", "MOVE": // add relevant destination param when loggin an error
 				dst := ""
@@ -72,15 +83,15 @@ func newHandler(ctx context.Context) http.Handler {
 					dst = u.Path
 				}
 				if err == nil {
-					log.Logger(ctx).Debug("DAV HANDLER", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst))
+					log.Logger(ctx).Info("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst))
 				} else {
-					log.Logger(ctx).Error("DAV HANDLER", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst), zap.Error(err))
+					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst), zap.Error(err))
 				}
 			default:
 				if err == nil {
-					log.Logger(ctx).Debug("DAV HANDLER", zap.String("method", r.Method), zap.String("path", r.URL.Path))
+					log.Logger(ctx).Info("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path))
 				} else {
-					log.Logger(ctx).Error("DAV HANDLER", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.Error(err))
+					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.Error(err))
 				}
 			}
 		},

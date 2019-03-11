@@ -24,7 +24,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -160,7 +159,7 @@ func GetRoles(ctx context.Context, names []string) []*idm.Role {
 			}
 		}
 	}
-	log.Logger(ctx).Debug("GetRoles", zap.Any("roles", sorted))
+	//log.Logger(ctx).Debug("GetRoles", zap.Any("roles", sorted))
 	return sorted
 }
 
@@ -192,7 +191,7 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 	if err != nil {
 		return acls
 	}
-	s := time.Now()
+	//s := time.Now()
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: &service.Query{
@@ -218,7 +217,7 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 		acls = append(acls, response.GetACL())
 	}
 
-	log.Logger(ctx).Debug("GetACLsForRoles", zap.Any("acls", acls), zap.Any("roles", roles), zap.Any("actions", actions), zap.Duration("t", time.Now().Sub(s)))
+	//log.Logger(ctx).Debug("GetACLsForRoles", zap.Any("acls", acls), zap.Any("roles", roles), zap.Any("actions", actions), zap.Duration("t", time.Now().Sub(s)))
 
 	return acls
 }
@@ -341,7 +340,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		return accessList, nil
 	}
 
-	log.Logger(ctx).Debug("Roles inside Claims", zap.String("roles", claims.Roles))
+	//log.Logger(ctx).Debug("Roles inside Claims", zap.String("roles", claims.Roles))
 	roles := GetRoles(ctx, strings.Split(claims.Roles, ","))
 	accessList = NewAccessList(roles)
 	accessList.Append(GetACLsForRoles(ctx, roles, ACL_READ, ACL_DENY, ACL_WRITE, ACL_POLICY))
@@ -483,7 +482,7 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 	// Look for "quota" ACLs on this node
 	singleQ := &idm.ACLSingleQuery{NodeIDs: []string{node.Uuid}, Actions: []*idm.ACLAction{{Name: ACL_CONTENT_LOCK.Name}}}
-	log.Logger(ctx).Debug("SEARCHING FOR LOCKS IN ACLS", zap.Any("q", singleQ))
+	//log.Logger(ctx).Debug("SEARCHING FOR LOCKS IN ACLS", zap.Any("q", singleQ))
 	q, _ := ptypes.MarshalAny(singleQ)
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if err != nil {

@@ -229,14 +229,6 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	destBucket := destInfo.ObjectsBucket
 	srcBucket := srcInfo.ObjectsBucket
 
-	// var srcSse, destSse minio.SSEInfo
-	// if requestData.srcEncryptionMaterial != nil {
-	// 	srcSse = minio.NewSSEInfo([]byte(requestData.srcEncryptionMaterial.GetDecrypted()), "")
-	// }
-	// if requestData.destEncryptionMaterial != nil {
-	// 	destSse = minio.NewSSEInfo([]byte(requestData.destEncryptionMaterial.GetDecrypted()), "")
-	// }
-
 	fromPath := e.buildS3Path(srcInfo, from)
 	toPath := e.buildS3Path(destInfo, to)
 
@@ -260,10 +252,11 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 		_, err := destClient.CopyObject(srcBucket, fromPath, destBucket, toPath, requestData.Metadata)
 		if err != nil {
+			log.Logger(ctx).Error("HandlerExec: Error on CopyObject", zap.Error(err))
 			return 0, err
 		}
 		stat, _ := destClient.StatObject(destBucket, toPath, opts)
-		log.Logger(ctx).Debug("CopyObject / Same Clients", zap.Int64("written", stat.Size))
+		log.Logger(ctx).Debug("HandlerExec: CopyObject / Same Clients", zap.Int64("written", stat.Size))
 		return stat.Size, nil
 
 	} else {
@@ -276,20 +269,20 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		}
 		reader, err = srcClient.GetObjectWithContext(ctx, srcBucket, fromPath, minio.GetObjectOptions{})
 		if err != nil {
-			log.Logger(ctx).Error("CopyObject / Different Clients - Read Source Error", zap.Error(err))
+			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients - Read Source Error", zap.Error(err))
 			return 0, err
 		}
 
 		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
 		if err != nil {
-			log.Logger(ctx).Error("CopyObject / Different Clients",
+			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients",
 				zap.Error(err),
 				zap.Any("srcStat", srcStat),
 				zap.Any("srcInfo", srcInfo),
 				zap.Any("destInfo", destInfo),
 				zap.Any("to", toPath))
 		} else {
-			log.Logger(ctx).Debug("CopyObject / Different Clients", zap.Int64("written", oi))
+			log.Logger(ctx).Debug("HandlerExec: CopyObject / Different Clients", zap.Int64("written", oi))
 		}
 		return oi, err
 

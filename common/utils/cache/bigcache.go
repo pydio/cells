@@ -30,9 +30,13 @@ import (
 )
 
 // NewInstrumentedCache creates a BigCache instance with a regular report of statistics
-func NewInstrumentedCache(serviceName string) *InstrumentedCache {
+func NewInstrumentedCache(serviceName string, cacheConfig ...bigcache.Config) *InstrumentedCache {
 	scope := metrics.GetMetricsForService(serviceName)
-	c, _ := bigcache.NewBigCache(DefaultBigCacheConfig())
+	conf := DefaultBigCacheConfig()
+	if len(cacheConfig) > 0 {
+		conf = cacheConfig[0]
+	}
+	c, _ := bigcache.NewBigCache(conf)
 	i := &InstrumentedCache{}
 	i.BigCache = *c
 	i.scope = scope
