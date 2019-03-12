@@ -42,6 +42,10 @@ import (
 	context2 "github.com/pydio/cells/common/utils/context"
 )
 
+var (
+	noSuchKeyString = "The specified key does not exist."
+)
+
 type Executor struct {
 	AbstractHandler
 }
@@ -118,21 +122,29 @@ func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, o
 		return nil, errors.BadRequest(VIEWS_LIBRARY_NAME, "Cannot find S3 client, did you insert a resolver middleware?")
 	}
 	writer := info.Client
-	if session := in.IndexationSession; session != "" {
-		m := map[string]string{}
-		if meta, ok := context2.MinioMetaFromContext(ctx); ok {
-			m = meta
+	statOpts := minio.StatObjectOptions{}
+	m := map[string]string{}
+	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
+		for k, v := range meta {
+			m[k] = v
+			statOpts.Set(k, v)
 		}
-		m["X-Pydio-Session"] = session
-		ctx = metadata.NewContext(ctx, m)
 	}
-	log.Logger(ctx).Debug("Exec.DeleteNode", in.Node.Zap(), zap.Any("ctx", ctx))
+	if session := in.IndexationSession; session != "" {
+		m["X-Pydio-Session"] = session
+	}
+	ctx = metadata.NewContext(ctx, m)
+	log.Logger(ctx).Debug("Exec.DeleteNode", in.Node.Zap())
 
 	s3Path := e.buildS3Path(info, in.Node)
-	err := writer.RemoveObjectWithContext(ctx, info.ObjectsBucket, s3Path)
 	success := true
+	var err error
+	if _, sE := writer.StatObject(info.ObjectsBucket, s3Path, statOpts); sE != nil && sE.Error() == noSuchKeyString {
+		log.Logger(ctx).Info("Exec.DeleteNode : cannot find object in s3! Should it be removed from index?", in.Node.ZapPath())
+	}
+	err = writer.RemoveObjectWithContext(ctx, info.ObjectsBucket, s3Path)
 	if err != nil {
-		log.Logger(ctx).Error("Error while deleting node", zap.Error(err))
+		log.Logger(ctx).Error("Error while deleting in s3 "+s3Path, zap.Error(err))
 		success = false
 	}
 	return &tree.DeleteNodeResponse{Success: success}, err
@@ -252,6 +264,9 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 		_, err := destClient.CopyObject(srcBucket, fromPath, destBucket, toPath, requestData.Metadata)
 		if err != nil {
+			if err.Error() == noSuchKeyString {
+				err = errors.NotFound("object.not.found", "object was not found, this is not normal: %s", fromPath)
+			}
 			log.Logger(ctx).Error("HandlerExec: Error on CopyObject", zap.Error(err))
 			return 0, err
 		}

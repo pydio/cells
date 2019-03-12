@@ -52,7 +52,7 @@ func logRequest(handler http.Handler) http.Handler {
 		c := servicecontext.WithServiceName(r.Context(), common.SERVICE_GATEWAY_DAV)
 		c = servicecontext.WithServiceColor(c, servicecontext.ServiceColorOther)
 		r = r.WithContext(c)
-		log.Logger(c).Info("-- DAV ENTER", zap.String("Method", r.Method), zap.String("path", r.URL.Path))
+		log.Logger(c).Debug("-- DAV ENTER", zap.String("Method", r.Method), zap.String("path", r.URL.Path))
 		handler.ServeHTTP(w, r)
 	})
 }
@@ -83,13 +83,13 @@ func newHandler(ctx context.Context, router *views.Router) http.Handler {
 					dst = u.Path
 				}
 				if err == nil {
-					log.Logger(ctx).Info("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst))
+					log.Logger(ctx).Debug("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst))
 				} else {
 					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("destination", dst), zap.Error(err))
 				}
 			default:
 				if err == nil {
-					log.Logger(ctx).Info("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path))
+					log.Logger(ctx).Debug("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path))
 				} else {
 					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.Error(err))
 				}

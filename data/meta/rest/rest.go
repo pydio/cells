@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"math"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -192,6 +193,10 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 				meta.EnrichNodesMetaFromProviders(ctx, streamers, names, r.Node)
 			}
 			eTimes = append(eTimes, time.Now().Sub(s))
+			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
+				total--
+				continue
+			}
 			output.Nodes = append(output.Nodes, r.Node.WithoutReservedMetas())
 		}
 		l := float64(len(eTimes))

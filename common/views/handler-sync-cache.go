@@ -168,9 +168,14 @@ func (s *SynchronousCacheHandler) cacheDel(ctx context.Context, node *tree.Node)
 	if diffDat, e := syncCache.Get(cacheDiffPrefix + dir); e == nil {
 		json.Unmarshal(diffDat, &diff)
 	}
+	// Register as deleted
 	diff.Deletes[p] = struct{}{}
+	// Remove from cache if just previously added
 	if _, previouslyAdded := diff.Adds[p]; previouslyAdded {
 		delete(diff.Adds, p)
+	}
+	if _, e := syncCache.Get(cacheNodePrefix + dir); e == nil {
+		syncCache.Delete(cacheNodePrefix + dir)
 	}
 	diffDat, _ := json.Marshal(diff)
 	log.Logger(ctx).Debug("SyncCache: registering node as deleted ", node.Zap(), zap.String("dir", dir), zap.Any("diff", diff))
@@ -325,7 +330,14 @@ func (s *SynchronousCacheHandler) ReadNode(ctx context.Context, in *tree.ReadNod
 	notFound := e != nil && (errors.Parse(e.Error()).Code == 404 || strings.Contains(e.Error(), " NotFound "))
 	tempo := e == nil && resp.Node.GetEtag() == "temporary"
 	out, isCached := s.cacheGet(ctx, in.Node.GetPath())
-
+	if e == nil && resp.Node != nil {
+		// Check it was not recently removed
+		if parentDiff, ok := s.cacheDiff(ctx, path.Dir(in.Node.GetPath())); ok {
+			if _, o := parentDiff.Deletes[in.Node.GetPath()]; o {
+				return nil, errors.NotFound("not.found.cache", " NotFound ")
+			}
+		}
+	}
 	if isCached && (notFound || tempo) {
 		return &tree.ReadNodeResponse{
 			Node:    out,

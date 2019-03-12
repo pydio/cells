@@ -251,6 +251,7 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 	for {
 		select {
 		case event := <-in:
+			//log.Logger(ev.globalContext).Info("Received S3 Event", zap.Any("e", event))
 			// Add to queue
 			if session := event.Metadata["X-Pydio-Session"]; session != "" {
 				if strings.HasPrefix(session, "close-") {
