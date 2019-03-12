@@ -116,8 +116,9 @@ func TestCopyMoveAction_RunCopy(t *testing.T) {
 		close(progress)
 
 		So(err, ShouldBeNil)
-		So(output.Nodes, ShouldHaveLength, 1)
-		So(output.Nodes[0].Path, ShouldEqual, "target/path/moved")
+		So(output.Nodes, ShouldHaveLength, 2)
+		So(output.Nodes[0].Path, ShouldEqual, "path/to/original")
+		So(output.Nodes[1].Path, ShouldEqual, "target/path/moved")
 
 		So(mock.Nodes, ShouldHaveLength, 4)
 		So(mock.Nodes["from"].Path, ShouldEqual, "path/to/original")
@@ -214,8 +215,8 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 		close(progress)
 
 		So(err, ShouldBeNil)
-		So(output.Nodes, ShouldHaveLength, 1)
-		So(output.Nodes[0].Path, ShouldEqual, "target/path/moved")
+		So(output.Nodes, ShouldHaveLength, 2)
+		So(output.Nodes[1].Path, ShouldEqual, "target/path/moved")
 
 		So(mock.Nodes, ShouldHaveLength, 3)
 		So(mock.Nodes["from"].Path, ShouldEqual, "path/to/original")
