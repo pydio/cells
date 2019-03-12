@@ -4356,11 +4356,6 @@
     "AdminScheduler/board/JobBoard.js": [
       {
         "description": "",
-        "displayName": "ActionsLog",
-        "methods": []
-      },
-      {
-        "description": "",
         "displayName": "JobBoard",
         "methods": [
           {
@@ -4406,6 +4401,85 @@
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/JobSchedule.js": [
+      {
+        "description": "",
+        "displayName": "JobSchedule",
+        "methods": [
+          {
+            "name": "updateJob",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "parseIso8601",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "makeIso8601FromState",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "state",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "changeFrequency",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "f",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "readableString",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "short",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ]
@@ -37896,6 +37970,37 @@
         "description": "",
         "methods": [
           {
+            "name": "displayModeFromPrefs",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "defaultMode",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "displayModeToPrefs",
+            "docblock": "Save displayMode to user prefs\n@param mode\n@return {string}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "mode",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "string"
+              }
+            },
+            "description": "Save displayMode to user prefs"
+          },
+          {
             "name": "resize",
             "docblock": null,
             "modifiers": [],
@@ -37984,6 +38089,13 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "buildDisplayModeItems",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           },
           {
