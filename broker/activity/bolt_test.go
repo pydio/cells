@@ -53,7 +53,7 @@ func TestEmptyDao(t *testing.T) {
 		defer os.Remove(tmpDbFilePath)
 		dao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 		So(dao, ShouldNotBeNil)
-		defer dao.DB().Close()
+		defer dao.CloseConn()
 	})
 
 	Convey("Test unreachable file", t, func() {
@@ -67,7 +67,7 @@ func TestEmptyDao(t *testing.T) {
 		tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 		dao := NewDAO(tmpdao).(*boltdbimpl)
 		dao.Init(*conf)
-		defer dao.DB().Close()
+		defer dao.CloseConn()
 
 		results := make(chan *activity.Object)
 		done := make(chan bool, 1)
@@ -82,7 +82,7 @@ func TestInsertActivity(t *testing.T) {
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
 	dao.Init(*conf)
-	defer dao.DB().Close()
+	defer dao.CloseConn()
 
 	Convey("Test insert", t, func() {
 
@@ -179,7 +179,7 @@ func TestMultipleInsert(t *testing.T) {
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
 	dao.Init(*conf)
-	defer dao.DB().Close()
+	defer dao.CloseConn()
 
 	Convey("Test insert", t, func() {
 
@@ -233,7 +233,7 @@ func TestCursor(t *testing.T) {
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
 	dao.Init(*conf)
-	defer dao.DB().Close()
+	defer dao.CloseConn()
 
 	Convey("Insert Activities and browse", t, func() {
 
@@ -352,7 +352,7 @@ func TestDelete(t *testing.T) {
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
 	dao.Init(*conf)
-	defer dao.DB().Close()
+	defer dao.CloseConn()
 
 	Convey("Test Delete Owner", t, func() {
 
@@ -383,7 +383,7 @@ func TestSubscriptions(t *testing.T) {
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(*boltdbimpl)
 	dao.Init(*conf)
-	defer dao.DB().Close()
+	defer dao.CloseConn()
 
 	Convey("Test subscribe", t, func() {
 

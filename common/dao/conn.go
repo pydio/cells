@@ -44,6 +44,10 @@ type driver interface {
 	Open(dsn string) (Conn, error)
 }
 
+type closer interface {
+	Close() error
+}
+
 func addConn(d string, dsn string) (Conn, error) {
 	var drv driver
 	switch d {
@@ -87,6 +91,24 @@ func getConn(d string, dsn string) (Conn, error) {
 	}
 
 	return addConn(d, dsn)
+}
+
+func closeConn(conn Conn) error {
+	lock.Lock()
+	defer lock.Unlock()
+
+	for k, c := range conns {
+		if c == conn {
+			if cl, ok := conn.(closer); ok {
+				if err := cl.Close(); err != nil {
+					return err
+				}
+			}
+			delete(conns, k)
+		}
+	}
+
+	return nil
 }
 
 func NewConn(d string, dsn string) (Conn, error) {
