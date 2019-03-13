@@ -148,6 +148,11 @@ func (d *daocache) SetConn(conn dao.Conn) {
 	d.DAO.(dao.DAO).SetConn(conn)
 }
 
+// CloseConn closes the connection of the underlying dao
+func (d *daocache) CloseConn() error {
+	return d.DAO.(dao.DAO).CloseConn()
+}
+
 // GetConn sets a prefix for tables and statements in the dao
 func (d *daocache) Prefix() string {
 	return d.DAO.(dao.DAO).Prefix()
