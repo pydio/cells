@@ -69,6 +69,11 @@ function LinkWrapper(pydio, activity) {
             } else if (href.startsWith('user://')) {
                 const userId = href.replace('user://', '');
                 return (<UserAvatar userId={userId} displayAvatar={false} richOnClick={true} style={{cursor:'pointer', display:'inline-block', color: 'rgb(66, 140, 179)'}} pydio={pydio}/>)
+            } else if (href.startsWith('workspaces://')) {
+                const wsId = href.replace('workspaces://', '');
+                if(pydio.user && pydio.user.getRepositoriesList().get(wsId)){
+                    onClick = () => {pydio.triggerRepositoryChange(wsId)}
+                }
             }
             return <a title={title} style={{cursor: 'pointer', color: 'rgb(66, 140, 179)'}} onClick={onClick}>{children}</a>
 
@@ -129,7 +134,7 @@ class Activity extends React.Component{
             }
         }
 
-        let className;
+        let className = '';
         let title;
         switch (activity.type) {
             case "Create":
@@ -157,23 +162,35 @@ class Activity extends React.Component{
                 className = "file-send";
                 title = "Moved";
                 break;
+            case "Share":
+                className = "share-variant";
+                if (activity.object.type === "Cell"){
+                    className = "icomoon-cells"
+                } else if(activity.object.type === "Workspace"){
+                    className = "folder"
+                }
+                title = "Shared";
+                break;
             default:
                 break;
         }
+        if(className.indexOf('icomoon-') === -1){
+            className = 'mdi mdi-' + className;
+        }
         if (listContext === 'NODE-LEAF') {
             blockStyle = {margin:'16px 10px'};
-            actionIcon = <FontIcon className={"mdi mdi-" + className} title={title} style={{fontSize:17, color: 'rgba(0,0,0,0.17)'}}/>
+            actionIcon = <FontIcon className={className} title={title} style={{fontSize:17, color: 'rgba(0,0,0,0.17)'}}/>
         } else {
             if(displayContext === 'mainList'){
                 return (
                     <ListItem
-                        leftIcon={<FontIcon className={"mdi mdi-" + className} color={'rgba(0,0,0,.33)'}/>}
+                        leftIcon={<FontIcon className={className} color={'rgba(0,0,0,.33)'}/>}
                         primaryText={secondary}
                         secondaryText={<div style={{color: 'rgba(0,0,0,.33)'}}>{workspacesLocations(pydio, activity.object)}</div>}
                         disabled={true}
                     />);
             } else if(displayContext === 'popover'){
-                const leftIcon = <FontIcon className={"mdi mdi-" + className} title={title} style={{padding:'0 8px', fontSize:20, color: 'rgba(0,0,0,0.17)'}}/>;
+                const leftIcon = <FontIcon className={className} title={title} style={{padding:'0 8px', fontSize:20, color: 'rgba(0,0,0,0.17)'}}/>;
                 summary = (<div style={{display:'flex', alignItems:'center'}}>{leftIcon}<div style={{...summaryStyle, flex:1}}>{secondary}</div></div>);
             } else {
                 summary = (<div style={summaryStyle}>{secondary}</div>);
