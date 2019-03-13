@@ -29,7 +29,9 @@ class Editor extends Component {
         return {
             iframe: {
                 border: 0,
-                flex: 1
+                flex: 1,
+                width: '100%',
+                backgroundColor: 'white',
             }
         }
     }
@@ -58,7 +60,7 @@ class Editor extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {editorModify} = this.props
+        const {editorModify} = this.props;
         if (editorModify && nextProps.isActive) {
             editorModify({fixedToolbar: false})
         }
@@ -106,7 +108,7 @@ class Editor extends Component {
 
     render() {
         return (
-            <iframe  style={Editor.styles.iframe} src={this.state.frameSrc} sandbox={""} />
+            <iframe  style={Editor.styles.iframe} src={this.state.frameSrc} sandbox={""}/>
         )
     }
 }
