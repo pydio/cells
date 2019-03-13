@@ -137,6 +137,16 @@ var (
 					Effect:  ladon.AllowAccess,
 				}),
 				LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "user-ws-readonly",
+					Description: "PolicyGroup.LoggedUsers.Rule4",
+					Subjects:    []string{"profile:standard", "profile:shared"},
+					Resources: []string{
+						"rest:/workspace/<.+>",
+					},
+					Actions: []string{"DELETE", "PUT", "PATCH"},
+					Effect:  ladon.DenyAccess,
+				}),
+				LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "user-meta-tags-no-delete",
 					Description: "PolicyGroup.LoggedUsers.Rule3",
 					Subjects:    []string{"profile:standard", "profile:shared"},
