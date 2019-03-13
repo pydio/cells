@@ -50,7 +50,9 @@ var Editor = (function (_Component) {
             return {
                 iframe: {
                     border: 0,
-                    flex: 1
+                    flex: 1,
+                    width: '100%',
+                    backgroundColor: 'white'
                 }
             };
         }

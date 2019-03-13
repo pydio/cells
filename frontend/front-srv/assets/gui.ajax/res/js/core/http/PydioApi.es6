@@ -340,6 +340,10 @@ class PydioApi{
                 break;
             case 'detect':
                 cType = PathUtils.getAjxpMimeType(node);
+                // Prevent html interpreters
+                if(cType === 'html' || cType === 'xhtml'){
+                    cType = 'text/plain'
+                }
                 cDisposition = 'inline';
                 break;
             default:

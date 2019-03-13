@@ -425,6 +425,10 @@ var PydioApi = (function () {
                 break;
             case 'detect':
                 cType = _utilPathUtils2['default'].getAjxpMimeType(node);
+                // Prevent html interpreters
+                if (cType === 'html' || cType === 'xhtml') {
+                    cType = 'text/plain';
+                }
                 cDisposition = 'inline';
                 break;
             default:
