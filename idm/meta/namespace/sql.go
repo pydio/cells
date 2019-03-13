@@ -102,7 +102,6 @@ func (dao *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(
 		ns.Namespace,
@@ -128,7 +127,6 @@ func (dao *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	if _, err := stmt.Exec(ns.Namespace); err != nil {
 		return err
@@ -147,7 +145,6 @@ func (dao *sqlimpl) List() (result map[string]*idm.UserMetaNamespace, err error)
 	if stmt == nil {
 		return nil, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	res, err := stmt.Query()
 	if err != nil {
