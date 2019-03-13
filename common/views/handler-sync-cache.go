@@ -240,7 +240,7 @@ func (s *SynchronousCacheHandler) UpdateNode(ctx context.Context, in *tree.Updat
 			}
 		}
 	}()
-	log.Logger(ctx).Info("Should Copy/Move Target", target.Zap())
+	log.Logger(ctx).Info("Should Copy/Move Target", target.Zaps()...)
 	err := CopyMoveNodes(ctx, s.next, source, target, true, true, false, status, progress)
 	close(done)
 	close(status)
