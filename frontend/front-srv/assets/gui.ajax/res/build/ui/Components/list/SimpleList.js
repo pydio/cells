@@ -1012,9 +1012,11 @@ var SimpleList = React.createClass({
                         var aLeaf = nodeA.isLeaf();
                         var bLeaf = nodeB.isLeaf();
                         var res = aLeaf && !bLeaf ? 1 : !aLeaf && bLeaf ? -1 : 0;
-                        if (res !== 0) return res;
-                        res = nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, { numeric: true });
-                        return res;
+                        if (res !== 0) {
+                            return res;
+                        } else {
+                            return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, { numeric: true });
+                        }
                     };
                 } else {
                     sortFunction = function (a, b) {

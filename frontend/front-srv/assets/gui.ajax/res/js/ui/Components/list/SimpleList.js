@@ -945,9 +945,11 @@ let SimpleList = React.createClass({
                     const aLeaf = nodeA.isLeaf();
                     const bLeaf = nodeB.isLeaf();
                     let res = (aLeaf && !bLeaf ? 1 : ( !aLeaf && bLeaf ? -1 : 0));
-                    if(res !== 0) return res;
-                    res = nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
-                    return res;
+                    if(res !== 0) {
+                        return res;
+                    } else {
+                        return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
+                    }
                 };
             }else{
                 sortFunction = (a, b) => {
