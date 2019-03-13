@@ -89,6 +89,8 @@ var ActivityObjectType = (function () {
         this.Workspace = "Workspace";
         this.Digest = "Digest";
         this.Folder = "Folder";
+        this.Cell = "Cell";
+        this.Share = "Share";
     }
 
     /**
@@ -384,5 +386,15 @@ module.exports = exports["default"];
 
 /**
  * value: "Folder"
+ * @const
+ */
+
+/**
+ * value: "Cell"
+ * @const
+ */
+
+/**
+ * value: "Share"
  * @const
  */

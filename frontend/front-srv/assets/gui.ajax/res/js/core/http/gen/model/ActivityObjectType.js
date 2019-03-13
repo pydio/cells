@@ -414,6 +414,20 @@ export default class ActivityObjectType {
         Folder = "Folder";
 
     
+        /**
+         * value: "Cell"
+         * @const
+         */
+        Cell = "Cell";
+
+    
+        /**
+         * value: "Share"
+         * @const
+         */
+        Share = "Share";
+
+    
 
     /**
     * Returns a <code>ActivityObjectType</code> enum value from a Javascript object name.

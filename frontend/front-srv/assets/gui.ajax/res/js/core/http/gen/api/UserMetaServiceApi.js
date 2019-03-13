@@ -48,7 +48,7 @@ export default class UserMetaServiceApi {
 
 
     /**
-     * List Tags for a given namespace
+     * Delete one or all tags for a given namespace (use * for all tags)
      * @param {String} namespace 
      * @param {String} tags 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteUserMetaTagsResponse} and HTTP response
@@ -91,7 +91,7 @@ export default class UserMetaServiceApi {
     }
 
     /**
-     * List Tags for a given namespace
+     * Delete one or all tags for a given namespace (use * for all tags)
      * @param {String} namespace 
      * @param {String} tags 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteUserMetaTagsResponse}
@@ -195,7 +195,7 @@ export default class UserMetaServiceApi {
 
 
     /**
-     * List Tags for a given namespace
+     * Add a new value to Tags for a given namespace
      * @param {String} namespace 
      * @param {module:model/RestPutUserMetaTagRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestPutUserMetaTagResponse} and HTTP response
@@ -237,7 +237,7 @@ export default class UserMetaServiceApi {
     }
 
     /**
-     * List Tags for a given namespace
+     * Add a new value to Tags for a given namespace
      * @param {String} namespace 
      * @param {module:model/RestPutUserMetaTagRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestPutUserMetaTagResponse}
