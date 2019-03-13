@@ -84,10 +84,8 @@ func NewSynchronousCacheHandler() *SynchronousCacheHandler {
 					c = servicecontext.WithServiceColor(c, servicecontext.ServiceColorOther)
 					s.cacheEvent(c, &event)
 				}
-				return nil
-			} else {
-				return e
 			}
+			return nil
 		})
 	}
 	return s

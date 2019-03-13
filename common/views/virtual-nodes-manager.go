@@ -138,7 +138,7 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 
 // ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
 // and the current metadata contained in context.
-func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool *ClientsPool, create bool) (*tree.Node, error) {
+func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool *ClientsPool, create bool, retry ...bool) (*tree.Node, error) {
 
 	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
 
@@ -185,6 +185,15 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	resolved.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, strings.Join(parts[1:], "/"))
 	if readResp, e := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
 		return readResp.Node, nil
+	} else if errors.Parse(e.Error()).Code == 404 {
+		if len(retry) == 0 {
+			// Retry once
+			clientsPool.listDatasources()
+			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(clientsPool.Sources)))
+			return m.ResolveInContext(ctx, vNode, clientsPool, create, true)
+		} else {
+			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", clientsPool.Sources))
+		}
 	}
 	if create {
 		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {

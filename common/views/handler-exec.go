@@ -139,7 +139,7 @@ func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, o
 	s3Path := e.buildS3Path(info, in.Node)
 	success := true
 	var err error
-	if _, sE := writer.StatObject(info.ObjectsBucket, s3Path, statOpts); sE != nil && sE.Error() == noSuchKeyString {
+	if _, sE := writer.StatObject(info.ObjectsBucket, s3Path, statOpts); sE != nil && sE.Error() == noSuchKeyString && in.Node.IsLeaf() {
 		log.Logger(ctx).Info("Exec.DeleteNode : cannot find object in s3! Should it be removed from index?", in.Node.ZapPath())
 	}
 	err = writer.RemoveObjectWithContext(ctx, info.ObjectsBucket, s3Path)
