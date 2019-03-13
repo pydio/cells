@@ -219,10 +219,23 @@ let MainFilesList = React.createClass({
             this.props.pydio.getController().updateGuiActions(this.getPydioActions());
             let configParser = new ComponentConfigsParser();
             const columns = configParser.loadConfigs('FilesList').get('columns');
+            const dMode = this.displayModeFromPrefs(this.state?this.state.displayMode:'list');
+            if(this.state.displayMode !== dMode && dMode.indexOf('grid-') === 0){
+                let tSize = 200;
+                if(dMode === 'grid-320') {
+                    tSize = 320;
+                } else if(dMode === 'grid-80') {
+                    tSize = 80;
+                }
+                this.setState({
+                    thumbNearest:tSize,
+                    thumbSize: tSize
+                });
+            }
             this.setState({
                 repositoryId: this.props.pydio.repositoryId,
                 columns: columns ? columns : configParser.getDefaultListColumns(),
-                displayMode:this.displayModeFromPrefs(this.state?this.state.displayMode:'list'),
+                displayMode:dMode
             })
         }
     },
