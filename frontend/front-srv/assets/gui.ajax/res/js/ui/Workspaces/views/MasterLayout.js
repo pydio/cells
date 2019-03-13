@@ -31,7 +31,7 @@ class MasterLayout extends React.Component{
         if(!this.props.drawerOpen){
             return;
         }
-        const widgets = document.getElementsByClassName('user-widget');
+        const widgets = document.getElementsByClassName('left-panel');
         if(widgets && widgets.length > 0 && widgets[0].contains(ReactDOM.findDOMNode(e.target))){
             return;
         }

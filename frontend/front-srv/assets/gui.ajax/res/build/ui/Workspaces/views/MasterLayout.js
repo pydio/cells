@@ -68,7 +68,7 @@ var MasterLayout = (function (_React$Component) {
         if (!this.props.drawerOpen) {
             return;
         }
-        var widgets = document.getElementsByClassName('user-widget');
+        var widgets = document.getElementsByClassName('left-panel');
         if (widgets && widgets.length > 0 && widgets[0].contains(_reactDom2['default'].findDOMNode(e.target))) {
             return;
         }

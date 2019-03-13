@@ -79,14 +79,20 @@ function withModernTheme(formComponent) {
             return styleProps;
         };
 
+        ModernThemeComponent.prototype.componentDidMount = function componentDidMount() {
+            if (this.props.focusOnMount && this.refs.component) {
+                this.refs.component.focus();
+            }
+        };
+
         ModernThemeComponent.prototype.render = function render() {
 
             if (formComponent === _materialUi.TextField) {
                 var styleProps = this.mergedProps(_extends({}, styles.textField));
-                return _react2['default'].createElement(_materialUi.TextField, _extends({}, this.props, styleProps));
+                return _react2['default'].createElement(_materialUi.TextField, _extends({}, this.props, styleProps, { ref: "component" }));
             } else if (formComponent === _materialUi.SelectField) {
                 var styleProps = this.mergedProps(_extends({}, styles.selectField));
-                return _react2['default'].createElement(_materialUi.SelectField, _extends({}, this.props, styleProps));
+                return _react2['default'].createElement(_materialUi.SelectField, _extends({}, this.props, styleProps, { ref: "component" }));
             } else {
                 return null;
             }

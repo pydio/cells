@@ -1013,7 +1013,7 @@ var SimpleList = React.createClass({
                         var bLeaf = nodeB.isLeaf();
                         var res = aLeaf && !bLeaf ? 1 : !aLeaf && bLeaf ? -1 : 0;
                         if (res !== 0) return res;
-                        res = nodeA.getLabel().localeCompare(nodeB.getLabel());
+                        res = nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, { numeric: true });
                         return res;
                     };
                 } else {
@@ -1038,7 +1038,7 @@ var SimpleList = React.createClass({
                         }
                         if (res === 0) {
                             // Resort by label to make it stable
-                            var labComp = a.node.getLabel().localeCompare(b.node.getLabel());
+                            var labComp = a.node.getLabel().localeCompare(b.node.getLabel(), undefined, { numeric: true });
                             res = direction === 'asc' ? labComp : -labComp;
                         }
                         return res;
