@@ -24,6 +24,8 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -125,6 +127,21 @@ func newEnvSource() config.Source {
 }
 
 func newLocalSource() config.Source {
+	// If file exists and is not empty, check it has valid JSON content
+	fName := filepath.Join(PydioConfigDir, PydioConfigFile)
+	if data, err := ioutil.ReadFile(fName); err == nil && len(data) > 0 {
+		var whatever map[string]interface{}
+		if e := json.Unmarshal(data, &whatever); e != nil {
+			errColor := "\033[1;31m%s\033[0m"
+			fmt.Println("**************************************************************************************")
+			fmt.Println("It seems that your configuration file contains invalid JSON. Did you edit it manually?")
+			fmt.Println("File is located at " + fName)
+			fmt.Println("Error was: ", fmt.Sprintf(errColor, e.Error()), "\n")
+			fmt.Printf(errColor, "FATAL ERROR : Aborting now\n")
+			fmt.Println("**************************************************************************************")
+			log.Fatal(e)
+		}
+	}
 	return file.NewSource(
 		config.SourceName(filepath.Join(PydioConfigDir, PydioConfigFile)),
 	)
