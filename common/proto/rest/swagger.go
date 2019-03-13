@@ -1,5 +1,4 @@
 package rest
-
 var SwaggerJson = `{
   "swagger": "2.0",
   "info": {
@@ -2592,7 +2591,7 @@ var SwaggerJson = `{
         ]
       },
       "post": {
-        "summary": "List Tags for a given namespace",
+        "summary": "Add a new value to Tags for a given namespace",
         "operationId": "PutUserMetaTag",
         "responses": {
           "200": {
@@ -2625,7 +2624,7 @@ var SwaggerJson = `{
     },
     "/user-meta/tags/{Namespace}/{Tags}": {
       "delete": {
-        "summary": "List Tags for a given namespace",
+        "summary": "Delete one or all tags for a given namespace (use * for all tags)",
         "operationId": "DeleteUserMetaTags",
         "responses": {
           "200": {
@@ -3278,7 +3277,9 @@ var SwaggerJson = `{
         "View",
         "Workspace",
         "Digest",
-        "Folder"
+        "Folder",
+        "Cell",
+        "Share"
       ],
       "default": "BaseObject",
       "title": "- Collection: CollectionTypes\n - Application: Actor Types\n - Article: Objects Types\n - Accept: Activity Types\n - Workspace: Pydio Types"

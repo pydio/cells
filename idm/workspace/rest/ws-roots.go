@@ -205,7 +205,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 		workspace.Attributes = string(jsonAttributes)
 
 	} else {
-		log.Logger(ctx).Info("Manage default Rights: " + value)
+		log.Logger(ctx).Debug("Manage default Rights: " + value)
 
 		// Delete RootRole values first
 		q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{

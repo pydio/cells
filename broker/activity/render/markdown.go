@@ -91,7 +91,7 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 		}
 		return output
 
-	case activity.ObjectType_Workspace:
+	case activity.ObjectType_Workspace, activity.ObjectType_Cell:
 
 		var workspaceString string
 		var wsIdentifier string
@@ -101,6 +101,9 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 			wsIdentifier = object.Name
 		}
 		wsLang := T("Workspace")
+		if object.Type == activity.ObjectType_Cell {
+			wsLang = T("Cell")
+		}
 		if len(object.Items) > 0 {
 			workspaceString = "\n\n## " + wsLang + " " + wsIdentifier
 			for _, item := range object.Items {
@@ -159,6 +162,15 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 			return T("AccessedBy", templateData)
 		} else {
 			return T("AccessedObjectBy", templateData)
+		}
+
+	case activity.ObjectType_Share:
+		if pointOfView == activity.SummaryPointOfView_ACTOR {
+			return T("SharedWs", templateData)
+		} else if pointOfView == activity.SummaryPointOfView_SUBJECT {
+			return T("SharedWs", templateData)
+		} else {
+			return T("SharedWsWithYou", templateData)
 		}
 
 	case activity.ObjectType_Folder:

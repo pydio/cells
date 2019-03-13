@@ -73,6 +73,8 @@ enum ObjectType{
     Workspace = 53;
     Digest = 54;
     Folder = 55;
+    Cell = 56;
+    Share = 57;
 
 }
 
