@@ -30,6 +30,7 @@ type DAO interface {
 	Init(common.ConfigValues) error
 	GetConn() Conn
 	SetConn(Conn)
+	CloseConn() error
 	Driver() string
 
 	// Prefix is used to prevent collision between table names
@@ -79,4 +80,9 @@ func (h *handler) GetConn() Conn {
 // SetConn assigns the db connection to the DAO
 func (h *handler) SetConn(conn Conn) {
 	h.conn = conn
+}
+
+// CloseConn closes the db connection
+func (h *handler) CloseConn() error {
+	return closeConn(h.conn)
 }
