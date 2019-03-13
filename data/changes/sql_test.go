@@ -58,6 +58,7 @@ func TestSqlDaoBasics(t *testing.T) {
 	Convey("Given a new empty DB", t, func() {
 
 		mockDAO := initialiseMockDao()
+		defer mockDAO.CloseConn()
 
 		Convey("First and last seq id should be 0", func() {
 			first, err := mockDAO.FirstSeq()
@@ -112,6 +113,7 @@ func TestSqlDaoBasics(t *testing.T) {
 
 	Convey("Given a new empty DB", t, func() {
 		mockDAO := initialiseMockDao()
+		defer mockDAO.CloseConn()
 
 		Convey("Create 2 changes", func() {
 			err := mockDAO.Put(&tree.SyncChange{
