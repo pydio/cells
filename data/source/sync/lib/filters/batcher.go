@@ -26,10 +26,11 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/data/source/sync/lib/common"
-	"go.uber.org/zap"
 )
 
 type EventsBatcher struct {
@@ -40,8 +41,9 @@ type EventsBatcher struct {
 	batchCacheMutex *sync.Mutex
 	batchCache      map[string][]common.EventInfo
 
-	batchOut      chan *Batch
-	eventChannels []chan common.ProcessorEvent
+	batchOut         chan *Batch
+	eventChannels    []chan common.ProcessorEvent
+	closeSessionChan chan string
 }
 
 func (ev *EventsBatcher) RegisterEventChannel(out chan common.ProcessorEvent) {
@@ -265,12 +267,22 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 					ev.batchCacheMutex.Unlock()
 				} else {
 					ev.batchCacheMutex.Lock()
+					log.Logger(ev.globalContext).Debug("[batcher] Batching Event in session "+session, zap.Any("e", event))
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					ev.batchCacheMutex.Unlock()
 				}
 			} else if event.ScanEvent || event.OperationId == "" {
+				log.Logger(ev.globalContext).Debug("[batcher] Batching Event without session ", zap.Any("e", event))
 				batch = append(batch, event)
 			}
+		case session := <-ev.closeSessionChan:
+			ev.batchCacheMutex.Lock()
+			if events, ok := ev.batchCache[session]; ok {
+				log.Logger(ev.globalContext).Debug("[batcher] Force closing session now!")
+				go ev.ProcessEvents(events)
+				delete(ev.batchCache, session)
+			}
+			ev.batchCacheMutex.Unlock()
 		case <-time.After(duration):
 			// Process Queue
 			if len(batch) > 0 {
@@ -284,14 +296,19 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 
 }
 
+func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
+	ev.closeSessionChan <- sessionUuid
+}
+
 func NewEventsBatcher(ctx context.Context, source common.PathSyncSource, target common.PathSyncTarget) *EventsBatcher {
 
 	return &EventsBatcher{
-		Source:          source,
-		Target:          target,
-		globalContext:   ctx,
-		batchCache:      make(map[string][]common.EventInfo),
-		batchCacheMutex: &sync.Mutex{},
+		Source:           source,
+		Target:           target,
+		globalContext:    ctx,
+		batchCache:       make(map[string][]common.EventInfo),
+		batchCacheMutex:  &sync.Mutex{},
+		closeSessionChan: make(chan string, 1),
 	}
 
 }

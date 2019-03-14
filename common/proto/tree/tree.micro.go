@@ -49,6 +49,7 @@ It has these top-level messages:
 	GeoQuery
 	GeoPoint
 	NodeChangeEvent
+	IndexEvent
 	GetEncryptionKeyRequest
 	GetEncryptionKeyResponse
 	SyncChange

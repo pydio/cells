@@ -92,6 +92,14 @@ func (s *Handler) Stop() {
 	}
 }
 
+// BroadcastCloseSession forwards session id to underlying sync task
+func (s *Handler) BroadcastCloseSession(sessionUuid string) {
+	if s.syncTask == nil {
+		return
+	}
+	s.syncTask.BroadcastCloseSession(sessionUuid)
+}
+
 func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 	ctx := s.globalCtx

@@ -393,6 +393,13 @@ message NodeChangeEvent{
     Node Target = 3;
 }
 
+message IndexEvent {
+    bool ErrorDetected = 1;
+    string DataSourceName = 2;
+    string ErrorPath = 3;
+
+    string SessionForceClose = 4;
+}
 
 
 // ==========================================================

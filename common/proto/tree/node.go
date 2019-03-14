@@ -146,37 +146,12 @@ func (node *Node) LegacyMeta(meta map[string]interface{}) {
 	}
 }
 
-/*
-type jsonMarshallableNode struct {
-	Node
-	Meta         map[string]interface{} `json:"Meta"`
-	ReadableType string                 `json:"type"`
-}
-
-// Specific JSON Marshalling for backward compatibility with previous Pydio
-// versions
-func (node *Node) MarshalJSONPB(marshaler *jsonpb.Marshaler) ([]byte, error) {
-
-	meta := node.AllMetaDeserialized()
-	node.LegacyMeta(meta)
-	output := &jsonMarshallableNode{Node: *node}
-	output.Meta = meta
-	output.MetaStore = nil
-	if node.Type == NodeType_LEAF {
-		output.ReadableType = "LEAF"
-		meta["is_file"] = true
-	} else if node.Type == NodeType_COLLECTION {
-		output.ReadableType = "COLLECTION"
-		meta["is_file"] = false
-	}
-	return json.Marshal(output)
-
-}
-*/
-
 /* LOGGING SUPPORT */
 // MarshalLogObject implements custom marshalling for logs
 func (node *Node) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if node == nil {
+		return nil
+	}
 	if node.Uuid != "" {
 		encoder.AddString("Uuid", node.Uuid)
 	}
@@ -227,6 +202,9 @@ func (node *Node) ZapUuid() zapcore.Field {
 
 // MarshalLogObject implements custom marshalling for logs
 func (log *ChangeLog) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if log == nil {
+		return nil
+	}
 	if log.Uuid != "" {
 		encoder.AddString("Uuid", log.Uuid)
 	}
@@ -255,6 +233,9 @@ func (log *ChangeLog) Zap() zapcore.Field {
 
 // MarshalLogObject implements custom marshalling for logs
 func (policy *VersioningPolicy) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if policy == nil {
+		return nil
+	}
 	if policy.Uuid != "" {
 		encoder.AddString("Uuid", policy.Uuid)
 	}

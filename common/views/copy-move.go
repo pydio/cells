@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"time"
 
+	"github.com/micro/go-micro/client"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -13,11 +15,29 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	context2 "github.com/pydio/cells/common/utils/context"
 )
 
-func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, recursive bool, isTask bool, statusChan chan string, progressChan chan float32) error {
+// CopyMoveNodes performs a recursive copy or move operation of a node to a new location. It can be inter- or intra-datasources.
+// It will eventually pass contextual metadata like X-Pydio-Session (to batch event inside the SYNC) or X-Pydio-Move (to
+// reconciliate creates and deletes when move is done between two differing datasources).
+func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, recursive bool, isTask bool, statusChan chan string, progressChan chan float32) (oErr error) {
 
 	session := uuid.New()
+	defer func() {
+		// Make sure all sessions are purged !
+		if p := recover(); p != nil {
+			log.Logger(ctx).Error("Error during copy/move", zap.Error(p.(error)))
+			oErr = p.(error)
+			go func() {
+				<-time.After(2 * time.Second)
+				log.Logger(ctx).Debug("Force close session now:" + session)
+				client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
+					SessionForceClose: session,
+				}))
+			}()
+		}
+	}()
 	childrenMoved := 0
 	logger := log.Logger(ctx)
 	var taskLogger *zap.Logger
@@ -25,6 +45,22 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		taskLogger = log.TasksLogger(ctx)
 	} else {
 		taskLogger = zap.New(zapcore.NewNopCore())
+	}
+	// Read root of target to detect if it is on the same datasource as sourceNode
+	var crossDs bool
+	if move {
+		sourceDs := sourceNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+		if targetDs := targetNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME); targetDs != "" {
+			crossDs = targetDs != sourceDs
+		} else {
+			parts := strings.Split(strings.Trim(targetNode.Path, "/"), "/")
+			if len(parts) > 0 {
+				if testRoot, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parts[0]}}); e == nil {
+					targetDs := testRoot.Node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+					crossDs = targetDs != sourceDs
+				}
+			}
+		}
 	}
 
 	if recursive && !sourceNode.IsLeaf() {
@@ -84,7 +120,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session, UpdateIfExists: true})
 				if e != nil {
 					logger.Error("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
-					return e
+					panic(e)
 				}
 				logger.Debug("-- Copy Folder Success ", zap.String("to", targetPath), childNode.Zap())
 				taskLogger.Info("-- Copied Folder To " + targetPath)
@@ -113,10 +149,18 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					meta["X-Amz-Metadata-Directive"] = "REPLACE"
 				}
 				meta["X-Pydio-Session"] = session
+				if crossDs {
+					if idx == len(children)-1 {
+						meta["X-Pydio-Session"] = "close-" + session
+					}
+					if move {
+						meta["X-Pydio-Move"] = childNode.Uuid
+					}
+				}
 				_, e := router.CopyObject(ctx, childNode, targetNode, &CopyRequestData{Metadata: meta})
 				if e != nil {
 					logger.Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
-					return e
+					panic(e)
 				}
 				logger.Debug("-- Copy Success: ", zap.String("to", targetPath), childNode.Zap())
 				taskLogger.Info("-- Copied file to: " + targetPath)
@@ -129,10 +173,14 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				if idx == len(children)-1 {
 					session = "close-" + session
 				}
-				_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
+				delCtx := ctx
+				if crossDs {
+					delCtx = context2.WithAdditionalMetadata(ctx, map[string]string{"X-Pydio-Move": childNode.Uuid})
+				}
+				_, moveErr := router.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
 				if moveErr != nil {
 					log.Logger(ctx).Error("-- Delete Error", zap.Error(moveErr), childNode.Zap())
-					return moveErr
+					panic(moveErr)
 				}
 				logger.Debug("-- Delete Success " + childNode.Path)
 				taskLogger.Info("-- Delete Success for " + childNode.Path)
@@ -154,19 +202,25 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		meta := make(map[string]string, 1)
 		if move {
 			meta["X-Amz-Metadata-Directive"] = "COPY"
+			if crossDs {
+				meta["X-Pydio-Move"] = sourceNode.Uuid
+			}
 		} else {
 			meta["X-Amz-Metadata-Directive"] = "REPLACE"
 		}
 		_, e := router.CopyObject(ctx, sourceNode, targetNode, &CopyRequestData{Metadata: meta})
 		if e != nil {
-			return e
+			panic(e)
 		}
 		// Remove Source Node
 		if move {
+			if crossDs {
+				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{"X-Pydio-Move": sourceNode.Uuid})
+			}
 			_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
 			if moveErr != nil {
 				logger.Error("-- Delete Source Error", zap.Error(moveErr), sourceNode.Zap())
-				return moveErr
+				panic(moveErr)
 			}
 		}
 
@@ -176,10 +230,10 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		targetNode.Type = tree.NodeType_COLLECTION
 		_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode, IndexationSession: session, UpdateIfExists: true})
 		if e != nil {
-			return e
+			panic(e)
 		}
 		taskLogger.Info("-- Copied sourceNode with empty Uuid - Close Session")
 	}
 
-	return nil
+	return
 }

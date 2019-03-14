@@ -25,11 +25,12 @@ import (
 	"context"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/log"
 	. "github.com/pydio/cells/data/source/sync/lib/common"
 	"github.com/pydio/cells/data/source/sync/lib/filters"
 	"github.com/pydio/cells/data/source/sync/lib/proc"
-	"go.uber.org/zap"
 )
 
 type Sync struct {
@@ -40,9 +41,19 @@ type Sync struct {
 	Merger     *proc.Merger
 	Direction  string
 
+	batcher   *filters.EventsBatcher
 	doneChans []chan bool
 }
 
+// BroadcastCloseSession forwards session id to underlying batchers
+func (s *Sync) BroadcastCloseSession(sessionUuid string) {
+	if s.batcher == nil {
+		return
+	}
+	s.batcher.ForceCloseSession(sessionUuid)
+}
+
+// SetupWatcher starts watching events for sync
 func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target PathSyncTarget) error {
 
 	var err error
@@ -55,11 +66,11 @@ func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target P
 	s.doneChans = append(s.doneChans, watchObject.DoneChan)
 
 	// Now wire batches to processor
-	batcher := filters.NewEventsBatcher(ctx, source, target)
+	s.batcher = filters.NewEventsBatcher(ctx, source, target)
 
 	filterIn, filterOut := s.EchoFilter.CreateFilter()
 	s.Merger.AddRequeueChannel(source, filterIn)
-	go batcher.BatchEvents(filterOut, s.Merger.BatchesChannel, 1*time.Second)
+	go s.batcher.BatchEvents(filterOut, s.Merger.BatchesChannel, 1*time.Second)
 
 	go func() {
 
@@ -87,6 +98,7 @@ func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target P
 
 }
 
+// InitialSnapshots computes and compares full left and right snapshots
 func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan chan filters.BatchProcessStatus, doneChan chan bool) (diff *proc.SourceDiff, e error) {
 
 	source, _ := AsPathSyncSource(s.Source)
@@ -185,6 +197,7 @@ func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan cha
 	return diff, nil
 }
 
+// Shutdown closes channels
 func (s *Sync) Shutdown() {
 	defer func() {
 		// ignore 'close on closed channel'
@@ -196,6 +209,7 @@ func (s *Sync) Shutdown() {
 	s.Merger.Shutdown()
 }
 
+// Start makes a first sync and setup watchers
 func (s *Sync) Start(ctx context.Context) {
 	source, sOk := AsPathSyncSource(s.Source)
 	target, tOk := AsPathSyncTarget(s.Target)

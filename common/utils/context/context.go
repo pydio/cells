@@ -30,6 +30,8 @@ func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
 	return md, len(md) > 0
 }
 
+// AppendCellsMetaFromContext extract valid header names from context and push them
+// to the request Headers
 func AppendCellsMetaFromContext(ctx context.Context, req *http.Request) {
 	if meta, ok := MinioMetaFromContext(ctx); ok {
 		for k, v := range meta {
@@ -43,6 +45,7 @@ func AppendCellsMetaFromContext(ctx context.Context, req *http.Request) {
 	}
 }
 
+// WithUserNameMetadata appends a user name to both the context metadata and as context key.
 func WithUserNameMetadata(ctx context.Context, userName string) context.Context {
 	md := make(map[string]string)
 	if meta, ok := metadata.FromContext(ctx); ok {
@@ -57,10 +60,26 @@ func WithUserNameMetadata(ctx context.Context, userName string) context.Context 
 	return ctx
 }
 
+// ContextMetadata wraps micro lib metadata.FromContext call
 func ContextMetadata(ctx context.Context) (map[string]string, bool) {
 	return metadata.FromContext(ctx)
 }
 
+// WithMetadata wraps micro lib metadata.NewContext call
 func WithMetadata(ctx context.Context, md map[string]string) context.Context {
+	return metadata.NewContext(ctx, md)
+}
+
+// WithAdditionalMetadata retrieves existing meta, adds new key/values to the map and produces a new context
+func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context.Context {
+	md := make(map[string]string)
+	if meta, ok := metadata.FromContext(ctx); ok {
+		for k, v := range meta {
+			md[k] = v
+		}
+	}
+	for k, v := range meta {
+		md[k] = v
+	}
 	return metadata.NewContext(ctx, md)
 }

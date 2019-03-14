@@ -287,7 +287,13 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients - Read Source Error", zap.Error(err))
 			return 0, err
 		}
-
+		defer reader.Close()
+		if requestData.Metadata != nil {
+			if dir, o := requestData.Metadata[common.X_AMZ_META_DIRECTIVE]; o && dir == "COPY" {
+				requestData.Metadata[common.X_AMZ_META_NODE_UUID] = from.Uuid
+			}
+		}
+		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
 		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
 		if err != nil {
 			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients",

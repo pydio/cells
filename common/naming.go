@@ -121,6 +121,7 @@ const (
 	TOPIC_ACTIVITY_EVENT   = "topic.pydio.activity.event"
 	TOPIC_CHAT_EVENT       = "topic.pydio.chat.event"
 	TOPIC_DATASOURCE_EVENT = "topic.pydio.datasource.event"
+	TOPIC_INDEX_EVENT      = "topic.pydio.index.event"
 )
 
 // Define constants for metadata and fixed datasources
@@ -146,6 +147,7 @@ const (
 	PYDIO_SYNC_HIDDEN_FILE_META = ".pydio"
 	X_AMZ_META_CLEAR_SIZE       = "X-Amz-Meta-Pydio-Clear-Size"
 	X_AMZ_META_NODE_UUID        = "X-Amz-Meta-Pydio-Node-Uuid"
+	X_AMZ_META_DIRECTIVE        = "X-Amz-Metadata-Directive"
 
 	PYDIO_PROFILE_ADMIN    = "admin"
 	PYDIO_PROFILE_STANDARD = "standard"

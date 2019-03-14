@@ -506,6 +506,29 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	}
 	node.Path = reqPath
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
+	var childrenEvents []*tree.NodeChangeEvent
+	if node.Type == tree.NodeType_COLLECTION {
+		c := dao.GetNodeTree(path)
+		names := strings.Split(reqPath, "/")
+		for child := range c {
+			if child.Name() == common.PYDIO_SYNC_HIDDEN_FILE_META {
+				continue
+			}
+			if child.Level > cap(names) {
+				newNames := make([]string, len(names), child.Level)
+				copy(newNames, names)
+				names = newNames
+			}
+			names = names[0:child.Level]
+			names[child.Level-1] = child.Name()
+			child.Path = safePath(strings.Join(names, "/"))
+			child.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
+			childrenEvents = append(childrenEvents, &tree.NodeChangeEvent{
+				Type:   tree.NodeChangeEvent_DELETE,
+				Source: child.Node,
+			})
+		}
+	}
 
 	if err := dao.DelNode(node); err != nil {
 		return errors.InternalServerError(name, "Could not delete node "+reqPath, 404)
@@ -517,6 +540,24 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, node.Size, tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
 		return errors.InternalServerError(common.SERVICE_DATA_INDEX_, "Error while updating parents", err)
+	}
+
+	if len(childrenEvents) > 0 {
+		var batcher sessions.SessionBatcher
+		if req.IndexationSession != "" {
+			sess, batch, err := s.sessionStore.ReadSession(req.IndexationSession)
+			if err == nil && sess != nil {
+				batcher = batch
+			}
+		}
+		for _, ev := range childrenEvents {
+			if batcher != nil {
+				batcher.Notify(common.TOPIC_INDEX_CHANGES, ev)
+			} else {
+				client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, ev))
+			}
+		}
+
 	}
 
 	resp.Success = true
