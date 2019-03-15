@@ -395,17 +395,15 @@ var WorkspaceEntry = React.createClass({
                     treeToggle = React.createElement('span', { style: { opacity: .3 }, className: 'workspace-additional-action ' + toggleIcon, onClick: this.toggleFoldersPanelOpen });
                 }
             }
-            //icon = "mdi mdi-folder-open";
             iconStyle.opacity = 1;
             iconStyle.color = accent2;
         } else {
-            /*
             menuNode = new Node('/', false, workspace.getLabel());
             menuNode.setRoot(true);
-            const metaMap = new Map();
+            var metaMap = new Map();
             metaMap.set('repository_id', workspace.getId());
+            metaMap.set('workspaceEntry', workspace);
             menuNode.setMetadata(metaMap);
-            */
         }
 
         var _state = this.state;

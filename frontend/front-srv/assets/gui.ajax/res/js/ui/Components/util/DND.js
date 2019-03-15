@@ -51,10 +51,11 @@ function collectDrop(connect, monitor){
 }
 
 class DNDActionParameter{
-    constructor(source, target, step){
+    constructor(source, target, step, dropEffect){
         this._source = source;
         this._target = target;
         this._step = step;
+        this._dropEffect = dropEffect;
     }
     getSource(){
         return this._source;
@@ -65,6 +66,9 @@ class DNDActionParameter{
     getStep(){
         return this._step;
     }
+    getDropEffect(){
+        return this._dropEffect;
+    }
 }
 
 DNDActionParameter.STEP_BEGIN_DRAG = 'beginDrag';
@@ -72,7 +76,7 @@ DNDActionParameter.STEP_END_DRAG = 'endDrag';
 DNDActionParameter.STEP_CAN_DROP = 'canDrop';
 DNDActionParameter.STEP_HOVER_DROP = 'hover';
 
-let applyDNDAction = function(source, target, step){
+let applyDNDAction = function(source, target, step, dropEffect){
     const {Controller} = window.pydio;
     const dnd = Controller.defaultActions.get("dragndrop");
     if(dnd){
@@ -87,7 +91,7 @@ let applyDNDAction = function(source, target, step){
             }
         }
         //dndAction.enable();
-        const params = new DNDActionParameter(source, target, step);
+        const params = new DNDActionParameter(source, target, step, dropEffect);
         const checkModule = dndAction.options.dragndropCheckModule;
         if(step === DNDActionParameter.STEP_CAN_DROP && checkModule){
             if(!FuncUtils.getFunctionByName(checkModule, window)) {
@@ -120,7 +124,7 @@ const nodeDragSource = {
         const item = monitor.getItem();
         const dropResult = monitor.getDropResult();
         try{
-            applyDNDAction(item.node, dropResult.node, DNDActionParameter.STEP_END_DRAG);
+            applyDNDAction(item.node, dropResult.node, DNDActionParameter.STEP_END_DRAG, dropResult.dropEffect);
         }catch(e){
 
         }

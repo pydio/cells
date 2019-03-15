@@ -652,18 +652,39 @@ module.exports = exports["default"];
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _pydioUtilPath = require("pydio/util/path");
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+var _pydioUtilLang = require("pydio/util/lang");
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
 var _require$requireLib = require('pydio').requireLib('components');
 
 var DNDActionParameter = _require$requireLib.DNDActionParameter;
 
-exports['default'] = function (pydio) {
+exports["default"] = function (pydio) {
     var MessageHash = pydio.MessageHash;
+
+    var comparePaths = function comparePaths(source, target) {
+        var otherRepo = target.getMetadata().has('repository_id');
+        if (target.isLeaf() || target.getPath() === source.getPath() || !otherRepo && _pydioUtilLang2["default"].trimRight(target.getPath(), "/") === _pydioUtilPath2["default"].getDirname(source.getPath())) {
+            throw new Error('Cannot drop on leaf or on same path');
+        } else if (target.getMetadata().has("virtual_root")) {
+            throw new Error('Cannot drop on virtual root');
+        } else if (source.getMetadata().has("ws_root")) {
+            throw new Error('Cannot move roots around');
+        }
+    };
 
     return function (controller) {
         var dndActionParameter = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
@@ -674,18 +695,33 @@ exports['default'] = function (pydio) {
 
                 var target = dndActionParameter.getTarget();
                 var source = dndActionParameter.getSource();
-                if (target.isLeaf() || target.getPath() === source.getPath()) {
-                    throw new Error('Cannot drop on leaf or on same path');
-                } else if (target.getMetadata().has("virtual_root")) {
-                    throw new Error('Cannot drop on virtual root');
-                } else if (source.getMetadata().has("ws_root")) {
-                    throw new Error('Cannot move roots around');
-                } else {
-                    return false;
-                }
+                comparePaths(source, target);
+                return false;
             } else if (dndActionParameter.getStep() === DNDActionParameter.STEP_END_DRAG) {
+
+                try {
+                    comparePaths(dndActionParameter.getSource(), dndActionParameter.getTarget());
+                } catch (e) {
+                    return;
+                }
+
                 var _selection = controller.getDataModel();
                 var targetPath = dndActionParameter.getTarget().getPath();
+                var targetWsId = null;
+                // Putting on a different repository_id
+                if (dndActionParameter.getTarget().getMetadata().has('repository_id')) {
+                    targetWsId = dndActionParameter.getTarget().getMetadata().get('repository_id');
+                    var ws = dndActionParameter.getTarget().getMetadata().get('workspaceEntry');
+                    if (ws && ws.getRepositoryType() === "cell") {
+                        pydio.UI.openComponentInModal('FSActions', 'CrossWsDropDialog', {
+                            target: dndActionParameter.getTarget(),
+                            source: dndActionParameter.getSource(),
+                            dropEffect: dndActionParameter.getDropEffect() || 'move',
+                            cellWs: ws
+                        });
+                        return;
+                    }
+                }
                 var moveFunction = require('./applyCopyOrMove')(pydio);
                 var sourceNode = dndActionParameter.getSource();
                 var selectedNodes = _selection.getSelectedNodes();
@@ -694,10 +730,9 @@ exports['default'] = function (pydio) {
                     var newSel = new PydioDataModel();
                     newSel.setContextNode(_selection.getContextNode());
                     newSel.setSelectedNodes([dndActionParameter.getSource()]);
-                    _selection = newSel;
-                    moveFunction('move', newSel, targetPath);
+                    moveFunction(dndActionParameter.getDropEffect() || 'move', newSel, targetPath, targetWsId);
                 } else {
-                    moveFunction('move', _selection, targetPath);
+                    moveFunction(dndActionParameter.getDropEffect() || 'move', _selection, targetPath, targetWsId);
                 }
             }
 
@@ -719,9 +754,9 @@ exports['default'] = function (pydio) {
     };
 };
 
-module.exports = exports['default'];
+module.exports = exports["default"];
 
-},{"./applyCopyOrMove":2,"pydio":"pydio"}],13:[function(require,module,exports){
+},{"./applyCopyOrMove":2,"pydio":"pydio","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path"}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1002,6 +1037,263 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydioModelMetaNodeProvider = require('pydio/model/meta-node-provider');
+
+var _pydioModelMetaNodeProvider2 = _interopRequireDefault(_pydioModelMetaNodeProvider);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
+
+var _pydioModelCell = require('pydio/model/cell');
+
+var _pydioModelCell2 = _interopRequireDefault(_pydioModelCell);
+
+var _materialUiStyles = require('material-ui/styles');
+
+var React = require('react');
+
+var _require = require('material-ui');
+
+var FontIcon = _require.FontIcon;
+var ListItem = _require.ListItem;
+var List = _require.List;
+var FlatButton = _require.FlatButton;
+var Subheader = _require.Subheader;
+
+var Pydio = require('pydio');
+var PydioDataModel = require('pydio/model/data-model');
+
+var _Pydio$requireLib = Pydio.requireLib('boot');
+
+var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
+
+var CrossWsContent = (function (_React$Component) {
+    _inherits(CrossWsContent, _React$Component);
+
+    function CrossWsContent(props) {
+        _classCallCheck(this, CrossWsContent);
+
+        _get(Object.getPrototypeOf(CrossWsContent.prototype), 'constructor', this).call(this, props);
+        this.state = { roots: [] };
+    }
+
+    _createClass(CrossWsContent, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this = this;
+
+            // List roots for the cell
+            var cellWs = this.props.cellWs;
+
+            var metaService = new _pydioHttpRestApi.MetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _pydioHttpRestApi.RestGetBulkMetaRequest();
+            var slug = cellWs.getSlug();
+            console.log(slug);
+            request.NodePaths = [slug, slug + '/*'];
+            metaService.getBulkMeta(request).then(function (response) {
+                var nodes = response.Nodes || [];
+                var wsRoot = null,
+                    wsChildren = [];
+                nodes.forEach(function (node) {
+                    if (node.Path === slug + '/') {
+                        wsRoot = _pydioModelMetaNodeProvider2['default'].parseTreeNode(node, slug);
+                    } else {
+                        var child = _pydioModelMetaNodeProvider2['default'].parseTreeNode(node, slug);
+                        if (!child.isLeaf()) {
+                            wsChildren.push(child);
+                        }
+                    }
+                });
+                if (wsRoot.getMetadata().has('virtual_root')) {
+                    console.log(wsChildren);
+                    _this.setState({ roots: wsChildren });
+                } else {
+                    console.log(wsRoot);
+                    _this.setState({ roots: [wsRoot] });
+                }
+            });
+        }
+    }, {
+        key: 'move',
+        value: function move(targetNode) {
+            var _props = this.props;
+            var source = _props.source;
+            var cellWs = _props.cellWs;
+            var pydio = _props.pydio;
+            var dropEffect = _props.dropEffect;
+
+            var moveFunction = require('../callback/applyCopyOrMove')(Pydio.getInstance());
+            var selection = pydio.getContextHolder();
+            var selectedNodes = selection.getSelectedNodes();
+            if (selectedNodes.indexOf(source) === -1) {
+                // Use source node instead of current datamodel selection
+                var newSel = new PydioDataModel();
+                newSel.setContextNode(selection.getContextNode());
+                newSel.setSelectedNodes([source]);
+                moveFunction(dropEffect, newSel, targetNode.getPath(), cellWs.getId());
+            } else {
+                moveFunction(dropEffect, selection, targetNode.getPath(), cellWs.getId());
+            }
+            this.props.onDismiss();
+        }
+    }, {
+        key: 'share',
+        value: function share() {
+            var _this2 = this;
+
+            var _props2 = this.props;
+            var source = _props2.source;
+            var cellWs = _props2.cellWs;
+            var pydio = _props2.pydio;
+
+            var model = new _pydioModelCell2['default']();
+            model.load(cellWs.getId()).then(function () {
+                model.addRootNode(source);
+                model.save().then(function () {
+                    _this2.props.onDismiss();
+                    pydio.triggerRepositoryChange(cellWs.getId());
+                });
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this3 = this;
+
+            var _props3 = this.props;
+            var source = _props3.source;
+            var cellWs = _props3.cellWs;
+            var dropEffect = _props3.dropEffect;
+            var pydio = _props3.pydio;
+            var muiTheme = _props3.muiTheme;
+            var roots = this.state.roots;
+
+            var m = function m(id) {
+                return pydio.MessageHash['openother.drop.cell.' + id] || id;
+            };
+            var items = [];
+
+            items.push(React.createElement(ListItem, {
+                onTouchTap: function () {
+                    _this3.share();
+                },
+                primaryText: source.isLeaf() ? m('file.share') : m('folder.share'),
+                secondaryText: m('share.legend').replace('%s', cellWs.getLabel()),
+                leftIcon: React.createElement(FontIcon, { style: { color: muiTheme.palette.primary1Color }, className: "mdi mdi-share-variant" })
+            }));
+            var leaf = source.isLeaf() ? 'file' : 'folder';
+            var title = m(leaf + '.' + dropEffect);
+            roots.forEach(function (root) {
+                var secondary = m('copymove.legend').replace('%s', cellWs.getLabel());
+                if (root.getPath() !== "/" && root.getPath() !== "") {
+                    secondary += "/" + root.getLabel();
+                }
+                items.push(React.createElement(ListItem, {
+                    onTouchTap: function () {
+                        _this3.move(root);
+                    },
+                    primaryText: title,
+                    secondaryText: secondary,
+                    leftIcon: React.createElement(FontIcon, { style: { color: muiTheme.palette.primary1Color }, className: "mdi mdi-folder-" + (dropEffect === 'copy' ? "plus" : "move") })
+                }));
+            });
+            return React.createElement(
+                List,
+                { style: { maxHeight: 320, overflowY: 'scroll', width: '100%', borderTop: '1px solid #e0e0e0' } },
+                React.createElement(
+                    Subheader,
+                    { style: { overflow: 'hidden', whiteSpace: 'nowrap', paddingRight: 16, textOverflow: 'ellipsis' } },
+                    m('picker').replace('%s', source.getLabel())
+                ),
+                items
+            );
+        }
+    }]);
+
+    return CrossWsContent;
+})(React.Component);
+
+CrossWsContent = (0, _materialUiStyles.muiThemeable)()(CrossWsContent);
+
+var CrossWsDropDialog = React.createClass({
+    displayName: 'CrossWsDropDialog',
+
+    propTypes: {
+        pydio: React.PropTypes.instanceOf(Pydio),
+        selection: React.PropTypes.instanceOf(PydioDataModel)
+    },
+
+    mixins: [ActionDialogMixin],
+
+    getButtons: function getButtons(updater) {
+        var actions = [];
+        var mess = this.props.pydio.MessageHash;
+        actions.push(React.createElement(FlatButton, {
+            label: mess['49'],
+            primary: true,
+            keyboardFocused: true,
+            onTouchTap: this.props.onDismiss
+        }));
+        return actions;
+    },
+
+    getDefaultProps: function getDefaultProps() {
+        return {
+            dialogIsModal: false,
+            dialogSize: 'sm',
+            dialogPadding: 0
+        };
+    },
+
+    render: function render() {
+        return React.createElement(CrossWsContent, this.props);
+    }
+
+});
+
+exports['default'] = CrossWsDropDialog;
+module.exports = exports['default'];
+
+},{"../callback/applyCopyOrMove":2,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/cell":"pydio/model/cell","pydio/model/data-model":"pydio/model/data-model","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","react":"react"}],19:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _callbackOpenInEditor = require('../callback/openInEditor');
@@ -1146,7 +1438,7 @@ var OtherEditorPickerDialog = React.createClass({
 exports['default'] = OtherEditorPickerDialog;
 module.exports = exports['default'];
 
-},{"../callback/openInEditor":13,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],19:[function(require,module,exports){
+},{"../callback/openInEditor":13,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],20:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1408,7 +1700,7 @@ var TreeDialog = _react2["default"].createClass({
 exports["default"] = TreeDialog;
 module.exports = exports["default"];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],20:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],21:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1563,7 +1855,7 @@ var UploadDialog = React.createClass({
 exports['default'] = UploadDialog;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],21:[function(require,module,exports){
+},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],22:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1604,6 +1896,10 @@ var _dialogUploadDialog = require('./dialog/UploadDialog');
 
 var _dialogUploadDialog2 = _interopRequireDefault(_dialogUploadDialog);
 
+var _dialogCrossWsDropDialog = require('./dialog/CrossWsDropDialog');
+
+var _dialogCrossWsDropDialog2 = _interopRequireDefault(_dialogCrossWsDropDialog);
+
 var _callbackIndex = require('./callback/index');
 
 var _callbackIndex2 = _interopRequireDefault(_callbackIndex);
@@ -1617,8 +1913,9 @@ exports.Listeners = _listenerIndex2['default'];
 exports.UploadDialog = _dialogUploadDialog2['default'];
 exports.OtherEditorPickerDialog = _dialogOtherEditorPickerDialog2['default'];
 exports.TreeDialog = _dialogTreeDialog2['default'];
+exports.CrossWsDropDialog = _dialogCrossWsDropDialog2['default'];
 
-},{"./callback/index":8,"./dialog/OtherEditorPickerDialog":18,"./dialog/TreeDialog":19,"./dialog/UploadDialog":20,"./listener/index":26}],22:[function(require,module,exports){
+},{"./callback/index":8,"./dialog/CrossWsDropDialog":18,"./dialog/OtherEditorPickerDialog":19,"./dialog/TreeDialog":20,"./dialog/UploadDialog":21,"./listener/index":27}],23:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1657,7 +1954,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1710,7 +2007,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1750,7 +2047,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1797,7 +2094,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -1840,7 +2137,7 @@ exports['default'] = Listeners;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./compressUiSelectionChange":22,"./copyContextChange":23,"./downloadAllInit":24,"./downloadSelectionChange":25,"./lockSelectionChange":27,"./mkfileDynamicBuilder":28,"./openWithDynamicBuilder":29}],27:[function(require,module,exports){
+},{"./compressUiSelectionChange":23,"./copyContextChange":24,"./downloadAllInit":25,"./downloadSelectionChange":26,"./lockSelectionChange":28,"./mkfileDynamicBuilder":29,"./openWithDynamicBuilder":30}],28:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1890,7 +2187,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2112,7 +2409,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path"}],29:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path"}],30:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2220,5 +2517,5 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"../callback/openOtherEditorPicker":14,"pydio/util/path":"pydio/util/path"}]},{},[21])(21)
+},{"../callback/openOtherEditorPicker":14,"pydio/util/path":"pydio/util/path"}]},{},[22])(22)
 });

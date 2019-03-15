@@ -18,11 +18,25 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {DNDActionParameter} = require('pydio').requireLib('components')
+import PathUtils from "pydio/util/path";
+import LangUtils from "pydio/util/lang";
+const {DNDActionParameter} = require('pydio').requireLib('components');
 
 export default function (pydio) {
 
     const {MessageHash} = pydio;
+
+    const comparePaths = (source, target) => {
+        const otherRepo = target.getMetadata().has('repository_id');
+        if(target.isLeaf() || target.getPath() === source.getPath() || (!otherRepo && LangUtils.trimRight(target.getPath(), "/") ===  PathUtils.getDirname(source.getPath()))) {
+            throw new Error('Cannot drop on leaf or on same path');
+        } else if (target.getMetadata().has("virtual_root")) {
+            throw new Error('Cannot drop on virtual root');
+        } else if (source.getMetadata().has("ws_root")){
+            throw new Error('Cannot move roots around');
+        }
+    };
+
     return function(controller, dndActionParameter = null){
 
         if(dndActionParameter && dndActionParameter instanceof DNDActionParameter){
@@ -31,19 +45,34 @@ export default function (pydio) {
 
                 const target = dndActionParameter.getTarget();
                 const source = dndActionParameter.getSource();
-                if(target.isLeaf() || target.getPath() === source.getPath()) {
-                    throw new Error('Cannot drop on leaf or on same path');
-                } else if (target.getMetadata().has("virtual_root")) {
-                    throw new Error('Cannot drop on virtual root');
-                } else if (source.getMetadata().has("ws_root")){
-                    throw new Error('Cannot move roots around');
-                }else {
-                    return false;
-                }
+                comparePaths(source, target);
+                return false;
 
             }else if(dndActionParameter.getStep() === DNDActionParameter.STEP_END_DRAG){
+
+                try {
+                    comparePaths(dndActionParameter.getSource(), dndActionParameter.getTarget())
+                }catch (e) {
+                    return
+                }
+
                 let selection = controller.getDataModel();
                 const targetPath = dndActionParameter.getTarget().getPath();
+                let targetWsId = null;
+                // Putting on a different repository_id
+                if(dndActionParameter.getTarget().getMetadata().has('repository_id')){
+                    targetWsId = dndActionParameter.getTarget().getMetadata().get('repository_id');
+                    const ws = dndActionParameter.getTarget().getMetadata().get('workspaceEntry');
+                    if(ws && ws.getRepositoryType() === "cell"){
+                        pydio.UI.openComponentInModal('FSActions', 'CrossWsDropDialog', {
+                            target: dndActionParameter.getTarget(),
+                            source: dndActionParameter.getSource(),
+                            dropEffect: dndActionParameter.getDropEffect() || 'move',
+                            cellWs: ws
+                        });
+                        return;
+                    }
+                }
                 const moveFunction = require('./applyCopyOrMove')(pydio);
                 const sourceNode = dndActionParameter.getSource();
                 const selectedNodes = selection.getSelectedNodes();
@@ -52,11 +81,11 @@ export default function (pydio) {
                     let newSel = new PydioDataModel();
                     newSel.setContextNode(selection.getContextNode());
                     newSel.setSelectedNodes([dndActionParameter.getSource()]);
-                    selection = newSel;
-                    moveFunction('move', newSel, targetPath);
+                    moveFunction(dndActionParameter.getDropEffect() || 'move', newSel, targetPath, targetWsId);
                 }else{
-                    moveFunction('move', selection, targetPath);
+                    moveFunction(dndActionParameter.getDropEffect() || 'move', selection, targetPath, targetWsId);
                 }
+
             }
 
             return;

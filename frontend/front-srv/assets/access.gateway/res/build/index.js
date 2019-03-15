@@ -38,6 +38,10 @@ var _dialogUploadDialog = require('./dialog/UploadDialog');
 
 var _dialogUploadDialog2 = _interopRequireDefault(_dialogUploadDialog);
 
+var _dialogCrossWsDropDialog = require('./dialog/CrossWsDropDialog');
+
+var _dialogCrossWsDropDialog2 = _interopRequireDefault(_dialogCrossWsDropDialog);
+
 var _callbackIndex = require('./callback/index');
 
 var _callbackIndex2 = _interopRequireDefault(_callbackIndex);
@@ -51,3 +55,4 @@ exports.Listeners = _listenerIndex2['default'];
 exports.UploadDialog = _dialogUploadDialog2['default'];
 exports.OtherEditorPickerDialog = _dialogOtherEditorPickerDialog2['default'];
 exports.TreeDialog = _dialogTreeDialog2['default'];
+exports.CrossWsDropDialog = _dialogCrossWsDropDialog2['default'];
