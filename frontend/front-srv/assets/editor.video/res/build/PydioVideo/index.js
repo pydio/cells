@@ -28,10 +28,10 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var _Editor = require('./Editor');
 
-var _controls = require('./controls');
+var _actions = require('./actions');
 
-var Controls = _interopRequireWildcard(_controls);
+var Actions = _interopRequireWildcard(_actions);
 
 exports.Editor = _Editor.Editor;
 exports.Panel = _Editor.Panel;
-exports.Controls = Controls;
+exports.Actions = Actions;

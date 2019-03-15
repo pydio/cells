@@ -1,5 +1,5 @@
 {
-  "name": "editor.diaporama",
+  "name": "editor.video",
   "description": "Diaporama viewer",
   "source_path": "res/js",
   "main": "index.js",
@@ -17,6 +17,6 @@
     "lodash": "*",
     "react": "15.4.2",
     "react-dom": "15.4.2",
-    "video.js": "^5.20.5"
+    "video.js": "^6.13.0"
   }
 }
