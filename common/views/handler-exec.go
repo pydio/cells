@@ -292,6 +292,18 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			if dir, o := requestData.Metadata[common.X_AMZ_META_DIRECTIVE]; o && dir == "COPY" {
 				requestData.Metadata[common.X_AMZ_META_NODE_UUID] = from.Uuid
 			}
+			// append metadata to the context as well, as it may switch to putObjectMultipart
+			ctxMeta := make(map[string]string)
+			if m, ok := context2.MinioMetaFromContext(ctx); ok {
+				ctxMeta = m
+			}
+			for k, v := range requestData.Metadata {
+				if strings.HasPrefix(k, "X-Amz-") {
+					continue
+				}
+				ctxMeta[k] = v
+			}
+			ctx = context2.WithMetadata(ctx, ctxMeta)
 		}
 		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
 		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
