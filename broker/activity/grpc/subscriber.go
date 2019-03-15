@@ -263,7 +263,7 @@ func (e *MicroEventsSubscriber) ProcessBuffer(cE ...*idm.ChangeEvent) {
 	workspaces := make(map[string]*idm.Workspace)
 	// Remove updates/deletes
 	for _, event := range cE {
-		if event.Type == idm.ChangeEventType_UPDATE && (event.Acl.Action.Name == permissions.ACL_READ.Name || event.Acl.Action.Name == permissions.ACL_WRITE.Name) {
+		if event.Type == idm.ChangeEventType_UPDATE && (event.Acl.Action.Name == permissions.AclRead.Name || event.Acl.Action.Name == permissions.AclWrite.Name) {
 			var del bool
 			for _, e2 := range cE {
 				if e2.Type == idm.ChangeEventType_DELETE && e2.Acl.RoleID == event.Acl.RoleID && e2.Acl.WorkspaceID == event.Acl.WorkspaceID &&

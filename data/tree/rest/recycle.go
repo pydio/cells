@@ -48,7 +48,7 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 	}
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: ids,
-		Actions: []*idm.ACLAction{permissions.ACL_RECYCLE_ROOT},
+		Actions: []*idm.ACLAction{permissions.AclRecycleRoot},
 	})
 	recycleAcls := map[string]bool{}
 	cl := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
@@ -82,7 +82,7 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 			log.Logger(ctx).Info("Recycle not found inside a personal files, create ACL now on ", ancestors[l-3].Zap())
 			newAcl := &idm.ACL{
 				NodeID: personalFolder.Uuid,
-				Action: permissions.ACL_RECYCLE_ROOT,
+				Action: permissions.AclRecycleRoot,
 			}
 			if _, e := cl.CreateACL(ctx, &idm.CreateACLRequest{ACL: newAcl}); e == nil {
 				return personalFolder, nil

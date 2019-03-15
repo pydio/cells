@@ -53,29 +53,29 @@ var (
 			WorkspaceID: "ws1",
 			NodeID:      "root/folder1",
 			RoleID:      "root",
-			Action:      ACL_READ,
+			Action:      AclRead,
 		},
 		{
 			NodeID: "root/folder1/subfolder1",
 			RoleID: "root",
-			Action: ACL_DENY,
+			Action: AclDeny,
 		},
 		{
 			WorkspaceID: "ws2",
 			NodeID:      "root/folder1/subfolder2",
 			RoleID:      "role",
-			Action:      ACL_READ,
+			Action:      AclRead,
 		},
 		{
 			WorkspaceID: "ws2",
 			NodeID:      "root/folder1/subfolder2",
 			RoleID:      "role",
-			Action:      ACL_WRITE,
+			Action:      AclWrite,
 		},
 		{
 			NodeID: "root/folder1/subfolder2/file2",
 			RoleID: "user_id",
-			Action: ACL_READ,
+			Action: AclRead,
 		},
 		{
 			WorkspaceID: "ws2",
@@ -118,13 +118,13 @@ func TestAccessList_Flatten(t *testing.T) {
 		So(wsNodes, ShouldHaveLength, 2)
 		result := map[string]map[string]Bitmask{}
 		rMask := Bitmask{}
-		rMask.AddFlag(FLAG_READ)
+		rMask.AddFlag(FlagRead)
 		result["ws1"] = map[string]Bitmask{
 			"root/folder1": rMask,
 		}
 		rwMask := Bitmask{}
-		rwMask.AddFlag(FLAG_READ)
-		rwMask.AddFlag(FLAG_WRITE)
+		rwMask.AddFlag(FlagRead)
+		rwMask.AddFlag(FlagWrite)
 		result["ws2"] = map[string]Bitmask{
 			"root/folder1/subfolder2": rwMask,
 		}

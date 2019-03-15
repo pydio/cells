@@ -131,7 +131,7 @@ func (a *AclFilterHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRe
 		return nil, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Location is not writeable")
+		return nil, errors.Forbidden("parent.not.writeable", "Target Location is not writeable")
 	}
 	return a.next.CreateNode(ctx, in, opts...)
 }

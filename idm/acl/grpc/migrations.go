@@ -42,7 +42,7 @@ func UpgradeTo120(ctx context.Context) error {
 	metaClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{
-			{Name: permissions.ACL_WSROOT_ACTION_NAME},
+			{Name: permissions.AclWsrootActionName},
 		},
 	})
 	acls := new([]interface{})
@@ -77,7 +77,7 @@ func UpgradeTo120(ctx context.Context) error {
 				WorkspaceID: val.WorkspaceID,
 				NodeID:      val.NodeID,
 				RoleID:      val.RoleID,
-				Action:      permissions.ACL_RECYCLE_ROOT,
+				Action:      permissions.AclRecycleRoot,
 			}
 			log.Logger(ctx).Info("Inserting new ACL")
 			if e := dao.Add(newAcl); e != nil {
@@ -104,7 +104,7 @@ func UpgradeTo120(ctx context.Context) error {
 			}
 			newAcl := &idm.ACL{
 				NodeID: resp.Node.Uuid,
-				Action: permissions.ACL_RECYCLE_ROOT,
+				Action: permissions.AclRecycleRoot,
 			}
 			log.Logger(ctx).Info("Should insert new ACL for personal folder", resp.Node.ZapPath())
 			if e := dao.Add(newAcl); e != nil {

@@ -80,7 +80,7 @@ func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, op
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: []string{nodeUuid},
-		Actions: []*idm.ACLAction{{Name: permissions.ACL_CONTENT_LOCK.Name}},
+		Actions: []*idm.ACLAction{{Name: permissions.AclContentLock.Name}},
 	})
 	userName, _ := permissions.FindUserNameInContext(ctx)
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &serviceproto.Query{SubQueries: []*any.Any{q}}})
@@ -145,7 +145,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, e)
 			return
 		}
-		if meta.Namespace == permissions.ACL_CONTENT_LOCK.Name {
+		if meta.Namespace == permissions.AclContentLock.Name {
 			e := s.updateLock(ctx, meta, input.Operation)
 			if e != nil {
 				service.RestErrorDetect(req, rsp, e)

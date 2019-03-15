@@ -214,7 +214,7 @@ func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tre
 	// Check if vNode has this flag set
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: []string{vNode.Uuid},
-		Actions: []*idm.ACLAction{permissions.ACL_RECYCLE_ROOT},
+		Actions: []*idm.ACLAction{permissions.AclRecycleRoot},
 	})
 	st, e := cl.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {
@@ -238,7 +238,7 @@ func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tre
 	cl.CreateACL(ctx, &idm.CreateACLRequest{
 		ACL: &idm.ACL{
 			NodeID: resolved.Uuid,
-			Action: permissions.ACL_RECYCLE_ROOT,
+			Action: permissions.AclRecycleRoot,
 		},
 	})
 

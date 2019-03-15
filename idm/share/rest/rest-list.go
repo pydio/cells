@@ -121,7 +121,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		return
 	}
 
-	acls, e := permissions.GetACLsForWorkspace(ctx, workspaceIds, permissions.ACL_READ, permissions.ACL_WRITE, permissions.ACL_POLICY)
+	acls, e := permissions.GetACLsForWorkspace(ctx, workspaceIds, permissions.AclRead, permissions.AclWrite, permissions.AclPolicy)
 	if e != nil {
 		service.RestError500(req, rsp, e)
 		return

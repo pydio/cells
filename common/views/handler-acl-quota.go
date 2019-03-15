@@ -179,7 +179,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("resolved", resolvedRoot))
 				realId = resolvedRoot.Uuid
 			}
-			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, permissions.FLAG_READ) && !aclNodeMask.HasFlag(ctx, permissions.FLAG_DENY) {
+			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, permissions.FlagRead) && !aclNodeMask.HasFlag(ctx, permissions.FlagDeny) {
 				ownerWsRoots[realId] = ws
 			}
 		}
@@ -239,7 +239,7 @@ func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.W
 		if e != nil {
 			break
 		}
-		if resp.ACL.Action.Name == permissions.ACL_QUOTA.Name {
+		if resp.ACL.Action.Name == permissions.AclQuota.Name {
 			if resp.ACL.Action.Value != "" {
 				roleValues[resp.ACL.RoleID] = resp.ACL.Action.Value
 			}

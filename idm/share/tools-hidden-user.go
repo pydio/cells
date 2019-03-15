@@ -135,7 +135,7 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 				RoleID:      roleId,
 				WorkspaceID: workspaceId,
 				NodeID:      rootNode.Uuid,
-				Action:      permissions2.ACL_READ,
+				Action:      permissions2.AclRead,
 			})
 		}
 
@@ -144,7 +144,7 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 				RoleID:      roleId,
 				WorkspaceID: workspaceId,
 				NodeID:      rootNode.Uuid,
-				Action:      permissions2.ACL_WRITE,
+				Action:      permissions2.AclWrite,
 			})
 		}
 	}

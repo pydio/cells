@@ -147,14 +147,14 @@ func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls [
 	}
 
 	for _, acl := range acls {
-		if acl.Action.Name == permissions.ACL_READ.Name {
+		if acl.Action.Name == permissions.AclRead.Name {
 			if shareLink.ViewTemplateName != "pydio_unique_dl" {
 				shareLink.Permissions = append(shareLink.Permissions, rest.ShareLinkAccessType_Preview)
 			}
 			if !linkData.DownloadDisabled {
 				shareLink.Permissions = append(shareLink.Permissions, rest.ShareLinkAccessType_Download)
 			}
-		} else if acl.Action.Name == permissions.ACL_WRITE.Name {
+		} else if acl.Action.Name == permissions.AclWrite.Name {
 			shareLink.Permissions = append(shareLink.Permissions, rest.ShareLinkAccessType_Upload)
 		}
 	}

@@ -39,48 +39,52 @@ type PolicyResolver func(ctx context.Context, request *idm.PolicyEngineRequest) 
 type BitmaskFlag uint32
 
 const (
-	FLAG_READ BitmaskFlag = 1 << iota
-	FLAG_WRITE
-	FLAG_DENY
-	FLAG_LIST
-	FLAG_DELETE
-	FLAG_POLICY
-	FLAG_QUOTA
+	FlagRead BitmaskFlag = 1 << iota
+	FlagWrite
+	FlagDeny
+	FlagList
+	FlagDelete
+	FlagPolicy
+	FlagQuota
+	FlagLock
 )
 
 var (
 	NamesToFlags = map[string]BitmaskFlag{
-		"read":   FLAG_READ,
-		"write":  FLAG_WRITE,
-		"deny":   FLAG_DENY,
-		"list":   FLAG_LIST,
-		"delete": FLAG_DELETE,
-		"policy": FLAG_POLICY,
-		"quota":  FLAG_QUOTA,
+		"read":   FlagRead,
+		"write":  FlagWrite,
+		"deny":   FlagDeny,
+		"list":   FlagList,
+		"delete": FlagDelete,
+		"policy": FlagPolicy,
+		"quota":  FlagQuota,
+		"lock":   FlagLock,
 	}
 	FlagsToNames = map[BitmaskFlag]string{
-		FLAG_READ:   "read",
-		FLAG_WRITE:  "write",
-		FLAG_DENY:   "deny",
-		FLAG_LIST:   "list",
-		FLAG_DELETE: "delete",
-		FLAG_POLICY: "policy",
-		FLAG_QUOTA:  "quota",
+		FlagRead:   "read",
+		FlagWrite:  "write",
+		FlagDeny:   "deny",
+		FlagList:   "list",
+		FlagDelete: "delete",
+		FlagPolicy: "policy",
+		FlagQuota:  "quota",
+		FlagLock:   "lock",
 	}
-	ACL_READ         = &idm.ACLAction{Name: "read", Value: "1"}
-	ACL_WRITE        = &idm.ACLAction{Name: "write", Value: "1"}
-	ACL_DENY         = &idm.ACLAction{Name: "deny", Value: "1"}
-	ACL_POLICY       = &idm.ACLAction{Name: "policy"}
-	ACL_QUOTA        = &idm.ACLAction{Name: "quota"}
-	ACL_CONTENT_LOCK = &idm.ACLAction{Name: "content_lock"}
+	AclRead        = &idm.ACLAction{Name: "read", Value: "1"}
+	AclWrite       = &idm.ACLAction{Name: "write", Value: "1"}
+	AclDeny        = &idm.ACLAction{Name: "deny", Value: "1"}
+	AclPolicy      = &idm.ACLAction{Name: "policy"}
+	AclQuota       = &idm.ACLAction{Name: "quota"}
+	AclLock        = &idm.ACLAction{Name: "lock", Value: "1"}
+	AclContentLock = &idm.ACLAction{Name: "content_lock"}
 	// Not used yet
-	ACL_FRONT_ACTION_      = &idm.ACLAction{Name: "action:*"}
-	ACL_FRONT_PARAM_       = &idm.ACLAction{Name: "parameter:*"}
-	ACL_DELETE             = &idm.ACLAction{Name: "delete", Value: "1"}
-	ACL_LIST               = &idm.ACLAction{Name: "list", Value: "1"}
-	ACL_WSROOT_ACTION_NAME = "workspace-path"
-	ACL_RECYCLE_ROOT       = &idm.ACLAction{Name: "recycle_root", Value: "1"}
-	ResolvePolicyRequest   PolicyResolver
+	AclFrontAction_      = &idm.ACLAction{Name: "action:*"}
+	AclFrontParam_       = &idm.ACLAction{Name: "parameter:*"}
+	AclDelete            = &idm.ACLAction{Name: "delete", Value: "1"}
+	AclList              = &idm.ACLAction{Name: "list", Value: "1"}
+	AclWsrootActionName  = "workspace-path"
+	AclRecycleRoot       = &idm.ACLAction{Name: "recycle_root", Value: "1"}
+	ResolvePolicyRequest PolicyResolver
 )
 
 type Bitmask struct {
@@ -91,7 +95,7 @@ type Bitmask struct {
 
 func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNode ...*tree.Node) bool {
 
-	if flag != FLAG_POLICY && flag != FLAG_DENY && f.BitmaskFlag&FLAG_POLICY != 0 && ResolvePolicyRequest != nil {
+	if flag != FlagPolicy && flag != FlagDeny && f.BitmaskFlag&FlagPolicy != 0 && ResolvePolicyRequest != nil {
 		// We should first resolve the policy, given the ctx and the node
 		policyContext := make(map[string]string)
 		PolicyContextFromMetadata(policyContext, ctx)
@@ -127,7 +131,7 @@ func (f *Bitmask) AddFlag(flag BitmaskFlag) {
 
 // AddPolicyFlag adds a policy flag and stacks policies.
 func (f *Bitmask) AddPolicyFlag(policyId string) {
-	f.AddFlag(FLAG_POLICY)
+	f.AddFlag(FlagPolicy)
 	if f.PolicyIds == nil {
 		f.PolicyIds = make(map[string]string)
 	}
@@ -194,7 +198,7 @@ func (a *AccessList) Append(acls []*idm.ACL) {
 // HasPolicyBasedAcls checks if there are policy based acls.
 func (a *AccessList) HasPolicyBasedAcls() bool {
 	for _, acl := range a.Acls {
-		if acl.Action.Name == ACL_POLICY.Name {
+		if acl.Action.Name == AclPolicy.Name {
 			return true
 		}
 	}
@@ -273,9 +277,9 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 			nodeAcls = Bitmask{}
 		}
 		if flag, ok := NamesToFlags[acl.Action.Name]; ok {
-			if flag == FLAG_POLICY {
+			if flag == FlagPolicy {
 				nodeAcls.AddPolicyFlag(acl.Action.Value)
-			} else if flag == FLAG_QUOTA {
+			} else if flag == FlagQuota {
 				nodeAcls.AddValueFlag(flag, acl.Action.Value)
 			} else {
 				nodeAcls.AddFlag(flag)
@@ -305,7 +309,7 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 		wsRoots := make(map[string]Bitmask)
 		for nodeId, _ := range workspaceRootNodes {
 			mask := flattenedNodes[nodeId]
-			if !mask.HasFlag(ctx, FLAG_DENY) {
+			if !mask.HasFlag(ctx, FlagDeny) {
 				wsRoots[nodeId] = mask
 			}
 		}
@@ -338,8 +342,8 @@ func (a *AccessList) ParentMaskOrDeny(ctx context.Context, nodes ...*tree.Node) 
 			if firstParent.BitmaskFlag == BitmaskFlag(0) {
 				firstParent = bitmask
 			}
-			if bitmask.HasFlag(ctx, FLAG_DENY, node) {
-				return true, Bitmask{BitmaskFlag: FLAG_DENY}
+			if bitmask.HasFlag(ctx, FlagDeny, node) {
+				return true, Bitmask{BitmaskFlag: FlagDeny}
 			}
 		}
 	}
@@ -349,13 +353,19 @@ func (a *AccessList) ParentMaskOrDeny(ctx context.Context, nodes ...*tree.Node) 
 // CanRead checks if a node has READ access.
 func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
 	deny, mask := a.ParentMaskOrDeny(ctx, nodes...)
-	return !deny && mask.HasFlag(ctx, FLAG_READ, nodes[0])
+	return !deny && mask.HasFlag(ctx, FlagRead, nodes[0])
 }
 
 // CanWrite checks if a node has WRITE access.
 func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
 	deny, mask := a.ParentMaskOrDeny(ctx, nodes...)
-	return !deny && mask.HasFlag(ctx, FLAG_WRITE, nodes[0])
+	return !deny && mask.HasFlag(ctx, FlagWrite, nodes[0])
+}
+
+// CanWrite checks if a node has WRITE access.
+func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
+	mask, _ := a.FirstMaskForParents(ctx, nodes...)
+	return mask.HasFlag(ctx, FlagLock, nodes[0])
 }
 
 // BelongsToWorkspaces finds corresponding workspace parents for this node.

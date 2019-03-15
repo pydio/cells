@@ -343,7 +343,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	//log.Logger(ctx).Debug("Roles inside Claims", zap.String("roles", claims.Roles))
 	roles := GetRoles(ctx, strings.Split(claims.Roles, ","))
 	accessList = NewAccessList(roles)
-	accessList.Append(GetACLsForRoles(ctx, roles, ACL_READ, ACL_DENY, ACL_WRITE, ACL_POLICY))
+	accessList.Append(GetACLsForRoles(ctx, roles, AclRead, AclDeny, AclWrite, AclLock, AclPolicy))
 	ResolvePolicyRequest = func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
 		cli := idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
 		return cli.IsAllowed(ctx, request)
@@ -439,9 +439,9 @@ func IsUserLocked(user *idm.User) bool {
 func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies bool, loadWorkspaces bool) (accessList *AccessList, err error) {
 
 	accessList = NewAccessList(roles)
-	search := []*idm.ACLAction{ACL_READ, ACL_DENY, ACL_WRITE}
+	search := []*idm.ACLAction{AclRead, AclDeny, AclWrite}
 	if countPolicies {
-		search = append(search, ACL_POLICY)
+		search = append(search, AclPolicy)
 		ResolvePolicyRequest = func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
 			return &idm.PolicyEngineResponse{Allowed: true}, nil
 		}
@@ -462,7 +462,7 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 
 func AccessListLoadFrontValues(ctx context.Context, accessList *AccessList) error {
 
-	values := GetACLsForRoles(ctx, accessList.OrderedRoles, ACL_FRONT_ACTION_, ACL_FRONT_PARAM_)
+	values := GetACLsForRoles(ctx, accessList.OrderedRoles, AclFrontAction_, AclFrontParam_)
 	accessList.FrontPluginsValues = values
 	//log.Logger(ctx).Debug("Frontend ACL Values", zap.Any("values", values), zap.Any("flattenedValues", accessList.FlattenedFrontValues()))
 
@@ -481,7 +481,7 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 	// Look for "quota" ACLs on this node
-	singleQ := &idm.ACLSingleQuery{NodeIDs: []string{node.Uuid}, Actions: []*idm.ACLAction{{Name: ACL_CONTENT_LOCK.Name}}}
+	singleQ := &idm.ACLSingleQuery{NodeIDs: []string{node.Uuid}, Actions: []*idm.ACLAction{{Name: AclContentLock.Name}}}
 	//log.Logger(ctx).Debug("SEARCHING FOR LOCKS IN ACLS", zap.Any("q", singleQ))
 	q, _ := ptypes.MarshalAny(singleQ)
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})

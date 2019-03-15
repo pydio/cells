@@ -137,7 +137,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 				ACL: &idm.ACL{
 					NodeID:      node.Uuid,
 					WorkspaceID: workspace.UUID,
-					Action:      &idm.ACLAction{Name: permissions.ACL_WSROOT_ACTION_NAME, Value: "uuid:" + node.Uuid},
+					Action:      &idm.ACLAction{Name: permissions.AclWsrootActionName, Value: "uuid:" + node.Uuid},
 				},
 			})
 		}
@@ -147,7 +147,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 				ACL: &idm.ACL{
 					NodeID:      createdCellNode.Uuid,
 					WorkspaceID: workspace.UUID,
-					Action:      permissions.ACL_RECYCLE_ROOT,
+					Action:      permissions.AclRecycleRoot,
 				},
 			})
 		}

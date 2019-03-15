@@ -128,7 +128,7 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 	if hasReadonly {
 		for _, a := range shareRequest.Room.GetACLs() {
 			for _, action := range a.GetActions() {
-				if action.Name == permissions.ACL_WRITE.Name {
+				if action.Name == permissions.AclWrite.Name {
 					return errors.Forbidden(common.SERVICE_SHARE, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell."), nil, true
 				}
 			}
