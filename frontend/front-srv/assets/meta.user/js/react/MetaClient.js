@@ -116,6 +116,9 @@ class MetaClient{
                 });
                 arrConfigs.map((value) => {
                     const type = value.type;
+                    if(type === 'json') {
+                        return;
+                    }
                     if(type === 'choice' && value.data){
                         let values = new Map();
                         value.data.split(",").map(function(keyLabel){

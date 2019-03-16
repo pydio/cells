@@ -143,6 +143,9 @@ var MetaClient = (function () {
                     });
                     arrConfigs.map(function (value) {
                         var type = value.type;
+                        if (type === 'json') {
+                            return;
+                        }
                         if (type === 'choice' && value.data) {
                             (function () {
                                 var values = new Map();

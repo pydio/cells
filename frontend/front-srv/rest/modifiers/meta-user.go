@@ -41,6 +41,9 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			continue
 		}
 		nsType := nsDef["type"].(string)
+		if nsType == "json" {
+			continue
+		}
 
 		column := &frontend.Cadditional_column{
 			AttrmessageString:    ns.Label,

@@ -26837,7 +26837,8 @@ Metadata.MetaTypes = {
     "stars_rate": "Stars Rating",
     "css_label": "Color Labels",
     "tags": "Extensible Tags",
-    "choice": "Selection"
+    "choice": "Selection",
+    "json": "JSON"
 };
 
 exports['default'] = Metadata;
