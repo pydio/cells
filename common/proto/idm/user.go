@@ -11,12 +11,14 @@ const (
 	UserAttrPrivatePrefix = "pydio:"
 	UserAttrPassHashed    = UserAttrPrivatePrefix + "password_hashed"
 	UserAttrLabelLike     = UserAttrPrivatePrefix + "labelLike"
+	UserAttrOrigin        = UserAttrPrivatePrefix + "origin"
 
 	UserAttrDisplayName = "displayName"
 	UserAttrProfile     = "profile"
 	UserAttrAvatar      = "avatar"
 	UserAttrEmail       = "email"
 	UserAttrHasEmail    = "hasEmail"
+	UserAttrAuthGroup   = "AuthGroup"
 )
 
 func (u *User) WithPublicData(ctx context.Context, policiesContextEditable bool) *User {
