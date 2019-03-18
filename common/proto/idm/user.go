@@ -18,7 +18,7 @@ const (
 	UserAttrAvatar      = "avatar"
 	UserAttrEmail       = "email"
 	UserAttrHasEmail    = "hasEmail"
-	UserAttrAuthGroup   = "AuthGroup"
+	UserAttrAuthSource  = "AuthSource"
 )
 
 func (u *User) WithPublicData(ctx context.Context, policiesContextEditable bool) *User {
