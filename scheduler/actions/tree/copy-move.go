@@ -59,6 +59,10 @@ func (c *CopyMoveAction) GetName() string {
 	return copyMoveActionName
 }
 
+func (c *CopyMoveAction) ProvidesProgress() bool {
+	return true
+}
+
 // Init passes parameters to the action
 func (c *CopyMoveAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 
