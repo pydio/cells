@@ -22,6 +22,7 @@ package rest
 
 import (
 	"context"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -51,8 +52,8 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
-		for i, path := range selectedPathes {
-			node := &tree.Node{Path: path}
+		for i, p := range selectedPathes {
+			node := &tree.Node{Path: p}
 			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
@@ -63,10 +64,18 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 		if targetNodePath != "" {
 			node := &tree.Node{Path: targetNodePath}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+			targetCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
+			}
+			accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			_, toParents, err := views.AncestorsListFromContext(targetCtx, node, "sel", getRouter().GetClientsPool(), true)
+			if err != nil {
+				return err
+			}
+			if !accessList.CanWrite(targetCtx, toParents...) {
+				return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
 			}
 			targetNodePath = node.Path
 		}
@@ -122,16 +131,27 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			return nodeErr
 		}
-		selectedNode = node.Path
+		archiveNode := node.Path
 
+		targetNode := &tree.Node{Path: targetPath}
+		if targetPath == "" {
+			targetNode.Path = path.Dir(selectedNode)
+		}
+		targetCtx, realNode, nodeErr := inputFilter(ctx, targetNode, "sel")
+		if nodeErr != nil {
+			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", targetNode), zap.Error(nodeErr))
+			return nodeErr
+		}
 		if targetPath != "" {
-			node := &tree.Node{Path: targetPath}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
-			if nodeErr != nil {
-				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
-				return nodeErr
-			}
-			targetPath = node.Path
+			targetPath = realNode.Path
+		}
+		accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+		_, toParents, err := views.AncestorsListFromContext(targetCtx, realNode, "sel", getRouter().GetClientsPool(), true)
+		if err != nil {
+			return err
+		}
+		if !accessList.CanWrite(targetCtx, toParents...) {
+			return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
 		}
 
 		job := &jobs.Job{
@@ -151,14 +171,14 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 						"target": targetPath,
 					},
 					NodesSelector: &jobs.NodesSelector{
-						Pathes: []string{selectedNode},
+						Pathes: []string{archiveNode},
 					},
 				},
 			},
 		}
 
 		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
-		_, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		_, err = cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return err
 
 	})
@@ -185,13 +205,24 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
 		var loadedNodes []*tree.Node
-		for i, path := range selectedPathes {
-			node := &tree.Node{Path: path}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+		for i, p := range selectedPathes {
+			node := &tree.Node{Path: p}
+			srcCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
 				return nodeErr
 			}
+			if move {
+				accessList := srcCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+				_, toParents, err := views.AncestorsListFromContext(srcCtx, node, "sel", getRouter().GetClientsPool(), false)
+				if err != nil {
+					return err
+				}
+				if !accessList.CanWrite(srcCtx, toParents...) {
+					return errors.Forbidden("node.not.writeable", "Source location cannot be move!")
+				}
+			}
+
 			r, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
 			if e != nil {
 				return e
@@ -227,11 +258,20 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 				dir, base = filepath.Split(targetNodePath)
 			}
 			node := &tree.Node{Path: dir}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+			targetCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node Parent", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
 			}
+			accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			_, toParents, err := views.AncestorsListFromContext(targetCtx, node, "sel", getRouter().GetClientsPool(), true)
+			if err != nil {
+				return err
+			}
+			if !accessList.CanWrite(targetCtx, toParents...) {
+				return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
+			}
+
 			if targetIsParent {
 				targetNodePath = node.Path
 			} else {
@@ -276,65 +316,6 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 						"recursive":    "true",
 						"create":       "true",
 					},
-					NodesSelector: &jobs.NodesSelector{
-						//Collect: true,
-						Pathes: selectedPathes,
-					},
-				},
-			},
-		}
-
-		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
-		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
-		return er
-
-	})
-
-	return jobUuid, err
-}
-
-func backgroundDelete(ctx context.Context, selectedPathes []string, childrenOnly bool, languages ...string) (string, error) {
-
-	T := lang.Bundle().GetTranslationFunc(languages...)
-
-	taskLabel := T("Jobs.User.Delete")
-
-	jobUuid := uuid.NewUUID().String()
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userName := claims.Name
-
-	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-
-		for i, path := range selectedPathes {
-			node := &tree.Node{Path: path}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
-			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
-			if nodeErr != nil {
-				return nodeErr
-			}
-			selectedPathes[i] = node.Path
-		}
-
-		log.Logger(ctx).Debug("Creating background delete job", zap.Any("pathes", selectedPathes), zap.Bool("childrenOnly", childrenOnly))
-
-		var params = map[string]string{}
-		if childrenOnly {
-			params["childrenOnly"] = "true"
-		}
-
-		job := &jobs.Job{
-			ID:             "delete-" + jobUuid,
-			Owner:          userName,
-			Label:          taskLabel,
-			Inactive:       false,
-			Languages:      languages,
-			MaxConcurrency: 1,
-			AutoStart:      true,
-			AutoClean:      true,
-			Actions: []*jobs.Action{
-				{
-					ID:         "actions.tree.delete",
-					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
 						//Collect: true,
 						Pathes: selectedPathes,
