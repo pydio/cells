@@ -116,6 +116,24 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			}
 		}
 
+		log.Logger(ctx).Debug("Delete jobs with AutoClean that are errored")
+		res, done, err = j.store.ListJobs("", false, false, proto.TaskStatus_Error, []string{})
+		defer close(res)
+		if err != nil {
+			return err
+		}
+	loop2:
+		for {
+			select {
+			case <-done:
+				break loop2
+			case job := <-res:
+				if job.AutoStart && job.AutoClean {
+					toDelete = append(toDelete, job.ID)
+				}
+			}
+		}
+
 		for _, id := range toDelete {
 			if e := j.store.DeleteJob(id); e == nil {
 				deleted++
