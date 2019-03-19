@@ -159,12 +159,12 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		}
 	}
 
-	// Propagate creation event
-	client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-		Type: idm.ChangeEventType_UPDATE,
-		User: out,
-	}))
 	if len(createdNodes) == 0 {
+		// Propagate creation event
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_UPDATE,
+			User: out,
+		}))
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Updated group [%s]", out.GroupLabel),
@@ -179,6 +179,11 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 			)
 		}
 	} else {
+		// Propagate creation event
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_CREATE,
+			User: out,
+		}))
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Created group [%s]", out.GroupPath),
