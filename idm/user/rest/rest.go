@@ -26,6 +26,11 @@ import (
 	"io"
 	"strings"
 
+	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/idm/user/grpc"
+
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -272,20 +277,53 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		break
 	}
 
-	// Now delete user or group
-	n, e := cli.DeleteUser(req.Request.Context(), &idm.DeleteUserRequest{Query: mainQuery})
-	if e != nil {
-		service.RestError500(req, rsp, e)
-	} else {
-		msg := fmt.Sprintf("Deleted user [%s]", login)
-		if n.RowsDeleted > 1 {
-			msg = fmt.Sprintf("Deleted %d users", n.RowsDeleted)
+	if singleQ.GroupPath != "" {
+
+		uName, _ := permissions.FindUserNameInContext(ctx)
+		// This is a group deletion - send it in background
+		jobUuid := uuid.New()
+		job := &jobs.Job{
+			ID:             "delete-group-" + jobUuid,
+			Owner:          uName,
+			Label:          "Delete groups in background",
+			MaxConcurrency: 1,
+			AutoStart:      true,
+			AutoClean:      true,
+			Actions: []*jobs.Action{
+				{
+					ID: grpc.DeleteUsersActionName,
+					Parameters: map[string]string{
+						"groupPath": singleQ.GroupPath,
+					},
+				},
+			},
 		}
 
-		log.Auditer(ctx).Info(msg,
-			log.GetAuditId(common.AUDIT_USER_DELETE),
-		)
-		rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		if er != nil {
+			service.RestError500(req, rsp, er)
+		} else {
+			rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: 0})
+		}
+
+	} else {
+
+		// Now delete user or group
+		n, e := cli.DeleteUser(req.Request.Context(), &idm.DeleteUserRequest{Query: mainQuery})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+		} else {
+			msg := fmt.Sprintf("Deleted user [%s]", login)
+			if n.RowsDeleted > 1 {
+				msg = fmt.Sprintf("Deleted %d users", n.RowsDeleted)
+			}
+
+			log.Auditer(ctx).Info(msg,
+				log.GetAuditId(common.AUDIT_USER_DELETE),
+			)
+			rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+		}
 	}
 
 }

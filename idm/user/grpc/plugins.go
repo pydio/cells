@@ -26,22 +26,22 @@ import (
 	"encoding/base64"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
-	"github.com/pydio/cells/common/plugins"
-
-	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/idm/user"
+	"github.com/pydio/cells/scheduler/actions"
 )
 
 const (
@@ -50,6 +50,11 @@ const (
 )
 
 func init() {
+
+	actions.GetActionsManager().Register(DeleteUsersActionName, func() actions.ConcreteAction {
+		return &DeleteUsersAction{}
+	})
+
 	plugins.Register(func() {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER),

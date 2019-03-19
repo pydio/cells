@@ -541,14 +541,14 @@ func TestQueryBuilder(t *testing.T) {
 			userQueryAny3, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
 				GroupPath: "/anotherGroup",
 			})
-			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}})
+			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}}, make(chan *idm.User, 100))
 			So(e3, ShouldBeNil)
 			So(num, ShouldEqual, 2)
 		}
 
 		{
 			// Delete all should be prevented
-			_, e3 := mockDAO.Del(&service.Query{})
+			_, e3 := mockDAO.Del(&service.Query{}, make(chan *idm.User, 100))
 			So(e3, ShouldNotBeNil)
 		}
 
@@ -558,7 +558,7 @@ func TestQueryBuilder(t *testing.T) {
 				GroupPath: "/path/to/group/",
 				Login:     "admin",
 			})
-			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}})
+			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}}, make(chan *idm.User, 100))
 			So(e3, ShouldBeNil)
 			So(num, ShouldEqual, 1)
 		}

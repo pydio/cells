@@ -70,6 +70,18 @@ func WithMetadata(ctx context.Context, md map[string]string) context.Context {
 	return metadata.NewContext(ctx, md)
 }
 
+// CanonicalMeta extract header name or its lowercase version
+func CanonicalMeta(ctx context.Context, name string) (string, bool) {
+	if md, o := ContextMetadata(ctx); o {
+		if val, ok := md[name]; ok {
+			return val, true
+		} else if val, ok := md[strings.ToLower(name)]; ok {
+			return val, true
+		}
+	}
+	return "", false
+}
+
 // WithAdditionalMetadata retrieves existing meta, adds new key/values to the map and produces a new context
 func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context.Context {
 	md := make(map[string]string)

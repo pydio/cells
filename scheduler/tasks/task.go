@@ -37,6 +37,11 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
+var (
+	ContextJobUuid  = "X-Pydio-Job-Uuid"
+	ContextTaskUuid = "X-Pydio-Task-Uuid"
+)
+
 type Task struct {
 	*jobs.Job
 	context        context.Context

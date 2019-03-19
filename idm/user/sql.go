@@ -350,12 +350,17 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 }
 
 // Count counts the number of users matching the passed query in the SQL DB.
-func (s *sqlimpl) Count(query sql.Enquirer) (int, error) {
+func (s *sqlimpl) Count(query sql.Enquirer, includeParents ...bool) (int, error) {
 
 	s.Lock()
 	defer s.Unlock()
 
-	queryString, args, err := s.makeSearchQuery(query, true, false, false)
+	parents := false
+	if len(includeParents) > 0 {
+		parents = includeParents[0]
+	}
+
+	queryString, args, err := s.makeSearchQuery(query, true, parents, false)
 	if err != nil {
 		return 0, err
 	}
@@ -461,13 +466,17 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 }
 
 // Del from the mysql DB
-func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
+func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 
 	queryString, args, err := s.makeSearchQuery(query, false, true, true)
 	if err != nil {
 		return 0, err
 	}
 
+	type delStruct struct {
+		node   *mtree.TreeNode
+		object *idm.User
+	}
 	log.Logger(context.Background()).Debug("Delete", zap.String("q", queryString))
 
 	res, err := s.DB().Query(queryString, args...)
@@ -477,7 +486,7 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	rows := int64(0)
 
-	var nodes []*mtree.TreeNode
+	var data []*delStruct
 	for res.Next() {
 		var uuid string
 		var level uint32
@@ -497,20 +506,33 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 		node.SetBytes(rat)
 		node.Uuid = uuid
 		node.Level = int(level)
-		nodes = append(nodes, node)
+		node.Etag = etag
+		s.rebuildGroupPath(node)
+		node.SetMeta("name", name)
+
+		var userOrGroup *idm.User
+		if leaf == 0 {
+			node.Node.Type = tree.NodeType_COLLECTION
+			userOrGroup = nodeToGroup(node)
+		} else {
+			node.Node.Type = tree.NodeType_LEAF
+			userOrGroup = nodeToUser(node)
+		}
+		data = append(data, &delStruct{node: node, object: userOrGroup})
 	}
 	res.Close()
 
-	for _, node := range nodes {
+	for _, toDel := range data {
 
-		if err := s.IndexSQL.DelNode(node); err != nil {
+		if err := s.IndexSQL.DelNode(toDel.node); err != nil {
 			return rows, err
 		}
 
-		if err := s.deleteNodeData(node.Uuid); err != nil {
+		if err := s.deleteNodeData(toDel.node.Uuid); err != nil {
 			return rows, err
 		}
 
+		users <- toDel.object
 		rows++
 	}
 

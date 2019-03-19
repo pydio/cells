@@ -24,8 +24,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -38,12 +40,15 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/user"
+	"github.com/pydio/cells/scheduler/tasks"
 )
 
 var (
@@ -211,48 +216,101 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 	if servicecontext.GetDAO(ctx) == nil {
 		return fmt.Errorf("no DAO found, wrong initialization")
 	}
+	usersChan := make(chan *idm.User)
+	done := make(chan bool)
+
+	var autoClient *tasks.ReconnectingClient
+	var task *jobs.Task
+	var taskChan chan interface{}
+	uName, _ := permissions.FindUserNameInContext(ctx)
+	if tU, ok := context2.CanonicalMeta(ctx, tasks.ContextTaskUuid); ok {
+		jU, _ := context2.CanonicalMeta(ctx, tasks.ContextJobUuid)
+		task = &jobs.Task{
+			JobID:        jU,
+			ID:           tU,
+			TriggerOwner: uName,
+			Status:       jobs.TaskStatus_Running,
+			HasProgress:  true,
+		}
+		taskChan = make(chan interface{})
+		autoClient = tasks.NewTaskReconnectingClient(ctx)
+		autoClient.StartListening(taskChan)
+		defer autoClient.Stop()
+	}
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
 
-	usersGroups := new([]interface{})
-	if err := dao.Search(req.Query, usersGroups, true); err != nil {
-		return err
-	}
-	log.Logger(ctx).Debug("SHOULD DELETE THESE", zap.Any("usersGroups", *usersGroups))
-	numRows, err := dao.Del(req.Query)
+	i, err := dao.Count(req.Query, true)
 	if err != nil {
 		return err
 	}
+	total := float32(i)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 
-	response.RowsDeleted = numRows
-	for _, u := range *usersGroups {
-		deleted := u.(*idm.User)
+	go func() {
+		defer wg.Done()
+		var crt float32
+		for {
+			select {
+			case deleted := <-usersChan:
+				if deleted != nil {
+					dao.DeletePoliciesForResource(deleted.Uuid)
+					if deleted.IsGroup {
+						dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
+					} else {
+						dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
+					}
 
-		dao.DeletePoliciesForResource(deleted.Uuid)
-		if deleted.IsGroup {
-			dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
-		} else {
-			dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
+					// Propagate deletion event
+					client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+						Type: idm.ChangeEventType_DELETE,
+						User: deleted,
+					}))
+					var msg string
+					if deleted.IsGroup {
+						msg = fmt.Sprintf("Deleted group [%s]", path.Join(deleted.GroupPath, deleted.GroupLabel))
+						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AUDIT_GROUP_DELETE), deleted.ZapUuid())
+					} else {
+						msg = fmt.Sprintf("Deleted user [%s] from [%s]", deleted.Login, deleted.GroupPath)
+						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AUDIT_USER_DELETE), deleted.ZapUuid())
+					}
+					crt++
+					percent := crt / total
+					if task != nil {
+						task.Progress = percent
+						task.StatusMessage = msg
+						task.Status = jobs.TaskStatus_Running
+						log.TasksLogger(ctx).Info(msg)
+						taskChan <- task
+					}
+				}
+			case <-done:
+				if task != nil {
+					task.Progress = 1
+					task.StatusMessage = "Background delete complete"
+					task.EndTime = int32(time.Now().Unix())
+					task.Status = jobs.TaskStatus_Finished
+					taskChan <- task
+				}
+				return
+			}
 		}
+	}()
 
-		// Propagate deletion event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-			Type: idm.ChangeEventType_DELETE,
-			User: deleted,
-		}))
-		if deleted.IsGroup {
-			log.Auditer(ctx).Info(
-				fmt.Sprintf("Deleted group [%s]", deleted.GroupPath),
-				log.GetAuditId(common.AUDIT_GROUP_DELETE),
-				deleted.ZapUuid(),
-			)
-		} else {
-			log.Auditer(ctx).Info(
-				fmt.Sprintf("Deleted user [%s] from [%s]", deleted.Login, deleted.GroupPath),
-				log.GetAuditId(common.AUDIT_USER_DELETE),
-				deleted.ZapUuid(),
-			)
+	numRows, err := dao.Del(req.Query, usersChan)
+	close(done)
+	close(usersChan)
+	if err != nil {
+		if task != nil {
+			task.Progress = 1
+			task.StatusMessage = err.Error()
+			task.Status = jobs.TaskStatus_Error
+			taskChan <- task
 		}
+		return err
 	}
+	wg.Wait()
+	response.RowsDeleted = numRows
 	return nil
 }
 
