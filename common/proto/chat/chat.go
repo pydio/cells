@@ -32,6 +32,26 @@ import (
 /* LOGGING SUPPORT */
 
 // Zap simply returns a zapcore.Field object populated with this ChatRoom under a standard key
-func (r *ChatRoom) Zap() zapcore.Field {
-	return zap.Any(common.KEY_CHAT_ROOM, r)
+func (c *ChatRoom) Zap() zapcore.Field {
+	return zap.Object(common.KEY_CHAT_ROOM, c)
+}
+
+// MarshalLogObject implements custom marshalling for logs
+func (c *ChatRoom) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if c == nil {
+		return nil
+	}
+	if c.Uuid != "" {
+		encoder.AddString("Uuid", c.Uuid)
+	}
+	if c.RoomLabel != "" {
+		encoder.AddString("RoomLabel", c.RoomLabel)
+	}
+	if c.Type != 0 {
+		encoder.AddInt32("Type", int32(c.Type))
+	}
+	if c.Users != nil {
+		encoder.AddReflected("Users", c.Users)
+	}
+	return nil
 }
