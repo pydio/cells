@@ -22318,6 +22318,14 @@ var _Callbacks = require('./Callbacks');
 
 var _Callbacks2 = _interopRequireDefault(_Callbacks);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+
+var JobsStore = _Pydio$requireLib.JobsStore;
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -22341,6 +22349,28 @@ var Dashboard = _react2['default'].createClass({
             dataModel: dataModel,
             showAnon: false
         };
+    },
+
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        var jStore = JobsStore.getInstance();
+        this._jStoreObserver = function (jobId) {
+            if (jobId.indexOf('delete-group-') === 0) {
+                jStore.getJobs().then(function (jobs) {
+                    try {
+                        if (jobs.get(jobId).Tasks[0].Status === 'Finished') {
+                            _this.reloadList();
+                        }
+                    } catch (e) {}
+                });
+            }
+        };
+        jStore.observe("tasks_updated", this._jStoreObserver);
+    },
+
+    componentWillUnmounnt: function componentWillUnmounnt() {
+        JobsStore.getInstance().stopObserving("tasks_updated", this._jStoreObserver);
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(newProps) {
@@ -22479,7 +22509,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     openRoleEditor: function openRoleEditor(node) {
-        var _this = this;
+        var _this2 = this;
 
         var initialSection = arguments.length <= 1 || arguments[1] === undefined ? 'activity' : arguments[1];
         var _props2 = this.props;
@@ -22501,7 +22531,7 @@ var Dashboard = _react2['default'].createClass({
                 onRequestTabClose: this.closeRoleEditor,
                 advancedAcl: advancedAcl,
                 afterSave: function afterSave() {
-                    _this.reloadList();
+                    _this2.reloadList();
                 }
             }
         };
@@ -22524,7 +22554,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     renderNodeActions: function renderNodeActions(node) {
-        var _this2 = this;
+        var _this3 = this;
 
         var mime = node.getAjxpMime();
         var iconStyle = {
@@ -22538,18 +22568,18 @@ var Dashboard = _react2['default'].createClass({
         var actions = [];
         if (mime === 'user_editable' || mime === 'group') {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
-                    _this2.openRoleEditor(node);
+                    _this3.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                    _this2.deleteAction(node);
+                    _this3.deleteAction(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
         } else if (mime === 'user') {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
-                    _this2.openRoleEditor(node);
+                    _this3.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
@@ -22585,7 +22615,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     applyFilter: function applyFilter(profile) {
-        var _this3 = this;
+        var _this4 = this;
 
         if (profile === 'toggle-anon') {
             this.setState({ showAnon: !this.state.showAnon });
@@ -22596,12 +22626,12 @@ var Dashboard = _react2['default'].createClass({
         currentNode.getMetadata().set('userProfileFilter', profile);
         currentNode.getMetadata()['delete']('paginationData');
         this.setState({ currentNode: currentNode }, function () {
-            _this3.reloadList();
+            _this4.reloadList();
         });
     },
 
     render: function render() {
-        var _this4 = this;
+        var _this5 = this;
 
         var fontIconStyle = {
             style: {
@@ -22676,7 +22706,7 @@ var Dashboard = _react2['default'].createClass({
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 value: profileFilter,
                 onChange: function (e, val) {
-                    _this4.applyFilter(val);
+                    _this5.applyFilter(val);
                 },
                 desktop: true
             },
@@ -22755,7 +22785,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":162,"./Callbacks":157,"./UsersSearchBox":161,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
+},{"../editor/Editor":162,"./Callbacks":157,"./UsersSearchBox":161,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23525,12 +23555,16 @@ var UsersSearchBox = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1 } },
-                    _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
-                        onKeyDown: this.keyDown.bind(this),
-                        floatingLabelText: this.props.textLabel,
-                        fullWidth: true,
-                        floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
-                    })
+                    _react2['default'].createElement(
+                        'form',
+                        { autoComplete: "off" },
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
+                            onKeyDown: this.keyDown.bind(this),
+                            floatingLabelText: this.props.textLabel,
+                            fullWidth: true,
+                            floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
+                        })
+                    )
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -28279,39 +28313,46 @@ var CreateUserForm = _react2['default'].createClass({
             { style: { width: '100%' } },
             path,
             _react2['default'].createElement(
-                'div',
-                { style: { width: '100%' } },
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'user_id',
-                    onChange: this.checkLogin,
-                    fullWidth: true,
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.21'),
-                    errorText: this.state.loginErrorText
-                })
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'pass',
-                    type: 'password',
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.22'),
-                    onChange: this.checkPassword,
-                    fullWidth: true,
-                    errorText: this.state.passErrorText || this.state.passHintText
-                })
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'passconf',
-                    type: 'password',
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.23'),
-                    onChange: this.checkPassword,
-                    fullWidth: true,
-                    errorText: this.state.confirmErrorText
-                })
+                'form',
+                { autoComplete: "off" },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { width: '100%' } },
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'user_id',
+                        onChange: this.checkLogin,
+                        fullWidth: true,
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.21'),
+                        errorText: this.state.loginErrorText,
+                        autoComplete: "nope"
+                    })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'pass',
+                        type: 'password',
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.22'),
+                        onChange: this.checkPassword,
+                        fullWidth: true,
+                        errorText: this.state.passErrorText || this.state.passHintText,
+                        autoComplete: "new-password"
+                    })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'passconf',
+                        type: 'password',
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.23'),
+                        onChange: this.checkPassword,
+                        fullWidth: true,
+                        errorText: this.state.confirmErrorText,
+                        autoComplete: "confirm-password"
+                    })
+                )
             )
         );
     }
