@@ -21,6 +21,7 @@ package views
 import (
 	"context"
 	"crypto/rand"
+	"fmt"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/object"
 	"io/ioutil"
@@ -216,9 +217,9 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fileSize := 28 * 1024 * 1024
-	buffer := make([]byte, 28*1024)
-	for i := 0; i < 1024; i++ {
+	fileSize := 10 * 1024
+	buffer := make([]byte, 1024)
+	for i := 0; i < 10; i++ {
 		_, _ = rand.Read(buffer)
 		_, err = file.Write(buffer)
 		if err != nil {
@@ -254,32 +255,45 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 		So(e, ShouldBeNil)
 	})
 
-	for i := 0; i < fileSize; i++ {
-		for j := i + 1; j <= fileSize; j++ {
-			Convey("Test Get Object wo. Enc", t, func() {
-				rangeOffset := i
-				length := j
-				reqData := &GetRequestData{
-					Length:      int64(length),
-					StartOffset: int64(rangeOffset),
-				}
+	Convey("Test Get Object wo. Enc", t, func() {
 
-				file, _ := os.Open(filepath.Join(dataFolder, "plain"))
-				_, _ = file.Seek(0, i)
-				buff := make([]byte, j-i)
-				_, _ = file.Read(buff)
-				_ = file.Close()
+		for i := 0; i < fileSize; i = i + 10 {
+			rangeOffset := i
+			length := 256
 
-				node := tree.Node{Path: "encTest", Uuid: "encTest", Size: int64(fileSize)}
-				_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
-				reader, e := handler.GetObject(ctx, &node, reqData)
-				So(reader, ShouldNotBeNil)
-				So(e, ShouldBeNil)
+			reqData := &GetRequestData{
+				Length:      int64(length),
+				StartOffset: int64(rangeOffset),
+			}
 
-				readData, err := ioutil.ReadAll(reader)
-				So(err, ShouldBeNil)
-				So(string(readData), ShouldEqual, string(buff))
-			})
+			file, err := os.Open(filepath.Join(dataFolder, "plain"))
+			So(err, ShouldBeNil)
+
+			buff := make([]byte, 256)
+			read, err := file.ReadAt(buff, int64(i))
+			So(read, ShouldBeLessThanOrEqualTo, 256)
+			So(err, ShouldBeNil)
+
+			err = file.Close()
+			So(err, ShouldBeNil)
+
+			buff = buff[:read]
+
+			node := tree.Node{Path: "encTest", Uuid: "encTest", Size: int64(fileSize)}
+			_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+			reader, e := handler.GetObject(ctx, &node, reqData)
+			So(reader, ShouldNotBeNil)
+			So(e, ShouldBeNil)
+
+			readData, err := ioutil.ReadAll(reader)
+			So(err, ShouldBeNil)
+			readDataStr := string(readData)
+			expectedDataStr := string(buff)
+
+			if readDataStr != expectedDataStr {
+				fmt.Printf("range %d - %d\n", i, i+256)
+			}
+			So(readDataStr, ShouldEqual, expectedDataStr)
 		}
-	}
+	})
 }
