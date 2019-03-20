@@ -2,49 +2,55 @@
   "_args": [
     [
       {
-        "raw": "codemirror@^5.24.2",
+        "raw": "codemirror@^5.40.2",
         "scope": null,
         "escapedName": "codemirror",
         "name": "codemirror",
-        "rawSpec": "^5.24.2",
-        "spec": ">=5.24.2 <6.0.0",
+        "rawSpec": "^5.40.2",
+        "spec": ">=5.40.2 <6.0.0",
         "type": "range"
       },
       "/Users/charles/Sources/go/src/github.com/pydio/cells/frontend/front-srv/assets/editor.codemirror"
     ]
   ],
-  "_from": "codemirror@>=5.24.2 <6.0.0",
-  "_id": "codemirror@5.39.0",
+  "_from": "codemirror@>=5.40.2 <6.0.0",
+  "_hasShrinkwrap": false,
+  "_id": "codemirror@5.45.0",
   "_inCache": true,
   "_location": "/codemirror",
-  "_nodeVersion": "10.3.0",
+  "_nodeVersion": "10.11.0",
   "_npmOperationalInternal": {
     "host": "s3://npm-registry-packages",
-    "tmp": "tmp/codemirror_5.39.0_1529476746689_0.8167230200257147"
+    "tmp": "tmp/codemirror_5.45.0_1553075053322_0.4650249764542289"
   },
   "_npmUser": {
     "name": "marijn",
     "email": "marijnh@gmail.com"
   },
-  "_npmVersion": "6.1.0",
+  "_npmVersion": "6.8.0",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "codemirror@^5.24.2",
+    "raw": "codemirror@^5.40.2",
     "scope": null,
     "escapedName": "codemirror",
     "name": "codemirror",
-    "rawSpec": "^5.24.2",
-    "spec": ">=5.24.2 <6.0.0",
+    "rawSpec": "^5.40.2",
+    "spec": ">=5.40.2 <6.0.0",
     "type": "range"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/codemirror/-/codemirror-5.39.0.tgz",
-  "_shasum": "4654f7d2f7e525e04a62e72d9482348ccb37dce5",
+  "_resolved": "https://registry.npmjs.org/codemirror/-/codemirror-5.45.0.tgz",
+  "_shasum": "db5ebbb3bf44028c684053f3954d011efcec27ad",
   "_shrinkwrap": null,
-  "_spec": "codemirror@^5.24.2",
+  "_spec": "codemirror@^5.40.2",
   "_where": "/Users/charles/Sources/go/src/github.com/pydio/cells/frontend/front-srv/assets/editor.codemirror",
+  "author": {
+    "name": "Marijn Haverbeke",
+    "email": "marijnh@gmail.com",
+    "url": "http://marijnhaverbeke.nl"
+  },
   "bugs": {
     "url": "http://github.com/codemirror/CodeMirror/issues"
   },
@@ -65,7 +71,13 @@
       "name": "Abdelouahab"
     },
     {
+      "name": "Abdussalam Abdurrahman"
+    },
+    {
       "name": "Abe Fettig"
+    },
+    {
+      "name": "Abhishek Gahlot"
     },
     {
       "name": "Adam Ahmed"
@@ -81,6 +93,9 @@
     },
     {
       "name": "Adán Lobato"
+    },
+    {
+      "name": "Aditya Toshniwal"
     },
     {
       "name": "Adrian Aichner"
@@ -305,7 +320,13 @@
       "name": "Axel Lewenhaupt"
     },
     {
+      "name": "Baptiste Augrain"
+    },
+    {
       "name": "Barret Rennie"
+    },
+    {
+      "name": "Bartosz Dziewoński"
     },
     {
       "name": "Basarat Ali Syed"
@@ -443,6 +464,12 @@
       "name": "Cheah Chu Yeow"
     },
     {
+      "name": "Chhekur"
+    },
+    {
+      "name": "Chris Colborne"
+    },
+    {
       "name": "Chris Coyier"
     },
     {
@@ -491,6 +518,9 @@
       "name": "Christopher Pfohl"
     },
     {
+      "name": "Christopher Wallis"
+    },
+    {
       "name": "Chunliang Lyu"
     },
     {
@@ -513,6 +543,9 @@
     },
     {
       "name": "Cristian Prieto"
+    },
+    {
+      "name": "Curran Kelleher"
     },
     {
       "name": "Curtis Gagliardi"
@@ -540,6 +573,9 @@
     },
     {
       "name": "Daniel Faust"
+    },
+    {
+      "name": "Daniel Hanggi"
     },
     {
       "name": "Daniel Huigens"
@@ -572,7 +608,13 @@
       "name": "Darius Roberts"
     },
     {
+      "name": "databricks-david-lewis"
+    },
+    {
       "name": "Dave Brondsema"
+    },
+    {
+      "name": "Dave MacLachlan"
     },
     {
       "name": "Dave Myers"
@@ -588,6 +630,9 @@
     },
     {
       "name": "David Pathakjee"
+    },
+    {
+      "name": "David Santana"
     },
     {
       "name": "David Vázquez"
@@ -617,6 +662,9 @@
       "name": "Dimage Sapelkin"
     },
     {
+      "name": "dmaclach"
+    },
+    {
       "name": "Dmitry Kiselyov"
     },
     {
@@ -627,6 +675,9 @@
     },
     {
       "name": "Domizio Demichelis"
+    },
+    {
+      "name": "Doug Blank"
     },
     {
       "name": "Doug Wikle"
@@ -722,16 +773,19 @@
       "name": "Filype Pereira"
     },
     {
+      "name": "finalfantasia"
+    },
+    {
       "name": "flack"
     },
     {
       "name": "Florian Felten"
     },
     {
-      "name": "ForbesLindesay"
+      "name": "Forbes Lindesay"
     },
     {
-      "name": "Forbes Lindesay"
+      "name": "ForbesLindesay"
     },
     {
       "name": "Ford_Lawnmower"
@@ -746,7 +800,14 @@
       "name": "Frank Wiegand"
     },
     {
+      "name": "fraxx001"
+    },
+    {
       "name": "Fredrik Borg"
+    },
+    {
+      "name": "FUJI Goro",
+      "url": "gfx"
     },
     {
       "name": "Gabriel Gheorghian"
@@ -788,6 +849,9 @@
       "name": "Gergely Hegykozi"
     },
     {
+      "name": "Germain Chazot"
+    },
+    {
       "name": "Giovanni Calò"
     },
     {
@@ -806,7 +870,7 @@
       "name": "Golevka"
     },
     {
-      "name": "Google Inc."
+      "name": "Google LLC"
     },
     {
       "name": "Gordon Smith"
@@ -843,6 +907,12 @@
     },
     {
       "name": "Hans Engel"
+    },
+    {
+      "name": "Hanzhao Deng"
+    },
+    {
+      "name": "Harald Schilly"
     },
     {
       "name": "Hardest"
@@ -962,6 +1032,9 @@
       "name": "Jamie Morris"
     },
     {
+      "name": "Janice Leung"
+    },
+    {
       "name": "Jan Jongboom"
     },
     {
@@ -996,6 +1069,9 @@
     },
     {
       "name": "Jason Grout"
+    },
+    {
+      "name": "Jason Heeris"
     },
     {
       "name": "Jason Johnston"
@@ -1062,6 +1138,9 @@
       "name": "joelpinheiro"
     },
     {
+      "name": "joewalsh"
+    },
+    {
       "name": "Johan Ask"
     },
     {
@@ -1090,6 +1169,9 @@
     },
     {
       "name": "Jonas Helfer"
+    },
+    {
+      "name": "Jonathan Dierksen"
     },
     {
       "name": "Jonathan Hart"
@@ -1132,6 +1214,9 @@
     },
     {
       "name": "jots"
+    },
+    {
+      "name": "Joy Zhong"
     },
     {
       "name": "jsoojeon"
@@ -1179,6 +1264,12 @@
       "name": "Kazuhito Hokamura"
     },
     {
+      "name": "Kees de Kooter"
+    },
+    {
+      "name": "Kenan Christian Dimas"
+    },
+    {
       "name": "Ken Newman"
     },
     {
@@ -1201,6 +1292,9 @@
     },
     {
       "name": "Kevin Ushey"
+    },
+    {
+      "name": "Kier Darby"
     },
     {
       "name": "Klaus Silveira"
@@ -1236,6 +1330,9 @@
       "name": "KyleMcNutt"
     },
     {
+      "name": "LaKing"
+    },
+    {
       "name": "Lanfei"
     },
     {
@@ -1252,6 +1349,9 @@
     },
     {
       "name": "Lemmon"
+    },
+    {
+      "name": "Leo Baschy"
     },
     {
       "name": "Leonid Khachaturov"
@@ -1282,6 +1382,9 @@
     },
     {
       "name": "lochel"
+    },
+    {
+      "name": "Lorenzo Simionato"
     },
     {
       "name": "Lorenzo Stoakes"
@@ -1365,6 +1468,9 @@
       "name": "Mark Anderson"
     },
     {
+      "name": "Mark Dalgleish"
+    },
+    {
       "name": "Mark Lentczner"
     },
     {
@@ -1423,6 +1529,9 @@
     },
     {
       "name": "Matthew Rathbone"
+    },
+    {
+      "name": "Matthew Suozzo"
     },
     {
       "name": "Matthias Bussonnier"
@@ -1497,6 +1606,9 @@
       "name": "Michael Lehenbauer"
     },
     {
+      "name": "Michael Wadman"
+    },
+    {
       "name": "Michael Walker"
     },
     {
@@ -1521,7 +1633,13 @@
       "name": "mihailik"
     },
     {
+      "name": "Mika Andrianarijaona"
+    },
+    {
       "name": "Mike"
+    },
+    {
+      "name": "Mike Bostock"
     },
     {
       "name": "Mike Brevoort"
@@ -1576,10 +1694,10 @@
       "name": "mtaran-google"
     },
     {
-      "name": "Mu-An Chiou"
+      "name": "Mu-An ✌️ Chiou"
     },
     {
-      "name": "Mu-An ✌️ Chiou"
+      "name": "Mu-An Chiou"
     },
     {
       "name": "mzabuawala"
@@ -1634,6 +1752,9 @@
       "name": "Nick Small"
     },
     {
+      "name": "Nicolas Chevobbe"
+    },
+    {
       "name": "Nicolas Kick"
     },
     {
@@ -1652,6 +1773,9 @@
       "name": "Nikita Vasilyev"
     },
     {
+      "name": "Nikolaj Kappler"
+    },
+    {
       "name": "Nikolay Kostov"
     },
     {
@@ -1668,6 +1792,9 @@
     },
     {
       "name": "Norman Rzepka"
+    },
+    {
+      "name": "Oleksandr Yakovenko"
     },
     {
       "name": "opl-"
@@ -1761,6 +1888,9 @@
     },
     {
       "name": "Philipp A"
+    },
+    {
+      "name": "Philipp Markovics"
     },
     {
       "name": "Philip Stadermann"
@@ -1862,6 +1992,9 @@
       "name": "Robert Crossfield"
     },
     {
+      "name": "Robert Martin"
+    },
+    {
       "name": "Roberto Abdelkader Martínez Pérez"
     },
     {
@@ -1950,6 +2083,9 @@
     },
     {
       "name": "Sebastian Zaha"
+    },
+    {
+      "name": "Seren D"
     },
     {
       "name": "Sergey Goder"
@@ -2060,6 +2196,9 @@
       "name": "stoskov"
     },
     {
+      "name": "Stryder Crown"
+    },
+    {
       "name": "Stu Kennedy"
     },
     {
@@ -2123,6 +2262,9 @@
       "name": "Thomas Kluyver"
     },
     {
+      "name": "thomasmaclean"
+    },
+    {
       "name": "Thomas Schmid"
     },
     {
@@ -2177,6 +2319,9 @@
       "name": "tophf"
     },
     {
+      "name": "Torgeir Thoresen"
+    },
+    {
       "name": "totalamd"
     },
     {
@@ -2228,6 +2373,9 @@
       "name": "vtripolitakis"
     },
     {
+      "name": "wdouglashall"
+    },
+    {
       "name": "Weiyan Shao"
     },
     {
@@ -2247,6 +2395,9 @@
     },
     {
       "name": "Will Dean"
+    },
+    {
+      "name": "William Desportes"
     },
     {
       "name": "William Jamieson"
@@ -2274,6 +2425,9 @@
     },
     {
       "name": "YNH Webdev"
+    },
+    {
+      "name": "yoongu"
     },
     {
       "name": "Yunchi Luo"
@@ -2310,25 +2464,25 @@
   "description": "Full-featured in-browser code editor",
   "devDependencies": {
     "blint": "^1",
-    "node-static": "0.6.0",
+    "node-static": "0.7.11",
     "phantomjs-prebuilt": "^2.1.12",
-    "rollup": "^0.41.0",
-    "rollup-plugin-buble": "^0.15.0",
-    "rollup-watch": "^3.2.0"
+    "rollup": "^0.66.2",
+    "rollup-plugin-buble": "^0.19.2",
+    "rollup-watch": "^4.3.1"
   },
   "directories": {
     "lib": "./lib"
   },
   "dist": {
-    "integrity": "sha512-vpJRray/0ZCt9FiS7UcVr1JAm6OBdUt6TA/94Q7MScr8TnutVdQWh/WPr0migzaBPQmYvY7I9UZNvbsaLESIuQ==",
-    "shasum": "4654f7d2f7e525e04a62e72d9482348ccb37dce5",
-    "tarball": "https://registry.npmjs.org/codemirror/-/codemirror-5.39.0.tgz",
-    "fileCount": 322,
-    "unpackedSize": 2736631,
-    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbKfaKCRA9TVsSAnZWagAAiYcP/3P/VIJ3cHcYrnH3CBCe\neniKaIs7tJFfh7UZHDRboESFrSOpeL6eEFH5S0DLpGLieDlNmYSwyd82Z0ju\ndps1uN4Pj+36e8ZN6aEAujzqYZMxZJ8VV5ZN6UBQun9Ulbv5N7YovPej02nT\nugskCRI/tylnDn3eV8Q/fGtHYXQ1tG1a4gRC/ZkcpaXE7FqkPunDSlnb6Jvk\n8jG/YRq4NLa8V+0kn//VtyUOPUm5MDtfL1bIJk+jHHivfvBf6ytPHP+bk3+0\niidbEvd3vH4n7AyPn8Rkzl5+zQjhaewd19KtrBLfBu+K035OnbvHvcVSKZU9\n68b7vxKqVGWnJKRRyyVu74Vw8iLgCpki0sfk7T3FFer2fpu6GTNsaEp0YNo5\ng+7NqzuwL6Nnf+DX7f67JSxvYe1pxYRl8zeAPCUZ9EKFZGV5QoDyGQVfOkzk\na688FEOWlRY/FdSvNCboucYvoenZJnq9O19dCDGXN1syGTX8U0qc+lcUiNl/\nRbtIpq7VBGjdzX+BZiMoLRidYsMtKMjUONADl46qg8pcuAC+gZguMNlOY344\noB5AzP9M663V55ox1DcRSpnizBbw459Q3yvsIJKRix2Kncl5x8onarubu/WO\nnlKEArz4Ab8Jv1s6eTWzO1TZ8B7RSa+2UUTP5rPm1eDI9yN+yRqEjCCqyZ8H\nKvzL\r\n=v7lU\r\n-----END PGP SIGNATURE-----\r\n"
+    "integrity": "sha512-c19j644usCE8gQaXa0jqn2B/HN9MnB2u6qPIrrhrMkB+QAP42y8G4QnTwuwbVSoUS1jEl7JU9HZMGhCDL0nsAw==",
+    "shasum": "db5ebbb3bf44028c684053f3954d011efcec27ad",
+    "tarball": "https://registry.npmjs.org/codemirror/-/codemirror-5.45.0.tgz",
+    "fileCount": 325,
+    "unpackedSize": 2789360,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJckgtuCRA9TVsSAnZWagAAohsP/jGtmmqSwu4JKncXmAdy\nvymHfC/pGup+jrygFutm8wXJMTPqkEz+U/L3kAu6A/0/8uPtxefOYD958VR9\nCewYhuF5TqwpS+ZdHxxAIKhYhyNORws5Dce85gbB7TiFlFTxoEhS+/TaTfmE\nMjZ862PjazSfsKxMK5vw7BDPUzkCY8EOLosFfQwp862lfT9Ce6dVehINuJg4\n/oGNo5vYK3OcU24/1dqezEs8aaUIFv46ZJ1FEGozvJTMaG54oU+cfCcfDGFU\nYUy8Cyu143DJJrhuJFUV61Phmv8tW0Oa4dke4xC+lkAoPJ9GVOA6+1ArNclO\n4TOm2DgnMYDZB2YVmfCSBGDE7DJqpyq2L5QSoW8aWc1ziOae0NpBiP27lNcg\nEN8/RRI1g1+cxlaQ6I1axL6JpLSv1gQaz/Ige+nHlPov3qwwBaIjVE8kQ0n5\nNaXAYnYd9AvYqdFRaAHczKtdVBQxG5ZSkVP+eLDGI6hSNDhimXHJVBDr3MVk\niX2oV+9OwNm1OkSq7nYnhDqsQ5laZ+Hhrs7V9p5MgnyogmdShgyKZA9XjCLp\nA4g6cm5zKtYsiUkBDE6ETY0sOgmkplHtsBcDpJurJIPC6mFIDV7AK3vYbvte\nf9zz0mYlS1JB+B1zLVWlYYzX2BYAmI+yIfipK3UUMCV+ZFbln9d++DYJcuNh\nZCOF\r\n=lbgP\r\n-----END PGP SIGNATURE-----\r\n"
   },
-  "gitHead": "d32c5d35a6d0730c21717faaf5d37cfe1f7073ce",
-  "homepage": "http://codemirror.net",
+  "gitHead": "cd4a7654f2c0519caf3ff3e8c00a8f1f588e788d",
+  "homepage": "https://codemirror.net",
   "jspm": {
     "directories": {},
     "dependencies": {},
@@ -2362,5 +2516,5 @@
     "watch": "rollup -w -c"
   },
   "style": "lib/codemirror.css",
-  "version": "5.39.0"
+  "version": "5.45.0"
 }
