@@ -73,7 +73,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Rebase:           url,
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Theme:            "material",
-		Version:          common.Version().String(),
+		Version:          frontend.VersionHash(),
 		Debug:            config.Get("frontend", "debug").Bool(false),
 		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
 		StartParameters:  startParameters,

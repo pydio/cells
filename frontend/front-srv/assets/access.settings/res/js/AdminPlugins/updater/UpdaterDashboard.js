@@ -23,7 +23,7 @@ import {Paper, List, ListItem, RaisedButton, Checkbox, Divider, Subheader} from 
 import PydioApi from 'pydio/http/api'
 import {UpdateServiceApi} from 'pydio/http/rest-api'
 import Pydio from 'pydio'
-const {moment, Loader, SingleJobProgress} = Pydio.requireLib('boot');
+const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import ServiceExposedConfigs from '../core/ServiceExposedConfigs'
 
 const UpdaterDashboard = React.createClass({
@@ -32,7 +32,8 @@ const UpdaterDashboard = React.createClass({
 
 
     getInitialState: function(){
-        return {check: -1};
+        const {pydio} = this.props;
+        return {check: -1, backend:pydio.Parameters.get("backend")};
     },
 
     componentDidMount:function(){
@@ -42,6 +43,18 @@ const UpdaterDashboard = React.createClass({
     checkForUpgrade: function(){
         const {pydio} = this.props;
         this.setState({loading:true});
+
+        let url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/bootconf';
+        window.fetch(url, {
+            method:'GET',
+            credentials:'same-origin',
+        }).then((response) => {
+            response.json().then((data) => {
+                if(data.backend){
+                    this.setState({backend:data.backend})
+                }
+            }).catch(()=>{});
+        }).catch(()=>{});
 
         const api = new UpdateServiceApi(PydioApi.getRestClient());
         Pydio.startLoading();
@@ -111,8 +124,7 @@ const UpdaterDashboard = React.createClass({
     render:function(){
 
         let list = null;
-        const {pydio} = this.props;
-        const {packages, check, loading, dirty, updateApplied, selectedPackage, watchJob} = this.state;
+        const {packages, check, loading, dirty, updateApplied, selectedPackage, watchJob, backend} = this.state;
         const subHeaderStyle = {
             backgroundColor: '#f5f5f5',
             color: '#9e9e9e',
@@ -175,8 +187,6 @@ const UpdaterDashboard = React.createClass({
                 });
             }}/>)
         }
-
-        const backend = pydio.Parameters.get("backend");
 
         return (
             <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>

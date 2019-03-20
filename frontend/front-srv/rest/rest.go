@@ -102,7 +102,12 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 		service.RestError500(req, rsp, e)
 		return
 	}
-	bootConf := frontend.ComputeBootConf(pool)
+	showVersion := false
+	user := &frontend.User{}
+	if e := user.Load(req.Request.Context()); e == nil && user.Logged {
+		showVersion = true
+	}
+	bootConf := frontend.ComputeBootConf(pool, showVersion)
 	rsp.WriteAsJson(bootConf)
 
 }

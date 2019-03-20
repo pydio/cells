@@ -2,11 +2,13 @@ package frontend
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
+	"strconv"
 	"strings"
 
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
-
-	"strconv"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -58,13 +60,41 @@ type BootConf struct {
 	Other                        map[string]interface{} `json:"other,omitempty"`
 }
 
-func ComputeBootConf(pool *PluginsPool) *BootConf {
+var versionHash string
+
+func VersionHash() string {
+	if versionHash != "" {
+		return versionHash
+	}
+	// Create version seed
+	vSeed := config.Get("frontend", "versionSeed").String("")
+	if vSeed == "" {
+		vSeed = uuid.New()
+		config.Set(vSeed, "frontend", "versionSeed")
+		config.Save(common.PYDIO_SYSTEM_USERNAME, "Generating version seed")
+	}
+	md := md5.New()
+	md.Write([]byte(vSeed + common.Version().String()))
+	versionHash = hex.EncodeToString(md.Sum(nil))
+	return versionHash
+}
+
+func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
 	url := config.Get("defaults", "url").String("")
 	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
 	tWarn := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN")
+	vHash := VersionHash()
+	vDate := ""
+	vRev := ""
+	if len(showVersion) > 0 && showVersion[0] {
+		vHash = common.Version().String()
+		vDate = common.BuildStamp
+		vRev = common.BuildRevision
+	}
+
 	// May be stored as int or string in json
 	timeoutWarn := 3
 	if tWarn.Int(-1) != -1 {
@@ -92,8 +122,8 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 		Session_timeout:              SessionTimeoutMinutes * 60,
 		Client_timeout:               SessionTimeoutMinutes * 60,
 		Client_timeout_warning:       timeoutWarn,
-		AjxpVersion:                  common.Version().String(),
-		AjxpVersionDate:              common.BuildStamp,
+		AjxpVersion:                  vHash,
+		AjxpVersionDate:              vDate,
 		Streaming_supported:          true,
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
@@ -106,9 +136,9 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 		Backend: BackendConf{
 			PackageType:   common.PackageType,
 			PackageLabel:  common.PackageLabel,
-			Version:       common.Version().String(),
-			BuildRevision: common.BuildRevision,
-			BuildStamp:    common.BuildStamp,
+			Version:       vHash,
+			BuildRevision: vRev,
+			BuildStamp:    vDate,
 			License:       "agplv3",
 		},
 	}
