@@ -43,6 +43,16 @@ import (
 //EncryptionHandler encryption node middleware
 type EncryptionHandler struct {
 	AbstractHandler
+	userKeyTool          key.UserKeyTool
+	nodeKeyManagerClient encryption.NodeKeyManagerClient
+}
+
+func (e *EncryptionHandler) SetUserKeyTool(keyTool key.UserKeyTool) {
+	e.userKeyTool = keyTool
+}
+
+func (e *EncryptionHandler) SetNodeKeyManagerClient(nodeKeyManagerClient encryption.NodeKeyManagerClient) {
+	e.nodeKeyManagerClient = nodeKeyManagerClient
 }
 
 //GetObject Enriches request metadata for GetObject with Encryption Materials, if required by datasource
@@ -62,7 +72,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 				Node: node,
 			})
 			if readErr != nil {
-				return nil, errors.NotFound("views.Handler.encryption", "failed to get node UUID", readErr)
+				return nil, errors.NotFound("views.Handler.encryption", "failed to get node UUID: %s", readErr)
 			}
 			clone.Uuid = rsp.Node.Uuid
 			clone.Size = rsp.Node.Size
@@ -77,23 +87,56 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 			dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 		}
 
-		requestData.Length = -1
+		err := clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
+		if err != nil {
+			return nil, errors.New("views.encryption.handler", "failed to set node meta data", 500)
+		}
 
-		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
-		var err error
-		eMat, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey, false)
-		if err != nil {
-			return nil, err
+		fullRead := requestData.StartOffset == 0 && (requestData.Length == 0 || requestData.Length == clone.Size)
+		if !fullRead {
+			eMat, err := e.retrieveRangeEncryptionMaterial(ctx, clone, info.EncryptionKey)
+			if err != nil {
+				return nil, err
+			}
+
+			err = eMat.SetPlainRange(requestData.StartOffset, requestData.Length)
+			if err != nil {
+				return nil, err
+			}
+
+			encryptedStartOffset, encryptedLength := eMat.CalculateEncryptedRange(clone.Size)
+
+			rangeRequestData := &GetRequestData{
+				Length:      encryptedLength,
+				StartOffset: encryptedStartOffset,
+				VersionId:   requestData.VersionId,
+			}
+
+			reader, err := e.next.GetObject(ctx, clone, rangeRequestData)
+			if err != nil {
+				return nil, err
+			}
+			err = eMat.SetupDecryptMode(reader, "", "")
+			return eMat, err
+
+		} else {
+			requestData.Length = -1
+			eMat, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey, false)
+			if err != nil {
+				return nil, err
+			}
+
+			reader, err := e.next.GetObject(ctx, clone, requestData)
+			if err != nil {
+				return nil, err
+			}
+
+			err = eMat.SetupDecryptMode(reader, eMat.GetIV(), eMat.GetKey())
+			if err != nil {
+				return nil, err
+			}
+			return eMat, nil
 		}
-		reader, err := e.next.GetObject(ctx, clone, requestData)
-		if err != nil {
-			return nil, err
-		}
-		err = eMat.SetupDecryptMode(reader, eMat.GetIV(), eMat.GetKey())
-		if err != nil {
-			return nil, err
-		}
-		return eMat, nil
 	}
 
 	return e.next.GetObject(ctx, node, requestData)
@@ -120,7 +163,7 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 		})
 
 		if readErr != nil {
-			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID", readErr)
+			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID: %s", readErr)
 		}
 
 		if len(rsp.Node.Uuid) == 0 {
@@ -182,7 +225,7 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 		})
 
 		if readErr != nil {
-			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID", readErr)
+			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID: %s", readErr)
 		}
 
 		if len(rsp.Node.Uuid) == 0 {
@@ -216,6 +259,13 @@ func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *
 }
 
 func (e *EncryptionHandler) setNodeEncryptionKey(ctx context.Context, nodeKey *encryption.NodeKey) error {
+	if e.nodeKeyManagerClient != nil {
+		_, err := e.nodeKeyManagerClient.SetNodeKey(ctx, &encryption.SetNodeKeyRequest{
+			Key: nodeKey,
+		})
+		return err
+	}
+
 	nodeKeyClient := encryption.NewNodeKeyManagerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY, defaults.NewClient())
 	_, err := nodeKeyClient.SetNodeKey(ctx, &encryption.SetNodeKeyRequest{
 		Key: nodeKey,
@@ -224,6 +274,23 @@ func (e *EncryptionHandler) setNodeEncryptionKey(ctx context.Context, nodeKey *e
 }
 
 func (e *EncryptionHandler) getNodeEncryptionKey(ctx context.Context, userID string, nodeUUID string) (*encryption.NodeKey, error) {
+	if e.nodeKeyManagerClient != nil {
+		rsp, err := e.nodeKeyManagerClient.GetNodeKey(ctx, &encryption.GetNodeKeyRequest{
+			UserId: userID,
+			NodeId: nodeUUID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return &encryption.NodeKey{
+			OwnerId:   rsp.OwnerId,
+			Data:      rsp.EncryptedKey,
+			BlockSize: rsp.BlockSize,
+			Nonce:     rsp.Nonce,
+		}, nil
+	}
+
 	nodeKeyClient := encryption.NewNodeKeyManagerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY, defaults.NewClient())
 	rsp, err := nodeKeyClient.GetNodeKey(ctx, &encryption.GetNodeKeyRequest{
 		UserId: userID,
@@ -241,6 +308,14 @@ func (e *EncryptionHandler) getNodeEncryptionKey(ctx context.Context, userID str
 }
 
 func (e *EncryptionHandler) setNodeEncryptionParams(ctx context.Context, node *tree.Node, params *encryption.Params) error {
+	if e.nodeKeyManagerClient != nil {
+		_, err := e.nodeKeyManagerClient.SetNodeParams(ctx, &encryption.SetNodeParamsRequest{
+			NodeId: node.Uuid,
+			Params: params,
+		})
+		return err
+	}
+
 	nodeKeyClient := encryption.NewNodeKeyManagerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY, defaults.NewClient())
 	_, err := nodeKeyClient.SetNodeParams(ctx, &encryption.SetNodeParamsRequest{
 		NodeId: node.Uuid,
@@ -252,9 +327,77 @@ func (e *EncryptionHandler) setNodeEncryptionParams(ctx context.Context, node *t
 func (e *EncryptionHandler) retrieveEncryptionMaterials(ctx context.Context, node *tree.Node, encryptionKeyName string, encrypt bool) (*crypto.AESGCMMaterials, error) {
 
 	dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-	tool, err := key.MasterKeyTool(ctx)
+	tool := e.userKeyTool
+	var err error
+	if tool == nil {
+		tool, err = key.MasterKeyTool(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var wsUser = fmt.Sprintf("ds:%s", dsName)
+	nodeKey, err := e.getNodeEncryptionKey(ctx, wsUser, node.Uuid)
+	if err != nil {
+		if errors.Parse(err.Error()).Code == 404 {
+			nodeKey = &encryption.NodeKey{}
+			//if not found
+
+			//we generate a new key
+			encKey, err := crypto.RandomBytes(32)
+			if err != nil {
+				return nil, err
+			}
+
+			//we seal the key with the ws tool
+			sealedKey, err := tool.GetEncrypted(ctx, encryptionKeyName, encKey)
+			if err != nil {
+				return nil, err
+			}
+
+			//we tell the data-key service to associate the sealed key to wsUser<->node
+			err = e.setNodeEncryptionKey(ctx, &encryption.NodeKey{
+				UserId:    wsUser,
+				NodeId:    node.Uuid,
+				OwnerId:   wsUser,
+				Data:      sealedKey,
+				Nonce:     nil,
+				BlockSize: 0,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return crypto.NewAESGCMMaterials(encKey, nil), nil
+		} else {
+			return nil, err
+		}
+	}
+
+	if encrypt {
+		nodeKey.Nonce = []byte{}
+	}
+
+	encKey, err := tool.GetDecrypted(ctx, encryptionKeyName, nodeKey.Data)
 	if err != nil {
 		return nil, err
+	}
+
+	return crypto.NewAESGCMMaterials(encKey, &encryption.Params{
+		BlockSize: nodeKey.BlockSize,
+		Nonce:     nodeKey.Nonce,
+	}), nil
+}
+
+func (e *EncryptionHandler) retrieveRangeEncryptionMaterial(ctx context.Context, node *tree.Node, encryptionKeyName string) (*crypto.RangeAESGCMMaterials, error) {
+	dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	tool := e.userKeyTool
+	var err error
+	if tool == nil {
+		tool, err = key.MasterKeyTool(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var wsUser = fmt.Sprintf("ds:%s", dsName)
@@ -263,45 +406,12 @@ func (e *EncryptionHandler) retrieveEncryptionMaterials(ctx context.Context, nod
 		return nil, err
 	}
 
-	if nodeKey.Data == nil || len(nodeKey.Data) == 0 {
-		//if not found
-
-		//we generate a new key
-		encKey, err := crypto.RandomBytes(32)
-		if err != nil {
-			return nil, err
-		}
-
-		//we seal the key with the ws tool
-		sealedKey, err := tool.GetEncrypted(ctx, encryptionKeyName, encKey)
-		if err != nil {
-			return nil, err
-		}
-
-		//we tell the data-key service to associate the sealed key to wsUser<->node
-		err = e.setNodeEncryptionKey(ctx, &encryption.NodeKey{
-			UserId:    wsUser,
-			NodeId:    node.Uuid,
-			OwnerId:   wsUser,
-			Data:      sealedKey,
-			Nonce:     nil,
-			BlockSize: 0,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		return crypto.NewAESGCMMaterials(encKey, nil), nil
-
-	} else if encrypt {
-		nodeKey.Nonce = []byte{}
-	}
 	encKey, err := tool.GetDecrypted(ctx, encryptionKeyName, nodeKey.Data)
 	if err != nil {
 		return nil, err
 	}
 
-	return crypto.NewAESGCMMaterials(encKey, &encryption.Params{
+	return crypto.NewRangeAESGCMMaterials(encKey, &encryption.Params{
 		BlockSize: nodeKey.BlockSize,
 		Nonce:     nodeKey.Nonce,
 	}), nil

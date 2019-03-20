@@ -24,6 +24,8 @@ import (
 	"context"
 	"errors"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/micro/go-micro/client"
@@ -40,6 +42,7 @@ func NewHandlerMock() *HandlerMock {
 }
 
 type HandlerMock struct {
+	RootDir string
 	Nodes   map[string]*tree.Node
 	Context context.Context
 }
@@ -110,8 +113,27 @@ func (h *HandlerMock) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest
 }
 
 func (h *HandlerMock) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
-	h.Nodes["in"] = node
+	if len(h.RootDir) > 0 {
+		file, err := os.Open(filepath.Join(h.RootDir, node.Path))
+		if err != nil {
+			return nil, err
+		}
+
+		if requestData.StartOffset > 0 {
+			_, err := file.Seek(requestData.StartOffset, 0)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if requestData.Length > 0 {
+			// maybe the file object should be wrapped to control read limit
+		}
+		return file, nil
+	}
+
 	h.Context = ctx
+	h.Nodes["in"] = node
 	if n, ok := h.Nodes[node.Path]; ok {
 		// Fake node content : node path + hello world
 		closer := MockReadCloser{}
@@ -119,10 +141,42 @@ func (h *HandlerMock) GetObject(ctx context.Context, node *tree.Node, requestDat
 		return closer, nil
 	}
 	return nil, errors.New("Not Found")
+
 }
 
 func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 	log.Logger(ctx).Info("[MOCK] PutObject" + node.Path)
+
+	if len(h.RootDir) > 0 {
+		output, err := os.OpenFile(filepath.Join(h.RootDir, node.Path), os.O_WRONLY|os.O_CREATE, os.ModePerm)
+		if err != nil {
+			return -1, err
+		}
+
+		buffer := make([]byte, 1024)
+		n := 0
+
+		var totalWritten int64 = 0
+
+		eof := false
+		for !eof {
+			n, err = reader.Read(buffer)
+			if err != nil {
+				eof = err == io.EOF
+				if !eof {
+					return -1, err
+				}
+			}
+
+			written, err := output.Write(buffer[:n])
+			if err != nil {
+				return totalWritten, err
+			}
+			totalWritten += int64(written)
+		}
+		return totalWritten, nil
+	}
+
 	h.Nodes["in"] = node
 	h.Context = ctx
 	return 0, nil

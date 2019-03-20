@@ -177,7 +177,13 @@ func (h *sqlimpl) GetNodeKey(node string, user string) (*encryption.NodeKey, err
 		}
 		return &k, nil
 	}
-	return nil, rows.Err()
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, errors.NotFound("node.key.manager", "key not found for %s", node)
 }
 
 func (h *sqlimpl) DeleteNodeKey(node string, user string) error {
