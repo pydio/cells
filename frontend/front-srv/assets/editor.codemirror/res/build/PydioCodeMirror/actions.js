@@ -43,10 +43,9 @@ var onSave = function onSave(_ref) {
     return function () {
         return pydio.ApiClient.postPlainTextContent(tab.url, tab.content, function (success) {
             if (!success) {
-                dispatch(EditorActions.tabModify({ id: tab.id, message: "There was an error while saving" }));
+                dispatch(EditorActions.tabModify({ id: tab.id, message: _pydio2['default'].getMessages()[210] }));
             } else {
-                console.log("HERE ", tab.id);
-                dispatch(EditorActions.tabModify({ id: tab.id, message: "Successfully saved file" }));
+                dispatch(EditorActions.tabModify({ id: tab.id, message: _pydio2['default'].getMessages()[115] }));
             }
         });
     };

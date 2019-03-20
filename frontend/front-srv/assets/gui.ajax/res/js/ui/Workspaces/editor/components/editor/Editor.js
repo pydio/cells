@@ -129,7 +129,7 @@ export default class Editor extends React.Component {
     }
 
     render() {
-        const {style, activeTab, fixedToolbar, hideToolbar, hideSelectionControls, prevSelectionDisabled, nextSelectionDisabled, onSelectPrev, onSelectNext} = this.props
+        const {style, activeTab, fixedToolbar, hideToolbar, tabDeleteAll, hideSelectionControls, prevSelectionDisabled, nextSelectionDisabled, onSelectPrev, onSelectNext} = this.props
 
         let parentStyle = {
             display: "flex",
@@ -159,10 +159,27 @@ export default class Editor extends React.Component {
             ...style
         };
 
-        let toolbarStyle = styles.toolbar.default
+        let toolbarStyle = styles.toolbar.default;
+        let keyPress;
+        if(onSelectNext || onSelectPrev) {
+            keyPress = (e) => {
+                if(e.key === 'ArrowLeft' && onSelectPrev && !prevSelectionDisabled) {
+                    try{
+                        onSelectPrev();
+                    }catch(e){}
+                } else if(e.key === 'ArrowRight' && onSelectNext && !nextSelectionDisabled){
+                    try{
+                        onSelectNext();
+                    }catch (e) {}
+                } else if(e.key === 'Escape' && tabDeleteAll){
+                    tabDeleteAll();
+                }
+            }
+        }
 
         return (
-            <Paper zDepth={5} style={paperStyle} onClick={(e) => this.handleBlurOnSelection(e)}>
+            <Paper zDepth={5} style={paperStyle} onClick={(e) => this.handleBlurOnSelection(e)} tabIndex={"-1"} onKeyDown={keyPress}>
+
                 {!hideToolbar && (
                     <EditorToolbar style={toolbarStyle} display={fixedToolbar ? "fixed" : "removable"} />
                 )}

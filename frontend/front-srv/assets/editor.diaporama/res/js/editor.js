@@ -111,7 +111,9 @@ const getSelection = (node) => new Promise((resolve, reject) => {
     let selection = [];
 
     node.getParent().getChildren().forEach((child) => selection.push(child));
-    selection = selection.filter(getSelectionFilter)
+    selection = selection.filter(getSelectionFilter).sort((a,b)=>{
+        return a.getLabel().localeCompare(b.getLabel(), undefined, {numeric:true})
+    })
 
 
     resolve({
