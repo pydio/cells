@@ -21,7 +21,6 @@ package views
 import (
 	"context"
 	"crypto/rand"
-	"fmt"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/object"
@@ -246,7 +245,7 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 
 		for i := 0; i < fileSize; i = i + 10 {
 			rangeOffset := i
-			length := 256
+			length := 300
 
 			reqData := &GetRequestData{
 				Length:      int64(length),
@@ -256,15 +255,15 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 			file, err := os.Open(filepath.Join(dataFolder, "plain"))
 			So(err, ShouldBeNil)
 
-			buff := make([]byte, 256)
+			buff := make([]byte, 300)
 			read, err := file.ReadAt(buff, int64(i))
-			So(read, ShouldBeLessThanOrEqualTo, 256)
 			So(err, ShouldBeNil)
 
 			err = file.Close()
 			So(err, ShouldBeNil)
 
 			buff = buff[:read]
+			reqData.Length = int64(len(buff))
 
 			node := tree.Node{Path: "encTest", Uuid: "encTest", Size: int64(fileSize)}
 			_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
@@ -277,9 +276,6 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 			readDataStr := string(readData)
 			expectedDataStr := string(buff)
 
-			if readDataStr != expectedDataStr {
-				fmt.Printf("range %d - %d\n", i, i+256)
-			}
 			So(readDataStr, ShouldEqual, expectedDataStr)
 		}
 	})
