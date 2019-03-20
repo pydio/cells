@@ -52,9 +52,15 @@ var _CodeMirrorLoader = require('./CodeMirrorLoader');
 
 var _CodeMirrorLoader2 = _interopRequireDefault(_CodeMirrorLoader);
 
+var _reactMarkdown = require("react-markdown");
+
+var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var EditorActions = _Pydio$requireLib.EditorActions;
+
+var MdStyle = '\n.react-mui-context .mdviewer{\n    flex:1; \n    border-left:2px solid #e0e0e0; \n    padding:20px; \n    background-color:#fafafa;\n    overflow-y: auto;\n}\n.react-mui-context .mdviewer ul, .react-mui-context .mdviewer ol{\n    margin-left: 15px;\n}\n.react-mui-context .mdviewer code {\n    margin: 10px 0;\n    border-radius: 2px;\n    padding: 5px 10px;\n    background-color: #CFD8DC;\n}\n.react-mui-context .mdviewer pre code {\n    display: block;\n}\n';
 
 function mapStateToProps(state, props) {
     var tabs = state.tabs;
@@ -129,22 +135,49 @@ var Editor = (function (_React$Component) {
             var lineWrapping = tab.lineWrapping;
             var lineNumbers = tab.lineNumbers;
 
-            return _react2['default'].createElement(_CodeMirrorLoader2['default'], _extends({}, this.props, {
-                url: node.getPath(),
-                content: content,
-                options: { lineNumbers: lineNumbers, lineWrapping: lineWrapping },
-                error: error,
+            if (node.getAjxpMime() === 'md') {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', flex: 1, width: '100%', backgroundColor: 'white' } },
+                    _react2['default'].createElement(_CodeMirrorLoader2['default'], _extends({}, this.props, {
+                        url: node.getPath(),
+                        content: content,
+                        options: { lineNumbers: lineNumbers, lineWrapping: lineWrapping },
+                        error: error,
 
-                onLoad: function (codemirror) {
-                    return tabModify({ id: id, codemirror: codemirror });
-                },
-                onChange: function (content) {
-                    return tabModify({ id: id, content: content });
-                },
-                onCursorChange: function (cursor) {
-                    return tabModify({ id: id, cursor: cursor });
-                }
-            }));
+                        onLoad: function (codemirror) {
+                            return tabModify({ id: id, codemirror: codemirror });
+                        },
+                        onChange: function (content) {
+                            return tabModify({ id: id, content: content });
+                        },
+                        onCursorChange: function (cursor) {
+                            return tabModify({ id: id, cursor: cursor });
+                        },
+
+                        cmStyle: { flex: 1, width: 'auto' }
+                    })),
+                    _react2['default'].createElement(_reactMarkdown2['default'], { source: content, className: "mdviewer" }),
+                    _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: MdStyle } })
+                );
+            } else {
+                return _react2['default'].createElement(_CodeMirrorLoader2['default'], _extends({}, this.props, {
+                    url: node.getPath(),
+                    content: content,
+                    options: { lineNumbers: lineNumbers, lineWrapping: lineWrapping },
+                    error: error,
+
+                    onLoad: function (codemirror) {
+                        return tabModify({ id: id, codemirror: codemirror });
+                    },
+                    onChange: function (content) {
+                        return tabModify({ id: id, content: content });
+                    },
+                    onCursorChange: function (cursor) {
+                        return tabModify({ id: id, cursor: cursor });
+                    }
+                }));
+            }
         }
     }]);
 

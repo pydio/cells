@@ -25,8 +25,31 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import CodeMirrorLoader from './CodeMirrorLoader';
+import Markdown from "react-markdown";
 
 const {EditorActions} = Pydio.requireLib('hoc');
+
+const MdStyle = `
+.react-mui-context .mdviewer{
+    flex:1; 
+    border-left:2px solid #e0e0e0; 
+    padding:20px; 
+    background-color:#fafafa;
+    overflow-y: auto;
+}
+.react-mui-context .mdviewer ul, .react-mui-context .mdviewer ol{
+    margin-left: 15px;
+}
+.react-mui-context .mdviewer code {
+    margin: 10px 0;
+    border-radius: 2px;
+    padding: 5px 10px;
+    background-color: #CFD8DC;
+}
+.react-mui-context .mdviewer pre code {
+    display: block;
+}
+`;
 
 function mapStateToProps (state, props) {
     const {tabs} = state
@@ -74,20 +97,43 @@ export default class Editor extends React.Component {
 
         if (!tab) return null
 
-        const {id, content, lineWrapping, lineNumbers} = tab
+        const {id, content, lineWrapping, lineNumbers} = tab;
 
-        return (
-            <CodeMirrorLoader
-                {...this.props}
-                url={node.getPath()}
-                content={content}
-                options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
-                error={error}
+        if(node.getAjxpMime() === 'md'){
+            return (
+                <div style={{display:'flex', flex:1, width: '100%', backgroundColor:'white'}}>
+                    <CodeMirrorLoader
+                        {...this.props}
+                        url={node.getPath()}
+                        content={content}
+                        options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
+                        error={error}
 
-                onLoad={(codemirror) => tabModify({id, codemirror})}
-                onChange={content => tabModify({id, content})}
-                onCursorChange={cursor => tabModify({id, cursor})}
-            />
-        )
+                        onLoad={(codemirror) => tabModify({id, codemirror})}
+                        onChange={content => tabModify({id, content})}
+                        onCursorChange={cursor => tabModify({id, cursor})}
+
+                        cmStyle={{flex:1, width:'auto'}}
+                    />
+                    <Markdown source={content} className={"mdviewer"}/>
+                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:MdStyle}}/>
+                </div>
+            )
+        } else{
+            return (
+                <CodeMirrorLoader
+                    {...this.props}
+                    url={node.getPath()}
+                    content={content}
+                    options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
+                    error={error}
+
+                    onLoad={(codemirror) => tabModify({id, codemirror})}
+                    onChange={content => tabModify({id, content})}
+                    onCursorChange={cursor => tabModify({id, cursor})}
+                />
+            )
+
+        }
     }
 }
