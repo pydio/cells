@@ -33,6 +33,9 @@ const (
 	AESGCMNonceSize   = 12
 )
 
+// AESGCMFileEncryptionBlockSize is the default size of encryption block used in material
+var AESGCMFileEncryptionBlockSize = 4 * 1024 * 1024
+
 // AESGCMMaterials ...
 type AESGCMMaterials struct {
 	mode         int
@@ -60,8 +63,8 @@ func NewAESGCMMaterials(key []byte, params *encryption.Params) *AESGCMMaterials 
 		m.nonceBuffer = bytes.NewBuffer(params.Nonce)
 		m.nonceBytes = params.Nonce
 	} else {
-		m.initialBlockSize = 4 * 1024 * 1024
-		m.blockSize = 4 * 1024 * 1024
+		m.initialBlockSize = int32(AESGCMFileEncryptionBlockSize)
+		m.blockSize = int32(AESGCMFileEncryptionBlockSize)
 		m.nonceBuffer = bytes.NewBuffer([]byte{})
 	}
 	return m

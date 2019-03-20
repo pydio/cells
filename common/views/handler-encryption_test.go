@@ -23,6 +23,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/object"
 	"io/ioutil"
 	"os"
@@ -38,22 +39,6 @@ import (
 // TODO these tests are currently broken and should be repaired.
 // For the record, below lines where in errors and have been violently
 // commented out without further thinking.
-
-type EncryptionClientMock struct{}
-
-// func (e *EncryptionClientMock) GetNodeEncryptionKey(ctx context.Context, in *encryption.GetNodeKeyRequest, opts ...client.CallOption) (*encryption.GetNodeKeyResponse, error) {
-// 	return &encryption.GetNodeKeyResponse{
-// 		EncryptedKey: []byte{},
-// 	}, nil
-// }
-
-// func (e *EncryptionClientMock) ShareEncryptionKey(ctx context.Context, in *encryption.NodeSharedKeyRequest, opts ...client.CallOption) (*encryption.ShareNodeKeyResponse, error) {
-// 	return &encryption.GetNodeSharedKeyResponse{}, nil
-// }
-
-// func (e *EncryptionClientMock) UnshareEncryptionKey(ctx context.Context, in *encryption.UnshareNodeKeyRequest, opts ...client.CallOption) (*encryption.UnshareNodeKeyResponse, error) {
-// 	return &encryption.UnshareNodeKeyResponse{}, nil
-// }
 
 func TestEncryptionHandler_GetObject(t *testing.T) {
 
@@ -203,6 +188,8 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 }
 
 func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
+
+	crypto.AESGCMFileEncryptionBlockSize = 1024
 
 	mock := NewHandlerMock()
 	dataFolder := filepath.Join(os.TempDir(), "cells", "tests", "encryption")
