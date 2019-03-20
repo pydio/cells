@@ -24,6 +24,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/object"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -257,7 +258,7 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 
 			buff := make([]byte, 300)
 			read, err := file.ReadAt(buff, int64(i))
-			So(err, ShouldBeNil)
+			So(err == nil || err == io.EOF, ShouldBeTrue)
 
 			err = file.Close()
 			So(err, ShouldBeNil)
@@ -272,7 +273,8 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 			So(e, ShouldBeNil)
 
 			readData, err := ioutil.ReadAll(reader)
-			So(err, ShouldBeNil)
+			So(err == nil || err == io.EOF, ShouldBeTrue)
+
 			readDataStr := string(readData)
 			expectedDataStr := string(buff)
 
