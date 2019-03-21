@@ -181,9 +181,10 @@ const (
 
 // Defaults for DB connexions.
 const (
-	DB_MAX_OPEN_CONNS    = 0
-	DB_MAX_IDLE_CONNS    = 20
-	DB_CONN_MAX_LIFETIME = 5 * time.Minute
+	DB_NUM_RESERVED_CONNECTIONS = 10
+	DB_MAX_OPEN_CONNS           = 20
+	DB_MAX_IDLE_CONNS           = 20
+	DB_CONN_MAX_LIFETIME        = 24 * time.Hour
 )
 
 // Main code information. Set by the go linker in the resulting binary when doing 'make main'

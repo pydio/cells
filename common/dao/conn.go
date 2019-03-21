@@ -21,34 +21,41 @@
 package dao
 
 import (
-	"database/sql"
 	"fmt"
 	"sync"
-
-	"time"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/metrics"
 )
 
 var (
-	conns = make(map[string]Conn)
+	conns = make(map[string]*conn)
 	lock  = new(sync.RWMutex)
 )
 
-type conn struct{}
+type conn struct {
+	d      driver
+	weight int
+}
 
 type Conn interface{}
 
 type driver interface {
 	Open(dsn string) (Conn, error)
+	GetConn() Conn
+	SetMaxConnectionsForWeight(int)
 }
 
 type closer interface {
 	Close() error
 }
 
+func NewConn(d string, dsn string) (Conn, error) {
+	return getConn(d, dsn)
+}
+
 func addConn(d string, dsn string) (Conn, error) {
+
+	lock.Lock()
+	defer lock.Unlock()
+
 	var drv driver
 	switch d {
 	case "mysql":
@@ -66,10 +73,12 @@ func addConn(d string, dsn string) (Conn, error) {
 		return nil, err
 	}
 
-	lock.Lock()
-	defer lock.Unlock()
+	conns[d+":"+dsn] = &conn{
+		d:      drv,
+		weight: 1,
+	}
 
-	conns[d+":"+dsn] = db
+	drv.SetMaxConnectionsForWeight(1)
 
 	return db, nil
 }
@@ -79,7 +88,10 @@ func readConn(d string, dsn string) Conn {
 	defer lock.RUnlock()
 
 	if conn, ok := conns[d+":"+dsn]; ok {
-		return conn
+		conn.weight = conn.weight + 1
+		conn.d.SetMaxConnectionsForWeight(conn.weight)
+
+		return conn.d.GetConn()
 	}
 
 	return nil
@@ -109,33 +121,4 @@ func closeConn(conn Conn) error {
 	}
 
 	return nil
-}
-
-func NewConn(d string, dsn string) (Conn, error) {
-	return getConn(d, dsn)
-}
-
-func getSqlConnection(driver string, dsn string) (*sql.DB, error) {
-	if db, err := sql.Open(driver, dsn); err != nil {
-		return nil, err
-	} else {
-		if err := db.Ping(); err != nil {
-			return nil, err
-		}
-		db.SetMaxOpenConns(common.DB_MAX_OPEN_CONNS)
-		db.SetConnMaxLifetime(common.DB_CONN_MAX_LIFETIME)
-		db.SetMaxIdleConns(common.DB_MAX_IDLE_CONNS)
-		computeStats(db)
-		return db, nil
-	}
-}
-
-func computeStats(db *sql.DB) {
-	go func() {
-		for {
-			s := db.Stats()
-			metrics.GetMetrics().Gauge("db_open_connections").Update(float64(s.OpenConnections))
-			<-time.After(30 * time.Second)
-		}
-	}()
 }

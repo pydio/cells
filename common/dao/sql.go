@@ -22,27 +22,29 @@ package dao
 
 import (
 	"database/sql"
-	// _ "github.com/mattn/go-sqlite3"
+	"time"
+
+	"github.com/pydio/cells/common/service/metrics"
 )
 
-type sqlite struct {
-	conn *sql.DB
-}
-
-func (s *sqlite) Open(dsn string) (Conn, error) {
-	db, err := getSqlConnection("sqlite3", dsn)
-	if err != nil {
+func getSqlConnection(driver string, dsn string) (*sql.DB, error) {
+	if db, err := sql.Open(driver, dsn); err != nil {
 		return nil, err
+	} else {
+		if err := db.Ping(); err != nil {
+			return nil, err
+		}
+		computeStats(db)
+		return db, nil
 	}
-
-	s.conn = db
-	return db, nil
 }
 
-func (s *sqlite) GetConn() Conn {
-	return s.conn
-}
-
-func (s *sqlite) SetMaxConnectionsForWeight(num int) {
-	// Not implemented
+func computeStats(db *sql.DB) {
+	go func() {
+		for {
+			s := db.Stats()
+			metrics.GetMetrics().Gauge("db_open_connections").Update(float64(s.OpenConnections))
+			<-time.After(30 * time.Second)
+		}
+	}()
 }

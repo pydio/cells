@@ -353,7 +353,7 @@ func handleSignals() {
 
 				initServices()
 
-				// Stop all services
+				// Start all services
 				for _, service := range allServices {
 					if service.Name() == "nats" {
 						continue
