@@ -110,7 +110,7 @@ func closeConn(conn Conn) error {
 	defer lock.Unlock()
 
 	for k, c := range conns {
-		if c == conn {
+		if c.d.GetConn() == conn {
 			if cl, ok := conn.(closer); ok {
 				if err := cl.Close(); err != nil {
 					return err
