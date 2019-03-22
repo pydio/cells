@@ -220,7 +220,9 @@ func (s *BleveServer) Close() error {
 func (s *BleveServer) IndexNode(c context.Context, n *tree.Node) error {
 
 	indexNode := s.MakeIndexableNode(c, n)
-	//	err := s.Engine.Index(n.GetUuid(), indexNode)
+	if n.GetUuid() == "" {
+		return fmt.Errorf("missing uuid")
+	}
 	log.Logger(c).Debug("IndexNode", indexNode.Zap())
 	s.inserts <- indexNode
 
@@ -241,14 +243,14 @@ func (s *BleveServer) ClearIndex(ctx context.Context) error {
 	MaxUint := ^uint(0)
 	MaxInt := int(MaxUint >> 1)
 	request.Size = MaxInt
-	searchResult, err := s.Engine.Search(request)
+	searchResult, err := s.Engine.SearchInContext(ctx, request)
 	if err != nil {
 		return err
 	}
 	b := s.Engine.NewBatch()
 	for _, hit := range searchResult.Hits {
 		log.Logger(ctx).Info("ClearIndex", zap.String("hit", hit.ID))
-		b.Delete(hit.Index)
+		b.Delete(hit.ID)
 	}
 	s.Engine.Batch(b)
 	return nil

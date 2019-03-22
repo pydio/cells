@@ -77,6 +77,7 @@ func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 			log.Println("Error while indexing node", e)
 		}
 
+		<-time.After(4 * time.Second)
 	}
 
 	return server, tmpDir
@@ -493,6 +494,7 @@ func TestDeleteNode(t *testing.T) {
 		ctx := context.Background()
 
 		server.DeleteNode(ctx, &tree.Node{Uuid: "docID1"})
+		<-time.After(4 * time.Second)
 
 		queryObject := &tree.Query{
 			FileName: "node",
@@ -519,7 +521,8 @@ func TestClearIndex(t *testing.T) {
 		}()
 		ctx := context.Background()
 
-		server.ClearIndex(ctx)
+		e := server.ClearIndex(ctx)
+		So(e, ShouldBeNil)
 
 		queryObject := &tree.Query{
 			FileName: "node",
