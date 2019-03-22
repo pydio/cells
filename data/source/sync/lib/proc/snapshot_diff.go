@@ -23,6 +23,11 @@ package proc
 import (
 	"context"
 	"errors"
+	sync2 "sync"
+	"time"
+
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
 
 	"fmt"
 
@@ -75,43 +80,99 @@ func ComputeSourcesDiff(ctx context.Context, left sync.PathSyncSource, right syn
 	}
 
 	var rightSnapshot, leftSnapshot *endpoints.MemDB
+	mainWg := &sync2.WaitGroup{}
+	var err1, err2 error
 
 	if right != nil {
-		if statusChan != nil {
-			statusChan <- filters.BatchProcessStatus{StatusString: "[right] Loading snapshot"}
-		}
-		rightSnapshot = endpoints.NewMemDB()
-		err = right.Walk(func(path string, node *tree.Node, err error) {
-			if sync.IsIgnoredFile(path) || len(path) == 0 {
-				return
+		mainWg.Add(1)
+		go func() {
+			start := time.Now()
+			rightSnapshot = endpoints.NewMemDB()
+			defer func() {
+				if statusChan != nil {
+					statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("[right] Snapshot loaded in %v - %s", time.Now().Sub(start), rightSnapshot.Stats())}
+				}
+				mainWg.Done()
+			}()
+			if statusChan != nil {
+				statusChan <- filters.BatchProcessStatus{StatusString: "[right] Loading snapshot"}
 			}
-			rightSnapshot.CreateNode(ctx, node, true)
-		})
-		if err != nil {
-			return nil, err
-		}
-		if statusChan != nil {
-			statusChan <- filters.BatchProcessStatus{StatusString: "[right] Snapshot loaded - " + rightSnapshot.Stats()}
-		}
+			wg := &sync2.WaitGroup{}
+			throttle := make(chan struct{}, 15)
+			err = right.Walk(func(path string, node *tree.Node, err error) {
+				if sync.IsIgnoredFile(path) || len(path) == 0 {
+					return
+				}
+				rightSnapshot.CreateNode(ctx, node, true)
+				if sync.NodeRequiresChecksum(node) {
+					wg.Add(1)
+					go func() {
+						throttle <- struct{}{}
+						defer func() {
+							<-throttle
+							wg.Done()
+						}()
+						if e := left.ComputeChecksum(node); e != nil {
+							log.Logger(ctx).Error("Error computing checksum for "+node.Path, zap.Error(e))
+						}
+					}()
+				}
+			})
+			wg.Wait()
+			if err != nil {
+				err1 = err
+			}
+		}()
 	}
 
 	if left != nil {
-		leftSnapshot = endpoints.NewMemDB()
-		if statusChan != nil {
-			statusChan <- filters.BatchProcessStatus{StatusString: "[left] Loading snapshot"}
-		}
-		err = left.Walk(func(path string, node *tree.Node, err error) {
-			if sync.IsIgnoredFile(path) || len(path) == 0 {
-				return
+		mainWg.Add(1)
+		go func() {
+			start := time.Now()
+			leftSnapshot = endpoints.NewMemDB()
+			defer func() {
+				if statusChan != nil {
+					statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("[left] Snapshot loaded in %v - %s", time.Now().Sub(start), leftSnapshot.Stats())}
+				}
+				mainWg.Done()
+			}()
+			if statusChan != nil {
+				statusChan <- filters.BatchProcessStatus{StatusString: "[left] Loading snapshot"}
 			}
-			leftSnapshot.CreateNode(ctx, node, true)
-		})
-		if err != nil {
-			return nil, err
-		}
-		if statusChan != nil {
-			statusChan <- filters.BatchProcessStatus{StatusString: "[left] Snapshot loaded - " + leftSnapshot.Stats()}
-		}
+			wg := &sync2.WaitGroup{}
+			throttle := make(chan struct{}, 15)
+			err = left.Walk(func(path string, node *tree.Node, err error) {
+				if sync.IsIgnoredFile(path) || len(path) == 0 {
+					return
+				}
+				leftSnapshot.CreateNode(ctx, node, true)
+				if sync.NodeRequiresChecksum(node) {
+					wg.Add(1)
+					go func() {
+						throttle <- struct{}{}
+						defer func() {
+							<-throttle
+							wg.Done()
+						}()
+						if e := left.ComputeChecksum(node); e != nil {
+							log.Logger(ctx).Error("Error computing checksum for "+node.Path, zap.Error(e))
+						}
+					}()
+				}
+			})
+			wg.Wait()
+			if err != nil {
+				err2 = err
+			}
+		}()
+	}
+
+	mainWg.Wait()
+	if err1 != nil {
+		return nil, err1
+	}
+	if err2 != nil {
+		return nil, err2
 	}
 
 	//	log.Logger(ctx).Info("Snapshots", zap.Any("left", leftSnapshot), zap.Any("right", rightSnapshot))

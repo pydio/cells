@@ -190,6 +190,16 @@ func (c *S3Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
 
 }
 
+func (c *S3Client) ComputeChecksum(node *tree.Node) error {
+	p := c.getFullPath(node.GetPath())
+	if newInfo, err := c.s3forceComputeEtag(minio.ObjectInfo{Key: p}); err == nil {
+		node.Etag = strings.Trim(newInfo.ETag, "\"")
+	} else {
+		return err
+	}
+	return nil
+}
+
 func (c *S3Client) Walk(walknFc common.WalkNodesFunc, pathes ...string) (err error) {
 
 	ctx := context.Background()
@@ -263,14 +273,17 @@ func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path str
 		if folderKey != "" && folderKey != "." {
 			c.createFolderIdsWhileWalking(createdDirs, walknFc, folderKey, objectInfo.LastModified)
 		}
-		if objectInfo.ETag == "" && objectInfo.Size > 0 {
-			var etagErr error
-			objectInfo, etagErr = c.s3forceComputeEtag(objectInfo)
-			if etagErr != nil {
-				log.Logger(c.globalContext).Error("Error while computing eTag", zap.Error(etagErr))
-				continue
+		/*
+			if len(objectInfo.ETag) == 0 || strings.Trim(objectInfo.ETag, "\"") == common.DefaultEtag {
+				//fmt.Println("-- Force Recompute Etag: " + objectInfo.ETag)
+				var etagErr error
+				objectInfo, etagErr = c.s3forceComputeEtag(objectInfo)
+				if etagErr != nil {
+					log.Logger(c.globalContext).Error("Error while computing eTag", zap.Error(etagErr))
+					continue
+				}
 			}
-		}
+		*/
 		s3FileInfo := NewS3FileInfo(objectInfo)
 		walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
 	}
@@ -306,32 +319,14 @@ func (c *S3Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walk
 
 func (c *S3Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectInfo, error) {
 
-	if objectInfo.Size == 0 {
-		return objectInfo, nil
-	}
-	//log.Println("No Etag, try copying object " + c.Bucket + "/" + objectInfo.Key)
-
 	var destinationInfo minio.DestinationInfo
 	var sourceInfo minio.SourceInfo
 
-	destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key+"--COMPUTE_HASH", nil, nil)
+	destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, nil)
 	sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key, nil)
+	sourceInfo.Headers.Set(servicescommon.X_AMZ_META_DIRECTIVE, "REPLACE")
 	copyErr := c.Mc.CopyObject(destinationInfo, sourceInfo)
 	if copyErr != nil {
-		log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
-		return objectInfo, copyErr
-	}
-
-	destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, nil)
-	sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key+"--COMPUTE_HASH", nil)
-	copyErr = c.Mc.CopyObject(destinationInfo, sourceInfo)
-	if copyErr != nil {
-		log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
-		return objectInfo, copyErr
-	}
-
-	removeErr := c.Mc.RemoveObject(c.Bucket, objectInfo.Key+"--COMPUTE_HASH")
-	if removeErr != nil {
 		log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
 		return objectInfo, copyErr
 	}
@@ -458,14 +453,17 @@ func (c *S3Client) getFileHash(path string) (uid string, hash string, metaSize i
 		metaSize, _ = strconv.ParseInt(size, 10, 64)
 	}
 	etag := strings.Trim(objectInfo.ETag, "\"")
-	if len(etag) == 0 {
-		var etagE error
-		objectInfo, etagE = c.s3forceComputeEtag(objectInfo)
-		if etagE != nil {
-			return uid, "", metaSize, etagE
+	/*
+		if len(etag) == 0 || etag == common.DefaultEtag {
+			fmt.Println("getFileHash - Recompute ETAG")
+			var etagE error
+			objectInfo, etagE = c.s3forceComputeEtag(objectInfo)
+			if etagE != nil {
+				return uid, "", metaSize, etagE
+			}
+			etag = strings.Trim(objectInfo.ETag, "\"")
 		}
-		etag = strings.Trim(objectInfo.ETag, "\"")
-	}
+	*/
 	return uid, etag, metaSize, nil
 }
 

@@ -23,6 +23,7 @@ package sync
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"go.uber.org/zap"
@@ -48,6 +49,10 @@ func (i *IndexEndpoint) GetEndpointInfo() commonsync.EndpointInfo {
 		RequiresNormalization: false,
 	}
 
+}
+
+func (i *IndexEndpoint) ComputeChecksum(node *tree.Node) error {
+	return fmt.Errorf("not.implemented")
 }
 
 func (i *IndexEndpoint) Walk(walknFc commonsync.WalkNodesFunc, pathes ...string) (err error) {

@@ -214,10 +214,16 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 	})
 }
 
-func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo) {
+func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	batch := NewBatch()
+	/*
+		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {
+			batch.SessionProvider = p
+			batch.SessionProviderContext = events[0].CreateContext(ev.globalContext)
+		}
+	*/
 
 	for _, event := range events {
 		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
@@ -238,9 +244,7 @@ func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo) {
 			batch.Deletes[key] = bEvent
 		}
 	}
-	log.Logger(ev.globalContext).Debug("Batch Before Filtering", batch.Zaps()...)
 	ev.FilterBatch(batch)
-	log.Logger(ev.globalContext).Debug("Batch After Filtering", batch.Zaps()...)
 	ev.batchOut <- batch
 
 }
@@ -262,7 +266,7 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 					ev.batchCacheMutex.Lock()
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
-					go ev.ProcessEvents(ev.batchCache[session])
+					go ev.ProcessEvents(ev.batchCache[session], true)
 					delete(ev.batchCache, session)
 					ev.batchCacheMutex.Unlock()
 				} else {
@@ -279,7 +283,7 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 			ev.batchCacheMutex.Lock()
 			if events, ok := ev.batchCache[session]; ok {
 				log.Logger(ev.globalContext).Debug("[batcher] Force closing session now!")
-				go ev.ProcessEvents(events)
+				go ev.ProcessEvents(events, true)
 				delete(ev.batchCache, session)
 			}
 			ev.batchCacheMutex.Unlock()
@@ -287,7 +291,7 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 			// Process Queue
 			if len(batch) > 0 {
 				log.Logger(ev.globalContext).Debug("[batcher] Processing batch after timeout")
-				go ev.ProcessEvents(batch)
+				go ev.ProcessEvents(batch, false)
 				batch = nil
 			}
 		}
