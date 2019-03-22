@@ -49,6 +49,11 @@ type BleveServer struct {
 	Router       views.Handler
 	Engine       bleve.Index
 	IndexContent bool
+
+	batch   *bleve.Batch
+	inserts chan *IndexableNode
+	deletes chan string
+	done    chan bool
 }
 
 func NewBleveEngine(indexContent bool) (*BleveServer, error) {
@@ -105,11 +110,15 @@ func NewBleveEngine(indexContent bool) (*BleveServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &BleveServer{
+	server := &BleveServer{
 		Engine:       index,
 		IndexContent: indexContent,
-	}, nil
-
+		inserts:      make(chan *IndexableNode),
+		deletes:      make(chan string),
+		done:         make(chan bool, 1),
+	}
+	go server.watchOperations()
+	return server, nil
 }
 
 type IndexableNode struct {
@@ -167,28 +176,62 @@ func (s *BleveServer) MakeIndexableNode(ctx context.Context, node *tree.Node) *I
 	return indexNode
 }
 
+func (s *BleveServer) watchOperations() {
+	for {
+		select {
+		case n := <-s.inserts:
+			if s.batch == nil {
+				s.batch = s.Engine.NewBatch()
+			}
+			s.batch.Index(n.GetUuid(), n)
+			if s.batch.Size() > 1000 {
+				s.flush()
+			}
+		case d := <-s.deletes:
+			if s.batch == nil {
+				s.batch = s.Engine.NewBatch()
+			}
+			s.batch.Delete(d)
+			if s.batch.Size() > 1000 {
+				s.flush()
+			}
+		case <-time.After(3 * time.Second):
+			s.flush()
+		case <-s.done:
+			s.flush()
+			s.Engine.Close()
+			return
+		}
+	}
+}
+
+func (s *BleveServer) flush() {
+	if s.batch != nil {
+		s.Engine.Batch(s.batch)
+		s.batch = nil
+	}
+}
+
 func (s *BleveServer) Close() error {
-
-	return s.Engine.Close()
-
+	close(s.done)
+	return nil
 }
 
 func (s *BleveServer) IndexNode(c context.Context, n *tree.Node) error {
 
 	indexNode := s.MakeIndexableNode(c, n)
-	err := s.Engine.Index(n.GetUuid(), indexNode)
-
+	//	err := s.Engine.Index(n.GetUuid(), indexNode)
 	log.Logger(c).Debug("IndexNode", indexNode.Zap())
+	s.inserts <- indexNode
 
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
 func (s *BleveServer) DeleteNode(c context.Context, n *tree.Node) error {
 
-	return s.Engine.Delete(n.GetUuid())
+	//return s.Engine.Delete(n.GetUuid())
+	s.deletes <- n.GetUuid()
+	return nil
 
 }
 
@@ -202,10 +245,12 @@ func (s *BleveServer) ClearIndex(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	b := s.Engine.NewBatch()
 	for _, hit := range searchResult.Hits {
 		log.Logger(ctx).Info("ClearIndex", zap.String("hit", hit.ID))
-		s.Engine.Delete(hit.ID)
+		b.Delete(hit.Index)
 	}
+	s.Engine.Batch(b)
 	return nil
 }
 

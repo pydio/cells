@@ -22,6 +22,7 @@ package log
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/blevesearch/bleve"
 	"github.com/rs/xid"
@@ -33,37 +34,78 @@ import (
 type SyslogServer struct {
 	Index bleve.Index
 	idgen xid.ID
+
+	inserts  chan map[string]string
+	done     chan bool
+	crtBatch *bleve.Batch
 }
 
 // NewSyslogServer creates and configures a default Bleve instance to store technical logs
 func NewSyslogServer(bleveIndexPath string, mappingName string, deleteOnClose ...bool) (*SyslogServer, error) {
-
 	index, err := bleve.Open(bleveIndexPath)
-	if err == nil {
-		// Already existing, no need to create
-		return &SyslogServer{Index: index}, nil
-	}
-
-	indexMapping := bleve.NewIndexMapping()
-	// Create, configure and add a specific document mapping
-	logMapping := bleve.NewDocumentMapping()
-	indexMapping.AddDocumentMapping(mappingName, logMapping)
-
-	// Creates the new index and initializes the server
-	if bleveIndexPath == "" {
-		index, err = bleve.NewMemOnly(indexMapping)
-	} else {
-		index, err = bleve.New(bleveIndexPath, indexMapping)
-	}
 	if err != nil {
-		return &SyslogServer{}, err
+		indexMapping := bleve.NewIndexMapping()
+		// Create, configure and add a specific document mapping
+		logMapping := bleve.NewDocumentMapping()
+		indexMapping.AddDocumentMapping(mappingName, logMapping)
+
+		// Creates the new index and initializes the server
+		if bleveIndexPath == "" {
+			index, err = bleve.NewMemOnly(indexMapping)
+		} else {
+			index, err = bleve.New(bleveIndexPath, indexMapping)
+		}
+		if err != nil {
+			return &SyslogServer{}, err
+		}
 	}
-	return &SyslogServer{Index: index}, nil
+	server := &SyslogServer{
+		Index:   index,
+		inserts: make(chan map[string]string),
+		done:    make(chan bool),
+	}
+	go server.watchInserts()
+	return server, nil
+}
+
+func (s *SyslogServer) watchInserts() {
+	for {
+		select {
+		case line := <-s.inserts:
+			if msg, err := MarshallLogMsg(line); err == nil {
+				if s.crtBatch == nil {
+					s.crtBatch = s.Index.NewBatch()
+				}
+				s.crtBatch.Index(xid.New().String(), msg)
+				if s.crtBatch.Size() > 5000 {
+					s.flush()
+				}
+			}
+		case <-time.After(3 * time.Second):
+			s.flush()
+		case <-s.done:
+			s.flush()
+			s.Index.Close()
+			return
+		}
+	}
+}
+
+func (s *SyslogServer) flush() {
+	if s.crtBatch != nil {
+		s.Index.Batch(s.crtBatch)
+		s.crtBatch = nil
+	}
+}
+
+func (s *SyslogServer) Close() {
+	close(s.done)
 }
 
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *SyslogServer) PutLog(line map[string]string) error {
-	return BlevePutLog(s.Index, line)
+	s.inserts <- line
+	return nil
 }
 
 // ListLogs performs a query in the bleve index, based on the passed query string.

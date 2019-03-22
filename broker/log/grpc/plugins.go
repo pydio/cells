@@ -56,6 +56,11 @@ func init() {
 
 				proto.RegisterLogRecorderHandler(m.Options().Server, handler)
 
+				m.Init(micro.BeforeStop(func() error {
+					repo.Close()
+					return nil
+				}))
+
 				return nil
 			}),
 		)

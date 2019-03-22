@@ -83,6 +83,7 @@ func init() {
 				m.Init(
 					micro.BeforeStop(func() error {
 						store.Close()
+						logStore.Close()
 						return nil
 					}),
 					micro.AfterStart(func() error {
