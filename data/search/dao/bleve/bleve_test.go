@@ -77,7 +77,7 @@ func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 			log.Println("Error while indexing node", e)
 		}
 
-		<-time.After(4 * time.Second)
+		<-time.After(5 * time.Second)
 	}
 
 	return server, tmpDir
