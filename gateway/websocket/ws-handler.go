@@ -269,8 +269,11 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 // BroadcastTaskChangeEvent listens to tasks events and broadcast them to sessions with the adequate user.
 func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *jobs.TaskChangeEvent) error {
 
-	taskOwner := event.TaskUpdated.TriggerOwner
+	if w.Websocket == nil {
+		return nil
+	}
 
+	taskOwner := event.TaskUpdated.TriggerOwner
 	marshaller := jsonpb.Marshaler{}
 	message, _ := marshaller.MarshalToString(event)
 	return w.Websocket.BroadcastFilter([]byte(message), func(session *melody.Session) bool {

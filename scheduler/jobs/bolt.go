@@ -209,6 +209,34 @@ func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 	return res, done, nil
 }
 
+// PutTasks batch updates DB with tasks organized by JobID and TaskID
+func (s *BoltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+
+		// First check buckets
+		for jId, ts := range tasks {
+			tasksBucket, err := tx.CreateBucketIfNotExists([]byte(tasksBucketString + jId))
+			if err != nil {
+				return err
+			}
+			for _, t := range ts {
+				s.stripTaskData(t)
+				jsonData, err := json.Marshal(t)
+				if err != nil {
+					return err
+				}
+				e := tasksBucket.Put([]byte(t.ID), jsonData)
+				if e != nil {
+					return e
+				}
+			}
+		}
+		return nil
+	})
+
+}
+
 func (s *BoltStore) PutTask(task *jobs.Task) error {
 
 	jobId := task.JobID

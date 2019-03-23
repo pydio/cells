@@ -25,6 +25,8 @@ import (
 	"time"
 
 	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/index/scorch"
+	"github.com/blevesearch/bleve/index/store/boltdb"
 	"github.com/rs/xid"
 
 	"github.com/pydio/cells/common/proto/log"
@@ -53,7 +55,7 @@ func NewSyslogServer(bleveIndexPath string, mappingName string, deleteOnClose ..
 		if bleveIndexPath == "" {
 			index, err = bleve.NewMemOnly(indexMapping)
 		} else {
-			index, err = bleve.New(bleveIndexPath, indexMapping)
+			index, err = bleve.NewUsing(bleveIndexPath, indexMapping, scorch.Name, boltdb.Name, nil)
 		}
 		if err != nil {
 			return &SyslogServer{}, err

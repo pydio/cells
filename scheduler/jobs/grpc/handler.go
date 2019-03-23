@@ -22,14 +22,14 @@ package grpc
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"strings"
-
+	log3 "github.com/pydio/cells/broker/log"
 	logcore "github.com/pydio/cells/broker/log/grpc"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -43,6 +43,29 @@ import (
 type JobsHandler struct {
 	logcore.Handler
 	store jobs.DAO
+
+	putTaskChan       chan *proto.Task
+	putTaskBuff       map[string]map[string]*proto.Task
+	putTaskBuffLength int
+	jobsBuff          map[string]*proto.Job
+	stop              chan bool
+}
+
+// NewJobsHandler creates a new JobsHandler
+func NewJobsHandler(store jobs.DAO, messageRepository log3.MessageRepository) *JobsHandler {
+	j := &JobsHandler{
+		store:       store,
+		putTaskChan: make(chan *proto.Task),
+		jobsBuff:    make(map[string]*proto.Job),
+		stop:        make(chan bool),
+	}
+	j.Handler.Repo = messageRepository
+	go j.watchPutTaskChan()
+	return j
+}
+
+func (j *JobsHandler) Close() {
+	close(j.stop)
 }
 
 //////////////////
@@ -202,6 +225,49 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	return nil
 }
 
+func (j *JobsHandler) flush() {
+	if j.putTaskBuff == nil {
+		return
+	}
+	log.Logger(context.Background()).Debug("Now flushing", zap.Any("j", j.putTaskBuff))
+	if err := j.store.PutTasks(j.putTaskBuff); err != nil {
+		log.Logger(context.Background()).Error("Error while flushing tasks to store")
+	}
+	j.putTaskBuff = nil
+	j.putTaskBuffLength = 0
+}
+
+func (j *JobsHandler) watchPutTaskChan() {
+	for {
+		select {
+		case task := <-j.putTaskChan:
+			if j.putTaskBuff == nil {
+				j.putTaskBuff = make(map[string]map[string]*proto.Task)
+			}
+			if _, o := j.putTaskBuff[task.JobID]; !o {
+				j.putTaskBuff[task.JobID] = make(map[string]*proto.Task)
+			}
+			var storeNow bool
+			if stored, o := j.putTaskBuff[task.JobID][task.ID]; !o || stored.Status == proto.TaskStatus_Finished {
+				storeNow = true
+			}
+			j.putTaskBuffLength++
+			j.putTaskBuff[task.JobID][task.ID] = task
+			if j.putTaskBuffLength > 500 {
+				j.flush()
+			} else if storeNow {
+				log.Logger(context.Background()).Debug("Quick store of this task as it is new or finished", task.Zap())
+				j.store.PutTask(task)
+			}
+		case <-time.After(3 * time.Second):
+			j.flush()
+		case <-j.stop:
+			j.flush()
+			return
+		}
+	}
+}
+
 func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobService_PutTaskStreamStream) error {
 
 	defer streamer.Close()
@@ -215,17 +281,32 @@ func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobServi
 			log.Logger(ctx).Debug("received an error in PutTaskStream", zap.Error(err))
 			return err
 		}
-
-		//log.Logger(ctx).Debug("PutTaskStream", zap.Any("task", request.Task))
-		var response proto.PutTaskResponse
-		e := j.PutTask(ctx, request, &response)
-		if e != nil {
-			streamer.SendMsg(e)
-		} else {
-			sendErr := streamer.Send(&response)
-			if sendErr != nil {
-				return e
+		t := request.Task
+		var tJob *proto.Job
+		if s, ok := j.jobsBuff[t.JobID]; !ok {
+			job, e := j.store.GetJob(t.JobID, 0)
+			if e != nil {
+				return errors.NotFound(common.SERVICE_JOBS, "Cannot append task to a non existing job ("+request.Task.JobID+")")
 			}
+			j.jobsBuff[t.JobID] = job
+			tJob = job
+		} else {
+			tJob = s
+		}
+		j.putTaskChan <- t
+		sendErr := streamer.Send(&proto.PutTaskResponse{
+			Task: t,
+		})
+		T := lang.Bundle().GetTranslationFunc()
+		tJob.Label = T(tJob.Label)
+		if !tJob.TasksSilentUpdate {
+			client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, &proto.TaskChangeEvent{
+				TaskUpdated: request.Task,
+				Job:         tJob,
+			}))
+		}
+		if sendErr != nil {
+			return sendErr
 		}
 	}
 

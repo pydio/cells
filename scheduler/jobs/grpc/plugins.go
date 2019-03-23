@@ -50,6 +50,7 @@ func init() {
 			service.Tag(common.SERVICE_TAG_SCHEDULER),
 			service.Description("Store for scheduler jobs description"),
 			service.Unique(true),
+			service.Fork(true),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.4.0"),
@@ -73,17 +74,15 @@ func init() {
 				if err != nil {
 					return err
 				}
-				handler := &JobsHandler{
-					store: store,
-				}
-				handler.Handler.Repo = logStore
+				handler := NewJobsHandler(store, logStore)
 				proto.RegisterJobServiceHandler(m.Options().Server, handler)
 				log2.RegisterLogRecorderHandler(m.Options().Server, handler)
 
 				m.Init(
 					micro.BeforeStop(func() error {
-						store.Close()
+						handler.Close()
 						logStore.Close()
+						store.Close()
 						return nil
 					}),
 					micro.AfterStart(func() error {

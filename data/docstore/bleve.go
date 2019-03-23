@@ -27,6 +27,8 @@ import (
 	"strings"
 
 	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/index/scorch"
+	"github.com/blevesearch/bleve/index/store/boltdb"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -50,7 +52,7 @@ func NewBleveEngine(bleveIndexPath string, deleteOnClose ...bool) (*BleveServer,
 	if e == nil {
 		index, err = bleve.Open(bleveIndexPath)
 	} else {
-		index, err = bleve.New(bleveIndexPath, bleve.NewIndexMapping())
+		index, err = bleve.NewUsing(bleveIndexPath, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
 	}
 	if err != nil {
 		return nil, err

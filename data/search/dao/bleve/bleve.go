@@ -31,11 +31,13 @@ import (
 
 	"github.com/blevesearch/bleve"
 	_ "github.com/blevesearch/bleve/analysis/analyzer/keyword"
+	"github.com/blevesearch/bleve/index/scorch"
+	"github.com/blevesearch/bleve/index/store/boltdb"
 	"github.com/blevesearch/bleve/search/query"
+	"github.com/golang/protobuf/proto"
 	"github.com/sajari/docconv"
 	"go.uber.org/zap"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
@@ -105,7 +107,7 @@ func NewBleveEngine(indexContent bool) (*BleveServer, error) {
 		textContent.IncludeInAll = false
 		nodeMapping.AddFieldMappingsAt("TextContent", textContent)
 
-		index, err = bleve.New(BleveIndexPath, mapping)
+		index, err = bleve.NewUsing(BleveIndexPath, mapping, scorch.Name, boltdb.Name, nil)
 	}
 	if err != nil {
 		return nil, err
