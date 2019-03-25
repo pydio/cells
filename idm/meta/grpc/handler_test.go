@@ -26,6 +26,8 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/micro/go-micro/metadata"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/context"
@@ -58,6 +60,7 @@ func TestMain(m *testing.M) {
 	}
 
 	ctx = servicecontext.WithDAO(ctx, mockDAO)
+	ctx = metadata.NewContext(ctx, map[string]string{})
 
 	m.Run()
 	wg.Wait()
