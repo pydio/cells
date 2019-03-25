@@ -43,7 +43,8 @@ func TreeNodeFromSource(source common.PathSyncSource) (*TreeNode, error) {
 		t := NewTreeNode(node)
 		parent, ok := dirs[t.ParentPath()]
 		if !ok {
-			log.Logger(context.Background()).Error("Cannot find parent path for node", node.ZapPath())
+			log.Logger(context.Background()).Error("Cannot find parent path for node, this is not normal - skipping node!", node.ZapPath())
+			return
 		}
 		if common.NodeRequiresChecksum(node) {
 			wg.Add(1)

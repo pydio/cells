@@ -260,30 +260,18 @@ func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path str
 			}
 			folderObjectInfo := objectInfo
 			//This will be called again inside the walknFc
+			c.createFolderIdsWhileWalking(createdDirs, walknFc, folderKey, objectInfo.LastModified, true)
 			folderObjectInfo.ETag, _, _ = c.readOrCreateFolderId(folderKey)
 			s3FileInfo := NewS3FolderInfo(folderObjectInfo)
 			walknFc(c.normalize(folderKey), s3FileInfo, nil)
 			createdDirs[folderKey] = true
-			//previousDir = folderKey
-			//continue
 		}
 		if c.isIgnoredFile(objectInfo.Key) {
 			continue
 		}
 		if folderKey != "" && folderKey != "." {
-			c.createFolderIdsWhileWalking(createdDirs, walknFc, folderKey, objectInfo.LastModified)
+			c.createFolderIdsWhileWalking(createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
 		}
-		/*
-			if len(objectInfo.ETag) == 0 || strings.Trim(objectInfo.ETag, "\"") == common.DefaultEtag {
-				//fmt.Println("-- Force Recompute Etag: " + objectInfo.ETag)
-				var etagErr error
-				objectInfo, etagErr = c.s3forceComputeEtag(objectInfo)
-				if etagErr != nil {
-					log.Logger(c.globalContext).Error("Error while computing eTag", zap.Error(etagErr))
-					continue
-				}
-			}
-		*/
 		s3FileInfo := NewS3FileInfo(objectInfo)
 		walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
 	}
@@ -291,10 +279,17 @@ func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path str
 }
 
 // Will try to create PYDIO_SYNC_HIDDEN_FILE_META to avoid missing empty folders
-func (c *S3Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time) {
+func (c *S3Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
 
 	parts := strings.Split(currentDir, "/")
-	for i := 0; i < len(parts); i++ {
+	max := len(parts)
+	if skipLast {
+		max = len(parts) - 1
+		if max == 0 {
+			return
+		}
+	}
+	for i := 0; i < max; i++ {
 		testDir := strings.Join(parts[0:i+1], "/")
 		if _, exists := createdDirs[testDir]; exists {
 			continue
@@ -426,7 +421,7 @@ func (c *S3Client) readOrCreateFolderId(folderPath string) (uid string, created 
 	// Does not exists
 	// Create dir uuid now
 	uid = fmt.Sprintf("%s", uuid.NewV4())
-	log.Logger(c.globalContext).Debug("Create Hidden File for folder", zap.String("path", hiddenPath))
+	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
 	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	h := md5.New()
 	io.Copy(h, strings.NewReader(uid))
