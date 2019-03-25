@@ -23,40 +23,102 @@ package proc
 import (
 	"context"
 	"errors"
-	sync2 "sync"
+	"fmt"
+	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
-
-	"fmt"
-
 	"github.com/pydio/cells/common/proto/tree"
-	sync "github.com/pydio/cells/data/source/sync/lib/common"
-	"github.com/pydio/cells/data/source/sync/lib/endpoints"
+	"github.com/pydio/cells/data/source/sync/lib/common"
 	"github.com/pydio/cells/data/source/sync/lib/filters"
 )
 
+// SourceDiff represent basic differences between two sources
+// It can be then transformed to Batch, depending on the sync being
+// unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
 type SourceDiff struct {
-	Left         sync.PathSyncSource
-	Right        sync.PathSyncSource
+	Left         common.PathSyncSource
+	Right        common.PathSyncSource
 	MissingLeft  []*tree.Node
 	MissingRight []*tree.Node
 	Context      context.Context
 }
 
-func (diff *SourceDiff) FilterMissing(source sync.PathSyncSource, target sync.PathSyncTarget, in []*tree.Node, folders bool, nofilter bool) (out map[string]*filters.BatchedEvent) {
+// ComputeSourceDiff loads the diff by crawling the sources in parallel, filling up a Hash Tree and performing the merge
+func ComputeSourcesDiff(ctx context.Context, left common.PathSyncSource, right common.PathSyncSource, strong bool, statusChan chan filters.BatchProcessStatus) (diff *SourceDiff, err error) {
 
-	var eventType sync.EventType
-	if nofilter {
-		eventType = sync.EventRemove
+	diff = &SourceDiff{
+		Left:    left,
+		Right:   right,
+		Context: ctx,
+	}
+
+	lTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
+	rTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
+	var errs []error
+	wg := &sync.WaitGroup{}
+
+	for _, k := range []string{"left", "right"} {
+		wg.Add(1)
+		go func(logId string) {
+			start := time.Now()
+			h := ""
+			defer func() {
+				if statusChan != nil {
+					statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("[%s] Snapshot loaded in %v - Root Hash is %s", logId, time.Now().Sub(start), h)}
+				}
+				wg.Done()
+			}()
+			if statusChan != nil {
+				statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("[%s] Loading snapshot", logId)}
+			}
+			var err error
+			if logId == "left" {
+				lTree, err = TreeNodeFromSource(left)
+				h = lTree.GetHash()
+			} else if logId == "right" {
+				rTree, err = TreeNodeFromSource(right)
+				h = rTree.GetHash()
+			}
+			if err != nil {
+				errs = append(errs, err)
+			}
+		}(k)
+	}
+	wg.Wait()
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+
+	if statusChan != nil {
+		statusChan <- filters.BatchProcessStatus{StatusString: "Now computing diff between snapshots"}
+	}
+
+	treeMerge := &SourceDiff{
+		Left:    left,
+		Right:   right,
+		Context: ctx,
+	}
+	MergeNodes(lTree, rTree, treeMerge)
+
+	if statusChan != nil {
+		statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(diff.MissingLeft), len(diff.MissingRight))}
+	}
+	return treeMerge, nil
+}
+
+// FilterMissing transforms Missing slices to BatchEvents
+func (diff *SourceDiff) FilterMissing(source common.PathSyncSource, target common.PathSyncTarget, in []*tree.Node, folders bool, removes bool) (out map[string]*filters.BatchedEvent) {
+
+	var eventType common.EventType
+	if removes {
+		eventType = common.EventRemove
 	} else {
-		eventType = sync.EventCreate
+		eventType = common.EventCreate
 	}
 	out = make(map[string]*filters.BatchedEvent)
 	for _, n := range in {
-		if nofilter || !folders && n.IsLeaf() || folders && !n.IsLeaf() {
-			eventInfo := sync.NodeToEventInfo(diff.Context, n.Path, n, eventType)
+		if removes || !folders && n.IsLeaf() || folders && !n.IsLeaf() {
+			eventInfo := common.NodeToEventInfo(diff.Context, n.Path, n, eventType)
 			be := &filters.BatchedEvent{
 				Key:       n.Path,
 				Node:      n,
@@ -71,170 +133,7 @@ func (diff *SourceDiff) FilterMissing(source sync.PathSyncSource, target sync.Pa
 
 }
 
-func ComputeSourcesDiff(ctx context.Context, left sync.PathSyncSource, right sync.PathSyncSource, strong bool, statusChan chan filters.BatchProcessStatus) (diff *SourceDiff, err error) {
-
-	diff = &SourceDiff{
-		Left:    left,
-		Right:   right,
-		Context: ctx,
-	}
-
-	var rightSnapshot, leftSnapshot *endpoints.MemDB
-	mainWg := &sync2.WaitGroup{}
-	var err1, err2 error
-
-	if right != nil {
-		mainWg.Add(1)
-		go func() {
-			start := time.Now()
-			rightSnapshot = endpoints.NewMemDB()
-			defer func() {
-				if statusChan != nil {
-					statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("[right] Snapshot loaded in %v - %s", time.Now().Sub(start), rightSnapshot.Stats())}
-				}
-				mainWg.Done()
-			}()
-			if statusChan != nil {
-				statusChan <- filters.BatchProcessStatus{StatusString: "[right] Loading snapshot"}
-			}
-			wg := &sync2.WaitGroup{}
-			throttle := make(chan struct{}, 15)
-			err = right.Walk(func(path string, node *tree.Node, err error) {
-				if sync.IsIgnoredFile(path) || len(path) == 0 {
-					return
-				}
-				rightSnapshot.CreateNode(ctx, node, true)
-				if sync.NodeRequiresChecksum(node) {
-					wg.Add(1)
-					go func() {
-						throttle <- struct{}{}
-						defer func() {
-							<-throttle
-							wg.Done()
-						}()
-						if e := left.ComputeChecksum(node); e != nil {
-							log.Logger(ctx).Error("Error computing checksum for "+node.Path, zap.Error(e))
-						}
-					}()
-				}
-			})
-			wg.Wait()
-			if err != nil {
-				err1 = err
-			}
-		}()
-	}
-
-	if left != nil {
-		mainWg.Add(1)
-		go func() {
-			start := time.Now()
-			leftSnapshot = endpoints.NewMemDB()
-			defer func() {
-				if statusChan != nil {
-					statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("[left] Snapshot loaded in %v - %s", time.Now().Sub(start), leftSnapshot.Stats())}
-				}
-				mainWg.Done()
-			}()
-			if statusChan != nil {
-				statusChan <- filters.BatchProcessStatus{StatusString: "[left] Loading snapshot"}
-			}
-			wg := &sync2.WaitGroup{}
-			throttle := make(chan struct{}, 15)
-			err = left.Walk(func(path string, node *tree.Node, err error) {
-				if sync.IsIgnoredFile(path) || len(path) == 0 {
-					return
-				}
-				leftSnapshot.CreateNode(ctx, node, true)
-				if sync.NodeRequiresChecksum(node) {
-					wg.Add(1)
-					go func() {
-						throttle <- struct{}{}
-						defer func() {
-							<-throttle
-							wg.Done()
-						}()
-						if e := left.ComputeChecksum(node); e != nil {
-							log.Logger(ctx).Error("Error computing checksum for "+node.Path, zap.Error(e))
-						}
-					}()
-				}
-			})
-			wg.Wait()
-			if err != nil {
-				err2 = err
-			}
-		}()
-	}
-
-	mainWg.Wait()
-	if err1 != nil {
-		return nil, err1
-	}
-	if err2 != nil {
-		return nil, err2
-	}
-
-	//	log.Logger(ctx).Info("Snapshots", zap.Any("left", leftSnapshot), zap.Any("right", rightSnapshot))
-
-	if statusChan != nil {
-		statusChan <- filters.BatchProcessStatus{StatusString: "Now computing diff between snapshots"}
-	}
-
-	if leftSnapshot != nil {
-		err = leftSnapshot.Walk(func(path string, node *tree.Node, err error) {
-			if rightSnapshot == nil {
-				diff.MissingRight = append(diff.MissingRight, node)
-				return
-			}
-			otherNode, _ := rightSnapshot.LoadNode(ctx, path, node.IsLeaf())
-			if otherNode == nil {
-				diff.MissingRight = append(diff.MissingRight, node)
-			} else if strong {
-				if node.IsLeaf() && (!otherNode.IsLeaf() || node.Etag != otherNode.Etag) {
-					diff.MissingRight = append(diff.MissingRight, node)
-				}
-				if !node.IsLeaf() && (otherNode.IsLeaf() || node.Uuid != otherNode.Uuid) {
-					diff.MissingRight = append(diff.MissingRight, node)
-				}
-			}
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if rightSnapshot != nil {
-		err = rightSnapshot.Walk(func(path string, node *tree.Node, err error) {
-			if leftSnapshot == nil {
-				diff.MissingLeft = append(diff.MissingLeft, node)
-				return
-			}
-			dbNode, _ := leftSnapshot.LoadNode(ctx, path, node.IsLeaf())
-			if dbNode == nil {
-				diff.MissingLeft = append(diff.MissingLeft, node)
-			} else if strong {
-				if node.IsLeaf() && (!dbNode.IsLeaf() || node.Etag != dbNode.Etag) {
-					diff.MissingRight = append(diff.MissingRight, node)
-				}
-				if !node.IsLeaf() && (dbNode.IsLeaf() || node.Uuid != dbNode.Uuid) {
-					diff.MissingRight = append(diff.MissingRight, node)
-				}
-			}
-
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if statusChan != nil {
-		statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(diff.MissingLeft), len(diff.MissingRight))}
-	}
-
-	return diff, nil
-}
-
+// String provides a string representation of this diff
 func (diff *SourceDiff) String() string {
 	output := ""
 	output += "\n MissingLeft : "
@@ -248,10 +147,11 @@ func (diff *SourceDiff) String() string {
 	return output
 }
 
+// ToUnidirectionalBatch transforms this diff to a batch
 func (diff *SourceDiff) ToUnidirectionalBatch(direction string) (batch *filters.Batch, err error) {
 
-	rightTarget, rightOk := interface{}(diff.Right).(sync.PathSyncTarget)
-	leftTarget, leftOk := interface{}(diff.Left).(sync.PathSyncTarget)
+	rightTarget, rightOk := interface{}(diff.Right).(common.PathSyncTarget)
+	leftTarget, leftOk := interface{}(diff.Left).(common.PathSyncTarget)
 
 	if direction == "left" && rightOk {
 		batch = filters.NewBatch()
@@ -270,7 +170,8 @@ func (diff *SourceDiff) ToUnidirectionalBatch(direction string) (batch *filters.
 
 }
 
-func (diff *SourceDiff) ToBidirectionalBatch(leftTarget sync.PathSyncTarget, rightTarget sync.PathSyncTarget) (batch *filters.BidirectionalBatch, err error) {
+// ToBidirectionalBatch transforms this diff to a batch
+func (diff *SourceDiff) ToBidirectionalBatch(leftTarget common.PathSyncTarget, rightTarget common.PathSyncTarget) (batch *filters.BidirectionalBatch, err error) {
 
 	leftBatch := filters.NewBatch()
 	if rightTarget != nil {
