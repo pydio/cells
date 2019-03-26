@@ -147,6 +147,13 @@ func (diff *SourceDiff) String() string {
 	return output
 }
 
+func (diff *SourceDiff) Stats() map[string]int {
+	return map[string]int{
+		"MissingLeft":  len(diff.MissingLeft),
+		"MissingRight": len(diff.MissingRight),
+	}
+}
+
 // ToUnidirectionalBatch transforms this diff to a batch
 func (diff *SourceDiff) ToUnidirectionalBatch(direction string) (batch *filters.Batch, err error) {
 

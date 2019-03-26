@@ -258,8 +258,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}
 		return e
 	}
-	data, _ := json.Marshal(diff)
 	if e == nil {
+		data, _ := json.Marshal(diff.Stats())
 		resp.JsonDiff = string(data)
 	}
 	resp.Success = true
