@@ -93,11 +93,14 @@ var TasksPanel = (function (_React$Component) {
         if (this.state.folded) {
             return;
         }
+        var newScroll = 8;
+
         var innerPane = this.refs.innerPane;
 
-        var newScroll = 8;
-        for (var i = 0; i < innerPane.children.length; i++) {
-            newScroll += innerPane.children.item(i).clientHeight + 8;
+        if (innerPane && innerPane.children) {
+            for (var i = 0; i < innerPane.children.length; i++) {
+                newScroll += innerPane.children.item(i).clientHeight + 8;
+            }
         }
         if (newScroll && this.state.innerScroll !== newScroll) {
             this.setState({ innerScroll: newScroll });

@@ -88,9 +88,19 @@ const Dashboard = React.createClass({
             }
         }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+        this._poll = setInterval(()=>{
+            if (this.state && this.state.selectJob){
+                this.loadOne(this.state.selectJob, true);
+            } else {
+                this.load(true)
+            }
+        }, 10000);
     },
 
     componentWillUnmount(){
+        if(this._poll){
+            clearInterval(this._poll);
+        }
         JobsStore.getInstance().stopObserving("tasks_updated");
     },
 

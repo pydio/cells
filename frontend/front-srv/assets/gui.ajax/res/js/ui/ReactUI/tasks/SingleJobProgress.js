@@ -31,16 +31,26 @@ class SingleJobProgress extends React.Component {
     }
 
     reloadTask() {
-        const {jobID} = this.props;
+        const {jobID, taskID} = this.props;
         this.store.getJobs(false).then(tasksList => {
             if(tasksList && tasksList.has(jobID)) {
                 const job = tasksList.get(jobID);
                 if(job.Tasks && job.Tasks.length) {
-                    const task = job.Tasks[0];
-                    if(task.Progress === 1 && this.props.onEnd){
-                        this.props.onEnd();
+                    let task;
+                    if (taskID) {
+                        const filtered = job.Tasks.filter(t => t.ID === taskID);
+                        if (filtered.length) {
+                            task = filtered[0]
+                        }
+                    } else {
+                        task = job.Tasks[0];
                     }
-                    this.setState({task});
+                    if (task){
+                        if(task.Progress === 1 && this.props.onEnd){
+                            this.props.onEnd();
+                        }
+                        this.setState({task});
+                    }
                 }
             }
         });

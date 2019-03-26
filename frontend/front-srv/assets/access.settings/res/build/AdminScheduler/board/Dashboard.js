@@ -134,9 +134,19 @@ var Dashboard = _react2['default'].createClass({
             }
         }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+        this._poll = setInterval(function () {
+            if (_this3.state && _this3.state.selectJob) {
+                _this3.loadOne(_this3.state.selectJob, true);
+            } else {
+                _this3.load(true);
+            }
+        }, 10000);
     },
 
     componentWillUnmount: function componentWillUnmount() {
+        if (this._poll) {
+            clearInterval(this._poll);
+        }
         JobsStore.getInstance().stopObserving("tasks_updated");
     },
 

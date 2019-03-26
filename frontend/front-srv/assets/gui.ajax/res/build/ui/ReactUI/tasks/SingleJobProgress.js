@@ -58,17 +58,31 @@ var SingleJobProgress = (function (_React$Component) {
     SingleJobProgress.prototype.reloadTask = function reloadTask() {
         var _this2 = this;
 
-        var jobID = this.props.jobID;
+        var _props = this.props;
+        var jobID = _props.jobID;
+        var taskID = _props.taskID;
 
         this.store.getJobs(false).then(function (tasksList) {
             if (tasksList && tasksList.has(jobID)) {
                 var job = tasksList.get(jobID);
                 if (job.Tasks && job.Tasks.length) {
-                    var task = job.Tasks[0];
-                    if (task.Progress === 1 && _this2.props.onEnd) {
-                        _this2.props.onEnd();
+                    var task = undefined;
+                    if (taskID) {
+                        var filtered = job.Tasks.filter(function (t) {
+                            return t.ID === taskID;
+                        });
+                        if (filtered.length) {
+                            task = filtered[0];
+                        }
+                    } else {
+                        task = job.Tasks[0];
                     }
-                    _this2.setState({ task: task });
+                    if (task) {
+                        if (task.Progress === 1 && _this2.props.onEnd) {
+                            _this2.props.onEnd();
+                        }
+                        _this2.setState({ task: task });
+                    }
                 }
             }
         });
@@ -85,10 +99,10 @@ var SingleJobProgress = (function (_React$Component) {
 
     SingleJobProgress.prototype.render = function render() {
         var task = this.state.task;
-        var _props = this.props;
-        var style = _props.style;
-        var labelStyle = _props.labelStyle;
-        var progressStyle = _props.progressStyle;
+        var _props2 = this.props;
+        var style = _props2.style;
+        var labelStyle = _props2.labelStyle;
+        var progressStyle = _props2.progressStyle;
 
         if (!task) {
             return _react2['default'].createElement(

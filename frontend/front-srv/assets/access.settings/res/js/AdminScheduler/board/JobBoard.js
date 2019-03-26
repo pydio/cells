@@ -21,7 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {IconButton, FontIcon, FlatButton, RaisedButton, Paper, Dialog, Divider} from 'material-ui'
-const {JobsStore} = Pydio.requireLib("boot");
+const {JobsStore, SingleJobProgress} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 import TaskActivity from './TaskActivity'
 import JobSchedule from './JobSchedule'
@@ -110,8 +110,13 @@ class JobBoard extends React.Component {
             {name:'EndTime', label:m('task.end'), useMoment:true, hideSmall: true},
             {name:'Status', label:m('task.status')},
             {name:'StatusMessage', label:m('task.message'), hideSmall: true, style:{width: '25%'}, headerStyle:{width:'25%'}, renderCell:(row)=>{
-                if(row.Status === 'Error') return <span style={{fontWeight: 500, color: '#E53935'}}>{row.StatusMessage}</span>;
-                else return row.StatusMessage;
+                if(row.Status === 'Error') {
+                    return <span style={{fontWeight: 500, color: '#E53935'}}>{row.StatusMessage}</span>;
+                } else if (row.Status === 'Running') {
+                    return <SingleJobProgress pydio={pydio} jobID={row.JobID} taskID={row.ID}/>
+                } else {
+                    return row.StatusMessage;
+                }
             }},
             {name:'Actions', label:'', style:{textAlign:'right'}, renderCell:this.renderActions.bind(this)}
         ];
@@ -176,6 +181,7 @@ class JobBoard extends React.Component {
                             columns={keys}
                             showCheckboxes={false}
                             emptyStateString={m('tasks.running.empty')}
+                            onSelectRows={(rows) => { if(rows.length === 1 && running.length){ this.setState({taskLogs: rows[0]}); }}}
                         />
                     </Paper>
                     <AdminComponents.SubHeader
