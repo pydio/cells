@@ -147,6 +147,7 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 				theTask.EndTime = int32(time.Now().Unix())
 			}
 			taskChan <- theTask
+			taskClient.Stop()
 		}()
 	}
 
