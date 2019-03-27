@@ -58,7 +58,7 @@ func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 			"lon": 8.372777777777777,
 		})
 
-		e := server.IndexNode(ctx, node)
+		e := server.IndexNode(ctx, node, false, nil)
 		if e != nil {
 			log.Println("Error while indexing node", e)
 		}
@@ -72,7 +72,7 @@ func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 		}
 		node2.SetMeta("name", "folder")
 
-		e = server.IndexNode(ctx, node2)
+		e = server.IndexNode(ctx, node2, false, nil)
 		if e != nil {
 			log.Println("Error while indexing node", e)
 		}
@@ -87,7 +87,7 @@ func search(ctx context.Context, index *BleveServer, queryObject *tree.Query) ([
 
 	resultsChan := make(chan *tree.Node)
 	doneChan := make(chan bool)
-	results := []*tree.Node{}
+	var results []*tree.Node
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
@@ -148,8 +148,10 @@ func TestMakeIndexableNode(t *testing.T) {
 		}
 		node.SetMeta("name", "node.txt")
 
-		s, _ := NewBleveEngine(false)
-		indexNode := s.MakeIndexableNode(context.Background(), node)
+		b := NewBatch(BatchOptions{})
+		indexNode := &IndexableNode{Node: *node}
+		e := b.LoadIndexableNode(indexNode, nil)
+		So(e, ShouldBeNil)
 		So(indexNode.NodeType, ShouldEqual, "file")
 		So(indexNode.ModifTime, ShouldResemble, mtimeNoNano)
 		So(indexNode.Basename, ShouldEqual, "node.txt")
@@ -182,7 +184,7 @@ func TestIndexNode(t *testing.T) {
 			MetaStore: make(map[string]string),
 		}
 		ctx := context.Background()
-		e := server.IndexNode(ctx, node)
+		e := server.IndexNode(ctx, node, false, nil)
 
 		So(e, ShouldBeNil)
 	})
@@ -206,7 +208,7 @@ func TestIndexNode(t *testing.T) {
 			MetaStore: make(map[string]string),
 		}
 		ctx := context.Background()
-		e := server.IndexNode(ctx, node)
+		e := server.IndexNode(ctx, node, false, nil)
 
 		So(e, ShouldNotBeNil)
 	})

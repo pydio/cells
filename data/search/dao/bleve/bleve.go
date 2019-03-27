@@ -25,7 +25,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -34,8 +33,6 @@ import (
 	"github.com/blevesearch/bleve/index/scorch"
 	"github.com/blevesearch/bleve/index/store/boltdb"
 	"github.com/blevesearch/bleve/search/query"
-	"github.com/golang/protobuf/proto"
-	"github.com/sajari/docconv"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -45,6 +42,7 @@ import (
 
 var (
 	BleveIndexPath = ""
+	BatchSize      = 5000
 )
 
 type BleveServer struct {
@@ -68,46 +66,9 @@ func NewBleveEngine(indexContent bool) (*BleveServer, error) {
 	var index bleve.Index
 	var err error
 	if e == nil {
-
 		index, err = bleve.Open(BleveIndexPath)
-
 	} else {
-
-		mapping := bleve.NewIndexMapping()
-		nodeMapping := bleve.NewDocumentMapping()
-		mapping.AddDocumentMapping("node", nodeMapping)
-
-		// Path to keyword
-		pathFieldMapping := bleve.NewTextFieldMapping()
-		pathFieldMapping.Analyzer = "keyword"
-		nodeMapping.AddFieldMappingsAt("Path", pathFieldMapping)
-
-		// Node type to keyword
-		nodeType := bleve.NewTextFieldMapping()
-		nodeType.Analyzer = "keyword"
-		nodeMapping.AddFieldMappingsAt("NodeType", nodeType)
-
-		// Extension to keyword
-		extType := bleve.NewTextFieldMapping()
-		extType.Analyzer = "keyword"
-		nodeMapping.AddFieldMappingsAt("Extension", extType)
-
-		// Modification Time as Date
-		modifTime := bleve.NewDateTimeFieldMapping()
-		nodeMapping.AddFieldMappingsAt("ModifTime", modifTime)
-
-		// GeoPoint
-		geoPosition := bleve.NewGeoPointFieldMapping()
-		nodeMapping.AddFieldMappingsAt("GeoPoint", geoPosition)
-
-		// Text Content
-		textContent := bleve.NewTextFieldMapping()
-		textContent.Analyzer = "en" // See detect_lang in the blevesearch/blevex package?
-		textContent.Store = false
-		textContent.IncludeInAll = false
-		nodeMapping.AddFieldMappingsAt("TextContent", textContent)
-
-		index, err = bleve.NewUsing(BleveIndexPath, mapping, scorch.Name, boltdb.Name, nil)
+		index, err = createIndex(BleveIndexPath)
 	}
 	if err != nil {
 		return nil, err
@@ -125,6 +86,9 @@ func NewBleveEngine(indexContent bool) (*BleveServer, error) {
 
 type IndexableNode struct {
 	tree.Node
+	reloadCore bool
+	reloadNs   bool
+
 	ModifTime   time.Time
 	Basename    string
 	NodeType    string
@@ -138,80 +102,68 @@ func (i *IndexableNode) BleveType() string {
 	return "node"
 }
 
-func (s *BleveServer) getRouter() views.Handler {
-	if s.Router == nil {
-		s.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
-	}
-	return s.Router
-}
-
-func (s *BleveServer) MakeIndexableNode(ctx context.Context, node *tree.Node) *IndexableNode {
-	indexNode := &IndexableNode{Node: *node}
-	indexNode.Meta = indexNode.AllMetaDeserialized()
-	indexNode.ModifTime = time.Unix(indexNode.MTime, 0)
-	var basename string
-	indexNode.GetMeta("name", &basename)
-	indexNode.Basename = basename
-	if indexNode.Type == 1 {
-		indexNode.NodeType = "file"
-		indexNode.Extension = strings.TrimLeft(filepath.Ext(basename), ".")
-	} else {
-		indexNode.NodeType = "folder"
-	}
-	indexNode.GetMeta("GeoLocation", &indexNode.GeoPoint)
-
-	if s.IndexContent && indexNode.IsLeaf() {
-		logger := log.Logger(ctx)
-		reader, err := s.getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
-		if err == nil {
-			convertResp, er := docconv.Convert(reader, docconv.MimeTypeByExtension(basename), true)
-			if er == nil {
-				// Todo : do something with convertResp.Meta?
-				logger.Debug("[BLEVE] Indexing content body for file")
-				indexNode.TextContent = convertResp.Body
-			}
-		} else {
-			logger.Debug("[BLEVE] Index content: error while trying to read file for content indexation")
-		}
-	}
-	indexNode.MetaStore = nil
-	return indexNode
-}
-
 func (s *BleveServer) watchOperations() {
+	batch := NewBatch(BatchOptions{IndexContent: s.IndexContent})
 	for {
 		select {
 		case n := <-s.inserts:
-			if s.batch == nil {
-				s.batch = s.Engine.NewBatch()
-			}
-			s.batch.Index(n.GetUuid(), n)
-			if s.batch.Size() > 1000 {
-				s.flush()
+			batch.Index(n)
+			if batch.Size() > BatchSize {
+				batch.Flush(s.Engine)
 			}
 		case d := <-s.deletes:
-			if s.batch == nil {
-				s.batch = s.Engine.NewBatch()
-			}
-			s.batch.Delete(d)
-			if s.batch.Size() > 1000 {
-				s.flush()
+			batch.Delete(d)
+			if batch.Size() > BatchSize {
+				batch.Flush(s.Engine)
 			}
 		case <-time.After(3 * time.Second):
-			s.flush()
+			batch.Flush(s.Engine)
 		case <-s.done:
-			s.flush()
+			batch.Flush(s.Engine)
 			s.Engine.Close()
 			return
 		}
 	}
 }
 
-func (s *BleveServer) flush() {
-	if s.batch != nil {
-		s.Engine.Batch(s.batch)
-		s.batch = nil
-	}
+func createIndex(indexPath string) (bleve.Index, error) {
+
+	mapping := bleve.NewIndexMapping()
+	nodeMapping := bleve.NewDocumentMapping()
+	mapping.AddDocumentMapping("node", nodeMapping)
+
+	// Path to keyword
+	pathFieldMapping := bleve.NewTextFieldMapping()
+	pathFieldMapping.Analyzer = "keyword"
+	nodeMapping.AddFieldMappingsAt("Path", pathFieldMapping)
+
+	// Node type to keyword
+	nodeType := bleve.NewTextFieldMapping()
+	nodeType.Analyzer = "keyword"
+	nodeMapping.AddFieldMappingsAt("NodeType", nodeType)
+
+	// Extension to keyword
+	extType := bleve.NewTextFieldMapping()
+	extType.Analyzer = "keyword"
+	nodeMapping.AddFieldMappingsAt("Extension", extType)
+
+	// Modification Time as Date
+	modifTime := bleve.NewDateTimeFieldMapping()
+	nodeMapping.AddFieldMappingsAt("ModifTime", modifTime)
+
+	// GeoPoint
+	geoPosition := bleve.NewGeoPointFieldMapping()
+	nodeMapping.AddFieldMappingsAt("GeoPoint", geoPosition)
+
+	// Text Content
+	textContent := bleve.NewTextFieldMapping()
+	textContent.Analyzer = "en" // See detect_lang in the blevesearch/blevex package?
+	textContent.Store = false
+	textContent.IncludeInAll = false
+	nodeMapping.AddFieldMappingsAt("TextContent", textContent)
+
+	return bleve.NewUsing(indexPath, mapping, scorch.Name, boltdb.Name, nil)
+
 }
 
 func (s *BleveServer) Close() error {
@@ -219,42 +171,39 @@ func (s *BleveServer) Close() error {
 	return nil
 }
 
-func (s *BleveServer) IndexNode(c context.Context, n *tree.Node) error {
+func (s *BleveServer) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
 
-	indexNode := s.MakeIndexableNode(c, n)
 	if n.GetUuid() == "" {
 		return fmt.Errorf("missing uuid")
 	}
-	log.Logger(c).Debug("IndexNode", indexNode.Zap())
-	s.inserts <- indexNode
+	iNode := &IndexableNode{
+		Node:       *n,
+		reloadCore: reloadCore,
+		reloadNs:   !reloadCore,
+	}
+	s.inserts <- iNode
 
 	return nil
 }
 
 func (s *BleveServer) DeleteNode(c context.Context, n *tree.Node) error {
 
-	//return s.Engine.Delete(n.GetUuid())
 	s.deletes <- n.GetUuid()
 	return nil
 
 }
 
 func (s *BleveServer) ClearIndex(ctx context.Context) error {
-	// List all nodes and remove them
-	request := bleve.NewSearchRequest(bleve.NewMatchAllQuery())
-	MaxUint := ^uint(0)
-	MaxInt := int(MaxUint >> 1)
-	request.Size = MaxInt
-	searchResult, err := s.Engine.SearchInContext(ctx, request)
-	if err != nil {
-		return err
+	s.done <- true
+	if e := os.RemoveAll(BleveIndexPath); e != nil {
+		return e
 	}
-	b := s.Engine.NewBatch()
-	for _, hit := range searchResult.Hits {
-		log.Logger(ctx).Info("ClearIndex", zap.String("hit", hit.ID))
-		b.Delete(hit.ID)
+	index, e := createIndex(BleveIndexPath)
+	if e != nil {
+		return e
 	}
-	s.Engine.Batch(b)
+	s.Engine = index
+	go s.watchOperations()
 	return nil
 }
 
@@ -351,7 +300,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		doneChan <- true
 		return err
 	}
-	log.Logger(c).Info("SearchObjects", zap.Any("result", searchResult))
+	log.Logger(c).Info("SearchObjects", zap.Any("total results", searchResult.Total))
 	for _, hit := range searchResult.Hits {
 		doc, docErr := s.Engine.Document(hit.ID)
 		if docErr != nil || doc == nil {
@@ -381,7 +330,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 			}
 		}
 
-		log.Logger(c).Info("SearchObjects", zap.Any("node", node))
+		log.Logger(c).Debug("SearchObjects", zap.Any("node", node))
 
 		resultChan <- node
 	}

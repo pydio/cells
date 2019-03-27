@@ -386,6 +386,7 @@ message NodeChangeEvent{
         UPDATE_PATH = 2;
         UPDATE_CONTENT = 3;
         UPDATE_META = 4;
+        UPDATE_USER_META = 6;
         DELETE = 5;
     }
     EventType Type = 1;

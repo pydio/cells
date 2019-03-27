@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/idm/acl"
 )
 
@@ -46,7 +47,7 @@ func init() {
 				},
 			}),
 			service.WithMicro(func(m micro.Service) error {
-				m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
+				m.Init(micro.Metadata(map[string]string{meta.ServiceMetaProvider: "stream"}))
 				handler := new(Handler)
 				idm.RegisterACLServiceHandler(m.Server(), handler)
 				tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)

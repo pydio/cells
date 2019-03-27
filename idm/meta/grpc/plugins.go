@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	service2 "github.com/pydio/cells/common/service/proto"
+	meta2 "github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/idm/meta"
 )
 
@@ -53,7 +54,10 @@ func init() {
 			service.WithMicro(func(m micro.Service) error {
 				ctx := m.Options().Context
 				server := NewHandler()
-				m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
+				m.Init(micro.Metadata(map[string]string{
+					meta2.ServiceMetaProvider:   "stream",
+					meta2.ServiceMetaNsProvider: "list",
+				}))
 				m.Init(micro.BeforeStop(func() error {
 					server.Stop()
 					return nil

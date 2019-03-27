@@ -107,7 +107,7 @@ func (node *Node) HasMetaKey(keyName string) bool {
 
 // AllMetaDeserialized unmarshall all defined metadata to JSON objects,
 // skipping reserved meta (e.g. meta that have a key prefixed by "pydio:")
-func (node *Node) AllMetaDeserialized() map[string]interface{} {
+func (node *Node) AllMetaDeserialized(excludes map[string]struct{}) map[string]interface{} {
 
 	if len(node.MetaStore) == 0 {
 		return map[string]interface{}{}
@@ -116,6 +116,11 @@ func (node *Node) AllMetaDeserialized() map[string]interface{} {
 	for k := range node.MetaStore {
 		if strings.HasPrefix(k, "pydio:") {
 			continue
+		}
+		if excludes != nil {
+			if _, x := excludes[k]; x {
+				continue
+			}
 		}
 		var data interface{}
 		node.GetMeta(k, &data)

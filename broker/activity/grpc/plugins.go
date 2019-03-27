@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils/meta"
 )
 
 var (
@@ -66,7 +67,7 @@ func init() {
 			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 				m.Init(
-					micro.Metadata(map[string]string{"MetaProvider": "stream"}),
+					micro.Metadata(map[string]string{meta.ServiceMetaProvider: "stream"}),
 				)
 				dao := servicecontext.GetDAO(m.Options().Context).(activity.DAO)
 				// Register Subscribers

@@ -28,7 +28,7 @@ import (
 )
 
 type SearchEngine interface {
-	IndexNode(context.Context, *tree.Node) error
+	IndexNode(context.Context, *tree.Node, bool, map[string]struct{}) error
 	DeleteNode(context.Context, *tree.Node) error
 	SearchNodes(context.Context, *tree.Query, int32, int32, chan *tree.Node, chan bool) error
 	ClearIndex(ctx context.Context) error

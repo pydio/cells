@@ -14,6 +14,11 @@ import (
 	"github.com/pydio/cells/common/registry"
 )
 
+const (
+	ServiceMetaProvider   = "MetaProvider"
+	ServiceMetaNsProvider = "MetaNsProvider"
+)
+
 type MetaProviderCloser func()
 
 func InitMetaProviderClients(ctx context.Context, withCoreMeta bool) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, MetaProviderCloser, []string) {
@@ -92,7 +97,7 @@ func getMetaProviderStreamers(withCoreMeta bool) ([]tree.NodeProviderStreamerCli
 	}
 
 	// Other Meta Providers (running services only)
-	services, err := registry.ListServicesWithMicroMeta("MetaProvider", "stream")
+	services, err := registry.ListServicesWithMicroMeta(ServiceMetaProvider, "stream")
 	if err != nil {
 		return nil, names
 	}
