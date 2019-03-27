@@ -460,6 +460,10 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	nodeFrom.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 	nodeTo.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 
+	if err = dao.Flush(false); err != nil {
+		return err
+	}
+
 	if err = dao.MoveNodeTree(nodeFrom, nodeTo); err != nil {
 		return err
 	}
