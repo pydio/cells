@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	protobuf "github.com/golang/protobuf/proto"
 	"github.com/matcornic/hermes"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -48,7 +49,7 @@ type Handler struct {
 	sender       mailer.Sender
 }
 
-func NewHandler(serviceCtx context.Context, conf config.Map) (*Handler, error) {
+func NewHandler(serviceCtx context.Context, conf common.ConfigValues) (*Handler, error) {
 	h := new(Handler)
 	h.initFromConf(serviceCtx, conf)
 	return h, nil
@@ -57,75 +58,80 @@ func NewHandler(serviceCtx context.Context, conf config.Map) (*Handler, error) {
 // SendMail either queues or send a mail directly
 func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp *proto.SendMailResponse) error {
 	mail := req.Mail
+
+	// Sanity checks
 	if mail == nil || (len(mail.Subject) == 0 && mail.TemplateId == "") || len(mail.To) == 0 {
-		e := errors.BadRequest(common.SERVICE_MAILER, "SendMail: some required fields are missing")
-		log.Logger(ctx).Error("SendMail", zap.Error(e))
+		e := errors.BadRequest(common.SERVICE_MAILER, "cannot send mail: some required fields are missing")
+		log.Logger(ctx).Error("cannot process mail to send", zap.Any("Mail", mail), zap.Error(e))
 		return e
 	}
 	if mail.ContentPlain == "" && mail.ContentMarkdown == "" && mail.ContentHtml == "" && mail.TemplateId == "" {
 		e := errors.BadRequest(common.SERVICE_MAILER, "SendMail: please provide one of ContentPlain, ContentMarkdown or ContentHtml")
-		log.Logger(ctx).Error("SendMail", zap.Error(e))
+		log.Logger(ctx).Error("cannot process mail to send: empty body", zap.Any("Mail", mail), zap.Error(e))
 		return e
 	}
 	h.checkConfigChange(ctx)
 
 	for _, to := range mail.To {
-		// To find language
+		// Find language to be used
 		var languages []string
 		if to.Language != "" {
 			languages = append(languages, to.Language)
 		}
 		configs := templates.GetApplicationConfig(languages...)
-
-		if mail.From == nil {
-			mail.From = &proto.User{
+		// Clone email and set unique user
+		m := protobuf.Clone(mail).(*proto.Mail)
+		m.To = []*proto.User{to}
+		if m.From == nil {
+			m.From = &proto.User{
 				Address: configs.From,
 				Name:    configs.Title,
 			}
-		} else if mail.From.Address == "" {
-			mail.From.Address = configs.From
+		} else if m.From.Address == "" {
+			m.From.Address = configs.From
 		}
 		he := templates.GetHermes(languages...)
-		if mail.ContentHtml == "" {
+		if m.ContentHtml == "" {
 			var body hermes.Body
-			if mail.TemplateId != "" {
+			if m.TemplateId != "" {
 				var subject string
-				subject, body = templates.BuildTemplateWithId(to, mail.TemplateId, mail.TemplateData, languages...)
-				mail.Subject = subject
-				if mail.ContentMarkdown != "" {
-					body.FreeMarkdown = hermes.Markdown(mail.ContentMarkdown)
+				subject, body = templates.BuildTemplateWithId(to, m.TemplateId, m.TemplateData, languages...)
+				m.Subject = subject
+				if m.ContentMarkdown != "" {
+					body.FreeMarkdown = hermes.Markdown(m.ContentMarkdown)
 				}
 			} else {
-				if mail.ContentMarkdown != "" {
+				if m.ContentMarkdown != "" {
 					body = hermes.Body{
-						FreeMarkdown: hermes.Markdown(mail.ContentMarkdown),
+						FreeMarkdown: hermes.Markdown(m.ContentMarkdown),
 					}
 				} else {
 					body = hermes.Body{
-						Intros: []string{mail.ContentPlain},
+						Intros: []string{m.ContentPlain},
 					}
 				}
 			}
 			hermesMail := hermes.Email{Body: body}
 			var e error
-			mail.ContentHtml, _ = he.GenerateHTML(hermesMail)
-			if mail.ContentPlain, e = he.GenerateHTML(hermesMail); e != nil {
+			m.ContentHtml, _ = he.GenerateHTML(hermesMail)
+			if m.ContentPlain, e = he.GenerateHTML(hermesMail); e != nil {
 				return e
 			}
 		}
 
 		if req.InQueue {
-			log.Logger(ctx).Info("SendMail: pushing email to queue", zap.Any("to", mail.To), zap.Any("from", mail.From), zap.Any("subject", mail.Subject))
-			if e := h.queue.Push(mail); e != nil {
+			log.Logger(ctx).Debug("SendMail: pushing email to queue", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
+			if e := h.queue.Push(m); e != nil {
+				log.Logger(ctx).Error(fmt.Sprintf("cannot put mail in queue: %s", e.Error()), zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 				return e
 			}
 		} else {
-			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", mail.To), zap.Any("from", mail.From), zap.Any("subject", mail.Subject))
-			if e := h.sender.Send(mail); e != nil {
+			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
+			if e := h.sender.Send(m); e != nil {
+				log.Logger(ctx).Error(fmt.Sprintf("could not directly send mail: %s", e.Error()), zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 				return e
 			}
 		}
-
 	}
 	return nil
 }
@@ -145,23 +151,23 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 		return h.sender.Send(em)
 	}
 
-	if e := h.queue.Consume(c); e == nil {
-		rsp.Message = fmt.Sprintf("Successfully sent %d messages", counter)
-		rsp.EmailsSent = counter
-		return nil
-	} else {
+	e := h.queue.Consume(c)
+	if e != nil {
 		return e
 	}
 
+	rsp.Message = fmt.Sprintf("Successfully sent %d messages", counter)
+	rsp.EmailsSent = counter
+	return nil
 }
 
-func (h *Handler) parseConf(conf config.Map) (queueName string, queueConfig config.Map, senderName string, senderConfig config.Map) {
+func (h *Handler) parseConf(conf common.ConfigValues) (queueName string, queueConfig config.Map, senderName string, senderConfig config.Map) {
 
 	// Defaults
 	queueName = "boltdb"
 	senderName = "sendmail"
-	senderConfig = conf
-	queueConfig = conf
+	senderConfig = conf.(config.Map)
+	queueConfig = conf.(config.Map)
 
 	// Parse configs for queue
 	if q := conf.String("queue"); q != "" {
@@ -188,17 +194,25 @@ func (h *Handler) parseConf(conf config.Map) (queueName string, queueConfig conf
 			if k == forms.SwitchFieldValueKey {
 				name = v.(string)
 			} else {
+				// Special case for sendmail executable path
+				if k == "executable" && v == "other" {
+					v = config.Get("services", Name, "sendmail").String("sendmail")
+				}
 				senderConfig.Set(k, v)
 			}
 		}
+		log.Logger(context.Background()).Debug("Parsed config for mailer", zap.Any("c", senderConfig))
 		senderName = name
 	}
 	return
 }
 
-func (h *Handler) initFromConf(ctx context.Context, conf config.Map) error {
+func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues) error {
 
 	queueName, queueConfig, senderName, senderConfig := h.parseConf(conf)
+	if h.queue != nil {
+		h.queue.Close()
+	}
 	h.queue = mailer.GetQueue(ctx, queueName, queueConfig)
 	if h.queue == nil {
 		queueName = "boltdb"
@@ -207,12 +221,12 @@ func (h *Handler) initFromConf(ctx context.Context, conf config.Map) error {
 		log.Logger(ctx).Info("Starting mailer with queue '" + queueName + "'")
 	}
 
-	if sender, err := mailer.GetSender(senderName, senderConfig); err != nil {
+	sender, err := mailer.GetSender(senderName, senderConfig)
+	if err != nil {
 		return err
-	} else {
-		log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
-		h.sender = sender
 	}
+	log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
+	h.sender = sender
 
 	h.queueName = queueName
 	h.queueConfig = queueConfig
@@ -232,7 +246,7 @@ func (h *Handler) checkConfigChange(ctx context.Context) error {
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)
 	if queueName != h.queueName || senderName != h.senderName || string(m1) != string(m2) {
-		log.Logger(ctx).Info("Mailer config has changed - Refresh sender and queue")
+		log.Logger(ctx).Info("Mailer configuration has changed. Refreshing sender and queue")
 		return h.initFromConf(ctx, cfg)
 	}
 	return nil

@@ -29,10 +29,11 @@ import (
 
 	"github.com/dchest/uniuri"
 	"github.com/gogo/protobuf/proto"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 // DATASOURCE Action
@@ -44,7 +45,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	}
 
 	// First store minio config
-	minioConfig := utils.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf)
+	minioConfig := config.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf, false)
 	config.Set(minioConfig, "services", fmt.Sprintf(`pydio.grpc.data.objects.%s`, minioConfig.Name))
 	config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources")
 
@@ -59,15 +60,17 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		index := fmt.Sprintf(`pydio.grpc.data.index.%s`, source)
 		config.Set("default", "services", index, "dsn")
 		config.Set(conf.PeerAddress, "services", index, "PeerAddress")
-		tableNames := utils.IndexServiceTableNames(source)
+		tableNames := config.IndexServiceTableNames(source)
 		config.Set(tableNames, "services", index, "tables")
+
 		// Clone conf with specific source attributes
 		sourceConf := proto.Clone(conf).(*object.DataSource)
 		sourceConf.Name = source
 		sourceConf.ObjectsBucket = source
-		sourceConf.VersioningPolicyName = "default-policy"
 		sourceConf.StorageConfiguration["folder"] = filepath.Join(storageFolder, source)
-		config.Set(sourceConf, "services", fmt.Sprintf(`pydio.grpc.data.sync.%s`, source))
+
+		sync := fmt.Sprintf(`pydio.grpc.data.sync.%s`, source)
+		config.Set(sourceConf, "services", sync)
 	}
 
 	// Set main dsName as default
@@ -121,8 +124,12 @@ func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {
 	if runtime.GOOS == "darwin" {
 		normalize = "true"
 	}
-	ip, _ := utils.GetExternalIP()
-	conf.PeerAddress = ip.String()
+	if h, e := os.Hostname(); e == nil {
+		conf.PeerAddress = h
+	} else {
+		ip, _ := net.GetExternalIP()
+		conf.PeerAddress = ip.String()
+	}
 	conf.StorageConfiguration = map[string]string{
 		"folder":    folder,
 		"normalize": normalize,

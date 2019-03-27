@@ -26,7 +26,12 @@ import (
 	"syscall"
 )
 
-const processName = "gnatsd"
+var processName = "gnatsd"
+
+// SetProcessName allows to change the expected name of the process.
+func SetProcessName(name string) {
+	processName = name
+}
 
 // Signal Handling
 func (s *Server) handleSignals() {
@@ -37,21 +42,28 @@ func (s *Server) handleSignals() {
 
 	signal.Notify(c, syscall.SIGINT, syscall.SIGUSR1, syscall.SIGHUP)
 
+	s.grWG.Add(1)
 	go func() {
-		for sig := range c {
-			s.Debugf("Trapped %q signal", sig)
-			switch sig {
-			case syscall.SIGINT:
-				s.Noticef("Server Exiting..")
-				os.Exit(0)
-			case syscall.SIGUSR1:
-				// File log re-open for rotating file logs.
-				s.ReOpenLogFile()
-			case syscall.SIGHUP:
-				// Config reload.
-				if err := s.Reload(); err != nil {
-					s.Errorf("Failed to reload server configuration: %s", err)
+		defer s.grWG.Done()
+		for {
+			select {
+			case sig := <-c:
+				s.Debugf("Trapped %q signal", sig)
+				switch sig {
+				case syscall.SIGINT:
+					s.Noticef("Server Exiting..")
+					os.Exit(0)
+				case syscall.SIGUSR1:
+					// File log re-open for rotating file logs.
+					s.ReOpenLogFile()
+				case syscall.SIGHUP:
+					// Config reload.
+					if err := s.Reload(); err != nil {
+						s.Errorf("Failed to reload server configuration: %s", err)
+					}
 				}
+			case <-s.quitCh:
+				return
 			}
 		}
 	}()
@@ -69,10 +81,10 @@ func ProcessSignal(command Command, pidStr string) error {
 			return err
 		}
 		if len(pids) == 0 {
-			return errors.New("no gnatsd processes running")
+			return fmt.Errorf("no %s processes running", processName)
 		}
 		if len(pids) > 1 {
-			errStr := "multiple gnatsd processes running:\n"
+			errStr := fmt.Sprintf("multiple %s processes running:\n", processName)
 			prefix := ""
 			for _, p := range pids {
 				errStr += fmt.Sprintf("%s%d", prefix, p)

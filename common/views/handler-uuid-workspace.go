@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type UuidNodeHandler struct {
@@ -51,14 +51,14 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 	}
 
 	if isAdmin := ctx.Value(ctxAdminContextKey{}); isAdmin != nil {
-		ws := &idm.Workspace{UUID: "ROOT", RootNodes: []string{"ROOT"}, Slug: "ROOT"}
+		ws := &idm.Workspace{UUID: "ROOT", RootUUIDs: []string{"ROOT"}, Slug: "ROOT"}
 		branchInfo := BranchInfo{}
 		branchInfo.Workspace = *ws
 		ctx = WithBranchInfo(ctx, identifier, branchInfo)
 		return ctx, node, nil
 	}
 
-	accessList, ok := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 	if !ok {
 		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot load access list")
 	}
@@ -83,7 +83,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 		}
 	}
 
-	parents, err := utils.BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
+	parents, err := tree.BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
 	if err != nil {
 		return ctx, node, err
 	}
@@ -102,12 +102,12 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	var branchInfo BranchInfo
-	var accessList *utils.AccessList
+	var accessList *permissions.AccessList
 	var ok bool
 	if branchInfo, ok = GetBranchInfo(ctx, identifier); !ok {
 		return ctx, node, nil
 	}
-	if accessList, ok = ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList); !ok {
+	if accessList, ok = ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList); !ok {
 		return ctx, node, nil
 	}
 	if branchInfo.AncestorsList != nil {

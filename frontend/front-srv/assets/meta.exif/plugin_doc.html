@@ -1,0 +1,5 @@
+<p>Exif extractor based on php exif functions. Make sure the PHP exif extension is installed. At the moment, the data can be displayed inside the InfoPanel (« Details » panel on the left), and then you can see the full data using the Exif Reader (editor.exif). The configuration allows you to determine what EXIF data you want to display in the InfoPanel, using EXIF_SECTION.ExifField as syntax. All fields will be displayed in the editor.exif.</p>
+
+<p>Like for meta.serial, you can use specific keywords to trigger special displays. At the moment, only the GeoLocalisation is supported.</p>
+
+<p>COMPUTED_GPS.GPS_Latitude,COMPUTED_GPS.GPS_Longitude : if you declare those two fields, the application will extract exif GPS data, make some computation, and then in the details pane will appear a button to open the map and localise the file on the map (you must have editor.openlayer active).</p>

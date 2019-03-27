@@ -1,0 +1,110 @@
+{
+  "PolicyGroup.PublicAccess.Title": {
+    "other": "Öffentlicher Zugriff"
+  },
+  "PolicyGroup.PublicAccess.Description": {
+    "other": "Öffentlicher Zugriff auf Discovery-Endpunkte"
+  },
+  "PolicyGroup.PublicAccess.Rule1": {
+    "other": "Anonymous access to discovery (GET)"
+  },
+  "PolicyGroup.PublicAccess.Rule2": {
+    "other": "Anonymer Zugriff auf Reset-Passwort-Endpunkte (PUT, POST)"
+  },
+  "PolicyGroup.PublicAccess.Rule3": {
+    "other": "Anonymer Zugriff zum Laden des Frontend-Status (GET)"
+  },
+  "PolicyGroup.PublicAccess.Rule4": {
+    "other": "Anonymer Zugriff auf Init-Frontend-Sitzung (POST)"
+  },
+  "PolicyGroup.PublicInstall.Title": {
+    "other": "Installationsendpunkte (erster Lauf)"
+  },
+  "PolicyGroup.PublicInstall.Description": {
+    "other": "Installationsendpunkte erfordern beim ersten Start einen öffentlichen Zugriff"
+  },
+  "PolicyGroup.PublicInstall.Rule1": {
+    "other": "Anonymer Zugriff zum Installieren von Endpunkten (GET, POST)"
+  },
+  "PolicyGroup.LoggedUsers.Title": {
+    "other": "Angemeldeter- und Admin-Benutzerzugriffe"
+  },
+  "PolicyGroup.LoggedUsers.Description": {
+    "other": "Legen Sie fest, wie Standard-, Shared- und Admin-Benutzer auf die übrigen APIs zugreifen können"
+  },
+  "PolicyGroup.LoggedUsers.Rule1": {
+    "other": "Volle REST-Zugriffe auf das Admin-Profil"
+  },
+  "PolicyGroup.LoggedUsers.Rule2": {
+    "other": "Standard-REST-Zugriffe für einen angemeldeten Benutzer"
+  },
+  "PolicyGroup.LoggedUsers.Rule3": {
+    "other": "Benutzer-Meta verhindern das Löschen von Tags"
+  },
+  "PolicyGroup.OIDC.Title": {
+    "other": "OpenIdConnect-Vorgänge"
+  },
+  "PolicyGroup.OIDC.Description": {
+    "other": "Authentifizierung in OpenID Connect Server Aktivieren / Deaktivieren"
+  },
+  "PolicyGroup.OIDC.Rule1": {
+    "other": "Standardzugriffe auf die Anmeldeaktion für alle Benutzer"
+  },
+  "PolicyGroup.ACLSample1.Title": {
+    "other": "[Beispiel] Komplexe ACL-Richtlinie"
+  },
+  "PolicyGroup.ACLSample1.Description": {
+    "other": "Beispiel für eine komplexe Richtlinie zum dynamischen Verwalten von ACLs"
+  },
+  "PolicyGroup.ACLSample1.Rule1": {
+    "other": "Standardeinstellung zum Lesen / Schreiben"
+  },
+  "PolicyGroup.ACLSample1.Rule2": {
+    "other": "Verhindern von Änderungen basierend auf IP- und Dateimetadatenbedingungen"
+  },
+  "PolicyGroup.ACLSample1.Rule3": {
+    "other": "Filtern Sie Dateien mit der Erweiterung PNG aus, wenn die Anforderung nicht von localhost stammt"
+  },
+  "PolicyGroup.ACLSamplePeriod.Title": {
+    "other": "[Example] Begrenzter Zeitraum"
+  },
+  "PolicyGroup.ACLSamplePeriod.Description": {
+    "other": "Ermöglicht den Zugriff auf einen bestimmten Arbeitsbereich nur für einen festgelegten Zeitraum"
+  },
+  "PolicyGroup.ACLSamplePeriod.Rule1": {
+    "other": "Beispiel für eine ACL-Regel, die den Zugriff nur im Februar und März 2018 erlaubt"
+  },
+  "PolicyGroup.ACLSampleDateDisable.Title": {
+    "other": "[Beispiel] Kein Zugriff nach einem bestimmten Datum"
+  },
+  "PolicyGroup.ACLSampleDateDisable.Description": {
+    "other": "Den Zugriff auf einen Workspace nach einem bestimmten Datum deaktivieren"
+  },
+  "PolicyGroup.ACLSampleDateDisable.Rule1": {
+    "other": "Globaler Lese-/Schreibzugriff"
+  },
+  "PolicyGroup.ACLSampleDateDisable.Rule2": {
+    "other": "Lese- und Schreibzugriff verweigern, wenn das akuelle Datum nach 2018-02-28 liegt"
+  },
+  "PolicyGroup.ACLSampleBusinessHours.Title": {
+    "other": "[Example] Zugriff ist nur während der üblichen Geschäftszeiten erlaubt"
+  },
+  "PolicyGroup.ACLSampleBusinessHours.Description": {
+    "other": "Zugriff auf einen Workspace nur an bestimmten Tagen innerhalb vordefinierter Stunden aktivieren"
+  },
+  "PolicyGroup.ACLSampleBusinessHours.Rule1": {
+    "other": "Geschäftszeiten Beispiel, ermöglicht Lese- und Schreibzugriff"
+  },
+  "PolicyGroup.ACLSampleExternalIP.Title": {
+    "other": "[Example] Deaktivieren Sie den Zugriff basierend auf IP-Adressen"
+  },
+  "PolicyGroup.ACLSampleExternalIP.Description": {
+    "other": "Zugriff auf IPs außerhalb LAN deaktivieren"
+  },
+  "PolicyGroup.ACLSampleExternalIP.Rule1": {
+    "other": "Globales Lesen / Schreiben"
+  },
+  "PolicyGroup.ACLSampleExternalIP.Rule2": {
+    "other": "Verbieten IP, wenn es nicht Localhost 127.0.0.1 oder:: 1"
+  }
+}

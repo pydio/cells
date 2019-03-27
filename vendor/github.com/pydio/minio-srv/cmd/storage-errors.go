@@ -27,10 +27,6 @@ var errUnexpected = errors.New("Unexpected error, please report this issue at ht
 // errCorruptedFormat - corrupted backend format.
 var errCorruptedFormat = errors.New("corrupted backend format, please join https://slack.minio.io for assistance")
 
-// errFormatNotSupported - returned when older minio tries to parse metadata
-// created by newer minio.
-var errFormatNotSupported = errors.New("format not supported")
-
 // errUnformattedDisk - unformatted disk found.
 var errUnformattedDisk = errors.New("unformatted disk found")
 
@@ -39,12 +35,6 @@ var errDiskFull = errors.New("disk path full")
 
 // errDiskNotFound - cannot find the underlying configured disk anymore.
 var errDiskNotFound = errors.New("disk not found")
-
-// errDiskNotFoundFromNetError - cannot find the underlying configured disk anymore due to network error.
-var errDiskNotFoundFromNetError = errors.New("disk not found from net error")
-
-// errDiskNotFoundFromShutdown - cannot find the underlying configured disk anymore due to rpc shutdown.
-var errDiskNotFoundFromRPCShutdown = errors.New("disk not found from rpc shutdown")
 
 // errFaultyRemoteDisk - remote disk is faulty.
 var errFaultyRemoteDisk = errors.New("remote disk is faulty")
@@ -86,6 +76,12 @@ var errBitrotHashAlgoInvalid = errors.New("bit-rot hash algorithm is invalid")
 // errCrossDeviceLink - rename across devices not allowed.
 var errCrossDeviceLink = errors.New("Rename across devices not allowed, please fix your backend configuration")
 
+// errMinDiskSize - cannot create volume or files when disk size is less than threshold.
+var errMinDiskSize = errors.New("The disk size is less than the minimum threshold")
+
+// errLessData - returned when less data available than what was requested.
+var errLessData = errors.New("less data available than what was requested")
+
 // hashMisMatchError - represents a bit-rot hash verification failure
 // error.
 type hashMismatchError struct {
@@ -99,3 +95,12 @@ func (h hashMismatchError) Error() string {
 		"Bitrot verification mismatch - expected %v, received %v",
 		h.expected, h.computed)
 }
+
+// Collection of basic errors.
+var baseErrs = []error{
+	errDiskNotFound,
+	errFaultyDisk,
+	errFaultyRemoteDisk,
+}
+
+var baseIgnoredErrs = baseErrs

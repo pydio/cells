@@ -23,8 +23,16 @@ package dao
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 
 	mysqltools "github.com/go-sql-driver/mysql"
+)
+
+var (
+	mysqlLock                                = &sync.Mutex{}
+	DB_MYSQL_CONNECTIONS_PERCENT_PER_REQUEST = 5
+	DB_MYSQL_MAX_CONNECTIONS_PERCENT         = 90
+	DB_MYSQL_IDLE_CONNECTIONS_PERCENT        = 25
 )
 
 type mysql struct {
@@ -32,7 +40,6 @@ type mysql struct {
 }
 
 func (m *mysql) Open(dsn string) (Conn, error) {
-
 	var (
 		db *sql.DB
 	)
@@ -60,4 +67,32 @@ func (m *mysql) Open(dsn string) (Conn, error) {
 	m.conn = db
 
 	return db, nil
+}
+
+func (m *mysql) GetConn() Conn {
+	return m.conn
+}
+
+func (m *mysql) getMaxTotalConnections() int {
+	db := m.conn
+
+	var num int
+
+	if err := db.QueryRow(`select @@max_connections`).Scan(&num); err != nil {
+		return 0
+	}
+
+	return (num * DB_MYSQL_MAX_CONNECTIONS_PERCENT) / 100
+}
+
+func (m *mysql) SetMaxConnectionsForWeight(num int) {
+
+	mysqlLock.Lock()
+	defer mysqlLock.Unlock()
+
+	maxConns := m.getMaxTotalConnections() * (num * DB_MYSQL_CONNECTIONS_PERCENT_PER_REQUEST) / 100
+	maxIdleConns := maxConns * DB_MYSQL_IDLE_CONNECTIONS_PERCENT / 100
+
+	m.conn.SetMaxOpenConns(maxConns)
+	m.conn.SetMaxIdleConns(maxIdleConns)
 }

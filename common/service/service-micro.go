@@ -24,11 +24,13 @@ import (
 	"time"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -53,15 +55,18 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.Broker(defaults.Broker()),
 			)
 
+			meta := registry.BuildServiceMeta()
+			if s.Options().Source != "" {
+				meta["source"] = s.Options().Source
+			}
 			// context is always added last - so that there is no override
 			s.Options().Micro.Init(
 				micro.Context(ctx),
 				micro.Name(name),
 				micro.WrapClient(servicecontext.SpanClientWrapper),
 				micro.WrapHandler(servicecontext.SpanHandlerWrapper),
-				micro.Metadata(map[string]string{
-					"source": s.Options().Source,
-				}),
+				micro.WrapSubscriber(servicecontext.SpanSubscriberWrapper),
+				micro.Metadata(meta),
 				micro.BeforeStart(func() error {
 					return f(s.Options().Micro)
 				}),
@@ -76,11 +81,15 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 					return nil
 				}),
 				micro.AfterStart(func() error {
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
+				}),
+				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
 				}),
 			)
 
 			// newTracer(name, &options)
+			servicecontext.NewMetricsWrapper(s.Options().Micro)
 			newBackoffer(s.Options().Micro)
 			newConfigProvider(s.Options().Micro)
 			newDBProvider(s.Options().Micro)
@@ -88,7 +97,9 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			// newTraceProvider(s.Options().Micro) // DISABLED FOR NOW DUE TO CONFLICT WITH THE MICRO GO OS
 			newClaimsProvider(s.Options().Micro)
 
-			proto.RegisterServiceHandler(s.Options().Micro.Server(), &Handler{s.Options().Micro})
+			proto.RegisterServiceHandler(s.Options().Micro.Server(), &StatusHandler{s.Address()})
+
+			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, s.Options().Micro.Server(), &StopHandler{s})
 
 			return nil
 		}

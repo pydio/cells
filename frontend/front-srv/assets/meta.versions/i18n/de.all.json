@@ -1,0 +1,65 @@
+{
+  "1": {
+    "other": "Versionen"
+  },
+  "10": {
+    "other": "Datum"
+  },
+  "11": {
+    "other": "Autor"
+  },
+  "12": {
+    "other": "Änderung"
+  },
+  "13": {
+    "other": "Wenn Sie zum alten Stand zurückkehren wird eine neue Version mit dem ausgewählten Stand des Dokuments erstellt. Soll diese Änderung durchgeführt werden?"
+  },
+  "14": {
+    "other": "Keine vorherigen Versionen gefunden"
+  },
+  "15": {
+    "other": "Versionen werden erstellt, wenn Sie den Dateiinhalt aktualisieren"
+  },
+  "16": {
+    "other": "Vorherige Versionen für '%s'"
+  },
+  "2": {
+    "other": "Ältere Versionen des Elements"
+  },
+  "3": {
+    "other": "Herunterladen"
+  },
+  "4": {
+    "other": "Ausgewählte Version herunterladen"
+  },
+  "5": {
+    "other": "Vorschau (Browser)"
+  },
+  "6": {
+    "other": "Ausgewählte Version in einem Browserfenster öffnen"
+  },
+  "7": {
+    "other": "Zurückkehren zu..."
+  },
+  "8": {
+    "other": "Zum ausgewählten Stand auf dem Server zurückkehre"
+  },
+  "9": {
+    "other": "#"
+  },
+  "CREATION": {
+    "other": "Datei erstellt"
+  },
+  "DELETION": {
+    "other": "Datei gelöscht"
+  },
+  "MODIFICATION": {
+    "other": "Inhalt bearbeitet"
+  },
+  "MOVE": {
+    "other": "Datei verschoben"
+  },
+  "RENAME": {
+    "other": "Datei umbenannt"
+  }
+}

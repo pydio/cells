@@ -36,7 +36,7 @@ var (
 
 func TestBoltStore(t *testing.T) {
 
-	const bucketName = "tokens"
+	const bucketTokens = "tokens"
 	defer os.Remove(dbFile)
 
 	entries := map[string]string{
@@ -49,7 +49,7 @@ func TestBoltStore(t *testing.T) {
 
 	convey.Convey("Test Create and Open bolt db", t, func() {
 		//t.Log("Test Create and Open bolt db")
-		store, err = NewBoltStore(bucketName, dbFile)
+		store, err = NewBoltStore(bucketTokens, dbFile)
 		convey.So(err, convey.ShouldBeNil)
 		convey.So(store, convey.ShouldNotBeNil)
 	})
@@ -57,7 +57,7 @@ func TestBoltStore(t *testing.T) {
 	convey.Convey("Test Open wrong file", t, func() {
 		//t.Log("Test Open wrong file")
 		df := os.TempDir() + "/watever-non-existing-folder/toto.db"
-		_, err := NewBoltStore(bucketName, df)
+		_, err := NewBoltStore(bucketTokens, df)
 		convey.So(err, convey.ShouldNotBeNil)
 	})
 
@@ -109,5 +109,4 @@ func TestBoltStore(t *testing.T) {
 		convey.So(err, convey.ShouldBeNil)
 	})
 
-	defer os.Remove(dbFile)
 }

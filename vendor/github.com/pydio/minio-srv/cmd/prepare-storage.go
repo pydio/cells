@@ -17,199 +17,219 @@
 package cmd
 
 import (
-	"errors"
+	"context"
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/minio/mc/pkg/console"
+	"github.com/pydio/minio-srv/cmd/logger"
 )
 
-/*
+var printEndpointError = func() func(Endpoint, error) {
+	printOnce := make(map[Endpoint]map[string]bool)
 
-  Following table lists different possible states the backend could be in.
-
-  * In a single-node, multi-disk setup, "Online" would refer to disks' status.
-
-  * In a multi-node setup, it could refer to disks' or network connectivity
-  between the nodes, or both.
-
-  +----------+--------------------------+-----------------------+
-  | Online   | Format status  		| Course of action      |
-  |          | 		             	|                   	|
-  -----------+--------------------------+-----------------------+
-  | All      | All Formatted	 	|  			|
-  +----------+--------------------------+  initObjectLayer 	|
-  | Quorum   | Quorum Formatted    	|                   	|
-  +----------+--------------------------+-----------------------+
-  | All      | Quorum     		|  Print message saying |
-  |	     | Formatted,   		|   "Heal via control"  |
-  |	     | some unformatted		|  and initObjectLayer  |
-  +----------+--------------------------+-----------------------+
-  | All      | None Formatted           |  FormatDisks          |
-  |	     |				|  and initObjectLayer  |
-  |          | 		             	|                   	|
-  +----------+--------------------------+-----------------------+
-  | No       |          		|  Wait till enough     |
-  | Quorum   |          _  		|  nodes are online and |
-  |	     |                          |  one of the above     |
-  |          |				|  sections apply       |
-  +----------+--------------------------+-----------------------+
-  |	     |      			|                       |
-  | Quorum   | Quorum UnFormatted   	|        Abort        	|
-  +----------+--------------------------+-----------------------+
-
-  A disk can be in one of the following states.
-   - Unformatted
-   - Formatted
-   - Corrupted
-   - Offline
-
-*/
-
-// InitActions - a type synonym for enumerating initialization activities.
-type InitActions int
-
-const (
-	// FormatDisks - see above table for disk states where it is applicable.
-	FormatDisks InitActions = iota
-
-	// SuggestToHeal - Prints heal message and initialize object layer.
-	SuggestToHeal
-
-	// WaitForQuorum - Wait for quorum number of disks to be online.
-	WaitForQuorum
-
-	// WaitForAll - Wait for all disks to be online.
-	WaitForAll
-
-	// WaitForFormatting - Wait for formatting to be triggered
-	// from the '1st' server in the cluster.
-	WaitForFormatting
-
-	// WaitForConfig - Wait for all servers to have the same config
-	// including (credentials, version and time).
-	WaitForConfig
-
-	// InitObjectLayer - Initialize object layer.
-	InitObjectLayer
-
-	// Abort initialization of object layer since there aren't enough good
-	// copies of format.json to recover.
-	Abort
-)
-
-// Quick error to actions converts looking for specific errors
-// which need to be returned quickly and server should wait instead.
-func quickErrToActions(errMap map[error]int) InitActions {
-	var action InitActions
-	switch {
-	case errMap[errInvalidAccessKeyID] > 0:
-		fallthrough
-	case errMap[errAuthentication] > 0:
-		fallthrough
-	case errMap[errServerVersionMismatch] > 0:
-		fallthrough
-	case errMap[errServerTimeMismatch] > 0:
-		action = WaitForConfig
+	return func(endpoint Endpoint, err error) {
+		reqInfo := (&logger.ReqInfo{}).AppendTags("endpoint", endpoint.String())
+		ctx := logger.SetReqInfo(context.Background(), reqInfo)
+		m, ok := printOnce[endpoint]
+		if !ok {
+			m = make(map[string]bool)
+			m[err.Error()] = true
+			printOnce[endpoint] = m
+			logger.LogAlwaysIf(ctx, err)
+			return
+		}
+		if m[err.Error()] {
+			return
+		}
+		m[err.Error()] = true
+		logger.LogAlwaysIf(ctx, err)
 	}
-	return action
+}()
+
+// Migrates backend format of local disks.
+func formatXLMigrateLocalEndpoints(endpoints EndpointList) error {
+	for _, endpoint := range endpoints {
+		if !endpoint.IsLocal {
+			continue
+		}
+		formatPath := pathJoin(endpoint.Path, minioMetaBucket, formatConfigFile)
+		if _, err := os.Stat(formatPath); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return err
+		}
+		if err := formatXLMigrate(endpoint.Path); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-// Preparatory initialization stage for XL validates known errors.
-// Converts them into specific actions. These actions have special purpose
-// which caller decides on what needs to be done.
-
-// Logic used in this function is as shown below.
-//
-// ---- Possible states and handled conditions -----
-//
-// - Formatted setup
-//   - InitObjectLayer when `disksFormatted >= readQuorum`
-//   - Wait for quorum when `disksFormatted < readQuorum && disksFormatted + disksOffline >= readQuorum`
-//     (we don't know yet if there are unformatted disks)
-//   - Wait for heal when `disksFormatted >= readQuorum && disksUnformatted > 0`
-//     (here we know there is at least one unformatted disk which requires healing)
-//
-// - Unformatted setup
-//   - Format/Wait for format when `disksUnformatted == diskCount`
-//
-// - Wait for all when `disksUnformatted + disksFormatted + diskOffline == diskCount`
-//
-// Under all other conditions should lead to server initialization aborted.
-func prepForInitXL(firstDisk bool, sErrs []error, diskCount int) InitActions {
-	// Count errors by error value.
-	errMap := make(map[error]int)
-	for _, err := range sErrs {
-		errMap[errorCause(err)]++
-	}
-
-	// Validates and converts specific config errors into WaitForConfig.
-	if quickErrToActions(errMap) == WaitForConfig {
-		return WaitForConfig
-	}
-
-	readQuorum := diskCount / 2
-	disksOffline := errMap[errDiskNotFound]
-	disksFormatted := errMap[nil]
-	disksUnformatted := errMap[errUnformattedDisk]
-
-	// No Quorum lots of offline disks, wait for quorum.
-	if disksOffline > readQuorum {
-		return WaitForQuorum
-	}
-
-	// All disks are unformatted, proceed to formatting disks.
-	if disksUnformatted == diskCount {
-		// Only the first server formats an uninitialized setup, others wait for notification.
-		if firstDisk { // First node always initializes.
-			return FormatDisks
+// Cleans up tmp directory of local disks.
+func formatXLCleanupTmpLocalEndpoints(endpoints EndpointList) error {
+	for _, endpoint := range endpoints {
+		if !endpoint.IsLocal {
+			continue
 		}
-		return WaitForFormatting
-	}
-
-	// Already formatted and in quorum, proceed to initialization of object layer.
-	if disksFormatted >= readQuorum {
-		if disksFormatted+disksOffline == diskCount {
-			return InitObjectLayer
+		formatPath := pathJoin(endpoint.Path, minioMetaBucket, formatConfigFile)
+		if _, err := os.Stat(formatPath); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return err
 		}
-
-		// Some of the formatted disks are possibly corrupted or unformatted,
-		// let user know to heal them.
-		return SuggestToHeal
+		if err := removeAll(pathJoin(endpoint.Path, minioMetaTmpBucket)); err != nil {
+			return err
+		}
+		if err := mkdirAll(pathJoin(endpoint.Path, minioMetaTmpBucket), 0777); err != nil {
+			return err
+		}
 	}
-
-	// Some unformatted, some disks formatted and some disks are offline but we don't
-	// quorum to decide. This is an undecisive state - wait for all of offline disks
-	// to be online to figure out the course of action.
-	if disksUnformatted+disksFormatted+disksOffline == diskCount {
-		return WaitForAll
-	}
-
-	// Exhausted all our checks, un-handled situations such as some disks corrupted we Abort.
-	return Abort
+	return nil
 }
 
-// Prints retry message upon a specific retry count.
-func printRetryMsg(sErrs []error, storageDisks []StorageAPI) {
+// validate reference format against list of XL formats.
+func validateXLFormats(format *formatXLV3, formats []*formatXLV3, endpoints EndpointList, setCount, drivesPerSet int) error {
+	for i := range formats {
+		if formats[i] == nil {
+			continue
+		}
+		if err := formatXLV3Check(format, formats[i]); err != nil {
+			return fmt.Errorf("%s format error: %s", endpoints[i], err)
+		}
+	}
+	if len(format.XL.Sets) != setCount {
+		return fmt.Errorf("Current backend format is inconsistent with input args (%s), Expected set count %d, got %d", endpoints, len(format.XL.Sets), setCount)
+	}
+	if len(format.XL.Sets[0]) != drivesPerSet {
+		return fmt.Errorf("Current backend format is inconsistent with input args (%s), Expected drive count per set %d, got %d", endpoints, len(format.XL.Sets[0]), drivesPerSet)
+	}
+	return nil
+}
+
+// Following error message is added to fix a regression in release
+// RELEASE.2018-03-16T22-52-12Z after migrating v1 to v2 to v3. This
+// migration failed to capture '.This' field properly which indicates
+// the disk UUID association. Below error message is returned when
+// we see this situation in format.json, for more info refer
+// https://github.com/minio/minio/issues/5667
+var errXLV3ThisEmpty = fmt.Errorf("XL format version 3 has This field empty")
+
+// connect to list of endpoints and load all XL disk formats, validate the formats are correct
+// and are in quorum, if no formats are found attempt to initialize all of them for the first
+// time. additionally make sure to close all the disks used in this attempt.
+func connectLoadInitFormats(retryCount int, firstDisk bool, endpoints EndpointList, setCount, drivesPerSet int) (*formatXLV3, error) {
+	// Initialize all storage disks
+	storageDisks, err := initStorageDisks(endpoints)
+	if err != nil {
+		return nil, err
+	}
+	defer closeStorageDisks(storageDisks)
+
+	// Connect to all storage disks, a connection failure will be
+	// only logged after some retries.
+	for _, disk := range storageDisks {
+		if disk != nil {
+			connectErr := disk.LastError()
+			if connectErr != nil && retryCount >= 5 {
+				logger.Info("Unable to connect to %s: %v\n", disk.String(), connectErr.Error())
+			}
+		}
+	}
+
+	// Attempt to load all `format.json` from all disks.
+	formatConfigs, sErrs := loadFormatXLAll(storageDisks)
+	// Check if we have
 	for i, sErr := range sErrs {
-		switch sErr {
-		case errDiskNotFound, errFaultyDisk, errFaultyRemoteDisk:
-			errorIf(sErr, "Disk %s is still unreachable", storageDisks[i])
+		if _, ok := formatCriticalErrors[sErr]; ok {
+			return nil, fmt.Errorf("Disk %s: %s", endpoints[i], sErr)
 		}
 	}
+
+	// Pre-emptively check if one of the formatted disks
+	// is invalid. This function returns success for the
+	// most part unless one of the formats is not consistent
+	// with expected XL format. For example if a user is
+	// trying to pool FS backend into an XL set.
+	if err = checkFormatXLValues(formatConfigs); err != nil {
+		return nil, err
+	}
+
+	// All disks report unformatted we should initialized everyone.
+	if shouldInitXLDisks(sErrs) && firstDisk {
+		return initFormatXL(context.Background(), storageDisks, setCount, drivesPerSet)
+	}
+
+	// Return error when quorum unformatted disks - indicating we are
+	// waiting for first server to be online.
+	if quorumUnformattedDisks(sErrs) && !firstDisk {
+		return nil, errNotFirstDisk
+	}
+
+	// Return error when quorum unformatted disks but waiting for rest
+	// of the servers to be online.
+	if quorumUnformattedDisks(sErrs) && firstDisk {
+		return nil, errFirstDiskWait
+	}
+
+	// Following function is added to fix a regressions which was introduced
+	// in release RELEASE.2018-03-16T22-52-12Z after migrating v1 to v2 to v3.
+	// This migration failed to capture '.This' field properly which indicates
+	// the disk UUID association. Below function is called to handle and fix
+	// this regression, for more info refer https://github.com/minio/minio/issues/5667
+	if err = fixFormatXLV3(storageDisks, endpoints, formatConfigs); err != nil {
+		return nil, err
+	}
+
+	// If any of the .This field is still empty, we return error.
+	if formatXLV3ThisEmpty(formatConfigs) {
+		return nil, errXLV3ThisEmpty
+	}
+
+	format, err := getFormatXLInQuorum(formatConfigs)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate all format configs with reference format.
+	if err = validateXLFormats(format, formatConfigs, endpoints, setCount, drivesPerSet); err != nil {
+		return nil, err
+	}
+
+	// Get the deploymentID if set.
+	format.ID, err = formatXLGetDeploymentID(format, formatConfigs)
+	if err != nil {
+		return nil, err
+	}
+
+	if format.ID == "" {
+		if err = formatXLFixDeploymentID(context.Background(), storageDisks, format); err != nil {
+			return nil, err
+		}
+	}
+
+	logger.SetDeploymentID(format.ID)
+
+	if err = formatXLFixLocalDeploymentID(context.Background(), storageDisks, format); err != nil {
+		return nil, err
+	}
+	return format, nil
 }
 
-// Maximum retry attempts.
-const maxRetryAttempts = 5
-
-// Implements a jitter backoff loop for formatting all disks during
-// initialization of the server.
-func retryFormattingXLDisks(firstDisk bool, endpoints EndpointList, storageDisks []StorageAPI) error {
-	if len(endpoints) == 0 {
-		return errInvalidArgument
+// Format disks before initialization of object layer.
+func waitForFormatXL(ctx context.Context, firstDisk bool, endpoints EndpointList, setCount, disksPerSet int) (format *formatXLV3, err error) {
+	if len(endpoints) == 0 || setCount == 0 || disksPerSet == 0 {
+		return nil, errInvalidArgument
 	}
-	if storageDisks == nil {
-		return errInvalidArgument
+
+	if err = formatXLMigrateLocalEndpoints(endpoints); err != nil {
+		return nil, err
+	}
+
+	if err = formatXLCleanupTmpLocalEndpoints(endpoints); err != nil {
+		return nil, err
 	}
 
 	// Done channel is used to close any lingering retry routine, as soon
@@ -231,136 +251,32 @@ func retryFormattingXLDisks(firstDisk bool, endpoints EndpointList, storageDisks
 	for {
 		select {
 		case retryCount := <-retryTimerCh:
-			// Attempt to load all `format.json` from all disks.
-			formatConfigs, sErrs := loadAllFormats(storageDisks)
-			if retryCount > maxRetryAttempts {
-				// After max retry attempts we start printing
-				// actual errors for disks not being available.
-				printRetryMsg(sErrs, storageDisks)
-			}
-
-			// Pre-emptively check if one of the formatted disks
-			// is invalid. This function returns success for the
-			// most part unless one of the formats is not consistent
-			// with expected XL format. For example if a user is
-			// trying to pool FS backend into an XL set.
-			if index, err := checkFormatXLValues(formatConfigs); err != nil {
-				// We will perhaps print and retry for the first 5 attempts
-				// because in XL initialization first server is the one which
-				// initializes the erasure set. This check ensures that the
-				// rest of the other servers do get a chance to see that the
-				// first server has a wrong format and exit gracefully.
-				// refer - https://github.com/pydio/minio-srv/issues/4140
-				if retryCount > maxRetryAttempts {
-					errorIf(err, "%s : Detected disk in unexpected format",
-						storageDisks[index])
+			format, err := connectLoadInitFormats(retryCount, firstDisk, endpoints, setCount, disksPerSet)
+			if err != nil {
+				switch err {
+				case errNotFirstDisk:
+					// Fresh setup, wait for first server to be up.
+					logger.Info("Waiting for the first server to format the disks.")
 					continue
+				case errFirstDiskWait:
+					// Fresh setup, wait for other servers to come up.
+					logger.Info("Waiting for all other servers to be online to format the disks.")
+					continue
+				case errXLReadQuorum:
+					// no quorum available continue to wait for minimum number of servers.
+					logger.Info("Waiting for a minimum of %d disks to come online (elapsed %s)\n", len(endpoints)/2, getElapsedTime())
+					continue
+				case errXLV3ThisEmpty:
+					// need to wait for this error to be healed, so continue.
+					continue
+				default:
+					// For all other unhandled errors we exit and fail.
+					return nil, err
 				}
-				return err
 			}
-
-			// Check if this is a XL or distributed XL, anything > 1 is considered XL backend.
-			switch prepForInitXL(firstDisk, sErrs, len(storageDisks)) {
-			case Abort:
-				return fmt.Errorf("%s", combineDiskErrs(storageDisks, sErrs))
-			case FormatDisks:
-				console.Eraseline()
-				printFormatMsg(endpoints, storageDisks, printOnceFn())
-				return initFormatXL(storageDisks)
-			case InitObjectLayer:
-				console.Eraseline()
-				// Validate formats loaded before proceeding forward.
-				err := genericFormatCheckXL(formatConfigs, sErrs)
-				if err == nil {
-					printRegularMsg(endpoints, storageDisks, printOnceFn())
-				}
-				return err
-			case SuggestToHeal:
-				// Validate formats loaded before proceeding forward.
-				err := genericFormatCheckXL(formatConfigs, sErrs)
-				if err == nil {
-					printHealMsg(endpoints, storageDisks, printOnceFn())
-				}
-				return err
-			case WaitForQuorum:
-				console.Printf(
-					"Initializing data volume. Waiting for minimum %d servers to come online. (elapsed %s)\n",
-					len(storageDisks)/2+1, getElapsedTime(),
-				)
-			case WaitForConfig:
-				// Print configuration errors.
-				printConfigErrMsg(storageDisks, sErrs, printOnceFn())
-			case WaitForAll:
-				console.Printf("Initializing data volume for first time. Waiting for other servers to come online (elapsed %s)\n", getElapsedTime())
-			case WaitForFormatting:
-				console.Printf("Initializing data volume for first time. Waiting for first server to come online (elapsed %s)\n", getElapsedTime())
-			}
-		case <-globalServiceDoneCh:
-			return errors.New("Initializing data volumes gracefully stopped")
+			return format, nil
+		case <-globalOSSignalCh:
+			return nil, fmt.Errorf("Initializing data volumes gracefully stopped")
 		}
 	}
-}
-
-// Initialize storage disks based on input arguments.
-func initStorageDisks(endpoints EndpointList) ([]StorageAPI, error) {
-	// Bootstrap disks.
-	storageDisks := make([]StorageAPI, len(endpoints))
-	for index, endpoint := range endpoints {
-		// Intentionally ignore disk not found errors. XL is designed
-		// to handle these errors internally.
-		storage, err := newStorageAPI(endpoint)
-		if err != nil && err != errDiskNotFound {
-			return nil, err
-		}
-		storageDisks[index] = storage
-	}
-	return storageDisks, nil
-}
-
-// Format disks before initialization of object layer.
-func waitForFormatXLDisks(firstDisk bool, endpoints EndpointList, storageDisks []StorageAPI) (formattedDisks []StorageAPI, err error) {
-	if len(endpoints) == 0 {
-		return nil, errInvalidArgument
-	}
-	if storageDisks == nil {
-		return nil, errInvalidArgument
-	}
-
-	// Retryable disks before formatting, we need to have a larger
-	// retry window so that we wait enough amount of time before
-	// the disks come online.
-	retryDisks := make([]StorageAPI, len(storageDisks))
-	for i, storage := range storageDisks {
-		retryDisks[i] = &retryStorage{
-			remoteStorage:    storage,
-			maxRetryAttempts: globalStorageInitRetryThreshold,
-			retryUnit:        time.Second,
-			retryCap:         time.Second * 30, // 30 seconds.
-			offlineTimestamp: UTCNow(),
-		}
-	}
-
-	// Start retry loop retrying until disks are formatted properly, until we have reached
-	// a conditional quorum of formatted disks.
-	err = retryFormattingXLDisks(firstDisk, endpoints, retryDisks)
-	if err != nil {
-		return nil, err
-	}
-
-	// Initialize the disk into a formatted disks wrapper.
-	formattedDisks = make([]StorageAPI, len(storageDisks))
-	for i, storage := range storageDisks {
-		// After formatting is done we need a smaller time
-		// window and lower retry value before formatting.
-		formattedDisks[i] = &retryStorage{
-			remoteStorage:    storage,
-			maxRetryAttempts: globalStorageRetryThreshold,
-			retryUnit:        time.Millisecond,
-			retryCap:         time.Millisecond * 5, // 5 milliseconds.
-			offlineTimestamp: UTCNow(),             // Set timestamp to prevent immediate marking as offline
-		}
-	}
-
-	// Success.
-	return formattedDisks, nil
 }

@@ -1,0 +1,4 @@
+<p><b>Disclaimer:</b> If you installed Pydio by the linux repository ( apt / yum ), you must install the "pydio-plugin-meta.git" package.</p>
+<p>Once installed, you will be able to see a list of actions of what happened on a given file, eventually download a given previous revision, or directly reverse the current revision to a previous one (thus creating a new revision).</p>
+<p>To install, simply make sure that the <b>GIT</b> command is accessible through the command-line on your server, and that the <b>VersionControl_Git</b> library from pear is installed as well.</p>
+<p>Previous implementation was based on SVN instead of Git. As they share some client resources (history browser), the meta.svn plugin must be installed as well (it is by default). Then add a "Git-based versioning" feature to the workspace.</p>

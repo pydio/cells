@@ -1,0 +1,35 @@
+{
+  "1": {
+    "other": "Editeur de source"
+  },
+  "10": {
+    "other": "Taille d'indentation"
+  },
+  "2": {
+    "other": "Coloration syntaxique CodeMirror"
+  },
+  "3": {
+    "other": "Retour ligne"
+  },
+  "3b": {
+    "other": "Retour à la ligne automatique"
+  },
+  "4": {
+    "other": "Numéro ligne"
+  },
+  "5": {
+    "other": "Numéros de ligne"
+  },
+  "6": {
+    "other": "Aller à la ligne"
+  },
+  "7": {
+    "other": "Annuler"
+  },
+  "8": {
+    "other": "Répéter"
+  },
+  "9": {
+    "other": "Recherche de texte"
+  }
+}

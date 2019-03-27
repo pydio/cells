@@ -21,12 +21,11 @@
 package grpc
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
-
-	"context"
 
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -135,7 +134,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 		log.Logger(ctx).Debug("ReadNode", zap.String("uuid", node.GetUuid()))
 
-		respNode, err := s.lookUpByUuid(ctx, node.GetUuid(), req.WithCommits)
+		respNode, err := s.lookUpByUuid(ctx, node.GetUuid(), req.WithCommits, req.WithExtendedStats)
 		if err != nil {
 			return err
 		}
@@ -157,11 +156,13 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 	if ds, ok := s.DataSources[dsName]; ok {
 
-		req := &tree.ReadNodeRequest{
-			Node: &tree.Node{Path: dsPath},
+		dsReq := &tree.ReadNodeRequest{
+			Node:              &tree.Node{Path: dsPath},
+			WithExtendedStats: req.WithExtendedStats,
+			WithCommits:       req.WithCommits,
 		}
 
-		response, rErr := ds.reader.ReadNode(ctx, req)
+		response, rErr := ds.reader.ReadNode(ctx, dsReq)
 		if rErr != nil {
 			return rErr
 		}
@@ -191,7 +192,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		if req.Node.GetPath() == "" && req.Node.GetUuid() != "" {
 			log.Logger(ctx).Debug("First Find node by uuid ", zap.String("uuid", req.Node.GetUuid()))
 
-			sendNode, err := s.lookUpByUuid(ctx, req.Node.GetUuid(), false)
+			sendNode, err := s.lookUpByUuid(ctx, req.Node.GetUuid(), false, false)
 			if err != nil {
 				return err
 			}
@@ -261,16 +262,16 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 	} else {
 
-		var numberSent int64
-		numberSent = 0
-		return s.ListNodesWithLimit(ctx, req, resp, &numberSent)
+		var numberSent, cursorIndex int64
+		numberSent, cursorIndex = 0, 0
+		return s.ListNodesWithLimit(ctx, req, resp, &cursorIndex, &numberSent)
 
 	}
 
 }
 
 // ListNodesWithLimit implementation for the TreeServer
-func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream, numberSent *int64) error {
+func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream, cursorIndex *int64, numberSent *int64) error {
 
 	defer track("ListNodesWithLimit", ctx, time.Now(), req, resp)
 	defer resp.Close()
@@ -279,6 +280,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 
 	dsName, dsPath := s.treeNodeToDataSourcePath(node)
 	limit := req.Limit
+	offset := req.Offset
 
 	checkLimit := func() bool {
 		*numberSent++
@@ -286,7 +288,6 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 			return false
 		}
 		if *numberSent >= limit {
-			log.Logger(ctx).Info("Breaking result at Limit", zap.Int64("limit", limit))
 			return true
 		}
 		return false
@@ -294,22 +295,31 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 
 	if dsName == "" {
 
+		log.Logger(ctx).Debug("Should List datasources", zap.Any("ds", s.DataSources))
 		for name := range s.DataSources {
 
-			log.Logger(ctx).Debug("Should List datasources", zap.Any("ds", s.DataSources))
+			if offset > 0 && offset < int64(len(s.DataSources)) && offset > *cursorIndex {
+				*cursorIndex++
+				continue
+			}
 			outputNode := &tree.Node{
 				Uuid: "DATASOURCE:" + name,
 				Path: name,
 			}
 			outputNode.SetMeta("name", name)
-			resp.Send(&tree.ListNodesResponse{
-				Node: outputNode,
-			})
+			if req.FilterType != tree.NodeType_LEAF {
+				resp.Send(&tree.ListNodesResponse{
+					Node: outputNode,
+				})
+			}
+			*cursorIndex++
 			if req.Recursive {
+				subNode := node.Clone()
+				subNode.Path = name
 				s.ListNodesWithLimit(ctx, &tree.ListNodesRequest{
-					Node:      &tree.Node{Path: name},
+					Node:      subNode,
 					Recursive: true,
-				}, resp, numberSent)
+				}, resp, cursorIndex, numberSent)
 			}
 			if checkLimit() {
 				return nil
@@ -320,14 +330,17 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 
 	if ds, ok := s.DataSources[dsName]; ok {
 
+		reqNode := node.Clone()
+		reqNode.Path = dsPath
 		req := &tree.ListNodesRequest{
-			Node:      &tree.Node{Path: dsPath},
+			Node:      reqNode,
 			Recursive: req.Recursive,
 			//Limit:      req.Limit,
 			WithCommits: req.WithCommits,
-			//FilterType: req.FilterType,
+			FilterType:  req.FilterType,
 		}
 
+		log.Logger(ctx).Debug("List Nodes With Offset / Limit", zap.Int64("offset", offset), zap.Int64("limit", limit))
 		stream, err := ds.reader.ListNodes(ctx, req)
 		if err != nil {
 			log.Logger(ctx).Error("ListNodesWithLimit", zap.Error(err))
@@ -346,8 +359,15 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 				break
 			}
 
+			if offset > 0 && offset > *cursorIndex {
+				*cursorIndex++
+				continue
+			}
+
 			s.updateDataSourceNode(clientResponse.Node, dsName)
 			resp.Send(clientResponse)
+			*cursorIndex++
+
 			if checkLimit() {
 				return nil
 			}
@@ -418,7 +438,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	return errors.Forbidden(common.SERVICE_TREE, "Unknown data source")
 }
 
-func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits bool) (*tree.Node, error) {
+func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits bool, withExtendedStats bool) (*tree.Node, error) {
 
 	var foundNode *tree.Node
 
@@ -426,7 +446,11 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 		dsName := strings.TrimPrefix(uuid, "DATASOURCE:")
 
 		if ds, ok := s.DataSources[dsName]; ok {
-			resp, err := ds.reader.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: "ROOT"}, WithCommits: withCommits})
+			resp, err := ds.reader.ReadNode(ctx, &tree.ReadNodeRequest{
+				Node:              &tree.Node{Uuid: "ROOT"},
+				WithCommits:       withCommits,
+				WithExtendedStats: withExtendedStats,
+			})
 			if err == nil && resp.Node != nil {
 				s.updateDataSourceNode(resp.Node, dsName)
 				log.Logger(ctx).Debug("[Look Up] Found node", zap.String("uuid", resp.Node.Uuid), zap.String("datasource", dsName))
@@ -445,7 +469,11 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 		go func() {
 			defer wg.Done()
 
-			resp, err := reader.ReadNode(c, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: uuid}, WithCommits: withCommits})
+			resp, err := reader.ReadNode(c, &tree.ReadNodeRequest{
+				Node:              &tree.Node{Uuid: uuid},
+				WithCommits:       withCommits,
+				WithExtendedStats: withExtendedStats,
+			})
 			if err == nil && resp.Node != nil {
 				s.updateDataSourceNode(resp.Node, name)
 

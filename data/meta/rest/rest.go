@@ -23,8 +23,11 @@ package rest
 import (
 	"context"
 	"encoding/json"
+	"math"
+	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/client"
@@ -36,7 +39,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -58,7 +61,7 @@ func (h *Handler) Filter() func(string) string {
 
 func error404(req *restful.Request, resp *restful.Response, err error) {
 	// Do not log error as it's polluting logs for nothing
-	resp.WriteError(404, err)
+	service.RestError404(req, resp, err)
 }
 
 func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
@@ -70,16 +73,16 @@ func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 	nsRequest.NodePath = path
-	node, err := h.loadNodeByUuidOrPath(ctx, nsRequest.NodePath, "")
+	node, err := h.loadNodeByUuidOrPath(ctx, nsRequest.NodePath, "", false)
 	if err != nil {
 		error404(req, resp, err)
 		return
 	}
 
 	//log.Logger(ctx).Debug("BEFORE META PROVIDERS", zap.String("NodePath", path), zap.Any("n", node))
-	streamers, closer := h.initMetaProviderClients(ctx)
+	streamers, closer, names := meta.InitMetaProviderClients(ctx, true)
 	defer closer()
-	h.EnrichMetaFromProviders(ctx, streamers, node)
+	meta.EnrichNodesMetaFromProviders(ctx, streamers, names, node)
 
 	//log.Logger(ctx).Debug("AFTER META PROVIDERS", zap.Any("n", node))
 	resp.WriteEntity(node.WithoutReservedMetas())
@@ -94,31 +97,49 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 	}
 	output := &rest.BulkMetaResponse{}
 	ctx := req.Request.Context()
-	folderNodes := []*tree.Node{}
+	var folderNodes []*tree.Node
+
 	for _, p := range bulkRequest.NodePaths {
 		if strings.HasSuffix(p, "/*") || bulkRequest.Versions {
-			if readResp, err := h.loadNodeByUuidOrPath(ctx, strings.TrimSuffix(p, "/*"), ""); err == nil {
+			if readResp, err := h.loadNodeByUuidOrPath(ctx, strings.TrimSuffix(p, "/*"), "", true); err == nil {
 				pathExt := strings.ToLower(filepath.Ext(readResp.Path))
 				if pathExt == ".zip" || pathExt == ".tar" || pathExt == ".tar.gz" {
 					readResp.Path += "/"
 				}
 				folderNodes = append(folderNodes, readResp)
+				var inRequest bool
+				for _, p2 := range bulkRequest.NodePaths {
+					if strings.TrimSuffix(p2, "/") == strings.TrimSuffix(readResp.Path, "/") {
+						inRequest = true
+						break
+					}
+				}
+				if inRequest && !bulkRequest.Versions {
+					output.Nodes = append(output.Nodes, readResp.WithoutReservedMetas())
+				}
 			} else {
 				error404(req, resp, err)
 				return
 			}
 		} else {
-			if node, err := h.loadNodeByUuidOrPath(ctx, p, ""); err == nil {
+			var asFolder bool
+			for _, p2 := range bulkRequest.NodePaths {
+				if p2 == p+"/*" {
+					asFolder = true
+					break
+				}
+			}
+			// node is already loaded as a folder node ( = /*), do not send readNode twice
+			if asFolder {
+				continue
+			}
+			if node, err := h.loadNodeByUuidOrPath(ctx, p, "", bulkRequest.AllMetaProviders); err == nil {
 				output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
-			} else {
-				// Do not send 404, just send no result
-				//service.error404(req, resp, err)
-				//return
 			}
 		}
 	}
 	for _, u := range bulkRequest.NodeUuids {
-		if node, err := h.loadNodeByUuidOrPath(ctx, "", u); err == nil {
+		if node, err := h.loadNodeByUuidOrPath(ctx, "", u, bulkRequest.AllMetaProviders); err == nil {
 			output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
 		} else {
 			error404(req, resp, err)
@@ -128,9 +149,9 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 
 	if len(folderNodes) == 0 {
 		if len(output.Nodes) > 0 {
-			streamers, closer := h.initMetaProviderClients(ctx)
+			streamers, closer, names := meta.InitMetaProviderClients(ctx, true)
 			defer closer()
-			h.EnrichMetaFromProviders(ctx, streamers, output.Nodes...)
+			meta.EnrichNodesMetaFromProviders(ctx, streamers, names, output.Nodes...)
 		}
 		reservedOutput := &rest.BulkMetaResponse{}
 		for _, n := range output.Nodes {
@@ -140,14 +161,24 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	streamers, closer := h.initMetaProviderClients(ctx)
+	streamers, closer, names := meta.InitMetaProviderClients(ctx, true)
 	defer closer()
 
 	for _, folderNode := range folderNodes {
-		streamer, err := h.getRouter().ListNodes(ctx, &tree.ListNodesRequest{Node: folderNode, WithVersions: bulkRequest.Versions})
+		var childrenCount, total int32
+		if e := folderNode.GetMeta("ChildrenCount", &childrenCount); e == nil && childrenCount > 0 {
+			total = childrenCount
+		}
+		streamer, err := h.GetRouter().ListNodes(ctx, &tree.ListNodesRequest{
+			Node:         folderNode,
+			WithVersions: bulkRequest.Versions,
+			Offset:       int64(bulkRequest.Offset),
+			Limit:        int64(bulkRequest.Limit),
+		})
 		if err != nil {
 			continue
 		}
+		var eTimes []time.Duration
 		for {
 			r, er := streamer.Recv()
 			if er != nil {
@@ -157,18 +188,31 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			if r == nil {
 				continue
 			}
+			s := time.Now()
 			if !bulkRequest.Versions {
-				h.EnrichMetaFromProviders(ctx, streamers, r.Node)
+				meta.EnrichNodesMetaFromProviders(ctx, streamers, names, r.Node)
+			}
+			eTimes = append(eTimes, time.Now().Sub(s))
+			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
+				total--
+				continue
 			}
 			output.Nodes = append(output.Nodes, r.Node.WithoutReservedMetas())
 		}
+		l := float64(len(eTimes))
+		var t time.Duration
+		for _, d := range eTimes {
+			t += d
+		}
+		avg := time.Duration(float64(t.Nanoseconds()) / l)
+		log.Logger(ctx).Debug("EnrichMetaProvider", zap.Duration("Average time spent to load node additional metadata", avg))
 		streamer.Close()
 
 		if !bulkRequest.Versions {
 			fNode := folderNode.Clone()
 
-			if resp, e := h.getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
-				er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+			if resp, e := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
+				er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 					c, n, e := inputFilter(ctx, resp.Node, "in")
 					if e != nil {
 						return e
@@ -180,10 +224,33 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 					return nil
 				})
 				if er != nil {
-					log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
+					log.Logger(ctx).Debug("Cannot publish READ event on node", resp.Node.Zap(), zap.Error(er))
 				}
 			} else {
 				log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
+			}
+		}
+
+		// Handle Pagination
+		if total > 0 && bulkRequest.Limit > 0 && len(output.Nodes) < int(total) {
+			var totalPages, crtPage, nextOffset, prevOffset int32
+			pageSize := bulkRequest.Limit
+			totalPages = int32(math.Ceil(float64(total) / float64(pageSize)))
+			crtPage = int32(math.Floor(float64(bulkRequest.Offset)/float64(pageSize))) + 1
+			if crtPage > 1 {
+				prevOffset = bulkRequest.Offset - pageSize
+			}
+			if crtPage < totalPages {
+				nextOffset = bulkRequest.Offset + pageSize
+			}
+			output.Pagination = &rest.Pagination{
+				Limit:         pageSize,
+				CurrentOffset: bulkRequest.Offset,
+				Total:         total,
+				CurrentPage:   crtPage,
+				TotalPages:    totalPages,
+				NextOffset:    nextOffset,
+				PrevOffset:    prevOffset,
 			}
 		}
 
@@ -201,7 +268,7 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
-	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), path, "")
+	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), path, "", false)
 	if err != nil {
 		service.RestError500(req, resp, err)
 		return
@@ -215,7 +282,7 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 		}
 	}
 	ctx := req.Request.Context()
-	er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
 		cli := tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
@@ -243,7 +310,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 		return
 	}
 	nsRequest.NodePath = path
-	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), nsRequest.NodePath, "")
+	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), nsRequest.NodePath, "", false)
 	if err != nil {
 		service.RestError404(req, resp, err)
 		return
@@ -253,7 +320,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 	}
 
 	ctx := req.Request.Context()
-	er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
 		cli := tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
@@ -270,102 +337,35 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 
 }
 
-type closer func()
-
-func (h *Handler) initMetaProviderClients(ctx context.Context) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, closer) {
-
-	metaProviders := h.GetMetaProviderStreamers()
-	streamers := []tree.NodeProviderStreamer_ReadNodeStreamClient{}
-	for _, cli := range metaProviders {
-		metaStreamer, metaE := cli.ReadNodeStream(ctx)
-		if metaE != nil {
-			continue
-		}
-		streamers = append(streamers, metaStreamer)
-	}
-	outCloser := func() {
-		for _, streamer := range streamers {
-			streamer.Close()
-		}
-	}
-	return streamers, outCloser
-
-}
-
-func (h *Handler) EnrichMetaFromProviders(ctx context.Context, streamers []tree.NodeProviderStreamer_ReadNodeStreamClient, nodes ...*tree.Node) {
-
-	for _, node := range nodes {
-
-		for _, metaStreamer := range streamers {
-
-			sendError := metaStreamer.Send(&tree.ReadNodeRequest{Node: node})
-			if sendError != nil {
-				log.Logger(ctx).Error("Error while sending to metaStreamer", zap.Error(sendError))
-			}
-			metaResponse, err := metaStreamer.Recv()
-			if err == nil {
-				if node.MetaStore == nil {
-					node.MetaStore = make(map[string]string, len(metaResponse.Node.MetaStore))
-				}
-				for k, v := range metaResponse.Node.MetaStore {
-					node.MetaStore[k] = v
-				}
-			}
-
-		}
-	}
-
-}
-
-func (h *Handler) GetMetaProviderStreamers() []tree.NodeProviderStreamerClient {
-
-	// Init with Meta Grpc Service
-	result := []tree.NodeProviderStreamerClient{
-		tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_META)),
-	}
-
-	// Other Meta Providers (running services only)
-	services, err := registry.ListServicesWithMicroMeta("MetaProvider", "stream")
-	if err != nil {
-		return nil
-	}
-
-	for _, srv := range services {
-		result = append(result, tree.NewNodeProviderStreamerClient(srv.Name(), defaults.NewClient()))
-	}
-
-	return result
-
-}
-
-func (h *Handler) getRouter() *views.Router {
+func (h *Handler) GetRouter() *views.Router {
 	if h.router == nil {
 		h.router = views.NewStandardRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
 	}
 	return h.router
 }
 
-func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nodeUuid string) (*tree.Node, error) {
+func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nodeUuid string, loadExtended bool) (*tree.Node, error) {
 
 	var response *tree.ReadNodeResponse
 	var err error
 	if nodeUuid != "" {
-		log.Logger(ctx).Debug("Querying Meta Service by Uuid")
-
+		log.Logger(ctx).Debug("Querying Meta Service by Uuid", zap.Bool("withExtended", loadExtended))
 		cli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_META))
-
 		response, err = cli.ReadNode(ctx, &tree.ReadNodeRequest{
+			WithExtendedStats: loadExtended,
 			Node: &tree.Node{
 				Uuid: nodeUuid,
 			},
 		})
 	} else {
-		log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath))
-		response, err = h.getRouter().ReadNode(ctx, &tree.ReadNodeRequest{
+		nodePath = strings.TrimSuffix(nodePath, "/")
+		response, err = h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{
+			WithExtendedStats: loadExtended,
 			Node: &tree.Node{
 				Path: nodePath,
 			},
 		})
+		log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended), zap.Any("resp", response), zap.Error(err))
 	}
 
 	if err != nil {

@@ -1,0 +1,33 @@
+.user-widget{
+  height: 100px;
+  width: 250px;
+  z-index: 1002;
+
+  .user-display{
+    padding: 0 2px 0 10px;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    height: 62px;
+    .userLabel{
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      height: 40px;
+      line-height: 40px;
+    }
+  }
+  .action_bar{
+    padding: 0 5px;
+    margin-top: -4px;
+    text-align: left;
+    button.userActionButton{
+      @size: 42px;
+      width: @size !important;
+      height: @size !important;
+      span.userActionIcon {
+        font-size: 18px !important;
+      }
+    }
+  }
+}

@@ -42,14 +42,19 @@ import (
 )
 
 var (
-	logger      *zap.Logger
-	AuditLogger *zap.Logger
-	StdOut      *os.File
+	logger          *zap.Logger
+	AuditLogger     *zap.Logger
+	TasksLoggerImpl *zap.Logger
+	StdOut          *os.File
 
 	// Parse log lines like below:
 	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
 	combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
 )
+
+func Init() {
+	initLogger()
+}
 
 func initLogger() *zap.Logger {
 
@@ -100,10 +105,14 @@ func initLogger() *zap.Logger {
 			common.LogLevel,
 		)
 
-		logger = zap.New(core)
+		if common.LogLevel == zap.DebugLevel {
+			logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
+		} else {
+			logger = zap.New(core)
+		}
 	}
 	nop := zap.NewNop()
-	_ = zap.RedirectStdLog(logger)
+	_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
 	micro.SetLogger(micrologger{nop})
 
 	// Catch StdOut
@@ -149,11 +158,12 @@ func Logger(ctx context.Context) *zap.Logger {
 				newLogger = newLogger.Named(serviceName)
 			}
 		}
-		if ctxReqID := servicecontext.GetRequestID(ctx); ctxReqID != "" {
-			newLogger = newLogger.With(zap.String("rqID", ctxReqID))
-		}
-		if ctxSessionID := servicecontext.GetSessionID(ctx); ctxSessionID != "" {
-			newLogger = newLogger.With(zap.String("sessionID", ctxSessionID))
+		if opID, opLabel := servicecontext.GetOperationID(ctx); opID != "" {
+			if opLabel != "" {
+				newLogger = newLogger.With(zap.String(common.KEY_OPERATION_UUID, opID), zap.String(common.KEY_OPERATION_LABEL, opLabel))
+			} else {
+				newLogger = newLogger.With(zap.String(common.KEY_OPERATION_UUID, opID))
+			}
 		}
 		if common.LogConfig == common.LogConfigProduction {
 			newLogger = fillLogContext(ctx, newLogger)
@@ -170,6 +180,23 @@ func Auditer(ctx context.Context) *zap.Logger {
 	newLogger := AuditLogger //initAuditLogger()
 	if ctx != nil {
 		newLogger = newLogger.With(zap.String("LogType", "audit"))
+		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
+			newLogger = newLogger.Named(serviceName)
+		}
+		// Add context info to the logger
+		newLogger = fillLogContext(ctx, newLogger)
+	}
+	return newLogger
+}
+
+// Auditer returns a zap logger with as much context as possible
+func TasksLogger(ctx context.Context) *zap.Logger {
+	if TasksLoggerImpl == nil {
+		return zap.New(nil)
+	}
+	newLogger := TasksLoggerImpl
+	if ctx != nil {
+		newLogger = newLogger.With(zap.String("LogType", "tasks"))
 		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
 			newLogger = newLogger.Named(serviceName)
 		}
@@ -227,6 +254,12 @@ func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 			logger = logger.With(zap.String(common.KEY_SPAN_PARENT_UUID, span.RootParentId))
 		}
 		logger = logger.With(zap.String(common.KEY_SPAN_UUID, span.SpanId))
+	}
+	if opId, opLabel := servicecontext.GetOperationID(ctx); opId != "" {
+		logger = logger.With(zap.String(common.KEY_OPERATION_UUID, opId))
+		if opLabel != "" {
+			logger = logger.With(zap.String(common.KEY_OPERATION_LABEL, opLabel))
+		}
 	}
 	if ctxMeta, has := metadata.FromContext(ctx); has {
 		for _, key := range []string{

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="gui.mobile" enabled="false" label="CONF_MESSAGE[Mobile]" description="CONF_MESSAGE[Template extending gui.ajax for small screen terminals.]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <server_settings>
+        <global_param description="CONF_MESSAGE[iOS Application ID on the store]" label="CONF_MESSAGE[iOS Application ID]" name="IOS_APP_ID" type="string" default="709275884" expose="true"/>
+        <global_param description="CONF_MESSAGE[iOS Application Icon]" label="CONF_MESSAGE[iOS Application Icon]" name="IOS_APP_ICON" type="string" default="plug/gui.mobile/res/icons/pydio-pro-icon.png" expose="true"/>
+        <global_param description="CONF_MESSAGE[Android Application ID]" label="CONF_MESSAGE[Android App ID]" name="ANDROID_APP_ID" type="string" default="com.pydio.android.pydioPro" expose="true"/>
+        <global_param description="CONF_MESSAGE[Android Application Icon]" label="CONF_MESSAGE[Android App Icon]" name="ANDROID_APP_ICON" type="string" default="plug/gui.mobile/res/icons/pydio-pro-icon.png" expose="true"/>
+    </server_settings>
+    <client_settings>
+        <resources>
+            <i18n namespace="mobile_gui" remote="plug/gui.mobile/res/i18n"/>
+            <js className="MobileExtensions" file="plug/gui.mobile/res/build/mobile-build.js" depends="React"/>
+            <css file="plug/gui.mobile/res/smart-app-banner.css" autoload="true"/>
+        </resources>
+    </client_settings>
+	<registry_contributions>
+        <hooks>
+            <serverCallback methodName="filterHTML" hookName="tpl.filter_html" pluginId="gui.mobile"/>
+        </hooks>
+        <actions>
+            <action name="ls_inline" dirDefault="true">
+                <gui text="32" title="32" iconClass="mdi mdi-chevron-right"
+                     accessKey="folder_access_key">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" actionBarGroup="inline" contextMenu="true" infoPanel="true">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false"
+                                      unique="true" allowedMimes="ajxp_folder,PYDIO_MIMES_ZIP" behaviour="hidden">
+                    </selectionContext>
+                </gui>
+                <processing>
+                    <clientCallback><![CDATA[
+					var path;
+					if(window.actionArguments && window.actionArguments.length>0){
+						path = window.actionArguments[0];
+						if(Object.isString(path)){path = new AjxpNode(path,false,getBaseName(path));}
+					}else{
+						var userSelection = pydio.getUserSelection();
+						if(userSelection && userSelection.isUnique() && (userSelection.hasDir() || userSelection.hasMime("PYDIO_MIMES_ZIP".split(",")))){
+							path = userSelection.getUniqueNode();
+						}
+					}
+					if(path){
+						pydio.updateContextData(path);
+					}
+					]]></clientCallback>
+                </processing>
+            </action>
+        </actions>
+		<client_configs uuidAttr="name">
+            <template name="mobile_ext" element="body" position="bottom" namespace="MobileExtensions" component="Template"/>
+			<component_config component="FilesList">
+				<property name="fixedThumbSize" value="40"/>
+				<columns switchGridMode="filelist">
+					<column messageId="1" attributeName="ajxp_label" fixedWidth="60%"/>
+					<column messageId="2" attributeName="filesize" fixedWidth="40%"/>
+				</columns>
+			</component_config>
+		</client_configs>
+	</registry_contributions>
+    <dependencies>
+        <activePlugin pluginName="gui.ajax"/>
+    </dependencies>
+</plugin>

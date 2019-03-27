@@ -25,16 +25,17 @@ import (
 	"github.com/micro/protobuf/ptypes"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/data/versions/lang"
 )
 
 func getDefaultJobs() []*jobs.Job {
 
-	T := lang.Bundle().GetTranslationFunc(utils.GetDefaultLanguage())
+	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Default()))
 
 	searchQuery, _ := ptypes.MarshalAny(&tree.Query{
 		Type: tree.NodeType_LEAF,
@@ -42,11 +43,12 @@ func getDefaultJobs() []*jobs.Job {
 
 	return []*jobs.Job{
 		{
-			ID:             "versioning-job",
-			Owner:          common.PYDIO_SYSTEM_USERNAME,
-			Label:          T("Job.Version.Title"),
-			Inactive:       false,
-			MaxConcurrency: 10,
+			ID:                "versioning-job",
+			Owner:             common.PYDIO_SYSTEM_USERNAME,
+			Label:             T("Job.Version.Title"),
+			Inactive:          false,
+			MaxConcurrency:    5,
+			TasksSilentUpdate: true,
 			EventNames: []string{
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),

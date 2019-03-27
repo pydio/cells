@@ -36,8 +36,8 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/chat"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -87,14 +87,14 @@ func (c *ChatHandler) InitHandlers(serviceCtx context.Context) {
 			case MsgSubscribe:
 				if msg.JWT == "" {
 					session.CloseWithMsg(NewErrorMessageString("Empty JWT"))
-					log.Logger(serviceCtx).Error("empty jwt")
+					log.Logger(serviceCtx).Debug("empty jwt")
 					return
 				}
 				ctx := context.Background()
 				verifier := auth.DefaultJWTVerifier()
 				_, claims, e := verifier.Verify(ctx, msg.JWT)
 				if e != nil {
-					log.Logger(serviceCtx).Error("invalid jwt")
+					log.Logger(serviceCtx).Error("invalid jwt received from websocket connection")
 					session.CloseWithMsg(NewErrorMessage(e))
 					return
 				}
@@ -116,10 +116,15 @@ func (c *ChatHandler) InitHandlers(serviceCtx context.Context) {
 			ctx := context.Background()
 			log.Logger(serviceCtx).Debug("Got Message", zap.Any("msg", chatMsg))
 			var userName string
-			if userData, ok := session.Get(SessionUsernameKey); !ok {
+			if userData, ok := session.Get(SessionUsernameKey); !ok && userData != nil {
 				log.Logger(ctx).Error("Chat Message requires ws subscription first")
+				return
 			} else {
-				userName = userData.(string)
+				userName, ok = userData.(string)
+				if !ok {
+					log.Logger(ctx).Error("Chat Message requires ws subscription first")
+					return
+				}
 			}
 
 			switch chatMsg.Type {

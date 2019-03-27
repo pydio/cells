@@ -22,22 +22,50 @@ package grpc
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	log3 "github.com/pydio/cells/broker/log"
+	logcore "github.com/pydio/cells/broker/log/grpc"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/jobs"
+	log2 "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/scheduler/jobs"
 	"github.com/pydio/cells/scheduler/lang"
 )
 
 // JobsHandler implements the JobService API
 type JobsHandler struct {
+	logcore.Handler
 	store jobs.DAO
+
+	putTaskChan       chan *proto.Task
+	putTaskBuff       map[string]map[string]*proto.Task
+	putTaskBuffLength int
+	jobsBuff          map[string]*proto.Job
+	stop              chan bool
+}
+
+// NewJobsHandler creates a new JobsHandler
+func NewJobsHandler(store jobs.DAO, messageRepository log3.MessageRepository) *JobsHandler {
+	j := &JobsHandler{
+		store:       store,
+		putTaskChan: make(chan *proto.Task),
+		jobsBuff:    make(map[string]*proto.Job),
+		stop:        make(chan bool),
+	}
+	j.Handler.Repo = messageRepository
+	go j.watchPutTaskChan()
+	return j
+}
+
+func (j *JobsHandler) Close() {
+	close(j.stop)
 }
 
 //////////////////
@@ -84,12 +112,15 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 		client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_CONFIG_EVENT, &proto.JobChangeEvent{
 			JobRemoved: request.JobID,
 		}))
+		go func() {
+			j.DeleteLogsFor(ctx, request.JobID)
+		}()
 		response.Success = true
 
 	} else if request.CleanableJobs {
 
 		log.Logger(ctx).Debug("Delete jobs with AutoClean that are finished")
-		res, done, err := j.store.ListJobs("", false, false, proto.TaskStatus_Finished)
+		res, done, err := j.store.ListJobs("", false, false, proto.TaskStatus_Finished, []string{})
 		defer close(res)
 		if err != nil {
 			return err
@@ -108,6 +139,24 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			}
 		}
 
+		log.Logger(ctx).Debug("Delete jobs with AutoClean that are errored")
+		res, done, err = j.store.ListJobs("", false, false, proto.TaskStatus_Error, []string{})
+		defer close(res)
+		if err != nil {
+			return err
+		}
+	loop2:
+		for {
+			select {
+			case <-done:
+				break loop2
+			case job := <-res:
+				if job.AutoStart && job.AutoClean {
+					toDelete = append(toDelete, job.ID)
+				}
+			}
+		}
+
 		for _, id := range toDelete {
 			if e := j.store.DeleteJob(id); e == nil {
 				deleted++
@@ -115,6 +164,10 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_CONFIG_EVENT, &proto.JobChangeEvent{
 					JobRemoved: id,
 				}))
+				go func() {
+					j.DeleteLogsFor(ctx, id)
+				}()
+
 			}
 		}
 		response.DeleteCount = deleted
@@ -128,7 +181,7 @@ func (j *JobsHandler) ListJobs(ctx context.Context, request *proto.ListJobsReque
 	log.Logger(ctx).Debug("Scheduler ListJobs", zap.Any("req", request))
 	defer streamer.Close()
 
-	res, done, err := j.store.ListJobs(request.Owner, request.EventsOnly, request.TimersOnly, request.LoadTasks)
+	res, done, err := j.store.ListJobs(request.Owner, request.EventsOnly, request.TimersOnly, request.LoadTasks, request.JobIDs, request.TasksOffset, request.TasksLimit)
 	defer close(res)
 	if err != nil {
 		return err
@@ -155,19 +208,64 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	}
 
 	err := j.store.PutTask(request.Task)
-	log.Logger(ctx).Debug("Scheduler PutTask", zap.Any("task", request.Task))
+	//log.Logger(ctx).Debug("Scheduler PutTask", zap.Any("task", request.Task))
 	if err != nil {
 		return err
 	}
 	response.Task = request.Task
 	T := lang.Bundle().GetTranslationFunc()
 	job.Label = T(job.Label)
-	client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, &proto.TaskChangeEvent{
-		TaskUpdated: request.Task,
-		Job:         job,
-	}))
+	if !job.TasksSilentUpdate {
+		client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, &proto.TaskChangeEvent{
+			TaskUpdated: request.Task,
+			Job:         job,
+		}))
+	}
 
 	return nil
+}
+
+func (j *JobsHandler) flush() {
+	if j.putTaskBuff == nil {
+		return
+	}
+	log.Logger(context.Background()).Debug("Now flushing", zap.Any("j", j.putTaskBuff))
+	if err := j.store.PutTasks(j.putTaskBuff); err != nil {
+		log.Logger(context.Background()).Error("Error while flushing tasks to store")
+	}
+	j.putTaskBuff = nil
+	j.putTaskBuffLength = 0
+}
+
+func (j *JobsHandler) watchPutTaskChan() {
+	for {
+		select {
+		case task := <-j.putTaskChan:
+			if j.putTaskBuff == nil {
+				j.putTaskBuff = make(map[string]map[string]*proto.Task)
+			}
+			if _, o := j.putTaskBuff[task.JobID]; !o {
+				j.putTaskBuff[task.JobID] = make(map[string]*proto.Task)
+			}
+			var storeNow bool
+			if stored, o := j.putTaskBuff[task.JobID][task.ID]; !o || stored.Status == proto.TaskStatus_Finished {
+				storeNow = true
+			}
+			j.putTaskBuffLength++
+			j.putTaskBuff[task.JobID][task.ID] = task
+			if j.putTaskBuffLength > 500 {
+				j.flush()
+			} else if storeNow {
+				log.Logger(context.Background()).Debug("Quick store of this task as it is new or finished", task.Zap())
+				j.store.PutTask(task)
+			}
+		case <-time.After(3 * time.Second):
+			j.flush()
+		case <-j.stop:
+			j.flush()
+			return
+		}
+	}
 }
 
 func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobService_PutTaskStreamStream) error {
@@ -183,17 +281,32 @@ func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobServi
 			log.Logger(ctx).Debug("received an error in PutTaskStream", zap.Error(err))
 			return err
 		}
-
-		log.Logger(ctx).Debug("PutTaskStream", zap.Any("task", request.Task))
-		var response proto.PutTaskResponse
-		e := j.PutTask(ctx, request, &response)
-		if e != nil {
-			streamer.SendMsg(e)
-		} else {
-			sendErr := streamer.Send(&response)
-			if sendErr != nil {
-				return e
+		t := request.Task
+		var tJob *proto.Job
+		if s, ok := j.jobsBuff[t.JobID]; !ok {
+			job, e := j.store.GetJob(t.JobID, 0)
+			if e != nil {
+				return errors.NotFound(common.SERVICE_JOBS, "Cannot append task to a non existing job ("+request.Task.JobID+")")
 			}
+			j.jobsBuff[t.JobID] = job
+			tJob = job
+		} else {
+			tJob = s
+		}
+		j.putTaskChan <- t
+		sendErr := streamer.Send(&proto.PutTaskResponse{
+			Task: t,
+		})
+		T := lang.Bundle().GetTranslationFunc()
+		tJob.Label = T(tJob.Label)
+		if !tJob.TasksSilentUpdate {
+			client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, &proto.TaskChangeEvent{
+				TaskUpdated: request.Task,
+				Job:         tJob,
+			}))
+		}
+		if sendErr != nil {
+			return sendErr
 		}
 	}
 
@@ -257,6 +370,9 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 				return e
 			}
 			response.Deleted = append(response.Deleted, tasks...)
+			go func() {
+				j.DeleteLogsFor(ctx, jId, tasks...)
+			}()
 		}
 		return nil
 
@@ -264,6 +380,9 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 		if e := j.store.DeleteTasks(request.JobId, request.TaskID); e == nil {
 			response.Deleted = append(response.Deleted, request.TaskID...)
+			go func() {
+				j.DeleteLogsFor(ctx, request.JobId, request.TaskID...)
+			}()
 			return nil
 		} else {
 			return e
@@ -275,6 +394,27 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 
 	}
 
+}
+
+func (j *JobsHandler) DeleteLogsFor(ctx context.Context, job string, tasks ...string) (int64, error) {
+	var req = &log2.ListLogRequest{}
+	if len(tasks) == 0 {
+		req.Query = "OperationUuid:\"" + job + "*\""
+	} else {
+		qs := []string{}
+		for _, task := range tasks {
+			qs = append(qs, "OperationUuid:\""+job+"-"+task[0:8]+"\"")
+		}
+		req.Query = strings.Join(qs, " ")
+	}
+	resp := &log2.DeleteLogsResponse{}
+	if e := j.DeleteLogs(ctx, req, resp); e != nil {
+		log.Logger(ctx).Error("Deleting logs in background for ", zap.String("j", job), zap.Strings("t", tasks), zap.Error(e))
+		return 0, e
+	} else {
+		log.Logger(ctx).Debug("Deleting logs in background for ", zap.String("j", job), zap.Strings("t", tasks), zap.Any("count", resp.Deleted))
+		return resp.Deleted, nil
+	}
 }
 
 func (j *JobsHandler) DetectStuckTasks(ctx context.Context, request *proto.DetectStuckTasksRequest, response *proto.DetectStuckTasksResponse) error {

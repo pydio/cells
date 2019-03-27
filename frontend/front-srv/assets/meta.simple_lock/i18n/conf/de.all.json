@@ -1,0 +1,8 @@
+{
+  "Manual Locking mechanism to avoid concurrent edition": {
+    "other": "Benutzer können Dateien sperren, um gleichzeitiges Bearbeiten zu verhindern"
+  },
+  "Simple Lock": {
+    "other": "Sperren"
+  }
+}

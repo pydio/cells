@@ -25,35 +25,47 @@ import (
 	"fmt"
 
 	"github.com/emicklei/go-restful"
-	"go.uber.org/zap"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
 	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 /*********************
 DATASOURCES MANAGEMENT
 *********************/
+
+// GetDataSource retrieves a datasource given its name.
 func (s *Handler) GetDataSource(req *restful.Request, resp *restful.Response) {
 
 	dsName := req.PathParameter("Name")
-	if res, err := s.loadDataSource(req.Request.Context(), dsName); err != nil {
+	res, err := s.loadDataSource(req.Request.Context(), dsName)
+
+	if err != nil {
+		err = fmt.Errorf("could not to retrieve datasource with name [%s], root cause: %s", dsName, err.Error())
 		service.RestError500(req, resp, err)
-	} else {
-		resp.WriteEntity(res)
+		return
 	}
+
+	if res == nil {
+		err = fmt.Errorf("unknown datasource [%s]", dsName)
+		service.RestError404(req, resp, err)
+		return
+	}
+
+	resp.WriteEntity(res)
 
 }
 
@@ -66,16 +78,18 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 
-	if err := utils.ValidateDataSourceConfig(&ds); err != nil {
-		service.RestError500(req, resp, err)
-		return
+	if ds.StorageType == object.StorageType_LOCAL {
+		if err := s.ValidateLocalDSFolderOnPeer(ctx, &ds); err != nil {
+			service.RestError500(req, resp, err)
+			return
+		}
 	}
 
-	currentSources := utils.ListSourcesFromConfig()
-	currentMinios := utils.ListMinioConfigsFromConfig()
+	currentSources := config.ListSourcesFromConfig()
+	currentMinios := config.ListMinioConfigsFromConfig()
 	_, update := currentSources[ds.Name]
 
-	minioConfig := utils.FactorizeMinioServers(currentMinios, &ds)
+	minioConfig := config.FactorizeMinioServers(currentMinios, &ds, update)
 	currentSources[ds.Name] = &ds
 	currentMinios[minioConfig.Name] = minioConfig
 
@@ -92,17 +106,17 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		config.Del("services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	}
 	config.Set("default", "services", "pydio.grpc.data.index."+dsName, "dsn")
-	config.Set(utils.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
+	config.Set(config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
 	// UPDATE SYNC
 	config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
 	// UPDATE OBJECTS
 	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
 
 	log.Logger(ctx).Info("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
-	utils.SourceNamesToConfig(currentSources)
-	utils.MinioConfigNamesToConfig(currentMinios)
+	config.SourceNamesToConfig(currentSources)
+	config.MinioConfigNamesToConfig(currentMinios)
 
-	u, _ := utils.FindUserNameInContext(ctx)
+	u, _ := permissions.FindUserNameInContext(ctx)
 	if u == "" {
 		u = "rest"
 	}
@@ -142,25 +156,27 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		service.RestError500(req, resp, fmt.Errorf("There are workspaces defined on this datasource, please delete them before removing datasource"))
 		return
 	}
-	currentSources := utils.ListSourcesFromConfig()
+	currentSources := config.ListSourcesFromConfig()
 
 	if _, ok := currentSources[dsName]; !ok {
 		service.RestError500(req, resp, fmt.Errorf("Cannot find datasource!"))
 		return
 	}
 	delete(currentSources, dsName)
-	utils.SourceNamesToConfig(currentSources)
+	config.SourceNamesToConfig(currentSources)
 	config.Del("services", "pydio.grpc.data.index."+dsName)
 	config.Del("services", "pydio.grpc.data.sync."+dsName)
 
-	currentMinios := utils.ListMinioConfigsFromConfig()
-	if key := utils.UnusedMinioServers(currentMinios, currentSources); key != "" {
-		config.Del("services", "pydio.grpc.data.objects."+key)
-		delete(currentMinios, key)
-		utils.MinioConfigNamesToConfig(currentMinios)
+	currentMinios := config.ListMinioConfigsFromConfig()
+	if keys := config.UnusedMinioServers(currentMinios, currentSources); len(keys) > 0 {
+		for _, key := range keys {
+			config.Del("services", "pydio.grpc.data.objects."+key)
+			delete(currentMinios, key)
+		}
+		config.MinioConfigNamesToConfig(currentMinios)
 	}
 
-	u, _ := utils.FindUserNameInContext(req.Request.Context())
+	u, _ := permissions.FindUserNameInContext(req.Request.Context())
 	if u == "" {
 		u = "rest"
 	}
@@ -181,8 +197,6 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 
 func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) {
 
-	log.Logger(req.Request.Context()).Info("ListDataSources")
-
 	if sources, err := s.getDataSources(req.Request.Context()); err != nil {
 		service.RestError500(req, resp, err)
 	} else {
@@ -196,15 +210,7 @@ func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) 
 
 func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, error) {
 
-	var cfgMap config.Map
-
-	if err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX).Scan(&cfgMap); err != nil {
-		return nil, err
-	}
-
-	sources := cfgMap.StringArray("sources")
-
-	log.Logger(ctx).Info("ListDataSources", zap.Any("sources", sources))
+	sources := config.SourceNamesForDataServices(common.SERVICE_DATA_INDEX)
 	var dataSources []*object.DataSource
 	for _, src := range sources {
 		if ds, err := s.loadDataSource(ctx, src); err == nil {
@@ -217,14 +223,20 @@ func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, err
 
 func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.DataSource, error) {
 
-	var objects *object.DataSource
-	if err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dsName).Scan(&objects); err != nil {
+	var ds *object.DataSource
+
+	err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dsName).Scan(&ds)
+	if err != nil {
 		return nil, err
-	} else {
-		log.Logger(ctx).Info("LoadDataSource", zap.Any("objects", objects))
-		return objects, nil
 	}
 
+	if ds == nil {
+		log.Logger(ctx).Debug(fmt.Sprintf("No datasource found for name [%s]", dsName))
+		return nil, nil
+	}
+
+	log.Logger(ctx).Debug(fmt.Sprintf("Retrieved datasource [%s]", dsName), zap.Any("datasource", ds))
+	return ds, nil
 }
 
 // findWorkspacesForDatasource loads all workspaces, find their roots in Acls and check if these roots

@@ -1,0 +1,9 @@
+.cke, .cke_inner {
+    display: flex !important;
+    flex: 1 !important;
+    flex-flow: column nowrap !important;
+    width: 100% !important;
+}
+.cke_contents {
+    flex: 1 0 0 !important
+}

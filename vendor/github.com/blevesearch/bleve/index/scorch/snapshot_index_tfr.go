@@ -16,6 +16,7 @@ package scorch
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
 	"sync/atomic"
 
@@ -35,6 +36,7 @@ type IndexSnapshotTermFieldReader struct {
 	term               []byte
 	field              string
 	snapshot           *IndexSnapshot
+	dicts              []segment.TermDictionary
 	postings           []segment.PostingsList
 	iterators          []segment.PostingsIterator
 	segmentOffset      int
@@ -72,7 +74,7 @@ func (i *IndexSnapshotTermFieldReader) Next(preAlloced *index.TermFieldDoc) (*in
 		rv = &index.TermFieldDoc{}
 	}
 	// find the next hit
-	for i.segmentOffset < len(i.postings) {
+	for i.segmentOffset < len(i.iterators) {
 		next, err := i.iterators[i.segmentOffset].Next()
 		if err != nil {
 			return nil, err
@@ -102,9 +104,16 @@ func (i *IndexSnapshotTermFieldReader) postingToTermFieldDoc(next segment.Postin
 	}
 	if i.includeTermVectors {
 		locs := next.Locations()
-		rv.Vectors = make([]*index.TermFieldVector, len(locs))
+		if cap(rv.Vectors) < len(locs) {
+			rv.Vectors = make([]*index.TermFieldVector, len(locs))
+			backing := make([]index.TermFieldVector, len(locs))
+			for i := range backing {
+				rv.Vectors[i] = &backing[i]
+			}
+		}
+		rv.Vectors = rv.Vectors[:len(locs)]
 		for i, loc := range locs {
-			rv.Vectors[i] = &index.TermFieldVector{
+			*rv.Vectors[i] = index.TermFieldVector{
 				Start:          loc.Start(),
 				End:            loc.End(),
 				Pos:            loc.Pos(),
@@ -126,24 +135,37 @@ func (i *IndexSnapshotTermFieldReader) Advance(ID index.IndexInternalID, preAllo
 		}
 		*i = *(i2.(*IndexSnapshotTermFieldReader))
 	}
-	// FIXME do something better
-	next, err := i.Next(preAlloced)
+	num, err := docInternalToNumber(ID)
+	if err != nil {
+		return nil, fmt.Errorf("error converting to doc number % x - %v", ID, err)
+	}
+	segIndex, ldocNum := i.snapshot.segmentIndexAndLocalDocNumFromGlobal(num)
+	if segIndex >= len(i.snapshot.segment) {
+		return nil, fmt.Errorf("computed segment index %d out of bounds %d",
+			segIndex, len(i.snapshot.segment))
+	}
+	// skip directly to the target segment
+	i.segmentOffset = segIndex
+	next, err := i.iterators[i.segmentOffset].Advance(ldocNum)
 	if err != nil {
 		return nil, err
 	}
 	if next == nil {
-		return nil, nil
+		// we jumped directly to the segment that should have contained it
+		// but it wasn't there, so reuse Next() which should correctly
+		// get the next hit after it (we moved i.segmentOffset)
+		return i.Next(preAlloced)
 	}
-	for bytes.Compare(next.ID, ID) < 0 {
-		next, err = i.Next(preAlloced)
-		if err != nil {
-			return nil, err
-		}
-		if next == nil {
-			break
-		}
+
+	if preAlloced == nil {
+		preAlloced = &index.TermFieldDoc{}
 	}
-	return next, nil
+	preAlloced.ID = docNumberToBytes(preAlloced.ID, next.Number()+
+		i.snapshot.offsets[segIndex])
+	i.postingToTermFieldDoc(next, preAlloced)
+	i.currID = preAlloced.ID
+	i.currPosting = next
+	return preAlloced, nil
 }
 
 func (i *IndexSnapshotTermFieldReader) Count() uint64 {
@@ -157,6 +179,7 @@ func (i *IndexSnapshotTermFieldReader) Count() uint64 {
 func (i *IndexSnapshotTermFieldReader) Close() error {
 	if i.snapshot != nil {
 		atomic.AddUint64(&i.snapshot.parent.stats.TotTermSearchersFinished, uint64(1))
+		i.snapshot.recycleTermFieldReader(i)
 	}
 	return nil
 }

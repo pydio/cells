@@ -1,0 +1,212 @@
+{
+  "Mail.Main.Copyright": {
+    "other": "Filesharinglösung mit Stolz präsentiert von Pydio"
+  },
+  "Mail.Main.Troubleshoot": {
+    "other": "Wenn die {ACTION}-Taste für SIe nicht funktioniert, kopieren Sie einfach die URL und fügen Sie diese in die Adressleiste in Ihrem Web-Browser ein."
+  },
+  "Mail.Main.Greeting": {
+    "other": "Hallo"
+  },
+  "Mail.Main.Signature": {
+    "other": "Mit freundlichen Grüßen"
+  },
+  "Mail.ResetPassword.Subject": {
+    "other": "Passwort zurücksetzen angefordert für {{.Configs.Title}}"
+  },
+  "Mail.ResetPassword.Intros": {
+    "other": "Eine Anfrage zum Kennwort zurücksetzen wurde für Ihr Konto {{.Configs.Title}} angefordert."
+  },
+  "Mail.ResetPassword.Outros": {
+    "other": "Wenn Sie diese Anforderung nicht ausgelöst haben, können Sie diese Email ignorieren. Wenn Sie weitere Emails zu dem Thema erhalten, informieren Sie bitte Ihren Administrator. Es könnte es ein Sicherheitsrisiko vorliegen."
+  },
+  "Mail.ResetPassword.LinkLabel": {
+    "other": "Mein Passwort zurücksetzen"
+  },
+  "Mail.ResetPassword.LinkInstructions": {
+    "other": "Hier klicken, um das Passwort zurückzusetzen"
+  },
+  "Mail.ResetPasswordDone.Subject": {
+    "other": "Ihr Kennwort auf {{.Configs.Title}} wurde zurückgesetzt"
+  },
+  "Mail.ResetPasswordDone.Intros": {
+    "other": "Ihr Passwort wurde erfolgreich für {{.Configs.Title}} zurückgesetzt."
+  },
+  "Mail.ResetPasswordDone.Outros": {
+    "other": "Wenn Sie diesen Vorgang nicht ausgelöst haben, informieren Sie bitte Ihren Administrator sofort, da dies ein Sicherheitsrisiko darstellen kann."
+  },
+  "Mail.Digest.Subject": {
+    "other": "Ihre {{.Configs.Title}} -Benachrichtigungen"
+  },
+  "Mail.Digest.Intros": {
+    "other": "Es folgt eine Zusammenfassung aller Benachrichtigungen {{.Configs.Title}}"
+  },
+  "Mail.Welcome.Subject": {
+    "other": "Willkommen bei {{.Configs.Title}}"
+  },
+  "Mail.Welcome.Intros": {
+    "other": "Ein Konto wurde auf {{.Configs.Title}} für Sie erstellt. \n\nDer Login ist {{.TplData.Login}}{{if .TplData.Password}} und Ihr Passwort ist {{.TplData.Password}}. Sie solten das Kennwort bei der ersten Anmeldung ändern {{end}}."
+  },
+  "Mail.Welcome.LinkInstructions": {
+    "other": "Bitte einloggen"
+  },
+  "Mail.Welcome.LinkLabel": {
+    "other": "Login auf {{.Configs.Title}}"
+  },
+  "Mail.Welcome.Outros": {
+    "other": "{{.Configs.Title}} Dateiaustauschplattform wird zur effizienten und gemeinsamen Dokumentenarbeit\nverwendet. Wir freuen uns, Sie an Bord zu haben!"
+  },
+  "Mail.Invite.Subject": {
+    "other": "{{.TplData.Inviter}} hat Sie auf {{.Configs.Title}} eingeladen"
+  },
+  "Mail.Invite.Intros": {
+    "other": "Ein Konto wurde auf {{.Configs.Title}}für Sie erstellt. \n\nDer Login ist {{.TplData.Login}}{{if .TplData.Password}} und Ihr Passwort ist {{.TplData.Password}}. Sie sollten das Kennwort bei der ersten Anmeldung{{end}} ändern."
+  },
+  "Mail.Invite.LinkInstructions": {
+    "other": "Klicken Sie, um sich einzuloggen"
+  },
+  "Mail.Invite.LinkLabel": {
+    "other": "Login auf {{.Configs.Title}}"
+  },
+  "Mail.Invite.Outros": {
+    "other": "{{.Configs.Title}} Dateiaustauschplattform wird zur effizienten und gemeinsamen Dokumentenarbeit\nverwendet. Wir freuen uns, Sie an Bord zu haben!"
+  },
+  "Mail.Cell.Subject": {
+    "other": "{{.TplData.Inviter}} hat Sie zur Cell {{.TplData.Cell}} hinzugefügt"
+  },
+  "Mail.Cell.Intros": {
+    "other": "{{.TplData.Inviter}} hat Sie in die Cell {{.TplData.Cell}} von {{.Configs.Title}}! Sie können nun Dateien und Ordner teilen."
+  },
+  "Mail.Cell.LinkInstructions": {
+    "other": "Klicken zum Öffnen der Cell"
+  },
+  "Mail.Cell.LinkLabel": {
+    "other": "Öffnen {{.TplData.Cell}}"
+  },
+  "Mail.PublicFile.Subject": {
+    "other": "Auf der Seite {{.TplData.Inviter}} wurde für Sie ein neuer Link freigegeben"
+  },
+  "Mail.PublicFile.Intros": {
+    "other": "{{.TplData.Inviter}} teile eine Datei\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link ist gültig bis {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximale Downloads :{{.TplData.MaxDownloads}}{{end}}"
+  },
+  "Mail.PublicFile.LinkLabel": {
+    "other": "Öffnen {{.TplData.FileName}}"
+  },
+  "Mail.PublicFile.LinkInstructions": {
+    "other": "Hier klicken zur Vorschau im Browser"
+  },
+  "Mail.PublicFile.Outros": {
+    "other": "{{.Configs.Title}} Dateiaustauschplattform wird zur effizienten und gemeinsamen Dokumentenarbeit\nverwendet. Wir freuen uns, Sie an Bord zu haben."
+  },
+  "Mail.PublicFolder.Subject": {
+    "other": "Auf der Seite {{.TplData.Inviter}} wurde für Sie ein neuer Ordner freigegeben"
+  },
+  "Mail.PublicFolder.Intros": {
+    "other": "{{.TplData.Inviter}} hat eine Datei mit Ihnen geteilt.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link ist gültig bis {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximale Downloads: {{.TplData.MaxDownloads}}{{end}}"
+  },
+  "Mail.PublicFolder.LinkLabel": {
+    "other": "Öffnen {{.TplData.FolderName}}"
+  },
+  "Mail.PublicFolder.LinkInstructions": {
+    "other": "Hier klicken zur Vorschau im Browser"
+  },
+  "Mail.PublicFolder.Outros": {
+    "other": "{{.Configs.Title}} Dateiaustauschplattform wird zur effizienten und gemeinsamen Dokumentenarbeit bei {{.TplData.Inviter}} \nverwendet."
+  },
+  "Mail.AdminTestMail.Subject": {
+    "other": "{{.Configs.Title}} sendet Ihnen eine Test-Email"
+  },
+  "Mail.AdminTestMail.Intros": {
+    "other": "{{.TplData.Message}}"
+  },
+  "Mail.AdminTestMail.LinkLabel": {
+    "other": "Cells öffnen"
+  },
+  "Mail.AdminTestMail.LinkInstructions": {
+    "other": "Klicken Sie hier, um das Frontend zu öffnen"
+  },
+  "Mail.AdminTestMail.Outros": {
+    "other": "Die {{.Configs.Title}} File-Sharing-Plattform wird von Teams genutzt, um effizient an Dokumenten zusammenzuarbeiten."
+  },
+  "Mail.Config.Title": {
+    "other": "Mailer"
+  },
+  "Mail.Config.From.Label": {
+    "other": "Standard E-Mail-Adresse des Absenders"
+  },
+  "Mail.Config.From.Description": {
+    "other": "Adresse zum Senden von Emails. Sie sollten eine echte Adresse verwenden und keine no-reply Adresse."
+  },
+  "Mail.Config.Queue.Label": {
+    "other": "Warteschlangentyp"
+  },
+  "Mail.Config.Queue.Description": {
+    "other": "Persistenzschicht zum Speichern ausstehender E-Mails"
+  },
+  "Mail.Config.Queue.ValueBolt": {
+    "other": "Datenbank auf Dateibasis (Bolt)"
+  },
+  "Mail.Config.Queue.ValueMemory": {
+    "other": "In-Memory"
+  },
+  "Mail.Config.Mailer.Label": {
+    "other": "Emailsystem"
+  },
+  "Mail.Config.Mailer.Description": {
+    "other": "System zum senden von Emails"
+  },
+  "Mail.Config.Smtp.Label": {
+    "other": "SMTP-Server"
+  },
+  "Mail.Config.Smtp.Host.Label": {
+    "other": "Server Hostname"
+  },
+  "Mail.Config.Smtp.Host.Description": {
+    "other": "Host des SMTP-Servers, z.B. smtp.gmail.com"
+  },
+  "Mail.Config.Smtp.Port.Label": {
+    "other": "Serverport"
+  },
+  "Mail.Config.Smtp.Port.Description": {
+    "other": "Port des SMTP-Servers z.B. 587 (unverschlüsselt) oder 465 (TLS)"
+  },
+  "Mail.Config.Smtp.User.Label": {
+    "other": "SMTP - Benutzername"
+  },
+  "Mail.Config.Smtp.User.Description": {
+    "other": "Benutzername erforderlich, um zum SMTP-Server zu verbinden"
+  },
+  "Mail.Config.Smtp.Password.Label": {
+    "other": "Verbindungspasswort"
+  },
+  "Mail.Config.Smtp.Password.Description": {
+    "other": "Kennwort für die Verbindung zum SMTP - Server"
+  },
+  "Mail.Config.Smtp.SkipVerify.Label": {
+    "other": "Selbstsigniertes Zertifikat"
+  },
+  "Mail.Config.Smtp.SkipVerify.Description": {
+    "other": "Deaktivieren Sie die Zertifikatüberprüfung, wenn Ihr SMTP-Serverzertifikat selbstsigniert ist"
+  },
+  "Mail.Config.SendGrid.Label": {
+    "other": "SendGrid Dienstleistung"
+  },
+  "Mail.Config.SendGrid.ApiKey.Label": {
+    "other": "API-Schlüssel"
+  },
+  "Mail.Config.SendGrid.ApiKey.Description": {
+    "other": "API-Schlüssel, der Ihnen von SendGrid zur Verfügung gestellt wird, um sich mit dem Dienst zu verbinden"
+  },
+  "Mail.Config.Sendmail.Label": {
+    "other": "Sendmail"
+  },
+  "Mail.Config.Sendmail.Executable.Label": {
+    "other": "Ausführbarer Pfad"
+  },
+  "Mail.Config.Sendmail.Executable.Description": {
+    "other": "Vollständiger Pfad der ausführbaren Sendmail-Datei auf dem Server"
+  },
+  "Mail.Config.Sendmail.Executable.Other": {
+    "other": "Anderer Pfad (manuell in pydio.json setzen)"
+  }
+}

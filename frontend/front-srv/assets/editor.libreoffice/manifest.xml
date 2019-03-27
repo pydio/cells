@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor
+        id="editor.libreoffice" enabled="false" actions="PydioLibreOffice.Actions" openable="true" order="3" text="libreoffice.1" title="libreoffice.1"
+        canWrite="true" iconClass="mdi mdi-file-word" className="PydioLibreOffice" mimes="docx,pptx,xlsx,dotx,xltx,ppsx,doc,ppt,xls,dot,xlt,pps,odt,odp,ods,ots,ott,otp,rtf,csv"
+        formId="libreoffice_box" label="CONF_MESSAGE[Collabora Online]" description="CONF_MESSAGE[Collabora Online Editor for office documents]">
+
+    <server_settings>
+        <global_param name="LIBREOFFICE_SSL" type="boolean" label="CONF_MESSAGE[Libre Office SSL]" description="CONF_MESSAGE[Libre Office uses ssl...]" default="true" mandatory="true" expose="true"/>
+        <global_param name="LIBREOFFICE_HOST" type="string" label="CONF_MESSAGE[Libre Office Host]" description="CONF_MESSAGE[Host for Libre Office...]" default="localhost" mandatory="true" expose="true"/>
+        <global_param name="LIBREOFFICE_PORT" type="string" label="CONF_MESSAGE[Libre Office Port]" description="CONF_MESSAGE[Port for Libre Office...]" default="9980" mandatory="true" expose="true"/>
+    </server_settings>
+    <client_settings>
+        <resources>
+            <js file="plug/editor.libreoffice/res/build/PydioLibreOffice.js" className="PydioLibreOffice"/>
+            <i18n namespace="libreoffice" remote="plug/editor.libreoffice/resources/i18n" />
+        </resources>
+    </client_settings>
+
+    <clientForm id="libreoffice_box"><![CDATA[
+		<div id="libreoffice_box"  box_width="90%" box_height="90%" box_resize="true" box_padding="5" class="editor_container pdf_viewer"><div id="libreOfficeContainer"></div></div>
+	]]></clientForm>
+
+</editor>

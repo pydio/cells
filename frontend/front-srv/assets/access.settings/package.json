@@ -1,0 +1,24 @@
+{
+  "name": "access.settings",
+  "description": "",
+  "source_path": "res/js",
+  "css_path": "res/css",
+  "main": "index.js",
+  "author": "Abstrium SAS",
+  "license": "AGPL",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-babel": "~5.0.3",
+    "grunt-browserify": "~4.0.1",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-contrib-compress": "^1.4.3",
+    "assemble-less": "~0.7.0",
+    "less-plugin-autoprefix": "~1.5.1"
+  },
+  "dependencies": {
+    "lodash.shuffle": "^4.2.0",
+    "react-codemirror": "^1.0.0",
+    "react-swagger-ui": "^3.0.17-0",
+    "uuid4": "^1.0.0"
+  }
+}

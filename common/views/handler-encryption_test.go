@@ -16,12 +16,18 @@
 //
 // The latest code can be found at <https://pydio.com>.
 
-//+build ignore
-
 package views
 
 import (
 	"context"
+	"crypto/rand"
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/crypto"
+	"github.com/pydio/cells/common/proto/object"
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -33,22 +39,6 @@ import (
 // TODO these tests are currently broken and should be repaired.
 // For the record, below lines where in errors and have been violently
 // commented out without further thinking.
-
-type EncryptionClientMock struct{}
-
-// func (e *EncryptionClientMock) GetNodeEncryptionKey(ctx context.Context, in *encryption.GetNodeKeyRequest, opts ...client.CallOption) (*encryption.GetNodeKeyResponse, error) {
-// 	return &encryption.GetNodeKeyResponse{
-// 		EncryptedKey: []byte{},
-// 	}, nil
-// }
-
-// func (e *EncryptionClientMock) ShareEncryptionKey(ctx context.Context, in *encryption.NodeSharedKeyRequest, opts ...client.CallOption) (*encryption.ShareNodeKeyResponse, error) {
-// 	return &encryption.GetNodeSharedKeyResponse{}, nil
-// }
-
-// func (e *EncryptionClientMock) UnshareEncryptionKey(ctx context.Context, in *encryption.UnshareNodeKeyRequest, opts ...client.CallOption) (*encryption.UnshareNodeKeyResponse, error) {
-// 	return &encryption.UnshareNodeKeyResponse{}, nil
-// }
 
 func TestEncryptionHandler_GetObject(t *testing.T) {
 
@@ -70,7 +60,6 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 		reader, e := handler.GetObject(ctx, &tree.Node{Path: "test"}, reqData)
 		So(reader, ShouldNotBeNil)
 		So(e, ShouldBeNil)
-		So(reqData.EncryptionMaterial, ShouldNotBeNil)
 
 	})
 
@@ -81,7 +70,6 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(mock.Nodes["in"], ShouldNotBeNil)
 		So(mock.Nodes["in"].Path, ShouldEqual, "test2")
-		So(reqData.EncryptionMaterial, ShouldNotBeNil)
 
 	})
 
@@ -93,7 +81,6 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 		reader, e := handler.GetObject(emptyCtx, &tree.Node{Path: "test"}, reqData)
 		So(reader, ShouldNotBeNil)
 		So(e, ShouldBeNil)
-		So(reqData.EncryptionMaterial, ShouldBeNil)
 
 	})
 
@@ -104,7 +91,6 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(mock.Nodes["in"], ShouldNotBeNil)
 		So(mock.Nodes["in"].Path, ShouldEqual, "test2")
-		So(reqData.EncryptionMaterial, ShouldBeNil)
 
 	})
 
@@ -117,8 +103,6 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(mock.Nodes["from"], ShouldNotBeNil)
 		So(mock.Nodes["to"], ShouldNotBeNil)
-		So(reqData.srcEncryptionMaterial, ShouldNotBeNil)
-		So(reqData.destEncryptionMaterial, ShouldNotBeNil)
 
 	})
 
@@ -129,9 +113,172 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(mock.Nodes["from"], ShouldNotBeNil)
 		So(mock.Nodes["to"], ShouldNotBeNil)
-		So(reqData.srcEncryptionMaterial, ShouldBeNil)
-		So(reqData.destEncryptionMaterial, ShouldBeNil)
 
 	})
 
+}
+
+func TestEncryptionHandler_Encrypted(t *testing.T) {
+
+	handler := &EncryptionHandler{
+		AbstractHandler: AbstractHandler{
+			next: NewHandlerMock(),
+		},
+	}
+
+	var err error
+	mock := NewHandlerMock()
+
+	dataFolder := filepath.Join(os.TempDir(), "cells", "tests", "encryption")
+	err = os.MkdirAll(dataFolder, os.ModePerm)
+	if err != nil {
+		t.Fatal("failed to create temp test dir", err)
+	}
+	mock.RootDir = dataFolder
+
+	handler.SetNextHandler(mock)
+	handler.SetUserKeyTool(NewMockUserKeyTool())
+	handler.SetNodeKeyManagerClient(NewMockNodeKeyManagerClient())
+
+	ctx := context.Background()
+	branchInfo := BranchInfo{}
+	branchInfo.EncryptionMode = object.EncryptionMode_MASTER
+	ctx = WithBranchInfo(ctx, "in", branchInfo)
+
+	data := "blamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfd"
+
+	Convey("Test Put Object w. Enc", t, func() {
+		reqData := &PutRequestData{}
+		node := tree.Node{Path: "test", Uuid: "test"}
+		_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+		_, e := handler.PutObject(ctx, &node, strings.NewReader(data), reqData)
+		So(e, ShouldBeNil)
+	})
+
+	Convey("Test Get Object wo. Enc", t, func() {
+		reqData := &GetRequestData{}
+		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+		_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+		reader, e := handler.GetObject(ctx, &node, reqData)
+		So(reader, ShouldNotBeNil)
+		So(e, ShouldBeNil)
+
+		readData, err := ioutil.ReadAll(reader)
+		So(err, ShouldBeNil)
+		So(string(readData), ShouldEqual, data)
+	})
+
+	Convey("Test Get Object wo. Enc", t, func() {
+		rangeOffset := 15
+		length := 30
+		reqData := &GetRequestData{
+			Length:      int64(length),
+			StartOffset: int64(rangeOffset),
+		}
+		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+		_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+		reader, e := handler.GetObject(ctx, &node, reqData)
+		So(reader, ShouldNotBeNil)
+		So(e, ShouldBeNil)
+
+		readData, err := ioutil.ReadAll(reader)
+		So(err, ShouldBeNil)
+		So(string(readData), ShouldEqual, data[rangeOffset:rangeOffset+length])
+	})
+}
+
+func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
+
+	crypto.AESGCMFileEncryptionBlockSize = 1024
+
+	mock := NewHandlerMock()
+	dataFolder := filepath.Join(os.TempDir(), "cells", "tests", "encryption")
+	err := os.MkdirAll(dataFolder, os.ModePerm)
+	if err != nil {
+		t.Fatal("failed to create temp test dir", err)
+	}
+	mock.RootDir = dataFolder
+
+	file, err := os.OpenFile(filepath.Join(dataFolder, "plain"), os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fileSize := 10 * 1024
+	buffer := make([]byte, 1024)
+	for i := 0; i < 10; i++ {
+		_, _ = rand.Read(buffer)
+		_, err = file.Write(buffer)
+		if err != nil {
+			t.Fatal("test preparation failed", err)
+		}
+	}
+	_ = file.Close()
+
+	handler := &EncryptionHandler{
+		AbstractHandler: AbstractHandler{
+			next: NewHandlerMock(),
+		},
+	}
+
+	handler.SetNextHandler(mock)
+	handler.SetUserKeyTool(NewMockUserKeyTool())
+	handler.SetNodeKeyManagerClient(NewMockNodeKeyManagerClient())
+
+	ctx := context.Background()
+	branchInfo := BranchInfo{}
+	branchInfo.EncryptionMode = object.EncryptionMode_MASTER
+	ctx = WithBranchInfo(ctx, "in", branchInfo)
+
+	Convey("Test Put Object w. Enc", t, func() {
+		file, err := os.Open(filepath.Join(dataFolder, "plain"))
+		So(err, ShouldBeNil)
+
+		reqData := &PutRequestData{}
+		node := tree.Node{Path: "encTest", Uuid: "encTest"}
+		_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+		_, e := handler.PutObject(ctx, &node, file, reqData)
+		_ = file.Close()
+		So(e, ShouldBeNil)
+	})
+
+	Convey("Test Get Object wo. Enc", t, func() {
+
+		for i := 0; i < fileSize; i = i + 10 {
+			rangeOffset := i
+			length := 300
+
+			reqData := &GetRequestData{
+				Length:      int64(length),
+				StartOffset: int64(rangeOffset),
+			}
+
+			file, err := os.Open(filepath.Join(dataFolder, "plain"))
+			So(err, ShouldBeNil)
+
+			buff := make([]byte, 300)
+			read, err := file.ReadAt(buff, int64(i))
+			So(err == nil || err == io.EOF, ShouldBeTrue)
+
+			err = file.Close()
+			So(err, ShouldBeNil)
+
+			buff = buff[:read]
+			reqData.Length = int64(len(buff))
+
+			node := tree.Node{Path: "encTest", Uuid: "encTest", Size: int64(fileSize)}
+			_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+			reader, e := handler.GetObject(ctx, &node, reqData)
+			So(reader, ShouldNotBeNil)
+			So(e, ShouldBeNil)
+
+			readData, err := ioutil.ReadAll(reader)
+			So(err == nil || err == io.EOF, ShouldBeTrue)
+
+			readDataStr := string(readData)
+			expectedDataStr := string(buff)
+
+			So(readDataStr, ShouldEqual, expectedDataStr)
+		}
+	})
 }

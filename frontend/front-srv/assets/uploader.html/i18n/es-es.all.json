@@ -1,0 +1,80 @@
+{
+  "1": {
+    "other": "%s están en cola para subir"
+  },
+  "10": {
+    "other": ""
+  },
+  "11": {
+    "other": "Empezar"
+  },
+  "12": {
+    "other": "Limpiar"
+  },
+  "13": {
+    "other": "Carpeta creada"
+  },
+  "14": {
+    "other": "Procesando"
+  },
+  "15": {
+    "other": "Pendiente"
+  },
+  "16": {
+    "other": "Procesado"
+  },
+  "17": {
+    "other": "Mostrar archivos procesados"
+  },
+  "options.existing": {
+    "other": "If a file with the same name exists:"
+  },
+  "options.existing.alert": {
+    "other": "Stop upload and alert me"
+  },
+  "options.existing.folders": {
+    "other": "Rename folders then files"
+  },
+  "options.existing.merge": {
+    "other": "Rename files only (merge folders)"
+  },
+  "2": {
+    "other": "Subiendo %s archivos"
+  },
+  "options.existing.overwrite": {
+    "other": "Overwrite existing file silently"
+  },
+  "22": {
+    "other": "Options"
+  },
+  "23": {
+    "other": "Errors"
+  },
+  "3": {
+    "other": "No tienes permisos para subir este archivo aquí"
+  },
+  "4": {
+    "other": "Selecciona Archivo"
+  },
+  "5": {
+    "other": "Selecciona Carpeta"
+  },
+  "6": {
+    "other": "No se puede cancelar la creación de la carpeta"
+  },
+  "7": {
+    "other": "Subiendo archivos al servidor..."
+  },
+  "8": {
+    "other": "Parece que tu navegador no permite soltar carpetas"
+  },
+  "9": {
+    "other": ""
+  },
+  "analyze.step": {
+    "other": "Preparing files and folders for upload..."
+  },
+  "drophere": {
+    "other": "Drop Files Here"
+  }
+}

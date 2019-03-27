@@ -76,6 +76,17 @@ func (h *Handler) ListLogs(ctx context.Context, req *proto.ListLogRequest, strea
 	return nil
 }
 
+func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest, resp *proto.DeleteLogsResponse) error {
+
+	d, e := h.Repo.DeleteLogs(req.Query)
+	if e != nil {
+		return e
+	}
+	resp.Deleted = d
+
+	return nil
+}
+
 // AggregatedLogs retrieves aggregated figures from the indexer to generate charts and reports.
 func (h *Handler) AggregatedLogs(ctx context.Context, req *proto.TimeRangeRequest, stream proto.LogRecorder_AggregatedLogsStream) error {
 	return errors.NotImplemented("cannot aggregate syslogs")

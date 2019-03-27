@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Osserva per..."
+  },
+  "10": {
+    "other": "Chiunque apra il file"
+  },
+  "10b": {
+    "other": "Chiunque navighi nella cartella"
+  },
+  "11": {
+    "other": "Modifica"
+  },
+  "12": {
+    "other": "Chiunque modifichi il file"
+  },
+  "12b": {
+    "other": "Chiunque modifichi un file nella cartella"
+  },
+  "13": {
+    "other": "Entrambe"
+  },
+  "14": {
+    "other": "Chiunque apra o scriva il file"
+  },
+  "14b": {
+    "other": "Chiunque navighi o modifichi il contenuto della cartella"
+  },
+  "2": {
+    "other": "Avvisami quando questa cartella viene acceduta"
+  },
+  "3": {
+    "other": "Ferma Osservazione"
+  },
+  "4": {
+    "other": "Interrompi l'osservazione degli accessi di questa cartella"
+  },
+  "5": {
+    "other": "Osserva per..."
+  },
+  "6": {
+    "other": "Osserva cambiamenti di questo file"
+  },
+  "7": {
+    "other": "Ferma Osservazione"
+  },
+  "8": {
+    "other": "Interrompi l'osservazione sui cambiamenti di questo file"
+  },
+  "9": {
+    "other": "Consultazione"
+  }
+}

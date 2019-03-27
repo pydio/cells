@@ -39,7 +39,7 @@
   },
 
   "Mail.Digest.Subject": {
-    "other" : "Your {{.Configs.Title}} daily digest"
+    "other" : "Your {{.Configs.Title}} notifications"
   },
   "Mail.Digest.Intros": {
     "other" : "Below is a summary of all the notifications your received on {{.Configs.Title}}"
@@ -122,6 +122,22 @@
     "other" : "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
   },
 
+  "Mail.AdminTestMail.Subject" : {
+    "other" : "{{.Configs.Title}} is sending you a test email"
+  },
+  "Mail.AdminTestMail.Intros" : {
+    "other" : "{{.TplData.Message}}"
+  },
+  "Mail.AdminTestMail.LinkLabel": {
+    "other" : "Open Cells"
+  },
+  "Mail.AdminTestMail.LinkInstructions": {
+    "other" : "Click to open the frontend"
+  },
+  "Mail.AdminTestMail.Outros" : {
+    "other" : "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+  },
+
   "Mail.Config.Title":{
     "other" : "Mailer"
   },
@@ -176,6 +192,12 @@
   "Mail.Config.Smtp.Password.Description": {
     "other" : "Password required to connect to the SMTP server"
   },
+  "Mail.Config.Smtp.SkipVerify.Label": {
+    "other" : "Self-signed Certificate"
+  },
+  "Mail.Config.Smtp.SkipVerify.Description": {
+    "other" : "Disable certificate verification if your SMTP server certificate is self-signed"
+  },
   "Mail.Config.SendGrid.Label": {
     "other" : "SendGrid Service"
   },
@@ -193,6 +215,9 @@
   },
   "Mail.Config.Sendmail.Executable.Description" : {
     "other" : "Full path of the sendmail executable on the server"
+  },
+  "Mail.Config.Sendmail.Executable.Other" : {
+    "other" : "Other path (set manually in pydio.json config file)"
   }
 
 

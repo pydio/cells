@@ -27,6 +27,7 @@ import (
 
 	"github.com/coreos/dex/storage/sql"
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -35,76 +36,75 @@ import (
 	proto "github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/idm/auth"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.WithStorage(auth.NewDAO, "dex_"),
-		service.Description("Authentication Service : JWT provider and token revocation"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
-		service.Migrations([]*service.Migration{{
-			TargetVersion: service.FirstRun(),
-			Up:            auth.InsertPruningJob,
-		}}),
-		service.WithMicro(func(m micro.Service) error {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.WithStorage(auth.NewDAO, "dex_"),
+			service.Description("Authentication Service : JWT provider and token revocation"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.Migrations([]*service.Migration{{
+				TargetVersion: service.FirstRun(),
+				Up:            auth.InsertPruningJob,
+			}}),
+			service.WithMicro(func(m micro.Service) error {
 
-			// INIT DEX CONFIG
-			ctx := m.Options().Context
-			conf := servicecontext.GetConfig(ctx)
-			log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
-			configDex := conf.Get("dex")
-			var c auth.Config
-			remarshall, _ := json.Marshal(configDex)
-			if err := json.Unmarshal(remarshall, &c); err != nil {
-				return fmt.Errorf("error parsing config file %s: %v", configDex, err)
-			}
+				// INIT DEX CONFIG
+				ctx := m.Options().Context
+				conf := servicecontext.GetConfig(ctx)
+				log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
+				configDex := conf.Get("dex")
+				var c auth.Config
+				remarshall, _ := json.Marshal(configDex)
+				if err := json.Unmarshal(remarshall, &c); err != nil {
+					return fmt.Errorf("error parsing config file %s: %v", configDex, err)
+				}
 
-			driver, dsn := conf.Database("dsn")
+				driver, dsn := conf.Database("dsn")
 
-			switch driver {
-			case "mysql":
-				sqlConfig := new(sql.MySQL)
-				sqlConfig.DSN = dsn
-				c.Storage.Config = sqlConfig
-			case "sqlite3":
-				sqlConfig := new(sql.SQLite3)
-				sqlConfig.File = dsn
-			}
+				switch driver {
+				case "mysql":
+					sqlConfig := new(sql.MySQL)
+					sqlConfig.DSN = dsn
+					c.Storage.Config = sqlConfig
+				case "sqlite3":
+					sqlConfig := new(sql.SQLite3)
+					sqlConfig.File = dsn
+				}
 
-			if config.Get("cert", "http", "ssl").Bool(false) {
-				log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
-				certFile := config.Get("cert", "http", "certFile").String("")
-				keyFile := config.Get("cert", "http", "keyFile").String("")
-				c.Web.HTTPS = c.Web.HTTP
-				c.Web.HTTP = ""
-				c.Web.TLSCert = certFile
-				c.Web.TLSKey = keyFile
-			}
+				if config.Get("cert", "http", "ssl").Bool(false) {
+					log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
+					certFile := config.Get("cert", "http", "certFile").String("")
+					keyFile := config.Get("cert", "http", "keyFile").String("")
+					c.Web.HTTPS = c.Web.HTTP
+					c.Web.HTTP = ""
+					c.Web.TLSCert = certFile
+					c.Web.TLSKey = keyFile
 
-			tokenRevokerHandler, err := NewAuthTokenRevokerHandler(c)
-			if err != nil {
-				return err
-			}
-			proto.RegisterAuthTokenRevokerHandler(m.Options().Server, tokenRevokerHandler)
-
-			m.Init(micro.AfterStart(func() error {
-
-				go func() {
-					err := serve(c, ctx, log.Logger(ctx))
-					if err != nil {
-						log.Logger(ctx).Error("ERROR STARTING DEX SERVER", zap.Error(err))
+					if config.Get("cert", "http", "self").Bool(false) {
+						ips, _ := net.GetAvailableIPs()
+						for _, ip := range ips {
+							c.Web.AllowedOrigins = append(c.Web.AllowedOrigins, ip.String())
+						}
 					}
-				}()
+				}
+
+				tokenRevokerHandler, err := NewAuthTokenRevokerHandler(c)
+				if err != nil {
+					return err
+				}
+
+				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, tokenRevokerHandler)
 
 				return nil
-			}))
-
-			return nil
-		}),
-	)
+			}),
+		)
+	})
 }

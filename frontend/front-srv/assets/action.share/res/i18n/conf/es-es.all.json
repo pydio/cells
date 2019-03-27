@@ -1,0 +1,176 @@
+{
+  "Allow users to generate public links on files": {
+    "other": "Permite a los usuarios generar enlaces públicos"
+  },
+  "Allow users to generate public links on folders": {
+    "other": "Permite a los usuarios crear enlaces públicos de carpetas"
+  },
+  "Allow users to manually choose a hash for the generated links": {
+    "other": "Permite a los usuarios modificar el hash de los enlaces generados"
+  },
+  "Authorizations": {
+    "other": "Autorizaciones"
+  },
+  "Avoid labels duplication": {
+    "other": "Evitar etiquetas duplicadas"
+  },
+  "Background Color": {
+    "other": "Color de Fondo"
+  },
+  "Create QRCode": {
+    "other": "Crea Código QR"
+  },
+  "Create and display QRCode for shared link": {
+    "other": "Crea y muestra un código QR para el enlace compartido"
+  },
+  "Disable Folder Sharing": {
+    "other": "Desactiva Intercambio de Carpetas"
+  },
+  "Disallow users to create shared folders if a workspace already exists with the same label": {
+    "other": "Prohibe al usuario crear una carpeta compartida si ya existe un workspace con la misma etiqueta"
+  },
+  "Do not allow users to create public links, only private links (password-protected)": {
+    "other": "No permite a los usuarios crear enlaces públicos, sólo privados (con contraseña)"
+  },
+  "Download Button": {
+    "other": "Botón de Descarga"
+  },
+  "Download text": {
+    "other": "Texto de descarga"
+  },
+  "Download text w/ Pass": {
+    "other": "Texto de descarga con contraseña"
+  },
+  "Enable folder sharing": {
+    "other": "Activa intercambio de carpetas"
+  },
+  "Enable folder sharing (workspace and minisite)": {
+    "other": "Activa intercambio de carpetas (workspace y minisitio)"
+  },
+  "Enable internal file sharing (sharing with users existing or temporary users)": {
+    "other": "Activar intercambio interno de archivos (intercambio con usuarios o usuarios temporales)"
+  },
+  "Enable internal folder sharing (sharing with users existing or temporary users)": {
+    "other": "Activa intercambio interno de carpetas (intercambio con usuarios o usuarios temporales)"
+  },
+  "Enable public link generation for files": {
+    "other": "Activa la generación de enlaces públicos para los archivos"
+  },
+  "Enable public links for files": {
+    "other": "Activa enlaces públicos para los archivos"
+  },
+  "Files: enable internal sharing": {
+    "other": "Archivos: activar intercambio interno"
+  },
+  "Files: enable public links": {
+    "other": "Archivos: activar enlaces públicos"
+  },
+  "Folder Sharing": {
+    "other": "Compartir Carpeta"
+  },
+  "Folders: enable internal sharing": {
+    "other": "Carpetas: activar intercambio interno"
+  },
+  "Folders: enable public links": {
+    "other": "Carpetas: activar enlaces públicos"
+  },
+  "Force External Mailer": {
+    "other": "Usa Gestor de Correo Externo"
+  },
+  "Fork Events Forwarding": {
+    "other": "Fork Events Forwarding"
+  },
+  "Hash minimum length": {
+    "other": "Longitud Mínima del Hash"
+  },
+  "Hash user-editable": {
+    "other": "Hash editable por el usuario"
+  },
+  "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
+    "other": "Si tienes problemas de rendimiento modificando archivos en directorios muy profundos, prueba a activar esta opción. Asegurate de lo que estás haciendo, esta opción puede activar muchos procesos php en el servidor."
+  },
+  "Image used as a button for downloading the file": {
+    "other": "Usar imagen como botón de descarga"
+  },
+  "Internal Sharing": {
+    "other": "Intercambio Interno"
+  },
+  "Link Generation": {
+    "other": "Generación de Enlace"
+  },
+  "Mandatory prefix for users created temporary users login": {
+    "other": "Prefijo obligatorio para usuarios temporales"
+  },
+  "Maximum download limit for file, 0 = unlimited": {
+    "other": "Número máximo de descargas por archivo, 0 = ilimitado"
+  },
+  "Maximum file download limit": {
+    "other": "Número máximo de descargas por archivo"
+  },
+  "Maximum file expiration limit": {
+    "other": "Tiempo de expiración máximo de archivo"
+  },
+  "Maximum share expiration limit for file, 0 = unlimited": {
+    "other": "Tiempo de expiración máximo para archivos compartidos, 0 = ilimitado"
+  },
+  "Minimum length of the generated hash": {
+    "other": "Longitud mínima del hash generado"
+  },
+  "Minisite": {
+    "other": "Minisite"
+  },
+  "Minisites and Workspaces": {
+    "other": "Minisitios y Workspaces"
+  },
+  "Minisites only": {
+    "other": "Sólo Minisitios"
+  },
+  "Page Title": {
+    "other": "Título de la Página"
+  },
+  "Set password mandatory": {
+    "other": "Contraseña obligatoria"
+  },
+  "Share Center actions and hooks": {
+    "other": "Acciones del Centro de Intercambio y hooks"
+  },
+  "Share page background color.": {
+    "other": "Color de fondo de la página de intercambio."
+  },
+  "Share page text color.": {
+    "other": "Color de texto de la página de intercambio."
+  },
+  "Share page text shadow color.": {
+    "other": "Color de la sombra del texto de la página de intercambio."
+  },
+  "Shared users configurations": {
+    "other": "Configuración de usuario compartida"
+  },
+  "Sharing Features": {
+    "other": "Opciones de Intercambio"
+  },
+  "Text Color": {
+    "other": "Color de Texto"
+  },
+  "Text Shadow": {
+    "other": "Sombra de Texto"
+  },
+  "Tmp users prefix": {
+    "other": "Prefijo usuario temporal"
+  },
+  "Use Rewrite Rule": {
+    "other": "Usar Rewrite Rule"
+  },
+  "Use external mailer for invitations": {
+    "other": "Usar gestor de correo externo para invitaciones"
+  },
+  "Use web server RewriteEngine mechanism to generate prettier URLs": {
+    "other": "Usa el RewriteEngine del servidor web para generar URLs más legibles"
+  },
+  "Weblink Page": {
+    "other": "Página Enlace Web"
+  },
+  "Workspaces only": {
+    "other": "Sólo Workspaces"
+  }
+}

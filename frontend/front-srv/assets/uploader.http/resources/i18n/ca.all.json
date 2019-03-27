@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "Desc. Remota"
+  },
+  "10": {
+    "other": "Descarregar a APPLICATION_TITLE"
+  },
+  "10a": {
+    "other": "Descarregar a %s"
+  },
+  "10b": {
+    "other": "Desc. a %s"
+  },
+  "10c": {
+    "other": "Desc. a %s"
+  },
+  "10d": {
+    "other": "AjXp Descàrrega (%s)"
+  },
+  "11": {
+    "other": "Arrossegeu algun del enllaços cap a la vostra barra de preferits : "
+  },
+  "12": {
+    "other": "Començar descàrrega remota"
+  },
+  "13": {
+    "other": "De l'ordinador"
+  },
+  "14": {
+    "other": "D'un servidor remot"
+  },
+  "15": {
+    "other": "O creeu un preferit manualment i feu servir el codi de sota com a url : "
+  },
+  "16": {
+    "other": "Arrosega'm a la barra de preferits!"
+  },
+  "17": {
+    "other": "Descarregar fitxer"
+  },
+  "18": {
+    "other": "Fitxer parcial"
+  },
+  "2": {
+    "other": "Descarregar el(s) fitxer(s) de un servidor remot"
+  },
+  "3": {
+    "other": "m"
+  },
+  "4": {
+    "other": "Entreu al menys una URL apuntant al fitxer que voleu descarregar directament des d'un servidor HTTP cap a la carpeta actual. Aquesta acció es farà en segon terme i mentrestant podreu seguir fent servir APPLICATION_TITLE."
+  },
+  "5": {
+    "other": "URL"
+  },
+  "6": {
+    "other": "Descarregant"
+  },
+  "7": {
+    "other": "al servidor"
+  },
+  "8": {
+    "other": "Fitxer descarregat, recarregant el client!"
+  },
+  "9": {
+    "other": "Generar bookmarklet"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "1.android": {
+    "other": "Hay una cliente nativo de APPLICATION_TITLE para acceder a %s en Android."
+  },
+  "1.ios": {
+    "other": "¡Hay una aplicación nativa para acceder a %s desde iPhone/iPad!"
+  },
+  "2.android": {
+    "other": "Ya la tengo, ábrela y añade este servidor a mis servidores"
+  },
+  "2.ios": {
+    "other": "Ya la tengo, ábrela y añade este servidor a mis servidores"
+  },
+  "3.android": {
+    "other": "No la tengo, ¡envíame a la Play Store!"
+  },
+  "3.ios": {
+    "other": "No la tengo, ¡envíame a la App Store!"
+  },
+  "4.android": {
+    "other": "No me importa, déjame usar la version web de %s."
+  },
+  "4.ios": {
+    "other": "No me importa, déjame usar la version web de %s."
+  },
+  "Mobile": {
+    "other": "Móvil"
+  },
+  "Template extending gui.ajax for small screen terminals.": {
+    "other": "Plantilla para extender gui.ajax a terminales con pantalla pequeña."
+  }
+}

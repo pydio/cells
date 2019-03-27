@@ -24,20 +24,26 @@ package grpc
 import (
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/update"
 	"github.com/pydio/cells/common/service"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE),
-		service.Tag(common.SERVICE_TAG_DISCOVERY),
-		service.Description("Update checker service"),
-		service.ExposedConfigs(ExposedConfigs),
-		service.WithMicro(func(m micro.Service) error {
-			handler := new(Handler)
-			update.RegisterUpdateServiceHandler(m.Server(), handler)
-			return nil
-		}),
-	)
+
+	plugins.Register(func() {
+		config.RegisterExposedConfigs(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, ExposedConfigs)
+
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE),
+			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Description("Update checker service"),
+			service.WithMicro(func(m micro.Service) error {
+				handler := new(Handler)
+				update.RegisterUpdateServiceHandler(m.Server(), handler)
+				return nil
+			}),
+		)
+	})
 }

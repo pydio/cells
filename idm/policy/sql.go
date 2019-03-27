@@ -33,7 +33,7 @@ import (
 	"github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/sql"
@@ -57,7 +57,7 @@ var (
 )
 
 // Init of the MySQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// First - Create Ladon package tables
 	db := sqlx.NewDb(s.DB(), s.Driver())
@@ -103,7 +103,12 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		group.Uuid = uuid.NewUUID().String()
 	} else {
 		// First clear relations
-		_, err := s.GetStmt("deleteRelPolicies").Exec(group.Uuid)
+		stmt := s.GetStmt("deleteRelPolicies")
+		if stmt == nil {
+			return nil, fmt.Errorf("Unknown statement")
+		}
+
+		_, err := stmt.Exec(group.Uuid)
 		if err != nil {
 			log.Logger(ctx).Error(fmt.Sprintf("could not delete relation for policy group %s", group.Uuid), zap.Error(err))
 			return group, err
@@ -139,7 +144,13 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 
 	// Insert Policy Group
 	now := int32(time.Now().Unix())
-	_, err := s.GetStmt("upsertPolicyGroup").Exec(
+
+	stmt := s.GetStmt("upsertPolicyGroup")
+	if stmt == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(
 		group.Uuid, group.Name, group.Description, group.OwnerUuid, group.ResourceGroup, now, // INSERT
 		group.Name, group.Description, group.OwnerUuid, group.ResourceGroup, now, // UPDATE
 	)
@@ -149,7 +160,12 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 
 	// Now recreate relations
 	for _, policy := range group.Policies {
-		if _, err := s.GetStmt("insertRelPolicy").Exec(group.Uuid, policy.Id); err != nil {
+		stmt := s.GetStmt("insertRelPolicy")
+		if stmt == nil {
+			return nil, fmt.Errorf("Unknown statement")
+		}
+
+		if _, err := stmt.Exec(group.Uuid, policy.Id); err != nil {
 			log.Logger(ctx).Error(fmt.Sprintf("cannot insert relation between group %s and policy %s", group.Uuid, policy.Id), zap.Error(err))
 		}
 	}
@@ -161,7 +177,12 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 // ListPolicyGroups searches the db and returns an array of PolicyGroup.
 func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGroup, e error) {
 
-	res, err := s.GetStmt("listJoined").Query()
+	stmt := s.GetStmt("listJoined")
+	if stmt == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+
+	res, err := stmt.Query()
 	if err != nil {
 		return groups, err
 	}
@@ -199,7 +220,13 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGro
 func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error {
 
 	var policies []string
-	if res, err := s.GetStmt("listRelPolicies").Query(group.Uuid); err == nil {
+
+	stmt := s.GetStmt("listRelPolicies")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	if res, err := stmt.Query(group.Uuid); err == nil {
 		defer res.Close()
 		for res.Next() {
 			var pId string
@@ -208,11 +235,20 @@ func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup)
 		}
 	}
 
-	if _, err := s.GetStmt("deleteRelPolicies").Exec(group.Uuid); err != nil {
+	stmt = s.GetStmt("deleteRelPolicies")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	if _, err := stmt.Exec(group.Uuid); err != nil {
 		return err
 	}
 
-	if _, err := s.GetStmt("deletePolicyGroup").Exec(group.Uuid); err != nil {
+	stmt = s.GetStmt("deletePolicyGroup")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	if _, err := stmt.Exec(group.Uuid); err != nil {
 		return err
 	}
 

@@ -31,12 +31,13 @@ import (
 	"github.com/pydio/cells/broker/activity/render"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
@@ -91,7 +92,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	if displayName, has = userObject.Attributes["displayName"]; !has {
 		displayName = userObject.Login
 	}
-	lang := utils.UserLanguage(ctx, userObject)
+	lang := i18n.UserLanguage(ctx, userObject, config.Default())
 
 	query := &activity.StreamActivitiesRequest{
 		Context:     activity.StreamContext_USER_ID,
@@ -118,10 +119,6 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		collection = append(collection, resp.Activity)
 	}
 	if len(collection) == 0 {
-		input.AppendOutput(&jobs.ActionOutput{
-			Ignored:    true,
-			StringBody: "No activities to send",
-		})
 		return input, nil
 	}
 
@@ -131,9 +128,10 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	}
 
 	user := &mailer.User{
-		Uuid:    userObject.Uuid,
-		Address: email,
-		Name:    displayName,
+		Uuid:     userObject.Uuid,
+		Address:  email,
+		Name:     displayName,
+		Language: lang,
 	}
 	if m.dryRun && m.dryMail != "" {
 		user.Address = m.dryMail
@@ -151,10 +149,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		return input.WithError(err), err
 	}
 
-	input.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: "Daily Digest sent to user " + userObject.Uuid,
-	})
+	log.TasksLogger(ctx).Info("Digest sent to user "+userObject.Login, userObject.ZapLogin())
 	if len(collection) > 0 && !m.dryRun {
 		lastActivity := collection[0] // Activities are in reverse order, the first one is the last id
 		_, err := m.activityClient.SetUserLastActivity(ctx, &activity.UserLastActivityRequest{

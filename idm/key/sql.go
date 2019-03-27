@@ -21,11 +21,13 @@
 package key
 
 import (
+	"fmt"
 	"sync/atomic"
 
 	"github.com/gobuffalo/packr"
 	"github.com/gogo/protobuf/proto"
-	"github.com/pydio/cells/common/config"
+	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
 	migrate "github.com/rubenv/sql-migrate"
@@ -48,7 +50,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
@@ -78,6 +80,10 @@ func (s *sqlimpl) Init(options config.Map) error {
 
 func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 	insertStmt := dao.GetStmt("insert")
+	if insertStmt == nil {
+		return fmt.Errorf("Unknown stmt")
+	}
+
 	var bytes = []byte{}
 	var err error
 
@@ -91,6 +97,10 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 	_, err = insertStmt.Exec(key.Owner, key.ID, key.Label, key.Content, key.CreationDate, bytes)
 	if err != nil {
 		updateStmt := dao.GetStmt("update")
+		if updateStmt == nil {
+			return fmt.Errorf("Unknown stmt")
+		}
+
 		_, err = updateStmt.Exec(key.Content, bytes, key.Owner, key.ID)
 	}
 	return err
@@ -98,35 +108,41 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 
 func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) {
 	getStmt := dao.GetStmt("get")
+	if getStmt == nil {
+		return nil, fmt.Errorf("Unknown stmt")
+	}
+
 	rows, err := getStmt.Query(owner, KeyID)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	k := encryption.Key{
-		Info: &encryption.KeyInfo{},
-	}
 	if rows.Next() {
+		k := encryption.Key{
+			Info: &encryption.KeyInfo{},
+		}
 		var bytes []byte
 		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes)
 		if err != nil {
-			rows.Close()
 			return nil, err
 		}
 
 		if bytes != nil && len(bytes) > 0 {
 			proto.Unmarshal(bytes, k.Info)
 		}
-		rows.Close()
+		return &k, rows.Err()
 	} else {
-		rows.Close()
-		return nil, nil
+		return nil, errors.NotFound("encryption.key.notfound", "cannot find key with id "+KeyID)
 	}
-	return &k, rows.Err()
 }
 
 func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 	getStmt := dao.GetStmt("list")
+	if getStmt == nil {
+		return nil, fmt.Errorf("Unknown stmt")
+	}
+
 	rows, err := getStmt.Query(owner)
 
 	if err != nil {
@@ -159,6 +175,10 @@ func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 
 func (dao *sqlimpl) DeleteKey(owner string, keyID string) error {
 	delStmt := dao.GetStmt("delete")
+	if delStmt == nil {
+		return fmt.Errorf("Unknown stmt")
+	}
+
 	_, err := delStmt.Exec(owner, keyID)
 	return err
 }

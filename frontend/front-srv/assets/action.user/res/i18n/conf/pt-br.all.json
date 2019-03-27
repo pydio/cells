@@ -1,0 +1,14 @@
+{
+  "Disable Address Book": {
+    "other": "Desabilitar catálogo de endereços"
+  },
+  "Do not display address book in user account panel.": {
+    "other": "Não exibir catálogo de endereços no painel da conta do usuário."
+  },
+  "User Dashboard": {
+    "other": "Dashboard do Usuário"
+  },
+  "User home dashboard, can be displayed before accessing to workspaces": {
+    "other": "Dashboard do usuário, pode ser exibido antes de acessar a área de trabalho"
+  }
+}

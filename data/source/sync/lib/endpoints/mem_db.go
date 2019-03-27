@@ -28,6 +28,8 @@ import (
 
 	"golang.org/x/text/unicode/norm"
 
+	"fmt"
+
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/data/source/sync/lib/common"
 )
@@ -163,6 +165,10 @@ func (db *MemDB) Watch(recursivePath string) (*common.WatchObject, error) {
 	return nil, errors.New("Not implemented")
 }
 
+func (db *MemDB) ComputeChecksum(node *tree.Node) error {
+	return fmt.Errorf("not.implemented")
+}
+
 /*************************/
 /* Other Methods 	 */
 /*************************/
@@ -209,6 +215,18 @@ func (db *MemDB) String() string {
 		output += leaf + "\t'" + node.Path + "' (" + node.Uuid + node.Etag + ")" + "\n"
 	}
 	return output
+}
+
+func (db *MemDB) Stats() string {
+	var leafs, colls int
+	for _, node := range db.Nodes {
+		if node.IsLeaf() {
+			leafs++
+		} else {
+			colls++
+		}
+	}
+	return fmt.Sprintf("Snapshot contains %v files and %v folders", leafs, colls)
 }
 
 func NewMemDB() *MemDB {

@@ -23,13 +23,13 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/defaults"
+	service "github.com/pydio/cells/common/service/proto"
 )
 
 var (
@@ -63,15 +63,47 @@ $ pydioctl user create -u 'user' -p 'a password'
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		client := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		ctx := context.Background()
 
-		if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
-			User: &idm.User{
-				Login:    userCreateLogin,
-				Password: userCreatePassword,
-			},
+		// Create user
+		r := service.ResourcePolicyAction_READ
+		w := service.ResourcePolicyAction_WRITE
+		allow := service.ResourcePolicy_allow
+		policies := []*service.ResourcePolicy{
+			&service.ResourcePolicy{Action: r, Effect: allow, Subject: "profile:standard"},
+			&service.ResourcePolicy{Action: w, Effect: allow, Subject: "user:" + userCreateLogin},
+			&service.ResourcePolicy{Action: w, Effect: allow, Subject: "profile:admin"},
+		}
+
+		newUser := &idm.User{
+			Login:      userCreateLogin,
+			Password:   userCreatePassword,
+			Policies:   policies,
+			Attributes: map[string]string{"profile": common.PYDIO_PROFILE_STANDARD},
+		}
+
+		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		response, err := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: newUser})
+		if err != nil {
+			cmd.Println(err.Error())
+			return
+		}
+		u := response.GetUser()
+
+		// Create corresponding role with correct policies
+		newRole := idm.Role{
+			Uuid:     u.Uuid,
+			Policies: policies,
+			UserRole: true,
+			Label:    "User " + u.Login + " role",
+		}
+
+		roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+		if _, err := roleClient.CreateRole(context.Background(), &idm.CreateRoleRequest{
+			Role: &newRole,
 		}); err != nil {
-			log.Println(err)
+			cmd.Println(err.Error())
+			return
 		}
 	},
 }

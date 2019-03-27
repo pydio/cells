@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Уведомления"
+  },
+  "10": {
+    "other": "Активность по папке"
+  },
+  "11": {
+    "other": "Активность по файлу"
+  },
+  "12": {
+    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+  },
+  "13": {
+    "other": "Your browser does not seem to support Desktop Notifications yet."
+  },
+  "14": {
+    "other": "No alerts"
+  },
+  "15": {
+    "other": "Notifications about files that you monitor will appear here"
+  },
+  "2": {
+    "other": "Очередь уведомлений"
+  },
+  "3": {
+    "other": "Предупреждения"
+  },
+  "4": {
+    "other": "Уведомления"
+  },
+  "5": {
+    "other": "Все события"
+  },
+  "6": {
+    "other": "Перейти к ..."
+  },
+  "7": {
+    "other": "Убрать"
+  },
+  "8": {
+    "other": "Нет предупреждений"
+  },
+  "9": {
+    "other": "Активность по рабочему пространству"
+  }
+}

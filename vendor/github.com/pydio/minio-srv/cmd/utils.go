@@ -18,20 +18,57 @@ package cmd
 
 import (
 	"bytes"
+	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
+	"reflect"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/pydio/minio-srv/cmd/logger"
+	"github.com/pydio/minio-srv/pkg/handlers"
+
 	humanize "github.com/dustin/go-humanize"
+	"github.com/gorilla/mux"
 	"github.com/pkg/profile"
 )
+
+// IsErrIgnored returns whether given error is ignored or not.
+func IsErrIgnored(err error, ignoredErrs ...error) bool {
+	return IsErr(err, ignoredErrs...)
+}
+
+// IsErr returns whether given error is exact error.
+func IsErr(err error, errs ...error) bool {
+	for _, exactErr := range errs {
+		if err == exactErr {
+			return true
+		}
+	}
+	return false
+}
+
+// Close Http tracing file.
+func stopHTTPTrace() {
+	if globalHTTPTraceFile != nil {
+		reqInfo := (&logger.ReqInfo{}).AppendTags("traceFile", globalHTTPTraceFile.Name())
+		ctx := logger.SetReqInfo(context.Background(), reqInfo)
+		logger.LogIf(ctx, globalHTTPTraceFile.Close())
+		globalHTTPTraceFile = nil
+	}
+}
 
 // make a copy of http.Header
 func cloneHeader(h http.Header) http.Header {
@@ -46,14 +83,9 @@ func cloneHeader(h http.Header) http.Header {
 }
 
 // Convert url path into bucket and object name.
-func urlPath2BucketObjectName(u *url.URL) (bucketName, objectName string) {
-	if u == nil {
-		// Empty url, return bucket and object names.
-		return
-	}
-
+func urlPath2BucketObjectName(path string) (bucketName, objectName string) {
 	// Trim any preceding slash separator.
-	urlPath := strings.TrimPrefix(u.Path, slashSeparator)
+	urlPath := strings.TrimPrefix(path, slashSeparator)
 
 	// Split urlpath using slash separator into a given number of
 	// expected tokens.
@@ -86,17 +118,24 @@ func xmlDecoder(body io.Reader, v interface{}, size int64) error {
 }
 
 // checkValidMD5 - verify if valid md5, returns md5 in bytes.
-func checkValidMD5(md5 string) ([]byte, error) {
-	return base64.StdEncoding.DecodeString(strings.TrimSpace(md5))
+func checkValidMD5(h http.Header) ([]byte, error) {
+	md5B64, ok := h["Content-Md5"]
+	if ok {
+		if md5B64[0] == "" {
+			return nil, fmt.Errorf("Content-Md5 header set to empty value")
+		}
+		return base64.StdEncoding.DecodeString(md5B64[0])
+	}
+	return []byte{}, nil
 }
 
 /// http://docs.aws.amazon.com/AmazonS3/latest/dev/UploadingObjects.html
 const (
-	// Maximum object size per PUT request is 16GiB.
+	// Maximum object size per PUT request is 5TB.
 	// This is a divergence from S3 limit on purpose to support
 	// use cases where users are going to upload large files
 	// using 'curl' and presigned URL.
-	globalMaxObjectSize = 16 * humanize.GiByte
+	globalMaxObjectSize = 5 * humanize.TiByte
 
 	// Minimum Part size for multipart upload is 5MiB
 	globalMinPartSize = 5 * humanize.MiByte
@@ -107,6 +146,10 @@ const (
 	// Maximum Part ID for multipart upload is 10000
 	// (Acceptable values range from 1 to 10000 inclusive)
 	globalMaxPartID = 10000
+
+	// Default values used while communicating with the cloud backends
+	defaultDialTimeout   = 30 * time.Second
+	defaultDialKeepAlive = 30 * time.Second
 )
 
 // isMaxObjectSize - verify if max object size
@@ -129,35 +172,90 @@ func isMaxPartID(partID int) bool {
 	return partID > globalMaxPartID
 }
 
-func contains(stringList []string, element string) bool {
-	for _, e := range stringList {
-		if e == element {
-			return true
+func contains(slice interface{}, elem interface{}) bool {
+	v := reflect.ValueOf(slice)
+	if v.Kind() == reflect.Slice {
+		for i := 0; i < v.Len(); i++ {
+			if v.Index(i).Interface() == elem {
+				return true
+			}
 		}
 	}
 	return false
 }
 
+// profilerWrapper is created becauses pkg/profiler doesn't
+// provide any API to calculate the profiler file path in the
+// disk since the name of this latter is randomly generated.
+type profilerWrapper struct {
+	stopFn func()
+	pathFn func() string
+}
+
+func (p profilerWrapper) Stop() {
+	p.stopFn()
+}
+
+func (p profilerWrapper) Path() string {
+	return p.pathFn()
+}
+
 // Starts a profiler returns nil if profiler is not enabled, caller needs to handle this.
-func startProfiler(profiler string) interface {
+func startProfiler(profilerType, dirPath string) (interface {
 	Stop()
-} {
-	// Enable profiler if ``_MINIO_PROFILER`` is set. Supported options are [cpu, mem, block].
-	switch profiler {
-	case "cpu":
-		return profile.Start(profile.CPUProfile, profile.NoShutdownHook)
-	case "mem":
-		return profile.Start(profile.MemProfile, profile.NoShutdownHook)
-	case "block":
-		return profile.Start(profile.BlockProfile, profile.NoShutdownHook)
-	default:
-		return nil
+	Path() string
+}, error) {
+
+	var err error
+	if dirPath == "" {
+		dirPath, err = ioutil.TempDir("", "profile")
+		if err != nil {
+			return nil, err
+		}
 	}
+
+	var profiler interface {
+		Stop()
+	}
+
+	var profilerFileName string
+
+	// Enable profiler and set the name of the file that pkg/pprof
+	// library creates to store profiling data.
+	switch profilerType {
+	case "cpu":
+		profiler = profile.Start(profile.CPUProfile, profile.NoShutdownHook, profile.ProfilePath(dirPath))
+		profilerFileName = "cpu.pprof"
+	case "mem":
+		profiler = profile.Start(profile.MemProfile, profile.NoShutdownHook, profile.ProfilePath(dirPath))
+		profilerFileName = "mem.pprof"
+	case "block":
+		profiler = profile.Start(profile.BlockProfile, profile.NoShutdownHook, profile.ProfilePath(dirPath))
+		profilerFileName = "block.pprof"
+	case "mutex":
+		profiler = profile.Start(profile.MutexProfile, profile.NoShutdownHook, profile.ProfilePath(dirPath))
+		profilerFileName = "mutex.pprof"
+	case "trace":
+		profiler = profile.Start(profile.TraceProfile, profile.NoShutdownHook, profile.ProfilePath(dirPath))
+		profilerFileName = "trace.out"
+	default:
+		return nil, errors.New("profiler type unknown")
+	}
+
+	return &profilerWrapper{
+		stopFn: profiler.Stop,
+		pathFn: func() string {
+			return filepath.Join(dirPath, profilerFileName)
+		},
+	}, nil
 }
 
 // Global profiler to be used by service go-routine.
 var globalProfiler interface {
+	// Stop the profiler
 	Stop()
+	// Return the path of the profiling file
+	Path() string
 }
 
 // dump the request into a string in JSON format.
@@ -187,26 +285,194 @@ func dumpRequest(r *http.Request) string {
 
 // isFile - returns whether given path is a file or not.
 func isFile(path string) bool {
-	if fi, err := osStat(path); err == nil {
+	if fi, err := os.Stat(path); err == nil {
 		return fi.Mode().IsRegular()
 	}
 
 	return false
 }
 
-// checkURL - checks if passed address correspond
-func checkURL(urlStr string) (*url.URL, error) {
-	if urlStr == "" {
-		return nil, errors.New("Address cannot be empty")
-	}
-	u, err := url.Parse(urlStr)
-	if err != nil {
-		return nil, fmt.Errorf("`%s` invalid: %s", urlStr, err.Error())
-	}
-	return u, nil
-}
-
 // UTCNow - returns current UTC time.
 func UTCNow() time.Time {
 	return time.Now().UTC()
+}
+
+// GenETag - generate UUID based ETag
+func GenETag() string {
+	return ToS3ETag(getMD5Hash([]byte(mustGetUUID())))
+}
+
+// ToS3ETag - return checksum to ETag
+func ToS3ETag(etag string) string {
+	etag = canonicalizeETag(etag)
+
+	if !strings.HasSuffix(etag, "-1") {
+		// Tools like s3cmd uses ETag as checksum of data to validate.
+		// Append "-1" to indicate ETag is not a checksum.
+		etag += "-1"
+	}
+
+	return etag
+}
+
+// NewCustomHTTPTransport returns a new http configuration
+// used while communicating with the cloud backends.
+// This sets the value for MaxIdleConnsPerHost from 2 (go default)
+// to 100.
+func NewCustomHTTPTransport() *http.Transport {
+	return &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   defaultDialTimeout,
+			KeepAlive: defaultDialKeepAlive,
+		}).DialContext,
+		MaxIdleConns:          1024,
+		MaxIdleConnsPerHost:   1024,
+		IdleConnTimeout:       30 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+		TLSClientConfig:       &tls.Config{RootCAs: globalRootCAs},
+		DisableCompression:    true,
+	}
+}
+
+// Load the json (typically from disk file).
+func jsonLoad(r io.ReadSeeker, data interface{}) error {
+	if _, err := r.Seek(0, io.SeekStart); err != nil {
+		return err
+	}
+	return json.NewDecoder(r).Decode(data)
+}
+
+// Save to disk file in json format.
+func jsonSave(f interface {
+	io.WriteSeeker
+	Truncate(int64) error
+}, data interface{}) error {
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	if err = f.Truncate(0); err != nil {
+		return err
+	}
+	if _, err = f.Seek(0, io.SeekStart); err != nil {
+		return err
+	}
+	_, err = f.Write(b)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// ceilFrac takes a numerator and denominator representing a fraction
+// and returns its ceiling. If denominator is 0, it returns 0 instead
+// of crashing.
+func ceilFrac(numerator, denominator int64) (ceil int64) {
+	if denominator == 0 {
+		// do nothing on invalid input
+		return
+	}
+	// Make denominator positive
+	if denominator < 0 {
+		numerator = -numerator
+		denominator = -denominator
+	}
+	ceil = numerator / denominator
+	if numerator > 0 && numerator%denominator != 0 {
+		ceil++
+	}
+	return
+}
+
+// Returns context with ReqInfo details set in the context.
+func newContext(r *http.Request, w http.ResponseWriter, api string) context.Context {
+	vars := mux.Vars(r)
+	bucket := vars["bucket"]
+	object := vars["object"]
+	prefix := vars["prefix"]
+
+	if prefix != "" {
+		object = prefix
+	}
+	reqInfo := &logger.ReqInfo{
+		RequestID:  w.Header().Get(responseRequestIDKey),
+		RemoteHost: handlers.GetSourceIP(r),
+		UserAgent:  r.UserAgent(),
+		API:        api,
+		BucketName: bucket,
+		ObjectName: object,
+	}
+	return logger.SetReqInfo(r.Context(), reqInfo)
+}
+
+// isNetworkOrHostDown - if there was a network error or if the host is down.
+func isNetworkOrHostDown(err error) bool {
+	if err == nil {
+		return false
+	}
+	switch err.(type) {
+	case *net.DNSError, *net.OpError, net.UnknownNetworkError:
+		return true
+	case *url.Error:
+		// For a URL error, where it replies back "connection closed"
+		if strings.Contains(err.Error(), "Connection closed by foreign host") {
+			return true
+		}
+		return true
+	default:
+		if strings.Contains(err.Error(), "net/http: TLS handshake timeout") {
+			// If error is - tlsHandshakeTimeoutError,.
+			return true
+		} else if strings.Contains(err.Error(), "i/o timeout") {
+			// If error is - tcp timeoutError.
+			return true
+		} else if strings.Contains(err.Error(), "connection timed out") {
+			// If err is a net.Dial timeout.
+			return true
+		} else if strings.Contains(err.Error(), "net/http: HTTP/1.x transport connection broken") {
+			return true
+		}
+	}
+	return false
+}
+
+var b512pool = sync.Pool{
+	New: func() interface{} {
+		buf := make([]byte, 512)
+		return &buf
+	},
+}
+
+// CloseResponse close non nil response with any response Body.
+// convenient wrapper to drain any remaining data on response body.
+//
+// Subsequently this allows golang http RoundTripper
+// to re-use the same connection for future requests.
+func CloseResponse(respBody io.ReadCloser) {
+	// Callers should close resp.Body when done reading from it.
+	// If resp.Body is not closed, the Client's underlying RoundTripper
+	// (typically Transport) may not be able to re-use a persistent TCP
+	// connection to the server for a subsequent "keep-alive" request.
+	if respBody != nil {
+		// Drain any remaining Body and then close the connection.
+		// Without this closing connection would disallow re-using
+		// the same connection for future uses.
+		//  - http://stackoverflow.com/a/17961593/4465767
+		bufp := b512pool.Get().(*[]byte)
+		defer b512pool.Put(bufp)
+		io.CopyBuffer(ioutil.Discard, respBody, *bufp)
+		respBody.Close()
+	}
+}
+
+// Used for registering with rest handlers (have a look at registerStorageRESTHandlers for usage example)
+// If it is passed ["aaaa", "bbbb"], it returns ["aaaa", "{aaaa:.*}", "bbbb", "{bbbb:.*}"]
+func restQueries(keys ...string) []string {
+	var accumulator []string
+	for _, key := range keys {
+		accumulator = append(accumulator, key, "{"+key+":.*}")
+	}
+	return accumulator
 }

@@ -1,0 +1,32 @@
+{
+  "1.android": {
+    "other": "Il existe un client natif pour accéder à %s sur Android."
+  },
+  "1.ios": {
+    "other": "Il existe un client natif pour accéder à %s sur l'iPhone/iPad."
+  },
+  "2.android": {
+    "other": "Je l'ai déjà, l'ouvrir et ajouter ce serveur à mes serveurs distants"
+  },
+  "2.ios": {
+    "other": "Je l'ai déjà, l'ouvrir et ajouter ce serveur à mes serveurs distants"
+  },
+  "3.android": {
+    "other": "Je ne l'ai pas, envoyez moi vers Google Play Store maintenant!"
+  },
+  "3.ios": {
+    "other": "Je ne l'ai pas, envoyez moi vers l'App Store maintenant !"
+  },
+  "4.android": {
+    "other": "Je n'en veux pas, laissez moi utiliser la version web de %s."
+  },
+  "4.ios": {
+    "other": "Je n'en veux pas, laissez moi utiliser la version web de %s."
+  },
+  "Mobile": {
+    "other": "Mobile"
+  },
+  "Template extending gui.ajax for small screen terminals.": {
+    "other": "Extension de gui.ajax pour les petits écrans."
+  }
+}

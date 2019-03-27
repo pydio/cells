@@ -34,16 +34,17 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/pydio/cells/common/utils/mtree"
+
 	"github.com/gobuffalo/packr"
 	"github.com/pborman/uuid"
 	"github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils"
 )
 
 var (
@@ -65,7 +66,7 @@ var (
 
 // BatchSend sql structure
 type BatchSend struct {
-	in  chan *utils.TreeNode
+	in  chan *mtree.TreeNode
 	out chan error
 }
 
@@ -156,98 +157,115 @@ func init() {
 		return `select count(uuid) from %%PREFIX%%_idx_nodes where uuid not in (select uuid from %%PREFIX%%_idx_tree)`
 	}
 
-	queries["updateNodes"] = func(mpathes ...string) string {
+	queries["updateNodes"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathesIn("", mpathes...)
+
 		return fmt.Sprintf(`
 			update %%PREFIX%%_idx_nodes set mtime = ?, etag = ?, size = size + ?
 			where uuid in (
 				select uuid from %%PREFIX%%_idx_tree where (%s)
-			)`, getMPathesIn("", mpathes...))
+			)`, sub), args
 	}
 
-	queries["deleteTree"] = func(mpathes ...string) string {
+	queries["deleteTree"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEqualsOrLike("", []byte(mpathes[0]))
+
 		return fmt.Sprintf(`
 			delete from %%PREFIX%%_idx_tree
-			where (%s)`, getMPathEqualsOrLike("", []byte(mpathes[0])))
+			where (%s)`, sub), args
 	}
 
-	queries["deleteNode"] = func(mpathes ...string) string {
+	queries["deleteNode"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEqualsOrLike("", []byte(mpathes[0]))
+
 		return fmt.Sprintf(`
 		delete from %%PREFIX%%_idx_nodes
 		where uuid in (
 			select uuid
 			from %%PREFIX%%_idx_tree
 			where (%s)
-		)`, getMPathEqualsOrLike("", []byte(mpathes[0])))
+		)`, sub), args
 	}
 
-	queries["selectNode"] = func(mpathes ...string) string {
+	queries["selectNode"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEquals("t", []byte(mpathes[0]))
+
 		return fmt.Sprintf(`
 		select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 		from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 		where %s
-		and n.uuid = t.uuid`, getMPathEquals("t", []byte(mpathes[0])))
+		and n.uuid = t.uuid`, sub), args
 	}
 
-	queries["selectNodes"] = func(mpathes ...string) string {
+	queries["selectNodes"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathesIn("t", mpathes...)
+
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where (%s)
 			and n.uuid = t.uuid
-			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, getMPathesIn("t", mpathes...))
+			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, sub), args
 	}
 
-	queries["tree"] = func(mpathes ...string) string {
+	queries["tree"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
+
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level >= ?
-			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, getMPathLike("t", []byte(mpathes[0])))
+			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, sub), args
 	}
 
-	queries["children"] = func(mpathes ...string) string {
+	queries["children"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			order by n.name`, getMPathLike("t", []byte(mpathes[0])))
+			order by n.name`, sub), args
 	}
 
-	queries["child"] = func(mpathes ...string) string {
+	queries["child"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			and n.name like ?`, getMPathLike("t", []byte(mpathes[0])))
+			and n.name like ?`, sub), args
 	}
 
-	queries["lastChild"] = func(mpathes ...string) string {
+	queries["lastChild"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			order by t.mpath4, t.mpath3, t.mpath2, t.mpath1 desc limit 1`, getMPathLike("t", []byte(mpathes[0])))
+			order by t.mpath4, t.mpath3, t.mpath2, t.mpath1 desc limit 1`, sub), args
 	}
 
-	queries["childrenEtags"] = func(mpathes ...string) string {
+	queries["childrenEtags"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select n.etag
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
 			where %s
 			and t.uuid = n.uuid
 			and t.level = ?
-			order by n.name`, getMPathLike("t", []byte(mpathes[0])))
+			order by n.name`, sub), args
 	}
 
-	queries["dirtyEtags"] = func(mpathes ...string) string {
+	queries["dirtyEtags"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEqualsOrLike("t", []byte(mpathes[0]))
 		return fmt.Sprintf(`
 			select t.uuid, t.level, t.rat, n.name, n.leaf, n.mtime, n.etag, n.size, n.mode
 			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
@@ -255,7 +273,18 @@ func init() {
 			and (%s)
 		    and t.uuid = n.uuid
 		    and t.level >= ?
-			order by t.level DESC`, getMPathEqualsOrLike("t", []byte(mpathes[0])))
+			order by t.level DESC`, sub), args
+	}
+
+	queries["childrenCount"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike("t", []byte(mpathes[0]))
+		return fmt.Sprintf(`
+			select count(t.uuid)
+			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
+			where %s
+			and t.uuid = n.uuid
+			and t.level = ?
+			order by n.name`, sub), args
 	}
 
 }
@@ -268,7 +297,7 @@ type IndexSQL struct {
 }
 
 // Init handles the db version migration and prepare the statements
-func (dao *IndexSQL) Init(options config.Map) error {
+func (dao *IndexSQL) Init(options common.ConfigValues) error {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/index/migrations"),
@@ -310,7 +339,7 @@ func (dao *IndexSQL) CleanResourcesOnDeletion() (error, string) {
 }
 
 // AddNode to the mysql database
-func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
+func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -340,7 +369,14 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 	}
 
 	insertNode := dao.GetStmt("insertNode")
+	if insertNode == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
 	insertTree := dao.GetStmt("insertTree")
+	if insertTree == nil {
+		return fmt.Errorf("Unknown statement")
+	}
 
 	if stmt := tx.Stmt(insertNode); stmt != nil {
 		defer stmt.Close()
@@ -394,15 +430,14 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 }
 
 // AddNodeStream creates a channel to write to the database to the mysql database
-func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
+func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 	e := make(chan error)
 
 	go func() {
 
 		defer close(e)
-		// defer close(b)
 
 		insert := func(num int, valsInsertNodes []interface{}, valsInsertTree []interface{}) error {
 			dao.Lock()
@@ -427,7 +462,14 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 			}()
 
 			insertNode := dao.GetStmt("insertNode", num)
+			if insertNode == nil {
+				return fmt.Errorf("Unknown statement")
+			}
+
 			insertTree := dao.GetStmt("insertTree", num)
+			if insertTree == nil {
+				return fmt.Errorf("Unknown statement")
+			}
 
 			if stmt := tx.Stmt(insertNode); stmt != nil {
 				defer stmt.Close()
@@ -504,7 +546,7 @@ func (dao *IndexSQL) Flush(final bool) error {
 }
 
 // SetNode in replacement of previous node
-func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
+func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -536,7 +578,14 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 	// TODO : Transaction is not really used here as stmts are taken from dao.
 	// It is disabled as it can create locks when updating nodes in batch
 	updateTree := dao.GetStmt("updateTree")
+	if updateTree == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
 	updateNode := dao.GetStmt("updateNode")
+	if updateNode == nil {
+		return fmt.Errorf("Unknown statement")
+	}
 
 	if stmt := tx.Stmt(updateTree); stmt != nil {
 		defer stmt.Close()
@@ -583,14 +632,12 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 }
 
 // PushCommit adds a commit version to the node
-func (dao *IndexSQL) PushCommit(node *utils.TreeNode) error {
+func (dao *IndexSQL) PushCommit(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
 
 	db := dao.DB()
-
-	var err error
 
 	// Starting a transaction
 	tx, err := db.BeginTx(context.Background(), nil)
@@ -611,8 +658,6 @@ func (dao *IndexSQL) PushCommit(node *utils.TreeNode) error {
 		mTime = time.Now().Unix()
 	}
 	if stmt := dao.GetStmt("insertCommit"); stmt != nil {
-		defer stmt.Close()
-
 		if _, err = stmt.Exec(
 			node.Uuid,
 			node.Etag,
@@ -629,13 +674,11 @@ func (dao *IndexSQL) PushCommit(node *utils.TreeNode) error {
 }
 
 // DeleteCommits removes the commit versions of the node
-func (dao *IndexSQL) DeleteCommits(node *utils.TreeNode) error {
+func (dao *IndexSQL) DeleteCommits(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
 	if stmt := dao.GetStmt("deleteCommits"); stmt != nil {
-		defer stmt.Close()
-
 		_, err := stmt.Exec(node.Uuid)
 		if err != nil {
 			return err
@@ -648,7 +691,7 @@ func (dao *IndexSQL) DeleteCommits(node *utils.TreeNode) error {
 }
 
 // ListCommits returns a list of all commit versions for a node
-func (dao *IndexSQL) ListCommits(node *utils.TreeNode) (commits []*tree.ChangeLog, err error) {
+func (dao *IndexSQL) ListCommits(node *mtree.TreeNode) (commits []*tree.ChangeLog, err error) {
 
 	dao.Lock()
 
@@ -662,8 +705,6 @@ func (dao *IndexSQL) ListCommits(node *utils.TreeNode) (commits []*tree.ChangeLo
 
 	// First we check if we already have an object with the same key
 	if stmt := dao.GetStmt("selectCommits"); stmt != nil {
-		defer stmt.Close()
-
 		rows, err = stmt.Query(node.Uuid)
 		if err != nil {
 			return commits, err
@@ -697,7 +738,7 @@ func (dao *IndexSQL) ListCommits(node *utils.TreeNode) (commits []*tree.ChangeLo
 	return commits, err
 }
 
-func (dao *IndexSQL) etagFromChildren(node *utils.TreeNode) (string, error) {
+func (dao *IndexSQL) etagFromChildren(node *mtree.TreeNode) (string, error) {
 
 	SEPARATOR := "."
 	hasher := md5.New()
@@ -715,10 +756,8 @@ func (dao *IndexSQL) etagFromChildren(node *utils.TreeNode) (string, error) {
 	mpath := node.MPath
 
 	// First we check if we already have an object with the same key
-	if stmt := dao.GetStmt("childrenEtags", mpath.String()); stmt != nil {
-		defer stmt.Close()
-
-		rows, err = stmt.Query(len(mpath) + 1)
+	if stmt, args := dao.GetStmtWithArgs("childrenEtags", mpath.String()); stmt != nil {
+		rows, err = stmt.Query(append(args, len(mpath)+1)...)
 		if err != nil {
 			return "", err
 		}
@@ -741,7 +780,7 @@ func (dao *IndexSQL) etagFromChildren(node *utils.TreeNode) (string, error) {
 }
 
 // ResyncDirtyEtags ensures that etags are rightly calculated
-func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
+func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 
 	dao.Lock()
 
@@ -749,10 +788,8 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
 	var err error
 
 	mpath := rootNode.MPath
-	if stmt := dao.GetStmt("dirtyEtags", mpath.String()); stmt != nil {
-		defer stmt.Close()
-
-		rows, err = stmt.Query(len(mpath)) // Start at root level
+	if stmt, args := dao.GetStmtWithArgs("dirtyEtags", mpath.String()); stmt != nil {
+		rows, err = stmt.Query(append(args, len(mpath))...) // Start at root level
 		if err != nil {
 			dao.Unlock()
 			return err
@@ -760,7 +797,7 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
 	} else {
 		return fmt.Errorf("Empty statement")
 	}
-	var nodesToUpdate []*utils.TreeNode
+	var nodesToUpdate []*mtree.TreeNode
 	for rows.Next() {
 		node, e := dao.scanDbRowToTreeNode(rows)
 		if e != nil {
@@ -782,8 +819,6 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
 		}
 		log.Logger(context.Background()).Info("Computed Etag For Node", zap.Any("etag", newEtag))
 		if stmt := dao.GetStmt("updateNode"); stmt != nil {
-			defer stmt.Close()
-
 			if _, err = stmt.Exec(
 				node.Name(),
 				node.IsLeafInt(),
@@ -806,39 +841,46 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
 // SetNodes returns a channel and waits for arriving nodes before updating them in batch
 func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 
-	db := dao.DB()
-
 	b := NewBatchSend()
 
 	go func() {
 		dao.Lock()
 		defer dao.Unlock()
 
-		tx, err := db.BeginTx(context.Background(), nil)
-		if err != nil {
-			b.out <- err
-		}
+		db := dao.DB()
 
 		defer func() {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-
 			close(b.out)
 		}()
 
 		insert := func(mpathes ...interface{}) {
-			stmt := dao.GetStmt("updateNodes", mpathes...)
-			defer stmt.Close()
-
-			if stmt == nil {
-				b.out <- fmt.Errorf("empty stmt")
+			// Starting a transaction
+			tx, err := db.BeginTx(context.Background(), &databasesql.TxOptions{
+				Isolation: databasesql.LevelReadUncommitted,
+			})
+			if err != nil {
 				return
 			}
-			if _, err = stmt.Exec(time.Now().Unix(), etag, deltaSize); err != nil {
-				b.out <- err
+
+			// Checking transaction went fine
+			defer func() {
+				if err != nil {
+					tx.Rollback()
+				} else {
+					tx.Commit()
+				}
+			}()
+
+			updateNodes, args := dao.GetStmtWithArgs("updateNodes", mpathes...)
+
+			if stmt := tx.Stmt(updateNodes); stmt != nil {
+				defer stmt.Close()
+
+				if _, err = stmt.Exec(append([]interface{}{time.Now().Unix(), etag, deltaSize}, args...)...); err != nil {
+					b.out <- err
+				}
+			} else {
+				b.out <- fmt.Errorf("empty stmt")
 			}
 		}
 
@@ -865,7 +907,7 @@ func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 }
 
 // DelNode from database
-func (dao *IndexSQL) DelNode(node *utils.TreeNode) error {
+func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -890,20 +932,16 @@ func (dao *IndexSQL) DelNode(node *utils.TreeNode) error {
 	// Node
 	mpath := node.MPath.String()
 
-	if stmt := dao.GetStmt("deleteNode", mpath); stmt != nil {
-		defer stmt.Close()
-
-		if _, err = stmt.Exec(); err != nil {
+	if stmt, args := dao.GetStmtWithArgs("deleteNode", mpath); stmt != nil {
+		if _, err = stmt.Exec(args...); err != nil {
 			return err
 		}
 	} else {
 		return fmt.Errorf("Empty statement")
 	}
 
-	if stmt := dao.GetStmt("deleteTree", mpath); stmt != nil {
-		defer stmt.Close()
-
-		if _, err = stmt.Exec(); err != nil {
+	if stmt, args := dao.GetStmtWithArgs("deleteTree", mpath); stmt != nil {
+		if _, err = stmt.Exec(args...); err != nil {
 			return err
 		}
 	} else {
@@ -928,7 +966,7 @@ func (dao *IndexSQL) DelNode(node *utils.TreeNode) error {
 }
 
 // GetNode from path
-func (dao *IndexSQL) GetNode(path utils.MPath) (*utils.TreeNode, error) {
+func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -937,15 +975,13 @@ func (dao *IndexSQL) GetNode(path utils.MPath) (*utils.TreeNode, error) {
 		return nil, fmt.Errorf("Empty path")
 	}
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetMPath(path...)
 
 	mpath := node.MPath.String()
 
-	if stmt := dao.GetStmt("selectNode", mpath); stmt != nil {
-		defer stmt.Close()
-
-		row := stmt.QueryRow()
+	if stmt, args := dao.GetStmtWithArgs("selectNode", mpath); stmt != nil {
+		row := stmt.QueryRow(args...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
@@ -957,14 +993,12 @@ func (dao *IndexSQL) GetNode(path utils.MPath) (*utils.TreeNode, error) {
 }
 
 // GetNodeByUUID returns the node stored with the unique uuid
-func (dao *IndexSQL) GetNodeByUUID(uuid string) (*utils.TreeNode, error) {
+func (dao *IndexSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
 
 	if stmt := dao.GetStmt("selectNodeUuid"); stmt != nil {
-		defer stmt.Close()
-
 		row := stmt.QueryRow(uuid)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil && err != sql.ErrNoRows {
@@ -978,11 +1012,11 @@ func (dao *IndexSQL) GetNodeByUUID(uuid string) (*utils.TreeNode, error) {
 }
 
 // GetNodes List
-func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
+func (dao *IndexSQL) GetNodes(mpathes ...mtree.MPath) chan *mtree.TreeNode {
 
 	dao.Lock()
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 
 	go func() {
 
@@ -992,10 +1026,8 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 		}()
 
 		get := func(mpathes ...interface{}) {
-			if stmt := dao.GetStmt("selectNodes", mpathes...); stmt != nil {
-				defer stmt.Close()
-
-				rows, err := stmt.Query()
+			if stmt, args := dao.GetStmtWithArgs("selectNodes", mpathes...); stmt != nil {
+				rows, err := stmt.Query(args...)
 				if err != nil {
 					return
 				}
@@ -1010,6 +1042,7 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 					c <- node
 				}
 			} else {
+				fmt.Errorf("Unknown statement")
 				return
 			}
 		}
@@ -1033,20 +1066,18 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 }
 
 // GetNodeChild from node path whose name matches
-func (dao *IndexSQL) GetNodeChild(reqPath utils.MPath, reqName string) (*utils.TreeNode, error) {
+func (dao *IndexSQL) GetNodeChild(reqPath mtree.MPath, reqName string) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetMPath(reqPath...)
 
 	mpath := node.MPath
 
-	if stmt := dao.GetStmt("child", mpath.String()); stmt != nil {
-		defer stmt.Close()
-
-		row := stmt.QueryRow(len(reqPath)+1, reqName)
+	if stmt, args := dao.GetStmtWithArgs("child", mpath.String()); stmt != nil {
+		row := stmt.QueryRow(append(args, len(reqPath)+1, reqName)...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
@@ -1058,20 +1089,18 @@ func (dao *IndexSQL) GetNodeChild(reqPath utils.MPath, reqName string) (*utils.T
 }
 
 // GetNodeLastChild from path
-func (dao *IndexSQL) GetNodeLastChild(reqPath utils.MPath) (*utils.TreeNode, error) {
+func (dao *IndexSQL) GetNodeLastChild(reqPath mtree.MPath) (*mtree.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetMPath(reqPath...)
 
 	mpath := node.MPath
 
-	if stmt := dao.GetStmt("lastChild", mpath.String()); stmt != nil {
-		defer stmt.Close()
-
-		row := stmt.QueryRow(len(reqPath) + 1)
+	if stmt, args := dao.GetStmtWithArgs("lastChild", mpath.String()); stmt != nil {
+		row := stmt.QueryRow(append(args, len(reqPath)+1)...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
@@ -1083,7 +1112,7 @@ func (dao *IndexSQL) GetNodeLastChild(reqPath utils.MPath) (*utils.TreeNode, err
 }
 
 // GetNodeFirstAvailableChildIndex from path
-func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath utils.MPath) (uint64, error) {
+func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (uint64, error) {
 
 	all := []int{}
 
@@ -1117,12 +1146,38 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath utils.MPath) (uint6
 	return uint64(max + 1), nil
 }
 
+// GetNodeChildrenCount List
+func (dao *IndexSQL) GetNodeChildrenCount(path mtree.MPath) int {
+
+	dao.Lock()
+	defer dao.Unlock()
+
+	node := mtree.NewTreeNode()
+	node.SetMPath(path...)
+
+	mpath := node.MPath
+
+	res := 0
+
+	// First we check if we already have an object with the same key
+	if stmt, args := dao.GetStmtWithArgs("childrenCount", mpath.String()); stmt != nil {
+		row := stmt.QueryRow(append(args, len(path)+1)...)
+		if row == nil {
+			return 0
+		}
+
+		row.Scan(&res)
+	}
+
+	return res
+}
+
 // GetNodeChildren List
-func (dao *IndexSQL) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
+func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 
 	dao.Lock()
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 
 	go func() {
 		var rows *databasesql.Rows
@@ -1136,16 +1191,14 @@ func (dao *IndexSQL) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
 			dao.Unlock()
 		}()
 
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.SetMPath(path...)
 
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt := dao.GetStmt("children", mpath.String()); stmt != nil {
-			defer stmt.Close()
-
-			rows, err = stmt.Query(len(path) + 1)
+		if stmt, args := dao.GetStmtWithArgs("children", mpath.String()); stmt != nil {
+			rows, err = stmt.Query(append(args, len(path)+1)...)
 			if err != nil {
 				return
 			}
@@ -1164,11 +1217,11 @@ func (dao *IndexSQL) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
+func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 
 	dao.Lock()
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 
 	go func() {
 		var rows *databasesql.Rows
@@ -1183,16 +1236,14 @@ func (dao *IndexSQL) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 			dao.Unlock()
 		}()
 
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.SetMPath(path...)
 
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt := dao.GetStmt("tree", mpath.String()); stmt != nil {
-			defer stmt.Close()
-
-			rows, err = stmt.Query(len(mpath) + 1)
+		if stmt, args := dao.GetStmtWithArgs("tree", mpath.String()); stmt != nil {
+			rows, err = stmt.Query(append(args, len(mpath)+1)...)
 			if err != nil {
 				return
 			}
@@ -1212,10 +1263,10 @@ func (dao *IndexSQL) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
-func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNode) error {
+func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
 
 	var err error
-	var pathFrom, pathTo utils.MPath
+	var pathFrom, pathTo mtree.MPath
 	pathFrom = nodeFrom.MPath
 	pathTo = nodeTo.MPath
 
@@ -1229,7 +1280,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 		return fmt.Errorf("Cannot replace root")
 	}
 
-	pf0, psf0, pf1, psf1 := utils.NewRat(), utils.NewRat(), utils.NewRat(), utils.NewRat()
+	pf0, psf0, pf1, psf1 := mtree.NewRat(), mtree.NewRat(), mtree.NewRat(), mtree.NewRat()
 	pf0.SetMPath(ppf...)
 	psf0.SetMPath(ppf.Sibling()...)
 
@@ -1246,16 +1297,16 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 	m.SetUint64(idx)
 	n.SetUint64(uint64(pathFrom[len(pathFrom)-1]))
 
-	p0 := utils.NewMatrix(pf0.Num(), psf0.Num(), pf0.Denom(), psf0.Denom())
-	p1 := utils.NewMatrix(pf1.Num(), psf1.Num(), pf1.Denom(), psf1.Denom())
+	p0 := mtree.NewMatrix(pf0.Num(), psf0.Num(), pf0.Denom(), psf0.Denom())
+	p1 := mtree.NewMatrix(pf1.Num(), psf1.Num(), pf1.Denom(), psf1.Denom())
 	toPath := nodeTo.Path
 
 	var updateErrors []error
 
-	update := func(node *utils.TreeNode) {
-		M0 := utils.NewMatrix(node.NV(), node.SNV(), node.DV(), node.SDV())
-		M1 := utils.MoveSubtree(p0, m, p1, n, M0)
-		rat := utils.NewRat()
+	update := func(node *mtree.TreeNode) {
+		M0 := mtree.NewMatrix(node.NV(), node.SNV(), node.DV(), node.SDV())
+		M1 := mtree.MoveSubtree(p0, m, p1, n, M0)
+		rat := mtree.NewRat()
 		rat.SetFrac(M1.GetA11(), M1.GetA12())
 		node.SetRat(rat)
 
@@ -1275,7 +1326,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 	// Updating the original node
 	update(nodeFrom)
 
-	var nodes []*utils.TreeNode
+	var nodes []*mtree.TreeNode
 
 	for node := range dao.GetNodeTree(pathFrom) {
 		nodes = append(nodes, node)
@@ -1292,7 +1343,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 	return nil
 }
 
-func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*utils.TreeNode, error) {
+func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, error) {
 	var (
 		uuid  string
 		rat   []byte
@@ -1313,7 +1364,7 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*utils.TreeNode, erro
 		nodeType = tree.NodeType_COLLECTION
 	}
 
-	node := utils.NewTreeNode()
+	node := mtree.NewTreeNode()
 	node.SetBytes(rat)
 
 	metaName, _ := json.Marshal(name)
@@ -1330,12 +1381,12 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*utils.TreeNode, erro
 	return node, nil
 }
 
-func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (utils.MPath, []*utils.TreeNode, error) {
+func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 
-	var path utils.MPath
+	var path mtree.MPath
 	var err error
 
-	created := []*utils.TreeNode{}
+	created := []*mtree.TreeNode{}
 
 	if len(strpath) == 0 || strpath == "/" {
 		return []uint64{1}, created, nil
@@ -1345,7 +1396,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 
 	path = make([]uint64, len(names))
 	path[0] = 1
-	parents := make([]*utils.TreeNode, len(names))
+	parents := make([]*mtree.TreeNode, len(names))
 
 	// Reading root path
 	node, err := dao.GetNode(path[0:1])
@@ -1361,10 +1412,14 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 		}, []uint64{1}, []string{""})
 
 		if err = dao.AddNode(node); err != nil {
-			return path, created, err
+			// Has it been created elsewhere ?
+			node, err = dao.GetNode(path[0:1])
+			if err != nil || node == nil {
+				return path, created, err
+			}
+		} else {
+			created = append(created, node)
 		}
-
-		created = append(created, node)
 	}
 
 	parents[0] = node
@@ -1420,7 +1475,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 				}
 
 				if node.Uuid == "" {
-					node.Uuid = uuid.NewUUID().String()
+					node.Uuid = uuid.New()
 				}
 
 				if node.Etag == "" {
@@ -1471,8 +1526,6 @@ func (dao *IndexSQL) checkIntegrity(cat string) error {
 	ctx := context.Background()
 
 	if stmt := dao.GetStmt("integrity1"); stmt != nil {
-		defer stmt.Close()
-
 		row := stmt.QueryRow()
 		var count int
 		row.Scan(&count)
@@ -1485,8 +1538,6 @@ func (dao *IndexSQL) checkIntegrity(cat string) error {
 	}
 
 	if stmt := dao.GetStmt("integrity2"); stmt != nil {
-		defer stmt.Close()
-
 		row := stmt.QueryRow()
 		var count int
 		row.Scan(&count)
@@ -1516,7 +1567,7 @@ func (dao *IndexSQL) unlock() {
 // NewBatchSend Creation of the channels
 func NewBatchSend() *BatchSend {
 	b := new(BatchSend)
-	b.in = make(chan *utils.TreeNode)
+	b.in = make(chan *mtree.TreeNode)
 	b.out = make(chan error, 1)
 
 	return b
@@ -1524,7 +1575,7 @@ func NewBatchSend() *BatchSend {
 
 // Send a node to the batch
 func (b *BatchSend) Send(arg interface{}) {
-	if node, ok := arg.(*utils.TreeNode); ok {
+	if node, ok := arg.(*mtree.TreeNode); ok {
 		b.in <- node
 	}
 }
@@ -1539,8 +1590,9 @@ func (b *BatchSend) Close() error {
 }
 
 // where t.mpath = ?
-func getMPathEquals(tableAlias string, mpath []byte) string {
+func getMPathEquals(tableAlias string, mpath []byte) (string, []interface{}) {
 	var res []string
+	var args []interface{}
 
 	if tableAlias != "" {
 		tableAlias = tableAlias + "."
@@ -1549,7 +1601,8 @@ func getMPathEquals(tableAlias string, mpath []byte) string {
 	for {
 		var cnt int
 		cnt = (len(mpath) - 1) / indexLen
-		res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+		res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+		args = append(args, mpath[(cnt*indexLen):])
 
 		if idx := cnt * indexLen; idx == 0 {
 			break
@@ -1558,12 +1611,13 @@ func getMPathEquals(tableAlias string, mpath []byte) string {
 		mpath = mpath[0 : cnt*indexLen]
 	}
 
-	return strings.Join(res, " and ")
+	return strings.Join(res, " and "), args
 }
 
 // t.mpath LIKE ?
-func getMPathLike(tableAlias string, mpath []byte) string {
+func getMPathLike(tableAlias string, mpath []byte) (string, []interface{}) {
 	var res []string
+	var args []interface{}
 
 	if tableAlias != "" {
 		tableAlias = tableAlias + "."
@@ -1577,10 +1631,12 @@ func getMPathLike(tableAlias string, mpath []byte) string {
 		cnt = (len(mpath) - 1) / indexLen
 
 		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			args = append(args, mpath[(cnt*indexLen):])
 			done = true
 		} else {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			args = append(args, mpath[(cnt*indexLen):])
 		}
 
 		if idx := cnt * indexLen; idx == 0 {
@@ -1590,12 +1646,13 @@ func getMPathLike(tableAlias string, mpath []byte) string {
 		mpath = mpath[0 : cnt*indexLen]
 	}
 
-	return strings.Join(res, " and ")
+	return strings.Join(res, " and "), args
 }
 
 // and (t.mpath = ? OR t.mpath LIKE ?)
-func getMPathEqualsOrLike(tableAlias string, mpath []byte) string {
+func getMPathEqualsOrLike(tableAlias string, mpath []byte) (string, []interface{}) {
 	var res []string
+	var args []interface{}
 
 	if tableAlias != "" {
 		tableAlias = tableAlias + "."
@@ -1609,8 +1666,11 @@ func getMPathEqualsOrLike(tableAlias string, mpath []byte) string {
 		cnt = (len(mpath) - 1) / indexLen
 
 		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):len(mpath)-2]))
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+
+			args = append(args, mpath[(cnt*indexLen):len(mpath)-2], mpath[(cnt*indexLen):])
+
 			done = true
 		} else {
 			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
@@ -1623,16 +1683,19 @@ func getMPathEqualsOrLike(tableAlias string, mpath []byte) string {
 		mpath = mpath[0 : cnt*indexLen]
 	}
 
-	return strings.Join(res, " or ")
+	return strings.Join(res, " or "), args
 }
 
 // where t.mpath in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-func getMPathesIn(tableAlias string, mpathes ...string) string {
-
+func getMPathesIn(tableAlias string, mpathes ...string) (string, []interface{}) {
 	var res []string
+	var args []interface{}
+
 	for _, mpath := range mpathes {
-		res = append(res, fmt.Sprintf(`(%s)`, getMPathEquals(tableAlias, []byte(mpath))))
+		r, a := getMPathEquals(tableAlias, []byte(mpath))
+		res = append(res, fmt.Sprintf(`(%s)`, r))
+		args = append(args, a...)
 	}
 
-	return strings.Join(res, " or ")
+	return strings.Join(res, " or "), args
 }

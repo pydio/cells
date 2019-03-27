@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "DL Remoto"
+  },
+  "10": {
+    "other": "Scaricamento su APPLICATION_TITLE"
+  },
+  "10a": {
+    "other": "Download su %s"
+  },
+  "10b": {
+    "other": "DL su %s"
+  },
+  "10c": {
+    "other": "DL su %s"
+  },
+  "10d": {
+    "other": "AjXp Download (%s)"
+  },
+  "11": {
+    "other": "Trascina uno dei seguenti link sulla tua barra dei segnalibri: "
+  },
+  "12": {
+    "other": "Esegui il download del file remoto"
+  },
+  "13": {
+    "other": "Dal computer"
+  },
+  "14": {
+    "other": "Dal server remoto"
+  },
+  "15": {
+    "other": "Oppure crea un segnalibro manualmente e usa il codice sottostante come link: "
+  },
+  "16": {
+    "other": "Trascinami sulla tua barra dei segnalibri!"
+  },
+  "17": {
+    "other": "Scarica il file"
+  },
+  "18": {
+    "other": "File parziale"
+  },
+  "2": {
+    "other": "Download file da un server remoto"
+  },
+  "3": {
+    "other": "m"
+  },
+  "4": {
+    "other": "Inserisci almeno un URL che punti al file che desideri scaricare direttamente da un server HTTP esterno alla cartella corrente. Questa operazione verrà eseguita in background così da poter continuare ad usare APPLICATION_TITLE durante il download."
+  },
+  "5": {
+    "other": "URL"
+  },
+  "6": {
+    "other": "Download in corso"
+  },
+  "7": {
+    "other": "al server"
+  },
+  "8": {
+    "other": "File scaricato, ricarica la pagina!"
+  },
+  "9": {
+    "other": "Genera Segnalibro"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "1": {
+    "other": "%s file in coda per l'upload"
+  },
+  "10": {
+    "other": ""
+  },
+  "11": {
+    "other": "Avvia"
+  },
+  "12": {
+    "other": "Svuota lista"
+  },
+  "13": {
+    "other": "Cartella creata"
+  },
+  "14": {
+    "other": "In elaborazione"
+  },
+  "15": {
+    "other": "In sospeso"
+  },
+  "16": {
+    "other": "Elaborato"
+  },
+  "17": {
+    "other": "Mostra/Nascondi file elaborati"
+  },
+  "options.existing": {
+    "other": "Se esiste un file con lo stesso nome:"
+  },
+  "options.existing.alert": {
+    "other": "Interrompi il caricamento e informami"
+  },
+  "options.existing.folders": {
+    "other": "Rinominare le cartelle e poi i file"
+  },
+  "options.existing.merge": {
+    "other": "Rinominare solo i file (unisci le cartelle)"
+  },
+  "2": {
+    "other": "Caricamento di %s file"
+  },
+  "options.existing.overwrite": {
+    "other": "Sovrascrivere il file esistente senza avvertire"
+  },
+  "22": {
+    "other": "Opzioni"
+  },
+  "23": {
+    "other": "Errori"
+  },
+  "3": {
+    "other": "Non hai le autorizzazioni necessarie per caricare questo file qui"
+  },
+  "4": {
+    "other": "Scegli un file"
+  },
+  "5": {
+    "other": "Scegli una cartella"
+  },
+  "6": {
+    "other": "Non posso interrompere la creazione della cartella"
+  },
+  "7": {
+    "other": "Caricamento dei file sul server..."
+  },
+  "8": {
+    "other": "Sembra che il tuo browser non supporti l'eliminazione delle cartelle"
+  },
+  "9": {
+    "other": ""
+  },
+  "analyze.step": {
+    "other": "Preparazione di file e cartelle per il caricamento..."
+  },
+  "drophere": {
+    "other": "Trascina i file qui"
+  }
+}

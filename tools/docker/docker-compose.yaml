@@ -1,18 +1,16 @@
 version: '3'
 services:
 
-    # Cells image with two named volumes for the static and for the data
+    # Cells image with one named volume for the data
     cells:
         image: pydio/cells:latest
         restart: always
-        volumes: ["static:/root/.config/pydio/cells/static/pydio", "data:/root/.config/pydio/cells/data", "/path/to/your/ssl.cert:/root/ssl/ssl.cert", "/path/to/your/ssl.key:/root/ssl/ssl.key"]
+        volumes: ["data:/root/.config/pydio/cells/data"]
         ports: ["8080:8080"]
         environment:
             - CELLS_BIND=localhost:8080
             - CELLS_EXTERNAL=localhost:8080
             - CELLS_NO_SSL=0
-            - CELLS_SSL_CERT_FILE=/root/ssl/ssl.cert
-            - CELLS_SSL_KEY_FILE=/root/ssl/ssl.key
 
     # MySQL image with a default database cells and a dedicated user pydio
     mysql:
@@ -26,13 +24,5 @@ services:
         command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
         ports: ["3306:3306"]
 
-    # PHP FPM image with the static named volume from the cells container
-    php:
-        image: pydio/cells-php-fpm:latest
-        restart: always
-        volumes: ["static:/root/.config/pydio/cells/static/pydio"]
-
 volumes:
-    static: {}
     data: {}
-    php: {}

@@ -3,7 +3,6 @@ syntax = "proto3";
 package rest;
 
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
-import "github.com/pydio/cells/common/proto/auth/ldap.proto";
 import "github.com/pydio/cells/common/proto/object/object.proto";
 import "github.com/pydio/cells/common/proto/ctl/ctl.proto";
 
@@ -40,17 +39,32 @@ message ListPeerFoldersRequest{
     string Path = 2;
 }
 
-message ListVersioningPolicyRequest{
-
+message Process {
+    string ID = 1;
+    string ParentID = 2;
+    int32 MetricsPort = 3;
+    string PeerId = 4;
+    string PeerAddress = 5;
+    string StartTag = 6;
+    repeated string Services = 7;
 }
+
+message ListProcessesRequest {
+    string PeerId = 1;
+    string ServiceName = 2;
+}
+
+message ListProcessesResponse {
+    repeated Process Processes = 1;
+}
+
+message ListVersioningPolicyRequest{}
 
 message VersioningPolicyCollection{
     repeated tree.VersioningPolicy Policies = 1;
 }
 
-message DeleteVersioningPolicyResponse{
-    bool Success = 1;
-}
+message ListVirtualNodesRequest{}
 
 message ListServiceRequest{
     ctl.ServiceStatus StatusFilter = 1;
@@ -86,19 +100,4 @@ message ConfigFormRequest{
 
 message OpenApiResponse{
 
-}
-
-message ListExternalDirectoryRequest {}
-
-message ExternalDirectoryResponse {
-    bool Success = 2;
-}
-
-message ExternalDirectoryConfig {
-    string ConfigId = 1;
-    auth.LdapServerConfig Config = 2;
-}
-
-message ExternalDirectoryCollection {
-    repeated auth.LdapServerConfig Directories = 1;
 }

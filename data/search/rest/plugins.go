@@ -22,18 +22,21 @@ package rest
 
 import (
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_SEARCH),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("RESTful Gateway to search engine"),
-		service.RouterDependencies(),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SEARCH, []string{}),
-		service.WithWeb(func() service.WebHandler {
-			return new(Handler)
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_SEARCH),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("RESTful Gateway to search engine"),
+			service.RouterDependencies(),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SEARCH, []string{}),
+			service.WithWeb(func() service.WebHandler {
+				return new(Handler)
+			}),
+		)
+	})
 }

@@ -1,0 +1,104 @@
+{
+  "cont.btn.fb": {
+    "other": "Facebook"
+  },
+  "cont.btn.github": {
+    "other": "Github-Star"
+  },
+  "cont.btn.tw": {
+    "other": "Twitter"
+  },
+  "cont.intro": {
+    "other": "Der Quelltext ist auf Github verfügbar. Tragen Sie bei, indem Sie einen Fehler beheben, anderen über das Forum helfen, oder eine neue Funktion implementieren!\n                            Verbreiten Sie über soziale Medien, dass Ihnen Pydio gefällt!"
+  },
+  "cont.subtitle": {
+    "other": "Pydio Cells ist freie Open-Source-Software. Tragen Sie bei!"
+  },
+  "cont.title": {
+    "other": "Pay it forward!"
+  },
+  "cont.topic.pr": {
+    "other": "Ich habe eine neue Funktion implementiert: Einen Github Pull-Request erstellen"
+  },
+  "cont.topic.report": {
+    "other": "Ich denke, dass ich einen Fehler gefunden haben! Einen Beitrag ins Forum schreiben."
+  },
+  "cont.topic.report.2": {
+    "other": "Ich habe einen qualifizierten Fehlerbericht: Einen Fehlerbericht auf Github erstellen."
+  },
+  "cont.topic.translate": {
+    "other": "Wie wird eine Übersetzung erstellt oder vervollständigt?"
+  },
+  "ent.advanced": {
+    "other": "Erweitertes Administrations-Dashboard"
+  },
+  "ent.advanced.legend": {
+    "other": "Administrations-Dashboard für Echtzeit-Monitoring."
+  },
+  "ent.btn.contact": {
+    "other": "Den Vertrieb kontaktieren"
+  },
+  "ent.btn.more": {
+    "other": "Mehr erfahren"
+  },
+  "ent.features": {
+    "other": "Enterprise-Funktionen"
+  },
+  "ent.features.legend": {
+    "other": "Enterprise-Funktionen: EasyTransfer, LDAP/AD Connectors und viele mehr..."
+  },
+  "ent.subtitle": {
+    "other": "ERHALTEN SIE ZUSATZFUNKTIONEN - GDPR-READY - BRANDING FÜR IHRE FIRMA"
+  },
+  "ent.support": {
+    "other": "Support und Wartung"
+  },
+  "ent.support.legend": {
+    "other": "Erhalten Sie direkt Unterstützung durch unser Core-Team"
+  },
+  "ent.title": {
+    "other": "Pydio Cells Enterprise entdecken"
+  },
+  "kb.btn.alldocs": {
+    "other": "Dokumentation öffnen"
+  },
+  "kb.btn.forum": {
+    "other": "Zum Forum"
+  },
+  "kb.intro": {
+    "other": "Neben dem Forum stellen wir üben unsere Webseite weitere Dokumentation zur Verfügung. Bitte lesen Sie diese Artikel, bevor Sie im Forum eine Frage stellen ;-)"
+  },
+  "kb.subtitle": {
+    "other": "Unsere FAQ-Artikel mit Antworten auf häufige Fragen"
+  },
+  "kb.title": {
+    "other": "Erhalten Sie Hilfe"
+  },
+  "welc.btn.advanced": {
+    "other": "Für Fortgeschrittene"
+  },
+  "welc.btn.parameters": {
+    "other": "Einstellungen"
+  },
+  "welc.btn.start": {
+    "other": "Erste Schritte"
+  },
+  "welc.btn.users": {
+    "other": "Benutzer"
+  },
+  "welc.btn.ws": {
+    "other": "Arbeitsumgebung"
+  },
+  "welc.guide": {
+    "other": "Bitte lesen Sie zum Einstieg die Administrations-Anleitung:"
+  },
+  "welc.intro": {
+    "other": "Über das Menü auf der linken Seite können Sie <a class=\"doc-link\" data-path=\"/data/workspaces\">Arbeitusmgebungen</a> oder <a class=\"doc-link\" data-path=\"/idm/users\">Benutzer</a> erstellen. Zudem haben Sie die Möglichkeit,\n                            die <a class=\"doc-link\" data-path=\"/admin/logs\">Protokolle</a> zu überprüfen oder Einstellungen des <a class=\"doc-link\" data-path=\"/parameters/core\">Systems</a>, oder einer <a class=\"doc-link\" data-path=\"/plugins/manager\">Erweiterung</a> zu ändern."
+  },
+  "welc.subtitle": {
+    "other": "Verwalten und überwachen Sie Ihre Pydio-Installation"
+  },
+  "welc.title": {
+    "other": "Willkommen zum Community-Dashboard"
+  }
+}

@@ -39,6 +39,7 @@ import (
 type Queue interface {
 	Push(email *mailer.Mail) error
 	Consume(func(email *mailer.Mail) error) error
+	Close() error
 }
 
 type Sender interface {
@@ -46,7 +47,7 @@ type Sender interface {
 	Send(email *mailer.Mail) error
 }
 
-func GetQueue(ctx context.Context, t string, conf config.Map) Queue {
+func GetQueue(ctx context.Context, t string, conf common.ConfigValues) Queue {
 	switch t {
 	case "memory":
 		return newInMemoryQueue()

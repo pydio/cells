@@ -35,11 +35,11 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type AclQuotaFilter struct {
@@ -147,7 +147,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 		return
 	}
 
-	ownerAcls, userObject, e := utils.AccessListFromUser(ctx, ownerUuid, true)
+	ownerAcls, userObject, e := permissions.AccessListFromUser(ctx, ownerUuid, true)
 	if e != nil {
 		err = e
 		return
@@ -168,7 +168,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 	vManager := GetVirtualNodesManager()
 	ownerWsRoots := make(map[string]*idm.Workspace)
 	for _, ws := range ownerAcls.Workspaces {
-		for _, originalRoot := range ws.RootNodes {
+		for _, originalRoot := range ws.RootUUIDs {
 			realId := originalRoot
 			if virtual, exists := vManager.ByUuid(originalRoot); exists {
 				resolvedRoot, e := vManager.ResolveInContext(parentContext, virtual, a.clientsPool, false)
@@ -179,14 +179,14 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("resolved", resolvedRoot))
 				realId = resolvedRoot.Uuid
 			}
-			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, utils.FLAG_READ) && !aclNodeMask.HasFlag(ctx, utils.FLAG_DENY) {
+			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, permissions.FlagRead) && !aclNodeMask.HasFlag(ctx, permissions.FlagDeny) {
 				ownerWsRoots[realId] = ws
 			}
 		}
 	}
 
 	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
-	for _, root := range workspace.RootNodes {
+	for _, root := range workspace.RootUUIDs {
 
 		if virtual, exists := vManager.ByUuid(root); exists {
 			resolvedRoot, e := vManager.ResolveInContext(ctx, virtual, a.clientsPool, false)
@@ -198,7 +198,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 			root = resolvedRoot.Uuid
 		}
 
-		ancestors, er := utils.BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
+		ancestors, er := tree.BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
 		if er != nil {
 			log.Logger(ctx).Error("AncestorsList for rootNode", zap.Any("r", root), zap.Any("ancestors", ancestors), zap.Any("ownerWsRoots", ownerWsRoots))
 			err = er
@@ -239,7 +239,7 @@ func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.W
 		if e != nil {
 			break
 		}
-		if resp.ACL.Action.Name == utils.ACL_QUOTA.Name {
+		if resp.ACL.Action.Name == permissions.AclQuota.Name {
 			if resp.ACL.Action.Value != "" {
 				roleValues[resp.ACL.RoleID] = resp.ACL.Action.Value
 			}

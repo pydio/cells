@@ -26,6 +26,7 @@ import (
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/service"
@@ -92,7 +93,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Received Install.Post request", zap.Any("input", input))
 
 	response := &install.InstallResponse{}
-	if er := lib.Install(ctx, input.GetConfig(), func(event *lib.InstallProgressEvent) {
+	if er := lib.Install(ctx, input.GetConfig(), lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 		eventManager.Publish("install", event)
 	}); er != nil {
 		eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
@@ -107,6 +108,6 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	}
 
 	<-time.After(2 * time.Second)
-	StopService()
 
+	caddy.Stop()
 }

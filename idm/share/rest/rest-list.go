@@ -21,28 +21,28 @@
 package rest
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-
-	"context"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
 	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/idm/share"
 )
 
 // ListSharedResources implements the corresponding Rest API operation
@@ -121,7 +121,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		return
 	}
 
-	acls, e := utils.GetACLsForWorkspace(ctx, workspaceIds, utils.ACL_READ, utils.ACL_WRITE, utils.ACL_POLICY)
+	acls, e := permissions.GetACLsForWorkspace(ctx, workspaceIds, permissions.AclRead, permissions.AclWrite, permissions.AclPolicy)
 	if e != nil {
 		service.RestError500(req, rsp, e)
 		return
@@ -146,7 +146,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	if request.Subject != "" {
 		rootNodes = h.LoadAdminRootNodes(ctx, detectedRoots)
 	} else {
-		rootNodes = h.LoadDetectedRootNodes(ctx, detectedRoots)
+		rootNodes = share.LoadDetectedRootNodes(ctx, detectedRoots)
 	}
 
 	// Build resources

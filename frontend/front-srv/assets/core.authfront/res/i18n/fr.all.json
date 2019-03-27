@@ -1,0 +1,26 @@
+{
+  "1": {
+    "other": "Réinitialisation du mot de passe"
+  },
+  "2": {
+    "other": "Définissez votre nouveau mot de passe"
+  },
+  "3": {
+    "other": "Entrez votre identifiant utilisateur ou votre address email, une demande de réinitialisation vous sera envoyée par courriel."
+  },
+  "4": {
+    "other": "Identifiant ou email"
+  },
+  "5": {
+    "other": "Un courriel contenant une demande de réinitialisation du mot de passe a été envoyé à l'adresse courriel enregistrée dans votre compte. Cliquez sur le lien du courriel pour créer un nouveau mot de passe."
+  },
+  "6": {
+    "other": "Merci, veuillez recharger la page pour vous connecter avec ce nouveau mot de passe!"
+  },
+  "7": {
+    "other": "Une demande de réinitialisation de mot de passe a été demandée pour le compte associé à ce courriel. Si vous n'en êtes pas l'auteur, vous pouvez ignorer ce courriel. Sinon cliquez sur le lien suivant :"
+  },
+  "8": {
+    "other": "Utilisez le formulaire pour remettre à zéro votre mot de passe. Entrez votre identifiant et votre nouveau mot de passe deux fois."
+  }
+}

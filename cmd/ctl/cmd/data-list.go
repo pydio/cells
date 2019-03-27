@@ -30,12 +30,13 @@ import (
 	"time"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/cobra"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 // listCmd represents the list command
@@ -82,21 +83,21 @@ $ ./pydioctl data list --source=pydiods1
 		if user != "" {
 
 			// In user mode, we use acls and roles
-			roles := utils.GetRolesForUser(ctx, &idm.User{Uuid: user, Roles: []*idm.Role{{Uuid: user}}}, false)
+			roles := permissions.GetRolesForUser(ctx, &idm.User{Uuid: user, Roles: []*idm.Role{{Uuid: user}}}, false)
 			log.Println(roles)
 
-			aclsDeny := utils.GetACLsForRoles(ctx, roles, DENY)
-			aclsRead := utils.GetACLsForRoles(ctx, roles, READ)
-			aclsWrite := utils.GetACLsForRoles(ctx, roles, WRITE)
+			aclsDeny := permissions.GetACLsForRoles(ctx, roles, DENY)
+			aclsRead := permissions.GetACLsForRoles(ctx, roles, READ)
+			aclsWrite := permissions.GetACLsForRoles(ctx, roles, WRITE)
 			log.Println(aclsRead)
 
-			accessList := utils.NewAccessList(roles)
+			accessList := permissions.NewAccessList(roles)
 			accessList.Append(aclsRead)
 			accessList.Append(aclsDeny)
 			accessList.Append(aclsWrite)
 			accessList.Flatten(ctx)
 
-			workspaces := utils.GetWorkspacesForACLs(ctx, accessList)
+			workspaces := permissions.GetWorkspacesForACLs(ctx, accessList)
 
 			serviceName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_TREE
 			client := tree.NewNodeProviderClient(serviceName, defaults.NewClient())
@@ -105,7 +106,7 @@ $ ./pydioctl data list --source=pydiods1
 				// If the path is empty, we just render a list of workspaces
 				table.SetHeader([]string{"Name", "UUID"})
 				for _, workspace := range workspaces {
-					for _, nodeUUID := range workspace.GetRootNodes() {
+					for _, nodeUUID := range workspace.GetRootUUIDs() {
 						table.Append([]string{workspace.GetLabel(), nodeUUID})
 					}
 				}
@@ -123,7 +124,7 @@ $ ./pydioctl data list --source=pydiods1
 
 					if label == name {
 
-						for _, nodeUUID := range workspace.GetRootNodes() {
+						for _, nodeUUID := range workspace.GetRootUUIDs() {
 
 							// Retrieve the details of the root nodes
 							response, err := client.ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUUID}})

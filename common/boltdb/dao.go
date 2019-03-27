@@ -22,8 +22,8 @@
 package boltdb
 
 import (
-	"github.com/boltdb/bolt"
-	"github.com/pydio/cells/common/config"
+	bolt "github.com/etcd-io/bbolt"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
 )
 
@@ -50,11 +50,18 @@ func NewDAO(driver string, dsn string, prefix string) *Handler {
 }
 
 // Init initialises the handler
-func (h *Handler) Init(config.Map) error {
+func (h *Handler) Init(common.ConfigValues) error {
 	return nil
 }
 
 // DB returns the bolt DB object
 func (h *Handler) DB() *bolt.DB {
-	return h.GetConn().(*bolt.DB)
+	if h == nil {
+		return nil
+	}
+
+	if conn := h.GetConn(); conn != nil {
+		return conn.(*bolt.DB)
+	}
+	return nil
 }

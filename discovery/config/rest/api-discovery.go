@@ -21,25 +21,22 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/emicklei/go-restful"
-	"github.com/go-openapi/loads"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 /*****************************
@@ -65,7 +62,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	httpProtocol := "http"
 	wsProtocol := "ws"
 
-	ip, _ := utils.GetExternalIP()
+	ip, _ := net.GetExternalIP()
 	s3Port := cfg.Get("services", "pydio.grpc.gateway.data", "port").String("")
 
 	mainUrl := cfg.Get("defaults", "url").String("")
@@ -100,15 +97,13 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 	cfg := config.Default()
 	ssl := cfg.Get("cert", "proxy", "ssl").Bool(false)
 	restPort := cfg.Get("services", "micro.web", "port").String("")
-	ip, _ := utils.GetExternalIP()
+	ip, _ := net.GetExternalIP()
 	protocol := "http"
 	if ssl {
 		protocol = "https"
 	}
 
-	rawMessage := new(json.RawMessage)
-	json.Unmarshal([]byte(rest.SwaggerJson), rawMessage)
-	jsonSpec, _ := loads.Analyzed(*rawMessage, "")
+	jsonSpec := service.SwaggerSpec()
 	jsonSpec.Spec().Host = fmt.Sprintf("%s://%s:%s", protocol, ip.String(), restPort)
 	jsonSpec.Spec().Info.Title = "Pydio API"
 	jsonSpec.Spec().Info.Version = "1.0"
@@ -124,20 +119,12 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 		service.RestError500(req, rsp, errors.BadRequest("configs", "Please provide a service name"))
 	}
 
-	services, err := registry.ListServices()
-	if err != nil {
-		service.RestError500(req, rsp, err)
+	form := config.ExposedConfigsForService(serviceName)
+	if form == nil {
+		service.RestError404(req, rsp, errors.NotFound("configs", "Cannot find service "+serviceName))
 		return
 	}
-	for _, srv := range services {
-		if srv.Name() == serviceName {
-			var form *forms.Form
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
+	return
 
-			form = srv.ExposedConfigs()
-
-			rsp.WriteAsXml(form.Serialize(utils.UserLanguagesFromRestRequest(req)...))
-			return
-		}
-	}
-	service.RestError404(req, rsp, errors.NotFound("configs", "Cannot find service "+serviceName))
 }

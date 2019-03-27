@@ -22,23 +22,33 @@ package grpc
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"path"
+	"sort"
+	"strings"
+	"sync"
 	"time"
-
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
+	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/user"
+	"github.com/pydio/cells/scheduler/tasks"
 )
 
 var (
@@ -49,6 +59,14 @@ var (
 	autoAppliesCache *cache.Cache
 )
 
+// ByAge implements sort.Interface for []Person based on
+// the Age field.
+type ByOverride []*idm.Role
+
+func (a ByOverride) Len() int           { return len(a) }
+func (a ByOverride) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByOverride) Less(i, j int) bool { return !a[i].ForceOverride && a[j].ForceOverride }
+
 // Handler definition
 type Handler struct{}
 
@@ -57,6 +75,7 @@ func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest, resp *
 	if servicecontext.GetDAO(ctx) == nil {
 		return fmt.Errorf("no DAO found, wrong initialization")
 	}
+
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
 	autoApplies, e := h.loadAutoAppliesRoles(ctx)
 	if e != nil {
@@ -86,55 +105,106 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 	}
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
 
+	passChange := req.User.Password
 	// Create or update user
-	newUser, update, err := dao.Add(req.User)
+	newUser, createdNodes, err := dao.Add(req.User)
 	if err != nil {
 		log.Logger(ctx).Error("cannot put user "+req.User.Login, req.User.ZapUuid(), zap.Error(err))
 		return err
 	}
 
 	out := newUser.(*idm.User)
+	if passChange != "" {
+		// Check if it is a "force pass change operation".
+		ctxLogin, _ := permissions.FindUserNameInContext(ctx)
+		if l, ok := out.Attributes["locks"]; ok && strings.Contains(l, "pass_change") && ctxLogin == out.Login {
+			if req.User.OldPassword == out.Password {
+				return fmt.Errorf("new password is the same as the old password, please use a different one")
+			}
+			var locks, newLocks []string
+			json.Unmarshal([]byte(l), &locks)
+			for _, lock := range locks {
+				if lock != "pass_change" {
+					newLocks = append(newLocks, lock)
+				}
+			}
+			marsh, _ := json.Marshal(newLocks)
+			out.Attributes["locks"] = string(marsh)
+			if _, _, e := dao.Add(out); e == nil {
+				log.Logger(ctx).Info("user "+req.User.Login+" successfully updated his password", req.User.ZapUuid())
+			}
+		}
+	}
 	out.Password = ""
 	resp.User = out
 	if len(req.User.Policies) == 0 {
-		req.User.Policies = defaultPolicies
+		var userPolicies []*service.ResourcePolicy
+		userPolicies = append(userPolicies, defaultPolicies...)
+		if !req.User.IsGroup {
+			// A user must be able to edit his own profile!
+			userPolicies = append(userPolicies, &service.ResourcePolicy{
+				Subject: "user:" + out.Login,
+				Action:  service.ResourcePolicyAction_WRITE,
+				Effect:  service.ResourcePolicy_allow,
+			})
+		}
+		req.User.Policies = userPolicies
 	}
-	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Any("p", req.User.Policies))
-	if err := dao.AddPolicies(update, out.Uuid, req.User.Policies); err != nil {
+	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Any("p", req.User.Policies), zap.Any("createdNodes", createdNodes))
+	if err := dao.AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
 		return err
 	}
+	for _, g := range createdNodes {
+		if g.Uuid != out.Uuid && g.Type == tree.NodeType_COLLECTION {
+			// Groups where created in the process, add default policies on them
+			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.Any("groupPath", g.Path))
+			if err := dao.AddPolicies(false, g.Uuid, defaultPolicies); err != nil {
+				return err
+			}
+		}
+	}
 
-	// Propagate creation event
-	client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-		Type: idm.ChangeEventType_UPDATE,
-		User: out,
-	}))
-	if update {
+	if len(createdNodes) == 0 {
+		// Propagate creation event
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_UPDATE,
+			User: out,
+		}))
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Group [%s] has been updated", out.GroupLabel),
+				fmt.Sprintf("Updated group [%s]", out.GroupLabel),
 				log.GetAuditId(common.AUDIT_GROUP_UPDATE),
 				out.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("User [%s] has been updated", out.Login),
+				fmt.Sprintf("Updated user [%s]", out.Login),
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
 				out.ZapUuid(),
 			)
 		}
 	} else {
+		// Propagate creation event
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_CREATE,
+			User: out,
+		}))
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Group [%s] has been created in %s", out.GroupLabel, out.GroupPath),
+				fmt.Sprintf("Created group [%s]", out.GroupPath),
 				log.GetAuditId(common.AUDIT_GROUP_CREATE),
 				out.ZapUuid(),
 			)
 		} else {
+			path := "/"
+			if len(out.GroupPath) > 1 {
+				path = out.GroupPath + "/"
+			}
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("User [%s] has been created in %s", out.Login, out.GroupPath),
+				fmt.Sprintf("Created user [%s%s]", path, out.Login),
 				log.GetAuditId(common.AUDIT_USER_CREATE),
 				out.ZapUuid(),
+				zap.String("GroupPath", out.GroupPath),
 			)
 		}
 	}
@@ -146,48 +216,101 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 	if servicecontext.GetDAO(ctx) == nil {
 		return fmt.Errorf("no DAO found, wrong initialization")
 	}
+	usersChan := make(chan *idm.User)
+	done := make(chan bool)
+
+	var autoClient *tasks.ReconnectingClient
+	var task *jobs.Task
+	var taskChan chan interface{}
+	uName, _ := permissions.FindUserNameInContext(ctx)
+	if tU, ok := context2.CanonicalMeta(ctx, tasks.ContextTaskUuid); ok {
+		jU, _ := context2.CanonicalMeta(ctx, tasks.ContextJobUuid)
+		task = &jobs.Task{
+			JobID:        jU,
+			ID:           tU,
+			TriggerOwner: uName,
+			Status:       jobs.TaskStatus_Running,
+			HasProgress:  true,
+		}
+		taskChan = make(chan interface{})
+		autoClient = tasks.NewTaskReconnectingClient(ctx)
+		autoClient.StartListening(taskChan)
+		defer autoClient.Stop()
+	}
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
 
-	usersGroups := new([]interface{})
-	if err := dao.Search(req.Query, usersGroups, true); err != nil {
-		return err
-	}
-	log.Logger(ctx).Debug("SHOULD DELETE THESE", zap.Any("usersGroups", *usersGroups))
-	numRows, err := dao.Del(req.Query)
+	i, err := dao.Count(req.Query, true)
 	if err != nil {
 		return err
 	}
+	total := float32(i)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 
-	response.RowsDeleted = numRows
-	for _, u := range *usersGroups {
-		deleted := u.(*idm.User)
+	go func() {
+		defer wg.Done()
+		var crt float32
+		for {
+			select {
+			case deleted := <-usersChan:
+				if deleted != nil {
+					dao.DeletePoliciesForResource(deleted.Uuid)
+					if deleted.IsGroup {
+						dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
+					} else {
+						dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
+					}
 
-		dao.DeletePoliciesForResource(deleted.Uuid)
-		if deleted.IsGroup {
-			dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
-		} else {
-			dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
+					// Propagate deletion event
+					client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+						Type: idm.ChangeEventType_DELETE,
+						User: deleted,
+					}))
+					var msg string
+					if deleted.IsGroup {
+						msg = fmt.Sprintf("Deleted group [%s]", path.Join(deleted.GroupPath, deleted.GroupLabel))
+						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AUDIT_GROUP_DELETE), deleted.ZapUuid())
+					} else {
+						msg = fmt.Sprintf("Deleted user [%s] from [%s]", deleted.Login, deleted.GroupPath)
+						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AUDIT_USER_DELETE), deleted.ZapUuid())
+					}
+					crt++
+					percent := crt / total
+					if task != nil {
+						task.Progress = percent
+						task.StatusMessage = msg
+						task.Status = jobs.TaskStatus_Running
+						log.TasksLogger(ctx).Info(msg)
+						taskChan <- task
+					}
+				}
+			case <-done:
+				if task != nil {
+					task.Progress = 1
+					task.StatusMessage = "Background delete complete"
+					task.EndTime = int32(time.Now().Unix())
+					task.Status = jobs.TaskStatus_Finished
+					taskChan <- task
+				}
+				return
+			}
 		}
+	}()
 
-		// Propagate deletion event
-		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-			Type: idm.ChangeEventType_DELETE,
-			User: deleted,
-		}))
-		if deleted.IsGroup {
-			log.Auditer(ctx).Info(
-				fmt.Sprintf("Group %s has been deleted from %s", deleted.GroupLabel, deleted.GroupPath),
-				log.GetAuditId(common.AUDIT_GROUP_DELETE),
-				deleted.ZapUuid(),
-			)
-		} else {
-			log.Auditer(ctx).Info(
-				fmt.Sprintf("User %s has been deleted from %s", deleted.Login, deleted.GroupPath),
-				log.GetAuditId(common.AUDIT_USER_DELETE),
-				deleted.ZapUuid(),
-			)
+	numRows, err := dao.Del(req.Query, usersChan)
+	close(done)
+	close(usersChan)
+	if err != nil {
+		if task != nil {
+			task.Progress = 1
+			task.StatusMessage = err.Error()
+			task.Status = jobs.TaskStatus_Error
+			taskChan <- task
 		}
+		return err
 	}
+	wg.Wait()
+	response.RowsDeleted = numRows
 	return nil
 }
 
@@ -284,23 +407,53 @@ func (h *Handler) StreamUser(ctx context.Context, streamer idm.UserService_Strea
 // applyAutoApplies tries to find if some roles must be added to this user.
 // If necessary, it adds role to the list AFTER the groupRoles and before other roles.
 func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.Role) {
-	if len(autoApplies) == 0 || usr.Attributes == nil {
-		return
-	}
-	if profile, ok := usr.Attributes["profile"]; ok {
-		if applies, has := autoApplies[profile]; has {
-			var newRoles []*idm.Role
-			var added = false
-			for _, crt := range usr.Roles {
-				if !added && !crt.GroupRole {
-					newRoles = append(newRoles, applies...)
-					added = true
+	// Apply automatically role for profile
+	if usr.Attributes != nil {
+		if profile, ok := usr.Attributes[idm.UserAttrProfile]; ok {
+			// For shared users, disable group roles inheritance
+			if profile == common.PYDIO_PROFILE_SHARED || profile == common.PYDIO_PROFILE_ANON {
+				var newRoles []*idm.Role
+				for _, role := range usr.Roles {
+					if !role.GroupRole {
+						newRoles = append(newRoles, role)
+					}
 				}
-				newRoles = append(newRoles, crt)
+				usr.Roles = newRoles
 			}
-			usr.Roles = newRoles
+			if len(autoApplies) == 0 {
+				return
+			}
+			// Apply AutoApply role if any
+			if applies, has := autoApplies[profile]; has {
+				var newRoles []*idm.Role
+				var added = false
+				for _, crt := range usr.Roles {
+					if !added && !crt.GroupRole {
+						newRoles = append(newRoles, applies...)
+						added = true
+					}
+					newRoles = append(newRoles, crt)
+				}
+				usr.Roles = newRoles
+			}
 		}
 	}
+	// Sort so that ForceOverride are at the bottom of the list
+	var head, body, foot []*idm.Role
+	for _, r := range usr.Roles {
+		if r.GroupRole {
+			head = append(head, r)
+		} else if r.UserRole {
+			foot = append(foot, r)
+		} else {
+			body = append(body, r)
+		}
+	}
+	sort.Sort(ByOverride(body))
+	all := append(head, body...)
+	all = append(all, foot...)
+	usr.Roles = all
+
 }
 
 // LoadAutoAppliesRoles performs a request to the Roles service to find all roles that have a non-empty list

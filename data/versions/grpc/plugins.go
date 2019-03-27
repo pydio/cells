@@ -31,11 +31,12 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/data/versions"
 )
 
@@ -44,47 +45,53 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_VERSIONS),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("Versioning service"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            InitDefaults,
-			},
-		}),
-		service.ExposedConfigs(ExposedConfigs),
-		service.WithMicro(func(m micro.Service) error {
 
-			serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_VERSIONS)
-			if e != nil {
-				return e
-			}
-			store, err := versions.NewBoltStore(path.Join(serviceDir, "versions.db"))
-			if err != nil {
-				return err
-			}
+	plugins.Register(func() {
+		config.RegisterExposedConfigs(Name, ExposedConfigs)
 
-			engine := &Handler{
-				db: store,
-			}
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("Versioning service"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            InitDefaults,
+				},
+			}),
+			service.Unique(true),
+			service.WithMicro(func(m micro.Service) error {
 
-			tree.RegisterNodeVersionerHandler(m.Options().Server, engine)
+				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_VERSIONS)
+				if e != nil {
+					return e
+				}
+				store, err := versions.NewBoltStore(path.Join(serviceDir, "versions.db"))
+				if err != nil {
+					return err
+				}
 
-			jobsClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
-			ctx, _ := context.WithTimeout(m.Options().Context, time.Second*1)
-			for _, j := range getDefaultJobs() {
-				jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j})
-			}
+				engine := &Handler{
+					db: store,
+				}
 
-			return nil
-		}),
-	)
+				tree.RegisterNodeVersionerHandler(m.Options().Server, engine)
 
+				jobsClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+				ctx, _ := context.WithTimeout(m.Options().Context, time.Second*1)
+				for _, j := range getDefaultJobs() {
+					if _, err := jobsClient.GetJob(m.Options().Context, &jobs.GetJobRequest{JobID: j.ID}); err != nil {
+						jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j})
+					}
+				}
+
+				return nil
+			}),
+		)
+	})
 }
 
 func InitDefaults(ctx context.Context) error {
@@ -135,7 +142,7 @@ func InitDefaults(ctx context.Context) error {
 
 		dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 		_, e := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    "versioningPolicies",
+			StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
 			DocumentID: "default-policy",
 			Document: &docstore.Document{
 				ID:    "default-policy",
@@ -149,7 +156,7 @@ func InitDefaults(ctx context.Context) error {
 		}
 
 		_, e = dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    "versioningPolicies",
+			StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
 			DocumentID: "keep-all",
 			Document: &docstore.Document{
 				ID:    "keep-all",
@@ -163,7 +170,7 @@ func InitDefaults(ctx context.Context) error {
 		}
 
 		_, e = dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    "versioningPolicies",
+			StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
 			DocumentID: "regular-pruning",
 			Document: &docstore.Document{
 				ID:    "regular-pruning",

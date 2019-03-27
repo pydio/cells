@@ -32,7 +32,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/std"
 )
 
 var (
@@ -71,13 +71,13 @@ func prepare() {
 	for i := 0; i < 100; i++ {
 		var b bytes.Buffer
 		for j := 0; j < 10; j++ {
-			fmt.Fprintf(&b, "%s\n", utils.Randkey(64))
+			fmt.Fprintf(&b, "%s\n", std.Randkey(64))
 		}
 		dummyContent[i] = b.String()
 	}
 
 	for i := 0; i < 100; i++ {
-		dummyNames[i] = utils.Randkey(16)
+		dummyNames[i] = std.Randkey(16)
 	}
 
 	os.Mkdir(rootPath, 0777)

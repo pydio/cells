@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta id="meta.user" label="CONF_MESSAGE[Files Metadata]" description="CONF_MESSAGE[User Metadata implementation]"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+	<client_settings icon="plug/access.mysql/resources/images/mysql_icon.png">
+		<resources>
+			<i18n namespace="meta.user" remote="plug/meta.user/i18n" />
+			<js file="plug/meta.user/js/build/ReactMeta.js" className="ReactMeta"/>
+		</resources>
+	</client_settings>
+	<registry_contributions>
+		<client_configs>
+			<template_part ajxpId="search_container" ajxpClass="SearchEngine" ajxpOptions='{"toggleResultsVisibility":"search_results_cont", "searchChooserAsResultsHeader":true, "openSearchInput":"true", "openSearchStickLeftTo":"cpane_container", "toggleResultsFitTo":"cpane_tabs", "fitMarginBottom":0, "toggleResultsOffsetRight":0, "toggleResultsOffsetTop":0, "detailThumbSize":24}' theme="material"/>
+			<component_config component="InfoPanel">
+                <infoPanel mime="generic_file,generic_dir" reactComponent="ReactMeta.InfoPanel" theme="material" weight="10"/>
+			</component_config>
+		</client_configs>
+		<actions>
+            <action name="edit_user_meta_mass">
+                <gui text="meta.user.1" title="meta.user.1" iconClass="mdi mdi-tag-multiple" hasAccessKey="false">
+                    <context selection="true" dir="" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="put,info_panel" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="file" recycle="false" unique="false" multipleOnly="true"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="ReactMeta.Callbacks.editMeta"/>
+                </processing>
+            </action>
+			<action name="edit_user_meta">
+				<gui text="meta.user.1" title="meta.user.1" iconClass="mdi mdi-tag" hasAccessKey="false" weight="10">
+					<context selection="true" dir="" recycle="hidden"
+						actionBar="true" contextMenu="true" infoPanel="false"
+						actionBarGroup="0_get" inZip="false">
+					</context>
+					<selectionContext dir="true" file="file" recycle="false" unique="false"/>
+					</gui>
+				<rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+				<processing>
+					<clientCallback module="ReactMeta.Callbacks.editMeta"/>
+					</processing>
+			</action>
+		</actions>
+	</registry_contributions>
+</meta>

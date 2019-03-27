@@ -1,0 +1,29 @@
+.indeterminate-loader {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100%;
+  z-index: 1102 !important;
+  height: 2px;
+  width: 100%;
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.26);
+  &:before{
+    display: block;
+    position: absolute;
+    content: "";
+    left: -200px;
+    width: 200px;
+    height: 2px;
+    background-color: #03A9F4;
+    animation: connexionLoading 1.5s linear infinite;
+  }
+}
+
+@keyframes connexionLoading {
+  from {left: -200px; width: 30%;}
+  50% {width: 30%;}
+  70% {width: 70%;}
+  80% { left: 50%;}
+  95% {left: 120%;}
+  to {left: 100%;}
+}

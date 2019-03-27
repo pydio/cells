@@ -1,0 +1,56 @@
+{
+  "Android App URL": {
+    "other": "URL zur Android-App"
+  },
+  "Display Server QRCode": {
+    "other": "Server-QRCode anzeigen"
+  },
+  "Enable Getting Started": {
+    "other": "'Erste Schritte' anzeigen"
+  },
+  "Enable Global Search": {
+    "other": "Globale Suche aktivieren"
+  },
+  "Enable addition tabulation to access getting started videos": {
+    "other": "Link auf Videos, welche die ersten Schritte mit Pydio zeigen"
+  },
+  "Enable cross-workspaces search form on home page": {
+    "other": "Arbeitsumgebungs übergreifende Suche auf der Willkommen-Seite"
+  },
+  "Let users connect easily to the latest mobile applications by displaying a QRCode": {
+    "other": "Benutzer können, mit den Apps, diesen QRCode scannen um eine Verbindung zum Server zu konfigurieren"
+  },
+  "Mac PydioSync URL": {
+    "other": "URL zum Mac-Sync-Client"
+  },
+  "Open workspace by simple click": {
+    "other": "Arbeitsumgebung mit einfachem Klick öffnen"
+  },
+  "Open workspace by simple click instead of double click.": {
+    "other": "Arbeitsumgebung mit einfachem Klick öffnen statt mit Doppelklick."
+  },
+  "URL of the Android application": {
+    "other": "URL zur Android-App (leave empty if you want to hide the block)"
+  },
+  "URL of the iOS application": {
+    "other": "URL zur iOS-App (leave empty if you want to hide the block)"
+  },
+  "URL of the mac sync application": {
+    "other": "URL zum Mac-Sync-Client (leave empty if you want to hide the block)"
+  },
+  "URL of the windows sync application": {
+    "other": "URL zum Windows-Sync-Client (leave empty if you want to hide the block)"
+  },
+  "Welcome Page": {
+    "other": "Willkommen-Seite"
+  },
+  "Welcome Page displaying a list of workspaces": {
+    "other": "Willkommen-Seite auf der eine Liste mit Arbeitsumgebungen angezeigt wird"
+  },
+  "Windows PydioSync URL": {
+    "other": "URL zum Windows-Sync-Client"
+  },
+  "iOS App URL": {
+    "other": "URL zur iOS-App"
+  }
+}

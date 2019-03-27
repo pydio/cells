@@ -29,33 +29,32 @@ import (
 	"github.com/emicklei/go-restful"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
+	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-web"
 	"github.com/pborman/uuid"
 
+	"github.com/micro/cli"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/service/frontend"
 )
 
 var (
-	serviceWebJSONSpec *loads.Document
+	swaggerJsonStrings = []string{rest.SwaggerJson}
 )
 
+func RegisterSwaggerJson(json string) {
+	swaggerJsonStrings = append(swaggerJsonStrings, json)
+}
+
 func init() {
-	// Reading swagger json
-	rawMessage := new(json.RawMessage)
-	json.Unmarshal([]byte(rest.SwaggerJson), rawMessage)
 
-	if j, err := loads.Analyzed(*rawMessage, ""); err != nil {
-		log.Logger(nil).Fatal("Could not instanciate json")
-	} else {
-		serviceWebJSONSpec = j
-	}
-
-	// Instanciate RESTful
+	// Instanciate restful framework
 	restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
 }
 
@@ -70,6 +69,18 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
 		o.Web = web.NewService()
+
+		// Strip some flag to avoid panic on re-registering a flag twice
+		flags := o.Web.Options().Cmd.App().Flags
+		var newFlags []cli.Flag
+		for _, f := range flags {
+			if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
+				continue
+			}
+			newFlags = append(newFlags, f)
+		}
+		o.Web.Options().Cmd.App().Flags = newFlags
+		o.Web.Init(web.Metadata(registry.BuildServiceMeta()))
 
 		o.WebInit = func(s Service) error {
 			return nil
@@ -87,6 +98,9 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 				web.Name(name),
 				web.Context(ctx),
 				web.AfterStart(func() error {
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
+				}),
+				web.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 					return nil
 				}),
@@ -99,8 +113,8 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 			rootPath := "/" + strings.TrimPrefix(s.Options().Name, common.SERVICE_REST_NAMESPACE_)
 
 			ws := new(restful.WebService)
-			ws.Consumes(restful.MIME_JSON)
-			ws.Produces(restful.MIME_JSON)
+			ws.Consumes(restful.MIME_JSON, "application/x-www-form-urlencoded", "multipart/form-data")
+			ws.Produces(restful.MIME_JSON, restful.MIME_OCTET, restful.MIME_XML)
 			ws.Path(rootPath)
 
 			h := handler()
@@ -109,7 +123,7 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 
 			f := reflect.ValueOf(h)
 
-			for path, pathItem := range serviceWebJSONSpec.Spec().Paths.Paths {
+			for path, pathItem := range SwaggerSpec().Spec().Paths.Paths {
 				if pathItem.Get != nil {
 					shortPath, method := operationToRoute(rootPath, swaggerTags, path, pathItem.Get, filter, f)
 					if shortPath != "" {
@@ -149,6 +163,8 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 			}
 
 			wc := restful.NewContainer()
+			// Enable globally gzip,deflate encoding globally
+			wc.EnableContentEncoding(true)
 			wc.Add(ws)
 
 			var e error
@@ -182,13 +198,28 @@ func WithWebAuth() ServiceOption {
 		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER, []string{}})
 
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
-			wrapped := PolicyHttpWrapper(handler)
+			wrapped := servicecontext.NewMetricsHttpWrapper(handler)
+			wrapped = PolicyHttpWrapper(wrapped)
 			wrapped = JWTHttpWrapper(wrapped)
 			wrapped = servicecontext.HttpSpanHandlerWrapper(wrapped)
 			wrapped = servicecontext.HttpMetaExtractorWrapper(wrapped)
 
 			return wrapped
 		})
+	}
+}
+
+func WithWebSession(excludes ...string) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
+			return frontend.NewSessionWrapper(handler, excludes...)
+		})
+	}
+}
+
+func WithWebHandler(h func(http.Handler) http.Handler) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.webHandlerWraps = append(o.webHandlerWraps, h)
 	}
 }
 
@@ -227,4 +258,55 @@ func containsTags(operation *spec.Operation, filtersTags []string) (found bool) 
 		}
 	}
 	return
+}
+
+func SwaggerSpec() *loads.Document {
+
+	var sp *loads.Document
+	for _, data := range swaggerJsonStrings {
+		// Reading swagger json
+		rawMessage := new(json.RawMessage)
+		json.Unmarshal([]byte(data), rawMessage)
+		if j, err := loads.Analyzed(*rawMessage, ""); err != nil {
+			continue
+		} else {
+			if sp == nil { // First pass
+				sp = j
+			} else { // other passes : merge all Paths
+				for p, i := range j.Spec().Paths.Paths {
+					if existing, ok := sp.Spec().Paths.Paths[p]; ok {
+						if i.Get != nil {
+							existing.Get = i.Get
+						}
+						if i.Put != nil {
+							existing.Put = i.Put
+						}
+						if i.Post != nil {
+							existing.Post = i.Post
+						}
+						if i.Options != nil {
+							existing.Options = i.Options
+						}
+						if i.Delete != nil {
+							existing.Delete = i.Delete
+						}
+						if i.Head != nil {
+							existing.Head = i.Head
+						}
+						sp.Spec().Paths.Paths[p] = existing
+					} else {
+						sp.Spec().Paths.Paths[p] = i
+					}
+				}
+				for name, schema := range j.Spec().Definitions {
+					sp.Spec().Definitions[name] = schema
+				}
+			}
+		}
+	}
+
+	if sp == nil {
+		log.Logger(nil).Fatal("Could not find any valid json spec for swagger")
+	}
+	return sp
 }

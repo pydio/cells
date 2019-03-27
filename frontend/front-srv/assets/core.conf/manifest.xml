@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="core.conf" enabled="always" label="CONF_MESSAGE[Configurations Management]"
+          description="CONF_MESSAGE[Sets how the application core data (users,roles,etc) is stored.]"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <client_settings>
+        <resources>
+            <i18n namespace="core_conf" remote="plug/core.conf/i18n"/>
+        </resources>
+    </client_settings>
+	<server_settings>
+        <param name="displayName" scope="user" description="CONF_MESSAGE[Full name displayed to others]" label="CONF_MESSAGE[Name]" type="string" expose="true" editable="true"/>
+        <param name="avatar" scope="user" description="CONF_MESSAGE[Image displayed next to the user name]" label="CONF_MESSAGE[Avatar]" type="image" expose="true"
+               editable="true"
+               uploadAction="/frontend/binaries/USER/{BINARY}"
+               loadAction="/frontend/binaries/USER/{BINARY}"
+               defaultImage="plug/core.conf/default_avatar.png"
+                />
+        <param name="email" scope="user" description="CONF_MESSAGE[Address used for notifications]" label="CONF_MESSAGE[Email]" type="string" expose="true" editable="true"/>
+        <param name="lang" scope="role,user" description="CONF_MESSAGE[User Language]" label="CONF_MESSAGE[Language]" type="select" choices="PYDIO_AVAILABLE_LANGUAGES" expose="true" editable="true"/>
+        <param name="country" scope="role,user" description="CONF_MESSAGE[Country]" label="CONF_MESSAGE[Country]" type="autocomplete" choices="json_file:plug/core.conf/countries.json" expose="true" editable="true"/>
+        <param name="theme" scope="user" type="select" choices="default|Default,material|Material,light|Material Light" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="default" expose="true" editable="true"/>
+        <param name="DEFAULT_START_REPOSITORY" scope="role,user,group" description="CONF_MESSAGE[Default start repository]" label="CONF_MESSAGE[Default Workspace]" type="select" default="homepage" choices="PYDIO_AVAILABLE_REPOSITORIES" expose="true" editable="true"/>
+        <param name="USER_LOCK_ACTION" scope="role,group" description="CONF_MESSAGE[If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else]" label="CONF_MESSAGE[Users Lock Action]" type="string" default=""/>
+        <param name="USER_SHARED_USERS_LIMIT" scope="user" description="CONF_MESSAGE[Maximum number of shared users per user]" label="CONF_MESSAGE[Shared users limit]" type="integer" expose="false" editable="false"/>
+    </server_settings>
+</plugin>

@@ -1,0 +1,262 @@
+/* General warning: Beta-ish. Code could be a bit cleaner. */
+
+.ui360, /* entire UI */
+.sm2-360ui { /* canvas container */
+ position:relative;
+}
+
+/*.ui360,
+.sm2-360ui {
+ min-width:50px; /* should always be at least this.
+ min-height:50px;
+}*/
+
+
+
+.sm2-360ui {
+ width:50px;
+ height:50px;
+}
+
+.ui360,
+.sm2-360ui {
+  /* size of the container for the circle, etc. */
+  width:40px;
+  height:40px;
+}
+
+.ui360,
+.ui360 * {
+ vertical-align:middle;
+}
+
+.sm2-360ui {
+ position:relative;
+ display:inline-block; /* firefox 3 et al */
+ float:left; /* IE 6+7, firefox 2 needs this, inline-block would work with fx3 and others */
+ *display:inline;
+/*
+ clear:left;
+*/
+}
+
+.sm2-360ui.sm2_playing,
+.sm2-360ui.sm2_paused {
+ /* bump on top when active */
+ z-index:10;
+}
+
+.ui360 a { /* .sm2_link class added to playable links by SM2 */
+ float:left;
+ display:inline;
+ position:relative;
+ color:#000;
+ text-decoration:none;
+ left:3px; /* slight spacing on left UI */
+ top:18px; /* vertical align */
+ text-indent:50px; /* make room for UI at left */
+}
+
+.ui360 a.sm2_link { /* SM2 has now started */
+ text-indent:0px; /* UI now in place. */
+}
+
+.ui360 a,
+.ui360 a:hover,
+.ui360 a:focus {
+ padding:2px;
+ margin-left:-2px;
+ margin-top:-2px;
+}
+
+.ui360 a:hover,
+.ui360 a:focus {
+ background:#eee;
+ -moz-border-radius:3px;
+ -webkit-border-radius:3px;
+ -khtml-border-radius:3px;
+ border-radius:3px;
+ outline:none;
+}
+
+.ui360 .sm2-canvas {
+ position:absolute;
+ left:0px;
+ top:0px;
+}
+
+.ui360 .sm2-timing {
+ position:absolute;
+ display:block;
+ left:0px;
+ top:0px;
+ width:100%;
+ height:100%;
+ margin:0px;
+ font:11px "helvetica neue",helvetica,monaco,lucida,terminal,monospace;
+ color:#666;
+ text-align:center;
+ line-height:40px;
+}
+
+.ui360 .sm2-timing.alignTweak {
+ text-indent:1px; /* devious center-alignment tweak for Safari (might break things for others.) */
+}
+
+.ui360 .sm2-cover {
+ position:absolute;
+ left:0px;
+ top:0px;
+ width:100%;
+ height:100%;
+ z-index:2;
+ display:none;
+ background-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==); /* old-skool bug: IE 9 won't catch mouse events otherwise. /smash */
+}
+
+.ui360 .sm2-360btn {
+ position:absolute;
+ display:block;
+ width:50px;
+ height:50px;
+ cursor:pointer;
+ z-index:3;
+}
+
+.ui360 .sm2-360data {
+ display:inline-block;
+ font-family:helvetica;
+}
+
+.ui360 .sm2-360ui.sm2_playing .sm2-cover,
+.ui360 .sm2-360ui.sm2_paused .sm2-cover {
+ display:block;
+}
+
+/* this could be optimized a fair bit. */
+
+.ui360 {
+ /*
+  "fake" button shown before SM2 has started, non-JS/non-SM2 case etc.
+  background image will be removed via JS, in threeSixyPlayer.init()
+ */
+ background:transparent url(360-button-vis-play.png) no-repeat -5px -5px;
+ background-size: cover;
+ /* background:transparent url(360-button-play.png) no-repeat 14px 50%; */
+ _background:transparent url(360-button-play.gif) no-repeat 14px 50%; /* IE 6-only: special crap GIF */
+}
+
+.ui360 .sm2-360btn-default,
+.ui360 .sm2-360ui.sm2_paused .sm2-360btn {
+ background:transparent url(360-button-vis-play.png) no-repeat -5px -5px;
+ background-size: cover;
+ /*background:transparent url(360-button-play.png) no-repeat 50% 50%;*/
+ _background:transparent url(360-button-play.gif) no-repeat 50% 50%; /* IE 6-only: special crap GIF */
+}
+
+.ui360 .sm2-360btn-default,
+.ui360 .sm2-360ui.sm2_paused .sm2-360btn {
+ cursor:pointer;
+}
+
+.ui360 .sm2-360btn-default:hover,
+.ui360 .sm2-360ui.sm2_paused .sm2-360btn:hover {
+    background:transparent url(360-button-vis-play-light.png) no-repeat -5px -5px;
+    background-size: cover;
+ /*background:transparent url(360-button-play-light.png) no-repeat 50% 50%;*/
+ _background:transparent url(360-button-play.gif) no-repeat 50% 50%;
+ cursor:pointer;
+}
+
+.ui360 .sm2-360ui.sm2_playing .sm2-360btn:hover,
+.ui360 .sm2-360btn-playing:hover {
+    background:transparent url(360-button-vis-pause-light.png) no-repeat -5px -5px;
+    background-size: cover;
+ /*background:transparent url(360-button-pause-light.png) no-repeat 50% 50%;*/
+ _background:transparent url(360-button-pause-light.gif) no-repeat 50% 50%;
+ cursor:pointer;
+}
+
+.ui360 .sm2-360ui.sm2_playing .sm2-timing {
+ visibility:visible;
+}
+
+.ui360 .sm2-360ui.sm2_buffering .sm2-timing {
+ visibility:hidden;
+}
+
+.ui360 .sm2-360ui .sm2-timing,
+.ui360 .sm2-360ui .sm2-360btn:hover + .sm2-timing,
+.ui360 .sm2-360ui.sm2_paused .sm2-timing {
+ visibility:hidden;
+}
+
+.ui360 .sm2-360ui.sm2_dragging .sm2-timing,
+.ui360 .sm2-360ui.sm2_dragging .sm2-360btn:hover + .sm2-timing {
+ /* paused + dragging */
+ visibility:visible;
+}
+
+.ui360 .sm2-360ui.sm2_playing .sm2-360btn,
+.ui360 .sm2-360ui.sm2_dragging .sm2-360btn,
+.ui360 .sm2-360ui.sm2_dragging .sm2-360btn:hover,
+.ui360 .sm2-360ui.sm2_dragging .sm2-360btn-playing:hover {
+ /* don't let pause button show on hover when dragging (or paused and dragging) */
+ background:transparent;
+ cursor:auto;
+}
+
+.ui360 .sm2-360ui.sm2_buffering .sm2-360btn,
+.ui360 .sm2-360ui.sm2_buffering .sm2-360btn:hover {
+    background:transparent url(icon_loading_spinner.gif) no-repeat center center;
+    margin-left: -5px;
+margin-top: -5px;
+  opacity:0.5;
+  visibility:visible;
+}
+
+/* inline list style */
+
+.sm2-inline-list .ui360,
+.sm2-inline-block .ui360 {
+ position:relative;
+ display:inline-block;
+ float:left;
+ _display:inline;
+ margin-bottom:-15px;
+}
+
+.sm2-inline-list .ui360 {
+ /* inline player: minor tweak, tighten spacing */
+ margin-right:-2px;
+}
+
+.sm2-inline-block .ui360 {
+ margin-right:8px;
+}
+
+.sm2-inline-list .ui360 a {
+ display:none;
+}
+
+/* annotations */
+
+ul.ui360playlist {
+ list-style-type:none;
+}
+
+ul.ui360playlist,
+ul.ui360playlist li {
+ margin:0px;
+ padding:0px;
+}
+
+div.ui360 div.metadata {
+ display:none;
+}
+
+div.ui360 a span.metadata,
+div.ui360 a span.metadata * {
+ /* name of track, note etc. */
+ vertical-align:baseline;
+}

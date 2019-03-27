@@ -29,9 +29,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/pydio/minio-go"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/minio-go"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

@@ -1,5 +1,5 @@
 /*
- * Minio Cloud Storage, (C) 2015, 2016, 2017 Minio, Inc.
+ * Minio Cloud Storage, (C) 2015, 2016, 2017, 2018 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,13 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
 	"time"
+
+	"github.com/pydio/minio-srv/pkg/handlers"
 )
 
 const (
-	timeFormatAMZ     = "2006-01-02T15:04:05Z"     // Reply date format
 	timeFormatAMZLong = "2006-01-02T15:04:05.000Z" // Reply date format with nanosecond precision.
 	maxObjectList     = 1000                       // Limit number of objects in a listObjectsResponse.
 	maxUploadsList    = 1000                       // Limit number of uploads in a listUploadsResponse.
@@ -166,13 +168,12 @@ type ListBucketsResponse struct {
 
 // Upload container for in progress multipart upload
 type Upload struct {
-	Key            string
-	UploadID       string `xml:"UploadId"`
-	Initiator      Initiator
-	Owner          Owner
-	StorageClass   string
-	Initiated      string
-	HealUploadInfo *HealObjectInfo `xml:"HealObjectInfo,omitempty"`
+	Key          string
+	UploadID     string `xml:"UploadId"`
+	Initiator    Initiator
+	Owner        Owner
+	StorageClass string
+	Initiated    string
 }
 
 // CommonPrefix container for prefix response in ListObjectsResponse
@@ -182,9 +183,8 @@ type CommonPrefix struct {
 
 // Bucket container for bucket metadata
 type Bucket struct {
-	Name           string
-	CreationDate   string          // time string of format "2006-01-02T15:04:05.000Z"
-	HealBucketInfo *HealBucketInfo `xml:"HealBucketInfo,omitempty"`
+	Name         string
+	CreationDate string // time string of format "2006-01-02T15:04:05.000Z"
 }
 
 // Object container for object metadata
@@ -198,8 +198,7 @@ type Object struct {
 	Owner Owner
 
 	// The class of storage used to store the object.
-	StorageClass   string
-	HealObjectInfo *HealObjectInfo `xml:"HealObjectInfo,omitempty"`
+	StorageClass string
 }
 
 // CopyObjectResponse container returns ETag and LastModified of the successfully copied object
@@ -270,11 +269,6 @@ type PostResponse struct {
 	Location string
 }
 
-// getLocation get URL location.
-func getLocation(r *http.Request) string {
-	return path.Clean(r.URL.Path) // Clean any trailing slashes.
-}
-
 // returns "https" if the tls boolean is true, "http" otherwise.
 func getURLScheme(tls bool) string {
 	if tls {
@@ -284,14 +278,26 @@ func getURLScheme(tls bool) string {
 }
 
 // getObjectLocation gets the fully qualified URL of an object.
-func getObjectLocation(host, proto, bucket, object string) string {
+func getObjectLocation(r *http.Request, domain, bucket, object string) string {
+	// unit tests do not have host set.
+	if r.Host == "" {
+		return path.Clean(r.URL.Path)
+	}
+	proto := handlers.GetSourceScheme(r)
 	if proto == "" {
 		proto = getURLScheme(globalIsSSL)
 	}
-	u := url.URL{
-		Host:   host,
+	u := &url.URL{
+		Host:   r.Host,
 		Path:   path.Join(slashSeparator, bucket, object),
 		Scheme: proto,
+	}
+	// If domain is set then we need to use bucket DNS style.
+	if domain != "" {
+		if strings.Contains(r.Host, domain) {
+			u.Host = bucket + "." + r.Host
+			u.Path = path.Join(slashSeparator, object)
+		}
 	}
 	return u.String()
 }
@@ -308,7 +314,6 @@ func generateListBucketsResponse(buckets []BucketInfo) ListBucketsResponse {
 		var listbucket = Bucket{}
 		listbucket.Name = bucket.Name
 		listbucket.CreationDate = bucket.Created.UTC().Format(timeFormatAMZLong)
-		listbucket.HealBucketInfo = bucket.HealBucketInfo
 		listbuckets = append(listbuckets, listbucket)
 	}
 
@@ -337,10 +342,8 @@ func generateListObjectsV1Response(bucket, prefix, marker, delimiter string, max
 			content.ETag = "\"" + object.ETag + "\""
 		}
 		content.Size = object.Size
-		content.StorageClass = globalMinioDefaultStorageClass
+		content.StorageClass = object.StorageClass
 		content.Owner = owner
-		// object.HealObjectInfo is non-empty only when resp is constructed in ListObjectsHeal.
-		content.HealObjectInfo = object.HealObjectInfo
 		contents = append(contents, content)
 	}
 	// TODO - support EncodingType in xml decoding
@@ -385,7 +388,7 @@ func generateListObjectsV2Response(bucket, prefix, token, nextToken, startAfter,
 			content.ETag = "\"" + object.ETag + "\""
 		}
 		content.Size = object.Size
-		content.StorageClass = globalMinioDefaultStorageClass
+		content.StorageClass = object.StorageClass
 		content.Owner = owner
 		contents = append(contents, content)
 	}
@@ -498,7 +501,6 @@ func generateListMultipartUploadsResponse(bucket string, multipartsInfo ListMult
 		newUpload.UploadID = upload.UploadID
 		newUpload.Key = upload.Object
 		newUpload.Initiated = upload.Initiated.UTC().Format(timeFormatAMZLong)
-		newUpload.HealUploadInfo = upload.HealUploadInfo
 		listMultipartUploadsResponse.Uploads[index] = newUpload
 	}
 	return listMultipartUploadsResponse
@@ -567,9 +569,15 @@ func writeSuccessResponseHeadersOnly(w http.ResponseWriter) {
 
 // writeErrorRespone writes error headers
 func writeErrorResponse(w http.ResponseWriter, errorCode APIErrorCode, reqURL *url.URL) {
+	switch errorCode {
+	case ErrSlowDown, ErrServerNotInitialized, ErrReadQuorum, ErrWriteQuorum:
+		// Set retry-after header to indicate user-agents to retry request after 120secs.
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After
+		w.Header().Set("Retry-After", "120")
+	}
 	apiError := getAPIError(errorCode)
 	// Generate error response.
-	errorResponse := getAPIErrorResponse(apiError, reqURL.Path)
+	errorResponse := getAPIErrorResponse(apiError, reqURL.Path, w.Header().Get(responseRequestIDKey))
 	encodedErrorResponse := encodeResponse(errorResponse)
 	writeResponse(w, apiError.HTTPStatusCode, encodedErrorResponse, mimeXML)
 }
@@ -577,4 +585,32 @@ func writeErrorResponse(w http.ResponseWriter, errorCode APIErrorCode, reqURL *u
 func writeErrorResponseHeadersOnly(w http.ResponseWriter, errorCode APIErrorCode) {
 	apiError := getAPIError(errorCode)
 	writeResponse(w, apiError.HTTPStatusCode, nil, mimeNone)
+}
+
+// writeErrorResponseJSON - writes error response in JSON format;
+// useful for admin APIs.
+func writeErrorResponseJSON(w http.ResponseWriter, errorCode APIErrorCode, reqURL *url.URL) {
+	apiError := getAPIError(errorCode)
+	// Generate error response.
+	errorResponse := getAPIErrorResponse(apiError, reqURL.Path, w.Header().Get(responseRequestIDKey))
+	encodedErrorResponse := encodeResponseJSON(errorResponse)
+	writeResponse(w, apiError.HTTPStatusCode, encodedErrorResponse, mimeJSON)
+}
+
+// writeCustomErrorResponseJSON - similar to writeErrorResponseJSON,
+// but accepts the error message directly (this allows messages to be
+// dynamically generated.)
+func writeCustomErrorResponseJSON(w http.ResponseWriter, errorCode APIErrorCode,
+	errBody string, reqURL *url.URL) {
+
+	apiError := getAPIError(errorCode)
+	errorResponse := APIErrorResponse{
+		Code:      apiError.Code,
+		Message:   errBody,
+		Resource:  reqURL.Path,
+		RequestID: w.Header().Get(responseRequestIDKey),
+		HostID:    "3L137",
+	}
+	encodedErrorResponse := encodeResponseJSON(errorResponse)
+	writeResponse(w, apiError.HTTPStatusCode, encodedErrorResponse, mimeJSON)
 }

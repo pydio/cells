@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Comprimir"
+  },
+  "10": {
+    "other": "Extraer los archivos seleccionados"
+  },
+  "11": {
+    "other": "Ruta a los archivos extraidos "
+  },
+  "12": {
+    "other": "Extrayendo..."
+  },
+  "13": {
+    "other": "Extrayendo archivos... %s "
+  },
+  "14": {
+    "other": "La extracción terminó correctamente en la carpeta '%s'."
+  },
+  "15": {
+    "other": "El archivo seleccionado no es de tipo TAR, TAR.GZ o TAR.BZ2."
+  },
+  "16": {
+    "other": "Sólo puedes comprimir en formato TAR, TAR.GZ o TAR.BZ2."
+  },
+  "17": {
+    "other": "No puedes comprimir carpetas vacías."
+  },
+  "2": {
+    "other": "Comprimir Selección"
+  },
+  "3": {
+    "other": "Selecciona el formato del archivo"
+  },
+  "4": {
+    "other": "Nombre del archivo"
+  },
+  "5": {
+    "other": "Comprimiendo..."
+  },
+  "6": {
+    "other": "Añadiendo archivo al archivo comprimido... %s "
+  },
+  "7": {
+    "other": "Durante la compresión en %s ..."
+  },
+  "8": {
+    "other": "¡El archivo terminó correctamente!"
+  },
+  "9": {
+    "other": "Extraer"
+  }
+}

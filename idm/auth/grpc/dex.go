@@ -22,35 +22,28 @@ package grpc
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
-	"net"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/coreos/dex/api"
 	"github.com/coreos/dex/server"
 	"github.com/coreos/dex/storage"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/idm/auth"
 )
 
-func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logger) error {
+func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logger) (http.Handler, error) {
 
 	logger, err := newLogger(c.Logger.Level, c.Logger.Format, pydioLogger)
 	if err != nil {
-		return fmt.Errorf("invalid config: %v", err)
+		return nil, fmt.Errorf("invalid config: %v", err)
 	}
 	if c.Logger.Level != "" {
 		logger.Infof("config using log level: %s", c.Logger.Level)
@@ -75,49 +68,47 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 
 	for _, check := range checks {
 		if check.bad {
-			return fmt.Errorf("invalid config: %s", check.errMsg)
+			return nil, fmt.Errorf("invalid config: %s", check.errMsg)
 		}
 	}
 
-	logger.Infof("config issuer: %s", c.Issuer)
-
-	var grpcOptions []grpc.ServerOption
-	if c.GRPC.TLSCert != "" {
-		if c.GRPC.TLSClientCA != "" {
-			// Parse certificates from certificate file and key file for server.
-			cert, err := tls.LoadX509KeyPair(c.GRPC.TLSCert, c.GRPC.TLSKey)
-			if err != nil {
-				return fmt.Errorf("invalid config: error parsing gRPC certificate file: %v", err)
-			}
-
-			// Parse certificates from client CA file to a new CertPool.
-			cPool := x509.NewCertPool()
-			clientCert, err := ioutil.ReadFile(c.GRPC.TLSClientCA)
-			if err != nil {
-				return fmt.Errorf("invalid config: reading from client CA file: %v", err)
-			}
-			if cPool.AppendCertsFromPEM(clientCert) != true {
-				return errors.New("invalid config: failed to parse client CA")
-			}
-
-			tlsConfig := tls.Config{
-				Certificates: []tls.Certificate{cert},
-				ClientAuth:   tls.RequireAndVerifyClientCert,
-				ClientCAs:    cPool,
-			}
-			grpcOptions = append(grpcOptions, grpc.Creds(credentials.NewTLS(&tlsConfig)))
-		} else {
-			opt, err := credentials.NewServerTLSFromFile(c.GRPC.TLSCert, c.GRPC.TLSKey)
-			if err != nil {
-				return fmt.Errorf("invalid config: load grpc certs: %v", err)
-			}
-			grpcOptions = append(grpcOptions, grpc.Creds(opt))
-		}
-	}
+	// var grpcOptions []grpc.ServerOption
+	// if c.GRPC.TLSCert != "" {
+	// 	if c.GRPC.TLSClientCA != "" {
+	// 		// Parse certificates from certificate file and key file for server.
+	// 		cert, err := tls.LoadX509KeyPair(c.GRPC.TLSCert, c.GRPC.TLSKey)
+	// 		if err != nil {
+	// 			return fmt.Errorf("invalid config: error parsing gRPC certificate file: %v", err)
+	// 		}
+	//
+	// 		// Parse certificates from client CA file to a new CertPool.
+	// 		cPool := x509.NewCertPool()
+	// 		clientCert, err := ioutil.ReadFile(c.GRPC.TLSClientCA)
+	// 		if err != nil {
+	// 			return fmt.Errorf("invalid config: reading from client CA file: %v", err)
+	// 		}
+	// 		if cPool.AppendCertsFromPEM(clientCert) != true {
+	// 			return errors.New("invalid config: failed to parse client CA")
+	// 		}
+	//
+	// 		tlsConfig := tls.Config{
+	// 			Certificates: []tls.Certificate{cert},
+	// 			ClientAuth:   tls.RequireAndVerifyClientCert,
+	// 			ClientCAs:    cPool,
+	// 		}
+	// 		grpcOptions = append(grpcOptions, grpc.Creds(credentials.NewTLS(&tlsConfig)))
+	// 	} else {
+	// 		opt, err := credentials.NewServerTLSFromFile(c.GRPC.TLSCert, c.GRPC.TLSKey)
+	// 		if err != nil {
+	// 			return fmt.Errorf("invalid config: load grpc certs: %v", err)
+	// 		}
+	// 		grpcOptions = append(grpcOptions, grpc.Creds(opt))
+	// 	}
+	// }
 
 	s, err := c.Storage.Config.Open(logger)
 	if err != nil {
-		return fmt.Errorf("failed to initialize storage: %v", err)
+		return nil, fmt.Errorf("failed to initialize storage: %v", err)
 	}
 	logger.Infof("config storage: %s", c.Storage.Type)
 
@@ -138,17 +129,17 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	storageConnectors := make([]storage.Connector, len(c.StaticConnectors))
 	for i, c := range c.StaticConnectors {
 		if c.ID == "" || c.Name == "" || c.Type == "" {
-			return fmt.Errorf("invalid config: ID, Type and Name fields are required for a connector")
+			return nil, fmt.Errorf("invalid config: ID, Type and Name fields are required for a connector")
 		}
 		if c.Config == nil {
-			return fmt.Errorf("invalid config: no config field for connector %q", c.ID)
+			return nil, fmt.Errorf("invalid config: no config field for connector %q", c.ID)
 		}
 		logger.Infof("config connector: %s", c.ID)
 
 		// convert to a storage connector object
 		conn, err := auth.ToStorageConnector(c)
 		if err != nil {
-			return fmt.Errorf("failed to initialize storage connectors: %v", err)
+			return nil, fmt.Errorf("failed to initialize storage connectors: %v", err)
 		}
 		storageConnectors[i] = conn
 
@@ -175,6 +166,8 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		logger.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
 	}
 
+	c.Issuer = config.Get("url").String("") + "/auth/dex"
+
 	// explicitly convert to UTC.
 	now := func() time.Time { return time.Now().UTC() }
 
@@ -191,7 +184,7 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	if c.Expiry.SigningKeys != "" {
 		signingKeys, err := time.ParseDuration(c.Expiry.SigningKeys)
 		if err != nil {
-			return fmt.Errorf("invalid config value %q for signing keys expiry: %v", c.Expiry.SigningKeys, err)
+			return nil, fmt.Errorf("invalid config value %q for signing keys expiry: %v", c.Expiry.SigningKeys, err)
 		}
 		logger.Infof("config signing keys expire after: %v", signingKeys)
 		serverConfig.RotateKeysAfter = signingKeys
@@ -199,7 +192,7 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	if c.Expiry.IDTokens != "" {
 		idTokens, err := time.ParseDuration(c.Expiry.IDTokens)
 		if err != nil {
-			return fmt.Errorf("invalid config value %q for id token expiry: %v", c.Expiry.IDTokens, err)
+			return nil, fmt.Errorf("invalid config value %q for id token expiry: %v", c.Expiry.IDTokens, err)
 		}
 		logger.Infof("config id tokens valid for: %v", idTokens)
 		serverConfig.IDTokensValidFor = idTokens
@@ -207,45 +200,48 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 
 	serv, err := server.NewServer(context.Background(), serverConfig)
 	if err != nil {
-		return fmt.Errorf("failed to initialize server: %v", err)
+		return nil, fmt.Errorf("failed to initialize server: %v", err)
 	}
 
 	wrapped := servicecontext.HttpMetaExtractorWrapper(serv)
 	wrapped = servicecontext.HttpSpanHandlerWrapper(wrapped)
 	wrapped = service.NewLogHttpHandlerWrapper(wrapped, servicecontext.GetServiceName(pydioSrvContext), servicecontext.GetServiceColor(pydioSrvContext))
 
-	errc := make(chan error, 3)
-	if c.Web.HTTP != "" {
-		logger.Infof("listening (http) on %s", c.Web.HTTP)
-		go func() {
-			err := http.ListenAndServe(c.Web.HTTP, wrapped)
-			errc <- fmt.Errorf("listening on %s failed: %v", c.Web.HTTP, err)
-		}()
-	}
-	if c.Web.HTTPS != "" {
-		logger.Infof("listening (https) on %s", c.Web.HTTPS)
-		go func() {
-			err := http.ListenAndServeTLS(c.Web.HTTPS, c.Web.TLSCert, c.Web.TLSKey, wrapped)
-			errc <- fmt.Errorf("listening on %s failed: %v", c.Web.HTTPS, err)
-		}()
-	}
-	if c.GRPC.Addr != "" {
-		logger.Infof("listening (grpc) on %s", c.GRPC.Addr)
-		go func() {
-			errc <- func() error {
-				list, err := net.Listen("tcp", c.GRPC.Addr)
-				if err != nil {
-					return fmt.Errorf("listening on %s failed: %v", c.GRPC.Addr, err)
-				}
-				s := grpc.NewServer(grpcOptions...)
-				api.RegisterDexServer(s, server.NewAPI(serverConfig.Storage, logger))
-				err = s.Serve(list)
-				return fmt.Errorf("listening on %s failed: %v", c.GRPC.Addr, err)
-			}()
-		}()
-	}
+	return wrapped, nil
 
-	return <-errc
+	// errc := make(chan error, 3)
+	// if c.Web.HTTP != "" {
+	// 	logger.Infof("listening (http) on %s", c.Web.HTTP)
+	// 	go func() {
+	// 		err := http.ListenAndServe(c.Web.HTTP, wrapped)
+	// 		errc <- fmt.Errorf("listening on %s failed: %v", c.Web.HTTP, err)
+	// 	}()
+	// }
+	// if c.Web.HTTPS != "" {
+	// 	logger.Infof("listening (https) on %s", c.Web.HTTPS)
+	// 	go func() {
+	// 		err := http.ListenAndServeTLS(c.Web.HTTPS, c.Web.TLSCert, c.Web.TLSKey, wrapped)
+	// 		errc <- fmt.Errorf("listening on %s failed: %v", c.Web.HTTPS, err)
+	// 	}()
+	// }
+	//
+	// if c.GRPC.Addr != "" {
+	// 	logger.Infof("listening (grpc) on %s", c.GRPC.Addr)
+	// 	go func() {
+	// 		errc <- func() error {
+	// 			list, err := net.Listen("tcp", c.GRPC.Addr)
+	// 			if err != nil {
+	// 				return fmt.Errorf("listening on %s failed: %v", c.GRPC.Addr, err)
+	// 			}
+	// 			s := grpc.NewServer(grpcOptions...)
+	// 			api.RegisterDexServer(s, server.NewAPI(serverConfig.Storage, logger))
+	// 			err = s.Serve(list)
+	// 			return fmt.Errorf("listening on %s failed: %v", c.GRPC.Addr, err)
+	// 		}()
+	// 	}()
+	// }
+	//
+	// return <-errc
 }
 
 type WrappedLogger struct {

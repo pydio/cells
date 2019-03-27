@@ -1,0 +1,104 @@
+{
+  "cont.btn.fb": {
+    "other": "Seguici"
+  },
+  "cont.btn.github": {
+    "other": "GitHub Star"
+  },
+  "cont.btn.tw": {
+    "other": "Twitter"
+  },
+  "cont.intro": {
+    "other": "Il codice è disponibile pubblicamente su Github. Vuoi correggere un bug, aiutare gli altri nel forum o proporre una nuova funzione innovativa? Partecipa al progetto!\n                            Oppure dimostra il tuo entusiasmo sui social network!"
+  },
+  "cont.subtitle": {
+    "other": "Pydio Cells è software libero e open source. Partecipa al progetto!"
+  },
+  "cont.title": {
+    "other": "Pagalo con il tuo contributo!"
+  },
+  "cont.topic.pr": {
+    "other": "Ho implementato una nuova funzionalità: github Pull Request"
+  },
+  "cont.topic.report": {
+    "other": "Penso di aver trovato un bug! Scrivi nel forum."
+  },
+  "cont.topic.report.2": {
+    "other": "Il mio bug è qualificato: apri una issue su github."
+  },
+  "cont.topic.translate": {
+    "other": "Come creare o completare la traduzione in una lingua?"
+  },
+  "ent.advanced": {
+    "other": "Dashboard avanzata di amministrazione"
+  },
+  "ent.advanced.legend": {
+    "other": "Dashboard di amministrazione per il monitoraggio in tempo reale dell'utilizzo della piattaforma."
+  },
+  "ent.btn.contact": {
+    "other": "Contatta l'ufficio vendite"
+  },
+  "ent.btn.more": {
+    "other": "Per saperne di più"
+  },
+  "ent.features": {
+    "other": "Funzionalità di classe Enterprise"
+  },
+  "ent.features.legend": {
+    "other": "Funzionalità di classe Enterprise: connettori AD/LDAP, log verificabili per conformità, EasyTransfer..."
+  },
+  "ent.subtitle": {
+    "other": "ALTRE CARATTERISTICHE - CONFORMITÀ GDPR - FUNZIONI DI BRANDING"
+  },
+  "ent.support": {
+    "other": "Supporto e manutenzione"
+  },
+  "ent.support.legend": {
+    "other": "Ottenere aiuto per l'installazione direttamente dal core team"
+  },
+  "ent.title": {
+    "other": "Scopri Pydio Cells Enterprise"
+  },
+  "kb.btn.alldocs": {
+    "other": "Tutta la documentazione"
+  },
+  "kb.btn.forum": {
+    "other": "Vai al Forum"
+  },
+  "kb.intro": {
+    "other": "Oltre al forum, il nostro sito fornisce un gran numero di documenti per aiutarti. Assicuratevi di averli letti prima di inviare le vostre domande ;-)"
+  },
+  "kb.subtitle": {
+    "other": "F.A.Q e tutorial più comuni, ovvero RTFM"
+  },
+  "kb.title": {
+    "other": "Chiedete aiuto"
+  },
+  "welc.btn.advanced": {
+    "other": "Argomenti avanzati"
+  },
+  "welc.btn.parameters": {
+    "other": "Informazioni sui parametri"
+  },
+  "welc.btn.start": {
+    "other": "Guida introduttiva"
+  },
+  "welc.btn.users": {
+    "other": "Informazioni sulla gestione degli utenti"
+  },
+  "welc.btn.ws": {
+    "other": "Informazioni sui workspace"
+  },
+  "welc.guide": {
+    "other": "Se non sai da dove cominciare, la guida per l'amministratore è sicuramente una buona lettura:"
+  },
+  "welc.intro": {
+    "other": "Questo è il pannello di controllo per la gestione di Pydio Cells. Usando il menù sulla sinistra, è possibile creare i <a class=\"doc-link\" data-path=\"/data/workspaces\">workspace</a> e gli <a class=\"doc-link\" data-path=\"/idm/users\">utenti</a>,\n                            controllate tutti gli <a class=\"doc-link\" data-path=\"/admin/logs\">eventi</a> che si sono verificati sulla piattaforma, e gestire le <a class=\"doc-link\" data-path=\"/parameters/core\">configurazioni</a> e i <a class=\"doc-link\" data-path=\"/plugins/manager\">plugin</a>."
+  },
+  "welc.subtitle": {
+    "other": "Il luogo dove amministrare e monitorare l'attività sulla piattaforma"
+  },
+  "welc.title": {
+    "other": "Benvenuto sul pannello di controllo di Pydio Cells"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "Auth.PruneJob.Title": {
+    "other": "Prune widerrufen Token und abgelaufen Reset Passwort Schlüssel"
+  },
+  "Auth.PruneJob.Revoked": {
+    "one": "Abgelaufene gesperrte Token gelöscht",
+    "other": "{{.Count}} abgelaufen widerrufene Token gelöscht"
+  },
+  "Auth.PruneJob.ResetToken": {
+    "one": "Abgelaufene Passwort-Reset-Token gelöscht",
+    "other": "{{.DeletionCount}} abgelaufenen Passwort-Reset-Token gelöscht"
+  }
+}

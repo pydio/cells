@@ -25,7 +25,7 @@ import (
 
 	"github.com/nicksnyder/go-i18n/i18n"
 
-	"github.com/pydio/cells/common/utils"
+	i18n2 "github.com/pydio/cells/common/utils/i18n"
 )
 
 // Should reflect the frontend Form definitions
@@ -125,11 +125,11 @@ type Group struct {
 
 type Form struct {
 	Groups     []*Group
-	I18NBundle *utils.I18nBundle
+	I18NBundle *i18n2.I18nBundle
 }
 
 // Return List of serializable fields
-func (f *Form) Serialize(languages ...string) *SerialForm {
+func (f *Form) Serialize(languages ...string) interface{} {
 	sForm := &SerialForm{}
 	var T i18n.TranslateFunc
 	if f.I18NBundle != nil {

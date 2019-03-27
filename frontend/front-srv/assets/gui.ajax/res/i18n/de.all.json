@@ -1,0 +1,107 @@
+{
+  "tour.create-menu": {
+    "other": "Fügen Sie Dateien oder Ordner zur aktuellen Arbeitsumgebung hinzu."
+  },
+  "tour.create-menu.title": {
+    "other": "Dateien hinzufügen"
+  },
+  "tour.display-bar": {
+    "other": "Mit dieser Toolbar können Sie die Ansicht umschalten: Von Vorschau auf Details wechseln oder die Dateien nach Namen oder Datum sortieren, etc..."
+  },
+  "tour.display-bar.title": {
+    "other": "Anzeigeeinstellungen"
+  },
+  "tour.globsearch.1": {
+    "other": "Hier können Sie Dateien oder Ordner aller Arbeitsumgebungen finden. Es werden nur die ersten fünf Ergebnisse angezeigt. Öffnen Sie eine Arbeitsumgebung für mehr Ergebnisse und Sucheinstellungen."
+  },
+  "tour.globsearch.2": {
+    "other": "Wenn kein Suchbegriff eingegeben ist werden die zuletzt geöffneten Dateien und Ordner angezeigt."
+  },
+  "tour.globsearch.title": {
+    "other": "Globale Suche"
+  },
+  "tour.infopanel.1": {
+    "other": "Hier finden Sie zahlreiche Informationen über die aktuelle Auswahl: Datei-Infos, Freigabestatus, Benutzerdefinierte Metadaten, etc."
+  },
+  "tour.infopanel.2": {
+    "other": "Dieser Bereich kann durch einen Klick auf das Info-Symbol in der Symbolleiste ausgeblendet werden"
+  },
+  "tour.infopanel.file": {
+    "other": "Datei"
+  },
+  "tour.infopanel.folder": {
+    "other": "Ordner"
+  },
+  "tour.infopanel.search": {
+    "other": "Suche"
+  },
+  "tour.infopanel.title": {
+    "other": "Info-Bereich"
+  },
+  "tour.locale.back": {
+    "other": "Zurück"
+  },
+  "tour.locale.close": {
+    "other": "Schließen"
+  },
+  "tour.locale.last": {
+    "other": "Beenden"
+  },
+  "tour.locale.next": {
+    "other": "Weiter"
+  },
+  "tour.locale.skip": {
+    "other": "Überspringen"
+  },
+  "tour.openworkspace": {
+    "other": "Bei der ersten Verbindung ist Ihre Historie leer. Öffnen Sie eine Arbeitsumgebung oder ein Cell um Dateien hinzuzufügen."
+  },
+  "tour.openworkspace.title": {
+    "other": "Eine Arbeitsumgebung öffnen"
+  },
+  "tour.uwidget.addressbook": {
+    "other": "Verzeichnis aller Benutzer mit Zugriff auf diese Plattform. Erstellen Sie eigene Benutzer und Teams, um Elemente freizugeben"
+  },
+  "tour.uwidget.alerts": {
+    "other": "Der Benachrichtigungs-Bereich informiert Sie, wenn ein Benutzer auf eine freigegebene Datei zugreift. Benachrichtigungen können auch per E-Mail an Sie versendet werden."
+  },
+  "tour.uwidget.home": {
+    "other": "Wechseln Sie mit diesem Button auf die Willkommen-Seite."
+  },
+  "tour.uwidget.menu": {
+    "other": "Zugriff auf weitere Funktionen: Ihr Profil, Sicherheits-Funktionen, Ihre Freigaben, Abmeldung aus der Plattform."
+  },
+  "tour.uwidget.title": {
+    "other": "Benutzer"
+  },
+  "tour.welcomemodal.skip": {
+    "other": "Überspringen"
+  },
+  "tour.welcomemodal.start": {
+    "other": "Tour starten"
+  },
+  "tour.welcomemodal.subtitle": {
+    "other": "Wählen Sie ein Profilbild aus! Diese schnelle Tour wird Sie durch die Web-Oberfläche leiten."
+  },
+  "tour.welcomemodal.title": {
+    "other": "Willkommen bei APPLICATION_TITLE"
+  },
+  "tour.widget-cards": {
+    "other": "Hier können Sie Widgets hinzufügen oder entfernen. Es ist möglich, diese durch ziehen zu sortieren."
+  },
+  "tour.widget-cards.title": {
+    "other": "Widgets"
+  },
+  "tour.workspaces.1": {
+    "other": "Arbeitsumgebungen sind die obersten Ordner, mit denen Sie Ihre Daten organisieren können. Sie können nur durch Sie zugegriffen oder freigegeben werden."
+  },
+  "tour.workspaces.2": {
+    "other": "Andere Benutzer können Ordner für Sie freigeben. Diese erscheinen hier ebenfalls als Cells."
+  },
+  "tour.workspaces.title": {
+    "other": "Arbeitsumgebungen & Cells"
+  },
+  "background.jobs.title": {
+    "other": "Jobs in Bearbeitung"
+  }
+}

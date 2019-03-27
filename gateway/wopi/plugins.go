@@ -23,13 +23,12 @@ package wopi
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 
+	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -38,28 +37,37 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_GATEWAY_WOPI),
-		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.RouterDependencies(),
-		service.Description("WOPI REST Gateway to tree service"),
-		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			viewsRouter = views.NewUuidRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GATEWAY_WOPI),
+			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.RouterDependencies(),
+			service.Description("WOPI REST Gateway to tree service"),
+			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 
-			config := servicecontext.GetConfig(ctx)
-			port := config.Int("port", 5014)
+				return service.RunnerFunc(func() error {
+						return nil
+					}), service.CheckerFunc(func() error {
+						return nil
+					}), service.StopperFunc(func() error {
+						return nil
+					}), nil
+			}, func(s service.Service) (micro.Option, error) {
+				srv := defaults.NewHTTPServer()
 
-			router := NewRouter()
+				viewsRouter = views.NewUuidRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
 
-			log.Logger(ctx).Debug(fmt.Sprintf("Starting Wopi Server on port %d", port))
+				router := NewRouter()
 
-			return service.RunnerFunc(func() error {
-					return http.ListenAndServe(fmt.Sprintf(":%d", port), router)
-				}), service.CheckerFunc(func() error {
-					return nil
-				}), service.StopperFunc(func() error {
-					return nil
-				}), nil
-		}),
-	)
+				hd := srv.NewHandler(router)
+
+				err := srv.Handle(hd)
+				if err != nil {
+					return nil, err
+				}
+
+				return micro.Server(srv), nil
+			}),
+		)
+	})
 }

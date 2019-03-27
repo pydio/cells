@@ -1,0 +1,134 @@
+{
+  "Action to trigger when clicking on Forgot Password": {
+    "other": "Acción que se activa al pulsar Recordar Contraseña"
+  },
+  "Activate the users management system to protect your Pydio installation.": {
+    "other": "Activar el sistema de administración de usuarios para proteger tu instalación de Pydio."
+  },
+  "Add a Forgot Password link at the bottom of the login form": {
+    "other": "Añadir un enlace a Recordar Contraseña en la parte inferior del inicio de sesión"
+  },
+  "Authentication": {
+    "other": "Autenticación"
+  },
+  "Both": {
+    "other": "Ambos"
+  },
+  "Cache master users": {
+    "other": "Almacena usuarios maestros"
+  },
+  "Case Sensitive": {
+    "other": "Distingue Mayúsculas"
+  },
+  "Choose the configuration plugin": {
+    "other": "Elegir el plugin de configuración"
+  },
+  "Create a local copy (at login time) of master users inside slave base": {
+    "other": "Crear una copia local (al iniciar sesión) de los usuarios maestros en la base esclava."
+  },
+  "Disable Brute Force Check (Captcha)": {
+    "other": "Desactivar Protección Fuerza Bruta (Captcha)"
+  },
+  "Disable the check of failed login attempts, will disable the Captcha display": {
+    "other": "Desactivar la comprobación de intentos de inicio fallidos, no se mostrarán los Captchas."
+  },
+  "Enable Forgot Password": {
+    "other": "Activar Recordar Contraseña"
+  },
+  "Enable Users": {
+    "other": "Activar Usuarios"
+  },
+  "Enable the 'guest' user, who does not need to log in.": {
+    "other": "Activar el usuario 'guest', no tiene que iniciar sesión."
+  },
+  "Forgot Password Action": {
+    "other": "Acción Recordar Contraseña"
+  },
+  "Generic Auth Features": {
+    "other": "Funciones de Autenticación Genéricas"
+  },
+  "Guest Browsing": {
+    "other": "Navegar como Invitado"
+  },
+  "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
+    "other": "En el modo Maestro/Esclavo, usar esta opción para limitar el listado de usuarios en la administración del controlador (dejar vacío si quiere la lista completa)"
+  },
+  "Instance Type": {
+    "other": "Tipo de Instancia"
+  },
+  "Login Form": {
+    "other": "Formulario de Inicio"
+  },
+  "Main Instance": {
+    "other": "Instancia Principal"
+  },
+  "Master Authentifiaction Label": {
+    "other": "Etiqueta Autenticación Maestra"
+  },
+  "Master Only": {
+    "other": "Sólo Maestro"
+  },
+  "Master/Slave": {
+    "other": "Maestro/Esclavo"
+  },
+  "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
+    "other": "Maestro/esclavo asumirá que el maestro es de sólo lectura y el esclavo es una alternativa local que permite las funciones de compartir. El usuario elegirá el método de autenticación al inicio."
+  },
+  "Minimum number of characters required for passwords in the application": {
+    "other": "Número mínimo de caracteres necesarios en la contraseña"
+  },
+  "Mode": {
+    "other": "Modo"
+  },
+  "Multiple Instances Mode": {
+    "other": "Modo Múltiples Instancias"
+  },
+  "Options applied to all auth drivers": {
+    "other": "Opciones aplicadas a todos los controladores de autenticación"
+  },
+  "Password length": {
+    "other": "Longitud Contraseña"
+  },
+  "Raise the security of the login form by disabling autocompletion and remember me feature": {
+    "other": "Aumentar la seguridad del inicio de sesión desactivando el autocompleado y recordar al usuario"
+  },
+  "Secondary Instance (optional)": {
+    "other": "Instancia Secundaria (opcional)"
+  },
+  "Secondary Instance Driver": {
+    "other": "Controlador de Segunda Instancia"
+  },
+  "Secure Login Form": {
+    "other": "Formulario de Inicio Seguro"
+  },
+  "Separator": {
+    "other": "Separador"
+  },
+  "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
+    "other": "Configurar los credenciales de usuario después de iniciar sesión correctamente, esto puede ser necesario para algunas combinaciones de controladores de acceso y autenticación."
+  },
+  "Slave Authentifiaction Label": {
+    "other": "Etiqueta Autenticación Esclava"
+  },
+  "Slave Only": {
+    "other": "Sólo Esclavo"
+  },
+  "Store Credentials in Session": {
+    "other": "Almacenar Credenciales de Sesión"
+  },
+  "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
+    "other": "Necesario para diferenciar los datos de usuario cargados desde distintas fuentes. Atención, use caracteres permitidos para directorios. Por ejemplo, \"::\" no funciona."
+  },
+  "User Choice": {
+    "other": "Opción Usuario"
+  },
+  "Users Listing": {
+    "other": "Listado de Usuarios"
+  },
+  "Whether the users identifiers should be case sensitive or not": {
+    "other": "Los identificadores de usuario distinguen entre mayúsculas y minúsculas. Atención, los controladores basados en SQL desactivan esta opción."
+  },
+  "Will be shown to the user at login": {
+    "other": "Se mostrará al usuario al inicio de sesión"
+  }
+}

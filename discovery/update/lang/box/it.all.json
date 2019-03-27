@@ -1,0 +1,47 @@
+{
+  "Update.Config.Title": {
+    "other": "Aggiornamento della configurazione"
+  },
+  "Update.Config.Url.Label": {
+    "other": "Update Server"
+  },
+  "Update.Config.Url.Description": {
+    "other": "URL http del server di aggiornamento"
+  },
+  "Update.Config.PublicKey.Label": {
+    "other": "Chiave publica"
+  },
+  "Update.Config.PublicKey.Description": {
+    "other": "Chiave ufficiale usata per verificare la firma dei file binari."
+  },
+  "Update.Config.Channel.Label": {
+    "other": "Canale di aggiornamento"
+  },
+  "Update.Config.Channel.Description": {
+    "other": "Canale utilizzato per la richiesta degli aggiornamenti. Rimanere su Stabile se non siete sicuri."
+  },
+  "Update.Config.Channel.ValueStable": {
+    "other": "Stabile"
+  },
+  "Update.Config.Channel.ValueDev": {
+    "other": "Dev (a vostro rischio)"
+  },
+  "Update.Config.ProxyHost.Label": {
+    "other": "Proxy"
+  },
+  "Update.Config.ProxyHost.Description": {
+    "other": "Host del server proxy se richiesto dalla connessione in uscita"
+  },
+  "Update.Config.ProxyUser.Label": {
+    "other": "Utente del proxy"
+  },
+  "Update.Config.ProxyUser.Description": {
+    "other": "Utente per l'identificazione del server proxy"
+  },
+  "Update.Config.ProxyPassword.Label": {
+    "other": "Password del proxy"
+  },
+  "Update.Config.ProxyPassword.Description": {
+    "other": "Password per l'identificazione del server proxy"
+  }
+}

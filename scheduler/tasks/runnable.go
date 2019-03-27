@@ -30,8 +30,10 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/scheduler/actions"
+	"go.uber.org/zap"
 )
 
 // Runnable represents the runnable instance of a given task
@@ -119,6 +121,17 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 		taskConsumer.SetTask(r.Task.GetJobTaskClone())
 	}
 
+	defer func() {
+		if re := recover(); re != nil {
+			r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
+			if e, ok := re.(error); ok {
+				log.TasksLogger(r.Context).Error("Recovered scheduler task", zap.Any("task", r.Task), zap.Error(e))
+				r.Task.GlobalError(e)
+			}
+			r.Task.Save()
+		}
+	}()
+
 	if controllable, ok := r.Implementation.(actions.ControllableAction); ok {
 		r.Task.SetControllable(controllable.CanStop(), controllable.CanPause())
 	}
@@ -133,7 +146,9 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 	outputMessage, err := r.Implementation.Run(r.Context, runnableChannels, r.Message)
 	done <- true
 	r.Task.Done(1)
+
 	if err != nil {
+		log.TasksLogger(r.Context).Error("Error while running action "+r.ID, zap.Error(err))
 		r.Task.SetStatus(jobs.TaskStatus_Error, "Error: "+err.Error())
 		r.Task.SetEndTime(time.Now())
 		r.Task.Save()

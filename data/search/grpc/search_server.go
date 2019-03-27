@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -35,7 +36,7 @@ import (
 	protosync "github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/data/search/dao"
 )
 
@@ -43,6 +44,7 @@ type SearchServer struct {
 	Engine        dao.SearchEngine
 	eventsChannel chan *event.EventWithContext
 	TreeClient    tree.NodeProviderClient
+	NsProvider    *meta.NamespacesProvider
 }
 
 // CreateNodeChangeSubscriber that will treat events for the meta server
@@ -68,42 +70,57 @@ func (s *SearchServer) initEventsChannel() {
 	}()
 }
 
+func (s *SearchServer) NamespacesProvider() *meta.NamespacesProvider {
+	if s.NsProvider == nil {
+		s.NsProvider = meta.NewNamespacesProvider()
+	}
+	return s.NsProvider
+}
+
 func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) {
 
 	log.Logger(ctx).Debug("processEvent", zap.Any("event", e))
+	excludes := s.NamespacesProvider().ExcludeIndexes()
 
 	switch e.GetType() {
 	case tree.NodeChangeEvent_CREATE:
 		// Let's extract the basic information from the tree and store it
-		if e.Target.Etag == common.NODE_FLAG_ETAG_TEMPORARY || utils.IgnoreNodeForOutput(ctx, e.Target) {
+		if e.Target.Etag == common.NODE_FLAG_ETAG_TEMPORARY || tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target)
+		s.Engine.IndexNode(ctx, e.Target, false, excludes)
 		break
 	case tree.NodeChangeEvent_UPDATE_PATH:
 		// Let's extract the basic information from the tree and store it
-		if utils.IgnoreNodeForOutput(ctx, e.Target) {
+		if tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target)
+		s.Engine.IndexNode(ctx, e.Target, false, excludes)
 		break
 	case tree.NodeChangeEvent_UPDATE_META:
 		// Let's extract the basic information from the tree and store it
-		if utils.IgnoreNodeForOutput(ctx, e.Target) {
+		if e.Target.Path != "" && tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target)
+		s.Engine.IndexNode(ctx, e.Target, false, excludes)
+		break
+	case tree.NodeChangeEvent_UPDATE_USER_META:
+		// Let's extract the basic information from the tree and store it
+		if e.Target.Path != "" && tree.IgnoreNodeForOutput(ctx, e.Target) {
+			break
+		}
+		s.Engine.IndexNode(ctx, e.Target, true, excludes)
 		break
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
 		// We may have to store the metadata again
-		if utils.IgnoreNodeForOutput(ctx, e.Target) {
+		if tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
-		s.Engine.IndexNode(ctx, e.Target)
+		s.Engine.IndexNode(ctx, e.Target, false, excludes)
 		break
 	case tree.NodeChangeEvent_DELETE:
 		// Lets delete all metadata
-		if utils.IgnoreNodeForOutput(ctx, e.Source) {
+		if tree.IgnoreNodeForOutput(ctx, e.Source) {
 			break
 		}
 		s.Engine.DeleteNode(ctx, e.Source)
@@ -128,7 +145,7 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 			case node := <-resultsChan:
 				if node != nil {
 
-					log.Logger(ctx).Info("Search", zap.String("uuid", node.Uuid))
+					log.Logger(ctx).Debug("Search", zap.String("uuid", node.Uuid))
 
 					if req.Details {
 						response, e := s.TreeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{
@@ -147,7 +164,7 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 
 						}
 					} else {
-						log.Logger(ctx).Info("No Details needed, sending back %v", zap.String("uuid", node.Uuid))
+						log.Logger(ctx).Debug("No Details needed, sending back node", zap.String("uuid", node.Uuid))
 						streamer.Send(&tree.SearchResponse{Node: node})
 					}
 
@@ -171,6 +188,7 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 	go func() {
 		bg := context.Background()
 		s.Engine.ClearIndex(bg)
+		excludes := s.NamespacesProvider().ExcludeIndexes()
 
 		dsStream, err := s.TreeClient.ListNodes(bg, &tree.ListNodesRequest{
 			Node:      &tree.Node{Path: ""},
@@ -181,15 +199,18 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 			return
 		}
 		defer dsStream.Close()
+		var count int
 		for {
 			response, e := dsStream.Recv()
 			if e != nil || response == nil {
 				break
 			}
-			if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !utils.IgnoreNodeForOutput(c, response.Node) {
-				s.Engine.IndexNode(bg, response.Node)
+			if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(c, response.Node) {
+				s.Engine.IndexNode(bg, response.Node, false, excludes)
+				count++
 			}
 		}
+		log.Logger(c).Info(fmt.Sprintf("Search Server indexed %d nodes", count))
 
 	}()
 

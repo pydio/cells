@@ -24,7 +24,7 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
+	log2 "log"
 	"os"
 	"os/signal"
 	"regexp"
@@ -33,13 +33,34 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/micro/go-micro/server"
+	"github.com/micro/go-web"
+
+	"github.com/pydio/cells/common/utils/net"
+
+	"github.com/micro/go-micro/broker"
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/discovery/nats"
+
 	"github.com/pydio/cells/common/registry"
+
+	// All brokers
+	httpbroker "github.com/pydio/cells/common/micro/broker/http"
+	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
+
+	// All registries
+	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
+
+	// All transports
+	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
+	"github.com/pydio/cells/common/service/metrics"
 )
 
 var (
@@ -77,9 +98,8 @@ variable to one of the following values:
 
 ### Services Discovery
 
-Micro services need a registry mechanism to discover each other. By default, Pydio Cells ships with Nats.io and Consul.io implementations.
-You don't need to install any dependency. By default, Cells uses the NATS implementation. You can switch to consul by using
-the flag --registry=consul.
+Micro services need a registry mechanism to discover each other. You don't need to install any dependency.
+Cells currently only supports NATS (nats.io) implementation. If a gnatsd service is already running, it will be detected.
 
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {},
@@ -88,15 +108,20 @@ the flag --registry=consul.
 		if cmd.Long == StartCmd.Long {
 			common.LogCaptureStdOut = true
 		}
+
+		// Initialise the default registry
+		handleRegistry()
+
+		// Initialise the default broker
+		handleBroker()
+
+		// Initialise the default transport
+		handleTransport()
+
 		// Making sure we capture the signals
 		handleSignals()
 
-		// Filtering out the not-in-use messaging system (typically filtering out consul by default)
-		for _, v := range common.ServicesDiscovery {
-			if v != viper.Get("registry").(string) {
-				FilterStartExclude = append(FilterStartExclude, v)
-			}
-		}
+		plugins.Init()
 
 		// Filtering out services by exclusion
 		registry.Default.Filter(func(s registry.Service) bool {
@@ -134,21 +159,54 @@ func init() {
 	viper.AutomaticEnv()
 
 	flags := RootCmd.PersistentFlags()
-	flags.String("registry", "nats", "Registry used to manage services")
+
+	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
+	flags.String("registry_address", ":4222", "Registry connection address")
+	flags.String("registry_cluster_address", ":5222", "Registry cluster address")
+	flags.String("registry_cluster_routes", "", "Registry cluster routes")
+
+	flags.String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
+	flags.String("broker_address", ":4222", "Broker port")
+
+	flags.String("transport", "grpc", "Transport protocol for RPC")
+	flags.String("transport_address", ":4222", "Transport protocol port")
+
 	flags.String("log", "info", "Sets the log level mode")
 	flags.String("grpc_cert", "", "Certificates used for communication via grpc")
 	flags.String("grpc_key", "", "Certificates used for communication via grpc")
 	flags.BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
+	flags.Bool("enable_metrics", false, "Instrument code to expose internal metrics")
+	flags.Bool("enable_pprof", false, "Enable pprof remote debugging")
 
 	viper.BindPFlag("registry", flags.Lookup("registry"))
+	viper.BindPFlag("registry_address", flags.Lookup("registry_address"))
+	viper.BindPFlag("registry_cluster_address", flags.Lookup("registry_cluster_address"))
+	viper.BindPFlag("registry_cluster_routes", flags.Lookup("registry_cluster_routes"))
+
+	viper.BindPFlag("broker", flags.Lookup("broker"))
+	viper.BindPFlag("broker_address", flags.Lookup("broker_address"))
+
+	viper.BindPFlag("transport", flags.Lookup("transport"))
+	viper.BindPFlag("transport_address", flags.Lookup("transport_address"))
+
 	viper.BindPFlag("logs_level", flags.Lookup("log"))
 	viper.BindPFlag("grpc_cert", flags.Lookup("grpc_cert"))
 	viper.BindPFlag("grpc_key", flags.Lookup("grpc_key"))
+
+	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
+	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+
+	// Check PrivateIP and setup Advertise
+	initAdvertiseIP()
+
+	nats.Init()
+	metrics.Init()
+
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -156,6 +214,7 @@ func Execute() {
 }
 
 func initLogLevel() {
+
 	// Init log level
 	logLevel := viper.GetString("logs_level")
 
@@ -175,40 +234,95 @@ func initLogLevel() {
 			common.LogLevel = zap.ErrorLevel
 		}
 	}
+
+	log.Init()
 }
 
 func initServices() {
 	registry.Default.BeforeInit()
 
-	registry.Init(
-		registry.Name(viper.GetString("registry")),
-	)
+	registry.Init()
 
 	registry.Default.AfterInit()
+}
+
+func initAdvertiseIP() {
+	ok, advertise, err := net.DetectHasPrivateIP()
+	if err != nil {
+		log2.Fatal(err.Error())
+	}
+	if !ok {
+		net.DefaultAdvertiseAddress = advertise
+		web.DefaultAddress = advertise + ":0"
+		server.DefaultAddress = advertise + ":0"
+		if advertise != "127.0.0.1" {
+			fmt.Println("Warning: no private IP detected for binding broker. Will bind to " + net.DefaultAdvertiseAddress + ", which may give public access to the broker.")
+		}
+	}
+}
+
+func handleRegistry() {
+
+	switch viper.Get("registry") {
+	case "nats":
+		natsregistry.Enable()
+	default:
+		log.Fatal("registry not supported - currently only nats is supported")
+	}
+}
+
+func handleBroker() {
+	switch viper.Get("broker") {
+	case "nats":
+		natsbroker.Enable()
+	case "http":
+		httpbroker.Enable()
+	default:
+		log.Fatal("broker not supported")
+	}
+}
+
+func handleTransport() {
+	switch viper.Get("transport") {
+	case "grpc":
+		grpctransport.Enable()
+	default:
+		log.Fatal("transport not supported")
+	}
 }
 
 func handleSignals() {
 	c := make(chan os.Signal, 1)
 
-	signal.Notify(c, syscall.SIGINT, syscall.SIGUSR1, syscall.SIGHUP)
+	// WARNING - SIGUSR1 DOES NOT COMPILE ON WINDOWS - CREATE A SPECIAL CASE
+	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.SIGUSR1, syscall.SIGTERM)
 
 	go func() {
 		for sig := range c {
 			switch sig {
 			case syscall.SIGINT:
+
+				log.Info("Disconnecting broker")
+				// Disconnecting the broker so that we are not flooded with messages
+				broker.Disconnect()
+
+				log.Info("Stopping all services")
 				// Stop all services
 				for _, service := range allServices {
 					service.Stop()
 				}
-				<-time.After(500 * time.Millisecond)
+
+				log.Info("Exiting")
+				<-time.After(2 * time.Second)
 				os.Exit(0)
+
 			case syscall.SIGUSR1:
 				pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 
 				if !profiling {
 					f, err := ioutil.TempFile("/tmp", "pydio-cpu-profile-")
 					if err != nil {
-						log.Fatal(err)
+						log.Fatal("Cannot create cpu profile", zap.Error(err))
 					}
 
 					pprof.StartCPUProfile(f)
@@ -217,13 +331,13 @@ func handleSignals() {
 
 					fheap, err := ioutil.TempFile("/tmp", "pydio-cpu-heap-")
 					if err != nil {
-						log.Fatal(err)
+						log.Fatal("Cannot create heap profile", zap.Error(err))
 					}
 					pprof.WriteHeapProfile(fheap)
 				} else {
 					pprof.StopCPUProfile()
 					if err := profile.Close(); err != nil {
-						log.Fatal(err)
+						log.Fatal("Cannot close cpu profile", zap.Error(err))
 					}
 					profiling = false
 				}
@@ -239,7 +353,7 @@ func handleSignals() {
 
 				initServices()
 
-				// Stop all services
+				// Start all services
 				for _, service := range allServices {
 					if service.Name() == "nats" {
 						continue

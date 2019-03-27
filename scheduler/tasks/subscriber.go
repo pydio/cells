@@ -29,15 +29,14 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/common/service"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 const (
@@ -95,13 +94,12 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 // Init subscriber with current list of jobs from Jobs service
 func (s *Subscriber) Init() error {
 
-	go func() {
-		<-time.After(1 * time.Second)
+	go service.Retry(func() error {
 		// Load Jobs Definitions
 		jobClients := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, s.Client)
 		streamer, e := jobClients.ListJobs(s.RootContext, &jobs.ListJobsRequest{})
 		if e != nil {
-			return
+			return e
 		}
 
 		s.jobsLock.Lock()
@@ -120,7 +118,9 @@ func (s *Subscriber) Init() error {
 			s.JobsDefinitions[resp.Job.ID] = resp.Job
 			s.GetDispatcherForJob(resp.Job)
 		}
-	}()
+		return nil
+	}, 3*time.Second, 20*time.Second)
+
 	return nil
 }
 
@@ -142,9 +142,12 @@ func (s *Subscriber) ListenToMainQueue() {
 // TaskChannelSubscription uses PubSub library to receive update messages from tasks
 func (s *Subscriber) TaskChannelSubscription() {
 	ch := PubSub.Sub(PubSubTopicTaskStatuses)
-	s.chanToStream(ch)
+	cli := NewTaskReconnectingClient(s.RootContext)
+	cli.StartListening(ch)
+	//	s.chanToStream(ch)
 }
 
+/*
 func (s *Subscriber) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 
 	go func() {
@@ -178,7 +181,10 @@ func (s *Subscriber) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 					}
 					_, e = streamer.Recv()
 					if e != nil {
-						log.Logger(s.RootContext).Error("Error while posting task", zap.Error(e))
+						log.Logger(s.RootContext).Error("Error while posting task - reconnect streamer", zap.Error(e))
+						<-time.After(1 * time.Second)
+						s.chanToStream(ch, task)
+						return
 					}
 				} else {
 					log.Logger(s.RootContext).Error("Could not cast value to jobs.Task", zap.Any("val", val))
@@ -188,6 +194,7 @@ func (s *Subscriber) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 	}()
 
 }
+*/
 
 // GetDispatcherForJob creates a new dispatcher for a job
 func (s *Subscriber) GetDispatcherForJob(job *jobs.Job) *Dispatcher {
@@ -199,7 +206,11 @@ func (s *Subscriber) GetDispatcherForJob(job *jobs.Job) *Dispatcher {
 	if job.MaxConcurrency > 0 {
 		maxWorkers = int(job.MaxConcurrency)
 	}
-	dispatcher := NewDispatcher(maxWorkers)
+	tags := map[string]string{
+		"service": common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_TASKS,
+		"jobID":   job.ID,
+	}
+	dispatcher := NewDispatcher(maxWorkers, tags)
 	s.Dispatchers[job.ID] = dispatcher
 	dispatcher.Run()
 	return dispatcher
@@ -255,7 +266,7 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 		return nil
 	}
 	// This timer event probably comes without user in context at that point
-	if u, _ := utils.FindUserNameInContext(ctx); u == "" {
+	if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
 		ctx = metadata.NewContext(ctx, metadata.Metadata{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
 		ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
 	}

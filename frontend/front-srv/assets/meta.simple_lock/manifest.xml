@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta id="simple_lock" label="CONF_MESSAGE[Simple Lock]" description="CONF_MESSAGE[Manual Locking mechanism to avoid concurrent edition]">
+   	<client_settings>
+   		<resources>
+   			<i18n namespace="meta.simple_lock" remote="plug/meta.simple_lock/i18n" />
+        </resources>
+   	</client_settings>
+   	<registry_contributions>
+        <actions>
+            <action name="sl_lock">
+                <gui iconClass="mdi mdi-lock-outline" text="meta.simple_lock.1" title="meta.simple_lock.2">
+                    <context dir="false" recycle="false" selection="true" contextMenu="true" actionBar="true"
+                             actionBarGroup="change" />
+                    <selectionContext dir="false" file="true" recycle="false" unique="true"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="true" userLogged="true" write="true"/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.lock"/>
+                    <clientListener module="FSActions.Listeners.lockSelectionChange" name="selectionChange"/>
+                </processing>
+            </action>
+        </actions>
+    </registry_contributions>
+    <dependencies>
+        <activePlugin pluginName="access.gateway"/>
+    </dependencies>
+</meta>

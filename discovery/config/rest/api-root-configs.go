@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 /*********************
@@ -42,10 +42,10 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	ctx := req.Request.Context()
 	var configuration rest.Configuration
 	if err := req.ReadEntity(&configuration); err != nil {
-		resp.WriteError(500, err)
+		service.RestError500(req, resp, err)
 		return
 	}
-	u, _ := utils.FindUserNameInContext(ctx)
+	u, _ := permissions.FindUserNameInContext(ctx)
 	if u == "" {
 		u = "rest"
 	}
@@ -55,7 +55,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		config.Set(parsed, path...)
 		if err := config.Save(u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
-			resp.WriteError(500, err)
+			service.RestError500(req, resp, err)
 			return
 		}
 		resp.WriteEntity(&configuration)
@@ -70,7 +70,7 @@ func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
 
 	ctx := req.Request.Context()
 	fullPath := req.PathParameter("FullPath")
-	log.Logger(ctx).Info("Config.Get FullPath : " + fullPath)
+	log.Logger(ctx).Debug("Config.Get FullPath : " + fullPath)
 
 	path := strings.Split(strings.Trim(fullPath, "/"), "/")
 

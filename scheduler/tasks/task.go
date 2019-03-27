@@ -32,8 +32,14 @@ import (
 
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/scheduler/actions"
+)
+
+var (
+	ContextJobUuid  = "X-Pydio-Job-Uuid"
+	ContextTaskUuid = "X-Pydio-Task-Uuid"
 )
 
 type Task struct {
@@ -46,12 +52,15 @@ type Task struct {
 }
 
 func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Task {
-	ctxUserName, _ := utils.FindUserNameInContext(ctx)
+	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
+	taskID := uuid.New()
+	operationID := job.ID + "-" + taskID[0:8]
+	c := servicecontext.WithOperationID(ctx, operationID)
 	t := &Task{
-		context: ctx,
+		context: c,
 		Job:     job,
 		lockedTask: &jobs.Task{
-			ID:            uuid.NewUUID().String(),
+			ID:            taskID,
 			JobID:         job.ID,
 			Status:        jobs.TaskStatus_Queued,
 			StatusMessage: "Pending",
@@ -155,6 +164,17 @@ func (t *Task) AppendLog(a jobs.Action, in jobs.ActionMessage, out jobs.ActionMe
 		Action:        &cleanedAction,
 		InputMessage:  &cleanedInput,
 		OutputMessage: &cleanedOutput,
+	})
+}
+
+func (t *Task) GlobalError(e error) {
+	t.lockTask()
+	defer t.unlockTask()
+	t.lockedTask.ActionsLogs = append(t.lockedTask.ActionsLogs, &jobs.ActionLog{
+		OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{
+			Time:        int32(time.Now().Unix()),
+			ErrorString: e.Error(),
+		}}},
 	})
 }
 

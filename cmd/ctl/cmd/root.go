@@ -31,12 +31,15 @@ import (
 
 	"github.com/pydio/cells/common"
 	// commonlog "github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/registry"
+
+	// All registries
+	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
+
+	"log"
 )
 
 var (
-	t1          time.Time
-	registryArg string
+	t1 time.Time
 )
 
 // RootCmd represents the base command when called without any subcommands.
@@ -53,50 +56,7 @@ Most actions shall better be performed using the web frontend, but it can be han
 		// Add a timestamp to log current command processing duration
 		t1 = time.Now()
 
-		// // Configure logging
-		// logLevel := os.Getenv("PYDIO_LOGS_LEVEL")
-		// if logLevel == "" {
-		// 	logLevel = "info"
-		// }
-		// if logLevel == "production" {
-		// 	commonlog.LogConfig = commonlog.LogConfigProduction
-		// } else {
-		// 	commonlog.LogConfig = commonlog.LogConfigConsole
-		// 	switch logLevel {
-		// 	case "info":
-		// 		commonlog.LogLevel = zap.InfoLevel
-		// 	case "debug":
-		// 		commonlog.LogLevel = zap.DebugLevel
-		// 	case "error":
-		// 		commonlog.LogLevel = zap.ErrorLevel
-		// 	}
-		// }
-
-		// Keep only the correct messaging service (nats or consul) depending on user input.
-		// Note that the service listed in this current pydio registry is *NOT* started.
-		var msgService registry.Service
-		services, err := registry.Default.ListServices()
-		if err != nil {
-			cmd.Print("Could not retrieve list of services: " + err.Error())
-			os.Exit(0)
-		}
-		for _, s := range services {
-			if s.Name() != viper.Get("registry") {
-				registry.Default.Deregister(s)
-			} else {
-				if msgService == nil {
-					msgService = s
-				} else { //insure that only the correct messaging service is declared in the current Pydio Registry
-					cmd.Print("Cannot proceed, please unregister all messaging services that are not in use.")
-					os.Exit(0)
-				}
-			}
-		}
-
-		// Initialise the chosen messaging system
-		msgService.BeforeInit()
-		registry.Init(registry.Name(msgService.Name()))
-		msgService.AfterInit()
+		handleRegistry()
 
 		// Configure data service name (see data.go)
 		serviceName = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_TREE
@@ -122,12 +82,18 @@ func init() {
 	viper.SetEnvPrefix("pydio")
 	viper.AutomaticEnv()
 
-	// RootCmd.PersistentFlags().StringVar(&registryArg, "registry", "nats", "Registry used to manage services")
 	flags := RootCmd.PersistentFlags()
 	flags.String("registry", "nats", "Registry used to manage services")
-	// flags.String("log", "info", "Sets the log level mode")
-	// flags.String("grpc_cert", "", "Certificates used for communication via grpc")
-	// flags.String("grpc_key", "", "Certificates used for communication via grpc")
 
 	viper.BindPFlag("registry", flags.Lookup("registry"))
+}
+
+func handleRegistry() {
+
+	switch viper.Get("registry") {
+	case "nats":
+		natsregistry.Enable()
+	default:
+		log.Fatal("registry not supported")
+	}
 }

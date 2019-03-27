@@ -43,15 +43,16 @@ main:
 	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.Version=${GITREV}\
 	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.ReleaseTag=${GITREV}"\
 	 -o cells\
-	 main.go
+	 .
 
 dev:
 	go build\
+	 -tags dev\
 	 -ldflags "-X github.com/pydio/cells/common.version=0.2.0\
 	 -X github.com/pydio/cells/common.BuildStamp=2018-01-01T00:00:00\
 	 -X github.com/pydio/cells/common.BuildRevision=dev"\
 	 -o cells\
-	 main.go
+	 .
 
 ctl:
 	go build\
@@ -60,6 +61,11 @@ ctl:
 	 -X github.com/pydio/cells/common.BuildRevision=`git rev-parse HEAD`"\
 	 -o cells-ctl\
 	 cmd/ctl/main.go
+
+start:
+	./cells start
+
+ds: dev start
 
 linux:
 	CC=x86_64-pc-linux-gcc GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -ldflags "-X main.version=0.2 -X main.buildStamp=`date -u +%Y-%m-%dT%H:%M:%S` -X main.buildRevision=`git rev-parse HEAD`" -o dist/linux/cells main.go

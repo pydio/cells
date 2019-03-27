@@ -32,7 +32,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
 )
 
 // Extended Router used mainly to filter events sent from inside to outside the application
@@ -56,7 +55,7 @@ func NewRouterEventFilter(options RouterOptions) *RouterEventFilter {
 	handlers = append(handlers,
 		NewWorkspaceRootResolver(),
 		NewPathDataSourceHandler(),
-		&ArchiveHandler{},    // Catch "GET" request on folder.zip and create archive on-demand
+		NewArchiveHandler(),  // Catch "GET" request on folder.zip and create archive on-demand
 		&PutHandler{},        // Handler adding a node precreation on PUT file request
 		&EncryptionHandler{}, // Handler retrieve encryption materials from encryption service
 		&VersionHandler{},
@@ -73,28 +72,18 @@ func NewRouterEventFilter(options RouterOptions) *RouterEventFilter {
 }
 
 // WorkspaceCanSeeNode will check workspaces roots to see if a node in below one of them
-func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *idm.Workspace, node *tree.Node, refresh bool) (*tree.Node, bool) {
+func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *idm.Workspace, node *tree.Node) (*tree.Node, bool) {
 	if node == nil {
 		return node, false
 	}
-	if utils.IgnoreNodeForOutput(ctx, node) {
+	if tree.IgnoreNodeForOutput(ctx, node) {
 		return node, false
 	}
-	roots := workspace.RootNodes
+	roots := workspace.RootUUIDs
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
-
 			//log.Logger(ctx).Debug("Before Filter", zap.Any("node", node))
-			var newNode *tree.Node
-			if refresh {
-				respNode, err := r.pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-				if err != nil {
-					return nil, false
-				}
-				newNode = respNode.Node
-			} else {
-				newNode = &tree.Node{Uuid: node.Uuid, Path: node.Path}
-			}
+			newNode := node.Clone()
 			r.WrapCallback(func(inputFilter NodeFilter, outputFilter NodeFilter) error {
 				branchInfo := BranchInfo{}
 				branchInfo.Workspace = *workspace
@@ -116,13 +105,13 @@ func (r *RouterEventFilter) NodeIsChildOfRoot(ctx context.Context, node *tree.No
 	vManager := GetVirtualNodesManager()
 	if virtualNode, exists := vManager.ByUuid(rootId); exists {
 		if resolved, e := vManager.ResolveInContext(ctx, virtualNode, r.GetClientsPool(), false); e == nil {
-			log.Logger(ctx).Debug("NodeIsChildOfRoot, Comparing Pathes on resolved", zap.String("node", node.Path), zap.String("root", resolved.Path))
-			return resolved, strings.HasPrefix(node.Path, resolved.Path)
+			//log.Logger(ctx).Info("NodeIsChildOfRoot, Comparing Pathes on resolved", zap.String("node", node.Path), zap.String("root", resolved.Path))
+			return resolved, node.Path == resolved.Path || strings.HasPrefix(node.Path, strings.TrimRight(resolved.Path, "/")+"/")
 		}
 	}
 	if root := r.getRoot(ctx, rootId); root != nil {
-		//log.Logger(ctx).Debug("NodeIsChildOfRoot, Comparing Pathes", zap.String("node", node.Path), zap.String("root", root.Path))
-		return root, strings.HasPrefix(node.Path, root.Path)
+		//log.Logger(ctx).Info("NodeIsChildOfRoot, Comparing Pathes", zap.String("node", node.Path), zap.String("root", root.Path))
+		return root, node.Path == root.Path || strings.HasPrefix(node.Path, strings.TrimRight(root.Path, "/")+"/")
 	}
 	return nil, false
 

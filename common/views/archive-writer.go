@@ -28,11 +28,14 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+	"time"
+
+	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	"go.uber.org/zap"
 )
 
 type ArchiveWriter struct {
@@ -43,13 +46,21 @@ type walkFunction func(node *tree.Node) error
 
 func (w *ArchiveWriter) walkObjectsWithCallback(ctx context.Context, nodePath string, cb walkFunction) error {
 
+	r, e := w.Router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: nodePath}})
+	if e != nil {
+		return e
+	}
+	if r.Node.IsLeaf() {
+		cb(r.Node)
+		return nil
+	}
 	lNodeClient, err := w.Router.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{
 			Path: nodePath,
 		},
 		Recursive: true,
 		Limit:     0,
-	})
+	}, client.WithRequestTimeout(6*time.Hour))
 	if err != nil {
 		return err
 	}

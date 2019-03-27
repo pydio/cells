@@ -1,0 +1,215 @@
+{
+  "Address used for notifications": {
+    "other": "Für Benachrichtigungen verwendete E-Mail-Adresse"
+  },
+  "All roles": {
+    "other": "Alle Rollen"
+  },
+  "Allow Group Listing": {
+    "other": "Gruppen anzeigen"
+  },
+  "Allow Role Listing": {
+    "other": "Rollen anzeigen"
+  },
+  "Allow the users to create a new user when sharing a folder": {
+    "other": "Benutzer dürfen beim Freigeben von Elementen weitere Benutzer erstellen."
+  },
+  "Allow the users to pick an existing user when sharing a folder": {
+    "other": "Benutzer dürfen beim Freigeben von Elementen andere Benutzer auswählen."
+  },
+  "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
+    "other": "Benutzer anderer Gruppen bei der Autovervollständigung anzeigen, wenn Ordner freigegeben werden."
+  },
+  "Always Override": {
+    "other": "Immer überschreiben"
+  },
+  "Always override other roles, included group roles.": {
+    "other": "Andere Rollen überschreiben (einschließlich Rollen der Gruppe)."
+  },
+  "Avatar": {
+    "other": "Avatar"
+  },
+  "Choose the configuration plugin": {
+    "other": "Erweiterung für den Konfigurationsspeicher auswählen"
+  },
+  "Configuration Store Instance": {
+    "other": "Erweiterung für den Konfigurationsspeicher"
+  },
+  "Configurations Management": {
+    "other": "Konfigurationsmanagement"
+  },
+  "Core SQL Connexion": {
+    "other": "SQL-Verbindung der Kernanwendung"
+  },
+  "Country": {
+    "other": "Land"
+  },
+  "Create external users": {
+    "other": "Benutzer für Freigaben erstellen"
+  },
+  "Default Workspace": {
+    "other": "Standard Arbeitsumgebung"
+  },
+  "Default start repository": {
+    "other": "Diese Arbeitsumgebung nach der Anmeldung standardmäßig öffnen."
+  },
+  "Display roles and/or groups": {
+    "other": "Anzeige von Rollen oder Gruppen"
+  },
+  "Do not display real login in parenthesis": {
+    "other": "Login-Namen nicht in Klammern anzeigen"
+  },
+  "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
+    "other": "Lädt Benutzer und Gruppen nicht, solange kein regulärer Ausdruck angegeben ist. (verhindert umfangreiche LDAP-Suchen)."
+  },
+  "Email": {
+    "other": "E-Mail"
+  },
+  "Excluded Roles": {
+    "other": "Ausgeschlossene Rollen"
+  },
+  "External Users Creation": {
+    "other": "Anlage von Benutzern während der Freigabe von Elementen"
+  },
+  "External users parameters": {
+    "other": "Parameter bei der Anlage von Freigabebenutzern"
+  },
+  "Full name displayed to others": {
+    "other": "Ihr Name wird anderen Benutzern angezeigt"
+  },
+  "Generic Conf Features": {
+    "other": "Standard Konfiguration"
+  },
+  "Hide real login": {
+    "other": "Anmelde-Namen verstecken"
+  },
+  "If previous option is set to True, directly display a full list of users from all groups": {
+    "other": "Wenn die vorherige Einstellung aktiv ist kann hiermit festgelegt werden, ob die Benutzer anderer Gruppen direkt angezeigt werden sollen."
+  },
+  "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
+    "other": "Dieser Befehl wir automatisch bei der Benutzeranmeldung ausgeführt. (z.B. Benutzer sperren, Passwortänderung, etc.)"
+  },
+  "If the 'guest' user is enabled, remember her preferences accross sessions.": {
+    "other": "Wenn der Benutzer 'Gast' aktiv ist kann festgelegt werden, ob geänderte Einstellungen über mehrere Sitzungen gelten."
+  },
+  "Image displayed next to the user name": {
+    "other": "Der Avatar wird neben Ihrem Benutzernamen angezeigt"
+  },
+  "Included Roles": {
+    "other": "Eingeschlossene Rollen"
+  },
+  "Instance": {
+    "other": "Erweiterung"
+  },
+  "Internal / External Users": {
+    "other": "Interne- / Freigaben-Benutzer"
+  },
+  "Language": {
+    "other": "Sprache"
+  },
+  "Let user create repositories": {
+    "other": "Benutzer dürfen Arbeitsumgebungen erstellen"
+  },
+  "Let user create repositories from templates": {
+    "other": "Arbeitsumgebungen können aus Vorlagen erstellt werden"
+  },
+  "List Roles By": {
+    "other": "Rollen anzeigen"
+  },
+  "List existing from all groups": {
+    "other": "Benutzer aller Gruppen anzeigen"
+  },
+  "List of parameters to be edited when creating a new shared user.": {
+    "other": "Liste mit Parametern, die beim Erstellen eines neuen Benutzers, während der Freigabe von Elementen, festgelegt werden müssen."
+  },
+  "Make regexp mandatory": {
+    "other": "Regulärer Ausdruck ist Pflicht"
+  },
+  "Maximum number of shared users per user": {
+    "other": "Maximale Anzahl an Freigabenbenutzer pro Benutzer"
+  },
+  "Maximum number of users displayed in the users autocompleter": {
+    "other": "Maximale Anzahl der Benutzern, die in der Autovervollständigung angezeigt werden"
+  },
+  "Minimum number of characters to trigger the auto completion feature": {
+    "other": "Minimale Anzahl an Zeichen, bevor die Autovervollständigung angezeigt wird"
+  },
+  "Name": {
+    "other": "Name"
+  },
+  "Preferences Saving": {
+    "other": "Voreinstellungen"
+  },
+  "Remember guest preferences": {
+    "other": "Einstellungen von 'Gast' beibehalten"
+  },
+  "Role Label": {
+    "other": "Rollenname"
+  },
+  "Role/Group Listing": {
+    "other": "Gruppen und Rollen anzeigen"
+  },
+  "Roles / Groups Directory Listing": {
+    "other": "Abfrage von Gruppen und Rollen"
+  },
+  "SQL Connexion": {
+    "other": "SQL-Verbindung"
+  },
+  "See existing users": {
+    "other": "Bestehende Benutzer anzeigen"
+  },
+  "Sets how the application core data (users,roles,etc) is stored.": {
+    "other": "Festlegen wie Core-Daten (Benutzer, Rollen, etc) gespeichert werden."
+  },
+  "Share with existing users from all groups": {
+    "other": "Für Benutzer aller Gruppen freigeben"
+  },
+  "Shared users limit": {
+    "other": "Begrenzung der Freigabenbenutzer"
+  },
+  "Simple SQL Connexion definition that can be used by other sql-based plugins": {
+    "other": "Definition der SQL-Verbindung, auf die andere SQL-Basierte Erweiterungen zugreifen können"
+  },
+  "Skip user history": {
+    "other": "Oberflächeneinstellungen nicht beibehalten"
+  },
+  "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
+    "other": "Rollen die nicht angezeigt werden sollen. Mit Komma getrennt oder beginnend mit 'preg:' für regex."
+  },
+  "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
+    "other": "Rollen die angezeigt werden sollen. Mit Komma getrennt oder beginnend mit 'preg:' für regex."
+  },
+  "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
+    "other": "Automatisches Laden der zuletzt geöffneten Programmoberfläche unterbinden. (zuletzt geöffneter Ordner, offene Tabs, etc)"
+  },
+  "User Language": {
+    "other": "Ihre Sprache"
+  },
+  "User roles only": {
+    "other": "Nur Rollen des Benutzers"
+  },
+  "Users Directory Listing": {
+    "other": "Abfrage von Benutzerdaten"
+  },
+  "Users Lock Action": {
+    "other": "Anmelde-Aktion"
+  },
+  "Users completer limit": {
+    "other": "Anzahl Benutzer in Autovervollständigung"
+  },
+  "Users completer min chars": {
+    "other": "Autovervollständigung ab Zeichen"
+  },
+  "Users only (do not list groups nor roles)": {
+    "other": "Nur Benutzer (weder Gruppen noch Rollen)"
+  },
+  "Whether users can create their own repositories, based on predefined templates.": {
+    "other": "Benutzer können aus Vorlagen ihre eigenen Arbeitsumgebungen erstellen."
+  },
+  "Worskpace creation delegation": {
+    "other": "Datenübertragung beim Erstellen von Arbeitsumgebungen"
+  },
+  "role prefix": {
+    "other": "Rollen-Präfix"
+  }
+}

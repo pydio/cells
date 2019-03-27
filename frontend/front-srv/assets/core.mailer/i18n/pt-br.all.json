@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "E-mail enviado com sucesso para %s usuário(s)"
+  },
+  "2": {
+    "other": "Nenhum endereço encontrado para enviar o e-mail!"
+  },
+  "3": {
+    "other": "Nenhum serviço de e-mail configurado para enviar e-mails, favor contatar o administrador"
+  },
+  "4": {
+    "other": "De"
+  },
+  "5": {
+    "other": "Para"
+  },
+  "6": {
+    "other": "Assunto"
+  },
+  "7": {
+    "other": "Mensagem"
+  },
+  "8": {
+    "other": "Escolha um usuário ou digite um endereço"
+  },
+  "9": {
+    "other": "Ingestão de Notificações"
+  }
+}

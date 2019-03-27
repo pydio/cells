@@ -26,40 +26,54 @@ package grpc
 import (
 	"strings"
 
-	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro"
+
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	//	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/proto/tree"
-	//	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/source/index"
 )
 
 func init() {
-	service.NewService(
-		service.Regexp(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX_+`(.+)`),
-		service.Tag(common.SERVICE_TAG_DATASOURCE),
-		service.Description("Datasource indexation service"),
-		service.WithStorage(index.NewDAO, func(s service.Service) string {
-			// Returning a prefix for the dao
-			return strings.Replace(common.SERVICE_DATA_INDEX_+s.Options().Source, ".", "_", -1)
-		}),
-		service.WithMicro(func(m micro.Service) error {
-			s := m.Options().Server
-			ctx := m.Options().Context
-			source := s.Options().Metadata["source"]
-			log.Logger(ctx).Debug("Starting Service Now: " + common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX + source)
-			engine := NewTreeServer(source)
-			tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
-			tree.RegisterNodeProviderHandler(m.Options().Server, engine)
-			tree.RegisterNodeReceiverStreamHandler(m.Options().Server, engine)
-			tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
-			tree.RegisterSessionIndexerHandler(m.Options().Server, engine)
-			object.RegisterResourceCleanerEndpointHandler(m.Options().Server, engine)
 
-			return nil
-		}),
-	)
+	plugins.Register(func() {
+
+		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_INDEX)
+
+		for _, source := range sources {
+
+			name := common.SERVICE_DATA_INDEX_ + source
+
+			service.NewService(
+				service.Name(common.SERVICE_GRPC_NAMESPACE_+name),
+				service.Tag(common.SERVICE_TAG_DATASOURCE),
+				service.Description("Datasource indexation service"),
+				service.Source(source),
+				service.Fork(true),
+				service.AutoStart(false),
+				service.WithStorage(index.NewDAO, func(s service.Service) string {
+					// Returning a prefix for the dao
+					return strings.Replace(name, ".", "_", -1)
+				}),
+				service.WithMicro(func(m micro.Service) error {
+
+					server := m.Server()
+					source := server.Options().Metadata["source"]
+
+					engine := NewTreeServer(source)
+					tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
+					tree.RegisterNodeProviderHandler(m.Options().Server, engine)
+					tree.RegisterNodeReceiverStreamHandler(m.Options().Server, engine)
+					tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
+					tree.RegisterSessionIndexerHandler(m.Options().Server, engine)
+					object.RegisterResourceCleanerEndpointHandler(m.Options().Server, engine)
+
+					return nil
+				}),
+			)
+		}
+	})
 }

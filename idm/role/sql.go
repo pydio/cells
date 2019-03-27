@@ -22,6 +22,7 @@ package role
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -35,7 +36,6 @@ import (
 	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/proto"
@@ -45,8 +45,8 @@ import (
 
 var (
 	queries = map[string]string{
-		"AddRole":    `insert into idm_roles (uuid, label, team_role, group_role, user_role, last_updated, auto_applies) values (?,?,?,?,?,?,?)`,
-		"UpdateRole": `update idm_roles set label=?, team_role=?, group_role=?, user_role=?, last_updated=?, auto_applies=? where uuid= ?`,
+		"AddRole":    `insert into idm_roles (uuid, label, team_role, group_role, user_role, last_updated, auto_applies, override) values (?,?,?,?,?,?,?,?)`,
+		"UpdateRole": `update idm_roles set label=?, team_role=?, group_role=?, user_role=?, last_updated=?, auto_applies=?, override=? where uuid= ?`,
 		"GetRole":    `select * from idm_roles where uuid = ?`,
 		"Exists":     `select count(uuid) from idm_roles where uuid = ?`,
 		"DeleteRole": `delete from idm_roles where uuid = ?`,
@@ -61,7 +61,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
@@ -101,10 +101,14 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 	var update bool
 	if role.Uuid != "" {
-		exists := s.GetStmt("Exists").QueryRow(role.Uuid)
-		count := new(int)
-		if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
-			update = true
+		if stmt := s.GetStmt("Exists"); stmt != nil {
+			exists := stmt.QueryRow(role.Uuid)
+			count := new(int)
+			if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
+				update = true
+			}
+		} else {
+			return nil, false, fmt.Errorf("Cannot retrieve statement")
 		}
 	} else {
 		role.Uuid = uuid.NewUUID().String()
@@ -115,30 +119,43 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 	if role.LastUpdated == 0 {
 		role.LastUpdated = int32(time.Now().Unix())
 	}
-	var err error
+
 	if !update {
-		_, err = s.GetStmt("AddRole").Exec(
-			role.Uuid,
-			role.Label,
-			role.IsTeam,
-			role.GroupRole,
-			role.UserRole,
-			role.LastUpdated,
-			strings.Join(role.AutoApplies, ","),
-		)
+		if stmt := s.GetStmt("AddRole"); stmt != nil {
+
+			if _, err := stmt.Exec(
+				role.Uuid,
+				role.Label,
+				role.IsTeam,
+				role.GroupRole,
+				role.UserRole,
+				role.LastUpdated,
+				strings.Join(role.AutoApplies, ","),
+				role.ForceOverride,
+			); err != nil {
+				return nil, false, err
+			}
+		} else {
+			return nil, false, fmt.Errorf("Cannot retrieve statement")
+		}
 	} else {
-		_, err = s.GetStmt("UpdateRole").Exec(
-			role.Label,
-			role.IsTeam,
-			role.GroupRole,
-			role.UserRole,
-			role.LastUpdated,
-			strings.Join(role.AutoApplies, ","),
-			role.Uuid,
-		)
-	}
-	if err != nil {
-		return nil, false, err
+		if stmt := s.GetStmt("UpdateRole"); stmt != nil {
+
+			if _, err := stmt.Exec(
+				role.Label,
+				role.IsTeam,
+				role.GroupRole,
+				role.UserRole,
+				role.LastUpdated,
+				strings.Join(role.AutoApplies, ","),
+				role.ForceOverride,
+				role.Uuid,
+			); err != nil {
+				return nil, false, err
+			}
+		} else {
+			return nil, false, fmt.Errorf("Cannot retrieve statement")
+		}
 	}
 	return role, update, nil
 
@@ -146,12 +163,12 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
-	queryString, err := s.buildSearchQuery(query, true, false)
+	queryString, args, err := s.buildSearchQuery(query, true, false)
 	if err != nil {
 		return 0, err
 	}
 
-	res := s.DB().QueryRow(queryString)
+	res := s.DB().QueryRow(queryString, args...)
 	if err != nil {
 		return 0, err
 	}
@@ -167,15 +184,14 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 // Search in the mysql DB
 func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 
-	queryString, err := s.buildSearchQuery(query, false, false)
+	queryString, args, err := s.buildSearchQuery(query, false, false)
 	if err != nil {
 		return err
 	}
 
 	// log.Logger(context.Background()).Debug("Decoded SQL query: " + queryString)
 	//log.Logger(context.Background()).Info("Search Roles: "+queryString, zap.Any("subjects", query.GetResourcePolicyQuery().GetSubjects()))
-
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return err
 	}
@@ -192,6 +208,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 			&role.UserRole,
 			&role.LastUpdated,
 			&autoApplies,
+			&role.ForceOverride,
 		)
 		for _, a := range strings.Split(autoApplies, ",") {
 			role.AutoApplies = append(role.AutoApplies, a)
@@ -210,12 +227,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 // Deleteete from the mysql DB
 func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 
-	queryString, err := s.buildSearchQuery(query, false, true)
+	queryString, args, err := s.buildSearchQuery(query, false, true)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := s.DB().Exec(queryString)
+	res, err := s.DB().Exec(queryString, args...)
 	if err != nil {
 		return 0, err
 	}
@@ -228,28 +245,24 @@ func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 	return rows, nil
 }
 
-func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bool) (string, error) {
+func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bool) (string, []interface{}, error) {
 
 	ex := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
 
 	if delete {
-
 		return sql.DeleteStringFromExpression("idm_roles", s.Driver(), ex)
-
 	} else {
 
 		resourceExpr, e := s.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
 		if e != nil {
-			return "", e
+			return "", nil, e
 		}
 		if countOnly {
 			return sql.CountStringFromExpression("idm_roles", "uuid", s.Driver(), query, ex, resourceExpr)
 		} else {
-			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceExpr, 100)
+			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceExpr, -1)
 		}
-
 	}
-
 }
 
 type queryBuilder idm.RoleSingleQuery

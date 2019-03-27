@@ -1,0 +1,173 @@
+{
+  "1": {
+    "other": "Editor de Roles"
+  },
+  "10": {
+    "other": "Use el selector de abajo para seleccionar las acciones que quiere deshabilitar para los usuarios de este rol. Puede elegir deshabilitar la acción para todos los repositorios o sólo para un workspace."
+  },
+  "11": {
+    "other": "Indetificador del Plugin"
+  },
+  "12": {
+    "other": "Seleccione un plugin..."
+  },
+  "12a": {
+    "other": "Seleccione una acción..."
+  },
+  "12b": {
+    "other": "Seleccione un parámetro..."
+  },
+  "12c": {
+    "other": "Seleccione uno o todos los workspaces..."
+  },
+  "12d": {
+    "other": "Todos los Workspaces"
+  },
+  "12e": {
+    "other": "Workspaces Compartidos"
+  },
+  "13": {
+    "other": "Nombre de la Acción"
+  },
+  "14": {
+    "other": "Alcance del Repositorio"
+  },
+  "15": {
+    "other": "Añadir acción"
+  },
+  "16": {
+    "other": "Use los selectores de abajo para seleccionar los parámetros que quiere ajustar para los usuarios de este rol. Pueden ser aplicados a todos los workspaces o sólo a uno, depende del contexto del plugin."
+  },
+  "17": {
+    "other": "Nombre del Parámetro"
+  },
+  "18": {
+    "other": "Añadir parámetros"
+  },
+  "19": {
+    "other": "Hay cambios sin guardar, ¿seguro que quiere cerrar?"
+  },
+  "2": {
+    "other": "Editor de roles"
+  },
+  "20": {
+    "other": "Rol actualizado correctamente"
+  },
+  "21": {
+    "other": "ID de Usuario"
+  },
+  "22": {
+    "other": "Perfil Especial"
+  },
+  "23": {
+    "other": "Repositorio por Defecto"
+  },
+  "24": {
+    "other": "Roles de Usuario"
+  },
+  "25": {
+    "other": "Cambiar Contraseña"
+  },
+  "26": {
+    "other": "Bloquear usuario"
+  },
+  "27": {
+    "other": "Reactivar usuario"
+  },
+  "28": {
+    "other": "Forzar cambio de contraseña"
+  },
+  "28b": {
+    "other": "Cancelar cambio de contraseña"
+  },
+  "29": {
+    "other": "Introducir nueva contraseña para el usuario"
+  },
+  "3": {
+    "other": "Información de cuenta"
+  },
+  "30": {
+    "other": "Confirmar"
+  },
+  "31": {
+    "other": "ID del Rol"
+  },
+  "32": {
+    "other": "Etiqueta del Rol"
+  },
+  "33": {
+    "other": "Aplicar automáticamente a usuario con el perfil..."
+  },
+  "34": {
+    "other": "ID del Grupo"
+  },
+  "35": {
+    "other": "Etiqueta del Grupo"
+  },
+  "36": {
+    "other": "bloqueado"
+  },
+  "37": {
+    "other": "Denegar"
+  },
+  "38": {
+    "other": "heredado"
+  },
+  "39": {
+    "other": "Deshabilitado"
+  },
+  "4": {
+    "other": "ACL"
+  },
+  "40": {
+    "other": "Habilitado"
+  },
+  "41": {
+    "other": "Borrar"
+  },
+  "42": {
+    "other": "Datos personalizados del rol"
+  },
+  "43": {
+    "other": "Seleccione uno o más"
+  },
+  "44": {
+    "other": "Ajuste Fino de Plugins"
+  },
+  "45": {
+    "other": "Listas de Control de Acceso"
+  },
+  "46": {
+    "other": "Deshabilitar Acciones"
+  },
+  "47": {
+    "other": "Search Roles"
+  },
+  "5": {
+    "other": "Acciones"
+  },
+  "6": {
+    "other": "Parámetros"
+  },
+  "7": {
+    "other": "Datos Internos"
+  },
+  "8": {
+    "other": "Información Personal"
+  },
+  "9": {
+    "other": "Selecciona los workspaces a los que este workspace va a tener acceso. Use el valor 'Denegar' para sobreescribir el valor de un rol anterior o denegar el acceso a este workspace incluso a roles heredados."
+  },
+  "dashboard.description": {
+    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+  },
+  "dashboard.technical.hide": {
+    "other": "Hide technical roles"
+  },
+  "dashboard.technical.show": {
+    "other": "Show technical roles"
+  },
+  "last_update": {
+    "other": "Last updated"
+  }
+}

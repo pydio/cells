@@ -19,6 +19,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	// SQLite is used for the tests.
 	_ "github.com/mattn/go-sqlite3"
+	_ "gopkg.in/doug-martin/goqu.v4/adapters/sqlite3"
 )
 
 var (
@@ -86,7 +87,7 @@ func TestQueryBuilder(t *testing.T) {
 			Limit:      10,
 		}
 
-		s := sql.NewQueryBuilder(simpleQuery, converter).Expression("sqlite")
+		s := sql.NewQueryBuilder(simpleQuery, converter).Expression("sqlite3")
 		So(s, ShouldNotBeNil)
 
 	})
@@ -174,7 +175,7 @@ func TestQueryBuilder(t *testing.T) {
 
 		{
 			users := new([]interface{})
-			e := mockDAO.Search(&service.Query{Offset: 4}, users)
+			e := mockDAO.Search(&service.Query{Offset: 4, Limit: 10}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}
@@ -540,14 +541,14 @@ func TestQueryBuilder(t *testing.T) {
 			userQueryAny3, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
 				GroupPath: "/anotherGroup",
 			})
-			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}})
+			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}}, make(chan *idm.User, 100))
 			So(e3, ShouldBeNil)
 			So(num, ShouldEqual, 2)
 		}
 
 		{
 			// Delete all should be prevented
-			_, e3 := mockDAO.Del(&service.Query{})
+			_, e3 := mockDAO.Del(&service.Query{}, make(chan *idm.User, 100))
 			So(e3, ShouldNotBeNil)
 		}
 
@@ -557,7 +558,7 @@ func TestQueryBuilder(t *testing.T) {
 				GroupPath: "/path/to/group/",
 				Login:     "admin",
 			})
-			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}})
+			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}}, make(chan *idm.User, 100))
 			So(e3, ShouldBeNil)
 			So(num, ShouldEqual, 1)
 		}

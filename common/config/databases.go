@@ -35,7 +35,6 @@ var (
 func loadDatabases() {
 	Get("databases").Scan(&databases)
 
-	//defaultDriver, defaultDSN = databases.Database(Get("defaults", "database").String("default"))
 	if defaultDbKey := Get("defaults", "database").String(""); defaultDbKey != "" {
 		if _, ok := databases[defaultDbKey]; ok {
 			sMap := databases.StringMap(defaultDbKey)
@@ -50,7 +49,7 @@ func loadDatabases() {
 
 	// If no database is found, stop everything, there's a config issue!
 	if defaultDriver == "" {
-		log.Fatal("Cannot find default database! Please make sure that databases are correctly configured!")
+		log.Fatal("Cannot find default database! Please make sure that databases are correctly configured and started.")
 	}
 }
 

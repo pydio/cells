@@ -1,0 +1,179 @@
+{
+  "39": {
+    "other": "Arbeitsumgebung auswählen."
+  },
+  "40": {
+    "other": "Willkommen, %s!"
+  },
+  "41": {
+    "other": "Standardmässig öffnen"
+  },
+  "42": {
+    "other": "Öffnen"
+  },
+  "43": {
+    "other": "Mein Profil"
+  },
+  "43t": {
+    "other": "Alle meine persönlichen Dateien"
+  },
+  "44": {
+    "other": "Mein Benutzerkonto"
+  },
+  "45": {
+    "other": "Persönliche Daten"
+  },
+  "46": {
+    "other": "Adressbuch"
+  },
+  "47": {
+    "other": "Von Ihnen erstellte Benutzer"
+  },
+  "48": {
+    "other": "Meine Benutzer"
+  },
+  "49": {
+    "other": "Freigaben-Benutzer, die Sie erstellt haben"
+  },
+  "50": {
+    "other": "Meine Teams"
+  },
+  "51": {
+    "other": "Um Inhalte schnell an einen bestimmten Personenkreis freizugeben"
+  },
+  "52": {
+    "other": "Möchten Sie dieses Team wirklich löschen? Es werden dabei keine Benutzer gelöscht."
+  },
+  "53": {
+    "other": "Erste Schritte"
+  },
+  "54": {
+    "other": "Machen Sie Ihre ersten Schritte mit APPLICATION_TITLE mit folgenden Video-Kurzanleitungen"
+  },
+  "55": {
+    "other": "Unterstützung für die <a>ersten Schritte?</a>"
+  },
+  "56": {
+    "other": "Ihre ersten Schritte mit APPLICATION_TITLE? Hier finden Sie einige Videos dazu!"
+  },
+  "57": {
+    "other": "APPLICATION_TITLE herunterladen für..."
+  },
+  "58": {
+    "other": "Android"
+  },
+  "59": {
+    "other": "iPhone & iPad"
+  },
+  "60": {
+    "other": "Mac OS"
+  },
+  "61": {
+    "other": "Windows"
+  },
+  "62": {
+    "other": "<h2>[How-to] Was ist ein Arbeitsbereich?</h2>\n            Diese Video erklärt Arbeitsbreiche APPLICATION_TITLE\n            <ul>\n                <li>Warum sind Arbeitsbereiche zentral in APPLICATION_TITLE?</li>\n                <li>Was sind Arbeitsbereiche aus technischer Sicht?</li>\n                <li>Wie helfe Sie Ihre Datei Arbeit zu organisieren?</li>\n            </ul>\n            "
+  },
+  "63": {
+    "other": "<h2>[How-to] Dateien zu APPLICATION_TITLE hochladen</h2>\n            Beginnen Sie mit APPLICATION_TITLE und erfahren Sie, wie Sie Dateien hochladen können.\n            <ul>\n                <li>Drag and Drop von Dateien in APPLICATION_TITLE</li>\n                <li>Erstellen neuer Ordner</li>.\n                <li>Dateien und Ordner umbenennen</li>\n                <li>Download von Dateien auf Ihren Computer </li>           \n</ul>            "
+  },
+  "64": {
+    "other": "<h2>[How-to] Durchsuchen und verwalten Sie Ihre Dateien</h2>\n            Dieses Video zeigt Ihnen verschiedene Tipps zur effizienten Verwaltung Ihrer Dateien in APPLICATION_TITLE.\n            <ul>\n                <li>Arbeitsbereichsübergreifende Suchleiste</li>\n                <li>Inhaltsanzeigemodi, Tastenkombinationen </li>\n                <li>Dateiesortierung</li>\n                <li>Metadaten, Lesezeichen</li>\n            </ul>            "
+  },
+  "65": {
+    "other": "Mehr über APPLICATION_TITLE im YouTube-Kanal erfahren!"
+  },
+  "66": {
+    "other": "<h2>APPLICATION_TITLE auf iOS-Geräten verwenden</h2>\n                            Das folgende Video erklärt die Verwendung der APPLICATION_TITLE App (verfügbar im App Store). Die Nutzung auf Android ist ähnlich.\n<ul><li>Serververbindung einrichten</li>\n<li>Dateinavigation</li>\n<li>Dateien offline speichern</li>\n<li>App mit einem PIN-Code schützen</li>\n<li>Verwenden von Lesezeichen und der Suchfunktion</li></ul>"
+  },
+  "67": {
+    "other": "Sie sind nicht %s? %logout."
+  },
+  "68": {
+    "other": "Sync-Client für Windows herunterladen"
+  },
+  "69": {
+    "other": "Sync-Client für Mac OSX herunterladen"
+  },
+  "70": {
+    "other": "App für iOS-Geräte"
+  },
+  "71": {
+    "other": "App für Android-Geräte"
+  },
+  "72": {
+    "other": "Server-QRCode"
+  },
+  "73": {
+    "other": "App schnell verbinden"
+  },
+  "74": {
+    "other": "QRCode scannen um eine Verbindung zum Server zu konfigurieren"
+  },
+  "75": {
+    "other": "Alle Dateien durchsuchen..."
+  },
+  "76": {
+    "other": "Über das Menü oben rechts können Sie auf die %1 zugreifen"
+  },
+  "77": {
+    "other": "Einstellungen"
+  },
+  "78": {
+    "other": "Wählen Sie eine Ziel-Arbeitsumgebung"
+  },
+  "79": {
+    "other": "<h2>[How-to] Austausch von Dateien und Ordnern</h2>\n            Dieses Tutorial zeigt Ihnen gewusst wie: Freigeben von Dateien und Ordnern, intern oder extern         \n            <ul>\n                <li>Erstellen Anteil Links für externe Personen</li>\n                <li>Freigeben von Dateien und Ordnern mit internen Mitarbeitern</li>\n                <li>Freigabe eines Ordners als Arbeitsbereich</li>\n                <li>Layoutoptionen der gemeinsame Ordner</li>\n                <li>Erstellen einen Blind drop Ordner</li>\n                <li>Verwalten von Benutzern und teilen Rechte</li>\n            </ul>\n            "
+  },
+  "80": {
+    "other": "<h2>[How-to] Sharing : Sicherheit Features</h2>\n            Dieses Video durchläuft verschiedene Freigabeeinstellungen, die Ihnen helfen, Ihre Freigaben zu sichern\n            <ul>\n                <li>Passwort Schutz</li>\n                <li>Ablauf Datum</li>\n                <li>Anzahl der Downloads begrenzen</li>\n            </ul>\n            "
+  },
+  "81": {
+    "other": "<h2>[How-to] Passen Sie Ihre Share-Links an</h2>\n            Erfahren Sie, wie Sie die URL Ihrer Share-Links anpassen können, damit sie benutzerfreundlicher aussehen.\n            "
+  },
+  "82": {
+    "other": "<h2> [How-to] Benutzerdefinierte Rechte für shared Links </h2> \n            In diesem Video wird beschrieben, wie Sie die Berechtigungen verwalten, die Ihren Freigaben zugeordnet sind.\n            <ul>\n                <li>Vorschau</li>\n                <li>Herunterladen</li>\n                <li >Hochladen / Bearbeiten</li>\n             </ul>\n"
+  },
+  "83": {
+    "other": "<h2>[How-to] Sprache</h2>\n            APPLICATION_TITLE ist in 28 Sprachen verfügbar. Dieses Video zeigt Ihnen, wie Sie die Sprache in APPLICATION_TITLE ändern können.            "
+  },
+  "84": {
+    "other": "<h2>[How-to] Warnmeldungen</h2>\n            Erfahren Sie, wie Sie Warnmeldungen für eine Datei einrichten, um zu sehen, wann sie geändert oder konsultiert wurde.            "
+  },
+  "85": {
+    "other": "<h2>[How-to] Kollaborative Ausgabe</h2>\n             Dieses Video zeigt Ihnen, wie Sie dank der Collabora Online Office auf Dokumenten mit Anderen zusammenarbeiten können.\n            <ul>\n                <li>Arbeiten an Textdokumenten, Präsentationen und Tabellenkalkulationen</li>\n                <li>Dokumente in Echtzeit kollaborativ bearbeiten</li>\n                <li>Erstellen Sie neue Dokumente direkt aus Ihrem Browser heraus</li>.\n            </ul>            "
+  },
+  "86": {
+    "other": "Video abspielen"
+  },
+  "87": {
+    "other": "Historie"
+  },
+  "88": {
+    "other": "Dateien vom Desktop hierher ziehen"
+  },
+  "89": {
+    "other": "Zum Hochladen ausgehälte Datei"
+  },
+  "90": {
+    "other": "Ziel-Arbeitsumgebung auswählen"
+  },
+  "91": {
+    "other": "Dateien mit dem Sync-Client offline synchronisieren"
+  },
+  "92": {
+    "other": "Programme herunterladen"
+  },
+  "93": {
+    "other": "Dateien hochladen"
+  },
+  "94": {
+    "other": "Video-Tutorial"
+  },
+  "desc": {
+    "other": "Willkommen-Seite"
+  },
+  "title": {
+    "other": "Hauptseite"
+  }
+}

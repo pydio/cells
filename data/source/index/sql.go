@@ -20,9 +20,15 @@
 package index
 
 import (
-	"github.com/pydio/cells/common/config"
+	"context"
+	"time"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
 var (
@@ -36,7 +42,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
@@ -54,6 +60,17 @@ func (s *sqlimpl) Init(options config.Map) error {
 				return err
 			}
 		}
+	}
+
+	if _, err := s.IndexSQL.GetNode(mtree.NewMPath(1)); err != nil {
+		log.Logger(context.Background()).Info("Creating root node in index ")
+		treeNode := mtree.NewTreeNode()
+		treeNode.Type = tree.NodeType_COLLECTION
+		treeNode.Uuid = "ROOT"
+		treeNode.SetMPath(1)
+		treeNode.Level = 1
+		treeNode.MTime = time.Now().Unix()
+		s.IndexSQL.AddNode(treeNode)
 	}
 
 	return nil

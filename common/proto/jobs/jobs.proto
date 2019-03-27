@@ -106,6 +106,9 @@ message Job {
     // Task properties
     int32 MaxConcurrency = 9;
 
+    // Do not send notification on task update
+    bool TasksSilentUpdate = 12;
+
     // Filled with currently running tasks
     repeated Task Tasks = 14;
 }
@@ -154,6 +157,10 @@ message ListJobsRequest {
     bool TimersOnly = 3;
 
     TaskStatus LoadTasks = 4;
+
+    repeated string JobIDs = 5;
+    int32 TasksOffset = 6;
+    int32 TasksLimit = 7;
 }
 
 message ListJobsResponse {
@@ -302,6 +309,7 @@ message ActionOutput {
     bytes JsonBody = 4;
     string ErrorString = 5;
     bool Ignored = 6;
+    int32 Time = 7;
 }
 
 // Message passed along from one action to another, main properties

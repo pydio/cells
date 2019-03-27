@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Receber notificações de..."
+  },
+  "10": {
+    "other": "Alguém está a abrir o ficheiro"
+  },
+  "10b": {
+    "other": "Alguém está a explorar a pasta"
+  },
+  "11": {
+    "other": "Alterações"
+  },
+  "12": {
+    "other": "Alguém está a alterar o ficheiro"
+  },
+  "12b": {
+    "other": "Alguém está a modificar um ficheiro dentro desta pasta"
+  },
+  "13": {
+    "other": "Ambos"
+  },
+  "14": {
+    "other": "Alguém está a abrir ou a escrever no ficheiro"
+  },
+  "14b": {
+    "other": "Alguém está a explorar ou a modificar os conteúdos desta pasta"
+  },
+  "2": {
+    "other": "Ser notificado sempre que esta pasta for acedida"
+  },
+  "3": {
+    "other": "Desligar Notificações"
+  },
+  "4": {
+    "other": "Desactivar notificações de acesso para esta pasta"
+  },
+  "5": {
+    "other": "Receber notificações de..."
+  },
+  "6": {
+    "other": "Ser notificado sempre que este ficheiro for alterado"
+  },
+  "7": {
+    "other": "Desligar Notificações"
+  },
+  "8": {
+    "other": "Desactivar notificações de alterações para este ficheiro"
+  },
+  "9": {
+    "other": "Consultar"
+  }
+}

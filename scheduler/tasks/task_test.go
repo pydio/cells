@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 
 	// registered default scheduler actions
+	"github.com/pydio/cells/common/service/context"
 	_ "github.com/pydio/cells/scheduler/actions/scheduler"
 )
 
@@ -54,8 +55,9 @@ func TestNewTaskFromEvent(t *testing.T) {
 			Event: ev,
 		}
 		So(task.lockedTask, ShouldNotBeNil)
+		outCtx := servicecontext.WithOperationID(context.Background(), "ajob-"+task.lockedTask.ID[0:8])
 		So(task, ShouldResemble, &Task{
-			context:        context.Background(),
+			context:        outCtx,
 			Job:            &jobs.Job{ID: "ajob"},
 			lock:           &sync.RWMutex{},
 			initialMessage: msg,

@@ -23,18 +23,21 @@ package rest
 
 import (
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_ACL),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("RESTFul - Access Control List service"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
-		service.WithWeb(func() service.WebHandler {
-			return new(Handler)
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_ACL),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("RESTFul - Access Control List service"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.WithWeb(func() service.WebHandler {
+				return new(Handler)
+			}),
+		)
+	})
 }

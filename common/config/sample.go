@@ -26,12 +26,19 @@ var SampleConfig = `{
     "ports":{
         "nats": 4222
     },
+    "frontend":{
+        "secureHeaders":{
+			"X-XSS-Protection": "1; mode=block"
+		},
+        "plugin": {
+            "editor.libreoffice": {
+                "LIBREOFFICE_HOST": "localhost",
+                "LIBREOFFICE_PORT": "9980",
+                "LIBREOFFICE_SSL": true
+            }
+        }
+    },
     "services":{
-        "consul": {
-            "data_dir": "/tmp/consul",
-            "server": true,
-            "bootstrap": true
-        },
         "pydio.grpc.config":{
             "dsn": "default"
         },
@@ -51,7 +58,7 @@ var SampleConfig = `{
 			"sender": {
 				"@value": "smtp",
 				"host": "my.smtp.server",
-				"password": "user",
+				"password": "",
 				"port": 465,
 				"user": "name"
 			}

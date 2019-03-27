@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Comprimi"
+  },
+  "10": {
+    "other": "Estrai gli archivi selezionati"
+  },
+  "11": {
+    "other": "Percorsi dei file estratti "
+  },
+  "12": {
+    "other": "Avvio estrazione..."
+  },
+  "13": {
+    "other": "Estrazione file ... %s "
+  },
+  "14": {
+    "other": "Estrazione avvenuta correttamente nella cartella '%s'."
+  },
+  "15": {
+    "other": "I file selezionati non sono archivi TAR, TAR.GZ o TAR.BZ2."
+  },
+  "16": {
+    "other": "E' possibile comprimere solo in TAR, TAR.GZ o TAR.BZ2."
+  },
+  "17": {
+    "other": "Non è possibile comprire una cartella vuota."
+  },
+  "2": {
+    "other": "Comprimi i file selezionati"
+  },
+  "3": {
+    "other": "Comprimi in"
+  },
+  "4": {
+    "other": "Nome archivio"
+  },
+  "5": {
+    "other": "Avvio compressione..."
+  },
+  "6": {
+    "other": "Aggiunta file all'archivio... %s "
+  },
+  "7": {
+    "other": "Compressione in %s ..."
+  },
+  "8": {
+    "other": "Archivio creato correttamente!!"
+  },
+  "9": {
+    "other": "Estrai"
+  }
+}

@@ -22,8 +22,11 @@ package log
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/index/scorch"
+	"github.com/blevesearch/bleve/index/store/boltdb"
 	"github.com/rs/xid"
 
 	"github.com/pydio/cells/common/proto/log"
@@ -33,55 +36,89 @@ import (
 type SyslogServer struct {
 	Index bleve.Index
 	idgen xid.ID
+
+	inserts  chan map[string]string
+	done     chan bool
+	crtBatch *bleve.Batch
 }
 
 // NewSyslogServer creates and configures a default Bleve instance to store technical logs
-func NewSyslogServer(bleveIndexPath string, deleteOnClose ...bool) (*SyslogServer, error) {
-
+func NewSyslogServer(bleveIndexPath string, mappingName string, deleteOnClose ...bool) (*SyslogServer, error) {
 	index, err := bleve.Open(bleveIndexPath)
-	if err == nil {
-		// Already existing, no need to create
-		return &SyslogServer{Index: index}, nil
-	}
-
-	indexMapping := bleve.NewIndexMapping()
-
-	// Create, configure and add a specific document mapping
-	logMapping := bleve.NewDocumentMapping()
-
-	// Specific fields
-	// standardFieldMapping := bleve.NewTextFieldMapping()
-	// logMapping.AddFieldMappingsAt("level", standardFieldMapping)
-	// dateFieldMapping := bleve.NewDateTimeFieldMapping()
-	// logMapping.AddFieldMappingsAt("ts", dateFieldMapping)
-	// keywordFieldMapping := bleve.NewTextFieldMapping()
-	// keywordFieldMapping.Analyzer = keyword.Name
-	// logMapping.AddFieldMappingsAt("msg", keywordFieldMapping)
-
-	indexMapping.AddDocumentMapping("sysLog", logMapping)
-
-	// Creates the new index and initialises the server
-	if bleveIndexPath == "" {
-		index, err = bleve.NewMemOnly(indexMapping)
-	} else {
-		index, err = bleve.New(bleveIndexPath, indexMapping)
-	}
 	if err != nil {
-		return &SyslogServer{}, err
+		indexMapping := bleve.NewIndexMapping()
+		// Create, configure and add a specific document mapping
+		logMapping := bleve.NewDocumentMapping()
+		indexMapping.AddDocumentMapping(mappingName, logMapping)
+
+		// Creates the new index and initializes the server
+		if bleveIndexPath == "" {
+			index, err = bleve.NewMemOnly(indexMapping)
+		} else {
+			index, err = bleve.NewUsing(bleveIndexPath, indexMapping, scorch.Name, boltdb.Name, nil)
+		}
+		if err != nil {
+			return &SyslogServer{}, err
+		}
 	}
-	return &SyslogServer{Index: index}, nil
+	server := &SyslogServer{
+		Index:   index,
+		inserts: make(chan map[string]string),
+		done:    make(chan bool),
+	}
+	go server.watchInserts()
+	return server, nil
 }
 
-// PutLog  simply add a new LogMessage in the syslog repo
+func (s *SyslogServer) watchInserts() {
+	for {
+		select {
+		case line := <-s.inserts:
+			if msg, err := MarshallLogMsg(line); err == nil {
+				if s.crtBatch == nil {
+					s.crtBatch = s.Index.NewBatch()
+				}
+				s.crtBatch.Index(xid.New().String(), msg)
+				if s.crtBatch.Size() > 5000 {
+					s.flush()
+				}
+			}
+		case <-time.After(3 * time.Second):
+			s.flush()
+		case <-s.done:
+			s.flush()
+			s.Index.Close()
+			return
+		}
+	}
+}
+
+func (s *SyslogServer) flush() {
+	if s.crtBatch != nil {
+		s.Index.Batch(s.crtBatch)
+		s.crtBatch = nil
+	}
+}
+
+func (s *SyslogServer) Close() {
+	close(s.done)
+}
+
+// PutLog  adds a new LogMessage in the syslog index.
 func (s *SyslogServer) PutLog(line map[string]string) error {
-	return BlevePutLog(s.Index, line)
+	s.inserts <- line
+	return nil
 }
 
-// ListLogs performs a simple query in the bleve index, based on the passed query string and
-// returns the results as a stream of log.ListLogResponse for each corresponding hit.
+// ListLogs performs a query in the bleve index, based on the passed query string.
+// It returns results as a stream of log.ListLogResponse for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
 func (s *SyslogServer) ListLogs(str string, page, size int32) (chan log.ListLogResponse, error) {
 	return BleveListLogs(s.Index, str, page, size)
+}
+
+func (s *SyslogServer) DeleteLogs(query string) (int64, error) {
+	return BleveDeleteLogs(s.Index, query)
 }
 
 // AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.

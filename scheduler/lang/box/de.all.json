@@ -1,0 +1,62 @@
+{
+  "Jobs.Default.Thumbs": {
+    "other": "Extrahieren von Vorschaubildern und Exif-Daten"
+  },
+  "Jobs.Default.ThumbsCache": {
+    "other": "Thumbnail-Cache für gelöschte Dateien entfernen"
+  },
+  "Jobs.Default.Directories": {
+    "other": "Externe Verzeichnisse synchronisieren"
+  },
+  "Jobs.Default.PruneJobs": {
+    "other": "Aktuelle Aufträgen und Aufgaben im Taskmanager bereinigen"
+  },
+  "Jobs.Default.FakeLongJob": {
+    "other": "Simuliere lang laufenden Job (zu Testzwecken)"
+  },
+  "Jobs.Default.FakeUsersJob": {
+    "other": "Erstellung zufälliger Benutzer (zu Testzwecken)"
+  },
+  "Jobs.Default.FakeGrpcJob": {
+    "other": "Muster RPC-Job (zu Testzwecken)"
+  },
+  "Jobs.Default.ArchiveJobs": {
+    "other": "Automatische Archivierung des Änderungsdienstes"
+  },
+  "Jobs.User.Compress": {
+    "other": "Auswahl wird komprimiert..."
+  },
+  "Jobs.User.Extract": {
+    "other": "Archiv wird entpackt..."
+  },
+  "Jobs.User.Delete": {
+    "other": "Auswahl wird im Hintergrund gelöscht..."
+  },
+  "Jobs.User.DirCopy": {
+    "other": "Ordner wird im Hintergrund kopiert..."
+  },
+  "Jobs.User.DirMove": {
+    "other": "Ordner wird im Hintergrund verschoben..."
+  },
+  "Jobs.User.FileCopy": {
+    "other": "Datei wird im Hintergrund kopiert..."
+  },
+  "Jobs.User.FileMove": {
+    "other": "Datei wird im Hintergrund verschoben..."
+  },
+  "Jobs.User.MultipleCopy": {
+    "other": "Auswahl wird im Hintergrund kopiert..."
+  },
+  "Jobs.User.MultipleMove": {
+    "other": "Auswahl wird im Hintergrund verschoben..."
+  },
+  "Jobs.User.MoveRecycle": {
+    "other": "Wird im Hintergrund in den Papierkorb verschoben..."
+  },
+  "Jobs.User.ResyncDS": {
+    "other": "Neuindizierung der Datenquelle {{.DsName}}..."
+  },
+  "Jobs.User.Wget": {
+    "other": "Datei wird im Hintergrund heruntergeladen..."
+  }
+}

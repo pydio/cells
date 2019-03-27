@@ -1,0 +1,26 @@
+{
+  "1": {
+    "other": "Reimpostazione della Password"
+  },
+  "2": {
+    "other": "Imposta la nuova password"
+  },
+  "3": {
+    "other": "Inserisci il login o l'indirizzo email, una password di reset verrà inviata al tuo indirizzo email."
+  },
+  "4": {
+    "other": "Inserisci login o e-mail"
+  },
+  "5": {
+    "other": "La richiesta di reimpostazione della password è stata inviata all'indirizzo email associato al tuo account. Clicca sul link nell'email per creare una nuova password."
+  },
+  "6": {
+    "other": "Grazie, ricarica la pagina per effettuare il login!"
+  },
+  "7": {
+    "other": "La reimpostazione della password è stata richiesta dall'account associato a questo indirizzo email. Se non sei l'autore della richiesta, puoi tranquillamente ignorare questo messaggio. Altrimenti, clicca sul seguente link per reimpostare la tua password:"
+  },
+  "8": {
+    "other": "Usa il modulo qui sotto per reimpostare la password. Inserisci il tuo login e la nuova password (due volte)."
+  }
+}

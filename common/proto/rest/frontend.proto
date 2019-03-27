@@ -2,38 +2,14 @@ syntax = "proto3";
 
 package rest;
 
-// Frontend Log Level
-enum LogLevel{
-    DEBUG = 0;
-    INFO = 1;
-    NOTICE = 2;
-    WARNING = 3;
-    ERROR = 4;
-}
-
-// Frontend message to log
-message FrontLogMessage{
-    LogLevel Level = 1;
-    string Ip = 2;
-    string UserId = 3;
-    string WorkspaceId = 4;
-    string Source = 5;
-    string Prefix = 6;
-    string Message = 7;
-    repeated string Nodes = 8;
-}
-
-// Basic response for confirmation
-message FrontLogResponse{
-    bool Success = 1;
-}
-
 message SettingsMenuRequest{}
 
 message SettingsEntryMeta{
     string IconClass = 1 [json_name="icon_class"];
     string Component = 2 [json_name="component"];
     string Props = 3 [json_name="props"];
+    bool Advanced = 4 [json_name="advanced"];
+    repeated string Indexed = 5 [json_name="indexed"];
 }
 
 message SettingsEntry {
@@ -56,6 +32,59 @@ message SettingsMenuResponse{
     SettingsEntryMeta RootMetadata = 1 [json_name="__metadata__"];
     repeated SettingsSection Sections = 2;
 }
+
+message FrontStateRequest {}
+message FrontStateResponse {}
+
+message FrontPluginsRequest {
+    string Lang = 1;
+}
+message FrontPluginsResponse {}
+
+message FrontMessagesRequest{
+    string Lang = 1;
+}
+message FrontMessagesResponse{
+    map<string,string> Messages = 1;
+}
+
+message FrontSessionRequest{
+    // Time reference for computing jwt expiry
+    int32 ClientTime = 1;
+    // Data sent back by specific auth steps
+    map<string,string> AuthInfo = 2;
+    // Kill session now
+    bool Logout = 3;
+}
+message FrontSessionResponse{
+    string JWT = 1;
+    int32 ExpireTime = 2;
+
+    // Trigger a specific Auth step
+    string Trigger = 3;
+    // Additional data for the trigger
+    map<string,string> TriggerInfo = 4;
+}
+
+message FrontEnrollAuthRequest{
+    string EnrollType = 1;
+    map<string,string> EnrollInfo = 2;
+}
+
+message FrontEnrollAuthResponse {
+    // Any parameters can be returned
+    map<string,string> Info = 1;
+}
+
+// Donwload binary
+message FrontBinaryRequest {
+    // Currently supported values are USER and GLOBAL
+    string BinaryType = 1;
+    // Id of the binary
+    string Uuid = 2;
+}
+// Not used, endpoint returns octet-stream
+message FrontBinaryResponse {}
 
 message FrontBootConfRequest {}
 message FrontBootConfResponse {

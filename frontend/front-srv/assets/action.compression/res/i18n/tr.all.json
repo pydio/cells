@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Sıkıştır"
+  },
+  "10": {
+    "other": "Seçtiniz arşivi ayıklamak"
+  },
+  "11": {
+    "other": "Ayıklanan dosyaların hedefi"
+  },
+  "12": {
+    "other": "Arşiv Ayıklanıyor..."
+  },
+  "13": {
+    "other": "Dosyalar ayıklanıyor... %s"
+  },
+  "14": {
+    "other": "Dosyalar %s nın klasöründe başarıyla ayıklandı."
+  },
+  "15": {
+    "other": "Seçtiniz dosya TAR, TAR.GZ yada TAR.BZ2 arşiv biçimi değil."
+  },
+  "16": {
+    "other": "Arşiv biçimi TAR, TAR.GZ yada TAR.BZ2 olmalıdır."
+  },
+  "17": {
+    "other": "Boş klasörleri sıkıştıramazsınız."
+  },
+  "2": {
+    "other": "Seçtinizi sıkıştır"
+  },
+  "3": {
+    "other": "Arşiv biçimi seçiniz"
+  },
+  "4": {
+    "other": "Arşivin ismi"
+  },
+  "5": {
+    "other": "Sıkıştırma başlıyor..."
+  },
+  "6": {
+    "other": "Dosya arşivin içine ekleniyor... %s "
+  },
+  "7": {
+    "other": "%s ile sıkıştırma..."
+  },
+  "8": {
+    "other": "Arşiv başarıyla oluşturuldu."
+  },
+  "9": {
+    "other": "Arşivi ayıklamak"
+  }
+}

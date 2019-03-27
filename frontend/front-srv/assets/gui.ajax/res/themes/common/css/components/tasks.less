@@ -1,0 +1,58 @@
+@pydio-task-panel-height: 60px;
+@pydio-task-panel-width: 356px;
+@pydio-task-panel-margin: 20px;
+
+div.pydio-tasks-panel{
+  position: absolute;
+  width: @pydio-task-panel-width;
+  height: @pydio-task-panel-height;
+  bottom: @pydio-task-panel-margin;
+  right: @pydio-task-panel-margin;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: white;
+  /*box-shadow: @reactBoxShadowDepth1;*/
+  z-index: 20001;
+  transition: @bezier_transition;
+  &.invisible{
+    right: -@pydio-task-panel-width - 5px;
+  }
+  div.task{
+    padding: 10px;
+    border-bottom: 1px solid #f2f2f2;
+    display: flex;
+    flex-direction: row;
+    .task_texts{
+      flex: 5;
+      max-width: @pydio-task-panel-width - 60px;
+      div{
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      div.task_label{
+        font-weight: 500;
+      }
+    }
+    &.show-full .task_texts div{
+      text-overflow: inherit;
+      overflow: visible;
+      white-space: normal;
+    }
+    .task_actions{
+      cursor: pointer;
+      > span{
+        display: inline-block;
+        margin-top: 11px;
+        color: #325e74;
+        margin-left: 10px;
+        font-size: 20px;
+      }
+    }
+    &.task-status-8{ /* error status */
+      .task_texts .status_message, .task_actions > span{
+        color: #d32f2f;
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "Auth.PruneJob.Title": {
+    "other": "Elimina i token revocati e le chiavi di reimpostazione delle password scadute"
+  },
+  "Auth.PruneJob.Revoked": {
+    "one": "Eliminato {{.Count}} token revocati scaduto",
+    "other": "Eliminati {{.Count}} token revocati scaduti"
+  },
+  "Auth.PruneJob.ResetToken": {
+    "one": "Eliminata {{.DeletionCount}} chiave di reimpostazione delle password scaduta",
+    "other": "Eliminate {{.DeletionCount}} chiavi di reimpostazione delle password scadute"
+  }
+}

@@ -26,10 +26,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
@@ -103,6 +105,10 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 			return er
 		}
 		if r, er2 := m.next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode}); er2 != nil {
+			parsedErr := errors.Parse(er2.Error())
+			if parsedErr.Code == http.StatusConflict {
+				return nil
+			}
 			return er2
 		} else if r != nil {
 			log.Logger(ctx).Debug("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
@@ -119,6 +125,10 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 			if er != nil {
+				parsedErr := errors.Parse(er.Error())
+				if parsedErr.Code == http.StatusConflict {
+					return nil
+				}
 				return er
 			}
 		}
@@ -158,7 +168,7 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 	if node.Uuid != "" {
 
 		log.Logger(ctx).Debug("PUT: Appending node Uuid to request metadata: " + node.Uuid)
-		requestData.Metadata["X-Amz-Meta-Pydio-Node-Uuid"] = node.Uuid
+		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = node.Uuid
 		return m.next.PutObject(ctx, node, reader, requestData)
 
 	} else {
@@ -174,9 +184,10 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 			reader = bytes.NewBufferString(newNode.Uuid)
 		}
 
-		requestData.Metadata["X-Amz-Meta-Pydio-Node-Uuid"] = newNode.Uuid
+		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = newNode.Uuid
 		if encrypted {
-			requestData.Metadata["X-Amz-Meta-Pydio-Clear-Size"] = fmt.Sprintf("%d", requestData.Size)
+			log.Logger(ctx).Debug("Adding special header to store clear size", zap.Any("s", requestData.Size))
+			requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", requestData.Size)
 		}
 		node.Uuid = newNode.Uuid
 		size, err := m.next.PutObject(ctx, node, reader, requestData)
@@ -203,7 +214,7 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 	if requestData.Metadata == nil {
 		requestData.Metadata = make(map[string]string)
 	}
-
+	var createErroFunc onCreateErrorFunc
 	if node.Uuid == "" { // PreCreate a node in the tree.
 		newNode, nodeErr, onErrorFunc := m.GetOrCreatePutNode(ctx, node.Path, 0)
 		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
@@ -215,18 +226,45 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 				return "", nodeErr
 			}
 		}
+		createErroFunc = onErrorFunc
 		node.Uuid = newNode.Uuid
 	} else { // Overwrite existing node
 		log.Logger(ctx).Debug("PUT - MULTIPART CREATE: Appending node Uuid to request metadata: " + node.Uuid)
 	}
 
-	requestData.Metadata["X-Amz-Meta-Pydio-Node-Uuid"] = node.Uuid
+	requestData.Metadata[common.X_AMZ_META_NODE_UUID] = node.Uuid
 
 	// Call next handler
 	multipartId, err := m.next.MultipartCreate(ctx, node, requestData)
 	if err != nil {
 		log.Logger(ctx).Debug("minio.MultipartCreate has failed, for node at path: " + node.Path)
+		if createErroFunc != nil {
+			createErroFunc()
+		}
 		return "", err
 	}
 	return multipartId, err
+}
+
+func (m *PutHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+
+	treeReader := m.clientsPool.GetTreeClient()
+	treeWriter := m.clientsPool.GetTreeClientWrite()
+
+	treePath := strings.TrimLeft(target.Path, "/")
+	existingResp, err := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{
+		Node: &tree.Node{
+			Path: treePath,
+		},
+	})
+	if err == nil && existingResp.Node != nil && existingResp.Node.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+		log.Logger(ctx).Info("Received MultipartAbort - Clean temporary node:", existingResp.Node.Zap())
+		// Delete Temporary Node Now!
+		treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
+			Path: string(norm.NFC.Bytes([]byte(treePath))),
+			Type: tree.NodeType_LEAF,
+		}})
+	}
+
+	return m.next.MultipartAbort(ctx, target, uploadID, requestData)
 }

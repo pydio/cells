@@ -1,6 +1,7 @@
 .DS_Store
 *-packr.go
 /main
+/cmd/ctl/ctl
 /cells
 /cells-ctl
 /config/file/*
@@ -8,8 +9,13 @@
 !/config/file/sample.*
 /search/pydio.bleve/
 /.project
-/.idea/
+.idea
 /.vscode/
 /debug
 /assets/src/pydio/*
 CHANGELOG.html
+node_modules
+package-lock.json
+vendor/github.com/pydio/minio-srv/vendor/golang.org/x/net/trace
+broker/log/blevetest/test/pydio.log
+discovery/metrics

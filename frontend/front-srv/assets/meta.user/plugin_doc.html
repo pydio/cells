@@ -1,0 +1,11 @@
+<p>Meta.user (previously meta.serialà is a generic implementation of a meta plugin. Basic feature is to add as many fields as wanted to the data, to attach any property to each item (folder or file). The metadata is stored as PHP serialized data inside a file in the same folder as each file. Metadata is moved/copied/deleted between folders when such operations are applied on the files.
+The plugin provides a little editor for adding/modifying these properties as simple text lines, display them in both the file list and in the infoPanel, and the added metadata is also searchable.
+This plugin is configured via the « Meta Sources » tab of each repository configuration.</p>
+<ul>Some special keywords can be used to name metadata fields, that will behave specially in terms of GUI :
+
+    <li>stars_rate : the field automatically turns into a 5-stars rating system for the files. View and edit the rating directly in the InfoPanel, in the FilesList (in list mode only for the moment), and in the « File Meta Data » form.</li>
+    <li>css_label : the field turns into a labeling system that will apply a given css class to either the table row when in list mode, or the thumbnail cell when in thumb mode. The css classes are defined in plugins/meta.serial/css and by default they define 5 levels of priority with associated background colors. Use png transparent images as background colors, that way the user can still notice when a row is selected or not.</li>
+    <li>anything_area : will create a textarea field</li>
+    
+</ul>
+<p>Warning, this plugin requires a "metastore" plugin to be active to do the actual storing implementation.</p>

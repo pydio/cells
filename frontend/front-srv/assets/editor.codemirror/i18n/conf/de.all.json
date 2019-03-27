@@ -1,0 +1,8 @@
+{
+  "Source Viewer": {
+    "other": "Quelltext-Editor"
+  },
+  "Syntax Highlighter for all major code source files": {
+    "other": "Text-Editor mit CodeMirror-Syntaxhervorhebung"
+  }
+}

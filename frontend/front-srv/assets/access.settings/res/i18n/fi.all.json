@@ -1,0 +1,539 @@
+{
+  "1": {
+    "other": "Asetustiedot"
+  },
+  "10": {
+    "other": "Metalähteet"
+  },
+  "100": {
+    "other": "Common '%s' plugins options"
+  },
+  "101": {
+    "other": "Name"
+  },
+  "102": {
+    "other": "Identifier"
+  },
+  "103": {
+    "other": "Description"
+  },
+  "104": {
+    "other": "Active"
+  },
+  "105": {
+    "other": "Automatic checks"
+  },
+  "106": {
+    "other": "Unique Identifier"
+  },
+  "107": {
+    "other": "Plugin Configurations"
+  },
+  "108": {
+    "other": "Documentation"
+  },
+  "109": {
+    "other": "Global Configurations"
+  },
+  "11": {
+    "other": "Lisää lähde"
+  },
+  "110": {
+    "other": "Repositories \u0026 Users"
+  },
+  "111": {
+    "other": "Logs \u0026 Other Data"
+  },
+  "112": {
+    "other": "\u003cb\u003eApply this role by default\u003c/b\u003e to all new users."
+  },
+  "113": {
+    "other": "Role status was successfully modified"
+  },
+  "114": {
+    "other": "Default"
+  },
+  "115": {
+    "other": "Scheme"
+  },
+  "116": {
+    "other": "Template Label"
+  },
+  "117": {
+    "other": "Template Driver"
+  },
+  "118": {
+    "other": "New group"
+  },
+  "119": {
+    "other": "Set user group"
+  },
+  "12": {
+    "other": "Meta lisäosa"
+  },
+  "120": {
+    "other": "Go Pro"
+  },
+  "121": {
+    "other": "Get professional support for your install"
+  },
+  "122": {
+    "other": "All Settings"
+  },
+  "123": {
+    "other": "Other plugins"
+  },
+  "124": {
+    "other": "Source"
+  },
+  "125": {
+    "other": "Alias"
+  },
+  "126": {
+    "other": "Are you sure that you want to delete the selected element(s)?"
+  },
+  "127": {
+    "other": "Warning, please do not use special characters, user would be created with login id '%s'"
+  },
+  "128": {
+    "other": "Successfully deleted group"
+  },
+  "129": {
+    "other": "Refresh plugins cache"
+  },
+  "13": {
+    "other": "Oletko varma, että haluat poistaa tämän lähteen?"
+  },
+  "130": {
+    "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
+  },
+  "131": {
+    "other": "Plugins cache files were deleted succesfully!"
+  },
+  "132": {
+    "other": "Cache cleared, but you are currently running in SKIP_CACHE mode (see bootstrap_context.php)."
+  },
+  "133": {
+    "other": "Core application parameters"
+  },
+  "134": {
+    "other": "Enable/disable additional feature-oriented plugins, check if they are correctly working, set up global parameters of the plugins."
+  },
+  "135": {
+    "other": "Enable/disable core plugins (auth, conf, mail, etc), check if they are correctly working. Configuration of these plugins are generally done through the Main Options"
+  },
+  "136": {
+    "other": "Global configurations of the application core and of each plugin. Enable/disable plugins"
+  },
+  "137": {
+    "other": "Day-to-day administration of the application : who accesses to what, create roles, etc."
+  },
+  "138": {
+    "other": "Create and delete workspaces, add features to them using meta sources."
+  },
+  "139": {
+    "other": "Manage users and groups"
+  },
+  "14": {
+    "other": "Kyllä"
+  },
+  "140": {
+    "other": "Define profiles that can be applied at once to whole bunch of users."
+  },
+  "141": {
+    "other": "Administrator tasks to monitor the application state."
+  },
+  "142": {
+    "other": "Monitor all activities happening on the server"
+  },
+  "143": {
+    "other": "Read the start-up diagnostic"
+  },
+  "144": {
+    "other": "Developer Resources"
+  },
+  "145": {
+    "other": "Generated documentations for developers"
+  },
+  "146": {
+    "other": "Actions API"
+  },
+  "147": {
+    "other": "List all actions contributed by all plugins and visualize their input parameters"
+  },
+  "148": {
+    "other": "Hooks Definitions"
+  },
+  "149": {
+    "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
+  },
+  "15": {
+    "other": "Ei"
+  },
+  "150": {
+    "other": "Select a repository"
+  },
+  "151": {
+    "other": "Root Group"
+  },
+  "152": {
+    "other": "Root Group Role"
+  },
+  "153": {
+    "other": "Applies to the whole hierarchy of users"
+  },
+  "154": {
+    "other": "Repository Templates"
+  },
+  "155": {
+    "other": "Access Drivers"
+  },
+  "156": {
+    "other": "Standard"
+  },
+  "157": {
+    "other": "Administrator"
+  },
+  "158": {
+    "other": "Shared"
+  },
+  "159": {
+    "other": "Guest"
+  },
+  "16": {
+    "other": "Tiedoston päiväys"
+  },
+  "160": {
+    "other": "Group was successfully created"
+  },
+  "161": {
+    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+  },
+  "162": {
+    "other": "You are not authorized to update user %s"
+  },
+  "163": {
+    "other": "Roles reordered for user %s"
+  },
+  "164": {
+    "other": "Successfully updated roles"
+  },
+  "165": {
+    "other": "Successfully saved user preferences"
+  },
+  "166": {
+    "other": "Successfully set lock (%1) on user (%2)"
+  },
+  "167": {
+    "other": "Successfully unlocked user (%s)"
+  },
+  "168": {
+    "other": "%1 users were moved to group %2"
+  },
+  "169": {
+    "other": "No users were moved, there must have been something wrong!"
+  },
+  "17": {
+    "other": "Päiväys"
+  },
+  "170": {
+    "other": "Enable %1 (%2)"
+  },
+  "171": {
+    "other": "Import Users (Enterprise only)"
+  },
+  "172": {
+    "other": "Services"
+  },
+  "173": {
+    "other": "Pydio Backend Services and their running status"
+  },
+  "18": {
+    "other": "IP"
+  },
+  "19": {
+    "other": "Tyyppi"
+  },
+  "2": {
+    "other": "Käyttäjät"
+  },
+  "20": {
+    "other": "Käyttäjä"
+  },
+  "21": {
+    "other": "Toiminto"
+  },
+  "22": {
+    "other": "Parametrit"
+  },
+  "22a": {
+    "other": "Parametrit"
+  },
+  "23": {
+    "other": "Testin nimi"
+  },
+  "24": {
+    "other": "Sisältö"
+  },
+  "25": {
+    "other": "Oikeudet kansioihin"
+  },
+  "26": {
+    "other": "Muuta salasana"
+  },
+  "27": {
+    "other": "Ylläpitäjä"
+  },
+  "28": {
+    "other": "Tämä käyttäjä on ylläpitäjä?"
+  },
+  "29": {
+    "other": "Luku"
+  },
+  "2b": {
+    "other": "Data Management"
+  },
+  "3": {
+    "other": "Käyttäjien kansiot"
+  },
+  "30": {
+    "other": "Kirjoitus"
+  },
+  "32": {
+    "other": "Kansion tyyppi"
+  },
+  "33": {
+    "other": "Ladataan..."
+  },
+  "34": {
+    "other": "Oletko varma, että haluat poistaa tämän käyttäjän? Tätä toimea ei voida perua!"
+  },
+  "35": {
+    "other": "Oletko varma, että haluat poistaa tämän kansion? Tätä toimea ei voida perua!"
+  },
+  "36": {
+    "other": "Täytä kaikki vaaditut kentät!"
+  },
+  "37": {
+    "other": "Salasana ja varmistus-salasana eivät täsmää!"
+  },
+  "38": {
+    "other": "Täytä kirjautumisruutu!"
+  },
+  "39": {
+    "other": "Täytä kummatkin salasanakentät!"
+  },
+  "3b": {
+    "other": "DataSources"
+  },
+  "3c": {
+    "other": "Template Paths"
+  },
+  "4": {
+    "other": "Historia"
+  },
+  "40": {
+    "other": "Rastita ruutu hyväksyäksesi!"
+  },
+  "41": {
+    "other": "ajurin asetukset"
+  },
+  "42": {
+    "other": "Valitse ajuri!"
+  },
+  "43": {
+    "other": "Käyttäjä on jo olemassa, valitse toinen nimi!"
+  },
+  "44": {
+    "other": "Käyttäjä luotu onnistuneesti"
+  },
+  "45": {
+    "other": "Myönnetty pääylläpitäjän oikeudet käyttäjälle "
+  },
+  "46": {
+    "other": "Oikeudet muutettu käyttäjälle "
+  },
+  "47": {
+    "other": "Tiedot muutettu käyttäjälle "
+  },
+  "48": {
+    "other": "Salasana muutettu käyttäjälle "
+  },
+  "49": {
+    "other": "Salasanaa ei onnistuttu muuttamaan"
+  },
+  "5": {
+    "other": "PHP"
+  },
+  "50": {
+    "other": "Virhe: Tämän niminen kansio on jo olemassa"
+  },
+  "51": {
+    "other": "Kansio conf ei ole kirjoitettavissa"
+  },
+  "52": {
+    "other": "Käyttäjien kansio luotu onnistuneesti"
+  },
+  "53": {
+    "other": "Virhe muutettaessa käyttäjien kansion tietoja"
+  },
+  "54": {
+    "other": "Käyttäjien kansion tietojen muuttaminen onnistui"
+  },
+  "55": {
+    "other": "Varoitus, Tällä hetkellä voit luoda ainoastaan yhden meta lisäosan kerrallaan."
+  },
+  "56": {
+    "other": "Metalähde lisätty onnistuneesti"
+  },
+  "57": {
+    "other": "Metalähde poistettu onnistuneesti"
+  },
+  "58": {
+    "other": "Metalähteen tiedot muutettu onnistuneesti"
+  },
+  "59": {
+    "other": "Käyttäjän kansio poistettu onnistuneesti"
+  },
+  "6": {
+    "other": "Tunnus"
+  },
+  "60": {
+    "other": "Käyttäjä poistettu onnistuneesti"
+  },
+  "61": {
+    "other": "Virheelliset syötteet!"
+  },
+  "62": {
+    "other": "Rights Summary"
+  },
+  "63": {
+    "other": "All"
+  },
+  "64": {
+    "other": "Changed right for role "
+  },
+  "65": {
+    "other": "Role already exists, choose another name!"
+  },
+  "66": {
+    "other": "Role successfully created"
+  },
+  "67": {
+    "other": "Cannot find role "
+  },
+  "68": {
+    "other": "Successfully deleted role"
+  },
+  "69": {
+    "other": "Roles"
+  },
+  "7": {
+    "other": "Ylläpitäjä"
+  },
+  "70": {
+    "other": "User Roles"
+  },
+  "71": {
+    "other": "Available Roles"
+  },
+  "72": {
+    "other": "Drag'n'drop roles to assign them to the user"
+  },
+  "73": {
+    "other": "Role added to user "
+  },
+  "74": {
+    "other": "Role deleted from user "
+  },
+  "75": {
+    "other": "New Role"
+  },
+  "76": {
+    "other": "Role Id"
+  },
+  "77": {
+    "other": "Access Control"
+  },
+  "78": {
+    "other": "Personal data"
+  },
+  "79": {
+    "other": "Repository"
+  },
+  "8": {
+    "other": "Kansion nimi"
+  },
+  "80": {
+    "other": "Fine-tune access for this user  (Click on a repository label if you wish to make it the default workspace when user logs in)"
+  },
+  "81": {
+    "other": "Specific repositories data"
+  },
+  "82": {
+    "other": "Batch-edit users"
+  },
+  "83": {
+    "other": "Drag'n'drop roles to apply them to all selected users (shared users are skipped)"
+  },
+  "84": {
+    "other": "Users Roles"
+  },
+  "85": {
+    "other": "Manual actions filtering"
+  },
+  "86": {
+    "other": "list of comma-separated actions that will be disabled for this role, no matter the access right."
+  },
+  "87": {
+    "other": "Successfully updated actions for this role"
+  },
+  "88": {
+    "other": "This repository is defined in the config file, you cannot edit its meta sources via the GUI."
+  },
+  "89": {
+    "other": "User specific data"
+  },
+  "9": {
+    "other": "Kansion tyyppi"
+  },
+  "90": {
+    "other": "Repository"
+  },
+  "91": {
+    "other": "Template"
+  },
+  "92": {
+    "other": "Create a new template"
+  },
+  "93": {
+    "other": "Edit"
+  },
+  "94": {
+    "other": "Batch Edit"
+  },
+  "95": {
+    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
+  },
+  "96": {
+    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
+  },
+  "97": {
+    "other": "Plugin options successfully updated"
+  },
+  "98": {
+    "other": "Core Configs"
+  },
+  "99": {
+    "other": "Plugins"
+  },
+  "group_access": {
+    "other": "g"
+  },
+  "repository_access_key": {
+    "other": "N"
+  },
+  "role_access": {
+    "other": "o"
+  }
+}

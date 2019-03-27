@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Metadaten"
+  },
+  "10": {
+    "other": "Neuer oder vorhandener Tag"
+  },
+  "11": {
+    "other": "Kein Tag gesetzt. Zum Hinzufügen klicken."
+  },
+  "12": {
+    "other": "Mehrfachauswahl:"
+  },
+  "13": {
+    "other": "Wählen Sie Felder zum Aktualisieren aus. Die Werte werden auf alle ausgewählten Dateien gesetzt."
+  },
+  "14": {
+    "other": "Metadaten bearbeiten"
+  },
+  "15": {
+    "other": "Metadaten speichern"
+  },
+  "2": {
+    "other": "Keine Beschreibung"
+  },
+  "3": {
+    "other": "Bewertung entfernen"
+  },
+  "4": {
+    "other": "Niedrig"
+  },
+  "5": {
+    "other": "To-do"
+  },
+  "6": {
+    "other": "Persönlich"
+  },
+  "7": {
+    "other": "Arbeit"
+  },
+  "8": {
+    "other": "Wichtig"
+  },
+  "9": {
+    "other": "Nicht gesetzt"
+  }
+}

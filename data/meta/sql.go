@@ -21,6 +21,7 @@
 package meta
 
 import (
+	"fmt"
 	"sync/atomic"
 	"time"
 
@@ -28,7 +29,7 @@ import (
 	"github.com/micro/go-micro/errors"
 	migrate "github.com/rubenv/sql-migrate"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/sql"
 )
 
@@ -49,7 +50,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
@@ -82,7 +83,12 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 
 	if len(metadata) == 0 {
 		// Delete all metadata for node
-		h.GetStmt("deleteUuid").Exec(
+		stmt := h.GetStmt("deleteUuid")
+		if stmt == nil {
+			return fmt.Errorf("Unknown statement")
+		}
+
+		stmt.Exec(
 			nodeId,
 		)
 	} else {
@@ -95,12 +101,22 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 			ns := namespace
 			if data == "" {
 				// Delete namespace
-				h.GetStmt("deleteNS").Exec(ns)
+				stmt := h.GetStmt("deleteNs")
+				if stmt == nil {
+					return fmt.Errorf("Unknown statement")
+				}
+
+				stmt.Exec(ns)
 			} else {
 				// Insert or update namespace
 				tStamp := time.Now().Unix()
 
-				h.GetStmt("upsert").Exec(
+				stmt := h.GetStmt("upsert")
+				if stmt == nil {
+					return fmt.Errorf("Unknown statement")
+				}
+
+				stmt.Exec(
 					nodeId,
 					ns,
 					json,
@@ -121,7 +137,12 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 
 func (h *sqlimpl) GetMetadata(nodeId string) (metadata map[string]string, err error) {
 
-	r, err := h.GetStmt("select").Query(nodeId)
+	stmt := h.GetStmt("select")
+	if stmt == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+
+	r, err := stmt.Query(nodeId)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +180,12 @@ func (h *sqlimpl) GetMetadata(nodeId string) (metadata map[string]string, err er
 
 func (h *sqlimpl) ListMetadata(query string) (metaByUuid map[string]map[string]string, err error) {
 
-	r, err := h.GetStmt("selectAll").Query()
+	stmt := h.GetStmt("selectAll")
+	if stmt == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+
+	r, err := stmt.Query()
 	if err != nil {
 		return nil, err
 	}

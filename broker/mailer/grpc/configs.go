@@ -22,8 +22,13 @@ package grpc
 
 import (
 	"github.com/pydio/cells/broker/mailer/lang"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/forms"
 )
+
+func init() {
+	config.RegisterVaultKey("services", Name, "sender", "password")
+}
 
 var ExposedConfigs = &forms.Form{
 	I18NBundle: lang.Bundle(),
@@ -54,8 +59,15 @@ var ExposedConfigs = &forms.Form{
 								Label:       "Mail.Config.Sendmail.Executable.Label",
 								Description: "Mail.Config.Sendmail.Executable.Description",
 								Mandatory:   true,
-								Type:        forms.ParamString,
-								Default:     "/usr/sbin/sendmail",
+								Editable:    false,
+								Type:        forms.ParamSelect,
+								ChoicePresetList: []map[string]string{
+									{"sendmail": "sendmail"},
+									{"/usr/bin/sendmail": "/usr/bin/sendmail"},
+									{"/usr/sbin/sendmail": "/usr/sbin/sendmail"},
+									{"other": "Mail.Config.Sendmail.Executable.Other"},
+								},
+								Default: "/usr/sbin/sendmail",
 							},
 						},
 					},
@@ -91,6 +103,13 @@ var ExposedConfigs = &forms.Form{
 								Description: "Mail.Config.Smtp.Password.Description",
 								Mandatory:   true,
 								Type:        forms.ParamPassword,
+							},
+							&forms.FormField{
+								Name:        "insecureSkipVerify",
+								Label:       "Mail.Config.Smtp.SkipVerify.Label",
+								Description: "Mail.Config.Smtp.SkipVerify.Description",
+								Mandatory:   false,
+								Type:        forms.ParamBool,
 							},
 						},
 					},

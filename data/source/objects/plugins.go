@@ -28,6 +28,8 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/spf13/afero"
 
 	"github.com/pydio/cells/common"
@@ -43,25 +45,30 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(Name),
-		service.Tag(common.SERVICE_TAG_DATASOURCE),
-		service.Description("Starter for different sources objects"),
-		service.WithMicro(func(m micro.Service) error {
-			runner := service.NewChildrenRunner(m, Name, ChildPrefix)
-			m.Init(
-				micro.AfterStart(func() error {
-					ctx := m.Options().Context
-					conf := servicecontext.GetConfig(ctx)
-					runner.StartFromInitialConf(ctx, conf)
-					tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
-					runner.OnDeleteConfig(onDeleteObjectsConfig)
-					return nil
-				}))
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_DATASOURCE),
+			service.Description("Starter for different sources objects"),
+			service.WithMicro(func(m micro.Service) error {
+				runner := service.NewChildrenRunner(m, Name, ChildPrefix)
+				m.Init(
+					micro.AfterStart(func() error {
+						ctx := m.Options().Context
+						conf := servicecontext.GetConfig(ctx)
+						runner.StartFromInitialConf(ctx, conf)
+						tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
+						runner.OnDeleteConfig(onDeleteObjectsConfig)
+						return nil
+					}))
 
-			return runner.Watch(m.Options().Context)
-		}),
-	)
+				tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
+				tree.RegisterNodeReceiverHandler(m.Server(), NewTreeHandler())
+
+				return runner.Watch(m.Options().Context)
+			}),
+		)
+	})
 }
 
 // Manage datasources deletion operations : clean minio server configuration folder
@@ -83,6 +90,28 @@ type TreeHandler struct {
 	FS afero.Fs
 }
 
+func (t *TreeHandler) SymlinkInfo(path string, info os.FileInfo) (bool, tree.NodeType, string) {
+	if info.Mode()&os.ModeSymlink != 0 {
+		if t, e := os.Readlink(path); e == nil {
+			target, er := os.Stat(t)
+			if er != nil {
+				// If error on stat, try to resolve absolute path
+				if t, er = filepath.Abs(filepath.Join(filepath.Dir(path), t)); er == nil {
+					target, er = os.Stat(t)
+				}
+			}
+			if er == nil {
+				if target.IsDir() {
+					return true, tree.NodeType_COLLECTION, t
+				} else {
+					return true, tree.NodeType_LEAF, t
+				}
+			}
+		}
+	}
+	return false, tree.NodeType_UNKNOWN, ""
+}
+
 func (t *TreeHandler) FileInfoToNode(nodePath string, fileInfo os.FileInfo) *tree.Node {
 	node := &tree.Node{
 		Path:  nodePath,
@@ -96,7 +125,12 @@ func (t *TreeHandler) FileInfoToNode(nodePath string, fileInfo os.FileInfo) *tre
 	if fileInfo.IsDir() {
 		node.Type = tree.NodeType_COLLECTION
 	} else {
-		node.Type = tree.NodeType_LEAF
+		if yes, typ, target := t.SymlinkInfo(nodePath, fileInfo); yes {
+			node.Type = typ
+			node.MetaStore["symlink"] = target
+		} else {
+			node.Type = tree.NodeType_LEAF
+		}
 	}
 	return node
 }
@@ -118,10 +152,10 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 
 	if fileInfos, e := afero.ReadDir(t.FS, request.Node.Path); e == nil {
 		for _, info := range fileInfos {
-			if strings.HasPrefix(info.Name(), ".") || !info.IsDir() {
+			path := filepath.Join(request.Node.Path, info.Name())
+			if isSymLink, _, _ := t.SymlinkInfo(path, info); !isSymLink && (strings.HasPrefix(info.Name(), ".") || !info.IsDir()) {
 				continue
 			}
-			path := filepath.Join(request.Node.Path, info.Name())
 			stream.Send(&tree.ListNodesResponse{
 				Node: t.FileInfoToNode(path, info),
 			})
@@ -131,4 +165,35 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 		return e
 	}
 
+}
+
+func (t *TreeHandler) CreateNode(ctx context.Context, request *tree.CreateNodeRequest, response *tree.CreateNodeResponse) error {
+	if request.Node.IsLeaf() {
+		if file, e := t.FS.Create(request.Node.Path); e != nil {
+			return e
+		} else {
+			fileInfo, _ := file.Stat()
+			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
+		}
+	} else {
+		if e := t.FS.MkdirAll(request.Node.Path, 0755); e != nil {
+			return e
+		} else {
+			fileInfo, _ := t.FS.Stat(request.Node.Path)
+			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
+		}
+	}
+	return nil
+}
+
+func (t *TreeHandler) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest, response *tree.UpdateNodeResponse) error {
+	return errors.BadRequest("not.implemented", "")
+}
+
+func (t *TreeHandler) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest, response *tree.DeleteNodeResponse) error {
+	if e := t.FS.Remove(request.Node.Path); e != nil {
+		return e
+	}
+	response.Success = true
+	return nil
 }

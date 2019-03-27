@@ -33,11 +33,78 @@ var (
 	base     = filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "common", "proto", "rest")
 	template = `package rest
 var SwaggerJson = ` + "`%s`"
+	replaces = map[string]string{
+		`  "paths"`: `"responses": {
+    "401":{
+      "description":"User is not authenticated",
+      "schema":{
+        "$ref": "#/definitions/restError"
+      }
+    },
+    "403":{
+      "description":"User has no permission to access this particular resource",
+      "schema":{
+        "$ref": "#/definitions/restError"
+      }
+    },
+    "404":{
+      "description":"Resource does not exist in the system",
+      "schema":{
+        "$ref": "#/definitions/restError"
+      }
+    },
+    "500":{
+      "description":"An internal error occurred in the backend",
+      "schema":{
+        "$ref": "#/definitions/restError"
+      }
+    }
+  },
+  "paths"`,
+		`    "restDeleteResponse":`: `    "restError": {
+      "type": "object",
+      "properties": {
+        "Code": {
+          "type": "string",
+          "title": "Unique ID of the error"
+        },
+        "Title": {
+          "type": "string",
+          "title": "Human-readable, short label"
+        },
+        "Detail": {
+          "type": "string",
+          "title": "Human-readable, longer description"
+        },
+        "Source": {
+          "type": "string",
+          "title": "Cells service name or other quickly useful info"
+        },
+        "Meta": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Additional Metadata"
+        }
+      },
+      "title": "Generic error message"
+    },
+    "restDeleteResponse":`,
+	}
 )
 
 func main() {
-	fmt.Println("** Transforming json file to go file")
 	if content, err := ioutil.ReadFile(filepath.Join(base, "rest.swagger.json")); err == nil {
+		fmt.Println("** Monkey Patching json file with error responses")
+		c1 := string(content)
+		for k, v := range replaces {
+			c1 = strings.Replace(c1, k, v, 1)
+		}
+		content = []byte(c1)
+		ioutil.WriteFile(filepath.Join(base, "rest.swagger.json"), []byte(c1), 0777)
+
+		fmt.Println("** Transforming json file to go file")
 		clean := strings.Replace(string(content), "`", "", -1)
 		toStore := fmt.Sprintf(template, clean)
 		err2 := ioutil.WriteFile(filepath.Join(base, "swagger.go"), []byte(toStore), 0777)

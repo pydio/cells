@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
@@ -33,37 +34,40 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("Workspaces Service"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            FirstRun,
-			},
-		}),
-		service.WithStorage(workspace.NewDAO, "idm_workspace"),
-		service.WithMicro(func(m micro.Service) error {
-			ctx := m.Options().Context
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("Workspaces Service"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
+			service.WithStorage(workspace.NewDAO, "idm_workspace"),
+			service.WithMicro(func(m micro.Service) error {
+				ctx := m.Options().Context
 
-			idm.RegisterWorkspaceServiceHandler(m.Options().Server, new(Handler))
+				h := new(Handler)
+				idm.RegisterWorkspaceServiceHandler(m.Options().Server, h)
 
-			// Register a cleaner on DeleteRole events to purge policies automatically
-			cleaner := &resources.PoliciesCleaner{
-				Dao: servicecontext.GetDAO(ctx),
-				Options: resources.PoliciesCleanerOptions{
-					SubscribeRoles: true,
-					SubscribeUsers: true,
-				},
-				LogCtx: ctx,
-			}
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
-				return err
-			}
+				// Register a cleaner for removing a workspace when there are no more ACLs on it.
+				wsCleaner := NewWsCleaner(h, ctx)
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, wsCleaner)); err != nil {
+					return err
+				}
 
-			return nil
-		}),
-	)
+				// Register a cleaner on DeleteRole events to purge policies automatically
+				cleaner := &resources.PoliciesCleaner{
+					Dao: servicecontext.GetDAO(ctx),
+					Options: resources.PoliciesCleanerOptions{
+						SubscribeRoles: true,
+						SubscribeUsers: true,
+					},
+					LogCtx: ctx,
+				}
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
+					return err
+				}
+
+				return nil
+			}),
+		)
+	})
 }

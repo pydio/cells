@@ -1,0 +1,17 @@
+{
+  "1": {
+    "other": "Escolher outro..."
+  },
+  "2": {
+    "other": "Escolher outro editor"
+  },
+  "3": {
+    "other": "Selecione outro editor para abrir este arquivo"
+  },
+  "4": {
+    "other": "Aviso, estes editores não declararam suportar este tipo de arquivo, o comportamento dos mesmos pode ser imprevisível!"
+  },
+  "5": {
+    "other": "Apagar associações"
+  }
+}

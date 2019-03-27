@@ -26,8 +26,8 @@ import (
 	"sync"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/encryption"
-	"github.com/pydio/cells/common/service/defaults"
 
 	"github.com/pydio/cells/common/crypto"
 )
@@ -42,30 +42,17 @@ type UserKeyTool interface {
 func MasterKeyTool(ctx context.Context) (UserKeyTool, error) {
 	kt := new(userKeyTool)
 	kt.keys = make(map[string][]byte)
-
-	bytes, err := crypto.GetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KEYRING_MASTER_KEY, false)
-	if err != nil {
-		return nil, err
-	}
-
-	kt.user = common.PYDIO_SYSTEM_USERNAME
-	kt.password = bytes
-	return kt, err
+	return kt, nil
 }
 
 // GetUserKeyTool creates a keytool based on specified @user and @pass
 func GetUserKeyTool(user string, pass []byte) UserKeyTool {
-	return &userKeyTool{
-		password: pass,
-		user:     user,
-	}
+	return &userKeyTool{}
 }
 
 type userKeyTool struct {
 	sync.Mutex
-	user     string
-	password []byte
-	keys     map[string][]byte
+	keys map[string][]byte
 }
 
 func (kt *userKeyTool) keyByID(ctx context.Context, id string) ([]byte, error) {
@@ -74,7 +61,7 @@ func (kt *userKeyTool) keyByID(ctx context.Context, id string) ([]byte, error) {
 	}
 
 	client := encryption.NewUserKeyStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, defaults.NewClient())
-	rsp, err := client.GetKey(ctx, &encryption.GetKeyRequest{Owner: kt.user, KeyID: id, StrPassword: string(kt.password)})
+	rsp, err := client.GetKey(ctx, &encryption.GetKeyRequest{KeyID: id})
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,557 @@
+{
+  "1": {
+    "other": "Données de configuration"
+  },
+  "10": {
+    "other": "Métadonnées"
+  },
+  "100": {
+    "other": "Options communes pour les '%s'"
+  },
+  "101": {
+    "other": "Nom"
+  },
+  "102": {
+    "other": "Identifiant"
+  },
+  "103": {
+    "other": "Description"
+  },
+  "104": {
+    "other": "Actif"
+  },
+  "105": {
+    "other": "Vérification"
+  },
+  "106": {
+    "other": "Identifiant unique"
+  },
+  "107": {
+    "other": "Configuration du plugin"
+  },
+  "108": {
+    "other": "Documentation"
+  },
+  "109": {
+    "other": "Configurations globales"
+  },
+  "11": {
+    "other": "Ajouter une source"
+  },
+  "110": {
+    "other": "Dépôts & Utilisateurs"
+  },
+  "111": {
+    "other": "Logs & Autres données"
+  },
+  "112": {
+    "other": "<b>Appliquer ce rôle par défaut</b> à tous les nouveaux utilisateurs."
+  },
+  "113": {
+    "other": "Le rôle a été modifié avec succès"
+  },
+  "114": {
+    "other": "Appliquer par défaut"
+  },
+  "115": {
+    "other": "Schéma"
+  },
+  "116": {
+    "other": "Nom du modèle"
+  },
+  "117": {
+    "other": "Plugin d'accès"
+  },
+  "118": {
+    "other": "Nouveau Groupe"
+  },
+  "119": {
+    "other": "Définir le groupe pour l'utilisateur"
+  },
+  "12": {
+    "other": "Plugin Meta"
+  },
+  "120": {
+    "other": "Version Pro"
+  },
+  "121": {
+    "other": "Obtenir un support professionnel pour votre installation"
+  },
+  "122": {
+    "other": "Paramètres"
+  },
+  "123": {
+    "other": "Autres extensions"
+  },
+  "124": {
+    "other": "Source"
+  },
+  "125": {
+    "other": "Alias"
+  },
+  "126": {
+    "other": "Voulez-vous vraiment supprimer les éléments sélectionnés?"
+  },
+  "127": {
+    "other": "Attention, veuillez ne pas utiliser de caractères spéciaux, l'utilisateur serait créé avec l'identifiant '%s'"
+  },
+  "128": {
+    "other": "Le groupe a été supprimé"
+  },
+  "129": {
+    "other": "Vider le cache"
+  },
+  "13": {
+    "other": "Êtes-vous sûr de vouloir supprimer cette source ?"
+  },
+  "130": {
+    "other": "Vider le cache des plugins peut être nécessaire pour voir les nouveaux plugins apparaître dans la liste."
+  },
+  "131": {
+    "other": "Le cache des plugins a été supprimé!"
+  },
+  "132": {
+    "other": "Le cache des plugins a été supprimé, mais vous êtes actuellement en mode SKIP_CACHE (voir bootstrap_context.php)."
+  },
+  "133": {
+    "other": "Configurations globales"
+  },
+  "134": {
+    "other": "Activer/désactiver des plugins, vérifier qu'ils fonctionnent correctement, mettre à jour les paramètres globaux des plugins."
+  },
+  "135": {
+    "other": "Activer/désactiver les plugins core."
+  },
+  "136": {
+    "other": "Configurations globales des plugins de l'application. Activer/désactiver les plugins"
+  },
+  "137": {
+    "other": "Administration de l'application au quotidien : qui accède à quoi, création de rôles, etc."
+  },
+  "138": {
+    "other": "Créer et supprimer des workspaces."
+  },
+  "139": {
+    "other": "Gestion des Utilisateurs et Groupes"
+  },
+  "14": {
+    "other": "Oui"
+  },
+  "140": {
+    "other": "Définir des profils qui peuvent être appliqués d'un coup à des utilisateurs."
+  },
+  "141": {
+    "other": "Tâches pour contrôler l’état de l’application."
+  },
+  "142": {
+    "other": "Monitoring de l'activité du serveur"
+  },
+  "143": {
+    "other": "Read the start-up diagnostic"
+  },
+  "144": {
+    "other": "Resources Développeur"
+  },
+  "145": {
+    "other": "Documentations générées pour les développeurs"
+  },
+  "146": {
+    "other": "Actions"
+  },
+  "147": {
+    "other": "Liste de toutes les actions de tous les plugins"
+  },
+  "148": {
+    "other": "Hooks Definitions"
+  },
+  "149": {
+    "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
+  },
+  "15": {
+    "other": "Non"
+  },
+  "150": {
+    "other": "Sélectionner un workspace"
+  },
+  "151": {
+    "other": "Groupe Racine"
+  },
+  "152": {
+    "other": "Role du groupe racine"
+  },
+  "153": {
+    "other": "S'applique à toute la hiérarchie des utilisateurs"
+  },
+  "154": {
+    "other": "Modèles de workspaces"
+  },
+  "155": {
+    "other": "Access Drivers"
+  },
+  "156": {
+    "other": "Standard"
+  },
+  "157": {
+    "other": "Administrateur"
+  },
+  "158": {
+    "other": "Partagé"
+  },
+  "159": {
+    "other": "Invité"
+  },
+  "160": {
+    "other": "Le groupe a été créé avec succès."
+  },
+  "161": {
+    "other": "Vous essayez de bouger votre propre utilisateur dans un groupe, et vous allez perdre les droits de super-utilisateur. Veuillez vous logger sous un autre utilisateur admin pour faire cette opération. Arrêt."
+  },
+  "162": {
+    "other": "Vous n'êtes pas autorisé à éditer l'utilisateur %s"
+  },
+  "163": {
+    "other": "Les rôles ont été ré-ordonnés pour l'utilisateur %s"
+  },
+  "164": {
+    "other": "Les rôles ont bien été mis à jour."
+  },
+  "165": {
+    "other": "Les préférences de l'utilisateur ont bien été mises à jour."
+  },
+  "166": {
+    "other": "Un blocage de type %1 a été ajouté à %2"
+  },
+  "167": {
+    "other": "Le blocage a bien été enlevé pour l'utilisateur %s"
+  },
+  "168": {
+    "other": "%1 utilisateurs ont été bougés dans le groupe %2"
+  },
+  "169": {
+    "other": "Aucun utilisateurs n'ont été modifié, il y a une erreur!"
+  },
+  "17": {
+    "other": "Date"
+  },
+  "170": {
+    "other": "Activer %1 (%2)"
+  },
+  "171": {
+    "other": "Importer (Dist. Entreprise seulement)"
+  },
+  "172": {
+    "other": "Services"
+  },
+  "173": {
+    "other": "Services du Backend  et leur statut"
+  },
+  "174": {
+    "other": "Gestion des identités"
+  },
+  "175": {
+    "other": "Gestion des données"
+  },
+  "176": {
+    "other": "Stratégies de Sécurité"
+  },
+  "177": {
+    "other": "Stratégies de Sécurité"
+  },
+  "18": {
+    "other": "IP"
+  },
+  "19": {
+    "other": "Niveau"
+  },
+  "2": {
+    "other": "Utilisateurs"
+  },
+  "20": {
+    "other": "Utilisateur"
+  },
+  "21": {
+    "other": "Action"
+  },
+  "22": {
+    "other": "Paramètres"
+  },
+  "22a": {
+    "other": "Plus d'infos"
+  },
+  "23": {
+    "other": "Nom du test"
+  },
+  "24": {
+    "other": "Résultat"
+  },
+  "25": {
+    "other": "Accès aux dépôts"
+  },
+  "26": {
+    "other": "Changer le mot de passe"
+  },
+  "27": {
+    "other": "Droit d'admin"
+  },
+  "28": {
+    "other": "L'utilisateur est administrateur ?"
+  },
+  "29": {
+    "other": "Lire"
+  },
+  "2b": {
+    "other": "Gestion des données"
+  },
+  "3": {
+    "other": "Dépôts"
+  },
+  "30": {
+    "other": "Ecrire"
+  },
+  "32": {
+    "other": "Plugin du dépôt"
+  },
+  "33": {
+    "other": "Chargement ..."
+  },
+  "34": {
+    "other": "Êtes-vous sûr de vouloir effacer cet utilisateur? Cette opération est irréversible !"
+  },
+  "35": {
+    "other": "Êtes-vous sur de vouloir effacer ce dépôt? Cette opération est irréversible !"
+  },
+  "36": {
+    "other": "Des champs obligatoires ne sont pas remplis !"
+  },
+  "37": {
+    "other": "Attention les deux mots de passe différent !"
+  },
+  "38": {
+    "other": "Veuillez remplir le champ 'Identifiant' !"
+  },
+  "39": {
+    "other": "Veuillez remplir les deux champs 'Mot de passe' !"
+  },
+  "3b": {
+    "other": "Datasources"
+  },
+  "3c": {
+    "other": "Modèles prédéfinis"
+  },
+  "4": {
+    "other": "Journal"
+  },
+  "40": {
+    "other": "Veuillez cocher la case pour confirmer!"
+  },
+  "41": {
+    "other": "Nœuds racines"
+  },
+  "42": {
+    "other": "Veuillez choisir un driver!"
+  },
+  "43": {
+    "other": "L'utilisateur existe, veuillez choisir un autre identifiant!"
+  },
+  "44": {
+    "other": "L'utilisateur a été créé avec succès"
+  },
+  "45": {
+    "other": "Droit d'administration modifié pour l'utilisateur "
+  },
+  "46": {
+    "other": "Droit d'accès modifié pour l'utilisateur "
+  },
+  "47": {
+    "other": "Les données ont été enregistrées pour l'utilisateur "
+  },
+  "48": {
+    "other": "Le mot de passe a été modifié pour "
+  },
+  "49": {
+    "other": "Impossible de changer le mot de passe"
+  },
+  "5": {
+    "other": "PHP"
+  },
+  "50": {
+    "other": "Erreur : un Workspace avec le même nom existe déjà"
+  },
+  "51": {
+    "other": "Le répertoire 'conf' n'est pas accessible en écriture."
+  },
+  "52": {
+    "other": "Le workspace a été créé. Vous pouvez maintenant ajouter des 'Sources de métadonnées' pour enrichir vos données, ajouter l'indexation automatique, ..."
+  },
+  "53": {
+    "other": "Erreur lors de la modification du workspace."
+  },
+  "54": {
+    "other": "Le workspace a été modifié."
+  },
+  "55": {
+    "other": "Attention, pour l'instant, vous ne pouvez ajouter qu'une seule instance de chaque plugin méta."
+  },
+  "56": {
+    "other": "La source de métadonnées a été ajoutée."
+  },
+  "57": {
+    "other": "La source de métadonnées a été supprimée."
+  },
+  "58": {
+    "other": "La source de métadonnées a été modifiée."
+  },
+  "59": {
+    "other": "Le workspace a été supprimé"
+  },
+  "6": {
+    "other": "Nom"
+  },
+  "60": {
+    "other": "L'utilisateur a été supprimé"
+  },
+  "61": {
+    "other": "Mauvais arguments !"
+  },
+  "62": {
+    "other": "Résumé des droits"
+  },
+  "63": {
+    "other": "Tous"
+  },
+  "64": {
+    "other": "Les droits ont été changés pour le rôle "
+  },
+  "65": {
+    "other": "Le rôle existe déjà, choisissez un autre nom !"
+  },
+  "66": {
+    "other": "Le rôle a été créé"
+  },
+  "67": {
+    "other": "Impossible de trouver le rôle "
+  },
+  "68": {
+    "other": "Le rôle a été supprimé"
+  },
+  "69": {
+    "other": "Rôles"
+  },
+  "7": {
+    "other": "Administrateur"
+  },
+  "70": {
+    "other": "Rôles utilisateur"
+  },
+  "71": {
+    "other": "Rôles disponibles"
+  },
+  "72": {
+    "other": "Glissez / déposez les rôles pour les assigner à l'utilisateur"
+  },
+  "73": {
+    "other": "Le rôle a été ajouté à l'utilisateur "
+  },
+  "74": {
+    "other": "Le rôle a été enlevé à l'utilisateur "
+  },
+  "75": {
+    "other": "Nouveau rôle"
+  },
+  "76": {
+    "other": "Identifiant du rôle"
+  },
+  "77": {
+    "other": "Contrôle d'accès"
+  },
+  "78": {
+    "other": "Données personnelles"
+  },
+  "79": {
+    "other": "Workspace"
+  },
+  "8": {
+    "other": "Nom du workspace"
+  },
+  "80": {
+    "other": "Précisez les droits d'accès pour cet utilisateur (cliquez sur le nom du workspace si vous souhaitez le définir comme workspace par défaut à la connexion de l'utilisateur)"
+  },
+  "81": {
+    "other": "Données spécifiques aux workspaces"
+  },
+  "82": {
+    "other": "Edition en groupe des utilisateurs"
+  },
+  "83": {
+    "other": "Glissez / déposez les rôles pour les assigner aux utilisateurs sélectionnés (les utilisateurs partagés ne seront pas pris en compte)"
+  },
+  "84": {
+    "other": "Rôles utilisateurs"
+  },
+  "85": {
+    "other": "Filtrage manuel des actions"
+  },
+  "86": {
+    "other": "Liste d'actions qui seront désactivées pour ce rôle, quelque soit le droit d'accès associé."
+  },
+  "87": {
+    "other": "Les actions ont été mises à jour pour ce rôle."
+  },
+  "88": {
+    "other": "Ce workspace est défini dans le fichier de configuration, il n'est pas possible de mettre à jour les métadonnées via l'interface."
+  },
+  "89": {
+    "other": "Données spécifiques de l'utilisateur"
+  },
+  "9": {
+    "other": "Type d'accès"
+  },
+  "90": {
+    "other": "Nouveau workspace"
+  },
+  "91": {
+    "other": "Nouveau modèle"
+  },
+  "92": {
+    "other": "Créer un nouveau modèle"
+  },
+  "93": {
+    "other": "Edition"
+  },
+  "94": {
+    "other": "Edition en masse"
+  },
+  "95": {
+    "other": "Choisir un libellé et un driver pour accéder aux données (vérifiez les champs obligatoires dans l'ensemble des sections; passez la souris sur les labels pour avoir des détails)."
+  },
+  "96": {
+    "other": "Choisissez un libellé et un driver, puis activez, à l'aide des cases à cocher, les champs que vous voulez pré-remplir pour constituer ce modèle. Les autres champs seront laissés à l'utilisateur. Vous pouvez cocher des champs et les laisser vide, afin de les cacher à l'utilisateur."
+  },
+  "97": {
+    "other": "Les options du plugin ont été mises à jour"
+  },
+  "98": {
+    "other": "Options principales"
+  },
+  "99": {
+    "other": "Extensions importantes"
+  },
+  "topbar.title": {
+    "other": "Console d'administration"
+  },
+  "topbar.button.advanced": {
+    "other": "Afficher/cacher les paramètres avancés"
+  },
+  "topbar.button.about": {
+    "other": "En savoir plus sur Pydio Cells"
+  },
+  "group_access": {
+    "other": "G"
+  },
+  "repository_access_key": {
+    "other": "D"
+  },
+  "role_access": {
+    "other": "ô"
+  }
+}

@@ -25,7 +25,6 @@ import (
 	"github.com/pydio/cells/cmd/ctl/cmd"
 	"github.com/pydio/cells/common"
 
-	_ "github.com/pydio/cells/discovery/consul"
 	_ "github.com/pydio/cells/discovery/nats"
 )
 

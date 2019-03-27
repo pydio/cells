@@ -21,29 +21,31 @@
 package rest
 
 import (
-	"github.com/emicklei/go-restful"
-
 	"encoding/json"
 
+	"github.com/emicklei/go-restful"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/discovery/config/lang"
 )
 
 /****************************
-VERSIONINGPOLICIES MANAGEMENT
+VERSIONING POLICIES MANAGEMENT
 *****************************/
-// List all defined policies
+
+// ListVersioningPolicies list all defined policies.
 func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Response) {
-	T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
 	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	docs, er := dc.ListDocuments(req.Request.Context(), &docstore.ListDocumentsRequest{
-		StoreID: "versioningPolicies",
+		StoreID: common.DOCSTORE_ID_VERSIONING_POLICIES,
 	})
 	if er != nil {
 		service.RestError500(req, resp, er)
@@ -66,13 +68,13 @@ func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Res
 	resp.WriteEntity(response)
 }
 
-// Get a specific policy
+// GetVersioningPolicy returns a specific policy
 func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Response) {
-	T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
 	policyId := req.PathParameter("Uuid")
 	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	if r, e := dc.GetDocument(req.Request.Context(), &docstore.GetDocumentRequest{
-		StoreID:    "versioningPolicies",
+		StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
 		DocumentID: policyId,
 	}); e != nil {
 		service.RestError404(req, resp, e)

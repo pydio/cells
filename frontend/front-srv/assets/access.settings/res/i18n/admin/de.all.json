@@ -1,0 +1,1766 @@
+{
+  "dashboard.tab.dashboard": {
+    "other": "Kontrollzentrum"
+  },
+  "dashboard.tab.activity": {
+    "other": "Ereignisse"
+  },
+  "ds.board.ds.legend": {
+    "other": "Datenquellen sind konkrete Speicherorte, die von Pydio zu einem globalen Baum zusammengefasst werden. Sie können bei Bedarf auf viele Speicherknoten verteilt werden."
+  },
+  "ds.board.ds.title": {
+    "other": "Datenquellen"
+  },
+  "ds.board.enc.legend": {
+    "other": "Master-Keys werden vom Pydio-Dienst automatisch generiert und im servergeschützten Schlüsselbund gespeichert. Verwenden Sie die unten folgenden Tools, um diese Schlüssel zu exportieren/importieren, falls Sie diese auf einem anderen Server neu installieren oder bereitstellen möchten"
+  },
+  "ds.board.enc.title": {
+    "other": "Masterschlüssel"
+  },
+  "ds.board.versioning.legend": {
+    "other": "Sie können festlegen, wie Dateien für jede Datenquelle versioniert werden und wie viele Versionen die Anwendung im Laufe der Zeit beibehält."
+  },
+  "ds.board.versioning.title": {
+    "other": "Versionierungsrichtlinien"
+  },
+  "ds.editor.delete.warning": {
+    "other": "Sind Sie sicher, dass Sie diese Datenquelle löschen möchten? Das ist irreversible und Sie können alle Daten verlieren, die mit diesem Knoten verbunden sind!"
+  },
+  "ds.editor.enc": {
+    "other": "Verschlüsselung im Ruhezustand aktiviert"
+  },
+  "ds.editor.enc.dialog.disable": {
+    "other": "Wenn Sie zuvor die Verschlüsselung für diese Datenquelle aktiviert haben, sind alle verschlüsselten Daten unlesbar! Sind Sie sicher, dass Sie das tun möchten?"
+  },
+  "ds.editor.enc.dialog.enable.1": {
+    "other": "Wenn Sie die Verschlüsselung auf einer Datenquelle aktivieren, werden die Daten auf dem Speicher mit dem von Ihnen angegebenen Schlüssel verschlüsselt."
+  },
+  "ds.editor.enc.dialog.enable.2": {
+    "other": "Bitte beachten Sie, dass wenn Sie Ihren Hauptschlüssel nicht exportieren und sichern und der Server aus irgendeinem Grund neu installiert werden muss,"
+  },
+  "ds.editor.enc.dialog.enable.2bold": {
+    "other": "alle Daten gehen verloren!"
+  },
+  "ds.editor.enc.dialog.enable.3": {
+    "other": "Sie müssen sie auch bewusst sein, dass es mehr CPU für eine reibungslose on-the-fly-Verschlüsselung / Entschlüsselung der Daten erfordern."
+  },
+  "ds.editor.enc.key": {
+    "other": "Geheimschlüssel"
+  },
+  "ds.editor.enc.validate": {
+    "other": "Okay, ich verstehe"
+  },
+  "ds.editor.enc.warning": {
+    "other": "Warnung!"
+  },
+  "ds.editor.legend.delete.1": {
+    "other": "Das Löschen einer Datenquelle ist ein destruktiver Vorgang: obwohl die Daten im zugrunde liegenden Speicher NICHT entfernt werden, wird der vorhandene Index gelöscht und die Verknüpfung aller mit den indizierten Nodes verknüpften ACLs aufgehoben."
+  },
+  "ds.editor.legend.delete.2": {
+    "other": "Stellen Sie sicher, dass Sie zuerst alle Arbeitsbereiche entfernen, die auf diese Datenquelle verweisen, bevor Sie diese löschen."
+  },
+  "ds.editor.legend.delete.button": {
+    "other": "Datenquelle löschen"
+  },
+  "ds.editor.legend.local": {
+    "other": "Datei System Datasources dienen Dateien über eine Objekt-Storage-Server, der beginnt auf den übergeordneten Ordner und servieren das Ziel wie ein s3-Bucket. Aus diesem Grund muss der ausgewählte Ordner die folgenden Anforderungen erfüllen:"
+  },
+  "ds.editor.legend.local.li.1": {
+    "other": "Mindestens zwei Ebenen tief."
+  },
+  "ds.editor.legend.local.li.2": {
+    "other": "Übergeordneten Ordner muss von der Anwendung-Service-Benutzer schreibbar sein."
+  },
+  "ds.editor.legend.local.li.3": {
+    "other": "Zielordner muss den DNS-Namen entsprechen (Kleinbuchstaben, keine Leerzeichen oder Sonderzeichen)."
+  },
+  "ds.editor.legend.resync": {
+    "other": "Resynchronisation wird den zugrunde liegende Speicher Scannen und erkennen Veränderungen, die derzeit nicht indiziert sind."
+  },
+  "ds.editor.legend.resync.button": {
+    "other": "Erneut synchronisieren"
+  },
+  "ds.editor.legend.s3.1": {
+    "other": "Remote Storage-Datenquellen werden Dateien aus einem Remote-kompatiblen, S3-kompatiblen Speicher bereitstellen, indem sie alle Anforderungen weiterleiten."
+  },
+  "ds.editor.legend.s3.2": {
+    "other": "Verwenden Sie die standard-API-Schlüssel / Api Secret zur authentifizierung. Lassen Sie AmazonS3 Endpunkt-URL leer oder verwenden Sie Ihre Speicher-URL für andere on Premise-Lösungen."
+  },
+  "ds.editor.storage.legend.fs": {
+    "other": "Durchsuchen Sie Daten aus einem lokalen oder Netzwerk verbundenen Dateisystem. Peer-Adresse ist ein Node, wo Pydio Cells derzeit läuft. Letzte Ordner muss klein geschrieben sein und seinem übergeordneten Element muss beschreibbar."
+  },
+  "ds.editor.storage.legend.s3": {
+    "other": "Durchsuchen Sie Daten von einem Amazon S3-Bucket oder von einem S3-kompatiblen Speicher."
+  },
+  "ds.editor.storage.legend.azure": {
+    "other": "Durchsuchen Sie Daten aus einem Azure Blob Storage-Bucket."
+  },
+  "ds.editor.storage.legend.gcs": {
+    "other": "Durchsuchen Sie Daten aus einem Google Cloud Storage-Bucket."
+  },
+  "ds.editor.new": {
+    "other": "Neue Datenquelle"
+  },
+  "ds.editor.options": {
+    "other": "Hauptoptionen"
+  },
+  "ds.editor.datamanagement": {
+    "other": "Datenverwaltung"
+  },
+  "ds.editor.options.enabled": {
+    "other": "Aktiviert"
+  },
+  "ds.editor.options.id": {
+    "other": "DataSource Identifier"
+  },
+  "ds.editor.options.port": {
+    "other": "Interner Port"
+  },
+  "ds.editor.selector.completer": {
+    "other": "Wählen Sie einen Ordner aus"
+  },
+  "ds.editor.selector.completer.hint": {
+    "other": "Wählen Sie aus der Liste oder geben Sie einen Pfad ein und drücken Sie die Eingabetaste"
+  },
+  "ds.editor.selector.completer.create": {
+    "other": "Ordner wird erstellt"
+  },
+  "ds.editor.selector.error.depth": {
+    "other": "Achten Sie darauf, einen zwei-Ebenen-Tiefe-Ordner auswählen. Der Objektspeicher wird im übergeordneten Ordner gestartet."
+  },
+  "ds.editor.selector.error.dnsname": {
+    "other": "Der Ordner wird als S3-Bucket bereitgestellt und muss den DNS-Namen entsprechen."
+  },
+  "ds.editor.selector.folder": {
+    "other": "Lokaler Ordner"
+  },
+  "ds.editor.selector.folder.hint": {
+    "other": "Wählen Sie einen Peer aus, um Ordner zu laden"
+  },
+  "ds.editor.selector.peer": {
+    "other": "Peer-Adresse"
+  },
+  "ds.editor.storage.fs.macos": {
+    "other": "Betriebssystem ist MacOSX"
+  },
+  "ds.editor.storage.azure.api": {
+    "other": "Azure-Konto Name"
+  },
+  "ds.editor.storage.azure.secret": {
+    "other": "Azure-Konto Secret Key"
+  },
+  "ds.editor.storage.azure.bucket": {
+    "other": "Bucket Name"
+  },
+  "ds.editor.storage.gcs.credentials": {
+    "other": "Fügen Sie den Inhalt der GCS JSON-Berechtigungsnachweisdatei ein"
+  },
+  "ds.editor.storage.gcs.bucket": {
+    "other": "Bucket Name"
+  },
+  "ds.editor.storage.s3.api": {
+    "other": "S3 API-Schlüssel"
+  },
+  "ds.editor.storage.s3.bucket": {
+    "other": "Bucket Name"
+  },
+  "ds.editor.storage.s3.endpoint": {
+    "other": "Benutzerdefinierte Endpunkt-URL"
+  },
+  "ds.editor.storage.s3.endpoint.hint": {
+    "other": "Für Amazon S3 leer lassen"
+  },
+  "ds.editor.storage.s3.path": {
+    "other": "Interner Pfad"
+  },
+  "ds.editor.storage.s3.secret": {
+    "other": "S3 Api Secret"
+  },
+  "ds.editor.title": {
+    "other": "Datenquelle %s"
+  },
+  "ds.editor.versioning": {
+    "other": "Versionierungsrichtlinie"
+  },
+  "ds.editor.versioning.disabled": {
+    "other": "Versionierung nicht aktivieren"
+  },
+  "ds.encryption": {
+    "other": "Verschlüsselt"
+  },
+  "ds.encryption.key.emptyState": {
+    "other": "Kein Masterschlüssel erstellt"
+  },
+  "ds.encryption.key.create": {
+    "other": "Schlüssel erstellen"
+  },
+  "ds.encryption.key.created": {
+    "other": "Erstellt am"
+  },
+  "ds.encryption.key.delete": {
+    "other": "Schlüssel löschen"
+  },
+  "ds.encryption.key.delete.warning": {
+    "other": "Wenn der Schlüssel für verschlüsselte Daten derzeit verwendet wird, ist dies eine sehr zerstörerische Operation! Sind Sie sicher, dass Sie das tun wollen?"
+  },
+  "ds.encryption.key.export": {
+    "other": "Schlüssel exportieren"
+  },
+  "ds.encryption.key.export.confirm": {
+    "other": "Passwort bestätigen"
+  },
+  "ds.encryption.key.export.fail": {
+    "other": "Während des Exportierens ist etwas schief gelaufen"
+  },
+  "ds.encryption.key.export.password": {
+    "other": "Geben Sie ein sicheres Passwort ein"
+  },
+  "ds.encryption.key.export.result.copy": {
+    "other": "Kopieren Sie Ergebnis in einer Datei, um den Schlüssel zuspeichern"
+  },
+  "ds.encryption.key.id": {
+    "other": "Identifier"
+  },
+  "ds.encryption.key.import": {
+    "other": "Schlüssel importieren"
+  },
+  "ds.encryption.key.import.content": {
+    "other": "Fügen Sie hier Ihren Schlüssel aus Ihrer Backup-Datei ein"
+  },
+  "ds.encryption.key.import.fail": {
+    "other": "Während des Importierens ist etwas schief gelaufen"
+  },
+  "ds.encryption.key.import.id": {
+    "other": "Eindeutiges identifier für diesen Schlüssel"
+  },
+  "ds.encryption.key.import.label": {
+    "other": "Lesbare Beschriftung dieses Schlüssels"
+  },
+  "ds.encryption.key.import.password": {
+    "other": "Passwort beim Export verwendet"
+  },
+  "ds.encryption.key.import.success": {
+    "other": "Schlüssel wurde erfolgreich importiert"
+  },
+  "ds.encryption.key.label": {
+    "other": "Label"
+  },
+  "ds.encryption.key.owner": {
+    "other": "Eigentümer"
+  },
+  "ds.name": {
+    "other": "Name"
+  },
+  "ds.status": {
+    "other": "Status"
+  },
+  "ds.status.disabled": {
+    "other": "Deaktiviert"
+  },
+  "ds.status.index": {
+    "other": "Index ausgefallen"
+  },
+  "ds.status.ko": {
+    "other": "Dienste wurden angehalten"
+  },
+  "ds.status.ko-peers": {
+    "other": "Node %s nicht gefunden"
+  },
+  "ds.status.na": {
+    "other": "N/A"
+  },
+  "ds.status.object": {
+    "other": "Objects ausgefallen"
+  },
+  "ds.status.ok": {
+    "other": "Alle Dienste werden ausgeführt"
+  },
+  "ds.status.sync": {
+    "other": "Sync ausgefallen"
+  },
+  "ds.storage": {
+    "other": "Speichertyp"
+  },
+  "ds.storage.fs": {
+    "other": "Lokales Dateisystem"
+  },
+  "ds.storage.s3": {
+    "other": "S3 kompatibler Speicher"
+  },
+  "ds.storage.azure": {
+    "other": "Azure Blob Storage"
+  },
+  "ds.storage.gcs": {
+    "other": "Google Cloud Speicher"
+  },
+  "ds.storage.title": {
+    "other": "Speicher"
+  },
+  "ds.versioning": {
+    "other": "Versionierung"
+  },
+  "ds.versioning.description": {
+    "other": "Beschreibung"
+  },
+  "ds.versioning.name": {
+    "other": "Name"
+  },
+  "ds.versioning.periods": {
+    "other": "Aufbewahrungsstrategie"
+  },
+  "home.1": {
+    "other": "Schnellzugriff"
+  },
+  "home.10": {
+    "other": "IP-Adresse"
+  },
+  "home.11": {
+    "other": "Datei-Aktion"
+  },
+  "home.12": {
+    "other": "Legende"
+  },
+  "home.13": {
+    "other": "Zeitspanne"
+  },
+  "home.14": {
+    "other": "Letzter Tag"
+  },
+  "home.15": {
+    "other": "Letzte Woche"
+  },
+  "home.16": {
+    "other": "Letzter Monat"
+  },
+  "home.17": {
+    "other": "Datei-Aktion (nur bei Typ Datei-Aktion)"
+  },
+  "home.18": {
+    "other": "Aktualisierungsintervall (Sekunden)"
+  },
+  "home.19": {
+    "other": "Kleines Diagramm"
+  },
+  "home.2": {
+    "other": "Datumsauswahl"
+  },
+  "home.20": {
+    "other": "Großes Diagramm"
+  },
+  "home.21": {
+    "other": "Kennzahl"
+  },
+  "home.22": {
+    "other": "Hochgeladene Dateien"
+  },
+  "home.23": {
+    "other": "Heruntergeladene Dateien"
+  },
+  "home.24": {
+    "other": "Freigegebene Dateien"
+  },
+  "home.25": {
+    "other": "Verbindungen"
+  },
+  "home.26": {
+    "other": "Täglich"
+  },
+  "home.27": {
+    "other": "Wöchentlich"
+  },
+  "home.28": {
+    "other": "Monatlich"
+  },
+  "home.29": {
+    "other": "Abtastfrequenz"
+  },
+  "home.3": {
+    "other": "Durch­blät­tern"
+  },
+  "home.30": {
+    "other": "Titel"
+  },
+  "home.31": {
+    "other": "Keine Ereignisse gefunden."
+  },
+  "home.32": {
+    "other": "Letzte Ereignisse"
+  },
+  "home.33": {
+    "other": "Alle"
+  },
+  "home.34": {
+    "other": "Fehler"
+  },
+  "home.35": {
+    "other": "Server-Status"
+  },
+  "home.36": {
+    "other": "Ausgelastet"
+  },
+  "home.37": {
+    "other": "Im Leerlauf"
+  },
+  "home.38": {
+    "other": "Belegt"
+  },
+  "home.39": {
+    "other": "Verfügbar"
+  },
+  "home.4": {
+    "other": "Start"
+  },
+  "home.40": {
+    "other": "CPU-Last"
+  },
+  "home.41": {
+    "other": "Speicherverbrauch"
+  },
+  "home.42": {
+    "other": "Last"
+  },
+  "home.43": {
+    "other": "Verknüpfung hinzufügen..."
+  },
+  "home.44": {
+    "other": "Erste Schritte"
+  },
+  "home.45": {
+    "other": "Alles klar, nicht mehr anzeigen!"
+  },
+  "home.48": {
+    "other": "Entfernen"
+  },
+  "home.49": {
+    "other": "Widgets hinzufügen/entfernen"
+  },
+  "home.5": {
+    "other": "Ende"
+  },
+  "home.50": {
+    "other": "Widget hinzufügen..."
+  },
+  "home.51": {
+    "other": "Dadurch wird Ihr Layout verloren gehen. Möchten Sie fortfahren?"
+  },
+  "home.52": {
+    "other": "Widget hinzufügen"
+  },
+  "home.53": {
+    "other": "Dashboard konfigurieren"
+  },
+  "home.54": {
+    "other": "Bestehende Widgets können durch einen Klick auf ENTFERNEN ausgeblendet werden. "
+  },
+  "home.55": {
+    "other": "Wählen Sie unterhalb einen Typ aus, um ein neues Widget hinzuzufügen."
+  },
+  "home.56": {
+    "other": "Layout zurücksetzen"
+  },
+  "home.57": {
+    "other": "Verbindungen heute"
+  },
+  "home.58": {
+    "other": "Downloads heute"
+  },
+  "home.59": {
+    "other": "Uploads diese Woche"
+  },
+  "home.6": {
+    "other": "Wird geladen..."
+  },
+  "home.60": {
+    "other": "Freigegebene Dateien heute"
+  },
+  "home.61": {
+    "other": "Aktivster Benutzer heute"
+  },
+  "home.62": {
+    "other": "Aktivste IP letzte Woche"
+  },
+  "home.63": {
+    "other": "Meist heruntergeladen letzte Woche"
+  },
+  "home.64": {
+    "other": "Meist angesehen letzte Woche"
+  },
+  "home.65": {
+    "other": "Datei-Aktivitäten"
+  },
+  "home.66": {
+    "other": "Web-Verbindungen"
+  },
+  "home.67": {
+    "other": "Willkommen auf dem Administrations-Dashboard. Als Gruppen-Administrator können Sie nur Benutzer und Arbeitsumgebungen Ihrer Gruppe verwalten. Bitte melden Sie sich als Super-Administrator an, um alle Einstellungen zu sehen (Super-Administratoren können aus einer beliebigen Gruppe sein)."
+  },
+  "home.68": {
+    "other": "Zu den Arbeitsumgebungen"
+  },
+  "home.69": {
+    "other": "Auf Arbeitsumgebung einschränken"
+  },
+  "home.7": {
+    "other": "Am aktivsten"
+  },
+  "home.70": {
+    "other": "Leer lassen für alle Arbeitsumgebungen oder auf eine bestimmte einschränken."
+  },
+  "home.71": {
+    "other": "Datei-Filter"
+  },
+  "home.72": {
+    "other": "Verwenden Sie z.B. *.ext um nach der Dateiendung ext zu filtern oder prefix* für alle Dateinamen, die mit prefix beginnen."
+  },
+  "home.73": {
+    "other": "Wählen Sie hier die zu überwachende Funktion aus, wenn bei Typ 'Datei-Aktion' konfiguriert ist."
+  },
+  "home.74": {
+    "other": "Alle Ereignisse anzeigen"
+  },
+  "home.75": {
+    "other": "To-do-Liste"
+  },
+  "home.76": {
+    "other": "Aufgabe hinzufügen"
+  },
+  "home.77": {
+    "other": "Beispiel-Aufgabe"
+  },
+  "home.78": {
+    "other": "erledigt"
+  },
+  "home.79": {
+    "other": "Das Widget wurde zum Dashboard hinzugefügt"
+  },
+  "home.8": {
+    "other": "Typ"
+  },
+  "home.9": {
+    "other": "Benutzer"
+  },
+  "home.getting_started": {
+    "other": "Willkommen auf dem Administrations-Dashboard. Über das Menü auf der linken Seite können Sie alle Einstellungen sowie Benutzer und Arbeitsumgebungen verwalten.\n                        Personalisieren Sie dieses Dashboard um Pydio noch effizienter zu verwalten.\n                        Klicken Sie dafür auf den orangen Button rechts unten um Widgets hinzuzufügen oder zu entfernen.\n                        Die Widgets können anschließend mit gedrückter linker Maustaste verschoben werden.<br/>\n                        In Konfigurations-Masken erhalten Sie weitere Hilfe, indem Sie auf das <span class='icon-question-sign'></span>-Symbol klicken.\n    "
+  },
+  "logs.1": {
+    "other": "Protokolle"
+  },
+  "logs.10": {
+    "other": "Exportieren und herunterladen"
+  },
+  "logs.11": {
+    "other": "Export..."
+  },
+  "logs.2": {
+    "other": "Tag"
+  },
+  "logs.filter.legend": {
+    "other": "Filtern nach..."
+  },
+  "logs.export.disabled": {
+    "other": "Wählen Sie ein Datum oder Filtern Sie Ergebnisse aus"
+  },
+  "logs.export.clicklink": {
+    "other": "Klicken Sie auf den Link zum Herunterladen"
+  },
+  "logs.filter.period": {
+    "other": "Zeitraum"
+  },
+  "logs.filter.fulltext": {
+    "other": "Volltextsuche"
+  },
+  "logs.sys.note": {
+    "other": "Bitte beachten Sie:"
+  },
+  "logs.sys.note.content": {
+    "other": "Leere Log-einträge können bedeuten, dass der Server nicht im Produktionsmodus ausgeführt wird. Stellen Sie sicher, dass Logging gut konfigurier ist, indem Sie das Argument '--log=production' übergeben oder die Umgebungsvariable 'PYDIO_LOGS_LEVEL=production' festlegen."
+  },
+  "logs.3": {
+    "other": "Filter"
+  },
+  "logs.4": {
+    "other": "Für Details auf die Zeile klicken"
+  },
+  "logs.5": {
+    "other": "Ereignis-Details"
+  },
+  "logs.6": {
+    "other": "Logs exportieren"
+  },
+  "logs.7": {
+    "other": "Exportieren von"
+  },
+  "logs.8": {
+    "other": "An"
+  },
+  "logs.9": {
+    "other": "Die Datei wird im CSV-Format mit Semikolon (;) als Trennzeichen und mit Feldern in doppelten Anführungszeichen (\") exportiert."
+  },
+  "logs.service": {
+    "other": "Service"
+  },
+  "logs.message": {
+    "other": "Nachricht"
+  },
+  "logs.noentries": {
+    "other": "Keine Einträge"
+  },
+  "logs.noresults": {
+    "other": "Keine Treffer"
+  },
+  "menu.0": {
+    "other": "Kontrollzentrum"
+  },
+  "menu.1": {
+    "other": "Ereignisse"
+  },
+  "menu.10": {
+    "other": "Erweiterungen zum hochladen von Dateien"
+  },
+  "menu.11": {
+    "other": "Authentifizierung"
+  },
+  "menu.11b": {
+    "other": "Authentifizierung"
+  },
+  "menu.12": {
+    "other": "Konfiguration"
+  },
+  "menu.13": {
+    "other": "Protokollierung"
+  },
+  "menu.14": {
+    "other": "Ereignis-Benachrichtigung"
+  },
+  "menu.15": {
+    "other": "Wie Benutzer über Ereignisse in der Anwendung informiert werden sollen."
+  },
+  "menu.16": {
+    "other": "Nachrichten-Warteschl."
+  },
+  "menu.17": {
+    "other": "Sofortnachrichten in der Anwendung"
+  },
+  "menu.18": {
+    "other": "Alle Erweiterungen"
+  },
+  "menu.19": {
+    "other": "Verfügbare Erweiterungen"
+  },
+  "menu.2": {
+    "other": "Server-Protokolle"
+  },
+  "menu.20": {
+    "other": "Endanwender-Funktionen"
+  },
+  "menu.21": {
+    "other": "Endanwender-Funktionen"
+  },
+  "menu.22": {
+    "other": "Willkommensseite"
+  },
+  "menu.23": {
+    "other": "Startseite für Benutzer nach dem Login. Konfigurieren Sie die angezeigten Elemente und Links."
+  },
+  "menu.3": {
+    "other": "Erscheinungsbild"
+  },
+  "menu.4": {
+    "other": "Thema, Logos, Darstellungsoptionen"
+  },
+  "menu.5": {
+    "other": "Freigaben"
+  },
+  "menu.6": {
+    "other": "Einstellungen für die Freigabe von Ordnern und Dateien"
+  },
+  "menu.7": {
+    "other": "Editoren"
+  },
+  "menu.8": {
+    "other": "Editoren aktivieren oder deaktivieren und deren Einstellungen ändern"
+  },
+  "menu.9": {
+    "other": "Uploader"
+  },
+  "menu.metadata": {
+    "other": "Metadaten"
+  },
+  "menu.metadata.description": {
+    "other": "Benutzer editierbare Felder mit Daten verbunden"
+  },
+  "metadata.definition": {
+    "other": "Definition"
+  },
+  "metadata.delete.confirm": {
+    "other": "Möchten Sie diese Metadaten wirklich löschen?"
+  },
+  "metadata.editor.label.error": {
+    "other": "Metadaten-Label darf nicht leer sein"
+  },
+  "metadata.editor.ns.error": {
+    "other": "Wählen Sie einen Namespace für diese Metadaten"
+  },
+  "metadata.editor.ns.exists": {
+    "other": "Der Name existiert bereits. Bitte vergeben Sie einen anderen Namen"
+  },
+  "metadata.editor.selection": {
+    "other": "Auswahlwerte"
+  },
+  "metadata.editor.selection.key": {
+    "other": "Schlüssel"
+  },
+  "metadata.editor.selection.value": {
+    "other": "Inhalt"
+  },
+  "metadata.editor.tags.cleared": {
+    "other": "Gelöschte Tags für Namespaces %s"
+  },
+  "metadata.editor.tags.reset": {
+    "other": "Tags zurücksetzen"
+  },
+  "metadata.editor.title.create": {
+    "other": "Namespace erstellen"
+  },
+  "metadata.empty": {
+    "other": "Keine Metadaten definiert"
+  },
+  "metadata.indexable": {
+    "other": "Indizierbar"
+  },
+  "metadata.label": {
+    "other": "Label"
+  },
+  "metadata.namespace": {
+    "other": "Name"
+  },
+  "metadata.namespace.add": {
+    "other": "+ Namespace"
+  },
+  "metadata.namespaces": {
+    "other": "Namespaces"
+  },
+  "metadata.namespaces.legend": {
+    "other": "Metadaten können von den Benutzern an beliebige Dateien oder Ordner angehängt werden. Sie können hier die Art der Metadaten definieren, die Sie anzeigen möchten, und ob jedes Meta von Standardbenutzern im Gegensatz zu Administratorbenutzern lesbar / schreibbar ist."
+  },
+  "metadata.order": {
+    "other": "Reihenfolge"
+  },
+  "metadata.toggle.index": {
+    "other": "In der Suchmaschine indizieren"
+  },
+  "metadata.toggle.read": {
+    "other": "Sichtbarkeit auf Admins beschränken"
+  },
+  "metadata.toggle.write": {
+    "other": "Edition auf Admins beschränken"
+  },
+  "metadata.type": {
+    "other": "Typ"
+  },
+  "perfs.booster.description": {
+    "other": "Überprüft, ob Pydio-Boost gestartet ist und WebSocket-Unterstützung anbietet"
+  },
+  "perfs.booster.error": {
+    "other": "Fehler in Pydio-Booster. Öffnen Sie den entsprechenden Bereich für mehr Details."
+  },
+  "perfs.booster.help": {
+    "other": "Pydio-Booster ist eine zusätzliche Anwendung die WebSocket-Unterstützung und Upload/Download-Accelatoren für Pydio anbietet."
+  },
+  "perfs.booster.title": {
+    "other": "Pydio-Booster"
+  },
+  "perfs.cache.description": {
+    "other": "Prüft, ob Pydio einen Cache nutzt"
+  },
+  "perfs.cache.error": {
+    "other": "Es ist kein Pydio-Cache aktiviert."
+  },
+  "perfs.cache.help": {
+    "other": "Pydio kann an externe Cache-Server wie Redis oder Memcache angebunden werden oder die Daten im Speicher halten. Dies verbessert die Geschwindigkeit des Systems deutlich."
+  },
+  "perfs.cache.title": {
+    "other": "Pydio-Cache"
+  },
+  "perfs.cli.description": {
+    "other": "Zeitaufwändige Aufgaben werden über die PHP-Kommandozeile ausgeführt."
+  },
+  "perfs.cli.error": {
+    "other": "Warnung, die Kommandozeile ist nicht aktiviert!"
+  },
+  "perfs.cli.help": {
+    "other": "Aktivieren Sie die PHP-Kommandozeile in den Grundeinstellungen. Dies verbessert die Geschwindigkeit deutlich, da zeitaufwändige Aufgaben im Hintergrund ausgeführt werden können."
+  },
+  "perfs.cli.title": {
+    "other": "PHP-Kommandozeile"
+  },
+  "perfs.debug.description": {
+    "other": "Prüft, ob der Test-Modus auf diesem Server deaktiviert ist"
+  },
+  "perfs.debug.error": {
+    "other": "Warnung, eines der folgenden Flags ist aktiviert: PYDIO_SERVER_DEBUG, PYDIO_CLIENT_DEBUG oder PYDIO_SKIP_CACHE"
+  },
+  "perfs.debug.help": {
+    "other": "Stellen Sie sicher, dass der Test-Modus deaktiviert ist. Die Änderung wird in der Datei conf/booststrap_context.php (oder /etc/pydio/bootstrap_context.php) durchgeführt."
+  },
+  "perfs.debug.title": {
+    "other": "Test-Modus"
+  },
+  "perfs.desc": {
+    "other": "Überprüfe die Systemeinstellungen auf mögliche Verbesserungen."
+  },
+  "perfs.load.description": {
+    "other": "Erkennt wenn der Server ausgelastet ist (nur Linux)"
+  },
+  "perfs.load.error": {
+    "other": "Der Server hat möglicherweise zu wenig Leistung. Eine Erweiterung des Systems könnte Abhilfe schaffen."
+  },
+  "perfs.load.help": {
+    "other": "Wenn der Server stark ausgelastet ist deutet dies auf zu wenig Leistung (CPU oder RAM) hin."
+  },
+  "perfs.load.title": {
+    "other": "Server-Last"
+  },
+  "perfs.mailer.description": {
+    "other": "Prüft, ob E-Mails über eine Warteschlange versendet werden"
+  },
+  "perfs.mailer.error": {
+    "other": "Es wird keine E-Mail-Warteschlange verwendet, um Nachrichten im Hintergrund zu versenden."
+  },
+  "perfs.mailer.help": {
+    "other": "Mit der E-Mail-Warteschlange werden Nachrichten in eine Warteschlange gespeichert (Datenbank) und im Hintergrund versendet."
+  },
+  "perfs.mailer.title": {
+    "other": "E-Mail-Warteschlange"
+  },
+  "perfs.more": {
+    "other": "Weitere Infos"
+  },
+  "perfs.opcache.description": {
+    "other": "Prüft, ob eine PHP-Erweiterung für Opcode-Cache aktiviert ist"
+  },
+  "perfs.opcache.error": {
+    "other": "Keine der folgenden PHP-Erweiterungen erkannt: APC, APCu, Opcache oder XCache."
+  },
+  "perfs.opcache.help": {
+    "other": "Pydio ist ein umfangreiches Framework, welches viele Daten im Speicher halten muss. Stellen Sie sicher, dass eine Opcode-Cache-Erweiterung wie APC/u, Opcache oder XCache aktiviert ist."
+  },
+  "perfs.opcache.title": {
+    "other": "Opcode-Cache-Erweiterung"
+  },
+  "perfs.score": {
+    "other": "Leistungsbewertung"
+  },
+  "perfs.tests": {
+    "other": "Leistungsbewertung"
+  },
+  "perfs.title": {
+    "other": "Systemeinstellungen"
+  },
+  "perfs.widget": {
+    "other": "Widget zu Dashboard hinzufügen"
+  },
+  "plugins.1": {
+    "other": "Allgemein"
+  },
+  "plugins.2": {
+    "other": "Hauptinstanz"
+  },
+  "plugins.3": {
+    "other": "Zweite Instanz"
+  },
+  "plugins.4": {
+    "other": "Mit Editor-Erweiterungen ist es möglich, bestimmte Dateitypen anzusehen oder zu bearbeiten.\n                    Jede Erweiterung kann mehrere Dateitypen unterstützen. Die Editoren werden im 'Öffnen mit...'-Dialog angezeigt."
+  },
+  "plugins.5": {
+    "other": "Speichern"
+  },
+  "plugins.6": {
+    "other": "Zurücksetzen"
+  },
+  "plugins.list.column.enabled": {
+    "other": "Aktiviert"
+  },
+  "plugins.list.column.label": {
+    "other": "Label"
+  },
+  "plugins.list.column.id": {
+    "other": "Id"
+  },
+  "plugins.list.column.description": {
+    "other": "Beschreibung"
+  },
+  "plugins.list.action.edit": {
+    "other": "Plugin-Parameter bearbeiten"
+  },
+  "policies.policy.create": {
+    "other": "Erstellen"
+  },
+  "policies.policy.description": {
+    "other": "Richtlinienbeschreibung"
+  },
+  "policies.policy.name": {
+    "other": "Richtlinienname"
+  },
+  "policies.policy.new": {
+    "other": "+ Neue Richtlinie"
+  },
+  "policies.policy.type": {
+    "other": "Richtlinientyp"
+  },
+  "policies.type.acl.legend": {
+    "other": "Diese Richtlinien werden verwendet, um basierend auf dem Anforderungskontext und / oder den Nodemetadaten dynamisch Lese- / Schreibzugriff auf Worspace oder Node bereitzustellen. Sie werden hier definiert und im Access Control Panel der Benutzer und Rollen verwendet."
+  },
+  "policies.type.acl.title": {
+    "other": "Kontextbasierte ACLs"
+  },
+  "policies.type.oidc.legend": {
+    "other": "Der OpenId Connect Service wird für die Benutzerauthentifizierung verwendet, bevor auf die APIs zugegriffen wird. Daher können Sie den Anmeldevorgang für eine Gruppe von Benutzern basierend auf dem Anforderungskontext vollständig deaktivieren, z.B. können Sie die Authentifizierung von einer bestimmten IP-Adresse oder zu einem bestimmten Zeitpunkt deaktivieren."
+  },
+  "policies.type.oidc.title": {
+    "other": "OpenId Connect Ressourcen"
+  },
+  "policies.type.rest.legend": {
+    "other": "Diese Richtlinien schützen die REST-APIs pro-uri / pro-Methode. Sie gewähren grundlegenden Zugriff auf bestimmte APIs für die öffentliche Erkennung und einen eingeschränkten Zugriff auf viele APIs, um sicherzustellen, dass nur Frontend-Anwendungen auf sie zugreifen. Sie sollten diese normalerweise nicht berühren, wenn Sie nicht genau wissen, was Sie tun."
+  },
+  "policies.type.rest.title": {
+    "other": "REST-Ressourcen"
+  },
+  "react.1": {
+    "other": "Zurück"
+  },
+  "react.10": {
+    "other": "Vererbt"
+  },
+  "react.11": {
+    "other": "Leere Berechtigungen"
+  },
+  "react.12": {
+    "other": "Leere Berechtigungen"
+  },
+  "react.13": {
+    "other": "Alle Berechtigungen anzeigen"
+  },
+  "react.14": {
+    "other": "Baumstruktur anzeigen"
+  },
+  "react.2": {
+    "other": "Massenoperationen"
+  },
+  "react.3": {
+    "other": "Suchergebnisse für '%s'"
+  },
+  "react.4": {
+    "other": "Suchergebnisse schließen"
+  },
+  "react.5": {
+    "other": "verweigern"
+  },
+  "react.5a": {
+    "other": "lesen"
+  },
+  "react.5b": {
+    "other": "schreiben"
+  },
+  "react.6": {
+    "other": "Kinder"
+  },
+  "react.7": {
+    "other": "Regel erstellen"
+  },
+  "react.8": {
+    "other": "Sie sind dabei, die Rechteverwaltung auf untergeordnete Elemente zu erweitern.\n                        Damit wird dieser Ordner standardmäßig schreibgeschützt sein und Sie haben die Möglichkeit, Berechtigungen\n                        für Unterordner zu vergeben. Wählen Sie aus, ob Sie die aktuellen Berechtigungen auf die Unterordner übernehmen\n                        möchten, oder ob Sie mit leeren Berechtigungen beginnen möchten. Durch letzteres sind die Ordner vorerst\n                        nicht zugreifbar."
+  },
+  "react.9": {
+    "other": "Sie sind dabei, die Rechteverwaltung für Unterordner zu deaktivieren.\n                        Alle Unterordner erben die Berechtigungen dieses Ordners. Ihre aktuellen Einstellungen\n                        gehen damit verloren. Möchten Sie fortfahren?"
+  },
+  "scheduler.1": {
+    "other": "Nutzen Sie die Aufgabenplanung, um wiederkehrende Aufgaben zu konfigurieren. Mit Pydio-Booster sollte dies automatisch funktionieren. Verwenden Sie andernfalls einen CRON-Job um die Aufgabenplanung minütlich zu starten. Diese kümmert sich dann automatisch um die Ausführung der einzelnen Aufgaben."
+  },
+  "scheduler.2": {
+    "other": "Die Kommandozeile ist in den %1 nicht aktiviert. Aufgaben können nicht gestartet werden."
+  },
+  "scheduler.3": {
+    "other": "globalen Einstellungen"
+  },
+  "user.1": {
+    "other": "+ Benutzer"
+  },
+  "user.10": {
+    "other": "Hat Zugriff auf %i Arbeitsumgebungen"
+  },
+  "user.11": {
+    "other": "%i Rollen"
+  },
+  "user.12": {
+    "other": "Gruppen-Pfad"
+  },
+  "user.13": {
+    "other": "Freigaben-Benutzer"
+  },
+  "user.14": {
+    "other": "Neue Rolle erstellen"
+  },
+  "user.15": {
+    "other": "Neue Gruppe erstellen"
+  },
+  "user.16": {
+    "other": "Gruppen-Identifier"
+  },
+  "user.16.empty": {
+    "other": "Bitte geben Sie ein eindeutiges Identifier"
+  },
+  "user.16.format": {
+    "other": "Bitte verwenden Sie nur alphanumerische Zeichen"
+  },
+  "user.17": {
+    "other": "Gruppen-Titel"
+  },
+  "user.17.empty": {
+    "other": "Bitte geben Sie eine Bezeichnung für diese Gruppe"
+  },
+  "user.18": {
+    "other": "Rollen-Identifier"
+  },
+  "user.18.empty": {
+    "other": "Bitte geben Sie einen Name für diese Rolle"
+  },
+  "user.19": {
+    "other": "Neuen Benutzer erstellen"
+  },
+  "user.2": {
+    "other": "+ Gruppe"
+  },
+  "user.20": {
+    "other": "Der Benutzer wird in der Gruppe '%s' erstellt"
+  },
+  "user.21": {
+    "other": "Benutzername"
+  },
+  "user.22": {
+    "other": "Passwort"
+  },
+  "user.23": {
+    "other": "Passwort-Bestätigung"
+  },
+  "user.24": {
+    "other": "Haupt-Gruppe"
+  },
+  "user.25": {
+    "other": "Haupt-Gruppen-Rolle"
+  },
+  "user.26": {
+    "other": "%s-Gruppen-Rolle"
+  },
+  "user.27": {
+    "other": "Persönliche Rolle"
+  },
+  "user.3": {
+    "other": "Gruppen"
+  },
+  "user.4": {
+    "other": "Rollen"
+  },
+  "user.5": {
+    "other": "Benutzer & Gruppen"
+  },
+  "user.6": {
+    "other": "+ Rolle"
+  },
+  "user.7": {
+    "other": "Suchen..."
+  },
+  "user.8": {
+    "other": "Ändern Sie Einstellungen in dieser Gruppe, um sie auf alle Benutzer und Gruppen zu übernehmen."
+  },
+  "user.9": {
+    "other": "Zuletzt verbunden"
+  },
+  "user.filter.tooltip": {
+    "other": "Benutzerliste filtern..."
+  },
+  "user.filter.internal": {
+    "other": "Interne Benutzer"
+  },
+  "user.filter.shared": {
+    "other": "Share Benutzer"
+  },
+  "user.filter.admins": {
+    "other": "Nur Admins"
+  },
+  "user.filter.all": {
+    "other": "Alle Benutzer"
+  },
+  "user.filter.anon": {
+    "other": "Anonyme anzeigen"
+  },
+  "versions.editor.delete": {
+    "other": "Richtlinie löschen"
+  },
+  "versions.editor.delete.confirm": {
+    "other": "Möchten Sie diese Richtlinie wirklich löschen? Das ist unbestreitbar!"
+  },
+  "versions.editor.error.lastdelete": {
+    "other": "Die letzte Periode ist so konfiguriert, dass alle Versionen gelöscht werden. Sie können keine neue hinzufügen!"
+  },
+  "versions.editor.title": {
+    "other": "Richtlinie %s"
+  },
+  "versions.period.keep-all": {
+    "other": "Alle behalten"
+  },
+  "versions.period.keep-all.always": {
+    "other": "Alle Versionen für immer behalten"
+  },
+  "versions.period.keep-n": {
+    "other": "%s Versionen behalten"
+  },
+  "versions.period.keep-n-after": {
+    "other": "%1 Versionen nach %2 behalten"
+  },
+  "versions.period.max-n": {
+    "other": "Max. %s Versionen"
+  },
+  "versions.period.remove-all": {
+    "other": "Alle entfernen"
+  },
+  "versions.period.remove-all-after": {
+    "other": "Alle nach %s entfernen"
+  },
+  "versions.period.retentions-n": {
+    "other": "%s Aufbewahrungsfristen"
+  },
+  "virtual.create": {
+    "other": "+ Vorlagenpfad"
+  },
+  "virtual.create.button": {
+    "other": "Erstellen"
+  },
+  "virtual.label": {
+    "other": "Label"
+  },
+  "virtual.legend.1": {
+    "other": "Vorlagenpfade werden dynamisch je nach Kontext berechnet. Sie können als Wurzeln für Workspace als Ersatz für einen festen Datasource-Pfad verwendet werden.     Sie werden standardmäßig verwendet, um den Arbeitsbereich für persönliche Dateien zu erstellen, der für jeden Benutzer auf einen anderen Ordner verweist. Sie werden standardmäßig verwendet, um die Personal Files Workspace zu erstellen, der in einen anderen Ordner für jeden Benutzer, und auch um den Ort der Benutzers-Cells Ordner zuberechnen."
+  },
+  "virtual.legend.2": {
+    "other": "Verwenden Sie Strg + Leertaste im Editor, um Hinweise zu den möglichen Werten zu erhalten. Derzeit unterstützte Werte sind: User.Name (dynamisch in den aktuell angemeldeten Benutzer aufgelöst) und DataSources (zur dynamischen Auswahl einer Datenquelle)."
+  },
+  "virtual.title": {
+    "other": "Vorlagenpfade"
+  },
+  "ws.1": {
+    "other": "Vorlagen verwalten"
+  },
+  "ws.10": {
+    "other": "Vorlage auswählen"
+  },
+  "ws.11": {
+    "other": "Vorlage oder Treiber auswählen"
+  },
+  "ws.12": {
+    "other": "Vorlage %s"
+  },
+  "ws.13": {
+    "other": "Vorlagen-Einstellungen"
+  },
+  "ws.14": {
+    "other": "Allgemeine Einstellungen"
+  },
+  "ws.15": {
+    "other": "Arbeitsumgebungs-Einstellungen"
+  },
+  "ws.16": {
+    "other": "Speicher auswählen"
+  },
+  "ws.17": {
+    "other": "Speicher auswählen"
+  },
+  "ws.18": {
+    "other": "Lade Treiber"
+  },
+  "ws.19": {
+    "other": "Änderungen übernehmen"
+  },
+  "ws.2": {
+    "other": "Vorlagen schließen"
+  },
+  "ws.20": {
+    "other": "Erstellen"
+  },
+  "ws.21": {
+    "other": "Allgemeine Vorlagen-Einstellungen"
+  },
+  "ws.22": {
+    "other": "Allgemeine Arbeitsumgebungs-Einstellungen"
+  },
+  "ws.23": {
+    "other": "Löschen"
+  },
+  "ws.24": {
+    "other": "Untergeordnete Arbeitsumgebungen"
+  },
+  "ws.25": {
+    "other": "Freigaben"
+  },
+  "ws.26": {
+    "other": "Verzeichnisrechte"
+  },
+  "ws.27": {
+    "other": "Zusatzfunktionen"
+  },
+  "ws.28": {
+    "other": "Zusammenfassung"
+  },
+  "ws.29": {
+    "other": "Parameter"
+  },
+  "ws.3": {
+    "other": "+ Arbeitsumgebung"
+  },
+  "ws.30": {
+    "other": "Allgemeine Einstellungen"
+  },
+  "ws.31": {
+    "other": "Funktion entfernen"
+  },
+  "ws.32": {
+    "other": "Funktion hinzufügen..."
+  },
+  "ws.33": {
+    "other": "Letzte Aktivität"
+  },
+  "ws.34": {
+    "other": "Letzte Ereignisse"
+  },
+  "ws.35": {
+    "other": "Zugreifbar für %i Benutzer"
+  },
+  "ws.36": {
+    "other": "+ %i Dateien oder Ordner freigegeben"
+  },
+  "ws.37": {
+    "other": "Arbeitsumgebungen, die auf dieser Vorlage basieren"
+  },
+  "ws.38": {
+    "other": "In dieser Arbeitsumgebung freigegebene Elemente"
+  },
+  "ws.39": {
+    "other": "Eigentümer"
+  },
+  "ws.4": {
+    "other": "+ Vorlage"
+  },
+  "ws.40": {
+    "other": "Art der Freigabe"
+  },
+  "ws.41": {
+    "other": "Pfad"
+  },
+  "ws.42": {
+    "other": "Berechtigungen auf Ordner-Basis"
+  },
+  "ws.43": {
+    "other": "Legen Sie hier die Standardrechte für diesen Ordner fest.\n                                Haken Sie bei einem Ordner 'Kinder' an, um die Rechteverwaltung auf untergeordnete Elemente zu erweitern.\n                                Damit ist dieser Ordner standardmäßig schreibgeschützt und Sie haben die Möglichkeit, Berechtigungen\n                                für Unterordner zu vergeben."
+  },
+  "ws.44": {
+    "other": "Dieser Ordner ist frei definiert. Wenn der zugrundeliegende Ordner angepasst wird muss auch diese Definition\n                                entsprechend geändert werden. Weiterhin werden diese Berechtigungen durch die Standardrechte\n                                der Arbeitsumgebung eingeschränkt. (siehe Region 'Allgemeine Einstellungen')."
+  },
+  "ws.45": {
+    "other": "Der Pfad zu dieser Arbeitsumgebung enthält die Parameter 'PYDIO_USER' oder 'PYDIO_GROUP_*' und ist daher abhängig \n                                vom angemeldeten Benutzer. Aus diesem Grund können die Unterordner zur Rechtevergabe nicht ermittelt werden.\n                                Unabhängig davon ist es aber möglich, generische Pfade frei zu definieren."
+  },
+  "ws.46": {
+    "other": "Funktion hinzufügen"
+  },
+  "ws.47": {
+    "other": "Funktion auswählen"
+  },
+  "ws.48": {
+    "other": "Dieses Element kann nicht bearbeitet werden, da es in der Datei conf/bootstrap_repositories.php konfiguriert ist."
+  },
+  "ws.49": {
+    "other": ""
+  },
+  "ws.4b": {
+    "other": "+ versioning policy"
+  },
+  "ws.5": {
+    "other": "Identifier"
+  },
+  "ws.50": {
+    "other": "Indexierung"
+  },
+  "ws.51": {
+    "other": "Diese Arbeitsumgebung nutzt Indexierung (%s). Die Verarbeitung wird idr. direkt beim hinzufügen oder entfernen von Elementen durchgeführt.\n                    Änderungen auf Dateisystem-Ebene werden nicht automatisch erkannt. Die Indexierung kann dafür jedoch über den Button unterhalb sofort gestartet werden.\n                    Alternativ ist es auch möglich, eine Aufgabe zu erstellen, um die Indexierung in regelmäßigen Abständen automatisch durchzuführen."
+  },
+  "ws.52": {
+    "other": "Achtung: Der Inhalt dieser Arbeitsumgebung ist abhängig vom angemeldeten Benutzer. Die Indexierung wird für jeden Benutzer ausgeführt."
+  },
+  "ws.53": {
+    "other": "Indexierung sofort starten"
+  },
+  "ws.54": {
+    "other": "Täglich um 03:00 Uhr ausführen"
+  },
+  "ws.55": {
+    "other": "Automatische Bereinigung"
+  },
+  "ws.56": {
+    "other": "Diese Arbeitsumgebung nutzt die automatische Bereinigung, um Dokumente zu entfernen, die seit %s Tagen unverändert sind. Erstellen Sie eine Aufgabe\n                    um diese Arbeitsumgebung regelmäßig zu bereinigen. Verwenden Sie den folgenden Button, um die Aufgabe automatisch zu erstellen."
+  },
+  "ws.57": {
+    "other": "Achtung: Der Inhalt dieser Arbeitsumgebung ist abhängig vom angemeldeten Benutzer. Die Bereinigung wird für jeden Benutzer ausgeführt."
+  },
+  "ws.58": {
+    "other": "Sofort bereinigen"
+  },
+  "ws.59": {
+    "other": "Täglich um 04:00 Uhr ausführen"
+  },
+  "ws.6": {
+    "other": "Neue Arbeitsumgebung erstellen"
+  },
+  "ws.60": {
+    "other": "Arbeitsumgebungs-Ereignisse"
+  },
+  "ws.61": {
+    "other": "Benutzer können im Info-Bereich alle Ereignisse der aktuellen Arbeitsumgebung sehen. Sie haben hier die Möglichkeit diese Liste\n                            zu löschen (z.B. für den Livegang nach einer Testphase)."
+  },
+  "ws.62": {
+    "other": "Ereignisse löschen"
+  },
+  "ws.63": {
+    "other": "Dadurch werden alle Ereignisse dieser Arbeitsumgebung gelöscht. Möchten Sie fortfahren?"
+  },
+  "ws.64": {
+    "other": "%s Ereignisse gelöscht"
+  },
+  "ws.65": {
+    "other": "Arbeitsumgebung warten"
+  },
+  "ws.66": {
+    "other": "Laufende Aufgaben"
+  },
+  "ws.67": {
+    "other": "Keine laufenden Aufgaben"
+  },
+  "ws.68": {
+    "other": "Keine Parameter"
+  },
+  "ws.69": {
+    "other": "Template-basierte Workspace"
+  },
+  "ws.7": {
+    "other": "Neue Vorlage erstellen"
+  },
+  "ws.70": {
+    "other": "Driver-basierte Workspace"
+  },
+  "ws.71": {
+    "other": "Führen Sie die folgenden Schritte aus"
+  },
+  "ws.72": {
+    "other": "Füllen Sie das Formular rechts aus"
+  },
+  "ws.73": {
+    "other": "Wählen Sie einen Wert aus, bevor Sie fortfahren"
+  },
+  "ws.74": {
+    "other": "Use the form on the right to create a new DataSource."
+  },
+  "ws.75": {
+    "other": "Eine DataSource definiert, wo Ihre Daten gespeichert werden."
+  },
+  "ws.76": {
+    "other": "Pydio fasst alle Ihre Datenquellen in einem Master-Baum zusammen, in dem Sie mithilfe von Workspaces Rechte zuweisen können."
+  },
+  "ws.8": {
+    "other": "Bestehende Vorlage"
+  },
+  "ws.9": {
+    "other": "Datasource Nodes"
+  },
+  "ws.board.empty": {
+    "other": "Kein Workspace definiert"
+  },
+  "ws.board.summary": {
+    "other": "Workspace Wurzeln"
+  },
+  "ws.complete.datasources": {
+    "other": "DataSources und Ordner"
+  },
+  "ws.complete.label": {
+    "other": "Wählen Sie einen Ordner oder eine vordefinierte Vorlagenpfad"
+  },
+  "ws.complete.resolves": {
+    "other": "Löst sich in"
+  },
+  "ws.complete.templates": {
+    "other": "Voreingestellte Vorlagenpfade"
+  },
+  "ws.dashboard": {
+    "other": "Workspaces definieren den Hauptzugriffspunkt auf Ihre Daten für die Benutzer. Stellen Sie sicher, dass Sie mindestens eine DataSource definieren, um einen Workspace erstellen zu können, der auf einen Pfad dieser DataSource zeigt."
+  },
+  "ws.editor.data.legend": {
+    "other": "Der Workspace stellt den Benutzern einen oder mehrere \"Roots\" zur Verfügung: Wählen Sie einen oder mehrere Pfade aus einer DataSource oder einem Vorlagenpfad aus, die zur Laufzeit automatisch aufgelöst werden."
+  },
+  "ws.editor.data.title": {
+    "other": "Datenzugriff"
+  },
+  "ws.editor.default_rights": {
+    "other": "Richten Sie Standardberechtigungen für diesen Workspace ein (gilt für alle internen Benutzer der Anwendung). Sie können diese Berechtigungen auf Benutzerbasis / pro Rolle / pro Gruppe im Abschnitt Personen überschreiben."
+  },
+  "ws.editor.default_rights.none": {
+    "other": "Keine"
+  },
+  "ws.editor.default_rights.read": {
+    "other": "Nur lesen"
+  },
+  "ws.editor.default_rights.readwrite": {
+    "other": "Lesen und Schreiben"
+  },
+  "ws.editor.default_rights.write": {
+    "other": "Nur schreiben"
+  },
+  "ws.editor.description": {
+    "other": "Zusätzliche Beschreibung (optional)"
+  },
+  "ws.editor.help.1": {
+    "other": "Workspaces gewähren den Benutzern Zugriff auf Ihre Daten. Sie stellen einen oder mehrere Ordner in Ihren Datenquellen bereit."
+  },
+  "ws.editor.help.2": {
+    "other": "Es ist wichtig, richtig zu organisieren, wie Daten zu Ihren Benutzern präsentiert werden. Sie können für verschiedene Teile Ihrer Organisation Arbeitsbereiche erstellen (Finanzen, marketing, technische Daten, etc.), auf einer Basis pro Projekt, etc.. Anschließend können Sie Zugriffe auf Workspace auf einer pro-Benutzer zuweisen / pro Rolle / Grundlage pro Gruppe."
+  },
+  "ws.editor.help.delete": {
+    "other": "Warnung, gefährliche Operation! Dies ist nicht umkehrbar."
+  },
+  "ws.editor.label.legend": {
+    "other": "Menschenfreundlich Label für den Workspace"
+  },
+  "ws.editor.options.legend": {
+    "other": "Bezeichnung und Beschreibung sind für den Benutzer angezeigt. Wählen Sie einen selbsterklärenden Namen für Anwender die Daten besser zu organisieren."
+  },
+  "ws.editor.other": {
+    "other": "Other Properties"
+  },
+  "ws.editor.other.layout": {
+    "other": "Workspace Layout"
+  },
+  "ws.editor.other.layout.default": {
+    "other": "Standard"
+  },
+  "ws.editor.other.layout.easy": {
+    "other": "Easy Transfer Layout (nur für Enterprise Distribution)"
+  },
+  "ws.editor.other.sync": {
+    "other": "Desktop-Synchronisierung zulassen (noch experimentell)"
+  },
+  "ws.editor.path.folder": {
+    "other": "Ordnerpfad"
+  },
+  "ws.editor.path.template": {
+    "other": "Vorlagenpfad"
+  },
+  "ws.editor.slug.legend": {
+    "other": "Technischer Name, der beispielsweise in URLs verwendet wird, wird automatisch berechnet, Sie können ihn jedoch anpassen."
+  },
+  "services.filter.nofilter": {
+    "other": "Alle Services"
+  },
+  "services.filter.started": {
+    "other": "Nur laufende"
+  },
+  "services.filter.stopped": {
+    "other": "Nur angehalten"
+  },
+  "services.peerfilter.title": {
+    "other": "Node auswählen"
+  },
+  "services.toggle.details": {
+    "other": "Details anzeigen"
+  },
+  "services.column.name": {
+    "other": "Dienstname"
+  },
+  "services.column.description": {
+    "other": "Beschreibung"
+  },
+  "services.column.version": {
+    "other": "Version"
+  },
+  "services.column.tag": {
+    "other": "Tag"
+  },
+  "services.column.peers": {
+    "other": "Peers"
+  },
+  "services.tag.gateway.title": {
+    "other": "Gateways"
+  },
+  "services.tag.gateway.description": {
+    "other": "Weltweiter Service für den Zugang zur Plattform"
+  },
+  "services.tag.datasource.title": {
+    "other": "Daten-Quellen"
+  },
+  "services.tag.datasource.description": {
+    "other": "Storageendpunkte für den Zugriff auf konkrete Dateispeicher. Hauptdienste sind für das Starten von Unterdiensten (pro Datenquelle) zuständig."
+  },
+  "services.tag.data.title": {
+    "other": "Daten"
+  },
+  "services.tag.data.description": {
+    "other": "Dienste, die Daten und Metadaten verarbeiten."
+  },
+  "services.tag.idm.title": {
+    "other": "Identitätsmanagement"
+  },
+  "services.tag.idm.description": {
+    "other": "Alle Dienste im Zusammenhang mit Authentifizierung und Berechtigungen: Rollen, Sicherheitsrichtlinien, usw."
+  },
+  "services.tag.scheduler.title": {
+    "other": "Scheduler"
+  },
+  "services.tag.scheduler.description": {
+    "other": "Dienste zur Verwaltung von Hintergrundjobs. Der Task Server kann auf verschiedene Peers verteilt werden."
+  },
+  "services.tag.broker.title": {
+    "other": "Broker"
+  },
+  "services.tag.broker.description": {
+    "other": "Dienste, die Ereignisse (in der Regel für Benutzer) in der gesamten Anwendung versenden und verarbeiten."
+  },
+  "services.tag.frontend.title": {
+    "other": "Frontend"
+  },
+  "services.tag.frontend.description": {
+    "other": "Web-Services für User-Interfaces im browser"
+  },
+  "services.tag.discovery.title": {
+    "other": "Entdeckung"
+  },
+  "services.tag.discovery.description": {
+    "other": "Grundkonfigurationen und Dienstregister, die von allen anderen Diensten aufgerufen werden."
+  },
+  "services.service.ip": {
+    "other": "Läuft auf %s"
+  },
+  "services.service.datasource.sync": {
+    "other": "Sync"
+  },
+  "services.service.datasource.objects": {
+    "other": "Objekte"
+  },
+  "services.service.datasource.objects.legend": {
+    "other": "S3-Schicht, um Daten als Objektspeicher zu verwenden"
+  },
+  "services.service.datasource.legend": {
+    "other": "Datenquelle synchronisiert Daten von der Objektschicht zur Index-DB."
+  },
+  "services.service.datasource.index": {
+    "other": "Indizierung"
+  },
+  "scheduler.title": {
+    "other": "Scheduler"
+  },
+  "scheduler.legend": {
+    "other": "Jobs, die regelmäßig im Hintergrund laufen oder durch Ereignisse ausgelöst werden"
+  },
+  "scheduler.system.title": {
+    "other": "Systemjobs"
+  },
+  "scheduler.system.legend": {
+    "other": "Diese Jobs werden standardmäßig in der Anwendung registriert. Sie sind im Allgemeinen dafür verantwortlich, Informationen von Nodes im Hintergrund zu extrahieren oder einige Reinigungsvorgänge auszuführen."
+  },
+  "scheduler.system.empty": {
+    "other": "Keine Jobs geplant."
+  },
+  "scheduler.users.title": {
+    "other": "Benutzer-Jobs"
+  },
+  "scheduler.users.legend": {
+    "other": "Diese Jobs werden dynamisch erstellt und trigged durch Benutzeraktionen."
+  },
+  "scheduler.users.empty": {
+    "other": "Keine Jobs von Benutzern gestartet"
+  },
+  "scheduler.job.label": {
+    "other": "Titel"
+  },
+  "scheduler.job.endTime": {
+    "other": "Letzte Ausführung"
+  },
+  "scheduler.job.status": {
+    "other": "Zustand"
+  },
+  "scheduler.job.owner": {
+    "other": "Eigentümer"
+  },
+  "scheduler.job.trigger": {
+    "other": "Trigger"
+  },
+  "scheduler.trigger.create.node": {
+    "other": "Node erstellen"
+  },
+  "scheduler.trigger.read.node": {
+    "other": "Node lesen"
+  },
+  "scheduler.trigger.update.path": {
+    "other": "Pfad aktualisieren"
+  },
+  "scheduler.trigger.update.content": {
+    "other": "Inhalt aktualisieren"
+  },
+  "scheduler.trigger.update.metadata": {
+    "other": "Metadaten aktualisieren"
+  },
+  "scheduler.trigger.delete.node": {
+    "other": "Node löschen"
+  },
+  "scheduler.trigger.events": {
+    "other": "Ereignisse"
+  },
+  "scheduler.trigger.manual": {
+    "other": "Manuell Trigger"
+  },
+  "scheduler.trigger.periodic": {
+    "other": "Periodischer Zeitplan"
+  },
+  "scheduler.job.disabled": {
+    "other": "deaktiviert"
+  },
+  "scheduler.tasks.running.count": {
+    "other": "%s laufenden Aufgaben"
+  },
+  "scheduler.task.action.pause": {
+    "other": "Aufgabe pausieren"
+  },
+  "scheduler.task.action.resume": {
+    "other": "Aufgabe fortsetzen"
+  },
+  "scheduler.task.action.stop": {
+    "other": "Aufgabe beenden"
+  },
+  "scheduler.task.action.delete": {
+    "other": "Löschen"
+  },
+  "scheduler.task.action.enable": {
+    "other": "Job aktivieren"
+  },
+  "scheduler.task.action.run": {
+    "other": "Jetzt starten"
+  },
+  "scheduler.task.action.disable": {
+    "other": "Job deaktivieren"
+  },
+  "scheduler.task.id": {
+    "other": "ID"
+  },
+  "scheduler.task.start": {
+    "other": "Starten"
+  },
+  "scheduler.task.end": {
+    "other": "Beenden"
+  },
+  "scheduler.task.status": {
+    "other": "Zustand"
+  },
+  "scheduler.task.message": {
+    "other": "Nachricht"
+  },
+  "scheduler.tasks.running": {
+    "other": "Laufende Aufgaben"
+  },
+  "scheduler.tasks.history": {
+    "other": "Aufgaben Geschichte"
+  },
+  "scheduler.tasks.history.empty": {
+    "other": "Keine Aufgaben haben noch ausgeführt"
+  },
+  "scheduler.tasks.history.more": {
+    "other": "%s andere Aufgaben nicht gezeigt..."
+  },
+  "scheduler.tasks.running.empty": {
+    "other": "Derzeit laufen keine Aufgaben"
+  },
+  "scheduler.tasks.bulk.delete": {
+    "other": "Aufgaben löschen"
+  },
+  "scheduler.tasks.bulk.enable": {
+    "other": "Mehrere aktivieren"
+  },
+  "scheduler.tasks.bulk.disable": {
+    "other": "Mehrere deaktivieren"
+  },
+  "scheduler.tasks.bulk.clear": {
+    "other": "Alle entfernen"
+  },
+  "scheduler.schedule.monthly": {
+    "other": "Am %1 jedes Monats um %2 Uhr"
+  },
+  "scheduler.schedule.monthly.short": {
+    "other": "Am %1 jedes Monats"
+  },
+  "scheduler.schedule.weekly": {
+    "other": "Jeder %1 um %2 Uhr"
+  },
+  "scheduler.schedule.weekly.short": {
+    "other": "Jeder %1"
+  },
+  "scheduler.schedule.daily": {
+    "other": "Täglich um %1"
+  },
+  "scheduler.schedule.daily.short": {
+    "other": "Um %1"
+  },
+  "scheduler.schedule.timely": {
+    "other": "Jeder %1"
+  },
+  "scheduler.schedule.title": {
+    "other": "Job-Zeitplan"
+  },
+  "scheduler.schedule.type": {
+    "other": "Zeitplan Typ"
+  },
+  "scheduler.schedule.type.manual": {
+    "other": "Manuell"
+  },
+  "scheduler.schedule.type.monthly": {
+    "other": "Monatlich"
+  },
+  "scheduler.schedule.type.weekly": {
+    "other": "Wöchentlich"
+  },
+  "scheduler.schedule.type.daily": {
+    "other": "Täglich"
+  },
+  "scheduler.schedule.type.timely": {
+    "other": "Jeder %1..."
+  },
+  "scheduler.schedule.detail.monthday": {
+    "other": "Tag des Monats"
+  },
+  "scheduler.schedule.detail.weekday": {
+    "other": "Tag der Woche"
+  },
+  "scheduler.schedule.detail.daytime": {
+    "other": "Uhrzeit"
+  },
+  "scheduler.schedule.detail.minutes": {
+    "other": "Zeitraum in Minuten"
+  },
+  "developer.rest.apis": {
+    "other": "REST-API Dokumentation"
+  },
+  "developer.rest.apis.legend": {
+    "other": "Nachfolgend sind alle in Pydio Cells verfügbaren APIs aufgeführt. Um diese APIs zu nutzen, müssen Sie sich zunächst beim OpenIDConnect-Dienst authentifizieren, um eine gültige JWT zu erhalten. Weitere Informationen finden Sie im Online-Administratorhandbuch."
+  },
+  "mailer.test.title": {
+    "other": "Test E-Mail versenden"
+  },
+  "mailer.test.legend": {
+    "other": "Speichern Sie Ihre Konfigurationsänderungen, bevor Sie eine Test-E-Mail senden."
+  },
+  "mailer.test.loading": {
+    "other": "Mailer-Bibliothek wird geladen..."
+  }
+}

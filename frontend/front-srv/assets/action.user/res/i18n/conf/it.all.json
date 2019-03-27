@@ -1,0 +1,14 @@
+{
+  "Disable Address Book": {
+    "other": "Disabilita Rubrica"
+  },
+  "Do not display address book in user account panel.": {
+    "other": "Non visualizzare la rubrica nel pannello account utente."
+  },
+  "User Dashboard": {
+    "other": "Dashboard Utente"
+  },
+  "User home dashboard, can be displayed before accessing to workspaces": {
+    "other": "Dashboard Utente che può essere visualizzata prima di accedere ai workspace"
+  }
+}

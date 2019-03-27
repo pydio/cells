@@ -21,24 +21,123 @@
 package nats
 
 import (
-	broker "github.com/micro/go-plugins/broker/nats"
-	registry "github.com/micro/go-plugins/registry/nats"
-	transport "github.com/micro/go-plugins/transport/grpc"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
+	"context"
+	"fmt"
+	"net"
+	"strconv"
+	"time"
+
+	net2 "github.com/pydio/cells/common/utils/net"
+
+	"github.com/nats-io/gnatsd/server"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
 )
 
-func prerun(s service.Service) error {
-	c := config.Get("cert", "grpc", "certFile").String("")
-	k := config.Get("cert", "grpc", "keyFile").String("")
+var hd *server.Server
 
-	defaults.Init(
-		defaults.WithRegistry(registry.NewRegistry()),
-		defaults.WithBroker(broker.NewBroker()),
-		defaults.WithTransport(transport.NewTransport()),
-		defaults.WithCert(c, k),
-	)
+func Init() {
+	cobra.OnInitialize(run)
+}
 
-	return nil
+func run() {
+	reg := viper.GetString("registry")
+	regAddress := viper.GetString("registry_address")
+	regClusterAddress := viper.GetString("registry_cluster_address")
+	regClusterRoutes := viper.GetString("registry_cluster_routes")
+
+	if reg == "nats" {
+		opts := new(server.Options)
+		if len(net2.DefaultAdvertiseAddress) > 0 {
+			opts.ClientAdvertise = net2.DefaultAdvertiseAddress
+		}
+
+		host, p, err := net.SplitHostPort(regAddress)
+		if err != nil {
+			log.Fatal("nats: wrong address")
+		}
+
+		// Port has already been so no need to recheck
+		port, _ := strconv.Atoi(p)
+
+		opts.Host = host
+		opts.Port = port
+		opts.NoSigs = true
+
+		if _, err := net.Dial("tcp", regAddress); err == nil {
+			return
+		}
+
+		if regClusterAddress != "" {
+			clusterOpts := new(server.ClusterOpts)
+
+			clusterHost, p, err := net.SplitHostPort(regClusterAddress)
+			if err != nil {
+				log.Fatal("nats: wrong cluster address")
+			}
+
+			if _, err := net.Dial("tcp", regClusterAddress); err != nil {
+				// Port has already been so no need to recheck
+				clusterPort, _ := strconv.Atoi(p)
+
+				clusterOpts.Host = clusterHost
+				clusterOpts.Port = clusterPort
+
+				opts.Cluster = *clusterOpts
+			}
+		}
+
+		if regClusterRoutes != "" {
+			opts.RoutesStr = regClusterRoutes
+			opts.Routes = server.RoutesFromStr(regClusterRoutes)
+		}
+
+		// Create the server with appropriate options.
+		hd = server.New(opts)
+
+		// Configure the logger based on the flags
+		hd.SetLogger(logger{log.Logger(context.Background())}, true, false)
+
+		// Start things up. Block here until done.
+		go func() {
+			err := server.Run(hd)
+			if err != nil {
+				log.Fatal("nats: could not start", zap.Error(err))
+			}
+		}()
+
+		// Allowing time for nats to start up
+		<-time.After(1 * time.Second)
+
+		if !hd.ReadyForConnections(3 * time.Second) {
+			log.Fatal("nats: start timed out")
+		}
+	}
+}
+
+type logger struct {
+	*zap.Logger
+}
+
+func (l logger) Debugf(str string, args ...interface{}) {
+	l.Debug(fmt.Sprintf(str, args...))
+}
+
+func (l logger) Errorf(str string, args ...interface{}) {
+	l.Error(fmt.Sprintf(str, args...))
+}
+
+func (l logger) Fatalf(str string, args ...interface{}) {
+	l.Fatal(fmt.Sprintf(str, args...))
+}
+
+func (l logger) Noticef(str string, args ...interface{}) {
+	l.Debug(fmt.Sprintf(str, args...))
+}
+
+func (l logger) Tracef(str string, args ...interface{}) {
+	l.Debug(fmt.Sprintf(str, args...))
 }

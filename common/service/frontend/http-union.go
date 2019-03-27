@@ -22,6 +22,7 @@ package frontend
 
 import (
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -91,11 +92,20 @@ func (i *IndexFile) Close() error {
 	return nil
 }
 func (i *IndexFile) Read(p []byte) (n int, err error) {
-	if i.cursor > 0 {
+	//fmt.Println("Reading ", len(p), "bytes", i.cursor, len(i.data))
+	data := i.data
+	if i.cursor >= int64(len(data)) {
 		return 0, io.EOF
 	}
-	b, e := strings.NewReader(i.data).Read(p)
-	i.cursor += int64(len(i.data))
+	if i.cursor > 0 {
+		data = i.data[i.cursor:]
+	}
+	if len(data) > len(p) {
+		data = data[0:len(p)]
+	}
+	//fmt.Println("Returning", string(data))
+	b, e := strings.NewReader(data).Read(p)
+	i.cursor += int64(math.Min(float64(len(data)), float64(len(p))))
 	return b, e
 }
 func (i *IndexFile) Seek(offset int64, whence int) (int64, error) {

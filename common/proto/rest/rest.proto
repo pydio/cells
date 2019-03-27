@@ -11,18 +11,17 @@ import "scheduler.proto";
 import "graph.proto";
 import "share.proto";
 import "frontend.proto";
+import "templates.proto";
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
 import "github.com/pydio/cells/common/proto/idm/idm.proto";
 import "github.com/pydio/cells/common/proto/mailer/mailer.proto";
 import "github.com/pydio/cells/common/proto/activity/activitystream.proto";
-import "github.com/pydio/cells/common/proto/docstore/docstore.proto";
 import "github.com/pydio/cells/common/proto/jobs/jobs.proto";
 import "github.com/pydio/cells/common/proto/encryption/encryption.proto";
 import "github.com/pydio/cells/common/proto/log/log.proto";
 import "github.com/pydio/cells/common/proto/object/object.proto";
 import "github.com/pydio/cells/common/proto/install/install.proto";
 import "github.com/pydio/cells/common/proto/ctl/ctl.proto";
-import "github.com/pydio/cells/common/proto/cert/proto.proto";
 import "github.com/pydio/cells/common/proto/update/update.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
@@ -100,23 +99,10 @@ service ConfigService {
           get: "/config/versioning/{Uuid}"
         };
     }
-    // [Enterprise Only] Create or update a versioning policy
-    rpc PutVersioningPolicy(tree.VersioningPolicy) returns (tree.VersioningPolicy){
+    // List all defined virtual nodes
+    rpc ListVirtualNodes(ListVirtualNodesRequest) returns (NodesCollection){
         option (google.api.http) = {
-          post: "/config/versioning/{Uuid}"
-          body:"*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
-        };
-    }
-    // [Enterprise Only] Delete a versioning policy
-    rpc DeleteVersioningPolicy(tree.VersioningPolicy) returns (DeleteVersioningPolicyResponse){
-        option (google.api.http) = {
-          delete: "/config/versioning/{Uuid}"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
+            get: "/config/virtualnodes"
         };
     }
     // List all services and their status
@@ -142,6 +128,13 @@ service ConfigService {
     rpc ListPeerFolders(ListPeerFoldersRequest) returns (NodesCollection) {
         option (google.api.http) = {
             post: "/config/peers/{PeerAddress}"
+            body: "*"
+        };
+    }
+    // List running Processes, with option PeerId or ServiceName filter
+    rpc ListProcesses(ListProcessesRequest) returns (ListProcessesResponse) {
+        option (google.api.http) = {
+            post: "/config/processes"
             body: "*"
         };
     }
@@ -196,34 +189,6 @@ service ConfigService {
     rpc ConfigFormsDiscovery(ConfigFormRequest) returns (DiscoveryResponse){
         option (google.api.http) = {
             get: "/config/discovery/forms/{ServiceName}"
-        };
-    }
-    // [Enterprise Only] List additional user directories
-    rpc ListExternalDirectories(ListExternalDirectoryRequest) returns (ExternalDirectoryCollection) {
-        option (google.api.http) = {
-            get: "/config/directories"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
-        };
-    }
-    // [Enterprise Only] Add/Create an external directory
-    rpc PutExternalDirectory(ExternalDirectoryConfig) returns (ExternalDirectoryResponse) {
-        option (google.api.http) = {
-            put: "/config/directories/{ConfigId}"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
-        };
-    }
-    // [Enterprise Only] Delete external directory
-    rpc DeleteExternalDirectory(ExternalDirectoryConfig) returns (ExternalDirectoryResponse) {
-        option (google.api.http) = {
-            delete: "/config/directories/{ConfigId}"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
         };
     }
 }
@@ -287,13 +252,6 @@ service UserService {
           body: "*"
         };
     };
-    // Bind a user with her login and password
-    rpc BindUser(idm.User) returns (BindResponse) {
-        option (google.api.http) =  {
-            post: "/user/{Login}/bind"
-            body: "*"
-        };
-    }
     // Just save a user roles, without other datas
     rpc PutRoles(idm.User) returns (idm.User) {
         option (google.api.http) =  {
@@ -336,25 +294,6 @@ service PolicyService {
         option (google.api.http) = {
             post: "/policy"
             body: "*"
-        };
-    }
-    // Update or create a security policy
-    rpc PutPolicy(idm.PolicyGroup) returns (idm.PolicyGroup) {
-        option (google.api.http) = {
-            put: "/policy"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterprisePolicyService"
-        };
-    }
-    // Delete a security policy
-    rpc DeletePolicy(idm.PolicyGroup) returns (DeleteResponse) {
-        option (google.api.http) = {
-            delete: "/policy/{Uuid}"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterprisePolicyService"
         };
     }
 }
@@ -421,48 +360,6 @@ service LogService {
             body: "*"
         };
     }
-
-    // Technical Logs, in Json or CSV format
-    rpc SyslogExport(log.ListLogRequest) returns (LogMessageCollection) {
-        option (google.api.http) =  {
-            post: "/log/sys/export"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseLogService"
-        };
-    }
-    // Auditable Logs, in Json or CSV format
-    rpc Audit(log.ListLogRequest) returns (LogMessageCollection) {
-        option (google.api.http) =  {
-            post: "/log/audit"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseLogService"
-        };
-    }
-    // Auditable Logs, in Json or CSV format
-    rpc AuditExport(log.ListLogRequest) returns (LogMessageCollection) {
-        option (google.api.http) =  {
-            post: "/log/audit/export"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseLogService"
-        };
-    }
-
-    // Retrieves aggregated audit logs to generate charts
-    rpc AuditChartData(log.TimeRangeRequest) returns (TimeRangeResultCollection) {
-        option (google.api.http) =  {
-            post: "/log/audit/chartdata"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseLogService"
-        };
-    }
 }
 
 // Token Revocation Service
@@ -509,6 +406,66 @@ service SearchService {
           body: "*"
         };
     }
+}
+
+// Tree service is used to browse the tree and create non-files resources
+service TreeService {
+    // List meta for a list of nodes, or a full directory using /path/* syntax
+    rpc BulkStatNodes(GetBulkMetaRequest) returns (BulkMetaResponse) {
+        option (google.api.http) = {
+            post: "/tree/stats"
+            body: "*"
+        };
+    }
+    // Create dirs or empty files inside the tree
+    rpc CreateNodes(CreateNodesRequest) returns (NodesCollection) {
+        option (google.api.http) = {
+            post: "/tree/create"
+            body: "*"
+        };
+    }
+
+    // Return node meta without the node content itself
+    rpc HeadNode(HeadNodeRequest) returns (HeadNodeResponse) {
+        option(google.api.http) = {
+            get: "/tree/stat/{Node}"
+        };
+    }
+
+    // Handle nodes deletion
+    rpc DeleteNodes(DeleteNodesRequest) returns (DeleteNodesResponse) {
+        option (google.api.http) = {
+            post: "/tree/delete"
+            body: "*"
+        };
+    }
+
+    // Handle nodes restoration from recycle bin
+    rpc RestoreNodes(RestoreNodesRequest) returns (RestoreNodesResponse) {
+        option (google.api.http) = {
+            post: "/tree/restore"
+            body: "*"
+        };
+    }
+
+    // Create a temporary selection for further action (namely download)
+    rpc CreateSelection(CreateSelectionRequest) returns (CreateSelectionResponse) {
+        option (google.api.http) = {
+            post: "/tree/selection"
+            body: "*"
+        };
+    }
+}
+
+service TemplatesService{
+
+    // List available templates
+    rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
+        option(google.api.http) = {
+            get: "/templates"
+        };
+    }
+
 }
 
 // Direct access to nodes metadata
@@ -582,6 +539,25 @@ service UserMetaService {
             get: "/user-meta/namespace"
         };
     }
+    // List Tags for a given namespace
+    rpc ListUserMetaTags(ListUserMetaTagsRequest) returns (ListUserMetaTagsResponse){
+        option (google.api.http) = {
+            get: "/user-meta/tags/{Namespace}"
+        };
+    }
+    // Add a new value to Tags for a given namespace
+    rpc PutUserMetaTag(PutUserMetaTagRequest) returns (PutUserMetaTagResponse){
+        option (google.api.http) = {
+            post: "/user-meta/tags/{Namespace}"
+            body: "*"
+        };
+    }
+    // Delete one or all tags for a given namespace (use * for all tags)
+    rpc DeleteUserMetaTags(DeleteUserMetaTagsRequest) returns (DeleteUserMetaTagsResponse){
+        option (google.api.http) = {
+            delete: "/user-meta/tags/{Namespace}/{Tags}"
+        };
+    }
 }
 
 
@@ -615,6 +591,13 @@ service JobsService {
             body: "*"
         };
     }
+    // Technical Logs, in Json or CSV format
+    rpc ListTasksLogs(log.ListLogRequest) returns (LogMessageCollection) {
+        option (google.api.http) =  {
+            post: "/jobs/tasks/logs"
+            body: "*"
+        };
+    }
 }
 
 // Admin Tree service is a specific endpoint to list all data from the root
@@ -633,38 +616,6 @@ service AdminTreeService {
             body: "*"
         };
     }
-
-}
-
-// DocStore Service is a simple JSON indexed datastore
-service DocStoreService {
-    // List all docs of a given store
-    rpc ListDocs(ListDocstoreRequest) returns (DocstoreCollection) {
-        option (google.api.http) = {
-            post: "/docstore/{StoreID}"
-            body: "*"
-        };
-    };
-    // Delete one or more docs inside a given store
-    rpc DeleteDoc(docstore.DeleteDocumentsRequest) returns (docstore.DeleteDocumentsResponse) {
-        option (google.api.http) = {
-            post: "/docstore/bulk_delete/{StoreID}"
-            body: "*"
-        };
-    };
-    // Put a document inside a given store
-    rpc PutDoc(docstore.PutDocumentRequest) returns (docstore.PutDocumentResponse) {
-        option (google.api.http) = {
-            put: "/docstore/{StoreID}/{DocumentID}"
-            body: "*"
-        };
-    };
-    // Load one document by ID from a given store
-    rpc GetDoc(docstore.GetDocumentRequest) returns (docstore.GetDocumentResponse) {
-        option (google.api.http) = {
-            get: "/docstore/{StoreID}/{DocumentID}"
-        };
-    };
 
 }
 
@@ -793,17 +744,10 @@ service UpdateService {
 // Frontend service for frontend-related requests that
 // are not linked to the actual data
 service FrontendService {
-    // Sends a tree of nodes to be used a menu in the Settings panel
-    rpc SettingsMenu(SettingsMenuRequest) returns (SettingsMenuResponse) {
-        option (google.api.http) =  {
-            get: "/frontend/settings-menu"
-        };
-    }
-    // Sends a log from front (php) to back
-    rpc FrontLog(FrontLogMessage) returns (FrontLogResponse) {
-        option (google.api.http) =  {
-            put: "/frontend/frontlogs"
-            body: "*"
+    // Send XML state registry
+    rpc FrontState(FrontStateRequest) returns (FrontStateResponse) {
+        option (google.api.http) = {
+            get: "/frontend/state"
         };
     }
     // Add some data to the initial set of parameters loaded by the frontend
@@ -812,16 +756,49 @@ service FrontendService {
             get: "/frontend/bootconf"
         };
     }
-}
-
-// Used only in the Enterprise Distribution
-service LicenseService {
-
-    // [Enterprise Only] Display statistics about licenses usage
-    rpc LicenseStats(cert.LicenseStatsRequest) returns (cert.LicenseStatsResponse) {
-        option(google.api.http) = {
-            get: "/license/stats"
+    // Serve list of I18n messages
+    rpc FrontMessages(FrontMessagesRequest) returns (FrontMessagesResponse) {
+        option (google.api.http) = {
+            get: "/frontend/messages/{Lang}"
         };
     }
-
+    // Serve list of I18n messages
+    rpc FrontPlugins(FrontPluginsRequest) returns (FrontPluginsResponse) {
+        option (google.api.http) = {
+            get: "/frontend/plugins/{Lang}"
+        };
+    }
+    // Handle JWT
+    rpc FrontSession(FrontSessionRequest) returns (FrontSessionResponse) {
+        option (google.api.http) = {
+            post: "/frontend/session"
+            body: "*"
+        };
+    }
+    // Generic endpoint that can be implemented by 2FA systems for enrollment
+    rpc FrontEnrollAuth(FrontEnrollAuthRequest) returns (FrontEnrollAuthResponse){
+        option (google.api.http) = {
+            post: "/frontend/enroll"
+            body: "*"
+        };
+    }
+    // Serve frontend binaries directly (avatars / logos / bg images)
+    rpc FrontServeBinary(FrontBinaryRequest) returns (FrontBinaryResponse) {
+        option (google.api.http) =  {
+            get: "/frontend/binaries/{BinaryType}/{Uuid}"
+        };
+    }
+    // Upload frontend binaries (avatars / logos / bg images)
+    rpc FrontPutBinary(FrontBinaryRequest) returns (FrontBinaryResponse) {
+        option (google.api.http) =  {
+            post: "/frontend/binaries/{BinaryType}/{Uuid}"
+            body:"*"
+        };
+    }
+    // Sends a tree of nodes to be used a menu in the Settings panel
+    rpc SettingsMenu(SettingsMenuRequest) returns (SettingsMenuResponse) {
+        option (google.api.http) =  {
+            get: "/frontend/settings-menu"
+        };
+    }
 }

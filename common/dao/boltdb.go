@@ -23,18 +23,28 @@ package dao
 import (
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 )
 
 type boltdb struct {
 	conn *bolt.DB
 }
 
-func (m *boltdb) Open(dsn string) (Conn, error) {
+func (b *boltdb) Open(dsn string) (Conn, error) {
 	db, err := bolt.Open(dsn, 0600, &bolt.Options{Timeout: 5 * time.Second})
 	if err != nil {
 		return nil, err
 	}
 
+	b.conn = db
+
 	return db, nil
+}
+
+func (b *boltdb) GetConn() Conn {
+	return b.conn
+}
+
+func (b *boltdb) SetMaxConnectionsForWeight(num int) {
+	// Not implemented
 }

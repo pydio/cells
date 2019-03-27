@@ -27,6 +27,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// Various custom types internally used by Pydio.
 type (
 	ServiceType   string
 	ServiceTag    string
@@ -34,9 +35,9 @@ type (
 	LogConfigType string
 )
 
+// Defines all constants for services names.
 const (
-	SERVICE_CONSUL = "consul"
-	SERVICE_NATS   = "nats"
+	SERVICE_NATS = "nats"
 
 	SERVICE_LOG     = "log"
 	SERVICE_CONFIG  = "config"
@@ -62,20 +63,21 @@ const (
 	SERVICE_GRAPH     = "graph"
 	SERVICE_USER_META = "user-meta"
 
-	SERVICE_USER_KEY = "user-key"
-	SERVICE_TREE     = "tree"
-	SERVICE_META     = "meta"
-	SERVICE_ENC_KEY  = "data-key"
-	SERVICE_SEARCH   = "search"
-	SERVICE_CHANGES  = "changes"
-	SERVICE_SYNC     = "sync"
+	SERVICE_USER_KEY  = "user-key"
+	SERVICE_TREE      = "tree"
+	SERVICE_META      = "meta"
+	SERVICE_ENC_KEY   = "data-key"
+	SERVICE_SEARCH    = "search"
+	SERVICE_CHANGES   = "changes"
+	SERVICE_SYNC      = "sync"
+	SERVICE_TEMPLATES = "templates"
 
-	SERVICE_ACTIVITY   = "activity"
-	SERVICE_MAILER     = "mailer"
-	SERVICE_WEBSOCKET  = "websocket"
-	SERVICE_CHAT       = "chat"
-	SERVICE_FRONTEND   = "frontend"
-	SERVICE_FRONTPLUGS = "front-plugins"
+	SERVICE_ACTIVITY      = "activity"
+	SERVICE_MAILER        = "mailer"
+	SERVICE_WEBSOCKET     = "websocket"
+	SERVICE_CHAT          = "chat"
+	SERVICE_FRONTEND      = "frontend"
+	SERVICE_FRONT_STATICS = "statics"
 
 	SERVICE_TIMER    = "timer"
 	SERVICE_JOBS     = "jobs"
@@ -91,17 +93,23 @@ const (
 	SERVICE_DATA_OBJECTS_ = SERVICE_DATA_OBJECTS + "."
 	SERVICE_DATA_SYNC_    = SERVICE_DATA_SYNC + "."
 
-	SERVICE_GATEWAY       = "gateway"
-	SERVICE_GATEWAY_PROXY = SERVICE_GATEWAY + ".proxy"
-	SERVICE_GATEWAY_DATA  = SERVICE_GATEWAY + ".data"
-	SERVICE_GATEWAY_DAV   = SERVICE_GATEWAY + ".dav"
-	SERVICE_GATEWAY_WOPI  = SERVICE_GATEWAY + ".wopi"
-	SERVICE_MICRO_API     = "micro.api"
+	SERVICE_GRPC_NAMESPACE_    = "pydio.grpc."
+	SERVICE_WEB_NAMESPACE_     = "pydio.web."
+	SERVICE_REST_NAMESPACE_    = "pydio.rest."
+	SERVICE_GATEWAY_NAMESPACE_ = "pydio.gateway."
+	SERVICE_TEST_NAMESPACE_    = "pydio.test."
 
-	SERVICE_GRPC_NAMESPACE_ = "pydio.grpc."
-	SERVICE_API_NAMESPACE_  = "pydio.api."
-	SERVICE_REST_NAMESPACE_ = "pydio.rest."
+	SERVICE_GATEWAY_PROXY = SERVICE_GATEWAY_NAMESPACE_ + "proxy"
+	SERVICE_GATEWAY_DATA  = SERVICE_GATEWAY_NAMESPACE_ + "data"
+	SERVICE_GATEWAY_DAV   = SERVICE_GATEWAY_NAMESPACE_ + "dav"
+	SERVICE_GATEWAY_WOPI  = SERVICE_GATEWAY_NAMESPACE_ + "wopi"
+	SERVICE_MICRO_API     = SERVICE_GATEWAY_NAMESPACE_ + "rest"
+)
 
+// Define constants for Event Bus Topics
+const (
+	TOPIC_PROXY_RESTART    = "topic.pydio.proxy.restart"
+	TOPIC_SERVICE_START    = "topic.pydio.service.start"
 	TOPIC_SERVICE_STOP     = "topic.pydio.service.stop"
 	TOPIC_INDEX_CHANGES    = "topic.pydio.index.nodes.changes"
 	TOPIC_TREE_CHANGES     = "topic.pydio.tree.nodes.changes"
@@ -113,20 +121,33 @@ const (
 	TOPIC_ACTIVITY_EVENT   = "topic.pydio.activity.event"
 	TOPIC_CHAT_EVENT       = "topic.pydio.chat.event"
 	TOPIC_DATASOURCE_EVENT = "topic.pydio.datasource.event"
+	TOPIC_INDEX_EVENT      = "topic.pydio.index.event"
+)
 
+// Define constants for metadata and fixed datasources
+const (
 	META_NAMESPACE_DATASOURCE_NAME        = "pydio:meta-data-source-name"
 	META_NAMESPACE_DATASOURCE_PATH        = "pydio:meta-data-source-path"
 	META_NAMESPACE_NODE_TEST_LOCAL_FOLDER = "pydio:test:local-folder-storage"
+	META_NAMESPACE_RECYCLE_RESTORE        = "pydio:recycle_restore"
+	META_NAMESPACE_NODENAME               = "name"
+	RECYCLE_BIN_NAME                      = "recycle_bin"
 
 	PYDIO_THUMBSTORE_NAMESPACE        = "pydio-thumbstore"
 	PYDIO_DOCSTORE_BINARIES_NAMESPACE = "pydio-binaries"
 	PYDIO_VERSIONS_NAMESPACE          = "versions-store"
+)
 
+// Additional constants for authentication/authorization aspects
+const (
 	PYDIO_CONTEXT_USER_KEY      = "X-Pydio-User"
 	PYDIO_SYSTEM_USERNAME       = "pydio.system.user"
 	PYDIO_S3ANON_USERNAME       = "pydio.anon.user"
 	PYDIO_S3ANON_PROFILE        = "anon"
 	PYDIO_SYNC_HIDDEN_FILE_META = ".pydio"
+	X_AMZ_META_CLEAR_SIZE       = "X-Amz-Meta-Pydio-Clear-Size"
+	X_AMZ_META_NODE_UUID        = "X-Amz-Meta-Pydio-Node-Uuid"
+	X_AMZ_META_DIRECTIVE        = "X-Amz-Metadata-Directive"
 
 	PYDIO_PROFILE_ADMIN    = "admin"
 	PYDIO_PROFILE_STANDARD = "standard"
@@ -135,39 +156,66 @@ const (
 
 	KEYRING_MASTER_KEY       = "keyring.master"
 	META_FLAG_READONLY       = "node_readonly"
+	META_FLAG_LEVEL_READONLY = "level_readonly"
+	META_FLAG_ENCRYPTED      = "datasource_encrypted"
+	META_FLAG_VERSIONING     = "datasource_versioning"
+	META_FLAG_WORKSPACE_ROOT = "ws_root"
+	META_FLAG_VIRTUAL_ROOT   = "virtual_root"
 	NODE_FLAG_ETAG_TEMPORARY = "temporary"
+)
 
-	DB_MAX_OPEN_CONNS    = 30
-	DB_MAX_IDLE_CONNS    = 20
-	DB_CONN_MAX_LIFETIME = 5 * time.Minute
+// DocStore constants for StoreID's
+const (
+	DOCSTORE_ID_SELECTIONS          = "selections"
+	DOCSTORE_ID_VIRTUALNODES        = "virtualnodes"
+	DOCSTORE_ID_VERSIONING_POLICIES = "versioningPolicies"
+	DOCSTORE_ID_SHARES              = "share"
+	DOCSTORE_ID_RESET_PASS_KEYS     = "resetPasswordKeys"
+)
 
+// Define constants for Loggging configuration
+const (
 	LogConfigConsole    LogConfigType = "console"
 	LogConfigProduction LogConfigType = "production"
 )
 
-var (
-	// Will be initialized by main
-	PackageType  string
-	PackageLabel string
+// Defaults for DB connexions.
+const (
+	DB_NUM_RESERVED_CONNECTIONS = 10
+	DB_MAX_OPEN_CONNS           = 20
+	DB_MAX_IDLE_CONNS           = 20
+	DB_CONN_MAX_LIFETIME        = 24 * time.Hour
+)
 
-	// The 3 below vars are initialized by the go linker directly
-	// in the resulting binary when doing 'make main'
-	version       = "0.1.0"
+// Main code information. Set by the go linker in the resulting binary when doing 'make main'
+var (
 	BuildStamp    string
 	BuildRevision string
+	version       = "0.1.0"
+)
 
-	// Update Server Default values
+// Package info. Initialised by main.
+var (
+	PackageType  string
+	PackageLabel string
+)
+
+// Update Server default values.
+var (
 	UpdateDefaultChannel   = "stable"
 	UpdateDefaultServerUrl = "https://updatecells.pydio.com/"
 	UpdateDefaultPublicKey = `-----BEGIN PUBLIC KEY-----\nMIIBCgKCAQEAwh/ofjZTITlQc4h/qDZMR3RquBxlG7UTunDKLG85JQwRtU7EL90v\nlWxamkpSQsaPeqho5Q6OGkhJvZkbWsLBJv6LZg+SBhk6ZSPxihD+Kfx8AwCcWZ46\nDTpKpw+mYnkNH1YEAedaSfJM8d1fyU1YZ+WM3P/j1wTnUGRgebK9y70dqZEo2dOK\nn98v3kBP7uEN9eP/wig63RdmChjCpPb5gK1/WKnY4NFLQ60rPAOBsXurxikc9N/3\nEvbIB/1vQNqm7yEwXk8LlOC6Fp8W/6A0DIxr2BnZAJntMuH2ulUfhJgw0yJalMNF\nDR0QNzGVktdLOEeSe8BSrASe9uZY2SDbTwIDAQAB\n-----END PUBLIC KEY-----`
+)
 
-	// Logging Levels
+// Logging Levels.
+var (
 	LogConfig        LogConfigType
 	LogLevel         zapcore.Level
 	LogCaptureStdOut bool
+)
 
-	ServicesDiscovery = []string{SERVICE_CONSUL, SERVICE_NATS}
-	// Profiles order reflects the level of authorizations
+var (
+	// PydioUserProfiles order reflects the level of authorizations
 	PydioUserProfiles = []string{
 		PYDIO_PROFILE_ANON,
 		PYDIO_PROFILE_SHARED,
@@ -176,6 +224,7 @@ var (
 	}
 )
 
+// Version returns the current code version as an object.
 func Version() *hashiversion.Version {
 	v, _ := hashiversion.NewVersion(version)
 	return v

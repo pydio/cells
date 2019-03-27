@@ -1,0 +1,23 @@
+{
+  "Connexion": {
+    "other": "Conexión"
+  },
+  "DB Auth Storage": {
+    "other": "Autentificación en Base de Datos"
+  },
+  "DB Storage": {
+    "other": "Almacenamiento en Base de Datos"
+  },
+  "Install SQL Tables": {
+    "other": "Instalar Tablas SQL"
+  },
+  "SQL Tables": {
+    "other": "Tablas SQL"
+  },
+  "Stores the Authentication data in an SQL database.": {
+    "other": "Almacena los datos de autentificación en una base de datos SQL."
+  },
+  "The Database Connexion": {
+    "other": "Conexión a la Base de Datos"
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "1": {
+    "other": "Usuaris compartits"
+  },
+  "10": {
+    "other": "Repositoris asociats"
+  },
+  "11": {
+    "other": "Està segur de que vol esborrar els elements selecionats?"
+  },
+  "12": {
+    "other": "No tens permís per esborrar aquest element."
+  },
+  "13": {
+    "other": "S'ha esborrat l'arxiu públic."
+  },
+  "14": {
+    "other": "Integritat"
+  },
+  "15": {
+    "other": "Ok"
+  },
+  "16": {
+    "other": "Romput"
+  },
+  "17": {
+    "other": "Descarregar URL"
+  },
+  "18": {
+    "other": "Copiar URL"
+  },
+  "19": {
+    "other": "Copiar URL per enviar correu electrònic."
+  },
+  "2": {
+    "other": "Repositoris compartits"
+  },
+  "20": {
+    "other": "Descàrregues"
+  },
+  "21": {
+    "other": "Si"
+  },
+  "22": {
+    "other": "No"
+  },
+  "23": {
+    "other": "S'han esborrat %s arxius."
+  },
+  "24": {
+    "other": "Res per esborrar."
+  },
+  "25": {
+    "other": "Netejar caducats"
+  },
+  "26": {
+    "other": "Esborra arxius caducats."
+  },
+  "27": {
+    "other": "Propietari"
+  },
+  "28": {
+    "other": "Arxius compartits per a descàrregues directes, amb o sense contrasenya."
+  },
+  "29": {
+    "other": "Repositoris delegats creats per usuaris."
+  },
+  "3": {
+    "other": "Arxius públics"
+  },
+  "30": {
+    "other": "Usuaris creats per accedir a repositoris delegats."
+  },
+  "31": {
+    "other": "Descripció"
+  },
+  "32": {
+    "other": "Resetejar"
+  },
+  "33": {
+    "other": "Resetejar el comptador de descàrregues"
+  },
+  "34": {
+    "other": "Les meves comparticions"
+  },
+  "35": {
+    "other": "Tots els meus elements compartits (arxius i carpetes)"
+  },
+  "36": {
+    "other": "Paràmetres"
+  },
+  "37": {
+    "other": "El meu perfil i configuració de l'aplicació"
+  },
+  "38": {
+    "other": "Notificacions"
+  },
+  "39": {
+    "other": "Seleccioni un repositori"
+  },
+  "4": {
+    "other": "Ruta de l'arxiu"
+  },
+  "40": {
+    "other": "Benvingut/da, %s"
+  },
+  "41": {
+    "other": "Usar aquest repositori per defecte"
+  },
+  "42": {
+    "other": "Entrar"
+  },
+  "43": {
+    "other": "El meu perfil"
+  },
+  "43t": {
+    "other": "Totes les meves dades personals"
+  },
+  "44": {
+    "other": "El meu compte"
+  },
+  "45": {
+    "other": "Dades personals"
+  },
+  "46": {
+    "other": "Llibreta de direccions"
+  },
+  "47": {
+    "other": "Usuaris i equips que ha creat"
+  },
+  "48": {
+    "other": "Els meus usuaris"
+  },
+  "49": {
+    "other": "Usuaris externs que ha creat"
+  },
+  "5": {
+    "other": "Repositori"
+  },
+  "50": {
+    "other": "Els meus equips"
+  },
+  "51": {
+    "other": "Equips d'usuaris, usats com accessos directes al compartir"
+  },
+  "52": {
+    "other": "Està segur que desitja eliminar aquest equip? Aquesta acció no eliminarà cap usuari."
+  },
+  "53": {
+    "other": "Tornar als meus repositoris"
+  },
+  "54": {
+    "other": "Actualitzar membres"
+  },
+  "55": {
+    "other": "Afegir/treure usuaris d'aquest equip"
+  },
+  "56": {
+    "other": "Afegir un usuari per línia, escrigui a l'àrea de text per a veure aparèixer la llista de completat automàtic."
+  },
+  "57": {
+    "other": "Crear un equip"
+  },
+  "58": {
+    "other": "Els equips s'utilitzen com accés directe per compartir ràpidament una carpeta amb un conjunt predefinit d'usuaris"
+  },
+  "59": {
+    "other": "Etiqueta de l'equip"
+  },
+  "6": {
+    "other": "Contrasenya"
+  },
+  "60": {
+    "other": "Usuaris de l'equip"
+  },
+  "61": {
+    "other": "Email Preferences"
+  },
+  "62": {
+    "other": "Send emails every X minutes"
+  },
+  "63": {
+    "other": "Send emails every Y hours"
+  },
+  "64": {
+    "other": "Choose the hour of the day"
+  },
+  "65": {
+    "other": "Choose the first hour of the day"
+  },
+  "66": {
+    "other": "Choose the second hour of the day"
+  },
+  "67": {
+    "other": "Pick a day of the week"
+  },
+  "68": {
+    "other": "Monday"
+  },
+  "69": {
+    "other": "Tuesday"
+  },
+  "7": {
+    "other": "Caduca"
+  },
+  "70": {
+    "other": "Wednesday"
+  },
+  "71": {
+    "other": "Thursday"
+  },
+  "72": {
+    "other": "Friday"
+  },
+  "73": {
+    "other": "Saturday"
+  },
+  "74": {
+    "other": "Sunday"
+  },
+  "8": {
+    "other": "Elements"
+  },
+  "9": {
+    "other": "Usuaris associats"
+  },
+  "desc": {
+    "other": "Administra les meves preferències, la meva llibreta de direccions, els meus elements compartits, etc."
+  },
+  "title": {
+    "other": "El meu compte"
+  }
+}

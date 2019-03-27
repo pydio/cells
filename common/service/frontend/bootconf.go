@@ -1,0 +1,156 @@
+package frontend
+
+import (
+	"context"
+	"crypto/md5"
+	"encoding/hex"
+	"strconv"
+	"strings"
+
+	"github.com/pborman/uuid"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/utils/i18n"
+)
+
+type BackendConf struct {
+	BuildRevision string
+	BuildStamp    string
+	License       string
+	PackageLabel  string
+	PackageType   string
+	Version       string
+}
+
+type CustomWording struct {
+	Title      string `json:"title"`
+	Icon       string `json:"icon"`
+	IconBinary string `json:"iconBinary"`
+}
+
+type BootConf struct {
+	AjxpResourcesFolder          string `json:"ajxpResourcesFolder"`
+	AjxpServerAccess             string `json:"ajxpServerAccess"`
+	ENDPOINT_REST_API            string
+	ENDPOINT_S3_GATEWAY          string
+	ENDPOINT_WEBSOCKET           string
+	FRONTEND_URL                 string
+	PUBLIC_BASEURI               string
+	ZipEnabled                   bool                   `json:"zipEnabled"`
+	MultipleFilesDownloadEnabled bool                   `json:"multipleFilesDownloadEnabled"`
+	CustomWording                CustomWording          `json:"customWording"`
+	UsersEnabled                 bool                   `json:"usersEnabled"`
+	LoggedUser                   bool                   `json:"loggedUser"`
+	CurrentLanguage              string                 `json:"currentLanguage"`
+	Session_timeout              int                    `json:"session_timeout"`
+	Client_timeout               int                    `json:"client_timeout"`
+	Client_timeout_warning       int                    `json:"client_timeout_warning"`
+	AvailableLanguages           map[string]string      `json:"availableLanguages"`
+	UsersEditable                bool                   `json:"usersEditable"`
+	AjxpVersion                  string                 `json:"ajxpVersion"`
+	AjxpVersionDate              string                 `json:"ajxpVersionDate"`
+	I18nMessages                 map[string]string      `json:"i18nMessages"`
+	Streaming_supported          bool                   `json:"streaming_supported"`
+	Theme                        string                 `json:"theme"`
+	AjxpImagesCommon             bool                   `json:"ajxpImagesCommon"`
+	Backend                      BackendConf            `json:"backend"`
+	Other                        map[string]interface{} `json:"other,omitempty"`
+}
+
+var versionHash string
+
+func VersionHash() string {
+	if versionHash != "" {
+		return versionHash
+	}
+	// Create version seed
+	vSeed := config.Get("frontend", "versionSeed").String("")
+	if vSeed == "" {
+		vSeed = uuid.New()
+		config.Set(vSeed, "frontend", "versionSeed")
+		config.Save(common.PYDIO_SYSTEM_USERNAME, "Generating version seed")
+	}
+	md := md5.New()
+	md.Write([]byte(vSeed + common.Version().String()))
+	versionHash = hex.EncodeToString(md.Sum(nil))
+	return versionHash
+}
+
+func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
+
+	url := config.Get("defaults", "url").String("")
+	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
+
+	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
+	tWarn := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN")
+	vHash := VersionHash()
+	vDate := ""
+	vRev := ""
+	if len(showVersion) > 0 && showVersion[0] {
+		vHash = common.Version().String()
+		vDate = common.BuildStamp
+		vRev = common.BuildRevision
+	}
+
+	// May be stored as int or string in json
+	timeoutWarn := 3
+	if tWarn.Int(-1) != -1 {
+		timeoutWarn = tWarn.Int(3)
+	} else if tWarn.String("") != "" {
+		if parsed, e := strconv.ParseInt(tWarn.String(""), 10, 32); e == nil {
+			timeoutWarn = int(parsed)
+		}
+	}
+
+	b := &BootConf{
+		AjxpResourcesFolder:          "plug/gui.ajax/res",
+		AjxpServerAccess:             "index.php",
+		ENDPOINT_REST_API:            url + "/a",
+		ENDPOINT_S3_GATEWAY:          url + "/io",
+		ENDPOINT_WEBSOCKET:           wsUrl + "/ws/event",
+		FRONTEND_URL:                 url,
+		PUBLIC_BASEURI:               "/public",
+		ZipEnabled:                   true,
+		MultipleFilesDownloadEnabled: true,
+		UsersEditable:                true,
+		UsersEnabled:                 true,
+		LoggedUser:                   false,
+		CurrentLanguage:              lang,
+		Session_timeout:              SessionTimeoutMinutes * 60,
+		Client_timeout:               SessionTimeoutMinutes * 60,
+		Client_timeout_warning:       timeoutWarn,
+		AjxpVersion:                  vHash,
+		AjxpVersionDate:              vDate,
+		Streaming_supported:          true,
+		Theme:                        "material",
+		AjxpImagesCommon:             true,
+		CustomWording: CustomWording{
+			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Pydio Cells"),
+			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
+		},
+		AvailableLanguages: i18n.AvailableLanguages,
+		I18nMessages:       pool.I18nMessages(lang).Messages,
+		Backend: BackendConf{
+			PackageType:   common.PackageType,
+			PackageLabel:  common.PackageLabel,
+			Version:       vHash,
+			BuildRevision: vRev,
+			BuildStamp:    vDate,
+			License:       "agplv3",
+		},
+	}
+
+	if icBinary := config.Get("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").String(""); icBinary != "" {
+		b.CustomWording.IconBinary = icBinary
+	}
+
+	if e := ApplyBootConfModifiers(b); e != nil {
+		log.Logger(context.Background()).Error("Error while applying BootConf modifiers", zap.Error(e))
+	}
+
+	return b
+
+}

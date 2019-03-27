@@ -38,7 +38,7 @@ var (
 func init() {
 	var err error
 
-	server, err = NewSyslogServer("")
+	server, err = NewSyslogServer("", "sysLog")
 	if err != nil {
 		panic("Failed to create Syslog server")
 	}
@@ -51,6 +51,8 @@ func TestNewBleveEngine(t *testing.T) {
 		logAsMap := json2map(sampleSyslog)
 		err := server.PutLog(logAsMap)
 		So(err, ShouldBeNil)
+		// Wait for batch to be processed
+		<-time.After(4 * time.Second)
 
 		results, err := server.ListLogs(fmt.Sprintf(`+%s:info`, common.KEY_LEVEL), 0, 1000)
 		So(err, ShouldBeNil)
@@ -88,6 +90,8 @@ func TestNewBleveEngine(t *testing.T) {
 
 		err4 := server.PutLog(log2map("ERROR", "this is yet another test"))
 		So(err4, ShouldBeNil)
+
+		<-time.After(4 * time.Second)
 	})
 
 	Convey("Search a result", t, func() {

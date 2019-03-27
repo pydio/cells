@@ -26,13 +26,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/tree"
 )
 
 var (
@@ -145,7 +148,7 @@ func (s *BoltStore) DeleteJob(jobID string) error {
 
 }
 
-func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus) (chan *jobs.Job, chan bool, error) {
+func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, chan bool, error) {
 
 	res := make(chan *jobs.Job)
 	done := make(chan bool)
@@ -164,11 +167,28 @@ func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 				if (owner != "" && j.Owner != owner) || (eventsOnly && len(j.EventNames) == 0) || (timersOnly && j.Schedule == nil) {
 					continue
 				}
+				if len(jobIDs) > 0 {
+					var found bool
+					for _, jID := range jobIDs {
+						if jID == j.ID {
+							found = true
+							break
+						}
+					}
+					if !found {
+						continue
+					}
+				}
 				if withTasks != jobs.TaskStatus_Unknown {
+					var offset, limit int32
+					if len(taskCursor) == 2 {
+						offset = taskCursor[0]
+						limit = taskCursor[1]
+					}
 					j.Tasks = []*jobs.Task{}
 					jobTasksBucket := tx.Bucket([]byte(tasksBucketString + j.ID))
 					if jobTasksBucket != nil {
-						j.Tasks = s.tasksToChan(jobTasksBucket, withTasks, nil, 0, 0, j.Tasks)
+						j.Tasks = s.tasksToChan(jobTasksBucket, withTasks, nil, offset, limit, j.Tasks)
 					}
 					if withTasks != jobs.TaskStatus_Any {
 						if len(j.Tasks) > 0 {
@@ -189,9 +209,38 @@ func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 	return res, done, nil
 }
 
+// PutTasks batch updates DB with tasks organized by JobID and TaskID
+func (s *BoltStore) PutTasks(tasks map[string]map[string]*jobs.Task) error {
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+
+		// First check buckets
+		for jId, ts := range tasks {
+			tasksBucket, err := tx.CreateBucketIfNotExists([]byte(tasksBucketString + jId))
+			if err != nil {
+				return err
+			}
+			for _, t := range ts {
+				s.stripTaskData(t)
+				jsonData, err := json.Marshal(t)
+				if err != nil {
+					return err
+				}
+				e := tasksBucket.Put([]byte(t.ID), jsonData)
+				if e != nil {
+					return e
+				}
+			}
+		}
+		return nil
+	})
+
+}
+
 func (s *BoltStore) PutTask(task *jobs.Task) error {
 
 	jobId := task.JobID
+	s.stripTaskData(task)
 
 	return s.db.Update(func(tx *bolt.Tx) error {
 
@@ -270,30 +319,73 @@ func (s *BoltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 func (s *BoltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, output chan *jobs.Task, offset int32, limit int32, sliceOutput []*jobs.Task) []*jobs.Task {
 
 	var index int32
-	bucket.ForEach(func(k, v []byte) error {
+	var lastOnly = offset == 0 && limit == 1
+	var lastRecord *jobs.Task
+	c := bucket.Cursor()
+	for k, v := c.Last(); k != nil; k, v = c.Prev() {
 		task := &jobs.Task{}
-		e := json.Unmarshal(v, task)
-		if e == nil {
-			if status == jobs.TaskStatus_Any || task.Status == status {
-				if offset > 0 && index < offset {
-					index++
-					return nil
-				}
-				if output != nil {
-					output <- task
-				}
-				if sliceOutput != nil {
-					sliceOutput = append(sliceOutput, task)
-				}
-				index++
-				if limit > 0 && index > offset+limit {
-					return nil
-				}
-			}
+		if e := json.Unmarshal(v, task); e != nil {
+			continue
 		}
-		return nil
-	})
+		s.stripTaskData(task)
+		if status != jobs.TaskStatus_Any && task.Status != status {
+			continue
+		}
+		if lastOnly {
+			if lastRecord == nil || task.StartTime > lastRecord.StartTime {
+				lastRecord = task
+			}
+			continue
+		}
+		if offset > 0 && index < offset {
+			index++
+			continue
+		}
+		if limit > 0 && index >= offset+limit {
+			break
+		}
+		if output != nil {
+			output <- task
+		}
+		if sliceOutput != nil {
+			sliceOutput = append(sliceOutput, task)
+		}
+		index++
+	}
+	if lastOnly && lastRecord != nil {
+		if output != nil {
+			output <- lastRecord
+		}
+		if sliceOutput != nil {
+			sliceOutput = append(sliceOutput, lastRecord)
+		}
+	}
 
 	return sliceOutput
 
+}
+
+// stripTaskData removes unnecessary data from the task log
+// like fully loaded users, nodes, activities, etc.
+func (s *BoltStore) stripTaskData(task *jobs.Task) {
+	for _, l := range task.ActionsLogs {
+		if l.InputMessage != nil {
+			s.stripTaskMessage(l.InputMessage)
+		}
+		if l.OutputMessage != nil {
+			s.stripTaskMessage(l.OutputMessage)
+		}
+	}
+}
+
+func (s *BoltStore) stripTaskMessage(message *jobs.ActionMessage) {
+	for i, n := range message.Nodes {
+		message.Nodes[i] = &tree.Node{Uuid: n.Uuid, Path: n.Path}
+	}
+	for i, u := range message.Users {
+		message.Users[i] = &idm.User{Uuid: u.Uuid, Login: u.Login, GroupPath: u.GroupPath, GroupLabel: u.GroupLabel, IsGroup: u.IsGroup}
+	}
+	for i, a := range message.Activities {
+		message.Activities[i] = &activity.Object{Id: a.Id}
+	}
 }

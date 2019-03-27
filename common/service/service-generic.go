@@ -24,15 +24,19 @@ import (
 	"context"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
+	proto "github.com/pydio/cells/common/service/proto"
 )
 
 // WithGeneric adds a generic micro service handler to the current service
-func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, Stopper, error), opts ...micro.Option) ServiceOption {
+func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, Stopper, error), opts ...func(Service) (micro.Option, error)) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Micro = micro.NewService()
 
@@ -49,13 +53,21 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 			)
 
 			// context is always added last - so that there is no override
-			s.Options().Micro.Init(
-				opts...,
-			)
+			for _, opt := range opts {
+				o, err := opt(s)
+				if err != nil {
+					log.Fatal("failed to init micro service ", zap.Error(err))
+				}
+
+				s.Options().Micro.Init(
+					o,
+				)
+			}
 
 			s.Options().Micro.Init(
 				micro.Context(ctx),
 				micro.Name(name),
+				micro.Metadata(registry.BuildServiceMeta()),
 				micro.BeforeStart(func() error {
 					r, c, s, err := f(s.Options().Context, s.Options().Cancel)
 					if err != nil {
@@ -87,6 +99,9 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 					return nil
 				}),
 				micro.AfterStart(func() error {
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
+				}),
+				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
 				}),
 			)
@@ -96,7 +111,7 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 			newLogProvider(s.Options().Micro)
 
 			// We should actually offer that possibility
-			// proto.RegisterServiceHandler(s.Options().Micro.Server(), &Handler{s.Options().Micro})
+			proto.RegisterServiceHandler(s.Options().Micro.Server(), &StatusHandler{s.Address()})
 
 			return nil
 		}

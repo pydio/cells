@@ -24,21 +24,22 @@ import (
 	"context"
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/auth"
 	"go.uber.org/zap"
 )
 
 type BoltStore struct {
-	db         *bolt.DB
-	bucketName []byte
+	db                *bolt.DB
+	tokenBucket       []byte
+	connectionsBucket []byte
 }
 
-func NewBoltStore(bucket string, filename string) (*BoltStore, error) {
+func NewBoltStore(tokenBucket string, filename string) (*BoltStore, error) {
 
 	bs := &BoltStore{
-		bucketName: []byte(bucket),
+		tokenBucket: []byte(tokenBucket),
 	}
 
 	options := bolt.DefaultOptions
@@ -49,11 +50,8 @@ func NewBoltStore(bucket string, filename string) (*BoltStore, error) {
 	}
 
 	er := db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bs.bucketName))
-		if err != nil {
-			return err
-		}
-		return nil
+		_, err := tx.CreateBucketIfNotExists([]byte(bs.tokenBucket))
+		return err
 	})
 
 	if er != nil {
@@ -72,7 +70,7 @@ func (b *BoltStore) Close() error {
 func (b *BoltStore) PutToken(t *auth.Token) error {
 
 	return b.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(b.bucketName)
+		bucket := tx.Bucket(b.tokenBucket)
 		return bucket.Put([]byte(t.Value), []byte(t.AdditionalInfo))
 	})
 }
@@ -80,7 +78,7 @@ func (b *BoltStore) PutToken(t *auth.Token) error {
 func (b *BoltStore) GetInfo(value string) (string, error) {
 	sc := make(chan string, 1)
 	e := b.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(b.bucketName)
+		bucket := tx.Bucket(b.tokenBucket)
 		infoBytes := bucket.Get([]byte(value))
 		sc <- string(infoBytes)
 		return nil
@@ -94,7 +92,7 @@ func (b *BoltStore) GetInfo(value string) (string, error) {
 
 func (b *BoltStore) DeleteToken(t string) error {
 	return b.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(b.bucketName)
+		bucket := tx.Bucket(b.tokenBucket)
 		err := bucket.Delete([]byte(t))
 		if err != nil {
 			log.Logger(context.Background()).Error("Error on Token Deletion: ", zap.Error(err))
@@ -107,7 +105,7 @@ func (b *BoltStore) ListTokens(offset int, count int) (chan *auth.Token, error) 
 	tc := make(chan *auth.Token, count)
 
 	e := b.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(b.bucketName)
+		bucket := tx.Bucket(b.tokenBucket)
 		c := bucket.Cursor()
 		k, v := c.First()
 

@@ -28,9 +28,9 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -67,20 +67,14 @@ func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.Runnabl
 	}
 	// Prepare ctx with info about the target branch
 	ctx = views.WithBranchInfo(ctx, "to", views.BranchInfo{LoadedSource: source})
-	if meta, mOk := views.MinioMetaFromContext(ctx); mOk {
-		source.Client.PrepareMetadata(meta)
-		defer source.Client.ClearMetadata()
-	}
-
 	versionClient := tree.NewNodeVersionerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_VERSIONS, defaults.NewClient())
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{AllDeletedNodes: true}); err == nil {
-		log.Logger(ctx).Debug("Client responded", zap.Any("resp", response))
 		for _, versionFileId := range response.DeletedVersions {
-			err := source.Client.RemoveObject(source.ObjectsBucket, versionFileId)
+			err := source.Client.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)
 			if err != nil {
-				log.Logger(ctx).Error("Error while trying to remove file", zap.String("fileId", versionFileId), zap.Error(err))
+				log.TasksLogger(ctx).Error("Error while trying to remove file "+versionFileId, zap.String("fileId", versionFileId), zap.Error(err))
 			} else {
-				log.Logger(ctx).Info("[Prune Versions Task] Removed file from versions bucket", zap.String("fileId", versionFileId))
+				log.TasksLogger(ctx).Info("[Prune Versions Task] Removed file from versions bucket "+versionFileId, zap.String("fileId", versionFileId))
 			}
 		}
 	} else {
@@ -88,10 +82,8 @@ func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.Runnabl
 	}
 
 	output := input
-	output.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: "Finished pruning deleted versions",
-	})
+	output.AppendOutput(&jobs.ActionOutput{Success: true})
+	log.TasksLogger(ctx).Info("Finished pruning deleted versions")
 
 	return output, nil
 }

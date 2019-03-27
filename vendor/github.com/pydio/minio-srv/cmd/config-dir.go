@@ -1,5 +1,5 @@
 /*
- * Minio Cloud Storage, (C) 2015, 2016, 2017 Minio, Inc.
+ * Minio Cloud Storage, (C) 2015, 2016, 2017, 2018 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,12 @@ import (
 	"path/filepath"
 	"sync"
 
-	homedir "github.com/minio/go-homedir"
+	homedir "github.com/mitchellh/go-homedir"
 )
 
 const (
 	// Default minio configuration directory where below configuration files/directories are stored.
 	defaultMinioConfigDir = ".minio"
-
-	// Minio configuration file.
-	minioConfigFile = "config.json"
 
 	// Directory contains below files/directories for HTTPS configuration.
 	certsDir = "certs"
@@ -95,14 +92,16 @@ func (config *ConfigDir) GetPrivateKeyFile() string {
 	return filepath.Join(config.getCertsDir(), privateKeyFile)
 }
 
-func mustGetDefaultConfigDir() string {
+func getDefaultConfigDir() string {
 	homeDir, err := homedir.Dir()
-	fatalIf(err, "Unable to get home directory.")
+	if err != nil {
+		return ""
+	}
 
 	return filepath.Join(homeDir, defaultMinioConfigDir)
 }
 
-var configDir = &ConfigDir{dir: mustGetDefaultConfigDir()}
+var configDir = &ConfigDir{dir: getDefaultConfigDir()}
 
 func setConfigDir(dir string) {
 	configDir.Set(dir)

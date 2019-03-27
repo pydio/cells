@@ -1,0 +1,134 @@
+{
+  "Action to trigger when clicking on Forgot Password": {
+    "other": "Aktion, die beim Klick auf Passwort vergessen ausgeführt wird"
+  },
+  "Activate the users management system to protect your Pydio installation.": {
+    "other": "Benutzerverwaltung aktivieren um die Pydio-Installation zu schützen."
+  },
+  "Add a Forgot Password link at the bottom of the login form": {
+    "other": "Passwort vergessen Link unterhalb des Login Formulars anzeigen"
+  },
+  "Authentication": {
+    "other": "Authentifizierung"
+  },
+  "Both": {
+    "other": "Beide"
+  },
+  "Cache master users": {
+    "other": "Master Benutzer auf Slave zwischenspeichern"
+  },
+  "Case Sensitive": {
+    "other": "Groß- / Kleinschreibung beachten"
+  },
+  "Choose the configuration plugin": {
+    "other": "Erweiterung auswählen"
+  },
+  "Create a local copy (at login time) of master users inside slave base": {
+    "other": "Auf dem Slave-System beim Anmelden eine lokale Kopie der Master-Benutzer erstellen"
+  },
+  "Disable Brute Force Check (Captcha)": {
+    "other": "Brute-Force-Prüfung deaktivieren (Captcha)"
+  },
+  "Disable the check of failed login attempts, will disable the Captcha display": {
+    "other": "Deaktiviert die Captcha-Prüfung nach fehlgeschlagenen Anmeldeversuchen"
+  },
+  "Enable Forgot Password": {
+    "other": "Passwort vergessen Funktion erlauben"
+  },
+  "Enable Users": {
+    "other": "Benutzer aktivieren"
+  },
+  "Enable the 'guest' user, who does not need to log in.": {
+    "other": "Aktiviert den 'Gast' Benutzer ohne Login."
+  },
+  "Forgot Password Action": {
+    "other": "Passwort vergessen Aktion"
+  },
+  "Generic Auth Features": {
+    "other": "Standard-Authentifizierung"
+  },
+  "Guest Browsing": {
+    "other": "Gäste erlauben"
+  },
+  "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
+    "other": "Im Master/Slave-Modus kann eingegrenzt werden, welche Benutzer in der Administration angezeigt werden. Feld leer lassen, um alle anzuzeigen."
+  },
+  "Instance Type": {
+    "other": "Authentifizierungs-Erweiterung"
+  },
+  "Login Form": {
+    "other": "Formular-Authentifizierung"
+  },
+  "Main Instance": {
+    "other": "Hauptinstanz"
+  },
+  "Master Authentifiaction Label": {
+    "other": "Titel für Master-Authentifizierung"
+  },
+  "Master Only": {
+    "other": "Master-Benutzer"
+  },
+  "Master/Slave": {
+    "other": "Master/Slave"
+  },
+  "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
+    "other": "Bei Master/slave wird auf den Master nur lesend zugegriffen, während der Slave alternativ für Freigaben verwendet wird. Benutzerdefiniert ermöglicht eine manuelle Auswahl der Authentifizierungsart beim Start."
+  },
+  "Minimum number of characters required for passwords in the application": {
+    "other": "Minimale Passwortlänge"
+  },
+  "Mode": {
+    "other": "Modus"
+  },
+  "Multiple Instances Mode": {
+    "other": "Modus für mehrere Instanzen"
+  },
+  "Options applied to all auth drivers": {
+    "other": "Einstellungen für alle Authentifizierung-Treiber"
+  },
+  "Password length": {
+    "other": "Minimale Passwortlänge"
+  },
+  "Raise the security of the login form by disabling autocompletion and remember me feature": {
+    "other": "Erhöht die Sicherheit des Anmelde-Formulars indem AutoComplete und automatische Anmeldung deaktiviert werden."
+  },
+  "Secondary Instance (optional)": {
+    "other": "Zweite Instanz (optional)"
+  },
+  "Secondary Instance Driver": {
+    "other": "Treiber der zweiten Instanz"
+  },
+  "Secure Login Form": {
+    "other": "Sicheres Anmelde-Formular"
+  },
+  "Separator": {
+    "other": "Trennzeichen"
+  },
+  "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
+    "other": "Anmeldedaten nach erfolgreichem Login in der Sitzung merken. (möglicherweise beim Bridging von Auth-Erweiterungen nötig)."
+  },
+  "Slave Authentifiaction Label": {
+    "other": "Titel für Slave-Authentifizierung"
+  },
+  "Slave Only": {
+    "other": "Slave-Benutzer"
+  },
+  "Store Credentials in Session": {
+    "other": "Einstellungen in der Sitzung speichern"
+  },
+  "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
+    "other": "Nötig um die Benutzerdaten aus verschiedenen Quellen zu trennen. Achtung, bitte Zeichen verwenden, die auch in Ordnernamen erlaubt sind."
+  },
+  "User Choice": {
+    "other": "Benutzerdefiniert"
+  },
+  "Users Listing": {
+    "other": "Angezeigte Benutzer"
+  },
+  "Whether the users identifiers should be case sensitive or not": {
+    "other": "Bei der BenutzerId Groß- / Kleinschreibung beachten. WARNING, sql-based drivers will disable this by default, even if you check this."
+  },
+  "Will be shown to the user at login": {
+    "other": "Wird bei der Anmeldung angezeigt"
+  }
+}

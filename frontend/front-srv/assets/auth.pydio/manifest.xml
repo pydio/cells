@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="auth.pydio" name="pydio" label="CONF_MESSAGE[Pydio Backend]"
+            description="CONF_MESSAGE[Authentication is performed via the pydio backend]"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd"
+            mixins="authdriver_commons"
+        >
+    <client_settings>
+        <resources>
+            <i18n namespace="sql_auth" remote="plug/auth.pydio/i18n"/>
+        </resources>
+    </client_settings>
+
+	<registry_contributions>
+        <actions>
+            <action name="pass_change">
+                <gui text="194" title="194" iconClass="icon-key" accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="true" actionBarGroup="utils"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Callbacks.changePass"/>
+                </processing>
+            </action>
+        </actions>
+	</registry_contributions>
+</plugin>

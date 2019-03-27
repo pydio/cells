@@ -1,0 +1,12 @@
+/* PDF.JS plugin styles. */
+
+.pdfjs_viewer {
+	width: 100%;
+	height: 100%;
+}
+
+.pdfjs_viewer iframe {
+	width: 100%;
+	height: 100%;
+	border: none;
+}

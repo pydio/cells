@@ -18,33 +18,41 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package configs provides tools for managing configurations
+// Package config provides tools for managing configurations
 package config
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/micro/go-config/reader"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
+	"github.com/spf13/viper"
 
-	"encoding/json"
-	"time"
-
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
 	file2 "github.com/pydio/cells/common/config/file"
+	"github.com/pydio/cells/common/config/memory"
+	"github.com/pydio/cells/common/config/remote"
 )
 
 var (
 	PydioConfigDir  = ApplicationDataDir()
 	PydioConfigFile = "pydio.json"
 
-	VersionsStore file2.VersionsStore
-	defaultConfig *Config
-	once          sync.Once
+	VersionsStore    file2.VersionsStore
+	defaultConfig    *Config
+	once             sync.Once
+	remoteSourceOnce sync.Once
+	remoteSource     bool
 )
 
 // Config wrapper around micro Config
@@ -52,7 +60,7 @@ type Config struct {
 	config.Config
 }
 
-func init() {
+func initVersionStore() {
 	var e error
 	VersionsStore, e = file2.NewStore(PydioConfigDir)
 	if e != nil {
@@ -77,14 +85,38 @@ func init() {
 }
 
 // Default Config with initialisation
-func Default() *Config {
+func Default() config.Config {
 	once.Do(func() {
-		defaultConfig = &Config{config.NewConfig(
-			// config.WithSource(newEnvSource()),
-			config.WithSource(newLocalSource()),
-		)}
-	})
+		if GetRemoteSource() {
+			// Warning, loading remoteSource will trigger a call to defaults.NewClient()
+			defaultConfig = &Config{config.NewConfig(
+				config.WithSource(newRemoteSource(config.SourceName("config"))),
+				config.PollInterval(10*time.Second),
+			)}
+		} else {
+			initVersionStore()
+			defaultConfig = &Config{config.NewConfig(
+				config.WithSource(newLocalSource()),
+				config.PollInterval(10*time.Second),
+			)}
 
+			if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
+				e2 := saveConfig(defaultConfig, common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
+				if e2 != nil {
+					fmt.Println("[Configs] Error while saving upgraded configs")
+				} else {
+					fmt.Println("[Configs] successfully saved config after upgrade - Reloading from source")
+				}
+				// Reload fully from source to make sure it's in sync with JSON
+				defaultConfig = &Config{config.NewConfig(
+					config.WithSource(newLocalSource()),
+					config.PollInterval(10*time.Second),
+				)}
+			} else if e != nil {
+				fmt.Printf("[Configs] something went wrong while upgrading configs: %s\n", e.Error())
+			}
+		}
+	})
 	return defaultConfig
 }
 
@@ -95,9 +127,29 @@ func newEnvSource() config.Source {
 }
 
 func newLocalSource() config.Source {
+	// If file exists and is not empty, check it has valid JSON content
+	fName := filepath.Join(PydioConfigDir, PydioConfigFile)
+	if data, err := ioutil.ReadFile(fName); err == nil && len(data) > 0 {
+		var whatever map[string]interface{}
+		if e := json.Unmarshal(data, &whatever); e != nil {
+			errColor := "\033[1;31m%s\033[0m"
+			fmt.Println("**************************************************************************************")
+			fmt.Println("It seems that your configuration file contains invalid JSON. Did you edit it manually?")
+			fmt.Println("File is located at " + fName)
+			fmt.Println("Error was: ", fmt.Sprintf(errColor, e.Error()))
+			fmt.Println("")
+			fmt.Printf(errColor, "FATAL ERROR : Aborting now\n")
+			fmt.Println("**************************************************************************************")
+			log.Fatal(e)
+		}
+	}
 	return file.NewSource(
 		config.SourceName(filepath.Join(PydioConfigDir, PydioConfigFile)),
 	)
+}
+
+func newRemoteSource(opts ...config.SourceOption) config.Source {
+	return remote.NewSource(opts...)
 }
 
 func Get(path ...string) reader.Value {
@@ -105,30 +157,65 @@ func Get(path ...string) reader.Value {
 }
 
 func Set(val interface{}, path ...string) {
-	Default().Set(val, path...)
+
+	if GetRemoteSource() {
+		remote.UpdateRemote("config", val, path...)
+		return
+	}
+	tmpConfig := Config{Config: config.NewConfig(config.WithSource(memory.NewSource(Default().Bytes())))}
+	tmpConfig.Set(val, path...)
+	// Make sure to init vault
+	Vault()
+	// Filter values
+	hasFilter := false
+	for _, p := range registeredVaultKeys {
+		savedUuid := Default().Get(p...).String("")
+		newConfig := tmpConfig.Get(p...).String("")
+		if newConfig != savedUuid {
+			hasFilter = true
+			if savedUuid != "" {
+				vaultSource.Delete(savedUuid, true)
+			}
+			if newConfig != "" {
+				// Replace value with a secret Uuid
+				fmt.Println("Replacing config value with a secret UUID", strings.Join(p, "/"))
+				newUuid := NewKeyForSecret()
+				e := vaultSource.Set(newUuid, newConfig, true)
+				if e != nil {
+					fmt.Println("Something went wrong when saving file!", e.Error())
+				}
+				tmpConfig.Set(newUuid, p...)
+			}
+		}
+	}
+	if hasFilter {
+		// Replace fully from tmp
+		// Does not work probably due to a bug in the underlying TP library
+		// Default().Set(tmpConfig.Get())
+
+		// Rather explicitly replace all values.
+		var all map[string]interface{}
+		json.Unmarshal(tmpConfig.Bytes(), &all)
+		for k, v := range all {
+			Default().Set(v, k)
+		}
+	} else {
+		// Just update default config
+		Default().Set(val, path...)
+	}
 }
 
 func Del(path ...string) {
+	if GetRemoteSource() {
+		remote.DeleteRemote("config", path...)
+		return
+	}
 	Default().Del(path...)
 }
 
-// func newConfig() *Config {
-// 	dir := ApplicationDataDir()
-//
-// 	copySampleConfig(filepath.Join(dir, pydioConfigFile))
-//
-// 	// Setting the sources
-// 	// 1 . From the sample file
-// 	// 2 . From the local save
-// 	src1 := file.NewSource(config.SourceName(filepath.Join(dir, pydioConfigFile)))
-//
-// 	// Create a default config handle with the 3 sources
-// 	return &Config{
-// 		Config: config.NewConfig(
-// 			config.WithSource(src2),
-// 			config.PollInterval(5*time.Second),
-// 		)}
-// }
+func Watch(path ...string) (config.Watcher, error) {
+	return Default().Watch(path...)
+}
 
 func (c *Config) Unmarshal(val interface{}) error {
 	return c.Config.Get().Scan(&val)
@@ -139,9 +226,20 @@ func (c *Config) UnmarshalKey(key string, val interface{}) error {
 }
 
 func watchConfig() {
+
 }
 
 // GetJsonPath build path for json that contain the local config
 func GetJsonPath() string {
 	return filepath.Join(PydioConfigDir, PydioConfigFile)
+}
+
+func GetRemoteSource() bool {
+	remoteSourceOnce.Do(func() {
+		if viper.GetString("registry_cluster_routes") != "" {
+			remoteSource = true
+		}
+	})
+
+	return remoteSource
 }

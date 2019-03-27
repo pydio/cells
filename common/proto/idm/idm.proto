@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "github.com/pydio/cells/common/service/proto/common.proto";
+import "github.com/pydio/cells/common/proto/tree/tree.proto";
 
 package idm;
 
@@ -51,6 +52,7 @@ message Role {
     repeated string AutoApplies = 7;
     repeated service.ResourcePolicy Policies = 8;
     bool PoliciesContextEditable = 9;
+    bool ForceOverride = 10;
 }
 
 message RoleSingleQuery {
@@ -129,6 +131,7 @@ message User {
     // User specific data
     string Login = 5;
     string Password = 6;
+    string OldPassword = 11;
 
     // Group specific data
     bool IsGroup = 7;
@@ -223,8 +226,9 @@ message Workspace {
     repeated service.ResourcePolicy Policies = 7;
     string Attributes = 8;
 
-    repeated string RootNodes = 9;
-    bool PoliciesContextEditable = 10;
+    repeated string RootUUIDs = 9;
+    map<string,tree.Node> RootNodes = 11;
+    bool PoliciesContextEditable = 12;
 }
 
 message WorkspaceSingleQuery {
@@ -384,6 +388,7 @@ message ChangeEvent {
     Role Role = 4;
     Workspace Workspace = 5;
     ACL Acl = 6;
+    UserMetaNamespace MetaNamespace = 8;
     map<string,string> Attributes = 7;
 }
 

@@ -29,12 +29,12 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
 	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -65,7 +65,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Received Graph.UserState API request for uuid")
 
-	accessList, err := utils.AccessListFromContextClaims(ctx)
+	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
@@ -89,23 +89,25 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 		query.SubQueries = append(query.SubQueries, q)
 	}
 	log.Logger(ctx).Debug("QUERY", zap.Any("q", query))
-	streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
-	if e != nil {
-		service.RestError500(req, rsp, e)
-		return
-	}
-	defer streamer.Close()
-	for {
-		resp, e := streamer.Recv()
-		if resp == nil || e != nil {
-			break
+	if len(query.SubQueries) > 0 {
+		streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
 		}
-		if resp.Workspace != nil {
-			respWs := resp.Workspace
-			for nodeId, _ := range accessListWsNodes[respWs.UUID] {
-				respWs.RootNodes = append(respWs.RootNodes, nodeId)
+		defer streamer.Close()
+		for {
+			resp, e := streamer.Recv()
+			if resp == nil || e != nil {
+				break
 			}
-			state.Workspaces = append(state.Workspaces, respWs)
+			if resp.Workspace != nil {
+				respWs := resp.Workspace
+				for nodeId, _ := range accessListWsNodes[respWs.UUID] {
+					respWs.RootUUIDs = append(respWs.RootUUIDs, nodeId)
+				}
+				state.Workspaces = append(state.Workspaces, respWs)
+			}
 		}
 	}
 	rsp.WriteEntity(state)
@@ -116,14 +118,15 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	userName := req.PathParameter("UserId")
 	ctx := req.Request.Context()
+	responseObject := &rest.RelationResponse{}
 
 	// Find all workspaces in common
-	contextAccessList, err := utils.AccessListFromContextClaims(ctx)
+	contextAccessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	targetUserAccessList, _, err := utils.AccessListFromUser(ctx, userName, false)
+	targetUserAccessList, _, err := permissions.AccessListFromUser(ctx, userName, false)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
@@ -157,21 +160,33 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 		})
 		query.SubQueries = append(query.SubQueries, q)
 	}
-
-	log.Logger(ctx).Info("QUERY", zap.Any("q", query))
-	streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
+	// Build a ResourcePolicyQuery to restrict next request only to actual visible workspaces
+	subjects, e := auth.SubjectsForResourcePolicyQuery(ctx, &rest.ResourcePolicyQuery{
+		Type: rest.ResourcePolicyQuery_CONTEXT,
+	})
 	if e != nil {
-		service.RestError500(req, rsp, e)
+		service.RestErrorDetect(req, rsp, e)
 		return
 	}
-	defer streamer.Close()
-	responseObject := &rest.RelationResponse{}
-	for {
-		resp, e := streamer.Recv()
-		if resp == nil || e != nil {
-			break
+	query.ResourcePolicyQuery = &service2.ResourcePolicyQuery{
+		Subjects: subjects,
+	}
+
+	log.Logger(ctx).Debug("QUERY", zap.Any("q", query))
+	if len(query.SubQueries) > 0 {
+		streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
 		}
-		responseObject.SharedCells = append(responseObject.SharedCells, resp.Workspace)
+		defer streamer.Close()
+		for {
+			resp, e := streamer.Recv()
+			if resp == nil || e != nil {
+				break
+			}
+			responseObject.SharedCells = append(responseObject.SharedCells, resp.Workspace)
+		}
 	}
 
 	// Load the current user teams, to check if the current user is part of one of them

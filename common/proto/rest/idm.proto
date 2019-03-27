@@ -115,6 +115,27 @@ message UserMetaNamespaceCollection {
     repeated idm.UserMetaNamespace Namespaces = 1;
 }
 
+message ListUserMetaTagsRequest{
+    string Namespace = 1;
+}
+message ListUserMetaTagsResponse{
+    repeated string Tags = 1;
+}
+message PutUserMetaTagRequest{
+    string Namespace = 1;
+    string Tag = 2;
+}
+message PutUserMetaTagResponse{
+    bool Success = 1;
+}
+message DeleteUserMetaTagsRequest{
+    string Namespace = 1;
+    string Tags = 2;
+}
+message DeleteUserMetaTagsResponse{
+    bool Success = 1;
+}
+
 message UserBookmarksRequest {}
 
 // Rest request for revocation. Token is not mandatory, if not set

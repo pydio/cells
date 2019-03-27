@@ -38,6 +38,7 @@ import (
 	// Run tests against SQLite
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
+	_ "gopkg.in/doug-martin/goqu.v4/adapters/sqlite3"
 )
 
 var (
@@ -114,10 +115,12 @@ func TestCrud(t *testing.T) {
 			UserRole:    true,
 		})
 		So(err3, ShouldBeNil)
+		ownedUUID := uuid.New()
 		_, _, err4 := mockDAO.Add(&idm.Role{
-			Uuid:        uuid.NewUUID().String(),
-			Label:       "Owned Role",
-			LastUpdated: roleTime,
+			Uuid:          ownedUUID,
+			Label:         "Owned Role",
+			LastUpdated:   roleTime,
+			ForceOverride: true,
 		})
 		So(err4, ShouldBeNil)
 
@@ -219,6 +222,20 @@ func TestCrud(t *testing.T) {
 			c, e := mockDAO.Count(query)
 			So(e, ShouldBeNil)
 			So(c, ShouldEqual, 3)
+		}
+
+		{
+			singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+				Uuid: []string{ownedUUID},
+			})
+			query := &service.Query{
+				SubQueries: []*any.Any{singleQA},
+			}
+			roles = []*idm.Role{}
+			e := mockDAO.Search(query, &roles)
+			So(e, ShouldBeNil)
+			So(roles, ShouldHaveLength, 1)
+			So(roles[0].ForceOverride, ShouldBeTrue)
 		}
 
 		// {

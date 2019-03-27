@@ -23,6 +23,7 @@ package sync
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"go.uber.org/zap"
@@ -48,6 +49,10 @@ func (i *IndexEndpoint) GetEndpointInfo() commonsync.EndpointInfo {
 		RequiresNormalization: false,
 	}
 
+}
+
+func (i *IndexEndpoint) ComputeChecksum(node *tree.Node) error {
+	return fmt.Errorf("not.implemented")
 }
 
 func (i *IndexEndpoint) Walk(walknFc commonsync.WalkNodesFunc, pathes ...string) (err error) {
@@ -166,15 +171,12 @@ func (i *IndexEndpoint) MoveNode(ctx context.Context, oldPath string, newPath st
 		IndexationSession: i.indexationSession(),
 	})
 
-	log.Logger(ctx).Info("MoveNode Finished", zap.String("oldPath", oldPath), zap.String("newPath", newPath))
-
 	return err
 }
 
 func (i *IndexEndpoint) StartSession(ctx context.Context, rootNode *tree.Node) (*tree.IndexationSession, error) {
-	id := uuid.NewUUID().String()
 	sess := &tree.IndexationSession{
-		Uuid:        id,
+		Uuid:        uuid.New(),
 		Description: "Indexation",
 		RootNode:    rootNode,
 	}

@@ -32,7 +32,6 @@ import (
 	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
@@ -56,7 +55,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
@@ -96,7 +95,12 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 		return false, errors.BadRequest(common.SERVICE_WORKSPACE, "Wrong type")
 	}
 	update := false
-	exists := s.GetStmt("ExistsWorkspace").QueryRow(workspace.UUID)
+	stmt := s.GetStmt("ExistsWorkspace")
+	if stmt == nil {
+		return false, fmt.Errorf("Unknown statement")
+	}
+
+	exists := stmt.QueryRow(workspace.UUID)
 	count := new(int)
 	if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
 		update = true
@@ -114,7 +118,12 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 		}
 		workspace.Slug = testSlug
 	}
-	_, err := s.GetStmt("AddWorkspace").Exec(workspace.UUID, workspace.Label, workspace.Description, workspace.Attributes, workspace.Slug, workspace.Scope, time.Now().Unix())
+	stmt = s.GetStmt("AddWorkspace")
+	if stmt == nil {
+		return false, fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(workspace.UUID, workspace.Label, workspace.Description, workspace.Attributes, workspace.Slug, workspace.Scope, time.Now().Unix())
 	if err != nil {
 		return update, err
 	}
@@ -126,7 +135,13 @@ func (s *sqlimpl) slugExists(slug string) bool {
 	if slug == common.PYDIO_DOCSTORE_BINARIES_NAMESPACE || slug == common.PYDIO_THUMBSTORE_NAMESPACE || slug == common.PYDIO_VERSIONS_NAMESPACE {
 		return true
 	}
-	exists := s.GetStmt("ExistsWorkspaceWithSlug").QueryRow(slug)
+
+	stmt := s.GetStmt("ExistsWorkspaceWithSlug")
+	if stmt == nil {
+		return false
+	}
+
+	exists := stmt.QueryRow(slug)
 	count := new(int)
 	if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
 		return true
@@ -142,12 +157,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 	if e != nil {
 		return e
 	}
-	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, 100)
+	queryString, args, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, -1)
 	if err != nil {
 		return err
 	}
 
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return err
 	}
@@ -171,12 +186,12 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	//whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
 	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
-	queryString, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
+	queryString, args, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := s.DB().Exec(queryString)
+	res, err := s.DB().Exec(queryString, args...)
 	if err != nil {
 		return 0, err
 	}

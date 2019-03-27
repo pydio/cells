@@ -1,0 +1,179 @@
+{
+  "39": {
+    "other": "Lista de áreas de trabalhos que possui acesso. Podem ser pessoais ou compartilhados com/por outros usuários."
+  },
+  "40": {
+    "other": "Bem-vindo, %s! "
+  },
+  "41": {
+    "other": "Use esta área de trabalho por padrão"
+  },
+  "42": {
+    "other": "Entrar"
+  },
+  "43": {
+    "other": "Meu Perfil"
+  },
+  "43t": {
+    "other": "Meus dados pessoais"
+  },
+  "44": {
+    "other": "Minha Conta"
+  },
+  "45": {
+    "other": "Dados pessoais"
+  },
+  "46": {
+    "other": "Catálogo de endereços"
+  },
+  "47": {
+    "other": "Usuários e equipes criados por você"
+  },
+  "48": {
+    "other": "Meus Usuários"
+  },
+  "49": {
+    "other": "Usuários externos criados por criou"
+  },
+  "50": {
+    "other": "Minhas Equipes"
+  },
+  "51": {
+    "other": "Equipes de usuários, usados como atalhos ao compartilhar"
+  },
+  "52": {
+    "other": "Tem certeza de que deseja apagar esta equipe? Nenhum usuário será removido."
+  },
+  "53": {
+    "other": "Primeiros passos"
+  },
+  "54": {
+    "other": "Primeiros passos com APPLICATION_TITLE com os seguintes videos"
+  },
+  "55": {
+    "other": "Novo no APPLICATION_TITLE? <a>Assista nossos tutorials</a>!"
+  },
+  "56": {
+    "other": "Conhecendo APPLICATION_TITLE agora? Assista estes vídeos!"
+  },
+  "57": {
+    "other": "Faça o Download APPLICATION_TITLE para..."
+  },
+  "58": {
+    "other": "Android"
+  },
+  "59": {
+    "other": "iPhone/iPad"
+  },
+  "60": {
+    "other": "Mac OS"
+  },
+  "61": {
+    "other": "Windows"
+  },
+  "62": {
+    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+  },
+  "63": {
+    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+  },
+  "64": {
+    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+  },
+  "65": {
+    "other": "Aprenda mais no canal do APPLICATION_TITLE!"
+  },
+  "66": {
+    "other": "<h2>[How-to] Using APPLICATION_TITLE on iOS device</h2>\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n<ul><li>Setup the server connection</li>\n<li>Navigating through the files</li>\n<li>Keeping files offline and interacting with external applications</li>\n<li>Protecting the app with a PIN-code</li>\n<li>Using bookmarks and search engine</li></ul>"
+  },
+  "67": {
+    "other": "Se você não é %s, %logout."
+  },
+  "68": {
+    "other": "Faça o Download do Cliente para Windows"
+  },
+  "69": {
+    "other": "Faça o Download do Cliente para Mac OSX"
+  },
+  "70": {
+    "other": "Aplicação nativa para dispositivos iOS"
+  },
+  "71": {
+    "other": "Aplicação nativa para dispositivos Android"
+  },
+  "72": {
+    "other": "Server QRCode"
+  },
+  "73": {
+    "other": "Conecte suas aplicações móveis facilmente"
+  },
+  "74": {
+    "other": "Scaneie este QRCode como seu aplicativo móvel para configurar a conexão de forma fácil"
+  },
+  "75": {
+    "other": "Search all files..."
+  },
+  "76": {
+    "other": "Access the %1 through the top-right menu"
+  },
+  "77": {
+    "other": "admin dashboard"
+  },
+  "78": {
+    "other": "Pick a target workspace"
+  },
+  "79": {
+    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+  },
+  "80": {
+    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+  },
+  "81": {
+    "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+  },
+  "82": {
+    "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
+  },
+  "83": {
+    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+  },
+  "84": {
+    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+  },
+  "85": {
+    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+  },
+  "86": {
+    "other": "Play video"
+  },
+  "87": {
+    "other": "My Recent Activity"
+  },
+  "88": {
+    "other": "Drop a file here from your desktop"
+  },
+  "89": {
+    "other": "Selected file for upload"
+  },
+  "90": {
+    "other": "Select target workspace"
+  },
+  "91": {
+    "other": "Keep your files offline with our Desktop Sync Client"
+  },
+  "92": {
+    "other": "Applications Download"
+  },
+  "93": {
+    "other": "Quick Upload"
+  },
+  "94": {
+    "other": "Video Tutorial"
+  },
+  "desc": {
+    "other": "Página de Boas vindas"
+  },
+  "title": {
+    "other": "Início"
+  }
+}

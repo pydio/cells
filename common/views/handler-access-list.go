@@ -26,7 +26,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type AccessListHandler struct {
@@ -39,12 +39,16 @@ func NewAccessListHandler(adminView bool) *AccessListHandler {
 		if adminView {
 			return context.WithValue(ctx, ctxAdminContextKey{}, true), nil
 		}
-		accessList, err := utils.AccessListFromContextClaims(ctx)
+		if ctx.Value(CtxKeepAccessListKey{}) != nil && ctx.Value(CtxUserAccessListKey{}) != nil {
+			// Already loaded and context is instructed to not reload access list
+			return ctx, nil
+		}
+		accessList, err := permissions.AccessListFromContextClaims(ctx)
 		if err != nil {
 			log.Logger(ctx).Error("Failed to get accessList", zap.Error(err))
 			return ctx, err
 		}
-		ctx = context.WithValue(ctx, ctxUserAccessListKey{}, accessList)
+		ctx = context.WithValue(ctx, CtxUserAccessListKey{}, accessList)
 		return ctx, nil
 	}
 	return a

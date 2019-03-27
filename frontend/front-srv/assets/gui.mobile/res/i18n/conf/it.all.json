@@ -1,0 +1,32 @@
+{
+  "1.android": {
+    "other": "Esiste un client nativo, APPLICATION_TITLE, per accedere a %s con sistemi Android."
+  },
+  "1.ios": {
+    "other": "Esiste un'applicazione nativa per accedere a %s attraverso iPhone/iPad!"
+  },
+  "2.android": {
+    "other": "Ce l'ho già, aprila ed aggiungi questo server a quelli remoti"
+  },
+  "2.ios": {
+    "other": "Ce l'ho già, aprila ed aggiungi questo server a quelli remoti"
+  },
+  "3.android": {
+    "other": "Non ce l'ho, mandami al Play Store adesso!"
+  },
+  "3.ios": {
+    "other": "Non ce l'ho, mandami all'App Store subito!"
+  },
+  "4.android": {
+    "other": "Non mi interessa, lasciami usare la versione web di %s."
+  },
+  "4.ios": {
+    "other": "Non mi interessa, lasciami usare la versione web di %s."
+  },
+  "Mobile": {
+    "other": "Mobile"
+  },
+  "Template extending gui.ajax for small screen terminals.": {
+    "other": "Template che estende 'gui.ajax' ai terminali con piccoli schermi."
+  }
+}

@@ -23,10 +23,17 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/pkg/errors"
 	minio "github.com/pydio/minio-srv/cmd"
+	// Import minio gateways
+	_ "github.com/pydio/minio-srv/cmd/gateway"
 
+	"io/ioutil"
+	"path/filepath"
+
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/data/source/objects"
@@ -40,15 +47,43 @@ type ObjectHandler struct {
 // StartMinioServer handler
 func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName string) error {
 
+	accessKey := o.Config.ApiKey
+	secretKey := o.Config.ApiSecret
+	configFolder, e := objects.CreateMinioConfigFile(minioServiceName, accessKey, secretKey)
+	if e != nil {
+		return e
+	}
+
 	var gateway, folderName, customEndpoint string
 	if o.Config.StorageType == object.StorageType_S3 {
 		gateway = "s3"
 		customEndpoint = o.Config.EndpointUrl
+	} else if o.Config.StorageType == object.StorageType_AZURE {
+		gateway = "azure"
+	} else if o.Config.StorageType == object.StorageType_GCS {
+		gateway = "gcs"
+		var credsUuid string
+		if o.Config.GatewayConfiguration != nil {
+			if jsonCred, ok := o.Config.GatewayConfiguration["jsonCredentials"]; ok {
+				credsUuid = jsonCred
+			}
+		}
+		if credsUuid == "" {
+			return errors.New("missing google application credentials to start GCS gateway")
+		}
+		creds := config.GetSecret(credsUuid).Bytes()
+		if len(creds) == 0 {
+			return errors.New("missing google application credentials to start GCS gateway (cannot find inside vault)")
+		}
+
+		// Create gcs-credentials.json and pass it as env variable
+		fName := filepath.Join(configFolder, "gcs-credentials.json")
+		ioutil.WriteFile(fName, creds, 0600)
+		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", fName)
 	} else {
 		folderName = o.Config.LocalFolder
 	}
-	accessKey := o.Config.ApiKey
-	secretKey := o.Config.ApiSecret
+
 	port := o.Config.RunningPort
 
 	params := []string{"minio"}
@@ -65,10 +100,6 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	params = append(params, "--quiet")
 
-	configFolder, e := objects.CreateMinioConfigFile(minioServiceName, accessKey, secretKey)
-	if e != nil {
-		return e
-	}
 	params = append(params, "--config-dir")
 	params = append(params, configFolder)
 
@@ -85,6 +116,9 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	log.Logger(ctx).Info("Starting objects service " + minioServiceName)
 
+	os.Setenv("MINIO_ACCESS_KEY", accessKey)
+	os.Setenv("MINIO_SECRET_KEY", secretKey)
+	os.Setenv("MINIO_BROWSER", "off")
 	minio.Main(params)
 
 	return nil

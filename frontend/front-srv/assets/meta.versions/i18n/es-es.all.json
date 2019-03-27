@@ -1,0 +1,65 @@
+{
+  "1": {
+    "other": "Versiones"
+  },
+  "10": {
+    "other": "Fecha"
+  },
+  "11": {
+    "other": "Autor"
+  },
+  "12": {
+    "other": "Modificación"
+  },
+  "13": {
+    "other": "¿Estás seguro de que quieres hacer esto? Se creará una versión nueva del documento con la versión seleccionada."
+  },
+  "14": {
+    "other": "No previous versions found"
+  },
+  "15": {
+    "other": "Versions are created when you update the file content"
+  },
+  "16": {
+    "other": "Previous versions for '%s'"
+  },
+  "2": {
+    "other": "Versiones anteriores del documento"
+  },
+  "3": {
+    "other": "Descarga"
+  },
+  "4": {
+    "other": "Descarga la versión seleccionada del documento"
+  },
+  "5": {
+    "other": "Vista previa (navegador)"
+  },
+  "6": {
+    "other": "Abre la version seleccionada en una ventana del navegador"
+  },
+  "7": {
+    "other": "Revertir a..."
+  },
+  "8": {
+    "other": "Revierte el archivo a la versión seleccionada"
+  },
+  "9": {
+    "other": "#"
+  },
+  "CREATION": {
+    "other": "Archivo creado"
+  },
+  "DELETION": {
+    "other": "Archivo eliminado"
+  },
+  "MODIFICATION": {
+    "other": "Contenido modificado"
+  },
+  "MOVE": {
+    "other": "Archivo movido"
+  },
+  "RENAME": {
+    "other": "Archivo renombrado"
+  }
+}

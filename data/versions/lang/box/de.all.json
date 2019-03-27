@@ -1,0 +1,88 @@
+{
+  "Job.Version.Title": {
+    "other": "Ereignisbasierter Job für die Datenreplikation der Versionierung"
+  },
+  "Job.Version.StatusFile": {
+    "other": "Version {{.Uuid}} in Version Bucket erstellt "
+  },
+  "Job.Version.StatusMeta": {
+    "other": "Versionierung Metadaten für {{.Uuid}} erstellt"
+  },
+  "Job.Version.StatusPrune": {
+    "one": "Gelöscht {{.Count}} Version",
+    "other": "Gelöscht {{.Count}} Versionen"
+  },
+  "Job.Pruning.Title": {
+    "other": "Bereinigung von Versionsdateien für gelöschte Knoten"
+  },
+  "Job.Pruning.StatusDone": {
+    "one": "{{.Count}} Version erfolgreich gelöscht",
+    "other": "{{.Count}} Versionen erfolgreich entfernt."
+  },
+  "Config.GroupPolicy.Title": {
+    "other": "Richtlinie"
+  },
+  "Config.GroupPolicy.Name.Label": {
+    "other": "Name"
+  },
+  "Config.GroupPolicy.Name.Description": {
+    "other": "Richtlinienname"
+  },
+  "Config.GroupPolicy.Description.Label": {
+    "other": "Beschreibung"
+  },
+  "Config.GroupPolicy.Description.Description": {
+    "other": "Richtlinienbeschreibung"
+  },
+  "Config.GroupPolicy.VersionsDataSourceName.Label": {
+    "other": "Shop"
+  },
+  "Config.GroupPolicy.VersionsDataSourceName.Description": {
+    "other": "Datenquelle, die zum Speichern von Versionen verwendet wird"
+  },
+  "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
+    "other": "Bucket"
+  },
+  "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
+    "other": "Bucket, der in dieser Datenquelle verwendet wird"
+  },
+  "Config.GroupSizes.Title": {
+    "other": "Größenlimit"
+  },
+  "Config.GroupSizes.MaxTotalSize.Label": {
+    "other": "Globale Größe aller Versionen, die in diesem Bereich aufbewahrt werden"
+  },
+  "Config.GroupSizes.MaxTotalSize.Description": {
+    "other": "Begrenzen Sie die Gesamtgröße. Wenn das Limit erreicht wird, werden die ältesten Versionen gelöscht. Verwenden Sie -1 für kein Limit"
+  },
+  "Config.GroupSizes.MaxSizePerFile.Label": {
+    "other": "Kumulierte Größen für Versionen einer bestimmten Datei"
+  },
+  "Config.GroupSizes.MaxSizePerFile.Description": {
+    "other": "Beschränken Sie die Größe, die alle Versionen einer Datei einnehmen. Wenn das Limit erreicht wird, werden die ältesten Versionen der Datei gelöscht. Verwenden Sie -1 für kein Limit"
+  },
+  "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
+    "other": "Dateien die größer als ... sind ignorieren"
+  },
+  "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
+    "other": "Versionierung für Dateien, deren Größe diesen Grenzwert überschreitet deaktivieren. Verwenden Sie -1 für kein Limit"
+  },
+  "Config.GroupRetention.Title": {
+    "other": "Aufbewahrungsdauern"
+  },
+  "Config.GroupRetention.Description": {
+    "other": "Anzahl der aufzubewahrenden Versionen pro Periode"
+  },
+  "Config.GroupRetention.IntervalStart.Name": {
+    "other": "Start der Periode"
+  },
+  "Config.GroupRetention.IntervalStart.Description": {
+    "other": "Startpunkt, der für den Berechnungszeitraum verwendet wird. 0 ist die Zeit der zuletzt eingestellten Version. Verwenden Sie eine andere Periode, um ein Limit festzulegen"
+  },
+  "Config.GroupRetention.MaxNumber.Name": {
+    "other": "Maximale Anzahl an Versionen"
+  },
+  "Config.GroupRetention.MaxNumber.Description": {
+    "other": "Maximale Anzahl der Versionen, die über diesen Zeitraum aufbewahrt werden sollen. Verwenden Sie -1 um alle Versionen zu behalten, 0 um alle zu löschen."
+  }
+}

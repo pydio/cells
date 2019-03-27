@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
@@ -38,8 +39,7 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type TokenHandler struct{}
@@ -60,7 +60,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok || !claims.Verified {
 		e := errors.Forbidden(common.SERVICE_AUTH, "invalid token")
-		resp.WriteError(403, e)
+		service.RestError403(req, resp, e)
 		return
 	}
 
@@ -107,10 +107,10 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	response := &rest.ResetPasswordTokenResponse{}
 
 	// Search for user by login
-	u, e := utils.SearchUniqueUser(ctx, userLogin, "")
+	u, e := permissions.SearchUniqueUser(ctx, userLogin, "")
 	if e != nil {
 		// Search by email
-		u, e = utils.SearchUniqueUser(ctx, "", "", "email", userLogin)
+		u, e = permissions.SearchUniqueUser(ctx, "", "", &idm.UserSingleQuery{AttributeName: "email", AttributeValue: userLogin})
 		if e != nil || u.Attributes["email"] == "" {
 			response.Success = false
 			response.Message = "Cannot find corresponding email address"
@@ -132,7 +132,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	})
 	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
 	_, err := cli.PutDocument(ctx, &docstore.PutDocumentRequest{
-		StoreID: "resetPasswordKeys",
+		StoreID: common.DOCSTORE_ID_RESET_PASS_KEYS,
 		Document: &docstore.Document{
 			ID:            token,
 			Owner:         u.Login,
@@ -180,15 +180,18 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	token := input.ResetPasswordToken
 	cli := docstore.NewDocStoreClient(registry.GetClient(common.SERVICE_DOCSTORE))
 	docResp, e := cli.GetDocument(ctx, &docstore.GetDocumentRequest{
-		StoreID:    "resetPasswordKeys",
+		StoreID:    common.DOCSTORE_ID_RESET_PASS_KEYS,
 		DocumentID: token,
 	})
 	if e != nil || docResp.Document == nil || docResp.Document.Data == "" {
+		if e == nil {
+			e = fmt.Errorf("Oops, something wrong happened - Please relaunch reset password process")
+		}
 		service.RestError500(req, resp, e)
 		return
 	}
 	// Delete in store token now
-	cli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: "resetPasswordKeys", DocumentID: token})
+	cli.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DOCSTORE_ID_RESET_PASS_KEYS, DocumentID: token})
 
 	jsonData := docResp.Document.Data
 	var storedToken ResetToken
@@ -207,7 +210,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		response.Message = "Token is does not correspond to this user identifier!"
 		return
 	}
-	u, e := utils.SearchUniqueUser(ctx, storedToken.UserLogin, "")
+	u, e := permissions.SearchUniqueUser(ctx, storedToken.UserLogin, "")
 	if e != nil {
 		response.Success = false
 		response.Message = "Cannot find corresponding user"

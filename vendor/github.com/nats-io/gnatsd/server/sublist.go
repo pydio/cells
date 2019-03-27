@@ -39,8 +39,14 @@ var (
 	ErrNotFound       = errors.New("sublist: No Matches Found")
 )
 
-// cacheMax is used to bound limit the frontend cache
-const slCacheMax = 1024
+const (
+	// cacheMax is used to bound limit the frontend cache
+	slCacheMax = 1024
+	// If we run a sweeper we will drain to this count.
+	slCacheSweep = 512
+	// plistMin is our lower bounds to create a fast plist for Match.
+	plistMin = 256
+)
 
 // A result structure better optimized for queue subs.
 type SublistResult struct {
@@ -56,16 +62,19 @@ type Sublist struct {
 	cacheHits uint64
 	inserts   uint64
 	removes   uint64
-	cache     map[string]*SublistResult
 	root      *level
+	cache     sync.Map
+	cacheNum  int32
+	ccSweep   int32
 	count     uint32
 }
 
 // A node contains subscriptions and a pointer to the next level.
 type node struct {
 	next  *level
-	psubs []*subscription
-	qsubs [][]*subscription
+	psubs map[*subscription]*subscription
+	qsubs map[string](map[*subscription]*subscription)
+	plist []*subscription
 }
 
 // A level represents a group of nodes and special pointers to
@@ -77,18 +86,17 @@ type level struct {
 
 // Create a new default node.
 func newNode() *node {
-	return &node{psubs: make([]*subscription, 0, 4)}
+	return &node{psubs: make(map[*subscription]*subscription)}
 }
 
-// Create a new default level. We use FNV1A as the hash
-// algorithm for the tokens, which should be short.
+// Create a new default level.
 func newLevel() *level {
 	return &level{nodes: make(map[string]*node)}
 }
 
 // New will create a default sublist
 func NewSublist() *Sublist {
-	return &Sublist{root: newLevel(), cache: make(map[string]*SublistResult)}
+	return &Sublist{root: newLevel()}
 }
 
 // Insert adds a subscription into the sublist
@@ -153,14 +161,28 @@ func (s *Sublist) Insert(sub *subscription) error {
 		l = n.next
 	}
 	if sub.queue == nil {
-		n.psubs = append(n.psubs, sub)
-	} else {
-		// This is a queue subscription
-		if i := findQSliceForSub(sub, n.qsubs); i >= 0 {
-			n.qsubs[i] = append(n.qsubs[i], sub)
-		} else {
-			n.qsubs = append(n.qsubs, []*subscription{sub})
+		n.psubs[sub] = sub
+		if n.plist != nil {
+			n.plist = append(n.plist, sub)
+		} else if len(n.psubs) > plistMin {
+			n.plist = make([]*subscription, 0, len(n.psubs))
+			// Populate
+			for _, psub := range n.psubs {
+				n.plist = append(n.plist, psub)
+			}
 		}
+	} else {
+		if n.qsubs == nil {
+			n.qsubs = make(map[string]map[*subscription]*subscription)
+		}
+		qname := string(sub.queue)
+		// This is a queue subscription
+		subs, ok := n.qsubs[qname]
+		if !ok {
+			subs = make(map[*subscription]*subscription)
+			n.qsubs[qname] = subs
+		}
+		subs[sub] = sub
 	}
 
 	s.count++
@@ -184,50 +206,76 @@ func copyResult(r *SublistResult) *SublistResult {
 	return nr
 }
 
-// addToCache will add the new entry to existing cache
-// entries if needed. Assumes write lock is held.
-func (s *Sublist) addToCache(subject string, sub *subscription) {
-	for k, r := range s.cache {
-		if matchLiteral(k, subject) {
-			// Copy since others may have a reference.
-			nr := copyResult(r)
-			if sub.queue == nil {
-				nr.psubs = append(nr.psubs, sub)
-			} else {
-				if i := findQSliceForSub(sub, nr.qsubs); i >= 0 {
-					nr.qsubs[i] = append(nr.qsubs[i], sub)
-				} else {
-					nr.qsubs = append(nr.qsubs, []*subscription{sub})
-				}
-			}
-			s.cache[k] = nr
+// Adds a new sub to an existing result.
+func (r *SublistResult) addSubToResult(sub *subscription) *SublistResult {
+	// Copy since others may have a reference.
+	nr := copyResult(r)
+	if sub.queue == nil {
+		nr.psubs = append(nr.psubs, sub)
+	} else {
+		if i := findQSliceForSub(sub, nr.qsubs); i >= 0 {
+			nr.qsubs[i] = append(nr.qsubs[i], sub)
+		} else {
+			nr.qsubs = append(nr.qsubs, []*subscription{sub})
 		}
 	}
+	return nr
+}
+
+// addToCache will add the new entry to the existing cache
+// entries if needed. Assumes write lock is held.
+func (s *Sublist) addToCache(subject string, sub *subscription) {
+	// If literal we can direct match.
+	if subjectIsLiteral(subject) {
+		if v, ok := s.cache.Load(subject); ok {
+			r := v.(*SublistResult)
+			s.cache.Store(subject, r.addSubToResult(sub))
+		}
+		return
+	}
+	s.cache.Range(func(k, v interface{}) bool {
+		key := k.(string)
+		r := v.(*SublistResult)
+		if matchLiteral(key, subject) {
+			s.cache.Store(key, r.addSubToResult(sub))
+		}
+		return true
+	})
 }
 
 // removeFromCache will remove the sub from any active cache entries.
 // Assumes write lock is held.
 func (s *Sublist) removeFromCache(subject string, sub *subscription) {
-	for k := range s.cache {
-		if !matchLiteral(k, subject) {
-			continue
+	// If literal we can direct match.
+	if subjectIsLiteral(subject) {
+		// Load for accounting
+		if _, ok := s.cache.Load(subject); ok {
+			s.cache.Delete(subject)
+			atomic.AddInt32(&s.cacheNum, -1)
 		}
-		// Since someone else may be referecing, can't modify the list
-		// safely, just let it re-populate.
-		delete(s.cache, k)
+		return
 	}
+	s.cache.Range(func(k, v interface{}) bool {
+		key := k.(string)
+		if matchLiteral(key, subject) {
+			// Since someone else may be referecing, can't modify the list
+			// safely, just let it re-populate.
+			s.cache.Delete(key)
+			atomic.AddInt32(&s.cacheNum, -1)
+		}
+		return true
+	})
 }
 
 // Match will match all entries to the literal subject.
 // It will return a set of results for both normal and queue subscribers.
 func (s *Sublist) Match(subject string) *SublistResult {
-	s.RLock()
 	atomic.AddUint64(&s.matches, 1)
-	rc, ok := s.cache[subject]
-	s.RUnlock()
-	if ok {
+
+	// Check cache first.
+	if r, ok := s.cache.Load(subject); ok {
 		atomic.AddUint64(&s.cacheHits, 1)
-		return rc
+		return r.(*SublistResult)
 	}
 
 	tsa := [32]string{}
@@ -244,35 +292,64 @@ func (s *Sublist) Match(subject string) *SublistResult {
 	// FIXME(dlc) - Make shared pool between sublist and client readLoop?
 	result := &SublistResult{}
 
-	s.Lock()
+	// Get result from the main structure and place into the shared cache.
+	// Hold the read lock to avoid race between match and store.
+	s.RLock()
 	matchLevel(s.root, tokens, result)
+	s.cache.Store(subject, result)
+	n := atomic.AddInt32(&s.cacheNum, 1)
+	s.RUnlock()
 
-	// Add to our cache
-	s.cache[subject] = result
-	// Bound the number of entries to sublistMaxCache
-	if len(s.cache) > slCacheMax {
-		for k := range s.cache {
-			delete(s.cache, k)
-			break
-		}
+	// Reduce the cache count if we have exceeded our set maximum.
+	if n > slCacheMax && atomic.CompareAndSwapInt32(&s.ccSweep, 0, 1) {
+		go s.reduceCacheCount()
 	}
-	s.Unlock()
 
 	return result
 }
 
+// Remove entries in the cache until we are under the maximum.
+// TODO(dlc) this could be smarter now that its not inline.
+func (s *Sublist) reduceCacheCount() {
+	defer atomic.StoreInt32(&s.ccSweep, 0)
+	// If we are over the cache limit randomly drop until under the limit.
+	s.cache.Range(func(k, v interface{}) bool {
+		s.cache.Delete(k.(string))
+		n := atomic.AddInt32(&s.cacheNum, -1)
+		if n < slCacheSweep {
+			return false
+		}
+		return true
+	})
+}
+
 // This will add in a node's results to the total results.
 func addNodeToResults(n *node, results *SublistResult) {
-	results.psubs = append(results.psubs, n.psubs...)
-	for _, qr := range n.qsubs {
+	// Normal subscriptions
+	if n.plist != nil {
+		results.psubs = append(results.psubs, n.plist...)
+	} else {
+		for _, psub := range n.psubs {
+			results.psubs = append(results.psubs, psub)
+		}
+	}
+	// Queue subscriptions
+	for qname, qr := range n.qsubs {
 		if len(qr) == 0 {
 			continue
 		}
+		tsub := &subscription{subject: nil, queue: []byte(qname)}
 		// Need to find matching list in results
-		if i := findQSliceForSub(qr[0], results.qsubs); i >= 0 {
-			results.qsubs[i] = append(results.qsubs[i], qr...)
+		if i := findQSliceForSub(tsub, results.qsubs); i >= 0 {
+			for _, sub := range qr {
+				results.qsubs[i] = append(results.qsubs[i], sub)
+			}
 		} else {
-			results.qsubs = append(results.qsubs, append([]*subscription(nil), qr...))
+			var nqsub []*subscription
+			for _, sub := range qr {
+				nqsub = append(nqsub, sub)
+			}
+			results.qsubs = append(results.qsubs, nqsub)
 		}
 	}
 }
@@ -328,8 +405,8 @@ type lnt struct {
 	t string
 }
 
-// Remove will remove a subscription.
-func (s *Sublist) Remove(sub *subscription) error {
+// Raw low level remove, can do batches with lock held outside.
+func (s *Sublist) remove(sub *subscription, shouldLock bool) error {
 	subject := string(sub.subject)
 	tsa := [32]string{}
 	tokens := tsa[:0]
@@ -342,8 +419,10 @@ func (s *Sublist) Remove(sub *subscription) error {
 	}
 	tokens = append(tokens, subject[start:])
 
-	s.Lock()
-	defer s.Unlock()
+	if shouldLock {
+		s.Lock()
+		defer s.Unlock()
+	}
 
 	sfwc := false
 	l := s.root
@@ -400,6 +479,24 @@ func (s *Sublist) Remove(sub *subscription) error {
 	return nil
 }
 
+// Remove will remove a subscription.
+func (s *Sublist) Remove(sub *subscription) error {
+	return s.remove(sub, true)
+}
+
+// RemoveBatch will remove a list of subscriptions.
+func (s *Sublist) RemoveBatch(subs []*subscription) error {
+	s.Lock()
+	defer s.Unlock()
+
+	for _, sub := range subs {
+		if err := s.remove(sub, false); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // pruneNode is used to prune an empty node from the tree.
 func (l *level) pruneNode(n *node, t string) {
 	if n == nil {
@@ -437,61 +534,32 @@ func (l *level) numNodes() int {
 	return num
 }
 
-// Removes a sub from a list.
-func removeSubFromList(sub *subscription, sl []*subscription) ([]*subscription, bool) {
-	for i := 0; i < len(sl); i++ {
-		if sl[i] == sub {
-			last := len(sl) - 1
-			sl[i] = sl[last]
-			sl[last] = nil
-			sl = sl[:last]
-			return shrinkAsNeeded(sl), true
-		}
-	}
-	return sl, false
-}
-
 // Remove the sub for the given node.
 func (s *Sublist) removeFromNode(n *node, sub *subscription) (found bool) {
 	if n == nil {
 		return false
 	}
 	if sub.queue == nil {
-		n.psubs, found = removeSubFromList(sub, n.psubs)
+		_, found = n.psubs[sub]
+		delete(n.psubs, sub)
+		if found && n.plist != nil {
+			// This will brute force remove the plist to perform
+			// correct behavior. Will get repopulated on a call
+			// to Match as needed.
+			n.plist = nil
+		}
 		return found
 	}
 
 	// We have a queue group subscription here
-	if i := findQSliceForSub(sub, n.qsubs); i >= 0 {
-		n.qsubs[i], found = removeSubFromList(sub, n.qsubs[i])
-		if len(n.qsubs[i]) == 0 {
-			last := len(n.qsubs) - 1
-			n.qsubs[i] = n.qsubs[last]
-			n.qsubs[last] = nil
-			n.qsubs = n.qsubs[:last]
-			if len(n.qsubs) == 0 {
-				n.qsubs = nil
-			}
-		}
-		return found
+	qname := string(sub.queue)
+	qsub := n.qsubs[qname]
+	_, found = qsub[sub]
+	delete(qsub, sub)
+	if len(qsub) == 0 {
+		delete(n.qsubs, qname)
 	}
-	return false
-}
-
-// Checks if we need to do a resize. This is for very large growth then
-// subsequent return to a more normal size from unsubscribe.
-func shrinkAsNeeded(sl []*subscription) []*subscription {
-	lsl := len(sl)
-	csl := cap(sl)
-	// Don't bother if list not too big
-	if csl <= 8 {
-		return sl
-	}
-	pFree := float32(csl-lsl) / float32(csl)
-	if pFree > 0.50 {
-		return append([]*subscription(nil), sl...)
-	}
-	return sl
+	return found
 }
 
 // Count returns the number of subscriptions.
@@ -503,9 +571,7 @@ func (s *Sublist) Count() uint32 {
 
 // CacheCount returns the number of result sets in the cache.
 func (s *Sublist) CacheCount() int {
-	s.RLock()
-	defer s.RUnlock()
-	return len(s.cache)
+	return int(atomic.LoadInt32(&s.cacheNum))
 }
 
 // Public stats for the sublist
@@ -527,25 +593,30 @@ func (s *Sublist) Stats() *SublistStats {
 
 	st := &SublistStats{}
 	st.NumSubs = s.count
-	st.NumCache = uint32(len(s.cache))
+	st.NumCache = uint32(atomic.LoadInt32(&s.cacheNum))
 	st.NumInserts = s.inserts
 	st.NumRemoves = s.removes
 	st.NumMatches = atomic.LoadUint64(&s.matches)
 	if st.NumMatches > 0 {
 		st.CacheHitRate = float64(atomic.LoadUint64(&s.cacheHits)) / float64(st.NumMatches)
 	}
-	// whip through cache for fanout stats
+
+	// whip through cache for fanout stats, this can be off if cache is full and doing evictions.
 	tot, max := 0, 0
-	for _, r := range s.cache {
+	clen := 0
+	s.cache.Range(func(k, v interface{}) bool {
+		clen += 1
+		r := v.(*SublistResult)
 		l := len(r.psubs) + len(r.qsubs)
 		tot += l
 		if l > max {
 			max = l
 		}
-	}
+		return true
+	})
 	st.MaxFanout = uint32(max)
 	if tot > 0 {
-		st.AvgFanout = float64(tot) / float64(len(s.cache))
+		st.AvgFanout = float64(tot) / float64(clen)
 	}
 	return st
 }
@@ -588,6 +659,20 @@ func visitLevel(l *level, depth int) int {
 		}
 	}
 	return maxDepth
+}
+
+// Determine if the subject has any wildcards. Fast version, does not check for
+// valid subject. Used in caching layer.
+func subjectIsLiteral(subject string) bool {
+	for i, c := range subject {
+		if c == pwc || c == fwc {
+			if (i == 0 || subject[i-1] == btsep) &&
+				(i+1 == len(subject) || subject[i+1] == btsep) {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 // IsValidSubject returns true if a subject is valid, false otherwise
@@ -699,4 +784,53 @@ func matchLiteral(literal, subject string) bool {
 	}
 	// Make sure we have processed all of the literal's chars..
 	return li >= ll
+}
+
+func addLocalSub(sub *subscription, subs *[]*subscription) {
+	if sub != nil && sub.client != nil && sub.client.typ == CLIENT {
+		*subs = append(*subs, sub)
+	}
+}
+
+func (s *Sublist) addNodeToSubs(n *node, subs *[]*subscription) {
+	// Normal subscriptions
+	if n.plist != nil {
+		for _, sub := range n.plist {
+			addLocalSub(sub, subs)
+		}
+	} else {
+		for _, sub := range n.psubs {
+			addLocalSub(sub, subs)
+		}
+	}
+	// Queue subscriptions
+	for _, qr := range n.qsubs {
+		for _, sub := range qr {
+			addLocalSub(sub, subs)
+		}
+	}
+}
+
+func (s *Sublist) collectLocalSubs(l *level, subs *[]*subscription) {
+	if len(l.nodes) > 0 {
+		for _, n := range l.nodes {
+			s.addNodeToSubs(n, subs)
+			s.collectLocalSubs(n.next, subs)
+		}
+	}
+	if l.pwc != nil {
+		s.addNodeToSubs(l.pwc, subs)
+		s.collectLocalSubs(l.pwc.next, subs)
+	}
+	if l.fwc != nil {
+		s.addNodeToSubs(l.fwc, subs)
+		s.collectLocalSubs(l.fwc.next, subs)
+	}
+}
+
+// Return all local client subscriptions. Use the supplied slice.
+func (s *Sublist) localSubs(subs *[]*subscription) {
+	s.RLock()
+	s.collectLocalSubs(s.root, subs)
+	s.RUnlock()
 }

@@ -24,44 +24,67 @@ package gateway
 import (
 	"context"
 	"fmt"
+	"os"
+
+	minio "github.com/pydio/minio-srv/cmd"
+	"github.com/pydio/minio-srv/cmd/gateway/pydio"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/data/source/objects"
-	minio "github.com/pydio/minio-srv/cmd"
+	"github.com/pydio/cells/common/utils/net"
 )
 
+type logger struct {
+	ctx context.Context
+}
+
+func (l *logger) Info(entry interface{}) {
+	log.Logger(l.ctx).Info("Minio Gateway", zap.Any("data", entry))
+}
+
+func (l *logger) Error(entry interface{}) {
+	log.Logger(l.ctx).Error("Minio Gateway", zap.Any("data", entry))
+}
+
+func (l *logger) Audit(entry interface{}) {
+	log.Auditer(l.ctx).Info("Minio Gateway", zap.Any("data", entry))
+}
+
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_GATEWAY_DATA),
-		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.RouterDependencies(),
-		service.Description("S3 Gateway to tree service"),
-		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			config := servicecontext.GetConfig(ctx)
 
-			port := config.Int("port", 9020)
-			var certFile, keyFile string
-			if config2.Get("cert", "http", "ssl").Bool(false) {
-				certFile = config2.Get("cert", "http", "certFile").String("")
-				keyFile = config2.Get("cert", "http", "keyFile").String("")
-			}
+	plugins.Register(func() {
+		port := net.GetAvailablePort()
+		service.NewService(
+			service.Name(common.SERVICE_GATEWAY_DATA),
+			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.RouterDependencies(),
+			service.Description("S3 Gateway to tree service"),
+			service.Port(fmt.Sprintf("%d", port)),
+			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 
-			gatewayDir, err := objects.CreateMinioConfigFile("gateway", "gateway", "gatewaysecret")
-			if err != nil {
-				return nil, nil, nil, err
-			}
+				var certFile, keyFile string
+				if config.Get("cert", "http", "ssl").Bool(false) {
+					certFile = config.Get("cert", "http", "certFile").String("")
+					keyFile = config.Get("cert", "http", "keyFile").String("")
+				}
 
-			return service.RunnerFunc(func() error {
-					minio.NewPydioGateway(ctx, fmt.Sprintf(":%d", port), gatewayDir, certFile, keyFile)
-					return nil
-				}), service.CheckerFunc(func() error {
-					return nil
-				}), service.StopperFunc(func() error {
-					return nil
-				}), nil
-		}),
-	)
+				return service.RunnerFunc(func() error {
+						os.Setenv("MINIO_BROWSER", "off")
+						gw := &pydio.Pydio{}
+						console := &logger{ctx: ctx}
+						minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
+
+						return nil
+					}), service.CheckerFunc(func() error {
+						return nil
+					}), service.StopperFunc(func() error {
+						return nil
+					}), nil
+			}),
+		)
+	})
 }

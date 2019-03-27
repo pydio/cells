@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "Mise à jour"
+  },
+  "10": {
+    "other": "C'est un \"essai\". Veuillez vérifier les journaux de toutes les actions qui vont-être effectuées, si tout est correct, cliquez sur le bouton \"Effectuer l'import maintenant\"."
+  },
+  "11": {
+    "other": "Migrate meta.serial"
+  },
+  "12": {
+    "other": "L'ancien plugin meta.serial a été supprimé et divisé dans metastore.serial et meta.user"
+  },
+  "13": {
+    "other": "Simuler la migration"
+  },
+  "14": {
+    "other": "Effectuer la migration"
+  },
+  "15": {
+    "other": "Etes-vous certain de vouloir appliquer cette mise à jour?"
+  },
+  "16": {
+    "other": "Les paquets suivants seront téléchargés et installés sur le serveur."
+  },
+  "17": {
+    "other": "Vérification des mises à jours..."
+  },
+  "18": {
+    "other": "Pas de mise à jour nécessaire, cliquez pour déclencher une nouvelle vérification."
+  },
+  "19": {
+    "other": "Cliquer pour vérifier si une mise à jour est nécessaire."
+  },
+  "2": {
+    "other": "Mise à jour automatique"
+  },
+  "20": {
+    "other": "Vérifier maintenant"
+  },
+  "21": {
+    "other": "Actuellement en développement."
+  },
+  "22": {
+    "other": "Version actuelle %1 (%2)."
+  },
+  "3": {
+    "other": "Cliquez sur le bouton pour démarrer la mise à jour. Veuillez vérifier que le répertoire de l'application est accessible en écriture avant de démarrer."
+  },
+  "4": {
+    "other": "Démarrer"
+  },
+  "5": {
+    "other": "Depuis 3.2.4"
+  },
+  "6": {
+    "other": "Importer les données de configuration depuis 3.2.4"
+  },
+  "7": {
+    "other": "Simuler l'import des données"
+  },
+  "8": {
+    "other": "Entrez le chemin complet (depuis la racine du serveur) vers l'installation précédente, puis simulez l'import."
+  },
+  "9": {
+    "other": "Effectuer l'import maintenant"
+  }
+}

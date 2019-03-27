@@ -1,0 +1,35 @@
+{
+  "1": {
+    "other": "Quelltext-Editor"
+  },
+  "10": {
+    "other": "Zeileneinzug"
+  },
+  "2": {
+    "other": "Text-Editor mit Syntaxhervorhebung"
+  },
+  "3": {
+    "other": "Zeilenumbruch"
+  },
+  "3b": {
+    "other": "Wechsel des Zeilenumbruchs bei langem Text"
+  },
+  "4": {
+    "other": "Zeilennummern"
+  },
+  "5": {
+    "other": "Zeilennummern anzeigen oder ausblenden"
+  },
+  "6": {
+    "other": "Zu Zeile"
+  },
+  "7": {
+    "other": "Rückgängig"
+  },
+  "8": {
+    "other": "Wiederherstellen"
+  },
+  "9": {
+    "other": "Suche:"
+  }
+}

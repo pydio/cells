@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "Eemaltlaadimine"
+  },
+  "10": {
+    "other": "Laadi alla failihaldurisse"
+  },
+  "10a": {
+    "other": "Laadi alla sihtkohta %s"
+  },
+  "10b": {
+    "other": "Laadi alla sihtkohta %s"
+  },
+  "10c": {
+    "other": "Laadi alla sihtkohta %s"
+  },
+  "10d": {
+    "other": "Alla laadimine (%s)"
+  },
+  "11": {
+    "other": "Lohista mõni allolevatest viidetest oma järjehoidjate tööriistaribale : "
+  },
+  "12": {
+    "other": "Käivita eemaloleva faili allalaadimine"
+  },
+  "13": {
+    "other": "Arvutist"
+  },
+  "14": {
+    "other": "Eemalasuvast serverist"
+  },
+  "15": {
+    "other": "Või loo järjehoidja käsitsi ja kasuta allolevat koodi viidana : "
+  },
+  "16": {
+    "other": "Lohista mind järjehoidjate tööriistaribale!"
+  },
+  "17": {
+    "other": "Laadi fail alla"
+  },
+  "18": {
+    "other": "Osaline fail"
+  },
+  "2": {
+    "other": "Laadi alla faile eemalasuvast serverist"
+  },
+  "3": {
+    "other": "m"
+  },
+  "4": {
+    "other": "Sisesta vähemalt üks URL, mis osutab failile, mille soovid alla laadida otse mõnest eemal asuvast HTTP serverist. Allalaadimine teostatakse taustal ja võid samaaegselt jätkata failihalduri kasutamist."
+  },
+  "5": {
+    "other": "URL"
+  },
+  "6": {
+    "other": "Laadin alla"
+  },
+  "7": {
+    "other": "serverisse"
+  },
+  "8": {
+    "other": "Fail alla laaditud, värskendan akent!"
+  },
+  "9": {
+    "other": "Loo järjehoidja"
+  }
+}

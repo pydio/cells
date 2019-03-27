@@ -1,5 +1,6 @@
 /*
- * Minio Go Library for Amazon S3 Compatible Cloud Storage (C) 2015, 2016, 2017 Minio, Inc.
+ * Minio Go Library for Amazon S3 Compatible Cloud Storage
+ * Copyright 2015-2017 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +27,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/minio-go/pkg/encrypt"
 	"github.com/pydio/minio-go/pkg/s3utils"
 )
-
-// GetEncryptedObject deciphers and streams data stored in the server after applying a specified encryption materials,
-// returned stream should be closed by the caller.
-func (c Client) GetEncryptedObject(bucketName, objectName string, encryptMaterials encrypt.Materials) (io.ReadCloser, error) {
-	if encryptMaterials == nil {
-		return nil, ErrInvalidArgument("Unable to recognize empty encryption properties")
-	}
-
-	return c.GetObject(bucketName, objectName, GetObjectOptions{Materials: encryptMaterials})
-}
 
 // GetObject - returns an seekable, readable object.
 func (c Client) GetObject(bucketName, objectName string, opts GetObjectOptions) (*Object, error) {
@@ -126,7 +116,10 @@ func (c Client) getObjectWithContext(ctx context.Context, bucketName, objectName
 					} else {
 						// First request is a Stat or Seek call.
 						// Only need to run a StatObject until an actual Read or ReadAt request comes through.
-						objectInfo, err = c.statObject(bucketName, objectName, StatObjectOptions{opts})
+
+						// Remove range header if already set, for stat Operations to get original file size.
+						delete(opts.headers, "Range")
+						objectInfo, err = c.statObject(ctx, bucketName, objectName, StatObjectOptions{opts})
 						if err != nil {
 							resCh <- getResponse{
 								Error: err,
@@ -141,10 +134,12 @@ func (c Client) getObjectWithContext(ctx context.Context, bucketName, objectName
 						}
 					}
 				} else if req.settingObjectInfo { // Request is just to get objectInfo.
+					// Remove range header if already set, for stat Operations to get original file size.
+					delete(opts.headers, "Range")
 					if etag != "" {
 						opts.SetMatchETag(etag)
 					}
-					objectInfo, err := c.statObject(bucketName, objectName, StatObjectOptions{opts})
+					objectInfo, err := c.statObject(ctx, bucketName, objectName, StatObjectOptions{opts})
 					if err != nil {
 						resCh <- getResponse{
 							Error: err,
@@ -380,13 +375,11 @@ func (o *Object) Stat() (ObjectInfo, error) {
 
 	// This is the first request.
 	if !o.isStarted || !o.objectInfoSet {
-		statReq := getRequest{
+		// Send the request and get the response.
+		_, err := o.doGetRequest(getRequest{
 			isFirstReq:        !o.isStarted,
 			settingObjectInfo: !o.objectInfoSet,
-		}
-
-		// Send the request and get the response.
-		_, err := o.doGetRequest(statReq)
+		})
 		if err != nil {
 			o.prevErr = err
 			return ObjectInfo{}, err
@@ -492,7 +485,7 @@ func (o *Object) Seek(offset int64, whence int) (n int64, err error) {
 
 	// Negative offset is valid for whence of '2'.
 	if offset < 0 && whence != 2 {
-		return 0, ErrInvalidArgument(fmt.Sprintf("Negative position not allowed for %d.", whence))
+		return 0, ErrInvalidArgument(fmt.Sprintf("Negative position not allowed for %d", whence))
 	}
 
 	// This is the first request. So before anything else
@@ -612,10 +605,10 @@ func (c Client) getObject(ctx context.Context, bucketName, objectName string, op
 
 	// Execute GET on objectName.
 	resp, err := c.executeMethod(ctx, "GET", requestMetadata{
-		bucketName:         bucketName,
-		objectName:         objectName,
-		customHeader:       opts.Header(),
-		contentSHA256Bytes: emptySHA256,
+		bucketName:       bucketName,
+		objectName:       objectName,
+		customHeader:     opts.Header(),
+		contentSHA256Hex: emptySHA256Hex,
 	})
 	if err != nil {
 		return nil, ObjectInfo{}, err
@@ -661,15 +654,6 @@ func (c Client) getObject(ctx context.Context, bucketName, objectName string, op
 		Metadata: extractObjMetadata(resp.Header),
 	}
 
-	reader := resp.Body
-	if opts.Materials != nil {
-		err = opts.Materials.SetupDecryptMode(reader, objectStat.Metadata.Get(amzHeaderIV), objectStat.Metadata.Get(amzHeaderKey))
-		if err != nil {
-			return nil, ObjectInfo{}, err
-		}
-		reader = opts.Materials
-	}
-
 	// do not close body here, caller will close
-	return reader, objectStat, nil
+	return resp.Body, objectStat, nil
 }

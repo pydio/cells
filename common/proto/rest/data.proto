@@ -10,6 +10,25 @@ message SearchResults{
     int32 Total = 2;
 }
 
+// Generic container for responses sending pagination information
+message Pagination {
+    // Current Limit parameter, either passed by request or default value
+    int32 Limit = 1;
+    // Current Offset value
+    int32 CurrentOffset = 2;
+    // Total number of records
+    int32 Total = 3;
+    // Current number of Page
+    int32 CurrentPage = 4;
+    // Number of detected pages
+    int32 TotalPages = 5;
+
+    // Offset value for next page if there is one
+    int32 NextOffset = 6;
+    // Offset value for previous page, if there is one
+    int32 PrevOffset = 7;
+}
+
 message Metadata {
     string Namespace = 1;
     string JsonMeta = 2;
@@ -30,23 +49,65 @@ message GetBulkMetaRequest{
     repeated string NodeUuids = 2;
     bool AllMetaProviders = 3;
     bool Versions = 4;
+    int32 Offset = 5;
+    int32 Limit = 6;
 }
 
 message BulkMetaResponse{
     repeated tree.Node Nodes = 1;
+    Pagination Pagination = 5;
 }
 
-message SetBulkMetaRequest{
-    repeated MetaCollection Metas = 1;
+message HeadNodeRequest {
+    string Node = 1;
 }
 
-message DeleteBulkMetaRequest{
-    repeated MetaNamespaceRequest MetaNamespaceRequests = 1;
+message HeadNodeResponse {
+    tree.Node Node = 1;
+}
+
+message CreateNodesRequest {
+    repeated tree.Node Nodes = 1;
+    bool Recursive = 2;
+    string TemplateUUID = 3;
+}
+
+message CreateSelectionRequest {
+    repeated tree.Node Nodes = 1;
+    string TargetAction = 2;
+    bool Persist = 3;
+}
+
+message CreateSelectionResponse {
+    string SelectionUUID = 1;
+    repeated tree.Node Nodes = 2;
 }
 
 message NodesCollection {
     tree.Node Parent = 1;
     repeated tree.Node Children = 2;
+}
+
+message DeleteNodesRequest {
+    repeated tree.Node Nodes = 1;
+    bool Recursive = 2;
+}
+
+message BackgroundJobResult {
+    string Uuid = 1;
+    string Label = 2;
+}
+
+message DeleteNodesResponse {
+    repeated BackgroundJobResult DeleteJobs = 1;
+}
+
+message RestoreNodesRequest {
+    repeated tree.Node Nodes = 1;
+}
+
+message RestoreNodesResponse {
+    repeated BackgroundJobResult RestoreJobs = 1;
 }
 
 message ListDocstoreRequest {

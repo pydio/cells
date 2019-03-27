@@ -32,7 +32,8 @@ message InstallConfig {
     string frontendLogin = 25;
     string frontendPassword = 26;
     string frontendRepeatPassword = 27;
-    string fpmAddress = 28;
+    string frontendApplicationTitle = 28;
+    string frontendDefaultLanguage = 33;
     bool   licenseRequired = 29;
     string licenseString = 30;
     repeated CheckResult CheckResults = 31;

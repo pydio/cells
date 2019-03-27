@@ -1,0 +1,203 @@
+{
+  "1": {
+    "other": "Sin Parámetros"
+  },
+  "10": {
+    "other": "Sólo escritura"
+  },
+  "11": {
+    "other": "Denegado"
+  },
+  "12": {
+    "other": "Sin Acceso"
+  },
+  "13": {
+    "other": "Buscar Parámetros o Acciones"
+  },
+  "14": {
+    "other": "Seleccionar parámetro o acción"
+  },
+  "15": {
+    "other": "Seleccione un parámetro o acción y pulse Añadir. Puede buscar en los parámetros usando al campo de abajo."
+  },
+  "16": {
+    "other": "Mostrar/Ocultar Heredado"
+  },
+  "17": {
+    "other": "Añadir Parámetro o Acción"
+  },
+  "18": {
+    "other": "Configuración de Plugins"
+  },
+  "19": {
+    "other": "siempre sobreescribir"
+  },
+  "2": {
+    "other": "Habilitado"
+  },
+  "20": {
+    "other": "+ añadir rol"
+  },
+  "21": {
+    "other": "recargando..."
+  },
+  "22": {
+    "other": "Cargando caché de acciones, por favor espere, sólo es necesario una vez..."
+  },
+  "23": {
+    "other": "Cargando caché de parámetros, por favor espere, sólo es necesario una vez..."
+  },
+  "24": {
+    "other": "Información de Usuario"
+  },
+  "25": {
+    "other": "Restricciones de Acceso"
+  },
+  "26": {
+    "other": "Información de Grupos"
+  },
+  "27": {
+    "other": "Info Grupos"
+  },
+  "28": {
+    "other": "Información de Roles"
+  },
+  "29": {
+    "other": "Info Roles"
+  },
+  "3": {
+    "other": "Deshabilitado"
+  },
+  "30": {
+    "other": "Perfil y Roles"
+  },
+  "31": {
+    "other": "Identificador único de usuario. No se puede modificar."
+  },
+  "32": {
+    "other": "Especificar perfil. Pueden aplicarse automáticamente algunos roles."
+  },
+  "33": {
+    "other": "Cerrar"
+  },
+  "34": {
+    "other": "Control de Acceso"
+  },
+  "35": {
+    "other": "Acceso a Workspaces"
+  },
+  "36": {
+    "other": "Páginas de la Aplicación"
+  },
+  "37": {
+    "other": "Configurar Parámetros"
+  },
+  "38": {
+    "other": "Parámetros de la Aplicación"
+  },
+  "39": {
+    "other": "Parámetros de todos los workspaces"
+  },
+  "4": {
+    "other": "Limpiar valor"
+  },
+  "40": {
+    "other": "Parámetros por workspaces"
+  },
+  "41": {
+    "other": "Parámetros adicionales"
+  },
+  "42": {
+    "other": "Ajuste los parámetros de la aplicación y desactive plugins de acción para este rol. Los parámetros aquí son globales (autenticación, configuración, etc.). Ajuste los parámetros específicos de los workspaces desde la pestaña Workspaces."
+  },
+  "43": {
+    "other": "Conceda acceso a los workspaces para el rol/usuario/grupo actual"
+  },
+  "44": {
+    "other": "Páginas Principales de la Aplicación"
+  },
+  "45": {
+    "other": "Acceso a las páginas principales de la aplicación (Mi Cuenta, Página de Bienvenida, etc.)"
+  },
+  "46": {
+    "other": "Parámetros y Acciones"
+  },
+  "47": {
+    "other": "Ajuste de parámetros y acciones para workspaces"
+  },
+  "49": {
+    "other": "Intercambios"
+  },
+  "5": {
+    "other": "Sobreescribir valor"
+  },
+  "50": {
+    "other": "Archivos y Carpetas Compartidas"
+  },
+  "51": {
+    "other": "Con este usuario"
+  },
+  "52": {
+    "other": "Por este usuario"
+  },
+  "53": {
+    "other": "Compartido por %1 desde el workspace %2"
+  },
+  "54": {
+    "other": "Basic user informations. Use button on the right to see more actions."
+  },
+  "55": {
+    "other": "Toggle profile and roles to automatically grant permissions to this user."
+  },
+  "6": {
+    "other": "Guardar valor"
+  },
+  "7": {
+    "other": "Acción %s"
+  },
+  "8": {
+    "other": "Lectura y Escritura"
+  },
+  "9": {
+    "other": "Sólo lectura"
+  },
+  "roles.picker.title": {
+    "other": "Manage user roles"
+  },
+  "parameters.scope.selector.title": {
+    "other": "Add for ..."
+  },
+  "parameters.scope.all": {
+    "other": "All Workspaces"
+  },
+  "parameters.scope.shared": {
+    "other": "Shared Cells only"
+  },
+  "parameters.scope.workspace": {
+    "other": "Workspace %s"
+  },
+  "parameters.custom.add": {
+    "other": "Add custom parameter or action"
+  },
+  "parameters.empty": {
+    "other": "No parameters or actions"
+  },
+  "workspace.statics.home.title": {
+    "other": "Home Page"
+  },
+  "workspace.statics.home.description": {
+    "other": "Welcome page displayed after login"
+  },
+  "workspace.statics.settings.title": {
+    "other": "Admin Console"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Pydio Cells administration dashboard"
+  },
+  "acls.rights.policy.manual": {
+    "other": "Rights set manually"
+  },
+  "acls.rights.advanced.root": {
+    "other": "Whole workspace"
+  }
+}

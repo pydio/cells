@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "MetaData"
+  },
+  "10": {
+    "other": "Existing or new tag"
+  },
+  "11": {
+    "other": "No metadata set, click to add any"
+  },
+  "12": {
+    "other": "Multiple Selection:"
+  },
+  "13": {
+    "other": "check the fields that you want to update, value will be applied to all selected files"
+  },
+  "14": {
+    "other": "Edit meta"
+  },
+  "15": {
+    "other": "Save meta"
+  },
+  "2": {
+    "other": "Sem Etiqueta"
+  },
+  "3": {
+    "other": "Remover Classificação"
+  },
+  "4": {
+    "other": "Baixo"
+  },
+  "5": {
+    "other": "Para Fazer"
+  },
+  "6": {
+    "other": "Pessoal"
+  },
+  "7": {
+    "other": "Trabalho"
+  },
+  "8": {
+    "other": "Importante"
+  },
+  "9": {
+    "other": "No value"
+  }
+}

@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/coreos/dex/storage"
@@ -39,10 +40,10 @@ import (
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
 )
 
@@ -86,9 +87,14 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 
 	claims := claim.Claims{}
 
+	ctx = oidc.ClientContext(ctx, &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: config.GetTLSClientConfig("proxy"),
+		},
+	})
 	provider, err := oidc.NewProvider(ctx, j.IssuerUrl)
 	if err != nil {
-		log.Logger(ctx).Error("verify", zap.Error(err))
+		log.Logger(ctx).Error("cannot init oidc provider", zap.Error(err))
 		return ctx, claims, err
 	}
 
@@ -99,7 +105,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 		// Parse and verify ID Token payload.
 		testToken, err := verifier.Verify(ctx, rawIDToken)
 		if err != nil {
-			log.Logger(ctx).Error("verify", zap.Error(err))
+			log.Logger(ctx).Debug("jwt rawIdToken verify: failed", zap.Error(err))
 			checkErr = err
 		} else {
 			idToken = testToken
@@ -121,19 +127,19 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 	}
 
 	if rsp.State == auth.State_REVOKED {
-		log.Logger(ctx).Error("JWT is verified but it is REVOKED!")
-		return ctx, claim.Claims{}, errors.New("JWT was Revoked")
+		log.Logger(ctx).Error("jwt is verified but it is revoked")
+		return ctx, claim.Claims{}, errors.New("jwt was Revoked")
 	}
 
 	// Extract custom claims
 	if err := idToken.Claims(&claims); err != nil {
-		log.Logger(ctx).Error("verify", zap.Error(err))
+		log.Logger(ctx).Error("cannot extract custom claims from idToken", zap.Error(err))
 		return ctx, claims, err
 	}
 
 	if claims.Name == "" {
 		log.Logger(ctx).Error("verify name")
-		return ctx, claims, errors.New("Cannot find name inside claims")
+		return ctx, claims, errors.New("cannot find name inside claims")
 	}
 
 	ctx = context.WithValue(ctx, claim.ContextKey, claims)

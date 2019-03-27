@@ -27,7 +27,6 @@ import (
 
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro/registry"
-	"github.com/pydio/cells/common/forms"
 )
 
 // Service defines the primary functions a service must be able to answer to for the registry
@@ -41,6 +40,7 @@ type Service interface {
 	Check(context.Context) error
 
 	Name() string
+	Address() string
 	Regexp() *regexp.Regexp
 	Version() string
 	Description() string
@@ -49,7 +49,7 @@ type Service interface {
 	AddDependency(string)
 	SetRunningNodes([]*registry.Node)
 	RunningNodes() []*registry.Node
-	ExposedConfigs() *forms.Form
+	DAO() interface{}
 
 	IsGeneric() bool
 	IsGRPC() bool
@@ -57,11 +57,26 @@ type Service interface {
 
 	RequiresFork() bool
 	ForkStart()
+	MustBeUnique() bool
+	AutoStart() bool
 
 	MatchesRegexp(string) bool
 
 	BeforeInit() error
 	AfterInit() error
+}
+
+// GetServicesByName returns a list of service that match the name given in argument
+func (c *pydioregistry) GetServiceByName(name string) Service {
+	for _, ss := range c.register {
+		if matched, _ := regexp.MatchString(name, ss.Name()); matched {
+			if !ss.IsExcluded() {
+				return ss
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetServicesByName returns a list of service that match the name given in argument
@@ -81,10 +96,6 @@ func (c *pydioregistry) GetServicesByName(name string) []Service {
 
 // ListServices gives the list of all services registered (whether started or not) in the main registry
 func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
-
-	c.Lock()
-	defer c.Unlock()
-
 	var services []Service
 
 	servicesID, ok := goraph.TopologicalSort(c.graph)
@@ -95,6 +106,25 @@ func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
 	for _, serviceID := range servicesID {
 		if service, ok := c.register[serviceID.String()]; ok {
 			if !service.IsExcluded() || (len(withExcluded) > 0 && withExcluded[0]) {
+				services = append(services, service)
+			}
+		}
+	}
+
+	return services, nil
+}
+
+func (c *pydioregistry) ListServicesWithFilter(fn func(Service) bool) ([]Service, error) {
+	var services []Service
+
+	servicesID, ok := goraph.TopologicalSort(c.graph)
+	if !ok {
+		return nil, fmt.Errorf("Could not sort services")
+	}
+
+	for _, serviceID := range servicesID {
+		if service, ok := c.register[serviceID.String()]; ok {
+			if fn(service) {
 				services = append(services, service)
 			}
 		}

@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Metadati"
+  },
+  "10": {
+    "other": "Tag esistente o nuovo"
+  },
+  "11": {
+    "other": "Nessun insieme di metadati, clicca per aggiungerne uno"
+  },
+  "12": {
+    "other": "Selezione multipla:"
+  },
+  "13": {
+    "other": "controlla i campi da aggiornare, il valore verrà applicato a tutti i file selezionati"
+  },
+  "14": {
+    "other": "Modifica i meta"
+  },
+  "15": {
+    "other": "Salva i meta"
+  },
+  "2": {
+    "other": "Nessuna Etichetta"
+  },
+  "3": {
+    "other": "Rimuovi il Punteggio"
+  },
+  "4": {
+    "other": "Basso"
+  },
+  "5": {
+    "other": "Da fare"
+  },
+  "6": {
+    "other": "Personale"
+  },
+  "7": {
+    "other": "Lavoro"
+  },
+  "8": {
+    "other": "Importante"
+  },
+  "9": {
+    "other": "Nessun valore"
+  }
+}

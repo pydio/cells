@@ -33,30 +33,30 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-web"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
-	proto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	net2 "github.com/pydio/cells/common/utils/net"
 )
 
 const (
@@ -75,6 +75,27 @@ type Service interface {
 
 	Init(...ServiceOption)
 	Options() ServiceOptions
+}
+
+func buildForkStartParams(name string) []string {
+	params := []string{
+		"start",
+		"--fork",
+		"--registry", viper.GetString("registry"),
+		"--registry_address", viper.GetString("registry_address"),
+		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
+		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
+		"--broker", viper.GetString("broker"),
+		"--broker_address", viper.GetString("broker_address"),
+	}
+	if viper.GetBool("enable_metrics") {
+		params = append(params, "--enable_metrics")
+	}
+	if viper.GetBool("enable_pprof") {
+		params = append(params, "--enable_pprof")
+	}
+	params = append(params, name)
+	return params
 }
 
 // Service for the pydio app
@@ -116,6 +137,9 @@ type Stopper interface {
 type StopperFunc func() error
 
 func (f StopperFunc) Stop() error {
+	defer func() {
+		recover()
+	}()
 	return f()
 }
 
@@ -131,22 +155,30 @@ func NewService(opts ...ServiceOption) Service {
 		opts: newOptions(opts...),
 	}
 
+	// Checking that the service is not bound to a certain IP
+	peerAddress := config.Get("services", s.opts.Name, "PeerAddress").String("")
+
+	if peerAddress != "" && !net2.PeerAddressIsLocal(peerAddress) {
+		log.Debug("Ignoring this service as peerAddress is not local", zap.String("name", s.opts.Name), zap.String("ip", peerAddress))
+		return nil
+	}
+
 	// Setting context
 	ctx, cancel := context.WithCancel(context.Background())
 
 	ctx = servicecontext.WithServiceName(ctx, s.opts.Name)
 
 	if s.IsGRPC() {
-		ctx = servicecontext.WithServiceColor(ctx, 35)
+		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
 	} else if s.IsREST() {
-		ctx = servicecontext.WithServiceColor(ctx, 32)
+		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
 
 		// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
 		if s.Options().Name != common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL {
 			s.Init(WithWebAuth())
 		}
 	} else {
-		ctx = servicecontext.WithServiceColor(ctx, 34)
+		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
 	}
 
 	// Setting config
@@ -154,7 +186,6 @@ func NewService(opts ...ServiceOption) Service {
 		Context(ctx),
 		Cancel(cancel),
 		Version(common.Version().String()),
-
 		// Adding the config to the context
 		AfterInit(func(_ Service) error {
 			cfg := make(config.Map)
@@ -173,17 +204,10 @@ func NewService(opts ...ServiceOption) Service {
 				cfg.Set("port", p)
 			}
 
-			log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", s.Name()), zap.Any("cfg", cfg))
+			//log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", s.Name()), zap.Any("cfg", cfg))
 			ctx = servicecontext.WithConfig(ctx, cfg)
 
 			s.Init(Context(ctx))
-
-			return nil
-		}),
-
-		AfterInit(func(_ Service) error {
-			// TODO :  WHY IS THAT ?
-			// utils.SaveConfigs()
 
 			return nil
 		}),
@@ -211,17 +235,23 @@ func NewService(opts ...ServiceOption) Service {
 
 			switch driver {
 			case "mysql":
-				d = s.Options().DAO(sql.NewDAO(driver, dsn, prefix))
+				if c := sql.NewDAO(driver, dsn, prefix); c != nil {
+					d = s.Options().DAO(c)
+				}
 			case "sqlite3":
-				d = s.Options().DAO(sql.NewDAO(driver, dsn, prefix))
+				if c := sql.NewDAO(driver, dsn, prefix); c != nil {
+					d = s.Options().DAO(c)
+				}
 			case "boltdb":
-				d = s.Options().DAO(boltdb.NewDAO(driver, dsn, prefix))
+				if c := boltdb.NewDAO(driver, dsn, prefix); c != nil {
+					d = s.Options().DAO(c)
+				}
 			default:
 				return fmt.Errorf("unsupported driver type: %s", driver)
 			}
 
 			if d == nil {
-				return fmt.Errorf("This driver is not implemented for this service")
+				return fmt.Errorf("Storage is not available")
 			}
 
 			ctx = servicecontext.WithDAO(ctx, d)
@@ -232,11 +262,32 @@ func NewService(opts ...ServiceOption) Service {
 
 		}),
 
+		// Adding a check before starting the service to ensure only one is started if unique
+		BeforeStart(func(s Service) error {
+
+			if s.MustBeUnique() {
+				runningServices, err := registry.ListRunningServices()
+				if err != nil {
+					return err
+				}
+
+				for _, r := range runningServices {
+					log.Logger(ctx).Debug("BeforeStart - Check unique ", zap.String("name ", s.Name()), zap.String("name2 ", r.Name()))
+					if s.Name() == r.Name() {
+						return fmt.Errorf("already started")
+					}
+				}
+			}
+
+			return nil
+		}),
+
 		// Adding a check before starting the service to ensure all dependencies are running
 		BeforeStart(func(_ Service) error {
+			log.Logger(ctx).Debug("BeforeStart - Check dependencies")
 
 			for _, d := range s.Options().Dependencies {
-				Retry(func() error {
+				err := Retry(func() error {
 					runningServices, err := registry.ListRunningServices()
 					if err != nil {
 						return err
@@ -248,28 +299,17 @@ func NewService(opts ...ServiceOption) Service {
 						}
 					}
 
-					return fmt.Errorf("not found")
-				})
-			}
+					return fmt.Errorf("dependency %s not found", d.Name)
+				}, 1*time.Second, 30*time.Minute)
 
-			return nil
-		}),
-
-		// Checking the service is running
-		AfterStart(func(_ Service) error {
-			tick := time.Tick(10 * time.Millisecond)
-
-			for {
-				select {
-				case <-ctx.Done():
-					// We have stopped properly - errorr should be logged elsewhere if there was one
-					return nil
-				case <-tick:
-					if s.IsRunning() {
-						return nil
-					}
+				if err != nil {
+					return err
 				}
 			}
+
+			log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
+
+			return nil
 		}),
 	)
 
@@ -320,6 +360,7 @@ func (s *service) Start() {
 		if err := f(s); err != nil {
 			log.Logger(ctx).Error("Could not prepare start ", zap.Error(err))
 			cancel()
+			return
 		}
 	}
 
@@ -328,7 +369,9 @@ func (s *service) Start() {
 			if err := s.Options().MicroInit(s); err != nil {
 				log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
 				cancel()
+				return
 			}
+
 			if err := s.Options().Micro.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
 				cancel()
@@ -342,6 +385,7 @@ func (s *service) Start() {
 			if err := s.Options().WebInit(s); err != nil {
 				log.Logger(ctx).Error("Could not web init ", zap.Error(err))
 				cancel()
+				return
 			}
 			if err := s.Options().Web.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
@@ -367,7 +411,7 @@ func (s *service) ForkStart() {
 	cancel := s.Options().Cancel
 
 	// Do not do anything
-	cmd := exec.CommandContext(ctx, os.Args[0], "start", "--fork", name)
+	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -402,6 +446,7 @@ func (s *service) ForkStart() {
 	if err := cmd.Wait(); err != nil {
 		cancel()
 	}
+
 }
 
 // Start a service and its dependencies
@@ -438,9 +483,9 @@ func (s *service) IsRunning() bool {
 
 // Check the status of the service (globally - not specific to an endpoint)
 func (s *service) Check(ctx context.Context) error {
+
 	running, err := registry.ListRunningServices()
 	if err != nil {
-
 		return err
 	}
 
@@ -493,6 +538,30 @@ func (s *service) Regexp() *regexp.Regexp {
 	return s.Options().Regexp
 }
 
+func (s *service) Address() string {
+	address := "127.0.0.1:0"
+	port := s.Options().Port
+
+	if m := s.Options().Micro; m != nil {
+		address = m.Server().Options().Address
+	}
+
+	if w := s.Options().Web; w != nil {
+		address = w.Options().Address
+	}
+
+	a, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return address
+	}
+
+	if port != "" {
+		address = net.JoinHostPort(a, port)
+	}
+
+	return address
+}
+
 func (s *service) SetExcluded(ex bool) {
 	s.excluded = ex
 }
@@ -506,11 +575,18 @@ func (s *service) SetRunningNodes(nodes []*microregistry.Node) {
 }
 
 func (s *service) RunningNodes() []*microregistry.Node {
-	return s.nodes
+	var nodes []*microregistry.Node
+
+	for _, p := range registry.GetPeers() {
+		for _, ms := range p.GetServices(s.Name()) {
+			nodes = append(nodes, ms.Nodes...)
+		}
+	}
+	return nodes
 }
 
-func (s *service) ExposedConfigs() *forms.Form {
-	return s.Options().ExposedConfigs
+func (s *service) DAO() interface{} {
+	return s.Options().DAO
 }
 
 func (s *service) IsGeneric() bool {
@@ -525,9 +601,22 @@ func (s *service) IsREST() bool {
 	return s.Options().Web != nil
 }
 
+// RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
+func (s *service) AutoStart() bool {
+	ctx := s.Options().Context
+	return s.Options().AutoStart || servicecontext.GetConfig(ctx).Bool("autostart")
+}
+
+// RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	ctx := s.Options().Context
-	return servicecontext.GetConfig(ctx).Bool("fork")
+	return s.Options().Fork || servicecontext.GetConfig(ctx).Bool("fork")
+}
+
+// RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
+func (s *service) MustBeUnique() bool {
+	ctx := s.Options().Context
+	return s.Options().Unique || servicecontext.GetConfig(ctx).Bool("unique")
 }
 
 func (s *service) Client() (string, client.Client) {
@@ -561,14 +650,3 @@ func (s *service) getContext() context.Context {
 
 // RestHandlerBuilder builds a RestHandler
 type RestHandlerBuilder func(service web.Service, defaultClient client.Client) interface{}
-
-type Handler struct {
-	service micro.Service
-}
-
-// Status of the service - If we reach this point, it means that this micro service is correctly up and running
-func (h *Handler) Status(ctx context.Context, in *empty.Empty, out *proto.StatusResponse) error {
-	out.OK = true
-
-	return nil
-}

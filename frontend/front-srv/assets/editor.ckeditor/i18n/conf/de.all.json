@@ -1,0 +1,8 @@
+{
+  "CKEditor": {
+    "other": "CKEditor"
+  },
+  "Wysiwyg HTML Editor, requires separate library to be downloaded.": {
+    "other": "WYSIWYG-Editor für HTML-Dateien. Die Komponente CKEditor muss von einem Drittanbieter heruntergeladen werden."
+  }
+}

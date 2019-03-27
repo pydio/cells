@@ -37,7 +37,7 @@ func TestNewBleveEngine(t *testing.T) {
 
 	Convey("Test Bleve Creation", t, func() {
 
-		p := newPath("docstore.bleve")
+		p := newPath("docstore-tmp.bleve")
 		s, e := NewBleveEngine(p, true)
 		So(e, ShouldBeNil)
 		So(s, ShouldNotBeNil)
@@ -50,7 +50,7 @@ func TestNewBleveEngine(t *testing.T) {
 
 	Convey("Test Bleve Clear", t, func() {
 
-		p := newPath("docstore.bleve")
+		p := newPath("docstore-tmp.bleve")
 		s, e := NewBleveEngine(p, true)
 		So(e, ShouldBeNil)
 		So(s, ShouldNotBeNil)

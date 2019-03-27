@@ -3,7 +3,6 @@ package sql
 
 import (
 	"database/sql"
-	"fmt"
 	"regexp"
 	"time"
 
@@ -105,40 +104,7 @@ var (
 			{regexp.MustCompile(`0001-01-01 00:00:00 UTC`), "1000-01-01 00:00:00"},
 		},
 
-		executeTx: func(db *sql.DB, fn func(sqlTx *sql.Tx) error) error {
-			/*
-				if _, err := db.Exec(`SET GLOBAL connect_timeout=100;;`); err != nil {
-					return err
-				}
-
-				tx, err := db.BeginTx(context.Background(), &sql.TxOptions{
-					Isolation: sql.LevelSerializable,
-				})*/
-			/**/
-
-			tx, err := db.Begin()
-			if err != nil {
-				return err
-			}
-
-			defer tx.Rollback()
-
-			//fmt.Println("Wait forrrrrr")
-			/*
-				if _, err := tx.Exec(`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;`); err != nil {
-					return err
-				}
-			*/
-
-			if err := fn(tx); err != nil {
-				//Error: 1213 SQLSTATE: 40001 (ER_LOCK_DEADLOCK)
-				//Message: Deadlock found when trying to get lock; try restarting transaction
-				fmt.Println(err.Error())
-				return err
-			}
-
-			return tx.Commit()
-		},
+		executeTx: nil,
 		supportsTimezones: true,
 	}
 

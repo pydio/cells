@@ -1,0 +1,176 @@
+{
+  "Allow users to generate public links on files": {
+    "other": "Consenti agli utenti di generare collegamenti pubblici sui file"
+  },
+  "Allow users to generate public links on folders": {
+    "other": "Consenti agli utenti di generare collegamenti pubblici sulle cartelle"
+  },
+  "Allow users to manually choose a hash for the generated links": {
+    "other": "Consenti agli utenti di scegliere manualmente un hash per i collegamenti generati"
+  },
+  "Authorizations": {
+    "other": "Authorizzazioni"
+  },
+  "Avoid labels duplication": {
+    "other": "Evita la duplicazione delle etichette"
+  },
+  "Background Color": {
+    "other": "Colore di Sfondo"
+  },
+  "Create QRCode": {
+    "other": "Crea QRCode"
+  },
+  "Create and display QRCode for shared link": {
+    "other": "Crea e visualizza il QRCode per i link condivisi"
+  },
+  "Disable Folder Sharing": {
+    "other": "Disabilita la condivisione della cartella"
+  },
+  "Disallow users to create shared folders if a workspace already exists with the same label": {
+    "other": "Impedisci agli utenti di creare cartelle condivise se esiste già un workspace con la stessa etichetta (nome)"
+  },
+  "Do not allow users to create public links, only private links (password-protected)": {
+    "other": "Non consentire agli utenti di creare link pubblici, ma solo link privati (protetti da password)"
+  },
+  "Download Button": {
+    "other": "Pulsante di Download"
+  },
+  "Download text": {
+    "other": "Scarica il testo"
+  },
+  "Download text w/ Pass": {
+    "other": "Scarica il testo w / Pass"
+  },
+  "Enable folder sharing": {
+    "other": "Abilitare la condivisione della cartella"
+  },
+  "Enable folder sharing (workspace and minisite)": {
+    "other": "Abilita la condivisione delle cartelle (workspace e minisiti)"
+  },
+  "Enable internal file sharing (sharing with users existing or temporary users)": {
+    "other": "Abilita la condivisione dei file interni (condivisione con utenti esistenti o temporanei)"
+  },
+  "Enable internal folder sharing (sharing with users existing or temporary users)": {
+    "other": "Abilita la condivisione delle cartelle interne (condivisione con utenti esistenti o temporanei)"
+  },
+  "Enable public link generation for files": {
+    "other": "Abilita la generazione di link pubblici per i file"
+  },
+  "Enable public links for files": {
+    "other": "Abilita i link pubblici per i file"
+  },
+  "Files: enable internal sharing": {
+    "other": "File: abilitare la condivisione interna"
+  },
+  "Files: enable public links": {
+    "other": "File: abilita i collegamenti pubblici"
+  },
+  "Folder Sharing": {
+    "other": "Condivisione della cartella"
+  },
+  "Folders: enable internal sharing": {
+    "other": "Cartelle: abilitare la condivisione interna"
+  },
+  "Folders: enable public links": {
+    "other": "Cartelle: abilita i collegamenti pubblici"
+  },
+  "Force External Mailer": {
+    "other": "Forza il Mailer Esterno"
+  },
+  "Fork Events Forwarding": {
+    "other": "Fork Events Forwarding"
+  },
+  "Hash minimum length": {
+    "other": "Lunghezza Minima dell'Hash"
+  },
+  "Hash user-editable": {
+    "other": "Hash modificabili dall'utente"
+  },
+  "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
+    "other": "Se si rilevano problemi di prestazioni durante la modifica dei file in percorsi complessi, provare ad attivare quella. Assicuratevi di quello che fate, perché questo potrebbe innescare numerosi processi php sul server."
+  },
+  "Image used as a button for downloading the file": {
+    "other": "Immagine usata come pulsante per il download del file"
+  },
+  "Internal Sharing": {
+    "other": "Condivisione interna"
+  },
+  "Link Generation": {
+    "other": "Generazione dei Link"
+  },
+  "Mandatory prefix for users created temporary users login": {
+    "other": "Prefisso obbligatorio per la creazione del login degli utenti temporanei"
+  },
+  "Maximum download limit for file, 0 = unlimited": {
+    "other": "Limite massimo del download per ciascun file; 0 = senza limite"
+  },
+  "Maximum file download limit": {
+    "other": "Limite massimo del download per file"
+  },
+  "Maximum file expiration limit": {
+    "other": "Limite massimo di scadenza per file"
+  },
+  "Maximum share expiration limit for file, 0 = unlimited": {
+    "other": "Limite massimo di scadenza per file condivisi; 0 = senza limite"
+  },
+  "Minimum length of the generated hash": {
+    "other": "Lunghezza minima dell'hash generato"
+  },
+  "Minisite": {
+    "other": "Minisito"
+  },
+  "Minisites and Workspaces": {
+    "other": "Minisiti e workspace"
+  },
+  "Minisites only": {
+    "other": "Solo minisiti"
+  },
+  "Page Title": {
+    "other": "Titolo della Pagina"
+  },
+  "Set password mandatory": {
+    "other": "Impostazione obbligatoria della password"
+  },
+  "Share Center actions and hooks": {
+    "other": "Centro Condivisione: azioni e riferimenti"
+  },
+  "Share page background color.": {
+    "other": "Condividi il colore di sfondo della pagina."
+  },
+  "Share page text color.": {
+    "other": "Condividi il colore del testo della pagina."
+  },
+  "Share page text shadow color.": {
+    "other": "Condividi il colore dell'ombreggiatura del testo della pagina."
+  },
+  "Shared users configurations": {
+    "other": "Condivisione delle Configurazioni degli Utenti"
+  },
+  "Sharing Features": {
+    "other": "Condivisione delle funzioni"
+  },
+  "Text Color": {
+    "other": "Colore del Testo"
+  },
+  "Text Shadow": {
+    "other": "Ombreggiatura del Testo"
+  },
+  "Tmp users prefix": {
+    "other": "Prefisso degli Utenti Temp"
+  },
+  "Use Rewrite Rule": {
+    "other": "Utilizzare la regola di riscrittura"
+  },
+  "Use external mailer for invitations": {
+    "other": "Utilizza il mailer esterno per gli inviti"
+  },
+  "Use web server RewriteEngine mechanism to generate prettier URLs": {
+    "other": "Usa il meccanismo RewriteEngine del web server per generare URL migliori"
+  },
+  "Weblink Page": {
+    "other": "Pagina dei Weblink"
+  },
+  "Workspaces only": {
+    "other": "Solo workspace"
+  }
+}

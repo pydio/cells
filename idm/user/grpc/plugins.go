@@ -26,6 +26,7 @@ import (
 	"encoding/base64"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
@@ -33,11 +34,14 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/idm/user"
+	"github.com/pydio/cells/scheduler/actions"
 )
 
 const (
@@ -46,24 +50,38 @@ const (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("Users persistence layer"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            InitDefaults,
-			},
-		}),
-		service.WithStorage(user.NewDAO, "idm_user"),
-		service.WithMicro(func(m micro.Service) error {
-			idm.RegisterUserServiceHandler(m.Options().Server, new(Handler))
 
-			return nil
-		}),
-	)
+	actions.GetActionsManager().Register(DeleteUsersActionName, func() actions.ConcreteAction {
+		return &DeleteUsersAction{}
+	})
+
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("Users persistence layer"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            InitDefaults,
+				},
+			}),
+			service.WithStorage(user.NewDAO, "idm_user"),
+			service.WithMicro(func(m micro.Service) error {
+				idm.RegisterUserServiceHandler(m.Options().Server, new(Handler))
+
+				// Register a cleaner for removing a workspace when there are no more ACLs on it.
+				dao := servicecontext.GetDAO(m.Options().Context).(user.DAO)
+				cleaner := &RolesCleaner{Dao: dao}
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
+					return err
+				}
+
+				return nil
+			}),
+		)
+	})
 }
 
 func InitDefaults(ctx context.Context) error {
@@ -104,6 +122,17 @@ func InitDefaults(ctx context.Context) error {
 			if err2 := dao.AddPolicies(false, newUser.Uuid, builder.Policies()); err2 != nil {
 				return err2
 			}
+			// Create user role
+			service.Retry(func() error {
+				roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+				_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
+					Uuid:     newUser.Uuid,
+					Label:    newUser.Login + " role",
+					UserRole: true,
+					Policies: builder.Policies(),
+				}})
+				return e
+			}, 8*time.Second, 50*time.Second)
 		}
 	}
 
@@ -126,6 +155,17 @@ func InitDefaults(ctx context.Context) error {
 		if err2 := dao.AddPolicies(false, newAnon.Uuid, builder.Policies()); err2 != nil {
 			return err2
 		}
+		// Create user role
+		service.Retry(func() error {
+			roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+			_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
+				Uuid:     newAnon.Uuid,
+				Label:    newAnon.Login + " role",
+				UserRole: true,
+				Policies: builder.Policies(),
+			}})
+			return e
+		}, 8*time.Second, 50*time.Second)
 	}
 
 	return nil

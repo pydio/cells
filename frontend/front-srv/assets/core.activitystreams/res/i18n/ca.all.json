@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Notificacions"
+  },
+  "10": {
+    "other": "Activitat de la carpeta"
+  },
+  "11": {
+    "other": "Activitat de l'arxiu"
+  },
+  "12": {
+    "other": "Depenent del seu navegador, això demanarà un permís específic. Per desactivar, anar a través de les preferències del navegador i excepcions. Si ja ha activat aquesta funció, probablement no passarà res."
+  },
+  "13": {
+    "other": "El seu navegador pareix no suportar de moment les notificacions d'escriptori."
+  },
+  "14": {
+    "other": "No alerts"
+  },
+  "15": {
+    "other": "Notifications about files that you monitor will appear here"
+  },
+  "2": {
+    "other": "Font de notificacions"
+  },
+  "3": {
+    "other": "Alertes"
+  },
+  "4": {
+    "other": "Notificacions"
+  },
+  "5": {
+    "other": "Tots els events"
+  },
+  "6": {
+    "other": "Anar a ..."
+  },
+  "7": {
+    "other": "Ometre"
+  },
+  "8": {
+    "other": "No hi ha alertes"
+  },
+  "9": {
+    "other": "Activitat del repositori"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "1": {
+    "other": "Lähteteksti redaktor"
+  },
+  "10": {
+    "other": "Treppimise laius"
+  },
+  "2": {
+    "other": "CodeMirror Syntax Highlighter"
+  },
+  "3": {
+    "other": "Automaatne reavahetus"
+  },
+  "3b": {
+    "other": "Automaatne reavahetus sisse/välja"
+  },
+  "4": {
+    "other": "Reanumbrid"
+  },
+  "5": {
+    "other": "Lülita reanumbrid sisse/välja"
+  },
+  "6": {
+    "other": "Hüppa reale"
+  },
+  "7": {
+    "other": "Tühista"
+  },
+  "8": {
+    "other": "Uuesti"
+  },
+  "9": {
+    "other": "Tekstiotsing"
+  }
+}

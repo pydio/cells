@@ -27,20 +27,21 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/errors"
+	"github.com/patrickmn/go-cache"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/patrickmn/go-cache"
 	"github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/broker/activity/render"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	activity2 "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/data/versions"
 )
 
@@ -54,7 +55,7 @@ func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.Cha
 	var description string
 	if version.OwnerUuid != "" && version.Event != nil {
 		ac, _ := activity.DocumentActivity(version.OwnerUuid, version.Event)
-		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, utils.UserLanguageFromContext(ctx, true))
+		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, i18n.UserLanguageFromContext(ctx, config.Default(), true))
 	} else {
 		description = "N/A"
 	}
@@ -69,7 +70,7 @@ func NewChangeLogFromNode(ctx context.Context, node *tree.Node, event *tree.Node
 	c.MTime = node.MTime
 	c.Size = node.Size
 	c.Event = event
-	c.OwnerUuid, _ = utils.FindUserNameInContext(ctx)
+	c.OwnerUuid, _ = permissions.FindUserNameInContext(ctx)
 	return c
 
 }
@@ -249,7 +250,7 @@ func (h *Handler) findPolicyForNode(ctx context.Context, node *tree.Node) *tree.
 
 	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	r, e := dc.GetDocument(ctx, &docstore.GetDocumentRequest{
-		StoreID:    "versioningPolicies",
+		StoreID:    common.DOCSTORE_ID_VERSIONING_POLICIES,
 		DocumentID: policyName,
 	})
 	if e != nil || r.Document == nil {

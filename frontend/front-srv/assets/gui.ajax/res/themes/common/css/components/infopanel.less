@@ -1,0 +1,123 @@
+#info_panel{
+
+  position: absolute;
+  z-index: 0;
+  width: @infopanel_width;
+  top: 100px;
+  bottom: 0;
+  transition: @bezier_transition;
+  overflow-y: auto;
+
+  font-weight: 400;
+  .panelCard{
+    margin: 10px !important;
+    margin-bottom: 0;
+    .panelHeader{
+      padding: 24px 16px 16px;
+      font-size: 19px;
+      font-weight: 400;
+    }
+    .panelContent{
+      background-color: transparent;
+      padding-bottom: 0;
+      border-radius: 2px 2px 0 0 ;
+      > div{
+        padding: 0 16px;
+        &.richPreviewContainer{
+          padding: 0;
+          overflow: hidden;
+        }
+      }
+      div.mimefont-container{
+        display: flex;
+        text-align: center;
+        font-size: 60px;
+        div.mimefont{
+          margin: auto;
+        }
+      }
+      div.covering-bg-preview{
+        border-radius: 2px 2px 0 0 ;
+      }
+
+      .infoPanelRow{
+        &.no-value{
+          display:none;
+        }
+        padding-bottom: 12px;
+        .infoPanelLabel{
+          color: rgba(0,0,0,0.33);
+          font-weight: 500;
+        }
+        .infoPanelValue{
+
+        }
+      }
+
+    }
+    .panelActions{
+      padding: 8px;
+      text-align: right;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .primaryToolbar{
+      padding: 10px !important;
+      align-items: flex-start;
+      justify-content: flex-end;
+      border-radius: 0 0 2px 2px;
+      &.empty-toolbar{
+        display:none;
+      }
+      .mui-flat-button{
+        min-width: 0;
+        margin: 0 1px;
+        .mui-flat-button-label{
+          color: white;
+          display: block;
+          padding: 0 5px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          line-height: 19px;
+          span.button-icon{
+            span.button-icon-icon {
+              display: block;
+              font-size: 17px;
+              height: 24px;
+              line-height: 20px;
+            }
+            span.button-icon-label{
+              font-size: 13px;
+            }
+          }
+        }
+      }
+      .action-open_with{
+        button{
+          min-width: 0 !important;
+          > div > span{
+            padding-right: 4px !important;
+            padding-left: 4px !important;
+            > span{
+              .button-icon{
+                display:none;
+              }
+              .icon-caret-down{
+                color: white;
+              }
+            }
+          }
+        }
+      }
+      .mui-menu{
+        position: absolute;
+        width: 230px;
+        right: 10px;
+        z-index: 2;
+        .mui-subheader{
+          height: 0;
+        }
+      }
+    }
+  }
+
+}

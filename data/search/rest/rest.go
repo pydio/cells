@@ -27,12 +27,15 @@ import (
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 
+	"context"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -70,7 +73,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	var searchRequest tree.SearchRequest
 	if err := req.ReadEntity(&searchRequest); err != nil {
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 
@@ -111,8 +114,8 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 				if len(passedWorkspaceSlug) > 0 && w.Slug != passedWorkspaceSlug {
 					continue
 				}
-				if len(w.RootNodes) > 1 {
-					for _, root := range w.RootNodes {
+				if len(w.RootUUIDs) > 1 {
+					for _, root := range w.RootUUIDs {
 						prefixes = append(prefixes, w.Slug+"/"+root)
 					}
 				} else {
@@ -123,13 +126,14 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		query.PathPrefix = []string{}
 
 		var e error
+		ctx = context.WithValue(ctx, views.CtxKeepAccessListKey{}, true)
 		for _, p := range prefixes {
 			rootNode := &tree.Node{Path: p}
 			ctx, rootNode, e = inputFilter(ctx, rootNode, "search-"+p)
 			if e != nil {
-				return e
+				continue
 			}
-			log.Logger(ctx).Info("Filtered Node & Context", zap.String("path", rootNode.Path))
+			log.Logger(ctx).Debug("Filtered Node & Context", zap.String("path", rootNode.Path))
 			nodesPrefixes[rootNode.Path] = p
 			query.PathPrefix = append(query.PathPrefix, rootNode.Path)
 		}
@@ -150,7 +154,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			}
 			respNode := resp.Node
 			for r, p := range nodesPrefixes {
-				if strings.HasPrefix(respNode.Path, r) {
+				if strings.HasPrefix(respNode.Path, r+"/") {
 					log.Logger(ctx).Debug("Response", zap.String("node", respNode.Path))
 					_, filtered, err := outputFilter(ctx, respNode, "search-"+p)
 					if err != nil {
@@ -174,7 +178,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 
 	if err != nil {
 		log.Logger(ctx).Error("Query", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 

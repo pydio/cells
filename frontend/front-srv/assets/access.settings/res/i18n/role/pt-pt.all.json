@@ -1,0 +1,173 @@
+{
+  "1": {
+    "other": "Editor de Papel"
+  },
+  "10": {
+    "other": "Utilize os selectores abaixo para seleccionar as acções que pretende desactivar para os utilizadores com este papel. Pode escolher desactivar a acção para todos os repositórios, ou apenas para um em específico."
+  },
+  "11": {
+    "other": "Identificador de Plugin"
+  },
+  "12": {
+    "other": "seleccione um plugin..."
+  },
+  "12a": {
+    "other": "seleccione uma acção..."
+  },
+  "12b": {
+    "other": "seleccione um parâmetro..."
+  },
+  "12c": {
+    "other": "seleccione uma ou todas as Áreas de Trabalho..."
+  },
+  "12d": {
+    "other": "Todas as Áreas de Trabalho"
+  },
+  "12e": {
+    "other": "Áreas de Trabalho partilhadas"
+  },
+  "13": {
+    "other": "Nome da Acção"
+  },
+  "14": {
+    "other": "Âmbito do Repositório"
+  },
+  "15": {
+    "other": "Adicionar Acção"
+  },
+  "16": {
+    "other": "Utilize os seleccionadores abaixo para seleccionar os parâmetros que pretende definir para os utilizadores com este papel. Pode ser aplicado para uma ou todas as Áreas de Trabalho em simultâneo, porém pode depender do contexto do plugin."
+  },
+  "17": {
+    "other": "Nome do Parâmetro"
+  },
+  "18": {
+    "other": "Adicionar parâmetro"
+  },
+  "19": {
+    "other": "Existem alterações não gravadas, tem a certeza de que pretende fechar?"
+  },
+  "2": {
+    "other": "Editor de Papel"
+  },
+  "20": {
+    "other": "Papel no Repositório actualizado com sucesso"
+  },
+  "21": {
+    "other": "ID de Utilizador"
+  },
+  "22": {
+    "other": "Perfil Especial"
+  },
+  "23": {
+    "other": "Repositório Pré-Definido"
+  },
+  "24": {
+    "other": "Papéis (use as teclas Ctrl/Cmd para seleccionar vários)"
+  },
+  "25": {
+    "other": "Alterar Palavra-Chave"
+  },
+  "26": {
+    "other": "Bloquear Utilizador"
+  },
+  "27": {
+    "other": "Reactivar utilizador"
+  },
+  "28": {
+    "other": "Forçar Mudança de Palavra-Chave"
+  },
+  "28b": {
+    "other": "Cancel password change"
+  },
+  "29": {
+    "other": "Introduza uma nova Palavra-Chave para este utilizador"
+  },
+  "3": {
+    "other": "Informações de Conta"
+  },
+  "30": {
+    "other": "Confirmar"
+  },
+  "31": {
+    "other": "ID de Papel"
+  },
+  "32": {
+    "other": "Etiqueta de Papel"
+  },
+  "33": {
+    "other": "Aplicar automaticamente a todos os utilizadores com o perfil..."
+  },
+  "34": {
+    "other": "ID de Grupo"
+  },
+  "35": {
+    "other": "Etiqueta de Grupo"
+  },
+  "36": {
+    "other": "bloqueado"
+  },
+  "37": {
+    "other": "Negar"
+  },
+  "38": {
+    "other": "herdado"
+  },
+  "39": {
+    "other": "Desactivar"
+  },
+  "4": {
+    "other": "ACL"
+  },
+  "40": {
+    "other": "Activar"
+  },
+  "41": {
+    "other": "Remover"
+  },
+  "42": {
+    "other": "Informação personalizada de papel"
+  },
+  "43": {
+    "other": "Select one or more"
+  },
+  "44": {
+    "other": "Plugins Parameters Fine-tuning"
+  },
+  "45": {
+    "other": "Access Control List"
+  },
+  "46": {
+    "other": "Disabled Actions"
+  },
+  "47": {
+    "other": "Search Roles"
+  },
+  "5": {
+    "other": "Acções"
+  },
+  "6": {
+    "other": "Parâmetros"
+  },
+  "7": {
+    "other": "Informação Interna"
+  },
+  "8": {
+    "other": "Informação Pessoal"
+  },
+  "9": {
+    "other": "Seleccione as Áreas de Trabalho a que este papel tem acesso. Use 'Negar' para substituir as definições estabelecidas por um papel anterior ou simplesmente para negar acesso à Área de Trabalho em questão mesmo com permissões herdadas pelos papéis."
+  },
+  "dashboard.description": {
+    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+  },
+  "dashboard.technical.hide": {
+    "other": "Hide technical roles"
+  },
+  "dashboard.technical.show": {
+    "other": "Show technical roles"
+  },
+  "last_update": {
+    "other": "Last updated"
+  }
+}

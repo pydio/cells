@@ -1,0 +1,80 @@
+{
+  "1": {
+    "other": "%s Datei(en) in die Warteschlange gestellt"
+  },
+  "10": {
+    "other": ""
+  },
+  "11": {
+    "other": "Hochladen"
+  },
+  "12": {
+    "other": "Liste leeren"
+  },
+  "13": {
+    "other": "Ordner erstellt"
+  },
+  "14": {
+    "other": "In Bearbeitung"
+  },
+  "15": {
+    "other": "Ausstehend"
+  },
+  "16": {
+    "other": "Zuletzt hochgeladen"
+  },
+  "17": {
+    "other": "Zuletzt hochgeladene ausblenden"
+  },
+  "options.existing": {
+    "other": "Bei Dateien mit gleichem Namen:"
+  },
+  "options.existing.alert": {
+    "other": "Hochladung stoppen und nachfragen"
+  },
+  "options.existing.folders": {
+    "other": "Ordnern umbenennen dann Dataien"
+  },
+  "options.existing.merge": {
+    "other": "Nur Dateien umbenennen (Ordner zusammenführen)"
+  },
+  "2": {
+    "other": "Lade %s Datei(en) hoch"
+  },
+  "options.existing.overwrite": {
+    "other": "Bestehende Datei still überschreiben"
+  },
+  "22": {
+    "other": "Optionen"
+  },
+  "23": {
+    "other": "Fehler"
+  },
+  "3": {
+    "other": "Sie dürfen hier keine Dateien hochladen"
+  },
+  "4": {
+    "other": "Dateien auswählen"
+  },
+  "5": {
+    "other": "Ordner auswählen"
+  },
+  "6": {
+    "other": "Erstellung des Ordners kann nicht abgebrochen werden"
+  },
+  "7": {
+    "other": "Hochladen von Dateien..."
+  },
+  "8": {
+    "other": "Ihr Browser unterstützt das Hochladen von Ordnern nicht"
+  },
+  "9": {
+    "other": ""
+  },
+  "analyze.step": {
+    "other": "Dateien und Ordner werden für den Upload vorbereitet..."
+  },
+  "drophere": {
+    "other": "Dateien hier ablegen"
+  }
+}

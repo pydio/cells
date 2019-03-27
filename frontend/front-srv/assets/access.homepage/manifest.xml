@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ajxpdriver id="access.homepage" enabled="always" label="CONF_MESSAGE[Welcome Page]" description="CONF_MESSAGE[Welcome Page displaying a list of workspaces]"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+	<client_settings icon="plug/access.homepage/share.png">
+		<resources>
+			<i18n namespace="user_home" remote="plug/access.homepage/res/i18n" />
+            <js className="WelcomeComponents" file="plug/access.homepage/res/build/WelcomeComponents.js" depends="React,PydioComponents,PydioWorkspaces,PydioForm,PydioActivityStreams"/>
+            <css file="plug/access.homepage/res/home.css" autoload="true"/>
+		</resources>
+        <node_provider ajxpClass="EmptyNodeProvider" ajxpOptions="{}"/>
+	</client_settings>
+    <server_settings>
+        <global_param name="URL_APP_IOSAPPSTORE" type="string" expose="true"
+                      label="CONF_MESSAGE[iOS App URL]" description="CONF_MESSAGE[URL of the iOS application]" default="https://itunes.apple.com/us/app/pydiopro/id1109419882?mt=8"/>
+        <global_param name="URL_APP_ANDROID" type="string" expose="true"
+                      label="CONF_MESSAGE[Android App URL]" description="CONF_MESSAGE[URL of the Android application]" default="https://play.google.com/store/apps/details?id=com.pydio.android.pydioPro"/>
+        <global_param name="URL_APP_SYNC_WIN" type="string" expose="true"
+                      label="CONF_MESSAGE[Windows PydioSync URL]" description="CONF_MESSAGE[URL of the windows sync application]" default="https://pydio.com/en/get-pydio/downloads/pydiosync-desktop-app/"/>
+        <global_param name="URL_APP_SYNC_MAC" type="string" expose="true"
+                      label="CONF_MESSAGE[Mac PydioSync URL]" description="CONF_MESSAGE[URL of the mac sync application]" default="https://pydio.com/en/get-pydio/downloads/pydiosync-desktop-app/"/>
+    </server_settings>
+	<registry_contributions>
+		<client_configs>
+            <template_part ajxpId="orbit_content" theme="material" namespace="WelcomeComponents" component="HomeDashboard" dependencies="PydioComponents" props='{"rootId":"home_account_pane","style": {}}'/>
+        </client_configs>
+	</registry_contributions>
+</ajxpdriver>

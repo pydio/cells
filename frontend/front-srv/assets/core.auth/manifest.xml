@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="core.auth" enabled="always" label="CONF_MESSAGE[Authentication]" description="CONF_MESSAGE[Options applied to all auth drivers]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <client_settings>
+        <resources>
+            <i18n namespace="core_auth" remote="plug/core.auth/i18n"/>
+        </resources>
+    </client_settings>
+	<server_settings>
+		<global_param name="PASSWORD_MINLENGTH" group="CONF_MESSAGE[Security]" type="integer" label="CONF_MESSAGE[Password length]" description="CONF_MESSAGE[Minimum number of characters required for passwords in the application]" mandatory="true" default="8" expose="true"/>
+		<global_param name="SECURE_LOGIN_FORM" group="CONF_MESSAGE[Security]"  type="boolean" label="CONF_MESSAGE[Secure Login Form]" description="CONF_MESSAGE[Raise the security of the login form by disabling autocompletion and remember me feature]" mandatory="true" default="false" expose="true"/>
+		<global_param name="ENABLE_FORGOT_PASSWORD" group="CONF_MESSAGE[Security]"  type="boolean" label="CONF_MESSAGE[Enable Forgot Password]" description="CONF_MESSAGE[Add a Forgot Password link at the bottom of the login form]" mandatory="true" default="false" expose="true"/>
+		<global_param name="FORGOT_PASSWORD_ACTION" group="CONF_MESSAGE[Security]"  type="string" label="CONF_MESSAGE[Forgot Password Action]" description="CONF_MESSAGE[Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.]" mandatory="true" default="reset-password-ask" expose="true"/>
+
+        <global_param name="USER_CREATE_CELLS" group="CONF_MESSAGE[Delegation]"  type="boolean" label="CONF_MESSAGE[Let user create new cells]" description="CONF_MESSAGE[Whether users can create their own cells or not]"  mandatory="false" default="true" expose="true"/>
+        <global_param name="USER_CREATE_USERS" group="CONF_MESSAGE[Delegation]" type="boolean" label="CONF_MESSAGE[Create external users]" description="CONF_MESSAGE[Allow the users to create a new user when sharing a folder]" mandatory="false" default="true" expose="true"/>
+        <global_param name="NEWUSERS_EDIT_PARAMETERS" group="CONF_MESSAGE[Delegation]" type="string" label="CONF_MESSAGE[External users parameters]" description="CONF_MESSAGE[List of parameters to be edited when creating a new shared user.]" mandatory="false" default="email,displayName,lang" expose="true"/>
+        <global_param name="SKIP_USER_HISTORY" expose="true" group="CONF_MESSAGE[Delegation]"  type="boolean" label="CONF_MESSAGE[Skip user history]" description="CONF_MESSAGE[Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)]"  mandatory="false" default="true"/>
+
+        <global_param group="CONF_MESSAGE[Users Directory Listing]" description="CONF_MESSAGE[Maximum number of users displayed in the users autocompleter]" label="CONF_MESSAGE[Users completer limit]" name="USERS_LIST_COMPLETE_LIMIT" type="integer" default="40"/>
+        <global_param group="CONF_MESSAGE[Users Directory Listing]" description="CONF_MESSAGE[Minimum number of characters to trigger the auto completion feature]" label="CONF_MESSAGE[Users completer min chars]" name="USERS_LIST_COMPLETE_MIN_CHARS" type="integer" default="0" expose="true"/>
+        <global_param group="CONF_MESSAGE[Users Directory Listing]" description="CONF_MESSAGE[Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.]" label="CONF_MESSAGE[Make regexp mandatory]" name="USERS_LIST_REGEXP_MANDATORY" type="boolean" default="false" expose="true"/>
+
+    </server_settings>
+</plugin>

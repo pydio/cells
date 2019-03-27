@@ -23,17 +23,20 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
 )
 
 var (
@@ -42,31 +45,36 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(Name),
-		service.Tag(common.SERVICE_TAG_BROKER),
-		service.Description("MailSender Service"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            RegisterQueueJob,
-			},
-		}),
-		service.ExposedConfigs(ExposedConfigs),
-		service.WithMicro(func(m micro.Service) error {
-			ctx := m.Options().Context
-			config := servicecontext.GetConfig(ctx)
-			handler, err := NewHandler(ctx, config)
-			if err != nil {
-				log.Logger(ctx).Error("Init handler", zap.Error(err))
-				return err
-			}
-			log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
-			mailer.RegisterMailerServiceHandler(m.Options().Server, handler)
-			return nil
-		}),
-	)
+	plugins.Register(func() {
+
+		config.RegisterExposedConfigs(Name, ExposedConfigs)
+
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Description("MailSender Service"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Unique(true),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            RegisterQueueJob,
+				},
+			}),
+			service.WithMicro(func(m micro.Service) error {
+				ctx := m.Options().Context
+				conf := servicecontext.GetConfig(ctx)
+				handler, err := NewHandler(ctx, conf)
+				if err != nil {
+					log.Logger(ctx).Error("Init handler", zap.Error(err))
+					return err
+				}
+				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
+				mailer.RegisterMailerServiceHandler(m.Options().Server, handler)
+				return nil
+			}),
+		)
+	})
 }
 
 // RegisterQueueJob adds a job to the scheduler to regularly flush the queue
@@ -93,9 +101,10 @@ func RegisterQueueJob(ctx context.Context) error {
 			},
 		},
 	}
-
-	cliJob := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
-	_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
-	return e
+	return service.Retry(func() error {
+		cliJob := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		return e
+	}, 5*time.Second, 20*time.Second)
 
 }

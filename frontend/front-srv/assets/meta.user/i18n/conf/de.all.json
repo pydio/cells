@@ -1,0 +1,74 @@
+{
+  "Additional info": {
+    "other": "Zusätzliche Info"
+  },
+  "Color labels": {
+    "other": "Schlagwörter"
+  },
+  "Column visibility": {
+    "other": "Sichtbarkeit"
+  },
+  "Created by...": {
+    "other": "Erstellt von..."
+  },
+  "Depending on the field type. Currently used for selection only": {
+    "other": "Abhängig vom Typ des Feldes. Aktuell nur für Wertelisten verwendet."
+  },
+  "Field ID": {
+    "other": "Feld-ID"
+  },
+  "Field Type": {
+    "other": "Typ"
+  },
+  "Hidden": {
+    "other": "Versteckt"
+  },
+  "Hidden file used inside folders to save meta data": {
+    "other": "Versteckte Datei, die im Ordner verwendet wird, um Metadaten zu speichern"
+  },
+  "Id of fiels, use standard characters here.": {
+    "other": "ID des Feldes (keine Umlaute möglich)."
+  },
+  "Label": {
+    "other": "Titel"
+  },
+  "Label of the field, human friendly": {
+    "other": "Titel des Feldes, der in der Oberfläche angezeigt wird."
+  },
+  "Last updated by...": {
+    "other": "Zuletzt geändert von..."
+  },
+  "Long text": {
+    "other": "Langer Text"
+  },
+  "Meta File": {
+    "other": "Datei mit Metadaten"
+  },
+  "Selection (set choices in Additional Info)": {
+    "other": "Werteliste (Auswahlmöglichkeiten bei 'Zusätzliche Info' setzen)"
+  },
+  "Set default visibility.": {
+    "other": "Setzt die standardmäßige Sichtbarkeit eines Feldes."
+  },
+  "Short text": {
+    "other": "Kurzer Text"
+  },
+  "Simple metadata implementation stored in a hidden file.": {
+    "other": "Speichert zusätzliche Metadaten in versteckten Dateien."
+  },
+  "Stars Rating": {
+    "other": "Bewertung"
+  },
+  "Tags (extensible sets of values)": {
+    "other": "Tags (erweiterbare Werteliste)"
+  },
+  "Text Metadata": {
+    "other": "Zusätzliche Metadaten in Datei"
+  },
+  "Type of field": {
+    "other": "Der Typ des Feldes."
+  },
+  "Visible": {
+    "other": "Sichtbar"
+  }
+}

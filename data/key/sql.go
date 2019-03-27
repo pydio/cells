@@ -21,14 +21,19 @@
 package key
 
 import (
+	"context"
+	"fmt"
 	"sync/atomic"
 
 	"github.com/gobuffalo/packr"
 	"github.com/micro/go-micro/errors"
-	"github.com/pydio/cells/common/config"
+	"github.com/rubenv/sql-migrate"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
-	migrate "github.com/rubenv/sql-migrate"
 )
 
 var (
@@ -51,7 +56,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
@@ -80,19 +85,36 @@ func (s *sqlimpl) Init(options config.Map) error {
 }
 
 func (h *sqlimpl) InsertNode(nodeUuid string, nonce []byte, blockSize int32) error {
-	rows, err := h.GetStmt("enc_nodes_select").Query(nodeUuid)
+	stmt := h.GetStmt("enc_nodes_select")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	rows, err := stmt.Query(nodeUuid)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
+	defer rows.Close()
+
 	if rows.Next() {
-		_, err = h.GetStmt("enc_nodes_update").Exec(
+		stmt := h.GetStmt("enc_nodes_update")
+		if stmt == nil {
+			return fmt.Errorf("Unknown statement")
+		}
+		log.Logger(context.Background()).Debug("Updating Material for node "+nodeUuid, zap.Any("nonce", string([]byte(nonce))), zap.Any("s", blockSize))
+		_, err = stmt.Exec(
 			nonce,
 			blockSize,
 			nodeUuid,
 		)
 	} else {
-		_, err = h.GetStmt("enc_nodes_insert").Exec(
+		stmt := h.GetStmt("enc_nodes_insert")
+		if stmt == nil {
+			return fmt.Errorf("Unknown statement")
+		}
+		log.Logger(context.Background()).Debug("Inserting Material for node "+nodeUuid, zap.Any("nonce", string([]byte(nonce))), zap.Any("s", blockSize))
+		_, err = stmt.Exec(
 			nodeUuid,
 			nonce,
 			blockSize,
@@ -102,7 +124,12 @@ func (h *sqlimpl) InsertNode(nodeUuid string, nonce []byte, blockSize int32) err
 }
 
 func (h *sqlimpl) DeleteNode(nodeUuid string) error {
-	_, err := h.GetStmt("enc_nodes_delete").Exec(
+	stmt := h.GetStmt("enc_nodes_delete")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(
 		nodeUuid,
 	)
 	return err
@@ -110,7 +137,12 @@ func (h *sqlimpl) DeleteNode(nodeUuid string) error {
 
 func (h *sqlimpl) SetNodeKey(nodeUuid string, ownerId string, userId string, keyData []byte) error {
 
-	_, err := h.GetStmt("enc_node_keys_insert").Exec(
+	stmt := h.GetStmt("enc_node_keys_insert")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(
 		nodeUuid,
 		ownerId,
 		userId,
@@ -121,7 +153,12 @@ func (h *sqlimpl) SetNodeKey(nodeUuid string, ownerId string, userId string, key
 
 func (h *sqlimpl) GetNodeKey(node string, user string) (*encryption.NodeKey, error) {
 
-	rows, err := h.GetStmt("selectNodeKey").Query(
+	stmt := h.GetStmt("selectNodeKey")
+	if stmt == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+
+	rows, err := stmt.Query(
 		node,
 		user,
 	)
@@ -140,12 +177,23 @@ func (h *sqlimpl) GetNodeKey(node string, user string) (*encryption.NodeKey, err
 		}
 		return &k, nil
 	}
-	return nil, rows.Err()
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, errors.NotFound("node.key.manager", "key not found for %s", node)
 }
 
 func (h *sqlimpl) DeleteNodeKey(node string, user string) error {
 
-	_, err := h.GetStmt("enc_node_keys_delete").Exec(
+	stmt := h.GetStmt("enc_node_keys_delete")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(
 		node, user,
 	)
 	return err
@@ -153,7 +201,12 @@ func (h *sqlimpl) DeleteNodeKey(node string, user string) error {
 
 func (h *sqlimpl) DeleteNodeSharedKey(node string, ownerId string, userId string) error {
 
-	_, err := h.GetStmt("enc_node_keys_deleteShared").Exec(
+	stmt := h.GetStmt("enc_node_keys_deleteShared")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(
 		node, ownerId, userId,
 	)
 	return err
@@ -161,7 +214,12 @@ func (h *sqlimpl) DeleteNodeSharedKey(node string, ownerId string, userId string
 
 func (h *sqlimpl) DeleteNodeAllSharedKey(node string, ownerId string) error {
 
-	_, err := h.GetStmt("enc_node_keys_deleteAllShared").Exec(
+	stmt := h.GetStmt("enc_node_keys_deleteAllShared")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(
 		node, ownerId,
 	)
 	return err

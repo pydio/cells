@@ -22,14 +22,15 @@
 package dao
 
 import (
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 )
 
 // DAO interface definition
 type DAO interface {
-	Init(config.Map) error
+	Init(common.ConfigValues) error
 	GetConn() Conn
 	SetConn(Conn)
+	CloseConn() error
 	Driver() string
 
 	// Prefix is used to prevent collision between table names
@@ -56,7 +57,7 @@ func NewDAO(conn Conn, driver string, prefix string) DAO {
 	}
 }
 
-func (h *handler) Init(c config.Map) error {
+func (h *handler) Init(c common.ConfigValues) error {
 	return nil
 }
 
@@ -70,10 +71,18 @@ func (h *handler) Prefix() string {
 
 // GetConn to the DB for the DAO
 func (h *handler) GetConn() Conn {
+	if h == nil {
+		return nil
+	}
 	return h.conn
 }
 
 // SetConn assigns the db connection to the DAO
 func (h *handler) SetConn(conn Conn) {
 	h.conn = conn
+}
+
+// CloseConn closes the db connection
+func (h *handler) CloseConn() error {
+	return closeConn(h.conn)
 }

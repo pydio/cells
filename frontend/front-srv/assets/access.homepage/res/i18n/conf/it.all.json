@@ -1,0 +1,56 @@
+{
+  "Android App URL": {
+    "other": "URL per App Android"
+  },
+  "Display Server QRCode": {
+    "other": "Mostra il QRCode del server"
+  },
+  "Enable Getting Started": {
+    "other": "Abilita la Guida Introduttiva"
+  },
+  "Enable Global Search": {
+    "other": "Attiva la ricerca globale"
+  },
+  "Enable addition tabulation to access getting started videos": {
+    "other": "Abilita la tabulazione addizionale per l'accesso al video Guida Introduttiva"
+  },
+  "Enable cross-workspaces search form on home page": {
+    "other": "Abilitare il modulo di ricerca tra workspace sulla home page"
+  },
+  "Let users connect easily to the latest mobile applications by displaying a QRCode": {
+    "other": "Consentire agli utenti di connettere facilmente le ultime applicazioni mobili, visualizzando un QRCode"
+  },
+  "Mac PydioSync URL": {
+    "other": "URL PydioSync Mac"
+  },
+  "Open workspace by simple click": {
+    "other": "Apri un workspace con un semplice click"
+  },
+  "Open workspace by simple click instead of double click.": {
+    "other": "Apri un workspace con un semplice click invece del doppio clic."
+  },
+  "URL of the Android application": {
+    "other": "URL per App Android (lasciare vuoto se si vuole nascondere il blocco)"
+  },
+  "URL of the iOS application": {
+    "other": "URL per App iOS (lasciare vuoto se si vuole nascondere il blocco)"
+  },
+  "URL of the mac sync application": {
+    "other": "URL dell'applicazione Mac per la sincronizzazzione (lasciare vuoto se si vuole nascondere il blocco)"
+  },
+  "URL of the windows sync application": {
+    "other": "URL dell'applicazione Windows per la sincronizzazzione (lasciare vuoto se si vuole nascondere il blocco)"
+  },
+  "Welcome Page": {
+    "other": "Pagina di Benvenuto"
+  },
+  "Welcome Page displaying a list of workspaces": {
+    "other": "Pagina di benvenuto che visualizza la lista dei workspace"
+  },
+  "Windows PydioSync URL": {
+    "other": "URL PydioSync Windows"
+  },
+  "iOS App URL": {
+    "other": "URL per App iOS"
+  }
+}

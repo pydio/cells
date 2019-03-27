@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin  name="compression" enabled="true" label="CONF_MESSAGE[Tar Archives Support]"
+      description="CONF_MESSAGE[Create and extract tar, tar.gz and tar.bz2 archives.]" >
+
+    <client_settings>
+        <resources>
+            <i18n namespace="compression" remote="plug/action.compression/res/i18n"/>
+            <js className="CompressionActions" file="plug/action.compression/res/build/CompressionActions.js"/>
+        </resources>
+    </client_settings>
+
+	<registry_contributions>
+        <extensions>
+            <extension mime="tar" font="archive" icon="archive.png" messageId="61"/>
+            <extension mime="bz2" font="archive" icon="archive.png" messageId="61"/>
+        </extensions>
+        <actions>
+            <action name="compress_ui">
+                <gui text="313" title="314" iconClass="mdi mdi-zip-box" accessKey="" hasAccessKey="false" weight="100">
+                    <context selection="true" dir="" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="true"
+                             actionBarGroup="change" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="file" recycle="false" unique="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="CompressionActions.Callbacks.compressUI"/>
+                </processing>
+            </action>
+            <action name="extraction">
+                <gui text="compression.9" title="compression.10" iconClass="icon-briefcase" accessKey="" hasAccessKey="false">
+                    <context selection="true" dir="true" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change" inZip="false">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="zip,tar,gz,ajxp_browsable_archive"/>
+                </gui>
+                <processing>
+                    <clientCallback module="CompressionActions.Callbacks.extract"/>
+                </processing>
+            </action>
+        </actions>
+	</registry_contributions>
+    <dependencies>
+        <activePlugin pluginName="access.gateway"/>
+    </dependencies>
+</plugin>

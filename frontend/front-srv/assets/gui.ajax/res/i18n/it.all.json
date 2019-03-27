@@ -1,0 +1,107 @@
+{
+  "tour.create-menu": {
+    "other": "Inizia ad aggiungere nuovi file o cartelle al workspace corrente."
+  },
+  "tour.create-menu.title": {
+    "other": "Aggiungi file"
+  },
+  "tour.display-bar": {
+    "other": "Questa barra degli strumenti consente di modificare la visualizzazione: passa a miniature o modalità dettagliata a seconda del tipo di utilizzo, e ordinare i file per nome, data, ecc..."
+  },
+  "tour.display-bar.title": {
+    "other": "Opzioni di visualizzazione"
+  },
+  "tour.globsearch.1": {
+    "other": "Utilizzare questo modulo di ricerca per trovare file o cartelle in qualsiasi workspace e cella. Vengono mostrati solo i primi 5 risultati, immettere un workspace per ottenere più risultati e ulteriori opzioni di ricerca."
+  },
+  "tour.globsearch.2": {
+    "other": "Quando non viene immessa nessuna ricerca, viene visualizzata la cronologia di file e cartelle utilizzati di recente."
+  },
+  "tour.globsearch.title": {
+    "other": "Ricerca globale"
+  },
+  "tour.infopanel.1": {
+    "other": "Qui troverete diverse informazioni sulla selezione corrente: informazioni sui file, stato della condivisione, metadati definiti dall'utente, ecc."
+  },
+  "tour.infopanel.2": {
+    "other": "Puoi chiudere questo pannello usando il pulsante info sulla barra del display"
+  },
+  "tour.infopanel.file": {
+    "other": "File"
+  },
+  "tour.infopanel.folder": {
+    "other": "Cartella"
+  },
+  "tour.infopanel.search": {
+    "other": "Ricerca"
+  },
+  "tour.infopanel.title": {
+    "other": "Pannello informazioni"
+  },
+  "tour.locale.back": {
+    "other": "Indietro"
+  },
+  "tour.locale.close": {
+    "other": "Chiudi"
+  },
+  "tour.locale.last": {
+    "other": "Termina"
+  },
+  "tour.locale.next": {
+    "other": "Successivo"
+  },
+  "tour.locale.skip": {
+    "other": "Salta"
+  },
+  "tour.openworkspace": {
+    "other": "La tua storia è probabilmente vuota all'atto della prima connessione. Inserisci un workspace o una cella per iniziare ad aggiungere file."
+  },
+  "tour.openworkspace.title": {
+    "other": "Apri un workspace"
+  },
+  "tour.uwidget.addressbook": {
+    "other": "Elenco di tutti gli utenti che accedono alla piattaforma. Crea i tuoi utenti, e costituisci dei team per condividere le risorse"
+  },
+  "tour.uwidget.alerts": {
+    "other": "Il pannello degli avvisi ti informa quando un utente con cui hai condiviso delle risorse accede a esse. Essi possono essere inviati direttamente via email."
+  },
+  "tour.uwidget.home": {
+    "other": "Torna al pannello di benvenuto con questo pulsante"
+  },
+  "tour.uwidget.menu": {
+    "other": "Accesso alle altre opzioni: gestione del profilo e delle funzioni di sicurezza, visualizzazione delle risorse condivise, uscita dalla piattaforma."
+  },
+  "tour.uwidget.title": {
+    "other": "Casella Utente"
+  },
+  "tour.welcomemodal.skip": {
+    "other": "Salta"
+  },
+  "tour.welcomemodal.start": {
+    "other": "Inizia il tour"
+  },
+  "tour.welcomemodal.subtitle": {
+    "other": "Trascina la tua foto migliore per il tuo profilo! Questo breve tour ti guiderà attraverso l'interfaccia web."
+  },
+  "tour.welcomemodal.title": {
+    "other": "Benvenuto in APPLICATION_TITLE"
+  },
+  "tour.widget-cards": {
+    "other": "Qui puoi aggiungere e rimuovere i widget, e puoi anche riordinarli con un semplice trascinamento."
+  },
+  "tour.widget-cards.title": {
+    "other": "Widget"
+  },
+  "tour.workspaces.1": {
+    "other": "I workspace sono cartelle di alto livello che aiutano a organizzare i dati, a cui puoi accedere solo tu o che possono essere condivisi da più persone."
+  },
+  "tour.workspaces.2": {
+    "other": "Le celle sono spazi collaborativi che possono essere condivisi con altri utenti. Crea le tue celle in base a folder, team di utenti, o altri temi rilevanti."
+  },
+  "tour.workspaces.title": {
+    "other": "Workspace & Celle"
+  },
+  "background.jobs.title": {
+    "other": "Processi in corso"
+  }
+}

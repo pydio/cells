@@ -29,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -37,18 +37,19 @@ const SessionRolesKey = "roles"
 const SessionWorkspacesKey = "workspaces"
 const SessionUsernameKey = "user"
 const SessionProfileKey = "profile"
+const SessionClaimsKey = "profile"
 
 func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool *views.ClientsPool) {
 
 	ctx := context.WithValue(context.Background(), claim.ContextKey, claims)
 	vNodeManager := views.GetVirtualNodesManager()
-	if accessList, err := utils.AccessListFromContextClaims(ctx); err == nil {
+	if accessList, err := permissions.AccessListFromContextClaims(ctx); err == nil {
 		roles := accessList.OrderedRoles
 		workspaces := accessList.Workspaces
 		// Resolve workspaces roots in the current context
 		for _, workspaces := range workspaces {
 			var resolvedRoots []string
-			for _, rootId := range workspaces.RootNodes {
+			for _, rootId := range workspaces.RootUUIDs {
 				if vNode, exists := vNodeManager.ByUuid(rootId); exists {
 					if resolved, e := vNodeManager.ResolveInContext(ctx, vNode, pool, true); e == nil && resolved.Uuid != "" {
 						resolvedRoots = append(resolvedRoots, resolved.Uuid)
@@ -57,13 +58,14 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 				}
 				resolvedRoots = append(resolvedRoots, rootId)
 			}
-			workspaces.RootNodes = resolvedRoots
+			workspaces.RootUUIDs = resolvedRoots
 		}
 		log.Logger(ctx).Debug("Setting workspaces in session", zap.Any("workspaces", workspaces))
 		session.Set(SessionRolesKey, roles)
 		session.Set(SessionWorkspacesKey, workspaces)
 		session.Set(SessionUsernameKey, claims.Name)
 		session.Set(SessionProfileKey, claims.Profile)
+		session.Set(SessionClaimsKey, claims)
 	} else {
 		log.Logger(ctx).Error("Error while setting workspaces in session", zap.Error(err))
 		ClearSession(session)
@@ -77,5 +79,6 @@ func ClearSession(session *melody.Session) {
 	session.Set(SessionWorkspacesKey, nil)
 	session.Set(SessionUsernameKey, nil)
 	session.Set(SessionProfileKey, nil)
+	session.Set(SessionClaimsKey, nil)
 
 }

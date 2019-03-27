@@ -31,7 +31,6 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/frontend"
 )
@@ -57,10 +56,17 @@ type ServiceOptions struct {
 	Prefix     interface{}
 	Migrations []*Migration
 
+	Port string
+
 	Micro micro.Service
 	Web   web.Service
 
 	Dependencies []*dependency
+
+	// Starting options
+	AutoStart bool
+	Fork      bool
+	Unique    bool
 
 	Registry registry.Registry
 
@@ -69,7 +75,6 @@ type ServiceOptions struct {
 	Checker Checker
 
 	MinNumberOfNodes int
-	ExposedConfigs   *forms.Form
 
 	// Before and After funcs
 	BeforeInit  []func(Service) error
@@ -95,6 +100,7 @@ func newOptions(opts ...ServiceOption) ServiceOptions {
 	opt := ServiceOptions{}
 
 	opt.Registry = registry.Default
+	opt.AutoStart = true
 
 	for _, o := range opts {
 		o(&opt)
@@ -158,15 +164,33 @@ func Regexp(r string) ServiceOption {
 	}
 }
 
+func Port(p string) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Port = p
+	}
+}
+
 func WithChecker(c Checker) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Checker = c
 	}
 }
 
-func ExposedConfigs(f *forms.Form) ServiceOption {
+func AutoStart(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.ExposedConfigs = f
+		o.AutoStart = b
+	}
+}
+
+func Fork(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Fork = b
+	}
+}
+
+func Unique(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Unique = b
 	}
 }
 
@@ -192,7 +216,7 @@ func RouterDependencies() ServiceOption {
 
 func PluginBoxes(boxes ...frontend.PluginBox) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_FRONTPLUGS, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS, []string{}})
 		frontend.RegisterPluginBoxes(boxes...)
 	}
 }

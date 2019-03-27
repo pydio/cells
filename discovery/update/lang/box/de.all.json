@@ -1,0 +1,47 @@
+{
+  "Update.Config.Title": {
+    "other": "Update-Konfiguration"
+  },
+  "Update.Config.Url.Label": {
+    "other": "Updateserver"
+  },
+  "Update.Config.Url.Description": {
+    "other": "HTTP-URL des Update-Servers"
+  },
+  "Update.Config.PublicKey.Label": {
+    "other": "Öffentlicher Schlüssel"
+  },
+  "Update.Config.PublicKey.Description": {
+    "other": "Offizieller Schlüssel, der zur Überprüfung der Signatur von Binärdateien verwendet wird."
+  },
+  "Update.Config.Channel.Label": {
+    "other": "Update-Kanal"
+  },
+  "Update.Config.Channel.Description": {
+    "other": "Kanal, der für die Prüfung auf Updates verwendet wird. Bleiben Sie bei Stabil, wenn Sie sich nicht sicher sind."
+  },
+  "Update.Config.Channel.ValueStable": {
+    "other": "Stabil"
+  },
+  "Update.Config.Channel.ValueDev": {
+    "other": "Dev (auf eigene Gefahr)"
+  },
+  "Update.Config.ProxyHost.Label": {
+    "other": "Proxy"
+  },
+  "Update.Config.ProxyHost.Description": {
+    "other": "Host eines Proxy-Servers - bei Bedarf für ausgehende Verbindungen verwendet"
+  },
+  "Update.Config.ProxyUser.Label": {
+    "other": "Proxy-Benutzername"
+  },
+  "Update.Config.ProxyUser.Description": {
+    "other": "Benutzer für Proxy-Server-Identifikation"
+  },
+  "Update.Config.ProxyPassword.Label": {
+    "other": "Proxy Passwort"
+  },
+  "Update.Config.ProxyPassword.Description": {
+    "other": "Passwort für Proxyserver-Identifikation"
+  }
+}

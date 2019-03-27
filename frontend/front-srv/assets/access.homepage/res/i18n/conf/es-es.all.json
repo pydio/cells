@@ -1,0 +1,56 @@
+{
+  "Android App URL": {
+    "other": "URL a la App de Android"
+  },
+  "Display Server QRCode": {
+    "other": "Mostrar el QRCode del Servidor"
+  },
+  "Enable Getting Started": {
+    "other": "Activar Getting Started"
+  },
+  "Enable Global Search": {
+    "other": "Activar Búsqueda Global"
+  },
+  "Enable addition tabulation to access getting started videos": {
+    "other": "Activar una pestaña adicional para acceder a los videos Getting Started"
+  },
+  "Enable cross-workspaces search form on home page": {
+    "other": "Activar búsqueda a través de todos los workspaces desde la página de inicio"
+  },
+  "Let users connect easily to the latest mobile applications by displaying a QRCode": {
+    "other": "Permite a los usuarios conectar fácilmente desde las aplicaciones móvil mostrando un QRCode"
+  },
+  "Mac PydioSync URL": {
+    "other": "URL de PydioSync para Mac"
+  },
+  "Open workspace by simple click": {
+    "other": "Abrir workspace con pulsando una vez"
+  },
+  "Open workspace by simple click instead of double click.": {
+    "other": "Abrir workspace pulsando una vez en vez de pulsar dos veces."
+  },
+  "URL of the Android application": {
+    "other": "URL a la App de Android (dejar vacío si quieres ocultar el bloque)"
+  },
+  "URL of the iOS application": {
+    "other": "URL a la App de iOS (dejar vacío si quieres ocultar el bloque)"
+  },
+  "URL of the mac sync application": {
+    "other": "URL a la aplicación de sincronización de Mac (dejar vacío si quieres ocultar el bloque)"
+  },
+  "URL of the windows sync application": {
+    "other": "URL a la aplicación de sincronización de Windows (dejar vacío si quieres ocultar el bloque)"
+  },
+  "Welcome Page": {
+    "other": "Página de Bienvenida"
+  },
+  "Welcome Page displaying a list of workspaces": {
+    "other": "Página de Bienvenida que muestra la lista de workspaces"
+  },
+  "Windows PydioSync URL": {
+    "other": "URL de PydioSync para Windows"
+  },
+  "iOS App URL": {
+    "other": "URL a la App de iOS"
+  }
+}

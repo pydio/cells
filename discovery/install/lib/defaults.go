@@ -24,10 +24,12 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/pydio/cells/common/utils/std"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 func GenerateDefaultConfig() *install.InstallConfig {
@@ -45,25 +47,24 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.DbSocketPassword = ""
 	c.DbManualDSN = "root@tcp(localhost=3306)/cells"
 	c.DsName = "pydiods1"
-	c.DsPort = fmt.Sprintf("%d", utils.GetAvailablePort())
+	c.DsPort = fmt.Sprintf("%d", net.GetAvailablePort())
 	c.DsFolder = filepath.Join(config.ApplicationDataDir(), "data")
 	c.ExternalMicro = fmt.Sprintf("%d", config.Get("ports", common.SERVICE_MICRO_API).Int(0)) // Micro is already set !!
-	c.ExternalGateway = fmt.Sprintf("%d", utils.GetAvailablePort())
-	c.ExternalWebsocket = fmt.Sprintf("%d", utils.GetAvailablePort())
-	c.ExternalFrontPlugins = fmt.Sprintf("%d", utils.GetAvailablePort())
-	c.ExternalWOPI = fmt.Sprintf("%d", utils.GetAvailablePort())
-	c.ExternalDAV = fmt.Sprintf("%d", utils.GetAvailablePort())
-	c.ExternalDex = fmt.Sprintf("%d", utils.GetAvailablePort())
+	c.ExternalGateway = fmt.Sprintf("%d", net.GetAvailablePort())
+	c.ExternalWebsocket = fmt.Sprintf("%d", net.GetAvailablePort())
+	c.ExternalFrontPlugins = fmt.Sprintf("%d", net.GetAvailablePort())
+	c.ExternalWOPI = fmt.Sprintf("%d", net.GetAvailablePort())
+	c.ExternalDAV = fmt.Sprintf("%d", net.GetAvailablePort())
+	c.ExternalDex = fmt.Sprintf("%d", net.GetAvailablePort())
 	c.ExternalDexID = "cells-front"
-	c.ExternalDexSecret = utils.Randkey(24)
-	c.FrontendHosts = "localhost,127.0.0.1,::1"
+	c.ExternalDexSecret = std.Randkey(24)
+	c.FrontendApplicationTitle = "Pydio Cells"
+	c.FrontendDefaultLanguage = "en"
 	c.FrontendLogin = "admin"
 	c.FrontendPassword = ""
 	c.FrontendRepeatPassword = ""
 	c.InternalUrl = config.Get("internalUrl").String("")
-	c.CheckResults = []*install.CheckResult{
-		checkPhpFpm(c),
-	}
+	c.CheckResults = []*install.CheckResult{}
 
 	return c
 }

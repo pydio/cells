@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ajxpdriver enabled="always" name="gateway" label="CONF_MESSAGE[Gateway]" description="CONF_MESSAGE[Pydio S3 Gateway]" mixins="slug_provider,template_provider">
+
+    <client_settings icon="plug/access.fs/icon.png" iconClass="icon-sitemap">
+        <resources>
+            <i18n namespace="openother" remote="plug/access.gateway/i18n/editor.picker"/>
+            <i18n namespace="access_fs" remote="plug/access.gateway/i18n/access.fs"/>
+            <js className="FSActions" file="plug/access.gateway/res/build/FSActions.js" depends="PydioComponents"/>
+        </resources>
+        <node_provider ajxpClass="MetaNodeProvider" ajxpOptions="{}"/>
+    </client_settings>
+
+    <server_settings>
+        <param name="ROOT_NODES" type="autocomplete-tree" choices="admin_list_tree" label="CONF_MESSAGE[Path]" description="CONF_MESSAGE[Path to the folder on the server]" mandatory="true"
+               replicationGroup="CONF_MESSAGE[ROOTS]" replicationDescription="CONF_MESSAGE[Absolute path to one or more root nodes]"
+               replicationMandatory="true" replicationTitle="CONF_MESSAGE[Root Nodes]"/>
+        <global_param name="LIST_NODES_PER_PAGE" type="integer" label="CONF_MESSAGE[#Items per page]" description="CONF_MESSAGE[Once in pagination mode, number of items to display per page.]" default="200" expose="true"/>
+        <global_param name="DOWNLOAD_ARCHIVE_FORMAT" type="select" choices="zip|Zip,tar|Tar,tar.gz|Tar.gz" label="CONF_MESSAGE[Default download format]" description="CONF_MESSAGE[When downloading a folder or a multiple selection, automatically create an archive using this format]" default="zip"/>
+	</server_settings>
+
+	<registry_contributions>
+        <actions>
+            <action name="ls" dirDefault="true">
+                <gui text="32" title="32" iconClass="mdi mdi-folder-open"
+                     accessKey="folder_access_key">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" actionBarGroup="put" contextMenu="true" infoPanel="true"/>
+                    <selectionContext dir="true" file="true" recycle="false" enableRoot="true"
+                                      unique="true" allowedMimes="ajxp_folder,PYDIO_MIMES_ZIP" behaviour="hidden">
+                    </selectionContext>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true"
+                               write="false" adminOnly="false">
+                </rightsContext>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.ls"/>
+                </processing>
+            </action>
+            <action name="download" fileDefault="false">
+                <gui text="88" title="88" iconClass="mdi mdi-download" accessKey="download_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" contextMenu="true" infoPanel="true"
+                             actionBarGroup="0_get,inline,info_panel,minisite_toolbar">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" enableRoot="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.download"/>
+                    <clientListener module="FSActions.Listeners.downloadSelectionChange" name="selectionChange"/>
+                </processing>
+            </action>
+            <action name="stat_hash">
+                <rightsContext adminOnly="false" noUser="false" read="true" userLogged="true" write="false"/>
+            </action>
+            <action name="mkdir">
+                <gui text="154" title="155" iconClass="mdi mdi-folder-plus" accessKey="folder_access_key" hasAccessKey="true">
+                    <context selection="false" dir="true" recycle="hidden" actionBar="true"
+                             contextMenu="true" infoPanel="false" actionBarGroup="create,minisite" inZip="false"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.mkdir"/>
+                </processing>
+            </action>
+            <action name="mkfile">
+                <gui text="156" title="157" accessKey="file_access_key" iconClass="mdi mdi-file-plus" hasAccessKey="false">
+                    <context selection="false" dir="true" recycle="hidden" actionBar="true"
+                             contextMenu="true" infoPanel="false" actionBarGroup="create" inZip="false"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
+                <subMenu>
+                    <dynamicBuilder module="FSActions.Listeners.mkfileDynamicBuilder"/>
+                </subMenu>
+            </action>
+            <action name="upload">
+                <gui text="27" title="27" iconClass="mdi mdi-upload" accessKey="upload_access_key" hasAccessKey="true">
+                    <context selection="false" dir="true" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="upload,minisite" inZip="false">
+                    </context></gui>
+                <rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.upload"/>
+                </processing>
+            </action>
+            <action name="empty_recycle">
+                <gui text="220" title="221" iconClass="mdi mdi-delete-forever" accessKey="empty_recycle_access_key" hasAccessKey="true">
+                    <context selection="false" dir="true" recycle="only" actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="info_panel,change_main"/>
+                </gui>
+                <rightsContext userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.emptyRecycle"/>
+                </processing>
+            </action>
+            <action name="empty_recycle_select">
+                <gui text="220" title="221" iconClass="mdi mdi-delete-forever" accessKey="empty_recycle_access_key" hasAccessKey="true">
+                    <context selection="true" dir="true" actionBar="false" contextMenu="true" infoPanel="false" actionBarGroup="change_main"/>
+                    <selectionContext dir="false" file="false" recycle="true" unique="true" allowedMimes="ajxp_recycle" behaviour="hidden"/>
+                </gui>
+                <rightsContext userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.emptyRecycle"/>
+                </processing>
+            </action>
+            <action name="open_with_unique">
+                <gui text="462" title="462" iconClass="mdi mdi-eye-outline" accessKey="preview_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="hidden"  behaviour="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="inline" inZip="false">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="PYDIO_MIMES_EDITABLE,^ajxp_browsable_archive,^zip" behaviour="hidden"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.openInEditor"/>
+                </processing>
+            </action>
+            <action name="open_with" fileDefault="true">
+                <gui text="411" title="411" iconClass="mdi mdi-eye-outline" accessKey="open_with_access" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="hidden"  behaviour="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="0_get,info_panel,minisite_toolbar" inZip="false">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="PYDIO_MIMES_EDITABLE,^ajxp_browsable_archive,^zip" behaviour="hidden"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <subMenu masterAction="open_with_unique">
+                    <dynamicBuilder module="FSActions.Listeners.openWithDynamicBuilder"/>
+                </subMenu>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.openInEditor"/>
+                </processing>
+            </action>
+            <action name="restore">
+                <gui text="222" title="223" iconClass="mdi mdi-file-restore" accessKey="restore_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="only"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="info_panel">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.restore"/>
+                </processing>
+            </action>
+            <action name="rename">
+                <gui text="6" title="158" accessKey="rename_access_key" iconClass="mdi mdi-rename-box" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" image="false" editable="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.rename"/>
+                </processing>
+            </action>
+            <action name="cross_copy"/>
+            <action name="copy" ctrlDragndropDefault="true">
+                <gui text="66" title="159" iconClass="mdi mdi-content-copy" hasAccessKey="false">
+                    <context selection="true" dir="" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.copy"/>
+                    <clientListener name="contextChange" module="FSActions.Listeners.copyContextChange"/>
+                </processing>
+            </action>
+            <action name="move" dragndropDefault="true">
+                <gui text="70" title="160" iconClass="mdi mdi-folder-move" accessKey="move_access_key" hasAccessKey="true">
+                    <context selection="true" dir=""
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.move"/>
+                </processing>
+            </action>
+            <action name="delete">
+                <gui text="7" title="161" iconClass="mdi mdi-delete" accessKey="delete_access_key" hasAccessKey="true" specialAccessKey="delete">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change,minisite" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.deleteAction"/>
+                </processing>
+            </action>
+
+        </actions>
+        <client_configs>
+            <component_config component="FilesList">
+                <columns switchGridMode="filelist">
+                    <column messageId="1" attributeName="ajxp_label" sortType="StringDirFile" defaultWidth="48%"/>
+                    <column messageId="2" attributeName="bytesize" sortType="CellSorterValue" modifier="FilesList.prototype.partSizeCellRenderer" defaultWidth="9%"/>
+                    <column messageId="3" attributeName="mimestring" sortType="String" defaultWidth="5%" defaultVisibilty="hidden"/>
+                    <column messageId="4" attributeName="ajxp_modiftime" sortType="MyDate" defaultWidth="19%"/>
+                </columns>
+            </component_config>
+            <component_config component="FoldersTree">
+                <property name="display" value="dz"/>
+            </component_config>
+            <component_config component="InfoPanel">
+                <infoPanel mime="generic_file" reactComponent="PydioWorkspaces.GenericInfoCard" weight="-1000"/>
+                <infoPanel mime="generic_file" reactComponent="PydioWorkspaces.FileInfoCard" weight="-500"/>
+                <infoPanel mime="generic_dir" reactComponent="PydioWorkspaces.GenericInfoCard" weight="-1000"/>
+                <infoPanel mime="generic_multiple" reactComponent="PydioWorkspaces.GenericInfoCard" weight="-1000"/>
+            </component_config>
+            <template_part
+                    name="orbit_content"
+                    ajxpId="orbit_content"
+                    theme="material"
+                    namespace="PydioWorkspaces"
+                    component="FSTemplate"
+                    dependencies="PydioComponents"
+                    props='{"style": {"background": "white"}}'
+            />
+        </client_configs>
+	</registry_contributions>
+</ajxpdriver>

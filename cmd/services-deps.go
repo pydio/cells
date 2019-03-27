@@ -26,11 +26,10 @@ import (
 	"github.com/micro/go-log"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/registry"
 )
 
-// enableCmd represents the enable command
+// servicesDepsCmd shows dependencies between services.
 var servicesDepsCmd = &cobra.Command{
 	Use:   "deps",
 	Short: "Show dependencies between services",
@@ -49,12 +48,9 @@ var servicesDepsCmd = &cobra.Command{
 	},
 }
 
-// List dependencies recursively. Ignore nats or consul.
+// List dependencies recursively. Ignore nats.
 func listDeps(service registry.Service, sep string) {
 	for _, dep := range service.GetDependencies() {
-		if dep.Name() == common.SERVICE_NATS || dep.Name() == common.SERVICE_CONSUL {
-			continue
-		}
 		var sub string
 		if sep == "" {
 			sub = "   |> "

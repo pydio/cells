@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ajxpdriver name="settings" enabled="always" label="CONF_MESSAGE[Admin Driver]" description="CONF_MESSAGE[Access Pydio configuration data.]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <plugin_info>
+        <core_relation packaged="true"/>
+        <plugin_author>Charles du Jeu</plugin_author>
+    </plugin_info>
+	<client_settings icon="plug/access.settings/admin.png">
+		<resources>
+			<i18n namespace="settings" remote="plug/access.settings/res/i18n" />
+			<i18n namespace="role_editor" remote="plug/access.settings/res/i18n/role" />
+			<i18n namespace="pydio_role" remote="plug/access.settings/res/i18n/editor" />
+            <i18n namespace="ajxp_admin" remote="plug/access.settings/res/i18n/admin" />
+            <i18n namespace="admin_dashboard" remote="plug/access.settings/res/i18n/dashboard" />
+            <i18n namespace="updater" remote="plug/access.settings/res/i18n/updater" />
+
+            <css file="plug/access.settings/res/css/ajxp_admin.css" autoload="true"/>
+            <css file="plug/access.settings/res/css/rolesEditor.css" autoload="true"/>
+            <css file="plug/access.settings/res/css/codemirror.css" autoload="true"/>
+            <css file="plug/access.settings/res/css/codemirror-hints.css" autoload="true"/>
+            <css file="plug/access.settings/res/css/swagger-custom.css" autoload="true"/>
+
+            <js className="AdminComponents" file="plug/access.settings/res/build/AdminComponents.js" depends="React,PydioComponents,PydioWorkspaces,PydioCoreActions"/>
+            <js className="AdminPeople" file="plug/access.settings/res/build/AdminPeople.js" depends="React,PydioComponents,PydioForm"/>
+            <js className="AdminRoleEditor" file="plug/access.settings/res/build/AdminRoleEditor.js" depends="React,AdminComponents,PydioComponents,PydioForm"/>
+            <js className="AdminWorkspaces" file="plug/access.settings/res/build/AdminWorkspaces.js" depends="PydioForm"/>
+            <js className="AdminPlugins" file="plug/access.settings/res/build/AdminPlugins.js" depends="React,AdminComponents,PydioComponents,PydioForm"/>
+            <js className="AdminLogs" file="plug/access.settings/res/build/AdminLogs.js" depends="React,PydioComponents"/>
+            <js className="AdminScheduler" file="plug/access.settings/res/build/AdminScheduler.js" depends="React,PydioForm,PydioComponents"/>
+            <js className="AdminServices" file="plug/access.settings/res/build/AdminServices.js" depends="React"/>
+
+		</resources>
+        <node_provider ajxpClass="SettingsNodeProvider" ajxpOptions="{}"/>
+	</client_settings>
+	<registry_contributions>
+		<client_configs>
+            <template_part ajxpId="orbit_content" theme="material" namespace="AdminComponents" component="AdminDashboard" dependencies="PydioComponents,PydioForm"/>
+        </client_configs>
+        <actions>
+
+            <!-- SHARED ACTIONS -->
+            <action name="ls" dirDefault="true">
+                <gui text="32" title="32" accessKey="folder_access_key" iconClass="icon-folder-open-alt">
+                    <context selection="true" dir="" recycle="false"/>
+                    <selectionContext dir="true" file="false" recycle="false" unique="true" allowedMimes="*"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly="false">
+                </rightsContext>
+                <processing>
+                    <clientCallback><![CDATA[
+					var path;
+					if(window.actionArguments && window.actionArguments.length>0){
+						path = window.actionArguments[0];
+						if(Object.isString(path)){path = new AjxpNode(path,false,getBaseName(path));}
+					}else{
+						userSelection = pydio.getUserSelection();
+						if(userSelection && userSelection.isUnique() && (userSelection.hasDir() || userSelection.hasMime(["zip"]))){
+							path = userSelection.getUniqueNode();
+						}
+					}
+					if(path){
+						pydio.updateContextData(path);
+					}
+					]]></clientCallback>
+                </processing>
+            </action>
+            <action name="edit" fileDefault="true">
+                <gui text="settings.93" title="301" iconClass="mdi mdi-pencil" accessKey="edit_access_key" hasAccessKey="true">
+                    <context selection="true" dir=""/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" allowedMimes="user,user_editable,repository,repository_editable,role,group,plugin,ajxp_role,ajxp_graphs,datagrid" behaviour="hidden"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback><![CDATA[
+                    var editorData = window.actionArguments[0];
+                    pydio.UI.openCurrentSelectionInEditor(editorData);
+                ]]></clientCallback>
+                </processing>
+            </action>
+            <action name="delete">
+                <gui text="7" title="161" iconClass="icon-trash" accessKey="delete_access_key" hasAccessKey="true" specialAccessKey="delete">
+                    <context selection="true" dir=""/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false"  allowedMimes="user_editable,repository_editable,role,group" image="false" editable="false" behaviour="hidden"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="AdminPeople.Callbacks.deleteAction"/>
+                </processing>
+            </action>
+
+            <!-- REPOSITORIES ACTIONS -->
+            <action name="export_logs">
+                <processing>
+                    <serverCallback methodName="logsAction"/>
+                </processing>
+            </action>
+
+            <!-- USERS ACTIONS -->
+            <action name="user_update_group" dragndropDefault="true">
+                <gui text="settings.119" title="settings.119" accessKey="settings.role_access" hasAccessKey="true">
+                    <context selection="false" dir="false" recycle="hidden"  behaviour="hidden"
+                             actionBar="false" contextMenu="false" infoPanel="false"
+                             actionBarGroup="put" inZip="false">
+                    </context>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
+                <processing>
+                    <clientCallback module="AdminPeople.Callbacks.applyDND"/>
+                </processing>
+            </action>
+
+            <!-- PLUGINS ACTIONS -->
+            <action name="clear_plugins_cache">
+                <gui text="settings.129" title="settings.130">
+                    <context dir="true" recycle="true" allowedMimes="plugins_zone" selection="false"/>
+                </gui>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Callbacks.clearPluginsCache"/>
+                </processing>
+            </action>
+
+            <!-- OTHER ACTIONS -->
+            <action name="pydio-go-pro">
+                <gui text="settings.120" title="settings.121" iconClass="icon-rocket">
+                    <context dir="true" recycle="true" selection="false" actionBar="true" actionBarGroup="admin"/>
+                </gui>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Navigation.openGoPro"/>
+                </processing>
+            </action>
+
+            
+        </actions>
+
+	</registry_contributions>
+
+</ajxpdriver>

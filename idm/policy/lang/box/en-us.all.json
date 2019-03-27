@@ -11,6 +11,12 @@
   "PolicyGroup.PublicAccess.Rule2": {
     "other": "Anonymous access to reset-password endpoints (PUT, POST)"
   },
+  "PolicyGroup.PublicAccess.Rule3": {
+    "other": "Anonymous access to load frontend state (GET)"
+  },
+  "PolicyGroup.PublicAccess.Rule4": {
+    "other": "Anonymous access to init frontend session (POST)"
+  },
 
   "PolicyGroup.PublicInstall.Title": {
     "other": "Installation Endpoints (first run)"
@@ -20,19 +26,6 @@
   },
   "PolicyGroup.PublicInstall.Rule1": {
     "other": "Anonymous access to install endpoints (GET, POST)"
-  },
-
-  "PolicyGroup.FrontendAccess.Title": {
-    "other": "Frontend-restricted Access"
-  },
-  "PolicyGroup.FrontendAccess.Description": {
-    "other": "Endpoints that must be accessible anonymously but only by frontend services"
-  },
-  "PolicyGroup.FrontendAccess.Rule1": {
-    "other": "GET/POST access restricted to frontend IP"
-  },
-  "PolicyGroup.FrontendAccess.Rule2": {
-    "other": "PUT access restricted to frontend IP"
   },
 
   "PolicyGroup.LoggedUsers.Title": {
@@ -48,7 +41,10 @@
     "other": "Default REST accesses for a logged user"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "REST accesses for incrementing shares downloads"
+    "other": "User-meta prevent deleting tags"
+  },
+  "PolicyGroup.LoggedUsers.Rule4": {
+    "other": "Standard users cannot create/delete workspaces"
   },
 
   "PolicyGroup.OIDC.Title": {
@@ -74,7 +70,7 @@
     "other": "Preventing modification based on IP and file metadata conditions"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out display of a any file with a PNG extension"
+    "other": "Filter out any file with a PNG extension if request does not come from localhost"
   },
 
   "PolicyGroup.ACLSamplePeriod.Title": {

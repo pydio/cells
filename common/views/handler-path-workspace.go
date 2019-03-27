@@ -22,13 +22,15 @@ package views
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type PathWorkspaceHandler struct {
@@ -42,32 +44,37 @@ func NewPathWorkspaceHandler() *PathWorkspaceHandler {
 	return u
 }
 
-func (a *PathWorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (*idm.Workspace, bool) {
+func (a *PathWorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (*idm.Workspace, bool, error) {
 
 	// Admin context, fake workspace with root ROOT
 	if admin, a := ctx.Value(ctxAdminContextKey{}).(bool); admin && a {
 		ws := &idm.Workspace{}
 		ws.UUID = "ROOT"
-		ws.RootNodes = []string{"ROOT"}
+		ws.RootUUIDs = []string{"ROOT"}
 		ws.Slug = "ROOT"
-		return ws, true
+		return ws, true, nil
 	}
 
 	// User context, folder path must start with /wsId/ or we are listing the root.
-	if accessList, ok := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList); ok {
+	if accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList); ok {
 		parts := strings.Split(strings.Trim(node.Path, "/"), "/")
-		if len(parts) > 0 {
+		if len(parts) > 0 && len(parts[0]) > 0 {
 			// Find by slug
 			for _, ws := range accessList.Workspaces {
 				if ws.Slug == parts[0] {
 					node.Path = strings.Join(parts[1:], "/")
-					return ws, true
+					return ws, true, nil
 				}
 			}
+			// There is a workspace but it is not in the ACL !
+			return nil, false, errors.Forbidden("workspace.not.accessible", fmt.Sprintf("Workspace %s is not accessible", parts[0]))
+		} else {
+			// Root without workspace part
+			return nil, false, nil
 		}
 	}
 
-	return nil, false
+	return nil, false, nil
 }
 
 func (a *PathWorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
@@ -76,7 +83,10 @@ func (a *PathWorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.
 	}
 	branchInfo := BranchInfo{}
 	out := node.Clone()
-	if ws, ok := a.extractWs(ctx, out); ok {
+	ws, ok, err := a.extractWs(ctx, out)
+	if err != nil {
+		return ctx, node, err
+	} else if ok {
 		branchInfo.Workspace = *ws
 		return WithBranchInfo(ctx, identifier, branchInfo), out, nil
 	}
@@ -94,10 +104,14 @@ func (a *PathWorkspaceHandler) updateOutputBranch(ctx context.Context, node *tre
 }
 
 func (a *PathWorkspaceHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
-	_, _, wsFound := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
-	if wsFound != nil && errors.Parse(wsFound.Error()).Status == "Not Found" {
-		// Return a fake root node
-		return &tree.ReadNodeResponse{Success: true, Node: &tree.Node{Path: ""}}, nil
+	_, _, err := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
+	if err != nil {
+		if errors.Parse(err.Error()).Status == "Not Found" {
+			// Return a fake root node
+			return &tree.ReadNodeResponse{Success: true, Node: &tree.Node{Path: ""}}, nil
+		} else {
+			return nil, err
+		}
 	}
 	return a.AbstractBranchFilter.ReadNode(ctx, in, opts...)
 
@@ -107,7 +121,7 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 	_, _, wsFound := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
 	if wsFound != nil && errors.Parse(wsFound.Error()).Status == "Not Found" {
 		// List user workspaces here
-		accessList, ok := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+		accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 		if !ok {
 			return nil, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find user workspaces")
 		}
@@ -115,10 +129,10 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 		go func() {
 			defer streamer.Close()
 			for _, ws := range accessList.Workspaces {
-				if len(ws.RootNodes) > 0 {
+				if len(ws.RootUUIDs) > 0 {
 					node := &tree.Node{
 						Type: tree.NodeType_COLLECTION,
-						Uuid: ws.RootNodes[0],
+						Uuid: ws.RootUUIDs[0],
 						Path: ws.Slug,
 					}
 					streamer.Send(&tree.ListNodesResponse{Node: node})

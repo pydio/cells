@@ -28,15 +28,19 @@ import (
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
+	"strings"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
+	log2 "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
 )
@@ -67,7 +71,7 @@ func (s *JobsHandler) Filter() func(string) string {
 
 func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) {
 
-	T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
 
 	var request jobs.ListJobsRequest
 	if err := req.ReadEntity(&request); err != nil {
@@ -119,8 +123,8 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 	}
 	ctx := req.Request.Context()
 	if cmd.Cmd == jobs.Command_Delete {
-
-		cli := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+		sName, jC := registry.GetClient(common.SERVICE_JOBS)
+		cli := jobs.NewJobServiceClient(sName, jC)
 		delRequest := &jobs.DeleteTasksRequest{
 			JobId:  cmd.JobId,
 			TaskID: []string{cmd.TaskId},
@@ -200,7 +204,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("User.CreateJob", zap.Any("r", request))
-	languages := utils.UserLanguagesFromRestRequest(req)
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
 
 	jsonParams := make(map[string]interface{})
 	if request.JsonParameters != "" {
@@ -227,17 +231,38 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		format := jsonParams["format"].(string)
 		jobUuid, err = extract(ctx, node, target, format, languages...)
 		break
+	case "remote-download":
+		// Reparse json to expected structure
+		type params struct {
+			Target string
+			Urls   []string
+		}
+		var jsonParams params
+		if request.JsonParameters != "" {
+			json.Unmarshal([]byte(request.JsonParameters), &jsonParams)
+		}
+		target := jsonParams.Target
+		urls := jsonParams.Urls
+		log.Logger(ctx).Info("Wget Task with params", zap.Any("params", jsonParams))
+		uuids, e := wgetTasks(ctx, target, urls, languages...)
+		jobUuid = strings.Join(uuids, ",")
+		err = e
+		break
 	case "copy", "move":
 		var nodes []string
 		for _, i := range jsonParams["nodes"].([]interface{}) {
 			nodes = append(nodes, i.(string))
 		}
 		target := jsonParams["target"].(string)
+		var targetIsParent bool
+		if p, ok := jsonParams["targetParent"]; ok && p == true {
+			targetIsParent = true
+		}
 		move := false
 		if request.JobName == "move" {
 			move = true
 		}
-		jobUuid, err = dircopy(ctx, nodes, target, move, languages...)
+		jobUuid, err = dirCopy(ctx, nodes, target, targetIsParent, move, languages...)
 		break
 	case "datasource-resync":
 		dsName := jsonParams["dsName"].(string)
@@ -246,7 +271,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 	}
 
 	if err != nil {
-		rsp.WriteError(500, err)
+		service.RestErrorDetect(req, rsp, err)
 		return
 	}
 
@@ -254,5 +279,37 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		JobUuid: jobUuid,
 	}
 	rsp.WriteEntity(response)
+
+}
+
+// Syslog retrieves the technical logs items matched by the query and export them in JSON, XLSX or CSV format
+func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response) {
+
+	var input log2.ListLogRequest
+	if e := req.ReadEntity(&input); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	ctx := req.Request.Context()
+
+	c := log2.NewLogRecorderClient(registry.GetClient(common.SERVICE_JOBS))
+
+	res, err := c.ListLogs(ctx, &input)
+	if err != nil {
+		service.RestError500(req, rsp, err)
+		return
+	}
+	defer res.Close()
+
+	logColl := &rest.LogMessageCollection{}
+	for {
+		response, err := res.Recv()
+		if err != nil {
+			break
+		}
+		logColl.Logs = append(logColl.Logs, response.GetLogMessage())
+	}
+
+	rsp.WriteEntity(logColl)
 
 }

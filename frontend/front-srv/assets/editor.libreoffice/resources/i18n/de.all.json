@@ -1,0 +1,59 @@
+{
+  "1": {
+    "other": "LibreOffice-Dokumente"
+  },
+  "10": {
+    "other": "Leeres Dokument anlegen"
+  },
+  "11": {
+    "other": "Dokumenten-Format"
+  },
+  "12": {
+    "other": "Sie können auch ein <a>leeres Dokument erstellen</a>"
+  },
+  "13": {
+    "other": "Unbenanntes Dokument"
+  },
+  "14": {
+    "other": "Das Dokument wurde erstellt. Es kann nun bearbeitet werden."
+  },
+  "15": {
+    "other": "Unbekanntes Dokumenten-Format"
+  },
+  "2": {
+    "other": "LibreOffice Browser-Fenster"
+  },
+  "ext.doc": {
+    "other": "Microsoft Word 97/2000/XP/2003"
+  },
+  "ext.docx": {
+    "other": "Microsoft Word 2007/2010/2013 XML"
+  },
+  "ext.odg": {
+    "other": "ODF Zeichnung"
+  },
+  "ext.odp": {
+    "other": "ODF Präsentation"
+  },
+  "ext.ods": {
+    "other": "ODF Tabelle"
+  },
+  "ext.odt": {
+    "other": "ODF Text-Dokument"
+  },
+  "ext.ppt": {
+    "other": "Microsoft PowerPoint 97/2000/XP/2003"
+  },
+  "ext.pptx": {
+    "other": "Microsoft PowerPoint 2007/2010/2013 XML"
+  },
+  "ext.rtf": {
+    "other": "Rich-Text-Dokument"
+  },
+  "ext.xls": {
+    "other": "Microsoft Excel 97/2000/XP/2003"
+  },
+  "ext.xlsx": {
+    "other": "Microsoft Excel 2007/2010/2013 XML"
+  }
+}

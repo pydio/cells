@@ -1,0 +1,35 @@
+{
+  "Activate desktop notifications": {
+    "other": "Activar notificacions d'escriptori"
+  },
+  "Choose the plugin": {
+    "other": "Seleccioneu el plugin"
+  },
+  "Desktop Notifications": {
+    "other": "Notificacions d'escriptori"
+  },
+  "Display Workspaces Activity": {
+    "other": "Display Workspaces Activity"
+  },
+  "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration.": {
+    "other": "Mostrar una nova entrada amb tots els esdeveniments que succeeixen en un repositori d'usuari, i alertes. Una base de dades SQL ha de ser configurada per a la configuració de FEED_DRIVER."
+  },
+  "Display workspaces activity to the users in the right-hand information panel": {
+    "other": "Display workspaces activity to the users in the right-hand information panel"
+  },
+  "Feed Instance": {
+    "other": "Instància de feed"
+  },
+  "Handle users watches and notifications": {
+    "other": "Manipular vistes d'usuaris i notificacions"
+  },
+  "Instance Params": {
+    "other": "Paràmetres d'instància"
+  },
+  "Notification Center": {
+    "other": "Centre de notificacions"
+  },
+  "User events and alerts": {
+    "other": "Events i alertes d'usuari"
+  }
+}

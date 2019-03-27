@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta id="meta.versions" label="CONF_MESSAGE[Files Versioning]" description="CONF_MESSAGE[Keep tracks of all files modifications]">
+    <plugin_info>
+        <core_relation packaged="true" tested_version="follow_core"/>
+        <plugin_author>Charles du Jeu</plugin_author>
+    </plugin_info>
+    <client_settings>
+        <resources>
+            <i18n namespace="meta.versions" remote="plug/meta.versions/i18n"/>
+            <js className="PydioVersioning" file="plug/meta.versions/res/build/PydioVersioning.js"/>
+        </resources>
+    </client_settings>
+    <registry_contributions>
+        <actions>
+            <action name="versions_history">
+                <gui text="meta.versions.1" title="meta.versions.2" iconClass="mdi mdi-backup-restore" hasAccessKey="false" weight="20">
+                    <context selection="true" dir="false" recycle="false" behaviour="hidden"
+                        actionBar="true" contextMenu="true" infoPanel="false"
+                        actionBarGroup="0_get">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="true" unique="true" behaviour="hidden" evalMetadata="metadata.get('datasource_versioning')"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="PydioVersioning.Callbacks.loadHistoryBrowser"/>
+                </processing>
+            </action>
+        </actions>
+    </registry_contributions>
+</meta>

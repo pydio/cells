@@ -26,6 +26,7 @@ package user
 import (
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/sql/resources"
@@ -39,12 +40,13 @@ type DAO interface {
 	// Add creates or updates a user in the underlying repository.
 	// It returns the resulting user, a true flag in case of an update
 	// of an existing user and/or an error if something went wrong.
-	Add(interface{}) (interface{}, bool, error)
+	Add(interface{}) (interface{}, []*tree.Node, error)
 
-	Del(sql.Enquirer) (numRows int64, e error)
+	Del(sql.Enquirer, chan *idm.User) (numRows int64, e error)
 	Search(sql.Enquirer, *[]interface{}, ...bool) error
-	Count(sql.Enquirer) (int, error)
+	Count(sql.Enquirer, ...bool) (int, error)
 	Bind(userName string, password string) (*idm.User, error)
+	CleanRole(roleId string) error
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.

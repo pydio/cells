@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// ## Identity Management services.
+// ## Gateway services.
 //
-// Services under this folder are all related to Identity Management: Authentication, Authorizations, role-based acls, etc.
+// Services under this folder are providing a main proxy and gateways to the various exposed services.
 package gateway

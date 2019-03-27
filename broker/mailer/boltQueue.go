@@ -21,6 +21,7 @@
 package mailer
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -28,12 +29,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 
 	"github.com/pydio/cells/common/proto/mailer"
 )
 
 const (
+	// MaxSendRetries defines number of retries in case of connection failure.
 	MaxSendRetries = 5
 )
 
@@ -42,6 +44,7 @@ var (
 	bucketName = []byte("MailerQueue")
 )
 
+// BoltQueue defines a queue for the mails backed by a Bolt DB.
 type BoltQueue struct {
 	// Internal DB
 	db *bolt.DB
@@ -51,6 +54,7 @@ type BoltQueue struct {
 	DbPath string
 }
 
+// NewBoltQueue creates a Bolt DB if necessary.
 func NewBoltQueue(fileName string, deleteOnClose ...bool) (*BoltQueue, error) {
 
 	bs := &BoltQueue{
@@ -71,9 +75,9 @@ func NewBoltQueue(fileName string, deleteOnClose ...bool) (*BoltQueue, error) {
 		return e
 	})
 	return bs, e2
-
 }
 
+// Close closes the DB and delete corresponding file if deleteOnClose flag as been set on creation.
 func (b *BoltQueue) Close() error {
 	err := b.db.Close()
 	if b.DeleteOnClose {
@@ -82,6 +86,7 @@ func (b *BoltQueue) Close() error {
 	return err
 }
 
+// Push acquires the lock and add a mail to be sent in the queue.
 func (b *BoltQueue) Push(email *mailer.Mail) error {
 
 	return b.db.Update(func(tx *bolt.Tx) error {
@@ -103,7 +108,9 @@ func (b *BoltQueue) Push(email *mailer.Mail) error {
 	})
 }
 
-func (b *BoltQueue) Consume(mh func(email *mailer.Mail) error) error {
+// Consume acquires the lock and send mails that are in the queue by batches,
+// sending at most 100 mails by batch.
+func (b *BoltQueue) Consume(sendHandler func(email *mailer.Mail) error) error {
 
 	var output error
 
@@ -126,16 +133,18 @@ func (b *BoltQueue) Consume(mh func(email *mailer.Mail) error) error {
 			}
 
 			// Stream mail
-			if err = mh(&em); err != nil {
+			if err = sendHandler(&em); err != nil {
+				tos := getTos(&em)
 				if em.Retries <= MaxSendRetries {
+					// Update number of tries and re-put mail in the queue.
 					em.Retries++
 					em.SendErrors = append(em.SendErrors, err.Error())
 					marsh, _ := json.Marshal(&em)
 					b.Put(k, marsh)
-					errStack = append(errStack, fmt.Sprintf("error while trying to send email: %s. Will retry next time", err.Error()))
+					errStack = append(errStack, fmt.Sprintf("cannot send email to [%s], cause: %s", tos, err.Error()))
 					continue
 				} else {
-					errStack = append(errStack, fmt.Sprintf("max number of retries have been reached (%s)", err.Error()))
+					errStack = append(errStack, fmt.Sprintf("max number of retries reached for recipient [%s], cause: %s", tos, err.Error()))
 				}
 			}
 
@@ -151,7 +160,7 @@ func (b *BoltQueue) Consume(mh func(email *mailer.Mail) error) error {
 			i++
 		}
 		if len(errStack) > 0 {
-			output = fmt.Errorf("consuming queue had %d errors (successfully sent %d), errors were %s", len(errStack), i, strings.Join(errStack, ",\n"))
+			output = fmt.Errorf("batch sent %d mails and failed %d times, errors were: %s", i, len(errStack), strings.Join(errStack, ", "))
 		}
 		return nil
 	})
@@ -163,4 +172,17 @@ func itob(v int) []byte {
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, uint64(v))
 	return b
+}
+
+func getTos(em *mailer.Mail) string {
+	var buffer bytes.Buffer
+	for _, to := range em.GetTo() {
+		buffer.WriteString(to.Address)
+		buffer.WriteString(", ")
+	}
+	tos := buffer.String()
+	if len(tos) > 1 {
+		tos = strings.TrimSuffix(tos, ", ")
+	}
+	return tos
 }

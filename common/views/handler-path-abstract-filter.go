@@ -134,7 +134,11 @@ func (v *AbstractBranchFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 	if err != nil {
 		return nil, err
 	}
-	response, err := v.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: out, WithCommits: in.WithCommits}, opts...)
+	response, err := v.next.ReadNode(ctx, &tree.ReadNodeRequest{
+		Node:              out,
+		WithCommits:       in.WithCommits,
+		WithExtendedStats: in.WithExtendedStats,
+	}, opts...)
 	if err == nil && response.Node != nil {
 		_, out2, oE := v.outputMethod(ctx, response.Node, "in")
 		if oE != nil {

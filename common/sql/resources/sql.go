@@ -26,7 +26,7 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/rubenv/sql-migrate"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"gopkg.in/doug-martin/goqu.v4"
@@ -50,7 +50,7 @@ type ResourcesSQL struct {
 }
 
 // Add to the mysql DB
-func (s *ResourcesSQL) Init(options config.Map) error {
+func (s *ResourcesSQL) Init(options common.ConfigValues) error {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/resources/migrations"),
@@ -78,6 +78,10 @@ func (s *ResourcesSQL) Init(options config.Map) error {
 func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePolicy) error {
 
 	prepared := s.GetStmt("AddRuleForResource")
+	if prepared == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
 	_, err := prepared.Exec(resourceId, policy.Action.String(), policy.Subject, policy.Effect.String(), policy.JsonConditions)
 	return err
 
@@ -102,12 +106,18 @@ func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*s
 func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error) {
 
 	var res []*service.ResourcePolicy
+
 	prepared := s.GetStmt("SelectRulesForResource")
+	if prepared == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+
 	rows, err := prepared.Query(resourceId)
 	if err != nil {
 		return res, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		rule := new(service.ResourcePolicy)
 		var actionString string
@@ -120,13 +130,16 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 		res = append(res, rule)
 	}
 	return res, nil
-
 }
 
 // DeletePoliciesForResource removes all policies for a given resource
 func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 
 	prepared := s.GetStmt("DeleteRulesForResource")
+	if prepared == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
 	_, err := prepared.Exec(resourceId)
 	return err
 
@@ -136,6 +149,10 @@ func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 
 	prepared := s.GetStmt("DeleteRulesForSubject")
+	if prepared == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
 	_, err := prepared.Exec(subject)
 	return err
 
@@ -145,6 +162,10 @@ func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 func (s *ResourcesSQL) DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error {
 
 	prepared := s.GetStmt("DeleteRulesForResourceAndAction")
+	if prepared == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
 	_, err := prepared.Exec(resourceId, action.String())
 	return err
 
@@ -162,14 +183,20 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 	subjects := q.GetSubjects()
 
 	if q.Empty {
-
 		join := goqu.I(resourcesTableName + ".resource").Eq(goqu.I(leftIdentifier))
 		actionQ := goqu.I(resourcesTableName + ".action").Eq(action.String())
-		str, _, e := goqu.New(s.Driver(), nil).From(resourcesTableName).Select(goqu.L("1")).Where(goqu.And(join, actionQ)).ToSql()
+		str, args, e := goqu.New(s.Driver(), s.DB()).
+			From(resourcesTableName).
+			Prepared(true).
+			Select(goqu.L("1")).
+			Where(goqu.And(join, actionQ)).
+			ToSql()
+
 		if e != nil {
 			return nil, e
 		}
-		return goqu.L("NOT EXISTS (" + str + ")"), nil
+
+		return goqu.L("NOT EXISTS ("+str+")", args...), nil
 
 	} else {
 
@@ -185,11 +212,17 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 
 		ands = append(ands, goqu.I(resourcesTableName+".resource").Eq(goqu.I(leftIdentifier))) // Join
 		ands = append(ands, goqu.I(resourcesTableName+".action").Eq(action.String()))
-		str, _, e := goqu.New(s.Driver(), nil).From(resourcesTableName).Select(goqu.L("1")).Where(goqu.And(ands...)).ToSql()
+		str, args, e := goqu.New(s.Driver(), s.DB()).
+			From(resourcesTableName).
+			Prepared(true).
+			Select(goqu.L("1")).
+			Where(goqu.And(ands...)).
+			ToSql()
+
 		if e != nil {
 			return nil, e
 		}
-		return goqu.L("EXISTS (" + str + ")"), nil
+		return goqu.L("EXISTS ("+str+")", args...), nil
 
 	}
 }

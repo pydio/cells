@@ -28,7 +28,9 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -46,19 +48,18 @@ func NewPathMultipleRootsHandler() *MultipleRootsHandler {
 func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
-	//log.Logger(ctx).Debug("updateInput", zap.Any("branch", branch), zap.Bool("set", set))
+	//log.Logger(ctx).Info("updateInput", zap.Any("branch", branch), zap.Bool("set", set), node.Zap())
 	if !set || branch.UUID == "ROOT" || branch.Client != nil {
 		return ctx, node, nil
 	}
-	if len(branch.RootNodes) == 1 {
-		rootNode, err := m.getRoot(branch.RootNodes[0])
+	if len(branch.RootUUIDs) == 1 {
+		rootNode, err := m.getRoot(branch.RootUUIDs[0])
 		if err != nil {
 			return ctx, node, err
 		}
 		if !rootNode.IsLeaf() {
 			branch.Root = rootNode
-			ctx = WithBranchInfo(ctx, identifier, branch)
-			return ctx, node, nil
+			return WithBranchInfo(ctx, identifier, branch), node, nil
 		}
 	}
 
@@ -67,8 +68,8 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 	parts := strings.Split(strings.Trim(node.Path, "/"), "/")
 	if len(parts) > 0 {
 		rootId := parts[0]
-		log.Logger(ctx).Debug("Searching", zap.String("root", rootId), zap.Any("rootNodes", branch.RootNodes))
-		rootKeys, e := m.rootKeysMap(branch.RootNodes)
+		log.Logger(ctx).Debug("Searching", zap.String("root", rootId), zap.Any("rootNodes", branch.RootUUIDs))
+		rootKeys, e := m.rootKeysMap(branch.RootUUIDs)
 		if e != nil {
 			return ctx, out, e
 		}
@@ -90,11 +91,19 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
-	if !set || branch.UUID == "ROOT" || len(branch.RootNodes) < 2 {
+	if set && branch.UUID != "ROOT" {
+		if branch.EncryptionMode != object.EncryptionMode_CLEAR {
+			node.SetMeta(common.META_FLAG_ENCRYPTED, "true")
+		}
+		if branch.VersioningPolicyName != "" {
+			node.SetMeta(common.META_FLAG_VERSIONING, "true")
+		}
+	}
+	if !set || branch.UUID == "ROOT" || len(branch.RootUUIDs) < 2 {
 		return ctx, node, nil
 	}
-	if len(branch.RootNodes) == 1 {
-		root, _ := m.getRoot(branch.RootNodes[0])
+	if len(branch.RootUUIDs) == 1 {
+		root, _ := m.getRoot(branch.RootUUIDs[0])
 		if !root.IsLeaf() {
 			return ctx, node, nil
 		}
@@ -111,7 +120,7 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 	}
 	out.Path = m.makeRootKey(branch.Root) + "/" + strings.TrimLeft(node.Path, "/")
 	if firstLevel {
-		out.SetMeta("ws_root", "true")
+		out.SetMeta(common.META_FLAG_WORKSPACE_ROOT, "true")
 	}
 	return ctx, out, nil
 }
@@ -124,7 +133,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 
 		branch, _ := GetBranchInfo(ctx, "in")
 		streamer := NewWrappingStreamer()
-		nodes, e := m.rootKeysMap(branch.RootNodes)
+		nodes, e := m.rootKeysMap(branch.RootUUIDs)
 		if e != nil {
 			return streamer, e
 		}
@@ -133,7 +142,20 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 			for rKey, rNode := range nodes {
 				node := rNode.Clone()
 				node.Path = rKey
-				node.SetMeta("ws_root", "true")
+				// Re-read node to make sure it goes through other layers - Duplicate context
+				localCtx := WithBranchInfo(ctx, "in", branch)
+				t, e := m.ReadNode(localCtx, &tree.ReadNodeRequest{Node: node})
+				if e != nil {
+					log.Logger(ctx).Error("[Handler Multiple Root] Cannot read root node", zap.Error(e))
+					continue
+				}
+				node = t.Node
+				node.Path = rKey
+				if strings.HasPrefix(node.GetUuid(), "DATASOURCE:") {
+					node.SetMeta(common.META_NAMESPACE_NODENAME, strings.TrimPrefix(node.GetUuid(), "DATASOURCE:"))
+				}
+				node.SetMeta(common.META_FLAG_WORKSPACE_ROOT, "true")
+				log.Logger(ctx).Debug("[Multiple Root] Sending back node", node.Zap())
 				streamer.Send(&tree.ListNodesResponse{Node: node})
 			}
 		}()
@@ -147,12 +169,12 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 
 	// First try, without modifying ctx & node
 	_, _, err := m.updateInputBranch(ctx, &tree.Node{Path: in.Node.Path}, "in")
-	if err != nil && errors.Parse(err.Error()).Status == "Not Found" {
+	if err != nil && errors.Parse(err.Error()).Status == "Not Found" && (in.Node.Path == "/" || in.Node.Path == "") {
 
 		// Load root nodes and
 		// return a fake root node
 		branch, _ := GetBranchInfo(ctx, "in")
-		nodes, e := m.rootKeysMap(branch.RootNodes)
+		nodes, e := m.rootKeysMap(branch.RootUUIDs)
 		if e != nil {
 			return &tree.ReadNodeResponse{Success: true, Node: &tree.Node{Path: ""}}, nil
 		}
@@ -168,9 +190,9 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 				fakeNode.MTime = node.MTime
 			}
 		}
-		fakeNode.SetMeta("name", branch.Workspace.Label)
-		fakeNode.SetMeta("virtual_root", "true")
-		fakeNode.SetMeta("level_readonly", "true")
+		fakeNode.SetMeta(common.META_NAMESPACE_NODENAME, branch.Workspace.Label)
+		fakeNode.SetMeta(common.META_FLAG_VIRTUAL_ROOT, "true")
+		fakeNode.SetMeta(common.META_FLAG_LEVEL_READONLY, "true")
 		return &tree.ReadNodeResponse{Success: true, Node: fakeNode}, nil
 	}
 	return m.AbstractBranchFilter.ReadNode(ctx, in, opts...)

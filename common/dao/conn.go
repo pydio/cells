@@ -21,21 +21,41 @@
 package dao
 
 import (
-	"database/sql"
 	"fmt"
-
-	"github.com/pydio/cells/common"
+	"sync"
 )
 
-type conn struct{}
+var (
+	conns = make(map[string]*conn)
+	lock  = new(sync.RWMutex)
+)
+
+type conn struct {
+	d      driver
+	weight int
+}
 
 type Conn interface{}
 
 type driver interface {
 	Open(dsn string) (Conn, error)
+	GetConn() Conn
+	SetMaxConnectionsForWeight(int)
+}
+
+type closer interface {
+	Close() error
 }
 
 func NewConn(d string, dsn string) (Conn, error) {
+	return getConn(d, dsn)
+}
+
+func addConn(d string, dsn string) (Conn, error) {
+
+	lock.Lock()
+	defer lock.Unlock()
+
 	var drv driver
 	switch d {
 	case "mysql":
@@ -48,24 +68,57 @@ func NewConn(d string, dsn string) (Conn, error) {
 		return nil, fmt.Errorf("wrong driver")
 	}
 
-	if db, err := drv.Open(dsn); err != nil {
+	db, err := drv.Open(dsn)
+	if err != nil {
 		return nil, err
-	} else {
-		return db, nil
 	}
 
+	conns[d+":"+dsn] = &conn{
+		d:      drv,
+		weight: 1,
+	}
+
+	drv.SetMaxConnectionsForWeight(1)
+
+	return db, nil
 }
 
-func getSqlConnection(driver string, dsn string) (*sql.DB, error) {
-	if db, err := sql.Open(driver, dsn); err != nil {
-		return nil, err
-	} else {
-		if err := db.Ping(); err != nil {
-			return nil, err
-		}
-		db.SetMaxOpenConns(common.DB_MAX_OPEN_CONNS)
-		db.SetConnMaxLifetime(common.DB_CONN_MAX_LIFETIME)
-		db.SetMaxIdleConns(common.DB_MAX_IDLE_CONNS)
-		return db, nil
+func readConn(d string, dsn string) Conn {
+	lock.RLock()
+	defer lock.RUnlock()
+
+	if conn, ok := conns[d+":"+dsn]; ok {
+		conn.weight = conn.weight + 1
+		conn.d.SetMaxConnectionsForWeight(conn.weight)
+
+		return conn.d.GetConn()
 	}
+
+	return nil
+}
+
+func getConn(d string, dsn string) (Conn, error) {
+	if conn := readConn(d, dsn); conn != nil {
+		return conn, nil
+	}
+
+	return addConn(d, dsn)
+}
+
+func closeConn(conn Conn) error {
+	lock.Lock()
+	defer lock.Unlock()
+
+	for k, c := range conns {
+		if c.d.GetConn() == conn {
+			if cl, ok := conn.(closer); ok {
+				if err := cl.Close(); err != nil {
+					return err
+				}
+			}
+			delete(conns, k)
+		}
+	}
+
+	return nil
 }

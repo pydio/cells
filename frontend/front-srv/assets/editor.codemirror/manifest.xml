@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor id="editor.codemirror" openable="true" canWrite="true" text="code_mirror.1" iconClass="mdi mdi-code-tags" title="code_mirror.2"
+        actions="PydioCodeMirror.Actions" className="PydioCodeMirror" mimes="xml,html,htm,js,json,css,php,phtml,sparql,txt,py,c#,java,jsp,sql,cgi,pl,inc,xsl,md"
+        label="CONF_MESSAGE[Source Viewer]" description="CONF_MESSAGE[Syntax Highlighter for all major code source files]">
+    <client_settings>
+        <resources>
+            <i18n namespace="code_mirror" remote="plug/editor.codemirror/i18n"/>
+            <js file="plug/editor.codemirror/res/build/PydioCodeMirror.js" className="PydioCodeMirror"/>
+            <css file="plug/editor.codemirror/res/build/codemirror/lib/codemirror.css"/>
+            <css file="plug/editor.codemirror/css/linenumbers.css"/>
+        </resources>
+    </client_settings>
+	<dependencies>
+		<activePlugin pluginName="access.gateway|access.homepage|access.settings"/>
+	</dependencies>
+</editor>

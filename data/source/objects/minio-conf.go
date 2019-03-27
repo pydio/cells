@@ -25,9 +25,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/minio-srv/cmd"
 )
 
 func CreateMinioConfigFile(serviceId string, accessKey string, secretKey string) (configDir string, err error) {

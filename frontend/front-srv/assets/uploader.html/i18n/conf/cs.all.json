@@ -1,0 +1,38 @@
+{
+  "Always Override": {
+    "other": "Vždy potlačit"
+  },
+  "Auto Close": {
+    "other": "Automatické ukončení"
+  },
+  "Auto Rename File": {
+    "other": "Automaticky přejmenovat soubor"
+  },
+  "Auto Start": {
+    "other": "Automatické spouštění"
+  },
+  "Auto-switching HTML5 or IFrame uploader.": {
+    "other": "Automatické přepínání mezi HTML5 a IFrame při nahrávání."
+  },
+  "Default Behaviour": {
+    "other": "Výchozí chování"
+  },
+  "Default value for automatically closing the dialog after upload or not": {
+    "other": "Výchozí hodnota pro automatické zavření dialogu po nahrání"
+  },
+  "Default value for automatically starting upload or not": {
+    "other": "Výchozí hodnota pro automatické spouštění nahrávání"
+  },
+  "Existing Files": {
+    "other": "Existující soubory"
+  },
+  "HTML Uploader": {
+    "other": "Stadartní"
+  },
+  "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": {
+    "other": "Informovat nebo neinformovat uživatele pokud soubor již existuje (výchozí chování, uživatel bude moci toto nastavení změnit)"
+  },
+  "Prompt user": {
+    "other": "Vyzvat uživatele"
+  }
+}

@@ -25,13 +25,13 @@ import (
 	"sync"
 	"time"
 
-	//	"github.com/micro/go-micro/client"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
-	"github.com/pydio/cells/data/source/index"
 	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/data/source/index"
 )
 
 var benchmarks bool
@@ -50,14 +50,14 @@ type SessionMemoryStore struct {
 	sync.Mutex
 	sessions    map[string]*tree.IndexationSession
 	eventsQueue map[string][]StoredEvent
-	mPathsQueue map[string]map[*utils.MPath]int64
+	mPathsQueue map[string]map[*mtree.MPath]int64
 }
 
 func NewSessionMemoryStore() *SessionMemoryStore {
 	store := &SessionMemoryStore{}
 	store.sessions = make(map[string]*tree.IndexationSession)
 	store.eventsQueue = make(map[string][]StoredEvent)
-	store.mPathsQueue = make(map[string]map[*utils.MPath]int64)
+	store.mPathsQueue = make(map[string]map[*mtree.MPath]int64)
 	return store
 }
 
@@ -117,13 +117,13 @@ func (b *MemoryBatcher) Notify(topic string, msg interface{}) {
 	b.store.eventsQueue[b.uuid] = queue
 }
 
-func (b *MemoryBatcher) UpdateMPath(path utils.MPath, deltaSize int64) {
+func (b *MemoryBatcher) UpdateMPath(path mtree.MPath, deltaSize int64) {
 	b.store.Lock()
 	defer b.store.Unlock()
-	var queue map[*utils.MPath]int64
+	var queue map[*mtree.MPath]int64
 	var exists bool
 	if queue, exists = b.store.mPathsQueue[b.uuid]; !exists {
-		queue = make(map[*utils.MPath]int64)
+		queue = make(map[*mtree.MPath]int64)
 	}
 	for mpath, size := range queue {
 		if mpath.String() == path.String() {
@@ -143,7 +143,7 @@ func (b *MemoryBatcher) Flush(ctx context.Context, dao index.DAO) {
 		for mpath, delta := range queue {
 			log.Logger(ctx).Debug("Should update size for path now", zap.Any("path", mpath), zap.Int64("size", delta))
 			b := dao.SetNodes("-1", delta)
-			node := utils.NewTreeNode()
+			node := mtree.NewTreeNode()
 			node.SetMPath(*mpath...)
 			b.Send(node)
 			b.Close()

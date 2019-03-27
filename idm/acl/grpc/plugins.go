@@ -23,32 +23,54 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/idm/acl"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("Access Control List service"),
-		service.WithStorage(acl.NewDAO, "idm_acl"),
-		service.WithMicro(func(m micro.Service) error {
-			m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
-			handler := new(Handler)
-			idm.RegisterACLServiceHandler(m.Server(), handler)
-			tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("Access Control List service"),
+			service.WithStorage(acl.NewDAO, "idm_acl"),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.ValidVersion("1.2.0"),
+					Up:            UpgradeTo120,
+				},
+			}),
+			service.WithMicro(func(m micro.Service) error {
+				m.Init(micro.Metadata(map[string]string{meta.ServiceMetaProvider: "stream"}))
+				handler := new(Handler)
+				idm.RegisterACLServiceHandler(m.Server(), handler)
+				tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)
 
-			// Clean acls on Ws or Roles deletion
-			m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_IDM_EVENT, &WsRolesCleaner{handler}))
+				// Clean acls on Ws or Roles deletion
+				m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_IDM_EVENT, &WsRolesCleaner{handler}))
 
-			// Clean acls on Nodes deletion
-			m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_TREE_CHANGES, &NodesCleaner{Handler: handler}))
+				// Clean acls on Nodes deletion
+				m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_TREE_CHANGES, &NodesCleaner{Handler: handler}))
 
-			return nil
-		}),
-	)
+				// For when it will be used: clean locks at startup
+				/*
+					dao := servicecontext.GetDAO(m.Options().Context).(acl.DAO)
+					if dao != nil {
+						q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{Actions: []*idm.ACLAction{{Name: permissions.AclLock.Name}}})
+						if num, _ := dao.Del(&service2.Query{SubQueries: []*any.Any{q}}); num > 0 {
+							log.Logger(m.Options().Context).Info(fmt.Sprintf("Cleaned %d locks in ACLs", num))
+						}
+					}
+				*/
+
+				return nil
+			}),
+		)
+	})
 }

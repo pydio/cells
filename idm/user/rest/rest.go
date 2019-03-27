@@ -26,6 +26,11 @@ import (
 	"io"
 	"strings"
 
+	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/idm/user/grpc"
+
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -34,13 +39,14 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/service/frontend"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var profilesLevel = map[string]int{
@@ -74,31 +80,53 @@ func (s *UserHandler) Filter() func(string) string {
 	}
 }
 
-// BindUser checks credentials and bind the user if successful
-func (s *UserHandler) BindUser(req *restful.Request, rsp *restful.Response) {
+// GetUser finds a user by its login, answering to rest endpoint GET:/a/user/{Login}
+func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 
-	var user idm.User
-	err := req.ReadEntity(&user)
-	if err != nil {
-		rsp.WriteError(500, err)
+	ctx := req.Request.Context()
+	login := req.PathParameter("Login")
+	if login == "" {
+		service.RestError500(req, rsp, errors.BadRequest("user.missing.login", "please provide a login"))
 		return
 	}
 
-	if len(user.Login) == 0 || len(user.Password) == 0 {
-		rsp.WriteError(500, errors.BadRequest(common.SERVICE_USER, "Missing arguments for bind request"))
-		return
+	qLogin, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: login})
+	query := &service2.Query{
+		Limit:      1,
+		Offset:     0,
+		SubQueries: []*any.Any{qLogin},
 	}
+	query.ResourcePolicyQuery, _ = s.RestToServiceResourcePolicy(ctx, nil)
+	var result *idm.User
 
 	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
-	resp, er := cli.BindUser(req.Request.Context(), &idm.BindUserRequest{
-		UserName: user.Login,
-		Password: user.Password,
+	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
+		Query: query,
 	})
-	if er != nil {
-		rsp.WriteError(401, er)
+	if err != nil {
+		// Handle error
+		service.RestError500(req, rsp, err)
 		return
 	}
-	rsp.WriteEntity(resp.User)
+	defer streamer.Close()
+	for {
+		resp, e := streamer.Recv()
+		if e != nil {
+			break
+		}
+		if resp == nil {
+			continue
+		}
+		u := resp.User
+		u.Roles = permissions.GetRolesForUser(ctx, u, false)
+		result = u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies))
+	}
+
+	if result != nil {
+		rsp.WriteEntity(result)
+	} else {
+		service.RestError404(req, rsp, errors.NotFound("user.notfound", "cannot find user with login %s", login))
+	}
 
 }
 
@@ -111,7 +139,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Received User.Get API request", zap.Any("q", userReq), zap.Error(err))
 	// Ignore empty body
 	if err != nil && err != io.EOF {
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	// Transform to standard query
@@ -150,7 +178,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 	})
 	if err != nil {
 		// Handle error
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	response := &rest.UsersCollection{
@@ -164,7 +192,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 		})
 		if err != nil {
 			// Handle error
-			rsp.WriteError(500, err)
+			service.RestError500(req, rsp, err)
 			return
 		}
 		defer streamer.Close()
@@ -176,15 +204,20 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 			if resp == nil {
 				continue
 			}
+			u := resp.User
 			if resp.User.IsGroup {
-				response.Groups = append(response.Groups, resp.User)
+				u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
+				u.Roles = permissions.GetRolesForUser(ctx, u, true)
+				response.Groups = append(response.Groups, u)
 			} else {
-				u := resp.User
-				u.Roles = utils.GetRolesForUser(ctx, u, false)
-				u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
-				response.Users = append(response.Users, u)
+				u.Roles = permissions.GetRolesForUser(ctx, u, false)
+				response.Users = append(response.Users, u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 			}
 		}
+	}
+
+	if len(response.Users) > 0 {
+		paramsAclsToAttributes(ctx, response.Users)
 	}
 
 	rsp.WriteEntity(response)
@@ -196,11 +229,20 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	login := req.PathParameter("Login")
 	ctx := req.Request.Context()
 	singleQ := &idm.UserSingleQuery{}
-	if strings.HasSuffix(req.Request.RequestURI, "%2F") {
-		log.Logger(req.Request.Context()).Debug("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
+	uName, claims := permissions.FindUserNameInContext(ctx)
+	if strings.HasSuffix(req.Request.RequestURI, "%2F") || strings.HasSuffix(req.Request.RequestURI, "/") {
+		log.Logger(req.Request.Context()).Info("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("crtGroup", claims.GroupPath), zap.String("request", req.Request.RequestURI))
+		if strings.HasPrefix(claims.GroupPath, "/"+login) {
+			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "You are about to delete your own group!"))
+			return
+		}
 		singleQ.GroupPath = login
 		singleQ.Recursive = true
 	} else {
+		if uName == login {
+			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER, "Please make sure not to delete yourself!"))
+			return
+		}
 		log.Logger(req.Request.Context()).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
 		singleQ.Login = login
 	}
@@ -225,7 +267,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		}
 		if !s.MatchPolicies(ctx, response.User.Uuid, response.User.Policies, service2.ResourcePolicyAction_WRITE) {
 			log.Auditer(ctx).Error(
-				fmt.Sprintf("Error while trying to delete forbidden user %s", response.User.Uuid),
+				fmt.Sprintf("Forbidden action: could not delete user [%s]", response.User.Login),
 				log.GetAuditId(common.AUDIT_USER_DELETE),
 				response.User.ZapUuid(),
 			)
@@ -235,16 +277,53 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		break
 	}
 
-	// Now delete user or group
-	n, e := cli.DeleteUser(req.Request.Context(), &idm.DeleteUserRequest{Query: mainQuery})
-	if e != nil {
-		service.RestError500(req, rsp, e)
+	if singleQ.GroupPath != "" {
+
+		uName, _ := permissions.FindUserNameInContext(ctx)
+		// This is a group deletion - send it in background
+		jobUuid := uuid.New()
+		job := &jobs.Job{
+			ID:             "delete-group-" + jobUuid,
+			Owner:          uName,
+			Label:          "Delete groups in background",
+			MaxConcurrency: 1,
+			AutoStart:      true,
+			AutoClean:      true,
+			Actions: []*jobs.Action{
+				{
+					ID: grpc.DeleteUsersActionName,
+					Parameters: map[string]string{
+						"groupPath": singleQ.GroupPath,
+					},
+				},
+			},
+		}
+
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		if er != nil {
+			service.RestError500(req, rsp, er)
+		} else {
+			rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: 0})
+		}
+
 	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("%d users have been deleted", n.RowsDeleted),
-			log.GetAuditId(common.AUDIT_USER_DELETE),
-		)
-		rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+
+		// Now delete user or group
+		n, e := cli.DeleteUser(req.Request.Context(), &idm.DeleteUserRequest{Query: mainQuery})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+		} else {
+			msg := fmt.Sprintf("Deleted user [%s]", login)
+			if n.RowsDeleted > 1 {
+				msg = fmt.Sprintf("Deleted %d users", n.RowsDeleted)
+			}
+
+			log.Auditer(ctx).Info(msg,
+				log.GetAuditId(common.AUDIT_USER_DELETE),
+			)
+			rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+		}
 	}
 
 }
@@ -257,7 +336,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputUser)
 	if err != nil {
 		log.Logger(ctx).Error("cannot fetch idm.User from request", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
@@ -267,12 +346,19 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if existing, exists := s.userById(ctx, inputUser.Uuid, cli); exists {
 			update = existing
 		}
+	} else {
+		if _, err := permissions.SearchUniqueUser(ctx, inputUser.Login, ""); err == nil {
+			service.RestError403(req, rsp, fmt.Errorf("User with the same login already exists!"))
+			return
+		}
 	}
+	var existingAcls []*idm.ACL
+	ctxLogin, ctxClaims := permissions.FindUserNameInContext(ctx)
 	if update != nil {
 		// Check User Policies
 		if !s.MatchPolicies(ctx, update.Uuid, update.Policies, service2.ResourcePolicyAction_WRITE) {
 			log.Auditer(ctx).Error(
-				fmt.Sprintf("Error trying to edit forbidden user %s", update.Uuid),
+				fmt.Sprintf("Forbidden action: could not edit user [%s]", update.GetLogin()),
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
 				update.ZapUuid(),
 			)
@@ -287,62 +373,221 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		rolesToCheck = append(rolesToCheck, removes...)
 		if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
 			log.Auditer(ctx).Error(
-				"Error trying to assign role (forbidden)",
+				fmt.Sprintf("Forbidden action: could not assign roles on [%s]", update.GetLogin()),
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
+				update.ZapUuid(),
 			)
 			service.RestError403(req, rsp, err)
 			return
 		}
+		// Check user own password change
+		if inputUser.Password != "" && ctxLogin == inputUser.Login {
+			if _, err := cli.BindUser(ctx, &idm.BindUserRequest{UserName: inputUser.Login, Password: inputUser.OldPassword}); err != nil {
+				service.RestError401(req, rsp, err)
+				return
+			}
+		}
+		// Load current ACLs for personal role
+		for _, r := range update.Roles {
+			if r.UserRole {
+				existingAcls = permissions.GetACLsForRoles(ctx, []*idm.Role{r}, &idm.ACLAction{Name: "parameter:*"})
+			}
+		}
+		// Put back the pydio: attributes
+		if update.Attributes != nil {
+			for k, v := range update.Attributes {
+				if strings.HasPrefix(k, idm.UserAttrPrivatePrefix) {
+					if inputUser.Attributes == nil {
+						inputUser.Attributes = map[string]string{}
+					}
+					inputUser.Attributes[k] = v
+				}
+			}
+		}
 	}
 
-	// Check profile is not higher than current user profile
-	if !inputUser.IsGroup {
-		_, ctxClaims := utils.FindUserNameInContext(ctx)
-		if profilesLevel[inputUser.Attributes["profile"]] > profilesLevel[ctxClaims.Profile] {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes["profile"], ctxClaims.Profile))
+	if inputUser.IsGroup {
+		if ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create groups"))
+			return
+		}
+		inputUser.GroupPath = strings.TrimSuffix(inputUser.GroupPath, "/") + "/" + inputUser.GroupLabel
+	} else {
+		// Add a default profile
+		if _, ok := inputUser.Attributes[idm.UserAttrProfile]; !ok {
+			inputUser.Attributes[idm.UserAttrProfile] = common.PYDIO_PROFILE_SHARED
+		}
+		// Check profile is not higher than current user profile
+		if profilesLevel[inputUser.Attributes[idm.UserAttrProfile]] > profilesLevel[ctxClaims.Profile] {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes[idm.UserAttrProfile], ctxClaims.Profile))
+			return
+		}
+		if _, ok := inputUser.Attributes[idm.UserAttrPassHashed]; ok {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to use this attribute"))
 			return
 		}
 	}
+
+	var acls []*idm.ACL
+	var deleteAclActions []string
+	var sendEmail bool
+	cleanAttributes := map[string]string{}
+	for k, v := range inputUser.Attributes {
+		if k == "send_email" {
+			sendEmail = v == "true"
+			continue
+		}
+		if strings.HasPrefix(k, "parameter:") {
+			if !allowedAclKey(k, true) {
+				continue
+			}
+			var acl = &idm.ACL{
+				Action:      &idm.ACLAction{Name: k, Value: v},
+				WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+			}
+			for _, existing := range existingAcls {
+				if existing.Action != nil && existing.Action.Name == k {
+					deleteAclActions = append(deleteAclActions, existing.Action.Name)
+				}
+			}
+			acls = append(acls, acl)
+			continue
+		}
+		cleanAttributes[k] = v
+	}
+	inputUser.Attributes = cleanAttributes
 
 	response, er := cli.CreateUser(ctx, &idm.CreateUserRequest{
 		User: &inputUser,
 	})
 	if er != nil {
-		rsp.WriteError(500, er)
+		service.RestError500(req, rsp, er)
 		return
 	}
 
-	if update == nil && inputUser.IsGroup {
-		roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
-		_, er := roleCli.CreateRole(ctx, &idm.CreateRoleRequest{
-			Role: &idm.Role{
+	if update == nil {
+		var newRole *idm.Role
+		if inputUser.IsGroup {
+			newRole = &idm.Role{
 				Uuid:      response.User.Uuid,
 				GroupRole: true,
-				Label:     "Group " + response.User.Uuid,
-			},
-		})
+				Label:     "Group " + response.User.GroupLabel,
+			}
+		} else {
+			newRole = &idm.Role{
+				Uuid:     response.User.Uuid,
+				UserRole: true,
+				Label:    "User " + response.User.Login,
+				Policies: []*service2.ResourcePolicy{
+					{Subject: "profile:standard", Action: service2.ResourcePolicyAction_READ, Effect: service2.ResourcePolicy_allow},
+					{Subject: "user:" + response.User.Login, Action: service2.ResourcePolicyAction_WRITE, Effect: service2.ResourcePolicy_allow},
+					{Subject: "profile:admin", Action: service2.ResourcePolicyAction_WRITE, Effect: service2.ResourcePolicy_allow},
+				},
+			}
+		}
+		roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+		_, er := roleCli.CreateRole(ctx, &idm.CreateRoleRequest{Role: newRole})
 		if er != nil {
-			rsp.WriteError(500, er)
+			service.RestError500(req, rsp, er)
 			return
 		}
 	}
+	out := response.User
+	path := "/"
+	if len(out.GroupPath) > 1 {
+		path = out.GroupPath + "/"
+	}
 	if update != nil {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Update user %s", update.Uuid),
-			log.GetAuditId(common.AUDIT_USER_UPDATE),
-			update.ZapUuid(),
-		)
+		if out.IsGroup {
+			log.Auditer(ctx).Info(
+				fmt.Sprintf("Updated group [%s]", out.GroupPath),
+				log.GetAuditId(common.AUDIT_GROUP_UPDATE),
+				out.ZapUuid(),
+			)
+		} else {
+			log.Auditer(ctx).Info(
+				fmt.Sprintf("Updated user [%s%s]", path, out.Login),
+				log.GetAuditId(common.AUDIT_USER_UPDATE),
+				out.ZapUuid(),
+			)
+		}
 	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Create user %s", response.User.Uuid),
-			log.GetAuditId(common.AUDIT_USER_CREATE),
-			response.User.ZapUuid(),
-		)
+		if out.IsGroup {
+			log.Auditer(ctx).Info(
+				fmt.Sprintf("Created group [%s]", out.GroupPath),
+				log.GetAuditId(common.AUDIT_GROUP_CREATE),
+				out.ZapUuid(),
+			)
+		} else {
+			log.Auditer(ctx).Info(
+				fmt.Sprintf("Created user [%s%s]", path, out.Login),
+				log.GetAuditId(common.AUDIT_USER_CREATE),
+				out.ZapUuid(),
+			)
+		}
 	}
 
 	u := response.User
-	u.Roles = utils.GetRolesForUser(ctx, u, false)
+
+	if len(acls) > 0 {
+		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+		if len(deleteAclActions) > 0 {
+			delQuery := &service2.Query{Operation: service2.OperationType_OR}
+			for _, action := range deleteAclActions {
+				q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+					RoleIDs:      []string{u.Uuid},
+					Actions:      []*idm.ACLAction{{Name: action}},
+					WorkspaceIDs: []string{"PYDIO_REPO_SCOPE_ALL"},
+				})
+				delQuery.SubQueries = append(delQuery.SubQueries, q)
+			}
+			if _, e := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: delQuery}); e != nil {
+				log.Logger(ctx).Error("Could not delete existing ACLs", zap.Error(e))
+			}
+		}
+		for _, acl := range acls {
+			acl.RoleID = u.Uuid
+			if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl}); e != nil {
+				log.Logger(ctx).Error("Could not store ACL", acl.Zap(), zap.Error(e))
+			}
+		}
+	}
+
+	// Reload user fully
+	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: u.Uuid})
+	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
+		Query: &service2.Query{SubQueries: []*any.Any{q}},
+	})
+	if err != nil {
+		// Handle error
+		service.RestError500(req, rsp, err)
+		return
+	}
+	defer streamer.Close()
+	for {
+		resp, e := streamer.Recv()
+		if e != nil {
+			break
+		}
+		if resp == nil {
+			continue
+		}
+		u = resp.User
+		if !resp.User.IsGroup {
+			u.Roles = permissions.GetRolesForUser(ctx, u, false)
+			u = u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies))
+			paramsAclsToAttributes(ctx, []*idm.User{u})
+		} else if len(u.Roles) == 0 {
+			u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
+			u.Roles = permissions.GetRolesForUser(ctx, u, true)
+		}
+		break
+	}
 	rsp.WriteEntity(u)
+
+	if sendEmail {
+		// Now send email to user!
+	}
 
 }
 
@@ -354,7 +599,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputUser)
 	if err != nil {
 		log.Logger(ctx).Error("cannot fetch idm.User from rest query", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(ctx).Debug("Received User.PutRoles API request", inputUser.ZapLogin())
@@ -379,8 +624,11 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	rolesToCheck = append(rolesToCheck, removes...)
 	if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
 		log.Auditer(ctx).Error(
-			fmt.Sprintf("Error trying to assign role (forbidden) on user %s", update.Uuid),
+			fmt.Sprintf("Forbidden action: could not assign roles to user [%s]", update.GetLogin()),
 			log.GetAuditId(common.AUDIT_USER_UPDATE),
+			zap.Any("rolesToCheck", rolesToCheck),
+			update.ZapUuid(),
+			zap.Any("rolesToCheck", rolesToCheck),
 		)
 		service.RestError403(req, rsp, err)
 		return
@@ -393,16 +641,17 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 		User: update,
 	})
 	if er != nil {
-		rsp.WriteError(500, er)
+		service.RestError500(req, rsp, er)
 	} else {
 		u := response.User
 		u.Roles = update.Roles
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Update user roles %s", response.User.Uuid),
+			fmt.Sprintf("Updated roles on user [%s]", response.User.GetLogin()),
 			log.GetAuditId(common.AUDIT_USER_UPDATE),
 			response.User.ZapUuid(),
+			zap.Any("Roles", u.Roles),
 		)
-		rsp.WriteEntity(u)
+		rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 	}
 }
 
@@ -501,11 +750,63 @@ func (s *UserHandler) userById(ctx context.Context, userId string, cli idm.UserS
 			continue
 		}
 		user = rsp.User
-		user.Roles = utils.GetRolesForUser(ctx, user, false)
+		user.Roles = permissions.GetRolesForUser(ctx, user, false)
 		exists = true
 		break
 	}
 
 	return
 
+}
+
+// paramsAclsToAttributes adds some acl-based parameters inside user attributes
+func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
+	var roles []*idm.Role
+	for _, user := range users {
+		var role *idm.Role
+		for _, r := range user.Roles {
+			if r.UserRole {
+				role = r
+				break
+			}
+		}
+		if role != nil {
+			if user.Attributes == nil {
+				user.Attributes = map[string]string{}
+			}
+			roles = append(roles, role)
+		}
+	}
+	if len(roles) == 0 {
+		return
+	}
+	for _, acl := range permissions.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "parameter:*"}) {
+		for _, user := range users {
+			if allowedAclKey(acl.Action.Name, user.PoliciesContextEditable) && user.Uuid == acl.RoleID {
+				user.Attributes[acl.Action.Name] = acl.Action.Value
+			}
+		}
+	}
+
+}
+
+func allowedAclKey(k string, contextEditable bool) bool {
+	pool, e := frontend.GetPluginsPool()
+	if e != nil {
+		log.Logger(context.Background()).Error("Cannot read plugins pool", zap.Error(e))
+	}
+	// Find params that contain user scope but not only that scope
+	params := pool.ExposedParametersByScope("user", true)
+	for _, param := range params {
+		if param.Attrscope == "user" {
+			continue
+		}
+		if !contextEditable && k != "parameter:core.conf:lang" && k != "parameter:core.conf:country" {
+			continue
+		}
+		if k == "parameter:"+param.PluginId+":"+param.Attrname {
+			return true
+		}
+	}
+	return false
 }

@@ -23,11 +23,12 @@ package main
 import (
 	"github.com/pydio/cells/cmd"
 
+	// Making sure they are initialised first
+	_ "github.com/pydio/cells/discovery/nats"
+
 	_ "github.com/pydio/cells/discovery/config/grpc"
 	_ "github.com/pydio/cells/discovery/config/rest"
-	_ "github.com/pydio/cells/discovery/consul"
 	_ "github.com/pydio/cells/discovery/install/rest"
-	_ "github.com/pydio/cells/discovery/nats"
 	_ "github.com/pydio/cells/discovery/update/grpc"
 	_ "github.com/pydio/cells/discovery/update/rest"
 
@@ -44,13 +45,14 @@ import (
 	_ "github.com/pydio/cells/data/changes/grpc"
 	_ "github.com/pydio/cells/data/changes/rest"
 	_ "github.com/pydio/cells/data/docstore/grpc"
-	_ "github.com/pydio/cells/data/docstore/rest"
 	_ "github.com/pydio/cells/data/key/grpc"
 	_ "github.com/pydio/cells/data/meta/grpc"
 	_ "github.com/pydio/cells/data/meta/rest"
 	_ "github.com/pydio/cells/data/source/index/grpc"
 	_ "github.com/pydio/cells/data/source/objects/grpc"
 	_ "github.com/pydio/cells/data/source/sync/grpc"
+	_ "github.com/pydio/cells/data/source/test"
+	_ "github.com/pydio/cells/data/templates/rest"
 	_ "github.com/pydio/cells/data/tree/grpc"
 	_ "github.com/pydio/cells/data/tree/rest"
 	_ "github.com/pydio/cells/data/versions/grpc"
@@ -71,6 +73,7 @@ import (
 	_ "github.com/pydio/cells/idm/acl/rest"
 	_ "github.com/pydio/cells/idm/auth/grpc"
 	_ "github.com/pydio/cells/idm/auth/rest"
+	_ "github.com/pydio/cells/idm/auth/web"
 	_ "github.com/pydio/cells/idm/graph/rest"
 	_ "github.com/pydio/cells/idm/key/grpc"
 	_ "github.com/pydio/cells/idm/meta/grpc"
@@ -79,7 +82,6 @@ import (
 	_ "github.com/pydio/cells/idm/policy/rest"
 	_ "github.com/pydio/cells/idm/role/grpc"
 	_ "github.com/pydio/cells/idm/role/rest"
-	_ "github.com/pydio/cells/idm/share/grpc"
 	_ "github.com/pydio/cells/idm/share/rest"
 	_ "github.com/pydio/cells/idm/user/grpc"
 	_ "github.com/pydio/cells/idm/user/rest"

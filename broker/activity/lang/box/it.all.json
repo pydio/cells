@@ -1,0 +1,62 @@
+{
+  "AccessedBy": {
+    "other": "Letta da {{.Actor}}"
+  },
+  "AccessedObject": {
+    "other": "Letta {{.Object}}"
+  },
+  "AccessedObjectBy": {
+    "other": "{{.Object}} è stato letto da {{.Actor}}"
+  },
+  "Cell": {
+    "other": "Cell"
+  },
+  "CreatedBy": {
+    "other": "Creato da {{.Actor}}"
+  },
+  "CreatedObject": {
+    "other": "Creato {{.Object}}"
+  },
+  "CreatedObjectBy": {
+    "other": "{{.Object}} è stato creato da {{.Actor}}"
+  },
+  "DeletedBy": {
+    "other": "Eliminato da {{.Actor}}"
+  },
+  "DeletedObject": {
+    "other": "Eliminato {{.Object}}"
+  },
+  "DeletedObjectBy": {
+    "other": "{{.Object}} è stato eliminato da {{.Actor}}"
+  },
+  "DigestTitle": {
+    "other": "Questo è il tuo Pydio Daily Digest"
+  },
+  "Document": {
+    "other": "Documento"
+  },
+  "Folder": {
+    "other": "Cartella"
+  },
+  "ModifiedBy": {
+    "other": "Modificato da {{.Actor}}"
+  },
+  "ModifiedObject": {
+    "other": "Modificato {{.Object}}"
+  },
+  "ModifiedObjectBy": {
+    "other": "{{.Object}} è stato modificato da {{.Actor}}"
+  },
+  "MovedBy": {
+    "other": "Spostato da {{.Actor}}"
+  },
+  "MovedObject": {
+    "other": "Spostato {{.Object}}"
+  },
+  "MovedObjectBy": {
+    "other": "{{.Object}} è stato spostato da {{.Actor}}"
+  },
+  "Workspace": {
+    "other": "Workspace"
+  }
+}

@@ -112,6 +112,12 @@ func (b *Merger) unlockFile(batchedEvent *filters.BatchedEvent, path string) {
 
 func (b *Merger) process(batch *filters.Batch) {
 
+	if batch.DoneChan != nil {
+		defer func() {
+			batch.DoneChan <- true
+		}()
+	}
+
 	b.sendEvent(ProcessorEvent{
 		Type: "merger:start",
 		Data: batch,
@@ -122,6 +128,10 @@ func (b *Merger) process(batch *filters.Batch) {
 
 	total := float32(len(batch.CreateFolders) + len(batch.FolderMoves) + len(batch.CreateFiles) + len(batch.FileMoves) + len(batch.Deletes))
 	var cursor float32
+
+	if batch.StatusChan != nil {
+		batch.StatusChan <- filters.BatchProcessStatus{StatusString: "Start processing batch"}
+	}
 
 	var sessionUuid string
 	if batch.SessionProvider != nil {
@@ -193,6 +203,10 @@ func (b *Merger) process(batch *filters.Batch) {
 		cursor++
 		b.applyProcessFunc(event, operationId, b.processDelete, "Deleted Node", "Error while deleting node",
 			batch.StatusChan, cursor, total, zap.String("path", event.Node.Path))
+	}
+
+	if batch.StatusChan != nil {
+		batch.StatusChan <- filters.BatchProcessStatus{StatusString: "Finished processing batch"}
 	}
 
 	b.sendEvent(ProcessorEvent{

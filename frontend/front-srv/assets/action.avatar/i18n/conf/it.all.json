@@ -1,0 +1,17 @@
+{
+  "Avatars": {
+    "other": "Avatar"
+  },
+  "Choose an avatar web service": {
+    "other": "Scegli un servizio web per avatar"
+  },
+  "Get user avatar from Gravatar/Libravatar": {
+    "other": "Utilizza un avatar da Gravatar/Libravatar"
+  },
+  "Gravatar type": {
+    "other": "Tipo Gravatar"
+  },
+  "Provider": {
+    "other": "Provenienza"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "Create and extract tar, tar.gz and tar.bz2 archives.": {
+    "other": "TAR, TAR.GZ veya TAR.BZ2 arşiv biçimi yaratır veya ayıklar."
+  },
+  "Tar Archives Support": {
+    "other": "TAR arşiv biçimi desteklenen eklenti"
+  }
+}

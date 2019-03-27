@@ -19,7 +19,9 @@ import (
 	"sync/atomic"
 
 	"github.com/RoaringBitmap/roaring"
+	"github.com/blevesearch/bleve/index"
 	"github.com/blevesearch/bleve/index/scorch/segment"
+	"github.com/blevesearch/bleve/index/scorch/segment/zap"
 )
 
 type segmentIntroduction struct {
@@ -29,8 +31,9 @@ type segmentIntroduction struct {
 	ids       []string
 	internal  map[string][]byte
 
-	applied   chan error
-	persisted chan error
+	applied           chan error
+	persisted         chan error
+	persistedCallback index.BatchCallback
 }
 
 type persistIntroduction struct {
@@ -107,7 +110,10 @@ func (s *Scorch) introduceSegment(next *segmentIntroduction) error {
 
 	s.rootLock.RLock()
 	root := s.root
+	root.AddRef()
 	s.rootLock.RUnlock()
+
+	defer func() { _ = root.DecRef() }()
 
 	nsegs := len(root.segment)
 
@@ -118,10 +124,12 @@ func (s *Scorch) introduceSegment(next *segmentIntroduction) error {
 		offsets:  make([]uint64, 0, nsegs+1),
 		internal: make(map[string][]byte, len(root.internal)),
 		refs:     1,
+		creator:  "introduceSegment",
 	}
 
 	// iterate through current segments
 	var running uint64
+	var docsToPersistCount, memSegments, fileSegments uint64
 	for i := range root.segment {
 		// see if optimistic work included this segment
 		delta, ok := next.obsoletes[root.segment[i].id]
@@ -140,6 +148,7 @@ func (s *Scorch) introduceSegment(next *segmentIntroduction) error {
 			id:         root.segment[i].id,
 			segment:    root.segment[i].segment,
 			cachedDocs: root.segment[i].cachedDocs,
+			creator:    root.segment[i].creator,
 		}
 
 		// apply new obsoletions
@@ -147,6 +156,9 @@ func (s *Scorch) introduceSegment(next *segmentIntroduction) error {
 			newss.deleted = delta
 		} else {
 			newss.deleted = roaring.Or(root.segment[i].deleted, delta)
+		}
+		if newss.deleted.IsEmpty() {
+			newss.deleted = nil
 		}
 
 		// check for live size before copying
@@ -156,7 +168,18 @@ func (s *Scorch) introduceSegment(next *segmentIntroduction) error {
 			newSnapshot.offsets = append(newSnapshot.offsets, running)
 			running += newss.segment.Count()
 		}
+
+		if isMemorySegment(root.segment[i]) {
+			docsToPersistCount += root.segment[i].Count()
+			memSegments++
+		} else {
+			fileSegments++
+		}
 	}
+
+	atomic.StoreUint64(&s.stats.TotItemsToPersist, docsToPersistCount)
+	atomic.StoreUint64(&s.stats.TotMemorySegmentsAtRoot, memSegments)
+	atomic.StoreUint64(&s.stats.TotFileSegmentsAtRoot, fileSegments)
 
 	// append new segment, if any, to end of the new index snapshot
 	if next.data != nil {
@@ -164,6 +187,7 @@ func (s *Scorch) introduceSegment(next *segmentIntroduction) error {
 			id:         next.id,
 			segment:    next.data, // take ownership of next.data's ref-count
 			cachedDocs: &cachedDocs{cache: nil},
+			creator:    "introduceSegment",
 		}
 		newSnapshot.segment = append(newSnapshot.segment, newSegmentSnapshot)
 		newSnapshot.offsets = append(newSnapshot.offsets, running)
@@ -191,11 +215,15 @@ func (s *Scorch) introduceSegment(next *segmentIntroduction) error {
 	if next.persisted != nil {
 		s.rootPersisted = append(s.rootPersisted, next.persisted)
 	}
+	if next.persistedCallback != nil {
+		s.persistedCallbacks = append(s.persistedCallbacks, next.persistedCallback)
+	}
 	// swap in new index snapshot
 	newSnapshot.epoch = s.nextSnapshotEpoch
 	s.nextSnapshotEpoch++
 	rootPrev := s.root
 	s.root = newSnapshot
+	atomic.StoreUint64(&s.stats.CurRootEpoch, s.root.epoch)
 	// release lock
 	s.rootLock.Unlock()
 
@@ -212,20 +240,26 @@ func (s *Scorch) introducePersist(persist *persistIntroduction) {
 	atomic.AddUint64(&s.stats.TotIntroducePersistBeg, 1)
 	defer atomic.AddUint64(&s.stats.TotIntroducePersistEnd, 1)
 
-	s.rootLock.RLock()
+	s.rootLock.Lock()
 	root := s.root
-	s.rootLock.RUnlock()
+	root.AddRef()
+	nextSnapshotEpoch := s.nextSnapshotEpoch
+	s.nextSnapshotEpoch++
+	s.rootLock.Unlock()
+
+	defer func() { _ = root.DecRef() }()
 
 	newIndexSnapshot := &IndexSnapshot{
 		parent:   s,
-		epoch:    s.nextSnapshotEpoch,
+		epoch:    nextSnapshotEpoch,
 		segment:  make([]*SegmentSnapshot, len(root.segment)),
 		offsets:  make([]uint64, len(root.offsets)),
 		internal: make(map[string][]byte, len(root.internal)),
 		refs:     1,
+		creator:  "introducePersist",
 	}
-	s.nextSnapshotEpoch++
 
+	var docsToPersistCount, memSegments, fileSegments uint64
 	for i, segmentSnapshot := range root.segment {
 		// see if this segment has been replaced
 		if replacement, ok := persist.persisted[segmentSnapshot.id]; ok {
@@ -234,6 +268,7 @@ func (s *Scorch) introducePersist(persist *persistIntroduction) {
 				segment:    replacement,
 				deleted:    segmentSnapshot.deleted,
 				cachedDocs: segmentSnapshot.cachedDocs,
+				creator:    "introducePersist",
 			}
 			newIndexSnapshot.segment[i] = newSegmentSnapshot
 			delete(persist.persisted, segmentSnapshot.id)
@@ -241,9 +276,17 @@ func (s *Scorch) introducePersist(persist *persistIntroduction) {
 			// update items persisted incase of a new segment snapshot
 			atomic.AddUint64(&s.stats.TotPersistedItems, newSegmentSnapshot.Count())
 			atomic.AddUint64(&s.stats.TotPersistedSegments, 1)
+			fileSegments++
 		} else {
 			newIndexSnapshot.segment[i] = root.segment[i]
 			newIndexSnapshot.segment[i].segment.AddRef()
+
+			if isMemorySegment(root.segment[i]) {
+				docsToPersistCount += root.segment[i].Count()
+				memSegments++
+			} else {
+				fileSegments++
+			}
 		}
 		newIndexSnapshot.offsets[i] = root.offsets[i]
 	}
@@ -252,10 +295,14 @@ func (s *Scorch) introducePersist(persist *persistIntroduction) {
 		newIndexSnapshot.internal[k] = v
 	}
 
+	atomic.StoreUint64(&s.stats.TotItemsToPersist, docsToPersistCount)
+	atomic.StoreUint64(&s.stats.TotMemorySegmentsAtRoot, memSegments)
+	atomic.StoreUint64(&s.stats.TotFileSegmentsAtRoot, fileSegments)
 	newIndexSnapshot.updateSize()
 	s.rootLock.Lock()
 	rootPrev := s.root
 	s.root = newIndexSnapshot
+	atomic.StoreUint64(&s.stats.CurRootEpoch, s.root.epoch)
 	s.rootLock.Unlock()
 
 	if rootPrev != nil {
@@ -271,17 +318,21 @@ func (s *Scorch) introduceMerge(nextMerge *segmentMerge) {
 
 	s.rootLock.RLock()
 	root := s.root
+	root.AddRef()
 	s.rootLock.RUnlock()
+
+	defer func() { _ = root.DecRef() }()
 
 	newSnapshot := &IndexSnapshot{
 		parent:   s,
 		internal: root.internal,
 		refs:     1,
+		creator:  "introduceMerge",
 	}
 
 	// iterate through current segments
 	newSegmentDeleted := roaring.NewBitmap()
-	var running uint64
+	var running, docsToPersistCount, memSegments, fileSegments uint64
 	for i := range root.segment {
 		segmentID := root.segment[i].id
 		if segSnapAtMerge, ok := nextMerge.old[segmentID]; ok {
@@ -312,10 +363,18 @@ func (s *Scorch) introduceMerge(nextMerge *segmentMerge) {
 				segment:    root.segment[i].segment,
 				deleted:    root.segment[i].deleted,
 				cachedDocs: root.segment[i].cachedDocs,
+				creator:    root.segment[i].creator,
 			})
 			root.segment[i].segment.AddRef()
 			newSnapshot.offsets = append(newSnapshot.offsets, running)
 			running += root.segment[i].segment.Count()
+
+			if isMemorySegment(root.segment[i]) {
+				docsToPersistCount += root.segment[i].Count()
+				memSegments++
+			} else {
+				fileSegments++
+			}
 		}
 	}
 
@@ -333,6 +392,7 @@ func (s *Scorch) introduceMerge(nextMerge *segmentMerge) {
 			}
 		}
 	}
+
 	// In case where all the docs in the newly merged segment getting
 	// deleted by the time we reach here, can skip the introduction.
 	if nextMerge.new != nil &&
@@ -343,20 +403,35 @@ func (s *Scorch) introduceMerge(nextMerge *segmentMerge) {
 			segment:    nextMerge.new, // take ownership for nextMerge.new's ref-count
 			deleted:    newSegmentDeleted,
 			cachedDocs: &cachedDocs{cache: nil},
+			creator:    "introduceMerge",
 		})
 		newSnapshot.offsets = append(newSnapshot.offsets, running)
 		atomic.AddUint64(&s.stats.TotIntroducedSegmentsMerge, 1)
+
+		switch nextMerge.new.(type) {
+		case *zap.SegmentBase:
+			docsToPersistCount += nextMerge.new.Count() - newSegmentDeleted.GetCardinality()
+			memSegments++
+		case *zap.Segment:
+			fileSegments++
+		}
 	}
+
+	atomic.StoreUint64(&s.stats.TotItemsToPersist, docsToPersistCount)
+	atomic.StoreUint64(&s.stats.TotMemorySegmentsAtRoot, memSegments)
+	atomic.StoreUint64(&s.stats.TotFileSegmentsAtRoot, fileSegments)
 
 	newSnapshot.AddRef() // 1 ref for the nextMerge.notify response
 
 	newSnapshot.updateSize()
+
 	s.rootLock.Lock()
 	// swap in new index snapshot
 	newSnapshot.epoch = s.nextSnapshotEpoch
 	s.nextSnapshotEpoch++
 	rootPrev := s.root
 	s.root = newSnapshot
+	atomic.StoreUint64(&s.stats.CurRootEpoch, s.root.epoch)
 	// release lock
 	s.rootLock.Unlock()
 
@@ -390,9 +465,11 @@ func (s *Scorch) revertToSnapshot(revertTo *snapshotReversion) error {
 		internal: revertTo.snapshot.internal,
 		epoch:    s.nextSnapshotEpoch,
 		refs:     1,
+		creator:  "revertToSnapshot",
 	}
 	s.nextSnapshotEpoch++
 
+	var docsToPersistCount, memSegments, fileSegments uint64
 	// iterate through segments
 	for i, segmentSnapshot := range revertTo.snapshot.segment {
 		newSnapshot.segment[i] = &SegmentSnapshot{
@@ -400,22 +477,37 @@ func (s *Scorch) revertToSnapshot(revertTo *snapshotReversion) error {
 			segment:    segmentSnapshot.segment,
 			deleted:    segmentSnapshot.deleted,
 			cachedDocs: segmentSnapshot.cachedDocs,
+			creator:    segmentSnapshot.creator,
 		}
 		newSnapshot.segment[i].segment.AddRef()
 
 		// remove segment from ineligibleForRemoval map
 		filename := zapFileName(segmentSnapshot.id)
 		delete(s.ineligibleForRemoval, filename)
+
+		if isMemorySegment(segmentSnapshot) {
+			docsToPersistCount += segmentSnapshot.Count()
+			memSegments++
+		} else {
+			fileSegments++
+		}
 	}
+
+	atomic.StoreUint64(&s.stats.TotItemsToPersist, docsToPersistCount)
+	atomic.StoreUint64(&s.stats.TotMemorySegmentsAtRoot, memSegments)
+	atomic.StoreUint64(&s.stats.TotFileSegmentsAtRoot, fileSegments)
 
 	if revertTo.persisted != nil {
 		s.rootPersisted = append(s.rootPersisted, revertTo.persisted)
 	}
 
 	newSnapshot.updateSize()
+
 	// swap in new snapshot
 	rootPrev := s.root
 	s.root = newSnapshot
+
+	atomic.StoreUint64(&s.stats.CurRootEpoch, s.root.epoch)
 	// release lock
 	s.rootLock.Unlock()
 
@@ -426,4 +518,13 @@ func (s *Scorch) revertToSnapshot(revertTo *snapshotReversion) error {
 	close(revertTo.applied)
 
 	return nil
+}
+
+func isMemorySegment(s *SegmentSnapshot) bool {
+	switch s.segment.(type) {
+	case *zap.SegmentBase:
+		return true
+	default:
+		return false
+	}
 }

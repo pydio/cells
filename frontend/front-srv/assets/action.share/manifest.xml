@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin name="share" label="CONF_MESSAGE[Sharing Features]" description="CONF_MESSAGE[Share Center actions and hooks]"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <server_settings>
+        <global_param name="ENABLE_FILE_PUBLIC_LINK" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Allow users to generate public links on files]" label="CONF_MESSAGE[Files: enable public links]" type="boolean" default="true" expose="true"/>
+        <global_param name="ENABLE_FILE_INTERNAL_SHARING" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Enable internal file sharing (sharing with users existing or temporary users)]" label="CONF_MESSAGE[Files: enable internal sharing]" type="boolean" mandatory="true" default="true" expose="true"/>
+        <global_param name="ENABLE_FOLDER_PUBLIC_LINK" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Allow users to generate public links on folders]" label="CONF_MESSAGE[Folders: enable public links]" type="boolean" default="true" expose="true"/>
+        <global_param name="ENABLE_FOLDER_INTERNAL_SHARING" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Enable internal folder sharing (sharing with users existing or temporary users)]" label="CONF_MESSAGE[Folders: enable internal sharing]" type="boolean" mandatory="true" default="true" expose="true"/>
+        <global_param name="SHARED_USERS_TMP_PREFIX" group="CONF_MESSAGE[Authorizations]" description="CONF_MESSAGE[Mandatory prefix for users created temporary users login]" label="CONF_MESSAGE[Tmp users prefix]" type="string" expose="true"/>
+        <global_param name="HASH_MIN_LENGTH" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Minimum length of the generated hash]" label="CONF_MESSAGE[Hash minimum length]" type="integer" default="6"/>
+        <global_param name="HASH_USER_EDITABLE" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Allow users to manually choose a hash for the generated links]" label="CONF_MESSAGE[Hash user-editable]" type="boolean" default="true" expose="true"/>
+        <global_param name="FILE_MAX_EXPIRATION" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Maximum share expiration limit for file, 0 = unlimited]" label="CONF_MESSAGE[Maximum file expiration limit]" type="integer" default="0" expose="true"/>
+        <global_param name="FILE_MAX_DOWNLOAD" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Maximum download limit for file, 0 = unlimited]" label="CONF_MESSAGE[Maximum file download limit]" type="integer" default="0" expose="true"/>
+        <global_param name="SHARE_FORCE_PASSWORD" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Do not allow users to create public links, only private links (password-protected)]" label="CONF_MESSAGE[Set password mandatory]" type="boolean" default="false" expose="true"/>
+        <!--<global_param name="EMAIL_PERSONAL_LINK_SEND_CLEAR" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[For personal invitations (link is customized), let users choose whether to append clear email address or hashed string to link.]" label="CONF_MESSAGE[Choose personalized invitation format]" type="boolean" default="false" expose="true"/>-->
+        <global_param name="CREATE_QRCODE" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Create and display QRCode for shared link]" label="CONF_MESSAGE[Create QRCode]" type="boolean" default="false" expose="true"/>
+        <!--
+        <global_param name="SHARED_FOLDER_SHOW_SEARCH" group="CONF_MESSAGE[Link Generation]" description="CONF_MESSAGE[Display a search form in the shared folder minisites. This can impact global performances as it will create indexes for all shares.]" label="CONF_MESSAGE[Allow search in minisite]" type="boolean" default="false" expose="true"/>
+        <global_param name="WATCHER_SHARES_AUTO_OWNER" group="CONF_MESSAGE[Notifications]" type="boolean" label="CONF_MESSAGE[Shares Owner]" description="CONF_MESSAGE[When sharing with some internal users, choose whether the owner will be notified by default of any event happening on this share]" default="false" expose="true"/>
+        <global_param name="WATCHER_SHARES_AUTO_USERS" group="CONF_MESSAGE[Notifications]" type="boolean" label="CONF_MESSAGE[Shares Target users]" description="CONF_MESSAGE[When sharing with some internal users, choose whether these users will be notified by default of any event happening on this share]" default="false" expose="true"/>
+        -->
+    </server_settings>
+    <client_settings>
+        <resources>
+            <i18n namespace="share_center" remote="plug/action.share/res/i18n"/>
+            <css file="plug/action.share/res/react-share-form.css" autoload="true"/>
+            <js file="plug/action.share/res/build/model/ShareActions.js" className="ShareActions"/>
+            <js file="plug/action.share/res/build/ShareTemplates.js" className="ShareTemplates" depends="React,PydioComponents,PydioWorkspaces"/>
+            <js file="plug/action.share/res/build/ShareDialog.js" className="ShareDialog" depends="React,PydioForm,PydioComponents"/>
+        </resources>
+    </client_settings>
+    <registry_contributions>
+        <actions>
+            <action name="share">
+                <gui text="292" title="292" iconClass="mdi mdi-share-variant" hasAccessKey="false">
+                    <context selection="true" dir="true" recycle="hidden" actionBar="true" actionBarGroup="0_get,info_panel_share" contextMenu="true"/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" evalMetadata="!metadata.get('pydio_is_shared')"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="ShareActions.Callbacks.share"/>
+                </processing>
+            </action>
+            <action name="share-edit-shared">
+                <gui iconClass="mdi mdi-share-variant" text="share_center.125" title="share_center.126">
+                    <context dir="true" recycle="hidden" selection="true" actionBar="true" contextMenu="true" actionBarGroup="0_get" behaviour="hidden"/>
+                    <selectionContext dir="true" file="true" enableRoot="true" evalMetadata="metadata.get('pydio_is_shared')" recycle="false" unique="true" behaviour="hidden"/>
+                </gui>
+                <processing>
+                    <clientCallback module="ShareActions.Callbacks.editShare"/>
+                </processing>
+            </action>
+            <action name="open_user_shares">
+                <gui text="share_center.98" title="share_center.98" iconClass="mdi mdi-share-variant" accessKey="folder_access_key">
+                    <context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false"/>
+                <processing>
+                    <clientCallback module="ShareActions.Callbacks.openUserShareView"/>
+                </processing>
+            </action>
+        </actions>
+        <client_configs>
+            <template name="minisite_std_list" element="pydio_shared_folder" position="top" label="share_center.153"
+                      namespace="ShareTemplates" component="FolderMinisite" props='{"containerId":"pydio_shared_folder","imageBackgroundFromConfigs":"gui.ajax/CUSTOM_SHAREPAGE_BACKGROUND_"}'/>
+
+            <template name="minisite_film_strip" element="pydio_film_strip" position="top" label="share_center.154"
+                      namespace="ShareTemplates" component="FilmStripMinisite" props='{"containerId":"pydio_film_strip","imageBackgroundFromConfigs":"gui.ajax/CUSTOM_SHAREPAGE_BACKGROUND_"}'/>
+
+            <template name="unique_preview_file" element="pydio_unique_strip" position="top" label="Unique File Preview"
+                      namespace="ShareTemplates" component="FileMinisite" props='{"containerId":"pydio_unique_strip","imageBackgroundFromConfigs":"gui.ajax/CUSTOM_SHAREPAGE_BACKGROUND_"}'/>
+
+            <template name="unique_preview_download" element="pydio_unique_dl" position="top" label="Big download button"
+                      namespace="ShareTemplates" component="DLTemplate" props='{"containerId":"pydio_unique_dl","imageBackgroundFromConfigs":"gui.ajax/CUSTOM_SHAREPAGE_BACKGROUND_"}'/>
+
+            <template name="minisite_dropbox" element="pydio_dropbox_template" position="top" label="share_center.163"
+                      namespace="ShareTemplates" component="DropZoneMinisite" props='{"containerId":"pydio_dropbox_template","minisiteMode":"embed","imageBackgroundFromConfigs":"gui.ajax/CUSTOM_SHAREPAGE_BACKGROUND_"}'/>
+
+            <component_config component="InfoPanel">
+                <infoPanel mime="meta:pydio_is_shared" reactComponent="ShareDialog.InfoPanel" weight="-600"/>
+            </component_config>
+        </client_configs>
+    </registry_contributions>
+</plugin>

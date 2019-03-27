@@ -65,13 +65,13 @@ func (h *Handler) CreateWorkspace(ctx context.Context, req *idm.CreateWorkspaceR
 	}))
 	if update {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Workspace %s has been updated", req.Workspace.Slug),
+			fmt.Sprintf("Updated workspace [%s]", req.Workspace.Slug),
 			log.GetAuditId(common.AUDIT_WS_UPDATE),
 			req.Workspace.ZapUuid(),
 		)
 	} else {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Workspace %s has been created", req.Workspace.Slug),
+			fmt.Sprintf("Created workspace [%s]", req.Workspace.Slug),
 			log.GetAuditId(common.AUDIT_WS_CREATE),
 			req.Workspace.ZapUuid(),
 		)
@@ -109,7 +109,7 @@ func (h *Handler) DeleteWorkspace(ctx context.Context, req *idm.DeleteWorkspaceR
 			Workspace: w.(*idm.Workspace),
 		}))
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Workspace %s has been deleted", currW.Slug),
+			fmt.Sprintf("Deleted workspace [%s]", currW.Slug),
 			log.GetAuditId(common.AUDIT_WS_DELETE),
 			currW.ZapUuid(),
 		)

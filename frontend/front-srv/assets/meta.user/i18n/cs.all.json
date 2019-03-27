@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Meta data"
+  },
+  "10": {
+    "other": "Existing or new tag"
+  },
+  "11": {
+    "other": "No metadata set, click to add any"
+  },
+  "12": {
+    "other": "Multiple Selection:"
+  },
+  "13": {
+    "other": "check the fields that you want to update, value will be applied to all selected files"
+  },
+  "14": {
+    "other": "Edit meta"
+  },
+  "15": {
+    "other": "Save meta"
+  },
+  "2": {
+    "other": "Bez označení"
+  },
+  "3": {
+    "other": "Odstranit hodnocení"
+  },
+  "4": {
+    "other": "Nedůležité"
+  },
+  "5": {
+    "other": "Úkoly"
+  },
+  "6": {
+    "other": "Osobní"
+  },
+  "7": {
+    "other": "Práce"
+  },
+  "8": {
+    "other": "Důležité"
+  },
+  "9": {
+    "other": "Bez hodnoty"
+  }
+}

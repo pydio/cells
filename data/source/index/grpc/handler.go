@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -36,7 +37,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/data/source/index"
 	"github.com/pydio/cells/data/source/index/sessions"
 )
@@ -88,7 +89,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	dao := getDAO(ctx, req.GetIndexationSession())
 	name := servicecontext.GetServiceName(ctx)
 
-	var node *utils.TreeNode
+	var node *mtree.TreeNode
 	var previousEtag string
 	eventType := tree.NodeChangeEvent_CREATE
 
@@ -112,7 +113,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.Forbidden(name, "Could not replace previous node", err)
 			}
 		} else if node != nil {
-			return errors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), 409)
+			return errors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), http.StatusConflict)
 		}
 	}
 
@@ -126,7 +127,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	if len(created) == 0 {
 		if update {
 			eventType = tree.NodeChangeEvent_UPDATE_CONTENT
-			node = utils.NewTreeNode()
+			node = mtree.NewTreeNode()
 			node.SetMPath(path...)
 			if previousNode, e := dao.GetNode(path); e == nil && previousNode != nil {
 				previousEtag = previousNode.Etag
@@ -140,7 +141,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.InternalServerError(name, "Error while inserting node", err)
 			}
 		} else {
-			return errors.Forbidden(name, "Node path already in use", 401)
+			return errors.New(name, "Node path already in use", http.StatusConflict)
 		}
 	} else if len(created) > 1 && !update && req.IndexationSession == "" {
 		// Special case : when not in indexation mode, if node creation
@@ -195,7 +196,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 	dao := servicecontext.GetDAO(ctx).(index.DAO)
 	name := servicecontext.GetServiceName(ctx)
 
-	var node *utils.TreeNode
+	var node *mtree.TreeNode
 	var err error
 
 	if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
@@ -248,6 +249,11 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 
+	if req.WithExtendedStats {
+		childrenCount := dao.GetNodeChildrenCount(node.MPath)
+		node.SetMeta("ChildrenCount", childrenCount)
+	}
+
 	if req.WithCommits && node.IsLeaf() {
 		if commits, err := dao.ListCommits(node); err == nil {
 			node.Commits = commits
@@ -275,12 +281,12 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		return errors.InternalServerError(name, "Please use either Recursive (children) or Ancestors (parents) flag, but not both.")
 	}
 
-	var c chan *utils.TreeNode
+	var c chan *mtree.TreeNode
 
 	// Special case for  "Ancestors", node can have either Path or Uuid
 	if req.Ancestors {
 
-		var node *utils.TreeNode
+		var node *mtree.TreeNode
 		var err error
 		if req.GetNode().GetPath() == "" && req.GetNode().GetUuid() != "" {
 
@@ -308,7 +314,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 		// Get Ancestors tree and rebuild pathes for each
 		var path []string
-		nodes := []*utils.TreeNode{}
+		nodes := []*mtree.TreeNode{}
 		for pnode := range dao.GetNodes(node.MPath.Parents()...) {
 			path = append(path, pnode.Name())
 			pnode.Path = safePath(strings.Join(path, "/"))
@@ -324,7 +330,8 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		}
 
 	} else {
-		reqPath := safePath(req.GetNode().GetPath())
+		reqNode := req.GetNode()
+		reqPath := safePath(reqNode.GetPath())
 
 		path, _, err := dao.Path(reqPath, false)
 		if err != nil {
@@ -348,14 +355,22 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 			c = dao.GetNodeChildren(path)
 		}
 
-		names := strings.Split(reqPath, "/")
+		// Additional filters
+		metaFilter := &MetaFilter{
+			reqNode: reqNode,
+		}
+		hasFilter := metaFilter.parse()
 
+		names := strings.Split(reqPath, "/")
 		for node := range c {
 
 			if req.FilterType == tree.NodeType_COLLECTION && node.Type == tree.NodeType_LEAF {
 				continue
 			}
 			if req.Recursive && node.Path == reqPath {
+				continue
+			}
+			if hasFilter && !metaFilter.Match(node.Name(), node.Node) {
 				continue
 			}
 
@@ -410,8 +425,8 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	reqFromPath := safePath(req.GetFrom().GetPath())
 	reqToPath := safePath(req.GetTo().GetPath())
 
-	var pathFrom, pathTo utils.MPath
-	var nodeFrom, nodeTo *utils.TreeNode
+	var pathFrom, pathTo mtree.MPath
+	var nodeFrom, nodeTo *mtree.TreeNode
 
 	if pathFrom, _, err = dao.Path(reqFromPath, false); err != nil {
 		return errors.InternalServerError(name, "Error while reading source path "+reqFromPath, err)
@@ -491,6 +506,29 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	}
 	node.Path = reqPath
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
+	var childrenEvents []*tree.NodeChangeEvent
+	if node.Type == tree.NodeType_COLLECTION {
+		c := dao.GetNodeTree(path)
+		names := strings.Split(reqPath, "/")
+		for child := range c {
+			if child.Name() == common.PYDIO_SYNC_HIDDEN_FILE_META {
+				continue
+			}
+			if child.Level > cap(names) {
+				newNames := make([]string, len(names), child.Level)
+				copy(newNames, names)
+				names = newNames
+			}
+			names = names[0:child.Level]
+			names[child.Level-1] = child.Name()
+			child.Path = safePath(strings.Join(names, "/"))
+			child.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
+			childrenEvents = append(childrenEvents, &tree.NodeChangeEvent{
+				Type:   tree.NodeChangeEvent_DELETE,
+				Source: child.Node,
+			})
+		}
+	}
 
 	if err := dao.DelNode(node); err != nil {
 		return errors.InternalServerError(name, "Could not delete node "+reqPath, 404)
@@ -502,6 +540,24 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, node.Size, tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
 		return errors.InternalServerError(common.SERVICE_DATA_INDEX_, "Error while updating parents", err)
+	}
+
+	if len(childrenEvents) > 0 {
+		var batcher sessions.SessionBatcher
+		if req.IndexationSession != "" {
+			sess, batch, err := s.sessionStore.ReadSession(req.IndexationSession)
+			if err == nil && sess != nil {
+				batcher = batch
+			}
+		}
+		for _, ev := range childrenEvents {
+			if batcher != nil {
+				batcher.Notify(common.TOPIC_INDEX_CHANGES, ev)
+			} else {
+				client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, ev))
+			}
+		}
+
 	}
 
 	resp.Success = true
@@ -565,7 +621,7 @@ func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *ob
 }
 
 // UpdateParentsAndNotify update the parents nodes and notify the tree of the event that occurred.
-func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, deltaSize int64, eventType tree.NodeChangeEvent_EventType, sourceNode *utils.TreeNode, targetNode *utils.TreeNode, sessionUuid string) error {
+func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, deltaSize int64, eventType tree.NodeChangeEvent_EventType, sourceNode *mtree.TreeNode, targetNode *mtree.TreeNode, sessionUuid string) error {
 
 	var batcher sessions.SessionBatcher
 	if sessionUuid != "" {
@@ -579,7 +635,7 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	// INIT EVENTS AND PATHES TO UPDATE
 	//
 	var event *tree.NodeChangeEvent
-	mpathes := make(map[*utils.MPath]int64)
+	mpathes := make(map[*mtree.MPath]int64)
 	if sourceNode == nil {
 		// CREATE
 		mpathes[&targetNode.MPath] = deltaSize
@@ -615,8 +671,9 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	// NOW SEND REAL EVENTS OR STACK THEM IN SESSION BATCHER
 	//
 	if event != nil {
+		//pub := client.NewPublication(common.TOPIC_INDEX_CHANGES, event)
 		if batcher != nil {
-			log.Logger(ctx).Debug("SHOULD NOTIFY BATCHER", zap.Any("b", batcher))
+			event.Silent = true
 			batcher.Notify(common.TOPIC_INDEX_CHANGES, event)
 		} else {
 			client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, event))
@@ -634,7 +691,7 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	return nil
 }
 
-func (s *TreeServer) batcherUpdateParents(batcher sessions.SessionBatcher, delta int64, mPath utils.MPath) {
+func (s *TreeServer) batcherUpdateParents(batcher sessions.SessionBatcher, delta int64, mPath mtree.MPath) {
 
 	mp := mPath.Parent()
 	for len(mp) > 0 {
@@ -645,12 +702,12 @@ func (s *TreeServer) batcherUpdateParents(batcher sessions.SessionBatcher, delta
 }
 
 // Batch update nodes on parents.
-func (s *TreeServer) daoUpdateParents(dao index.DAO, delta int64, mPath utils.MPath) error {
+func (s *TreeServer) daoUpdateParents(dao index.DAO, delta int64, mPath mtree.MPath) error {
 
 	b := dao.SetNodes("-1", delta)
 	mp := mPath.Parent()
 	for len(mp) > 0 {
-		parent := utils.NewTreeNode()
+		parent := mtree.NewTreeNode()
 		parent.SetMPath(mp...)
 		b.Send(parent)
 		mp = mp.Parent()

@@ -42,7 +42,7 @@ const (
 	ServerTime             = "ServerTime"
 )
 
-// Try to extract as much HTTP metadata as possible and store it in context metadata
+// HttpRequestInfoToMetadata extracts as much HTTP metadata as possible and stores it in the context as metadata.
 func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.Context {
 
 	meta := metadata.Metadata{}
@@ -56,24 +56,20 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	}
 	meta[HttpMetaExtracted] = HttpMetaExtracted
 
-	if req.RemoteAddr != "" {
-		meta[HttpMetaRemoteAddress] = req.RemoteAddr
-	}
-
-	// TODO add client time and locale via JS on the client side and retrieve it here
 	layout := "2006-01-02T15:04-0700"
 	t := time.Now()
 	meta[ServerTime] = t.Format(layout)
+	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
 	meta[ClientTime] = t.Format(layout)
 
+	// We might want to also support new standard "Forwarded" header.
 	if h, ok := req.Header["X-Forwarded-For"]; ok {
-		forwarded := strings.Join(h, "")
-		meta[HttpMetaRemoteAddress] = forwarded
+		ips := strings.Split(strings.Join(h, ""), ",")
+		meta[HttpMetaRemoteAddress] = ips[0]
+	} else if req.RemoteAddr != "" {
+		meta[HttpMetaRemoteAddress] = req.RemoteAddr
 	}
-	// Override RemoteAddr if set by the php frontend
-	if h, ok := req.Header["X-Pydio-Front-Client"]; ok {
-		meta[HttpMetaRemoteAddress] = strings.Join(h, "")
-	}
+
 	if h, ok := req.Header["User-Agent"]; ok {
 		meta[HttpMetaUserAgent] = strings.Join(h, "")
 	}
@@ -108,7 +104,7 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	return metadata.NewContext(ctx, meta)
 }
 
-// Extract data from request and put it in context Metadata field
+// HttpMetaExtractorWrapper extracts data from the request and puts it in a context Metadata field.
 func HttpMetaExtractorWrapper(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(HttpRequestInfoToMetadata(r.Context(), r))

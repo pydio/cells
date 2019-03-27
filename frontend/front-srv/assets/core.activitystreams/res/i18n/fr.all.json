@@ -1,0 +1,62 @@
+{
+  "1": {
+    "other": "Notifications"
+  },
+  "10": {
+    "other": "Activité du dossier"
+  },
+  "11": {
+    "other": "Activité du fichier"
+  },
+  "12": {
+    "other": "En fonction de votre navigateur, une demande de permission devrait apparaître. Cette fonctionnalité affichera des notifications sur votre bureau lorsqu'un nouveau fichier est modifié. Pour la désactiver, rendez vous dans les préférences de votre navigateur."
+  },
+  "13": {
+    "other": "Votre navigateur ne supporte pas les notifications sur le bureau."
+  },
+  "14": {
+    "other": "Pas d'alertes"
+  },
+  "15": {
+    "other": "Les notifications concernant les fichiers que vous surveillez apparaitront ici"
+  },
+  "16": {
+    "other": "Dans"
+  },
+  "17": {
+    "other": "Chargement des activités..."
+  },
+  "18": {
+    "other": "Pas d'activité récente"
+  },
+  "19": {
+    "other": "Plus"
+  },
+  "2": {
+    "other": "Flux de notifications"
+  },
+  "20": {
+    "other": "Chargement..."
+  },
+  "3": {
+    "other": "Alertes"
+  },
+  "4": {
+    "other": "Notifications"
+  },
+  "5": {
+    "other": "Tous les événements"
+  },
+  "6": {
+    "other": "Aller à..."
+  },
+  "7": {
+    "other": "Supprimer"
+  },
+  "8": {
+    "other": "Pas d'alerte"
+  },
+  "9": {
+    "other": "Activité du workspace"
+  }
+}

@@ -25,9 +25,9 @@ import (
 
 	"github.com/emicklei/go-restful"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/update"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
 )
 
 type Handler struct{}

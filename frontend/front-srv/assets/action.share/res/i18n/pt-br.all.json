@@ -1,0 +1,902 @@
+{
+  "1": {
+    "other": "%s Download Público"
+  },
+  "10": {
+    "other": "Diretório está compartilhado"
+  },
+  "100": {
+    "other": "Arquivos compartilhados"
+  },
+  "101": {
+    "other": "Todos os arquivos compartilhados como Links Públicos"
+  },
+  "102": {
+    "other": "Diretórios compartilhados"
+  },
+  "103": {
+    "other": "Todos os arquivos compartilhados como área de trabalho ou mini-sites."
+  },
+  "104": {
+    "other": "Exibindo primeiro link, existem %s outros"
+  },
+  "105": {
+    "other": "Exibindo primeiro link, existe mais um"
+  },
+  "106": {
+    "other": "Deseja resetar o contador de downloads?"
+  },
+  "107": {
+    "other": "Limite de downloads precisa ser entre 1 e %s"
+  },
+  "108": {
+    "other": "Use um leitor de QRCode para escanear a imagem "
+  },
+  "109": {
+    "other": "Usuário de Mini-Site"
+  },
+  "11": {
+    "other": "Validade"
+  },
+  "110": {
+    "other": "Compatilhe isto"
+  },
+  "110b": {
+    "other": "Compartilhar"
+  },
+  "111": {
+    "other": "Compartilhe esta página com outras pessoas"
+  },
+  "112": {
+    "other": "Compartilhe esta página"
+  },
+  "113": {
+    "other": "Como nova Área de trabalho"
+  },
+  "114": {
+    "other": "Compartilhe este diretório com usuários internos"
+  },
+  "115": {
+    "other": "Como um Link Web"
+  },
+  "116": {
+    "other": "Publicar conteúdo do diretório como um mini-site"
+  },
+  "117": {
+    "other": "Como um mini-site privado"
+  },
+  "118": {
+    "other": "Mini-site protegido por senha"
+  },
+  "119": {
+    "other": "Link de download"
+  },
+  "12": {
+    "other": "Senha"
+  },
+  "120": {
+    "other": "Página de download"
+  },
+  "121": {
+    "other": "Link público"
+  },
+  "122": {
+    "other": "Criar uma URL pública"
+  },
+  "123": {
+    "other": "Seleção como um mini-site"
+  },
+  "124": {
+    "other": "Publicar seleção atual"
+  },
+  "125": {
+    "other": "Editar Compartilhamento"
+  },
+  "126": {
+    "other": "Editar/parar compartilhamento já configurado"
+  },
+  "127": {
+    "other": "Migrar legado"
+  },
+  "128": {
+    "other": "Migrar compartilhamentos legado"
+  },
+  "129": {
+    "other": "Copiar URL"
+  },
+  "13": {
+    "other": "Sim"
+  },
+  "130": {
+    "other": "Copiar URL para área de tranferência"
+  },
+  "131": {
+    "other": "Nenhum arquivo ou diretório compartilhado ainda."
+  },
+  "132": {
+    "other": "Área de trabalho"
+  },
+  "133": {
+    "other": "Como um link público"
+  },
+  "134": {
+    "other": "Como uma Área de trabalho"
+  },
+  "135": {
+    "other": "Diretório será exibido como um mini-site no navegador do usuário"
+  },
+  "136": {
+    "other": "Conteúdo do diretório será exibido como uma nova área de trabalho para os usuários da aplicação"
+  },
+  "137": {
+    "other": "Compartilhar o arquivo selecionado via um link público"
+  },
+  "138": {
+    "other": "Você compartilhou este diretório como um link público (mini-site)"
+  },
+  "138b": {
+    "other": "Você compartilhou este diretório como um link público, mas está inativo (passou a validade)."
+  },
+  "139": {
+    "other": "Você compartilhou este diretório como uma área de trabalho com os usuários da aplicação"
+  },
+  "139b": {
+    "other": "Você compartilhou este diretório como uma área de trabalho com usuários do aplicativo, mas está inativo (passou a validade)."
+  },
+  "14": {
+    "other": "Não"
+  },
+  "140": {
+    "other": "Você compartilhou este arquivo via link público"
+  },
+  "140b": {
+    "other": "Você compartilhou este arquivo via um link público, mas está inativo (passou a validade)."
+  },
+  "141": {
+    "other": "Modificar parametros"
+  },
+  "142": {
+    "other": "Ocultar parametros"
+  },
+  "143": {
+    "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd> para copiar o link"
+  },
+  "144": {
+    "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> para copiar o link"
+  },
+  "145": {
+    "other": "Descrição"
+  },
+  "146": {
+    "other": "Será exibido para os usuários compartilhados"
+  },
+  "147": {
+    "other": "Segurança"
+  },
+  "148": {
+    "other": "(Opcional)"
+  },
+  "149": {
+    "other": "Deixe com 0 para não limitar"
+  },
+  "15": {
+    "other": "O arquivo foi baixado %s times"
+  },
+  "150": {
+    "other": "Direitos de acesso"
+  },
+  "151": {
+    "other": "Layout"
+  },
+  "152": {
+    "other": "Atualizar"
+  },
+  "153": {
+    "other": "Padrão (lista de arquivos com o cabeçalho da aplicação)"
+  },
+  "154": {
+    "other": "Película (recomendado para galeria de imagens)"
+  },
+  "155": {
+    "other": "Embutido (cabeçalho menor, para widgets)"
+  },
+  "156": {
+    "other": "Link %s publicado com sucesso"
+  },
+  "157": {
+    "other": "Este diretório está compartilhado. Se for deletado, compartilhamentos associados serão desabilitados."
+  },
+  "158": {
+    "other": "Este arquivo está compartilhado. Se for deletado, compartilhamentos associados serão desabilitados. "
+  },
+  "159": {
+    "other": "Dono"
+  },
+  "16": {
+    "other": "resetar"
+  },
+  "160": {
+    "other": "Você não tem permissão para apagar este item compartilhado"
+  },
+  "161": {
+    "other": "Link Obsoleto"
+  },
+  "162": {
+    "other": "Você possui um ou mais links legados neste arquivo. Links ainda estão ativos, mas você pode substitui-los com um novo link parando este compartilhamento e recriando um novo. Copie o 'hash' (última parte do link, e.g. https://.../data/public/<em style='color:red;'>206a51</em>.php) do compartilhamento para aplicá-lo usando o formulário 'Modificar Parametros'."
+  },
+  "163": {
+    "other": "Soltar arquivos aqui (para mini-sites com upload habilitado)"
+  },
+  "164": {
+    "other": "Não permitido: script foi modificado!"
+  },
+  "165": {
+    "other": "Desculpe, este link não é mais valido!"
+  },
+  "166": {
+    "other": "Link não encontrado!"
+  },
+  "167": {
+    "other": "Link não é mais válido!"
+  },
+  "168": {
+    "other": "O número de downloads permitidos foi alcançado. Clique para resetar o contador de downloads e reativar o link."
+  },
+  "169": {
+    "other": "A data de validade foi atingida. Modifique os parametros com uma nova date se desejar reativar o link."
+  },
+  "17": {
+    "other": "Clique para resetar o contador de downloads"
+  },
+  "170": {
+    "other": "Este link é protegido com senha."
+  },
+  "171": {
+    "other": "Nome de Link"
+  },
+  "172": {
+    "other": "Desculpe este nome de link já está sendo utilizado, favor escolher outro nome de link."
+  },
+  "173": {
+    "other": "Se deseja um link durável e legível (como https://.../meu-link-compartilhado), você pode usar este campo. Nome do link será gerado se deixado em branco."
+  },
+  "174": {
+    "other": "Resetar"
+  },
+  "175": {
+    "other": "Favor definir uma senha e tenha certeza que é longa o suficiente!"
+  },
+  "176": {
+    "other": "(Obrigatório)"
+  },
+  "177": {
+    "other": "Visualizar parametros"
+  },
+  "178": {
+    "other": "habilitado"
+  },
+  "179": {
+    "other": "Reverter"
+  },
+  "18": {
+    "other": "Diretório foi compartilhado como uma nova área de trabalho"
+  },
+  "180": {
+    "other": "Limpar lista"
+  },
+  "181": {
+    "other": "Modificar"
+  },
+  "182": {
+    "other": "Utilize o campo abaixo para escolher um usuário do diretório interno ou do seu catálogo pessoal de endereços. Se você quiser criar um novo usuário, basta digitar um novo identificador e pressionar Enter."
+  },
+  "183": {
+    "other": "Notificar quando o conteúdo for modificado"
+  },
+  "184": {
+    "other": "Me notifique quando o conteúdo for acessado ou modificado"
+  },
+  "185": {
+    "other": "Me notifique quando o conteúdo for acessado"
+  },
+  "186": {
+    "other": "Me notifique quando o conteúdo for modificado"
+  },
+  "187": {
+    "other": "Não me notificar"
+  },
+  "188": {
+    "other": "Receber alertas sempre que um usuário acessar ou modificar o conteúdo deste compartilhamento."
+  },
+  "189": {
+    "other": "Habilitar Link Público"
+  },
+  "19": {
+    "other": "Opções da Área de trabalho compartilhada foram modificadas com sucesso"
+  },
+  "190": {
+    "other": "Este arquivo não está acessível publicamente. Ao habilitar link público será criado um link que pode ser enviado para qualquer pessoa. Se você deseja compartilhar com os usuário do APPLICATION_TITLE, utilize a aba \"Usuários\"."
+  },
+  "191": {
+    "other": "Copiar link para área de transferência"
+  },
+  "192": {
+    "other": "Link copiado para área de transferência"
+  },
+  "193": {
+    "other": "Customizar Link"
+  },
+  "194": {
+    "other": "Para um link mais legível, você pode customizar a parte final"
+  },
+  "195": {
+    "other": "AVISO: não existe um visualizador para este arquivo, exceto abrir em uma nova aba do seu navegador, isso pode desencadear um download automático quando o usuário abre o link."
+  },
+  "196": {
+    "other": "Segurança de Acesso"
+  },
+  "197": {
+    "other": "Utilize este campo para enviar comentários opcionais"
+  },
+  "198": {
+    "other": "Você pode selecionar a aparência de como o link aparecerá no navegador."
+  },
+  "199": {
+    "other": "Visibilidade do Compartilhamento"
+  },
+  "2": {
+    "other": "Clique na imagem para fazer o download do <b>%s</b> para o seu computador"
+  },
+  "20": {
+    "other": "Ooops, o arquivo requerido não foi encontrado! Talvez este tenha sido apagado, ou não esteja mais compartilhado com você."
+  },
+  "200": {
+    "other": "Visibilidade para outros usuários"
+  },
+  "201": {
+    "other": "Outros usuários que acessam a área de trabalho atual podem atualizar os parâmetros de links, mas não podem apagá-lo. Somente você pode parar esta compartilhamento ou alterar sua visibilidade"
+  },
+  "202": {
+    "other": "Outros usuários que acessam a área de trabalho atual podem atualizar os parâmetros de links. Você não é o proprietário do compartilhamento portanto você não pode apagá-lo ou alterar sua visibilidade"
+  },
+  "203": {
+    "other": "Transferir Propriedade"
+  },
+  "203b": {
+    "other": "Transferir"
+  },
+  "204": {
+    "other": "Se o compartilhamento é visível publicamente e você quer outro usuário para gerenciar esse compartilhamento, você pode transferir a sua propriedade."
+  },
+  "205": {
+    "other": "Transferir para... (identificador do usuário)"
+  },
+  "206": {
+    "other": "Compartilhamentos são 'privados' por padrão: somente você pode visualizá-los. Se você desejar que outros usuários que acessam o área de trabalho atual para ver e editar este compartilhamento, alterne a visibilidade."
+  },
+  "207": {
+    "other": "Usuários Remotos"
+  },
+  "208": {
+    "other": "Compartilhar com usuários de compartilhamentos de outras plataformas (compativel com a API de Compartilhamento Federado)."
+  },
+  "209": {
+    "other": "Endereço Remoto"
+  },
+  "21": {
+    "other": "Válido até"
+  },
+  "210": {
+    "other": "Identificador"
+  },
+  "211": {
+    "other": "pendente"
+  },
+  "212": {
+    "other": "aceito"
+  },
+  "213": {
+    "other": "rejeitado"
+  },
+  "214": {
+    "other": "não enviar"
+  },
+  "215": {
+    "other": "Para habilitar um link público em um aruivo ou um diretório, primeiro você deve definir uma senha."
+  },
+  "216": {
+    "other": "Elemento descompartilhado com sucesso"
+  },
+  "217": {
+    "other": "Usuários Locais"
+  },
+  "218": {
+    "other": "Notificação"
+  },
+  "219": {
+    "other": "Erro ao carregar compartilhamento. Erro (%s)."
+  },
+  "21b": {
+    "other": "Expirou em"
+  },
+  "22": {
+    "other": "Downloads permitidos"
+  },
+  "220": {
+    "other": "Você não possui permissão de criar usuários"
+  },
+  "221": {
+    "other": "Você não possui permissão de compartilhar com outros usuário, apenas com seus próprios usuários externos"
+  },
+  "222": {
+    "other": "Usuário %s já existe, favor escolher outro identificador"
+  },
+  "223": {
+    "other": "Link customizado é muito curto, favor utilizar pelos menos %s caracteres"
+  },
+  "224": {
+    "other": "Você não possui permissão de gerenciar este compartilhamento, please ask its owner to perform the changes, or to transfer you the ownership."
+  },
+  "225": {
+    "other": "Você não possui permissão de criar links públicos em arquivos"
+  },
+  "226": {
+    "other": "Você não possui permissão de criar links públicos em diretórios"
+  },
+  "227": {
+    "other": "Você não possui permissão de compartilhar arquivos internamente"
+  },
+  "228": {
+    "other": "Você não possui permissão de compartilhar diretórios internamente"
+  },
+  "229": {
+    "other": "Insert a preview of the file by pasting this code inside an HTML page."
+  },
+  "22b": {
+    "other": "Sem mais downloads"
+  },
+  "23": {
+    "other": "Senha"
+  },
+  "230": {
+    "other": "Please save before sending an invitation"
+  },
+  "231": {
+    "other": "Click to start downloading"
+  },
+  "232": {
+    "other": "No entries found for share, did you maybe delete some users?"
+  },
+  "233": {
+    "other": "Reset this share"
+  },
+  "234": {
+    "other": "It has been added to your %s workspace."
+  },
+  "235": {
+    "other": "Generate unique links to identify users"
+  },
+  "236": {
+    "other": "Restrict access only to identified users"
+  },
+  "237": {
+    "other": "Use a random key instead of email in link"
+  },
+  "238": {
+    "other": "Share Types"
+  },
+  "24": {
+    "other": "Defina uma data de validade ou uma senha de acesso para este compartilhamento."
+  },
+  "240": {
+    "other": "Group by..."
+  },
+  "241": {
+    "other": "Shares List"
+  },
+  "242": {
+    "other": "Load More Results"
+  },
+  "243": {
+    "other": "Public Links"
+  },
+  "244": {
+    "other": "Shared Folders"
+  },
+  "245": {
+    "other": "%s personal invitation(s) sent"
+  },
+  "246": {
+    "other": "Open cell"
+  },
+  "247": {
+    "other": "Edit cell"
+  },
+  "248": {
+    "other": "Delete cell"
+  },
+  "249": {
+    "other": "Contents"
+  },
+  "25": {
+    "other": "Sem limite"
+  },
+  "250": {
+    "other": "Cells"
+  },
+  "251": {
+    "other": "Link"
+  },
+  "252": {
+    "other": "Access"
+  },
+  "253": {
+    "other": "Visibility"
+  },
+  "254": {
+    "other": "Shared in cells"
+  },
+  "255": {
+    "other": "Are you sure you want to delete all cells and links on this item?"
+  },
+  "256": {
+    "other": "Shares for %s"
+  },
+  "257": {
+    "other": "Created on %s"
+  },
+  "258": {
+    "other": "Edit cell users"
+  },
+  "259": {
+    "other": "Remove from this cell"
+  },
+  "26": {
+    "other": "Escolha os usuários ou grupos e defina suas as permissões de acesso. Usar somente 'Escrever' irá criar uma Área de trabalho apenas de Envio."
+  },
+  "260": {
+    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+  },
+  "261": {
+    "other": "Pick users or groups who will have access to this cell"
+  },
+  "262": {
+    "other": "Share this folder with other users by creating a new cell"
+  },
+  "263": {
+    "other": "Add to Cell..."
+  },
+  "264": {
+    "other": "+ New Cell"
+  },
+  "265": {
+    "other": "Link Label"
+  },
+  "266": {
+    "other": "Link Description"
+  },
+  "267": {
+    "other": "Cell Label"
+  },
+  "268": {
+    "other": "Cell Description"
+  },
+  "269": {
+    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+  },
+  "27": {
+    "other": "Compartilhar arquivo"
+  },
+  "270": {
+    "other": "users"
+  },
+  "271": {
+    "other": "groups"
+  },
+  "272": {
+    "other": "teams"
+  },
+  "273": {
+    "other": "nobody"
+  },
+  "274": {
+    "other": " and "
+  },
+  "275": {
+    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+  },
+  "276": {
+    "other": "Title of your cell"
+  },
+  "277": {
+    "other": "Optionally add a description"
+  },
+  "278": {
+    "other": "Choose who you will share data with"
+  },
+  "279": {
+    "other": "Create cell now!"
+  },
+  "28": {
+    "other": "Compartilhar diretório"
+  },
+  "280": {
+    "other": "Cell has its own folder"
+  },
+  "281": {
+    "other": "Cell will be created in a new folder"
+  },
+  "282": {
+    "other": "Add an existing folder..."
+  },
+  "283": {
+    "other": "Select a node in the tree..."
+  },
+  "284": {
+    "other": "Visible in %s cells"
+  },
+  "29": {
+    "other": "WebLink"
+  },
+  "3": {
+    "other": "Senha incorreta"
+  },
+  "30": {
+    "other": "Compartilhar com..."
+  },
+  "31": {
+    "other": "Ler"
+  },
+  "32": {
+    "other": "Escrever"
+  },
+  "33": {
+    "other": "Seguir"
+  },
+  "34": {
+    "other": "Usuário existente ou novo"
+  },
+  "35": {
+    "other": "Nome"
+  },
+  "36": {
+    "other": "Defina um nome e uma pequena descrição"
+  },
+  "37": {
+    "other": "Confirmar"
+  },
+  "38": {
+    "other": "Seguir o conteúdo deste diretório"
+  },
+  "39": {
+    "other": "Seguir a atividade deste arquivo"
+  },
+  "4": {
+    "other": "Insira a senha e clique na imagem para fazer o download do <b>%s</b> para o seu computador"
+  },
+  "40": {
+    "other": "Convites"
+  },
+  "41": {
+    "other": "Enviar convites por e-mail aos usuários com quem compartilhou este item."
+  },
+  "42": {
+    "other": "Um usuário de %s compartilhou esta URL com você"
+  },
+  "43": {
+    "other": "Um usuário de %s compartilhou este diretório com você"
+  },
+  "44": {
+    "other": "Compartilhamento %s"
+  },
+  "45": {
+    "other": "Enviar convite"
+  },
+  "46": {
+    "other": "Abrir Área de trabalho %s1 diretamente em %s2"
+  },
+  "46_file": {
+    "other": "Abrir arquivo %s1"
+  },
+  "46_mini": {
+    "other": "Abrir mini %s1"
+  },
+  "47": {
+    "other": "Seguir atualizado com sucesso"
+  },
+  "48": {
+    "other": "Não tem permissão para acessar este conteúdo"
+  },
+  "49": {
+    "other": "criar usuário"
+  },
+  "5": {
+    "other": "senha"
+  },
+  "50": {
+    "other": "Compartilhado"
+  },
+  "51": {
+    "other": "Baixado"
+  },
+  "52": {
+    "other": "Configuração"
+  },
+  "53": {
+    "other": "nenhum"
+  },
+  "54": {
+    "other": "Compartilhado com..."
+  },
+  "55": {
+    "other": "Compartilhado..."
+  },
+  "56": {
+    "other": "Configurar compartilhamento..."
+  },
+  "57": {
+    "other": "vezes"
+  },
+  "58": {
+    "other": "Favor selecionar pelo menos uma permissão!"
+  },
+  "59": {
+    "other": "Página de Download"
+  },
+  "6": {
+    "other": "Parar de Compartilhar"
+  },
+  "60": {
+    "other": "Link de Download Direto"
+  },
+  "61": {
+    "other": "Código de Incorporação em HTML"
+  },
+  "62": {
+    "other": "Endereço do Mini-Site"
+  },
+  "63": {
+    "other": "Nova Área de trabalho"
+  },
+  "64": {
+    "other": "Para os usuários internos e externos, este diretório irá aparecer como uma nova Área de trabalho na lista de Áreas de trabalho dos mesmos."
+  },
+  "65": {
+    "other": "Mini-Site Público (sem autenticação)"
+  },
+  "66": {
+    "other": "Para usuários externos, este diretório irá aparecer em um novo endereço público como uma simples lista de arquivos."
+  },
+  "67": {
+    "other": "Mini-Site Privado (autenticação requerida)"
+  },
+  "68": {
+    "other": "Para usuários externos, este diretório irá aparecer em um novo endereço público como uma simples lista de arquivos, mas é necessário autenticação"
+  },
+  "69": {
+    "other": "Configurar Mini-Site"
+  },
+  "69r": {
+    "other": "Link de Parametros"
+  },
+  "7": {
+    "other": "Parar o compartilhamento não apaga o arquivo. Se desejar modificar os parâmetros, compartilhe o arquivo novamente."
+  },
+  "70": {
+    "other": "Utilize as caixas de seleção para dar permissões deste diretório ao público. Se seleccionar 'Enviar' apenas, os usuários poderão colocar arquivos nela normalmente mas vai sempre parecer vazia."
+  },
+  "70r": {
+    "other": "Nomes e permissões dos usuários acessando este link"
+  },
+  "71": {
+    "other": "Permissões"
+  },
+  "72": {
+    "other": "Visualizar"
+  },
+  "73": {
+    "other": "Download"
+  },
+  "74": {
+    "other": "Enviar arquivos"
+  },
+  "74b": {
+    "other": "Editar"
+  },
+  "75": {
+    "other": "Favor usar um número positivo para Validade e limite de Downloads."
+  },
+  "76": {
+    "other": "Favor habilitar Cookies para acessar esta aplicação"
+  },
+  "77": {
+    "other": "Favor habilitar JavaScript para acessar esta aplicação"
+  },
+  "78": {
+    "other": "AVISO: Use somente caracteres alfa-numéricos para nomes de usuário. O Identificador '%CURRENT%' será substituído por '%NEW%'"
+  },
+  "79": {
+    "other": "convidar"
+  },
+  "8": {
+    "other": "Arquivo está compartilhado"
+  },
+  "80": {
+    "other": "Enviar link por e-mail para usuários ou endereços"
+  },
+  "80b": {
+    "other": "Convide por e-mail os usuários selecionador a visitarem este área de trabalho"
+  },
+  "81": {
+    "other": "parar de seguir"
+  },
+  "82": {
+    "other": "seguir"
+  },
+  "83": {
+    "other": "Receber ou não notificações quando o arquivo é baixado"
+  },
+  "83b": {
+    "other": "Receber ou não notificações quando a área de trabalho for acessada"
+  },
+  "84": {
+    "other": "senha"
+  },
+  "85": {
+    "other": "Este link é protegido por senha"
+  },
+  "86": {
+    "other": "validade"
+  },
+  "87": {
+    "other": "Ese link é válido até..."
+  },
+  "88": {
+    "other": "downloads"
+  },
+  "89": {
+    "other": "Número de downloads / downloads autorizados. Clique para resetar o contador."
+  },
+  "9": {
+    "other": "Use este botão para parar de compartilhar este diretório"
+  },
+  "90": {
+    "other": "URL do Link"
+  },
+  "91": {
+    "other": "Nomes (Enter para salvar)"
+  },
+  "92": {
+    "other": "Criar link"
+  },
+  "93": {
+    "other": "Links existentes"
+  },
+  "94": {
+    "other": "QR Code"
+  },
+  "95": {
+    "other": "QR code"
+  },
+  "96": {
+    "other": "parar compartilhamento"
+  },
+  "97": {
+    "other": "Parar de compartilhar este diretório com outros usuários"
+  },
+  "98": {
+    "other": "Meus Compartilhamentos"
+  },
+  "99": {
+    "other": "Todos os elementos compartilahdos"
+  },
+  "cells.create.advanced": {
+    "other": "Add users/data"
+  },
+  "cells.create.buttons.separator": {
+    "other": "or"
+  },
+  "cells.create.title.fill.folders": {
+    "other": "Share existing folder(s)"
+  }
+}

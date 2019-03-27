@@ -17,127 +17,87 @@
 package cmd
 
 import (
-	"bytes"
-	"crypto/md5"
-	"encoding/hex"
-	"hash"
+	"context"
 	"io"
+	"net/http"
 
-	sha256 "github.com/minio/sha256-simd"
+	"github.com/pydio/minio-go/pkg/encrypt"
+	"github.com/pydio/minio-srv/pkg/hash"
+	"github.com/pydio/minio-srv/pkg/madmin"
+	"github.com/pydio/minio-srv/pkg/policy"
+)
+
+// ObjectOptions represents object options for ObjectLayer operations
+type ObjectOptions struct {
+	ServerSideEncryption encrypt.ServerSide
+	VersionID            string
+}
+
+// LockType represents required locking for ObjectLayer operations
+type LockType int
+
+const (
+	noLock LockType = iota
+	readLock
+	writeLock
 )
 
 // ObjectLayer implements primitives for object API layer.
 type ObjectLayer interface {
 	// Storage operations.
-	Shutdown() error
-	StorageInfo() StorageInfo
+	Shutdown(context.Context) error
+	StorageInfo(context.Context) StorageInfo
 
 	// Bucket operations.
-	MakeBucketWithLocation(bucket string, location string) error
-	GetBucketInfo(bucket string) (bucketInfo BucketInfo, err error)
-	ListBuckets() (buckets []BucketInfo, err error)
-	DeleteBucket(bucket string) error
-	ListObjects(bucket, prefix, marker, delimiter string, maxKeys int) (result ListObjectsInfo, err error)
+	MakeBucketWithLocation(ctx context.Context, bucket string, location string) error
+	GetBucketInfo(ctx context.Context, bucket string) (bucketInfo BucketInfo, err error)
+	ListBuckets(ctx context.Context) (buckets []BucketInfo, err error)
+	DeleteBucket(ctx context.Context, bucket string) error
+	ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (result ListObjectsInfo, err error)
+	ListObjectsV2(ctx context.Context, bucket, prefix, continuationToken, delimiter string, maxKeys int, fetchOwner bool, startAfter string) (result ListObjectsV2Info, err error)
 
 	// Object operations.
-	GetObject(bucket, object string, startOffset int64, length int64, writer io.Writer) (err error)
-	GetObjectInfo(bucket, object string) (objInfo ObjectInfo, err error)
-	PutObject(bucket, object string, data *HashReader, metadata map[string]string) (objInfo ObjectInfo, err error)
-	CopyObject(srcBucket, srcObject, destBucket, destObject string, metadata map[string]string) (objInfo ObjectInfo, err error)
-	DeleteObject(bucket, object string) error
+
+	// GetObjectNInfo returns a GetObjectReader that satisfies the
+	// ReadCloser interface. The Close method unlocks the object
+	// after reading, so it must always be called after usage.
+	//
+	// IMPORTANTLY, when implementations return err != nil, this
+	// function MUST NOT return a non-nil ReadCloser.
+	GetObjectNInfo(ctx context.Context, bucket, object string, rs *HTTPRangeSpec, h http.Header, lockType LockType, opts ObjectOptions) (reader *GetObjectReader, err error)
+	GetObject(ctx context.Context, bucket, object string, startOffset int64, length int64, writer io.Writer, etag string, opts ObjectOptions) (err error)
+	GetObjectInfo(ctx context.Context, bucket, object string, opts ObjectOptions) (objInfo ObjectInfo, err error)
+	PutObject(ctx context.Context, bucket, object string, data *hash.Reader, metadata map[string]string, opts ObjectOptions) (objInfo ObjectInfo, err error)
+	CopyObject(ctx context.Context, srcBucket, srcObject, destBucket, destObject string, srcInfo ObjectInfo, srcOpts, dstOpts ObjectOptions) (objInfo ObjectInfo, err error)
+	DeleteObject(ctx context.Context, bucket, object string) error
 
 	// Multipart operations.
-	ListMultipartUploads(bucket, prefix, keyMarker, uploadIDMarker, delimiter string, maxUploads int) (result ListMultipartsInfo, err error)
-	NewMultipartUpload(bucket, object string, metadata map[string]string) (uploadID string, err error)
-	CopyObjectPart(srcBucket, srcObject, destBucket, destObject string, uploadID string, partID int, startOffset int64, length int64) (info PartInfo, err error)
-	PutObjectPart(bucket, object, uploadID string, partID int, data *HashReader) (info PartInfo, err error)
-	ListObjectParts(bucket, object, uploadID string, partNumberMarker int, maxParts int) (result ListPartsInfo, err error)
-	AbortMultipartUpload(bucket, object, uploadID string) error
-	CompleteMultipartUpload(bucket, object, uploadID string, uploadedParts []completePart) (objInfo ObjectInfo, err error)
+	ListMultipartUploads(ctx context.Context, bucket, prefix, keyMarker, uploadIDMarker, delimiter string, maxUploads int) (result ListMultipartsInfo, err error)
+	NewMultipartUpload(ctx context.Context, bucket, object string, metadata map[string]string, opts ObjectOptions) (uploadID string, err error)
+	CopyObjectPart(ctx context.Context, srcBucket, srcObject, destBucket, destObject string, uploadID string, partID int,
+		startOffset int64, length int64, srcInfo ObjectInfo, srcOpts, dstOpts ObjectOptions) (info PartInfo, err error)
+	PutObjectPart(ctx context.Context, bucket, object, uploadID string, partID int, data *hash.Reader, opts ObjectOptions) (info PartInfo, err error)
+	ListObjectParts(ctx context.Context, bucket, object, uploadID string, partNumberMarker int, maxParts int) (result ListPartsInfo, err error)
+	AbortMultipartUpload(ctx context.Context, bucket, object, uploadID string) error
+	CompleteMultipartUpload(ctx context.Context, bucket, object, uploadID string, uploadedParts []CompletePart) (objInfo ObjectInfo, err error)
 
 	// Healing operations.
-	HealBucket(bucket string) error
-	ListBucketsHeal() (buckets []BucketInfo, err error)
-	HealObject(bucket, object string) (int, int, error)
-	ListObjectsHeal(bucket, prefix, marker, delimiter string, maxKeys int) (ListObjectsInfo, error)
-	ListUploadsHeal(bucket, prefix, marker, uploadIDMarker,
-		delimiter string, maxUploads int) (ListMultipartsInfo, error)
-}
+	ReloadFormat(ctx context.Context, dryRun bool) error
+	HealFormat(ctx context.Context, dryRun bool) (madmin.HealResultItem, error)
+	HealBucket(ctx context.Context, bucket string, dryRun bool) ([]madmin.HealResultItem, error)
+	HealObject(ctx context.Context, bucket, object string, dryRun bool) (madmin.HealResultItem, error)
+	ListBucketsHeal(ctx context.Context) (buckets []BucketInfo, err error)
+	ListObjectsHeal(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (ListObjectsInfo, error)
 
-// HashReader writes what it reads from an io.Reader to an MD5 and SHA256 hash.Hash.
-// HashReader verifies that the content of the io.Reader matches the expected checksums.
-type HashReader struct {
-	src                 io.Reader
-	size                int64
-	md5Hash, sha256Hash hash.Hash
-	md5Sum, sha256Sum   string // hex representation
-}
+	// Policy operations
+	SetBucketPolicy(context.Context, string, *policy.Policy) error
+	GetBucketPolicy(context.Context, string) (*policy.Policy, error)
+	DeleteBucketPolicy(context.Context, string) error
 
-// NewHashReader returns a new HashReader computing the MD5 sum and SHA256 sum
-// (if set) of the provided io.Reader.
-func NewHashReader(src io.Reader, size int64, md5Sum, sha256Sum string) *HashReader {
-	var sha256Hash hash.Hash
-	if sha256Sum != "" {
-		sha256Hash = sha256.New()
-	}
-	if size >= 0 {
-		src = io.LimitReader(src, size)
-	} else {
-		size = -1
-	}
-	return &HashReader{
-		src:        src,
-		size:       size,
-		md5Sum:     md5Sum,
-		sha256Sum:  sha256Sum,
-		md5Hash:    md5.New(),
-		sha256Hash: sha256Hash,
-	}
-}
+	// Supported operations check
+	IsNotificationSupported() bool
+	IsEncryptionSupported() bool
 
-func (r *HashReader) Read(p []byte) (n int, err error) {
-	n, err = r.src.Read(p)
-	if err != nil && err != io.EOF {
-		return
-	}
-	if r.md5Hash != nil {
-		r.md5Hash.Write(p[:n])
-	}
-	if r.sha256Hash != nil {
-		r.sha256Hash.Write(p[:n])
-	}
-	return
-}
-
-// Size returns the absolute number of bytes the HashReader
-// will return during reading. It returns -1 for unlimited
-// data.
-func (r *HashReader) Size() int64 { return r.size }
-
-// MD5 returns the MD5 sum of the processed data. Any
-// further reads will change the MD5 sum.
-func (r *HashReader) MD5() []byte { return r.md5Hash.Sum(nil) }
-
-// Verify verifies if the computed MD5 sum - and SHA256 sum - are
-// equal to the ones specified when creating the HashReader.
-func (r *HashReader) Verify() error {
-	if r.sha256Hash != nil {
-		sha256Sum, err := hex.DecodeString(r.sha256Sum)
-		if err != nil {
-			return SHA256Mismatch{}
-		}
-		if !bytes.Equal(sha256Sum, r.sha256Hash.Sum(nil)) {
-			return errContentSHA256Mismatch
-		}
-	}
-	if r.md5Hash != nil && r.md5Sum != "" {
-		md5Sum, err := hex.DecodeString(r.md5Sum)
-		if err != nil {
-			return BadDigest{r.md5Sum, hex.EncodeToString(r.md5Hash.Sum(nil))}
-		}
-		if sum := r.md5Hash.Sum(nil); !bytes.Equal(md5Sum, sum) {
-			return BadDigest{r.md5Sum, hex.EncodeToString(sum)}
-		}
-	}
-	return nil
+	// Compression support check.
+	IsCompressionSupported() bool
 }

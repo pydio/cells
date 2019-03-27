@@ -21,7 +21,10 @@
 // Package images provides default implementation of image related tasks.
 package images
 
-import "github.com/pydio/cells/scheduler/actions"
+import (
+	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/scheduler/actions"
+)
 
 // init auto registers image-related tasks.
 func init() {
@@ -40,4 +43,15 @@ func init() {
 		return &CleanThumbsTask{}
 	})
 
+}
+
+var (
+	router *views.Router
+)
+
+func getRouter() *views.Router {
+	if router == nil {
+		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
+	}
+	return router
 }

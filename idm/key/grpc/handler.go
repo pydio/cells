@@ -32,6 +32,7 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/log"
 	enc "github.com/pydio/cells/common/proto/encryption"
@@ -80,7 +81,11 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest, rsp
 		return err
 	}
 
-	rsp.Key, err = dao.GetKey(req.Owner, req.KeyID)
+	// TODO: Extract user / password info from Context
+	user := common.PYDIO_SYSTEM_USERNAME
+	pwd := config.Vault().Get("masterPassword").Bytes()
+
+	rsp.Key, err = dao.GetKey(user, req.KeyID)
 	if err != nil {
 		return err
 	}
@@ -88,7 +93,7 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest, rsp
 	if rsp.Key == nil {
 		return nil
 	}
-	return open(rsp.Key, []byte(req.StrPassword))
+	return open(rsp.Key, pwd)
 }
 
 func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKeysRequest, rsp *enc.AdminListKeysResponse) error {
@@ -119,12 +124,14 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 		return err
 	}
 
-	if k, err := keyDao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID); err != nil {
-		return err
-	} else if k != nil {
-		return errors.BadRequest(common.SERVICE_ENC_KEY, "Key already exists with this id!")
+	if _, err := keyDao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID); err != nil {
+		if errors.Parse(err.Error()).Code == 404 {
+			return createSystemKey(keyDao, req.KeyID, req.Label)
+		} else {
+			return err
+		}
 	} else {
-		return createSystemKey(keyDao, req.KeyID, req.Label)
+		return errors.BadRequest(common.SERVICE_ENC_KEY, "Key already exists with this id!")
 	}
 }
 
@@ -156,8 +163,11 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	log.Logger(ctx).Info("Received request", zap.Any("Data", req))
 
 	var k *enc.Key
-	if k, err = dao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.Key.ID); err != nil {
-		return err
+	k, err = dao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.Key.ID)
+	if err != nil {
+		if errors.Parse(err.Error()).Code != 404 {
+			return err
+		}
 	} else if k != nil && !req.Override {
 		return errors.BadRequest(common.SERVICE_ENC_KEY, "Key already exists with this id!")
 	}
@@ -232,7 +242,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 
 	rsp.Key, err = dao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID)
 	if err != nil {
-		return errors.NotFound(common.SERVICE_ENC_KEY, fmt.Sprintf("cannot find %s key with ID = %s", common.PYDIO_SYSTEM_USERNAME, req.KeyID), err)
+		return err
 	}
 	log.Logger(ctx).Info(fmt.Sprintf("Exporting key %s", rsp.Key.Content))
 
@@ -278,7 +288,7 @@ func createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
 		return err
 	}
 
-	masterPasswordBytes, err := crypto.GetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KEYRING_MASTER_KEY, true)
+	masterPasswordBytes, err := getMasterPassword()
 	if err != nil {
 		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to get password. Make sure you have the system keyring installed", err)
 	}
@@ -294,15 +304,15 @@ func createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
 }
 
 func sealWithMasterKey(k *enc.Key) error {
-	masterPasswordBytes, err := crypto.GetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KEYRING_MASTER_KEY, true)
-	if err != nil {
+	masterPasswordBytes, err := getMasterPassword()
+	if len(masterPasswordBytes) == 0 {
 		return errors.InternalServerError(common.SERVICE_ENC_KEY, fmt.Sprintf("failed to get %s password", common.PYDIO_SYSTEM_USERNAME), err)
 	}
 	return seal(k, masterPasswordBytes)
 }
 
 func openWithMasterKey(k *enc.Key) error {
-	masterPasswordBytes, err := crypto.GetKeyringPassword(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY, common.KEYRING_MASTER_KEY, true)
+	masterPasswordBytes, err := getMasterPassword()
 	if err != nil {
 		return errors.InternalServerError(common.SERVICE_ENC_KEY, fmt.Sprintf("failed to get %s password", common.PYDIO_SYSTEM_USERNAME), err)
 	}
@@ -343,4 +353,14 @@ func open(k *enc.Key, passwordBytes []byte) error {
 
 	k.Content = base64.StdEncoding.EncodeToString(keyPlainContentBytes)
 	return nil
+}
+
+func getMasterPassword() ([]byte, error) {
+	var masterPasswordBytes []byte
+	masterPassword := config.Vault().Get("masterPassword").String("")
+	if masterPassword == "" {
+		return masterPasswordBytes, errors.InternalServerError("master.key.load", "cannot get master password")
+	}
+	masterPasswordBytes = []byte(masterPassword)
+	return masterPasswordBytes, nil
 }

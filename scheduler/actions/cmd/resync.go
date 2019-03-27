@@ -27,11 +27,13 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"time"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/sync"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
@@ -77,6 +79,7 @@ func (c *ResyncAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action
 // Run the actual action code
 func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
+	ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
 	syncClient := sync.NewSyncEndpointClient(c.ServiceName, defaults.NewClient())
 	_, e := syncClient.TriggerResync(ctx, &sync.ResyncRequest{
 		Path:   c.Path,

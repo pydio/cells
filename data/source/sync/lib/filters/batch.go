@@ -24,6 +24,9 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/pydio/cells/common/proto/tree"
 	sync "github.com/pydio/cells/data/source/sync/lib/common"
 )
@@ -51,6 +54,7 @@ type Batch struct {
 	SessionProvider        sync.SessionProvider
 	SessionProviderContext context.Context
 	StatusChan             chan BatchProcessStatus
+	DoneChan               chan bool
 }
 
 type BidirectionalBatch struct {
@@ -66,6 +70,16 @@ func (b *Batch) String() string {
 	output += "Move Files " + fmt.Sprintf("%v", b.FileMoves) + "\n"
 	output += "Deletes " + fmt.Sprintf("%v", b.Deletes) + "\n"
 	return output
+}
+
+func (b *Batch) Zaps() []zapcore.Field {
+	return []zapcore.Field{
+		zap.Any("CreateFile", b.CreateFiles),
+		zap.Any("CreateFolders", b.CreateFolders),
+		zap.Any("Deletes", b.Deletes),
+		zap.Any("FileMoves", b.FileMoves),
+		zap.Any("FolderMoves", b.FolderMoves),
+	}
 }
 
 func NewBatch() (batch *Batch) {

@@ -22,6 +22,9 @@ package grpc
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
@@ -33,63 +36,75 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/idm/meta"
 )
 
 // Handler definition.
-type Handler struct{}
+type Handler struct {
+	searchCache *cache.InstrumentedCache
+}
+
+func NewHandler() *Handler {
+	h := &Handler{}
+	h.searchCache = cache.NewInstrumentedCache(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER_META)
+	return h
+}
+
+func (h *Handler) Stop() {
+	h.searchCache.Close()
+}
 
 // UpdateUserMeta adds, updates or deletes user meta.
 func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMetaRequest, response *idm.UpdateUserMetaResponse) error {
 
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
-
 	namespaces, _ := dao.GetNamespaceDao().List()
-	indexableMetas := make(map[string]map[string]string)
+	var nodeUuids []string
 	for _, metadata := range request.MetaDatas {
+		h.clearCacheForNode(metadata.NodeUuid)
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// ADD / UPDATE
 			if newMeta, _, err := dao.Set(metadata); err == nil {
-				if ns, ok := namespaces[metadata.Namespace]; ok && ns.Indexable {
-					var nodesIndexes map[string]string
-					var has bool
-					if nodesIndexes, has = indexableMetas[metadata.NodeUuid]; !has {
-						nodesIndexes = make(map[string]string)
-						indexableMetas[metadata.NodeUuid] = nodesIndexes
-					}
-					nodesIndexes[metadata.Namespace] = metadata.JsonValue
-				}
+				nodeUuids = append(nodeUuids, metadata.NodeUuid)
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 			} else {
 				return err
 			}
 		} else {
 			// DELETE
-			if err := dao.Del(metadata); err != nil {
-				return err
+			if err := dao.Del(metadata); err == nil {
+				nodeUuids = append(nodeUuids, metadata.NodeUuid)
 			} else {
-				if ns, ok := namespaces[metadata.Namespace]; ok && ns.Indexable {
-					var nodesIndexes map[string]string
-					var has bool
-					if nodesIndexes, has = indexableMetas[metadata.NodeUuid]; !has {
-						nodesIndexes = make(map[string]string)
-						indexableMetas[metadata.NodeUuid] = nodesIndexes
-					}
-					nodesIndexes[metadata.Namespace] = ""
-				}
+				return err
 			}
 		}
 	}
 
-	for nodeId, toIndex := range indexableMetas {
-		node := &tree.Node{Uuid: nodeId}
-		node.MetaStore = toIndex
-		log.Logger(ctx).Info("Publishing UPDATE META for node, shall we update the node, or switch to UPDATE_META_DELTA?", node.Zap())
-		client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-			Type:   tree.NodeChangeEvent_UPDATE_META,
-			Target: node,
-		}))
-	}
+	subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
+	go func() {
+		bgCtx := context.Background()
+
+		for _, nodeId := range nodeUuids {
+			// Reload node & Reload Metas
+			node := &tree.Node{Uuid: nodeId, MetaStore: make(map[string]string)}
+			metas, e := dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
+				Subjects: subjects,
+			})
+			if e != nil {
+				continue
+			}
+			for _, val := range metas {
+				if _, ok := namespaces[val.Namespace]; ok {
+					node.MetaStore[val.Namespace] = val.JsonValue
+				}
+			}
+			client.Publish(bgCtx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+				Type:   tree.NodeChangeEvent_UPDATE_USER_META,
+				Target: node,
+			}))
+		}
+	}()
 
 	return nil
 
@@ -130,11 +145,19 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 			return er
 		}
 		node := req.Node
-
-		results, err := dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
-			Subjects: subjects,
-		})
-		log.Logger(ctx).Debug("Got Results For Node", node.ZapUuid(), zap.Any("results", results))
+		var results []*idm.UserMeta
+		var err error
+		if r, ok := h.resultsFromCache(node.Uuid, subjects); ok {
+			results = r
+		} else {
+			results, err = dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
+				Subjects: subjects,
+			})
+			log.Logger(ctx).Debug("Got Results For Node", node.ZapUuid(), zap.Any("results", results))
+			if err == nil {
+				h.resultsToCache(node.Uuid, subjects, results)
+			}
+		}
 		if err == nil && len(results) > 0 {
 			for _, result := range results {
 				node.MetaStore[result.Namespace] = result.JsonValue
@@ -153,12 +176,22 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 	for _, metaNameSpace := range request.Namespaces {
 		if err := dao.Del(metaNameSpace); err != nil {
 			return err
+		} else {
+			client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+				Type:          idm.ChangeEventType_DELETE,
+				MetaNamespace: metaNameSpace,
+			}))
 		}
 	}
 	if request.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
 		for _, metaNameSpace := range request.Namespaces {
 			if err := dao.Add(metaNameSpace); err != nil {
 				return err
+			} else {
+				client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+					Type:          idm.ChangeEventType_CREATE,
+					MetaNamespace: metaNameSpace,
+				}))
 			}
 			response.Namespaces = append(response.Namespaces, metaNameSpace)
 		}
@@ -178,4 +211,55 @@ func (h *Handler) ListUserMetaNamespace(ctx context.Context, request *idm.ListUs
 		}
 	}
 	return nil
+}
+
+func (h *Handler) resultsToCache(nodeId string, searchSubjects []string, results []*idm.UserMeta) {
+	if h.searchCache == nil {
+		return
+	}
+	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
+	//log.Logger(context.Background()).Info("User-Meta - Store Cache Key: " + key)
+	if data, e := json.Marshal(results); e == nil {
+		h.searchCache.Set(key, data)
+	}
+}
+
+func (h *Handler) resultsFromCache(nodeId string, searchSubjects []string) (results []*idm.UserMeta, found bool) {
+	if h.searchCache == nil {
+		return
+	}
+	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
+	if data, e := h.searchCache.Get(key); e == nil {
+		if er := json.Unmarshal(data, &results); er == nil {
+			//log.Logger(context.Background()).Info("User-Meta - Got Cache Key: " + key)
+			return results, true
+		}
+	}
+
+	return
+}
+
+func (h *Handler) clearCacheForNode(nodeId string) {
+	if h.searchCache == nil {
+		return
+	}
+	it := h.searchCache.Iterator()
+	var clears []string
+	for {
+		if !it.SetNext() {
+			break
+		}
+		info, e := it.Value()
+		if e != nil {
+			break
+		}
+		if strings.HasPrefix(info.Key(), fmt.Sprintf("%s-", nodeId)) {
+			clears = append(clears, info.Key())
+		}
+	}
+	for _, k := range clears {
+		//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
+		h.searchCache.Delete(k)
+	}
+
 }

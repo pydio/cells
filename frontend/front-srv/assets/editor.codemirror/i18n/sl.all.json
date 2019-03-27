@@ -1,0 +1,35 @@
+{
+  "1": {
+    "other": "Urejevalnik izvorne kode"
+  },
+  "10": {
+    "other": "Velikost zamika"
+  },
+  "2": {
+    "other": "Označevalnik sintakse CodeMirror"
+  },
+  "3": {
+    "other": "Ovijanje"
+  },
+  "3b": {
+    "other": "Preklop ovijanja kode"
+  },
+  "4": {
+    "other": "Oštevilčenje"
+  },
+  "5": {
+    "other": "Preklop oštevilčenja vrstic"
+  },
+  "6": {
+    "other": "Pojdi v vrstico"
+  },
+  "7": {
+    "other": "Razveljavi"
+  },
+  "8": {
+    "other": "Uveljavi"
+  },
+  "9": {
+    "other": "Iskanje besedila"
+  }
+}

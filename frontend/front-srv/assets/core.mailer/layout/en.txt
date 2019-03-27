@@ -1,0 +1,8 @@
+PYDIO_MAIL_SUBJECT
+
+PYDIO_MAIL_BODY
+
+
+-------------------
+This email was sent to you by Pydio, open source file sharing software for the Enterprise.
+Learn more on https://pydio.com/

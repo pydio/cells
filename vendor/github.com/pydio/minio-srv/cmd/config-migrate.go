@@ -1,5 +1,5 @@
 /*
- * Minio Cloud Storage, (C) 2016, 2017 Minio, Inc.
+ * Minio Cloud Storage, (C) 2016, 2017, 2018 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,44 @@
 package cmd
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
+	"github.com/pydio/minio-srv/cmd/crypto"
+	"github.com/pydio/minio-srv/cmd/logger"
+	"github.com/pydio/minio-srv/pkg/auth"
+	"github.com/pydio/minio-srv/pkg/dns"
+	"github.com/pydio/minio-srv/pkg/event"
+	"github.com/pydio/minio-srv/pkg/event/target"
+	"github.com/pydio/minio-srv/pkg/iam/policy"
+	"github.com/pydio/minio-srv/pkg/iam/validator"
+	xnet "github.com/pydio/minio-srv/pkg/net"
 	"github.com/pydio/minio-srv/pkg/quick"
 )
 
 // DO NOT EDIT following message template, please open a github issue to discuss instead.
-var configMigrateMSGTemplate = "Configuration file %s migrated from version '%s' to '%s' successfully.\n"
+var configMigrateMSGTemplate = "Configuration file %s migrated from version '%s' to '%s' successfully."
 
-// Migrates all config versions from "1" to "18".
+// Save config file to corresponding backend
+func Save(configFile string, data interface{}) error {
+	return quick.SaveConfig(data, configFile, globalEtcdClient)
+}
+
+// Load config from backend
+func Load(configFile string, data interface{}) (quick.Config, error) {
+	return quick.LoadConfig(configFile, globalEtcdClient, data)
+}
+
+// GetVersion gets config version from backend
+func GetVersion(configFile string) (string, error) {
+	return quick.GetVersion(configFile, globalEtcdClient)
+}
+
+// Migrates all config versions from "1" to "28".
 func migrateConfig() error {
 	// Purge all configs with version '1',
 	// this is a special case since version '1' used
@@ -37,8 +64,11 @@ func migrateConfig() error {
 	}
 
 	// Load only config version information.
-	version, err := quick.GetVersion(getConfigFile())
+	version, err := GetVersion(getConfigFile())
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return err
 	}
 
@@ -142,12 +172,57 @@ func migrateConfig() error {
 		}
 		fallthrough
 	case "18":
-		// Migrate version '17' to '18'.
+		// Migrate version '18' to '19'.
 		if err = migrateV18ToV19(); err != nil {
 			return err
 		}
 		fallthrough
-	case v19:
+	case "19":
+		if err = migrateV19ToV20(); err != nil {
+			return err
+		}
+		fallthrough
+	case "20":
+		if err = migrateV20ToV21(); err != nil {
+			return err
+		}
+		fallthrough
+	case "21":
+		if err = migrateV21ToV22(); err != nil {
+			return err
+		}
+		fallthrough
+	case "22":
+		if err = migrateV22ToV23(); err != nil {
+			return err
+		}
+		fallthrough
+	case "23":
+		if err = migrateV23ToV24(); err != nil {
+			return err
+		}
+		fallthrough
+	case "24":
+		if err = migrateV24ToV25(); err != nil {
+			return err
+		}
+		fallthrough
+	case "25":
+		if err = migrateV25ToV26(); err != nil {
+			return err
+		}
+		fallthrough
+	case "26":
+		if err = migrateV26ToV27(); err != nil {
+			return err
+		}
+		fallthrough
+	case "27":
+		if err = migrateV27ToV28(); err != nil {
+			return err
+		}
+		fallthrough
+	case serverConfigVersion:
 		// No migration needed. this always points to current version.
 		err = nil
 	}
@@ -159,8 +234,8 @@ func purgeV1() error {
 	configFile := filepath.Join(getConfigDir(), "fsUsers.json")
 
 	cv1 := &configV1{}
-	_, err := quick.Load(configFile, cv1)
-	if os.IsNotExist(err) {
+	_, err := Load(configFile, cv1)
+	if os.IsNotExist(err) || err == dns.ErrNoEntriesFound {
 		return nil
 	} else if err != nil {
 		return fmt.Errorf("Unable to load config version ‘1’. %v", err)
@@ -170,7 +245,7 @@ func purgeV1() error {
 	}
 
 	os.RemoveAll(configFile)
-	log.Println("Removed unsupported config version ‘1’.")
+	logger.Info("Removed unsupported config version ‘1’.")
 	return nil
 }
 
@@ -180,7 +255,7 @@ func migrateV2ToV3() error {
 	configFile := getConfigFile()
 
 	cv2 := &configV2{}
-	_, err := quick.Load(configFile, cv2)
+	_, err := Load(configFile, cv2)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -190,7 +265,7 @@ func migrateV2ToV3() error {
 		return nil
 	}
 
-	cred, err := createCredential(cv2.Credentials.AccessKey, cv2.Credentials.SecretKey)
+	cred, err := auth.CreateCredentials(cv2.Credentials.AccessKey, cv2.Credentials.SecretKey)
 	if err != nil {
 		return fmt.Errorf("Invalid credential in V2 configuration file. %v", err)
 	}
@@ -224,11 +299,11 @@ func migrateV2ToV3() error {
 	}
 	srvConfig.Logger.Syslog = slogger
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv2.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv2.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv2.Version, srvConfig.Version)
 	return nil
 }
 
@@ -239,7 +314,7 @@ func migrateV3ToV4() error {
 	configFile := getConfigFile()
 
 	cv3 := &configV3{}
-	_, err := quick.Load(configFile, cv3)
+	_, err := Load(configFile, cv3)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -262,11 +337,11 @@ func migrateV3ToV4() error {
 	srvConfig.Logger.File = cv3.Logger.File
 	srvConfig.Logger.Syslog = cv3.Logger.Syslog
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv3.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv3.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv3.Version, srvConfig.Version)
 	return nil
 }
 
@@ -277,7 +352,7 @@ func migrateV4ToV5() error {
 	configFile := getConfigFile()
 
 	cv4 := &configV4{}
-	_, err := quick.Load(configFile, cv4)
+	_, err := Load(configFile, cv4)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -303,11 +378,11 @@ func migrateV4ToV5() error {
 	srvConfig.Logger.ElasticSearch.Enable = false
 	srvConfig.Logger.Redis.Enable = false
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv4.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv4.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv4.Version, srvConfig.Version)
 	return nil
 }
 
@@ -318,7 +393,7 @@ func migrateV5ToV6() error {
 	configFile := getConfigFile()
 
 	cv5 := &configV5{}
-	_, err := quick.Load(configFile, cv5)
+	_, err := Load(configFile, cv5)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -341,41 +416,62 @@ func migrateV5ToV6() error {
 	srvConfig.Logger.File = cv5.Logger.File
 	srvConfig.Logger.Syslog = cv5.Logger.Syslog
 
-	srvConfig.Notify.AMQP = map[string]amqpNotify{
-		"1": {
-			Enable:      cv5.Logger.AMQP.Enable,
-			URL:         cv5.Logger.AMQP.URL,
-			Exchange:    cv5.Logger.AMQP.Exchange,
-			RoutingKey:  cv5.Logger.AMQP.RoutingKey,
-			Mandatory:   cv5.Logger.AMQP.Mandatory,
-			Immediate:   cv5.Logger.AMQP.Immediate,
-			Durable:     cv5.Logger.AMQP.Durable,
-			Internal:    cv5.Logger.AMQP.Internal,
-			NoWait:      cv5.Logger.AMQP.NoWait,
-			AutoDeleted: cv5.Logger.AMQP.AutoDeleted,
-		},
-	}
-	srvConfig.Notify.ElasticSearch = map[string]elasticSearchNotify{
-		"1": {
-			Enable: cv5.Logger.ElasticSearch.Enable,
-			URL:    cv5.Logger.ElasticSearch.URL,
-			Index:  cv5.Logger.ElasticSearch.Index,
-		},
-	}
-	srvConfig.Notify.Redis = map[string]redisNotify{
-		"1": {
-			Enable:   cv5.Logger.Redis.Enable,
-			Addr:     cv5.Logger.Redis.Addr,
-			Password: cv5.Logger.Redis.Password,
-			Key:      cv5.Logger.Redis.Key,
-		},
+	if cv5.Logger.AMQP.URL != "" {
+		var url *xnet.URL
+		if url, err = xnet.ParseURL(cv5.Logger.AMQP.URL); err != nil {
+			return err
+		}
+		srvConfig.Notify.AMQP = map[string]target.AMQPArgs{
+			"1": {
+				Enable:      cv5.Logger.AMQP.Enable,
+				URL:         *url,
+				Exchange:    cv5.Logger.AMQP.Exchange,
+				RoutingKey:  cv5.Logger.AMQP.RoutingKey,
+				Mandatory:   cv5.Logger.AMQP.Mandatory,
+				Immediate:   cv5.Logger.AMQP.Immediate,
+				Durable:     cv5.Logger.AMQP.Durable,
+				Internal:    cv5.Logger.AMQP.Internal,
+				NoWait:      cv5.Logger.AMQP.NoWait,
+				AutoDeleted: cv5.Logger.AMQP.AutoDeleted,
+			},
+		}
 	}
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if cv5.Logger.ElasticSearch.URL != "" {
+		var url *xnet.URL
+		url, err = xnet.ParseURL(cv5.Logger.ElasticSearch.URL)
+		if err != nil {
+			return err
+		}
+		srvConfig.Notify.ElasticSearch = map[string]target.ElasticsearchArgs{
+			"1": {
+				Enable: cv5.Logger.ElasticSearch.Enable,
+				URL:    *url,
+				Index:  cv5.Logger.ElasticSearch.Index,
+			},
+		}
+	}
+
+	if cv5.Logger.Redis.Addr != "" {
+		var addr *xnet.Host
+		if addr, err = xnet.ParseHost(cv5.Logger.Redis.Addr); err != nil {
+			return err
+		}
+		srvConfig.Notify.Redis = map[string]target.RedisArgs{
+			"1": {
+				Enable:   cv5.Logger.Redis.Enable,
+				Addr:     *addr,
+				Password: cv5.Logger.Redis.Password,
+				Key:      cv5.Logger.Redis.Key,
+			},
+		}
+	}
+
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv5.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv5.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv5.Version, srvConfig.Version)
 	return nil
 }
 
@@ -386,7 +482,7 @@ func migrateV6ToV7() error {
 	configFile := getConfigFile()
 
 	cv6 := &configV6{}
-	_, err := quick.Load(configFile, cv6)
+	_, err := Load(configFile, cv6)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -408,30 +504,30 @@ func migrateV6ToV7() error {
 	srvConfig.Logger.Console = cv6.Logger.Console
 	srvConfig.Logger.File = cv6.Logger.File
 	srvConfig.Logger.Syslog = cv6.Logger.Syslog
-	srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-	srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-	srvConfig.Notify.Redis = make(map[string]redisNotify)
+	srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+	srvConfig.Notify.ElasticSearch = make(map[string]target.ElasticsearchArgs)
+	srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
 	if len(cv6.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv6.Notify.AMQP
 	}
 	if len(cv6.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+		srvConfig.Notify.ElasticSearch["1"] = target.ElasticsearchArgs{}
 	} else {
 		srvConfig.Notify.ElasticSearch = cv6.Notify.ElasticSearch
 	}
 	if len(cv6.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv6.Notify.Redis
 	}
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv6.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv6.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv6.Version, srvConfig.Version)
 	return nil
 }
 
@@ -442,7 +538,7 @@ func migrateV7ToV8() error {
 	configFile := getConfigFile()
 
 	cv7 := &serverConfigV7{}
-	_, err := quick.Load(configFile, cv7)
+	_, err := Load(configFile, cv7)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -464,13 +560,13 @@ func migrateV7ToV8() error {
 	srvConfig.Logger.Console = cv7.Logger.Console
 	srvConfig.Logger.File = cv7.Logger.File
 	srvConfig.Logger.Syslog = cv7.Logger.Syslog
-	srvConfig.Notify.AMQP = make(map[string]amqpNotify)
+	srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
 	srvConfig.Notify.NATS = make(map[string]natsNotifyV1)
-	srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-	srvConfig.Notify.Redis = make(map[string]redisNotify)
-	srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
+	srvConfig.Notify.ElasticSearch = make(map[string]target.ElasticsearchArgs)
+	srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+	srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
 	if len(cv7.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv7.Notify.AMQP
 	}
@@ -480,21 +576,21 @@ func migrateV7ToV8() error {
 		srvConfig.Notify.NATS = cv7.Notify.NATS
 	}
 	if len(cv7.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+		srvConfig.Notify.ElasticSearch["1"] = target.ElasticsearchArgs{}
 	} else {
 		srvConfig.Notify.ElasticSearch = cv7.Notify.ElasticSearch
 	}
 	if len(cv7.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv7.Notify.Redis
 	}
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv7.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv7.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv7.Version, srvConfig.Version)
 	return nil
 }
 
@@ -504,7 +600,7 @@ func migrateV8ToV9() error {
 	configFile := getConfigFile()
 
 	cv8 := &serverConfigV8{}
-	_, err := quick.Load(configFile, cv8)
+	_, err := Load(configFile, cv8)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -530,8 +626,8 @@ func migrateV8ToV9() error {
 
 	// check and set notifiers config
 	if len(cv8.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv8.Notify.AMQP
 	}
@@ -542,29 +638,29 @@ func migrateV8ToV9() error {
 		srvConfig.Notify.NATS = cv8.Notify.NATS
 	}
 	if len(cv8.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+		srvConfig.Notify.ElasticSearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.ElasticSearch["1"] = target.ElasticsearchArgs{}
 	} else {
 		srvConfig.Notify.ElasticSearch = cv8.Notify.ElasticSearch
 	}
 	if len(cv8.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv8.Notify.Redis
 	}
 	if len(cv8.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv8.Notify.PostgreSQL
 	}
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv8.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv8.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv8.Version, srvConfig.Version)
 	return nil
 }
 
@@ -574,7 +670,7 @@ func migrateV9ToV10() error {
 	configFile := getConfigFile()
 
 	cv9 := &serverConfigV9{}
-	_, err := quick.Load(configFile, cv9)
+	_, err := Load(configFile, cv9)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -598,8 +694,8 @@ func migrateV9ToV10() error {
 
 	// check and set notifiers config
 	if len(cv9.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv9.Notify.AMQP
 	}
@@ -610,29 +706,29 @@ func migrateV9ToV10() error {
 		srvConfig.Notify.NATS = cv9.Notify.NATS
 	}
 	if len(cv9.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+		srvConfig.Notify.ElasticSearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.ElasticSearch["1"] = target.ElasticsearchArgs{}
 	} else {
 		srvConfig.Notify.ElasticSearch = cv9.Notify.ElasticSearch
 	}
 	if len(cv9.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv9.Notify.Redis
 	}
 	if len(cv9.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv9.Notify.PostgreSQL
 	}
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv9.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv9.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv9.Version, srvConfig.Version)
 	return nil
 }
 
@@ -642,7 +738,7 @@ func migrateV10ToV11() error {
 	configFile := getConfigFile()
 
 	cv10 := &serverConfigV10{}
-	_, err := quick.Load(configFile, cv10)
+	_, err := Load(configFile, cv10)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -666,8 +762,8 @@ func migrateV10ToV11() error {
 
 	// check and set notifiers config
 	if len(cv10.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv10.Notify.AMQP
 	}
@@ -678,32 +774,32 @@ func migrateV10ToV11() error {
 		srvConfig.Notify.NATS = cv10.Notify.NATS
 	}
 	if len(cv10.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+		srvConfig.Notify.ElasticSearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.ElasticSearch["1"] = target.ElasticsearchArgs{}
 	} else {
 		srvConfig.Notify.ElasticSearch = cv10.Notify.ElasticSearch
 	}
 	if len(cv10.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv10.Notify.Redis
 	}
 	if len(cv10.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv10.Notify.PostgreSQL
 	}
 	// V10 will not have a Kafka config. So we initialize one here.
-	srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-	srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+	srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+	srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv10.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv10.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv10.Version, srvConfig.Version)
 	return nil
 }
 
@@ -713,7 +809,7 @@ func migrateV11ToV12() error {
 	configFile := getConfigFile()
 
 	cv11 := &serverConfigV11{}
-	_, err := quick.Load(configFile, cv11)
+	_, err := Load(configFile, cv11)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -737,32 +833,32 @@ func migrateV11ToV12() error {
 
 	// check and set notifiers config
 	if len(cv11.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv11.Notify.AMQP
 	}
 	if len(cv11.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+		srvConfig.Notify.ElasticSearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.ElasticSearch["1"] = target.ElasticsearchArgs{}
 	} else {
 		srvConfig.Notify.ElasticSearch = cv11.Notify.ElasticSearch
 	}
 	if len(cv11.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv11.Notify.Redis
 	}
 	if len(cv11.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv11.Notify.PostgreSQL
 	}
 	if len(cv11.Notify.Kafka) == 0 {
-		srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-		srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 	} else {
 		srvConfig.Notify.Kafka = cv11.Notify.Kafka
 	}
@@ -770,14 +866,23 @@ func migrateV11ToV12() error {
 	// V12 will have an updated config of nats. So we create a new one or we
 	// update the old one if found.
 	if len(cv11.Notify.NATS) == 0 {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
-		srvConfig.Notify.NATS["1"] = natsNotify{}
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
 	} else {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
 		for k, v := range cv11.Notify.NATS {
-			n := natsNotify{}
+			if v.Address == "" {
+				continue
+			}
+
+			var addr *xnet.Host
+			addr, err = xnet.ParseHost(v.Address)
+			if err != nil {
+				return err
+			}
+			n := target.NATSArgs{}
 			n.Enable = v.Enable
-			n.Address = v.Address
+			n.Address = *addr
 			n.Subject = v.Subject
 			n.Username = v.Username
 			n.Password = v.Password
@@ -788,11 +893,11 @@ func migrateV11ToV12() error {
 		}
 	}
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv11.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv11.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv11.Version, srvConfig.Version)
 	return nil
 }
 
@@ -801,7 +906,7 @@ func migrateV12ToV13() error {
 	configFile := getConfigFile()
 
 	cv12 := &serverConfigV12{}
-	_, err := quick.Load(configFile, cv12)
+	_, err := Load(configFile, cv12)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -814,7 +919,7 @@ func migrateV12ToV13() error {
 	// Copy over fields from V12 into V13 config struct
 	srvConfig := &serverConfigV13{
 		Logger: &loggerV7{},
-		Notify: &notifier{},
+		Notify: &notifierV3{},
 	}
 	srvConfig.Version = "13"
 	srvConfig.Credential = cv12.Credential
@@ -828,51 +933,51 @@ func migrateV12ToV13() error {
 
 	// check and set notifiers config
 	if len(cv12.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv12.Notify.AMQP
 	}
 	if len(cv12.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{}
 	} else {
-		srvConfig.Notify.ElasticSearch = cv12.Notify.ElasticSearch
+		srvConfig.Notify.Elasticsearch = cv12.Notify.ElasticSearch
 	}
 	if len(cv12.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv12.Notify.Redis
 	}
 	if len(cv12.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv12.Notify.PostgreSQL
 	}
 	if len(cv12.Notify.Kafka) == 0 {
-		srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-		srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 	} else {
 		srvConfig.Notify.Kafka = cv12.Notify.Kafka
 	}
 	if len(cv12.Notify.NATS) == 0 {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
-		srvConfig.Notify.NATS["1"] = natsNotify{}
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
 	} else {
 		srvConfig.Notify.NATS = cv12.Notify.NATS
 	}
 
 	// V12 will not have a webhook config. So we initialize one here.
-	srvConfig.Notify.Webhook = make(map[string]webhookNotify)
-	srvConfig.Notify.Webhook["1"] = webhookNotify{}
+	srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+	srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv12.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv12.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv12.Version, srvConfig.Version)
 	return nil
 }
 
@@ -881,7 +986,7 @@ func migrateV13ToV14() error {
 	configFile := getConfigFile()
 
 	cv13 := &serverConfigV13{}
-	_, err := quick.Load(configFile, cv13)
+	_, err := Load(configFile, cv13)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -894,7 +999,7 @@ func migrateV13ToV14() error {
 	// Copy over fields from V13 into V14 config struct
 	srvConfig := &serverConfigV14{
 		Logger: &loggerV7{},
-		Notify: &notifier{},
+		Notify: &notifierV3{},
 	}
 	srvConfig.Version = "14"
 	srvConfig.Credential = cv13.Credential
@@ -908,44 +1013,44 @@ func migrateV13ToV14() error {
 
 	// check and set notifiers config
 	if len(cv13.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv13.Notify.AMQP
 	}
-	if len(cv13.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+	if len(cv13.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{}
 	} else {
-		srvConfig.Notify.ElasticSearch = cv13.Notify.ElasticSearch
+		srvConfig.Notify.Elasticsearch = cv13.Notify.Elasticsearch
 	}
 	if len(cv13.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv13.Notify.Redis
 	}
 	if len(cv13.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv13.Notify.PostgreSQL
 	}
 	if len(cv13.Notify.Kafka) == 0 {
-		srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-		srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 	} else {
 		srvConfig.Notify.Kafka = cv13.Notify.Kafka
 	}
 	if len(cv13.Notify.NATS) == 0 {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
-		srvConfig.Notify.NATS["1"] = natsNotify{}
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
 	} else {
 		srvConfig.Notify.NATS = cv13.Notify.NATS
 	}
 	if len(cv13.Notify.Webhook) == 0 {
-		srvConfig.Notify.Webhook = make(map[string]webhookNotify)
-		srvConfig.Notify.Webhook["1"] = webhookNotify{}
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
 	} else {
 		srvConfig.Notify.Webhook = cv13.Notify.Webhook
 	}
@@ -953,11 +1058,11 @@ func migrateV13ToV14() error {
 	// Set the new browser parameter to true by default
 	srvConfig.Browser = true
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv13.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv13.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv13.Version, srvConfig.Version)
 	return nil
 }
 
@@ -966,7 +1071,7 @@ func migrateV14ToV15() error {
 	configFile := getConfigFile()
 
 	cv14 := &serverConfigV14{}
-	_, err := quick.Load(configFile, cv14)
+	_, err := Load(configFile, cv14)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -979,7 +1084,7 @@ func migrateV14ToV15() error {
 	// Copy over fields from V14 into V15 config struct
 	srvConfig := &serverConfigV15{
 		Logger: &loggerV7{},
-		Notify: &notifier{},
+		Notify: &notifierV3{},
 	}
 	srvConfig.Version = "15"
 	srvConfig.Credential = cv14.Credential
@@ -993,60 +1098,60 @@ func migrateV14ToV15() error {
 
 	// check and set notifiers config
 	if len(cv14.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv14.Notify.AMQP
 	}
-	if len(cv14.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+	if len(cv14.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{}
 	} else {
-		srvConfig.Notify.ElasticSearch = cv14.Notify.ElasticSearch
+		srvConfig.Notify.Elasticsearch = cv14.Notify.Elasticsearch
 	}
 	if len(cv14.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv14.Notify.Redis
 	}
 	if len(cv14.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv14.Notify.PostgreSQL
 	}
 	if len(cv14.Notify.Kafka) == 0 {
-		srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-		srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 	} else {
 		srvConfig.Notify.Kafka = cv14.Notify.Kafka
 	}
 	if len(cv14.Notify.NATS) == 0 {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
-		srvConfig.Notify.NATS["1"] = natsNotify{}
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
 	} else {
 		srvConfig.Notify.NATS = cv14.Notify.NATS
 	}
 	if len(cv14.Notify.Webhook) == 0 {
-		srvConfig.Notify.Webhook = make(map[string]webhookNotify)
-		srvConfig.Notify.Webhook["1"] = webhookNotify{}
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
 	} else {
 		srvConfig.Notify.Webhook = cv14.Notify.Webhook
 	}
 
 	// V14 will not have mysql support, so we add that here.
-	srvConfig.Notify.MySQL = make(map[string]mySQLNotify)
-	srvConfig.Notify.MySQL["1"] = mySQLNotify{}
+	srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+	srvConfig.Notify.MySQL["1"] = target.MySQLArgs{}
 
 	// Load browser config from existing config in the file.
 	srvConfig.Browser = cv14.Browser
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv14.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv14.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv14.Version, srvConfig.Version)
 	return nil
 }
 
@@ -1056,7 +1161,7 @@ func migrateV15ToV16() error {
 	configFile := getConfigFile()
 
 	cv15 := &serverConfigV15{}
-	_, err := quick.Load(configFile, cv15)
+	_, err := Load(configFile, cv15)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -1069,7 +1174,7 @@ func migrateV15ToV16() error {
 	// Copy over fields from V15 into V16 config struct
 	srvConfig := &serverConfigV16{
 		Logger: &loggers{},
-		Notify: &notifier{},
+		Notify: &notifierV3{},
 	}
 	srvConfig.Version = "16"
 	srvConfig.Credential = cv15.Credential
@@ -1081,50 +1186,50 @@ func migrateV15ToV16() error {
 
 	// check and set notifiers config
 	if len(cv15.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv15.Notify.AMQP
 	}
-	if len(cv15.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+	if len(cv15.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{}
 	} else {
-		srvConfig.Notify.ElasticSearch = cv15.Notify.ElasticSearch
+		srvConfig.Notify.Elasticsearch = cv15.Notify.Elasticsearch
 	}
 	if len(cv15.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		srvConfig.Notify.Redis = cv15.Notify.Redis
 	}
 	if len(cv15.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv15.Notify.PostgreSQL
 	}
 	if len(cv15.Notify.Kafka) == 0 {
-		srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-		srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 	} else {
 		srvConfig.Notify.Kafka = cv15.Notify.Kafka
 	}
 	if len(cv15.Notify.NATS) == 0 {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
-		srvConfig.Notify.NATS["1"] = natsNotify{}
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
 	} else {
 		srvConfig.Notify.NATS = cv15.Notify.NATS
 	}
 	if len(cv15.Notify.Webhook) == 0 {
-		srvConfig.Notify.Webhook = make(map[string]webhookNotify)
-		srvConfig.Notify.Webhook["1"] = webhookNotify{}
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
 	} else {
 		srvConfig.Notify.Webhook = cv15.Notify.Webhook
 	}
 	if len(cv15.Notify.MySQL) == 0 {
-		srvConfig.Notify.MySQL = make(map[string]mySQLNotify)
-		srvConfig.Notify.MySQL["1"] = mySQLNotify{}
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{}
 	} else {
 		srvConfig.Notify.MySQL = cv15.Notify.MySQL
 	}
@@ -1132,19 +1237,11 @@ func migrateV15ToV16() error {
 	// Load browser config from existing config in the file.
 	srvConfig.Browser = cv15.Browser
 
-	// Migrate console and file fields
-	if cv15.Logger.Console.Enable {
-		srvConfig.Logger.Console = NewConsoleLogger()
-	}
-	if cv15.Logger.File.Enable {
-		srvConfig.Logger.File = NewFileLogger(cv15.Logger.File.Filename)
-	}
-
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv15.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv15.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv15.Version, srvConfig.Version)
 	return nil
 }
 
@@ -1154,7 +1251,7 @@ func migrateV16ToV17() error {
 	configFile := getConfigFile()
 
 	cv16 := &serverConfigV16{}
-	_, err := quick.Load(configFile, cv16)
+	_, err := Load(configFile, cv16)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -1167,7 +1264,7 @@ func migrateV16ToV17() error {
 	// Copy over fields from V16 into V17 config struct
 	srvConfig := &serverConfigV17{
 		Logger: &loggers{},
-		Notify: &notifier{},
+		Notify: &notifierV3{},
 	}
 	srvConfig.Version = "17"
 	srvConfig.Credential = cv16.Credential
@@ -1182,90 +1279,90 @@ func migrateV16ToV17() error {
 
 	// check and set notifiers config
 	if len(cv16.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		srvConfig.Notify.AMQP = cv16.Notify.AMQP
 	}
-	if len(cv16.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{}
+	if len(cv16.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{}
 	} else {
 		// IMPORTANT NOTE: Future migrations should remove
 		// this as existing configuration will already contain
 		// a value for the "format" parameter.
-		for k, v := range cv16.Notify.ElasticSearch.Clone() {
-			v.Format = formatNamespace
-			cv16.Notify.ElasticSearch[k] = v
+		srvConfig.Notify.Elasticsearch = cv16.Notify.Elasticsearch
+		for k, v := range srvConfig.Notify.Elasticsearch {
+			v.Format = event.NamespaceFormat
+			srvConfig.Notify.Elasticsearch[k] = v
 		}
-		srvConfig.Notify.ElasticSearch = cv16.Notify.ElasticSearch
 	}
 	if len(cv16.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{}
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{}
 	} else {
 		// IMPORTANT NOTE: Future migrations should remove
 		// this as existing configuration will already contain
 		// a value for the "format" parameter.
-		for k, v := range cv16.Notify.Redis.Clone() {
-			v.Format = formatNamespace
-			cv16.Notify.Redis[k] = v
-		}
 		srvConfig.Notify.Redis = cv16.Notify.Redis
+		for k, v := range srvConfig.Notify.Redis {
+			v.Format = event.NamespaceFormat
+			srvConfig.Notify.Redis[k] = v
+		}
 	}
 	if len(cv16.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{}
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{}
 	} else {
 		// IMPORTANT NOTE: Future migrations should remove
 		// this as existing configuration will already contain
 		// a value for the "format" parameter.
-		for k, v := range cv16.Notify.PostgreSQL.Clone() {
-			v.Format = formatNamespace
-			cv16.Notify.PostgreSQL[k] = v
-		}
 		srvConfig.Notify.PostgreSQL = cv16.Notify.PostgreSQL
+		for k, v := range srvConfig.Notify.PostgreSQL {
+			v.Format = event.NamespaceFormat
+			srvConfig.Notify.PostgreSQL[k] = v
+		}
 	}
 	if len(cv16.Notify.Kafka) == 0 {
-		srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-		srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 	} else {
 		srvConfig.Notify.Kafka = cv16.Notify.Kafka
 	}
 	if len(cv16.Notify.NATS) == 0 {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
-		srvConfig.Notify.NATS["1"] = natsNotify{}
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
 	} else {
 		srvConfig.Notify.NATS = cv16.Notify.NATS
 	}
 	if len(cv16.Notify.Webhook) == 0 {
-		srvConfig.Notify.Webhook = make(map[string]webhookNotify)
-		srvConfig.Notify.Webhook["1"] = webhookNotify{}
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
 	} else {
 		srvConfig.Notify.Webhook = cv16.Notify.Webhook
 	}
 	if len(cv16.Notify.MySQL) == 0 {
-		srvConfig.Notify.MySQL = make(map[string]mySQLNotify)
-		srvConfig.Notify.MySQL["1"] = mySQLNotify{}
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{}
 	} else {
 		// IMPORTANT NOTE: Future migrations should remove
 		// this as existing configuration will already contain
 		// a value for the "format" parameter.
-		for k, v := range cv16.Notify.MySQL.Clone() {
-			v.Format = formatNamespace
-			cv16.Notify.MySQL[k] = v
-		}
 		srvConfig.Notify.MySQL = cv16.Notify.MySQL
+		for k, v := range srvConfig.Notify.MySQL {
+			v.Format = event.NamespaceFormat
+			srvConfig.Notify.MySQL[k] = v
+		}
 	}
 
 	// Load browser config from existing config in the file.
 	srvConfig.Browser = cv16.Browser
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv16.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv16.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv16.Version, srvConfig.Version)
 	return nil
 }
 
@@ -1275,7 +1372,7 @@ func migrateV17ToV18() error {
 	configFile := getConfigFile()
 
 	cv17 := &serverConfigV17{}
-	_, err := quick.Load(configFile, cv17)
+	_, err := Load(configFile, cv17)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -1288,7 +1385,7 @@ func migrateV17ToV18() error {
 	// Copy over fields from V17 into V18 config struct
 	srvConfig := &serverConfigV17{
 		Logger: &loggers{},
-		Notify: &notifier{},
+		Notify: &notifierV3{},
 	}
 	srvConfig.Version = "18"
 	srvConfig.Credential = cv17.Credential
@@ -1303,60 +1400,60 @@ func migrateV17ToV18() error {
 
 	// check and set notifiers config
 	if len(cv17.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		// New deliveryMode parameter is added for AMQP,
 		// default value is already 0, so nothing to
 		// explicitly migrate here.
 		srvConfig.Notify.AMQP = cv17.Notify.AMQP
 	}
-	if len(cv17.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{
-			Format: formatNamespace,
+	if len(cv17.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
 		}
 	} else {
-		srvConfig.Notify.ElasticSearch = cv17.Notify.ElasticSearch
+		srvConfig.Notify.Elasticsearch = cv17.Notify.Elasticsearch
 	}
 	if len(cv17.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{
-			Format: formatNamespace,
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
 		}
 	} else {
 		srvConfig.Notify.Redis = cv17.Notify.Redis
 	}
 	if len(cv17.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{
-			Format: formatNamespace,
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
 		}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv17.Notify.PostgreSQL
 	}
 	if len(cv17.Notify.Kafka) == 0 {
-		srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-		srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 	} else {
 		srvConfig.Notify.Kafka = cv17.Notify.Kafka
 	}
 	if len(cv17.Notify.NATS) == 0 {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
-		srvConfig.Notify.NATS["1"] = natsNotify{}
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
 	} else {
 		srvConfig.Notify.NATS = cv17.Notify.NATS
 	}
 	if len(cv17.Notify.Webhook) == 0 {
-		srvConfig.Notify.Webhook = make(map[string]webhookNotify)
-		srvConfig.Notify.Webhook["1"] = webhookNotify{}
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
 	} else {
 		srvConfig.Notify.Webhook = cv17.Notify.Webhook
 	}
 	if len(cv17.Notify.MySQL) == 0 {
-		srvConfig.Notify.MySQL = make(map[string]mySQLNotify)
-		srvConfig.Notify.MySQL["1"] = mySQLNotify{
-			Format: formatNamespace,
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
 		}
 	} else {
 		srvConfig.Notify.MySQL = cv17.Notify.MySQL
@@ -1365,11 +1462,11 @@ func migrateV17ToV18() error {
 	// Load browser config from existing config in the file.
 	srvConfig.Browser = cv17.Browser
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv17.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv17.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv17.Version, srvConfig.Version)
 	return nil
 }
 
@@ -1377,7 +1474,7 @@ func migrateV18ToV19() error {
 	configFile := getConfigFile()
 
 	cv18 := &serverConfigV18{}
-	_, err := quick.Load(configFile, cv18)
+	_, err := Load(configFile, cv18)
 	if os.IsNotExist(err) {
 		return nil
 	} else if err != nil {
@@ -1390,7 +1487,7 @@ func migrateV18ToV19() error {
 	// Copy over fields from V18 into V19 config struct
 	srvConfig := &serverConfigV18{
 		Logger: &loggers{},
-		Notify: &notifier{},
+		Notify: &notifierV3{},
 	}
 	srvConfig.Version = "19"
 	srvConfig.Credential = cv18.Credential
@@ -1405,76 +1502,1124 @@ func migrateV18ToV19() error {
 
 	// check and set notifiers config
 	if len(cv18.Notify.AMQP) == 0 {
-		srvConfig.Notify.AMQP = make(map[string]amqpNotify)
-		srvConfig.Notify.AMQP["1"] = amqpNotify{}
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
 	} else {
 		// New deliveryMode parameter is added for AMQP,
 		// default value is already 0, so nothing to
 		// explicitly migrate here.
 		srvConfig.Notify.AMQP = cv18.Notify.AMQP
 	}
-	if len(cv18.Notify.ElasticSearch) == 0 {
-		srvConfig.Notify.ElasticSearch = make(map[string]elasticSearchNotify)
-		srvConfig.Notify.ElasticSearch["1"] = elasticSearchNotify{
-			Format: formatNamespace,
+	if len(cv18.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
 		}
 	} else {
-		srvConfig.Notify.ElasticSearch = cv18.Notify.ElasticSearch
+		srvConfig.Notify.Elasticsearch = cv18.Notify.Elasticsearch
 	}
 	if len(cv18.Notify.Redis) == 0 {
-		srvConfig.Notify.Redis = make(map[string]redisNotify)
-		srvConfig.Notify.Redis["1"] = redisNotify{
-			Format: formatNamespace,
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
 		}
 	} else {
 		srvConfig.Notify.Redis = cv18.Notify.Redis
 	}
 	if len(cv18.Notify.PostgreSQL) == 0 {
-		srvConfig.Notify.PostgreSQL = make(map[string]postgreSQLNotify)
-		srvConfig.Notify.PostgreSQL["1"] = postgreSQLNotify{
-			Format: formatNamespace,
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
 		}
 	} else {
 		srvConfig.Notify.PostgreSQL = cv18.Notify.PostgreSQL
 	}
 	if len(cv18.Notify.Kafka) == 0 {
-		srvConfig.Notify.Kafka = make(map[string]kafkaNotify)
-		srvConfig.Notify.Kafka["1"] = kafkaNotify{}
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
 	} else {
 		srvConfig.Notify.Kafka = cv18.Notify.Kafka
 	}
 	if len(cv18.Notify.NATS) == 0 {
-		srvConfig.Notify.NATS = make(map[string]natsNotify)
-		srvConfig.Notify.NATS["1"] = natsNotify{}
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
 	} else {
 		srvConfig.Notify.NATS = cv18.Notify.NATS
 	}
 	if len(cv18.Notify.Webhook) == 0 {
-		srvConfig.Notify.Webhook = make(map[string]webhookNotify)
-		srvConfig.Notify.Webhook["1"] = webhookNotify{}
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
 	} else {
 		srvConfig.Notify.Webhook = cv18.Notify.Webhook
 	}
 	if len(cv18.Notify.MySQL) == 0 {
-		srvConfig.Notify.MySQL = make(map[string]mySQLNotify)
-		srvConfig.Notify.MySQL["1"] = mySQLNotify{
-			Format: formatNamespace,
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
 		}
 	} else {
 		srvConfig.Notify.MySQL = cv18.Notify.MySQL
 	}
 
 	// V18 will not have mqtt support, so we add that here.
-	srvConfig.Notify.MQTT = make(map[string]mqttNotify)
-	srvConfig.Notify.MQTT["1"] = mqttNotify{}
+	srvConfig.Notify.MQTT = make(map[string]target.MQTTArgs)
+	srvConfig.Notify.MQTT["1"] = target.MQTTArgs{}
 
 	// Load browser config from existing config in the file.
 	srvConfig.Browser = cv18.Browser
 
-	if err = quick.Save(configFile, srvConfig); err != nil {
+	if err = Save(configFile, srvConfig); err != nil {
 		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv18.Version, srvConfig.Version, err)
 	}
 
-	log.Printf(configMigrateMSGTemplate, configFile, cv18.Version, srvConfig.Version)
+	logger.Info(configMigrateMSGTemplate, configFile, cv18.Version, srvConfig.Version)
+	return nil
+}
+
+func migrateV19ToV20() error {
+	configFile := getConfigFile()
+
+	cv19 := &serverConfigV19{}
+	_, err := Load(configFile, cv19)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config version ‘18’. %v", err)
+	}
+	if cv19.Version != "19" {
+		return nil
+	}
+
+	// Copy over fields from V19 into V20 config struct
+	srvConfig := &serverConfigV20{
+		Logger: &loggers{},
+		Notify: &notifierV3{},
+	}
+	srvConfig.Version = "20"
+	srvConfig.Credential = cv19.Credential
+	srvConfig.Region = cv19.Region
+	if srvConfig.Region == "" {
+		// Region needs to be set for AWS Signature Version 4.
+		srvConfig.Region = globalMinioDefaultRegion
+	}
+
+	srvConfig.Logger.Console = cv19.Logger.Console
+	srvConfig.Logger.File = cv19.Logger.File
+
+	if len(cv19.Notify.AMQP) == 0 {
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
+	} else {
+		srvConfig.Notify.AMQP = cv19.Notify.AMQP
+	}
+	if len(cv19.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Elasticsearch = cv19.Notify.Elasticsearch
+	}
+	if len(cv19.Notify.Redis) == 0 {
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Redis = cv19.Notify.Redis
+	}
+	if len(cv19.Notify.PostgreSQL) == 0 {
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.PostgreSQL = cv19.Notify.PostgreSQL
+	}
+	if len(cv19.Notify.Kafka) == 0 {
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
+	} else {
+		srvConfig.Notify.Kafka = cv19.Notify.Kafka
+	}
+	if len(cv19.Notify.NATS) == 0 {
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
+	} else {
+		srvConfig.Notify.NATS = cv19.Notify.NATS
+	}
+	if len(cv19.Notify.Webhook) == 0 {
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
+	} else {
+		srvConfig.Notify.Webhook = cv19.Notify.Webhook
+	}
+	if len(cv19.Notify.MySQL) == 0 {
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.MySQL = cv19.Notify.MySQL
+	}
+
+	if len(cv19.Notify.MQTT) == 0 {
+		srvConfig.Notify.MQTT = make(map[string]target.MQTTArgs)
+		srvConfig.Notify.MQTT["1"] = target.MQTTArgs{}
+	} else {
+		srvConfig.Notify.MQTT = cv19.Notify.MQTT
+	}
+
+	// Load browser config from existing config in the file.
+	srvConfig.Browser = cv19.Browser
+
+	if err = Save(configFile, srvConfig); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv19.Version, srvConfig.Version, err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, cv19.Version, srvConfig.Version)
+	return nil
+}
+
+func migrateV20ToV21() error {
+	configFile := getConfigFile()
+
+	cv20 := &serverConfigV20{}
+	_, err := Load(configFile, cv20)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config version ‘20’. %v", err)
+	}
+	if cv20.Version != "20" {
+		return nil
+	}
+
+	// Copy over fields from V20 into V21 config struct
+	srvConfig := &serverConfigV21{
+		Notify: &notifierV3{},
+	}
+	srvConfig.Version = "21"
+	srvConfig.Credential = cv20.Credential
+	srvConfig.Region = cv20.Region
+	if srvConfig.Region == "" {
+		// Region needs to be set for AWS Signature Version 4.
+		srvConfig.Region = globalMinioDefaultRegion
+	}
+
+	if len(cv20.Notify.AMQP) == 0 {
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
+	} else {
+		srvConfig.Notify.AMQP = cv20.Notify.AMQP
+	}
+	if len(cv20.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Elasticsearch = cv20.Notify.Elasticsearch
+	}
+	if len(cv20.Notify.Redis) == 0 {
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Redis = cv20.Notify.Redis
+	}
+	if len(cv20.Notify.PostgreSQL) == 0 {
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.PostgreSQL = cv20.Notify.PostgreSQL
+	}
+	if len(cv20.Notify.Kafka) == 0 {
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
+	} else {
+		srvConfig.Notify.Kafka = cv20.Notify.Kafka
+	}
+	if len(cv20.Notify.NATS) == 0 {
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
+	} else {
+		srvConfig.Notify.NATS = cv20.Notify.NATS
+	}
+	if len(cv20.Notify.Webhook) == 0 {
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
+	} else {
+		srvConfig.Notify.Webhook = cv20.Notify.Webhook
+	}
+	if len(cv20.Notify.MySQL) == 0 {
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.MySQL = cv20.Notify.MySQL
+	}
+
+	if len(cv20.Notify.MQTT) == 0 {
+		srvConfig.Notify.MQTT = make(map[string]target.MQTTArgs)
+		srvConfig.Notify.MQTT["1"] = target.MQTTArgs{}
+	} else {
+		srvConfig.Notify.MQTT = cv20.Notify.MQTT
+	}
+
+	// Load browser config from existing config in the file.
+	srvConfig.Browser = cv20.Browser
+
+	// Load domain config from existing config in the file.
+	srvConfig.Domain = cv20.Domain
+
+	if err = Save(configFile, srvConfig); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv20.Version, srvConfig.Version, err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, cv20.Version, srvConfig.Version)
+	return nil
+}
+
+func migrateV21ToV22() error {
+	configFile := getConfigFile()
+
+	cv21 := &serverConfigV21{}
+	_, err := Load(configFile, cv21)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config version ‘21’. %v", err)
+	}
+	if cv21.Version != "21" {
+		return nil
+	}
+
+	// Copy over fields from V21 into V22 config struct
+	srvConfig := &serverConfigV22{
+		Notify: notifierV3{},
+	}
+	srvConfig.Version = "22"
+	srvConfig.Credential = cv21.Credential
+	srvConfig.Region = cv21.Region
+	if srvConfig.Region == "" {
+		// Region needs to be set for AWS Signature Version 4.
+		srvConfig.Region = globalMinioDefaultRegion
+	}
+
+	if len(cv21.Notify.AMQP) == 0 {
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
+	} else {
+		srvConfig.Notify.AMQP = cv21.Notify.AMQP
+	}
+	if len(cv21.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Elasticsearch = cv21.Notify.Elasticsearch
+	}
+	if len(cv21.Notify.Redis) == 0 {
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Redis = cv21.Notify.Redis
+	}
+	if len(cv21.Notify.PostgreSQL) == 0 {
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.PostgreSQL = cv21.Notify.PostgreSQL
+	}
+	if len(cv21.Notify.Kafka) == 0 {
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
+	} else {
+		srvConfig.Notify.Kafka = cv21.Notify.Kafka
+	}
+	if len(cv21.Notify.NATS) == 0 {
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
+	} else {
+		srvConfig.Notify.NATS = cv21.Notify.NATS
+	}
+	if len(cv21.Notify.Webhook) == 0 {
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
+	} else {
+		srvConfig.Notify.Webhook = cv21.Notify.Webhook
+	}
+	if len(cv21.Notify.MySQL) == 0 {
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.MySQL = cv21.Notify.MySQL
+	}
+
+	if len(cv21.Notify.MQTT) == 0 {
+		srvConfig.Notify.MQTT = make(map[string]target.MQTTArgs)
+		srvConfig.Notify.MQTT["1"] = target.MQTTArgs{}
+	} else {
+		srvConfig.Notify.MQTT = cv21.Notify.MQTT
+	}
+
+	// Load browser config from existing config in the file.
+	srvConfig.Browser = cv21.Browser
+
+	// Load domain config from existing config in the file.
+	srvConfig.Domain = cv21.Domain
+
+	if err = Save(configFile, srvConfig); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv21.Version, srvConfig.Version, err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, cv21.Version, srvConfig.Version)
+	return nil
+}
+
+func migrateV22ToV23() error {
+	configFile := getConfigFile()
+
+	cv22 := &serverConfigV22{}
+	_, err := Load(configFile, cv22)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config version ‘22’. %v", err)
+	}
+	if cv22.Version != "22" {
+		return nil
+	}
+
+	// Copy over fields from V22 into V23 config struct
+	srvConfig := &serverConfigV23{
+		Notify: notifierV3{},
+	}
+	srvConfig.Version = "23"
+	srvConfig.Credential = cv22.Credential
+	srvConfig.Region = cv22.Region
+	if srvConfig.Region == "" {
+		// Region needs to be set for AWS Signature Version 4.
+		srvConfig.Region = globalMinioDefaultRegion
+	}
+
+	if len(cv22.Notify.AMQP) == 0 {
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
+	} else {
+		srvConfig.Notify.AMQP = cv22.Notify.AMQP
+	}
+	if len(cv22.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Elasticsearch = cv22.Notify.Elasticsearch
+	}
+	if len(cv22.Notify.Redis) == 0 {
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Redis = cv22.Notify.Redis
+	}
+	if len(cv22.Notify.PostgreSQL) == 0 {
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.PostgreSQL = cv22.Notify.PostgreSQL
+	}
+	if len(cv22.Notify.Kafka) == 0 {
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
+	} else {
+		srvConfig.Notify.Kafka = cv22.Notify.Kafka
+	}
+	if len(cv22.Notify.NATS) == 0 {
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
+	} else {
+		srvConfig.Notify.NATS = cv22.Notify.NATS
+	}
+	if len(cv22.Notify.Webhook) == 0 {
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
+	} else {
+		srvConfig.Notify.Webhook = cv22.Notify.Webhook
+	}
+	if len(cv22.Notify.MySQL) == 0 {
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.MySQL = cv22.Notify.MySQL
+	}
+
+	if len(cv22.Notify.MQTT) == 0 {
+		srvConfig.Notify.MQTT = make(map[string]target.MQTTArgs)
+		srvConfig.Notify.MQTT["1"] = target.MQTTArgs{}
+	} else {
+		srvConfig.Notify.MQTT = cv22.Notify.MQTT
+	}
+
+	// Load browser config from existing config in the file.
+	srvConfig.Browser = cv22.Browser
+
+	// Load domain config from existing config in the file.
+	srvConfig.Domain = cv22.Domain
+
+	// Load storage class config from existing storage class config in the file
+	srvConfig.StorageClass.RRS = cv22.StorageClass.RRS
+	srvConfig.StorageClass.Standard = cv22.StorageClass.Standard
+
+	// Init cache config.For future migration, Cache config needs to be copied over from previous version.
+	srvConfig.Cache.Drives = []string{}
+	srvConfig.Cache.Exclude = []string{}
+	srvConfig.Cache.Expiry = globalCacheExpiry
+
+	if err = Save(configFile, srvConfig); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv22.Version, srvConfig.Version, err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, cv22.Version, srvConfig.Version)
+	return nil
+}
+
+func migrateV23ToV24() error {
+	configFile := getConfigFile()
+
+	cv23 := &serverConfigV23{}
+	_, err := quick.LoadConfig(configFile, globalEtcdClient, cv23)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config version ‘23’. %v", err)
+	}
+	if cv23.Version != "23" {
+		return nil
+	}
+
+	// Copy over fields from V23 into V24 config struct
+	srvConfig := &serverConfigV24{
+		Notify: notifierV3{},
+	}
+	srvConfig.Version = "24"
+	srvConfig.Credential = cv23.Credential
+	srvConfig.Region = cv23.Region
+	if srvConfig.Region == "" {
+		// Region needs to be set for AWS Signature Version 4.
+		srvConfig.Region = globalMinioDefaultRegion
+	}
+
+	if len(cv23.Notify.AMQP) == 0 {
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
+	} else {
+		srvConfig.Notify.AMQP = cv23.Notify.AMQP
+	}
+	if len(cv23.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Elasticsearch = cv23.Notify.Elasticsearch
+	}
+	if len(cv23.Notify.Redis) == 0 {
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Redis = cv23.Notify.Redis
+	}
+	if len(cv23.Notify.PostgreSQL) == 0 {
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.PostgreSQL = cv23.Notify.PostgreSQL
+	}
+	if len(cv23.Notify.Kafka) == 0 {
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
+	} else {
+		srvConfig.Notify.Kafka = cv23.Notify.Kafka
+	}
+	if len(cv23.Notify.NATS) == 0 {
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
+	} else {
+		srvConfig.Notify.NATS = cv23.Notify.NATS
+	}
+	if len(cv23.Notify.Webhook) == 0 {
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
+	} else {
+		srvConfig.Notify.Webhook = cv23.Notify.Webhook
+	}
+	if len(cv23.Notify.MySQL) == 0 {
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.MySQL = cv23.Notify.MySQL
+	}
+
+	if len(cv23.Notify.MQTT) == 0 {
+		srvConfig.Notify.MQTT = make(map[string]target.MQTTArgs)
+		srvConfig.Notify.MQTT["1"] = target.MQTTArgs{}
+	} else {
+		srvConfig.Notify.MQTT = cv23.Notify.MQTT
+	}
+
+	// Load browser config from existing config in the file.
+	srvConfig.Browser = cv23.Browser
+
+	// Load domain config from existing config in the file.
+	srvConfig.Domain = cv23.Domain
+
+	// Load storage class config from existing storage class config in the file.
+	srvConfig.StorageClass.RRS = cv23.StorageClass.RRS
+	srvConfig.StorageClass.Standard = cv23.StorageClass.Standard
+
+	// Load cache config from existing cache config in the file.
+	srvConfig.Cache.Drives = cv23.Cache.Drives
+	srvConfig.Cache.Exclude = cv23.Cache.Exclude
+	srvConfig.Cache.Expiry = cv23.Cache.Expiry
+
+	if err = quick.SaveConfig(srvConfig, configFile, globalEtcdClient); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv23.Version, srvConfig.Version, err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, cv23.Version, srvConfig.Version)
+	return nil
+}
+
+func migrateV24ToV25() error {
+	configFile := getConfigFile()
+
+	cv24 := &serverConfigV24{}
+	_, err := quick.LoadConfig(configFile, globalEtcdClient, cv24)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config version ‘24’. %v", err)
+	}
+	if cv24.Version != "24" {
+		return nil
+	}
+
+	// Copy over fields from V24 into V25 config struct
+	srvConfig := &serverConfigV25{
+		Notify: notifierV3{},
+	}
+	srvConfig.Version = "25"
+	srvConfig.Credential = cv24.Credential
+	srvConfig.Region = cv24.Region
+	if srvConfig.Region == "" {
+		// Region needs to be set for AWS Signature Version 4.
+		srvConfig.Region = globalMinioDefaultRegion
+	}
+
+	if len(cv24.Notify.AMQP) == 0 {
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
+	} else {
+		srvConfig.Notify.AMQP = cv24.Notify.AMQP
+	}
+	if len(cv24.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Elasticsearch = cv24.Notify.Elasticsearch
+	}
+	if len(cv24.Notify.Redis) == 0 {
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Redis = cv24.Notify.Redis
+	}
+	if len(cv24.Notify.PostgreSQL) == 0 {
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.PostgreSQL = cv24.Notify.PostgreSQL
+	}
+	if len(cv24.Notify.Kafka) == 0 {
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
+	} else {
+		srvConfig.Notify.Kafka = cv24.Notify.Kafka
+	}
+	if len(cv24.Notify.NATS) == 0 {
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
+	} else {
+		srvConfig.Notify.NATS = cv24.Notify.NATS
+	}
+	if len(cv24.Notify.Webhook) == 0 {
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
+	} else {
+		srvConfig.Notify.Webhook = cv24.Notify.Webhook
+	}
+	if len(cv24.Notify.MySQL) == 0 {
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.MySQL = cv24.Notify.MySQL
+	}
+
+	if len(cv24.Notify.MQTT) == 0 {
+		srvConfig.Notify.MQTT = make(map[string]target.MQTTArgs)
+		srvConfig.Notify.MQTT["1"] = target.MQTTArgs{}
+	} else {
+		srvConfig.Notify.MQTT = cv24.Notify.MQTT
+	}
+
+	// Load browser config from existing config in the file.
+	srvConfig.Browser = cv24.Browser
+
+	// New field should be turned-off by default.
+	srvConfig.Worm = false // cv25.Worm should be used here
+	// for the next migration from v25 to v26 to persist
+	// local config value.
+
+	// Load domain config from existing config in the file.
+	srvConfig.Domain = cv24.Domain
+
+	// Load storage class config from existing storage class config in the file.
+	srvConfig.StorageClass.RRS = cv24.StorageClass.RRS
+	srvConfig.StorageClass.Standard = cv24.StorageClass.Standard
+
+	// Load cache config from existing cache config in the file.
+	srvConfig.Cache.Drives = cv24.Cache.Drives
+	srvConfig.Cache.Exclude = cv24.Cache.Exclude
+	srvConfig.Cache.Expiry = cv24.Cache.Expiry
+
+	if err = quick.SaveConfig(srvConfig, configFile, globalEtcdClient); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv24.Version, srvConfig.Version, err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, cv24.Version, srvConfig.Version)
+	return nil
+}
+
+func migrateV25ToV26() error {
+	configFile := getConfigFile()
+
+	cv25 := &serverConfigV25{}
+	_, err := quick.LoadConfig(configFile, globalEtcdClient, cv25)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config version ‘25’. %v", err)
+	}
+	if cv25.Version != "25" {
+		return nil
+	}
+
+	// Copy over fields from V25 into V26 config struct
+	srvConfig := &serverConfigV26{
+		Notify: notifierV3{},
+	}
+	srvConfig.Version = "26"
+	srvConfig.Credential = cv25.Credential
+	srvConfig.Region = cv25.Region
+	if srvConfig.Region == "" {
+		// Region needs to be set for AWS Signature Version 4.
+		srvConfig.Region = globalMinioDefaultRegion
+	}
+
+	if len(cv25.Notify.AMQP) == 0 {
+		srvConfig.Notify.AMQP = make(map[string]target.AMQPArgs)
+		srvConfig.Notify.AMQP["1"] = target.AMQPArgs{}
+	} else {
+		srvConfig.Notify.AMQP = cv25.Notify.AMQP
+	}
+	if len(cv25.Notify.Elasticsearch) == 0 {
+		srvConfig.Notify.Elasticsearch = make(map[string]target.ElasticsearchArgs)
+		srvConfig.Notify.Elasticsearch["1"] = target.ElasticsearchArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Elasticsearch = cv25.Notify.Elasticsearch
+	}
+	if len(cv25.Notify.Redis) == 0 {
+		srvConfig.Notify.Redis = make(map[string]target.RedisArgs)
+		srvConfig.Notify.Redis["1"] = target.RedisArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.Redis = cv25.Notify.Redis
+	}
+	if len(cv25.Notify.PostgreSQL) == 0 {
+		srvConfig.Notify.PostgreSQL = make(map[string]target.PostgreSQLArgs)
+		srvConfig.Notify.PostgreSQL["1"] = target.PostgreSQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.PostgreSQL = cv25.Notify.PostgreSQL
+	}
+	if len(cv25.Notify.Kafka) == 0 {
+		srvConfig.Notify.Kafka = make(map[string]target.KafkaArgs)
+		srvConfig.Notify.Kafka["1"] = target.KafkaArgs{}
+	} else {
+		srvConfig.Notify.Kafka = cv25.Notify.Kafka
+	}
+	if len(cv25.Notify.NATS) == 0 {
+		srvConfig.Notify.NATS = make(map[string]target.NATSArgs)
+		srvConfig.Notify.NATS["1"] = target.NATSArgs{}
+	} else {
+		srvConfig.Notify.NATS = cv25.Notify.NATS
+	}
+	if len(cv25.Notify.Webhook) == 0 {
+		srvConfig.Notify.Webhook = make(map[string]target.WebhookArgs)
+		srvConfig.Notify.Webhook["1"] = target.WebhookArgs{}
+	} else {
+		srvConfig.Notify.Webhook = cv25.Notify.Webhook
+	}
+	if len(cv25.Notify.MySQL) == 0 {
+		srvConfig.Notify.MySQL = make(map[string]target.MySQLArgs)
+		srvConfig.Notify.MySQL["1"] = target.MySQLArgs{
+			Format: event.NamespaceFormat,
+		}
+	} else {
+		srvConfig.Notify.MySQL = cv25.Notify.MySQL
+	}
+
+	if len(cv25.Notify.MQTT) == 0 {
+		srvConfig.Notify.MQTT = make(map[string]target.MQTTArgs)
+		srvConfig.Notify.MQTT["1"] = target.MQTTArgs{}
+	} else {
+		srvConfig.Notify.MQTT = cv25.Notify.MQTT
+	}
+
+	// Load browser config from existing config in the file.
+	srvConfig.Browser = cv25.Browser
+
+	// Load worm config from existing config in the file.
+	srvConfig.Worm = cv25.Worm
+
+	// Load domain config from existing config in the file.
+	srvConfig.Domain = cv25.Domain
+
+	// Load storage class config from existing storage class config in the file.
+	srvConfig.StorageClass.RRS = cv25.StorageClass.RRS
+	srvConfig.StorageClass.Standard = cv25.StorageClass.Standard
+
+	// Load cache config from existing cache config in the file.
+	srvConfig.Cache.Drives = cv25.Cache.Drives
+	srvConfig.Cache.Exclude = cv25.Cache.Exclude
+	srvConfig.Cache.Expiry = cv25.Cache.Expiry
+
+	// Add predefined value to new server config.
+	srvConfig.Cache.MaxUse = globalCacheMaxUse
+
+	if err = quick.SaveConfig(srvConfig, configFile, globalEtcdClient); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘%s’ to ‘%s’. %v", cv25.Version, srvConfig.Version, err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, cv25.Version, srvConfig.Version)
+	return nil
+}
+
+func migrateV26ToV27() error {
+	configFile := getConfigFile()
+
+	// config V27 is backward compatible with V26, load the old
+	// config file in serverConfigV27 struct and put some examples
+	// in the new `logger` field
+	srvConfig := &serverConfigV27{}
+	_, err := quick.LoadConfig(configFile, globalEtcdClient, srvConfig)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config file. %v", err)
+	}
+
+	if srvConfig.Version != "26" {
+		return nil
+	}
+
+	srvConfig.Version = "27"
+	// Enable console logging by default to avoid breaking users
+	// current deployments
+	srvConfig.Logger.Console.Enabled = true
+	srvConfig.Logger.HTTP = make(map[string]loggerHTTP)
+	srvConfig.Logger.HTTP["1"] = loggerHTTP{}
+
+	if err = quick.SaveConfig(srvConfig, configFile, globalEtcdClient); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘26’ to ‘27’. %v", err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, "26", "27")
+	return nil
+}
+
+func migrateV27ToV28() error {
+	configFile := getConfigFile()
+
+	// config V28 is backward compatible with V27, load the old
+	// config file in serverConfigV28 struct and initialize KMSConfig
+
+	srvConfig := &serverConfigV28{}
+	_, err := quick.LoadConfig(configFile, globalEtcdClient, srvConfig)
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config file. %v", err)
+	}
+
+	if srvConfig.Version != "27" {
+		return nil
+	}
+
+	srvConfig.Version = "28"
+	srvConfig.KMS = crypto.KMSConfig{}
+	if err = quick.SaveConfig(srvConfig, configFile, globalEtcdClient); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘27’ to ‘28’. %v", err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, "27", "28")
+	return nil
+}
+
+// Migrates '.minio.sys/config.json' to v32.
+func migrateMinioSysConfig(objAPI ObjectLayer) error {
+	if err := migrateV27ToV28MinioSys(objAPI); err != nil {
+		return err
+	}
+	if err := migrateV28ToV29MinioSys(objAPI); err != nil {
+		return err
+	}
+	if err := migrateV29ToV30MinioSys(objAPI); err != nil {
+		return err
+	}
+	if err := migrateV30ToV31MinioSys(objAPI); err != nil {
+		return err
+	}
+	return migrateV31ToV32MinioSys(objAPI)
+}
+
+func checkConfigVersion(objAPI ObjectLayer, configFile string, version string) (bool, []byte, error) {
+	data, err := readConfig(context.Background(), objAPI, configFile)
+	if err != nil {
+		return false, nil, err
+	}
+
+	var versionConfig struct {
+		Version string `json:"version"`
+	}
+
+	vcfg := &versionConfig
+	if err = json.Unmarshal(data, vcfg); err != nil {
+		return false, nil, err
+	}
+	return vcfg.Version == version, data, nil
+}
+
+func migrateV27ToV28MinioSys(objAPI ObjectLayer) error {
+	configFile := path.Join(minioConfigPrefix, minioConfigFile)
+	ok, data, err := checkConfigVersion(objAPI, configFile, "27")
+	if err == errConfigNotFound {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config file. %v", err)
+	}
+	if !ok {
+		return nil
+	}
+
+	cfg := &serverConfigV28{}
+	if err = json.Unmarshal(data, cfg); err != nil {
+		return err
+	}
+
+	cfg.Version = "28"
+	cfg.KMS = crypto.KMSConfig{}
+
+	data, err = json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	if err = saveConfig(context.Background(), objAPI, configFile, data); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘27’ to ‘28’. %v", err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, "27", "28")
+	return nil
+}
+
+func migrateV28ToV29MinioSys(objAPI ObjectLayer) error {
+	configFile := path.Join(minioConfigPrefix, minioConfigFile)
+
+	ok, data, err := checkConfigVersion(objAPI, configFile, "28")
+	if err == errConfigNotFound {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config file. %v", err)
+	}
+	if !ok {
+		return nil
+	}
+
+	cfg := &serverConfigV29{}
+	if err = json.Unmarshal(data, cfg); err != nil {
+		return err
+	}
+
+	cfg.Version = "29"
+	data, err = json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	if err = saveConfig(context.Background(), objAPI, configFile, data); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘28’ to ‘29’. %v", err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, "28", "29")
+	return nil
+}
+
+func migrateV29ToV30MinioSys(objAPI ObjectLayer) error {
+	configFile := path.Join(minioConfigPrefix, minioConfigFile)
+
+	ok, data, err := checkConfigVersion(objAPI, configFile, "29")
+	if err == errConfigNotFound {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config file. %v", err)
+	}
+	if !ok {
+		return nil
+	}
+
+	cfg := &serverConfigV30{}
+	if err = json.Unmarshal(data, cfg); err != nil {
+		return err
+	}
+
+	cfg.Version = "30"
+	// Init compression config.For future migration, Compression config needs to be copied over from previous version.
+	cfg.Compression.Enabled = false
+	cfg.Compression.Extensions = globalCompressExtensions
+	cfg.Compression.MimeTypes = globalCompressMimeTypes
+
+	data, err = json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	if err = saveConfig(context.Background(), objAPI, configFile, data); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘29’ to ‘30’. %v", err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, "29", "30")
+	return nil
+}
+
+func migrateV30ToV31MinioSys(objAPI ObjectLayer) error {
+	configFile := path.Join(minioConfigPrefix, minioConfigFile)
+
+	ok, data, err := checkConfigVersion(objAPI, configFile, "30")
+	if err == errConfigNotFound {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config file. %v", err)
+	}
+	if !ok {
+		return nil
+	}
+
+	cfg := &serverConfigV31{}
+	if err = json.Unmarshal(data, cfg); err != nil {
+		return err
+	}
+
+	cfg.Version = "31"
+	cfg.OpenID.JWKS = validator.JWKSArgs{
+		URL: &xnet.URL{},
+	}
+	cfg.Policy.OPA = iampolicy.OpaArgs{
+		URL:       &xnet.URL{},
+		AuthToken: "",
+	}
+
+	data, err = json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	if err = saveConfig(context.Background(), objAPI, configFile, data); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘30’ to ‘31’. %v", err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, "30", "31")
+	return nil
+}
+
+func migrateV31ToV32MinioSys(objAPI ObjectLayer) error {
+	configFile := path.Join(minioConfigPrefix, minioConfigFile)
+
+	ok, data, err := checkConfigVersion(objAPI, configFile, "31")
+	if err == errConfigNotFound {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("Unable to load config file. %v", err)
+	}
+	if !ok {
+		return nil
+	}
+
+	cfg := &serverConfigV32{}
+	if err = json.Unmarshal(data, cfg); err != nil {
+		return err
+	}
+
+	cfg.Version = "32"
+	cfg.Notify.NSQ = make(map[string]target.NSQArgs)
+	cfg.Notify.NSQ["1"] = target.NSQArgs{}
+
+	data, err = json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	if err = saveConfig(context.Background(), objAPI, configFile, data); err != nil {
+		return fmt.Errorf("Failed to migrate config from ‘31’ to ‘32’. %v", err)
+	}
+
+	logger.Info(configMigrateMSGTemplate, configFile, "31", "32")
 	return nil
 }

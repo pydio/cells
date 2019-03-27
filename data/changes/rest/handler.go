@@ -28,15 +28,16 @@ import (
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
-	"go.uber.org/zap"
 )
 
 var collPool = (*chngCollPool)(&sync.Pool{New: func() interface{} {
@@ -114,7 +115,7 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 			fakeSeq++
 			outNode := resp.Node
 			outPath := strings.TrimPrefix(outNode.Path, restReq.Filter)
-			if strings.HasPrefix(outPath, "/recycle_bin") || strings.HasPrefix(outPath, "recycle_bin") ||
+			if strings.HasPrefix(outPath, "/"+common.RECYCLE_BIN_NAME) || strings.HasPrefix(outPath, common.RECYCLE_BIN_NAME) ||
 				strings.HasSuffix(outPath, common.PYDIO_SYNC_HIDDEN_FILE_META) {
 				continue
 			}
@@ -162,7 +163,7 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 		service.RestError404(req, rsp, err)
 		return
 	}
-	recyclePath := inputFilterNode.Path + "/recycle_bin"
+	recyclePath := inputFilterNode.Path + "/" + common.RECYCLE_BIN_NAME
 
 	q := &tree.SearchSyncChangeRequest{
 		Seq:    uint64(restReq.SeqID),
@@ -221,7 +222,7 @@ func (h Handler) lastSequenceId(ctx context.Context, changesClient tree.SyncChan
 // 1 - Filter "out of filter" nodes => transform moves to create/delete
 // 2 - Filter /recycle_bin/* path, transform moves to create/delete
 // 3 - Filter by ACLs here to ignore changes that are entirely out of path, transform moves to create/delete
-func (h Handler) filterChange(ctx context.Context, change *tree.SyncChange, aclList *utils.AccessList, pathFilter string, recyclePath string) (ignore bool) {
+func (h Handler) filterChange(ctx context.Context, change *tree.SyncChange, aclList *permissions.AccessList, pathFilter string, recyclePath string) (ignore bool) {
 
 	log.Logger(ctx).Debug("FILTER CHANGE", zap.Any("change", change), zap.Any("pathFilter", pathFilter), zap.Any("recycle", recyclePath))
 	// 1 - Filter out moves that are node inside our filter
@@ -271,7 +272,7 @@ func (h Handler) filterByPath(filterType string, change *tree.SyncChange, path s
 }
 
 // Check paths are readable by ACL. If both are out of scope, return ignore true
-func (h Handler) filterByAcl(ctx context.Context, change *tree.SyncChange, aclList *utils.AccessList) (ignore bool) {
+func (h Handler) filterByAcl(ctx context.Context, change *tree.SyncChange, aclList *permissions.AccessList) (ignore bool) {
 
 	if change.Target != "" && change.Target != "NULL" && !aclList.CanRead(ctx, &tree.Node{Path: change.Target, Uuid: change.NodeId}) {
 		change.Target = "NULL"

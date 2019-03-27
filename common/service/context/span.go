@@ -35,6 +35,7 @@ type spanContextKey struct{}
 const (
 	SpanMetadataId           = "x-pydio-span-id"
 	SpanMetadataRootParentId = "x-pydio-span-root-id"
+	OperationMetadataId      = "x-pydio-operation-id"
 )
 
 type Span struct {
@@ -115,6 +116,15 @@ func childOrNewSpan(ctx context.Context) context.Context {
 	return WithSpan(ctx, s)
 }
 
+func ctxWithOpIdFromMeta(ctx context.Context) context.Context {
+	if md, ok := metadata.FromContext(ctx); ok {
+		if opId, o := md[OperationMetadataId]; o {
+			ctx = WithOperationID(ctx, opId)
+		}
+	}
+	return ctx
+}
+
 type spanClientWrapper struct {
 	client.Client
 }
@@ -131,13 +141,33 @@ func (c *spanClientWrapper) Call(ctx context.Context, req client.Request, rsp in
 		s := NewSpan()
 		ctx = WithSpan(ctx, s)
 	}
+	if opID, _ := GetOperationID(ctx); opID != "" {
+		md := metadata.Metadata{}
+		if meta, ok := metadata.FromContext(ctx); ok {
+			for k, v := range meta {
+				md[k] = v
+			}
+		}
+		md[OperationMetadataId] = opID
+		ctx = metadata.NewContext(ctx, md)
+	}
 	return c.Client.Call(ctx, req, rsp, opts...)
 }
 
 func SpanHandlerWrapper(fn server.HandlerFunc) server.HandlerFunc {
 	return func(ctx context.Context, req server.Request, rsp interface{}) error {
 		ctx = childOrNewSpan(ctx)
+		ctx = ctxWithOpIdFromMeta(ctx)
 		return fn(ctx, req, rsp)
+	}
+}
+
+// NewDAOSubscriberWrapper wraps a db connection for each subscriber
+func SpanSubscriberWrapper(subscriberFunc server.SubscriberFunc) server.SubscriberFunc {
+	return func(ctx context.Context, msg server.Publication) error {
+		ctx = childOrNewSpan(ctx)
+		ctx = ctxWithOpIdFromMeta(ctx)
+		return subscriberFunc(ctx, msg)
 	}
 }
 

@@ -28,10 +28,10 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	service2 "github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
 )
@@ -59,7 +59,7 @@ func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputACL)
 	if err != nil {
 		log.Logger(ctx).Error("While fetching idm.ACL", zap.Error(err))
-		rsp.WriteError(500, err)
+		service2.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(req.Request.Context()).Debug("Received ACL.Put API request", zap.Any("inputACL", inputACL))
@@ -72,7 +72,7 @@ func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 		ACL: &inputACL,
 	})
 	if er != nil {
-		rsp.WriteError(500, er)
+		service2.RestError500(req, rsp, er)
 	} else {
 		a := response.ACL
 		rsp.WriteEntity(a)
@@ -88,7 +88,7 @@ func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputACL)
 	if err != nil {
 		log.Logger(ctx).Error("While fetching idm.ACL", zap.Error(err))
-		rsp.WriteError(500, err)
+		service2.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(req.Request.Context()).Debug("Received ACL.Delete API request", zap.Any("inputACL", inputACL))
@@ -120,7 +120,7 @@ func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 	})
 
 	if err != nil {
-		rsp.WriteError(500, err)
+		service2.RestError500(req, rsp, err)
 	} else {
 		restResp := &rest.DeleteResponse{
 			Success: true,
@@ -140,7 +140,7 @@ func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&restRequest)
 	if err != nil {
 		log.Logger(ctx).Error("While fetching rest.SearchACLRequest", zap.Error(err))
-		rsp.WriteError(500, err)
+		service2.RestError500(req, rsp, err)
 		return
 	}
 
@@ -163,7 +163,7 @@ func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
 		Query: query,
 	})
 	if err != nil {
-		rsp.WriteError(500, err)
+		service2.RestError500(req, rsp, err)
 		return
 	}
 	defer streamer.Close()

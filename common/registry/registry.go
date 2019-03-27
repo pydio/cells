@@ -30,9 +30,10 @@ import (
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/registry"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/spf13/pflag"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
 )
 
 var (
@@ -47,9 +48,12 @@ type Registry interface {
 	Init(...Option)
 	Register(Service, ...RegisterOption) error
 	Deregister(Service) error
-	GetService(string) ([]Service, error)
+	GetServiceByName(string) Service
 	GetServicesByName(string) []Service
+	GetPeers() map[string]*Peer
+	GetProcesses() map[string]*Process
 	ListServices(withExcluded ...bool) ([]Service, error)
+	ListServicesWithFilter(func(Service) bool) ([]Service, error)
 	ListRunningServices() ([]Service, error)
 	ListServicesWithMicroMeta(string, ...string) ([]Service, error)
 	SetServiceStopped(string) error
@@ -63,16 +67,17 @@ type Registry interface {
 }
 
 type pydioregistry struct {
-	*sync.Mutex
-	graph goraph.Graph
+	registerlock *sync.RWMutex
+	register     map[string]Service
+	graph        goraph.Graph
 
-	flags    pflag.FlagSet
-	register map[string]Service
+	// List of peer addresses that have a service associated with the micro registry
+	peerlock  *sync.RWMutex
+	peers     map[string]*Peer
+	processes map[string]*Process
 
-	runningmutex *sync.Mutex
-	running      []*registry.Service
-
-	opts Options
+	opts  Options
+	flags pflag.FlagSet
 }
 
 // Init the default registry
@@ -83,6 +88,11 @@ func Init(opts ...Option) {
 // ListServices returns the list of services that are started in the system
 func ListServices(withExcluded ...bool) ([]Service, error) {
 	return Default.ListServices(withExcluded...)
+}
+
+// ListServicesWithFilter returns the list of services that are started in the system
+func ListServicesWithFilter(fn func(Service) bool) ([]Service, error) {
+	return Default.ListServicesWithFilter(fn)
 }
 
 // ListRunningServices returns the list of services that are started in the system
@@ -98,11 +108,13 @@ func Watch() (Watcher, error) {
 // NewRegistry provides a new registry object
 func NewRegistry(opts ...Option) Registry {
 	r := &pydioregistry{
-		Mutex:        &sync.Mutex{},
 		graph:        goraph.NewGraph(),
+		registerlock: new(sync.RWMutex),
 		register:     make(map[string]Service),
-		runningmutex: &sync.Mutex{},
 		opts:         newOptions(opts...),
+		peerlock:     new(sync.RWMutex),
+		peers:        make(map[string]*Peer),
+		processes:    make(map[string]*Process),
 	}
 
 	return r
@@ -114,47 +126,14 @@ func (c *pydioregistry) Init(opts ...Option) {
 	for _, o := range opts {
 		o(&c.opts)
 	}
-
-	if c.opts.Name != "" {
-		services, err := c.ListServices()
-		if err != nil {
-			return
-		}
-
-		for _, s := range services {
-			s.AddDependency(c.opts.Name)
-		}
-
-		// Retrieving the node that got the main registry
-		registryNode := goraph.NewNode(c.opts.Name)
-		if node, err := c.graph.GetNode(registryNode); err == nil && node != nil {
-			registryNode = node
-		} else {
-			c.graph.AddNode(registryNode)
-		}
-
-		for _, s := range services {
-			if c.opts.Name == s.Name() {
-				continue
-			}
-			serviceNode := goraph.NewNode(s.Name())
-			if node, err := c.graph.GetNode(serviceNode); err == nil && node != nil {
-				serviceNode = node
-			} else {
-				c.graph.AddNode(serviceNode)
-			}
-
-			c.graph.AddEdge(registryNode.ID(), serviceNode.ID(), 1)
-		}
-	}
 }
 
 // Deregister sets a service as excluded in the registry
 func (c *pydioregistry) Deregister(s Service) error {
 	// delete our hash of the service
-	c.Lock()
+	c.registerlock.Lock()
 	c.register[s.Name()].SetExcluded(true)
-	c.Unlock()
+	c.registerlock.Unlock()
 
 	return nil
 }
@@ -167,8 +146,8 @@ func (c *pydioregistry) Register(s Service, opts ...RegisterOption) error {
 		o(&options)
 	}
 
-	c.Lock()
-	defer c.Unlock()
+	c.registerlock.Lock()
+	defer c.registerlock.Unlock()
 
 	id := s.Name()
 
@@ -198,11 +177,6 @@ func (c *pydioregistry) Register(s Service, opts ...RegisterOption) error {
 	}
 
 	return nil
-}
-
-// GetService returns the service by name
-func (c *pydioregistry) GetService(string) ([]Service, error) {
-	return nil, nil
 }
 
 // GetClient returns the default client for the service name
@@ -267,4 +241,32 @@ func (c *pydioregistry) AfterInit() error {
 	}
 
 	return nil
+}
+
+func GetPeers() map[string]*Peer {
+	return Default.GetPeers()
+}
+
+func (c *pydioregistry) GetPeers() map[string]*Peer {
+	return c.peers
+}
+
+// GetInitialPeer retrieves or creates a fake peer for attaching services to a fake node.
+func (c *pydioregistry) GetInitialPeer() *Peer {
+	if p, ok := c.peers["INITIAL"]; ok {
+		return p
+	}
+	p := NewPeer("INITIAL")
+	c.peers["INITIAL"] = p
+	return p
+}
+
+// GetPeer retrieves or creates a Peer from the Node info
+func (c *pydioregistry) GetPeer(node *registry.Node) *Peer {
+	if p, ok := c.peers[node.Address]; ok {
+		return p
+	}
+	p := NewPeer(node.Address, node.Metadata)
+	c.peers[node.Address] = p
+	return p
 }

@@ -240,9 +240,16 @@ func (c Map) Del(key string) error {
 
 // SaveConfigs sends configuration to a local file.
 func Save(ctxUser string, ctxMessage string) error {
+	if GetRemoteSource() {
+		return nil
+	}
+	return saveConfig(defaultConfig, ctxUser, ctxMessage)
+}
+
+func saveConfig(config *Config, ctxUser string, ctxMessage string) error {
 
 	var data map[string]interface{}
-	err := Default().Unmarshal(&data)
+	err := config.Unmarshal(&data)
 	if err != nil {
 		return err
 	}

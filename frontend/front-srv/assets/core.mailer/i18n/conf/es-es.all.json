@@ -1,0 +1,110 @@
+{
+  "Activate Queue": {
+    "other": "Activar Cola"
+  },
+  "Active notifications by email": {
+    "other": "Activa notificaciones por correo"
+  },
+  "Adress of the sender": {
+    "other": "Dirección del remitente"
+  },
+  "Body Layout": {
+    "other": "Diseño Cuerpo"
+  },
+  "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)": {
+    "other": "Elige una frecuencia de envío de correos (por ejemplo: '9:00' o '9:00,14:00' o 'Wednesday')"
+  },
+  "Content": {
+    "other": "Contenido"
+  },
+  "Core configs for sending emails": {
+    "other": "Configuración para enviar correos"
+  },
+  "Detail your frequency here": {
+    "other": "Detalla tu frecuencia aquí"
+  },
+  "Emails frequency": {
+    "other": "Frecuencia de correos"
+  },
+  "Every X hour": {
+    "other": "Cada X horas"
+  },
+  "Every X min": {
+    "other": "Cada X minutos"
+  },
+  "Every day at ": {
+    "other": "Cada día a las "
+  },
+  "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
+    "other": "Extrae al diseño principal el contenido de los archivos. Esta opción prevalece sobre la anterior, asegurate de usar PYDIO_MAIL_BODY en el archivo de diseño."
+  },
+  "Force all mails to be sent by this Sender email, instead of users adresses": {
+    "other": "Todos los correos se envían desde este remitente en vez de la dirección del usuario"
+  },
+  "Get the email in HTML": {
+    "other": "Obtener el correo en HTML"
+  },
+  "Layout Folder": {
+    "other": "Directorio del Diseño"
+  },
+  "Mailer Plugin": {
+    "other": "Plugin de Correo"
+  },
+  "Mailers": {
+    "other": "Gestores de Correo"
+  },
+  "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
+    "other": "Diseño principal del cuerpo del correo, usa HTML para enviar correos con diseños bonitos y usa PYDIO_MAIL_BODY para el contenido real."
+  },
+  "Name of the sender": {
+    "other": "Nombre del remitente"
+  },
+  "Once a Week": {
+    "other": "Una vez a la semana"
+  },
+  "Receive Notifcations by email": {
+    "other": "Recibe notificaciones por correo"
+  },
+  "Select the plugin to activate for concretely sending emails": {
+    "other": "Selecciona el plugin para activar el envío de correos"
+  },
+  "Send as HTML": {
+    "other": "Enviar como HTML"
+  },
+  "Send email to...": {
+    "other": "Enviar correo a..."
+  },
+  "Sender": {
+    "other": "Remitente"
+  },
+  "Sender email": {
+    "other": "Remitente"
+  },
+  "Sender name": {
+    "other": "Nombre del remitente"
+  },
+  "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
+    "other": "Almacena los correos en una cola para procesarlos en grupo. Los usuarios pueden seleccionar la frecuencia de envío. Asegurate de configurar un trabajo CRON para usar consume_mail_queue si seleccionas esta opción."
+  },
+  "String automatically added at the beginning of the mail subject": {
+    "other": "Esta frase se añade automáticamente antes del asunto del correo"
+  },
+  "String automatically added at the end of the mail subject": {
+    "other": "Esta frase se añade automáticamente antes del asunto del correo"
+  },
+  "Subject Append": {
+    "other": "Sufijo del Asunto"
+  },
+  "Subject Prepend": {
+    "other": "Prefijo del Asunto"
+  },
+  "Twice a day (every day at and)": {
+    "other": "Dos veces al día (cada día a X y X)"
+  },
+  "Unique Sender": {
+    "other": "Remitente único"
+  },
+  "You can add many email separated by commas": {
+    "other": "Puedes añadir direcciones de correo adicionales separadas por comas"
+  }
+}

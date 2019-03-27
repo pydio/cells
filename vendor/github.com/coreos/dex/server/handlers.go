@@ -988,6 +988,9 @@ func (s *Server) handleCredentialGrant(w http.ResponseWriter, r *http.Request, c
 
 			// Create a new OfflineSession object for the user and add a reference object for
 			// the newly received refreshtoken.
+			// WARNING: This call is often locked when called from concurrent requests, and it seems linked
+			// to the previous call to GetOfflineSessions. Adding GetOfflineSessions inside a Transaction seems
+			// to resovle the issue. But probably just a workaround.
 			if err := s.storage.CreateOfflineSessions(offlineSessions); err != nil {
 				s.logger.Errorf("failed to create offline session: %v", err)
 				s.tokenErrHelper(w, errServerError, "", http.StatusInternalServerError)

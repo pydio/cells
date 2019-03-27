@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="action.user" enabled="always" label="CONF_MESSAGE[User Account Panel]" description="CONF_MESSAGE[User account panel for managing settings and opening address book]">
+	<client_settings>
+		<resources>
+			<i18n namespace="user_dash" remote="plug/action.user/res/i18n" />
+            <js className="UserAccount" file="plug/action.user/res/build/UserAccount.js" depends="React,PydioForm"/>
+		</resources>
+	</client_settings>
+    <server_settings>
+        <global_param name="DASH_DISABLE_ADDRESS_BOOK" type="boolean" default="false" label="CONF_MESSAGE[Disable Address Book]"
+                      description="CONF_MESSAGE[Do not display address book in user account panel.]" expose="true"/>
+    </server_settings>
+	<registry_contributions>
+		<actions>
+			<action name="open_user_dashboard">
+				<gui text="user_dash.title" title="user_dash.desc" iconClass="mdi mdi-account-settings-variant" accessKey="folder_access_key" weight="-10">
+					<context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>
+				</gui>
+				<rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false"/>
+				<processing>
+					<clientCallback module="UserAccount.Callbacks.openDashboard"/>
+				</processing>
+			</action>
+			<action name="open_address_book">
+				<gui text="user_dash.1" title="user_dash.1" iconClass="mdi mdi-account-card-details" accessKey="folder_access_key" >
+					<context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>
+				</gui>
+				<rightsContext noUser="false" userLogged="only" read="false" write="false" adminOnly="false" paramDisable="action.user/DASH_DISABLE_ADDRESS_BOOK"/>
+				<processing>
+					<clientCallback module="UserAccount.Callbacks.openAddressBook"/>
+				</processing>
+			</action>
+		</actions>
+	</registry_contributions>
+</plugin>

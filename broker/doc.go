@@ -21,5 +21,5 @@
 // ## Events-related services.
 //
 // Services under this folder are all subscribing to the global application event broker to manage
-// these events in an asynchronous way
+// events in an asynchronous way.
 package broker

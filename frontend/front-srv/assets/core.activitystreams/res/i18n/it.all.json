@@ -1,0 +1,62 @@
+{
+  "1": {
+    "other": "Notifiche"
+  },
+  "10": {
+    "other": "Attività Cartella"
+  },
+  "11": {
+    "other": "Attività File"
+  },
+  "12": {
+    "other": "A seconda del browser utilizzato, potrebbe essere richiesto un permesso speciale. Per disabilitare, accedere alle preferenze del browser. Se questa funzionalità è già stata attivata, probabilmente non accadrà nulla."
+  },
+  "13": {
+    "other": "Il tuo browser non sembra supportare le notifiche Desktop."
+  },
+  "14": {
+    "other": "Nessuna notifica"
+  },
+  "15": {
+    "other": "Le notifiche relative ai file monitorati vengono visualizzate qui"
+  },
+  "16": {
+    "other": "All'interno"
+  },
+  "17": {
+    "other": "Caricamento attività..."
+  },
+  "18": {
+    "other": "Nessuna attività recente"
+  },
+  "19": {
+    "other": "Più"
+  },
+  "2": {
+    "other": "Feed Notifiche"
+  },
+  "20": {
+    "other": "Caricamento del feed..."
+  },
+  "3": {
+    "other": "Avvisi"
+  },
+  "4": {
+    "other": "Notifiche"
+  },
+  "5": {
+    "other": "Tutti gli Eventi"
+  },
+  "6": {
+    "other": "Vai a ..."
+  },
+  "7": {
+    "other": "Abbandona"
+  },
+  "8": {
+    "other": "Nessun avviso"
+  },
+  "9": {
+    "other": "Attività sul Workspace"
+  }
+}

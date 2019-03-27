@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "E-Mail erfolgreich an %s Benutzer versendet"
+  },
+  "2": {
+    "other": "Keine E-Mail Adresse vorhanden!"
+  },
+  "3": {
+    "other": "E-Mail-Programm nicht konfiguriert. Bitte kontaktieren Sie ihren Administrator."
+  },
+  "4": {
+    "other": "Von"
+  },
+  "5": {
+    "other": "An"
+  },
+  "6": {
+    "other": "Betreff"
+  },
+  "7": {
+    "other": "Nachricht"
+  },
+  "8": {
+    "other": "Benutzer oder E-Mail"
+  },
+  "9": {
+    "other": "Benachrichtigungs-Digest"
+  }
+}

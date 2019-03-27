@@ -1,0 +1,32 @@
+{
+  "1.android": {
+    "other": "Existe uma aplicação nativa para aceder %s através do %s no Android."
+  },
+  "1.ios": {
+    "other": "Existe uma aplicação nativa para aceder %s através do iPhone/iPad!"
+  },
+  "2.android": {
+    "other": "Já possuo a aplicação. Pretendo abri-la e adicionar este servidor à minha lista de servidores remotos"
+  },
+  "2.ios": {
+    "other": "Já possuo a aplicação. Pretendo abri-la e adicionar este servidor à minha lista de servidores remotos"
+  },
+  "3.android": {
+    "other": "Ainda não tenho a aplicação, abra-me a página da Loja de Aplicações da mesma!"
+  },
+  "3.ios": {
+    "other": "Ainda não tenho a aplicação, abra-me a página da Loja de Aplicações da mesma!"
+  },
+  "4.android": {
+    "other": "Não tenho interesse na aplicação, deixe-me usar a versão Web de %s."
+  },
+  "4.ios": {
+    "other": "Não tenho interesse na aplicação, deixe-me usar a versão Web de %s."
+  },
+  "Mobile": {
+    "other": "Móvel"
+  },
+  "Template extending gui.ajax for small screen terminals.": {
+    "other": "Modelo que extende a gui.ajax para equipamentos com ecrã pequeno."
+  }
+}

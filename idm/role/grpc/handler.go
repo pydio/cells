@@ -79,13 +79,13 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 	)
 	if update {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Role [%s] has been updated", r.Label),
+			fmt.Sprintf("Updated role [%s]", r.Label),
 			log.GetAuditId(common.AUDIT_ROLE_UPDATE),
 			r.ZapUuid(),
 		)
 	} else {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Role [%s] has been created", r.Label),
+			fmt.Sprintf("Created role [%s]", r.Label),
 			log.GetAuditId(common.AUDIT_ROLE_CREATE),
 			r.ZapUuid(),
 		)
@@ -133,7 +133,7 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest, re
 			Role: r,
 		}))
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Role %s has been deleted", r.Label),
+			fmt.Sprintf("Deleted role [%s]", r.Label),
 			log.GetAuditId(common.AUDIT_ROLE_DELETE),
 			r.ZapUuid(),
 		)
@@ -147,6 +147,8 @@ func (h *Handler) SearchRole(ctx context.Context, request *idm.SearchRoleRequest
 
 	var roles []*idm.Role
 
+	defer response.Close()
+
 	if err := dao.Search(request.Query, &roles); err != nil {
 		return err
 	}
@@ -154,8 +156,6 @@ func (h *Handler) SearchRole(ctx context.Context, request *idm.SearchRoleRequest
 	for _, r := range roles {
 		response.Send(&idm.SearchRoleResponse{Role: r})
 	}
-
-	response.Close()
 
 	return nil
 }

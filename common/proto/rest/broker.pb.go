@@ -15,6 +15,7 @@ It is generated from these files:
 	rest.proto
 	scheduler.proto
 	share.proto
+	templates.proto
 
 It has these top-level messages:
 	ActivitiesCollection
@@ -23,6 +24,7 @@ It has these top-level messages:
 	LogMessageCollection
 	TimeRangeResultCollection
 	DeleteResponse
+	Error
 	Configuration
 	ListDataSourceRequest
 	DataSourceCollection
@@ -30,9 +32,12 @@ It has these top-level messages:
 	ListPeersAddressesRequest
 	ListPeersAddressesResponse
 	ListPeerFoldersRequest
+	Process
+	ListProcessesRequest
+	ListProcessesResponse
 	ListVersioningPolicyRequest
 	VersioningPolicyCollection
-	DeleteVersioningPolicyResponse
+	ListVirtualNodesRequest
 	ListServiceRequest
 	ServiceCollection
 	ControlServiceRequest
@@ -40,30 +45,45 @@ It has these top-level messages:
 	DiscoveryResponse
 	ConfigFormRequest
 	OpenApiResponse
-	ListExternalDirectoryRequest
-	ExternalDirectoryResponse
-	ExternalDirectoryConfig
-	ExternalDirectoryCollection
 	SearchResults
+	Pagination
 	Metadata
 	MetaCollection
 	MetaNamespaceRequest
 	GetBulkMetaRequest
 	BulkMetaResponse
-	SetBulkMetaRequest
-	DeleteBulkMetaRequest
+	HeadNodeRequest
+	HeadNodeResponse
+	CreateNodesRequest
+	CreateSelectionRequest
+	CreateSelectionResponse
 	NodesCollection
+	DeleteNodesRequest
+	BackgroundJobResult
+	DeleteNodesResponse
+	RestoreNodesRequest
+	RestoreNodesResponse
 	ListDocstoreRequest
 	DocstoreCollection
 	ChangeRequest
 	ChangeCollection
-	FrontLogMessage
-	FrontLogResponse
 	SettingsMenuRequest
 	SettingsEntryMeta
 	SettingsEntry
 	SettingsSection
 	SettingsMenuResponse
+	FrontStateRequest
+	FrontStateResponse
+	FrontPluginsRequest
+	FrontPluginsResponse
+	FrontMessagesRequest
+	FrontMessagesResponse
+	FrontSessionRequest
+	FrontSessionResponse
+	FrontEnrollAuthRequest
+	FrontEnrollAuthResponse
+	FrontBinaryRequest
+	FrontBinaryResponse
 	FrontBootConfRequest
 	FrontBootConfResponse
 	UserStateRequest
@@ -82,6 +102,12 @@ It has these top-level messages:
 	WorkspaceCollection
 	UserMetaCollection
 	UserMetaNamespaceCollection
+	ListUserMetaTagsRequest
+	ListUserMetaTagsResponse
+	PutUserMetaTagRequest
+	PutUserMetaTagResponse
+	DeleteUserMetaTagsRequest
+	DeleteUserMetaTagsResponse
 	UserBookmarksRequest
 	RevokeRequest
 	RevokeResponse
@@ -106,6 +132,12 @@ It has these top-level messages:
 	DeleteShareLinkResponse
 	ListSharedResourcesRequest
 	ListSharedResourcesResponse
+	TemplateNode
+	Template
+	ListTemplatesRequest
+	ListTemplatesResponse
+	CreateFromTemplateRequest
+	CreateFromTemplateResponse
 */
 package rest
 

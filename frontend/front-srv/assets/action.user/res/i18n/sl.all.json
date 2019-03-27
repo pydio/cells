@@ -1,0 +1,233 @@
+{
+  "1": {
+    "other": "Uporabniki skupne rabe"
+  },
+  "10": {
+    "other": "Povezane zbirke"
+  },
+  "11": {
+    "other": "Ali res želite izbrisati izbrane elemente?"
+  },
+  "12": {
+    "other": "Nimate zadostnih pravic za brisanje tega elementa."
+  },
+  "13": {
+    "other": "Brisanje datoteke v skupni rabi je bilo uspešno."
+  },
+  "14": {
+    "other": "Celovitost"
+  },
+  "15": {
+    "other": "Vredu"
+  },
+  "16": {
+    "other": "Poškodovana"
+  },
+  "17": {
+    "other": "URL prenosa"
+  },
+  "18": {
+    "other": "Kopiraj URL"
+  },
+  "19": {
+    "other": "Kopiraj URL za pošiljanje po e-pošti."
+  },
+  "2": {
+    "other": "Zbirke v skupni rabi"
+  },
+  "20": {
+    "other": "Prenosi"
+  },
+  "21": {
+    "other": "Da"
+  },
+  "22": {
+    "other": "Ne"
+  },
+  "23": {
+    "other": "Uspešno izbrisanih %s datotek."
+  },
+  "24": {
+    "other": "Nič za brisanje."
+  },
+  "25": {
+    "other": "Počisti potečene"
+  },
+  "26": {
+    "other": "Odstrani potečene datoteke v skupni rabi."
+  },
+  "27": {
+    "other": "Lastnik"
+  },
+  "28": {
+    "other": "Datoteke v skupni rabi, pooblaščene za neposreden prenos (javne) in zaščitene z geslom ali pa ne."
+  },
+  "29": {
+    "other": "Zbirke, ki jih je ustvaril uporabnik za namene skupne rabe."
+  },
+  "3": {
+    "other": "Datoteke v skupni rabi"
+  },
+  "30": {
+    "other": "Uporabniki ustvarjeni za dostop do zbirk skupne rabe."
+  },
+  "31": {
+    "other": "Opis"
+  },
+  "32": {
+    "other": "Ponastavi"
+  },
+  "33": {
+    "other": "Ponastavi števec prenosov"
+  },
+  "34": {
+    "other": "My Shares"
+  },
+  "35": {
+    "other": "All my shared items (files and folders)"
+  },
+  "36": {
+    "other": "Parameters"
+  },
+  "37": {
+    "other": "My profile and application settings"
+  },
+  "38": {
+    "other": "Notifications"
+  },
+  "39": {
+    "other": "Select a workspace"
+  },
+  "4": {
+    "other": "Pot datoteke"
+  },
+  "40": {
+    "other": "Welcome, %s"
+  },
+  "41": {
+    "other": "Use this workspace as default"
+  },
+  "42": {
+    "other": "Enter"
+  },
+  "43": {
+    "other": "My Profile"
+  },
+  "43t": {
+    "other": "All my personal data"
+  },
+  "44": {
+    "other": "My Account"
+  },
+  "45": {
+    "other": "Personal data"
+  },
+  "46": {
+    "other": "Address Book"
+  },
+  "47": {
+    "other": "Users and teams that you created"
+  },
+  "48": {
+    "other": "My Users"
+  },
+  "49": {
+    "other": "External users that you created"
+  },
+  "5": {
+    "other": "Zbirka"
+  },
+  "50": {
+    "other": "My Teams"
+  },
+  "51": {
+    "other": "Teams of users, used as shortcuts when sharing"
+  },
+  "52": {
+    "other": "Are you sure you want to delete this team? This will not remove any users."
+  },
+  "53": {
+    "other": "Back to my workspaces"
+  },
+  "54": {
+    "other": "Update Members"
+  },
+  "55": {
+    "other": "Add/Remove users from this team"
+  },
+  "56": {
+    "other": "Add one user per line, type in the textarea to see the auto-completion list appear."
+  },
+  "57": {
+    "other": "Create a Team"
+  },
+  "58": {
+    "other": "Teams are used as a shortcut to quickly share a folder with a predefined set of users"
+  },
+  "59": {
+    "other": "Team Label"
+  },
+  "6": {
+    "other": "Geslo"
+  },
+  "60": {
+    "other": "Team Users"
+  },
+  "61": {
+    "other": "Email Preferences"
+  },
+  "62": {
+    "other": "Send emails every X minutes"
+  },
+  "63": {
+    "other": "Send emails every Y hours"
+  },
+  "64": {
+    "other": "Choose the hour of the day"
+  },
+  "65": {
+    "other": "Choose the first hour of the day"
+  },
+  "66": {
+    "other": "Choose the second hour of the day"
+  },
+  "67": {
+    "other": "Pick a day of the week"
+  },
+  "68": {
+    "other": "Monday"
+  },
+  "69": {
+    "other": "Tuesday"
+  },
+  "7": {
+    "other": "Veljavnost"
+  },
+  "70": {
+    "other": "Wednesday"
+  },
+  "71": {
+    "other": "Thursday"
+  },
+  "72": {
+    "other": "Friday"
+  },
+  "73": {
+    "other": "Saturday"
+  },
+  "74": {
+    "other": "Sunday"
+  },
+  "8": {
+    "other": "Elementi"
+  },
+  "9": {
+    "other": "Povezani uporabniki"
+  },
+  "desc": {
+    "other": "Manage my account preferences, my address book, shared elements, etc."
+  },
+  "title": {
+    "other": "My Account"
+  }
+}

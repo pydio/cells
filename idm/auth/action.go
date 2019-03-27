@@ -28,13 +28,14 @@ import (
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/idm/auth/lang"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -48,7 +49,7 @@ func init() {
 func InsertPruningJob(ctx context.Context) error {
 
 	log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
-	T := lang.Bundle().GetTranslationFunc(utils.GetDefaultLanguage())
+	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Default()))
 
 	return service.Retry(func() error {
 
@@ -90,7 +91,7 @@ func (c *PruneTokensAction) Init(job *jobs.Job, cl client.Client, action *jobs.A
 // Run the actual action code
 func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	T := lang.Bundle().GetTranslationFunc(utils.GetDefaultLanguage())
+	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Default()))
 
 	output := input
 
@@ -99,10 +100,8 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {
-		output.AppendOutput(&jobs.ActionOutput{
-			Success:    true,
-			StringBody: T("Auth.PruneJob.Revoked", struct{ Count int }{Count: len(pruneResp.Tokens)}),
-		})
+		log.TasksLogger(ctx).Info(T("Auth.PruneJob.Revoked", struct{ Count int }{Count: len(pruneResp.Tokens)}))
+		output.AppendOutput(&jobs.ActionOutput{Success: true})
 	}
 
 	// Prune reset password tokens
@@ -116,10 +115,8 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	if er != nil {
 		return output.WithError(er), er
 	} else {
-		output.AppendOutput(&jobs.ActionOutput{
-			Success:    true,
-			StringBody: T("Auth.PruneJob.ResetToken", deleteResponse),
-		})
+		log.TasksLogger(ctx).Info(T("Auth.PruneJob.ResetToken", deleteResponse))
+		output.AppendOutput(&jobs.ActionOutput{Success: true})
 	}
 
 	return output, nil

@@ -18,13 +18,11 @@ package cmd
 
 import (
 	"crypto/hmac"
-	"encoding/hex"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
-	"unicode/utf8"
 
+	"github.com/pydio/minio-srv/pkg/auth"
 	"github.com/minio/sha256-simd"
 )
 
@@ -32,38 +30,59 @@ import (
 // client did not calculate sha256 of the payload.
 const unsignedPayload = "UNSIGNED-PAYLOAD"
 
-// http Header "x-amz-content-sha256" == "UNSIGNED-PAYLOAD" indicates that the
-// client did not calculate sha256 of the payload. Hence we skip calculating sha256.
-// We also skip calculating sha256 for presigned requests without "x-amz-content-sha256"
-// query header.
+// skipContentSha256Cksum returns true if caller needs to skip
+// payload checksum, false if not.
 func skipContentSha256Cksum(r *http.Request) bool {
-	queryContentSha256 := r.URL.Query().Get("X-Amz-Content-Sha256")
-	isRequestPresignedUnsignedPayload := func(r *http.Request) bool {
-		if isRequestPresignedSignatureV4(r) {
-			return queryContentSha256 == "" || queryContentSha256 == unsignedPayload
+	var (
+		v  []string
+		ok bool
+	)
+
+	if isRequestPresignedSignatureV4(r) {
+		v, ok = r.URL.Query()["X-Amz-Content-Sha256"]
+		if !ok {
+			v, ok = r.Header["X-Amz-Content-Sha256"]
 		}
-		return false
+	} else {
+		v, ok = r.Header["X-Amz-Content-Sha256"]
 	}
-	return isRequestUnsignedPayload(r) || isRequestPresignedUnsignedPayload(r)
+
+	// If x-amz-content-sha256 is set and the value is not
+	// 'UNSIGNED-PAYLOAD' we should validate the content sha256.
+	return !(ok && v[0] != unsignedPayload)
 }
 
 // Returns SHA256 for calculating canonical-request.
 func getContentSha256Cksum(r *http.Request) string {
+	var (
+		defaultSha256Cksum string
+		v                  []string
+		ok                 bool
+	)
+
 	// For a presigned request we look at the query param for sha256.
 	if isRequestPresignedSignatureV4(r) {
-		presignedCkSum := r.URL.Query().Get("X-Amz-Content-Sha256")
-		if presignedCkSum == "" {
-			// If not set presigned is defaulted to UNSIGNED-PAYLOAD.
-			return unsignedPayload
+		// X-Amz-Content-Sha256, if not set in presigned requests, checksum
+		// will default to 'UNSIGNED-PAYLOAD'.
+		defaultSha256Cksum = unsignedPayload
+		v, ok = r.URL.Query()["X-Amz-Content-Sha256"]
+		if !ok {
+			v, ok = r.Header["X-Amz-Content-Sha256"]
 		}
-		return presignedCkSum
+	} else {
+		// X-Amz-Content-Sha256, if not set in signed requests, checksum
+		// will default to sha256([]byte("")).
+		defaultSha256Cksum = emptySHA256
+		v, ok = r.Header["X-Amz-Content-Sha256"]
 	}
-	contentCkSum := r.Header.Get("X-Amz-Content-Sha256")
-	if contentCkSum == "" {
-		// If not set content checksum is defaulted to sha256([]byte("")).
-		contentCkSum = emptySHA256
+
+	// We found 'X-Amz-Content-Sha256' return the captured value.
+	if ok {
+		return v[0]
 	}
-	return contentCkSum
+
+	// We couldn't find 'X-Amz-Content-Sha256'.
+	return defaultSha256Cksum
 }
 
 // isValidRegion - verify if incoming region value is valid with configured Region.
@@ -82,51 +101,30 @@ func isValidRegion(reqRegion string, confRegion string) bool {
 	return reqRegion == confRegion
 }
 
+// check if the access key is valid and recognized, additionally
+// also returns if the access key is owner/admin.
+func checkKeyValid(accessKey string) (auth.Credentials, bool, APIErrorCode) {
+	var owner = true
+	var cred = globalServerConfig.GetCredential()
+	if cred.AccessKey != accessKey {
+		if globalIAMSys == nil {
+			return cred, false, ErrInvalidAccessKeyID
+		}
+		// Check if the access key is part of users credentials.
+		var ok bool
+		if cred, ok = globalIAMSys.GetUser(accessKey); !ok {
+			return cred, false, ErrInvalidAccessKeyID
+		}
+		owner = false
+	}
+	return cred, owner, ErrNone
+}
+
 // sumHMAC calculate hmac between two input byte array.
 func sumHMAC(key []byte, data []byte) []byte {
 	hash := hmac.New(sha256.New, key)
 	hash.Write(data)
 	return hash.Sum(nil)
-}
-
-// Reserved string regexp.
-var reservedNames = regexp.MustCompile("^[a-zA-Z0-9-_.~/]+$")
-
-// getURLEncodedName encode the strings from UTF-8 byte representations to HTML hex escape sequences
-//
-// This is necessary since regular url.Parse() and url.Encode() functions do not support UTF-8
-// non english characters cannot be parsed due to the nature in which url.Encode() is written
-//
-// This function on the other hand is a direct replacement for url.Encode() technique to support
-// pretty much every UTF-8 character.
-func getURLEncodedName(name string) string {
-	// if object matches reserved string, no need to encode them
-	if reservedNames.MatchString(name) {
-		return name
-	}
-	var encodedName string
-	for _, s := range name {
-		if 'A' <= s && s <= 'Z' || 'a' <= s && s <= 'z' || '0' <= s && s <= '9' { // §2.3 Unreserved characters (mark)
-			encodedName = encodedName + string(s)
-			continue
-		}
-		switch s {
-		case '-', '_', '.', '~', '/': // §2.3 Unreserved characters (mark)
-			encodedName = encodedName + string(s)
-			continue
-		default:
-			len := utf8.RuneLen(s)
-			if len > 0 {
-				u := make([]byte, len)
-				utf8.EncodeRune(u, s)
-				for _, r := range u {
-					hex := hex.EncodeToString([]byte{r})
-					encodedName = encodedName + "%" + strings.ToUpper(hex)
-				}
-			}
-		}
-	}
-	return encodedName
 }
 
 // extractSignedHeaders extract signed headers from Authorization header

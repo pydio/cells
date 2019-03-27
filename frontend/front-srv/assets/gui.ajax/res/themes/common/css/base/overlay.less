@@ -1,0 +1,91 @@
+#container {
+  width: 50%;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.footer {
+  background-color: #000;
+  padding: 0.5em;
+}
+
+.leightbox {
+  color: #333;
+  display: none;
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  width: 50%;
+  height: 50%;
+  padding: 1em;
+  border: 1em solid #B8B8B8;
+  background-color: white;
+  text-align: left;
+  z-index:1040;
+  overflow: auto;
+}
+
+#overlay, #loading_overlay{
+  display:none;
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:1040;
+  background-color: rgb(0, 0, 0);
+  -moz-opacity: 0.6;
+  opacity: .20;
+  filter: alpha(opacity=60);
+}
+
+#loading_overlay{
+  display:block;
+  z-index:2000;
+  -moz-opacity:1.0 ;
+  opacity:1.0 ;
+  filter: alpha(opacity=100)  !important;
+  background-color: rgba(0, 0, 0, 0.83) !important;
+}
+
+#element_overlay{
+  position:absolute;
+  top: 0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:1000;
+  background-color: #EEEEEE;
+  -moz-opacity: 0;
+  opacity:0;
+  filter: alpha(opacity=0);
+  text-align:center;
+  overflow:hidden;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+div.dialogBox div#element_overlay{
+
+  background-color: rgb(37,37,37);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+
+}
+
+#element_overlay img{
+  margin-top:30%;
+}
+
+
+#element_iframe{
+  position:absolute;
+  width:80%;
+  height:80%;
+  z-index:1010;
+  background-color:#eee;
+  border:1px solid black;
+}
+
+.lightbox[id]{ /* IE6 and below Can't See This */    position:fixed;    }
+#overlay[id]{ /* IE6 and below Can't See This */    position:fixed;    }

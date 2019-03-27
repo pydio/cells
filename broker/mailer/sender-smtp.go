@@ -22,10 +22,12 @@ package mailer
 
 import (
 	"context"
+	"crypto/tls"
+	"fmt"
 	"strconv"
 
 	"go.uber.org/zap"
-	"gopkg.in/gomail.v2"
+	gomail "gopkg.in/gomail.v2"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -33,25 +35,55 @@ import (
 )
 
 type Smtp struct {
-	User     string
-	Password string
-	Host     string
-	Port     int
+	User               string
+	Password           string
+	Host               string
+	Port               int
+	InsecureSkipVerify bool
 }
 
-func (gm *Smtp) Configure(config config.Map) error {
+func (gm *Smtp) Configure(conf config.Map) error {
 
-	gm.User = config.Get("user").(string)
-	gm.Password = config.Get("password").(string)
-	gm.Host = config.Get("host").(string)
-	portConf := config.Get("port")
+	val := conf.Get("user")
+	if val == nil {
+		return fmt.Errorf("cannot configure mailer: missing compulsory user name")
+	}
+	gm.User = val.(string)
+
+	if clear := conf.Get("clearPass"); clear != nil {
+		// Used by tests
+		gm.Password = clear.(string)
+	} else {
+		val = conf.Get("password")
+		if val == nil {
+			return fmt.Errorf("cannot configure mailer: missing compulsory password")
+		}
+		passwordSecret := val.(string)
+		gm.Password = config.GetSecret(passwordSecret).String("")
+	}
+
+	val = conf.Get("host")
+	if val == nil {
+		return fmt.Errorf("cannot configure mailer: missing compulsory host address")
+	}
+	gm.Host = val.(string)
+
+	portConf := conf.Get("port")
+	if portConf == nil {
+		return fmt.Errorf("cannot configure mailer: missing compulsory port")
+	}
+
 	if sConf, ok := portConf.(string); ok && sConf != "" {
 		parsed, _ := strconv.ParseInt(sConf, 10, 64)
 		gm.Port = int(parsed)
 	} else {
 		gm.Port = int(portConf.(float64))
 	}
-
+	// Set defaul to be false.
+	gm.InsecureSkipVerify = false
+	if conf.Get("insecureSkipVerify") != nil {
+		gm.InsecureSkipVerify = conf.Get("insecureSkipVerify").(bool)
+	}
 	log.Logger(context.Background()).Debug("SMTP Configured", zap.String("u", gm.User), zap.String("h", gm.Host), zap.Int("p", gm.Port))
 
 	return nil
@@ -64,5 +96,10 @@ func (gm *Smtp) Send(email *mailer.Mail) error {
 		return e
 	}
 	d := gomail.NewDialer(gm.Host, gm.Port, gm.User, gm.Password)
+	tlsConfig := tls.Config{
+		InsecureSkipVerify: gm.InsecureSkipVerify,
+		ServerName:         gm.Host,
+	}
+	d.TLSConfig = &tlsConfig
 	return d.DialAndSend(m)
 }

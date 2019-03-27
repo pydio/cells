@@ -27,8 +27,10 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/protobuf/ptypes"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -75,9 +77,16 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, objects ch
 		if e != nil {
 			return e
 		}
-		treeClient := tree.NewSearcherClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, cl)
+		// For simple/quick requests
+		sName := common.SERVICE_TREE
+		if q.FreeString != "" || q.Content != "" {
+			// Use the Search Service instead
+			sName = common.SERVICE_SEARCH
+		}
+		treeClient := tree.NewSearcherClient(common.SERVICE_GRPC_NAMESPACE_+sName, cl)
 		sStream, eR := treeClient.Search(ctx, &tree.SearchRequest{
-			Query: q,
+			Query:   q,
+			Details: true,
 		})
 		if eR != nil {
 			return eR
@@ -90,8 +99,10 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, objects ch
 			if resp == nil {
 				continue
 			}
+			log.Logger(ctx).Debug("Search Request with query received Node", resp.Node.ZapPath())
 			objects <- resp.Node
 		}
+		log.Logger(ctx).Debug("Finished Search Request with query", zap.Any("q", q))
 	}
 	done <- true
 	return nil

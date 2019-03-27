@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -31,14 +30,13 @@ import (
 
 	p "github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
-	"github.com/pydio/go-phpfpm-detect/fpm"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/lib"
 )
 
@@ -72,17 +70,22 @@ func validPortNumber(input string) error {
 	return e
 }
 
+func validUrl(input string) error {
+	_, e := url.Parse(input)
+	return e
+}
+
 func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) {
 
 	defaultPort := "8080"
-	var internalHost, externalHost string
-	defaultIps, e := utils.GetAvailableIPs()
+	var internalHost string
+	defaultIps, e := net.GetAvailableIPs()
 	if e != nil {
 		return
 	}
 	var items []string
 
-	testExt, eExt := utils.GetOutboundIP()
+	testExt, eExt := net.GetOutboundIP()
 	if eExt == nil {
 		items = append(items, fmt.Sprintf("%s:%s", testExt.String(), defaultPort))
 	}
@@ -95,7 +98,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
 
 	prompt := p.SelectWithAdd{
-		Label:    "Binding Host (ip:port or yourdomain.tld that the webserver will listen. If internal and external urls differ, use internal here)",
+		Label:    "Internal Url (address that the web server will listen to, use ip:port or yourdomain.tld, without http/https)",
 		Items:    items,
 		AddLabel: "Other",
 		Validate: validHostPort,
@@ -115,33 +118,34 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	if parts[1] == "80" || parts[1] == "443" {
 		defaultExternal = parts[0]
 	}
-	extPrompt := p.Prompt{
-		Label:    "External Host (used to access this machine from outside world if it differs from Bind Host)",
-		Validate: notEmpty,
-		Default:  defaultExternal,
-	}
-	externalHost, e = extPrompt.Run()
-	if e != nil {
-		return
-	}
-	externalHost = strings.TrimSuffix(externalHost, "/")
-	externalHost = strings.TrimPrefix(externalHost, "http://")
-	externalHost = strings.TrimPrefix(externalHost, "https://")
 
-	_, e = promptSslMode()
+	sslEnabled, certData, e := promptSslMode()
 	if e != nil {
 		return
 	}
 	scheme := "http"
-	if config.Get("cert", "proxy", "ssl").Bool(false) {
+	if sslEnabled {
+		// We cannot rely on this before the save
+		// if config.Get("cert", "proxy", "ssl").Bool(false)
 		scheme = "https"
 	}
-	externalUrl := fmt.Sprintf("%s://%s", scheme, externalHost)
 	internalUrl := fmt.Sprintf("%s://%s", scheme, internalHost)
 	internal, e = url.Parse(internalUrl)
 	if e != nil {
 		return
 	}
+
+	extPrompt := p.Prompt{
+		Label:    "External Url, used to access application from outside world (it can differ from internal url if you are behind a proxy or inside a private network)",
+		Validate: validUrl,
+		Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
+	}
+	externalUrl, er := extPrompt.Run()
+	if er != nil {
+		e = er
+		return
+	}
+	externalUrl = strings.TrimSuffix(externalUrl, "/")
 	external, e = url.Parse(externalUrl)
 	if e != nil {
 		return
@@ -149,6 +153,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 
 	config.Set(externalUrl, "defaults", "url")
 	config.Set(internalUrl, "defaults", "urlInternal")
+	config.Set(certData, "cert")
 	config.Save("cli", "Install / Setting default URLs")
 
 	return
@@ -163,7 +168,7 @@ var installCliCmd = &cobra.Command{
 
 		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
 		if micro == 0 {
-			micro = utils.GetAvailablePort()
+			micro = net.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
 			config.Save("cli", "Install / Setting default Ports")
 		}
@@ -183,9 +188,6 @@ var installCliCmd = &cobra.Command{
 
 		fmt.Println("")
 		fmt.Println("\033[1m## Frontend Configuration\033[0m")
-		if e := promptFPM(installConfig); e != nil {
-			log.Fatal(e.Error())
-		}
 		if e := promptFrontendAdmin(installConfig); e != nil {
 			log.Fatal(e.Error())
 		}
@@ -197,7 +199,7 @@ var installCliCmd = &cobra.Command{
 
 		fmt.Println("")
 		fmt.Println("\033[1m## Performing Installation\033[0m")
-		e := lib.Install(context.Background(), installConfig, func(event *lib.InstallProgressEvent) {
+		e := lib.Install(context.Background(), installConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 			fmt.Println(p.IconGood + " " + event.Message)
 		})
 		if e != nil {
@@ -274,54 +276,6 @@ func promptDB(c *install.InstallConfig) error {
 	return nil
 }
 
-func promptFPM(c *install.InstallConfig) error {
-
-	if len(c.CheckResults) > 0 && c.CheckResults[0].Name == "PHP" && c.CheckResults[0].JsonResult != "" {
-		type fpmResult struct {
-			Error string
-			Fpm   struct {
-				ListenAddress string
-				ListenNetwork string
-				PhpVersion    string
-				PhpExtensions []string
-			}
-		}
-		var res *fpmResult
-		if e := json.Unmarshal([]byte(c.CheckResults[0].JsonResult), &res); e == nil {
-			if !c.CheckResults[0].Success {
-				fmt.Println(p.IconBad + " Could not detect PHP version: " + res.Error)
-			} else {
-				fmt.Println(p.IconGood + " Php version detected: " + res.Fpm.PhpVersion)
-			}
-			fpmPrompt := p.Prompt{Label: "PHP-FPM Listen Address was detected at " + res.Fpm.ListenAddress + ". Is it correct", IsConfirm: true}
-			if _, err := fpmPrompt.Run(); err == nil {
-				return nil
-			}
-		}
-	}
-	fpmPrompt := p.Prompt{Label: "Please enter the address where Php-FPM is listening (use host:port or /path/to/socket)", Default: "localhost:9000"}
-	res, er := fpmPrompt.Run()
-	if er != nil {
-		return er
-	}
-	if len(res) > 0 {
-		c.FpmAddress = res
-		var network string
-		if strings.Contains(c.FpmAddress, ":") {
-			network = "tcp"
-		} else {
-			network = "unix"
-		}
-		if err := fpm.DetectByDirectConnection(&fpm.PhpFpmConfig{ListenAddress: c.FpmAddress, ListenNetwork: network}); err == nil {
-			fmt.Println(p.IconGood + " Php-Fpm successfully connected")
-		} else {
-			fmt.Println(p.IconBad + " Could not connect: " + err.Error())
-		}
-	}
-	return nil
-
-}
-
 func promptFrontendAdmin(c *install.InstallConfig) error {
 
 	login := p.Prompt{Label: "Admin Login (leave passwords empty if an admin is already created)", Default: "admin", Validate: notEmpty}
@@ -357,12 +311,14 @@ func promptAdvanced(c *install.InstallConfig) error {
 	oidcId := p.Prompt{Label: "OpenIdConnect ClientID (for frontend)", Default: c.ExternalDexID, Validate: notEmpty}
 	oidcSecret := p.Prompt{Label: "OpenIdConnect ClientID (for frontend)", Default: c.ExternalDexSecret, Validate: notEmpty}
 
-	dexPort := p.Prompt{Label: "OpenIdConnect Server Port", Default: c.ExternalDex, Validate: validPortNumber}
-	microPort := p.Prompt{Label: "Rest Gateway Port", Default: c.ExternalMicro, Validate: validPortNumber}
-	gatewayPort := p.Prompt{Label: "Data Gateway Port", Default: c.ExternalGateway, Validate: validPortNumber}
-	websocketPort := p.Prompt{Label: "WebSocket Port", Default: c.ExternalWebsocket, Validate: validPortNumber}
-	davPort := p.Prompt{Label: "WebDAV Gateway Port", Default: c.ExternalDAV, Validate: validPortNumber}
-	wopiPort := p.Prompt{Label: "WOPI Api Port (for Collabora support)", Default: c.ExternalWOPI, Validate: validPortNumber}
+	/*
+		dexPort := p.Prompt{Label: "OpenIdConnect Server Port", Default: c.ExternalDex, Validate: validPortNumber}
+		microPort := p.Prompt{Label: "Rest Gateway Port", Default: c.ExternalMicro, Validate: validPortNumber}
+		gatewayPort := p.Prompt{Label: "Data Gateway Port", Default: c.ExternalGateway, Validate: validPortNumber}
+		websocketPort := p.Prompt{Label: "WebSocket Port", Default: c.ExternalWebsocket, Validate: validPortNumber}
+		davPort := p.Prompt{Label: "WebDAV Gateway Port", Default: c.ExternalDAV, Validate: validPortNumber}
+		wopiPort := p.Prompt{Label: "WOPI Api Port (for Collabora support)", Default: c.ExternalWOPI, Validate: validPortNumber}
+	*/
 
 	if folder, e := dsPath.Run(); e == nil {
 		c.DsFolder = folder
@@ -377,24 +333,26 @@ func promptAdvanced(c *install.InstallConfig) error {
 	if c.ExternalDexSecret, e = oidcSecret.Run(); e != nil {
 		return e
 	}
-	if c.ExternalDex, e = dexPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalMicro, e = microPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalGateway, e = gatewayPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalWebsocket, e = websocketPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalDAV, e = davPort.Run(); e != nil {
-		return e
-	}
-	if c.ExternalWOPI, e = wopiPort.Run(); e != nil {
-		return e
-	}
+	/*
+		if c.ExternalDex, e = dexPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalMicro, e = microPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalGateway, e = gatewayPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalWebsocket, e = websocketPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalDAV, e = davPort.Run(); e != nil {
+			return e
+		}
+		if c.ExternalWOPI, e = wopiPort.Run(); e != nil {
+			return e
+		}
+	*/
 
 	return nil
 }

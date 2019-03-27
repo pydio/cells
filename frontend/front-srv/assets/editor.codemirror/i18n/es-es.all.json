@@ -1,0 +1,35 @@
+{
+  "1": {
+    "other": "Editor de Código"
+  },
+  "10": {
+    "other": "Sangría"
+  },
+  "2": {
+    "other": "Resaltar Sintáxis con CodeMirror"
+  },
+  "3": {
+    "other": "Ajuste Línea"
+  },
+  "3b": {
+    "other": "Activa ajuste de línea"
+  },
+  "4": {
+    "other": "Número"
+  },
+  "5": {
+    "other": "Activa el número de línea"
+  },
+  "6": {
+    "other": "Salta a Línea"
+  },
+  "7": {
+    "other": "Deshacer"
+  },
+  "8": {
+    "other": "Rehacer"
+  },
+  "9": {
+    "other": "Búsqueda"
+  }
+}

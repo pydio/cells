@@ -1,5 +1,6 @@
 /*
- * Minio Go Library for Amazon S3 Compatible Cloud Storage (C) 2015, 2016 Minio, Inc.
+ * Minio Go Library for Amazon S3 Compatible Cloud Storage
+ * Copyright 2015-2017 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +36,8 @@ func (c Client) BucketExists(bucketName string) (bool, error) {
 
 	// Execute HEAD on bucketName.
 	resp, err := c.executeMethod(context.Background(), "HEAD", requestMetadata{
-		bucketName:         bucketName,
-		contentSHA256Bytes: emptySHA256,
+		bucketName:       bucketName,
+		contentSHA256Hex: emptySHA256Hex,
 	})
 	defer closeResponse(resp)
 	if err != nil {
@@ -46,6 +47,10 @@ func (c Client) BucketExists(bucketName string) (bool, error) {
 		return false, err
 	}
 	if resp != nil {
+		resperr := httpRespToErrorResponse(resp, bucketName, "")
+		if ToErrorResponse(resperr).Code == "NoSuchBucket" {
+			return false, nil
+		}
 		if resp.StatusCode != http.StatusOK {
 			return false, httpRespToErrorResponse(resp, bucketName, "")
 		}
@@ -65,6 +70,9 @@ var defaultFilterKeys = []string{
 	"x-amz-bucket-region",
 	"x-amz-request-id",
 	"x-amz-id-2",
+	"Content-Security-Policy",
+	"X-Xss-Protection",
+
 	// Add new headers to be ignored.
 }
 
@@ -89,11 +97,11 @@ func (c Client) StatObject(bucketName, objectName string, opts StatObjectOptions
 	if err := s3utils.CheckValidObjectName(objectName); err != nil {
 		return ObjectInfo{}, err
 	}
-	return c.statObject(bucketName, objectName, opts)
+	return c.statObject(context.Background(), bucketName, objectName, opts)
 }
 
 // Lower level API for statObject supporting pre-conditions and range headers.
-func (c Client) statObject(bucketName, objectName string, opts StatObjectOptions) (ObjectInfo, error) {
+func (c Client) statObject(ctx context.Context, bucketName, objectName string, opts StatObjectOptions) (ObjectInfo, error) {
 	// Input validation.
 	if err := s3utils.CheckValidBucketName(bucketName); err != nil {
 		return ObjectInfo{}, err
@@ -103,18 +111,18 @@ func (c Client) statObject(bucketName, objectName string, opts StatObjectOptions
 	}
 
 	// Execute HEAD on objectName.
-	resp, err := c.executeMethod(context.Background(), "HEAD", requestMetadata{
-		bucketName:         bucketName,
-		objectName:         objectName,
-		contentSHA256Bytes: emptySHA256,
-		customHeader:       opts.Header(),
+	resp, err := c.executeMethod(ctx, "HEAD", requestMetadata{
+		bucketName:       bucketName,
+		objectName:       objectName,
+		contentSHA256Hex: emptySHA256Hex,
+		customHeader:     opts.Header(),
 	})
 	defer closeResponse(resp)
 	if err != nil {
 		return ObjectInfo{}, err
 	}
 	if resp != nil {
-		if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusPartialContent {
 			return ObjectInfo{}, httpRespToErrorResponse(resp, bucketName, objectName)
 		}
 	}

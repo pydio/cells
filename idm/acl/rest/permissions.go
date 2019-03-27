@@ -34,11 +34,11 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -57,7 +57,7 @@ func (a *Handler) WriteAllowed(ctx context.Context, acl *idm.ACL) error {
 		log.Logger(ctx).Debug("Checking acl write on role", zap.Any("acl", acl))
 		return a.CheckRole(ctx, acl.RoleID)
 
-	} else if acl.NodeID != "" && acl.Action != nil && (acl.Action.Name == utils.ACL_READ.Name || acl.Action.Name == utils.ACL_WRITE.Name) {
+	} else if acl.NodeID != "" && acl.Action != nil && (acl.Action.Name == permissions.AclRead.Name || acl.Action.Name == permissions.AclWrite.Name) {
 		// Do not bother about roles here, just verify
 		// that this node is belonging to an authorized path: use accessList for that
 		return a.CheckNode(ctx, acl.NodeID, acl.Action)
@@ -108,7 +108,7 @@ func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 // CheckNode uses AccessList object to analyze the current ACLs of the target node
 func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLAction) error {
 
-	accessList, err := utils.AccessListFromContextClaims(ctx)
+	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
 		return err
 	}
@@ -155,10 +155,10 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 	}
 
 	var check bool
-	if action.GetName() == utils.ACL_READ.GetName() {
+	if action.GetName() == permissions.AclRead.GetName() {
 		log.Logger(ctx).Debug("Checking read on parent nodes", accessList.Zap(), zap.Any("parentNodes", parentNodes))
 		check = accessList.CanRead(ctx, parentNodes...)
-	} else if action.GetName() == utils.ACL_WRITE.GetName() {
+	} else if action.GetName() == permissions.AclWrite.GetName() {
 		log.Logger(ctx).Debug("Checking write on parent nodes", accessList.Zap(), zap.Any("parentNodes", parentNodes))
 		check = accessList.CanWrite(ctx, parentNodes...)
 	}

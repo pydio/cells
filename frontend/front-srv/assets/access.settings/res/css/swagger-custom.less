@@ -1,0 +1,61 @@
+@import (inline) './swagger-ui.css';
+
+.react-mui-context{
+
+  #swaggerContainer > h4 {
+    display: none;
+  }
+  .swagger-ui{
+    padding-top: 10px;
+    .scheme-container{
+      display: none;
+    }
+    .information-container{
+      display:none;
+    }
+    select{
+      border: 1px solid #637e8a;
+      box-shadow: none;
+      font-weight: normal;
+    }
+    .opblock-tag{
+      font-size: 20px;
+    }
+    .opblock{
+      border-radius: 0;
+      border: 0;
+      box-shadow: none;
+      .opblock-summary-path{
+        font-weight: 400;
+      }
+      .btn.try-out__btn {
+        display: none;
+      }
+      .opblock-section-header{
+        background: inherit;
+        padding: 0 20px;
+        box-shadow: none;
+      }
+      .opblock-summary-method{
+        border-radius: 2px;
+      }
+    }
+    .models{
+      border-radius: 0;
+      .model-container{
+        border-radius: 0;
+        margin: 8px;
+        &:first-of-type{
+          margin: 8px;
+        }
+      }
+    }
+    .model-title{
+      font-weight: normal;
+      font-size: 15px;
+    }
+    .tab li.active{
+      font-weight: 500;
+    }
+  }
+}

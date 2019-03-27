@@ -25,7 +25,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/policy/conditions"
 )
 
@@ -56,6 +56,22 @@ var (
 					Actions:     []string{"PUT", "POST"},
 					Effect:      ladon.AllowAccess,
 				}),
+				LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "frontend-state",
+					Description: "PolicyGroup.PublicAccess.Rule3",
+					Subjects:    []string{"profile:anon"},
+					Resources:   []string{"rest:/frontend/<.*>"},
+					Actions:     []string{"GET"},
+					Effect:      ladon.AllowAccess,
+				}),
+				LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "frontend-auth",
+					Description: "PolicyGroup.PublicAccess.Rule4",
+					Subjects:    []string{"profile:anon"},
+					Resources:   []string{"rest:/frontend/session"},
+					Actions:     []string{"POST"},
+					Effect:      ladon.AllowAccess,
+				}),
 			},
 		},
 
@@ -72,47 +88,6 @@ var (
 					Resources:   []string{"rest:/install"},
 					Actions:     []string{"GET", "POST"},
 					Effect:      ladon.AllowAccess,
-				}),
-			},
-		},
-
-		{
-			Uuid:          "frontend-restricted-accesses",
-			Name:          "PolicyGroup.FrontendAccess.Title",
-			Description:   "PolicyGroup.FrontendAccess.Description",
-			ResourceGroup: idm.PolicyResourceGroup_rest,
-			Policies: []*idm.Policy{
-				// This policies must be refined with trusted frontends IPs
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
-					ID:          "anon-default-policy",
-					Description: "PolicyGroup.FrontendAccess.Rule1",
-					Subjects:    []string{"profile:anon"},
-					Resources: []string{
-						"rest:/config/frontend<.+>",
-						"rest:/docstore/share/<.+>",
-						"rest:/docstore/keystore/<.+>",
-						"rest:/frontend/bootconf",
-					},
-					Actions: []string{"GET", "POST"},
-					Effect:  ladon.AllowAccess,
-					Conditions: ladon.Conditions{
-						servicecontext.HttpMetaRemoteAddress: &ladon.StringMatchCondition{
-							Matches: "localhost|127.0.0.1|::1",
-						},
-					},
-				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
-					ID:          "anon-frontend-logs",
-					Description: "PolicyGroup.FrontendAccess.Rule2",
-					Subjects:    []string{"profile:anon"},
-					Resources:   []string{"rest:/frontend/frontlogs"},
-					Actions:     []string{"PUT"},
-					Effect:      ladon.AllowAccess,
-					Conditions: ladon.Conditions{
-						servicecontext.HttpMetaRemoteAddress: &ladon.StringMatchCondition{
-							Matches: "localhost|127.0.0.1|::1",
-						},
-					},
 				}),
 			},
 		},
@@ -137,8 +112,6 @@ var (
 					Description: "PolicyGroup.LoggedUsers.Rule2",
 					Subjects:    []string{"profile:standard", "profile:shared"},
 					Resources: []string{
-						"rest:/acl",
-						"rest:/acl/<.+>",
 						"rest:/user",
 						"rest:/user/<.+>",
 						"rest:/workspace",
@@ -146,8 +119,6 @@ var (
 						"rest:/role",
 						"rest:/role/<.+>",
 						"rest:/graph<.+>",
-						"rest:/docstore/bulk_delete/keystore",
-						"rest:/docstore/keystore<.+>",
 						"rest:/jobs/user",
 						"rest:/jobs/user<.+>",
 						"rest:/meta<.+>",
@@ -158,17 +129,32 @@ var (
 						"rest:/activity<.+>",
 						"rest:/changes",
 						"rest:/changes<.+>",
+						"rest:/frontend/<.*>",
+						"rest:/tree/<.*>",
+						"rest:/templates",
 					},
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,
 				}),
 				LadonToProtoPolicy(&ladon.DefaultPolicy{
-					ID:          "shares-default-policy",
+					ID:          "user-ws-readonly",
+					Description: "PolicyGroup.LoggedUsers.Rule4",
+					Subjects:    []string{"profile:standard", "profile:shared"},
+					Resources: []string{
+						"rest:/workspace/<.+>",
+					},
+					Actions: []string{"DELETE", "PUT", "PATCH"},
+					Effect:  ladon.DenyAccess,
+				}),
+				LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "user-meta-tags-no-delete",
 					Description: "PolicyGroup.LoggedUsers.Rule3",
 					Subjects:    []string{"profile:standard", "profile:shared"},
-					Resources:   []string{"rest:/docstore/share/<.+>"},
-					Actions:     []string{"GET", "PUT"},
-					Effect:      ladon.AllowAccess,
+					Resources: []string{
+						"rest:/user-meta/tags<.+>",
+					},
+					Actions: []string{"DELETE"},
+					Effect:  ladon.DenyAccess,
 				}),
 			},
 		},
@@ -219,7 +205,7 @@ var (
 						servicecontext.HttpMetaRemoteAddress: &conditions.StringNotMatchCondition{
 							Matches: "localhost|127.0.0.1|::1",
 						},
-						utils.PolicyNodeMetaName: &ladon.StringMatchCondition{
+						permissions.PolicyNodeMetaName: &ladon.StringMatchCondition{
 							Matches: "target",
 						},
 					},
@@ -235,7 +221,7 @@ var (
 						servicecontext.HttpMetaRemoteAddress: &conditions.StringNotMatchCondition{
 							Matches: "localhost|127.0.0.1|::1",
 						},
-						utils.PolicyNodeMetaName: &ladon.StringMatchCondition{
+						permissions.PolicyNodeMetaName: &ladon.StringMatchCondition{
 							Matches: "(.+)\\.png",
 						},
 					},

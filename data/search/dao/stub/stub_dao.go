@@ -29,7 +29,7 @@ import (
 
 type StubEngine struct{}
 
-func (s *StubEngine) IndexNode(context.Context, *tree.Node) error {
+func (s *StubEngine) IndexNode(context.Context, *tree.Node, bool, map[string]struct{}) error {
 	return nil
 }
 

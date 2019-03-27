@@ -38,7 +38,8 @@ type RouterOptions struct {
 	LogReadEvents      bool
 	BrowseVirtualNodes bool
 	// AuditEvent flag turns audit logger ON for the corresponding router.
-	AuditEvent bool
+	AuditEvent  bool
+	Synchronous bool
 }
 
 // NewStandardRouter returns a new configured instance of the default standard router.
@@ -55,7 +56,7 @@ func NewStandardRouter(options RouterOptions) *Router {
 			AllowAnonRead: true,
 		},
 	}
-	handlers = append(handlers, &ArchiveHandler{})
+	handlers = append(handlers, NewArchiveHandler())
 	handlers = append(handlers, NewPathWorkspaceHandler())
 	handlers = append(handlers, NewPathMultipleRootsHandler())
 	if !options.BrowseVirtualNodes && !options.AdminView {
@@ -67,6 +68,9 @@ func NewStandardRouter(options RouterOptions) *Router {
 	handlers = append(handlers, NewWorkspaceRootResolver())
 	handlers = append(handlers, NewPathDataSourceHandler())
 
+	if options.Synchronous {
+		handlers = append(handlers, NewSynchronousCacheHandler())
+	}
 	if options.AuditEvent {
 		handlers = append(handlers, &HandlerAuditEvent{})
 	}

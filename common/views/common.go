@@ -35,16 +35,13 @@ import (
 	"context"
 	"io"
 
-	"github.com/micro/go-micro/metadata"
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/minio-go"
-	"github.com/pydio/minio-go/pkg/encrypt"
 )
 
 const (
@@ -60,9 +57,10 @@ var (
 
 // These keys may be enriched in Context depending on the middleware
 type (
-	ctxUserAccessListKey struct{}
+	CtxUserAccessListKey struct{}
 	ctxAdminContextKey   struct{}
 	ctxBranchInfoKey     struct{}
+	CtxKeepAccessListKey struct{}
 
 	LoadedSource struct {
 		object.DataSource
@@ -78,27 +76,23 @@ type (
 	}
 
 	PutRequestData struct {
-		Size               int64
-		Md5Sum             []byte
-		Sha256Sum          []byte
-		Metadata           map[string]string
-		EncryptionMaterial encrypt.Materials
-		MultipartUploadID  string
-		MultipartPartID    int
+		Size              int64
+		Md5Sum            []byte
+		Sha256Sum         []byte
+		Metadata          map[string]string
+		MultipartUploadID string
+		MultipartPartID   int
 	}
 
 	GetRequestData struct {
-		StartOffset        int64
-		Length             int64
-		EncryptionMaterial encrypt.Materials
-		VersionId          string
+		StartOffset int64
+		Length      int64
+		VersionId   string
 	}
 
 	CopyRequestData struct {
-		Metadata               map[string]string
-		srcEncryptionMaterial  encrypt.Materials
-		destEncryptionMaterial encrypt.Materials
-		SrcVersionId           string
+		Metadata     map[string]string
+		SrcVersionId string
 	}
 
 	MultipartRequestData struct {
@@ -159,17 +153,17 @@ func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, bool) {
 }
 
 func UserWorkspacesFromContext(ctx context.Context) map[string]*idm.Workspace {
-	if value := ctx.Value(ctxUserAccessListKey{}); value != nil {
-		accessList := value.(*utils.AccessList)
+	if value := ctx.Value(CtxUserAccessListKey{}); value != nil {
+		accessList := value.(*permissions.AccessList)
 		return accessList.Workspaces
 	} else {
 		return make(map[string]*idm.Workspace)
 	}
 }
 
-func AccessListFromContext(ctx context.Context) (*utils.AccessList, error) {
-	if value := ctx.Value(ctxUserAccessListKey{}); value != nil {
-		accessList := value.(*utils.AccessList)
+func AccessListFromContext(ctx context.Context) (*permissions.AccessList, error) {
+	if value := ctx.Value(CtxUserAccessListKey{}); value != nil {
+		accessList := value.(*permissions.AccessList)
 		return accessList, nil
 	} else {
 		return nil, errors.New("Cannot find access list in context")
@@ -182,9 +176,9 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 	if hasBranchInfo && len(branchInfo.AncestorsList) > 0 {
 		return ctx, branchInfo.AncestorsList, nil
 	}
-	searchFunc := utils.BuildAncestorsList
+	searchFunc := tree.BuildAncestorsList
 	if orParents {
-		searchFunc = utils.BuildAncestorsListOrParent
+		searchFunc = tree.BuildAncestorsListOrParent
 	}
 	if parents, err := searchFunc(ctx, p.GetTreeClient(), node); err != nil {
 		return ctx, nil, err
@@ -196,20 +190,4 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 		return ctx, parents, nil
 	}
 
-}
-
-// MinioMetaFromContext prepares metadata for minio client, merging context medata
-// and eventually the Context User Key value (X-Pydio-User). Used to prepare metadata
-// sent by Minio Clients
-func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
-	md = make(map[string]string)
-	if meta, mOk := metadata.FromContext(ctx); mOk {
-		for k, v := range meta {
-			md[k] = v
-		}
-	}
-	if user := ctx.Value(common.PYDIO_CONTEXT_USER_KEY); user != nil {
-		md[common.PYDIO_CONTEXT_USER_KEY] = user.(string)
-	}
-	return md, len(md) > 0
 }

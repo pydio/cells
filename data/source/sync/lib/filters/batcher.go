@@ -26,10 +26,11 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/data/source/sync/lib/common"
-	"go.uber.org/zap"
 )
 
 type EventsBatcher struct {
@@ -40,8 +41,9 @@ type EventsBatcher struct {
 	batchCacheMutex *sync.Mutex
 	batchCache      map[string][]common.EventInfo
 
-	batchOut      chan *Batch
-	eventChannels []chan common.ProcessorEvent
+	batchOut         chan *Batch
+	eventChannels    []chan common.ProcessorEvent
+	closeSessionChan chan string
 }
 
 func (ev *EventsBatcher) RegisterEventChannel(out chan common.ProcessorEvent) {
@@ -98,7 +100,7 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		} else {
 			createEvent.Node = node
 		}
-		log.Logger(ev.globalContext).Info("Create Folder", zap.Any("node", createEvent.Node))
+		log.Logger(ev.globalContext).Debug("Create Folder", zap.Any("node", createEvent.Node))
 	}
 
 	for _, deleteEvent := range batch.Deletes {
@@ -212,12 +214,19 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 	})
 }
 
-func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo) {
+func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	batch := NewBatch()
+	/*
+		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {
+			batch.SessionProvider = p
+			batch.SessionProviderContext = events[0].CreateContext(ev.globalContext)
+		}
+	*/
 
 	for _, event := range events {
+		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
 		key := event.Path
 		var bEvent = &BatchedEvent{
 			Source:    ev.Source,
@@ -235,9 +244,7 @@ func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo) {
 			batch.Deletes[key] = bEvent
 		}
 	}
-	log.Logger(ev.globalContext).Debug("Batch Before Filtering", zap.Any("batch", batch))
 	ev.FilterBatch(batch)
-	log.Logger(ev.globalContext).Debug("Batch After Filtering", zap.Any("batch", batch))
 	ev.batchOut <- batch
 
 }
@@ -250,6 +257,7 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 	for {
 		select {
 		case event := <-in:
+			//log.Logger(ev.globalContext).Info("Received S3 Event", zap.Any("e", event))
 			// Add to queue
 			if session := event.Metadata["X-Pydio-Session"]; session != "" {
 				if strings.HasPrefix(session, "close-") {
@@ -257,21 +265,33 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 
 					ev.batchCacheMutex.Lock()
 					ev.batchCache[session] = append(ev.batchCache[session], event)
-					go ev.ProcessEvents(ev.batchCache[session])
+					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
+					go ev.ProcessEvents(ev.batchCache[session], true)
 					delete(ev.batchCache, session)
 					ev.batchCacheMutex.Unlock()
 				} else {
 					ev.batchCacheMutex.Lock()
+					log.Logger(ev.globalContext).Debug("[batcher] Batching Event in session "+session, zap.Any("e", event))
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					ev.batchCacheMutex.Unlock()
 				}
 			} else if event.ScanEvent || event.OperationId == "" {
+				log.Logger(ev.globalContext).Debug("[batcher] Batching Event without session ", zap.Any("e", event))
 				batch = append(batch, event)
 			}
+		case session := <-ev.closeSessionChan:
+			ev.batchCacheMutex.Lock()
+			if events, ok := ev.batchCache[session]; ok {
+				log.Logger(ev.globalContext).Debug("[batcher] Force closing session now!")
+				go ev.ProcessEvents(events, true)
+				delete(ev.batchCache, session)
+			}
+			ev.batchCacheMutex.Unlock()
 		case <-time.After(duration):
 			// Process Queue
 			if len(batch) > 0 {
-				go ev.ProcessEvents(batch)
+				log.Logger(ev.globalContext).Debug("[batcher] Processing batch after timeout")
+				go ev.ProcessEvents(batch, false)
 				batch = nil
 			}
 		}
@@ -280,14 +300,19 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 
 }
 
+func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
+	ev.closeSessionChan <- sessionUuid
+}
+
 func NewEventsBatcher(ctx context.Context, source common.PathSyncSource, target common.PathSyncTarget) *EventsBatcher {
 
 	return &EventsBatcher{
-		Source:          source,
-		Target:          target,
-		globalContext:   ctx,
-		batchCache:      make(map[string][]common.EventInfo),
-		batchCacheMutex: &sync.Mutex{},
+		Source:           source,
+		Target:           target,
+		globalContext:    ctx,
+		batchCache:       make(map[string][]common.EventInfo),
+		batchCacheMutex:  &sync.Mutex{},
+		closeSessionChan: make(chan string, 1),
 	}
 
 }

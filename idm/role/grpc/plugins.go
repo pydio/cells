@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
@@ -32,28 +33,35 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("Roles Service"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
-		service.Migrations([]*service.Migration{{
-			TargetVersion: service.FirstRun(),
-			Up:            InitRoles,
-		}}),
-		service.WithStorage(role.NewDAO, "idm_role"),
-		service.WithMicro(func(m micro.Service) error {
-			ctx := m.Options().Context
-			server := new(Handler)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("Roles Service"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            InitRoles,
+				}, {
+					TargetVersion: service.ValidVersion("1.2.0"),
+					Up:            UpgradeTo12,
+				},
+			}),
+			service.WithStorage(role.NewDAO, "idm_role"),
+			service.WithMicro(func(m micro.Service) error {
+				ctx := m.Options().Context
+				server := new(Handler)
 
-			idm.RegisterRoleServiceHandler(m.Options().Server, server)
+				idm.RegisterRoleServiceHandler(m.Options().Server, server)
 
-			// Clean role on user deletion
-			cleaner := NewCleaner(server, servicecontext.GetDAO(ctx))
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
-				return err
-			}
-			return nil
-		}),
-	)
+				// Clean role on user deletion
+				cleaner := NewCleaner(server, servicecontext.GetDAO(ctx))
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
+					return err
+				}
+				return nil
+			}),
+		)
+	})
 }

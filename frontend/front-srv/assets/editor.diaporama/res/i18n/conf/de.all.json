@@ -1,0 +1,44 @@
+{
+  "Exif Rotation": {
+    "other": "Exif-Drehung"
+  },
+  "Generate thumbnails or not": {
+    "other": "Vorschau für Bilder erstellen oder nicht"
+  },
+  "Image viewer": {
+    "other": "Bildbetrachter"
+  },
+  "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
+    "other": "Der Bildbetrachter ist für die Bildvorschau, das Betrachten von Bildern und eine Diashow zuständig."
+  },
+  "Low-res Sizes": {
+    "other": "Größen der Vorschaubilder"
+  },
+  "Quality": {
+    "other": "Qualität"
+  },
+  "Remote Wrappers": {
+    "other": "Metadaten für Adapter nur bedingt auslesen"
+  },
+  "Rotate image using exif rotation": {
+    "other": "Drehung der Bilder aus den Exif-Daten auslesen"
+  },
+  "Size Threshold": {
+    "other": "Metadaten auslesen bis"
+  },
+  "Threshold": {
+    "other": "Maximale Dateigröße, bis zu der die Metadaten ausgelesen werden, wenn obige Adapter verwendet werden."
+  },
+  "Threshold for low-res versions of images": {
+    "other": "Grössen der Vorschaubilder"
+  },
+  "Thumbnails": {
+    "other": "Vorschau generieren"
+  },
+  "Thumbs quality": {
+    "other": "Qualität der Vorschaubilder"
+  },
+  "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
+    "other": "Wenn Sie sich mit einem entfernten Server verbinden kann das Auslesen der Metadaten sehr lange dauern, da die Dateien erst heruntergeladen werden müssen. Bei den konfigurierten Adaptern werden die Metadaten nur bis zu einer bestimmten Dateigrösse ermittelt."
+  }
+}

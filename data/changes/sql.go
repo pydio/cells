@@ -28,7 +28,7 @@ import (
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
@@ -68,7 +68,7 @@ type sqlimpl struct {
 }
 
 // Add to the mysql DB
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
@@ -99,7 +99,12 @@ func (s *sqlimpl) Init(options config.Map) error {
 
 // Put SyncChange in database
 func (s *sqlimpl) Put(c *tree.SyncChange) error {
-	_, err := s.GetStmt("insert").Exec(
+	stmt := s.GetStmt("insert")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(
 		c.NodeId,
 		c.Type.String(),
 		c.Source,
@@ -116,6 +121,10 @@ func (s *sqlimpl) Put(c *tree.SyncChange) error {
 // Put a slice of changes at once
 func (s *sqlimpl) BulkPut(changes []*tree.SyncChange) error {
 	stmt := s.GetStmt("bulkInsert", len(changes))
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
 	var values []interface{}
 	for _, change := range changes {
 		values = append(values, change.NodeId, change.Type.String(), change.Source, change.Target)
@@ -127,7 +136,12 @@ func (s *sqlimpl) BulkPut(changes []*tree.SyncChange) error {
 // HasNodeById checks wether a node with this ID exists.
 func (s *sqlimpl) HasNodeById(id string) (bool, error) {
 
-	row := s.GetStmt("nodeById").QueryRow(id)
+	stmt := s.GetStmt("nodeById")
+	if stmt == nil {
+		return false, fmt.Errorf("Unknown statement")
+	}
+
+	row := stmt.QueryRow(id)
 	var nodeID string
 	if err := row.Scan(&nodeID); err != nil {
 		return false, err
@@ -147,7 +161,12 @@ func (s *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 		// Checking if we need to retrieve from archive
 		if first, err := s.FirstSeq(); err != nil || first > seq {
 
-			rarch, err := s.GetStmt("selectFromArchive").Query(seq, p, p)
+			stmt := s.GetStmt("selectFromArchive")
+			if stmt == nil {
+				return
+			}
+
+			rarch, err := stmt.Query(seq, p, p)
 			if err != nil {
 				return
 			}
@@ -180,7 +199,12 @@ func (s *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 			}
 		}
 
-		r, err := s.GetStmt("select").Query(seq, p, p)
+		stmt := s.GetStmt("select")
+		if stmt == nil {
+			return
+		}
+
+		r, err := stmt.Query(seq, p, p)
 		if err != nil {
 			return
 		}
@@ -219,12 +243,22 @@ func (s *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 func (s *sqlimpl) FirstSeq() (uint64, error) {
 
 	var last uint64
-	row := s.GetStmt("firstSeq").QueryRow()
+	stmt := s.GetStmt("firstSeq")
+	if stmt == nil {
+		return 0, fmt.Errorf("Unknown statement")
+	}
+
+	row := stmt.QueryRow()
 	err := row.Scan(&last)
 	if err != nil {
 		// address empty db corner case only on error
 		// rather than checking if the table is empty at each iteration
-		rowtmp := s.GetStmt("countChanges").QueryRow()
+		stmt := s.GetStmt("countChanges")
+		if stmt == nil {
+			return 0, fmt.Errorf("Unknown statement")
+		}
+
+		rowtmp := stmt.QueryRow()
 		var count uint64
 		err2 := rowtmp.Scan(&count)
 		if err2 != nil {
@@ -243,10 +277,18 @@ func (s *sqlimpl) FirstSeq() (uint64, error) {
 // LastSeq returns the last sequence id in the data changes table or 0 if the table is empty.
 func (s *sqlimpl) LastSeq() (uint64, error) {
 	var last uint64
-	row := s.GetStmt("lastSeq").QueryRow()
+	stmt := s.GetStmt("lastSeq")
+	if stmt == nil {
+		return 0, fmt.Errorf("Unknown statement")
+	}
+	row := stmt.QueryRow()
 	err := row.Scan(&last)
 	if err != nil {
-		rowtmp := s.GetStmt("countChanges").QueryRow()
+		stmt := s.GetStmt("countChanges")
+		if stmt == nil {
+			return 0, fmt.Errorf("Unknown statement")
+		}
+		rowtmp := stmt.QueryRow()
 		var count uint64
 		err2 := rowtmp.Scan(&count)
 		if err2 != nil {
@@ -284,7 +326,14 @@ func (s *sqlimpl) Archive(seq uint64) error {
 	}()
 
 	archive := s.GetStmt("archive")
+	if archive == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
 	delete := s.GetStmt("delete")
+	if delete == nil {
+		return fmt.Errorf("Unknown statement")
+	}
 
 	if stmt := tx.Stmt(archive); stmt != nil {
 		defer stmt.Close()

@@ -1,0 +1,62 @@
+.ort-rotate-2 {
+   -moz-transform: scale(-1,1);
+   -webkit-transform: scale(-1,1);
+   -o-transform: scale(-1,1);
+   -ms-ransform: scale(-1,1);
+   transform: scale(-1,1);
+   filter:progid:DXImageTransform.Microsoft.BasicImage(mirror=1);
+}
+
+.ort-rotate-3 {
+   -moz-transform:rotate(180deg);
+   -webkit-transform:rotate(180deg);
+   -o-transform:rotate(180deg);
+   -ms-transform:rotate(180deg);
+   transform:rotate(180deg);
+   filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+}
+
+.ort-rotate-4 {
+   -moz-transform:rotate(180deg) scale(-1,1);
+   -webkit-transform:rotate(180deg) scale(-1,1);
+   -o-transform:rotate(180deg) scale(-1,1);
+   -ms-transform:rotate(180deg) scale(-1,1);
+   transform:rotate(180deg) scale(-1,1);
+   filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1);
+}
+
+.ort-rotate-5 {
+   -moz-transform:rotate(90deg) scale(1,-1);
+   -webkit-transform:rotate(90deg) scale(1,-1);
+   -o-transform:rotate(90deg) scale(1,-1);
+   -ms-transform:rotate(90deg) scale(1,-1);
+   transform:rotate(90deg) scale(1,-1);
+   filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=1, mirror=1);
+}
+
+.ort-rotate-6 {
+   -moz-transform:rotate(90deg);
+   -webkit-transform:rotate(90deg);
+   -o-transform:rotate(90deg);
+   -ms-transform:rotate(90deg);
+   transform:rotate(90deg);
+   filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+}
+
+.ort-rotate-7 {
+   -moz-transform:rotate(270deg) scale(1,-1);
+   -webkit-transform:rotate(270deg) scale(1,-1);
+   -o-transform:rotate(270deg) scale(1,-1);
+   -ms-transform:rotate(270deg) scale(1,-1);
+   transform:rotate(270deg) scale(1,-1);
+   filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=3, mirror=1);
+}
+
+.ort-rotate-8 {
+   -moz-transform:rotate(270deg);
+   -webkit-transform:rotate(270deg);
+   -o-transform:rotate(270deg);
+   -ms-transform:rotate(270deg);
+   transform:rotate(270deg);
+   filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}

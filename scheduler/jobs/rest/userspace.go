@@ -22,18 +22,23 @@ package rest
 
 import (
 	"context"
+	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
 )
@@ -47,8 +52,8 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
-		for i, path := range selectedPathes {
-			node := &tree.Node{Path: path}
+		for i, p := range selectedPathes {
+			node := &tree.Node{Path: p}
 			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
@@ -59,10 +64,18 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 		if targetNodePath != "" {
 			node := &tree.Node{Path: targetNodePath}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+			targetCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
+			}
+			accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			_, toParents, err := views.AncestorsListFromContext(targetCtx, node, "sel", getRouter().GetClientsPool(), true)
+			if err != nil {
+				return err
+			}
+			if !accessList.CanWrite(targetCtx, toParents...) {
+				return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
 			}
 			targetNodePath = node.Path
 		}
@@ -118,16 +131,27 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			return nodeErr
 		}
-		selectedNode = node.Path
+		archiveNode := node.Path
 
+		targetNode := &tree.Node{Path: targetPath}
+		if targetPath == "" {
+			targetNode.Path = path.Dir(selectedNode)
+		}
+		targetCtx, realNode, nodeErr := inputFilter(ctx, targetNode, "sel")
+		if nodeErr != nil {
+			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", targetNode), zap.Error(nodeErr))
+			return nodeErr
+		}
 		if targetPath != "" {
-			node := &tree.Node{Path: targetPath}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
-			if nodeErr != nil {
-				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
-				return nodeErr
-			}
-			targetPath = node.Path
+			targetPath = realNode.Path
+		}
+		accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+		_, toParents, err := views.AncestorsListFromContext(targetCtx, realNode, "sel", getRouter().GetClientsPool(), true)
+		if err != nil {
+			return err
+		}
+		if !accessList.CanWrite(targetCtx, toParents...) {
+			return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
 		}
 
 		job := &jobs.Job{
@@ -147,14 +171,14 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 						"target": targetPath,
 					},
 					NodesSelector: &jobs.NodesSelector{
-						Pathes: []string{selectedNode},
+						Pathes: []string{archiveNode},
 					},
 				},
 			},
 		}
 
 		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
-		_, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		_, err = cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return err
 
 	})
@@ -163,7 +187,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 
 }
 
-func dircopy(ctx context.Context, selectedPathes []string, targetNodePath string, move bool, languages ...string) (string, error) {
+func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string, targetIsParent bool, move bool, languages ...string) (string, error) {
 
 	T := lang.Bundle().GetTranslationFunc(languages...)
 
@@ -180,28 +204,98 @@ func dircopy(ctx context.Context, selectedPathes []string, targetNodePath string
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
-		for i, path := range selectedPathes {
-			node := &tree.Node{Path: path}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+		var loadedNodes []*tree.Node
+		for i, p := range selectedPathes {
+			node := &tree.Node{Path: p}
+			srcCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
 				return nodeErr
 			}
+			if move {
+				accessList := srcCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+				_, toParents, err := views.AncestorsListFromContext(srcCtx, node, "sel", getRouter().GetClientsPool(), false)
+				if err != nil {
+					return err
+				}
+				if !accessList.CanWrite(srcCtx, toParents...) {
+					return errors.Forbidden("node.not.writeable", "Source location cannot be move!")
+				}
+			}
+
+			r, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
+			if e != nil {
+				return e
+			}
+			if move {
+				if e := permissions.CheckContentLock(ctx, r.Node); e != nil {
+					return e
+				}
+			}
+			loadedNodes = append(loadedNodes, r.Node)
 			selectedPathes[i] = node.Path
 		}
 
+		if len(loadedNodes) > 1 {
+			if move {
+				taskLabel = T("Jobs.User.MultipleMove")
+			} else {
+				taskLabel = T("Jobs.User.MultipleCopy")
+			}
+		} else if loadedNodes[0].IsLeaf() {
+			if move {
+				taskLabel = T("Jobs.User.FileMove")
+			} else {
+				taskLabel = T("Jobs.User.FileCopy")
+			}
+		}
+
 		if targetNodePath != "" {
-			dir, base := filepath.Split(targetNodePath)
+			var dir, base string
+			if targetIsParent {
+				dir = targetNodePath
+			} else {
+				dir, base = filepath.Split(targetNodePath)
+			}
 			node := &tree.Node{Path: dir}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+			targetCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node Parent", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
 			}
-			targetNodePath = node.Path + "/" + base
+			accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			_, toParents, err := views.AncestorsListFromContext(targetCtx, node, "sel", getRouter().GetClientsPool(), true)
+			if err != nil {
+				return err
+			}
+			if !accessList.CanWrite(targetCtx, toParents...) {
+				return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
+			}
+
+			if targetIsParent {
+				targetNodePath = node.Path
+			} else {
+				targetNodePath = node.Path + "/" + base
+			}
 		}
 
-		log.Logger(ctx).Debug("Creating copy/move job", zap.Any("pathes", selectedPathes), zap.String("target", targetNodePath))
+		var targetParent = ""
+		if targetIsParent {
+			targetParent = "true"
+		}
+		log.Logger(ctx).Info("Creating copy/move job", zap.Any("paths", selectedPathes), zap.String("target", targetNodePath))
+		if move && strings.Contains(targetNodePath, common.RECYCLE_BIN_NAME) {
+			// Update node meta before moving
+			metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+			for _, n := range loadedNodes {
+				metaNode := &tree.Node{Uuid: n.GetUuid()}
+				metaNode.SetMeta(common.META_NAMESPACE_RECYCLE_RESTORE, n.Path)
+				_, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode})
+				if e != nil {
+					log.Logger(ctx).Error("Error while saving recycle_restore meta", zap.Error(e))
+				}
+			}
+		}
 
 		job := &jobs.Job{
 			ID:             "copy-move-" + jobUuid,
@@ -216,14 +310,15 @@ func dircopy(ctx context.Context, selectedPathes []string, targetNodePath string
 				{
 					ID: "actions.tree.copymove",
 					Parameters: map[string]string{
-						"type":      taskType,
-						"target":    targetNodePath,
-						"recursive": "true",
-						"create":    "true",
+						"type":         taskType,
+						"target":       targetNodePath,
+						"targetParent": targetParent,
+						"recursive":    "true",
+						"create":       "true",
 					},
 					NodesSelector: &jobs.NodesSelector{
-						Collect: true,
-						Pathes:  selectedPathes,
+						//Collect: true,
+						Pathes: selectedPathes,
 					},
 				},
 			},
@@ -273,5 +368,91 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 
 	_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 	return jobUuid, er
+
+}
+
+// wgetTasks launch one or many background task for downloading URL to the storage
+func wgetTasks(ctx context.Context, parentPath string, urls []string, languages ...string) ([]string, error) {
+
+	T := lang.Bundle().GetTranslationFunc(languages...)
+	taskLabel := T("Jobs.User.Wget")
+
+	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	userName := claims.Name
+	var jobUuids []string
+
+	var parentNode, fullPathParentNode *tree.Node
+	if resp, e := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentPath}}); e != nil {
+		return []string{}, e
+	} else {
+		parentNode = resp.Node
+	}
+
+	// Compute node real path, and check that its writeable as well
+	if err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+		updateCtx, realParent, e := inputFilter(ctx, parentNode, "sel")
+		if e != nil {
+			return e
+		} else {
+			accessList, e := views.AccessListFromContext(updateCtx)
+			if e != nil {
+				return e
+			}
+			// First load ancestors or grab them from BranchInfo
+			ctx, parents, err := views.AncestorsListFromContext(updateCtx, realParent, "in", getRouter().GetClientsPool(), false)
+			if err != nil {
+				return err
+			}
+			if !accessList.CanWrite(ctx, parents...) {
+				return errors.Forbidden(common.SERVICE_JOBS, "Parent Node is not writeable")
+			}
+			fullPathParentNode = realParent
+		}
+
+		return nil
+	}); err != nil {
+		return jobUuids, err
+	}
+
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	for _, url := range urls {
+
+		jobUuid := uuid.NewUUID().String()
+		jobUuids = append(jobUuids, jobUuid)
+
+		var params = map[string]string{
+			"url": url,
+		}
+		cleanUrl := strings.Split(url, "?")[0]
+		cleanUrl = strings.Split(cleanUrl, "#")[0]
+		basename := filepath.Base(cleanUrl)
+		if basename == "" {
+			basename = jobUuid
+		}
+		job := &jobs.Job{
+			ID:             "wget-" + jobUuid,
+			Owner:          userName,
+			Label:          taskLabel,
+			Inactive:       false,
+			Languages:      languages,
+			MaxConcurrency: 5,
+			AutoStart:      true,
+			Actions: []*jobs.Action{
+				{
+					ID:         "actions.cmd.wget",
+					Parameters: params,
+					NodesSelector: &jobs.NodesSelector{
+						Pathes: []string{filepath.Join(fullPathParentNode.Path, basename)},
+					},
+				},
+			},
+		}
+
+		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		if er != nil {
+			return jobUuids, er
+		}
+	}
+	return jobUuids, nil
 
 }

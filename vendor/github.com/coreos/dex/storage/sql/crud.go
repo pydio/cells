@@ -712,8 +712,13 @@ func (c *conn) UpdateOfflineSessions(userID string, connID string, updater func(
 	})
 }
 
-func (c *conn) GetOfflineSessions(userID string, connID string) (storage.OfflineSessions, error) {
-	return getOfflineSessions(c, userID, connID)
+func (c *conn) GetOfflineSessions(userID string, connID string) (s storage.OfflineSessions, err error) {
+	// Using a transaction here seems to fix issues with concurrent calls inside the Handlers.
+	e := c.ExecTx(func(tx *trans) error {
+		s, err = getOfflineSessions(tx, userID, connID)
+		return err
+	})
+	return s, e
 }
 
 func getOfflineSessions(q querier, userID string, connID string) (storage.OfflineSessions, error) {

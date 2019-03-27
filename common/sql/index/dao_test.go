@@ -26,8 +26,11 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
+
+	"github.com/pydio/cells/common/utils/mtree"
 
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
@@ -35,7 +38,6 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils"
 )
 
 var (
@@ -43,6 +45,9 @@ var (
 )
 
 func init() {
+
+	SetDefaultFailureMode(FailureContinues)
+
 	// Running first without a cache
 	sqlDAO := sql.NewDAO("sqlite3", "file::memnocache:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {
@@ -190,6 +195,14 @@ func TestMysql(t *testing.T) {
 		So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
 	})
 
+	// Getting children count
+	Convey("Test Getting the Children Count of a node", t, func() {
+
+		count := getDAO(ctxNoCache).GetNodeChildrenCount(mockLongNodeMPath)
+
+		So(count, ShouldEqual, 2)
+	})
+
 	// Setting a file
 	Convey("Test Getting the Children of a node", t, func() {
 
@@ -230,7 +243,7 @@ func TestMysql(t *testing.T) {
 		mpath := mockLongNodeMPath
 
 		for len(mpath) > 0 {
-			node := utils.NewTreeNode()
+			node := mtree.NewTreeNode()
 			node.SetMPath(mpath...)
 			b.Send(node)
 			mpath = mpath.Parent()
@@ -244,13 +257,13 @@ func TestMysql(t *testing.T) {
 	// Setting a mpath multiple times
 	Convey("Setting a same mpath multiple times", t, func() {
 
-		node1 := utils.NewTreeNode()
+		node1 := mtree.NewTreeNode()
 		node1.Node = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
 		node1.SetMPath(1, 21, 12, 7)
 		err := getDAO(ctxNoCache).AddNode(node1)
 		So(err, ShouldBeNil)
 
-		node2 := utils.NewTreeNode()
+		node2 := mtree.NewTreeNode()
 		node2.Node = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
 		node2.SetMPath(1, 21, 12, 7)
 		err = getDAO(ctxNoCache).AddNode(node2)
@@ -259,19 +272,19 @@ func TestMysql(t *testing.T) {
 
 	Convey("Test wrong children due to same MPath start", t, func() {
 
-		node1 := utils.NewTreeNode()
+		node1 := mtree.NewTreeNode()
 		node1.Node = &tree.Node{Uuid: "parent1", Type: tree.NodeType_COLLECTION}
 		node1.SetMPath(1, 1)
 
-		node2 := utils.NewTreeNode()
+		node2 := mtree.NewTreeNode()
 		node2.Node = &tree.Node{Uuid: "parent2", Type: tree.NodeType_COLLECTION}
 		node2.SetMPath(1, 15)
 
-		node11 := utils.NewTreeNode()
+		node11 := mtree.NewTreeNode()
 		node11.Node = &tree.Node{Uuid: "child1.1", Type: tree.NodeType_COLLECTION}
 		node11.SetMPath(1, 1, 1)
 
-		node21 := utils.NewTreeNode()
+		node21 := mtree.NewTreeNode()
 		node21.Node = &tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION}
 		node21.SetMPath(1, 15, 1)
 
@@ -285,7 +298,7 @@ func TestMysql(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		// List Root
-		nodes := getDAO(ctxNoCache).GetNodeChildren(utils.MPath{1})
+		nodes := getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1})
 		count := 0
 		for range nodes {
 			count++
@@ -293,7 +306,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeTree(utils.MPath{1})
+		nodes = getDAO(ctxNoCache).GetNodeTree(mtree.MPath{1})
 		count = 0
 		for c := range nodes {
 			log.Println(c)
@@ -302,7 +315,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 8) // Because of previous tests there are other nodes
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeChildren(utils.MPath{1, 1})
+		nodes = getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1, 1})
 		count = 0
 		for range nodes {
 			count++
@@ -330,36 +343,36 @@ func TestMysql(t *testing.T) {
 		const etag3 = "zzzz"
 		const etag4 = "qqqq"
 
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.Node = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
 		node.SetMPath(1, 16)
 		node.Etag = "-1"
 
-		node11 := utils.NewTreeNode()
+		node11 := mtree.NewTreeNode()
 		node11.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
 		node11.SetMPath(1, 16, 1)
 		node11.Etag = etag1
 		node11.SetMeta("name", "\"bbb\"")
 
-		node12 := utils.NewTreeNode()
+		node12 := mtree.NewTreeNode()
 		node12.Node = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
 		node12.SetMPath(1, 16, 2)
 		node12.Etag = etag2
 		node12.SetMeta("name", "\"aaa\"")
 
-		node13 := utils.NewTreeNode()
+		node13 := mtree.NewTreeNode()
 		node13.Node = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
 		node13.SetMPath(1, 16, 3)
 		node13.Etag = "-1"
 		node13.SetMeta("name", "\"ccc\"")
 
-		node14 := utils.NewTreeNode()
+		node14 := mtree.NewTreeNode()
 		node14.Node = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
 		node14.SetMPath(1, 16, 3, 1)
 		node14.Etag = etag3
 		node14.SetMeta("name", "\"a-aaa\"")
 
-		node15 := utils.NewTreeNode()
+		node15 := mtree.NewTreeNode()
 		node15.Node = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
 		node15.SetMPath(1, 16, 3, 2)
 		node15.Etag = etag4
@@ -402,7 +415,7 @@ func TestCommits(t *testing.T) {
 
 	Convey("Test Insert / List / Delete", t, func() {
 
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
 		node.SetMPath(1, 16, 1)
 		node.Etag = "first-etag"
@@ -438,7 +451,7 @@ func TestStreams(t *testing.T) {
 		c, e := getDAO(ctxNoCache).AddNodeStream(5)
 
 		for i := 1; i <= 1152; i++ {
-			node := utils.NewTreeNode()
+			node := mtree.NewTreeNode()
 			node.Node = &tree.Node{Uuid: "testing-stream" + strconv.Itoa(i), Type: tree.NodeType_LEAF}
 			node.SetMPath(1, 17, uint64(i))
 
@@ -449,118 +462,120 @@ func TestStreams(t *testing.T) {
 
 		So(<-e, ShouldBeNil)
 
-		idx, err := getDAO(ctxNoCache).GetNodeFirstAvailableChildIndex(utils.NewMPath(1, 17))
+		idx, err := getDAO(ctxNoCache).GetNodeFirstAvailableChildIndex(mtree.NewMPath(1, 17))
 		So(err, ShouldBeNil)
 		So(idx, ShouldEqual, 1153)
 	})
 }
 
 func TestArborescence(t *testing.T) {
-	arborescence := []string{
-		"__MACOSX",
-		"__MACOSX/personal",
-		"__MACOSX/personal/admin",
-		"__MACOSX/personal/admin/._.DS_Store",
-		"personal",
-		"personal/.pydio",
-		"personal/admin",
-		"personal/admin/.DS_Store",
-		"personal/admin/.pydio",
-		"personal/admin/Archive",
-		"personal/admin/Archive/.pydio",
-		"personal/admin/Archive/__MACOSX",
-		"personal/admin/Archive/__MACOSX/.pydio",
-		"personal/admin/Archive/EventsDarwin.txt",
-		"personal/admin/Archive/photographie.jpg",
-		"personal/admin/Archive.zip",
-		"personal/admin/download.png",
-		"personal/admin/EventsDarwin.txt",
-		"personal/admin/Labellized",
-		"personal/admin/Labellized/.pydio",
-		"personal/admin/Labellized/Dossier Chateau de Vaux - Dossier diag -.zip",
-		"personal/admin/Labellized/photographie.jpg",
-		"personal/admin/PydioCells",
-		"personal/admin/PydioCells/.DS_Store",
-		"personal/admin/PydioCells/.pydio",
-		"personal/admin/PydioCells/4c7f2f-EventsDarwin.txt",
-		"personal/admin/PydioCells/download1.png",
-		"personal/admin/PydioCells/icomoon (1)",
-		"personal/admin/PydioCells/icomoon (1)/.DS_Store",
-		"personal/admin/PydioCells/icomoon (1)/.pydio",
-		"personal/admin/PydioCells/icomoon (1)/demo-files",
-		"personal/admin/PydioCells/icomoon (1)/demo-files/.pydio",
-		"personal/admin/PydioCells/icomoon (1)/demo-files/demo.css",
-		"personal/admin/PydioCells/icomoon (1)/demo-files/demo.js",
-		"personal/admin/PydioCells/icomoon (1)/demo.html",
-		"personal/admin/PydioCells/icomoon (1)/Read Me.txt",
-		"personal/admin/PydioCells/icomoon (1)/selection.json",
-		"personal/admin/PydioCells/icomoon (1)/style.css",
-		"personal/admin/PydioCells/icomoon (1).zip",
-		"personal/admin/PydioCells/icons-signs.svg",
-		"personal/admin/PydioCells/Pydio-cells0.ai",
-		"personal/admin/PydioCells/Pydio-cells1-Mod.ai",
-		"personal/admin/PydioCells/Pydio-cells1.ai",
-		"personal/admin/PydioCells/Pydio-cells2.ai",
-		"personal/admin/PydioCells/PydioCells Logos.zip",
-		"personal/admin/recycle_bin",
-		"personal/admin/recycle_bin/.ajxp_recycle_cache.ser",
-		"personal/admin/recycle_bin/.pydio",
-		"personal/admin/recycle_bin/Archive.zip",
-		"personal/admin/recycle_bin/cells-clear-minus.svg",
-		"personal/admin/recycle_bin/cells-clear-plus.svg",
-		"personal/admin/recycle_bin/cells-full-minus.svg",
-		"personal/admin/recycle_bin/cells-full-plus.svg",
-		"personal/admin/recycle_bin/cells.svg",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/.pydio",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -/.pydio",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -.zip",
-		"personal/admin/recycle_bin/STACK.txt",
-		"personal/admin/recycle_bin/Synthèse des pathologies et urgences sanitaires.doc",
-		"personal/admin/STACK.txt",
-		"personal/admin/Test Toto",
-		"personal/admin/Test Toto/.pydio",
-		"personal/admin/Test Toto/download1 very long name test with me please.png",
-		"personal/admin/Test Toto/Pydio-color-logo-4.png",
-		"personal/admin/Test Toto/PydioCells Logos.zip",
-		"personal/admin/Test Toto/STACK.txt",
-		"personal/admin/Up",
-		"personal/admin/Up/.DS_Store",
-		"personal/admin/Up/.pydio",
-		"personal/admin/Up/2018 03 08 - Pydio Cells.key",
-		"personal/admin/Up/2018 03 08 - Pydio Cells.pdf",
-		"personal/admin/Up/Pydio-color-logo-2.png",
-		"personal/admin/Up/Pydio-color-logo-4.png",
-		"personal/admin/Up/Pydio20180201.mm",
-		"personal/admin/Up/Repair Result to pydio-logs-2018-3-13 06348.xml",
-		"personal/external",
-		"personal/external/.pydio",
-		"personal/external/Pydio-color-logo-4.png",
-		"personal/external/recycle_bin",
-		"personal/external/recycle_bin/.pydio",
-		"personal/recycle_bin",
-		"personal/recycle_bin/.ajxp_recycle_cache.ser",
-		"personal/recycle_bin/.pydio",
-		"personal/toto",
-		"personal/toto/.pydio",
-		"personal/toto/recycle_bin",
-		"personal/toto/recycle_bin/.pydio",
-		"personal/user",
-		"personal/user/.pydio",
-		"personal/user/recycle_bin",
-		"personal/user/recycle_bin/.pydio",
-		"personal/user/User Folder",
-		"personal/user/User Folder/.pydio",
-	}
+	Convey("Creating an arborescence in the index", t, func() {
+		arborescence := []string{
+			"__MACOSX",
+			"__MACOSX/personal",
+			"__MACOSX/personal/admin",
+			"__MACOSX/personal/admin/._.DS_Store",
+			"personal",
+			"personal/.pydio",
+			"personal/admin",
+			"personal/admin/.DS_Store",
+			"personal/admin/.pydio",
+			"personal/admin/Archive",
+			"personal/admin/Archive/.pydio",
+			"personal/admin/Archive/__MACOSX",
+			"personal/admin/Archive/__MACOSX/.pydio",
+			"personal/admin/Archive/EventsDarwin.txt",
+			"personal/admin/Archive/photographie.jpg",
+			"personal/admin/Archive.zip",
+			"personal/admin/download.png",
+			"personal/admin/EventsDarwin.txt",
+			"personal/admin/Labellized",
+			"personal/admin/Labellized/.pydio",
+			"personal/admin/Labellized/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"personal/admin/Labellized/photographie.jpg",
+			"personal/admin/PydioCells",
+			"personal/admin/PydioCells/.DS_Store",
+			"personal/admin/PydioCells/.pydio",
+			"personal/admin/PydioCells/4c7f2f-EventsDarwin.txt",
+			"personal/admin/PydioCells/download1.png",
+			"personal/admin/PydioCells/icomoon (1)",
+			"personal/admin/PydioCells/icomoon (1)/.DS_Store",
+			"personal/admin/PydioCells/icomoon (1)/.pydio",
+			"personal/admin/PydioCells/icomoon (1)/demo-files",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/.pydio",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/demo.css",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/demo.js",
+			"personal/admin/PydioCells/icomoon (1)/demo.html",
+			"personal/admin/PydioCells/icomoon (1)/Read Me.txt",
+			"personal/admin/PydioCells/icomoon (1)/selection.json",
+			"personal/admin/PydioCells/icomoon (1)/style.css",
+			"personal/admin/PydioCells/icomoon (1).zip",
+			"personal/admin/PydioCells/icons-signs.svg",
+			"personal/admin/PydioCells/Pydio-cells0.ai",
+			"personal/admin/PydioCells/Pydio-cells1-Mod.ai",
+			"personal/admin/PydioCells/Pydio-cells1.ai",
+			"personal/admin/PydioCells/Pydio-cells2.ai",
+			"personal/admin/PydioCells/PydioCells Logos.zip",
+			"personal/admin/recycle_bin",
+			"personal/admin/recycle_bin/.ajxp_recycle_cache.ser",
+			"personal/admin/recycle_bin/.pydio",
+			"personal/admin/recycle_bin/Archive.zip",
+			"personal/admin/recycle_bin/cells-clear-minus.svg",
+			"personal/admin/recycle_bin/cells-clear-plus.svg",
+			"personal/admin/recycle_bin/cells-full-minus.svg",
+			"personal/admin/recycle_bin/cells-full-plus.svg",
+			"personal/admin/recycle_bin/cells.svg",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"personal/admin/recycle_bin/STACK.txt",
+			"personal/admin/recycle_bin/Synthèse des pathologies et urgences sanitaires.doc",
+			"personal/admin/STACK.txt",
+			"personal/admin/Test Toto",
+			"personal/admin/Test Toto/.pydio",
+			"personal/admin/Test Toto/download1 very long name test with me please.png",
+			"personal/admin/Test Toto/Pydio-color-logo-4.png",
+			"personal/admin/Test Toto/PydioCells Logos.zip",
+			"personal/admin/Test Toto/STACK.txt",
+			"personal/admin/Up",
+			"personal/admin/Up/.DS_Store",
+			"personal/admin/Up/.pydio",
+			"personal/admin/Up/2018 03 08 - Pydio Cells.key",
+			"personal/admin/Up/2018 03 08 - Pydio Cells.pdf",
+			"personal/admin/Up/Pydio-color-logo-2.png",
+			"personal/admin/Up/Pydio-color-logo-4.png",
+			"personal/admin/Up/Pydio20180201.mm",
+			"personal/admin/Up/Repair Result to pydio-logs-2018-3-13 06348.xml",
+			"personal/external",
+			"personal/external/.pydio",
+			"personal/external/Pydio-color-logo-4.png",
+			"personal/external/recycle_bin",
+			"personal/external/recycle_bin/.pydio",
+			"personal/recycle_bin",
+			"personal/recycle_bin/.ajxp_recycle_cache.ser",
+			"personal/recycle_bin/.pydio",
+			"personal/toto",
+			"personal/toto/.pydio",
+			"personal/toto/recycle_bin",
+			"personal/toto/recycle_bin/.pydio",
+			"personal/user",
+			"personal/user/.pydio",
+			"personal/user/recycle_bin",
+			"personal/user/recycle_bin/.pydio",
+			"personal/user/User Folder",
+			"personal/user/User Folder/.pydio",
+		}
 
-	for _, path := range arborescence {
-		getDAO(ctxNoCache).Path(path, true)
-	}
+		for _, path := range arborescence {
+			_, _, err := getDAO(ctxNoCache).Path(path, true)
 
-	getDAO(ctxNoCache).Flush(true)
+			So(err, ShouldBeNil)
+		}
 
-	printTree(ctxNoCache)
+		getDAO(ctxNoCache).Flush(true)
+	})
 }
 
 func TestSmallArborescence(t *testing.T) {
@@ -574,8 +589,108 @@ func TestSmallArborescence(t *testing.T) {
 	}
 
 	getDAO(ctxNoCache).Flush(true)
+}
 
-	printTree(ctxNoCache)
+func TestArborescenceNoFolder(t *testing.T) {
+	Convey("Creating an arborescence without folders in the index", t, func(c C) {
+		arborescence := []string{
+			"__MACOSX/arbo_no_folder/admin",
+			"__MACOSX/arbo_no_folder/admin/._.DS_Store",
+			"arbo_no_folder/.pydio",
+			"arbo_no_folder/admin/.DS_Store",
+			"arbo_no_folder/admin/.pydio",
+			"arbo_no_folder/admin/Archive/__MACOSX",
+			"arbo_no_folder/admin/Archive/__MACOSX/.pydio",
+			"arbo_no_folder/admin/Archive/EventsDarwin.txt",
+			"arbo_no_folder/admin/Archive/photographie.jpg",
+			"arbo_no_folder/admin/Archive.zip",
+			"arbo_no_folder/admin/download.png",
+			"arbo_no_folder/admin/EventsDarwin.txt",
+			"arbo_no_folder/admin/Labellized/.pydio",
+			"arbo_no_folder/admin/Labellized/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"arbo_no_folder/admin/Labellized/photographie.jpg",
+			"arbo_no_folder/admin/PydioCells/.DS_Store",
+			"arbo_no_folder/admin/PydioCells/.pydio",
+			"arbo_no_folder/admin/PydioCells/4c7f2f-EventsDarwin.txt",
+			"arbo_no_folder/admin/PydioCells/download1.png",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/.DS_Store",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/.pydio",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo-files",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo-files/.pydio",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo-files/demo.css",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo-files/demo.js",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo.html",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/Read Me.txt",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/selection.json",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/style.css",
+			"arbo_no_folder/admin/PydioCells/icomoon (1).zip",
+			"arbo_no_folder/admin/PydioCells/icons-signs.svg",
+			"arbo_no_folder/admin/PydioCells/Pydio-cells0.ai",
+			"arbo_no_folder/admin/PydioCells/Pydio-cells1-Mod.ai",
+			"arbo_no_folder/admin/PydioCells/Pydio-cells1.ai",
+			"arbo_no_folder/admin/PydioCells/Pydio-cells2.ai",
+			"arbo_no_folder/admin/PydioCells/PydioCells Logos.zip",
+			"arbo_no_folder/admin/recycle_bin/.ajxp_recycle_cache.ser",
+			"arbo_no_folder/admin/recycle_bin/.pydio",
+			"arbo_no_folder/admin/recycle_bin/Archive.zip",
+			"arbo_no_folder/admin/recycle_bin/cells-clear-minus.svg",
+			"arbo_no_folder/admin/recycle_bin/cells-clear-plus.svg",
+			"arbo_no_folder/admin/recycle_bin/cells-full-minus.svg",
+			"arbo_no_folder/admin/recycle_bin/cells-full-plus.svg",
+			"arbo_no_folder/admin/recycle_bin/cells.svg",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"arbo_no_folder/admin/recycle_bin/STACK.txt",
+			"arbo_no_folder/admin/recycle_bin/Synthèse des pathologies et urgences sanitaires.doc",
+			"arbo_no_folder/admin/STACK.txt",
+			"arbo_no_folder/admin/Test Toto/.pydio",
+			"arbo_no_folder/admin/Test Toto/download1 very long name test with me please.png",
+			"arbo_no_folder/admin/Test Toto/Pydio-color-logo-4.png",
+			"arbo_no_folder/admin/Test Toto/PydioCells Logos.zip",
+			"arbo_no_folder/admin/Test Toto/STACK.txt",
+			"arbo_no_folder/admin/Up/.DS_Store",
+			"arbo_no_folder/admin/Up/.pydio",
+			"arbo_no_folder/admin/Up/2018 03 08 - Pydio Cells.key",
+			"arbo_no_folder/admin/Up/2018 03 08 - Pydio Cells.pdf",
+			"arbo_no_folder/admin/Up/Pydio-color-logo-2.png",
+			"arbo_no_folder/admin/Up/Pydio-color-logo-4.png",
+			"arbo_no_folder/admin/Up/Pydio20180201.mm",
+			"arbo_no_folder/admin/Up/Repair Result to pydio-logs-2018-3-13 06348.xml",
+			"arbo_no_folder/external/.pydio",
+			"arbo_no_folder/external/Pydio-color-logo-4.png",
+			"arbo_no_folder/external/recycle_bin",
+			"arbo_no_folder/external/recycle_bin/.pydio",
+			"arbo_no_folder/recycle_bin/.ajxp_recycle_cache.ser",
+			"arbo_no_folder/recycle_bin/.pydio",
+			"arbo_no_folder/toto/.pydio",
+			"arbo_no_folder/toto/recycle_bin/.pydio",
+			"arbo_no_folder/user/.pydio",
+			"arbo_no_folder/user/recycle_bin/.pydio",
+			"arbo_no_folder/user/User Folder/.pydio",
+		}
+
+		wg := &sync.WaitGroup{}
+		for _, path := range arborescence {
+			wg.Add(1)
+			go func(p string) {
+				_, _, err := getDAO(ctxNoCache).Path(p, true)
+
+				c.So(err, ShouldBeNil)
+
+				wg.Done()
+			}(path)
+		}
+
+		wg.Wait()
+
+		getDAO(ctxNoCache).Flush(true)
+
+		// printTree(ctxNoCache)
+	})
 }
 
 func TestMoveNodeTree(t *testing.T) {
@@ -744,8 +859,7 @@ func TestMoveNodeTree(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		var i int
-		for node := range getDAO(ctxNoCache).GetNodeTree(pathTo) {
-			fmt.Println(node.MPath)
+		for _ = range getDAO(ctxNoCache).GetNodeTree(pathTo) {
 			i++
 		}
 

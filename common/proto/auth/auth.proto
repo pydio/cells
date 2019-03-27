@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package auth;
+
+//SERVICES
+service AuthTokenRevoker {
+
+    // Look for an invalid token entry in the store that match the current one
+    rpc MatchInvalid (MatchInvalidTokenRequest) returns (MatchInvalidTokenResponse) {};
+
+    // Revoker invalidates the current token and specifies if the invalidation is due to a refresh or a revokation
+    rpc Revoke (RevokeTokenRequest) returns (RevokeTokenResponse) {};
+
+    // PruneTokens clear revoked tokens
+    rpc PruneTokens (PruneTokensRequest) returns (PruneTokensResponse) {};
+
+}
+
+
+enum State {
+    NO_MATCH = 0;
+    REVOKED = 1;
+}
+
+message Token {
+    string Value = 1;           // The token to be invalidated
+    string AdditionalInfo = 2;  // Other info that initiates the revokation
+}
+
+message MatchInvalidTokenRequest {
+    string Token = 1;           // The token to find in store
+}
+
+message MatchInvalidTokenResponse {
+    State State = 1;            // The token to find in store
+    string RevocationInfo = 2;  // If state is REFRESHED or REVOKE the user who initiates the token invalidation
+}
+
+message RevokeTokenRequest {
+    Token Token = 1;
+}
+
+message RevokeTokenResponse {
+    bool Success = 1;
+}
+
+message PruneTokensRequest {
+
+}
+
+message PruneTokensResponse {
+    repeated string tokens = 1;
+}

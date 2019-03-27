@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="core.pydio" label="CONF_MESSAGE[Pydio Main Options]"
+          description="CONF_MESSAGE[Main container for core Pydio settings (application title, sharing, webdav server config, etc...)]"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd"
+        enabled="always"
+        >
+    <client_settings>
+        <resources>
+            <i18n namespace="" remote="plug/core.pydio/i18n"/>
+        </resources>
+    </client_settings>
+	<server_settings>
+		<global_param name="APPLICATION_TITLE" group="CONF_MESSAGE[Main]" type="string" label="CONF_MESSAGE[App Title]" description="CONF_MESSAGE[Your application title]" mandatory="true" default="Pydio" expose="true"/>
+        <global_param name="DEFAULT_LANGUAGE" group="CONF_MESSAGE[Main]" type="select" choices="PYDIO_AVAILABLE_LANGUAGES" label="CONF_MESSAGE[Default Language]" description="CONF_MESSAGE[Default language when a user does not have set his/her own.]" mandatory="true" default="en"/>
+	</server_settings>
+
+    <registry_contributions>
+        <extensions>
+            <extension mime="ajxp_folder" messageId="8" font="folder"/>
+            <extension mime="ajxp_empty" messageId="23" font="file"/>
+
+            <extension mime="mid" messageId="9" font="file-music"/>
+            <extension mime="txt" messageId="10" font="file-document"/>
+            <extension mime="sql" messageId="10" font="file-document"/>
+            <extension mime="js" messageId="11" font="language-javascript"/>
+            <extension mime="gif" messageId="12" font="file-image"/>
+            <extension mime="jpg" messageId="13" font="file-image"/>
+            <extension mime="jpeg" messageId="13" font="file-image"/>
+            <extension mime="bmp" messageId="56" font="file-image"/>
+            <extension mime="png" messageId="57" font="file-image"/>
+            <extension mime="tiff" messageId="TIFF" font="file-image"/>
+            <extension mime="tif" messageId="TIFF" font="file-image"/>
+            <extension mime="svg" messageId="SVG" font="file-image"/>
+            <extension mime="psd" messageId="Photoshop" font="file-image"/>
+            <extension mime="html" messageId="14" font="language-html5"/>
+            <extension mime="htm" messageId="14" font="language-html5"/>
+            <extension mime="rar" messageId="60" font="archive"/>
+            <extension mime="tar" messageId="61" font="archive"/>
+            <extension mime="tgz" messageId="61" font="archive"/>
+            <extension mime="gz" messageId="61" font="archive"/>
+            <extension mime="z" messageId="61" font="archive"/>
+            <extension mime="zip" messageId="19" font="archive"/>
+            <extension mime="ra" messageId="16" font="file-video"/>
+            <extension mime="ram" messageId="17" font="file-video"/>
+            <extension mime="rm" messageId="17" font="file-video"/>
+            <extension mime="mov" messageId="80" font="file-video"/>
+            <extension mime="avi" messageId="81" font="file-video"/>
+            <extension mime="mpg" messageId="82" font="file-video"/>
+            <extension mime="mpeg" messageId="83" font="file-video"/>
+            <extension mime="mp4" messageId="83" font="file-video"/>
+            <extension mime="m4v" messageId="83" font="file-video"/>
+            <extension mime="ogv" messageId="Video" font="file-video"/>
+            <extension mime="webm" messageId="Video" font="file-video"/>
+            <extension mime="wmv" messageId="81" font="file-video"/>
+            <extension mime="mp3" messageId="59" font="file-music"/>
+            <extension mime="m4a" messageId="59" font="file-music"/>
+            <extension mime="aac" messageId="59" font="file-music"/>
+            <extension mime="wav" messageId="20" font="file-music"/>
+            <extension mime="php" messageId="21" font="language-php"/>
+            <extension mime="phar" messageId="22" font="language-php"/>
+            <extension mime="phtml" messageId="22" font="language-php"/>
+            <extension mime="css" messageId="58" font="language-css3"/>
+            <extension mime="exe" messageId="50" font="application"/>
+            <extension mime="pdf" messageId="79" font="file-pdf"/>
+            <extension mime="swf" messageId="91" font="movie"/>
+            <extension mime="flv" messageId="91" font="movie"/>
+            <extension mime="ers" messageId="Timestamp" font="timer"/>
+            <extension mime="dwg" messageId="DWG" font="cube-outline"/>
+            <extension mime="xls" font="file-excel" messageId="64"/>
+            <extension mime="xlsx" font="file-excel" messageId="64"/>
+            <extension mime="xlt" font="file-excel" messageId="64"/>
+            <extension mime="xltx" font="file-excel" messageId="64"/>
+            <extension mime="ods" font="file-excel" messageId="64"/>
+            <extension mime="sxc" font="file-excel" messageId="64"/>
+            <extension mime="csv" font="file-excel" messageId="64"/>
+            <extension mime="tsv" font="file-excel" messageId="64"/>
+            <extension mime="doc" font="file-word" messageId="65"/>
+            <extension mime="docx" font="file-word" messageId="65"/>
+            <extension mime="dot" font="file-word" messageId="65"/>
+            <extension mime="dotx" font="file-word" messageId="65"/>
+            <extension mime="odt" font="file-word" messageId="65"/>
+            <extension mime="swx" font="file-word" messageId="65"/>
+            <extension mime="rtf" font="file-word" messageId="65"/>
+            <extension mime="ppt" font="file-powerpoint" messageId="446"/>
+            <extension mime="pptx" font="file-powerpoint" messageId="446"/>
+            <extension mime="pps" font="file-powerpoint" messageId="446"/>
+            <extension mime="odp" font="file-powerpoint" messageId="446"/>
+            <extension mime="sxi" font="file-powerpoint" messageId="446"/>
+            <extension mime="key" font="file-powerpoint" messageId="446"/>
+        </extensions>
+    </registry_contributions>
+
+</plugin>

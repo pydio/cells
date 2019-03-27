@@ -23,19 +23,25 @@ package grpc
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	service2 "github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/role"
 )
+
+type insertRole struct {
+	Role *idm.Role
+	Acls []*idm.ACL
+}
 
 var (
 	rootPolicies = []*service.ResourcePolicy{
@@ -68,76 +74,166 @@ func InitRoles(ctx context.Context) error {
 
 	<-time.After(3 * time.Second)
 
-	log.Logger(ctx).Info("Creating Root Group Role")
-	dao := servicecontext.GetDAO(ctx).(role.DAO)
-	_, update, e := dao.Add(&idm.Role{
-		Uuid:      "ROOT_GROUP",
-		Label:     "Root Group",
-		GroupRole: true,
-	})
+	lang := config.Default().Get("defaults", "language").String("en-us")
+	langJ, _ := json.Marshal(lang)
 
-	if e == nil && !update {
-		e = dao.AddPolicies(false, "ROOT_GROUP", rootPolicies)
-		// Add right to Home Dashboard for ROOT_GROUP
-		lang := config.Default().Get("defaults", "language").String("en")
-		langJ, _ := json.Marshal(lang)
-		service2.Retry(func() error {
-
-			acls := []*idm.ACL{
-				{RoleID: "ROOT_GROUP", Action: utils.ACL_READ, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
-				{RoleID: "ROOT_GROUP", Action: utils.ACL_WRITE, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
+	insertRoles := []*insertRole{
+		{
+			Role: &idm.Role{
+				Uuid:      "ROOT_GROUP",
+				Label:     "Root Group",
+				GroupRole: true,
+				Policies:  rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "ROOT_GROUP", Action: permissions.AclRead, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
+				{RoleID: "ROOT_GROUP", Action: permissions.AclWrite, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
 				{RoleID: "ROOT_GROUP", Action: &idm.ACLAction{Name: "parameter:core.conf:lang", Value: string(langJ)}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
-			}
-			log.Logger(ctx).Info("Settings ACLS for Home dashboard on Root Group")
+			},
+		},
+		{
+			Role: &idm.Role{
+				Uuid:        "ADMINS",
+				Label:       "Administrators",
+				AutoApplies: []string{common.PYDIO_PROFILE_ADMIN},
+				Policies:    rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "ADMINS", Action: permissions.AclRead, WorkspaceID: "settings", NodeID: "settings-ROOT"},
+				{RoleID: "ADMINS", Action: permissions.AclWrite, WorkspaceID: "settings", NodeID: "settings-ROOT"},
+			},
+		},
+		{
+			Role: &idm.Role{
+				Uuid:        "EXTERNAL_USERS",
+				Label:       "External Users",
+				AutoApplies: []string{common.PYDIO_PROFILE_SHARED},
+				Policies:    externalPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "EXTERNAL_USERS", Action: permissions.AclDeny, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:open_user_shares", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.user:open_address_book", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "parameter:core.auth:USER_CREATE_CELLS", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+			},
+		},
+		{
+			Role: &idm.Role{
+				Uuid:     "MINISITE",
+				Label:    "Minisite Permissions",
+				Policies: rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+			},
+		},
+		{
+			Role: &idm.Role{
+				Uuid:     "MINISITE_NODOWNLOAD",
+				Label:    "Minisite (Download Disabled)",
+				Policies: rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download_folder", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+			},
+		},
+	}
+
+	var e error
+	for _, insert := range insertRoles {
+		dao := servicecontext.GetDAO(ctx).(role.DAO)
+		var update bool
+		_, update, e = dao.Add(insert.Role)
+		if e != nil {
+			break
+		}
+		if update {
+			continue
+		}
+		log.Logger(ctx).Info(fmt.Sprintf("Created default role %s", insert.Role.Label))
+		if e = dao.AddPolicies(false, insert.Role.Uuid, insert.Role.Policies); e == nil {
+			log.Logger(ctx).Info(fmt.Sprintf(" - Policies added for role %s", insert.Role.Label))
+		} else {
+			break
+		}
+		e = service2.Retry(func() error {
 			aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
-			for _, acl := range acls {
+			for _, acl := range insert.Acls {
 				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
 				if e != nil {
 					return e
 				}
 			}
-
+			log.Logger(ctx).Info(fmt.Sprintf(" - ACLS set for role %s", insert.Role.Label))
 			return nil
 		}, 8*time.Second, 50*time.Second)
 	}
 
-	if _, _, e = dao.Add(&idm.Role{
-		Uuid:        "EXTERNAL_USERS",
-		Label:       "External Users",
-		AutoApplies: []string{"shared"},
-	}); e == nil {
-		e = dao.AddPolicies(false, "EXTERNAL_USERS", externalPolicies)
-		actions := make(map[string][]string)
-		actions["action.user"] = []string{"open_address_book"}
-		InsertActionsAcls(ctx, "EXTERNAL_USERS", "PYDIO_REPO_SCOPE_ALL", actions)
+	return e
+}
+
+func UpgradeTo12(ctx context.Context) error {
+
+	<-time.After(3 * time.Second)
+
+	insertRoles := []*insertRole{
+		{
+			Role: &idm.Role{
+				Uuid:     "MINISITE",
+				Label:    "Minisite Permissions",
+				Policies: rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+			},
+		},
+		{
+			Role: &idm.Role{
+				Uuid:     "MINISITE_NODOWNLOAD",
+				Label:    "Minisite (Download Disabled)",
+				Policies: rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download_folder", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+			},
+		},
+	}
+
+	var e error
+	for _, insert := range insertRoles {
+		dao := servicecontext.GetDAO(ctx).(role.DAO)
+		var update bool
+		_, update, e = dao.Add(insert.Role)
+		if e != nil {
+			break
+		}
+		if update {
+			continue
+		}
+		log.Logger(ctx).Info(fmt.Sprintf("Created role %s", insert.Role.Label))
+		if e = dao.AddPolicies(false, insert.Role.Uuid, insert.Role.Policies); e == nil {
+			log.Logger(ctx).Info(fmt.Sprintf(" - Policies added for role %s", insert.Role.Label))
+		} else {
+			break
+		}
+		e = service2.Retry(func() error {
+			aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+			for _, acl := range insert.Acls {
+				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
+				if e != nil {
+					return e
+				}
+			}
+			log.Logger(ctx).Info(fmt.Sprintf(" - ACLS set for role %s", insert.Role.Label))
+			return nil
+		}, 8*time.Second, 50*time.Second)
 	}
 
 	return e
-
-}
-
-func InsertActionsAcls(ctx context.Context, roleId string, repoScope string, actions map[string][]string) error {
-
-	return service2.Retry(func() error {
-		var acls []*idm.ACL
-		for plugId, as := range actions {
-			for _, act := range as {
-				acls = append(acls, &idm.ACL{
-					RoleID:      roleId,
-					WorkspaceID: repoScope,
-					Action:      &idm.ACLAction{Name: "action:" + plugId + ":" + act, Value: "false"},
-				})
-			}
-		}
-		log.Logger(ctx).Info("Settings ACLS for " + roleId)
-		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
-		for _, acl := range acls {
-			_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
-			if e != nil {
-				return e
-			}
-		}
-		return nil
-	}, 8*time.Second, 50*time.Second)
-
 }

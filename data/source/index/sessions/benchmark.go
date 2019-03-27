@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/data/source/index"
 )
 
@@ -56,7 +56,7 @@ func (bb *BenchBatcher) Notify(topic string, msg interface{}) {
 	}
 }
 
-func (bb *BenchBatcher) UpdateMPath(path utils.MPath, deltaSize int64) {
+func (bb *BenchBatcher) UpdateMPath(path mtree.MPath, deltaSize int64) {
 	bb.batcher.UpdateMPath(path, deltaSize)
 }
 

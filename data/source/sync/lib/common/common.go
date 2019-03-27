@@ -52,6 +52,8 @@ const (
 
 	// Use unique path separator everywhere
 	InternalPathSeparator = "/"
+
+	DefaultEtag = "00000000000000000000000000000000-1"
 )
 
 /*
@@ -105,6 +107,7 @@ type PathSyncSource interface {
 	Endpoint
 	Walk(walknFc WalkNodesFunc, pathes ...string) (err error)
 	Watch(recursivePath string) (*WatchObject, error)
+	ComputeChecksum(node *tree.Node) error
 }
 
 type PathSyncTarget interface {
@@ -244,4 +247,8 @@ func DirWithInternalSeparator(filePath string) string {
 	segments := strings.Split(filePath, InternalPathSeparator)
 	return strings.Join(segments[:len(segments)-1], InternalPathSeparator)
 
+}
+
+func NodeRequiresChecksum(node *tree.Node) bool {
+	return node.IsLeaf() && (node.Etag == "" || node.Etag == DefaultEtag)
 }

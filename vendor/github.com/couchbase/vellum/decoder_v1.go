@@ -29,8 +29,6 @@ func init() {
 
 type decoderV1 struct {
 	data []byte
-	root uint64
-	len  uint64
 }
 
 func newDecoderV1(data []byte) *decoderV1 {
@@ -189,18 +187,19 @@ func (f *fstStateV1) atMulti(data []byte, addr int) error {
 	}
 	f.bottom-- // extra byte with pack sizes
 	f.transSize, f.outSize = decodePackSize(data[f.bottom])
+
+	f.transTop = f.bottom
 	f.bottom -= f.numTrans // one byte for each transition
 	f.transBottom = f.bottom
-	f.transTop = f.bottom + f.numTrans
 
+	f.destTop = f.bottom
 	f.bottom -= f.numTrans * f.transSize
 	f.destBottom = f.bottom
-	f.destTop = f.bottom + (f.numTrans * f.transSize)
 
 	if f.outSize > 0 {
+		f.outTop = f.bottom
 		f.bottom -= f.numTrans * f.outSize
 		f.outBottom = f.bottom
-		f.outTop = f.bottom + (f.numTrans * f.outSize)
 		if f.final {
 			f.bottom -= f.outSize
 			f.outFinal = f.bottom
@@ -218,7 +217,7 @@ func (f *fstStateV1) Final() bool {
 }
 
 func (f *fstStateV1) FinalOutput() uint64 {
-	if f.numTrans > 0 && f.final && f.outSize > 0 {
+	if f.final && f.outSize > 0 {
 		return readPackedUint(f.data[f.outFinal : f.outFinal+f.outSize])
 	}
 	return 0

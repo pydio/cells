@@ -22,18 +22,20 @@ package dex
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/coreos/dex/connector"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
+	gmerrors "github.com/micro/go-micro/errors"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/defaults"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -115,13 +117,24 @@ func (p *pydioAPIConnector) loadUserInfo(ctx context.Context, identity *connecto
 
 func (p *pydioAPIConnector) Login(ctx context.Context, s connector.Scopes, username, password string) (identity connector.Identity, validPassword bool, err error) {
 
-	// if p.UserServiceClient == nil {
-	// 	p.UserServiceClient = idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, p.client)
-	// }
+	c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 
-	resp, err := p.UserServiceClient.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
+	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
+
 	if err != nil {
+		// Workaround issue triggered by the fact that the go-micro.Error object overrides the Error() method to return a JSON encoded object
+		// err2 := err
+		errMsg := err.Error()
+		if me, ok := err.(*gmerrors.Error); ok {
+			errMsg = fmt.Sprintf("%d (%s) %s error: %s", me.Code, me.Status, me.Id, me.Detail)
+			// err2 = fmt.Errorf(errMsg)
+		}
 		log.Logger(ctx).Error("cannot bind user "+username, zap.Error(err))
+		log.Auditer(ctx).Error(
+			"Could not bind user ["+username+"]: "+errMsg,
+			log.GetAuditId(common.AUDIT_LOGIN_FAILED),
+			zap.String(common.KEY_USERNAME, username),
+		)
 		return connector.Identity{}, false, err
 	}
 

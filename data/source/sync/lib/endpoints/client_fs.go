@@ -104,6 +104,10 @@ func (c *FSClient) GetEndpointInfo() common.EndpointInfo {
 
 }
 
+func (c *FSClient) ComputeChecksum(node *tree.Node) error {
+	return fmt.Errorf("not.implemented")
+}
+
 func (c *FSClient) Walk(walknFc common.WalkNodesFunc, pathes ...string) (err error) {
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {

@@ -1,0 +1,29 @@
+{
+  "Display a standard user/password login screen": {
+    "other": "Muestra la pantalla estándar de inicio de sesión usuario/contraseña"
+  },
+  "Enable/disable automatically based on the protocol used": {
+    "other": "Activa/desactiva automáticamente en base al protocolo usado"
+  },
+  "Order": {
+    "other": "Ordenar"
+  },
+  "Order this plugin with other auth frontends": {
+    "other": "Ordenar este plugin con otros frontends de autenticación"
+  },
+  "Protocol Type": {
+    "other": "Tipo de Protocolo"
+  },
+  "REST Only": {
+    "other": "Sólo REST"
+  },
+  "Session-based or Rest": {
+    "other": "Sesión o REST"
+  },
+  "Sessions Only": {
+    "other": "Sólo Sesiónes"
+  },
+  "Standard login screen": {
+    "other": "Pantalla de Inicio de Sesión"
+  }
+}

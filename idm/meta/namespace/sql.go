@@ -21,8 +21,10 @@
 package namespace
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/packr"
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
@@ -46,7 +48,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)
@@ -95,7 +97,13 @@ func (dao *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
 	if ns.Indexable {
 		indexableValue = 1
 	}
-	_, err := dao.GetStmt("Add").Exec(
+
+	stmt := dao.GetStmt("Add")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	_, err := stmt.Exec(
 		ns.Namespace,
 		ns.Label,
 		ns.Order,
@@ -115,7 +123,12 @@ func (dao *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
 
 func (dao *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
 
-	if _, err := dao.GetStmt("Delete").Exec(ns.Namespace); err != nil {
+	stmt := dao.GetStmt("Delete")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	if _, err := stmt.Exec(ns.Namespace); err != nil {
 		return err
 	}
 
@@ -128,7 +141,12 @@ func (dao *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
 
 func (dao *sqlimpl) List() (result map[string]*idm.UserMetaNamespace, err error) {
 
-	res, err := dao.GetStmt("List").Query()
+	stmt := dao.GetStmt("List")
+	if stmt == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+
+	res, err := stmt.Query()
 	if err != nil {
 		return nil, err
 	}

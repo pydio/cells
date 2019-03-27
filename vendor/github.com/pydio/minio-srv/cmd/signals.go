@@ -1,5 +1,5 @@
 /*
- * Minio Cloud Storage, (C) 2015, 2016, 2017 Minio, Inc.
+ * Minio Cloud Storage, (C) 2015, 2016, 2017, 2018 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@
 package cmd
 
 import (
+	"context"
 	"os"
+
+	"github.com/pydio/minio-srv/cmd/logger"
 )
 
 func handleSignals() {
@@ -38,12 +41,19 @@ func handleSignals() {
 	stopProcess := func() bool {
 		var err, oerr error
 
+		if globalNotificationSys != nil {
+			globalNotificationSys.RemoveAllRemoteTargets()
+		}
+
+		// Stop watching for any certificate changes.
+		globalTLSCerts.Stop()
+
 		err = globalHTTPServer.Shutdown()
-		errorIf(err, "Unable to shutdown http server")
+		logger.LogIf(context.Background(), err)
 
 		if objAPI := newObjectLayerFn(); objAPI != nil {
-			oerr = objAPI.Shutdown()
-			errorIf(oerr, "Unable to shutdown object layer")
+			oerr = objAPI.Shutdown(context.Background())
+			logger.LogIf(context.Background(), oerr)
 		}
 
 		return (err == nil && oerr == nil)
@@ -52,31 +62,31 @@ func handleSignals() {
 	for {
 		select {
 		case err := <-globalHTTPServerErrorCh:
-			errorIf(err, "http server exited abnormally")
+			logger.LogIf(context.Background(), err)
 			var oerr error
 			if objAPI := newObjectLayerFn(); objAPI != nil {
-				oerr = objAPI.Shutdown()
-				errorIf(oerr, "Unable to shutdown object layer")
+				oerr = objAPI.Shutdown(context.Background())
 			}
 
 			exit(err == nil && oerr == nil)
 		case osSignal := <-globalOSSignalCh:
-			log.Printf("Exiting on signal %v\n", osSignal)
+			stopHTTPTrace()
+			logger.Info("Exiting on signal %v", osSignal)
 			exit(stopProcess())
 		case signal := <-globalServiceSignalCh:
 			switch signal {
 			case serviceStatus:
 				// Ignore this at the moment.
 			case serviceRestart:
-				log.Println("Restarting on service signal")
-				err := globalHTTPServer.Shutdown()
-				errorIf(err, "Unable to shutdown http server")
+				logger.Info("Restarting on service signal")
+				stopHTTPTrace()
+				stop := stopProcess()
 				rerr := restartProcess()
-				errorIf(rerr, "Unable to restart the server")
-
-				exit(err == nil && rerr == nil)
+				logger.LogIf(context.Background(), rerr)
+				exit(stop && rerr == nil)
 			case serviceStop:
-				log.Println("Stopping on service signal")
+				logger.Info("Stopping on service signal")
+				stopHTTPTrace()
 				exit(stopProcess())
 			}
 		}

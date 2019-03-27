@@ -18,6 +18,7 @@ service NodeProviderStreamer{
 message ReadNodeRequest {
     Node Node = 1;
     bool WithCommits = 2;
+    bool WithExtendedStats = 3;
 }
 
 message ReadNodeResponse {
@@ -60,6 +61,7 @@ message CreateNodeRequest {
     Node Node = 1;
     bool UpdateIfExists = 2;
     string IndexationSession = 3;
+    bool Silent = 4;
 }
 
 message CreateNodeResponse {
@@ -71,6 +73,7 @@ message UpdateNodeRequest {
     Node From = 1;
     Node To = 2;
     string IndexationSession = 3;
+    bool Silent = 4;
 }
 
 message UpdateNodeResponse {
@@ -81,6 +84,7 @@ message UpdateNodeResponse {
 message DeleteNodeRequest {
     Node Node = 1;
     string IndexationSession = 2;
+    bool Silent = 3;
 }
 
 message DeleteNodeResponse {
@@ -382,13 +386,22 @@ message NodeChangeEvent{
         UPDATE_PATH = 2;
         UPDATE_CONTENT = 3;
         UPDATE_META = 4;
+        UPDATE_USER_META = 6;
         DELETE = 5;
     }
     EventType Type = 1;
     Node Source = 2;
     Node Target = 3;
+    bool Silent = 4;
 }
 
+message IndexEvent {
+    bool ErrorDetected = 1;
+    string DataSourceName = 2;
+    string ErrorPath = 3;
+
+    string SessionForceClose = 4;
+}
 
 
 // ==========================================================

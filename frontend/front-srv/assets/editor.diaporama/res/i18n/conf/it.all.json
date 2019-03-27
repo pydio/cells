@@ -1,0 +1,44 @@
+{
+  "Exif Rotation": {
+    "other": "Rotazione Exif"
+  },
+  "Generate thumbnails or not": {
+    "other": "Genera le miniature o no"
+  },
+  "Image viewer": {
+    "other": "Visualizzatore di immagini"
+  },
+  "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
+    "other": "Visualizzatore di immagini, usato per le anteprime delle immagini e la navigazione in diaporama. Genera una miniatura delle immagini."
+  },
+  "Low-res Sizes": {
+    "other": "Dimensioni a bassa risoluzione"
+  },
+  "Quality": {
+    "other": "Qualità"
+  },
+  "Remote Wrappers": {
+    "other": "Wrapper Remoti"
+  },
+  "Rotate image using exif rotation": {
+    "other": "Ruota l'immagine usando la rotazione exif"
+  },
+  "Size Threshold": {
+    "other": "Soglia delle dimensioni"
+  },
+  "Threshold": {
+    "other": "Soglia"
+  },
+  "Threshold for low-res versions of images": {
+    "other": "Soglia per le versioni a bassa risoluzione delle immagini"
+  },
+  "Thumbnails": {
+    "other": "Miniature"
+  },
+  "Thumbs quality": {
+    "other": "Qualità delle miniature"
+  },
+  "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
+    "other": "Quando è connesso a un server remoto, l'estrazione dei metadati può allungare la fase di creazione dell'elenco, poichè ogni file deve essere prima copiato localmente. Per i plugin che usano i wrapper definiti e i file di dimensioni superiori alla soglia, il tipo di immagine e la dimensione verranno omesse."
+  }
+}

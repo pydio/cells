@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "HTTP-Server"
+  },
+  "10": {
+    "other": "Nach APPLICATION_TITLE laden"
+  },
+  "10a": {
+    "other": "Nach %s laden"
+  },
+  "10b": {
+    "other": "Nach %s laden"
+  },
+  "10c": {
+    "other": "Nach %s laden"
+  },
+  "10d": {
+    "other": "Nach Pydio laden (%s)"
+  },
+  "11": {
+    "other": "Einen der folgenden Links in die Lesezeichen des Browsers ziehen: "
+  },
+  "12": {
+    "other": "Herunterladen von entferntem Server starten"
+  },
+  "13": {
+    "other": "Von Computer"
+  },
+  "14": {
+    "other": "Von HTTP-Server"
+  },
+  "15": {
+    "other": "Oder mit diesem Code manuell einen Link erstellen: "
+  },
+  "16": {
+    "other": "Ziehen Sie mich in Ihre Lesezeichenleiste!"
+  },
+  "17": {
+    "other": "Datei herunterladen"
+  },
+  "18": {
+    "other": "Unvollständige Datei"
+  },
+  "2": {
+    "other": "Datei von einem entfernten HTTP-Server laden"
+  },
+  "3": {
+    "other": "o"
+  },
+  "4": {
+    "other": "Bitte mindestens eine URL eingeben. Die Datei wird im Hintergrund in den aktuellen Ordner geladen. (Währenddessen kann gearbeitet werden)."
+  },
+  "5": {
+    "other": "URL"
+  },
+  "6": {
+    "other": "Lade"
+  },
+  "7": {
+    "other": "von entferntem Server"
+  },
+  "8": {
+    "other": "Datei heruntergeladen, bitte den Client neuladen!"
+  },
+  "9": {
+    "other": "Bookmarklet erzeugen"
+  }
+}

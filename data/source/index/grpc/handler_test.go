@@ -28,14 +28,15 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/broker/nats"
 	"github.com/micro/go-plugins/registry/memory"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
 
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/data/source/index"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -95,9 +96,9 @@ func (l *List) Close() error {
 func TestMain(m *testing.M) {
 
 	// Registry mock
-	defaults.Init(
-		defaults.WithRegistry(memory.NewRegistry()),
-		defaults.WithBroker(nats.NewBroker()),
+	defaults.InitServer(
+		func() server.Option { return server.Registry(memory.NewRegistry()) },
+		func() server.Option { return server.Broker(nats.NewBroker()) },
 	)
 
 	var options config.Map
@@ -316,6 +317,34 @@ func TestIndex(t *testing.T) {
 			Node: &tree.Node{Path: "teste.ext"},
 		}, &tree.ReadNodeResponse{})
 		So(err3, ShouldNotBeNil)
+
+	})
+
+	Convey("Test grep file name", t, func() {
+
+		nodeAccent := &tree.Node{Path: "/test.jpg", Uuid: "my-jpg-node"}
+		resp, err := send(s, "CreateNode", &tree.CreateNodeRequest{Node: nodeAccent})
+		So(err, ShouldBeNil)
+		So(resp, ShouldNotBeNil)
+		resp, err = send(s, "CreateNode", &tree.CreateNodeRequest{Node: &tree.Node{Path: "/other/sub/picture.jpg", Uuid: "my-other-jpg-node"}})
+		So(err, ShouldBeNil)
+		So(resp, ShouldNotBeNil)
+
+		resp, _ = send(s, "ListNodes", &tree.ListNodesRequest{
+			Node:      &tree.Node{Path: "/", MetaStore: map[string]string{"grep": "\".jpg$\""}},
+			Recursive: true,
+		})
+		So(resp.(*List), ShouldNotBeNil)
+
+		var nodes []*tree.Node
+		for {
+			response, err := resp.(*List).Recv()
+			if err != nil {
+				break
+			}
+			nodes = append(nodes, response.Node)
+		}
+		So(len(nodes), ShouldEqual, 2)
 
 	})
 

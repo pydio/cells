@@ -22,11 +22,14 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/pydio/cells/common"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/sync"
-	"github.com/pydio/cells/common/service/defaults"
+	context2 "github.com/pydio/cells/common/utils/context"
 )
 
 var (
@@ -34,14 +37,16 @@ var (
 	syncPath    string
 )
 
-// syncCmd represents the resync command
+// dataSyncCmd represents the resync command
 var dataSyncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Trigger index resync",
 	Long:  `Trigger a re-indexation of a given datasource`,
 	Run: func(cmd *cobra.Command, args []string) {
 		client := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
-		resp, err := client.TriggerResync(context.Background(), &sync.ResyncRequest{Path: syncPath})
+		c, _ := context.WithTimeout(context.Background(), 30*time.Minute)
+		c = context2.WithUserNameMetadata(c, common.PYDIO_SYSTEM_USERNAME)
+		resp, err := client.TriggerResync(c, &sync.ResyncRequest{Path: syncPath})
 		if err != nil {
 			cmd.Println("Resync Failed: " + err.Error())
 			return

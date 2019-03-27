@@ -23,117 +23,116 @@ package web
 
 import (
 	"context"
-	"fmt"
-	"io/ioutil"
 	"net/http"
-	"os"
+	"time"
+
 	"path/filepath"
 
-	"github.com/pydio/cells/assets"
+	"os"
+
+	"github.com/gorilla/mux"
+	"github.com/lpar/gzipped"
+	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/frontend/front-srv/web/index"
+	"go.uber.org/zap"
+)
+
+var (
+	Name         = common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS
+	RobotsString = `User-agent: *
+Disallow: /`
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_API_NAMESPACE_+common.SERVICE_FRONTPLUGS),
-		service.Tag(common.SERVICE_TAG_FRONTEND),
-		service.Description("REST service for providing additional plugins to PHP frontend"),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            DeployAssets,
-			},
-			{
-				TargetVersion: service.Latest(), // Should be triggered whatever the version if there was a change
-				Up:            OverrideAssets,
-			},
-		}),
-		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			cfg := servicecontext.GetConfig(ctx)
 
-			port := cfg.Int("port", 9025)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_FRONTEND),
+			service.Description("WEB service for serving statics"),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.ValidVersion("1.2.0"),
+					Up:            DropLegacyStatics,
+				},
+			}),
+			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
+				return service.RunnerFunc(func() error {
+						return nil
+					}), service.CheckerFunc(func() error {
+						return nil
+					}), service.StopperFunc(func() error {
+						return nil
+					}), nil
+			}, func(s service.Service) (micro.Option, error) {
+				srv := defaults.NewHTTPServer()
 
-			return service.RunnerFunc(func() error {
+				httpFs := frontend.GetPluginsFS()
+				fs := gzipped.FileServer(httpFs)
 
-					boxes := frontend.GetRegisteredPluginBoxes()
-					httpFs := frontend.NewUnionHttpFs(boxes...)
-					http.Handle("/", http.FileServer(httpFs))
-					http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+				router := mux.NewRouter()
 
-					return nil
-				}), service.CheckerFunc(func() error {
-					return nil
-				}), service.StopperFunc(func() error {
-					return nil
-				}), nil
-		}),
-	)
+				router.Handle("/index.json", fs)
+				router.PathPrefix("/plug/").Handler(http.StripPrefix("/plug/", fs))
+				indexHandler := index.NewIndexHandler()
+				router.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+					w.Header().Set("Content-Type", "text/plain")
+					w.Write([]byte(RobotsString))
+				})
+				router.Handle("/gui", indexHandler)
+				router.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
+				router.Handle("/public/{link}", index.NewPublicHandler())
+
+				routerWithTimeout := http.TimeoutHandler(
+					router,
+					15*time.Second,
+					"There was a timeout while serving the request...",
+				)
+
+				hd := srv.NewHandler(routerWithTimeout)
+
+				err := srv.Handle(hd)
+				if err != nil {
+					return nil, err
+				}
+
+				return micro.Server(srv), nil
+			}),
+		)
+	})
 }
 
-// DeployAssets is called at the very first run
-func DeployAssets(ctx context.Context) error {
-	// Assets are deployed at install time, but they could be deployed here?
-	return nil
-}
+// DropLegacyStatics removes files and references to old PHP data in configuration
+func DropLegacyStatics(ctx context.Context) error {
 
-// OverrideAssets is called whenever there is a version change to update the PHP resources
-func OverrideAssets(ctx context.Context) error {
-
-	dir := filepath.Join(config.ApplicationDataDir(), "static", "pydio")
-	if _, e := os.Stat(dir); e != nil {
-		// Frontend is probably not deployed here, just ignore
-		return nil
-	}
-
-	// Restore assets inside a new directory
-	updateDir := filepath.Join(dir, "update")
-	os.Mkdir(updateDir, 0755)
-	log.Logger(ctx).Info("Deploying new PHP assets in " + updateDir + "...")
-	if err, _, _ := assets.RestoreAssets(updateDir, assets.PydioFrontBox, nil, "data"); err != nil {
-		return err
-	}
-	log.Logger(ctx).Info("Deploying new PHP assets in " + updateDir + ": done")
-
-	contents, _ := ioutil.ReadDir(updateDir)
-	for _, info := range contents {
-		base := info.Name()
-		orig := filepath.Join(dir, base)
-		if info.IsDir() {
-			// Folders : create a .bak version
-			bakPath := filepath.Join(dir, fmt.Sprintf("%s.bak", base))
-			if _, e := os.Stat(bakPath); e == nil {
-				os.RemoveAll(bakPath)
-			}
-			log.Logger(ctx).Info("Creating bak version of " + orig)
-			if err := os.Rename(orig, bakPath); err != nil {
-				return err
-			}
+	frontRoot := config.Get("defaults", "frontRoot").String(filepath.Join(config.ApplicationDataDir(), "static", "pydio"))
+	if frontRoot != "" {
+		if er := os.RemoveAll(frontRoot); er != nil {
+			log.Logger(ctx).Error("Could not remove old PHP data from "+frontRoot+". You may safely delete this folder. Error was", zap.Error(er))
 		} else {
-			// root files : remove original version
-			if _, e := os.Stat(orig); e == nil {
-				os.Remove(orig)
-			}
-		}
-		log.Logger(ctx).Info("Now moving " + info.Name() + " to " + orig)
-		if err := os.Rename(filepath.Join(updateDir, info.Name()), orig); err != nil {
-			return err
+			log.Logger(ctx).Info("Successfully removed old PHP data from " + frontRoot)
 		}
 	}
 
-	// Now remove update folder
-	if err := os.RemoveAll(updateDir); err != nil {
-		return err
+	log.Logger(ctx).Info("Clearing unused configurations")
+	config.Del("defaults", "frontRoot")
+	config.Del("defaults", "fpm")
+	config.Del("defaults", "fronts")
+	config.Del("services", "pydio.frontends")
+	if config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("") == "" {
+		config.Set("Pydio Cells", "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
 	}
-
-	// clear cache (ignore errors)
-	os.RemoveAll(filepath.Join(dir, "data", "cache"))
-
-	// TODO : clear php FMP caches & Apc Cache ?
+	if e := config.Save(common.PYDIO_SYSTEM_USERNAME, "Upgrade to 1.2.0"); e == nil {
+		log.Logger(ctx).Info("[Upgrade] Cleaned unused configurations")
+	}
 
 	return nil
 }

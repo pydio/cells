@@ -25,7 +25,7 @@ import (
 	"regexp"
 
 	"github.com/micro/go-micro/registry"
-	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common"
 )
 
 type mockService struct {
@@ -53,6 +53,9 @@ func (m *mockService) Check(context.Context) error {
 func (m *mockService) Name() string {
 	return m.name
 }
+func (m *mockService) Address() string {
+	return ""
+}
 func (m *mockService) Version() string {
 	return ""
 }
@@ -77,7 +80,7 @@ func (m *mockService) SetRunningNodes(nodes []*registry.Node) {
 func (m *mockService) RunningNodes() []*registry.Node {
 	return m.nodes
 }
-func (m *mockService) ExposedConfigs() *forms.Form {
+func (m *mockService) ExposedConfigs() common.XMLSerializableForm {
 	return nil
 }
 func (m *mockService) IsGeneric() bool {
@@ -92,7 +95,13 @@ func (m *mockService) IsREST() bool {
 func (m *mockService) RequiresFork() bool {
 	return false
 }
+func (m *mockService) AutoStart() bool {
+	return false
+}
 func (m *mockService) ForkStart() {
+}
+func (m *mockService) MustBeUnique() bool {
+	return false
 }
 func (m *mockService) MatchesRegexp(string) bool {
 	return false
@@ -101,5 +110,8 @@ func (m *mockService) BeforeInit() error {
 	return nil
 }
 func (m *mockService) AfterInit() error {
+	return nil
+}
+func (m *mockService) DAO() interface{} {
 	return nil
 }

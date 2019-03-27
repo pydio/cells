@@ -32,6 +32,11 @@ func newInMemoryQueue() *memQueue {
 	return m
 }
 
+func (m memQueue) Close() error {
+	m.list = make([]*mailer.Mail, 1)
+	return nil
+}
+
 func (m memQueue) Push(email *mailer.Mail) error {
 	m.list = append(m.list, email)
 	return nil

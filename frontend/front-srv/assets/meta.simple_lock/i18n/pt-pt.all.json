@@ -1,0 +1,17 @@
+{
+  "1": {
+    "other": "Bloquear"
+  },
+  "2": {
+    "other": "Bloquear item seleccionado"
+  },
+  "3": {
+    "other": "Desbloquear"
+  },
+  "4": {
+    "other": "Remover Bloqueio"
+  },
+  "5": {
+    "other": "Este ficheiro encontra-se bloqueado por outro utilizador, provavelmente encontra-se a ser modificado de momento e por isso não tem permissões para modificar o mesmo."
+  }
+}

@@ -1,0 +1,539 @@
+{
+  "1": {
+    "other": "Beállítások"
+  },
+  "10": {
+    "other": "Metaadat források"
+  },
+  "100": {
+    "other": "Közös beállítások minden '%s' pluginhez"
+  },
+  "101": {
+    "other": "Név"
+  },
+  "102": {
+    "other": "Azonosító"
+  },
+  "103": {
+    "other": "Leírás"
+  },
+  "104": {
+    "other": "Aktív"
+  },
+  "105": {
+    "other": "Automatikus ellenőrzések"
+  },
+  "106": {
+    "other": "UID"
+  },
+  "107": {
+    "other": "Plugin beállítások"
+  },
+  "108": {
+    "other": "Dokumentáció"
+  },
+  "109": {
+    "other": "Globális beállítások"
+  },
+  "11": {
+    "other": "Forrás hozzáadása"
+  },
+  "110": {
+    "other": "Gyűjtemények \u0026 Felhasználók"
+  },
+  "111": {
+    "other": "Naplók \u0026 egyéb adatok"
+  },
+  "112": {
+    "other": "\u003cb\u003eAlapbeállításként hozzáadva\u003c/b\u003e minden új felhasználóhoz."
+  },
+  "113": {
+    "other": "Szerep státusza sikeresen módosítva"
+  },
+  "114": {
+    "other": "Alapbeállítás"
+  },
+  "115": {
+    "other": "Séma"
+  },
+  "116": {
+    "other": "Sablon címke"
+  },
+  "117": {
+    "other": "Sablon driver"
+  },
+  "118": {
+    "other": "Új csoport"
+  },
+  "119": {
+    "other": "Set user group"
+  },
+  "12": {
+    "other": "Meta Plugin"
+  },
+  "120": {
+    "other": "Go Pro"
+  },
+  "121": {
+    "other": "Get professional support for your install"
+  },
+  "122": {
+    "other": "All Settings"
+  },
+  "123": {
+    "other": "Other plugins"
+  },
+  "124": {
+    "other": "Source"
+  },
+  "125": {
+    "other": "Alias"
+  },
+  "126": {
+    "other": "Are you sure that you want to delete the selected element(s)?"
+  },
+  "127": {
+    "other": "Warning, please do not use special characters, user would be created with login id '%s'"
+  },
+  "128": {
+    "other": "Successfully deleted group"
+  },
+  "129": {
+    "other": "Refresh plugins cache"
+  },
+  "13": {
+    "other": "Biztos, hogy törlöd ezt a forrást?"
+  },
+  "130": {
+    "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
+  },
+  "131": {
+    "other": "Plugins cache files were deleted succesfully!"
+  },
+  "132": {
+    "other": "Cache cleared, but you are currently running in SKIP_CACHE mode (see bootstrap_context.php)."
+  },
+  "133": {
+    "other": "Core application parameters"
+  },
+  "134": {
+    "other": "Enable/disable additional feature-oriented plugins, check if they are correctly working, set up global parameters of the plugins."
+  },
+  "135": {
+    "other": "Enable/disable core plugins (auth, conf, mail, etc), check if they are correctly working. Configuration of these plugins are generally done through the Main Options"
+  },
+  "136": {
+    "other": "Global configurations of the application core and of each plugin. Enable/disable plugins"
+  },
+  "137": {
+    "other": "Day-to-day administration of the application : who accesses to what, create roles, etc."
+  },
+  "138": {
+    "other": "Create and delete workspaces, add features to them using meta sources."
+  },
+  "139": {
+    "other": "Manage users and groups"
+  },
+  "14": {
+    "other": "Igen"
+  },
+  "140": {
+    "other": "Define profiles that can be applied at once to whole bunch of users."
+  },
+  "141": {
+    "other": "Administrator tasks to monitor the application state."
+  },
+  "142": {
+    "other": "Monitor all activities happening on the server"
+  },
+  "143": {
+    "other": "Read the start-up diagnostic"
+  },
+  "144": {
+    "other": "Developer Resources"
+  },
+  "145": {
+    "other": "Generated documentations for developers"
+  },
+  "146": {
+    "other": "Actions API"
+  },
+  "147": {
+    "other": "List all actions contributed by all plugins and visualize their input parameters"
+  },
+  "148": {
+    "other": "Hooks Definitions"
+  },
+  "149": {
+    "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
+  },
+  "15": {
+    "other": "Nem"
+  },
+  "150": {
+    "other": "Select a repository"
+  },
+  "151": {
+    "other": "Root Group"
+  },
+  "152": {
+    "other": "Root Group Role"
+  },
+  "153": {
+    "other": "Applies to the whole hierarchy of users"
+  },
+  "154": {
+    "other": "Repository Templates"
+  },
+  "155": {
+    "other": "Access Drivers"
+  },
+  "156": {
+    "other": "Standard"
+  },
+  "157": {
+    "other": "Administrator"
+  },
+  "158": {
+    "other": "Shared"
+  },
+  "159": {
+    "other": "Guest"
+  },
+  "16": {
+    "other": "Fájl dátum"
+  },
+  "160": {
+    "other": "Group was successfully created"
+  },
+  "161": {
+    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+  },
+  "162": {
+    "other": "You are not authorized to update user %s"
+  },
+  "163": {
+    "other": "Roles reordered for user %s"
+  },
+  "164": {
+    "other": "Successfully updated roles"
+  },
+  "165": {
+    "other": "Successfully saved user preferences"
+  },
+  "166": {
+    "other": "Successfully set lock (%1) on user (%2)"
+  },
+  "167": {
+    "other": "Successfully unlocked user (%s)"
+  },
+  "168": {
+    "other": "%1 users were moved to group %2"
+  },
+  "169": {
+    "other": "No users were moved, there must have been something wrong!"
+  },
+  "17": {
+    "other": "Dátum"
+  },
+  "170": {
+    "other": "Enable %1 (%2)"
+  },
+  "171": {
+    "other": "Import Users (Enterprise only)"
+  },
+  "172": {
+    "other": "Services"
+  },
+  "173": {
+    "other": "Pydio Backend Services and their running status"
+  },
+  "18": {
+    "other": "IP cím"
+  },
+  "19": {
+    "other": "Szint"
+  },
+  "2": {
+    "other": "Felhasználók"
+  },
+  "20": {
+    "other": "Felhasználó"
+  },
+  "21": {
+    "other": "Művelet"
+  },
+  "22": {
+    "other": "Paraméterek"
+  },
+  "22a": {
+    "other": "Paraméterek"
+  },
+  "23": {
+    "other": "Teszt név"
+  },
+  "24": {
+    "other": "Teszt adat"
+  },
+  "25": {
+    "other": "Gyűjtemény hozzáférés"
+  },
+  "26": {
+    "other": "Jelszó módosítása"
+  },
+  "27": {
+    "other": "Rendszergazda jogosultság"
+  },
+  "28": {
+    "other": "Van rendszergazda jogosultsága?"
+  },
+  "29": {
+    "other": "Olvasás"
+  },
+  "2b": {
+    "other": "Data Management"
+  },
+  "3": {
+    "other": "Gyűjtemények"
+  },
+  "30": {
+    "other": "Írás"
+  },
+  "32": {
+    "other": "Gyűjtemény típusa"
+  },
+  "33": {
+    "other": "Betöltés..."
+  },
+  "34": {
+    "other": "Biztos, hogy törlöd ezt a felhasználót? Ezt nem lehet visszavonni!"
+  },
+  "35": {
+    "other": "Biztos, hogy törlöd ezt a mappát? Ezt nem lehet visszavonni!"
+  },
+  "36": {
+    "other": "Kötelező mezők kitöltetlenek!"
+  },
+  "37": {
+    "other": "A megadott jelszó és a megerősítése eltérnek egymástól!"
+  },
+  "38": {
+    "other": "Töltsd ki a bejelentkezési név mezőt!"
+  },
+  "39": {
+    "other": "Töltsd ki mind a két jelszó mezőt!"
+  },
+  "3b": {
+    "other": "DataSources"
+  },
+  "3c": {
+    "other": "Template Paths"
+  },
+  "4": {
+    "other": "Naplók"
+  },
+  "40": {
+    "other": "Kérlek pipáld be a négyzetet a megerősítéshez!"
+  },
+  "41": {
+    "other": "Gyűjtemény driver beállítások"
+  },
+  "42": {
+    "other": "Válassz egy gyűjtemény drivert!"
+  },
+  "43": {
+    "other": "Ez a felhasználónév már létezik, válassz másikat!"
+  },
+  "44": {
+    "other": "Felhasználó sikeresen létrehozva"
+  },
+  "45": {
+    "other": "Ennek a felhasználónak megváltozott a rendszergazda joga: "
+  },
+  "46": {
+    "other": "Ennek a felhasználónak megváltoztak a hozzáférési jogai: "
+  },
+  "47": {
+    "other": "Adat mentve ehhez a felhasználóhoz: "
+  },
+  "48": {
+    "other": "Ennek a felhasználónak megváltozott a jelszava: "
+  },
+  "49": {
+    "other": "Nem tudom módosítani a jelszót"
+  },
+  "5": {
+    "other": "PHP"
+  },
+  "50": {
+    "other": "Hiba: Ilyen nevű gyűjtemény már létezik"
+  },
+  "51": {
+    "other": "A conf könyvtár nem írható"
+  },
+  "52": {
+    "other": "Gyűjtemény sikeresen létrehozva!"
+  },
+  "53": {
+    "other": "Hiba a gyűjtemény módosításakor"
+  },
+  "54": {
+    "other": "A gyűjtemény módosult"
+  },
+  "55": {
+    "other": "Figyelem! Jelenleg minden meta pluginből csak egyet adhatsz hozzá."
+  },
+  "56": {
+    "other": "Metaadat forrás sikeresen hozzáadva"
+  },
+  "57": {
+    "other": "Metaadat forrás sikeresen törölve"
+  },
+  "58": {
+    "other": "Metaadat forrás sikeresen szerkesztve"
+  },
+  "59": {
+    "other": "Gyűjtemény sikeresen törölve"
+  },
+  "6": {
+    "other": "Név"
+  },
+  "60": {
+    "other": "Felhasználó sikeresen törölve"
+  },
+  "61": {
+    "other": "Hibás paraméterek!"
+  },
+  "62": {
+    "other": "Jogosultság összesítő"
+  },
+  "63": {
+    "other": "Minden"
+  },
+  "64": {
+    "other": "Ennek a szerepnek megváltoztak a jogosultságai: "
+  },
+  "65": {
+    "other": "A szerep létezik, válassz másik nevet!"
+  },
+  "66": {
+    "other": "Szerep sikeresen létrehozva"
+  },
+  "67": {
+    "other": "Ez a szerep nem található: "
+  },
+  "68": {
+    "other": "Szerep sikeresen törölve"
+  },
+  "69": {
+    "other": "Szerepek"
+  },
+  "7": {
+    "other": "Rendszergazda?"
+  },
+  "70": {
+    "other": "Felhasználó szerepei"
+  },
+  "71": {
+    "other": "Rendelkezésre álló szerepek"
+  },
+  "72": {
+    "other": "A kiválasztott szerepeket fogd\u0026vidd módszerrel a felhasználóhoz rendelheted"
+  },
+  "73": {
+    "other": "Szerep hozzáadva ehhez a felhasználóhoz: "
+  },
+  "74": {
+    "other": "Szerep elvéve ettől a felhasználótól: "
+  },
+  "75": {
+    "other": "Új szerep"
+  },
+  "76": {
+    "other": "Szerep ID"
+  },
+  "77": {
+    "other": "Hozzáférés"
+  },
+  "78": {
+    "other": "Személyes adatok"
+  },
+  "79": {
+    "other": "Gyűjtemény"
+  },
+  "8": {
+    "other": "Gyűjtemény címke"
+  },
+  "80": {
+    "other": "Hozzáférés finomítása (Klikkelj egy gyűjtemény cimkére, hogy a felhasználó bejelentkezéskor alaphelyzetben azt a gyűjteményt lássa)"
+  },
+  "81": {
+    "other": "Gyűjteményspecifikus adatok"
+  },
+  "82": {
+    "other": "Felhasználók csoportos szerkesztése"
+  },
+  "83": {
+    "other": "A kiválasztott szerepeket fogd\u0026vidd módszerrel a kiválasztott felhasználókhoz rendelheted (megosztott felhasználók ki lesznek hagyva)"
+  },
+  "84": {
+    "other": "Felhasználó szerepei"
+  },
+  "85": {
+    "other": "Kézi művelet szűrés (haladó)"
+  },
+  "86": {
+    "other": "vesszővel elválasztott listában add meg a műveleteket, melyek a szerep számára tiltva legyenek, a jogosultsági beállításokat felülírva."
+  },
+  "87": {
+    "other": "Műveletek sikeresen módosítva"
+  },
+  "88": {
+    "other": "Ez a gyűjtemény a config fájlban lett létrehozva, a metaadat forrásai a grafikus felületen nem módosíthatók."
+  },
+  "89": {
+    "other": "Felhasználóspecifikus adatok"
+  },
+  "9": {
+    "other": "Gyűjtemény típusa"
+  },
+  "90": {
+    "other": "Gyűjtemény"
+  },
+  "91": {
+    "other": "Sablon"
+  },
+  "92": {
+    "other": "Új sablon létrehozása"
+  },
+  "93": {
+    "other": "Szerkesztés"
+  },
+  "94": {
+    "other": "Csoportos szerkesztés"
+  },
+  "95": {
+    "other": "Válassz egy címkét és az adatok eléréséhez egy driver-t (figyelj a kötelező mezőkre, mozgasd az egeret a címkék fölé további információért)."
+  },
+  "96": {
+    "other": "A címke és a driver kiválasztása után a jelölőnégyzetek segítségével állítsd be a sablonban előre kitöltött mezőket. A nem kijelölt mezőket a felhasználó töltheti ki. Egy kiválasztott mezőt üresen hagyva a mező rejtve marad a felhasználó elől."
+  },
+  "97": {
+    "other": "Plugin beállítások sikeresen módosítva"
+  },
+  "98": {
+    "other": "Core beállítások"
+  },
+  "99": {
+    "other": "Pluginek"
+  },
+  "group_access": {
+    "other": "g"
+  },
+  "repository_access_key": {
+    "other": "N"
+  },
+  "role_access": {
+    "other": "o"
+  }
+}

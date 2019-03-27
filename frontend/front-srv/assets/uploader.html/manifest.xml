@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uploader id="uploader.html" order="0" text="51" title="162" className="MultiUploader" label="CONF_MESSAGE[HTML Uploader]" description="CONF_MESSAGE[Auto-switching HTML5 or IFrame uploader.]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <server_settings>
+        <global_param expose="true" name="DEFAULT_EXISTING" group="CONF_MESSAGE[Default Behaviour]" type="select" choices="overwrite|CONF_MESSAGE[Always Override],rename|CONF_MESSAGE[Auto Rename File],alert|CONF_MESSAGE[Prompt user]" label="CONF_MESSAGE[Existing Files]" description="CONF_MESSAGE[Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)]" mandatory="false" default="rename"/>
+        <global_param expose="true" name="DEFAULT_AUTO_START" group="CONF_MESSAGE[Default Behaviour]" type="boolean" label="CONF_MESSAGE[Auto Start]" description="CONF_MESSAGE[Default value for automatically starting upload or not]" mandatory="false" default="true"/>
+        <global_param expose="true" name="DEFAULT_AUTO_CLOSE" group="CONF_MESSAGE[Default Behaviour]" type="boolean" label="CONF_MESSAGE[Auto Close]" description="CONF_MESSAGE[Default value for automatically closing the dialog after upload or not]" mandatory="false" default="true"/>
+    </server_settings>
+    <client_settings>
+        <resources>
+            <js file="plug/uploader.html/js/build/UploaderView.js" className="UploaderView" depends="React,PydioForm,UploaderModel"/>
+            <js file="plug/uploader.html/js/build/UploaderModel.js" className="UploaderModel" depends="React"/>
+            <i18n remote="plug/uploader.html/i18n" namespace="html_uploader"/>
+        </resources>
+    </client_settings>
+	<registry_contributions>
+		<actions>
+			<action name="get_drop_bg" skipSecureToken="true">
+				<processing>
+					<serverCallback methodName="getDropBg"/>
+				</processing>
+			</action>
+		</actions>
+	</registry_contributions>
+    <dependencies>
+        <!-- Stream Wrapper Access -->
+        <activePlugin pluginName="access.gateway|access.homepage"/>
+        <pluginClass pluginName="gui.ajax"/>
+    </dependencies>
+	<processing>
+        <clientForm module="UploaderView.DropUploader"/>
+		<extensionOnInit><![CDATA[
+            var pydioUser = pydio && pydio.user;
+            var dragSupported = 'draggable' in document.createElement('span');
+            var fileUploadSupported = typeof File != "undefined" && typeof (new XMLHttpRequest()).upload != "undefined" && (window.FileReader || window.FormData);
+            if(fileUploadSupported && dragSupported && pydioUser){
+                try{
+                    ResourcesManager.loadClassesAndApply(["UploaderModel"], function(){});
+                }catch(e){}
+            }
+		]]></extensionOnInit>
+	</processing>
+</uploader>
+

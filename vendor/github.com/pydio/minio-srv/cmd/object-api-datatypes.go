@@ -16,7 +16,13 @@
 
 package cmd
 
-import "time"
+import (
+	"io"
+	"time"
+
+	"github.com/pydio/minio-srv/pkg/hash"
+	"github.com/pydio/minio-srv/pkg/madmin"
+)
 
 // BackendType - represents different backend types.
 type BackendType int
@@ -25,44 +31,32 @@ type BackendType int
 const (
 	Unknown BackendType = iota
 	// Filesystem backend.
-	FS
-	// Multi disk Erasure (single, distributed) backend.
-	Erasure
+	BackendFS
+	// Multi disk BackendErasure (single, distributed) backend.
+	BackendErasure
 	// Add your own backend.
 )
 
 // StorageInfo - represents total capacity of underlying storage.
 type StorageInfo struct {
-	// Total disk space.
-	Total uint64
-	// Free available disk space.
-	Free uint64
+	Used uint64 // Used total used per tenant.
+
 	// Backend type.
 	Backend struct {
 		// Represents various backend types, currently on FS and Erasure.
 		Type BackendType
 
 		// Following fields are only meaningful if BackendType is Erasure.
-		OnlineDisks  int // Online disks during server startup.
-		OfflineDisks int // Offline disks during server startup.
-		ReadQuorum   int // Minimum disks required for successful read operations.
-		WriteQuorum  int // Minimum disks required for successful write operations.
+		OnlineDisks      int // Online disks during server startup.
+		OfflineDisks     int // Offline disks during server startup.
+		StandardSCData   int // Data disks for currently configured Standard storage class.
+		StandardSCParity int // Parity disks for currently configured Standard storage class.
+		RRSCData         int // Data disks for currently configured Reduced Redundancy storage class.
+		RRSCParity       int // Parity disks for currently configured Reduced Redundancy storage class.
+
+		// List of all disk status, this is only meaningful if BackendType is Erasure.
+		Sets [][]madmin.DriveInfo
 	}
-}
-
-type healStatus int
-
-const (
-	healthy           healStatus = iota // Object is healthy
-	canHeal                             // Object can be healed
-	corrupted                           // Object can't be healed
-	quorumUnavailable                   // Object can't be healed until read quorum is available
-	canPartiallyHeal                    // Object can't be healed completely until outdated disk(s) are online.
-)
-
-// HealBucketInfo - represents healing related information of a bucket.
-type HealBucketInfo struct {
-	Status healStatus
 }
 
 // BucketInfo - represents bucket metadata.
@@ -72,16 +66,6 @@ type BucketInfo struct {
 
 	// Date and time when the bucket was created.
 	Created time.Time
-
-	// Healing information
-	HealBucketInfo *HealBucketInfo `xml:"HealBucketInfo,omitempty"`
-}
-
-// HealObjectInfo - represents healing related information of an object.
-type HealObjectInfo struct {
-	Status             healStatus
-	MissingDataCount   int
-	MissingParityCount int
 }
 
 // ObjectInfo - represents object metadata.
@@ -112,11 +96,27 @@ type ObjectInfo struct {
 	// by the Content-Type header field.
 	ContentEncoding string
 
-	// User-Defined metadata
-	UserDefined    map[string]string
-	HealObjectInfo *HealObjectInfo `xml:"HealObjectInfo,omitempty"`
+	// Specify object storage class
+	StorageClass string
 
-	// VersionID
+	// User-Defined metadata
+	UserDefined map[string]string
+
+	// List of individual parts, maximum size of upto 10,000
+	Parts []objectPartInfo `json:"-"`
+
+	// Implements writer and reader used by CopyObject API
+	Writer       io.WriteCloser `json:"-"`
+	Reader       *hash.Reader   `json:"-"`
+	metadataOnly bool
+
+	// Date and time when the object was last accessed.
+	AccTime time.Time
+
+	// backendType indicates which backend filled this structure
+	backendType BackendType
+	
+	// Support for versioning
 	VersionID string
 }
 
@@ -151,6 +151,9 @@ type ListPartsInfo struct {
 	// List of all parts.
 	Parts []PartInfo
 
+	// Any metadata set during InitMultipartUpload, including encryption headers.
+	UserDefined map[string]string
+
 	EncodingType string // Not supported yet.
 }
 
@@ -184,7 +187,7 @@ type ListMultipartsInfo struct {
 	IsTruncated bool
 
 	// List of all pending uploads.
-	Uploads []uploadMetadata
+	Uploads []MultipartInfo
 
 	// When a prefix is provided in the request, The result contains only keys
 	// starting with the specified prefix.
@@ -262,10 +265,13 @@ type PartInfo struct {
 
 	// Size in bytes of the part.
 	Size int64
+
+	// Decompressed Size.
+	ActualSize int64
 }
 
-// uploadMetadata - represents metadata in progress multipart upload.
-type uploadMetadata struct {
+// MultipartInfo - represents metadata in progress multipart upload.
+type MultipartInfo struct {
 	// Object name for which the multipart upload was initiated.
 	Object string
 
@@ -276,12 +282,11 @@ type uploadMetadata struct {
 	Initiated time.Time
 
 	StorageClass string // Not supported yet.
-
-	HealUploadInfo *HealObjectInfo `xml:"HealUploadInfo,omitempty"`
 }
 
-// completePart - completed part container.
-type completePart struct {
+// CompletePart - represents the part that was completed, this is sent by the client
+// during CompleteMultipartUpload request.
+type CompletePart struct {
 	// Part number identifying the part. This is a positive integer between 1 and
 	// 10,000
 	PartNumber int
@@ -290,14 +295,15 @@ type completePart struct {
 	ETag string
 }
 
-// completedParts - is a collection satisfying sort.Interface.
-type completedParts []completePart
+// CompletedParts - is a collection satisfying sort.Interface.
+type CompletedParts []CompletePart
 
-func (a completedParts) Len() int           { return len(a) }
-func (a completedParts) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a completedParts) Less(i, j int) bool { return a[i].PartNumber < a[j].PartNumber }
+func (a CompletedParts) Len() int           { return len(a) }
+func (a CompletedParts) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a CompletedParts) Less(i, j int) bool { return a[i].PartNumber < a[j].PartNumber }
 
-// completeMultipartUpload - represents input fields for completing multipart upload.
-type completeMultipartUpload struct {
-	Parts []completePart `xml:"Part"`
+// CompleteMultipartUpload - represents list of parts which are completed, this is sent by the
+// client during CompleteMultipartUpload request.
+type CompleteMultipartUpload struct {
+	Parts []CompletePart `xml:"Part"`
 }

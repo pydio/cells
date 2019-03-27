@@ -18,8 +18,6 @@ package cmd
 
 import (
 	"io"
-
-	"github.com/pydio/minio-srv/pkg/disk"
 )
 
 // StorageAPI interface.
@@ -28,9 +26,11 @@ type StorageAPI interface {
 	String() string
 
 	// Storage operations.
-	Init() (err error)
-	Close() (err error)
-	DiskInfo() (info disk.Info, err error)
+	IsOnline() bool // Returns true if disk is online.
+	LastError() error
+	Close() error
+
+	DiskInfo() (info DiskInfo, err error)
 
 	// Volume operations.
 	MakeVol(volume string) (err error)
@@ -39,7 +39,7 @@ type StorageAPI interface {
 	DeleteVol(volume string) (err error)
 
 	// File operations.
-	ListDir(volume, dirPath string) ([]string, error)
+	ListDir(volume, dirPath string, count int) ([]string, error)
 	ReadFile(volume string, path string, offset int64, buf []byte, verifier *BitrotVerifier) (n int64, err error)
 	PrepareFile(volume string, path string, len int64) (err error)
 	AppendFile(volume string, path string, buf []byte) (err error)

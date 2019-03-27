@@ -22,6 +22,7 @@ package images
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -52,7 +53,7 @@ var (
 )
 
 type ExifProcessor struct {
-	Router     views.Handler
+	//Router     views.Handler
 	metaClient tree.NodeReceiverClient
 }
 
@@ -63,7 +64,7 @@ func (e *ExifProcessor) GetName() string {
 
 // Init passes parameters to the action
 func (e *ExifProcessor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	e.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
+	//e.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
 	e.metaClient = tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, cl)
 	return nil
 }
@@ -78,7 +79,7 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	exifData, err := e.ExtractExif(ctx, node)
 
 	if err != nil {
-		log.Logger(ctx).Error("Could not extract exif : ", zap.Error(err), zap.Any("ctx", ctx))
+		log.Logger(ctx).Debug("Could not extract exif : ", zap.Error(err), zap.Any("ctx", ctx))
 		return input.WithError(err), err
 	}
 
@@ -98,9 +99,37 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 	lat, long, err := exifData.LatLong()
 	if err == nil {
-		geoLocation := map[string]float64{
+		var readLat, readLong string
+		geoLocation := map[string]interface{}{
 			"lat": lat,
 			"lon": long,
+		}
+		if lat2, e := exifData.Get(exif.GPSLatitude); e == nil {
+			if l0, e1 := lat2.Rat(0); e1 == nil {
+				l1, _ := lat2.Rat(1)
+				l2, _ := lat2.Rat(2)
+				ref, _ := exifData.Get(exif.GPSLatitudeRef)
+				refStr, _ := ref.StringVal()
+				readLat = fmt.Sprintf("%d deg %d' %d %s", l0.Num(), l1.Num(), l2.Num(), refStr)
+			}
+		}
+		if long2, e := exifData.Get(exif.GPSLongitude); e == nil {
+			if l0, e1 := long2.Rat(0); e1 == nil {
+				l1, _ := long2.Rat(1)
+				l2, _ := long2.Rat(2)
+				ref, _ := exifData.Get(exif.GPSLatitudeRef)
+				refStr, _ := ref.StringVal()
+				readLong = fmt.Sprintf("%d deg %d' %d %s", l0.Num(), l1.Num(), l2.Num(), refStr)
+			}
+		}
+		if readLat != "" && readLong != "" {
+			geoLocation["GPS_latitude"] = readLat
+			geoLocation["GPS_longitude"] = readLong
+		}
+		if alt, e := exifData.Get(exif.GPSAltitude); e == nil {
+			if a0, e1 := alt.Rat(0); e1 == nil {
+				geoLocation["GPS_altitude"] = fmt.Sprintf("%d", a0.Num())
+			}
 		}
 		node.SetMeta(METADATA_GEOLOCATION, geoLocation)
 	}
@@ -108,9 +137,9 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	e.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 
 	output.Nodes[0] = node
+	log.TasksLogger(ctx).Info("Extracted EXIF data from image", node.Zap())
 	output.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: "Successfully Extracted EXIF data",
+		Success: true,
 	})
 
 	return output, nil
@@ -131,7 +160,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 		targetFileName := filepath.Join(localFolder, baseName)
 		reader, rer = os.Open(targetFileName)
 	} else {
-		reader, rer = e.Router.GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
+		reader, rer = getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
 	}
 
 	//reader, rer := node.ReadFile(ctx)
@@ -147,7 +176,9 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 	// Canon are supported.
 	// exif.RegisterParsers(mknote.All...)
 	x, err := exif.Decode(reader)
-	if err != nil {
+
+	// Do not throw an error when there are no exif data
+	if err != nil && err.Error() != "EOF" {
 		return nil, err
 	}
 

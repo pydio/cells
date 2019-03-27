@@ -29,9 +29,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/boltdb"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/activity"
 )
 
@@ -43,7 +43,7 @@ type boltdbimpl struct {
 }
 
 // Init the storage
-func (dao *boltdbimpl) Init(options config.Map) error {
+func (dao *boltdbimpl) Init(options common.ConfigValues) error {
 
 	// Update defaut inbox max size if set in the config
 	dao.InboxMaxSize = options.Int64("InboxMaxSize", dao.InboxMaxSize)

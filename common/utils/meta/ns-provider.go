@@ -1,0 +1,150 @@
+package meta
+
+import (
+	"context"
+	"sync"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/micro/go-micro/broker"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
+)
+
+// NamespaceProvider list all namespaces info from services declared ServiceMetaNsProvider
+// It watches events to maintain the list
+type NamespacesProvider struct {
+	sync.RWMutex // this handles a lock for the namespaces field
+	namespaces   []*idm.UserMetaNamespace
+	loaded       bool
+	streamers    []tree.NodeProviderStreamer_ReadNodeStreamClient
+}
+
+func NewNamespacesProvider() *NamespacesProvider {
+	ns := &NamespacesProvider{}
+	ns.Watch()
+	return ns
+}
+
+func (p *NamespacesProvider) Namespaces() map[string]*idm.UserMetaNamespace {
+	if !p.loaded {
+		p.Load()
+	}
+	p.RLock()
+	defer p.RUnlock()
+	ns := make(map[string]*idm.UserMetaNamespace, len(p.namespaces))
+	for _, n := range p.namespaces {
+		ns[n.Namespace] = n
+	}
+	return ns
+}
+
+func (p *NamespacesProvider) ExcludeIndexes() map[string]struct{} {
+	if !p.loaded {
+		p.Load()
+	}
+	ni := make(map[string]struct{})
+	p.RLock()
+	defer p.RUnlock()
+	for _, ns := range p.namespaces {
+		if !ns.Indexable {
+			ni[ns.Namespace] = struct{}{}
+		}
+	}
+	return ni
+}
+
+func (p *NamespacesProvider) Load() {
+	// Other Meta Providers (running services only)
+	services, err := registry.ListServicesWithMicroMeta(ServiceMetaNsProvider, "list")
+	if err != nil {
+		return
+	}
+	defer func() {
+		p.loaded = true
+	}()
+	for _, srv := range services {
+		cl := idm.NewUserMetaServiceClient(srv.Name(), defaults.NewClient())
+		s, e := cl.ListUserMetaNamespace(context.Background(), &idm.ListUserMetaNamespaceRequest{})
+		if e != nil {
+			continue
+		}
+		p.Lock()
+		for {
+			r, er := s.Recv()
+			if er != nil {
+				break
+			}
+			p.namespaces = append(p.namespaces, r.UserMetaNamespace)
+		}
+		p.Unlock()
+		s.Close()
+	}
+
+}
+
+func (p *NamespacesProvider) InitStreamers(ctx context.Context) error {
+	services, err := registry.ListServicesWithMicroMeta(ServiceMetaNsProvider, "list")
+	if err != nil {
+		return err
+	}
+	for _, srv := range services {
+		c := tree.NewNodeProviderStreamerClient(srv.Name(), defaults.NewClient())
+		if s, e := c.ReadNodeStream(ctx); e == nil {
+			p.streamers = append(p.streamers, s)
+		}
+	}
+	return nil
+}
+
+func (p *NamespacesProvider) CloseStreamers() error {
+	var ers []error
+	for _, s := range p.streamers {
+		if e := s.Close(); e != nil {
+			ers = append(ers, e)
+		}
+	}
+	p.streamers = []tree.NodeProviderStreamer_ReadNodeStreamClient{}
+	if len(ers) > 0 {
+		return ers[0]
+	}
+	return nil
+}
+
+func (p *NamespacesProvider) ReadNode(node *tree.Node) (*tree.Node, error) {
+	out := node.Clone()
+	if out.MetaStore == nil {
+		out.MetaStore = make(map[string]string)
+	}
+	for _, s := range p.streamers {
+		s.Send(&tree.ReadNodeRequest{Node: node})
+		if resp, e := s.Recv(); e == nil && resp.Node.MetaStore != nil {
+			for k, v := range resp.Node.MetaStore {
+				out.MetaStore[k] = v
+			}
+		}
+	}
+	return out, nil
+}
+
+func (p *NamespacesProvider) Clear() {
+	p.Lock()
+	p.namespaces = nil
+	p.loaded = false
+	p.Unlock()
+}
+
+func (p *NamespacesProvider) Watch() {
+	defaults.Broker().Subscribe(common.TOPIC_IDM_EVENT, func(publication broker.Publication) error {
+		var ce idm.ChangeEvent
+		if e := proto.Unmarshal(publication.Message().Body, &ce); e == nil {
+			if ce.MetaNamespace != nil {
+				p.Clear()
+			}
+		}
+		return nil
+	})
+}

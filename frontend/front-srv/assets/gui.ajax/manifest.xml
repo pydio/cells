@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="gui.ajax" label="CONF_MESSAGE[Client Plugin]" description="CONF_MESSAGE[Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd" enabled="always">
+    <client_settings>
+        <resources>
+            <i18n namespace="ajax_gui" remote="plug/gui.ajax/res/i18n"/>
+            <js
+                className="React"
+                file="plug/gui.ajax/res/build/bundle.prod.min.js"
+            />
+            <js
+                className="PydioCoreActions"
+                file="plug/gui.ajax/res/build/PydioCoreActions.min.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioCoreActions.js"
+                fallbackCondition="pydio.Parameters.get('debugMode')"
+                depends="React"
+                expose="actions/core"
+            />
+            <js
+                className="PydioForm"
+                file="plug/gui.ajax/res/build/PydioForm.min.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioForm.js"
+                fallbackCondition="pydio.Parameters.get('debugMode')"
+                expose="form"
+            />
+            <js
+                className="PydioReactUI"
+                file="plug/gui.ajax/res/build/PydioReactUI.min.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioReactUI.js"
+                fallbackCondition="pydio.Parameters.get('debugMode')"
+                depends="React,PydioHOCs"
+                expose="boot"
+            />
+            <js
+                className="PydioComponents"
+                file="plug/gui.ajax/res/build/PydioComponents.min.js"
+                depends="React,PydioForm"
+                fallbackCondition="pydio.Parameters.get('debugMode')"
+                fallbackFile="plug/gui.ajax/res/build/PydioComponents.js"
+                expose="components"
+            />
+            <js
+                className="PydioHOCs"
+                file="plug/gui.ajax/res/build/PydioHOCs.min.js"
+                depends="React"
+                fallbackCondition="pydio.Parameters.get('debugMode')"
+                fallbackFile="plug/gui.ajax/res/build/PydioHOCs.js"
+                expose="hoc"
+            />
+            <js
+                className="PydioWorkspaces"
+                file="plug/gui.ajax/res/build/PydioWorkspaces.min.js"
+                fallbackCondition="pydio.Parameters.get('debugMode')"
+                fallbackFile="plug/gui.ajax/res/build/PydioWorkspaces.js"
+                depends="React,PydioComponents,PydioHOCs"
+                expose="workspaces"
+            />
+            <css file="plug/gui.ajax/res/build/pydio.material.min.css" autoload="true"/>
+        </resources>
+    </client_settings>
+	<server_settings>
+        <global_param name="GUI_THEME" group="CONF_MESSAGE[Main Options]" type="select" choices="material|Material,light|Material Light" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="light" expose="true"/>
+        <global_param name="ENABLE_WELCOME_TOUR" group="CONF_MESSAGE[Main Options]" type="boolean" expose="true" label="CONF_MESSAGE[Enable Welcome Tour]" description="CONF_MESSAGE[Enable the small tour triggered at first visit]" default="true"/>
+        <global_param name="CLIENT_TIMEOUT_WARN" group="CONF_MESSAGE[Main Options]" type="integer" label="CONF_MESSAGE[Warning Before Session Expiration]" description="CONF_MESSAGE[Alert the user that the web session is about to expire. Number of minutes before session expiration]" mandatory="false" default="3"/>
+        <global_param name="CUSTOM_ICON_BINARY" group="CONF_MESSAGE[Login Screen]" type="image" label="CONF_MESSAGE[Custom Icon]" description="CONF_MESSAGE[URI to a custom image to be used as start up logo]"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png"
+                      mandatory="false"
+                      expose="true"
+                />
+        <global_param name="CUSTOM_ICON" group="CONF_MESSAGE[Login Screen]" type="string" label="CONF_MESSAGE[Icon Path (Legacy)]" description="CONF_MESSAGE[URI to a custom image to be used as start up logo]" default="plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png" mandatory="false" expose="true"/>
+        <global_param name="CUSTOM_DASH_LOGO" group="CONF_MESSAGE[Login Screen]"  label="CONF_MESSAGE[User Home Logo]" description="CONF_MESSAGE[Replace the logo displayed in the welcome page]"  type="image"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/PydioCellsColor.png"
+                      expose="true"
+                />
+
+        <global_param name="WELCOME_PAGE_BACKGROUND_1" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (1)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/01.jpg"
+                      expose="true"
+                />
+        <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_1" group="CONF_MESSAGE[Page Background Images]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:140%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (1)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
+                      mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
+
+        <global_param name="WELCOME_PAGE_BACKGROUND_2" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (2)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/02.jpg"
+                      expose="true"
+                />
+        <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_2" group="CONF_MESSAGE[Page Background Images]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:140%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (2)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
+                      mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
+
+        <global_param name="WELCOME_PAGE_BACKGROUND_3" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (3)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03.jpg"
+                      expose="true"
+                />
+        <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_3" group="CONF_MESSAGE[Page Background Images]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:140%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (3)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
+                      mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
+
+        <global_param name="WELCOME_PAGE_BACKGROUND_4" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (4)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/04.jpg"
+                      expose="true"
+                />
+        <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_4" group="CONF_MESSAGE[Page Background Images]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:140%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (4)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
+                      mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
+
+        <global_param name="WELCOME_PAGE_BACKGROUND_5" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (5)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/05.jpg"
+                      expose="true"
+                />
+        <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_5" group="CONF_MESSAGE[Page Background Images]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:140%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (5)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
+                      mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
+
+        <global_param name="WELCOME_PAGE_BACKGROUND_6" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (6)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/06.jpg"
+                      expose="true"
+                />
+        <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_6" group="CONF_MESSAGE[Page Background Images]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:140%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (6)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
+                      mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
+
+        <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_1" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (1)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/02.jpg"
+                      expose="true"
+                />
+        <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_ATTRIBUTES_1" group="CONF_MESSAGE[Minisite]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:100%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (1)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
+                      mandatory="false" expose="true" default="background-repeat:repeat;background-size:100%;background-position:50% 50%;"/>
+        <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_2" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (2)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03.jpg"
+                      expose="true"
+                />
+        <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_ATTRIBUTES_2" group="CONF_MESSAGE[Minisite]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:100%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (2)]" description="CONF_MESSAGE[Attributes of the image used as a background]" mandatory="false" expose="true"  default="background-repeat:repeat;background-size:100%;background-position:50% 50%;"/>
+        <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_3" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (3)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/05.jpg"
+                      expose="true"
+                />
+        <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_ATTRIBUTES_3" group="CONF_MESSAGE[Minisite]" type="select"
+                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:100%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
+                      label="CONF_MESSAGE[Background Attributes (3)]" description="CONF_MESSAGE[Attributes of the image used as a background]" mandatory="false" expose="true"  default="background-repeat:repeat;background-size:100%;background-position:50% 50%;"/>
+
+	</server_settings>
+	<registry_contributions>
+		<actions>
+            <action name="up_dir">
+                <gui text="148" title="24" iconClass="mdi mdi-folder-upload" hasAccessKey="true"
+                     accessKey="parent_access_key">
+                    <context selection="false" dir="false" recycle="false"
+                             actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="00_navigation">
+                    </context>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Navigation.up"/>
+                </processing>
+            </action>
+            <action name="refresh">
+                <gui text="149" title="149" iconClass="mdi mdi-refresh" hasAccessKey="true"
+                     accessKey="refresh_access_key">
+                    <context selection="false" dir="true" recycle="false"
+                             actionBar="true" actionBarGroup="00_navigation,display_toolbar" contextMenu="true" infoPanel="false">
+                    </context>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Navigation.refresh"/>
+                </processing>
+            </action>
+            <action name="bookmark">
+                <gui text="152" title="153" iconClass="mdi mdi-star-outline" hasAccessKey="true"
+                     accessKey="bookmarks_access_key">
+                    <context selection="true" dir="false" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="other">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Callbacks.toggleBookmark"/>
+                </processing>
+            </action>
+            <action name="splash">
+                <gui text="166" title="167" iconClass="mdi mdi-information-outline" hasAccessKey="true"
+                     accessKey="about_access_key">
+                    <context selection="false" dir="" recycle="false"
+                             actionBar="true" actionBarGroup="zlogin" contextMenu="false" infoPanel="false">
+                    </context>
+                </gui>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Navigation.splash"/>
+                </processing>
+            </action>
+        </actions>
+		<client_configs uuidAttr="name">
+            <template name="main_material" element="ajxp_desktop" position="top" theme="material" namespace="PydioReactUI" component="TemplateBuilder" props='{"imageBackgroundFromConfigs":"gui.ajax/WELCOME_PAGE_BACKGROUND_", "containerId":"orbit_content"}'/>
+            <template name="material_modal" element="body" position="bottom" theme="material" namespace="PydioReactUI" component="Modal" props='{"containerId":"pydio_modal"}'/>
+            <template name="material_snack" element="body" position="bottom" namespace="PydioReactUI" component="MessageBar" props='{"containerId":"pydio_message_bar"}'/>
+            <template name="material_router" element="ajxp_desktop" position="bottom" namespace="PydioReactUI" component="Router" props='{"containerId":"pydio_router"}'/>
+            <template name="network_loader" element="body" position="bottom" namespace="PydioReactUI" component="NetworkLoader" props='{}'/>
+            <template name="hidden_download" element="body" position="bottom" namespace="PydioReactUI" component="HiddenDownloadForm" props='{}'/>
+            <!--
+            <template name="pydio-tasks-panel" element="ajxp_desktop" position="bottom" namespace="PydioReactUI" component="TasksPanel" props='{}'/>
+            -->
+			<component_config component="FilesList">
+				<property name="thumbSize" value="128"/>
+			</component_config>
+		</client_configs>
+    </registry_contributions>
+    <dependencies>
+        <activePlugin pluginName="core.conf"/>
+    </dependencies>
+</plugin>

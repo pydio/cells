@@ -24,13 +24,12 @@ import (
 	"encoding/binary"
 	"encoding/json"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/boltdb"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/chat"
 )
 
@@ -45,7 +44,7 @@ const (
 	generalObject = "general"
 )
 
-func (h *boltdbimpl) Init(config config.Map) error {
+func (h *boltdbimpl) Init(config common.ConfigValues) error {
 	h.DB().Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(rooms))
 		if err != nil {

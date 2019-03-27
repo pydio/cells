@@ -89,10 +89,10 @@ func (f *FakeUsersAction) Init(job *jobs.Job, cl client.Client, action *jobs.Act
 
 // Run the actual action code
 func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
-	log.Logger(ctx).Info("Starting fake users creation")
+	log.TasksLogger(ctx).Info("Starting fake users creation")
 
 	outputMessage := input
-	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Hello World"})
+	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Creating random users"})
 
 	userServiceClient := idm.NewUserServiceClient(registry.GetClient(common.SERVICE_USER))
 	rolesServiceClient := idm.NewRoleServiceClient(registry.GetClient(common.SERVICE_ROLE))
@@ -166,6 +166,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 			output := input.WithError(err)
 			return output, err
 		} else {
+			log.TasksLogger(ctx).Info("Created user " + label)
 			_, e := rolesServiceClient.CreateRole(ctx, &idm.CreateRoleRequest{
 				Role: &idm.Role{
 					Uuid:     response.User.Uuid,
