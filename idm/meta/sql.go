@@ -162,8 +162,8 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 			return meta, update, err
 		}
 
-		meta.Uuid = metaId
 	}
+	meta.Uuid = metaId
 
 	if err == nil && len(meta.Policies) > 0 {
 		for _, p := range meta.Policies {

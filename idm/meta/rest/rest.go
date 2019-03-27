@@ -190,6 +190,8 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 				log.Logger(ctx).Error("Cannot decode jsonDef "+ns.Namespace+": "+ns.JsonDefinition, zap.Error(jE))
 			}
 		}
+		// Now update policies for input Meta
+		meta.Policies = ns.Policies
 	}
 	// Some existing meta will be updated / deleted : load their policies and check their rights!
 	if len(loadUuids) > 0 {
