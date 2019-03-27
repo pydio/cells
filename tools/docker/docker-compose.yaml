@@ -1,7 +1,7 @@
 version: '3'
 services:
 
-    # Cells image with two named volumes for the static and for the data
+    # Cells image one named volume for the data
     cells:
         image: pydio/cells:latest
         restart: always
