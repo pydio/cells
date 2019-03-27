@@ -116,10 +116,10 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	log.Logger(ctx).Debug("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.TargetIsParent))
 
-	// Do not copy on itself, ignore
-	if targetNode.Path == input.Nodes[0].Path {
-		return input, nil
-	}
+	// Do not copy on itself, ignore - NO : suffixPathWillDoTheJob
+	//if targetNode.Path == input.Nodes[0].Path {
+	//	return input, nil
+	//}
 
 	// Handle already existing
 	c.suffixPathIfNecessary(ctx, targetNode)
