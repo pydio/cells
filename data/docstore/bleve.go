@@ -108,21 +108,17 @@ func (s *BleveServer) DeleteDocument(storeID string, docID string) error {
 
 }
 
-func (s *BleveServer) ClearIndex(ctx context.Context) error {
+func (s *BleveServer) Reset() error {
+
 	// List all nodes and remove them
-	request := bleve.NewSearchRequest(bleve.NewMatchAllQuery())
-	MaxUint := ^uint(0)
-	MaxInt := int(MaxUint >> 1)
-	request.Size = MaxInt
-	searchResult, err := s.Engine.Search(request)
-	if err != nil {
-		return err
+	s.Engine.Close()
+	if e := os.RemoveAll(s.IndexPath); e != nil {
+		return e
 	}
-	for _, hit := range searchResult.Hits {
-		log.Logger(ctx).Info("ClearIndex", zap.String("hit", hit.ID))
-		s.Engine.Delete(hit.ID)
-	}
-	return nil
+	var err error
+	s.Engine, err = bleve.NewUsing(s.IndexPath, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
+	return err
+
 }
 
 func (s *BleveServer) SearchDocuments(storeID string, query *docstore.DocumentQuery, countOnly bool) ([]string, int64, error) {

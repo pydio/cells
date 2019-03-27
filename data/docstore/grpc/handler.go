@@ -28,6 +28,7 @@ import (
 
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/docstore"
+	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/data/docstore"
 )
 
@@ -157,6 +158,40 @@ func (h *Handler) ListDocuments(ctx context.Context, request *proto.ListDocument
 		}
 
 	}
+
+	return nil
+}
+
+// TriggerResync clear search index and reindex all docs from DB
+func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest, response *sync.ResyncResponse) error {
+
+	stores, e := h.Db.ListStores()
+	if e != nil {
+		return e
+	}
+	if e := h.Indexer.Reset(); e != nil {
+		return e
+	}
+	go func() {
+		for _, s := range stores {
+			log.Logger(ctx).Info("Browsing store", zap.String("store", s))
+			docs, done, e := h.Db.ListDocuments(s, &proto.DocumentQuery{})
+			if e != nil {
+				continue
+			}
+		loop:
+			for {
+				select {
+				case doc := <-docs:
+					log.Logger(ctx).Info("-- Reindexing", zap.String("docID", doc.ID))
+					h.Indexer.IndexDocument(s, doc)
+				case <-done:
+					break loop
+				}
+			}
+		}
+	}()
+	response.Success = true
 
 	return nil
 }

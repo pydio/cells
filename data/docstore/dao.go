@@ -35,6 +35,7 @@ type Store interface {
 	GetDocument(storeID string, docId string) (*docstore.Document, error)
 	DeleteDocument(storeID string, docID string) error
 	ListDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, chan bool, error)
+	ListStores() ([]string, error)
 	Close() error
 }
 
@@ -42,5 +43,6 @@ type Indexer interface {
 	IndexDocument(storeID string, doc *docstore.Document) error
 	DeleteDocument(storeID string, docID string) error
 	SearchDocuments(storeID string, query *docstore.DocumentQuery, countOnly bool) ([]string, int64, error)
+	Reset() error
 	Close() error
 }

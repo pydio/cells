@@ -75,8 +75,12 @@ func TestHandler_Close(t *testing.T) {
 
 	Convey("Test init/close handler", t, func() {
 
-		pBolt := newPath("docstore.db")
-		pBleve := newPath("docstore.bleve")
+		pBolt := newPath("docstoreT.db")
+		pBleve := newPath("docstoreT.bleve")
+		defer func() {
+			os.RemoveAll(pBolt)
+			os.RemoveAll(pBleve)
+		}()
 
 		store, err := docstore.NewBoltStore(pBolt, true)
 		So(err, ShouldBeNil)

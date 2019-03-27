@@ -21,7 +21,6 @@
 package docstore
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -54,9 +53,9 @@ func TestNewBleveEngine(t *testing.T) {
 		s, e := NewBleveEngine(p, true)
 		So(e, ShouldBeNil)
 		So(s, ShouldNotBeNil)
-		defer s.Close()
+		//		defer s.Close()
 
-		e = s.ClearIndex(context.Background())
+		e = s.Reset()
 		So(e, ShouldBeNil)
 
 	})

@@ -26,11 +26,12 @@ import (
 	"path"
 
 	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
 	proto "github.com/pydio/cells/common/proto/docstore"
+	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/docstore"
 )
@@ -80,6 +81,7 @@ func init() {
 				m.Init(micro.BeforeStop(handler.Close))
 
 				proto.RegisterDocStoreHandler(m.Options().Server, handler)
+				sync.RegisterSyncEndpointHandler(m.Options().Server, handler)
 
 				return nil
 			}),
