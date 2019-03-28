@@ -26,6 +26,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/pborman/uuid"
+
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
@@ -79,7 +81,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		}
 
 		if len(clone.Uuid) == 0 || clone.Size == 0 {
-			return nil, errors.NotFound("views.Handler.encryption", "node Uuid and size are bith required")
+			return nil, errors.NotFound("views.Handler.encryption", "node Uuid and size are both required")
 		}
 
 		dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
@@ -174,10 +176,8 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 
 	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	if dsName == "" {
-		dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, info.Name)
 	}
-
-	clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
 
 	eMaterial, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey, true)
 	if err != nil {
@@ -205,49 +205,110 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 			log.Logger(ctx).Error("PutObject failed", zap.Error(err))
 		}
 	}
+	if err == nil {
+		log.Logger(ctx).Debug("PutObject via Encryption Handler", node.Zap(), zap.Any("rData", requestData))
+	}
+
 	return n, err
 }
 
 // CopyObject Enriches request metadata for CopyObject with Encryption Materials, if required by datasource
 func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
-	info, ok := GetBranchInfo(ctx, "in")
-	if !ok || info.EncryptionMode != object.EncryptionMode_MASTER {
+	srcInfo, ok2 := GetBranchInfo(ctx, "from")
+	destInfo, ok := GetBranchInfo(ctx, "to")
+	if !ok || !ok2 {
+		return 0, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find Client for src or dest")
+	}
+	readCtx := WithBranchInfo(ctx, "in", srcInfo)
+	writeCtx := WithBranchInfo(ctx, "in", destInfo)
+	// Ds are not encrypted, let if flow
+	if srcInfo.EncryptionMode != object.EncryptionMode_MASTER && destInfo.EncryptionMode != object.EncryptionMode_MASTER {
+		return e.next.CopyObject(ctx, from, to, requestData)
+	}
+	// Move
+	var move, sameClient bool
+	if d, ok := requestData.Metadata[common.X_AMZ_META_DIRECTIVE]; ok && d == "COPY" {
+		move = true
+	}
+	sameClient = destInfo.Client == srcInfo.Client
+	if move && sameClient {
 		return e.next.CopyObject(ctx, from, to, requestData)
 	}
 
 	cloneFrom := from.Clone()
 	cloneTo := to.Clone()
-	log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Copy Object", zap.String("UUID", from.Uuid), zap.String("Path", from.Path))
-	if len(cloneFrom.Uuid) == 0 {
-
-		rsp, readErr := e.next.ReadNode(ctx, &tree.ReadNodeRequest{
-			Node: from,
+	if sameClient {
+		log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Copy Object Same DS", cloneTo.Zap("from"), zap.String("UUID", from.Uuid), zap.String("Path", from.Path))
+		if len(cloneFrom.Uuid) == 0 {
+			rsp, readErr := e.next.ReadNode(readCtx, &tree.ReadNodeRequest{
+				Node: from,
+			})
+			if readErr != nil {
+				return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID: %s", readErr)
+			}
+			if len(rsp.Node.Uuid) == 0 {
+				return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID")
+			}
+			cloneFrom.Uuid = rsp.Node.Uuid
+		}
+		// Force target Uuid to copy encryption material
+		cloneTo.Uuid = uuid.New()
+		// Just add the metadata and let underlying handler do the job
+		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = cloneTo.Uuid
+		requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", cloneFrom.Size)
+		l, er := e.next.CopyObject(ctx, from, to, requestData)
+		if er == nil {
+			err := e.copyEncryptionMaterials(ctx, cloneFrom, cloneTo)
+			if err == nil {
+				er = err
+			}
+		}
+		return l, er
+	} else {
+		// We have to encrypt/decrypt on the fly
+		destPath := cloneTo.ZapPath()
+		rsp, readErr := e.next.ReadNode(readCtx, &tree.ReadNodeRequest{
+			Node: cloneFrom,
 		})
-
 		if readErr != nil {
-			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID: %s", readErr)
+			return 0, readErr
+		} else if rsp.Node == nil {
+			return 0, fmt.Errorf("empty node returned")
 		}
-
-		if len(rsp.Node.Uuid) == 0 {
-			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID")
+		cloneFrom = rsp.Node
+		reader, err := e.GetObject(readCtx, cloneFrom, &GetRequestData{StartOffset: 0, Length: cloneFrom.Size})
+		if err != nil {
+			log.Logger(ctx).Error("HandlerEncryption: CopyObject / Different Clients - Read Source Error", zap.Any("srcInfo", srcInfo), cloneFrom.Zap("readFrom"), zap.Error(err))
+			return 0, err
 		}
-
-		cloneFrom.Uuid = rsp.Node.Uuid
+		defer reader.Close()
+		log.Logger(ctx).Debug("HandlerEncryption: copy one DS to another - force UUID", cloneTo.Zap("to"), zap.Any("srcInfo", srcInfo), zap.Any("destInfo", destInfo))
+		if !move {
+			cloneTo.Uuid = uuid.New()
+		} else {
+			cloneTo.Uuid = cloneFrom.Uuid
+		}
+		putReqData := &PutRequestData{
+			Size:     -1,
+			Metadata: requestData.Metadata,
+		}
+		putReqData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", cloneFrom.Size)
+		putReqData.Metadata[common.X_AMZ_META_NODE_UUID] = cloneTo.Uuid
+		oi, err := e.PutObject(writeCtx, cloneTo, reader, putReqData)
+		if err != nil {
+			log.Logger(ctx).Error("HandlerEncryption: CopyObject / Different Clients",
+				zap.Error(err),
+				cloneFrom.Zap("from"),
+				cloneTo.Zap("to"),
+				zap.Any("srcInfo", srcInfo),
+				zap.Any("destInfo", destInfo),
+				zap.Any("targetPath", destPath))
+		} else {
+			log.Logger(ctx).Debug("HandlerEncryption: CopyObject / Different Clients", rsp.Node.Zap("from"), zap.Int64("written", oi))
+		}
+		return oi, err
 	}
 
-	dsName := cloneFrom.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-	if dsName == "" {
-		dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-	}
-
-	cloneFrom.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
-	cloneTo.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
-	err := e.copyEncryptionMaterials(ctx, from, to)
-	if err != nil {
-		return 0, err
-	}
-
-	return e.next.CopyObject(ctx, from, to, requestData)
 }
 
 func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
