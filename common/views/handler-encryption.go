@@ -92,7 +92,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 			return nil, errors.New("views.encryption.handler", "failed to set node meta data", 500)
 		}
 
-		fullRead := requestData.StartOffset == 0 && (requestData.Length == 0 || requestData.Length == clone.Size)
+		fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == clone.Size)
 		if !fullRead {
 			eMat, err := e.retrieveRangeEncryptionMaterial(ctx, clone, info.EncryptionKey)
 			if err != nil {
