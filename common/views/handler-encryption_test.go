@@ -21,15 +21,16 @@ package views
 import (
 	"context"
 	"crypto/rand"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/crypto"
-	"github.com/pydio/cells/common/proto/object"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/crypto"
+	"github.com/pydio/cells/common/proto/object"
 
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -43,7 +44,7 @@ import (
 func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	handler := &EncryptionHandler{
-		// 		UserTools: &EncryptionClientMock{},
+	// 		UserTools: &EncryptionClientMock{},
 	}
 	mock := NewHandlerMock()
 	mock.Nodes["test"] = &tree.Node{Path: "test"}
@@ -110,9 +111,7 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 
 		reqData := &CopyRequestData{}
 		_, e := handler.CopyObject(emptyCtx, &tree.Node{Path: "test2"}, &tree.Node{Path: "test2"}, reqData)
-		So(e, ShouldBeNil)
-		So(mock.Nodes["from"], ShouldNotBeNil)
-		So(mock.Nodes["to"], ShouldNotBeNil)
+		So(e, ShouldNotBeNil)
 
 	})
 
