@@ -133,7 +133,11 @@ func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInf
 	value := ctx.Value(ctxBranchInfoKey{})
 	var data map[string]BranchInfo
 	if value != nil {
-		data = value.(map[string]BranchInfo)
+		existing := value.(map[string]BranchInfo)
+		data = make(map[string]BranchInfo, len(existing))
+		for k, v := range existing {
+			data[k] = v
+		}
 	} else {
 		data = make(map[string]BranchInfo)
 	}
