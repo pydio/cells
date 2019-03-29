@@ -58,14 +58,48 @@ func (a *Executor) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilte
 
 func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 
-	resp, err := e.clientsPool.GetTreeClient().ReadNode(ctx, in, opts...)
-	if err != nil {
-		if errors.Parse(err.Error()).Code != 404 {
-			log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
+	if in.ObjectStats {
+		info, ok := GetBranchInfo(ctx, "in")
+		if !ok {
+			return nil, errors.BadRequest(VIEWS_LIBRARY_NAME, "Cannot find S3 client, did you insert a resolver middleware?")
 		}
+		writer := info.Client
+		statOpts := minio.StatObjectOptions{}
+		m := map[string]string{}
+		if meta, ok := context2.MinioMetaFromContext(ctx); ok {
+			for k, v := range meta {
+				m[k] = v
+				statOpts.Set(k, v)
+			}
+		}
+		s3Path := e.buildS3Path(info, in.Node)
+		if oi, e := writer.StatObject(info.ObjectsBucket, s3Path, statOpts); e != nil {
+			if e.Error() == noSuchKeyString {
+				e = errors.NotFound("not.found", "object not found in datasource: %s", s3Path)
+			}
+			log.Logger(ctx).Info("ReadNodeRequest/ObjectsStats Failed", zap.Any("r", in), zap.Error(e))
+			return nil, e
+		} else {
+			// Build fake node from Stats
+			out := in.Node.Clone()
+			out.Etag = oi.ETag
+			out.Size = oi.Size
+			out.MTime = oi.LastModified.Unix()
+			resp := &tree.ReadNodeResponse{Node: out}
+			return resp, nil
+		}
+	} else {
+
+		resp, err := e.clientsPool.GetTreeClient().ReadNode(ctx, in, opts...)
+		if err != nil {
+			if errors.Parse(err.Error()).Code != 404 {
+				log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
+			}
+		}
+
+		return resp, err
 	}
 
-	return resp, err
 }
 
 func (e *Executor) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {

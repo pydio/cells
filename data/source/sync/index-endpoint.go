@@ -89,8 +89,7 @@ func (i *IndexEndpoint) Watch(recursivePath string) (*commonsync.WatchObject, er
 
 func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
 
-	log.Logger(ctx).Debug("LoadNode", zap.String("path", path))
-
+	log.Logger(ctx).Debug("LoadNode ByPath" + path)
 	resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Path: path,
@@ -106,6 +105,7 @@ func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool)
 // LoadNodeByUuid makes this endpoint an UuidProvider
 func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error) {
 
+	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
 	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Uuid: uuid,
@@ -113,7 +113,6 @@ func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *
 	}); e != nil {
 		return nil, e
 	} else {
-		log.Logger(ctx).Debug("Loading Node By Uuid has response:", resp.Node.Zap())
 		return resp.Node, nil
 	}
 

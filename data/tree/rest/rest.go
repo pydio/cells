@@ -254,9 +254,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			}
 		}
 
-		jobUuid := uuid.New()
+		jobUuid := "copy-move-" + uuid.New()
 		job := &jobs.Job{
-			ID:             "copy-move-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          username,
 			Label:          moveLabel,
 			Inactive:       false,
@@ -295,9 +295,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	if len(deleteJobs.RealDeletes) > 0 {
 
 		taskLabel := T("Jobs.User.Delete")
-		jobUuid := uuid.New()
+		jobUuid := "delete-" + uuid.New()
 		job := &jobs.Job{
-			ID:             "delete-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          username,
 			Label:          taskLabel,
 			Inactive:       false,

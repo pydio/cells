@@ -28,7 +28,7 @@ import FilePreview from './FilePreview'
 import {IconButton} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
 const {SimpleList} = Pydio.requireLib('components');
-const {moment} = Pydio.requireLib('boot');
+const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import OverlayIcon from './OverlayIcon'
 
 class ComponentConfigsParser {
@@ -384,7 +384,11 @@ let MainFilesList = React.createClass({
         const otherPieces = [];
 
         if (metaData.has('pending_operation')){
-            return <span style={{fontStyle:'italic', color:'rgba(0,0,0,.33)'}}>{metaData.get('pending_operation')}</span>
+            if (metaData.has('pending_operation_uuid')) {
+                return <SingleJobProgress jobID={metaData.get('pending_operation_uuid')} style={{display:'flex', flexDirection:'row-reverse', alignItems:'center'}} progressStyle={{width: 60, paddingRight: 10}} labelStyle={{flex: 1}}/>
+            } else {
+                return <span style={{fontStyle:'italic', color:'rgba(0,0,0,.33)'}}>{metaData.get('pending_operation')}</span>
+            }
         }
 
         if(metaData.get('ajxp_modiftime')) {

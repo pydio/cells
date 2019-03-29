@@ -56,6 +56,7 @@ exports['default'] = function (pydio) {
                 nodes.forEach(function (n) {
                     var m = pydio.MessageHash['background.move.' + (n.isLeaf() ? 'file' : 'folder')];
                     n.getMetadata().set('pending_operation', m);
+                    n.getMetadata().set('pending_operation_uuid', r.JobUuid);
                     n.notify('meta_replaced', n);
                 });
             } else {

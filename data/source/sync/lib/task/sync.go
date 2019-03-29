@@ -107,11 +107,15 @@ func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan cha
 
 	//log.Logger(ctx).Info("### GOT DIFF", zap.Any("diff", diff))
 	if e != nil {
-		doneChan <- true
+		if doneChan != nil {
+			doneChan <- true
+		}
 		return nil, e
 	}
 	if dryRun {
-		doneChan <- true
+		if doneChan != nil {
+			doneChan <- true
+		}
 		return diff, nil
 	}
 

@@ -46,7 +46,7 @@ import (
 func compress(ctx context.Context, selectedPathes []string, targetNodePath string, format string, languages ...string) (string, error) {
 
 	T := lang.Bundle().GetTranslationFunc(languages...)
-	jobUuid := uuid.NewUUID().String()
+	jobUuid := "compress-folders-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 
@@ -83,7 +83,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 		log.Logger(ctx).Debug("Submitting selected pathes for compression", zap.Any("pathes", selectedPathes))
 
 		job := &jobs.Job{
-			ID:             "compress-folders-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          userName,
 			Label:          T("Jobs.User.Compress"),
 			Inactive:       false,
@@ -118,7 +118,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 func extract(ctx context.Context, selectedNode string, targetPath string, format string, languages ...string) (string, error) {
 
-	jobUuid := uuid.NewUUID().String()
+	jobUuid := "extract-archive-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 	T := lang.Bundle().GetTranslationFunc(languages...)
@@ -155,7 +155,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 		}
 
 		job := &jobs.Job{
-			ID:             "extract-archive-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          userName,
 			Label:          T("Jobs.User.Extract"),
 			Inactive:       false,
@@ -198,7 +198,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		taskLabel = T("Jobs.User.DirMove")
 	}
 
-	jobUuid := uuid.NewUUID().String()
+	jobUuid := "copy-move-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 
@@ -298,7 +298,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		}
 
 		job := &jobs.Job{
-			ID:             "copy-move-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          userName,
 			Label:          taskLabel,
 			Inactive:       false,
@@ -349,7 +349,7 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 	}
 
 	job := &jobs.Job{
-		ID:             "resync-ds-" + dsName,
+		ID:             jobUuid,
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
 		Label:          T("Jobs.User.ResyncDS", map[string]string{"DsName": dsName}),
 		Inactive:       false,
@@ -417,7 +417,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 	for _, url := range urls {
 
-		jobUuid := uuid.NewUUID().String()
+		jobUuid := "wget-" + uuid.New()
 		jobUuids = append(jobUuids, jobUuid)
 
 		var params = map[string]string{
@@ -430,7 +430,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 			basename = jobUuid
 		}
 		job := &jobs.Job{
-			ID:             "wget-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          userName,
 			Label:          taskLabel,
 			Inactive:       false,

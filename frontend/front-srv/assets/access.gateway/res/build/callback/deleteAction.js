@@ -77,6 +77,7 @@ exports['default'] = function (pydio) {
                     if (r.DeleteJobs && r.DeleteJobs.length) {
                         nodes.forEach(function (n) {
                             n.getMetadata().set('pending_operation', r.DeleteJobs[0].Label);
+                            n.getMetadata().set('pending_operation_uuid', r.DeleteJobs[0].Uuid);
                             n.notify('meta_replaced', n);
                         });
                     }

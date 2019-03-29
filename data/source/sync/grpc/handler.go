@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -54,8 +55,9 @@ import (
 
 // Handler structure
 type Handler struct {
-	globalCtx context.Context
-	dsName    string
+	globalCtx      context.Context
+	dsName         string
+	errorsDetected chan string
 
 	IndexClient  tree.NodeProviderClient
 	S3client     synccommon.PathSyncTarget
@@ -65,12 +67,15 @@ type Handler struct {
 
 	watcher    config2.Watcher
 	reloadChan chan bool
+	stop       chan bool
 }
 
 func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 	h := &Handler{
-		globalCtx: ctx,
-		dsName:    datasource,
+		globalCtx:      ctx,
+		dsName:         datasource,
+		errorsDetected: make(chan string),
+		stop:           make(chan bool),
 	}
 	var syncConfig *object.DataSource
 	if err := servicecontext.ScanConfig(ctx, &syncConfig); err != nil {
@@ -83,9 +88,11 @@ func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 func (s *Handler) Start() {
 	s.syncTask.Start(s.globalCtx)
 	go s.watchConfigs()
+	go s.watchErrors()
 }
 
 func (s *Handler) Stop() {
+	s.stop <- true
 	s.syncTask.Shutdown()
 	if s.watcher != nil {
 		s.watcher.Stop()
@@ -98,6 +105,10 @@ func (s *Handler) BroadcastCloseSession(sessionUuid string) {
 		return
 	}
 	s.syncTask.BroadcastCloseSession(sessionUuid)
+}
+
+func (s *Handler) NotifyError(errorPath string) {
+	s.errorsDetected <- errorPath
 }
 
 func (s *Handler) initSync(syncConfig *object.DataSource) error {
@@ -154,6 +165,38 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 	return nil
 
+}
+
+func (s *Handler) watchErrors() {
+	var branch string
+	for {
+		select {
+		case e := <-s.errorsDetected:
+			e = "/" + strings.TrimLeft(e, "/")
+			if len(branch) == 0 {
+				branch = e
+			} else {
+				path := strings.Split(e, "/")
+				stack := strings.Split(branch, "/")
+				max := math.Min(float64(len(stack)), float64(len(path)))
+				var commonParent []string
+				for i := 0; i < int(max); i++ {
+					if stack[i] == path[i] {
+						commonParent = append(commonParent, stack[i])
+					}
+				}
+				branch = "/" + strings.TrimLeft(strings.Join(commonParent, "/"), "/")
+			}
+		case <-time.After(5 * time.Second):
+			if len(branch) > 0 {
+				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
+				branch = ""
+				s.syncTask.Resync(context.Background(), false, nil, nil)
+			}
+		case <-s.stop:
+			return
+		}
+	}
 }
 
 func (s *Handler) watchConfigs() {
