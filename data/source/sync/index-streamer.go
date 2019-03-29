@@ -115,15 +115,15 @@ func (i *IndexStreamer) StartReader(ctx context.Context) error {
 					}
 					return
 				} else {
-					var readResponse interface{}
-					if e := streamer.RecvMsg(&readResponse); e != nil {
+					if resp, e := streamer.Recv(); e != nil {
 						i.readErrors <- e
 					} else {
-						if resp, ok := readResponse.(*tree.ReadNodeResponse); ok {
-							i.readOutput <- resp
-						} else {
-							i.readErrors <- readResponse.(error)
-						}
+
+						//if resp, ok := readResponse.(*tree.ReadNodeResponse); ok {
+						i.readOutput <- resp
+						//} else {
+						//i.readErrors <- readResponse.(error)
+						//}
 					}
 
 				}
