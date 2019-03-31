@@ -29,7 +29,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pborman/uuid"
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	commonsync "github.com/pydio/cells/data/source/sync/lib/common"
@@ -91,7 +90,7 @@ func (i *IndexEndpoint) Watch(recursivePath string) (*commonsync.WatchObject, er
 func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByPath" + path)
-	resp, e := i.streamer.ReadNode(ctx, &tree.ReadNodeRequest{
+	resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Path: path,
 		},
@@ -107,7 +106,7 @@ func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool)
 func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
-	if resp, e := i.streamer.ReadNode(ctx, &tree.ReadNodeRequest{
+	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Uuid: uuid,
 		},
@@ -123,7 +122,7 @@ func (i *IndexEndpoint) CreateNode(ctx context.Context, node *tree.Node, updateI
 
 	session := i.indexationSession()
 
-	_, err = i.streamer.CreateNode(ctx, &tree.CreateNodeRequest{
+	_, err = i.writerClient.CreateNode(ctx, &tree.CreateNodeRequest{
 		Node:              node,
 		UpdateIfExists:    updateIfExists,
 		IndexationSession: session,
@@ -148,7 +147,7 @@ func (i *IndexEndpoint) DeleteNode(ctx context.Context, path string) (err error)
 		log.Logger(ctx).Info("DeleteNode", zap.String("path", path))
 	}
 
-	_, err = i.streamer.DeleteNode(ctx, &tree.DeleteNodeRequest{
+	_, err = i.writerClient.DeleteNode(ctx, &tree.DeleteNodeRequest{
 		Node: &tree.Node{
 			Path: path,
 		},
@@ -161,7 +160,7 @@ func (i *IndexEndpoint) MoveNode(ctx context.Context, oldPath string, newPath st
 
 	log.Logger(ctx).Info("MoveNode", zap.String("oldPath", oldPath), zap.String("newPath", newPath))
 
-	_, err = i.streamer.UpdateNode(ctx, &tree.UpdateNodeRequest{
+	_, err = i.writerClient.UpdateNode(ctx, &tree.UpdateNodeRequest{
 		From: &tree.Node{
 			Path: oldPath,
 		},
@@ -213,6 +212,6 @@ func NewIndexEndpoint(dsName string, reader tree.NodeProviderClient, writer tree
 		readerClient:  reader,
 		writerClient:  writer,
 		sessionClient: sessionClient,
-		streamer:      NewIndexStreamer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dsName),
+		//streamer:      NewIndexStreamer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dsName),
 	}
 }

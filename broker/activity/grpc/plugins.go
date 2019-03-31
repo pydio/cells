@@ -74,6 +74,9 @@ func init() {
 				subscriber := NewEventsSubscriber(dao)
 				s := m.Options().Server
 				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_TREE_CHANGES, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
+					if msg.Optimistic {
+						return nil
+					}
 					return subscriber.HandleNodeChange(ctx, msg)
 				})); err != nil {
 					return err

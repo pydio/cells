@@ -284,6 +284,10 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 // Reacts to a trigger linked to a nodeChange event.
 func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
 
+	if event.Optimistic {
+		return nil
+	}
+
 	s.jobsLock.Lock()
 	defer s.jobsLock.Unlock()
 

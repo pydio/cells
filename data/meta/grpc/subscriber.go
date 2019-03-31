@@ -34,6 +34,9 @@ type EventsSubscriber struct {
 
 // Handle the events received and send them to the subscriber
 func (e *EventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
+	if msg.Optimistic {
+		return nil
+	}
 	e.outputChannel <- &event.EventWithContext{
 		Context: ctx,
 		Event:   msg,

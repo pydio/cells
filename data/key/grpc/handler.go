@@ -37,7 +37,7 @@ import (
 type NodeKeyManagerHandler struct{}
 
 func (km *NodeKeyManagerHandler) HandleTreeChanges(ctx context.Context, msg *tree.NodeChangeEvent) error {
-	if msg.Type == tree.NodeChangeEvent_DELETE {
+	if !msg.Optimistic && msg.Type == tree.NodeChangeEvent_DELETE {
 		req := &encryption.DeleteNodeRequest{
 			NodeIds: []string{
 				msg.Source.Uuid,

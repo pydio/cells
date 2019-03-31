@@ -197,9 +197,7 @@ func (i *IndexStreamer) StartCreator(ctx context.Context) error {
 			select {
 			case createRequest := <-i.createInput:
 
-				log.Logger(ctx).Info("we have an input - before sending")
 				e := streamer.Send(createRequest)
-				log.Logger(ctx).Info("after sending")
 				if e != nil {
 					log.Logger(ctx).Error("error in stream", zap.Error(e))
 					// Error sending request, break, reconnect and requeue createete request
@@ -210,15 +208,11 @@ func (i *IndexStreamer) StartCreator(ctx context.Context) error {
 					}
 					return
 				} else {
-					log.Logger(ctx).Info("before receiving")
 					if resp, e := streamer.Recv(); e != nil {
 						i.createErrors <- e
 					} else {
 						i.createOutput <- resp
 					}
-
-					log.Logger(ctx).Info("after receiving")
-
 				}
 			case <-i.done:
 				streamer.Close()

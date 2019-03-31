@@ -398,6 +398,7 @@ message NodeChangeEvent{
     Node Source = 2;
     Node Target = 3;
     bool Silent = 4;
+    bool Optimistic = 5;
 }
 
 message IndexEvent {

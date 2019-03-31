@@ -2967,6 +2967,7 @@ var SwaggerJson = `{
         "UPDATE_PATH",
         "UPDATE_CONTENT",
         "UPDATE_META",
+        "UPDATE_USER_META",
         "DELETE"
       ],
       "default": "CREATE"
@@ -6919,6 +6920,14 @@ var SwaggerJson = `{
         },
         "Target": {
           "$ref": "#/definitions/treeNode"
+        },
+        "Silent": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "Optimistic": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     },
@@ -6991,15 +7000,23 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Node": {
-          "$ref": "#/definitions/treeNode"
+          "$ref": "#/definitions/treeNode",
+          "title": "Input node"
         },
         "WithCommits": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Gather commit information"
         },
         "WithExtendedStats": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Get extended stats - For folders, computes ChildrenCount"
+        },
+        "ObjectStats": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Used internally for the router ReadNode request, stat the datasource instead of index"
         }
       },
       "title": "Request / Responses Messages"
