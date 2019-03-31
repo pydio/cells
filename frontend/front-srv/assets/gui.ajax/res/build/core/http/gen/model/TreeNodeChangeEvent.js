@@ -50,6 +50,8 @@ var TreeNodeChangeEvent = (function () {
         this.Type = undefined;
         this.Source = undefined;
         this.Target = undefined;
+        this.Silent = undefined;
+        this.Optimistic = undefined;
     }
 
     /**
@@ -73,6 +75,12 @@ var TreeNodeChangeEvent = (function () {
             if (data.hasOwnProperty('Target')) {
                 obj['Target'] = _TreeNode2['default'].constructFromObject(data['Target']);
             }
+            if (data.hasOwnProperty('Silent')) {
+                obj['Silent'] = _ApiClient2['default'].convertToType(data['Silent'], 'Boolean');
+            }
+            if (data.hasOwnProperty('Optimistic')) {
+                obj['Optimistic'] = _ApiClient2['default'].convertToType(data['Optimistic'], 'Boolean');
+            }
         }
         return obj;
     };
@@ -92,4 +100,12 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/TreeNode} Target
+*/
+
+/**
+* @member {Boolean} Silent
+*/
+
+/**
+* @member {Boolean} Optimistic
 */
