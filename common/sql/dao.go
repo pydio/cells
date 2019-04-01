@@ -43,7 +43,7 @@ type DAO interface {
 	DB() *sql.DB
 	Prepare(string, interface{}) error
 	GetStmt(string, ...interface{}) *sql.Stmt
-	GetStmtWithArgs(string, ...interface{}) (*sql.Stmt, []interface{})
+	GetStmtWithArgs(string, ...interface{}) (*sql.Stmt, []interface{}, error)
 	UseExclusion()
 	Lock()
 	Unlock()
@@ -192,7 +192,7 @@ func (h *Handler) GetStmt(key string, args ...interface{}) *sql.Stmt {
 }
 
 // GetStmt returns a list of all statements used by the dao
-func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (*sql.Stmt, []interface{}) {
+func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (*sql.Stmt, []interface{}, error) {
 	if v, ok := h.funcsWithArgs[key]; ok {
 		var sparams []string
 		for _, s := range params {
@@ -200,15 +200,17 @@ func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (*sql.Stmt,
 		}
 		query, args := v(sparams...)
 		query = h.replacer.Replace(query)
-
 		stmt, err := h.getStmt(query)
 		if err != nil {
-			return nil, nil
+			return nil, nil, err
 		}
-		return stmt, args
+		if stmt == nil {
+			return nil, nil, fmt.Errorf("empty statement")
+		}
+		return stmt, args, nil
 	}
 
-	return nil, nil
+	return nil, nil, fmt.Errorf("cannot find query for " + key)
 }
 
 func (h *Handler) UseExclusion() {

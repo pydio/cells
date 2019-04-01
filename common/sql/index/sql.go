@@ -187,6 +187,16 @@ func init() {
 		)`, sub), args
 	}
 
+	queries["deleteTreeNodes"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathEqualsOrLike("t", []byte(mpathes[0]))
+		return fmt.Sprintf(`
+		delete t, n 
+			from %%PREFIX%%_idx_tree t
+			join %%PREFIX%%_idx_nodes n ON t.uuid=n.uuid
+			where (%s)
+		`, sub), args
+	}
+
 	queries["selectNode"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathEquals("t", []byte(mpathes[0]))
 
@@ -756,13 +766,13 @@ func (dao *IndexSQL) etagFromChildren(node *mtree.TreeNode) (string, error) {
 	mpath := node.MPath
 
 	// First we check if we already have an object with the same key
-	if stmt, args := dao.GetStmtWithArgs("childrenEtags", mpath.String()); stmt != nil {
+	if stmt, args, e := dao.GetStmtWithArgs("childrenEtags", mpath.String()); e == nil {
 		rows, err = stmt.Query(append(args, len(mpath)+1)...)
 		if err != nil {
 			return "", err
 		}
 	} else {
-		return "", fmt.Errorf("Empty statement")
+		return "", e
 	}
 
 	first := true
@@ -788,14 +798,14 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 	var err error
 
 	mpath := rootNode.MPath
-	if stmt, args := dao.GetStmtWithArgs("dirtyEtags", mpath.String()); stmt != nil {
+	if stmt, args, e := dao.GetStmtWithArgs("dirtyEtags", mpath.String()); e == nil {
 		rows, err = stmt.Query(append(args, len(mpath))...) // Start at root level
 		if err != nil {
 			dao.Unlock()
 			return err
 		}
 	} else {
-		return fmt.Errorf("Empty statement")
+		return e
 	}
 	var nodesToUpdate []*mtree.TreeNode
 	for rows.Next() {
@@ -870,17 +880,21 @@ func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 				}
 			}()
 
-			updateNodes, args := dao.GetStmtWithArgs("updateNodes", mpathes...)
-
-			if stmt := tx.Stmt(updateNodes); stmt != nil {
-				defer stmt.Close()
-
-				if _, err = stmt.Exec(append([]interface{}{time.Now().Unix(), etag, deltaSize}, args...)...); err != nil {
-					b.out <- err
-				}
+			updateNodes, args, e := dao.GetStmtWithArgs("updateNodes", mpathes...)
+			if e != nil {
+				b.out <- e
 			} else {
-				b.out <- fmt.Errorf("empty stmt")
+				if stmt := tx.Stmt(updateNodes); stmt != nil {
+					defer stmt.Close()
+
+					if _, err = stmt.Exec(append([]interface{}{time.Now().Unix(), etag, deltaSize}, args...)...); err != nil {
+						b.out <- err
+					}
+				} else {
+					b.out <- fmt.Errorf("empty stmt")
+				}
 			}
+
 		}
 
 		all := make([]interface{}, 0, batchLen)
@@ -912,39 +926,59 @@ func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 	defer dao.Unlock()
 
 	db := dao.DB()
+	driver := dao.Driver()
 
-	var err error
+	if driver == "sqlite3" {
 
-	tx, err := db.BeginTx(context.Background(), nil)
-	if err != nil {
-		return err
-	}
+		var err error
 
-	defer func() {
+		tx, err := db.BeginTx(context.Background(), nil)
 		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
-
-	// Node
-	mpath := node.MPath.String()
-
-	if stmt, args := dao.GetStmtWithArgs("deleteNode", mpath); stmt != nil {
-		if _, err = stmt.Exec(args...); err != nil {
 			return err
 		}
-	} else {
-		return fmt.Errorf("Empty statement")
-	}
 
-	if stmt, args := dao.GetStmtWithArgs("deleteTree", mpath); stmt != nil {
-		if _, err = stmt.Exec(args...); err != nil {
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+		}()
+
+		mPath := node.MPath.String()
+		delNode, args, e := dao.GetStmtWithArgs("deleteNode", mPath)
+		if e != nil {
+			err = e
+			return e
+		}
+		delTree, args, e := dao.GetStmtWithArgs("deleteTree", mPath)
+		if e != nil {
+			err = e
+			return e
+		}
+		if stmt := tx.Stmt(delNode); stmt != nil {
+			defer stmt.Close()
+			if _, err = stmt.Exec(args...); err != nil {
+				return err
+			}
+		}
+		if stmt := tx.Stmt(delTree); stmt != nil {
+			defer stmt.Close()
+			if _, err = stmt.Exec(args...); err != nil {
+				return err
+			}
+		}
+
+	} else {
+
+		stmt, args, e := dao.GetStmtWithArgs("deleteTreeNodes", node.MPath.String())
+		if e != nil {
+			return e
+		}
+		if _, err := stmt.Exec(args...); err != nil {
 			return err
 		}
-	} else {
-		return fmt.Errorf("Empty statement")
+
 	}
 
 	/*
@@ -979,7 +1013,7 @@ func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 
 	mpath := node.MPath.String()
 
-	if stmt, args := dao.GetStmtWithArgs("selectNode", mpath); stmt != nil {
+	if stmt, args, e := dao.GetStmtWithArgs("selectNode", mpath); e == nil {
 		row := stmt.QueryRow(args...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
@@ -987,7 +1021,7 @@ func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 		}
 		return treeNode, nil
 	} else {
-		return nil, fmt.Errorf("Empty statement")
+		return nil, e
 	}
 }
 
@@ -1025,7 +1059,7 @@ func (dao *IndexSQL) GetNodes(mpathes ...mtree.MPath) chan *mtree.TreeNode {
 		}()
 
 		get := func(mpathes ...interface{}) {
-			if stmt, args := dao.GetStmtWithArgs("selectNodes", mpathes...); stmt != nil {
+			if stmt, args, e := dao.GetStmtWithArgs("selectNodes", mpathes...); e == nil {
 				rows, err := stmt.Query(args...)
 				if err != nil {
 					return
@@ -1041,7 +1075,7 @@ func (dao *IndexSQL) GetNodes(mpathes ...mtree.MPath) chan *mtree.TreeNode {
 					c <- node
 				}
 			} else {
-				fmt.Errorf("Unknown statement")
+				log.Logger(context.Background()).Error("Error while getting statement in GetNodes", zap.Error(e))
 				return
 			}
 		}
@@ -1075,16 +1109,17 @@ func (dao *IndexSQL) GetNodeChild(reqPath mtree.MPath, reqName string) (*mtree.T
 
 	mpath := node.MPath
 
-	if stmt, args := dao.GetStmtWithArgs("child", mpath.String()); stmt != nil {
+	if stmt, args, e := dao.GetStmtWithArgs("child", mpath.String()); e == nil {
 		row := stmt.QueryRow(append(args, len(reqPath)+1, reqName)...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
 		}
 		return treeNode, nil
+	} else {
+		return nil, e
 	}
 
-	return nil, fmt.Errorf("Empty statement")
 }
 
 // GetNodeLastChild from path
@@ -1098,16 +1133,17 @@ func (dao *IndexSQL) GetNodeLastChild(reqPath mtree.MPath) (*mtree.TreeNode, err
 
 	mpath := node.MPath
 
-	if stmt, args := dao.GetStmtWithArgs("lastChild", mpath.String()); stmt != nil {
+	if stmt, args, e := dao.GetStmtWithArgs("lastChild", mpath.String()); e == nil {
 		row := stmt.QueryRow(append(args, len(reqPath)+1)...)
 		treeNode, err := dao.scanDbRowToTreeNode(row)
 		if err != nil {
 			return nil, err
 		}
 		return treeNode, nil
+	} else {
+		return nil, e
 	}
 
-	return nil, fmt.Errorf("Empty statement")
 }
 
 // GetNodeFirstAvailableChildIndex from path
@@ -1159,13 +1195,14 @@ func (dao *IndexSQL) GetNodeChildrenCount(path mtree.MPath) int {
 	res := 0
 
 	// First we check if we already have an object with the same key
-	if stmt, args := dao.GetStmtWithArgs("childrenCount", mpath.String()); stmt != nil {
+	if stmt, args, e := dao.GetStmtWithArgs("childrenCount", mpath.String()); e == nil {
 		row := stmt.QueryRow(append(args, len(path)+1)...)
 		if row == nil {
 			return 0
 		}
-
 		row.Scan(&res)
+	} else {
+		return 0
 	}
 
 	return res
@@ -1196,7 +1233,7 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt, args := dao.GetStmtWithArgs("children", mpath.String()); stmt != nil {
+		if stmt, args, e := dao.GetStmtWithArgs("children", mpath.String()); e == nil {
 			rows, err = stmt.Query(append(args, len(path)+1)...)
 			if err != nil {
 				return
@@ -1241,7 +1278,7 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 		mpath := node.MPath
 
 		// First we check if we already have an object with the same key
-		if stmt, args := dao.GetStmtWithArgs("tree", mpath.String()); stmt != nil {
+		if stmt, args, e := dao.GetStmtWithArgs("tree", mpath.String()); e == nil {
 			rows, err = stmt.Query(append(args, len(mpath)+1)...)
 			if err != nil {
 				return
