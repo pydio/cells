@@ -22,14 +22,17 @@ package grpc
 
 import (
 	"context"
-	"path/filepath"
+	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
+	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/broker/activity"
@@ -46,11 +49,13 @@ import (
 )
 
 type MicroEventsSubscriber struct {
+	sync.Mutex
 	treeClient tree.NodeProviderClient
 	usrClient  idm.UserServiceClient
 	roleClient idm.RoleServiceClient
 	wsClient   idm.WorkspaceServiceClient
 
+	parentsCache *cache.Cache
 	changeEvents []*idm.ChangeEvent
 	in           chan *idm.ChangeEvent
 	dao          activity.DAO
@@ -58,8 +63,9 @@ type MicroEventsSubscriber struct {
 
 func NewEventsSubscriber(dao activity.DAO) *MicroEventsSubscriber {
 	m := &MicroEventsSubscriber{
-		dao: dao,
-		in:  make(chan *idm.ChangeEvent),
+		dao:          dao,
+		in:           make(chan *idm.ChangeEvent),
+		parentsCache: cache.New(3*time.Minute, 10*time.Minute),
 	}
 	go m.DebounceAclsEvents()
 	return m
@@ -150,57 +156,17 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		//
 		// Post to parents Outbox'es as well
 		//
-		parentUuids := []string{}
-
-		if msg.Type == tree.NodeChangeEvent_DELETE && Node.Path != "" {
-
-			// Current Node
-			parentUuids = append(parentUuids, Node.Uuid)
-			// Manually load parents from Path
-			parentPath := Node.Path
-			for {
-				parentPath = filepath.Dir(parentPath)
-				if parentPath == "" || parentPath == "/" || parentPath == "." {
-					break
-				}
-				if resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentPath}}); err == nil && resp.Node != nil {
-					uuid := resp.Node.Uuid
-					parentUuids = append(parentUuids, uuid)
-					log.Logger(ctx).Debug("Posting activity to parent node", zap.String(common.KEY_NODE_PATH, parentPath))
-					dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
-					publishActivityEvent(ctx, activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
-				}
-			}
-
-		} else {
-			// Load Ancestors list - result includes initial node
-			streamer, err := e.getTreeClient().ListNodes(ctx, &tree.ListNodesRequest{
-				Node:      Node,
-				Ancestors: true,
-			})
-			if err != nil {
-				return err
-			}
-			defer streamer.Close()
-			for {
-				listResp, err := streamer.Recv()
-				if listResp == nil || err != nil {
-					break
-				}
-				uuid := listResp.Node.Uuid
-				path := listResp.Node.Path
-
-				parentUuids = append(parentUuids, uuid)
-				log.Logger(ctx).Debug("Posting activity to parent node", zap.String(common.KEY_NODE_PATH, path))
-				dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
-				publishActivityEvent(ctx, activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
-			}
+		parentUuids := e.ParentsFromCache(ctx, Node, msg.Type == tree.NodeChangeEvent_DELETE)
+		for _, uuid := range parentUuids {
+			dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
+			publishActivityEvent(ctx, activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
 		}
 
 		//
 		// Find followers and post activity to their Inbox
 		//
-		subscriptions, err := dao.ListSubscriptions(activity2.OwnerType_NODE, parentUuids)
+		subUuids := append(parentUuids, Node.Uuid)
+		subscriptions, err := dao.ListSubscriptions(activity2.OwnerType_NODE, subUuids)
 		log.Logger(ctx).Debug("Listing followers on node and its parents", zap.Any("subs", subscriptions))
 		if err != nil {
 			return err
@@ -239,6 +205,47 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 	e.in <- msg
 
 	return nil
+}
+
+func (e *MicroEventsSubscriber) ParentsFromCache(ctx context.Context, node *tree.Node, isDel bool) []string {
+
+	e.Lock()
+	defer e.Unlock()
+
+	var parentUuids []string
+	// Current Node
+	// parentUuids = append(parentUuids, node.Uuid)
+	if node.Path == "" && !isDel {
+		// Reload by Uuid
+		if resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}}); err == nil && resp.Node != nil {
+			node = resp.Node
+		}
+	}
+	// Manually load parents from Path
+	parentPath := node.Path
+	for {
+		parentPath = path.Dir(parentPath)
+		if parentPath == "" || parentPath == "/" || parentPath == "." {
+			break
+		}
+		if pU, ok := e.parentsCache.Get(parentPath); ok {
+			val := pU.(string)
+			if val != "**DELETED**" {
+				parentUuids = append(parentUuids, pU.(string))
+			}
+		} else {
+			resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentPath}})
+			if err == nil {
+				uuid := resp.Node.Uuid
+				e.parentsCache.Set(parentPath, uuid, cache.DefaultExpiration)
+				parentUuids = append(parentUuids, uuid)
+			} else if errors.Parse(err.Error()).Code == 404 {
+				e.parentsCache.Set(parentPath, "**DELETED**", cache.DefaultExpiration)
+			}
+		}
+	}
+
+	return parentUuids
 }
 
 func (e *MicroEventsSubscriber) DebounceAclsEvents() {
