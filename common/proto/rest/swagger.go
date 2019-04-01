@@ -4657,6 +4657,12 @@ var SwaggerJson = `{
             "$ref": "#/definitions/jobsTask"
           },
           "title": "Filled with currently running tasks"
+        },
+        "NodeEventFilter": {
+          "$ref": "#/definitions/jobsNodesSelector"
+        },
+        "UserEventFilter": {
+          "$ref": "#/definitions/jobsUsersSelector"
         }
       }
     },

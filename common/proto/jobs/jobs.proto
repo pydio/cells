@@ -111,6 +111,9 @@ message Job {
 
     // Filled with currently running tasks
     repeated Task Tasks = 14;
+
+    NodesSelector NodeEventFilter = 15;
+    UsersSelector UserEventFilter = 16;
 }
 
 // Events sent by the JobService when CRUD'ing a Job configuration
