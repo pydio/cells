@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/data/source/index"
 	"github.com/pydio/cells/data/source/index/sessions"
@@ -224,7 +224,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 		if path == nil {
 			//return errors.New("Could not retrieve file path")
 			// Do not return error, or send a file not exists?
-			return errors.NotFound(name, "Could not retrieve node "+reqPath, 404)
+			return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 		}
 		node, err = dao.GetNode(path)
 		if err != nil {
@@ -238,7 +238,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 					return err
 				}
 			} else {
-				return errors.NotFound(name, "Could not retrieve node "+reqPath, 404)
+				return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 			}
 		}
 
@@ -303,7 +303,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				return errors.InternalServerError(name, "Error while retrieving path "+reqPath, err)
 			}
 			if path == nil {
-				return errors.NotFound(name, "Could not retrieve node "+reqPath)
+				return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 			}
 			node, err = dao.GetNode(path)
 			if err != nil {
@@ -339,7 +339,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		}
 
 		if path == nil {
-			return errors.NotFound(name, "Could not retrieve node "+reqPath, 404)
+			return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 		}
 
 		if req.WithCommits {
@@ -437,20 +437,20 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	}
 
 	if pathFrom == nil {
-		return errors.NotFound(name, "Could not retrieve node "+req.From.Path, 404)
+		return errors.NotFound(name, "Could not retrieve node %s", req.From.Path)
 	}
 	if nodeFrom, err = dao.GetNode(pathFrom); err != nil {
-		return errors.NotFound(name, "Could not retrieve node "+req.From.Path, 404)
+		return errors.NotFound(name, "Could not retrieve node %s", req.From.Path)
 	}
 
 	if nodeTo, err = dao.GetNode(pathTo); err != nil {
-		return errors.NotFound(name, "Could not retrieve node "+req.From.Path, 404)
+		return errors.NotFound(name, "Could not retrieve node %s", req.From.Path)
 	}
 
 	// First of all, we delete the existing node
 	if nodeTo != nil {
 		if err = dao.DelNode(nodeTo); err != nil {
-			return errors.InternalServerError(name, "Could not delete node "+req.To.Path, 404)
+			return errors.InternalServerError(name, "Could not delete node %s", req.To.Path)
 		}
 	}
 
@@ -497,12 +497,12 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 	path, _, _ := dao.Path(reqPath, false)
 	if path == nil {
-		return errors.NotFound(name, "Could not retrieve node "+reqPath, 404)
+		return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 	}
 
 	node, err := dao.GetNode(path)
 	if err != nil {
-		return errors.NotFound(name, "Could not retrieve node "+reqPath, 404)
+		return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 	}
 	node.Path = reqPath
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)

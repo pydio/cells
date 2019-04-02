@@ -35,7 +35,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/ctl"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/rest"
@@ -236,7 +236,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	}
 	touched, e := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: touchFile}, selectorOption)
 	if e != nil {
-		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder is writeable by the application")
+		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder ("+parentName+") is writeable by the application")
 	} else {
 		if _, er := wCl.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: touched.Node}, selectorOption); er != nil {
 			log.Logger(ctx).Error("Could not delete tmp file written when creating datasource on peer " + newSource.PeerAddress)
