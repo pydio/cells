@@ -22,6 +22,7 @@ package sessions
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -151,12 +152,18 @@ func (b *MemoryBatcher) Flush(ctx context.Context, dao index.DAO) {
 	}
 
 	cl := defaults.NewClient()
+	count := 0
 	if queue, exists := b.store.eventsQueue[b.uuid]; exists {
 		for _, stored := range queue {
 			// Notify stored event now
 			cl.Publish(ctx, cl.NewPublication(stored.Topic, stored.Msg))
+			count++
+			if count%1000 == 0 {
+				// Let's micro pause every 1000 events to reduce pressure
+				<-time.After(100 * time.Millisecond)
+			}
 		}
 	}
-	log.Logger(ctx).Info("Sent all events event on topic")
+	log.Logger(ctx).Info(fmt.Sprintf("Sent %d events event on topic", count))
 
 }
