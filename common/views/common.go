@@ -128,16 +128,12 @@ type Handler interface {
 	SetClientsPool(p *ClientsPool)
 }
 
-func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInfo) context.Context {
+func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInfo, reset ...bool) context.Context {
 	//log.Logger(ctx).Error("branchInfo", zap.Any("branchInfo", branchInfo))
 	value := ctx.Value(ctxBranchInfoKey{})
 	var data map[string]BranchInfo
-	if value != nil {
-		existing := value.(map[string]BranchInfo)
-		data = make(map[string]BranchInfo, len(existing))
-		for k, v := range existing {
-			data[k] = v
-		}
+	if value != nil && len(reset) == 0 {
+		data = value.(map[string]BranchInfo)
 	} else {
 		data = make(map[string]BranchInfo)
 	}

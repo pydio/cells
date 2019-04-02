@@ -219,8 +219,8 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 	if !ok || !ok2 {
 		return 0, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find Client for src or dest")
 	}
-	readCtx := WithBranchInfo(ctx, "in", srcInfo)
-	writeCtx := WithBranchInfo(ctx, "in", destInfo)
+	readCtx := WithBranchInfo(ctx, "in", srcInfo, true)
+	writeCtx := WithBranchInfo(ctx, "in", destInfo, true)
 	// Ds are not encrypted, let if flow
 	if srcInfo.EncryptionMode != object.EncryptionMode_MASTER && destInfo.EncryptionMode != object.EncryptionMode_MASTER {
 		return e.next.CopyObject(ctx, from, to, requestData)
