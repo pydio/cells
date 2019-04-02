@@ -82,7 +82,13 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 	server.Subscribe(server.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent))
 
 	server.Subscribe(server.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent))
-	server.Subscribe(server.NewSubscriber(common.TOPIC_META_CHANGES, s.nodeEvent))
+	server.Subscribe(server.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, e *tree.NodeChangeEvent) error {
+		if e.Type == tree.NodeChangeEvent_UPDATE_META || e.Type == tree.NodeChangeEvent_UPDATE_USER_META {
+			return s.nodeEvent(ctx, e)
+		} else {
+			return nil
+		}
+	}))
 	server.Subscribe(server.NewSubscriber(common.TOPIC_TIMER_EVENT, s.timerEvent))
 
 	s.ListenToMainQueue()
@@ -146,55 +152,6 @@ func (s *Subscriber) TaskChannelSubscription() {
 	cli.StartListening(ch)
 	//	s.chanToStream(ch)
 }
-
-/*
-func (s *Subscriber) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
-
-	go func() {
-		log.Logger(s.RootContext).Debug("Connecting with TaskStreamer Client")
-		taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
-		ctx, cancel := context.WithTimeout(s.RootContext, 120*time.Second)
-		defer cancel()
-
-		streamer, e := taskClient.PutTaskStream(ctx)
-		if e != nil {
-			log.Logger(s.RootContext).Error("Streamer PutTaskStream", zap.Error(e))
-			<-time.After(10 * time.Second)
-			s.chanToStream(ch)
-			return
-		}
-		defer streamer.Close()
-		if len(requeue) > 0 {
-			streamer.Send(&jobs.PutTaskRequest{Task: requeue[0]})
-			streamer.Recv()
-		}
-		for {
-			select {
-			case val := <-ch:
-				if task, ok := val.(*jobs.Task); ok {
-					e := streamer.Send(&jobs.PutTaskRequest{Task: task})
-					if e != nil {
-						log.Logger(s.RootContext).Debug("Cannot post task - break and reconnect streamer", zap.Error(e))
-						<-time.After(1 * time.Second)
-						s.chanToStream(ch, task)
-						return
-					}
-					_, e = streamer.Recv()
-					if e != nil {
-						log.Logger(s.RootContext).Error("Error while posting task - reconnect streamer", zap.Error(e))
-						<-time.After(1 * time.Second)
-						s.chanToStream(ch, task)
-						return
-					}
-				} else {
-					log.Logger(s.RootContext).Error("Could not cast value to jobs.Task", zap.Any("val", val))
-				}
-			}
-		}
-	}()
-
-}
-*/
 
 // GetDispatcherForJob creates a new dispatcher for a job
 func (s *Subscriber) GetDispatcherForJob(job *jobs.Job) *Dispatcher {
@@ -284,14 +241,26 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 // Reacts to a trigger linked to a nodeChange event.
 func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
 
+	if event.Optimistic {
+		return nil
+	}
+
 	s.jobsLock.Lock()
 	defer s.jobsLock.Unlock()
+
+	// Always ignore events on Temporary nodes
+	if event.Target != nil && event.Target.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+		return nil
+	}
 
 	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
 
 	for jobId, jobData := range s.JobsDefinitions {
 		if jobData.Inactive {
+			continue
+		}
+		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(event, jobData.NodeEventFilter) {
 			continue
 		}
 		for _, eName := range jobData.EventNames {
@@ -307,4 +276,23 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 		}
 	}
 	return nil
+}
+
+// Check if a node must go through jobs at all (if there is a NodesSelector at the job level)
+func (s *Subscriber) jobLevelFilterPass(event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
+	var refNode *tree.Node
+	if event.Target != nil {
+		refNode = event.Target
+	} else if event.Source != nil {
+		refNode = event.Source
+	}
+	if refNode == nil {
+		return true // Ignore
+	}
+	input := jobs.ActionMessage{Nodes: []*tree.Node{refNode}}
+	output := filter.Filter(input)
+	if output.Nodes == nil || len(output.Nodes) == 0 {
+		return false
+	}
+	return true
 }

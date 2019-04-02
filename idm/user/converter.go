@@ -80,8 +80,8 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 
 	} else {
 
-		dataset = dataset.Select(goqu.I("t.uuid"), goqu.I("t.level"), goqu.I("t.rat"), goqu.I("n.name"), goqu.I("n.leaf"), goqu.I("n.etag"))
-		dataset = dataset.Order(goqu.I("n.name").Asc())
+		dataset = dataset.Select(goqu.I("t.uuid"), goqu.I("t.level"), goqu.I("t.rat"), goqu.I("t.name"), goqu.I("n.leaf"), goqu.I("n.etag"))
+		dataset = dataset.Order(goqu.I("t.name").Asc())
 		offset, limit := int64(0), int64(-1)
 		if query.GetLimit() > 0 {
 			limit = query.GetLimit()
@@ -128,7 +128,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			q.AttributeValue = q.Login
 			attributeOrLogin = true
 		} else {
-			expressions = append(expressions, sql.GetExpressionForString(q.Not, "n.name", q.Login))
+			expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.name", q.Login))
 			if !q.Not {
 				expressions = append(expressions, goqu.I("n.leaf").Eq(1))
 			}
@@ -213,7 +213,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			attQ = "EXISTS (" + attQ + ")"
 		}
 		if attributeOrLogin {
-			expressions = append(expressions, goqu.Or(goqu.L(attQ), sql.GetExpressionForString(false, "n.name", q.Login)))
+			expressions = append(expressions, goqu.Or(goqu.L(attQ), sql.GetExpressionForString(false, "t.name", q.Login)))
 		} else {
 			expressions = append(expressions, goqu.L(attQ))
 		}

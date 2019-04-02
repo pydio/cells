@@ -105,8 +105,15 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 
 	for _, deleteEvent := range batch.Deletes {
 		localPath := deleteEvent.EventInfo.Path
-		dbNode, _ := ev.Target.LoadNode(deleteEvent.EventInfo.CreateContext(ev.globalContext), localPath)
-		log.Logger(ev.globalContext).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
+		var dbNode *tree.Node
+		if deleteEvent.Node != nil {
+			// If deleteEvent has node, it is already loaded from a snapshot,
+			// no need to reload from target
+			dbNode = deleteEvent.Node
+		} else {
+			dbNode, _ = ev.Target.LoadNode(deleteEvent.EventInfo.CreateContext(ev.globalContext), localPath)
+			log.Logger(ev.globalContext).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
+		}
 		if dbNode != nil {
 			deleteEvent.Node = dbNode
 			if dbNode.IsLeaf() {

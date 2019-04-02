@@ -1,5 +1,88 @@
 {
   "access.gateway": {
+    "dialog/CrossWsDropDialog.js": [
+      {
+        "description": "",
+        "displayName": "CrossWsContent",
+        "methods": [
+          {
+            "name": "move",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "targetNode",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "share",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "getButtons",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "updater",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "pydio": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Pydio"
+            },
+            "required": false,
+            "description": ""
+          },
+          "selection": {
+            "type": {
+              "name": "instanceOf",
+              "value": "PydioDataModel"
+            },
+            "required": false,
+            "description": ""
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "0",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      }
+    ],
     "dialog/OtherEditorPickerDialog.js": [
       {
         "description": "",
@@ -1395,6 +1478,13 @@
       {
         "description": "",
         "methods": [
+          {
+            "name": "componentWillUnmounnt",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
           {
             "name": "reloadList",
             "docblock": null,

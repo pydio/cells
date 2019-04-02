@@ -32,11 +32,11 @@ import (
 
 func getDefaultJobs() []*jobs.Job {
 
-	searchQuery, _ := ptypes.MarshalAny(&tree.Query{
+	imagesQuery, _ := ptypes.MarshalAny(&tree.Query{
 		Extension: "jpg,png,jpeg,gif,bmp,tiff",
 	})
 
-	searchQueryExif, _ := ptypes.MarshalAny(&tree.Query{
+	exifQuery, _ := ptypes.MarshalAny(&tree.Query{
 		Extension: "jpg",
 	})
 
@@ -51,13 +51,18 @@ func getDefaultJobs() []*jobs.Job {
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
 		},
+		NodeEventFilter: &jobs.NodesSelector{
+			Query: &service.Query{
+				SubQueries: []*any.Any{imagesQuery},
+			},
+		},
 		Actions: []*jobs.Action{
 			{
 				ID:         "actions.images.thumbnails",
 				Parameters: map[string]string{"ThumbSizes": `{"sm":300,"md":1024}`},
 				NodesFilter: &jobs.NodesSelector{
 					Query: &service.Query{
-						SubQueries: []*any.Any{searchQuery},
+						SubQueries: []*any.Any{imagesQuery},
 					},
 				},
 			},
@@ -65,7 +70,7 @@ func getDefaultJobs() []*jobs.Job {
 				ID: "actions.images.exif",
 				NodesFilter: &jobs.NodesSelector{
 					Query: &service.Query{
-						SubQueries: []*any.Any{searchQueryExif},
+						SubQueries: []*any.Any{exifQuery},
 					},
 				},
 			},
@@ -81,12 +86,17 @@ func getDefaultJobs() []*jobs.Job {
 		EventNames: []string{
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
 		},
+		NodeEventFilter: &jobs.NodesSelector{
+			Query: &service.Query{
+				SubQueries: []*any.Any{imagesQuery},
+			},
+		},
 		Actions: []*jobs.Action{
 			{
 				ID: "actions.images.clean",
 				NodesFilter: &jobs.NodesSelector{
 					Query: &service.Query{
-						SubQueries: []*any.Any{searchQuery},
+						SubQueries: []*any.Any{imagesQuery},
 					},
 				},
 			},

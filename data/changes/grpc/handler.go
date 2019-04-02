@@ -60,6 +60,9 @@ func NewHandler(ctx context.Context) *Handler {
 // OnTreeEvent receives events about node changes from the router
 func (h Handler) OnTreeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
 
+	if event.Optimistic {
+		return nil
+	}
 	change := &tree.SyncChange{}
 	var refNode *tree.Node
 	if event.GetSource() != nil {

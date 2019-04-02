@@ -46,12 +46,6 @@ type SourceDiff struct {
 // ComputeSourceDiff loads the diff by crawling the sources in parallel, filling up a Hash Tree and performing the merge
 func ComputeSourcesDiff(ctx context.Context, left common.PathSyncSource, right common.PathSyncSource, strong bool, statusChan chan filters.BatchProcessStatus) (diff *SourceDiff, err error) {
 
-	diff = &SourceDiff{
-		Left:    left,
-		Right:   right,
-		Context: ctx,
-	}
-
 	lTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
 	rTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
 	var errs []error
@@ -99,9 +93,10 @@ func ComputeSourcesDiff(ctx context.Context, left common.PathSyncSource, right c
 		Context: ctx,
 	}
 	MergeNodes(lTree, rTree, treeMerge)
+	fmt.Println(treeMerge.Stats())
 
 	if statusChan != nil {
-		statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(diff.MissingLeft), len(diff.MissingRight))}
+		statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(treeMerge.MissingLeft), len(treeMerge.MissingRight))}
 	}
 	return treeMerge, nil
 }

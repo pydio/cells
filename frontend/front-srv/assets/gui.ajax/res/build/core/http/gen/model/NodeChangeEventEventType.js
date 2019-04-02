@@ -38,6 +38,7 @@ var NodeChangeEventEventType = (function () {
         this.UPDATE_PATH = "UPDATE_PATH";
         this.UPDATE_CONTENT = "UPDATE_CONTENT";
         this.UPDATE_META = "UPDATE_META";
+        this.UPDATE_USER_META = "UPDATE_USER_META";
         this.DELETE = "DELETE";
     }
 
@@ -79,6 +80,11 @@ module.exports = exports["default"];
 
 /**
  * value: "UPDATE_META"
+ * @const
+ */
+
+/**
+ * value: "UPDATE_USER_META"
  * @const
  */
 

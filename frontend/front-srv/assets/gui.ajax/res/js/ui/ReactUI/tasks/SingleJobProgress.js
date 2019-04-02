@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import {LinearProgress} from 'material-ui'
+import {LinearProgress, CircularProgress} from 'material-ui'
 import JobsStore from './JobsStore'
 
 class SingleJobProgress extends React.Component {
@@ -35,6 +35,7 @@ class SingleJobProgress extends React.Component {
         this.store.getJobs(false).then(tasksList => {
             if(tasksList && tasksList.has(jobID)) {
                 const job = tasksList.get(jobID);
+                this.setState({jobLabel: job.Label});
                 if(job.Tasks && job.Tasks.length) {
                     let task;
                     if (taskID) {
@@ -66,14 +67,18 @@ class SingleJobProgress extends React.Component {
     }
 
     render(){
-        const {task} = this.state;
-        const {style, labelStyle, progressStyle} = this.props;
+        const {task, jobLabel} = this.state;
+        const {style, labelStyle, progressStyle, noProgress, noLabel, circular, thickness, size} = this.props;
         if(!task) {
-            return <div>...</div>
+            return <div>{jobLabel ? jobLabel : "..."}</div>
         }
         let progress;
-        if(task.HasProgress && task.Status !== 'Error' && task.Progress < 1){
-            progress = (<LinearProgress mode="determinate" min={0} max={100} value={task.Progress * 100} style={{width:'100%'}}/>);
+        if(!noProgress && task.HasProgress && task.Status !== 'Error' && task.Progress < 1){
+            if (circular) {
+                progress = (<CircularProgress mode="determinate" min={0} max={100} value={task.Progress * 100} size={size} thickness={thickness}/>);
+            } else {
+                progress = (<LinearProgress mode="determinate" min={0} max={100} value={task.Progress * 100} style={{width:'100%'}}/>);
+            }
         }
         let lStyle = {...labelStyle};
         if(task.Status === 'Error'){
@@ -82,7 +87,7 @@ class SingleJobProgress extends React.Component {
 
         return (
             <div style={style}>
-                <div style={lStyle}>{task.StatusMessage.split("\n").map(s => <div>{s}</div>)}</div>
+                {!noLabel && <div style={lStyle}>{task.StatusMessage.split("\n").map(s => <div>{s}</div>)}</div>}
                 {progress && <div style={progressStyle}>{progress}</div>}
             </div>
         );

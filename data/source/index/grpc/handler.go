@@ -249,7 +249,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 
-	if req.WithExtendedStats {
+	if req.WithExtendedStats && !node.IsLeaf() {
 		childrenCount := dao.GetNodeChildrenCount(node.MPath)
 		node.SetMeta("ChildrenCount", childrenCount)
 	}

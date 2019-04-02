@@ -69,7 +69,7 @@ type NodesCleaner struct {
 }
 
 func (c *NodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
-	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" {
+	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
 		return nil
 	}
 	// Delete ACL's for this workspace

@@ -114,6 +114,7 @@ exports['default'] = function (pydio) {
                 nodes.forEach(function (n) {
                     var m = pydio.MessageHash['background.move.' + (n.isLeaf() ? 'file' : 'folder')];
                     n.getMetadata().set('pending_operation', m);
+                    n.getMetadata().set('pending_operation_uuid', r.JobUuid);
                     n.notify('meta_replaced', n);
                 });
             } else {
@@ -255,6 +256,7 @@ exports['default'] = function (pydio) {
                     if (r.DeleteJobs && r.DeleteJobs.length) {
                         nodes.forEach(function (n) {
                             n.getMetadata().set('pending_operation', r.DeleteJobs[0].Label);
+                            n.getMetadata().set('pending_operation_uuid', r.DeleteJobs[0].Uuid);
                             n.notify('meta_replaced', n);
                         });
                     }
@@ -890,6 +892,9 @@ exports['default'] = function (pydio) {
             _pydioHttpApi2['default'].getRestClient().userJob('move', jobParams).then(function (r) {
                 var m = pydio.MessageHash['rename.processing'].replace('%1', node.getLabel()).replace('%2', newValue);
                 pydio.UI.displayMessage('SUCCESS', m);
+                n.getMetadata().set('pending_operation', m);
+                n.getMetadata().set('pending_operation_uuid', r.JobUuid);
+                n.notify('meta_replaced', n);
                 pydio.getContextHolder().setSelectedNodes([]);
             });
         };
@@ -960,6 +965,7 @@ exports['default'] = function (pydio) {
             if (r.RestoreJobs && r.RestoreJobs.length) {
                 nodes.forEach(function (n) {
                     n.getMetadata().set('pending_operation', r.RestoreJobs[0].Label);
+                    n.getMetadata().set('pending_operation_uuid', r.RestoreJobs[0].Uuid);
                     n.notify('meta_replaced', n);
                 });
             }

@@ -14,8 +14,10 @@
 
 import ApiClient from '../ApiClient';
 import JobsAction from './JobsAction';
+import JobsNodesSelector from './JobsNodesSelector';
 import JobsSchedule from './JobsSchedule';
 import JobsTask from './JobsTask';
+import JobsUsersSelector from './JobsUsersSelector';
 
 
 
@@ -98,6 +100,12 @@ export default class JobsJob {
             if (data.hasOwnProperty('Tasks')) {
                 obj['Tasks'] = ApiClient.convertToType(data['Tasks'], [JobsTask]);
             }
+            if (data.hasOwnProperty('NodeEventFilter')) {
+                obj['NodeEventFilter'] = JobsNodesSelector.constructFromObject(data['NodeEventFilter']);
+            }
+            if (data.hasOwnProperty('UserEventFilter')) {
+                obj['UserEventFilter'] = JobsUsersSelector.constructFromObject(data['UserEventFilter']);
+            }
         }
         return obj;
     }
@@ -154,6 +162,14 @@ export default class JobsJob {
     * @member {Array.<module:model/JobsTask>} Tasks
     */
     Tasks = undefined;
+    /**
+    * @member {module:model/JobsNodesSelector} NodeEventFilter
+    */
+    NodeEventFilter = undefined;
+    /**
+    * @member {module:model/JobsUsersSelector} UserEventFilter
+    */
+    UserEventFilter = undefined;
 
 
 

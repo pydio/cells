@@ -69,6 +69,7 @@ var SimpleList = _Pydio$requireLib.SimpleList;
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
 
 var moment = _Pydio$requireLib2.moment;
+var SingleJobProgress = _Pydio$requireLib2.SingleJobProgress;
 
 var ComponentConfigsParser = (function () {
     function ComponentConfigsParser() {
@@ -454,11 +455,15 @@ var MainFilesList = _react2['default'].createClass({
         var otherPieces = [];
 
         if (metaData.has('pending_operation')) {
-            return _react2['default'].createElement(
-                'span',
-                { style: { fontStyle: 'italic', color: 'rgba(0,0,0,.33)' } },
-                metaData.get('pending_operation')
-            );
+            if (metaData.has('pending_operation_uuid')) {
+                return _react2['default'].createElement(SingleJobProgress, { jobID: metaData.get('pending_operation_uuid'), style: { display: 'flex', flexDirection: 'row-reverse', alignItems: 'center' }, progressStyle: { width: 60, paddingRight: 10 }, labelStyle: { flex: 1 } });
+            } else {
+                return _react2['default'].createElement(
+                    'span',
+                    { style: { fontStyle: 'italic', color: 'rgba(0,0,0,.33)' } },
+                    metaData.get('pending_operation')
+                );
+            }
         }
 
         if (metaData.get('ajxp_modiftime')) {

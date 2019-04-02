@@ -38,6 +38,13 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			}()
 		}
 	}()
+	publishError := func(dsName, errorPath string) {
+		client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
+			ErrorDetected:  true,
+			DataSourceName: dsName,
+			ErrorPath:      errorPath,
+		}))
+	}
 	childrenMoved := 0
 	logger := log.Logger(ctx)
 	var taskLogger *zap.Logger
@@ -48,15 +55,17 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	}
 	// Read root of target to detect if it is on the same datasource as sourceNode
 	var crossDs bool
+	var sourceDs, targetDs string
 	if move {
-		sourceDs := sourceNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-		if targetDs := targetNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME); targetDs != "" {
+		sourceDs = sourceNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+		if tDs := targetNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME); tDs != "" {
+			targetDs = tDs
 			crossDs = targetDs != sourceDs
 		} else {
 			parts := strings.Split(strings.Trim(targetNode.Path, "/"), "/")
 			if len(parts) > 0 {
 				if testRoot, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parts[0]}}); e == nil {
-					targetDs := testRoot.Node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+					targetDs = testRoot.Node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 					crossDs = targetDs != sourceDs
 				}
 			}
@@ -80,6 +89,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		var children []*tree.Node
 		defer streamer.Close()
+		var statErrors int
 
 		for {
 			child, cE := streamer.Recv()
@@ -89,7 +99,17 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			if child == nil {
 				continue
 			}
+			if child.Node.IsLeaf() {
+				if _, statErr := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: child.Node, ObjectStats: true}); statErr != nil {
+					statErrors++
+				}
+			}
 			children = append(children, child.Node)
+		}
+		if statErrors > 0 {
+			// There are some missing childrens, this copy/move operation will fail - interrupt now
+			publishError(sourceDs, sourceNode.Path)
+			return fmt.Errorf("Errors found while copy/move node, stopping")
 		}
 
 		if len(children) > 0 {
@@ -120,6 +140,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session, UpdateIfExists: true})
 				if e != nil {
 					logger.Error("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+					publishError(targetDs, folderNode.Path)
 					panic(e)
 				}
 				logger.Debug("-- Copy Folder Success ", zap.String("to", targetPath), childNode.Zap())
@@ -160,6 +181,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				_, e := router.CopyObject(ctx, childNode, targetNode, &CopyRequestData{Metadata: meta})
 				if e != nil {
 					logger.Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+					publishError(sourceDs, childNode.Path)
+					publishError(targetDs, targetPath)
 					panic(e)
 				}
 				logger.Debug("-- Copy Success: ", zap.String("to", targetPath), childNode.Zap())
@@ -180,6 +203,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				_, moveErr := router.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
 				if moveErr != nil {
 					log.Logger(ctx).Error("-- Delete Error", zap.Error(moveErr), childNode.Zap())
+					publishError(sourceDs, childNode.Path)
 					panic(moveErr)
 				}
 				logger.Debug("-- Delete Success " + childNode.Path)
@@ -210,6 +234,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		_, e := router.CopyObject(ctx, sourceNode, targetNode, &CopyRequestData{Metadata: meta})
 		if e != nil {
+			publishError(sourceDs, sourceNode.Path)
+			publishError(targetDs, targetNode.Path)
 			panic(e)
 		}
 		// Remove Source Node
@@ -220,6 +246,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
 			if moveErr != nil {
 				logger.Error("-- Delete Source Error", zap.Error(moveErr), sourceNode.Zap())
+				publishError(sourceDs, sourceNode.Path)
 				panic(moveErr)
 			}
 		}
@@ -233,6 +260,20 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			panic(e)
 		}
 		taskLogger.Info("-- Copied sourceNode with empty Uuid - Close Session")
+	}
+
+	if move {
+		// Send an optimistic event => s3 operations are done, let's update UX before indexation is finished
+		optimisticTarget := sourceNode.Clone()
+		optimisticTarget.Path = targetNode.Path
+		optimisticTarget.SetMeta("name", path.Base(targetNode.Path))
+		log.Logger(ctx).Debug("Finished move - Sending Optimistic Event", sourceNode.Zap("from"), optimisticTarget.Zap("to"))
+		client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+			Optimistic: true,
+			Type:       tree.NodeChangeEvent_UPDATE_PATH,
+			Source:     sourceNode,
+			Target:     optimisticTarget,
+		}))
 	}
 
 	return

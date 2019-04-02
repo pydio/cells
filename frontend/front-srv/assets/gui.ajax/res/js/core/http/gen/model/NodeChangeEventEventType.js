@@ -58,6 +58,13 @@ export default class NodeChangeEventEventType {
 
     
         /**
+         * value: "UPDATE_USER_META"
+         * @const
+         */
+        UPDATE_USER_META = "UPDATE_USER_META";
+
+    
+        /**
          * value: "DELETE"
          * @const
          */

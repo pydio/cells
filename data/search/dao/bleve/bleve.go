@@ -42,7 +42,7 @@ import (
 
 var (
 	BleveIndexPath = ""
-	BatchSize      = 5000
+	BatchSize      = 2000
 )
 
 type BleveServer struct {
@@ -108,12 +108,12 @@ func (s *BleveServer) watchOperations() {
 		select {
 		case n := <-s.inserts:
 			batch.Index(n)
-			if batch.Size() > BatchSize {
+			if batch.Size() >= BatchSize {
 				batch.Flush(s.Engine)
 			}
 		case d := <-s.deletes:
 			batch.Delete(d)
-			if batch.Size() > BatchSize {
+			if batch.Size() >= BatchSize {
 				batch.Flush(s.Engine)
 			}
 		case <-time.After(3 * time.Second):
