@@ -192,7 +192,7 @@ func (v *AbstractBranchFilter) UpdateNode(ctx context.Context, in *tree.UpdateNo
 	if err != nil {
 		return nil, err
 	}
-	_, outTo, _ := v.inputMethod(ctx, in.To, "to")
+	ctx, outTo, _ := v.inputMethod(ctx, in.To, "to")
 
 	newReq := proto.Clone(in).(*tree.UpdateNodeRequest)
 	newReq.From = out
