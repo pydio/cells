@@ -249,6 +249,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		autoClient.StartListening(taskChan)
 
 		theTask.StatusMessage = "Starting"
+		theTask.HasProgress = true
 		theTask.Progress = 0
 		theTask.Status = jobs.TaskStatus_Running
 		theTask.StartTime = int32(time.Now().Unix())
@@ -263,6 +264,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 				select {
 				case status := <-statusChan:
 					theTask.StatusMessage = status.StatusString
+					theTask.HasProgress = true
 					theTask.Progress = status.Progress
 					theTask.Status = jobs.TaskStatus_Running
 					if status.IsError {
@@ -273,6 +275,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 					taskChan <- theTask
 				case <-doneChan:
 					theTask := req.Task
+					theTask.HasProgress = true
 					theTask.StatusMessage = "Complete"
 					theTask.Progress = 1
 					theTask.EndTime = int32(time.Now().Unix())
@@ -292,6 +295,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			theTask := req.Task
 			taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
 			theTask.StatusMessage = "Error"
+			theTask.HasProgress = true
 			theTask.Progress = 1
 			theTask.EndTime = int32(time.Now().Unix())
 			theTask.Status = jobs.TaskStatus_Error
