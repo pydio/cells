@@ -135,9 +135,20 @@ var DataSourceEditor = (function (_React$Component) {
         value: function saveSource() {
             var _this5 = this;
 
+            var _state = this.state;
+            var observable = _state.observable;
+            var create = _state.create;
+
             this.state.observable.saveSource().then(function () {
+                var newDsName = null;
+                if (create) {
+                    newDsName = observable.getModel().Name;
+                }
                 _this5.setState({ valid: true, dirty: false, create: false });
-                _this5.props.reloadList();
+                if (create) {
+                    _this5.props.closeEditor();
+                }
+                _this5.props.reloadList(newDsName);
             });
         }
     }, {
@@ -157,9 +168,9 @@ var DataSourceEditor = (function (_React$Component) {
     }, {
         key: 'confirmEncryption',
         value: function confirmEncryption(value) {
-            var _state = this.state;
-            var model = _state.model;
-            var encryptionKeys = _state.encryptionKeys;
+            var _state2 = this.state;
+            var model = _state2.model;
+            var encryptionKeys = _state2.encryptionKeys;
 
             model.EncryptionMode = value ? "MASTER" : "CLEAR";
             if (value && !model.EncryptionKey && encryptionKeys && encryptionKeys.length) {
@@ -175,15 +186,15 @@ var DataSourceEditor = (function (_React$Component) {
             var _props = this.props;
             var storageTypes = _props.storageTypes;
             var pydio = _props.pydio;
-            var _state2 = this.state;
-            var model = _state2.model;
-            var create = _state2.create;
-            var observable = _state2.observable;
-            var encryptionKeys = _state2.encryptionKeys;
-            var versioningPolicies = _state2.versioningPolicies;
-            var showDialog = _state2.showDialog;
-            var dialogTargetValue = _state2.dialogTargetValue;
-            var m = _state2.m;
+            var _state3 = this.state;
+            var model = _state3.model;
+            var create = _state3.create;
+            var observable = _state3.observable;
+            var encryptionKeys = _state3.encryptionKeys;
+            var versioningPolicies = _state3.versioningPolicies;
+            var showDialog = _state3.showDialog;
+            var dialogTargetValue = _state3.dialogTargetValue;
+            var m = _state3.m;
 
             var titleActionBarButtons = [];
             if (!create) {

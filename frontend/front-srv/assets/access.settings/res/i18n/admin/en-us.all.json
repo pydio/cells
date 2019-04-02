@@ -275,6 +275,9 @@
   "ds.status.ok": {
     "other": "All services running"
   },
+  "ds.status.starting": {
+    "other": "Starting datasource..."
+  },
   "ds.status.sync": {
     "other": "Sync down"
   },

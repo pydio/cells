@@ -26,7 +26,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -137,7 +137,13 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function load() {
             var _this2 = this;
 
-            this.setState({ dsLoaded: false, versionsLoaded: false });
+            var newDsName = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+            this.setState({
+                dsLoaded: false,
+                versionsLoaded: false,
+                newDsName: newDsName
+            });
             _modelDataSource2['default'].loadDatasources().then(function (data) {
                 _this2.setState({ dataSources: data.DataSources || [], dsLoaded: true });
             });
@@ -178,10 +184,13 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'computeStatus',
         value: function computeStatus(dataSource) {
+            var _this3 = this;
+
             var _state = this.state;
             var startedServices = _state.startedServices;
             var peerAddresses = _state.peerAddresses;
             var m = _state.m;
+            var newDsName = _state.newDsName;
 
             if (!startedServices.length) {
                 return m('status.na');
@@ -199,12 +208,25 @@ var DataSourcesBoard = (function (_React$Component) {
                 }
             });
             if (index && sync && object) {
+                if (newDsName && dataSource.Name === newDsName) {
+                    setTimeout(function () {
+                        _this3.setState({ newDsName: null });
+                    }, 100);
+                }
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#1b5e20' } },
                     _react2['default'].createElement('span', { className: "mdi mdi-check" }),
                     ' ',
                     m('status.ok')
+                );
+            } else if (newDsName && dataSource.Name === newDsName) {
+                return _react2['default'].createElement(
+                    'span',
+                    { style: { color: '#ef6c00' } },
+                    _react2['default'].createElement('span', { className: "mdi mdi-timer-sand" }),
+                    ' ',
+                    m('status.starting')
                 );
             } else if (!index && !sync && !object) {
                 var koMessage = m('status.ko');
@@ -296,7 +318,7 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var _state2 = this.state;
             var dataSources = _state2.dataSources;
@@ -318,7 +340,7 @@ var DataSourcesBoard = (function (_React$Component) {
                         _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle-outline" }),
                         ' ',
                         m('status.disabled')
-                    ) : _this3.computeStatus(row);
+                    ) : _this4.computeStatus(row);
                 } }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '20%' }, headerStyle: { width: '20%' }, renderCell: function renderCell(row) {
                     var s = 'storage.fs';
                     switch (row.StorageType) {
@@ -352,7 +374,7 @@ var DataSourcesBoard = (function (_React$Component) {
             var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) })];
             if (!versioningReadonly) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
-                        _this3.openVersionPolicy();
+                        _this4.openVersionPolicy();
                     } }));
             }
             var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {

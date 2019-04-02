@@ -73,9 +73,17 @@ class DataSourceEditor extends React.Component{
     }
 
     saveSource(){
+        const {observable, create} = this.state;
         this.state.observable.saveSource().then(() => {
+            let newDsName = null;
+            if(create){
+                newDsName = observable.getModel().Name;
+            }
             this.setState({valid: true, dirty: false, create: false});
-            this.props.reloadList();
+            if (create){
+                this.props.closeEditor();
+            }
+            this.props.reloadList(newDsName);
         });
     }
 

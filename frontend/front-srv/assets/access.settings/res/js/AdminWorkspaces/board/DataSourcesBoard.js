@@ -70,8 +70,12 @@ class DataSourcesBoard extends React.Component {
         clearInterval(this.statusPoller);
     }
 
-    load(){
-        this.setState({dsLoaded: false, versionsLoaded: false});
+    load(newDsName = null){
+        this.setState({
+            dsLoaded: false,
+            versionsLoaded: false,
+            newDsName:newDsName
+        });
         DataSource.loadDatasources().then((data) => {
             this.setState({dataSources: data.DataSources || [], dsLoaded: true});
         });
@@ -109,7 +113,7 @@ class DataSourcesBoard extends React.Component {
     }
 
     computeStatus(dataSource) {
-        const {startedServices, peerAddresses, m} = this.state;
+        const {startedServices, peerAddresses, m, newDsName} = this.state;
         if(!startedServices.length){
             return m('status.na');
         }
@@ -123,8 +127,13 @@ class DataSourcesBoard extends React.Component {
                 object = true;
             }
         });
-        if(index && sync && object){
-            return <span style={{color:'#1b5e20'}}><span className={"mdi mdi-check"}/> {m('status.ok')}</span>;
+        if(index && sync && object) {
+            if (newDsName && dataSource.Name === newDsName) {
+                setTimeout(() => {this.setState({newDsName: null})}, 100);
+            }
+            return <span style={{color: '#1b5e20'}}><span className={"mdi mdi-check"}/> {m('status.ok')}</span>;
+        } else if (newDsName && dataSource.Name === newDsName) {
+            return <span style={{color:'#ef6c00'}}><span className={"mdi mdi-timer-sand"}/> {m('status.starting')}</span>;
         } else if (!index && !sync && !object) {
             let koMessage = m('status.ko');
             if(peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1){
