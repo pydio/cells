@@ -22,7 +22,7 @@ class DataSource extends Observable {
                     this.internalInvalid = false;
                     target['ApiKey'] = target['ApiSecret'] = ''; // reset values
                 } else if(p === 'Name') {
-                    val = LangUtils.computeStringSlug(val).replace("-", "").substr(0, 50);
+                    val = LangUtils.computeStringSlug(val).replace("-", "").substr(0, 33);
                 } else if(p === 'folder') {
                     if (val[0] !== '/') {
                         val = '/' + val;
