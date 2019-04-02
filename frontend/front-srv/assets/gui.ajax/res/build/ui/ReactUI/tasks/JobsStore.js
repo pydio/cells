@@ -41,6 +41,8 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _lodash = require('lodash');
+
 var JobsStore = (function (_Observable) {
     _inherits(JobsStore, _Observable);
 
@@ -58,6 +60,7 @@ var JobsStore = (function (_Observable) {
         this.loaded = false;
         this.tasksList = new Map();
         this.localJobs = new Map();
+        this.reloadPending = _lodash.debounce(this.scanPending, 5000);
         this.pydio.observe("task_message", function (jsonObject) {
             var Job = jsonObject.Job;
             var TaskUpdated = jsonObject.TaskUpdated;
@@ -69,6 +72,17 @@ var JobsStore = (function (_Observable) {
             }
             _this.tasksList.set(job.ID, job);
             _this.notify("tasks_updated", job.ID);
+            var hasPending = false;
+            if (job.Tasks) {
+                job.Tasks.forEach(function (task) {
+                    if (task.Status === 'Running' && task.StatusMessage === 'Pending') {
+                        hasPending = true;
+                    }
+                });
+            }
+            if (hasPending) {
+                _this.reloadPending();
+            }
         });
 
         this.pydio.observe("registry_loaded", function () {
@@ -80,13 +94,36 @@ var JobsStore = (function (_Observable) {
         });
     }
 
+    JobsStore.prototype.scanPending = function scanPending() {
+        var _this2 = this;
+
+        if (!this.pydio.user || !this.tasksList || !this.tasksList.size) {
+            return;
+        }
+        var hasPending = false;
+        this.tasksList.forEach(function (job) {
+            if (job.Tasks) {
+                job.Tasks.forEach(function (task) {
+                    if (task.Status === 'Running' && task.StatusMessage === 'Pending') {
+                        hasPending = true;
+                    }
+                });
+            }
+        });
+        if (hasPending) {
+            this.getJobs(true).then(function () {
+                _this2.notify("tasks_updated");
+            });
+        }
+    };
+
     /**
      * @param forceRefresh bool
      * @return Promise
      */
 
     JobsStore.prototype.getJobs = function getJobs() {
-        var _this2 = this;
+        var _this3 = this;
 
         var forceRefresh = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
 
@@ -98,26 +135,29 @@ var JobsStore = (function (_Observable) {
 
         if (!this.loaded || forceRefresh) {
             // Reset to local tasks only, then reload
-            this.tasksList = this.localJobs;
+            this.tasksList = new Map();
+            this.localJobs.forEach(function (j) {
+                _this3.tasksList.set(j.ID, j);
+            });
             return new Promise(function (resolve, reject) {
                 var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
                 var request = new _pydioHttpRestApi.JobsListJobsRequest();
                 request.LoadTasks = _pydioHttpRestApi.JobsTaskStatus.constructFromObject('Running');
                 api.userListJobs(request).then(function (result) {
-                    _this2.loaded = true;
+                    _this3.loaded = true;
                     if (result.Jobs) {
                         result.Jobs.map(function (job) {
-                            _this2.tasksList.set(job.ID, job);
+                            _this3.tasksList.set(job.ID, job);
                         });
                     }
-                    resolve(_this2.tasksList);
+                    resolve(_this3.tasksList);
                 })['catch'](function (reason) {
                     reject(reason);
                 });
             });
         } else {
             this.localJobs.forEach(function (j) {
-                _this2.tasksList.set(j.ID, j);
+                _this3.tasksList.set(j.ID, j);
             });
             return Promise.resolve(this.tasksList);
         }
@@ -175,7 +215,7 @@ var JobsStore = (function (_Observable) {
      */
 
     JobsStore.prototype.controlTask = function controlTask(task, status) {
-        var _this3 = this;
+        var _this4 = this;
 
         var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
         var cmd = new _pydioHttpRestApi.JobsCtrlCommand();
@@ -186,7 +226,7 @@ var JobsStore = (function (_Observable) {
         }
         return api.userControlJob(cmd).then(function () {
             if (status === 'Delete') {
-                _this3.notify('tasks_updated', task.JobID);
+                _this4.notify('tasks_updated', task.JobID);
             }
         });
     };
@@ -199,7 +239,7 @@ var JobsStore = (function (_Observable) {
      */
 
     JobsStore.prototype.deleteTasks = function deleteTasks(jobID, tasks) {
-        var _this4 = this;
+        var _this5 = this;
 
         var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
         var req = new _pydioHttpRestApi.JobsDeleteTasksRequest();
@@ -208,7 +248,7 @@ var JobsStore = (function (_Observable) {
         });
         req.JobId = jobID;
         return api.userDeleteTasks(req).then(function () {
-            _this4.notify('tasks_updated', jobID);
+            _this5.notify('tasks_updated', jobID);
         });
     };
 
@@ -219,14 +259,14 @@ var JobsStore = (function (_Observable) {
      */
 
     JobsStore.prototype.deleteAllTasksForJob = function deleteAllTasksForJob(jobId) {
-        var _this5 = this;
+        var _this6 = this;
 
         var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
         var req = new _pydioHttpRestApi.JobsDeleteTasksRequest();
         req.JobId = jobId;
         req.Status = [_pydioHttpRestApi.JobsTaskStatus.constructFromObject("Finished"), _pydioHttpRestApi.JobsTaskStatus.constructFromObject("Interrupted"), _pydioHttpRestApi.JobsTaskStatus.constructFromObject("Error")];
         return api.userDeleteTasks(req).then(function () {
-            _this5.notify('tasks_updated', jobId);
+            _this6.notify('tasks_updated', jobId);
         });
     };
 
@@ -238,14 +278,14 @@ var JobsStore = (function (_Observable) {
      */
 
     JobsStore.prototype.controlJob = function controlJob(job, command) {
-        var _this6 = this;
+        var _this7 = this;
 
         var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
         var cmd = new _pydioHttpRestApi.JobsCtrlCommand();
         cmd.Cmd = _pydioHttpRestApi.JobsCommand.constructFromObject(command);
         cmd.JobId = job.ID;
         return api.userControlJob(cmd).then(function () {
-            _this6.notify('tasks_updated', job.ID);
+            _this7.notify('tasks_updated', job.ID);
         });
     };
 
