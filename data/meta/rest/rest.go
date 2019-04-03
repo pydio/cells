@@ -194,7 +194,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			}
 			eTimes = append(eTimes, time.Now().Sub(s))
 			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
-				total--
+				//total--
 				continue
 			}
 			output.Nodes = append(output.Nodes, r.Node.WithoutReservedMetas())

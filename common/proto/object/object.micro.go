@@ -23,6 +23,7 @@ package object
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/mwitkow/go-proto-validators"
 
 import (
 	client "github.com/micro/go-micro/client"

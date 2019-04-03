@@ -24,6 +24,7 @@ import (
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"github.com/mwitkow/go-proto-validators"
 )
 
 // EntityReaderWriter can read and write values using an encoding such as JSON,XML.
@@ -34,7 +35,13 @@ type ProtoEntityReaderWriter struct {
 // The Request may have a decompressing reader. Depends on Content-Encoding.
 func (e *ProtoEntityReaderWriter) Read(req *restful.Request, v interface{}) error {
 	pb := v.(proto.Message)
-	return jsonpb.Unmarshal(req.Request.Body, pb)
+	if e := jsonpb.Unmarshal(req.Request.Body, pb); e != nil {
+		return e
+	}
+	if valid, ok := pb.(validator.Validator); ok {
+		return valid.Validate()
+	}
+	return nil
 }
 
 // Write a serialized version of the value on the response.

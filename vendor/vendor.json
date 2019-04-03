@@ -3047,6 +3047,12 @@
 			"revisionTime": "2018-06-08T08:16:48Z"
 		},
 		{
+			"checksumSHA1": "OcGhncie9MUDiK7uofyWOHyMMP8=",
+			"path": "github.com/mwitkow/go-proto-validators",
+			"revision": "1f388280e944c97cc59c75d8c84a704097d1f1d6",
+			"revisionTime": "2019-02-12T09:28:29Z"
+		},
+		{
 			"checksumSHA1": "aOt94aJhrodtylXqUFxflaguKbE=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/naoina/go-stringutil",
 			"path": "github.com/naoina/go-stringutil",
