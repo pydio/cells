@@ -68,10 +68,9 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 		if checkEmpty {
 			return "", nil, fmt.Errorf("condition cannot be empty")
 		}
-		wheres = append(wheres, goqu.I("t.uuid").Eq(goqu.I("n.uuid")))
 	}
 
-	dataset := db.From(goqu.I("idm_user_idx_tree").As("t"), goqu.I("idm_user_idx_nodes").As("n")).Prepared(true)
+	dataset := db.From(goqu.I("idm_user_idx_tree").As("t")).Prepared(true)
 	dataset = dataset.Where(goqu.And(wheres...))
 
 	if countOnly {
@@ -80,7 +79,7 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 
 	} else {
 
-		dataset = dataset.Select(goqu.I("t.uuid"), goqu.I("t.level"), goqu.I("t.rat"), goqu.I("t.name"), goqu.I("n.leaf"), goqu.I("n.etag"))
+		dataset = dataset.Select(goqu.I("t.uuid"), goqu.I("t.level"), goqu.I("t.rat"), goqu.I("t.name"), goqu.I("t.leaf"), goqu.I("t.etag"))
 		dataset = dataset.Order(goqu.I("t.name").Asc())
 		offset, limit := int64(0), int64(-1)
 		if query.GetLimit() > 0 {
@@ -109,8 +108,6 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 	var attributeOrLogin bool
 
 	q := new(idm.UserSingleQuery)
-	// Basic joint
-	expressions = append(expressions, goqu.I("t.uuid").Eq(goqu.I("n.uuid")))
 
 	if err := ptypes.UnmarshalAny(val, q); err != nil {
 		log.Logger(context.Background()).Error("Cannot unmarshal", zap.Any("v", val), zap.Error(err))
@@ -130,7 +127,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 		} else {
 			expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.name", q.Login))
 			if !q.Not {
-				expressions = append(expressions, goqu.I("n.leaf").Eq(1))
+				expressions = append(expressions, goqu.I("t.leaf").Eq(1))
 			}
 		}
 	}
@@ -184,9 +181,9 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 
 	// Filter by Node Type
 	if q.NodeType == idm.NodeType_USER {
-		expressions = append(expressions, goqu.I("n.leaf").Eq(1))
+		expressions = append(expressions, goqu.I("t.leaf").Eq(1))
 	} else if q.NodeType == idm.NodeType_GROUP {
-		expressions = append(expressions, goqu.I("n.leaf").Eq(0))
+		expressions = append(expressions, goqu.I("t.leaf").Eq(0))
 	}
 
 	if len(q.AttributeName) > 0 {

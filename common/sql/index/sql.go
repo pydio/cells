@@ -81,28 +81,12 @@ func init() {
 			num = args[0].(int)
 		}
 
-		str := `insert into %%PREFIX%%_idx_tree (uuid, level, hash, name, mpath1, mpath2, mpath3, mpath4, rat) values `
+		str := `insert into %%PREFIX%%_idx_tree (uuid, level, hash, name, leaf, mtime, etag, size, mode, mpath1, mpath2, mpath3, mpath4, rat) values `
 
-		str = str + `(?, ?, ?, ?, ?, ?, ?, ?, ?)`
-
-		for i := 1; i < num; i++ {
-			str = str + `, (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-		}
-
-		return str
-	}
-	queries["insertNode"] = func(args ...interface{}) string {
-		var num int
-		if len(args) == 1 {
-			num = args[0].(int)
-		}
-
-		str := `insert into %%PREFIX%%_idx_nodes (uuid, leaf, mtime, etag, size, mode) values  `
-
-		str = str + `(?, ?, ?, ?, ?, ?)`
+		str = str + `(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 		for i := 1; i < num; i++ {
-			str = str + `, (?, ?, ?, ?, ?, ?)`
+			str = str + `, (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 		}
 
 		return str
@@ -119,14 +103,13 @@ func init() {
 	}
 	queries["updateTree"] = func(mpathes ...string) string {
 		return `
-		update %%PREFIX%%_idx_tree set level = ?, hash = ?, name = ?, mpath1 = ?, mpath2 = ?, mpath3 = ?, mpath4 = ?,  rat = ?
+		update %%PREFIX%%_idx_tree set level = ?, hash = ?, name = ?, leaf=?, mtime=?, etag=?, size=?, mode=?, mpath1 = ?, mpath2 = ?, mpath3 = ?, mpath4 = ?,  rat = ?
 		where uuid = ?`
 	}
-	queries["updateNode"] = func(mpathes ...string) string {
-		return `
-		update %%PREFIX%%_idx_nodes set leaf = ?, mtime = ?, etag = ?, size = ?, mode = ?
-		where uuid = ?`
+	queries["updateEtag"] = func(mpathes ...string) string {
+		return `UPDATE %%PREFIX%%_idx_tree set etag = ? WHERE uuid = ?`
 	}
+
 	queries["deleteCommits"] = func(mpathes ...string) string {
 		return `
 		delete from %%PREFIX%%_idx_commits where uuid = ?`
@@ -138,163 +121,106 @@ func init() {
 	}
 	queries["selectNodeUuid"] = func(mpathes ...string) string {
 		return `
-		select t.uuid, t.level, t.rat, t.name, n.leaf, n.mtime, n.etag, n.size, n.mode
-        from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-		where t.uuid = ?
-		and n.uuid = t.uuid`
-	}
-	queries["printTree"] = func(mpathes ...string) string {
-		return `SELECT uuid, name, level, mpath1, rat FROM %%PREFIX%%_idx_tree`
-	}
-	queries["printNodes"] = func(mpathes ...string) string {
-		return `SELECT uuid, leaf, mtime, etag, size, mode FROM %%PREFIX%%_idx_nodes`
-	}
-	queries["integrity1"] = func(mpathes ...string) string {
-		return `select count(uuid) from %%PREFIX%%_idx_tree where uuid not in (select uuid from %%PREFIX%%_idx_nodes)`
-	}
-
-	queries["integrity2"] = func(mpathes ...string) string {
-		return `select count(uuid) from %%PREFIX%%_idx_nodes where uuid not in (select uuid from %%PREFIX%%_idx_tree)`
+		select uuid, level, rat, name, leaf, mtime, etag, size, mode
+        from %%PREFIX%%_idx_tree where uuid = ?`
 	}
 
 	queries["updateNodes"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathesIn("", mpathes...)
+		sub, args := getMPathesIn(mpathes...)
 
 		return fmt.Sprintf(`
-			update %%PREFIX%%_idx_nodes set mtime = ?, etag = ?, size = size + ?
-			where uuid in (
-				select uuid from %%PREFIX%%_idx_tree where (%s)
-			)`, sub), args
+			update %%PREFIX%%_idx_tree set mtime = ?, etag = ?, size = size + ?
+			where (%s)`, sub), args
 	}
 
 	queries["deleteTree"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathEqualsOrLike("", []byte(mpathes[0]))
+		sub, args := getMPathEqualsOrLike([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
 			delete from %%PREFIX%%_idx_tree
 			where (%s)`, sub), args
 	}
 
-	queries["deleteNode"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathEqualsOrLike("", []byte(mpathes[0]))
-
-		return fmt.Sprintf(`
-		delete from %%PREFIX%%_idx_nodes
-		where uuid in (
-			select uuid
-			from %%PREFIX%%_idx_tree
-			where (%s)
-		)`, sub), args
-	}
-
-	queries["deleteTreeNodes"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathEqualsOrLike("t", []byte(mpathes[0]))
-		return fmt.Sprintf(`
-		delete t, n 
-			from %%PREFIX%%_idx_tree t
-			join %%PREFIX%%_idx_nodes n ON t.uuid=n.uuid
-			where (%s)
-		`, sub), args
-	}
-
 	queries["selectNode"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathEquals("t", []byte(mpathes[0]))
+		sub, args := getMPathEquals([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
-		select t.uuid, t.level, t.rat, t.name, n.leaf, n.mtime, n.etag, n.size, n.mode
-		from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-		where %s
-		and n.uuid = t.uuid`, sub), args
+		SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+		FROM %%PREFIX%%_idx_tree
+		WHERE %s`, sub), args
 	}
 
 	queries["selectNodes"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathesIn("t", mpathes...)
+		sub, args := getMPathesIn(mpathes...)
 
 		return fmt.Sprintf(`
-			select t.uuid, t.level, t.rat, t.name, n.leaf, n.mtime, n.etag, n.size, n.mode
-			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-			where (%s)
-			and n.uuid = t.uuid
-			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, sub), args
+			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			FROM %%PREFIX%%_idx_tree
+			WHERE (%s)	
+			ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
 	}
 
 	queries["tree"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathLike("t", []byte(mpathes[0]))
+		sub, args := getMPathLike([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
-			select t.uuid, t.level, t.rat, t.name, n.leaf, n.mtime, n.etag, n.size, n.mode
-			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-			where %s
-			and t.uuid = n.uuid
-			and t.level >= ?
-			order by t.mpath1, t.mpath2, t.mpath3, t.mpath4`, sub), args
+			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s and level >= ?
+			ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
 	}
 
 	queries["children"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathLike("t", []byte(mpathes[0]))
+		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select t.uuid, t.level, t.rat, t.name, n.leaf, n.mtime, n.etag, n.size, n.mode
-			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-			where %s
-			and t.uuid = n.uuid
-			and t.level = ?
-			order by t.name`, sub), args
+			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level = ?
+			ORDER BY name`, sub), args
 	}
 
 	queries["child"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathLike("t", []byte(mpathes[0]))
+		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select t.uuid, t.level, t.rat, t.name, n.leaf, n.mtime, n.etag, n.size, n.mode
-			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-			where %s
-			and t.uuid = n.uuid
-			and t.level = ?
-			and t.name like ?`, sub), args
+			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level = ? AND name like ?`, sub), args
 	}
 
 	queries["lastChild"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathLike("t", []byte(mpathes[0]))
+		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select t.uuid, t.level, t.rat, t.name, n.leaf, n.mtime, n.etag, n.size, n.mode
-			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-			where %s
-			and t.uuid = n.uuid
-			and t.level = ?
-			order by t.mpath4, t.mpath3, t.mpath2, t.mpath1 desc limit 1`, sub), args
+			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level = ?
+			ORDER BY mpath4, mpath3, mpath2, mpath1 DESC LIMIT 1`, sub), args
 	}
 
 	queries["childrenEtags"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathLike("t", []byte(mpathes[0]))
+		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select n.etag
-			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-			where %s
-			and t.uuid = n.uuid
-			and t.level = ?
-			order by t.name`, sub), args
+			SELECT etag
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level = ?
+			ORDER BY name`, sub), args
 	}
 
 	queries["dirtyEtags"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathEqualsOrLike("t", []byte(mpathes[0]))
+		sub, args := getMPathEqualsOrLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select t.uuid, t.level, t.rat, t.name, n.leaf, n.mtime, n.etag, n.size, n.mode
-			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-			where n.etag = '-1'
-			and (%s)
-		    and t.uuid = n.uuid
-		    and t.level >= ?
-			order by t.level DESC`, sub), args
+			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			FROM %%PREFIX%%_idx_tree
+			WHERE etag = '-1' AND (%s) AND level >= ?
+			ORDER BY level DESC`, sub), args
 	}
 
 	queries["childrenCount"] = func(mpathes ...string) (string, []interface{}) {
-		sub, args := getMPathLike("t", []byte(mpathes[0]))
+		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select count(t.uuid)
-			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
-			where %s
-			and t.uuid = n.uuid
-			and t.level = ?
-			order by t.name`, sub), args
+			select count(uuid)
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level = ? AND name != '.pydio'
+			ORDER BY name`, sub), args
 	}
 
 }
@@ -354,55 +280,11 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 	dao.Lock()
 	defer dao.Unlock()
 
-	db := dao.DB()
-
 	var err error
-
-	// Starting a transaction
-	tx, err := db.BeginTx(context.Background(), nil)
-	if err != nil {
-		return err
-	}
-
-	// Checking transaction went fine
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
 
 	mTime := node.GetMTime()
 	if mTime == 0 {
 		mTime = time.Now().Unix()
-	}
-
-	insertNode := dao.GetStmt("insertNode")
-	if insertNode == nil {
-		return fmt.Errorf("Unknown statement")
-	}
-
-	insertTree := dao.GetStmt("insertTree")
-	if insertTree == nil {
-		return fmt.Errorf("Unknown statement")
-	}
-
-	if stmt := tx.Stmt(insertNode); stmt != nil {
-		defer stmt.Close()
-
-		if _, err = stmt.Exec(
-			node.Uuid,
-			node.IsLeafInt(),
-			mTime,
-			node.GetEtag(),
-			node.GetSize(),
-			node.GetMode(),
-		); err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("Empty statement")
 	}
 
 	mpath := make([]byte, indexLen*4)
@@ -412,14 +294,18 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 	mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
 	mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
 
-	if stmt := tx.Stmt(insertTree); stmt != nil {
-		defer stmt.Close()
+	if stmt := dao.GetStmt("insertTree"); stmt != nil {
 
 		if _, err = stmt.Exec(
 			node.Uuid,
 			node.Level,
 			node.MPath.Hash(),
 			node.Name(),
+			node.IsLeafInt(),
+			mTime,
+			node.GetEtag(),
+			node.GetSize(),
+			node.GetMode(),
 			mpath1,
 			mpath2,
 			mpath3,
@@ -429,11 +315,7 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 			return err
 		}
 	} else {
-		return fmt.Errorf("Empty statement")
-	}
-
-	if err := dao.checkIntegrity("AddNode"); err != nil {
-		return err
+		return fmt.Errorf("empty statement")
 	}
 
 	return nil
@@ -449,7 +331,7 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 
 		defer close(e)
 
-		insert := func(num int, valsInsertNodes []interface{}, valsInsertTree []interface{}) error {
+		insert := func(num int, valsInsertTree []interface{}) error {
 			dao.Lock()
 			defer dao.Unlock()
 
@@ -471,24 +353,9 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 				}
 			}()
 
-			insertNode := dao.GetStmt("insertNode", num)
-			if insertNode == nil {
-				return fmt.Errorf("Unknown statement")
-			}
-
 			insertTree := dao.GetStmt("insertTree", num)
 			if insertTree == nil {
-				return fmt.Errorf("Unknown statement")
-			}
-
-			if stmt := tx.Stmt(insertNode); stmt != nil {
-				defer stmt.Close()
-
-				if _, err = stmt.Exec(valsInsertNodes...); err != nil {
-					return err
-				}
-			} else {
-				return fmt.Errorf("Empty statement")
+				return fmt.Errorf("unknown statement")
 			}
 
 			if stmt := tx.Stmt(insertTree); stmt != nil {
@@ -498,13 +365,12 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 					return err
 				}
 			} else {
-				return fmt.Errorf("Empty statement")
+				return fmt.Errorf("empty statement")
 			}
 
 			return nil
 		}
 
-		valsInsertNodes := []interface{}{}
 		valsInsertTree := []interface{}{}
 
 		var count int
@@ -522,26 +388,24 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 			mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
 			mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
 
-			valsInsertNodes = append(valsInsertNodes, node.Uuid, node.IsLeafInt(), mTime, node.GetEtag(), node.GetSize(), node.GetMode())
-			valsInsertTree = append(valsInsertTree, node.Uuid, node.Level, node.MPath.Hash(), node.Name(), mpath1, mpath2, mpath3, mpath4, node.Bytes())
+			valsInsertTree = append(valsInsertTree, node.Uuid, node.Level, node.MPath.Hash(), node.Name(), node.IsLeafInt(), mTime, node.GetEtag(), node.GetSize(), node.GetMode(), mpath1, mpath2, mpath3, mpath4, node.Bytes())
 
 			count = count + 1
 
 			if count >= max {
 
-				if err := insert(max, valsInsertNodes, valsInsertTree); err != nil {
+				if err := insert(max, valsInsertTree); err != nil {
 					e <- err
 				}
 
 				count = 0
-				valsInsertNodes = []interface{}{}
 				valsInsertTree = []interface{}{}
 
 			}
 		}
 
 		if count > 0 {
-			if err := insert(count, valsInsertNodes, valsInsertTree); err != nil {
+			if err := insert(count, valsInsertTree); err != nil {
 				e <- err
 			}
 		}
@@ -561,23 +425,6 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 	dao.Lock()
 	defer dao.Unlock()
 
-	db := dao.DB()
-
-	var err error
-
-	tx, err := db.BeginTx(context.Background(), nil)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
-
 	mpath := make([]byte, indexLen*4)
 	copy(mpath, []byte(node.MPath.String()))
 	mpath1 := string(bytes.Trim(mpath[(indexLen*0):(indexLen*1-1)], "\x00"))
@@ -585,60 +432,29 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 	mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
 	mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
 
-	// TODO : Transaction is not really used here as stmts are taken from dao.
-	// It is disabled as it can create locks when updating nodes in batch
 	updateTree := dao.GetStmt("updateTree")
 	if updateTree == nil {
-		return fmt.Errorf("Unknown statement")
+		return fmt.Errorf("empty statement")
 	}
 
-	updateNode := dao.GetStmt("updateNode")
-	if updateNode == nil {
-		return fmt.Errorf("Unknown statement")
-	}
+	_, err := updateTree.Exec(
+		node.Level,
+		node.MPath.Hash(),
+		node.Name(),
+		node.IsLeafInt(),
+		node.MTime,
+		node.Etag,
+		node.Size,
+		node.Mode,
+		mpath1,
+		mpath2,
+		mpath3,
+		mpath4,
+		node.Bytes(),
+		node.Uuid,
+	)
 
-	if stmt := tx.Stmt(updateTree); stmt != nil {
-		defer stmt.Close()
-
-		if _, err = stmt.Exec(
-			node.Level,
-			node.MPath.Hash(),
-			node.Name(),
-			mpath1,
-			mpath2,
-			mpath3,
-			mpath4,
-			node.Bytes(),
-			node.Uuid,
-		); err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("Empty statement")
-	}
-
-	if stmt := tx.Stmt(updateNode); stmt != nil {
-		defer stmt.Close()
-
-		if _, err = stmt.Exec(
-			node.IsLeafInt(),
-			node.MTime,
-			node.Etag,
-			node.Size,
-			node.Mode,
-			node.Uuid,
-		); err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("Empty statement")
-	}
-
-	if checkErr := dao.checkIntegrity("SetNode End"); checkErr != nil {
-		return checkErr
-	}
-
-	return nil
+	return err
 }
 
 // PushCommit adds a commit version to the node
@@ -647,28 +463,12 @@ func (dao *IndexSQL) PushCommit(node *mtree.TreeNode) error {
 	dao.Lock()
 	defer dao.Unlock()
 
-	db := dao.DB()
-
-	// Starting a transaction
-	tx, err := db.BeginTx(context.Background(), nil)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
-
 	mTime := node.MTime
 	if mTime == 0 {
 		mTime = time.Now().Unix()
 	}
 	if stmt := dao.GetStmt("insertCommit"); stmt != nil {
-		if _, err = stmt.Exec(
+		if _, err := stmt.Exec(
 			node.Uuid,
 			node.Etag,
 			mTime,
@@ -828,13 +628,9 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 			return eE
 		}
 		log.Logger(context.Background()).Info("Computed Etag For Node", zap.Any("etag", newEtag))
-		if stmt := dao.GetStmt("updateNode"); stmt != nil {
+		if stmt := dao.GetStmt("updateEtag"); stmt != nil {
 			if _, err = stmt.Exec(
-				node.IsLeafInt(),
-				node.MTime,
 				newEtag,
-				node.Size,
-				node.Mode,
 				node.Uuid,
 			); err != nil {
 				return err
@@ -908,9 +704,6 @@ func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 		}
 
 		if len(all) > 0 {
-			// for len(all) < cap(all) {
-			// 	all = append(all, "-1")
-			// }
 			insert(all...)
 		}
 
@@ -925,60 +718,12 @@ func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 	dao.Lock()
 	defer dao.Unlock()
 
-	db := dao.DB()
-	driver := dao.Driver()
-
-	if driver == "sqlite3" {
-
-		var err error
-
-		tx, err := db.BeginTx(context.Background(), nil)
-		if err != nil {
-			return err
-		}
-
-		defer func() {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-		}()
-
-		mPath := node.MPath.String()
-		delNode, args, e := dao.GetStmtWithArgs("deleteNode", mPath)
-		if e != nil {
-			err = e
-			return e
-		}
-		delTree, args, e := dao.GetStmtWithArgs("deleteTree", mPath)
-		if e != nil {
-			err = e
-			return e
-		}
-		if stmt := tx.Stmt(delNode); stmt != nil {
-			defer stmt.Close()
-			if _, err = stmt.Exec(args...); err != nil {
-				return err
-			}
-		}
-		if stmt := tx.Stmt(delTree); stmt != nil {
-			defer stmt.Close()
-			if _, err = stmt.Exec(args...); err != nil {
-				return err
-			}
-		}
-
-	} else {
-
-		stmt, args, e := dao.GetStmtWithArgs("deleteTreeNodes", node.MPath.String())
-		if e != nil {
-			return e
-		}
-		if _, err := stmt.Exec(args...); err != nil {
-			return err
-		}
-
+	stmt, args, e := dao.GetStmtWithArgs("deleteTree", node.MPath.String())
+	if e != nil {
+		return e
+	}
+	if _, err := stmt.Exec(args...); err != nil {
+		return err
 	}
 
 	/*
@@ -990,10 +735,6 @@ func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 			}
 		}
 	*/
-
-	if errCheck := dao.checkIntegrity("DelNodeEnd " + node.Path); errCheck != nil {
-		return errCheck
-	}
 
 	return nil
 }
@@ -1556,38 +1297,6 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (m
 	return path, created, err
 }
 
-func (dao *IndexSQL) checkIntegrity(cat string) error {
-	return nil
-
-	ctx := context.Background()
-
-	if stmt := dao.GetStmt("integrity1"); stmt != nil {
-		row := stmt.QueryRow()
-		var count int
-		row.Scan(&count)
-		if count > 0 {
-			log.Logger(ctx).Error(fmt.Sprintf("[%s] There are %d entries in tree that are not in nodes!", cat, count))
-			return nil
-		}
-	} else {
-		return fmt.Errorf("Empty statement")
-	}
-
-	if stmt := dao.GetStmt("integrity2"); stmt != nil {
-		row := stmt.QueryRow()
-		var count int
-		row.Scan(&count)
-		if count > 0 {
-			log.Logger(ctx).Debug(fmt.Sprintf("[%s] There are %d entries in tree that are not in tree!", cat, count))
-			return nil
-		}
-	} else {
-		return fmt.Errorf("Empty statement")
-	}
-	log.Logger(ctx).Debug(fmt.Sprintf("[%s] Integrity test PASSED", cat))
-	return nil
-}
-
 func (dao *IndexSQL) lock() {
 	if current, ok := mu.Load().(*sync.Mutex); ok {
 		current.Lock()
@@ -1626,18 +1335,14 @@ func (b *BatchSend) Close() error {
 }
 
 // where t.mpath = ?
-func getMPathEquals(tableAlias string, mpath []byte) (string, []interface{}) {
+func getMPathEquals(mpath []byte) (string, []interface{}) {
 	var res []string
 	var args []interface{}
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
 
 	for {
 		var cnt int
 		cnt = (len(mpath) - 1) / indexLen
-		res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+		res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
 		args = append(args, mpath[(cnt*indexLen):])
 
 		if idx := cnt * indexLen; idx == 0 {
@@ -1651,13 +1356,9 @@ func getMPathEquals(tableAlias string, mpath []byte) (string, []interface{}) {
 }
 
 // t.mpath LIKE ?
-func getMPathLike(tableAlias string, mpath []byte) (string, []interface{}) {
+func getMPathLike(mpath []byte) (string, []interface{}) {
 	var res []string
 	var args []interface{}
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
 
 	mpath = append(mpath, []byte(".%")...)
 
@@ -1667,11 +1368,11 @@ func getMPathLike(tableAlias string, mpath []byte) (string, []interface{}) {
 		cnt = (len(mpath) - 1) / indexLen
 
 		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
 			args = append(args, mpath[(cnt*indexLen):])
 			done = true
 		} else {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
 			args = append(args, mpath[(cnt*indexLen):])
 		}
 
@@ -1686,13 +1387,9 @@ func getMPathLike(tableAlias string, mpath []byte) (string, []interface{}) {
 }
 
 // and (t.mpath = ? OR t.mpath LIKE ?)
-func getMPathEqualsOrLike(tableAlias string, mpath []byte) (string, []interface{}) {
+func getMPathEqualsOrLike(mpath []byte) (string, []interface{}) {
 	var res []string
 	var args []interface{}
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
 
 	mpath = append(mpath, []byte(".%")...)
 
@@ -1702,14 +1399,14 @@ func getMPathEqualsOrLike(tableAlias string, mpath []byte) (string, []interface{
 		cnt = (len(mpath) - 1) / indexLen
 
 		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE ?`, tableAlias, cnt+1))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
 
 			args = append(args, mpath[(cnt*indexLen):len(mpath)-2], mpath[(cnt*indexLen):])
 
 			done = true
 		} else {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 		}
 
 		if idx := cnt * indexLen; idx == 0 {
@@ -1723,12 +1420,12 @@ func getMPathEqualsOrLike(tableAlias string, mpath []byte) (string, []interface{
 }
 
 // where t.mpath in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-func getMPathesIn(tableAlias string, mpathes ...string) (string, []interface{}) {
+func getMPathesIn(mpathes ...string) (string, []interface{}) {
 	var res []string
 	var args []interface{}
 
 	for _, mpath := range mpathes {
-		r, a := getMPathEquals(tableAlias, []byte(mpath))
+		r, a := getMPathEquals([]byte(mpath))
 		res = append(res, fmt.Sprintf(`(%s)`, r))
 		args = append(args, a...)
 	}

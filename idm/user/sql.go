@@ -57,25 +57,25 @@ var (
 		"AddRole":              `replace into idm_user_roles (uuid, role) values (?, ?)`,
 		"GetRoles":             `select role from idm_user_roles where uuid = ?`,
 		"DeleteUserRoles":      `delete from idm_user_roles where uuid = ?`,
-		"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_nodes)`,
+		"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_tree)`,
 		"DeleteRoleById":       `delete from idm_user_roles where role = ?`,
-		"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_nodes)`,
+		"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_tree)`,
 	}
 
 	unPrepared = map[string]func(...interface{}) string{
 		"WhereGroupPath": func(args ...interface{}) string {
 			mpath := []byte(args[0].(string))
 			level := args[1].(int)
-			return fmt.Sprintf(`(%s) and t.level = %d`, getMPathLike("", mpath), level)
+			return fmt.Sprintf(`(%s) and t.level = %d`, getMPathLike(mpath), level)
 		},
 		"WhereGroupPathRecursive": func(args ...interface{}) string {
 			mpath := []byte(args[0].(string))
 			level := args[1].(int)
-			return fmt.Sprintf(`(%s) and t.level >= %d`, getMPathLike("", mpath), level)
+			return fmt.Sprintf(`(%s) and t.level >= %d`, getMPathLike(mpath), level)
 		},
 		"WhereGroupPathIncludeParent": func(args ...interface{}) string {
 			mpath := []byte(args[0].(string))
-			return fmt.Sprintf(`(%s)`, getMPathEquals("", mpath))
+			return fmt.Sprintf(`(%s)`, getMPathEquals(mpath))
 		},
 		"WhereHasAttributes": func(args ...interface{}) string {
 			return fmt.Sprintf(`EXISTS (select a.name from idm_user_attributes as a WHERE %s and a.uuid = t.uuid)`, args...)
@@ -585,17 +585,13 @@ func (s *sqlimpl) rebuildGroupPath(node *mtree.TreeNode) {
 }
 
 // where t.mpath = ?
-func getMPathEquals(tableAlias string, mpath []byte) string {
+func getMPathEquals(mpath []byte) string {
 	var res []string
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
 
 	for {
 		var cnt int
 		cnt = (len(mpath) - 1) / indexLen
-		res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+		res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 
 		if idx := cnt * indexLen; idx == 0 {
 			break
@@ -608,12 +604,8 @@ func getMPathEquals(tableAlias string, mpath []byte) string {
 }
 
 // t.mpath LIKE ?
-func getMPathLike(tableAlias string, mpath []byte) string {
+func getMPathLike(mpath []byte) string {
 	var res []string
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
 
 	mpath = append(mpath, []byte(".%")...)
 
@@ -623,10 +615,10 @@ func getMPathLike(tableAlias string, mpath []byte) string {
 		cnt = (len(mpath) - 1) / indexLen
 
 		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 			done = true
 		} else {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 		}
 
 		if idx := cnt * indexLen; idx == 0 {
@@ -637,48 +629,4 @@ func getMPathLike(tableAlias string, mpath []byte) string {
 	}
 
 	return strings.Join(res, " and ")
-}
-
-// and (t.mpath = ? OR t.mpath LIKE ?)
-func getMPathEqualsOrLike(tableAlias string, mpath []byte) string {
-	var res []string
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
-
-	mpath = append(mpath, []byte(".%")...)
-
-	done := false
-	for {
-		var cnt int
-		cnt = (len(mpath) - 1) / indexLen
-
-		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):len(mpath)-2]))
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
-			done = true
-		} else {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
-		}
-
-		if idx := cnt * indexLen; idx == 0 {
-			break
-		}
-
-		mpath = mpath[0 : cnt*indexLen]
-	}
-
-	return strings.Join(res, " or ")
-}
-
-// where t.mpath in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-func getMPathesIn(tableAlias string, mpathes ...string) string {
-
-	var res []string
-	for _, mpath := range mpathes {
-		res = append(res, fmt.Sprintf(`(%s)`, getMPathEquals(tableAlias, []byte(mpath))))
-	}
-
-	return strings.Join(res, " or ")
 }
