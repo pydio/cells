@@ -71,7 +71,9 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 	}
 
 	dataset := db.From(goqu.I("idm_user_idx_tree").As("t")).Prepared(true)
-	dataset = dataset.Where(goqu.And(wheres...))
+	if len(wheres) > 0 {
+		dataset = dataset.Where(goqu.And(wheres...))
+	}
 
 	if countOnly {
 

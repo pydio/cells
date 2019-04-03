@@ -335,37 +335,12 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 			dao.Lock()
 			defer dao.Unlock()
 
-			db := dao.DB()
-
-			// Starting a transaction
-			tx, err := db.BeginTx(context.Background(), nil)
-			if err != nil {
-				return err
-			}
-
-			// Checking transaction went fine
-			defer func() {
-				if err != nil {
-					fmt.Println("We have an error before committing", err)
-					tx.Rollback()
-				} else {
-					tx.Commit()
-				}
-			}()
-
 			insertTree := dao.GetStmt("insertTree", num)
 			if insertTree == nil {
 				return fmt.Errorf("unknown statement")
 			}
-
-			if stmt := tx.Stmt(insertTree); stmt != nil {
-				defer stmt.Close()
-
-				if _, err = stmt.Exec(valsInsertTree...); err != nil {
-					return err
-				}
-			} else {
-				return fmt.Errorf("empty statement")
+			if _, err := insertTree.Exec(valsInsertTree...); err != nil {
+				return err
 			}
 
 			return nil
@@ -652,42 +627,18 @@ func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 		dao.Lock()
 		defer dao.Unlock()
 
-		db := dao.DB()
-
 		defer func() {
 			close(b.out)
 		}()
 
 		insert := func(mpathes ...interface{}) {
-			// Starting a transaction
-			tx, err := db.BeginTx(context.Background(), &databasesql.TxOptions{
-				Isolation: databasesql.LevelReadUncommitted,
-			})
-			if err != nil {
-				return
-			}
-
-			// Checking transaction went fine
-			defer func() {
-				if err != nil {
-					tx.Rollback()
-				} else {
-					tx.Commit()
-				}
-			}()
 
 			updateNodes, args, e := dao.GetStmtWithArgs("updateNodes", mpathes...)
 			if e != nil {
 				b.out <- e
 			} else {
-				if stmt := tx.Stmt(updateNodes); stmt != nil {
-					defer stmt.Close()
-
-					if _, err = stmt.Exec(append([]interface{}{time.Now().Unix(), etag, deltaSize}, args...)...); err != nil {
-						b.out <- err
-					}
-				} else {
-					b.out <- fmt.Errorf("empty stmt")
+				if _, err := updateNodes.Exec(append([]interface{}{time.Now().Unix(), etag, deltaSize}, args...)...); err != nil {
+					b.out <- err
 				}
 			}
 
