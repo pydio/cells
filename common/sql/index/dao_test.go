@@ -160,6 +160,7 @@ func TestMysql(t *testing.T) {
 
 		// Setting MTime to 0 so we can compare
 		node.MTime = 0
+		node.Size = 0
 		node.Path = "mockLongNode"
 
 		So(node.Node, ShouldResemble, mockLongNode.Node)
@@ -198,9 +199,17 @@ func TestMysql(t *testing.T) {
 	// Getting children count
 	Convey("Test Getting the Children Count of a node", t, func() {
 
-		count := getDAO(ctxNoCache).GetNodeChildrenCount(mockLongNodeMPath)
+		_, count := getDAO(ctxNoCache).GetNodeChildrenCounts(mockLongNodeMPath)
 
 		So(count, ShouldEqual, 2)
+	})
+
+	// Getting children count
+	Convey("Test Getting the Children Cumulated Size", t, func() {
+
+		parent, _ := getDAO(ctxNoCache).GetNode(mockLongNodeMPath)
+
+		So(parent.Size, ShouldEqual, mockLongNodeChild1.Size+mockLongNodeChild2.Size)
 	})
 
 	// Setting a file

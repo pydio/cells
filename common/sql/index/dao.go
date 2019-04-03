@@ -51,7 +51,7 @@ type DAO interface {
 	GetNodeChild(mtree.MPath, string) (*mtree.TreeNode, error)
 	GetNodeLastChild(mtree.MPath) (*mtree.TreeNode, error)
 	GetNodeFirstAvailableChildIndex(mtree.MPath) (uint64, error)
-	GetNodeChildrenCount(mtree.MPath) int
+	GetNodeChildrenCounts(mtree.MPath) (int, int)
 	GetNodeChildren(mtree.MPath) chan *mtree.TreeNode
 	GetNodeTree(mtree.MPath) chan *mtree.TreeNode
 

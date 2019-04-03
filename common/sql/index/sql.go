@@ -217,10 +217,18 @@ func init() {
 	queries["childrenCount"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select count(uuid)
+			select leaf, count(leaf)
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level = ? AND name != '.pydio'
-			ORDER BY name`, sub), args
+			GROUP BY leaf`, sub), args
+	}
+
+	queries["childrenSize"] = func(mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike([]byte(mpathes[0]))
+		return fmt.Sprintf(`
+			select sum(size)
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level >= ? AND leaf=1`, sub), args
 	}
 
 }
@@ -452,7 +460,7 @@ func (dao *IndexSQL) PushCommit(node *mtree.TreeNode) error {
 			return err
 		}
 	} else {
-		return fmt.Errorf("Empty statement")
+		return fmt.Errorf("empty statement")
 	}
 
 	return nil
@@ -469,7 +477,7 @@ func (dao *IndexSQL) DeleteCommits(node *mtree.TreeNode) error {
 			return err
 		}
 	} else {
-		return fmt.Errorf("Empty statement")
+		return fmt.Errorf("empty statement")
 	}
 
 	return nil
@@ -495,7 +503,7 @@ func (dao *IndexSQL) ListCommits(node *mtree.TreeNode) (commits []*tree.ChangeLo
 			return commits, err
 		}
 	} else {
-		return commits, fmt.Errorf("Empty statement")
+		return commits, fmt.Errorf("empty statement")
 	}
 	for rows.Next() {
 		var uid string
@@ -564,6 +572,23 @@ func (dao *IndexSQL) etagFromChildren(node *mtree.TreeNode) (string, error) {
 	return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
+// Compute sizes from children files - Does not handle lock, should be
+// used by other functions handling lock
+func (dao *IndexSQL) folderSize(node *mtree.TreeNode) {
+	if node.MPath == nil {
+		return
+	}
+	if stmt, args, e := dao.GetStmtWithArgs("childrenSize", node.MPath.String()); e == nil {
+		row := stmt.QueryRow(append(args, len(node.MPath)+1)...)
+		if row != nil {
+			var size int64
+			if er := row.Scan(&size); er == nil {
+				node.Size = size
+			}
+		}
+	}
+}
+
 // ResyncDirtyEtags ensures that etags are rightly calculated
 func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 
@@ -611,7 +636,7 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 				return err
 			}
 		} else {
-			return fmt.Errorf("Empty statement")
+			return fmt.Errorf("empty statement")
 		}
 	}
 	return nil
@@ -711,6 +736,9 @@ func (dao *IndexSQL) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 		if err != nil {
 			return nil, err
 		}
+		if treeNode != nil && !treeNode.IsLeaf() {
+			dao.folderSize(treeNode)
+		}
 		return treeNode, nil
 	} else {
 		return nil, e
@@ -729,11 +757,13 @@ func (dao *IndexSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 		if err != nil && err != sql.ErrNoRows {
 			return nil, err
 		}
-
+		if treeNode != nil && !treeNode.IsLeaf() {
+			dao.folderSize(treeNode)
+		}
 		return treeNode, nil
 	}
 
-	return nil, fmt.Errorf("Empty statement")
+	return nil, fmt.Errorf("empty statement")
 }
 
 // GetNodes List
@@ -873,8 +903,8 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (uint6
 	return uint64(max + 1), nil
 }
 
-// GetNodeChildrenCount List
-func (dao *IndexSQL) GetNodeChildrenCount(path mtree.MPath) int {
+// GetNodeChildrenCounts List
+func (dao *IndexSQL) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 
 	dao.Lock()
 	defer dao.Unlock()
@@ -884,20 +914,27 @@ func (dao *IndexSQL) GetNodeChildrenCount(path mtree.MPath) int {
 
 	mpath := node.MPath
 
-	res := 0
+	var folderCount, fileCount int
 
 	// First we check if we already have an object with the same key
 	if stmt, args, e := dao.GetStmtWithArgs("childrenCount", mpath.String()); e == nil {
-		row := stmt.QueryRow(append(args, len(path)+1)...)
-		if row == nil {
-			return 0
+		if rows, e := stmt.Query(append(args, len(path)+1)...); e == nil {
+			defer rows.Close()
+			for rows.Next() {
+				var leaf bool
+				var count int
+				if sE := rows.Scan(&leaf, &count); sE == nil {
+					if leaf {
+						fileCount = count
+					} else {
+						folderCount = count
+					}
+				}
+			}
 		}
-		row.Scan(&res)
-	} else {
-		return 0
 	}
 
-	return res
+	return folderCount, fileCount
 }
 
 // GetNodeChildren List
@@ -935,6 +972,9 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 				treeNode, err := dao.scanDbRowToTreeNode(rows)
 				if err != nil {
 					break
+				}
+				if treeNode != nil && !treeNode.IsLeaf() {
+					dao.folderSize(treeNode)
 				}
 				c <- treeNode
 			}
@@ -981,7 +1021,9 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 				if err != nil {
 					break
 				}
-
+				if treeNode != nil && !treeNode.IsLeaf() {
+					dao.folderSize(treeNode)
+				}
 				c <- treeNode
 			}
 		}

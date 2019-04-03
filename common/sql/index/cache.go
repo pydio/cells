@@ -539,7 +539,7 @@ func (d *daocache) GetNodeFirstAvailableChildIndex(path mtree.MPath) (uint64, er
 
 }
 
-func (d *daocache) GetNodeChildrenCount(path mtree.MPath) int {
+func (d *daocache) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
@@ -550,7 +550,7 @@ func (d *daocache) GetNodeChildrenCount(path mtree.MPath) int {
 		res = len(nodes)
 	}
 
-	return res
+	return res, 0
 }
 
 func (d *daocache) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {

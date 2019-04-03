@@ -195,6 +195,7 @@ func TestMysqlWithCache(t *testing.T) {
 
 		// Setting MTime to 0 so we can compare
 		node.MTime = 0
+		node.Size = 0
 		node.Path = "mockLongNode"
 
 		getDAO(ctxWithCache).Flush(true)
@@ -244,7 +245,7 @@ func TestMysqlWithCache(t *testing.T) {
 	Convey("Test Getting the Children Count of a node", t, func() {
 		newSession()
 
-		count := getDAO(ctxWithCache).GetNodeChildrenCount(mockLongNodeMPath)
+		count, _ := getDAO(ctxWithCache).GetNodeChildrenCounts(mockLongNodeMPath)
 
 		getDAO(ctxWithCache).Flush(true)
 

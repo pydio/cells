@@ -250,8 +250,10 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 
 	if req.WithExtendedStats && !node.IsLeaf() {
-		childrenCount := dao.GetNodeChildrenCount(node.MPath)
-		node.SetMeta("ChildrenCount", childrenCount)
+		folderCount, fileCount := dao.GetNodeChildrenCounts(node.MPath)
+		node.SetMeta("ChildrenCount", folderCount+fileCount)
+		node.SetMeta("ChildrenFolders", folderCount)
+		node.SetMeta("ChildrenFiles", fileCount)
 	}
 
 	if req.WithCommits && node.IsLeaf() {
@@ -680,13 +682,15 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 		}
 	}
 
-	for mp, delta := range mpathes {
-		if batcher != nil {
-			s.batcherUpdateParents(batcher, delta, *mp)
-		} else {
-			s.daoUpdateParents(dao, delta, *mp)
+	/*
+		for mp, delta := range mpathes {
+			if batcher != nil {
+				s.batcherUpdateParents(batcher, delta, *mp)
+			} else {
+				s.daoUpdateParents(dao, delta, *mp)
+			}
 		}
-	}
+	*/
 
 	return nil
 }
