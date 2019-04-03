@@ -26608,7 +26608,8 @@ var DataSource = (function (_Observable) {
                         _this.internalInvalid = false;
                         target['ApiKey'] = target['ApiSecret'] = ''; // reset values
                     } else if (p === 'Name') {
-                            val = _pydioUtilLang2['default'].computeStringSlug(val).replace("-", "").substr(0, 50);
+                            // Limit Name to 33 chars
+                            val = _pydioUtilLang2['default'].computeStringSlug(val).replace("-", "").substr(0, 33);
                         } else if (p === 'folder') {
                             if (val[0] !== '/') {
                                 val = '/' + val;

@@ -22,6 +22,7 @@ class DataSource extends Observable {
                     this.internalInvalid = false;
                     target['ApiKey'] = target['ApiSecret'] = ''; // reset values
                 } else if(p === 'Name') {
+                    // Limit Name to 33 chars
                     val = LangUtils.computeStringSlug(val).replace("-", "").substr(0, 33);
                 } else if(p === 'folder') {
                     if (val[0] !== '/') {
