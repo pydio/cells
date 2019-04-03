@@ -22,12 +22,14 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 
 	"github.com/pydio/cells/broker/log"
 	proto "github.com/pydio/cells/common/proto/log"
+	"github.com/pydio/cells/common/proto/sync"
 )
 
 // Handler is the gRPC interface for the log service.
@@ -90,4 +92,17 @@ func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest, res
 // AggregatedLogs retrieves aggregated figures from the indexer to generate charts and reports.
 func (h *Handler) AggregatedLogs(ctx context.Context, req *proto.TimeRangeRequest, stream proto.LogRecorder_AggregatedLogsStream) error {
 	return errors.NotImplemented("cannot aggregate syslogs")
+}
+
+// TriggerResync implements SyncEndpointHandler interface by reading all logs from index and reconstructing a new index entirely
+func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest, response *sync.ResyncResponse) error {
+
+	go func() {
+		e := h.Repo.Resync()
+		if e != nil {
+			fmt.Println("Error while resyncing: " + e.Error())
+		}
+	}()
+
+	return nil
 }

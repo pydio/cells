@@ -24,13 +24,14 @@ package grpc
 import (
 	"path"
 
-	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/broker/log"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	proto "github.com/pydio/cells/common/proto/log"
+	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/service"
 )
 
@@ -55,6 +56,7 @@ func init() {
 				}
 
 				proto.RegisterLogRecorderHandler(m.Options().Server, handler)
+				sync.RegisterSyncEndpointHandler(m.Options().Server, handler)
 
 				m.Init(micro.BeforeStop(func() error {
 					repo.Close()

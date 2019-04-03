@@ -25,6 +25,8 @@ import (
 	"context"
 	"path"
 
+	"github.com/pydio/cells/common/proto/sync"
+
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
 
@@ -77,6 +79,7 @@ func init() {
 				handler := NewJobsHandler(store, logStore)
 				proto.RegisterJobServiceHandler(m.Options().Server, handler)
 				log2.RegisterLogRecorderHandler(m.Options().Server, handler)
+				sync.RegisterSyncEndpointHandler(m.Options().Server, handler)
 
 				m.Init(
 					micro.BeforeStop(func() error {

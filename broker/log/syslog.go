@@ -22,6 +22,7 @@ package log
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/blevesearch/bleve"
@@ -34,8 +35,10 @@ import (
 
 // SyslogServer is the syslog specific implementation of the Log server
 type SyslogServer struct {
-	Index bleve.Index
-	idgen xid.ID
+	Index       bleve.Index
+	idgen       xid.ID
+	indexPath   string
+	mappingName string
 
 	inserts  chan map[string]string
 	done     chan bool
@@ -44,6 +47,24 @@ type SyslogServer struct {
 
 // NewSyslogServer creates and configures a default Bleve instance to store technical logs
 func NewSyslogServer(bleveIndexPath string, mappingName string, deleteOnClose ...bool) (*SyslogServer, error) {
+
+	index, err := openIndex(bleveIndexPath, mappingName)
+	if err != nil {
+		return nil, err
+	}
+	server := &SyslogServer{
+		Index:       index,
+		indexPath:   bleveIndexPath,
+		mappingName: mappingName,
+		inserts:     make(chan map[string]string),
+		done:        make(chan bool),
+	}
+	go server.watchInserts()
+	return server, nil
+}
+
+func openIndex(bleveIndexPath string, mappingName string) (bleve.Index, error) {
+
 	index, err := bleve.Open(bleveIndexPath)
 	if err != nil {
 		indexMapping := bleve.NewIndexMapping()
@@ -58,16 +79,11 @@ func NewSyslogServer(bleveIndexPath string, mappingName string, deleteOnClose ..
 			index, err = bleve.NewUsing(bleveIndexPath, indexMapping, scorch.Name, boltdb.Name, nil)
 		}
 		if err != nil {
-			return &SyslogServer{}, err
+			return nil, err
 		}
 	}
-	server := &SyslogServer{
-		Index:   index,
-		inserts: make(chan map[string]string),
-		done:    make(chan bool),
-	}
-	go server.watchInserts()
-	return server, nil
+	return index, nil
+
 }
 
 func (s *SyslogServer) watchInserts() {
@@ -124,4 +140,44 @@ func (s *SyslogServer) DeleteLogs(query string) (int64, error) {
 // AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.
 func (s *SyslogServer) AggregatedLogs(msgId string, timeRangeType string, refTime int32) (chan log.TimeRangeResponse, error) {
 	return nil, fmt.Errorf("unimplemented method")
+}
+
+func (s *SyslogServer) Resync() error {
+
+	copyPath := s.indexPath + ".copy"
+	indexMapping := bleve.NewIndexMapping()
+	// Create, configure and add a specific document mapping
+	logMapping := bleve.NewDocumentMapping()
+	indexMapping.AddDocumentMapping(s.mappingName, logMapping)
+	// Creates the new index and initializes the server
+	target, err := bleve.NewUsing(copyPath, indexMapping, scorch.Name, boltdb.Name, nil)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Listing Index inside new one")
+	if err = BleveDuplicateIndex(s.Index, target); err != nil {
+		return err
+	}
+	s.Close()
+	target.Close()
+	<-time.After(5 * time.Second) // Make sure original is closed
+	s.done = make(chan bool)
+	fmt.Println("Removing old index")
+	if err = os.RemoveAll(s.indexPath); err != nil {
+		return err
+	}
+	fmt.Println("Replacing with new one")
+	if err = os.Rename(copyPath, s.indexPath); err != nil {
+		return err
+	}
+	fmt.Println("Reopening new index")
+	index, err := openIndex(s.indexPath, s.mappingName)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Finished Reindexation")
+	s.Index = index
+	go s.watchInserts()
+	return nil
+
 }
