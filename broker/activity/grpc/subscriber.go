@@ -173,12 +173,23 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		}
 		for _, subscription := range subscriptions {
 
-			// TODO : COMPARE SUBSCRIBED EVENTS TO CURRENT EVENT ?
 			if len(subscription.Events) == 0 {
 				continue
 			}
 			// Ignore if author is user
 			if subscription.UserId == author {
+				continue
+			}
+			evread   := false
+			evchange := false
+			for _, ev := range subscription.Events {
+				if strings.Compare(ev, "read") == 0 {
+					evread = true
+				} else if strings.Compare(ev, "change") == 0 {
+					evchange = true
+				}
+			}
+			if !((evread && ac.Type == activity2.ObjectType_Read) || (evchange && ac.Type != activity2.ObjectType_Read)) {
 				continue
 			}
 			dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac)
