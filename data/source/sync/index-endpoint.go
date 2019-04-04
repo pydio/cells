@@ -57,11 +57,15 @@ func (i *IndexEndpoint) ComputeChecksum(node *tree.Node) error {
 
 func (i *IndexEndpoint) Walk(walknFc commonsync.WalkNodesFunc, pathes ...string) (err error) {
 
+	p := ""
+	if len(pathes) > 0 {
+		p = pathes[0]
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	responseClient, e := i.readerClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{
-			Path: "",
+			Path: p,
 		},
 		Recursive: true,
 	})
@@ -71,10 +75,7 @@ func (i *IndexEndpoint) Walk(walknFc commonsync.WalkNodesFunc, pathes ...string)
 	defer responseClient.Close()
 	for {
 		response, rErr := responseClient.Recv()
-		if rErr != nil {
-			walknFc("", nil, rErr)
-		}
-		if response == nil {
+		if rErr != nil || response == nil {
 			break
 		}
 		response.Node.Path = strings.TrimLeft(response.Node.Path, "/")

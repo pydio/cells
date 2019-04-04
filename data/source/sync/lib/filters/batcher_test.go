@@ -270,4 +270,8 @@ func TestEventsBatcher_FilterBatch(t *testing.T) {
 
 	})
 
+	Convey("Detect folder moves with children", t, func() {
+
+	})
+
 }

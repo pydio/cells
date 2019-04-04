@@ -228,7 +228,24 @@ func (s *Sync) Start(ctx context.Context) {
 }
 
 func (s *Sync) Resync(ctx context.Context, dryRun bool, statusChan chan filters.BatchProcessStatus, doneChan chan bool) (*proc.SourceDiff, error) {
-	return s.InitialSnapshots(ctx, dryRun, statusChan, doneChan)
+	var err error
+	defer func() {
+		if e := recover(); e != nil {
+			if er, ok := e.(error); ok {
+				err = er
+				if statusChan != nil {
+					statusChan <- filters.BatchProcessStatus{
+						IsError:      true,
+						StatusString: err.Error(),
+						Progress:     1,
+					}
+				}
+			}
+		}
+	}()
+	var diff *proc.SourceDiff
+	diff, err = s.InitialSnapshots(ctx, dryRun, statusChan, doneChan)
+	return diff, err
 }
 
 func NewSync(ctx context.Context, left Endpoint, right Endpoint) *Sync {

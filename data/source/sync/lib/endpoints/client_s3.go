@@ -379,10 +379,6 @@ func (c *S3Client) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 // UpdateNodeUuid makes this endpoint an UuidReceiver
 func (c *S3Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
 
-	if node.IsLeaf() {
-		return nil, errors.New("UpdateNodeUuid is only supported by folders")
-	}
-	hiddenPath := fmt.Sprintf("%v/%s", node.Path, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
 	var uid string
 	if node.Uuid != "" {
 		uid = node.Uuid
@@ -390,8 +386,23 @@ func (c *S3Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.N
 		uid = fmt.Sprintf("%s", uuid.NewV4())
 		node.Uuid = uid
 	}
-	_, err := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
-	return node, err
+
+	if node.IsLeaf() {
+		d, e := minio.NewDestinationInfo(c.Bucket, c.getFullPath(node.Path), nil, map[string]string{
+			servicescommon.X_AMZ_META_DIRECTIVE: "REPLACE",
+			servicescommon.X_AMZ_META_NODE_UUID: node.Uuid,
+		})
+		if e != nil {
+			return nil, e
+		}
+		s := minio.NewSourceInfo(c.Bucket, c.getFullPath(node.Path), nil)
+		err := c.Mc.CopyObject(d, s)
+		return node, err
+	} else {
+		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+		_, err := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
+		return node, err
+	}
 
 }
 

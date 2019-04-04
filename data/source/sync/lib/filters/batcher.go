@@ -22,9 +22,12 @@ package filters
 
 import (
 	"context"
+	"path"
 	"strings"
 	"sync"
 	"time"
+
+	common2 "github.com/pydio/cells/common"
 
 	"go.uber.org/zap"
 
@@ -62,17 +65,16 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		Type: "filter:start",
 		Data: batch,
 	})
-	var createEvent *BatchedEvent
-	for _, createEvent = range batch.CreateFiles {
+	for _, createEvent := range batch.CreateFiles {
 		var node *tree.Node
 		var err error
 		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
 			node = createEvent.EventInfo.ScanSourceNode
-			log.Logger(ev.globalContext).Debug("Create File", zap.Any("node", node))
+			log.Logger(ev.globalContext).Debug("Create File", node.Zap())
 		} else {
 			// Todo : Feed node from event instead of calling LoadNode() again?
 			node, err = ev.Source.LoadNode(createEvent.EventInfo.CreateContext(ev.globalContext), createEvent.EventInfo.Path)
-			log.Logger(ev.globalContext).Debug("Load File", zap.Any("node", node))
+			log.Logger(ev.globalContext).Debug("Load File", node.Zap())
 		}
 		if err != nil {
 			delete(batch.CreateFiles, createEvent.Key)
@@ -81,10 +83,13 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 			}
 		} else {
 			createEvent.Node = node
+			if node.Uuid == "" && path.Base(node.Path) != common2.PYDIO_SYNC_HIDDEN_FILE_META {
+				batch.RefreshFilesUuid[createEvent.Key] = createEvent
+			}
 		}
 	}
 
-	for _, createEvent = range batch.CreateFolders {
+	for _, createEvent := range batch.CreateFolders {
 		var node *tree.Node
 		var err error
 		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
@@ -103,12 +108,14 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		log.Logger(ev.globalContext).Debug("Create Folder", zap.Any("node", createEvent.Node))
 	}
 
+	detectFolderMoves(ev.globalContext, batch, ev.Target)
+
+	var possibleMoves []*Move
 	for _, deleteEvent := range batch.Deletes {
 		localPath := deleteEvent.EventInfo.Path
 		var dbNode *tree.Node
 		if deleteEvent.Node != nil {
-			// If deleteEvent has node, it is already loaded from a snapshot,
-			// no need to reload from target
+			// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
 			dbNode = deleteEvent.Node
 		} else {
 			dbNode, _ = ev.Target.LoadNode(deleteEvent.EventInfo.CreateContext(ev.globalContext), localPath)
@@ -117,27 +124,30 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		if dbNode != nil {
 			deleteEvent.Node = dbNode
 			if dbNode.IsLeaf() {
-				for _, createEvent = range batch.CreateFiles {
-					if createEvent.Node != nil && (createEvent.Node.Etag == dbNode.Etag || createEvent.Node.Uuid == dbNode.Uuid) {
-						log.Logger(ev.globalContext).Debug("Existing leaf node with same hash or Uuid: this is a move", zap.String("etag", dbNode.Etag), zap.String("path", dbNode.Path))
+				var found bool
+				// Look by UUID first
+				for _, createEvent := range batch.CreateFiles {
+					if createEvent.Node != nil && createEvent.Node.Uuid == dbNode.Uuid {
+						log.Logger(ev.globalContext).Debug("Existing leaf node with Uuid: safe move to ", createEvent.Node.ZapPath())
 						createEvent.Node = dbNode
 						batch.FileMoves[createEvent.Key] = createEvent
 						delete(batch.Deletes, deleteEvent.Key)
 						delete(batch.CreateFiles, createEvent.Key)
+						found = true
 						break
 					}
 				}
-
-			} else {
-				for _, createEvent = range batch.CreateFolders {
-					log.Logger(ev.globalContext).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", createEvent.Node.Zap(), dbNode.Zap())
-					if createEvent.Node.Uuid == dbNode.Uuid {
-						log.Logger(ev.globalContext).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.Uuid), zap.String("path", dbNode.Path))
-						createEvent.Node = dbNode
-						batch.FolderMoves[createEvent.Key] = createEvent
-						delete(batch.Deletes, deleteEvent.Key)
-						delete(batch.CreateFolders, createEvent.Key)
-						break
+				// Look by Etag
+				if !found {
+					for _, createEvent := range batch.CreateFiles {
+						if createEvent.Node != nil && createEvent.Node.Etag == dbNode.Etag {
+							log.Logger(ev.globalContext).Debug("Existing leaf node with same ETag: enqueuing possible move", createEvent.Node.ZapPath())
+							possibleMoves = append(possibleMoves, &Move{
+								deleteEvent: deleteEvent,
+								createEvent: createEvent,
+								dbNode:      dbNode,
+							})
+						}
 					}
 				}
 			}
@@ -169,34 +179,13 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		}
 	}
 
-	// Prune Moves: remove MoveFiles if MoveFolder is associated
-	deleteFileMoves := []string{}
-	deleteFolderMoves := []string{}
-	for _, folderMoveEvent := range batch.FolderMoves {
-		folderFrom := folderMoveEvent.Node.Path
-		folderTo := folderMoveEvent.EventInfo.Path
-		for fMoveKey, moveEvent := range batch.FileMoves {
-			from := moveEvent.Node.Path
-			to := moveEvent.EventInfo.Path
-			if strings.HasPrefix(from, folderFrom) && strings.HasPrefix(to, folderTo) {
-				deleteFileMoves = append(deleteFileMoves, fMoveKey)
-			}
-		}
-		for folderMoveKey, moveEvent := range batch.FolderMoves {
-			from := moveEvent.Node.Path
-			to := moveEvent.EventInfo.Path
-			if len(from) > len(folderFrom) && len(to) > len(folderTo) && strings.HasPrefix(from, folderFrom) && strings.HasPrefix(to, folderTo) {
-				deleteFolderMoves = append(deleteFolderMoves, folderMoveKey)
-			}
-		}
-	}
-	for _, del := range deleteFileMoves {
-		log.Logger(ev.globalContext).Debug("Ignoring Move for file " + del + " as folder is already moved")
-		delete(batch.FileMoves, del)
-	}
-	for _, del := range deleteFolderMoves {
-		log.Logger(ev.globalContext).Debug("Ignoring Move for folder " + del + " as folder is already moved")
-		delete(batch.FolderMoves, del)
+	moves := sortClosestMoves(ev.globalContext, possibleMoves)
+	for _, move := range moves {
+		log.Logger(ev.globalContext).Debug("Picked closest move", zap.Object("move", move))
+		move.createEvent.Node = move.dbNode
+		batch.FileMoves[move.createEvent.Key] = move.createEvent
+		delete(batch.Deletes, move.deleteEvent.Key)
+		delete(batch.CreateFiles, move.createEvent.Key)
 	}
 
 	// Prune Deletes: remove children if parent is already deleted

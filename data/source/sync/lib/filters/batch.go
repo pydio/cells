@@ -51,6 +51,7 @@ type Batch struct {
 	Deletes                map[string]*BatchedEvent
 	FileMoves              map[string]*BatchedEvent
 	FolderMoves            map[string]*BatchedEvent
+	RefreshFilesUuid       map[string]*BatchedEvent
 	SessionProvider        sync.SessionProvider
 	SessionProviderContext context.Context
 	StatusChan             chan BatchProcessStatus
@@ -84,11 +85,12 @@ func (b *Batch) Zaps() []zapcore.Field {
 
 func NewBatch() (batch *Batch) {
 	batch = &Batch{
-		CreateFiles:   make(map[string]*BatchedEvent),
-		CreateFolders: make(map[string]*BatchedEvent),
-		Deletes:       make(map[string]*BatchedEvent),
-		FileMoves:     make(map[string]*BatchedEvent),
-		FolderMoves:   make(map[string]*BatchedEvent),
+		CreateFiles:      make(map[string]*BatchedEvent),
+		CreateFolders:    make(map[string]*BatchedEvent),
+		Deletes:          make(map[string]*BatchedEvent),
+		FileMoves:        make(map[string]*BatchedEvent),
+		FolderMoves:      make(map[string]*BatchedEvent),
+		RefreshFilesUuid: make(map[string]*BatchedEvent),
 	}
 	return batch
 }
