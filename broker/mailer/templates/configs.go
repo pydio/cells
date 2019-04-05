@@ -51,16 +51,15 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 	configs := config.Default()
 	url := configs.Get("defaults", "url").String("URL NOT SET")
 	from := configs.Get("services", "pydio.grpc.mailer", "from").String("do-not-reply@pydio.com")
-	title := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Pydio")
 	fromName := configs.Get("services", "pydio.grpc.mailer", "fromName").String("")
 	fromCtl := configs.Get("services", "pydio.grpc.mailer", "fromCtl", "@value").String("user")
 
 	if fromName == "" {
-		fromName = title
+		fromName = "Pydio"
         }
 
 	return ApplicationConfigs{
-		Title:        title,
+		Title:        "Pydio",
 		Url:          url,
 		From:         from,
 		FromName:     fromName,
