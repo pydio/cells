@@ -30,7 +30,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-micro/broker"
 	_ "github.com/micro/go-plugins/client/grpc"
@@ -49,6 +48,10 @@ import (
 
 var (
 	caddyfile = `
+		https://localhost:8081 {
+		proxy / {{.Grpc | serviceAddress}} {
+		}
+		}
 		{{.Bind}} {
 		proxy /a  {{.Micro | urls}} {
 			without /a
@@ -157,6 +160,7 @@ var (
 		Micro        string
 		Dex          string
 		Gateway      string
+		Grpc         string
 		WebSocket    string
 		FrontPlugins string
 		DAV          string
@@ -174,6 +178,7 @@ var (
 		Micro:        common.SERVICE_MICRO_API,
 		Dex:          common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
 		Gateway:      common.SERVICE_GATEWAY_DATA,
+		Grpc:         common.SERVICE_GATEWAY_GRPC,
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
 		FrontPlugins: common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
 		DAV:          common.SERVICE_GATEWAY_DAV,
@@ -188,7 +193,7 @@ func init() {
 			service.Description("Main HTTP proxy for exposing a unique address to the world"),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 
-				httpserver.HTTP2 = false
+				//httpserver.HTTP2 = false
 
 				certEmail := config.Get("cert", "proxy", "email").String("")
 				if certEmail != "" {

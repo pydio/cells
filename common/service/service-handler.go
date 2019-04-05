@@ -13,6 +13,10 @@ type StatusHandler struct {
 	address string
 }
 
+func (sh *StatusHandler) SetAddress(a string) {
+	sh.address = a
+}
+
 // Status of the service - If we reach this point, it means that this micro service is correctly up and running
 func (sh *StatusHandler) Status(ctx context.Context, in *empty.Empty, out *proto.StatusResponse) error {
 	out.OK = true
@@ -24,6 +28,10 @@ func (sh *StatusHandler) Status(ctx context.Context, in *empty.Empty, out *proto
 // StatusHandler provides functionality for stopping a service
 type StopHandler struct {
 	s Service
+}
+
+func (s *StopHandler) SetService(srv Service) {
+	s.s = srv
 }
 
 func (s *StopHandler) Process(ctx context.Context, in *proto.StopEvent) error {
