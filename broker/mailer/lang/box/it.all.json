@@ -208,26 +208,5 @@
   },
   "Mail.Config.Sendmail.Executable.Other": {
     "other": "Altro percorso (impostato manualmente nel file di configurazione pydio.json)"
-  },
-  "Mail.Config.FromName.Label": {
-    "other" : "Default FROM display name"
-  },
-  "Mail.Config.FromName.Description": {
-    "other" : "Name to use as default when sending emails."
-  },
-  "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender handling"
-  },
-  "Mail.Config.FromCtl.Description": {
-    "other": "Define how to deal with sender addresses."
-  },
-  "Mail.Config.FromCtlUser.Label": {
-    "other": "User address"
-  },
-  "Mail.Config.FromCtlSender.Label": {
-    "other": "User address with sender header"
-  },
-  "Mail.Config.FromCtlDefault.Label": {
-    "other": "Default address"
   }
 }
