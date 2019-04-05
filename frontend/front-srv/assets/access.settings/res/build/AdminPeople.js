@@ -25939,10 +25939,16 @@ var Role = (function (_Observable) {
         }
 
         /**
-         * @return {Promise<any>}
+         * In Action, replace policy / pName to policy:pName
+         * @param acls [IdmACL]
+         * @return [IdmACL]
          */
     }, {
         key: 'loadAcls',
+
+        /**
+         * @return {Promise<any>}
+         */
         value: function loadAcls() {
             var _q$RoleIDs,
                 _this3 = this;
@@ -25962,22 +25968,20 @@ var Role = (function (_Observable) {
             })));
             request.Queries.push(q);
             return api.searchAcls(request).then(function (collection) {
+                var acls = Role.FormatPolicyAclFromStore(collection.ACLs || []);
                 if (_this3.parentRoles.length) {
-                    (function () {
-                        var acls = collection.ACLs || [];
-                        if (!parentsOnly) {
-                            _this3.acls = acls.filter(function (acl) {
-                                return acl.RoleID === _this3.idmRole.Uuid;
-                            });
-                        }
-                        _this3.parentRoles.forEach(function (r) {
-                            _this3.parentAcls[r.Uuid] = acls.filter(function (acl) {
-                                return acl.RoleID === r.Uuid;
-                            });
+                    if (!parentsOnly) {
+                        _this3.acls = acls.filter(function (acl) {
+                            return acl.RoleID === _this3.idmRole.Uuid;
                         });
-                    })();
+                    }
+                    _this3.parentRoles.forEach(function (r) {
+                        _this3.parentAcls[r.Uuid] = acls.filter(function (acl) {
+                            return acl.RoleID === r.Uuid;
+                        });
+                    });
                 } else {
-                    _this3.acls = collection.ACLs || [];
+                    _this3.acls = acls;
                 }
                 if (!parentsOnly) {
                     _this3.makeSnapshot();
@@ -26026,7 +26030,7 @@ var Role = (function (_Observable) {
                     }
                     return Promise.all(ps).then(function (res) {
                         var p2 = [];
-                        _this4.acls.forEach(function (acl) {
+                        Role.FormatPolicyAclToStore(_this4.acls).forEach(function (acl) {
                             p2.push(aclApi.putAcl(acl));
                         });
                         return Promise.all(p2).then(function (results) {
@@ -26034,7 +26038,7 @@ var Role = (function (_Observable) {
                             results.forEach(function (res) {
                                 newAcls.push(res);
                             });
-                            _this4.acls = newAcls;
+                            _this4.acls = Role.FormatPolicyAclFromStore(newAcls);
                             _this4.makeSnapshot();
                             _this4.dirty = false;
                             _this4.notify("update");
@@ -26314,6 +26318,37 @@ var Role = (function (_Observable) {
                     } else {
                         return out;
                     }
+                }
+            });
+        }
+    }], [{
+        key: 'FormatPolicyAclFromStore',
+        value: function FormatPolicyAclFromStore(acls) {
+            return acls.map(function (acl) {
+                if (acl.Action && acl.Action.Name === 'policy') {
+                    acl.Action.Name = 'policy:' + acl.Action.Value;
+                    acl.Action.Value = '1';
+                }
+                return acl;
+            });
+        }
+
+        /**
+         * In Action, replace policy:pName to policy/pName
+         * @param acls [IdmACL]
+         * @return [IdmACL]
+         */
+    }, {
+        key: 'FormatPolicyAclToStore',
+        value: function FormatPolicyAclToStore(acls) {
+            return acls.map(function (acl) {
+                if (acl.Action && acl.Action.Name.indexOf('policy:') === 0) {
+                    var copy = _pydioHttpRestApi.IdmACL.constructFromObject(JSON.parse(JSON.stringify(acl)));
+                    copy.Action.Name = 'policy';
+                    copy.Action.Value = acl.Action.Name.split(':')[1];
+                    return copy;
+                } else {
+                    return acl;
                 }
             });
         }
