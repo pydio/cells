@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	"github.com/emicklei/go-restful"
+	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -195,6 +196,10 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			_, ancestors, e := views.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(), false)
 			if e != nil {
 				return e
+			}
+			accessList := ctx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			if !accessList.CanWrite(ctx, ancestors...) {
+				return errors.Forbidden("node.not.writeable", "Node is not writable")
 			}
 			if sourceInRecycle(ctx, filtered, ancestors) {
 				// Now, this is a real delete!
@@ -399,7 +404,15 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 			} else {
 				moveLabel = T("Jobs.User.DirMove")
 			}
-
+			targetNode := &tree.Node{Path: originalFullPath}
+			_, ancestors, e := views.AncestorsListFromContext(ctx, targetNode, "in", router.GetClientsPool(), true)
+			if e != nil {
+				return e
+			}
+			accessList := ctx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			if !accessList.CanWrite(ctx, ancestors...) {
+				return errors.Forbidden("node.not.writeable", "Original location is not writable")
+			}
 			log.Logger(ctx).Info("Should restore node", zap.String("from", currentFullPath), zap.String("to", originalFullPath))
 			jobUuid := uuid.New()
 			job := &jobs.Job{
