@@ -22356,7 +22356,7 @@ var Dashboard = _react2['default'].createClass({
 
         var jStore = JobsStore.getInstance();
         this._jStoreObserver = function (jobId) {
-            if (jobId.indexOf('delete-group-') === 0) {
+            if (jobId && jobId.indexOf('delete-group-') === 0) {
                 jStore.getJobs().then(function (jobs) {
                     try {
                         if (jobs.get(jobId).Tasks[0].Status === 'Finished') {
