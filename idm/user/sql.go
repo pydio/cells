@@ -29,7 +29,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/sql/resources"
@@ -249,8 +249,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		user.Uuid = foundOrCreatedNode.Uuid
 	}
 
-	// Remove existing attributes, replace with new ones
-	// TODO: should we put these two operations (delete / insert) inside a transaction?
+	// Remove existing attributes and roles, replace with new ones using a transaction
 	if user.GroupLabel != "" {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
@@ -262,54 +261,99 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		}
 		user.Attributes[idm.UserAttrLabelLike] = user.Login
 	}
-	if stmt := s.GetStmt("DeleteAttributes"); stmt != nil {
 
-		if _, err := stmt.Exec(user.Uuid); err != nil {
-			return nil, createdNodes, err
+	// Use a transaction to perform update on the user
+	db := s.DB()
+
+	// Start a transaction
+	tx, errTx := db.BeginTx(context.Background(), nil)
+	if errTx != nil {
+		return nil, createdNodes, errTx
+	}
+
+	// Checking transaction went fine
+	defer func() {
+		if errTx != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	// Insure we can retrieve all necessary prepared statements
+	delAttributes := s.GetStmt("DeleteAttributes")
+	if delAttributes == nil {
+		errTx = fmt.Errorf("Unknown statement")
+		return nil, createdNodes, errTx
+	}
+	addAttribute := s.GetStmt("AddAttribute")
+	if addAttribute == nil {
+		errTx = fmt.Errorf("Unknown statement")
+		return nil, createdNodes, errTx
+	}
+	delUserRoles := s.GetStmt("DeleteUserRoles")
+	if delUserRoles == nil {
+		errTx = fmt.Errorf("Unknown statement")
+		return nil, createdNodes, errTx
+	}
+	addUserRole := s.GetStmt("AddRole")
+	if addUserRole == nil {
+		errTx = fmt.Errorf("Unknown statement")
+		return nil, createdNodes, errTx
+	}
+
+	// Execute retrieved statements within the transaction
+	if stmt := tx.Stmt(delAttributes); stmt != nil {
+		defer stmt.Close()
+		if _, errTx = stmt.Exec(user.Uuid); errTx != nil {
+			return nil, createdNodes, errTx
 		}
 	} else {
-		return nil, createdNodes, fmt.Errorf("unknown statement")
+		return nil, createdNodes, fmt.Errorf("Empty statement")
 	}
-	for attr, val := range user.Attributes {
-		if stmt := s.GetStmt("AddAttribute"); stmt != nil {
 
-			if _, err := stmt.Exec(
+	for attr, val := range user.Attributes {
+		if stmt := tx.Stmt(addAttribute); stmt != nil {
+			defer stmt.Close()
+			if _, errTx = stmt.Exec(
 				user.Uuid,
 				attr,
 				val,
-			); err != nil {
-				return nil, createdNodes, err
+			); errTx != nil {
+				return nil, createdNodes, errTx
 			}
 		} else {
-			return nil, createdNodes, fmt.Errorf("unknown statement")
+			return nil, createdNodes, fmt.Errorf("Empty statement")
 		}
 	}
 
-	if stmt := s.GetStmt("DeleteUserRoles"); stmt != nil {
-
-		if _, err := stmt.Exec(user.Uuid); err != nil {
-			return nil, createdNodes, err
+	if stmt := tx.Stmt(delUserRoles); stmt != nil {
+		defer stmt.Close()
+		if _, errTx = stmt.Exec(user.Uuid); errTx != nil {
+			return nil, createdNodes, errTx
 		}
 	} else {
-		return nil, createdNodes, fmt.Errorf("unknown statement")
+		return nil, createdNodes, fmt.Errorf("Empty statement")
 	}
+
 	for _, role := range user.Roles {
 		if role.UserRole || role.GroupRole {
 			continue
 		}
 
-		if stmt := s.GetStmt("AddRole"); stmt != nil {
-
-			if _, err := stmt.Exec(
+		if stmt := tx.Stmt(addUserRole); stmt != nil {
+			defer stmt.Close()
+			if _, errTx = stmt.Exec(
 				user.Uuid,
 				role.Uuid,
-			); err != nil {
-				return nil, createdNodes, err
+			); errTx != nil {
+				return nil, createdNodes, errTx
 			}
 		} else {
-			return nil, createdNodes, fmt.Errorf("unknown statement")
+			return nil, createdNodes, fmt.Errorf("Empty statement")
 		}
 	}
+
 	for _, n := range created {
 		createdNodes = append(createdNodes, n.Node)
 	}
