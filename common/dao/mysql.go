@@ -26,6 +26,7 @@ import (
 	"sync"
 
 	mysqltools "github.com/go-sql-driver/mysql"
+	"github.com/micro/go-micro/errors"
 )
 
 var (
@@ -95,4 +96,15 @@ func (m *mysql) SetMaxConnectionsForWeight(num int) {
 
 	m.conn.SetMaxOpenConns(maxConns)
 	m.conn.SetMaxIdleConns(maxIdleConns)
+}
+
+// FilterDAOErrors hides sensitive information about the underlying table
+// when we receive MySQLError.
+func FilterDAOErrors(err error) error {
+	if err != nil {
+		if _, ok := err.(*mysqltools.MySQLError); ok {
+			err = errors.InternalServerError("dao.error", "DAO error received")
+		}
+	}
+	return err
 }

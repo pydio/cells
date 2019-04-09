@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 func newDBProvider(service micro.Service) error {
@@ -96,7 +96,7 @@ func NewDAOHandlerWrapper(val dao.DAO) server.HandlerWrapper {
 	return func(h server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
 			ctx = servicecontext.WithDAO(ctx, val)
-			return h(ctx, req, rsp)
+			return dao.FilterDAOErrors(h(ctx, req, rsp))
 		}
 	}
 }
