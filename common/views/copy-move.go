@@ -56,8 +56,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	// Read root of target to detect if it is on the same datasource as sourceNode
 	var crossDs bool
 	var sourceDs, targetDs string
+	sourceDs = sourceNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	if move {
-		sourceDs = sourceNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 		if tDs := targetNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME); tDs != "" {
 			targetDs = tDs
 			crossDs = targetDs != sourceDs
