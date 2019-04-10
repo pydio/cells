@@ -136,18 +136,10 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 	return m.VirtualNodes
 }
 
-// ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
-// and the current metadata contained in context.
-func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool *ClientsPool, create bool, retry ...bool) (*tree.Node, error) {
-
-	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
+// ResolvePathWithVars performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
+func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tree.Node, vars map[string]string, clientsPool *ClientsPool) (*tree.Node, error) {
 
 	resolved := &tree.Node{}
-	userName, _ := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
-	if userName == "" {
-		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
-		return nil, errors.New(VIEWS_LIBRARY_NAME, "No Claims found in context", 500)
-	}
 	resolutionString := vNode.MetaStore["resolution"]
 	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
 
@@ -160,7 +152,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			datasourceKeys[key] = key
 		}
 		in := map[string]interface{}{
-			"User":        &permissions.JsUser{Name: userName},
+			"User":        &permissions.JsUser{Name: vars["User.Name"]},
 			"DataSources": datasourceKeys,
 		}
 		out := map[string]interface{}{
@@ -175,7 +167,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		}
 
 	} else {
-		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", userName, -1)
+		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", vars["User.Name"], -1)
 	}
 
 	resolved.Type = vNode.Type
@@ -183,6 +175,29 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	parts := strings.Split(resolved.Path, "/")
 	resolved.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, parts[0])
 	resolved.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, strings.Join(parts[1:], "/"))
+
+	return resolved, nil
+
+}
+
+// ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
+// and the current metadata contained in context.
+func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool *ClientsPool, create bool, retry ...bool) (*tree.Node, error) {
+
+	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
+
+	resolved := &tree.Node{}
+	userName, _ := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
+	if userName == "" {
+		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
+		return nil, errors.New(VIEWS_LIBRARY_NAME, "No Claims found in context", 500)
+	}
+	vars := map[string]string{"User.Name": userName}
+	resolved, e := m.ResolvePathWithVars(ctx, vNode, vars, clientsPool)
+	if e != nil {
+		return nil, e
+	}
+
 	if readResp, e := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
 		return readResp.Node, nil
 	} else if errors.Parse(e.Error()).Code == 404 {

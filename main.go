@@ -97,6 +97,7 @@ import (
 	_ "github.com/pydio/cells/scheduler/actions/archive"
 	_ "github.com/pydio/cells/scheduler/actions/changes"
 	_ "github.com/pydio/cells/scheduler/actions/cmd"
+	_ "github.com/pydio/cells/scheduler/actions/idm"
 	_ "github.com/pydio/cells/scheduler/actions/images"
 	_ "github.com/pydio/cells/scheduler/actions/scheduler"
 	_ "github.com/pydio/cells/scheduler/actions/tree"

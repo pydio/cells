@@ -22,13 +22,13 @@
 package grpc
 
 import (
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
-
 	"context"
+
+	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
@@ -38,10 +38,14 @@ import (
 	"github.com/pydio/cells/idm/meta"
 )
 
+var (
+	Name = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER_META
+)
+
 func init() {
 	plugins.Register(func() {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META),
+			service.Name(Name),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("User-defined Metadata"),
 			service.WithStorage(meta.NewDAO, "idm_usr_meta"),
@@ -66,7 +70,7 @@ func init() {
 				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, server)
 
 				// Clean role on user deletion
-				cleaner := NewCleaner(server, servicecontext.GetDAO(ctx))
+				cleaner := NewCleaner(servicecontext.GetDAO(ctx))
 				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
 					return err
 				}

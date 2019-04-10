@@ -22,46 +22,45 @@ package grpc
 
 import (
 	"context"
+	"fmt"
+
+	servicecontext "github.com/pydio/cells/common/service/context"
 
 	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/resources"
+	"github.com/pydio/cells/idm/meta"
+	"github.com/pydio/cells/idm/meta/namespace"
 )
 
-// Cleaner cleans roles on user deletion
+// Cleaner cleans bookmarks on user deletion
 type Cleaner struct {
-	resources.PoliciesCleaner
-	handler *Handler
+	Dao meta.DAO
 }
 
-func NewCleaner(handler *Handler, dao dao.DAO) *Cleaner {
+func NewCleaner(dao dao.DAO) *Cleaner {
 	c := &Cleaner{}
-	c.Dao = dao
-	c.handler = handler
-	//c.Options = resources.PoliciesCleanerOptions{SubscribeUsers:true}
+	c.Dao = dao.(meta.DAO)
 	return c
 }
 
 func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 
-	// FIXME why has this been removed?
-
-	/*
-		if msg.Type != idm.ChangeEventType_DELETE || msg.User == nil {
-			return nil
+	if msg.Type != idm.ChangeEventType_DELETE || msg.User == nil || msg.User.IsGroup {
+		return nil
+	}
+	go func() {
+		// Remove user bookmarks
+		metas, e := c.Dao.Search(nil, nil, namespace.ReservedNamespaceBookmark, msg.User.Uuid, nil)
+		if e != nil || len(metas) == 0 {
+			return
 		}
-		q, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
-			Uuid: []string{msg.User.Uuid},
-		})
-		if err := c.handler.DeleteRole(ctx, &idm.DeleteRoleRequest{
-			Query: &service.Query{SubQueries: []*any.Any{q}},
-		}, &idm.DeleteRoleResponse{}); err != nil {
-			log.Logger(ctx).Error("Error while deleting role associated to user", zap.Error(err))
-			return err
+		ctx = servicecontext.WithServiceColor(servicecontext.WithServiceName(ctx, Name), servicecontext.ServiceColorGrpc)
+		log.Logger(ctx).Info(fmt.Sprintf("Cleaning %d bookmarks for user %s", len(metas), msg.User.Login))
+		for _, m := range metas {
+			c.Dao.Del(m)
 		}
+	}()
 
-		// Call parent to clean policies as well
-		return c.PoliciesCleaner.Handle(ctx, msg)
-	*/
 	return nil
 }

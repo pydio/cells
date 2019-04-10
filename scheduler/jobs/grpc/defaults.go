@@ -25,6 +25,7 @@ import (
 	"github.com/micro/protobuf/ptypes"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
@@ -137,6 +138,23 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
+	cleanUserDataJob := &jobs.Job{
+		ID:                "clean-user-data",
+		Owner:             common.PYDIO_SYSTEM_USERNAME,
+		Label:             "Clean or transfer user data on deletion",
+		Inactive:          false,
+		MaxConcurrency:    5,
+		TasksSilentUpdate: true,
+		EventNames: []string{
+			jobs.IdmChangeEventName(jobs.IdmEventObjectUser, idm.ChangeEventType_DELETE),
+		},
+		Actions: []*jobs.Action{
+			{
+				ID: "actions.idm.clean-user-data",
+			},
+		},
+	}
+
 	fakeLongJob := &jobs.Job{
 		ID:             "fake-long-job",
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
@@ -223,6 +241,7 @@ func getDefaultJobs() []*jobs.Job {
 		cleanThumbsJob,
 		stuckTasksJob,
 		archiveChangesJob,
+		cleanUserDataJob,
 		// Testing Jobs
 		fakeLongJob,
 		fakeRPCJob,

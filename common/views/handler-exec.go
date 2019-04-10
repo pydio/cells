@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"encoding/hex"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -32,8 +33,6 @@ import (
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
-
-	"encoding/hex"
 
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"

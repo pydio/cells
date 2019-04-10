@@ -57,14 +57,14 @@ type MicroEventsSubscriber struct {
 
 	parentsCache *cache.Cache
 	changeEvents []*idm.ChangeEvent
-	in           chan *idm.ChangeEvent
+	aclsChan     chan *idm.ChangeEvent
 	dao          activity.DAO
 }
 
 func NewEventsSubscriber(dao activity.DAO) *MicroEventsSubscriber {
 	m := &MicroEventsSubscriber{
 		dao:          dao,
-		in:           make(chan *idm.ChangeEvent),
+		aclsChan:     make(chan *idm.ChangeEvent),
 		parentsCache: cache.New(3*time.Minute, 10*time.Minute),
 	}
 	go m.DebounceAclsEvents()
@@ -193,16 +193,20 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 
 func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.ChangeEvent) error {
 
-	if msg.Acl == nil {
-		return nil
+	if msg.Acl != nil {
+		author, _ := permissions.FindUserNameInContext(ctx)
+		if msg.Attributes == nil {
+			msg.Attributes = make(map[string]string)
+		}
+		msg.Attributes["user"] = author
+		e.aclsChan <- msg
+	} else if msg.User != nil && msg.Type == idm.ChangeEventType_DELETE && msg.User.Login != "" {
+		// Clear activity for deleted user
+		ctx = servicecontext.WithServiceName(ctx, Name)
+		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
+		log.Logger(ctx).Debug("Clearing activities for user", msg.User.ZapLogin())
+		go e.dao.Delete(activity2.OwnerType_USER, msg.User.Login)
 	}
-
-	author, _ := permissions.FindUserNameInContext(ctx)
-	if msg.Attributes == nil {
-		msg.Attributes = make(map[string]string)
-	}
-	msg.Attributes["user"] = author
-	e.in <- msg
 
 	return nil
 }
@@ -251,7 +255,7 @@ func (e *MicroEventsSubscriber) ParentsFromCache(ctx context.Context, node *tree
 func (e *MicroEventsSubscriber) DebounceAclsEvents() {
 	for {
 		select {
-		case acl := <-e.in:
+		case acl := <-e.aclsChan:
 			e.changeEvents = append(e.changeEvents, acl)
 		case <-time.After(3 * time.Second):
 			e.ProcessBuffer(e.changeEvents...)

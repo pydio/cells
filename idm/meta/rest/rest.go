@@ -191,7 +191,18 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			}
 		}
 		// Now update policies for input Meta
-		meta.Policies = ns.Policies
+		if meta.Namespace == namespace.ReservedNamespaceBookmark {
+			userName, c := permissions.FindUserNameInContext(ctx)
+			userUuid, _ := c.DecodeUserUuid()
+			meta.Policies = []*serviceproto.ResourcePolicy{
+				{Action: serviceproto.ResourcePolicyAction_OWNER, Subject: userUuid, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "profile:admin", Effect: serviceproto.ResourcePolicy_allow},
+			}
+		} else {
+			meta.Policies = ns.Policies
+		}
 	}
 	// Some existing meta will be updated / deleted : load their policies and check their rights!
 	if len(loadUuids) > 0 {

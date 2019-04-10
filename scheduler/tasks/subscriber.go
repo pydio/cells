@@ -29,12 +29,13 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
-	"github.com/pydio/cells/common/service"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 )
@@ -80,7 +81,6 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 	s.RootContext = context.WithValue(parentContext, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
 
 	server.Subscribe(server.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent))
-
 	server.Subscribe(server.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent))
 	server.Subscribe(server.NewSubscriber(common.TOPIC_META_CHANGES, func(ctx context.Context, e *tree.NodeChangeEvent) error {
 		if e.Type == tree.NodeChangeEvent_UPDATE_META || e.Type == tree.NodeChangeEvent_UPDATE_USER_META {
@@ -90,6 +90,7 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 		}
 	}))
 	server.Subscribe(server.NewSubscriber(common.TOPIC_TIMER_EVENT, s.timerEvent))
+	server.Subscribe(server.NewSubscriber(common.TOPIC_IDM_EVENT, s.idmEvent))
 
 	s.ListenToMainQueue()
 	s.TaskChannelSubscription()
@@ -270,8 +271,30 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 					task := NewTaskFromEvent(ctx, jobData, event)
 					go task.EnqueueRunnables(s.Client, s.MainQueue)
 				}
-			} else {
-				log.Logger(ctx).Error("Scheduler cannot parse event name on node event: " + eName)
+			}
+		}
+	}
+	return nil
+}
+
+// Reacts to a trigger linked to a nodeChange event.
+func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error {
+
+	s.jobsLock.Lock()
+	defer s.jobsLock.Unlock()
+
+	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
+	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
+
+	for jobId, jobData := range s.JobsDefinitions {
+		if jobData.Inactive {
+			continue
+		}
+		for _, eName := range jobData.EventNames {
+			if jobs.MatchesIdmChangeEvent(eName, event) {
+				log.Logger(ctx).Debug("Run Job " + jobId + " on event " + eName)
+				task := NewTaskFromEvent(ctx, jobData, event)
+				go task.EnqueueRunnables(s.Client, s.MainQueue)
 			}
 		}
 	}
