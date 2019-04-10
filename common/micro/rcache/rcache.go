@@ -1,5 +1,4 @@
-// Package cache is a caching selector. It uses the registry watcher.
-package cache
+package rcache
 
 import (
 	"sync"
@@ -7,30 +6,42 @@ import (
 
 	"github.com/micro/go-log"
 	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/selector"
 )
 
-type cacheSelector struct {
-	so  selector.Options
-	ttl time.Duration
+// Cache is the registry cache interface
+type Cache interface {
+	// embed the registry interface
+	registry.Registry
+	// stop the cache watcher
+	Stop()
+}
+
+type Options struct {
+	// TTL is the cache TTL
+	TTL time.Duration
+}
+
+type Option func(o *Options)
+
+type cache struct {
+	registry.Registry
+	opts Options
 
 	// registry cache
-	sync.Mutex
-	cache map[string][]*registry.Service
-	ttls  map[string]time.Time
-
+	sync.RWMutex
+	events  map[string]chan *registry.Result
+	cache   map[string][]*registry.Service
+	ttls    map[string]time.Time
 	watched map[string]bool
 
-	// used to close or reload watcher
-	reload chan bool
-	exit   chan bool
+	exit chan bool
 }
 
 var (
 	DefaultTTL = time.Minute
 )
 
-func (c *cacheSelector) quit() bool {
+func (c *cache) quit() bool {
 	select {
 	case <-c.exit:
 		return true
@@ -40,9 +51,8 @@ func (c *cacheSelector) quit() bool {
 }
 
 // cp copies a service. Because we're caching handing back pointers would
-// create a race condition, so we do this instead
-// its fast enough
-func (c *cacheSelector) cp(current []*registry.Service) []*registry.Service {
+// create a race condition, so we do this instead its fast enough
+func (c *cache) cp(current []*registry.Service) []*registry.Service {
 	var services []*registry.Service
 
 	for _, service := range current {
@@ -75,12 +85,12 @@ func (c *cacheSelector) cp(current []*registry.Service) []*registry.Service {
 	return services
 }
 
-func (c *cacheSelector) del(service string) {
+func (c *cache) del(service string) {
 	delete(c.cache, service)
 	delete(c.ttls, service)
 }
 
-func (c *cacheSelector) get(service string) ([]*registry.Service, error) {
+func (c *cache) get(service string) ([]*registry.Service, error) {
 	c.Lock()
 	defer c.Unlock()
 
@@ -94,7 +104,7 @@ func (c *cacheSelector) get(service string) ([]*registry.Service, error) {
 	// it also caches it
 	get := func(service string) ([]*registry.Service, error) {
 		// ask the registry
-		services, err := c.so.Registry.GetService(service)
+		services, err := c.Registry.GetService(service)
 		if err != nil {
 			return nil, err
 		}
@@ -116,7 +126,7 @@ func (c *cacheSelector) get(service string) ([]*registry.Service, error) {
 	ttl, kk := c.ttls[service]
 
 	// within ttl so return cache
-	if kk && time.Since(ttl) < c.ttl {
+	if kk && time.Since(ttl) < c.opts.TTL {
 		return c.cp(services), nil
 	}
 
@@ -130,7 +140,7 @@ func (c *cacheSelector) get(service string) ([]*registry.Service, error) {
 
 	// not found error then return
 	if err == registry.ErrNotFound {
-		return nil, selector.ErrNotFound
+		return nil, err
 	}
 
 	// other error
@@ -139,12 +149,12 @@ func (c *cacheSelector) get(service string) ([]*registry.Service, error) {
 	return c.cp(services), nil
 }
 
-func (c *cacheSelector) set(service string, services []*registry.Service) {
+func (c *cache) set(service string, services []*registry.Service) {
 	c.cache[service] = services
-	c.ttls[service] = time.Now().Add(c.ttl)
+	c.ttls[service] = time.Now().Add(c.opts.TTL)
 }
 
-func (c *cacheSelector) update(res *registry.Result) {
+func (c *cache) update(res *registry.Result) {
 	if res == nil || res.Service == nil {
 		return
 	}
@@ -254,53 +264,86 @@ func (c *cacheSelector) update(res *registry.Result) {
 
 // run starts the cache watcher loop
 // it creates a new watcher if there's a problem
-// reloads the watcher if Init is called
-// and returns when Close is called
-func (c *cacheSelector) run(name string) {
+func (c *cache) run(service string) {
+
+	ch := make(chan *registry.Result)
+	c.events[service] = ch
+
 	for {
 		// exit early if already dead
 		if c.quit() {
 			return
 		}
 
+		select {
+		case res := <-ch:
+			c.update(res)
+		}
+	}
+}
+
+func (c *cache) GetService(service string) ([]*registry.Service, error) {
+	// get the service
+	services, err := c.get(service)
+	if err != nil {
+		return nil, err
+	}
+
+	// if there's nothing return err
+	if len(services) == 0 {
+		return nil, registry.ErrNotFound
+	}
+
+	// return services
+	return services, nil
+}
+
+func (c *cache) Stop() {
+	select {
+	case <-c.exit:
+		return
+	default:
+		close(c.exit)
+	}
+}
+
+func (c *cache) String() string {
+	return "rcache"
+}
+
+// We create one watcher for all services and dispatch the events if needed
+func (c *cache) mainRun() {
+
+	for {
 		// create new watcher
-		w, err := c.so.Registry.Watch(
-			registry.WatchService(name),
-		)
+		w, err := c.Registry.Watch()
 		if err != nil {
 			if c.quit() {
 				return
 			}
-			log.Log(err)
+			log.Log("rcache: ", err)
 			time.Sleep(time.Second)
 			continue
 		}
 
 		// watch for events
-		if err := c.watch(w); err != nil {
+		if err := c.mainWatch(w); err != nil {
 			if c.quit() {
 				return
 			}
-			log.Log(err)
+			log.Log("rcache: ", err)
 			continue
 		}
 	}
 }
 
-// watch loops the next event and calls update
-// it returns if there's an error
-func (c *cacheSelector) watch(w registry.Watcher) error {
+func (c *cache) mainWatch(w registry.Watcher) error {
 	defer w.Stop()
 
 	// manage this loop
 	go func() {
-		// wait for exit or reload signal
-		select {
-		case <-c.exit:
-		case <-c.reload:
-		}
-
-		// stop the watcher
+		// wait for exit
+		<-c.exit
 		w.Stop()
 	}()
 
@@ -309,118 +352,37 @@ func (c *cacheSelector) watch(w registry.Watcher) error {
 		if err != nil {
 			return err
 		}
-		c.update(res)
+
+		ch, ok := c.events[res.Service.Name]
+		if !ok {
+			continue
+		}
+
+		ch <- res
 	}
 }
 
-func (c *cacheSelector) Init(opts ...selector.Option) error {
+// New returns a new cache
+func New(r registry.Registry, opts ...Option) Cache {
+	options := Options{
+		TTL: DefaultTTL,
+	}
+
 	for _, o := range opts {
-		o(&c.so)
+		o(&options)
 	}
 
-	// reload the watcher
-	go func() {
-		select {
-		case <-c.exit:
-			return
-		default:
-			c.reload <- true
-		}
-	}()
-
-	return nil
-}
-
-func (c *cacheSelector) Options() selector.Options {
-	return c.so
-}
-
-func (c *cacheSelector) Select(service string, opts ...selector.SelectOption) (selector.Next, error) {
-	sopts := selector.SelectOptions{
-		Strategy: c.so.Strategy,
+	c := &cache{
+		Registry: r,
+		opts:     options,
+		events:   make(map[string]chan (*registry.Result)),
+		watched:  make(map[string]bool),
+		cache:    make(map[string][]*registry.Service),
+		ttls:     make(map[string]time.Time),
+		exit:     make(chan bool),
 	}
 
-	for _, opt := range opts {
-		opt(&sopts)
-	}
+	go c.mainRun()
 
-	// get the service
-	// try the cache first
-	// if that fails go directly to the registry
-	services, err := c.get(service)
-	if err != nil {
-		return nil, err
-	}
-
-	// apply the filters
-	for _, filter := range sopts.Filters {
-		services = filter(services)
-	}
-
-	// if there's nothing left, return
-	if len(services) == 0 {
-		return nil, selector.ErrNoneAvailable
-	}
-
-	return sopts.Strategy(services), nil
-}
-
-func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {
-	return
-}
-
-func (c *cacheSelector) Reset(service string) {
-	return
-}
-
-// Close stops the watcher and destroys the cache
-func (c *cacheSelector) Close() error {
-	c.Lock()
-	c.cache = make(map[string][]*registry.Service)
-	c.watched = make(map[string]bool)
-	c.Unlock()
-
-	select {
-	case <-c.exit:
-		return nil
-	default:
-		close(c.exit)
-	}
-	return nil
-}
-
-func (c *cacheSelector) String() string {
-	return "cache"
-}
-
-func NewSelector(opts ...selector.Option) selector.Selector {
-	sopts := selector.Options{
-		Strategy: selector.Random,
-	}
-
-	for _, opt := range opts {
-		opt(&sopts)
-	}
-
-	if sopts.Registry == nil {
-		sopts.Registry = registry.DefaultRegistry
-	}
-
-	ttl := DefaultTTL
-
-	if sopts.Context != nil {
-		if t, ok := sopts.Context.Value(ttlKey{}).(time.Duration); ok {
-			ttl = t
-		}
-	}
-
-	return &cacheSelector{
-		so:      sopts,
-		ttl:     ttl,
-		watched: make(map[string]bool),
-		cache:   make(map[string][]*registry.Service),
-		ttls:    make(map[string]time.Time),
-		reload:  make(chan bool, 1),
-		exit:    make(chan bool),
-	}
+	return c
 }
