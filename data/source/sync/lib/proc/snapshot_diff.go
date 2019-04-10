@@ -67,11 +67,13 @@ func ComputeSourcesDiff(ctx context.Context, left common.PathSyncSource, right c
 			}
 			var err error
 			if logId == "left" {
-				lTree, err = TreeNodeFromSource(left)
-				h = lTree.GetHash()
+				if lTree, err = TreeNodeFromSource(left); err == nil {
+					lTree.GetHash()
+				}
 			} else if logId == "right" {
-				rTree, err = TreeNodeFromSource(right)
-				h = rTree.GetHash()
+				if rTree, err = TreeNodeFromSource(right); err == nil {
+					rTree.GetHash()
+				}
 			}
 			if err != nil {
 				errs = append(errs, err)

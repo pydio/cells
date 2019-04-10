@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"path"
 	"strings"
 	"time"
 
@@ -214,6 +215,15 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
 			return nil, err
 		} else {
+			// Manually create the .pydio file
+			router := NewStandardRouter(RouterOptions{AdminView: true})
+			newNode := createResp.Node.Clone()
+			newNode.Path = path.Join(newNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
+			nodeUuid := newNode.Uuid
+			_, pE := router.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))})
+			if pE != nil {
+				log.Logger(ctx).Error("Could not create hidden file for resolved node", newNode.Zap("resolved"), zap.Error(pE))
+			}
 			if e := m.copyRecycleRootAcl(ctx, vNode, createResp.Node); e != nil {
 				return nil, e
 			}
