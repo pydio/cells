@@ -65,13 +65,22 @@ var Dashboard = _react2['default'].createClass({
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
-    eventsNames: {
+    nodeEventsNames: {
         '0': 'trigger.create.node',
         '1': 'trigger.read.node',
         '2': 'trigger.update.path',
         '3': 'trigger.update.content',
         '4': 'trigger.update.metadata',
         '5': 'trigger.delete.node'
+    },
+
+    userEventsNames: {
+        '0': 'trigger.create.user',
+        '1': 'trigger.read.user',
+        '2': 'trigger.update.user',
+        '3': 'trigger.delete.user',
+        '4': 'trigger.bind.user',
+        '5': 'trigger.logout.user'
     },
 
     getInitialState: function getInitialState() {
@@ -240,7 +249,9 @@ var Dashboard = _react2['default'].createClass({
                 data.TriggerValue = 2;
                 data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(function (e) {
                     if (e.indexOf('NODE_CHANGE:') === 0) {
-                        return m(_this5.eventsNames[e.replace('NODE_CHANGE:', '')]);
+                        return m(_this5.nodeEventsNames[e.replace('NODE_CHANGE:', '')]);
+                    } else if (e.indexOf('IDM_CHANGE:USER:') === 0) {
+                        return m(_this5.userEventsNames[e.replace('IDM_CHANGE:USER:', '')]);
                     } else {
                         return e;
                     }
