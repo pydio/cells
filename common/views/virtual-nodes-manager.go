@@ -26,6 +26,8 @@ import (
 	"strings"
 	"time"
 
+	context2 "github.com/pydio/cells/common/utils/context"
+
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -220,7 +222,8 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			newNode := createResp.Node.Clone()
 			newNode.Path = path.Join(newNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
 			nodeUuid := newNode.Uuid
-			_, pE := router.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))})
+			createCtx := context2.WithAdditionalMetadata(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+			_, pE := router.PutObject(createCtx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))})
 			if pE != nil {
 				log.Logger(ctx).Error("Could not create hidden file for resolved node", newNode.Zap("resolved"), zap.Error(pE))
 			}
