@@ -89,8 +89,9 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 		Name:    claims.DisplayName,
 	}
 	message.From.Uuid, _ = claims.DecodeUserUuid()
-	message.From.Name = claims.Name
-	message.From.Address = claims.Email
+	if message.From.Name == "" {
+		message.From.Name = claims.Name
+	}
 
 	var resolvedTos []*mailer.User
 	for _, to := range message.To {
