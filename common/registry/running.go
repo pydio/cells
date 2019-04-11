@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
@@ -108,6 +109,7 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		for {
 			res, err := w.Next()
 			if err != nil {
+				<-time.After(5 * time.Second)
 				continue
 			}
 
