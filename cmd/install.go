@@ -134,17 +134,18 @@ var installCmd = &cobra.Command{
 				if niCertFile != "" && niKeyFile != "" {
 					config.Set(niCertFile, "cert", "proxy", "certFile")
 					config.Set(niKeyFile, "cert", "proxy", "keyFile")
+					saveMsg += "With provided certificate"
+
 				} else if niLeEmailContact != "" {
 					// TODO add an option to provide specific CA URL
 					if !niLeAcceptEula {
 						cmd.Print("fatal: you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
 						os.Exit(1)
 					}
-
-					saveMsg += "With Let's Encrypt automatic cert generation"
 					config.Set(false, "cert", "proxy", "self")
 					config.Set(niLeEmailContact, "cert", "proxy", "email")
 					config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
+					saveMsg += "With Let's Encrypt automatic cert generation"
 
 				} else {
 					config.Set(true, "cert", "proxy", "self")
