@@ -87,7 +87,7 @@ class VirtualNodes extends React.Component{
         }
 
         return (
-            <div className="vertical-layout workspaces-list layout-fill">
+            <div className="vertical-layout workspaces-list layout-fill" style={{height:'100%'}}>
                 <AdminComponents.Header
                     title={m('title')}
                     icon={"mdi mdi-help-network"}
@@ -111,20 +111,22 @@ class VirtualNodes extends React.Component{
                         <RaisedButton primary={true}  label={m('create.button')} onClick={this.createNode.bind(this)}/>
                     </div>
                 </Popover>
-                <div style={{padding: 20, paddingBottom: 0}}>
-                    {m('legend.1')}
-                    <br/>
-                    {!readonly &&
-                        <span>{m('legend.2')}</span>
-                    }
+                <div className={"layout-fill"} style={{overflowY: 'auto'}}>
+                    <div style={{padding: 20, paddingBottom: 0}}>
+                        {m('legend.1')}
+                        <br/>
+                        {!readonly &&
+                            <span>{m('legend.2')}</span>
+                        }
 
+                    </div>
+                    {nodesLoaded && dataSourcesLoaded &&
+                        vNodes
+                    }
+                    {(!nodesLoaded || !dataSourcesLoaded) &&
+                        <div style={{margin:16, textAlign:'center', padding: 20}}>{pydio.MessageHash['ajxp_admin.home.6']}</div>
+                    }
                 </div>
-                {nodesLoaded && dataSourcesLoaded &&
-                    vNodes
-                }
-                {(!nodesLoaded || !dataSourcesLoaded) &&
-                    <div style={{margin:16, textAlign:'center', padding: 20}}>{pydio.MessageHash['ajxp_admin.home.6']}</div>
-                }
             </div>
         );
     }
