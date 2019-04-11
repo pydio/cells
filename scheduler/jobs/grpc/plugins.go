@@ -43,6 +43,7 @@ import (
 
 var (
 	Migration140 = false
+	Migration150 = false
 )
 
 func init() {
@@ -59,6 +60,14 @@ func init() {
 					Up: func(ctx context.Context) error {
 						// Set flag for migration script to be run AfterStart (see below, handler cannot be shared)
 						Migration140 = true
+						return nil
+					},
+				},
+				{
+					TargetVersion: service.ValidVersion("1.5.0"),
+					Up: func(ctx context.Context) error {
+						// Set flag for migration script to be run AfterStart (see below, handler cannot be shared)
+						Migration150 = true
 						return nil
 					},
 				},
@@ -115,6 +124,20 @@ func init() {
 								log3.Logger(m.Options().Context).Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Any("number", len(response.Deleted)))
 							} else {
 								log3.Logger(m.Options().Context).Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
+							}
+						}
+						if Migration150 {
+							// Remove archive-changes-job
+							if e := handler.DeleteJob(m.Options().Context, &proto.DeleteJobRequest{JobID: "archive-changes-job"}, &proto.DeleteJobResponse{}); e != nil {
+								log3.Logger(m.Options().Context).Error("Could not remove archive-changes-job", zap.Error(e))
+							} else {
+								log3.Logger(m.Options().Context).Info("[Migration] Removed archive-changes-job")
+							}
+							// Remove archive-changes-job
+							if e := handler.DeleteJob(m.Options().Context, &proto.DeleteJobRequest{JobID: "resync-changes-job"}, &proto.DeleteJobResponse{}); e != nil {
+								log3.Logger(m.Options().Context).Error("Could not remove resync-changes-job", zap.Error(e))
+							} else {
+								log3.Logger(m.Options().Context).Info("[Migration] Removed resync-changes-job")
 							}
 						}
 						return nil

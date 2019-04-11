@@ -184,6 +184,7 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 	}
 
 	rsp.Message = fmt.Sprintf("Successfully sent %d messages", counter)
+	log.TasksLogger(ctx).Info(rsp.Message)
 	rsp.EmailsSent = counter
 	return nil
 }

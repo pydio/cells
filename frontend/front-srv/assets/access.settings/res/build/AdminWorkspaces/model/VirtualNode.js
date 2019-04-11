@@ -90,6 +90,7 @@ var VirtualNode = (function (_Observable) {
             this.data.MetaStore = {
                 name: "",
                 resolution: "",
+                onDelete: "rename-uuid",
                 contentType: "text/javascript"
             };
         }

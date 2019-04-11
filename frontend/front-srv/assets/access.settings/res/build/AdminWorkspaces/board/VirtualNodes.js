@@ -145,7 +145,7 @@ var VirtualNodes = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                { className: 'vertical-layout workspaces-list layout-fill' },
+                { className: 'vertical-layout workspaces-list layout-fill', style: { height: '100%' } },
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: m('title'),
                     icon: "mdi mdi-help-network",
@@ -179,20 +179,24 @@ var VirtualNodes = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: 20, paddingBottom: 0 } },
-                    m('legend.1'),
-                    _react2['default'].createElement('br', null),
-                    !readonly && _react2['default'].createElement(
-                        'span',
-                        null,
-                        m('legend.2')
+                    { className: "layout-fill", style: { overflowY: 'auto' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 20, paddingBottom: 0 } },
+                        m('legend.1'),
+                        _react2['default'].createElement('br', null),
+                        !readonly && _react2['default'].createElement(
+                            'span',
+                            null,
+                            m('legend.2')
+                        )
+                    ),
+                    nodesLoaded && dataSourcesLoaded && vNodes,
+                    (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
+                        'div',
+                        { style: { margin: 16, textAlign: 'center', padding: 20 } },
+                        pydio.MessageHash['ajxp_admin.home.6']
                     )
-                ),
-                nodesLoaded && dataSourcesLoaded && vNodes,
-                (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
-                    'div',
-                    { style: { margin: 16, textAlign: 'center', padding: 20 } },
-                    pydio.MessageHash['ajxp_admin.home.6']
                 )
             );
         }

@@ -41,7 +41,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 	if u.IsGroup {
 		return input.WithIgnore(), nil
 	}
-	log.Logger(ctx).Debug("Should Clean data for user", u.Zap())
+	log.TasksLogger(ctx).Info("Cleaning data for user", u.Zap())
 
 	status := make(chan string)
 	progress := make(chan float32)
@@ -81,6 +81,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 			folderName := "deleted-" + u.Login + "-" + u.Uuid[0:13]
 			targetNode, _ := vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": folderName}, clientsPool)
 			log.Logger(ctx).Info("Renaming user personal folder", u.ZapLogin(), targetNode.ZapPath())
+			log.TasksLogger(ctx).Info("Renaming personal folder to " + targetNode.Path)
 			if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, true, true, false, status, progress); e != nil {
 				done <- true
 				return input.WithError(e), e
