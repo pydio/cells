@@ -73,18 +73,19 @@ func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target P
 	go s.batcher.BatchEvents(filterOut, s.Merger.BatchesChannel, 1*time.Second)
 
 	go func() {
-
 		// Wait for all events.
 		for {
 			select {
 			case event, ok := <-watchObject.Events():
 				if !ok {
+					<-time.After(1*time.Second)
 					continue
 				}
 				//log.Logger(ctx).Info("WATCH EVENT", zap.Any("e", event))
 				filterIn <- event
 			case err, ok := <-watchObject.Errors():
 				if !ok {
+					<-time.After(5*time.Second)
 					continue
 				}
 				if err != nil {
