@@ -38,6 +38,11 @@ func NewGomailMessage(email *mailer.Mail) (*gomail.Message, error) {
 	// FROM
 	m.SetAddressHeader("From", email.From.Address, email.From.Name)
 
+	// SENDER
+	if email.Sender != nil && email.Sender.Address != "" {
+		m.SetAddressHeader("Sender", email.Sender.Address, email.Sender.Name)
+	}
+
 	// TO
 	to := []string{}
 	for _, u := range email.To {
