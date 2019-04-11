@@ -5,16 +5,11 @@ services:
     cells:
         image: pydio/cells:latest
         restart: always    
-        # volumes: ["data:/root/.config/pydio/cells/data"]
-        # Add custom ssl certificate to environment.
-        volumes: ["static:/root/.config/pydio/cells/static/pydio", "data:/root/.config/pydio/cells/data", "/path/to/your/ssl.cert:/root/ssl/ssl.cert", "/path/to/your/ssl.key:/root/ssl/ssl.key"]
+        volumes: ["data:/root/.config/pydio/cells/data"]      
         ports: ["8080:8080"]
         environment:
             - CELLS_BIND=localhost:8080
             - CELLS_EXTERNAL=localhost:8080
-            - CELLS_NO_SSL=0
-            - CELLS_SSL_CERT_FILE=/root/ssl/ssl.cert
-            - CELLS_SSL_KEY_FILE=/root/ssl/ssl.key
 
     # MySQL image with a default database cells and a dedicated user pydio
     mysql:
