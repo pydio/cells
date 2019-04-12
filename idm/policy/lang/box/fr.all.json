@@ -41,6 +41,9 @@
   "PolicyGroup.LoggedUsers.Rule3": {
     "other": "Interdiction d'éditer les namespaces de métadonnées"
   },
+  "PolicyGroup.LoggedUsers.Rule4": {
+    "other": "Les utilisateurs standards ne peuvent pas créer/supprimer des Workspaces"
+  },
   "PolicyGroup.OIDC.Title": {
     "other": "Opérations OpenIdConnect"
   },

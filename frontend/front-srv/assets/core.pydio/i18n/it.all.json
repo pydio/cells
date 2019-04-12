@@ -2227,5 +2227,8 @@
   },
   "rename.processing": {
     "other": "Rinominando %1 in %2"
+  },
+  "cells.quick-filter": {
+    "other": "Filter Cells"
   }
 }

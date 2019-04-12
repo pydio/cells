@@ -3,7 +3,7 @@
     "other": "Plateforme de partage de fichiers par Pydio"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "Si le bouton {ACTION} ne fonctionne pas, veuillez copier\/coller l'URL ci-dessous dans votre navigateur web."
+    "other": "Si le bouton {ACTION} ne fonctionne pas, veuillez copier/coller l'URL ci-dessous dans votre navigateur web."
   },
   "Mail.Main.Greeting": {
     "other": "Bonjour"
@@ -208,5 +208,26 @@
   },
   "Mail.Config.Sendmail.Executable.Other": {
     "other": "Autre chemin (mettre manuellement dans le pydio.json)"
+  },
+  "Mail.Config.FromName.Label": {
+    "other": "Nom d'affichage par défaut des expéditeurs"
+  },
+  "Mail.Config.FromName.Description": {
+    "other": "Nom complet à utiliser comme valeur par défaut lors de l’envoi d'emails."
+  },
+  "Mail.Config.FromCtl.Label": {
+    "other": "Adresse et nom de l'expéditeur à utiliser"
+  },
+  "Mail.Config.FromCtl.Description": {
+    "other": "Définissez l'adresse/nom de l'expéditeur à utiliser. Si aucune adresse de courriel utilisateur n'est configurée, l'adresse et le nom par défaut FROM seront utilisés dans tous les cas."
+  },
+  "Mail.Config.FromCtlUser.Label": {
+    "other": "Envoyer un mail COMME l'utilisateur"
+  },
+  "Mail.Config.FromCtlSender.Label": {
+    "other": "Envoyer un mail DE LA PART DE l'utilisateur"
+  },
+  "Mail.Config.FromCtlDefault.Label": {
+    "other": "Toujours envoyer à partir de l'adresse FROM par défaut"
   }
 }
