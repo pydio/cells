@@ -134,7 +134,7 @@ var PydioApi = (function () {
 
     PydioApi.getMultipartThreshold = function getMultipartThreshold() {
         var conf = _Pydio2['default'].getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_THRESHOLD");
-        if (conf) {
+        if (conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 100 * 1024 * 1024;
@@ -143,7 +143,7 @@ var PydioApi = (function () {
 
     PydioApi.getMultipartPartSize = function getMultipartPartSize() {
         var conf = _Pydio2['default'].getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_PART_SIZE");
-        if (conf) {
+        if (conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 50 * 1024 * 1024;
@@ -152,10 +152,19 @@ var PydioApi = (function () {
 
     PydioApi.getMultipartPartQueueSize = function getMultipartPartQueueSize() {
         var conf = _Pydio2['default'].getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_QUEUE_SIZE");
-        if (conf) {
+        if (conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 3;
+        }
+    };
+
+    PydioApi.getMultipartUploadTimeout = function getMultipartUploadTimeout() {
+        var conf = _Pydio2['default'].getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_TIMEOUT_MINUTES");
+        if (conf && parseInt(conf)) {
+            return parseInt(conf) * 60 * 1000;
+        } else {
+            return 3 * 60 * 1000;
         }
     };
 
@@ -317,7 +326,10 @@ var PydioApi = (function () {
                 _awsSdk2['default'].config.update({
                     accessKeyId: 'gateway',
                     secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true
+                    s3ForcePathStyle: true,
+                    httpOptions: {
+                        timeout: PydioApi.getMultipartUploadTimeout()
+                    }
                 });
                 var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
                 var signed = s3.getSignedUrl('putObject', params);
@@ -352,6 +364,9 @@ var PydioApi = (function () {
                     accessKeyId: jwt,
                     secretAccessKey: 'gatewaysecret',
                     s3ForcePathStyle: true,
+                    httpOptions: {
+                        timeout: PydioApi.getMultipartUploadTimeout()
+                    },
                     endpoint: url.replace('/io', '')
                 });
                 var managed = new ManagedMultipart({

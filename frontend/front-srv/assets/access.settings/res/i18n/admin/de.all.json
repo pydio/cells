@@ -275,6 +275,9 @@
   "ds.status.ok": {
     "other": "Alle Dienste werden ausgeführt"
   },
+  "ds.status.starting": {
+    "other": "Datasource wird gestartet..."
+  },
   "ds.status.sync": {
     "other": "Sync ausgefallen"
   },
@@ -1615,6 +1618,24 @@
   },
   "scheduler.trigger.delete.node": {
     "other": "Node löschen"
+  },
+  "scheduler.trigger.create.user": {
+    "other": "Benutzer erstellen"
+  },
+  "scheduler.trigger.read.user": {
+    "other": "Benutzer lesen"
+  },
+  "scheduler.trigger.update.user": {
+    "other": "Benutzer aktualisieren"
+  },
+  "scheduler.trigger.delete.user": {
+    "other": "Benutzer löschen"
+  },
+  "scheduler.trigger.bind.user": {
+    "other": "Benutzer Bind"
+  },
+  "scheduler.trigger.logout.user": {
+    "other": "Benutzer abmelden"
   },
   "scheduler.trigger.events": {
     "other": "Ereignisse"

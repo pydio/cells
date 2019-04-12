@@ -41,6 +41,9 @@
   "PolicyGroup.LoggedUsers.Rule3": {
     "other": "User-meta prevent deleting tags"
   },
+  "PolicyGroup.LoggedUsers.Rule4": {
+    "other": "Standard users cannot create/delete workspaces"
+  },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Operations"
   },
