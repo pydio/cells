@@ -19,7 +19,7 @@ if [ "$1" == "cells" ]; then
 					--ssl_cert_file $CELLS_SSL_CERT_FILE --ssl_key_file $CELLS_SSL_KEY_FILE "$@"
 			
 			# Use Let's encrypt
-			else if [ -n "$CELLS_TLS_MAIL" -a "$CELLS_ACCEPT_LETSENCRYPT_EULA" == "true" ]; then
+			elif [ -n "$CELLS_TLS_MAIL" -a "$CELLS_ACCEPT_LETSENCRYPT_EULA" == "true" ]; then
 				cells install --bind $CELLS_BIND --external $CELLS_EXTERNAL \
 					--le_email $CELLS_TLS_MAIL --le_agree $CELLS_ACCEPT_LETSENCRYPT_EULA "$@"
 			
