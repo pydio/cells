@@ -13,5 +13,32 @@
   },
   "5": {
     "other": "Effacer les associations"
+  },
+  "drop.cell.picker": {
+    "other": "Choisir l'action pour %s..."
+  },
+  "drop.cell.share.legend": {
+    "other": "Ajouter comme nouvel élément à la Cell"
+  },
+  "drop.cell.copymove.legend": {
+    "other": "Dans %s"
+  },
+  "drop.cell.file.share": {
+    "other": "Partager le fichier"
+  },
+  "drop.cell.folder.share": {
+    "other": "Partager le dossier"
+  },
+  "drop.cell.file.move": {
+    "other": "Déplacer le fichier"
+  },
+  "drop.cell.folder.move": {
+    "other": "Déplacer le dossier"
+  },
+  "drop.cell.file.copy": {
+    "other": "Copier le fichier"
+  },
+  "drop.cell.folder.copy": {
+    "other": "Copier le dossier"
   }
 }

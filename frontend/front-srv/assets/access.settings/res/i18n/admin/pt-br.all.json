@@ -272,6 +272,9 @@
   "ds.status.ok": {
     "other": "All services running"
   },
+  "ds.status.starting": {
+    "other": "Starting datasource..."
+  },
   "ds.status.sync": {
     "other": "Sync down"
   },
@@ -1609,6 +1612,24 @@
   },
   "scheduler.trigger.delete.node": {
     "other": "Delete Node"
+  },
+  "scheduler.trigger.create.user": {
+    "other": "Create User"
+  },
+  "scheduler.trigger.read.user": {
+    "other": "Read User"
+  },
+  "scheduler.trigger.update.user": {
+    "other": "Update User"
+  },
+  "scheduler.trigger.delete.user": {
+    "other": "Delete User"
+  },
+  "scheduler.trigger.bind.user": {
+    "other": "User Bind"
+  },
+  "scheduler.trigger.logout.user": {
+    "other": "User Logout"
   },
   "scheduler.trigger.events": {
     "other": "Events"

@@ -29,6 +29,12 @@
   "DeletedObjectBy": {
     "other": "{{.Object}} è stato eliminato da {{.Actor}}"
   },
+  "SharedWs": {
+    "other": "Shared in {{.Object}}"
+  },
+  "SharedWsWithYou": {
+    "other": "{{.Actor}} has shared {{.Object}} with you"
+  },
   "DigestTitle": {
     "other": "Questo è il tuo Pydio Daily Digest"
   },
