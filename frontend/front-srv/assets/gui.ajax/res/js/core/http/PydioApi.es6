@@ -80,7 +80,7 @@ class PydioApi{
 
     static getMultipartThreshold(){
         const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_THRESHOLD");
-        if(conf) {
+        if(conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 100 * 1024 * 1024;
@@ -89,7 +89,7 @@ class PydioApi{
 
     static getMultipartPartSize(){
         const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_PART_SIZE");
-        if(conf) {
+        if(conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 50 * 1024 * 1024;
@@ -98,10 +98,19 @@ class PydioApi{
 
     static getMultipartPartQueueSize(){
         const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_QUEUE_SIZE");
-        if(conf) {
+        if(conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 3;
+        }
+    }
+
+    static getMultipartUploadTimeout(){
+        const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_TIMEOUT_MINUTES");
+        if(conf && parseInt(conf)) {
+            return parseInt(conf) * 60 * 1000;
+        } else {
+            return 3 * 60 * 1000;
         }
     }
 
@@ -242,7 +251,10 @@ class PydioApi{
                 AWS.config.update({
                     accessKeyId: 'gateway',
                     secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true
+                    s3ForcePathStyle: true,
+                    httpOptions:{
+                        timeout:PydioApi.getMultipartUploadTimeout()
+                    },
                 });
                 const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
                 const signed = s3.getSignedUrl('putObject', params);
@@ -273,6 +285,9 @@ class PydioApi{
                     accessKeyId: jwt,
                     secretAccessKey: 'gatewaysecret',
                     s3ForcePathStyle: true,
+                    httpOptions:{
+                        timeout:PydioApi.getMultipartUploadTimeout()
+                    },
                     endpoint:url.replace('/io', ''),
                 });
                 const managed = new ManagedMultipart({
