@@ -263,6 +263,9 @@
   "ds.status.ko": {
     "other": "Services stopped"
   },
+  "ds.status.ko-peers": {
+    "other": "Node %s not found"
+  },
   "ds.status.na": {
     "other": "N/A"
   },
@@ -559,6 +562,9 @@
   },
   "logs.export.disabled": {
     "other": "Pick a date or filter result"
+  },
+  "logs.export.clicklink": {
+    "other": "Click on the link to download"
   },
   "logs.filter.period": {
     "other": "Time Period"
