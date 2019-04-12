@@ -263,9 +263,6 @@
   "ds.status.ko": {
     "other": "Services stoppés"
   },
-  "ds.status.ko-peers": {
-    "other": "Le noeud %s n'a pas été trouvé"
-  },
   "ds.status.na": {
     "other": "N/A"
   },
@@ -559,9 +556,6 @@
   },
   "logs.export.disabled": {
     "other": "Filtrer les résultats"
-  },
-  "logs.export.clicklink": {
-    "other": "Cliquez sur le lien pour télécharger"
   },
   "logs.filter.period": {
     "other": "Période"

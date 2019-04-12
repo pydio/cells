@@ -263,9 +263,6 @@
   "ds.status.ko": {
     "other": "Dienste wurden angehalten"
   },
-  "ds.status.ko-peers": {
-    "other": "Node %s nicht gefunden"
-  },
   "ds.status.na": {
     "other": "N/A"
   },
@@ -559,9 +556,6 @@
   },
   "logs.export.disabled": {
     "other": "Wählen Sie ein Datum oder Filtern Sie Ergebnisse aus"
-  },
-  "logs.export.clicklink": {
-    "other": "Klicken Sie auf den Link zum Herunterladen"
   },
   "logs.filter.period": {
     "other": "Zeitraum"
@@ -1092,7 +1086,7 @@
     "other": "Alle Benutzer"
   },
   "user.filter.anon": {
-    "other": "Anonyme anzeigen"
+    "other": "Show anonymous"
   },
   "versions.editor.delete": {
     "other": "Richtlinie löschen"
