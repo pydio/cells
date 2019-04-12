@@ -96,6 +96,9 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 			break
 		}
 		s.Engine.IndexNode(ctx, e.Target, false, excludes)
+		if !e.Target.IsLeaf() {
+			go s.ReindexFolder(ctx, e.Target, excludes)
+		}
 		break
 	case tree.NodeChangeEvent_UPDATE_META:
 		// Let's extract the basic information from the tree and store it
@@ -217,4 +220,31 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 	resp.Success = true
 
 	return nil
+}
+
+func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, excludes map[string]struct{}) {
+
+	bg := context.Background()
+	dsStream, err := s.TreeClient.ListNodes(bg, &tree.ListNodesRequest{
+		Node:      node,
+		Recursive: true,
+	})
+	if err != nil {
+		log.Logger(c).Error("ReindexFolder", zap.Error(err))
+		return
+	}
+	defer dsStream.Close()
+	var count int
+	for {
+		response, e := dsStream.Recv()
+		if e != nil || response == nil {
+			break
+		}
+		if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(c, response.Node) {
+			s.Engine.IndexNode(bg, response.Node, false, excludes)
+			count++
+		}
+	}
+	log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d nodes", count))
+
 }

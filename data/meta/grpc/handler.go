@@ -100,10 +100,13 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 		log.Logger(ctx).Debug("Received Update event", zap.Any("event", e))
 
 		// Let's extract the basic information from the tree and store it
-		s.UpdateNode(ctx, &tree.UpdateNodeRequest{
+		if er := s.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			To:     e.Target,
 			Silent: e.Silent,
-		}, &tree.UpdateNodeResponse{})
+		}, &tree.UpdateNodeResponse{}); er == nil {
+			// UpdateNode will trigger an UPDATE_META, forward UPDATE_PATH event as well
+			client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, e))
+		}
 		break
 	case tree.NodeChangeEvent_UPDATE_META:
 		log.Logger(ctx).Debug("Received Update meta", zap.Any("event", e))
