@@ -44,6 +44,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
 var _reactRedux = require('react-redux');
 
 var _redux = require('redux');
@@ -92,7 +96,9 @@ var Editor = (function (_React$Component) {
         var tabCreate = _props.tabCreate;
         var id = tab.id;
 
-        if (!id) tabCreate({ id: node.getLabel(), node: node });
+        if (!id) {
+            tabCreate({ id: node.getLabel(), node: node });
+        }
     }
 
     _createClass(Editor, [{
@@ -104,7 +110,6 @@ var Editor = (function (_React$Component) {
             var tab = _props2.tab;
             var tabModify = _props2.tabModify;
             var id = tab.id;
-            var codemirror = tab.codemirror;
 
             pydio.ApiClient.getPlainContent(node, function (content) {
                 tabModify({ id: id || node.getLabel(), editable: true, editortools: true, searchable: true, lineNumbers: true, content: content });
@@ -136,6 +141,7 @@ var Editor = (function (_React$Component) {
             var lineNumbers = tab.lineNumbers;
 
             if (node.getAjxpMime() === 'md') {
+                var show = _pydioUtilDom2['default'].getViewportWidth() > 480;
                 return _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', flex: 1, width: '100%', backgroundColor: 'white' } },
@@ -155,10 +161,10 @@ var Editor = (function (_React$Component) {
                             return tabModify({ id: id, cursor: cursor });
                         },
 
-                        cmStyle: { flex: 1, width: 'auto' }
+                        cmStyle: { flex: 1, width: show ? '60%' : '100%' }
                     })),
-                    _react2['default'].createElement(_reactMarkdown2['default'], { source: content, className: "mdviewer" }),
-                    _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: MdStyle } })
+                    show && _react2['default'].createElement(_reactMarkdown2['default'], { source: content, className: "mdviewer" }),
+                    show && _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: MdStyle } })
                 );
             } else {
                 return _react2['default'].createElement(_CodeMirrorLoader2['default'], _extends({}, this.props, {
