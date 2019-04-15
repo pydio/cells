@@ -157,6 +157,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			if targetDsPath != "" {
 				targetNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Join(targetDsPath, relativePath))
 			}
+			var justCopied *tree.Node
+			justCopied = nil
 			// Copy files - For "Copy" operation, do NOT copy .pydio files
 			if childNode.IsLeaf() && (move || path.Base(childPath) != common.PYDIO_SYNC_HIDDEN_FILE_META) {
 
@@ -185,6 +187,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					publishError(targetDs, targetPath)
 					panic(e)
 				}
+				justCopied = targetNode
 				logger.Debug("-- Copy Success: ", zap.String("to", targetPath), childNode.Zap())
 				taskLogger.Info("-- Copied file to: " + targetPath)
 
@@ -202,7 +205,10 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				}
 				_, moveErr := router.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
 				if moveErr != nil {
-					log.Logger(ctx).Error("-- Delete Error", zap.Error(moveErr), childNode.Zap())
+					log.Logger(ctx).Error("-- Delete Error / Reverting Copy", zap.Error(moveErr), childNode.Zap())
+					if justCopied != nil {
+						router.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: justCopied})
+					}
 					publishError(sourceDs, childNode.Path)
 					panic(moveErr)
 				}
@@ -245,7 +251,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			}
 			_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
 			if moveErr != nil {
-				logger.Error("-- Delete Source Error", zap.Error(moveErr), sourceNode.Zap())
+				logger.Error("-- Delete Source Error / Reverting Copy", zap.Error(moveErr), sourceNode.Zap())
+				router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: targetNode})
 				publishError(sourceDs, sourceNode.Path)
 				panic(moveErr)
 			}

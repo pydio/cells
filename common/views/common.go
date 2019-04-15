@@ -72,7 +72,7 @@ type (
 		idm.Workspace
 		Root          *tree.Node
 		Binary        bool
-		AncestorsList []*tree.Node
+		AncestorsList map[string][]*tree.Node
 	}
 
 	PutRequestData struct {
@@ -173,8 +173,10 @@ func AccessListFromContext(ctx context.Context) (*permissions.AccessList, error)
 func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, p *ClientsPool, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
 
 	branchInfo, hasBranchInfo := GetBranchInfo(ctx, identifier)
-	if hasBranchInfo && len(branchInfo.AncestorsList) > 0 {
-		return ctx, branchInfo.AncestorsList, nil
+	if hasBranchInfo && branchInfo.AncestorsList != nil {
+		if ancestors, ok := branchInfo.AncestorsList[node.Path]; ok {
+			return ctx, ancestors, nil
+		}
 	}
 	searchFunc := tree.BuildAncestorsList
 	if orParents {
@@ -184,7 +186,10 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 		return ctx, nil, err
 	} else {
 		if hasBranchInfo {
-			branchInfo.AncestorsList = parents
+			if branchInfo.AncestorsList == nil {
+				branchInfo.AncestorsList = make(map[string][]*tree.Node, 1)
+			}
+			branchInfo.AncestorsList[node.Path] = parents
 			ctx = WithBranchInfo(ctx, identifier, branchInfo)
 		}
 		return ctx, parents, nil

@@ -443,12 +443,13 @@ func (f *File) Close() error {
 func (f *File) Read(p []byte) (int, error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
-	log.Logger(f.ctx).Debug("File.Read", zap.Any("fileNode", f.node), zap.Int("size", len(p)))
 
 	reader, err := f.fs.Router.GetObject(f.ctx, f.node, &views.GetRequestData{StartOffset: f.off, Length: int64(len(p))})
 	if err != nil {
-		log.Logger(f.ctx).Error("Getting Reader on node", zap.Error(err))
+		log.Logger(f.ctx).Debug("File.Read Failed", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap(), zap.Error(err))
 		return 0, err
+	} else {
+		log.Logger(f.ctx).Debug("File.Read Success", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap())
 	}
 	defer reader.Close()
 	length, err := reader.Read(p)
