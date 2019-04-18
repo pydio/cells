@@ -6423,7 +6423,7 @@ var ShareHelper = (function () {
                     templateData["MaxDownloads"] = linkObject.MaxDownloads + "";
                 }
                 if (linkObject.AccessEnd) {
-                    templateData["Expire"] = linkObject.AccessEnd;
+                    templateData["Expire"] = new Date(linkObject.AccessEnd * 1000).toISOString().substring(0, 10);
                 }
             } else {
                 templateId = "Cell";
