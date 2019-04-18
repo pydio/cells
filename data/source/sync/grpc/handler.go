@@ -29,6 +29,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/sync/endpoints"
+	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/common/sync/task"
+
 	"github.com/micro/go-micro/client"
 	config2 "github.com/pydio/go-os/config"
 	"go.uber.org/zap"
@@ -46,10 +50,6 @@ import (
 	"github.com/pydio/cells/common/service/context"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/data/source/sync"
-	synccommon "github.com/pydio/cells/data/source/sync/lib/common"
-	"github.com/pydio/cells/data/source/sync/lib/endpoints"
-	"github.com/pydio/cells/data/source/sync/lib/filters"
-	"github.com/pydio/cells/data/source/sync/lib/task"
 	"github.com/pydio/cells/scheduler/tasks"
 )
 
@@ -60,7 +60,7 @@ type Handler struct {
 	errorsDetected chan string
 
 	IndexClient  tree.NodeProviderClient
-	S3client     synccommon.PathSyncTarget
+	S3client     model.PathSyncTarget
 	syncTask     *task.Sync
 	SyncConfig   *object.DataSource
 	ObjectConfig *object.MinioConfig
@@ -132,8 +132,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	if minioConfig == nil {
 		return fmt.Errorf("objects not reachable")
 	}
+	//	log.Logger(ctx).Info("Init On MinioConfig", zap.Any("c", minioConfig))
 
-	var source synccommon.PathSyncTarget
+	var source model.PathSyncTarget
 	if syncConfig.Watch {
 		return fmt.Errorf("datasource watch is not implemented yet")
 	} else {
@@ -232,14 +233,14 @@ func (s *Handler) watchConfigs() {
 // TriggerResync sets 2 servers in sync
 func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest, resp *protosync.ResyncResponse) error {
 
-	var statusChan chan filters.BatchProcessStatus
+	var statusChan chan model.BatchProcessStatus
 	var doneChan chan bool
 	fullLog := &jobs.ActionLog{
 		OutputMessage: &jobs.ActionMessage{},
 	}
 
 	if req.Task != nil {
-		statusChan = make(chan filters.BatchProcessStatus)
+		statusChan = make(chan model.BatchProcessStatus)
 		doneChan = make(chan bool)
 
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
@@ -304,13 +305,12 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
 		}
 		return e
-	}
-	if e == nil {
+	} else {
 		data, _ := json.Marshal(diff.Stats())
 		resp.JsonDiff = string(data)
+		resp.Success = true
+		return nil
 	}
-	resp.Success = true
-	return nil
 }
 
 // Implements the S3Endpoint Interface by using the real object configs + the local datasource configs for bucket and base folder

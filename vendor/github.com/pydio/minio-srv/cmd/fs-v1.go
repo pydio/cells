@@ -19,7 +19,15 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
 	"encoding/hex"
+	"github.com/pydio/minio-srv/cmd/logger"
+	"github.com/pydio/minio-srv/pkg/hash"
+	"github.com/pydio/minio-srv/pkg/lock"
+	"github.com/pydio/minio-srv/pkg/madmin"
+	"github.com/pydio/minio-srv/pkg/mimedb"
+	"github.com/pydio/minio-srv/pkg/mountinfo"
+	"github.com/pydio/minio-srv/pkg/policy"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -30,15 +38,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"crypto/md5"
-
-	"github.com/pydio/minio-srv/cmd/logger"
-	"github.com/pydio/minio-srv/pkg/hash"
-	"github.com/pydio/minio-srv/pkg/lock"
-	"github.com/pydio/minio-srv/pkg/madmin"
-	"github.com/pydio/minio-srv/pkg/mimedb"
-	"github.com/pydio/minio-srv/pkg/mountinfo"
-	"github.com/pydio/minio-srv/pkg/policy"
 )
 
 // Default etag is used for pre-existing objects.
@@ -432,14 +431,25 @@ func (fs *FSObjects) CopyObject(ctx context.Context, srcBucket, srcObject, dstBu
 	}
 
 	if cpSrcDstSame && srcInfo.metadataOnly {
+		// If ETag is empty or xxxxxx-N (multipart result), force recomputing Etag
+		computeETag := srcInfo.ETag == "" || strings.Contains(srcInfo.ETag, "-")
 		fsMetaPath := pathJoin(fs.fsPath, minioMetaBucket, bucketMetaPrefix, srcBucket, srcObject, fs.metaJSONFile)
 		wlk, err := fs.rwPool.Write(fsMetaPath)
 		if err != nil {
-			if srcInfo.ETag != defaultEtag {
+			if !computeETag {
 				logger.LogIf(ctx, err)
 				return oi, toObjectErr(err, srcBucket, srcObject)
 			}
-
+			var createErr error
+			wlk, createErr = fs.rwPool.Create(fsMetaPath)
+			if createErr != nil {
+				logger.LogIf(ctx, err)
+				return oi, toObjectErr(err, srcBucket, srcObject)
+			}
+		}
+		// This close will allow for locks to be synchronized on `fs.json`.
+		defer wlk.Close()
+		if computeETag {
 			fsObjPath := pathJoin(fs.fsPath, srcBucket, srcObject)
 			reader, size, err := fsOpenFile(context.Background(), fsObjPath, 0)
 			if err != nil {
@@ -454,17 +464,9 @@ func (fs *FSObjects) CopyObject(ctx context.Context, srcBucket, srcObject, dstBu
 			md5Writer := md5.New()
 			io.CopyBuffer(md5Writer, reader, buf)
 			srcInfo.ETag = hex.EncodeToString(md5Writer.Sum(nil))
-//			fmt.Println("New eTag is now", srcInfo.ETag)
+			//fmt.Println("New eTag is now", srcInfo.ETag)
 
-			var createErr error
-			wlk, createErr = fs.rwPool.Create(fsMetaPath)
-			if createErr != nil {
-				logger.LogIf(ctx, err)
-				return oi, toObjectErr(err, srcBucket, srcObject)
-			}
 		}
-		// This close will allow for locks to be synchronized on `fs.json`.
-		defer wlk.Close()
 
 		// Save objects' metadata in `fs.json`.
 		fsMeta := newFSMetaV1()

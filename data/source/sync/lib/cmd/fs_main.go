@@ -35,10 +35,11 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/pydio/cells/data/source/sync/lib/common"
-	"github.com/pydio/cells/data/source/sync/lib/endpoints"
-	"github.com/pydio/cells/data/source/sync/lib/proc"
-	"github.com/pydio/cells/data/source/sync/lib/task"
+	"github.com/pydio/cells/common/sync/endpoints"
+	"github.com/pydio/cells/common/sync/merger"
+	"github.com/pydio/cells/common/sync/task"
+
+	"github.com/pydio/cells/common/sync/model"
 )
 
 // Parse an argument to create a Sync Endpoint
@@ -51,7 +52,7 @@ import (
 //  source := endpoints.NewS3Client("127.0.0.1:9001", "minio", "miniostorage", "test", watchPath)
 //  source := endpoints.NewMemDB()
 
-func parseUrl(urlArg string, otherArgs []string) (endpoint common.Endpoint, e error) {
+func parseUrl(urlArg string, otherArgs []string) (endpoint model.Endpoint, e error) {
 	u, e := url.Parse(urlArg)
 	if e != nil {
 		return nil, e
@@ -102,7 +103,7 @@ func parseUrl(urlArg string, otherArgs []string) (endpoint common.Endpoint, e er
 	}
 }
 
-func parseArgs(args []string) (common.PathSyncSource, common.PathSyncTarget) {
+func parseArgs(args []string) (model.PathSyncSource, model.PathSyncTarget) {
 	if len(args) < 3 {
 		log.Fatal("Please enter at least two arguments")
 	}
@@ -112,7 +113,7 @@ func parseArgs(args []string) (common.PathSyncSource, common.PathSyncTarget) {
 		log.Fatalf("Cannot parse urls %v, %v", e1, e2)
 	}
 
-	return interface{}(source).(common.PathSyncSource), interface{}(target).(common.PathSyncTarget)
+	return interface{}(source).(model.PathSyncSource), interface{}(target).(model.PathSyncTarget)
 }
 
 func main() {
@@ -133,7 +134,7 @@ func main() {
 	testInfo := make(chan string)
 	testHeader := make(chan string)
 	dbEvents := make(chan endpoints.DBEvent)
-	processorEvents := make(chan common.ProcessorEvent)
+	processorEvents := make(chan model.ProcessorEvent)
 
 	syncTask := task.NewSync(ctx, source, target)
 	syncTask.Start(ctx)
@@ -163,7 +164,7 @@ func main() {
 			case processorEvent := <-processorEvents:
 				if processorEvent.Type == "merger:end" {
 					log.Println(processorEvent.Type)
-					diff, err := proc.ComputeSourcesDiff(ctx, source, interface{}(target).(common.PathSyncSource), true, nil)
+					diff, err := merger.ComputeDiff(ctx, source, interface{}(target).(model.PathSyncSource), nil)
 					if err != nil {
 						log.Println("Error while computing sources diff", err)
 					} else if len(diff.MissingLeft) > 0 || len(diff.MissingRight) > 0 {
@@ -219,12 +220,6 @@ func main() {
 	// Wait on the routine to be finished or exit.
 	wg.Wait()
 
-}
-
-func checkErr(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 // signalTrap traps the registered signals and notifies the caller.

@@ -26,12 +26,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	commonsync "github.com/pydio/cells/data/source/sync/lib/common"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 type IndexEndpoint struct {
@@ -42,9 +42,9 @@ type IndexEndpoint struct {
 	streamer        *IndexStreamer
 }
 
-func (i *IndexEndpoint) GetEndpointInfo() commonsync.EndpointInfo {
+func (i *IndexEndpoint) GetEndpointInfo() model.EndpointInfo {
 
-	return commonsync.EndpointInfo{
+	return model.EndpointInfo{
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
 	}
@@ -55,7 +55,7 @@ func (i *IndexEndpoint) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
-func (i *IndexEndpoint) Walk(walknFc commonsync.WalkNodesFunc, pathes ...string) (err error) {
+func (i *IndexEndpoint) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
 
 	p := ""
 	if len(pathes) > 0 {
@@ -84,7 +84,7 @@ func (i *IndexEndpoint) Walk(walknFc commonsync.WalkNodesFunc, pathes ...string)
 	return nil
 }
 
-func (i *IndexEndpoint) Watch(recursivePath string) (*commonsync.WatchObject, error) {
+func (i *IndexEndpoint) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, errors.New("Watch Not Implemented")
 }
 
