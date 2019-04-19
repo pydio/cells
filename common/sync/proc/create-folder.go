@@ -34,13 +34,13 @@ func (pr *Processor) processCreateFolder(event *model.BatchEvent, operationId st
 
 	localPath := event.EventInfo.Path
 	ctx := event.EventInfo.CreateContext(pr.GlobalContext)
-	dbNode, _ := event.Target.LoadNode(ctx, localPath)
+	dbNode, _ := event.Target().LoadNode(ctx, localPath)
 	log.Logger(ctx).Debug("Should process CreateFolder", zap.Any("dbNode", dbNode), zap.Any("event", event.Node))
 	if dbNode == nil {
 		pr.lockFileTo(event, localPath, operationId)
 		defer pr.unlockFile(event, localPath)
-		provider, ok1 := event.Target.(model.UuidProvider)
-		receiver, ok2 := event.Source.(model.UuidReceiver)
+		provider, ok1 := event.Target().(model.UuidProvider)
+		receiver, ok2 := event.Source().(model.UuidReceiver)
 		if ok1 && ok2 {
 			if sameIdNode, e := provider.LoadNodeByUuid(ctx, event.Node.Uuid); e == nil && sameIdNode != nil {
 				// This is a duplicate! We have to refresh .pydio content now
@@ -54,7 +54,7 @@ func (pr *Processor) processCreateFolder(event *model.BatchEvent, operationId st
 				}
 			}
 		}
-		err := event.Target.CreateNode(ctx, &tree.Node{
+		err := event.Target().CreateNode(ctx, &tree.Node{
 			Path: localPath,
 			Type: tree.NodeType_COLLECTION,
 			Uuid: event.Node.Uuid,
@@ -66,7 +66,7 @@ func (pr *Processor) processCreateFolder(event *model.BatchEvent, operationId st
 	} else {
 		pr.Logger().Debug("CreateFolder: already exists, ignoring!", zap.Any("e", event.EventInfo))
 	}
-	if event.Source.GetEndpointInfo().RequiresFoldersRescan && !event.EventInfo.ScanEvent {
+	if event.Source().GetEndpointInfo().RequiresFoldersRescan && !event.EventInfo.ScanEvent {
 		pr.Logger().Info("Rescanning folder to be sure", zap.String("path", localPath))
 		// Rescan folder content, events below may not have been detected
 		var visit = func(path string, node *tree.Node, err error) {
@@ -77,11 +77,11 @@ func (pr *Processor) processCreateFolder(event *model.BatchEvent, operationId st
 			if !model.IsIgnoredFile(path) {
 				scanEvent := model.NodeToEventInfo(ctx, path, node, model.EventCreate)
 				scanEvent.OperationId = operationId
-				pr.RequeueChannels[event.Source] <- scanEvent
+				pr.RequeueChannels[event.Source()] <- scanEvent
 			}
 			return
 		}
-		go event.Source.Walk(visit, event.EventInfo.Path)
+		go event.Source().Walk(visit, event.EventInfo.Path)
 	}
 
 	return nil

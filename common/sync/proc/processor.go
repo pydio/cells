@@ -83,7 +83,7 @@ func (pr *Processor) sendEvent(event model.ProcessorEvent) {
 }
 
 func (pr *Processor) lockFileTo(batchedEvent *model.BatchEvent, path string, operationId string) {
-	if source, ok := model.AsPathSyncSource(batchedEvent.Target); pr.LocksChannel != nil && ok {
+	if source, ok := model.AsPathSyncSource(batchedEvent.Target()); pr.LocksChannel != nil && ok {
 		pr.LocksChannel <- filters.LockEvent{
 			Source:      source,
 			Path:        path,
@@ -93,7 +93,7 @@ func (pr *Processor) lockFileTo(batchedEvent *model.BatchEvent, path string, ope
 }
 
 func (pr *Processor) unlockFile(batchedEvent *model.BatchEvent, path string) {
-	if source, castOk := model.AsPathSyncSource(batchedEvent.Target); castOk && pr.UnlocksChannel != nil {
+	if source, castOk := model.AsPathSyncSource(batchedEvent.Target()); castOk && pr.UnlocksChannel != nil {
 		go func() {
 			<-time.After(2 * time.Second)
 			pr.UnlocksChannel <- filters.UnlockEvent{
@@ -216,6 +216,8 @@ func (pr *Processor) process(batch *model.Batch) {
 func (pr *Processor) applyProcessFunc(event *model.BatchEvent, operationId string, callback ProcessFunc,
 	completeString string, errorString string, statusChan chan model.BatchProcessStatus, cursor float32,
 	count float32, fields ...zapcore.Field) {
+
+	fields = append(fields, zap.String("target", event.Target().GetEndpointInfo().URI))
 
 	err := callback(event, operationId)
 	if err != nil {

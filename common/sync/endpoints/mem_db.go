@@ -47,6 +47,7 @@ type MemDB struct {
 func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
+		URI: "memdb://",
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
 	}

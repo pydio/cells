@@ -83,8 +83,7 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
 		key := event.Path
 		var bEvent = &model.BatchEvent{
-			Source:    ev.Source,
-			Target:    ev.Target,
+			Batch:     batch,
 			Key:       key,
 			EventInfo: event,
 		}

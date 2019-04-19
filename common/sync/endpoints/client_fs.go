@@ -99,6 +99,7 @@ type FSClient struct {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
+		URI: "fs://" + c.RootPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 	}

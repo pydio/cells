@@ -29,6 +29,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -78,6 +79,7 @@ func NewS3Client(ctx context.Context, url string, key string, secret string, buc
 func (c *S3Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
+		URI: "s3:///" + path.Join(c.Bucket, c.RootPath),
 		RequiresFoldersRescan: false,
 		RequiresNormalization: c.ServerRequiresNormalization,
 	}

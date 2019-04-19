@@ -25,8 +25,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common/sync/merger"
-
 	"github.com/pydio/cells/common/sync/filters"
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/pydio/cells/common/sync/proc"
@@ -37,12 +35,13 @@ import (
 )
 
 type Sync struct {
-	Source model.Endpoint
-	Target model.Endpoint
+	Source    model.Endpoint
+	Target    model.Endpoint
+	Direction model.DirectionType
 
-	EchoFilter *filters.EchoFilter
-	Merger     *proc.Processor
-	Direction  string
+	SnapshotFactory model.SnapshotFactory
+	EchoFilter      *filters.EchoFilter
+	Merger          *proc.Processor
 
 	batcher   *filters.EventsBatcher
 	doneChans []chan bool
@@ -102,103 +101,6 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 
 }
 
-// InitialSnapshots computes and compares full left and right snapshots
-func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan chan model.BatchProcessStatus, doneChan chan bool) (diff *model.Diff, e error) {
-
-	source, _ := model.AsPathSyncSource(s.Source)
-	targetAsSource, _ := model.AsPathSyncSource(s.Target)
-	diff, e = merger.ComputeDiff(ctx, source, targetAsSource, statusChan)
-
-	log.Logger(ctx).Info("### GOT DIFF", zap.Any("diff", diff))
-	if e != nil {
-		if doneChan != nil {
-			doneChan <- true
-		}
-		return nil, e
-	}
-	if dryRun {
-		if doneChan != nil {
-			doneChan <- true
-		}
-		return diff, nil
-	}
-
-	//log.Println("Initial Snapshot Diff:", diff)
-	var batchLeft, batchRight *model.Batch
-	var err error
-	// Changes must be applied from Source to Target only
-	if s.Direction == "left" {
-		batchLeft, err = diff.ToUnidirectionalBatch("left")
-		batchRight = &model.Batch{}
-		if err != nil {
-			batchLeft = &model.Batch{}
-		} else {
-			batchLeft.Filter(ctx)
-		}
-	} else if s.Direction == "right" {
-		batchLeft = &model.Batch{}
-		batchRight, err = diff.ToUnidirectionalBatch("right")
-		if err != nil {
-			batchRight = &model.Batch{}
-		} else {
-			batchRight.Filter(ctx)
-		}
-	} else {
-		sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
-		target, _ := model.AsPathSyncTarget(s.Target)
-		biBatch, err := diff.ToBidirectionalBatch(sourceAsTarget, target)
-		if err == nil {
-			batchLeft = biBatch.Left
-			batchRight = biBatch.Right
-			// TODO: PARALLELIZE?
-			batchLeft.Filter(ctx)
-			batchRight.Filter(ctx)
-		}
-	}
-
-	log.Logger(ctx).Info("Initial Snapshot Batch",
-		zap.Any("left", map[string]int{"create files": len(batchLeft.CreateFiles), "create folders": len(batchLeft.CreateFolders)}),
-		zap.Any("right", map[string]int{"create files": len(batchRight.CreateFiles), "create folders": len(batchRight.CreateFolders)}),
-	)
-
-	if provider, ok := model.AsSessionProvider(s.Target); ok {
-		batchLeft.SessionProvider = provider
-		batchLeft.SessionProviderContext = ctx
-	}
-	if provider, ok := model.AsSessionProvider(s.Source); ok {
-		batchRight.SessionProvider = provider
-		batchLeft.SessionProviderContext = ctx
-	}
-
-	batchLeft.StatusChan = statusChan
-	batchRight.StatusChan = statusChan
-	dChan := make(chan bool, 2)
-	batchLeft.DoneChan = dChan
-	batchRight.DoneChan = dChan
-	go func() {
-		i := 0
-		for range dChan {
-			i++
-			if i == 2 {
-				close(dChan)
-				if doneChan != nil {
-					doneChan <- true
-				}
-			}
-		}
-	}()
-
-	log.Logger(ctx).Debug("### SENDING LEFT TO MERGER", batchLeft.Zaps()...)
-	log.Logger(ctx).Debug("### SENDING RIGHT TO MERGER", batchRight.Zaps()...)
-
-	s.Merger.BatchesChannel <- batchLeft
-	s.Merger.BatchesChannel <- batchRight
-
-	//	log.Logger(ctx).Info("### END SENDING TO MERGER")
-
-	return diff, nil
-}
-
 // Shutdown closes channels
 func (s *Sync) Shutdown() {
 	defer func() {
@@ -215,17 +117,21 @@ func (s *Sync) Shutdown() {
 func (s *Sync) Start(ctx context.Context) {
 	source, sOk := model.AsPathSyncSource(s.Source)
 	target, tOk := model.AsPathSyncTarget(s.Target)
-	if s.Direction != "right" && sOk && tOk {
+	if s.Direction != model.DirectionLeft && sOk && tOk {
 		s.SetupWatcher(ctx, source, target)
 	}
 	source2, sOk2 := model.AsPathSyncSource(s.Target)
 	target2, tOk2 := model.AsPathSyncTarget(s.Source)
-	if s.Direction != "left" && sOk2 && tOk2 {
+	if s.Direction != model.DirectionRight && sOk2 && tOk2 {
 		s.SetupWatcher(ctx, source2, target2)
 	}
 }
 
-func (s *Sync) Resync(ctx context.Context, dryRun bool, statusChan chan model.BatchProcessStatus, doneChan chan bool) (*model.Diff, error) {
+func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
+	s.SnapshotFactory = factory
+}
+
+func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool, statusChan chan model.BatchProcessStatus, doneChan chan bool) (model.Stater, error) {
 	var err error
 	defer func() {
 		if e := recover(); e != nil {
@@ -241,12 +147,10 @@ func (s *Sync) Resync(ctx context.Context, dryRun bool, statusChan chan model.Ba
 			}
 		}
 	}()
-	var diff *model.Diff
-	diff, err = s.InitialSnapshots(ctx, dryRun, statusChan, doneChan)
-	return diff, err
+	return s.Run(ctx, dryRun, force, statusChan, doneChan)
 }
 
-func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint) *Sync {
+func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, direction model.DirectionType) *Sync {
 
 	filter := filters.NewEchoFilter()
 	processor := proc.NewProcessor(ctx)
@@ -256,8 +160,9 @@ func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint) *Sy
 	go filter.ListenLocksEvents()
 
 	return &Sync{
-		Source: left,
-		Target: right,
+		Source:    left,
+		Target:    right,
+		Direction: direction,
 
 		EchoFilter: filter,
 		Merger:     processor,

@@ -52,17 +52,15 @@ func TestBatch_Filter(t *testing.T) {
 			EventInfo: EventInfo{
 				Path: "/ignored-file",
 			},
-			Key:    "/ignored-file",
-			Source: source,
-			Target: target,
+			Key:   "/ignored-file",
+			Batch: batch,
 		}
 		batch.CreateFolders["/ignored-folder"] = &BatchEvent{
 			EventInfo: EventInfo{
 				Path: "/ignored-folder",
 			},
-			Key:    "/ignored-folder",
-			Source: source,
-			Target: target,
+			Key:   "/ignored-folder",
+			Batch: batch,
 		}
 		batch.Filter(testCtx)
 
@@ -85,9 +83,8 @@ func TestBatch_Filter(t *testing.T) {
 			EventInfo: EventInfo{
 				Path: "/ignored-file",
 			},
-			Key:    "/ignored-file",
-			Source: source,
-			Target: target,
+			Key:   "/ignored-file",
+			Batch: batch,
 		}
 		batch.Filter(testCtx)
 
@@ -115,17 +112,15 @@ func TestBatch_Filter(t *testing.T) {
 			EventInfo: EventInfo{
 				Path: "/a/file-moved",
 			},
-			Key:    "/a/file-moved",
-			Source: source,
-			Target: target,
+			Key:   "/a/file-moved",
+			Batch: batch,
 		}
 		batch.Deletes["/file-to-move"] = &BatchEvent{
 			EventInfo: EventInfo{
 				Path: "/file-to-move",
 			},
-			Key:    "/file-to-move",
-			Source: source,
-			Target: target,
+			Key:   "/file-to-move",
+			Batch: batch,
 		}
 		batch.Filter(testCtx)
 		So(batch.CreateFiles, ShouldHaveLength, 0)
@@ -163,33 +158,29 @@ func TestBatch_Filter(t *testing.T) {
 			EventInfo: EventInfo{
 				Path: "/a/file-moved",
 			},
-			Key:    "/a/file-moved",
-			Source: source,
-			Target: target,
+			Key:   "/a/file-moved",
+			Batch: batch,
 		}
 		batch.Deletes["/file-to-move"] = &BatchEvent{
 			EventInfo: EventInfo{
 				Path: "/file-to-move",
 			},
-			Key:    "/file-to-move",
-			Source: source,
-			Target: target,
+			Key:   "/file-to-move",
+			Batch: batch,
 		}
 		batch.CreateFiles["/a/similar-file-moved"] = &BatchEvent{
 			EventInfo: EventInfo{
 				Path: "/a/similar-file-moved",
 			},
-			Key:    "/a/similar-file-moved",
-			Source: source,
-			Target: target,
+			Key:   "/a/similar-file-moved",
+			Batch: batch,
 		}
 		batch.Deletes["/similar-file"] = &BatchEvent{
 			EventInfo: EventInfo{
 				Path: "/similar-file",
 			},
-			Key:    "/similar-file",
-			Source: source,
-			Target: target,
+			Key:   "/similar-file",
+			Batch: batch,
 		}
 		batch.Filter(testCtx)
 
@@ -208,17 +199,15 @@ func TestBatch_Filter(t *testing.T) {
 			EventInfo: EventInfo{
 				Path: "/a/file-touched",
 			},
-			Key:    "/a/file-touched",
-			Source: source,
-			Target: target,
+			Key:   "/a/file-touched",
+			Batch: batch,
 		}
 		batch.Deletes["/a/file-touched"] = &BatchEvent{
 			EventInfo: EventInfo{
 				Path: "/a/file-touched",
 			},
-			Key:    "/a/file-touched",
-			Source: source,
-			Target: target,
+			Key:   "/a/file-touched",
+			Batch: batch,
 		}
 		batch.Filter(testCtx)
 		So(batch.CreateFiles, ShouldHaveLength, 0)
@@ -241,17 +230,15 @@ func TestBatch_Filter(t *testing.T) {
 			EventInfo: EventInfo{
 				Path: "/a/file-touched",
 			},
-			Key:    "/a/file-touched",
-			Source: source,
-			Target: target,
+			Key:   "/a/file-touched",
+			Batch: batch,
 		}
 		batch.Deletes["/a/file-touched"] = &BatchEvent{
 			EventInfo: EventInfo{
 				Path: "/a/file-touched",
 			},
-			Key:    "/a/file-touched",
-			Source: source,
-			Target: target,
+			Key:   "/a/file-touched",
+			Batch: batch,
 		}
 		batch.Filter(testCtx)
 		So(batch.CreateFiles, ShouldHaveLength, 1)

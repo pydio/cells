@@ -53,8 +53,15 @@ type BatchEvent struct {
 	EventInfo EventInfo
 	Node      *tree.Node
 	Key       string
-	Source    PathSyncSource
-	Target    PathSyncTarget
+	Batch     *Batch
+}
+
+func (b *BatchEvent) Source() PathSyncSource {
+	return b.Batch.Source
+}
+
+func (b *BatchEvent) Target() PathSyncTarget {
+	return b.Batch.Target
 }
 
 type BatchProcessStatus struct {
@@ -229,6 +236,18 @@ func (b *Batch) Filter(ctx context.Context) {
 		delete(b.Deletes, del)
 	}
 
+}
+
+func (b *Batch) Stats() map[string]interface{} {
+	return map[string]interface{}{
+		"EndpointSource": b.Source.GetEndpointInfo().URI,
+		"EndpointTarget": b.Target.GetEndpointInfo().URI,
+		"CreateFiles":    len(b.CreateFiles),
+		"CreateFolders":  len(b.CreateFolders),
+		"MoveFiles":      len(b.FileMoves),
+		"MoveFolders":    len(b.FolderMoves),
+		"Deletes":        len(b.Deletes),
+	}
 }
 
 func (b *Batch) String() string {

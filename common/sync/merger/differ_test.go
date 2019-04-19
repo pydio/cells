@@ -550,7 +550,7 @@ func TestTreeDiff(t *testing.T) {
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 101)
 			So(diff.MissingRight, ShouldHaveLength, 101)
-			b, e := diff.ToUnidirectionalBatch("left")
+			b, e := diff.ToUnidirectionalBatch(model.DirectionLeft)
 			So(e, ShouldBeNil)
 			So(b.Deletes, ShouldHaveLength, 101)
 			So(b.CreateFiles, ShouldHaveLength, 100)

@@ -37,9 +37,9 @@ func (pr *Processor) refreshFilesUuid(batch *model.Batch) {
 	var target model.PathSyncSource
 	var source model.UuidReceiver
 	for k, c := range batch.RefreshFilesUuid {
-		if s, ok := c.Source.(model.UuidReceiver); ok {
+		if s, ok := c.Source().(model.UuidReceiver); ok {
 			source = s
-			if t, ok2 := c.Target.(model.PathSyncSource); ok2 {
+			if t, ok2 := c.Target().(model.PathSyncSource); ok2 {
 				dirs = append(dirs, path.Dir(k))
 				target = t
 			}

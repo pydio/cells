@@ -6,6 +6,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/sync/model"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -56,15 +59,15 @@ func ComputeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 	if statusChan != nil {
 		statusChan <- model.BatchProcessStatus{StatusString: "Now computing diff between snapshots"}
 	}
-
+	//lTree.PrintOut()
+	//rTree.PrintOut()
 	treeMerge := &model.Diff{
 		Left:    left,
 		Right:   right,
 		Context: ctx,
 	}
 	MergeNodes(lTree, rTree, treeMerge)
-	fmt.Println(treeMerge.Stats())
-	fmt.Println(treeMerge.String())
+	log.Logger(ctx).Info("Diff Stats", zap.Any("s", treeMerge.Stats()))
 
 	if statusChan != nil {
 		statusChan <- model.BatchProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(treeMerge.MissingLeft), len(treeMerge.MissingRight))}

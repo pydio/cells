@@ -136,9 +136,9 @@ func main() {
 	dbEvents := make(chan endpoints.DBEvent)
 	processorEvents := make(chan model.ProcessorEvent)
 
-	syncTask := task.NewSync(ctx, source, target)
+	syncTask := task.NewSync(ctx, source, target, model.DirectionBi)
 	syncTask.Start(ctx)
-	syncTask.Resync(ctx, false, nil, nil)
+	syncTask.Resync(ctx, false, false, nil, nil)
 
 	// Start routine to watching on events.
 	go func() {
@@ -158,7 +158,7 @@ func main() {
 				syncTask.Shutdown()
 				return
 			case <-resyncCh:
-				syncTask.Resync(ctx, false, nil, nil)
+				syncTask.Resync(ctx, false, false, nil, nil)
 			case dbEvent := <-dbEvents:
 				log.Printf("[DB] %v", dbEvent)
 			case processorEvent := <-processorEvents:
@@ -196,7 +196,7 @@ func main() {
 				fmt.Println("Exiting ?")
 				commandLineCh <- true
 			} else if text == "resync" {
-				syncTask.Resync(context.Background(), false, nil, nil)
+				syncTask.Resync(context.Background(), false, false, nil, nil)
 			} else {
 				fmt.Println("Unsupported command, type exit or resync")
 			}

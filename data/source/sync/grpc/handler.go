@@ -161,8 +161,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	s.IndexClient = indexClientRead
 	s.SyncConfig = syncConfig
 	s.ObjectConfig = minioConfig
-	s.syncTask = task.NewSync(ctx, source, target)
-	s.syncTask.Direction = "left"
+	s.syncTask = task.NewSync(ctx, source, target, model.DirectionRight)
 
 	return nil
 
@@ -192,7 +191,7 @@ func (s *Handler) watchErrors() {
 			if len(branch) > 0 {
 				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
 				branch = ""
-				s.syncTask.Resync(context.Background(), false, nil, nil)
+				s.syncTask.Resync(context.Background(), false, false, nil, nil)
 			}
 		case <-s.stop:
 			return
@@ -290,7 +289,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}()
 	}
 
-	diff, e := s.syncTask.Resync(c, req.DryRun, statusChan, doneChan)
+	result, e := s.syncTask.Resync(context.Background(), req.DryRun, false, statusChan, doneChan)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task
@@ -306,7 +305,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}
 		return e
 	} else {
-		data, _ := json.Marshal(diff.Stats())
+		data, _ := json.Marshal(result.Stats())
 		resp.JsonDiff = string(data)
 		resp.Success = true
 		return nil

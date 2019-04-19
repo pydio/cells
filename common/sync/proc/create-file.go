@@ -30,8 +30,8 @@ import (
 
 func (pr *Processor) processCreateFile(event *model.BatchEvent, operationId string) error {
 
-	dataTarget, dtOk := model.AsDataSyncTarget(event.Target)
-	dataSource, dsOk := model.AsDataSyncSource(event.Source)
+	dataTarget, dtOk := model.AsDataSyncTarget(event.Target())
+	dataSource, dsOk := model.AsDataSyncSource(event.Source())
 
 	localPath := event.EventInfo.Path
 	defer pr.unlockFile(event, localPath)
@@ -61,7 +61,7 @@ func (pr *Processor) processCreateFile(event *model.BatchEvent, operationId stri
 		if event.Node.Uuid != "" {
 			update = true
 		}
-		return event.Target.CreateNode(event.EventInfo.CreateContext(pr.GlobalContext), event.Node, update)
+		return event.Target().CreateNode(event.EventInfo.CreateContext(pr.GlobalContext), event.Node, update)
 	}
 
 }

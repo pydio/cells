@@ -28,7 +28,7 @@ func (pr *Processor) processDelete(event *model.BatchEvent, operationId string) 
 	pr.lockFileTo(event, deletePath, operationId)
 	defer pr.unlockFile(event, deletePath)
 	ctx := event.EventInfo.CreateContext(pr.GlobalContext)
-	err := event.Target.DeleteNode(ctx, deletePath)
+	err := event.Target().DeleteNode(ctx, deletePath)
 
 	return err
 

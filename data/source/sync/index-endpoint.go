@@ -40,11 +40,13 @@ type IndexEndpoint struct {
 	sessionClient   tree.SessionIndexerClient
 	internalSession *tree.IndexationSession
 	streamer        *IndexStreamer
+	dsName          string
 }
 
 func (i *IndexEndpoint) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
+		URI: "index://" + i.dsName,
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
 	}
@@ -213,6 +215,7 @@ func NewIndexEndpoint(dsName string, reader tree.NodeProviderClient, writer tree
 		readerClient:  reader,
 		writerClient:  writer,
 		sessionClient: sessionClient,
+		dsName:        dsName,
 		//streamer:      NewIndexStreamer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dsName),
 	}
 }

@@ -97,8 +97,7 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			},
-			Source: source,
-			Target: target,
+			Batch: batch,
 		}
 		batch.Deletes["/to-be-deleted"] = &model.BatchEvent{
 			EventInfo: model.EventInfo{
@@ -110,8 +109,7 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "delhash",
 			},
-			Source: source,
-			Target: target,
+			Batch: batch,
 		}
 		batch.FileMoves["/to-be-moved"] = &model.BatchEvent{
 			EventInfo: model.EventInfo{
@@ -121,8 +119,7 @@ func TestProcess(t *testing.T) {
 			Node: &tree.Node{
 				Path: "/to-be-moved",
 			},
-			Source: source,
-			Target: target,
+			Batch: batch,
 		}
 		batch.FolderMoves["/folder-to-be-moved"] = &model.BatchEvent{
 			EventInfo: model.EventInfo{
@@ -132,8 +129,7 @@ func TestProcess(t *testing.T) {
 			Node: &tree.Node{
 				Path: "/folder-to-be-moved",
 			},
-			Source: source,
-			Target: target,
+			Batch: batch,
 		}
 		batch.CreateFolders["/mkdir"] = &model.BatchEvent{
 			EventInfo: model.EventInfo{
@@ -145,8 +141,7 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_COLLECTION,
 				Uuid: "uuid",
 			},
-			Source: source,
-			Target: target,
+			Batch: batch,
 		}
 
 		m.process(batch)

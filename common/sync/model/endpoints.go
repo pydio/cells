@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -29,6 +30,7 @@ func AsSessionProvider(endpoint Endpoint) (SessionProvider, bool) {
 }
 
 type EndpointInfo struct {
+	URI                   string
 	RequiresNormalization bool
 	RequiresFoldersRescan bool
 }
@@ -86,4 +88,19 @@ type SessionProvider interface {
 	StartSession(ctx context.Context, rootNode *tree.Node) (*tree.IndexationSession, error)
 	FlushSession(ctx context.Context, sessionUuid string) error
 	FinishSession(ctx context.Context, sessionUuid string) error
+}
+
+type Snapshoter interface {
+	PathSyncSource
+	IsEmpty() bool
+	Capture(ctx context.Context, source PathSyncSource) error
+}
+
+type SnapshotFactory interface {
+	Load(name string) (Snapshoter, error)
+}
+
+type Stater interface {
+	fmt.Stringer
+	Stats() map[string]interface{}
 }

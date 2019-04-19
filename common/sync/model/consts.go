@@ -6,10 +6,17 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+type DirectionType int
+
 const (
 	// Use unique path separator everywhere
 	InternalPathSeparator = "/"
-	DefaultEtag           = "00000000000000000000000000000000-1"
+	// Minio default Etag when a new file is detected
+	DefaultEtag = "00000000000000000000000000000000-1"
+
+	DirectionLeft  DirectionType = 1
+	DirectionRight DirectionType = 2
+	DirectionBi    DirectionType = 3
 )
 
 func IsIgnoredFile(path string) (ignored bool) {

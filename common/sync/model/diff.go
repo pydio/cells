@@ -39,7 +39,7 @@ type Diff struct {
 }
 
 // FilterMissing transforms Missing slices to BatchEvents
-func (diff *Diff) FilterMissing(source PathSyncSource, target PathSyncTarget, in []*tree.Node, folders bool, removes bool) (out map[string]*BatchEvent) {
+func (diff *Diff) FilterMissing(batch *Batch, in []*tree.Node, folders bool, removes bool) (out map[string]*BatchEvent) {
 
 	var eventType EventType
 	if removes {
@@ -55,8 +55,7 @@ func (diff *Diff) FilterMissing(source PathSyncSource, target PathSyncTarget, in
 				Key:       n.Path,
 				Node:      n,
 				EventInfo: eventInfo,
-				Source:    source,
-				Target:    target,
+				Batch:     batch,
 			}
 			out[n.Path] = be
 		}
@@ -79,30 +78,32 @@ func (diff *Diff) String() string {
 	return output
 }
 
-func (diff *Diff) Stats() map[string]int {
-	return map[string]int{
-		"MissingLeft":  len(diff.MissingLeft),
-		"MissingRight": len(diff.MissingRight),
+func (diff *Diff) Stats() map[string]interface{} {
+	return map[string]interface{}{
+		"EndpointLeft":  diff.Left.GetEndpointInfo().URI,
+		"EndpointRight": diff.Right.GetEndpointInfo().URI,
+		"MissingLeft":   len(diff.MissingLeft),
+		"MissingRight":  len(diff.MissingRight),
 	}
 }
 
 // ToUnidirectionalBatch transforms this diff to a batch
-func (diff *Diff) ToUnidirectionalBatch(direction string) (batch *Batch, err error) {
+func (diff *Diff) ToUnidirectionalBatch(direction DirectionType) (batch *Batch, err error) {
 
 	rightTarget, rightOk := diff.Right.(PathSyncTarget)
 	leftTarget, leftOk := diff.Left.(PathSyncTarget)
 
-	if direction == "left" && rightOk {
+	if direction == DirectionRight && rightOk {
 		batch = NewBatch(diff.Left, rightTarget)
-		batch.CreateFolders = diff.FilterMissing(diff.Left, rightTarget, diff.MissingRight, true, false)
-		batch.CreateFiles = diff.FilterMissing(diff.Left, rightTarget, diff.MissingRight, false, false)
-		batch.Deletes = diff.FilterMissing(diff.Left, rightTarget, diff.MissingLeft, false, true)
+		batch.CreateFolders = diff.FilterMissing(batch, diff.MissingRight, true, false)
+		batch.CreateFiles = diff.FilterMissing(batch, diff.MissingRight, false, false)
+		batch.Deletes = diff.FilterMissing(batch, diff.MissingLeft, false, true)
 		return batch, nil
-	} else if direction == "right" && leftOk {
+	} else if direction == DirectionLeft && leftOk {
 		batch = NewBatch(diff.Right, leftTarget)
-		batch.CreateFolders = diff.FilterMissing(diff.Right, leftTarget, diff.MissingLeft, true, false)
-		batch.CreateFiles = diff.FilterMissing(diff.Right, leftTarget, diff.MissingLeft, false, false)
-		batch.Deletes = diff.FilterMissing(diff.Right, leftTarget, diff.MissingRight, false, true)
+		batch.CreateFolders = diff.FilterMissing(batch, diff.MissingLeft, true, false)
+		batch.CreateFiles = diff.FilterMissing(batch, diff.MissingLeft, false, false)
+		batch.Deletes = diff.FilterMissing(batch, diff.MissingRight, false, true)
 		return batch, nil
 	}
 	return nil, errors.New("Error while extracting unidirectional batch. Either left or right is not a sync target")
@@ -114,14 +115,14 @@ func (diff *Diff) ToBidirectionalBatch(leftTarget PathSyncTarget, rightTarget Pa
 
 	leftBatch := NewBatch(leftTarget.(PathSyncSource), rightTarget)
 	if rightTarget != nil {
-		leftBatch.CreateFolders = diff.FilterMissing(diff.Left, rightTarget, diff.MissingRight, true, false)
-		leftBatch.CreateFiles = diff.FilterMissing(diff.Left, rightTarget, diff.MissingRight, false, false)
+		leftBatch.CreateFolders = diff.FilterMissing(leftBatch, diff.MissingRight, true, false)
+		leftBatch.CreateFiles = diff.FilterMissing(leftBatch, diff.MissingRight, false, false)
 	}
 
-	rightBatch := NewBatch(leftTarget.(PathSyncSource), rightTarget)
+	rightBatch := NewBatch(rightTarget.(PathSyncSource), leftTarget)
 	if leftTarget != nil {
-		rightBatch.CreateFolders = diff.FilterMissing(diff.Right, leftTarget, diff.MissingLeft, true, false)
-		rightBatch.CreateFiles = diff.FilterMissing(diff.Right, leftTarget, diff.MissingLeft, false, false)
+		rightBatch.CreateFolders = diff.FilterMissing(rightBatch, diff.MissingLeft, true, false)
+		rightBatch.CreateFiles = diff.FilterMissing(rightBatch, diff.MissingLeft, false, false)
 	}
 
 	batch = &BidirectionalBatch{

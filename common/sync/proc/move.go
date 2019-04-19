@@ -32,6 +32,6 @@ func (pr *Processor) processMove(event *model.BatchEvent, operationId string) er
 	defer pr.unlockFile(event, toPath)
 	defer pr.unlockFile(event, fromPath)
 
-	return event.Target.MoveNode(event.EventInfo.CreateContext(pr.GlobalContext), fromPath, toPath)
+	return event.Target().MoveNode(event.EventInfo.CreateContext(pr.GlobalContext), fromPath, toPath)
 
 }
