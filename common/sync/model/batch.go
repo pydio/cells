@@ -22,7 +22,6 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"strings"
 
@@ -251,12 +250,25 @@ func (b *Batch) Stats() map[string]interface{} {
 }
 
 func (b *Batch) String() string {
-	output := ""
-	output += "Create Files " + fmt.Sprintf("%v", b.CreateFiles) + "\n"
-	output += "Create Folders " + fmt.Sprintf("%v", b.CreateFolders) + "\n"
-	output += "Move folders " + fmt.Sprintf("%v", b.FolderMoves) + "\n"
-	output += "Move Files " + fmt.Sprintf("%v", b.FileMoves) + "\n"
-	output += "Deletes " + fmt.Sprintf("%v", b.Deletes) + "\n"
+	if len(b.CreateFiles)+len(b.CreateFolders)+len(b.Deletes)+len(b.FolderMoves)+len(b.FileMoves) == 0 {
+		return ""
+	}
+	output := "Batch on Target " + b.Target.GetEndpointInfo().URI + "\n"
+	for k, _ := range b.CreateFiles {
+		output += " + File " + k + "\n"
+	}
+	for k, _ := range b.CreateFolders {
+		output += " + Folder " + k + "\n"
+	}
+	for k, _ := range b.Deletes {
+		output += " - Delete " + k + "\n"
+	}
+	for k, m := range b.FileMoves {
+		output += " = Move File " + m.Node.Path + " to " + k + "\n"
+	}
+	for k, m := range b.FolderMoves {
+		output += " = Move Folder " + m.Node.Path + " to " + k + "\n"
+	}
 	return output
 }
 

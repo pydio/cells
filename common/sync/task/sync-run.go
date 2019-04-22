@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -77,7 +78,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 	var bb *model.BidirectionalBatch
 
-	var useSnapshots, captureSnaphots bool
+	var useSnapshots, captureSnapshots bool
 	var leftSnap, rightSnap model.Snapshoter
 	var leftBatch, rightBatch *model.Batch
 
@@ -87,7 +88,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 		rightSnap, rightBatch, er2 = s.BatchFromSnapshot(ctx, "right", targetAsSource, true)
 		if er1 == nil && er2 == nil {
 			if leftSnap.IsEmpty() || rightSnap.IsEmpty() {
-				captureSnaphots = true
+				captureSnapshots = true
 			} else {
 				useSnapshots = true
 			}
@@ -103,11 +104,12 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 			Left:  leftBatch,
 			Right: rightBatch,
 		}
-		log.Logger(ctx).Info("BB-Before Merge", zap.Any("stats", bb.Stats()))
+		log.Logger(ctx).Debug("BB-Before Merge", zap.Any("stats", bb.Stats()))
 		if err := bb.Merge(ctx); err != nil {
 			return nil, err
 		}
-		log.Logger(ctx).Info("BB-After Merge", zap.Any("stats", bb.Stats()))
+		log.Logger(ctx).Debug("BB-After Merge", zap.Any("stats", bb.Stats()))
+		fmt.Println(bb.String())
 
 	} else {
 
@@ -134,7 +136,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 		bb.Left.Filter(ctx)
 		bb.Right.Filter(ctx)
 
-		if captureSnaphots {
+		if captureSnapshots {
 			log.Logger(ctx).Info("Capturing first snapshots now")
 			leftSnap.Capture(ctx, source)
 			rightSnap.Capture(ctx, targetAsSource)

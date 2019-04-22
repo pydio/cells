@@ -27,6 +27,19 @@ func MergeNodes(left *TreeNode, right *TreeNode, diff *model.Diff) {
 	if left.GetHash() == right.GetHash() {
 		return
 	}
+	if left.IsLeaf() && right.IsLeaf() {
+		// Compare on MTimes and Enqueue
+		if left.MTime >= right.MTime {
+			diff.MissingRight = left.Enqueue(diff.MissingRight)
+		} else {
+			diff.MissingLeft = right.Enqueue(diff.MissingLeft)
+		}
+		return
+	} else if left.Type != right.Type {
+		// Node type changed ! Enqueue both as missing and browse children if necessary
+		diff.MissingRight = left.Enqueue(diff.MissingRight)
+		diff.MissingLeft = right.Enqueue(diff.MissingLeft)
+	}
 	cL := left.GetCursor()
 	cR := right.GetCursor()
 	a := cL.Next()

@@ -53,35 +53,35 @@ func (b *BidirectionalBatch) Filter(ctx context.Context, batch *Batch) {
 	for p, e := range batch.CreateFiles {
 		// Check it's not already on target
 		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.Node.Etag {
-			log.Logger(ctx).Info("Skipping Create File", node.Zap())
+			log.Logger(ctx).Debug("Skipping Create File", node.Zap())
 			delete(batch.CreateFiles, p)
 		}
 	}
 	for p, e := range batch.CreateFolders {
 		// Check it's not already on target
 		if node, err := e.Target().LoadNode(ctx, p); err == nil {
-			log.Logger(ctx).Info("Skipping Create Folder", node.Zap())
+			log.Logger(ctx).Debug("Skipping Create Folder", node.Zap())
 			delete(batch.CreateFolders, p)
 		}
 	}
 	for p, e := range batch.Deletes {
 		// Check it's not already on target
 		if _, err := e.Target().LoadNode(ctx, p); err != nil && errors.Parse(err.Error()).Code == 404 {
-			log.Logger(ctx).Info("Skipping Delete for path " + p)
+			log.Logger(ctx).Debug("Skipping Delete for path " + p)
 			delete(batch.Deletes, p)
 		}
 	}
 	for p, e := range batch.FolderMoves {
 		// Check it's not already on target
 		if n, err := e.Target().LoadNode(ctx, p); err == nil {
-			log.Logger(ctx).Info("Skipping Folder move", n.Zap())
+			log.Logger(ctx).Debug("Skipping Folder move", n.Zap())
 			delete(batch.FolderMoves, p)
 		}
 	}
 	for p, e := range batch.FileMoves {
 		// Check it's not already on target
 		if n, err := e.Target().LoadNode(ctx, p); err == nil && n.Etag == e.Node.Etag {
-			log.Logger(ctx).Info("Skipping File move for path " + p)
+			log.Logger(ctx).Debug("Skipping File move for path " + p)
 			delete(batch.FileMoves, p)
 		}
 	}
