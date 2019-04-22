@@ -37,14 +37,13 @@ func (pr *Processor) processCreateFile(event *model.BatchEvent, operationId stri
 	defer pr.unlockFile(event, localPath)
 	pr.lockFileTo(event, localPath, operationId)
 	if dtOk && dsOk {
-
 		reader, rErr := dataSource.GetReaderOn(localPath)
 		if rErr != nil {
 			pr.Logger().Error("Cannot get reader on source", zap.String("job", "create"), zap.String("path", localPath), zap.Error(rErr))
 			return rErr
 		}
 		defer reader.Close()
-		writer, wErr := dataTarget.GetWriterOn(localPath, event.EventInfo.Size)
+		writer, wErr := dataTarget.GetWriterOn(localPath, event.Node.Size)
 		if wErr != nil {
 			pr.Logger().Error("Cannot get writer on target", zap.String("job", "create"), zap.String("path", localPath), zap.Error(wErr))
 			return wErr
