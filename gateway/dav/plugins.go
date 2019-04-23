@@ -56,9 +56,10 @@ func init() {
 
 				srv := defaults.NewHTTPServer()
 				davRouter = views.NewStandardRouter(views.RouterOptions{
-					WatchRegistry: true,
-					AuditEvent:    true,
-					Synchronous:   true,
+					WatchRegistry:    true,
+					AuditEvent:       true,
+					SynchronousCache: true,
+					SynchronousTasks: true,
 				})
 				handler := newHandler(s.Options().Context, davRouter)
 				err := srv.Handle(srv.NewHandler(handler))

@@ -219,47 +219,13 @@ func (s *SynchronousCacheHandler) DeleteNode(ctx context.Context, in *tree.Delet
 }
 
 func (s *SynchronousCacheHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...client.CallOption) (*tree.UpdateNodeResponse, error) {
-	source := in.From
-	target := in.To
-	status := make(chan string)
-	progress := make(chan float32)
-	done := make(chan bool)
-	// Transform identifier from => in
-	if f, ok := GetBranchInfo(ctx, "from"); ok {
-		ctx = WithBranchInfo(ctx, "in", f)
-	}
-	go func() {
-		for {
-			select {
-			case <-done:
-				return
-			case s := <-status:
-				log.Logger(ctx).Info(s)
-			case pg := <-progress:
-				log.Logger(ctx).Debug("progress", zap.Float32("pg", pg))
-			}
-		}
-	}()
-	log.Logger(ctx).Info("Should Copy/Move Target", target.Zaps()...)
-	err := CopyMoveNodes(ctx, s.next, source, target, true, true, false, status, progress)
-	close(done)
-	close(status)
-	close(progress)
+	resp, err := s.next.UpdateNode(ctx, in, opts...)
 	if err != nil {
 		return nil, err
 	}
-	// Build a fake output node
-	out := source.Clone()
-	out.Path = target.Path
-	out.MTime = time.Now().Unix()
-	resp := &tree.UpdateNodeResponse{
-		Node:    out,
-		Success: true,
-	}
-
-	// Now Cache changes
+	// Cache changes
 	s.cacheDel(ctx, in.From)
-	s.cacheAdd(ctx, out)
+	s.cacheAdd(ctx, resp.Node)
 	return resp, nil
 }
 

@@ -582,37 +582,7 @@ func (fs *FileSystem) removeAll(ctx context.Context, name string) error {
 		return err
 	}
 	node := fi.(*FileInfo).node
-	if node.IsLeaf() {
-		_, err = fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{Path: name, Type: tree.NodeType_LEAF}})
-	} else {
-		// Now list all children and delete them all
-		stream, err := fs.Router.ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
-		if err != nil {
-			return err
-		}
-		defer stream.Close()
-		for {
-			resp, e := stream.Recv()
-			if e != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
-			if !resp.Node.IsLeaf() {
-				resp.Node.Path += "/" + common.PYDIO_SYNC_HIDDEN_FILE_META
-				resp.Node.Type = tree.NodeType_LEAF
-			}
-			if _, err := fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node}); err != nil {
-				log.Logger(ctx).Error("Error while deleting node child", resp.Node.Zap(), zap.Error(err))
-				return err
-			}
-		}
-		_, err = fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
-			Path: path.Join(name, common.PYDIO_SYNC_HIDDEN_FILE_META),
-			Type: tree.NodeType_LEAF,
-		}})
-	}
+	_, err = fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node.Clone()})
 	return err
 }
 
