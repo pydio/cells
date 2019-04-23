@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/common/mocks"
+
 	"github.com/cskr/pubsub"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
@@ -462,8 +464,12 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 		if (sourceOut && targetOut) || (sourceOut && newEvent.Target == nil) || (targetOut && newEvent.Source == nil) {
 			continue
 		}
+		var scan *tree.Node
 		if sourceOut {
 			newEvent.Type = tree.NodeChangeEvent_CREATE
+			if !event.Target.IsLeaf() {
+				scan = event.Target
+			}
 			newEvent.Source = nil
 		} else if targetOut {
 			newEvent.Type = tree.NodeChangeEvent_DELETE
@@ -479,6 +485,35 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 
 		if e := streamer.Send(newEvent); e != nil {
 			return e
+		}
+
+		if scan != nil {
+			// A folder was move from "outside" to "inside" the filterPath
+			// This is a create, and we have to emulate CREATE for all children
+			listNodeStreamer := mocks.NewListNodeStreamer()
+			wg := sync.WaitGroup{}
+			wg.Add(2)
+			go func() {
+				defer wg.Done()
+				s.ListNodes(ctx, &tree.ListNodesRequest{Node: scan, Recursive: true}, listNodeStreamer)
+			}()
+			go func() {
+				defer wg.Done()
+				defer listNodeStreamer.Close()
+				for {
+					r, e := listNodeStreamer.Recv()
+					if e != nil || r == nil {
+						break
+					}
+					child := r.Node
+					child.Path = strings.TrimLeft(child.Path, filterPath)
+					streamer.Send(&tree.NodeChangeEvent{
+						Type:   tree.NodeChangeEvent_CREATE,
+						Target: child,
+					})
+				}
+			}()
+			wg.Wait()
 		}
 	}
 

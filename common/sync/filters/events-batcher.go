@@ -93,6 +93,14 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 			} else {
 				batch.CreateFiles[key] = bEvent
 			}
+		} else if event.Type == model.EventSureMove {
+			event.Path = event.MoveTarget.Path
+			bEvent.Node = event.MoveSource
+			if event.MoveSource.IsLeaf() {
+				batch.FileMoves[event.Path] = bEvent
+			} else {
+				batch.FolderMoves[event.Path] = bEvent
+			}
 		} else {
 			batch.Deletes[key] = bEvent
 		}

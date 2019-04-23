@@ -26,6 +26,8 @@ const (
 	EventAccessedStat EventType = "ObjectAccessed:Stat"
 	// EventOther notifies any other events
 	EventOther EventType = "ObjectOther"
+	// EventOther notifies any other events
+	EventSureMove EventType = "NodeMoved"
 )
 
 // EventInfo contains the information of the event that occurred and the source
@@ -45,6 +47,8 @@ type EventInfo struct {
 	ScanEvent      bool
 	ScanSourceNode *tree.Node
 	Metadata       map[string]string
+	MoveSource     *tree.Node
+	MoveTarget     *tree.Node
 }
 
 func (e EventInfo) CreateContext(ctx context.Context) context.Context {
