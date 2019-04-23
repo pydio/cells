@@ -120,13 +120,23 @@ func (b *Batch) Filter(ctx context.Context) {
 		}
 	}
 
+	var folderUUIDs map[string][]*tree.Node
+	var refresher UuidFoldersRefresher
+	var ok bool
+	if refresher, ok = b.Source.(UuidFoldersRefresher); ok && len(b.CreateFolders) > 0 {
+		if c, e := refresher.ExistingFolders(ctx); e == nil {
+			folderUUIDs = c
+		}
+	}
+
 	for _, createEvent := range b.CreateFolders {
 		var node *tree.Node
 		var err error
 		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
 			node = createEvent.EventInfo.ScanSourceNode
 		} else {
-			node, err = b.Source.LoadNode(createEvent.EventInfo.CreateContext(ctx), createEvent.EventInfo.Path, false)
+			// Force reload to make sure to generate .pydio at that point
+			node, err = b.Source.LoadNode(createEvent.EventInfo.CreateContext(ctx), createEvent.EventInfo.Path)
 		}
 		if err != nil {
 			delete(b.CreateFolders, createEvent.Key)
@@ -137,6 +147,14 @@ func (b *Batch) Filter(ctx context.Context) {
 			createEvent.Node = node
 		}
 		log.Logger(ctx).Debug("Create Folder", zap.Any("node", createEvent.Node))
+		if refresher != nil && folderUUIDs != nil && len(folderUUIDs) > 0 {
+			if _, ok := folderUUIDs[createEvent.Node.Uuid]; ok {
+				// There is a duplicate - update Uuid
+				if newNode, err := refresher.UpdateFolderUuid(ctx, createEvent.Node); err == nil {
+					createEvent.Node = newNode
+				}
+			}
+		}
 	}
 
 	b.detectFolderMoves(ctx)

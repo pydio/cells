@@ -27,19 +27,20 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
 
+	errors2 "github.com/micro/go-micro/errors"
 	"github.com/rjeczalik/notify"
 	"github.com/satori/go.uuid"
 	"github.com/spf13/afero"
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -110,6 +111,34 @@ func (c *FSClient) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
+func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error) {
+	data := make(map[string][]*tree.Node)
+	final := make(map[string][]*tree.Node)
+	err := c.Walk(func(path string, node *tree.Node, err error) {
+		if node.IsLeaf() {
+			return
+		}
+		if s, ok := data[node.Uuid]; ok {
+			s = append(s, node)
+			final[node.Uuid] = s
+		} else {
+			data[node.Uuid] = make([]*tree.Node, 1)
+			data[node.Uuid] = append(data[node.Uuid], node)
+		}
+	})
+	return final, err
+}
+
+func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
+	p := c.denormalize(node.Path)
+	var err error
+	if err = c.FS.Remove(filepath.Join(p, common.PYDIO_SYNC_HIDDEN_FILE_META)); err == nil {
+		log.Logger(ctx).Info("Refreshing folder Uuid for", node.ZapPath())
+		node.Uuid, err = c.readOrCreateFolderId(p)
+	}
+	return node, err
+}
+
 func (c *FSClient) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -121,7 +150,6 @@ func (c *FSClient) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err erro
 		}
 		path = c.normalize(path)
 		node, lErr := c.LoadNode(context.Background(), path, !info.IsDir())
-		//log.Printf("Walking node %v, %+q => %v, %v", path, path, node, lErr)
 		if lErr != nil {
 			walknFc("", nil, lErr)
 			return nil
@@ -164,7 +192,9 @@ func (c *FSClient) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 	} else {
 		stat, eStat = c.FS.Stat(denormalizedPath)
 		if eStat != nil {
-			log.Println(eStat)
+			if os.IsNotExist(eStat) {
+				return nil, errors2.NotFound("not.found", path, eStat)
+			}
 			return nil, eStat
 		}
 		isLeaf = !stat.IsDir()
@@ -230,7 +260,6 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 	stat, e := c.FS.Stat(oldPath)
 	if !os.IsNotExist(e) {
 		if stat.IsDir() && reflect.TypeOf(c.FS) == reflect.TypeOf(afero.NewMemMapFs()) {
-			log.Println("Move Recursively?")
 			c.moveRecursively(oldPath, newPath)
 		} else {
 			err = c.FS.Rename(oldPath, newPath)
@@ -262,7 +291,8 @@ func (c *FSClient) moveRecursively(oldPath string, newPath string) (err error) {
 		if len(wPath) == 0 {
 			continue
 		}
-		log.Printf("Moving %v to %v", wPath, newPath+strings.TrimPrefix(wPath, oldPath))
+		msg := fmt.Sprintf("Moving %v to %v", wPath, newPath+strings.TrimPrefix(wPath, oldPath))
+		log.Logger(context.Background()).Debug(msg)
 		c.FS.Rename(wPath, newPath+strings.TrimPrefix(wPath, oldPath))
 	}
 	c.FS.Rename(oldPath, newPath)
@@ -281,7 +311,8 @@ func (d *Discarder) Close() error {
 
 func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
 
-	if filepath.Base(path) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+	// Ignore .pydio except for root folder
+	if filepath.Base(path) == common.PYDIO_SYNC_HIDDEN_FILE_META && strings.Trim(path, "/") != common.PYDIO_SYNC_HIDDEN_FILE_META {
 		w := &Discarder{}
 		return w, nil
 	}
@@ -354,7 +385,7 @@ func (c *FSClient) getFileHash(path string) (hash string, e error) {
 }
 
 // Watches for all fs events on an input path.
-func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *FSClient) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
@@ -370,7 +401,6 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 	// Check if FS is in-memory
 	_, ok := (c.FS).(*afero.MemMapFs)
 	if ok {
-		log.Println("This is an in-memory FS for testing, return empty structure")
 		return &model.WatchObject{
 			EventInfoChan: eventChan,
 			ErrorChan:     errorChan,
@@ -387,7 +417,6 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 		<-doneChan
 
 		notify.Stop(in)
-		log.Println("Closing event channel for " + c.RootPath)
 		close(eventChan)
 		close(errorChan)
 	}()
@@ -403,10 +432,8 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 
 			eventInfo, eventError := notifyEventToEventInfo(c, event)
 			if eventError != nil {
-				log.Println("Sending  event error for " + c.RootPath)
 				errorChan <- eventError
 			} else if eventInfo.Path != "" {
-				//log.Println("Sending  event info for " + c.RootPath)
 				eventChan <- eventInfo
 			}
 
@@ -426,7 +453,6 @@ func NewFSClient(rootPath string) (*FSClient, error) {
 	rootPath = strings.TrimRight(rootPath, model.InternalPathSeparator)
 	c.RootPath = CanonicalPath(rootPath)
 	c.FS = afero.NewBasePathFs(afero.NewOsFs(), c.RootPath)
-	log.Print("Initiating FS Client with root ", c.RootPath)
 	_, e := c.FS.Stat("/")
 	if e != nil {
 		return nil, errors.New("Cannot stat root folder " + c.RootPath + "!")

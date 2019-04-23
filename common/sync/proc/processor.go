@@ -94,8 +94,12 @@ func (pr *Processor) lockFileTo(batchedEvent *model.BatchEvent, path string, ope
 
 func (pr *Processor) unlockFile(batchedEvent *model.BatchEvent, path string) {
 	if source, castOk := model.AsPathSyncSource(batchedEvent.Target()); castOk && pr.UnlocksChannel != nil {
+		d := 2 * time.Second
+		if source.GetEndpointInfo().EchoTime > 0 {
+			d = source.GetEndpointInfo().EchoTime
+		}
 		go func() {
-			<-time.After(2 * time.Second)
+			<-time.After(d)
 			pr.UnlocksChannel <- filters.UnlockEvent{
 				Source: source,
 				Path:   path,
@@ -208,7 +212,7 @@ func (pr *Processor) process(batch *model.Batch) {
 	}
 
 	pr.sendEvent(model.ProcessorEvent{
-		Type: "merger:end",
+		Type: "end",
 		Data: batch,
 	})
 }

@@ -39,6 +39,11 @@ type EventSubscriber struct {
 	movesMux *sync.Mutex
 }
 
+func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {
+	s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TOPIC_TREE_CHANGES, msg))
+	s.TreeServer.eventBus.Pub(msg, common.TOPIC_TREE_CHANGES)
+}
+
 func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, event *tree.NodeChangeEvent) {
 	if s.moves == nil {
 		s.moves = make(map[string]chan *tree.NodeChangeEvent)
@@ -56,11 +61,11 @@ func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, eve
 			defer func() {
 				// Process
 				if del != nil && create != nil {
-					s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+					s.publish(ctx, &tree.NodeChangeEvent{
 						Type:   tree.NodeChangeEvent_UPDATE_PATH,
 						Source: del.Source,
 						Target: create.Target,
-					}))
+					})
 				}
 				// Remove
 				s.movesMux.Lock()
@@ -115,7 +120,7 @@ func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent)
 		s.TreeServer.updateDataSourceNode(target, target.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME))
 	}
 
-	s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TOPIC_TREE_CHANGES, msg))
+	s.publish(ctx, msg)
 
 	return nil
 }

@@ -24,6 +24,7 @@ package grpc
 import (
 	"sync"
 
+	"github.com/cskr/pubsub"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
 
@@ -50,6 +51,7 @@ func init() {
 					ConfigsMutex: &sync.Mutex{},
 					DataSources:  dataSources,
 					meta:         tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient()),
+					eventBus:     pubsub.New(0),
 				}
 
 				eventSubscriber := &EventSubscriber{
@@ -59,9 +61,11 @@ func init() {
 
 				updateServicesList(ctx, treeServer)
 
-				tree.RegisterNodeProviderHandler(m.Options().Server, treeServer)
-				tree.RegisterNodeReceiverHandler(m.Options().Server, treeServer)
-				tree.RegisterSearcherHandler(m.Options().Server, treeServer)
+				srv := m.Options().Server
+				tree.RegisterNodeProviderHandler(srv, treeServer)
+				tree.RegisterNodeReceiverHandler(srv, treeServer)
+				tree.RegisterSearcherHandler(srv, treeServer)
+				tree.RegisterNodeChangesStreamerHandler(srv, treeServer)
 
 				go watchRegistry(ctx, treeServer)
 

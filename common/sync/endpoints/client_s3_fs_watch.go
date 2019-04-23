@@ -42,10 +42,10 @@ func NewS3ClientFSWatch(ctx context.Context, url string, key string, secret stri
 
 	log.Print("FS client watch")
 	mc, e := minio.New(url, key, secret, false)
-	mc.SetAppInfo(UserAgentAppName, UserAgentVersion)
 	if e != nil {
 		return nil, e
 	}
+	mc.SetAppInfo(UserAgentAppName, UserAgentVersion)
 	s3Client, e := NewS3Client(ctx, url, key, secret, bucket, rootPath)
 	if e != nil {
 		return nil, e
@@ -57,7 +57,7 @@ func NewS3ClientFSWatch(ctx context.Context, url string, key string, secret stri
 
 }
 
-func (c *S3ClientFSWatch) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *S3ClientFSWatch) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)

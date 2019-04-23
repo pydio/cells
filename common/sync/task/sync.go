@@ -41,10 +41,12 @@ type Sync struct {
 
 	SnapshotFactory model.SnapshotFactory
 	EchoFilter      *filters.EchoFilter
-	Merger          *proc.Processor
+	Processor       *proc.Processor
 
 	batcher   *filters.EventsBatcher
 	doneChans []chan bool
+
+	watchConn chan model.WatchConnectionInfo
 }
 
 // BroadcastCloseSession forwards session id to underlying batchers
@@ -59,7 +61,7 @@ func (s *Sync) BroadcastCloseSession(sessionUuid string) {
 func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget) error {
 
 	var err error
-	watchObject, err := source.Watch("")
+	watchObject, err := source.Watch("", s.watchConn)
 	if err != nil {
 		log.Logger(ctx).Error("Error While Setting up Watcher on source", zap.Any("source", source), zap.Error(err))
 		return err
@@ -71,8 +73,8 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	s.batcher = filters.NewEventsBatcher(ctx, source, target)
 
 	filterIn, filterOut := s.EchoFilter.CreateFilter()
-	s.Merger.AddRequeueChannel(source, filterIn)
-	go s.batcher.BatchEvents(filterOut, s.Merger.BatchesChannel, 1*time.Second)
+	s.Processor.AddRequeueChannel(source, filterIn)
+	go s.batcher.BatchEvents(filterOut, s.Processor.BatchesChannel, 1*time.Second)
 
 	go func() {
 		// Wait for all events.
@@ -110,7 +112,10 @@ func (s *Sync) Shutdown() {
 	for _, channel := range s.doneChans {
 		close(channel)
 	}
-	s.Merger.Shutdown()
+	if s.watchConn != nil {
+		close(s.watchConn)
+	}
+	s.Processor.Shutdown()
 }
 
 // Start makes a first sync and setup watchers
@@ -129,6 +134,22 @@ func (s *Sync) Start(ctx context.Context) {
 
 func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
 	s.SnapshotFactory = factory
+}
+
+func (s *Sync) SetSyncEventsChan(events chan interface{}) {
+	// Forward internal events to sync event
+	s.watchConn = make(chan model.WatchConnectionInfo)
+	go func() {
+		for {
+			select {
+			case e, ok := <-s.watchConn:
+				if !ok {
+					return
+				}
+				events <- e
+			}
+		}
+	}()
 }
 
 func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool, statusChan chan model.BatchProcessStatus, doneChan chan bool) (model.Stater, error) {
@@ -165,7 +186,7 @@ func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, dir
 		Direction: direction,
 
 		EchoFilter: filter,
-		Merger:     processor,
+		Processor:  processor,
 	}
 
 }

@@ -48,6 +48,7 @@ It has these top-level messages:
 	Query
 	GeoQuery
 	GeoPoint
+	StreamChangesRequest
 	NodeChangeEvent
 	IndexEvent
 	GetEncryptionKeyRequest
@@ -340,6 +341,123 @@ func (x *nodeProviderStreamerReadNodeStreamStream) Recv() (*ReadNodeRequest, err
 		return nil, err
 	}
 	return m, nil
+}
+
+// Client API for NodeChangesStreamer service
+
+type NodeChangesStreamerClient interface {
+	StreamChanges(ctx context.Context, in *StreamChangesRequest, opts ...client.CallOption) (NodeChangesStreamer_StreamChangesClient, error)
+}
+
+type nodeChangesStreamerClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewNodeChangesStreamerClient(serviceName string, c client.Client) NodeChangesStreamerClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "tree"
+	}
+	return &nodeChangesStreamerClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *nodeChangesStreamerClient) StreamChanges(ctx context.Context, in *StreamChangesRequest, opts ...client.CallOption) (NodeChangesStreamer_StreamChangesClient, error) {
+	req := c.c.NewRequest(c.serviceName, "NodeChangesStreamer.StreamChanges", &StreamChangesRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
+	if err != nil {
+		return nil, err
+	}
+	if err := stream.Send(in); err != nil {
+		return nil, err
+	}
+	return &nodeChangesStreamerStreamChangesClient{stream}, nil
+}
+
+type NodeChangesStreamer_StreamChangesClient interface {
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Recv() (*NodeChangeEvent, error)
+}
+
+type nodeChangesStreamerStreamChangesClient struct {
+	stream client.Streamer
+}
+
+func (x *nodeChangesStreamerStreamChangesClient) Close() error {
+	return x.stream.Close()
+}
+
+func (x *nodeChangesStreamerStreamChangesClient) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *nodeChangesStreamerStreamChangesClient) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *nodeChangesStreamerStreamChangesClient) Recv() (*NodeChangeEvent, error) {
+	m := new(NodeChangeEvent)
+	err := x.stream.Recv(m)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// Server API for NodeChangesStreamer service
+
+type NodeChangesStreamerHandler interface {
+	StreamChanges(context.Context, *StreamChangesRequest, NodeChangesStreamer_StreamChangesStream) error
+}
+
+func RegisterNodeChangesStreamerHandler(s server.Server, hdlr NodeChangesStreamerHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&NodeChangesStreamer{hdlr}, opts...))
+}
+
+type NodeChangesStreamer struct {
+	NodeChangesStreamerHandler
+}
+
+func (h *NodeChangesStreamer) StreamChanges(ctx context.Context, stream server.Streamer) error {
+	m := new(StreamChangesRequest)
+	if err := stream.Recv(m); err != nil {
+		return err
+	}
+	return h.NodeChangesStreamerHandler.StreamChanges(ctx, m, &nodeChangesStreamerStreamChangesStream{stream})
+}
+
+type NodeChangesStreamer_StreamChangesStream interface {
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Send(*NodeChangeEvent) error
+}
+
+type nodeChangesStreamerStreamChangesStream struct {
+	stream server.Streamer
+}
+
+func (x *nodeChangesStreamerStreamChangesStream) Close() error {
+	return x.stream.Close()
+}
+
+func (x *nodeChangesStreamerStreamChangesStream) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *nodeChangesStreamerStreamChangesStream) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *nodeChangesStreamerStreamChangesStream) Send(m *NodeChangeEvent) error {
+	return x.stream.Send(m)
 }
 
 // Client API for NodeReceiver service

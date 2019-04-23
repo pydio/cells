@@ -27,10 +27,11 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common/sync/model"
 
@@ -99,7 +100,7 @@ func TestLoadNode(t *testing.T) {
 		s, e := c.LoadNode(fsTestCtx, "/test")
 		So(s, ShouldBeNil)
 		So(e, ShouldNotBeNil)
-		So(os.IsNotExist(e), ShouldBeTrue)
+		So(errors.Parse(e.Error()).Code, ShouldEqual, 404)
 
 	})
 
@@ -315,7 +316,7 @@ func TestWatch(t *testing.T) {
 
 	Convey("Init simple watch object", t, func() {
 		c := EmptyMockedClient()
-		watchObject, err := c.Watch("")
+		watchObject, err := c.Watch("", nil)
 		if err != nil {
 			log.Println("Received error, test will FAIL", err)
 		}

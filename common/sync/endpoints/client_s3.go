@@ -476,7 +476,7 @@ func (c *S3Client) getFileHash(path string) (uid string, hash string, metaSize i
 	return uid, etag, metaSize, nil
 }
 
-func (c *S3Client) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *S3Client) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)

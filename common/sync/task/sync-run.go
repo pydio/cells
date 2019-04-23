@@ -17,8 +17,8 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 		bi, e := s.RunBi(ctx, dryRun, force, statusChan, doneChan)
 		if e == nil {
-			s.Merger.BatchesChannel <- bi.Left
-			s.Merger.BatchesChannel <- bi.Right
+			s.Processor.BatchesChannel <- bi.Left
+			s.Processor.BatchesChannel <- bi.Right
 		}
 		return bi, e
 
@@ -26,7 +26,7 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 		batch, e := s.RunUni(ctx, dryRun, force, statusChan, doneChan)
 		if e == nil {
-			s.Merger.BatchesChannel <- batch
+			s.Processor.BatchesChannel <- batch
 		}
 		return batch, e
 	}

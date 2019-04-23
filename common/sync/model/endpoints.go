@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -29,10 +30,18 @@ func AsSessionProvider(endpoint Endpoint) (SessionProvider, bool) {
 	return i, ok
 }
 
+type WatchConnectionInfo int
+
+const (
+	WatchConnected WatchConnectionInfo = iota
+	WatchDisconnected
+)
+
 type EndpointInfo struct {
 	URI                   string
 	RequiresNormalization bool
 	RequiresFoldersRescan bool
+	EchoTime              time.Duration
 }
 
 type Endpoint interface {
@@ -45,7 +54,7 @@ type WalkNodesFunc func(path string, node *tree.Node, err error)
 type PathSyncSource interface {
 	Endpoint
 	Walk(walknFc WalkNodesFunc, pathes ...string) (err error)
-	Watch(recursivePath string) (*WatchObject, error)
+	Watch(recursivePath string, connectionInfo chan WatchConnectionInfo) (*WatchObject, error)
 }
 
 type ChecksumProvider interface {
@@ -77,6 +86,11 @@ type UuidProvider interface {
 
 type UuidReceiver interface {
 	UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Node, error)
+}
+
+type UuidFoldersRefresher interface {
+	ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error)
+	UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error)
 }
 
 type Versioner interface {

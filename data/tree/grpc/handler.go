@@ -27,6 +27,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cskr/pubsub"
+	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
@@ -45,6 +47,7 @@ type TreeServer struct {
 	DataSources  map[string]DataSource
 	meta         tree.NodeProviderClient
 	ConfigsMutex *sync.Mutex
+	eventBus     *pubsub.PubSub
 }
 
 func (s *TreeServer) treeNodeToDataSourcePath(node *tree.Node) (dataSourceName string, dataSourcePath string) {
@@ -436,6 +439,50 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	}
 
 	return errors.Forbidden(common.SERVICE_TREE, "Unknown data source")
+}
+
+func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesRequest, streamer tree.NodeChangesStreamer_StreamChangesStream) error {
+
+	c := s.eventBus.Sub(common.TOPIC_TREE_CHANGES)
+	defer func() {
+		s.eventBus.Unsub(c, common.TOPIC_TREE_CHANGES)
+		streamer.Close()
+	}()
+	filterPath := strings.Trim(req.RootPath, "/") + "/"
+
+	for msg := range c {
+
+		event := msg.(*tree.NodeChangeEvent)
+		if event.Optimistic || event.Silent {
+			continue
+		}
+		newEvent := proto.Clone(event).(*tree.NodeChangeEvent)
+		sourceOut := newEvent.Source != nil && !strings.HasPrefix(newEvent.Source.Path, filterPath)
+		targetOut := newEvent.Target != nil && !strings.HasPrefix(newEvent.Target.Path, filterPath)
+		if (sourceOut && targetOut) || (sourceOut && newEvent.Target == nil) || (targetOut && newEvent.Source == nil) {
+			continue
+		}
+		if sourceOut {
+			newEvent.Type = tree.NodeChangeEvent_CREATE
+			newEvent.Source = nil
+		} else if targetOut {
+			newEvent.Type = tree.NodeChangeEvent_DELETE
+			newEvent.Target = nil
+		}
+
+		if newEvent.Target != nil {
+			newEvent.Target.Path = strings.TrimLeft(newEvent.Target.Path, filterPath)
+		}
+		if newEvent.Source != nil {
+			newEvent.Source.Path = strings.TrimLeft(newEvent.Source.Path, filterPath)
+		}
+
+		if e := streamer.Send(newEvent); e != nil {
+			return e
+		}
+	}
+
+	return nil
 }
 
 func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits bool, withExtendedStats bool) (*tree.Node, error) {

@@ -131,6 +131,11 @@ func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, o
 		}
 		// Create new Node
 		nodeUuid := uuid.New()
+		log.Logger(ctx).Debug("[Exec] Create Folder has no Uuid")
+		if node.Uuid != "" {
+			log.Logger(ctx).Debug("Creating Folder with Uuid", node.ZapUuid())
+			nodeUuid = node.Uuid
+		}
 		_, err := e.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Metadata: meta, Size: int64(len(nodeUuid))})
 		if err != nil {
 			return nil, err

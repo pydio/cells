@@ -25,7 +25,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -35,7 +34,6 @@ func (pr *Processor) processCreateFolder(event *model.BatchEvent, operationId st
 	localPath := event.EventInfo.Path
 	ctx := event.EventInfo.CreateContext(pr.GlobalContext)
 	dbNode, _ := event.Target().LoadNode(ctx, localPath)
-	log.Logger(ctx).Debug("Should process CreateFolder", zap.Any("dbNode", dbNode), zap.Any("event", event.Node))
 	if dbNode == nil {
 		pr.lockFileTo(event, localPath, operationId)
 		defer pr.unlockFile(event, localPath)
@@ -54,11 +52,13 @@ func (pr *Processor) processCreateFolder(event *model.BatchEvent, operationId st
 				}
 			}
 		}
-		err := event.Target().CreateNode(ctx, &tree.Node{
+		folderNode := &tree.Node{
 			Path: localPath,
 			Type: tree.NodeType_COLLECTION,
 			Uuid: event.Node.Uuid,
-		}, false)
+		}
+		pr.Logger().Debug("Should process CreateFolder", folderNode.Zap("newNode"))
+		err := event.Target().CreateNode(ctx, folderNode, false)
 		if err != nil && strings.Contains(string(err.Error()), "Duplicate entry") {
 			pr.Logger().Error("Duplicate UUID found, we should have refreshed uuids on source?", zap.Error(err))
 			return err
