@@ -34,7 +34,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/idm/auth"
 )
 
@@ -55,13 +55,13 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	}{
 		{c.Issuer == "", "no issuer specified in config file"},
 		{!c.EnablePasswordDB && len(c.StaticPasswords) != 0, "cannot specify static passwords without enabling password db"},
-		{c.Storage.Config == nil, "no storage suppied in config file"},
-		{c.Web.HTTP == "" && c.Web.HTTPS == "", "must supply a HTTP/HTTPS  address to listen on"},
+		{c.Storage.Config == nil, "no storage supplied in config file"},
+		{c.Web.HTTP == "" && c.Web.HTTPS == "", "must supply a HTTP/HTTPS address to listen on"},
 		{c.Web.HTTPS != "" && c.Web.TLSCert == "", "no cert specified for HTTPS"},
 		{c.Web.HTTPS != "" && c.Web.TLSKey == "", "no private key specified for HTTPS"},
 		{c.GRPC.TLSCert != "" && c.GRPC.Addr == "", "no address specified for gRPC"},
 		{c.GRPC.TLSKey != "" && c.GRPC.Addr == "", "no address specified for gRPC"},
-		{(c.GRPC.TLSCert == "") != (c.GRPC.TLSKey == ""), "must specific both a gRPC TLS cert and key"},
+		{(c.GRPC.TLSCert == "") != (c.GRPC.TLSKey == ""), "must specify both a gRPC TLS cert and key"},
 		{c.GRPC.TLSCert == "" && c.GRPC.TLSClientCA != "", "cannot specify gRPC TLS client CA without a gRPC TLS cert"},
 	}
 
