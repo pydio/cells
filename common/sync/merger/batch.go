@@ -256,6 +256,26 @@ func (b *Batch) Filter(ctx context.Context) {
 
 }
 
+func (b *Batch) Size() int {
+	return len(b.CreateFolders) + len(b.FolderMoves) + len(b.CreateFiles) + len(b.FileMoves) + len(b.Deletes)
+}
+
+func (b *Batch) ProgressTotal() int64 {
+	// Check if actual data will be transferred
+	_, ok1 := model.AsDataSyncSource(b.Source)
+	_, ok2 := model.AsDataSyncTarget(b.Target)
+	if ok1 && ok2 {
+		var total int64
+		for _, c := range b.CreateFiles {
+			total += c.Node.Size
+		}
+		total += int64(len(b.CreateFolders) + len(b.FolderMoves) + len(b.FileMoves) + len(b.Deletes))
+		return total
+	} else {
+		return int64(b.Size())
+	}
+}
+
 func (b *Batch) Stats() map[string]interface{} {
 	return map[string]interface{}{
 		"EndpointSource": b.Source.GetEndpointInfo().URI,

@@ -44,6 +44,8 @@ type EventsBatcher struct {
 	batchOut         chan *merger.Batch
 	eventChannels    []chan model.ProcessorEvent
 	closeSessionChan chan string
+	batchesStatus    chan merger.BatchProcessStatus
+	batchesDone      chan bool
 }
 
 func (ev *EventsBatcher) RegisterEventChannel(out chan model.ProcessorEvent) {
@@ -73,6 +75,8 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	batch := merger.NewBatch(ev.Source, ev.Target)
+	batch.StatusChan = ev.batchesStatus
+	batch.DoneChan = ev.batchesDone
 	/*
 		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {
 			batch.SessionProvider = p
@@ -176,7 +180,8 @@ func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
 	ev.closeSessionChan <- sessionUuid
 }
 
-func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget) *EventsBatcher {
+func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, batchesStatus chan merger.BatchProcessStatus, batchesDone chan bool,
+) *EventsBatcher {
 
 	return &EventsBatcher{
 		Source:           source,
@@ -185,6 +190,8 @@ func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target m
 		batchCache:       make(map[string][]model.EventInfo),
 		batchCacheMutex:  &sync.Mutex{},
 		closeSessionChan: make(chan string, 1),
+		batchesStatus:    batchesStatus,
+		batchesDone:      batchesDone,
 	}
 
 }

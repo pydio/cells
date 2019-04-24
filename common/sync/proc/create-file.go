@@ -29,7 +29,19 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (pr *Processor) processCreateFile(event *merger.BatchEvent, operationId string) error {
+type ProgressReader struct {
+	io.Reader
+	cursor int64
+	pg     chan int64
+}
+
+func (pr *ProgressReader) Read(p []byte) (n int, e error) {
+	n, e = pr.Reader.Read(p)
+	pr.pg <- int64(n)
+	return n, e
+}
+
+func (pr *Processor) processCreateFile(event *merger.BatchEvent, operationId string, pg chan int64) error {
 
 	dataTarget, dtOk := model.AsDataSyncTarget(event.Target())
 	dataSource, dsOk := model.AsDataSyncSource(event.Source())
@@ -38,6 +50,7 @@ func (pr *Processor) processCreateFile(event *merger.BatchEvent, operationId str
 	defer pr.unlockFile(event, localPath)
 	pr.lockFileTo(event, localPath, operationId)
 	if dtOk && dsOk {
+
 		reader, rErr := dataSource.GetReaderOn(localPath)
 		if rErr != nil {
 			pr.Logger().Error("Cannot get reader on source", zap.String("job", "create"), zap.String("path", localPath), zap.Error(rErr))
@@ -52,11 +65,13 @@ func (pr *Processor) processCreateFile(event *merger.BatchEvent, operationId str
 		defer func() {
 			writer.Close()
 		}()
-		_, err := io.Copy(writer, reader)
+		_, err := io.Copy(writer, &ProgressReader{Reader: reader, pg: pg})
+
 		return err
 
 	} else {
 
+		pg <- 1
 		update := false
 		if event.Node.Uuid != "" {
 			update = true

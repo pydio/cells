@@ -46,8 +46,10 @@ type Sync struct {
 	batcher   *filters.EventsBatcher
 	doneChans []chan bool
 
-	paused    bool
-	watchConn chan model.WatchConnectionInfo
+	paused        bool
+	watchConn     chan model.WatchConnectionInfo
+	batchesStatus chan merger.BatchProcessStatus
+	batchesDone   chan bool
 }
 
 // BroadcastCloseSession forwards session id to underlying batchers
@@ -71,7 +73,7 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	s.doneChans = append(s.doneChans, watchObject.DoneChan)
 
 	// Now wire batches to processor
-	s.batcher = filters.NewEventsBatcher(ctx, source, target)
+	s.batcher = filters.NewEventsBatcher(ctx, source, target, s.batchesStatus, s.batchesDone)
 
 	filterIn, filterOut := s.EchoFilter.CreateFilter()
 	s.Processor.AddRequeueChannel(source, filterIn)
@@ -146,25 +148,29 @@ func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
 	s.SnapshotFactory = factory
 }
 
-func (s *Sync) SetSyncEventsChan(events chan interface{}) {
-	// Forward internal events to sync event
-	s.watchConn = make(chan model.WatchConnectionInfo)
-	go func() {
-		for {
-			select {
-			case e, ok := <-s.watchConn:
-				if !ok {
-					return
-				}
-				if !s.paused {
-					events <- e
+func (s *Sync) SetSyncEventsChan(statusChan chan merger.BatchProcessStatus, batchDone chan bool, events chan interface{}) {
+	s.batchesStatus = statusChan
+	s.batchesDone = batchDone
+	if events != nil {
+		// Forward internal events to sync event
+		s.watchConn = make(chan model.WatchConnectionInfo)
+		go func() {
+			for {
+				select {
+				case e, ok := <-s.watchConn:
+					if !ok {
+						return
+					}
+					if !s.paused {
+						events <- e
+					}
 				}
 			}
-		}
-	}()
+		}()
+	}
 }
 
-func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan bool) (model.Stater, error) {
+func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {
 	if s.paused {
 		return &merger.Diff{}, nil
 	}
@@ -173,8 +179,8 @@ func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool, statusChan c
 		if e := recover(); e != nil {
 			if er, ok := e.(error); ok {
 				err = er
-				if statusChan != nil {
-					statusChan <- merger.BatchProcessStatus{
+				if s.batchesStatus != nil {
+					s.batchesStatus <- merger.BatchProcessStatus{
 						IsError:      true,
 						StatusString: err.Error(),
 						Progress:     1,
@@ -183,7 +189,7 @@ func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool, statusChan c
 			}
 		}
 	}()
-	return s.Run(ctx, dryRun, force, statusChan, doneChan)
+	return s.Run(ctx, dryRun, force, s.batchesStatus, s.batchesDone)
 }
 
 func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, direction model.DirectionType) *Sync {

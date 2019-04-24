@@ -49,7 +49,7 @@ type Processor struct {
 	eventChannels []chan model.ProcessorEvent
 }
 
-type ProcessFunc func(event *merger.BatchEvent, operationId string) error
+type ProcessFunc func(event *merger.BatchEvent, operationId string, progress chan int64) error
 
 func NewProcessor(ctx context.Context) *Processor {
 	return &Processor{
@@ -116,6 +116,11 @@ func (pr *Processor) process(batch *merger.Batch) {
 		}()
 	}
 
+	if batch.Size() == 0 {
+		// Nothing to do !
+		return
+	}
+
 	pr.sendEvent(model.ProcessorEvent{
 		Type: "merger:start",
 		Data: batch,
@@ -124,11 +129,11 @@ func (pr *Processor) process(batch *merger.Batch) {
 	operationId := fmt.Sprintf("%s", uuid.NewV4())
 	var event *merger.BatchEvent
 
-	total := float32(len(batch.CreateFolders) + len(batch.FolderMoves) + len(batch.CreateFiles) + len(batch.FileMoves) + len(batch.Deletes))
-	var cursor float32
+	total := batch.ProgressTotal()
+	var cursor int64
 
 	if batch.StatusChan != nil {
-		batch.StatusChan <- merger.BatchProcessStatus{StatusString: "Start processing batch"}
+		batch.StatusChan <- merger.BatchProcessStatus{StatusString: fmt.Sprintf("Start processing batch - Total Bytes %d", total)}
 	}
 
 	var sessionUuid string
@@ -145,9 +150,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 	// Create Folders
 	for _, eKey := range pr.sortedKeys(batch.CreateFolders) {
 		event := batch.CreateFolders[eKey]
-		cursor++
-		pr.applyProcessFunc(event, operationId, pr.processCreateFolder, "Created Folder", "Error while creating folder",
-			batch.StatusChan, cursor, total, zap.String("path", event.EventInfo.Path))
+		pr.applyProcessFunc(event, operationId, pr.processCreateFolder, "Created Folder", "Creating Folder", "Error while creating folder",
+			batch.StatusChan, &cursor, total, zap.String("path", event.EventInfo.Path))
 	}
 
 	if len(batch.FolderMoves) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
@@ -159,9 +163,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 		event := batch.FolderMoves[eKey]
 		toPath := event.EventInfo.Path
 		fromPath := event.Node.Path
-		cursor++
-		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved Folder", "Error while moving folder",
-			batch.StatusChan, cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
+		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved Folder", "Moving Folder", "Error while moving folder",
+			batch.StatusChan, &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	}
 
 	if len(batch.FileMoves) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
@@ -173,9 +176,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 		event := batch.FileMoves[eKey]
 		toPath := event.EventInfo.Path
 		fromPath := event.Node.Path
-		cursor++
-		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved File", "Error while moving file",
-			batch.StatusChan, cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
+		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved File", "Moving File", "Error while moving file",
+			batch.StatusChan, &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	}
 
 	if len(batch.CreateFiles) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
@@ -184,9 +186,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 
 	// Create files
 	for _, event = range batch.CreateFiles {
-		cursor++
-		pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Created File", "Error while creating file",
-			batch.StatusChan, cursor, total, zap.String("path", event.EventInfo.Path))
+		pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file",
+			batch.StatusChan, &cursor, total, zap.String("path", event.EventInfo.Path))
 	}
 
 	if len(batch.Deletes) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
@@ -198,9 +199,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 		if event.Node == nil {
 			continue
 		}
-		cursor++
-		pr.applyProcessFunc(event, operationId, pr.processDelete, "Deleted Node", "Error while deleting node",
-			batch.StatusChan, cursor, total, zap.String("path", event.Node.Path))
+		pr.applyProcessFunc(event, operationId, pr.processDelete, "Deleted Node", "Deleting Node", "Error while deleting node",
+			batch.StatusChan, &cursor, total, zap.String("path", event.Node.Path))
 	}
 
 	if batch.StatusChan != nil {
@@ -218,12 +218,29 @@ func (pr *Processor) process(batch *merger.Batch) {
 }
 
 func (pr *Processor) applyProcessFunc(event *merger.BatchEvent, operationId string, callback ProcessFunc,
-	completeString string, errorString string, statusChan chan merger.BatchProcessStatus, cursor float32,
-	count float32, fields ...zapcore.Field) {
+	completeString string, progressString string, errorString string, statusChan chan merger.BatchProcessStatus, cursor *int64,
+	total int64, fields ...zapcore.Field) {
 
 	fields = append(fields, zap.String("target", event.Target().GetEndpointInfo().URI))
 
-	err := callback(event, operationId)
+	pg := make(chan int64)
+	var lastProgress float32
+	defer close(pg)
+	go func() {
+		for p := range pg {
+			*cursor += p
+			progress := float32(*cursor) / float32(total)
+			if statusChan != nil && progress-lastProgress > 0.01 { // Send 1 per percent
+				statusChan <- merger.BatchProcessStatus{
+					StatusString: pr.logAsString(progressString, nil, fields...),
+					Progress:     progress,
+				}
+				lastProgress = progress
+			}
+		}
+	}()
+
+	err := callback(event, operationId, pg)
 	if err != nil {
 		fields = append(fields, zap.Error(err))
 		pr.Logger().Error(errorString, fields...)
@@ -231,7 +248,7 @@ func (pr *Processor) applyProcessFunc(event *merger.BatchEvent, operationId stri
 		pr.Logger().Info(completeString, fields...)
 	}
 
-	if statusChan != nil && count > 0 {
+	if statusChan != nil && total > 0 {
 		isError := false
 		loggerString := completeString
 		if err != nil {
@@ -241,7 +258,7 @@ func (pr *Processor) applyProcessFunc(event *merger.BatchEvent, operationId stri
 		statusChan <- merger.BatchProcessStatus{
 			IsError:      isError,
 			StatusString: pr.logAsString(loggerString, err, fields...),
-			Progress:     cursor / count,
+			Progress:     float32(*cursor / total),
 		}
 	}
 

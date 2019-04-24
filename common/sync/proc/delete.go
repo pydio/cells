@@ -24,8 +24,9 @@ import (
 	"github.com/pydio/cells/common/sync/merger"
 )
 
-func (pr *Processor) processDelete(event *merger.BatchEvent, operationId string) error {
+func (pr *Processor) processDelete(event *merger.BatchEvent, operationId string, pg chan int64) error {
 
+	pg <- 1
 	deletePath := event.Node.Path
 	pr.lockFileTo(event, deletePath, operationId)
 	defer pr.unlockFile(event, deletePath)

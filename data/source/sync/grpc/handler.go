@@ -29,10 +29,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/sync/endpoints"
-	"github.com/pydio/cells/common/sync/model"
-	"github.com/pydio/cells/common/sync/task"
-
 	"github.com/micro/go-micro/client"
 	config2 "github.com/pydio/go-os/config"
 	"go.uber.org/zap"
@@ -48,6 +44,10 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/sync/endpoints"
+	"github.com/pydio/cells/common/sync/merger"
+	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/common/sync/task"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/data/source/sync"
 	"github.com/pydio/cells/scheduler/tasks"
@@ -191,7 +191,8 @@ func (s *Handler) watchErrors() {
 			if len(branch) > 0 {
 				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
 				branch = ""
-				s.syncTask.Resync(context.Background(), false, false, nil, nil)
+				s.syncTask.SetSyncEventsChan(nil, nil, nil)
+				s.syncTask.Resync(context.Background(), false, false)
 			}
 		case <-s.stop:
 			return
@@ -232,14 +233,14 @@ func (s *Handler) watchConfigs() {
 // TriggerResync sets 2 servers in sync
 func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest, resp *protosync.ResyncResponse) error {
 
-	var statusChan chan model.BatchProcessStatus
+	var statusChan chan merger.BatchProcessStatus
 	var doneChan chan bool
 	fullLog := &jobs.ActionLog{
 		OutputMessage: &jobs.ActionMessage{},
 	}
 
 	if req.Task != nil {
-		statusChan = make(chan model.BatchProcessStatus)
+		statusChan = make(chan merger.BatchProcessStatus)
 		doneChan = make(chan bool)
 
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
@@ -288,8 +289,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			}
 		}()
 	}
-
-	result, e := s.syncTask.Resync(context.Background(), req.DryRun, false, statusChan, doneChan)
+	s.syncTask.SetSyncEventsChan(statusChan, doneChan, nil)
+	result, e := s.syncTask.Resync(context.Background(), req.DryRun, false)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task

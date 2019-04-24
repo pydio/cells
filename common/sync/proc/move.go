@@ -24,8 +24,9 @@ import (
 	"github.com/pydio/cells/common/sync/merger"
 )
 
-func (pr *Processor) processMove(event *merger.BatchEvent, operationId string) error {
+func (pr *Processor) processMove(event *merger.BatchEvent, operationId string, pg chan int64) error {
 
+	pg <- 1
 	toPath := event.EventInfo.Path
 	fromPath := event.Node.Path
 
