@@ -2,8 +2,6 @@ package merger
 
 import (
 	"strings"
-
-	"github.com/pydio/cells/common/sync/model"
 )
 
 // ChildrenCursor provides a Nexter for browsing a node children
@@ -23,7 +21,7 @@ func (c *ChildrenCursor) Next() *TreeNode {
 }
 
 // MergeNodes will recursively detect differences between two hash trees.
-func MergeNodes(left *TreeNode, right *TreeNode, diff *model.Diff) {
+func MergeNodes(left *TreeNode, right *TreeNode, diff *Diff) {
 	if left.GetHash() == right.GetHash() {
 		return
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan model.BatchProcessStatus, doneChan chan bool) (model.Stater, error) {
+func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan bool) (model.Stater, error) {
 
 	if s.Direction == model.DirectionBi {
 
@@ -33,7 +33,7 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 }
 
-func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan model.BatchProcessStatus, doneChan chan bool) (*model.Batch, error) {
+func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan bool) (*merger.Batch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -71,16 +71,16 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 	return batch, nil
 }
 
-func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan model.BatchProcessStatus, doneChan chan bool) (*model.BidirectionalBatch, error) {
+func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan bool) (*merger.BidirectionalBatch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 
-	var bb *model.BidirectionalBatch
+	var bb *merger.BidirectionalBatch
 
 	var useSnapshots, captureSnapshots bool
 	var leftSnap, rightSnap model.Snapshoter
-	var leftBatch, rightBatch *model.Batch
+	var leftBatch, rightBatch *merger.Batch
 
 	if s.SnapshotFactory != nil && !force {
 		var er1, er2 error
@@ -100,7 +100,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 		log.Logger(ctx).Info("Computing Batches from Snapshots")
 		leftBatch.Filter(ctx)
 		rightBatch.Filter(ctx)
-		bb = &model.BidirectionalBatch{
+		bb = &merger.BidirectionalBatch{
 			Left:  leftBatch,
 			Right: rightBatch,
 		}
@@ -176,7 +176,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	return bb, nil
 }
 
-func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, *model.Batch, error) {
+func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, *merger.Batch, error) {
 
 	snap, er := s.SnapshotFactory.Load(name)
 	if er != nil {

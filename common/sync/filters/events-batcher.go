@@ -29,6 +29,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -40,7 +41,7 @@ type EventsBatcher struct {
 	batchCacheMutex *sync.Mutex
 	batchCache      map[string][]model.EventInfo
 
-	batchOut         chan *model.Batch
+	batchOut         chan *merger.Batch
 	eventChannels    []chan model.ProcessorEvent
 	closeSessionChan chan string
 }
@@ -55,7 +56,7 @@ func (ev *EventsBatcher) sendEvent(event model.ProcessorEvent) {
 	}
 }
 
-func (ev *EventsBatcher) FilterBatch(batch *model.Batch) {
+func (ev *EventsBatcher) FilterBatch(batch *merger.Batch) {
 
 	ev.sendEvent(model.ProcessorEvent{
 		Type: "filter:start",
@@ -71,7 +72,7 @@ func (ev *EventsBatcher) FilterBatch(batch *model.Batch) {
 func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
-	batch := model.NewBatch(ev.Source, ev.Target)
+	batch := merger.NewBatch(ev.Source, ev.Target)
 	/*
 		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {
 			batch.SessionProvider = p
@@ -82,7 +83,7 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 	for _, event := range events {
 		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
 		key := event.Path
-		var bEvent = &model.BatchEvent{
+		var bEvent = &merger.BatchEvent{
 			Batch:     batch,
 			Key:       key,
 			EventInfo: event,
@@ -120,7 +121,7 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 
 }
 
-func (ev *EventsBatcher) BatchEvents(in chan model.EventInfo, out chan *model.Batch, duration time.Duration) {
+func (ev *EventsBatcher) BatchEvents(in chan model.EventInfo, out chan *merger.Batch, duration time.Duration) {
 
 	ev.batchOut = out
 	var batch []model.EventInfo

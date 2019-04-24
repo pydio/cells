@@ -25,12 +25,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/common/sync/endpoints"
-	"github.com/pydio/cells/common/sync/model"
-
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/endpoints"
+	"github.com/pydio/cells/common/sync/merger"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 var (
@@ -47,7 +47,7 @@ func TestProcess(t *testing.T) {
 
 		source := endpoints.NewMemDB()
 		target := endpoints.NewMemDB()
-		batch := model.NewBatch(source, target)
+		batch := merger.NewBatch(source, target)
 
 		source.CreateNode(testCtx, &tree.Node{
 			Path: "/mkfile",
@@ -87,7 +87,7 @@ func TestProcess(t *testing.T) {
 			Etag: "filehash",
 		}, true)
 
-		batch.CreateFiles["/mkfile"] = &model.BatchEvent{
+		batch.CreateFiles["/mkfile"] = &merger.BatchEvent{
 			EventInfo: model.EventInfo{
 				Path: "/mkfile",
 			},
@@ -99,7 +99,7 @@ func TestProcess(t *testing.T) {
 			},
 			Batch: batch,
 		}
-		batch.Deletes["/to-be-deleted"] = &model.BatchEvent{
+		batch.Deletes["/to-be-deleted"] = &merger.BatchEvent{
 			EventInfo: model.EventInfo{
 				Path: "/to-be-deleted",
 			},
@@ -111,7 +111,7 @@ func TestProcess(t *testing.T) {
 			},
 			Batch: batch,
 		}
-		batch.FileMoves["/to-be-moved"] = &model.BatchEvent{
+		batch.FileMoves["/to-be-moved"] = &merger.BatchEvent{
 			EventInfo: model.EventInfo{
 				Path: "/moved-file",
 			},
@@ -121,7 +121,7 @@ func TestProcess(t *testing.T) {
 			},
 			Batch: batch,
 		}
-		batch.FolderMoves["/folder-to-be-moved"] = &model.BatchEvent{
+		batch.FolderMoves["/folder-to-be-moved"] = &merger.BatchEvent{
 			EventInfo: model.EventInfo{
 				Path: "/moved-folder",
 			},
@@ -131,7 +131,7 @@ func TestProcess(t *testing.T) {
 			},
 			Batch: batch,
 		}
-		batch.CreateFolders["/mkdir"] = &model.BatchEvent{
+		batch.CreateFolders["/mkdir"] = &merger.BatchEvent{
 			EventInfo: model.EventInfo{
 				Path: "/mkdir",
 			},

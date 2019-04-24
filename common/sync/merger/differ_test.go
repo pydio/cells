@@ -41,7 +41,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 	Convey("Test various Diffs", t, func() {
 
 		var left, right *endpoints.MemDB
-		var diff *model.Diff
+		var diff *Diff
 
 		Convey("Test empty source and target", func() {
 			left = endpoints.NewMemDB()
@@ -148,7 +148,7 @@ func TestTreeDiff(t *testing.T) {
 			right = endpoints.NewMemDB()
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff, ShouldNotBeNil)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
@@ -170,7 +170,7 @@ func TestTreeDiff(t *testing.T) {
 			}, true)
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 1)
@@ -191,7 +191,7 @@ func TestTreeDiff(t *testing.T) {
 			}, true)
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 1)
 			So(diff.MissingRight, ShouldHaveLength, 0)
@@ -218,7 +218,7 @@ func TestTreeDiff(t *testing.T) {
 				true)
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 0)
@@ -264,7 +264,7 @@ func TestTreeDiff(t *testing.T) {
 			}, true)
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 0)
@@ -304,7 +304,7 @@ func TestTreeDiff(t *testing.T) {
 			h1 := t1.GetHash()
 			h2 := t2.GetHash()
 			So(h1, ShouldNotEqual, h2)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 1)
 			So(diff.MissingRight, ShouldHaveLength, 1)
@@ -341,7 +341,7 @@ func TestTreeDiff(t *testing.T) {
 			}, true)
 			t2, _ := TreeNodeFromSource(right)
 			t1, _ := TreeNodeFromSource(left)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 2)
@@ -378,7 +378,7 @@ func TestTreeDiff(t *testing.T) {
 			}, true)
 			t2, _ := TreeNodeFromSource(right)
 			t1, _ := TreeNodeFromSource(left)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 1)
 			So(diff.MissingRight, ShouldHaveLength, 3)
@@ -403,7 +403,7 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 2)
@@ -417,7 +417,7 @@ func TestTreeDiff(t *testing.T) {
 			So(diff4.MissingLeft, ShouldHaveLength, 2)
 			So(diff4.MissingRight, ShouldHaveLength, 0)
 
-			diff3 := &model.Diff{}
+			diff3 := &Diff{}
 			MergeNodes(t2, t1, diff3)
 			So(diff3.MissingLeft, ShouldHaveLength, 2)
 			So(diff3.MissingRight, ShouldHaveLength, 0)
@@ -440,7 +440,7 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 4)
@@ -454,7 +454,7 @@ func TestTreeDiff(t *testing.T) {
 			So(diff4.MissingLeft, ShouldHaveLength, 4)
 			So(diff4.MissingRight, ShouldHaveLength, 0)
 
-			diff3 := &model.Diff{}
+			diff3 := &Diff{}
 			MergeNodes(t2, t1, diff3)
 			So(diff3.MissingLeft, ShouldHaveLength, 4)
 			So(diff3.MissingRight, ShouldHaveLength, 0)
@@ -476,7 +476,7 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 1)
 			So(diff.MissingRight, ShouldHaveLength, 2)
@@ -490,7 +490,7 @@ func TestTreeDiff(t *testing.T) {
 			So(diff4.MissingLeft, ShouldHaveLength, 2)
 			So(diff4.MissingRight, ShouldHaveLength, 1)
 
-			diff3 := &model.Diff{}
+			diff3 := &Diff{}
 			MergeNodes(t2, t1, diff3)
 			So(diff3.MissingLeft, ShouldHaveLength, 2)
 			So(diff3.MissingRight, ShouldHaveLength, 1)
@@ -509,7 +509,7 @@ func TestTreeDiff(t *testing.T) {
 
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 10100)
@@ -523,7 +523,7 @@ func TestTreeDiff(t *testing.T) {
 			So(diff4.MissingLeft, ShouldHaveLength, 10100)
 			So(diff4.MissingRight, ShouldHaveLength, 0)
 
-			diff3 := &model.Diff{}
+			diff3 := &Diff{}
 			MergeNodes(t2, t1, diff3)
 			So(diff3.MissingLeft, ShouldHaveLength, 10100)
 			So(diff3.MissingRight, ShouldHaveLength, 0)
@@ -546,7 +546,7 @@ func TestTreeDiff(t *testing.T) {
 
 			t1, _ = TreeNodeFromSource(left)
 			t2, _ = TreeNodeFromSource(right)
-			diff = &model.Diff{Left: left, Right: right, Context: context.Background()}
+			diff = &Diff{Left: left, Right: right, Context: context.Background()}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 101)
 			So(diff.MissingRight, ShouldHaveLength, 101)
@@ -569,7 +569,7 @@ func TestTreeDiff(t *testing.T) {
 
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
-			diff := &model.Diff{}
+			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 10100)
@@ -583,7 +583,7 @@ func TestTreeDiff(t *testing.T) {
 			So(diff4.MissingLeft, ShouldHaveLength, 10100)
 			So(diff4.MissingRight, ShouldHaveLength, 0)
 
-			diff3 := &model.Diff{}
+			diff3 := &Diff{}
 			MergeNodes(t2, t1, diff3)
 			So(diff3.MissingLeft, ShouldHaveLength, 10100)
 			So(diff3.MissingRight, ShouldHaveLength, 0)

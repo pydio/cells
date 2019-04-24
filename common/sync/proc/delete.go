@@ -20,9 +20,11 @@
 
 package proc
 
-import "github.com/pydio/cells/common/sync/model"
+import (
+	"github.com/pydio/cells/common/sync/merger"
+)
 
-func (pr *Processor) processDelete(event *model.BatchEvent, operationId string) error {
+func (pr *Processor) processDelete(event *merger.BatchEvent, operationId string) error {
 
 	deletePath := event.Node.Path
 	pr.lockFileTo(event, deletePath, operationId)

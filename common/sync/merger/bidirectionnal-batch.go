@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package model
+package merger
 
 import (
 	"context"
@@ -26,6 +26,7 @@ import (
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 type BidirectionalBatch struct {
@@ -37,8 +38,8 @@ type BidirectionalBatch struct {
 func (b *BidirectionalBatch) Merge(ctx context.Context) error {
 
 	// Naive Merge - Cross Targets
-	lt, _ := AsPathSyncTarget(b.Left.Source)
-	rt, _ := AsPathSyncTarget(b.Right.Source)
+	lt, _ := model.AsPathSyncTarget(b.Left.Source)
+	rt, _ := model.AsPathSyncTarget(b.Right.Source)
 
 	b.Left.Target = rt
 	b.Right.Target = lt

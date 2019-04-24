@@ -25,10 +25,11 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (pr *Processor) processCreateFile(event *model.BatchEvent, operationId string) error {
+func (pr *Processor) processCreateFile(event *merger.BatchEvent, operationId string) error {
 
 	dataTarget, dtOk := model.AsDataSyncTarget(event.Target())
 	dataSource, dsOk := model.AsDataSyncSource(event.Source())

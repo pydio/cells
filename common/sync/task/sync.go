@@ -25,13 +25,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common/sync/filters"
-	"github.com/pydio/cells/common/sync/model"
-	"github.com/pydio/cells/common/sync/proc"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/sync/filters"
+	"github.com/pydio/cells/common/sync/merger"
+	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/common/sync/proc"
 )
 
 type Sync struct {
@@ -46,6 +46,7 @@ type Sync struct {
 	batcher   *filters.EventsBatcher
 	doneChans []chan bool
 
+	paused    bool
 	watchConn chan model.WatchConnectionInfo
 }
 
@@ -85,8 +86,9 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 					<-time.After(1 * time.Second)
 					continue
 				}
-				//log.Logger(ctx).Info("WATCH EVENT", zap.Any("e", event))
-				filterIn <- event
+				if !s.paused {
+					filterIn <- event
+				}
 			case err, ok := <-watchObject.Errors():
 				if !ok {
 					<-time.After(5 * time.Second)
@@ -101,6 +103,14 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 
 	return nil
 
+}
+
+func (s *Sync) Pause() {
+	s.paused = true
+}
+
+func (s *Sync) Resume() {
+	s.paused = false
 }
 
 // Shutdown closes channels
@@ -146,20 +156,25 @@ func (s *Sync) SetSyncEventsChan(events chan interface{}) {
 				if !ok {
 					return
 				}
-				events <- e
+				if !s.paused {
+					events <- e
+				}
 			}
 		}
 	}()
 }
 
-func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool, statusChan chan model.BatchProcessStatus, doneChan chan bool) (model.Stater, error) {
+func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan bool) (model.Stater, error) {
+	if s.paused {
+		return &merger.Diff{}, nil
+	}
 	var err error
 	defer func() {
 		if e := recover(); e != nil {
 			if er, ok := e.(error); ok {
 				err = er
 				if statusChan != nil {
-					statusChan <- model.BatchProcessStatus{
+					statusChan <- merger.BatchProcessStatus{
 						IsError:      true,
 						StatusString: err.Error(),
 						Progress:     1,

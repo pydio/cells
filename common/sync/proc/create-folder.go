@@ -26,10 +26,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (pr *Processor) processCreateFolder(event *model.BatchEvent, operationId string) error {
+func (pr *Processor) processCreateFolder(event *merger.BatchEvent, operationId string) error {
 
 	localPath := event.EventInfo.Path
 	ctx := event.EventInfo.CreateContext(pr.GlobalContext)

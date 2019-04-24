@@ -25,12 +25,13 @@ import (
 	"time"
 
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/pydio/cells/common/utils/mtree"
 )
 
 // TODO
-func (pr *Processor) refreshFilesUuid(batch *model.Batch) {
+func (pr *Processor) refreshFilesUuid(batch *merger.Batch) {
 
 	// Find parent path
 	var dirs []string

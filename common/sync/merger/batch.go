@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package model
+package merger
 
 import (
 	"context"
@@ -31,35 +31,36 @@ import (
 	common2 "github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 type Batch struct {
-	Source                 PathSyncSource
-	Target                 PathSyncTarget
+	Source                 model.PathSyncSource
+	Target                 model.PathSyncTarget
 	CreateFiles            map[string]*BatchEvent
 	CreateFolders          map[string]*BatchEvent
 	Deletes                map[string]*BatchEvent
 	FileMoves              map[string]*BatchEvent
 	FolderMoves            map[string]*BatchEvent
 	RefreshFilesUuid       map[string]*BatchEvent
-	SessionProvider        SessionProvider
+	SessionProvider        model.SessionProvider
 	SessionProviderContext context.Context
 	StatusChan             chan BatchProcessStatus
 	DoneChan               chan bool
 }
 
 type BatchEvent struct {
-	EventInfo EventInfo
+	EventInfo model.EventInfo
 	Node      *tree.Node
 	Key       string
 	Batch     *Batch
 }
 
-func (b *BatchEvent) Source() PathSyncSource {
+func (b *BatchEvent) Source() model.PathSyncSource {
 	return b.Batch.Source
 }
 
-func (b *BatchEvent) Target() PathSyncTarget {
+func (b *BatchEvent) Target() model.PathSyncTarget {
 	return b.Batch.Target
 }
 
@@ -69,7 +70,7 @@ type BatchProcessStatus struct {
 	Progress     float32
 }
 
-func NewBatch(source PathSyncSource, target PathSyncTarget) (batch *Batch) {
+func NewBatch(source model.PathSyncSource, target model.PathSyncTarget) (batch *Batch) {
 	batch = &Batch{
 		Source:           source,
 		Target:           target,
@@ -85,7 +86,7 @@ func NewBatch(source PathSyncSource, target PathSyncTarget) (batch *Batch) {
 
 func (b *Batch) Filter(ctx context.Context) {
 
-	checksumProvider := b.Source.(ChecksumProvider)
+	checksumProvider := b.Source.(model.ChecksumProvider)
 
 	for _, createEvent := range b.CreateFiles {
 		var node *tree.Node
@@ -110,7 +111,7 @@ func (b *Batch) Filter(ctx context.Context) {
 			if node.Uuid == "" && path.Base(node.Path) != common2.PYDIO_SYNC_HIDDEN_FILE_META {
 				b.RefreshFilesUuid[createEvent.Key] = createEvent
 			}
-			if NodeRequiresChecksum(node) && checksumProvider != nil {
+			if model.NodeRequiresChecksum(node) && checksumProvider != nil {
 				if e := checksumProvider.ComputeChecksum(node); e == nil {
 					log.Logger(ctx).Info("Recomputing Checksum for node", node.Zap())
 				} else {
@@ -121,9 +122,9 @@ func (b *Batch) Filter(ctx context.Context) {
 	}
 
 	var folderUUIDs map[string][]*tree.Node
-	var refresher UuidFoldersRefresher
+	var refresher model.UuidFoldersRefresher
 	var ok bool
-	if refresher, ok = b.Source.(UuidFoldersRefresher); ok && len(b.CreateFolders) > 0 {
+	if refresher, ok = b.Source.(model.UuidFoldersRefresher); ok && len(b.CreateFolders) > 0 {
 		if c, e := refresher.ExistingFolders(ctx); e == nil {
 			folderUUIDs = c
 		}

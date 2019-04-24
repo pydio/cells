@@ -6,16 +6,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/sync/model"
-
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 // ComputeDiff loads the diff by crawling the sources in parallel, filling up a Hash Tree and performing the merge
-func ComputeDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource, statusChan chan model.BatchProcessStatus) (diff *model.Diff, err error) {
+func ComputeDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource, statusChan chan BatchProcessStatus) (diff *Diff, err error) {
 
 	lTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
 	rTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
@@ -29,12 +28,12 @@ func ComputeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 			h := ""
 			defer func() {
 				if statusChan != nil {
-					statusChan <- model.BatchProcessStatus{StatusString: fmt.Sprintf("[%s] Snapshot loaded in %v - Root Hash is %s", logId, time.Now().Sub(start), h)}
+					statusChan <- BatchProcessStatus{StatusString: fmt.Sprintf("[%s] Snapshot loaded in %v - Root Hash is %s", logId, time.Now().Sub(start), h)}
 				}
 				wg.Done()
 			}()
 			if statusChan != nil {
-				statusChan <- model.BatchProcessStatus{StatusString: fmt.Sprintf("[%s] Loading snapshot", logId)}
+				statusChan <- BatchProcessStatus{StatusString: fmt.Sprintf("[%s] Loading snapshot", logId)}
 			}
 			var err error
 			if logId == "left" {
@@ -57,11 +56,11 @@ func ComputeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 	}
 
 	if statusChan != nil {
-		statusChan <- model.BatchProcessStatus{StatusString: "Now computing diff between snapshots"}
+		statusChan <- BatchProcessStatus{StatusString: "Now computing diff between snapshots"}
 	}
 	//lTree.PrintOut()
 	//rTree.PrintOut()
-	treeMerge := &model.Diff{
+	treeMerge := &Diff{
 		Left:    left,
 		Right:   right,
 		Context: ctx,
@@ -70,7 +69,7 @@ func ComputeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 	log.Logger(ctx).Info("Diff Stats", zap.Any("s", treeMerge.Stats()))
 
 	if statusChan != nil {
-		statusChan <- model.BatchProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(treeMerge.MissingLeft), len(treeMerge.MissingRight))}
+		statusChan <- BatchProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(treeMerge.MissingLeft), len(treeMerge.MissingRight))}
 	}
 	return treeMerge, nil
 }

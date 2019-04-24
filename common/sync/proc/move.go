@@ -20,9 +20,11 @@
 
 package proc
 
-import "github.com/pydio/cells/common/sync/model"
+import (
+	"github.com/pydio/cells/common/sync/merger"
+)
 
-func (pr *Processor) processMove(event *model.BatchEvent, operationId string) error {
+func (pr *Processor) processMove(event *merger.BatchEvent, operationId string) error {
 
 	toPath := event.EventInfo.Path
 	fromPath := event.Node.Path

@@ -18,21 +18,22 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package model
+package merger
 
 import (
 	"context"
 	"errors"
 
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 // Diff represent basic differences between two sources
 // It can be then transformed to Batch, depending on the sync being
 // unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
 type Diff struct {
-	Left         PathSyncSource
-	Right        PathSyncSource
+	Left         model.PathSyncSource
+	Right        model.PathSyncSource
 	MissingLeft  []*tree.Node
 	MissingRight []*tree.Node
 	Context      context.Context
@@ -41,16 +42,16 @@ type Diff struct {
 // FilterMissing transforms Missing slices to BatchEvents
 func (diff *Diff) FilterMissing(batch *Batch, in []*tree.Node, folders bool, removes bool) (out map[string]*BatchEvent) {
 
-	var eventType EventType
+	var eventType model.EventType
 	if removes {
-		eventType = EventRemove
+		eventType = model.EventRemove
 	} else {
-		eventType = EventCreate
+		eventType = model.EventCreate
 	}
 	out = make(map[string]*BatchEvent)
 	for _, n := range in {
 		if removes || !folders && n.IsLeaf() || folders && !n.IsLeaf() {
-			eventInfo := NodeToEventInfo(diff.Context, n.Path, n, eventType)
+			eventInfo := model.NodeToEventInfo(diff.Context, n.Path, n, eventType)
 			be := &BatchEvent{
 				Key:       n.Path,
 				Node:      n,
@@ -88,18 +89,18 @@ func (diff *Diff) Stats() map[string]interface{} {
 }
 
 // ToUnidirectionalBatch transforms this diff to a batch
-func (diff *Diff) ToUnidirectionalBatch(direction DirectionType) (batch *Batch, err error) {
+func (diff *Diff) ToUnidirectionalBatch(direction model.DirectionType) (batch *Batch, err error) {
 
-	rightTarget, rightOk := diff.Right.(PathSyncTarget)
-	leftTarget, leftOk := diff.Left.(PathSyncTarget)
+	rightTarget, rightOk := diff.Right.(model.PathSyncTarget)
+	leftTarget, leftOk := diff.Left.(model.PathSyncTarget)
 
-	if direction == DirectionRight && rightOk {
+	if direction == model.DirectionRight && rightOk {
 		batch = NewBatch(diff.Left, rightTarget)
 		batch.CreateFolders = diff.FilterMissing(batch, diff.MissingRight, true, false)
 		batch.CreateFiles = diff.FilterMissing(batch, diff.MissingRight, false, false)
 		batch.Deletes = diff.FilterMissing(batch, diff.MissingLeft, false, true)
 		return batch, nil
-	} else if direction == DirectionLeft && leftOk {
+	} else if direction == model.DirectionLeft && leftOk {
 		batch = NewBatch(diff.Right, leftTarget)
 		batch.CreateFolders = diff.FilterMissing(batch, diff.MissingLeft, true, false)
 		batch.CreateFiles = diff.FilterMissing(batch, diff.MissingLeft, false, false)
@@ -111,15 +112,15 @@ func (diff *Diff) ToUnidirectionalBatch(direction DirectionType) (batch *Batch, 
 }
 
 // ToBidirectionalBatch transforms this diff to a batch
-func (diff *Diff) ToBidirectionalBatch(leftTarget PathSyncTarget, rightTarget PathSyncTarget) (batch *BidirectionalBatch, err error) {
+func (diff *Diff) ToBidirectionalBatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (batch *BidirectionalBatch, err error) {
 
-	leftBatch := NewBatch(leftTarget.(PathSyncSource), rightTarget)
+	leftBatch := NewBatch(leftTarget.(model.PathSyncSource), rightTarget)
 	if rightTarget != nil {
 		leftBatch.CreateFolders = diff.FilterMissing(leftBatch, diff.MissingRight, true, false)
 		leftBatch.CreateFiles = diff.FilterMissing(leftBatch, diff.MissingRight, false, false)
 	}
 
-	rightBatch := NewBatch(rightTarget.(PathSyncSource), leftTarget)
+	rightBatch := NewBatch(rightTarget.(model.PathSyncSource), leftTarget)
 	if leftTarget != nil {
 		rightBatch.CreateFolders = diff.FilterMissing(rightBatch, diff.MissingLeft, true, false)
 		rightBatch.CreateFiles = diff.FilterMissing(rightBatch, diff.MissingLeft, false, false)

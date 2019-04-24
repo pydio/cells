@@ -27,19 +27,19 @@ import (
 	"sort"
 	"time"
 
-	"github.com/pydio/cells/common/sync/filters"
-	"github.com/pydio/cells/common/sync/model"
-
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/filters"
+	"github.com/pydio/cells/common/sync/merger"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 type Processor struct {
-	BatchesChannel  chan *model.Batch
+	BatchesChannel  chan *merger.Batch
 	RequeueChannels map[model.PathSyncSource]chan model.EventInfo
 	LocksChannel    chan filters.LockEvent
 	UnlocksChannel  chan filters.UnlockEvent
@@ -49,11 +49,11 @@ type Processor struct {
 	eventChannels []chan model.ProcessorEvent
 }
 
-type ProcessFunc func(event *model.BatchEvent, operationId string) error
+type ProcessFunc func(event *merger.BatchEvent, operationId string) error
 
 func NewProcessor(ctx context.Context) *Processor {
 	return &Processor{
-		BatchesChannel:  make(chan *model.Batch),
+		BatchesChannel:  make(chan *merger.Batch),
 		RequeueChannels: make(map[model.PathSyncSource]chan model.EventInfo),
 		JobsInterrupt:   make(chan bool),
 		GlobalContext:   ctx,
@@ -82,7 +82,7 @@ func (pr *Processor) sendEvent(event model.ProcessorEvent) {
 	}
 }
 
-func (pr *Processor) lockFileTo(batchedEvent *model.BatchEvent, path string, operationId string) {
+func (pr *Processor) lockFileTo(batchedEvent *merger.BatchEvent, path string, operationId string) {
 	if source, ok := model.AsPathSyncSource(batchedEvent.Target()); pr.LocksChannel != nil && ok {
 		pr.LocksChannel <- filters.LockEvent{
 			Source:      source,
@@ -92,7 +92,7 @@ func (pr *Processor) lockFileTo(batchedEvent *model.BatchEvent, path string, ope
 	}
 }
 
-func (pr *Processor) unlockFile(batchedEvent *model.BatchEvent, path string) {
+func (pr *Processor) unlockFile(batchedEvent *merger.BatchEvent, path string) {
 	if source, castOk := model.AsPathSyncSource(batchedEvent.Target()); castOk && pr.UnlocksChannel != nil {
 		d := 2 * time.Second
 		if source.GetEndpointInfo().EchoTime > 0 {
@@ -108,7 +108,7 @@ func (pr *Processor) unlockFile(batchedEvent *model.BatchEvent, path string) {
 	}
 }
 
-func (pr *Processor) process(batch *model.Batch) {
+func (pr *Processor) process(batch *merger.Batch) {
 
 	if batch.DoneChan != nil {
 		defer func() {
@@ -122,13 +122,13 @@ func (pr *Processor) process(batch *model.Batch) {
 	})
 
 	operationId := fmt.Sprintf("%s", uuid.NewV4())
-	var event *model.BatchEvent
+	var event *merger.BatchEvent
 
 	total := float32(len(batch.CreateFolders) + len(batch.FolderMoves) + len(batch.CreateFiles) + len(batch.FileMoves) + len(batch.Deletes))
 	var cursor float32
 
 	if batch.StatusChan != nil {
-		batch.StatusChan <- model.BatchProcessStatus{StatusString: "Start processing batch"}
+		batch.StatusChan <- merger.BatchProcessStatus{StatusString: "Start processing batch"}
 	}
 
 	var sessionUuid string
@@ -204,7 +204,7 @@ func (pr *Processor) process(batch *model.Batch) {
 	}
 
 	if batch.StatusChan != nil {
-		batch.StatusChan <- model.BatchProcessStatus{StatusString: "Finished processing batch"}
+		batch.StatusChan <- merger.BatchProcessStatus{StatusString: "Finished processing batch"}
 	}
 
 	if len(batch.RefreshFilesUuid) > 0 {
@@ -217,8 +217,8 @@ func (pr *Processor) process(batch *model.Batch) {
 	})
 }
 
-func (pr *Processor) applyProcessFunc(event *model.BatchEvent, operationId string, callback ProcessFunc,
-	completeString string, errorString string, statusChan chan model.BatchProcessStatus, cursor float32,
+func (pr *Processor) applyProcessFunc(event *merger.BatchEvent, operationId string, callback ProcessFunc,
+	completeString string, errorString string, statusChan chan merger.BatchProcessStatus, cursor float32,
 	count float32, fields ...zapcore.Field) {
 
 	fields = append(fields, zap.String("target", event.Target().GetEndpointInfo().URI))
@@ -238,7 +238,7 @@ func (pr *Processor) applyProcessFunc(event *model.BatchEvent, operationId strin
 			isError = true
 			loggerString = errorString
 		}
-		statusChan <- model.BatchProcessStatus{
+		statusChan <- merger.BatchProcessStatus{
 			IsError:      isError,
 			StatusString: pr.logAsString(loggerString, err, fields...),
 			Progress:     cursor / count,
@@ -254,7 +254,7 @@ func (pr *Processor) logAsString(msg string, err error, fields ...zapcore.Field)
 	return msg
 }
 
-func (pr *Processor) sortedKeys(events map[string]*model.BatchEvent) []string {
+func (pr *Processor) sortedKeys(events map[string]*merger.BatchEvent) []string {
 	var keys []string
 	for k, _ := range events {
 		keys = append(keys, k)
