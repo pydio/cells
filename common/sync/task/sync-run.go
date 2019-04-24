@@ -39,7 +39,10 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 	diff, e := merger.ComputeDiff(ctx, source, targetAsSource, statusChan)
 
-	log.Logger(ctx).Info("### GOT DIFF", zap.Any("diff", diff))
+	if e == nil && dryRun {
+		fmt.Println(diff.String())
+	}
+	log.Logger(ctx).Debug("### GOT DIFF", zap.Any("diff", diff))
 	if e != nil || dryRun {
 		if doneChan != nil {
 			doneChan <- true
@@ -108,8 +111,6 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 		if err := bb.Merge(ctx); err != nil {
 			return nil, err
 		}
-		log.Logger(ctx).Debug("BB-After Merge", zap.Any("stats", bb.Stats()))
-		fmt.Println(bb.String())
 
 	} else {
 
@@ -125,13 +126,16 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 		sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
 		target, _ := model.AsPathSyncTarget(s.Target)
+		if ers := merger.SolveConflicts(ctx, diff.FolderUUIDs, sourceAsTarget, target); len(ers) > 0 {
+			log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
+		}
 		var err error
 		bb, err = diff.ToBidirectionalBatch(sourceAsTarget, target)
 		if err != nil {
 			return nil, err
 		}
 
-		log.Logger(ctx).Info("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", bb.Stats()))
+		log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", bb.Stats()))
 
 		bb.Left.Filter(ctx)
 		bb.Right.Filter(ctx)

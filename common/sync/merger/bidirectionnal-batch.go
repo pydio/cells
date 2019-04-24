@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"strings"
 
 	"github.com/micro/go-micro/errors"
 
@@ -43,7 +44,7 @@ func (b *BidirectionalBatch) Merge(ctx context.Context) error {
 
 	b.Left.Target = rt
 	b.Right.Target = lt
-	//b.Right.Source = rt
+
 	b.Filter(ctx, b.Left)
 	b.Filter(ctx, b.Right)
 
@@ -89,7 +90,16 @@ func (b *BidirectionalBatch) Filter(ctx context.Context, batch *Batch) {
 }
 
 func (b *BidirectionalBatch) String() string {
-	return b.Left.String() + "\n" + b.Right.String()
+	var lines []string
+	l := b.Left.String()
+	if l != "" {
+		lines = append(lines, l)
+	}
+	r := b.Right.String()
+	if r != "" {
+		lines = append(lines, r)
+	}
+	return strings.Join(lines, "\n")
 }
 
 func (b *BidirectionalBatch) Stats() map[string]interface{} {

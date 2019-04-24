@@ -34,8 +34,8 @@ import (
 	"strings"
 
 	errors2 "github.com/micro/go-micro/errors"
+	"github.com/pborman/uuid"
 	"github.com/rjeczalik/notify"
-	"github.com/satori/go.uuid"
 	"github.com/spf13/afero"
 	"golang.org/x/text/unicode/norm"
 
@@ -103,6 +103,7 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 		URI: "fs://" + c.RootPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
+		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
 	}
 
 }
@@ -132,9 +133,10 @@ func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node
 func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
 	p := c.denormalize(node.Path)
 	var err error
-	if err = c.FS.Remove(filepath.Join(p, common.PYDIO_SYNC_HIDDEN_FILE_META)); err == nil {
+	pFile := filepath.Join(p, common.PYDIO_SYNC_HIDDEN_FILE_META)
+	if err = c.FS.Remove(pFile); err == nil {
 		log.Logger(ctx).Info("Refreshing folder Uuid for", node.ZapPath())
-		node.Uuid, err = c.readOrCreateFolderId(p)
+		err = afero.WriteFile(c.FS, pFile, []byte(node.Uuid), 0666)
 	}
 	return node, err
 }
@@ -311,7 +313,7 @@ func (d *Discarder) Close() error {
 
 func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
 
-	// Ignore .pydio except for root folder
+	// Ignore .pydio except for root folder .pydio
 	if filepath.Base(path) == common.PYDIO_SYNC_HIDDEN_FILE_META && strings.Trim(path, "/") != common.PYDIO_SYNC_HIDDEN_FILE_META {
 		w := &Discarder{}
 		return w, nil
@@ -323,7 +325,7 @@ func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteClose
 	if os.IsNotExist(e) {
 		file, openErr = c.FS.Create(path)
 	} else {
-		file, openErr = c.FS.Open(path)
+		file, openErr = c.FS.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0666)
 	}
 	return file, openErr
 
@@ -349,7 +351,7 @@ func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
 
 	uidFile, uidErr := c.FS.OpenFile(filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), os.O_RDONLY, 0777)
 	if uidErr != nil && os.IsNotExist(uidErr) {
-		uid = fmt.Sprintf("%s", uuid.NewV4())
+		uid = uuid.New()
 		we := afero.WriteFile(c.FS, filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(uid), 0666)
 		if we != nil {
 			return "", we

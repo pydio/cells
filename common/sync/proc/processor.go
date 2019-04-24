@@ -25,9 +25,10 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"sync"
 	"time"
 
-	"github.com/satori/go.uuid"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -126,14 +127,14 @@ func (pr *Processor) process(batch *merger.Batch) {
 		Data: batch,
 	})
 
-	operationId := fmt.Sprintf("%s", uuid.NewV4())
+	operationId := uuid.New()
 	var event *merger.BatchEvent
 
 	total := batch.ProgressTotal()
 	var cursor int64
 
 	if batch.StatusChan != nil {
-		batch.StatusChan <- merger.BatchProcessStatus{StatusString: fmt.Sprintf("Start processing batch - Total Bytes %d", total)}
+		batch.StatusChan <- merger.BatchProcessStatus{StatusString: fmt.Sprintf("Start processing batch (total bytes %d)", total)}
 	}
 
 	var sessionUuid string
@@ -185,9 +186,30 @@ func (pr *Processor) process(batch *merger.Batch) {
 	}
 
 	// Create files
-	for _, event = range batch.CreateFiles {
-		pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file",
-			batch.StatusChan, &cursor, total, zap.String("path", event.EventInfo.Path))
+	if batch.HasTransfers() {
+		// Process with a parallel Queue
+		wg := &sync.WaitGroup{}
+		throttle := make(chan struct{}, 3)
+		for _, event = range batch.CreateFiles {
+			wg.Add(1)
+			eventCopy := event
+			go func() {
+				throttle <- struct{}{}
+				defer func() {
+					<-throttle
+					wg.Done()
+				}()
+				pr.applyProcessFunc(eventCopy, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file",
+					batch.StatusChan, &cursor, total, zap.String("path", eventCopy.EventInfo.Path))
+			}()
+		}
+		wg.Wait()
+	} else {
+		// Process Serialized
+		for _, event = range batch.CreateFiles {
+			pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file",
+				batch.StatusChan, &cursor, total, zap.String("path", event.EventInfo.Path))
+		}
 	}
 
 	if len(batch.Deletes) > 0 && sessionUuid != "" && batch.SessionProvider != nil {

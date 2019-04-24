@@ -51,11 +51,11 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 				return nil, err
 			}
 		}
-		log.Logger(ctx).Info("Finally delete .pydio: " + pFile)
-		_, err = h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
-			Path: pFile,
-			Type: tree.NodeType_LEAF,
-		}})
+		fakeChild := node.Clone()
+		fakeChild.Path = pFile
+		initMetaPath := fakeChild.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
+		fakeChild.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Join(initMetaPath, common.PYDIO_SYNC_HIDDEN_FILE_META))
+		_, err = h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: fakeChild})
 	}
 	if err != nil {
 		return nil, err

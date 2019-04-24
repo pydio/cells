@@ -36,6 +36,7 @@ type Diff struct {
 	Right        model.PathSyncSource
 	MissingLeft  []*tree.Node
 	MissingRight []*tree.Node
+	FolderUUIDs  []*Conflict
 	Context      context.Context
 }
 
@@ -68,13 +69,23 @@ func (diff *Diff) FilterMissing(batch *Batch, in []*tree.Node, folders bool, rem
 // String provides a string representation of this diff
 func (diff *Diff) String() string {
 	output := ""
-	output += "\n MissingLeft : "
-	for _, node := range diff.MissingLeft {
-		output += "\n " + node.Path
+	if len(diff.MissingLeft) > 0 {
+		output += "\n MissingLeft : "
+		for _, node := range diff.MissingLeft {
+			output += "\n " + node.Path
+		}
 	}
-	output += "\n MissingRight : "
-	for _, node := range diff.MissingRight {
-		output += "\n " + node.Path
+	if len(diff.MissingRight) > 0 {
+		output += "\n MissingRight : "
+		for _, node := range diff.MissingRight {
+			output += "\n " + node.Path
+		}
+	}
+	if len(diff.FolderUUIDs) > 0 {
+		output += "\n Diverging FolderUUIDs : "
+		for _, c := range diff.FolderUUIDs {
+			output += "\n " + c.NodeLeft.Path
+		}
 	}
 	return output
 }
@@ -85,6 +96,7 @@ func (diff *Diff) Stats() map[string]interface{} {
 		"EndpointRight": diff.Right.GetEndpointInfo().URI,
 		"MissingLeft":   len(diff.MissingLeft),
 		"MissingRight":  len(diff.MissingRight),
+		"FolderUUIDs":   len(diff.FolderUUIDs),
 	}
 }
 
@@ -107,7 +119,7 @@ func (diff *Diff) ToUnidirectionalBatch(direction model.DirectionType) (batch *B
 		batch.Deletes = diff.FilterMissing(batch, diff.MissingRight, false, true)
 		return batch, nil
 	}
-	return nil, errors.New("Error while extracting unidirectional batch. Either left or right is not a sync target")
+	return nil, errors.New("error while extracting unidirectional batch. either left or right is not a sync target")
 
 }
 

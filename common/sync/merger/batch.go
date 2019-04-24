@@ -25,6 +25,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/pborman/uuid"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -89,6 +91,10 @@ func (b *Batch) Filter(ctx context.Context) {
 	checksumProvider := b.Source.(model.ChecksumProvider)
 
 	for _, createEvent := range b.CreateFiles {
+		if model.Ignores(b.Target, createEvent.Key) {
+			delete(b.CreateFiles, createEvent.Key)
+			continue
+		}
 		var node *tree.Node
 		var err error
 		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
@@ -131,6 +137,10 @@ func (b *Batch) Filter(ctx context.Context) {
 	}
 
 	for _, createEvent := range b.CreateFolders {
+		if model.Ignores(b.Target, createEvent.Key) {
+			delete(b.CreateFiles, createEvent.Key)
+			continue
+		}
 		var node *tree.Node
 		var err error
 		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
@@ -151,7 +161,9 @@ func (b *Batch) Filter(ctx context.Context) {
 		if refresher != nil && folderUUIDs != nil && len(folderUUIDs) > 0 {
 			if _, ok := folderUUIDs[createEvent.Node.Uuid]; ok {
 				// There is a duplicate - update Uuid
-				if newNode, err := refresher.UpdateFolderUuid(ctx, createEvent.Node); err == nil {
+				refreshNode := createEvent.Node.Clone()
+				refreshNode.Uuid = uuid.New()
+				if newNode, err := refresher.UpdateFolderUuid(ctx, refreshNode); err == nil {
 					createEvent.Node = newNode
 				}
 			}
@@ -177,7 +189,7 @@ func (b *Batch) Filter(ctx context.Context) {
 				var found bool
 				// Look by UUID first
 				for _, createEvent := range b.CreateFiles {
-					if createEvent.Node != nil && createEvent.Node.Uuid == dbNode.Uuid {
+					if createEvent.Node != nil && createEvent.Node.Uuid != "" && createEvent.Node.Uuid == dbNode.Uuid {
 						log.Logger(ctx).Debug("Existing leaf node with Uuid: safe move to ", createEvent.Node.ZapPath())
 						createEvent.Node = dbNode
 						b.FileMoves[createEvent.Key] = createEvent
@@ -254,6 +266,19 @@ func (b *Batch) Filter(ctx context.Context) {
 		delete(b.Deletes, del)
 	}
 
+	for _, del := range b.Deletes {
+		if model.Ignores(b.Target, del.Key) {
+			delete(b.Deletes, del.Key)
+			continue
+		}
+	}
+
+}
+
+func (b *Batch) HasTransfers() bool {
+	_, ok1 := model.AsDataSyncSource(b.Source)
+	_, ok2 := model.AsDataSyncTarget(b.Target)
+	return ok1 && ok2
 }
 
 func (b *Batch) Size() int {
@@ -261,10 +286,7 @@ func (b *Batch) Size() int {
 }
 
 func (b *Batch) ProgressTotal() int64 {
-	// Check if actual data will be transferred
-	_, ok1 := model.AsDataSyncSource(b.Source)
-	_, ok2 := model.AsDataSyncTarget(b.Target)
-	if ok1 && ok2 {
+	if b.HasTransfers() {
 		var total int64
 		for _, c := range b.CreateFiles {
 			total += c.Node.Size

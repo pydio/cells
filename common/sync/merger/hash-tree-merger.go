@@ -37,6 +37,12 @@ func MergeNodes(left *TreeNode, right *TreeNode, diff *Diff) {
 		// Node type changed ! Enqueue both as missing and browse children if necessary
 		diff.MissingRight = left.Enqueue(diff.MissingRight)
 		diff.MissingLeft = right.Enqueue(diff.MissingLeft)
+	} else if !left.IsLeaf() && !right.IsLeaf() && left.Uuid != right.Uuid {
+		diff.FolderUUIDs = append(diff.FolderUUIDs, &Conflict{
+			NodeLeft:  &left.Node,
+			NodeRight: &right.Node,
+			Type:      ConflictFolderUUID,
+		})
 	}
 	cL := left.GetCursor()
 	cR := right.GetCursor()

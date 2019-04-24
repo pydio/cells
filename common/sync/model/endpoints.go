@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"path"
 	"time"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -30,6 +31,16 @@ func AsSessionProvider(endpoint Endpoint) (SessionProvider, bool) {
 	return i, ok
 }
 
+func Ignores(endpoint Endpoint, name string) bool {
+	base := path.Base(name)
+	for _, n := range endpoint.GetEndpointInfo().Ignores {
+		if n == base {
+			return true
+		}
+	}
+	return false
+}
+
 type WatchConnectionInfo int
 
 const (
@@ -42,6 +53,7 @@ type EndpointInfo struct {
 	RequiresNormalization bool
 	RequiresFoldersRescan bool
 	EchoTime              time.Duration
+	Ignores               []string
 }
 
 type Endpoint interface {
