@@ -21,32 +21,32 @@
 package key
 
 import (
-	"context"
-	"fmt"
+	"errors"
 	"sync/atomic"
 
+	sqldb "database/sql"
 	"github.com/gobuffalo/packr"
-	"github.com/micro/go-micro/errors"
-	"github.com/rubenv/sql-migrate"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
+	"github.com/rubenv/sql-migrate"
 )
 
 var (
 	queries = map[string]interface{}{
-		"enc_nodes_select":              `SELECT * FROM enc_nodes WHERE node_id=?;`,
-		"enc_nodes_insert":              `INSERT INTO enc_nodes (node_id,nonce,block_size) VALUES (?,?,?);`,
-		"enc_nodes_update":              `UPDATE enc_nodes SET nonce=?,block_size=? WHERE node_id=?;`,
-		"enc_nodes_delete":              `DELETE FROM enc_nodes WHERE node_id=?;`,
-		"enc_node_keys_insert":          `INSERT INTO enc_node_keys (node_id,owner_id,user_id,key_data) VALUES (?,?,?,?)`,
-		"enc_node_keys_delete":          `DELETE FROM enc_node_keys WHERE node_id=? AND user_id=?`,
-		"enc_node_keys_deleteShared":    `DELETE FROM enc_node_keys WHERE user_id<>owner_id AND node_id=? AND owner_id=? AND user_id=?`,
-		"enc_node_keys_deleteAllShared": `DELETE FROM enc_node_keys WHERE  user_id<>owner_id AND node_id=? AND owner_id=?`,
-		"selectNodeKey":                 `SELECT enc_nodes.node_id, user_id, owner_id, nonce, block_size, key_data FROM enc_node_keys, enc_nodes WHERE enc_nodes.node_id=enc_node_keys.node_id AND enc_node_keys.node_id=? AND user_id=?`,
+		"node_select":                `SELECT * FROM enc_nodes WHERE node_id=?;`,
+		"node_insert":                `INSERT INTO enc_nodes VALUES (?,?);`,
+		"node_update":                `UPDATE enc_nodes SET legacy=? WHERE node_id=?;`,
+		"node_delete":                `DELETE FROM enc_nodes WHERE node_id=?;`,
+		"node_key_insert":            `INSERT INTO enc_node_keys (node_id,owner_id,user_id,key_data) VALUES (?,?,?,?)`,
+		"node_key_select":            `SELECT * FROM enc_node_keys WHERE node_id=? AND user_id=?;`,
+		"node_key_delete":            `DELETE FROM enc_node_keys WHERE node_id=? AND user_id=?;`,
+		"node_shared_key_delete":     `DELETE FROM enc_node_keys WHERE user_id<>owner_id AND node_id=? AND owner_id=? AND user_id=?`,
+		"node_shared_key_delete_all": `DELETE FROM enc_node_keys WHERE  user_id<>owner_id AND node_id=? AND owner_id=?`,
+		"node_block_insert":          `INSERT INTO enc_node_blocks (?, ?, ?, ?, ?, ?) ;`,
+		"node_block_select":          `SELECT * FROM enc_node_blocks WHERE node_id=? order by part_id, block_position;`,
+		"node_block_delete":          `DELETE FROM enc_node_blocks WHERE node_id=?;`,
+		"node_block_part_delete":     `DELETE FROM enc_node_blocks WHERE node_id=? and part_id=?;`,
 	}
 	mu atomic.Value
 )
@@ -57,7 +57,6 @@ type sqlimpl struct {
 
 // Init handler for the SQL DAO
 func (s *sqlimpl) Init(options common.ConfigValues) error {
-
 	// super
 	s.DAO.Init(options)
 
@@ -84,143 +83,156 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
-func (h *sqlimpl) InsertNode(nodeUuid string, nonce []byte, blockSize int32) error {
-	stmt := h.GetStmt("enc_nodes_select")
+func (h *sqlimpl) ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, error) {
+	stmt := h.GetStmt("node_block_select")
 	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+		return nil, errors.New("internal error: 'node_block_select' statement not found")
 	}
 
 	rows, err := stmt.Query(nodeUuid)
-	if err != nil && err != sql.ErrNoRows {
-		return err
+	if err != nil {
+		return nil, err
 	}
+	return NewDBCursor(rows, scanBlock), nil
+}
 
-	defer rows.Close()
-
-	if rows.Next() {
-		stmt := h.GetStmt("enc_nodes_update")
-		if stmt == nil {
-			return fmt.Errorf("Unknown statement")
-		}
-		log.Logger(context.Background()).Debug("Updating Material for node "+nodeUuid, zap.Any("nonce", string([]byte(nonce))), zap.Any("s", blockSize))
-		_, err = stmt.Exec(
-			nonce,
-			blockSize,
-			nodeUuid,
-		)
-	} else {
-		stmt := h.GetStmt("enc_nodes_insert")
-		if stmt == nil {
-			return fmt.Errorf("Unknown statement")
-		}
-		log.Logger(context.Background()).Debug("Inserting Material for node "+nodeUuid, zap.Any("nonce", string([]byte(nonce))), zap.Any("s", blockSize))
-		_, err = stmt.Exec(
-			nodeUuid,
-			nonce,
-			blockSize,
-		)
+func (h *sqlimpl) SaveEncryptedBlockInfo(nodeUuid string, b *encryption.Block) error {
+	stmt := h.GetStmt("node_block_insert")
+	if stmt == nil {
+		return errors.New("internal error: 'node_block_insert' statement not found")
 	}
+	_, err := stmt.Exec(nodeUuid, b.PartId, b.Position, b.HeaderSize, b.Nonce, b.OwnerId)
+	return err
+}
+
+func (h *sqlimpl) ClearNodeEncryptedBlockInfo(nodeUuid string) error {
+	stmt := h.GetStmt("node_block_delete")
+	if stmt == nil {
+		return errors.New("internal error: 'node_block_delete' statement not found")
+	}
+	_, err := stmt.Exec(nodeUuid)
+	return err
+}
+
+func (h *sqlimpl) SaveNode(node *encryption.Node) error {
+	stmt := h.GetStmt("node_insert")
+	if stmt == nil {
+		return errors.New("internal error: 'node_insert' statement not found")
+	}
+	var intLegacy int
+	if node.Legacy {
+		intLegacy = 1
+	}
+	_, err := stmt.Exec(node.NodeId, intLegacy)
 	return err
 }
 
 func (h *sqlimpl) DeleteNode(nodeUuid string) error {
-	stmt := h.GetStmt("enc_nodes_delete")
+	stmt := h.GetStmt("node_delete")
 	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+		return errors.New("internal error: 'node_delete' statement not found")
 	}
-
-	_, err := stmt.Exec(
-		nodeUuid,
-	)
+	_, err := stmt.Exec(nodeUuid)
 	return err
 }
 
-func (h *sqlimpl) SetNodeKey(nodeUuid string, ownerId string, userId string, keyData []byte) error {
-
-	stmt := h.GetStmt("enc_node_keys_insert")
+func (h *sqlimpl) SaveNodeKey(key *encryption.NodeKey) error {
+	stmt := h.GetStmt("node_key_insert")
 	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+		return errors.New("internal error: 'node_key_insert' statement not found")
 	}
 
-	_, err := stmt.Exec(
-		nodeUuid,
-		ownerId,
-		userId,
-		keyData,
-	)
+	_, err := stmt.Exec(key.NodeId, key.OwnerId, key.UserId, key.KeyData)
 	return err
 }
 
-func (h *sqlimpl) GetNodeKey(node string, user string) (*encryption.NodeKey, error) {
-
-	stmt := h.GetStmt("selectNodeKey")
+func (h *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey, error) {
+	stmt := h.GetStmt("node_key_select")
 	if stmt == nil {
-		return nil, fmt.Errorf("Unknown statement")
+		return nil, errors.New("internal error: 'node_key_select' statement not found")
 	}
 
-	rows, err := stmt.Query(
-		node,
-		user,
-	)
-	if err != nil {
-		return nil, errors.New("NodeKey", "cannot retrieve node key", 500)
-	}
-	defer rows.Close()
-
-	var k encryption.NodeKey
-	if rows.Next() {
-		k.Nonce = []byte{}
-		k.Data = []byte{}
-
-		if err := rows.Scan(&(k.NodeId), &(k.UserId), &(k.OwnerId), &(k.Nonce), &(k.BlockSize), &(k.Data)); err != nil {
-			return nil, errors.New("NodeKey", "Error while parsing node key", 500)
-		}
-		return &k, nil
-	}
-
-	err = rows.Err()
+	rows, err := stmt.Query(nodeUuid, user)
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, errors.NotFound("node.key.manager", "key not found for %s", node)
-}
+	c := NewDBCursor(rows, scanNodeKey)
 
-func (h *sqlimpl) DeleteNodeKey(node string, user string) error {
-
-	stmt := h.GetStmt("enc_node_keys_delete")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+	if !c.HasNext() {
+		_ = c.Close()
+		return nil, errors.New("not found")
 	}
 
-	_, err := stmt.Exec(
-		node, user,
-	)
+	k, err := c.Next()
+	if err != nil {
+		_ = c.Close()
+		return nil, err
+	}
+
+	return k.(*encryption.NodeKey), c.Close()
+}
+
+func (h *sqlimpl) DeleteNodeKey(key *encryption.NodeKey) error {
+	stmt := h.GetStmt("node_key_delete")
+	if stmt == nil {
+		return errors.New("internal error: 'node_delete' statement not found")
+	}
+	_, err := stmt.Exec(key.NodeId, key.UserId)
 	return err
 }
 
-func (h *sqlimpl) DeleteNodeSharedKey(node string, ownerId string, userId string) error {
+// dbRowScanner
+type dbRowScanner func(rows *sqldb.Rows) (interface{}, error)
 
-	stmt := h.GetStmt("enc_node_keys_deleteShared")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
-	}
-
-	_, err := stmt.Exec(
-		node, ownerId, userId,
-	)
-	return err
+// DBCursor
+type DBCursor struct {
+	err  error
+	scan dbRowScanner
+	rows *sqldb.Rows
 }
 
-func (h *sqlimpl) DeleteNodeAllSharedKey(node string, ownerId string) error {
-
-	stmt := h.GetStmt("enc_node_keys_deleteAllShared")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+func NewDBCursor(rows *sqldb.Rows, scanner dbRowScanner) QueryResultCursor {
+	return &DBCursor{
+		scan: scanner,
+		rows: rows,
 	}
+}
 
-	_, err := stmt.Exec(
-		node, ownerId,
-	)
-	return err
+func (c *DBCursor) Close() error {
+	return c.rows.Close()
+}
+
+func (c *DBCursor) HasNext() bool {
+	return c.rows.Next()
+}
+
+func (c *DBCursor) Next() (interface{}, error) {
+	return c.scan(c.rows)
+}
+
+// scanBlock
+func scanBlock(rows *sqldb.Rows) (interface{}, error) {
+	b := new(encryption.Block)
+	var nodeId string
+	err := rows.Scan(&nodeId, &b.Position, &b.BlockSize, &b.HeaderSize, &b.Nonce, &b.OwnerId)
+	return b, err
+}
+
+// scanNode
+func scanNode(rows *sqldb.Rows) (interface{}, error) {
+	n := new(encryption.Node)
+	var legacy int
+
+	err := rows.Scan(&n.NodeId, &legacy)
+	n.Legacy = legacy == 1
+
+	return n, err
+}
+
+// scanNodeKey
+func scanNodeKey(rows *sqldb.Rows) (interface{}, error) {
+	k := new(encryption.NodeKey)
+	err := rows.Scan(&k.NodeId, &k.OwnerId, &k.UserId, &k.KeyData)
+	return k, err
 }

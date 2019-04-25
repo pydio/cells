@@ -30,13 +30,28 @@ import (
 type DAO interface {
 	dao.DAO
 
-	InsertNode(nodeUuid string, nonce []byte, blockSize int32) error
+	ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, error)
+	SaveEncryptedBlockInfo(nodeUuid string, b *encryption.Block) error
+	ClearNodeEncryptedBlockInfo(nodeUuid string) error
+
+	SaveNode(node *encryption.Node) error
 	DeleteNode(nodeUuid string) error
-	SetNodeKey(nodeUuid string, ownerId string, userId string, keyData []byte) error
+
+	SaveNodeKey(nodeKey *encryption.NodeKey) error
 	GetNodeKey(node string, user string) (*encryption.NodeKey, error)
-	DeleteNodeKey(node string, user string) error
-	DeleteNodeSharedKey(node string, ownerId string, userId string) error
-	DeleteNodeAllSharedKey(node string, ownerId string) error
+	DeleteNodeKey(nodeKey *encryption.NodeKey) error
+}
+
+type BlockInfo struct {
+	NodeKey   encryption.NodeKey
+	BlockSize uint32
+	PartId    uint32
+}
+
+type QueryResultCursor interface {
+	Close() error
+	HasNext() bool
+	Next() (interface{}, error)
 }
 
 func NewDAO(o dao.DAO) dao.DAO {

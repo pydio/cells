@@ -28,6 +28,7 @@ import (
 	"crypto/cipher"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -82,6 +83,19 @@ func Seal(key []byte, data []byte) ([]byte, error) {
 
 	cipherData := aesgcm.Seal(nil, nonce, data, nil)
 	return append(nonce, cipherData...), nil
+}
+
+func SealWithNonce(key []byte, nonce []byte, data []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+	return aesgcm.Seal(nil, nonce, data, nil), nil
 }
 
 func Open(key []byte, nonce []byte, cipherData []byte) ([]byte, error) {
@@ -210,4 +224,10 @@ func pkcs7Unpad(data []byte, blocklen int) ([]byte, error) {
 	}
 
 	return data[:len(data)-padlen], nil
+}
+
+func Md5(data []byte) []byte {
+	h := md5.New()
+	h.Write(data)
+	return h.Sum(nil)
 }

@@ -29,7 +29,6 @@ import (
 	"testing"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/object"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -44,7 +43,7 @@ import (
 func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	handler := &EncryptionHandler{
-	// 		UserTools: &EncryptionClientMock{},
+		// 		UserTools: &EncryptionClientMock{},
 	}
 	mock := NewHandlerMock()
 	mock.Nodes["test"] = &tree.Node{Path: "test"}
@@ -118,7 +117,6 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 }
 
 func TestEncryptionHandler_Encrypted(t *testing.T) {
-
 	handler := &EncryptionHandler{
 		AbstractHandler: AbstractHandler{
 			next: NewHandlerMock(),
@@ -187,8 +185,6 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 }
 
 func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
-
-	crypto.AESGCMFileEncryptionBlockSize = 1024
 
 	mock := NewHandlerMock()
 	dataFolder := filepath.Join(os.TempDir(), "cells", "tests", "encryption")
