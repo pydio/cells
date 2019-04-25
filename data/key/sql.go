@@ -35,7 +35,7 @@ import (
 var (
 	queries = map[string]interface{}{
 		"node_select":                `SELECT * FROM enc_nodes WHERE node_id=?;`,
-		"node_insert":                `INSERT INTO enc_nodes VALUES (?,?);`,
+		"node_insert":                `INSERT INTO enc_nodes VALUES (?, ?);`,
 		"node_update":                `UPDATE enc_nodes SET legacy=? WHERE node_id=?;`,
 		"node_delete":                `DELETE FROM enc_nodes WHERE node_id=?;`,
 		"node_key_insert":            `INSERT INTO enc_node_keys (node_id,owner_id,user_id,key_data) VALUES (?,?,?,?)`,
