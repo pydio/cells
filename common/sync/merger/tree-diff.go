@@ -79,11 +79,11 @@ func (diff *TreeDiff) Compute() error {
 			var err error
 			if logId == "left" {
 				if lTree, err = TreeNodeFromSource(diff.left); err == nil {
-					lTree.GetHash()
+					h = lTree.GetHash()
 				}
 			} else if logId == "right" {
 				if rTree, err = TreeNodeFromSource(diff.right); err == nil {
-					rTree.GetHash()
+					h = rTree.GetHash()
 				}
 			}
 			if err != nil {
