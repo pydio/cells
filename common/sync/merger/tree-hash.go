@@ -165,3 +165,19 @@ func (t *TreeNode) GetHash() string {
 	t.Etag = fmt.Sprintf("%x", h.Sum(nil))
 	return t.Etag
 }
+
+// ChildrenCursor provides a Nexter for browsing a node children
+type ChildrenCursor struct {
+	children []*TreeNode
+	crt      int
+}
+
+// Next sends the next child or nil
+func (c *ChildrenCursor) Next() *TreeNode {
+	c.crt++
+	if c.crt > len(c.children)-1 {
+		return nil
+	} else {
+		return c.children[c.crt]
+	}
+}

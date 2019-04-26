@@ -35,8 +35,8 @@ import (
 )
 
 type Move struct {
-	deleteEvent *BatchOperation
-	createEvent *BatchOperation
+	deleteEvent *Operation
+	createEvent *Operation
 	dbNode      *tree.Node
 }
 
@@ -226,7 +226,7 @@ func (b *SimpleBatch) pruneMovesByPath(ctx context.Context, from, to string) {
 				n := MostRecentNode(createEvent.Node, deleteEvent.Node)
 				n.Path = targetPath
 				// Will require additional Transfer
-				b.updateFiles[targetPath] = &BatchOperation{
+				b.updateFiles[targetPath] = &Operation{
 					Key:       targetPath,
 					Node:      n,
 					Batch:     b,

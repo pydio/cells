@@ -39,7 +39,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Test simple case", t, func() {
 
-		batch := NewSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		batch := newSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
 		batch.Filter(bTestCtx)
 		So(batch, ShouldNotBeNil)
 
@@ -48,15 +48,15 @@ func TestBatch_Filter(t *testing.T) {
 	Convey("Ignore Create file if not existing in source", t, func() {
 
 		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
-		batch := NewSimpleBatch(source, target)
-		batch.createFiles["/ignored-file"] = &BatchOperation{
+		batch := newSimpleBatch(source, target)
+		batch.createFiles["/ignored-file"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/ignored-file",
 			},
 			Key:   "/ignored-file",
 			Batch: batch,
 		}
-		batch.createFolders["/ignored-folder"] = &BatchOperation{
+		batch.createFolders["/ignored-folder"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/ignored-folder",
 			},
@@ -73,14 +73,14 @@ func TestBatch_Filter(t *testing.T) {
 	Convey("Do not ignore create file if existing in source", t, func() {
 
 		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
-		batch := NewSimpleBatch(source, target)
+		batch := newSimpleBatch(source, target)
 		source.CreateNode(bTestCtx, &tree.Node{
 			Path: "/ignored-file",
 			Type: tree.NodeType_LEAF,
 			Etag: "hash",
 		}, true)
 
-		batch.createFiles["/ignored-file"] = &BatchOperation{
+		batch.createFiles["/ignored-file"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/ignored-file",
 			},
@@ -96,7 +96,7 @@ func TestBatch_Filter(t *testing.T) {
 	Convey("Detect file move/rename", t, func() {
 
 		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
-		batch := NewSimpleBatch(source, target)
+		batch := newSimpleBatch(source, target)
 
 		target.CreateNode(bTestCtx, &tree.Node{
 			Path: "/file-to-move",
@@ -109,14 +109,14 @@ func TestBatch_Filter(t *testing.T) {
 			Etag: "hash",
 		}, true)
 
-		batch.createFiles["/a/file-moved"] = &BatchOperation{
+		batch.createFiles["/a/file-moved"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/a/file-moved",
 			},
 			Key:   "/a/file-moved",
 			Batch: batch,
 		}
-		batch.deletes["/file-to-move"] = &BatchOperation{
+		batch.deletes["/file-to-move"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/file-to-move",
 			},
@@ -133,7 +133,7 @@ func TestBatch_Filter(t *testing.T) {
 	Convey("Detect multiple moves of nodes with same etags", t, func() {
 
 		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
-		batch := NewSimpleBatch(source, target)
+		batch := newSimpleBatch(source, target)
 		target.CreateNode(bTestCtx, &tree.Node{
 			Path: "/file-to-move",
 			Type: tree.NodeType_LEAF,
@@ -155,28 +155,28 @@ func TestBatch_Filter(t *testing.T) {
 			Etag: "hash",
 		}, true)
 
-		batch.createFiles["/a/file-moved"] = &BatchOperation{
+		batch.createFiles["/a/file-moved"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/a/file-moved",
 			},
 			Key:   "/a/file-moved",
 			Batch: batch,
 		}
-		batch.deletes["/file-to-move"] = &BatchOperation{
+		batch.deletes["/file-to-move"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/file-to-move",
 			},
 			Key:   "/file-to-move",
 			Batch: batch,
 		}
-		batch.createFiles["/a/similar-file-moved"] = &BatchOperation{
+		batch.createFiles["/a/similar-file-moved"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/a/similar-file-moved",
 			},
 			Key:   "/a/similar-file-moved",
 			Batch: batch,
 		}
-		batch.deletes["/similar-file"] = &BatchOperation{
+		batch.deletes["/similar-file"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/similar-file",
 			},
@@ -194,16 +194,16 @@ func TestBatch_Filter(t *testing.T) {
 	Convey("Detect fast create/delete on same node and file does not exist at the end", t, func() {
 
 		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
-		batch := NewSimpleBatch(source, target)
+		batch := newSimpleBatch(source, target)
 
-		batch.createFiles["/a/file-touched"] = &BatchOperation{
+		batch.createFiles["/a/file-touched"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
 			Key:   "/a/file-touched",
 			Batch: batch,
 		}
-		batch.deletes["/a/file-touched"] = &BatchOperation{
+		batch.deletes["/a/file-touched"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
@@ -219,7 +219,7 @@ func TestBatch_Filter(t *testing.T) {
 	Convey("Detect fast create/delete on same node and file does exist at the end", t, func() {
 
 		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
-		batch := NewSimpleBatch(source, target)
+		batch := newSimpleBatch(source, target)
 
 		source.CreateNode(bTestCtx, &tree.Node{
 			Path: "/a/file-touched",
@@ -227,14 +227,14 @@ func TestBatch_Filter(t *testing.T) {
 			Etag: "hash",
 		}, true)
 
-		batch.createFiles["/a/file-touched"] = &BatchOperation{
+		batch.createFiles["/a/file-touched"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
 			Key:   "/a/file-touched",
 			Batch: batch,
 		}
-		batch.deletes["/a/file-touched"] = &BatchOperation{
+		batch.deletes["/a/file-touched"] = &Operation{
 			EventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
@@ -250,7 +250,7 @@ func TestBatch_Filter(t *testing.T) {
 	Convey("Filter pruned deletion", t, func() {
 
 		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
-		batch := NewSimpleBatch(source, target)
+		batch := newSimpleBatch(source, target)
 		n1 := &tree.Node{
 			Path: "/a",
 			Type: tree.NodeType_COLLECTION,
@@ -269,9 +269,9 @@ func TestBatch_Filter(t *testing.T) {
 		source.CreateNode(bTestCtx, n1, true)
 		source.CreateNode(bTestCtx, n2, true)
 		source.CreateNode(bTestCtx, n3, true)
-		batch.deletes["/a"] = &BatchOperation{EventInfo: model.EventInfo{Path: n1.Path}, Key: n1.Path, Node: n1, Batch: batch}
-		batch.deletes["/a/subfile"] = &BatchOperation{EventInfo: model.EventInfo{Path: n2.Path}, Key: n2.Path, Node: n2, Batch: batch}
-		batch.deletes["/a-file-with-same-prefix"] = &BatchOperation{EventInfo: model.EventInfo{Path: n3.Path}, Key: n3.Path, Node: n3, Batch: batch}
+		batch.deletes["/a"] = &Operation{EventInfo: model.EventInfo{Path: n1.Path}, Key: n1.Path, Node: n1, Batch: batch}
+		batch.deletes["/a/subfile"] = &Operation{EventInfo: model.EventInfo{Path: n2.Path}, Key: n2.Path, Node: n2, Batch: batch}
+		batch.deletes["/a-file-with-same-prefix"] = &Operation{EventInfo: model.EventInfo{Path: n3.Path}, Key: n3.Path, Node: n3, Batch: batch}
 
 		batch.Filter(bTestCtx)
 		So(batch.deletes, ShouldHaveLength, 2)
@@ -284,51 +284,51 @@ func TestSortClosestMove(t *testing.T) {
 
 	Convey("Test SortClosestMoves flat", t, func() {
 
-		batch := NewSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		batch := newSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
 		moves := batch.sortClosestMoves(bTestCtx, []*Move{
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/similar-file-moved"},
 					Key:       "/similar-file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/similar-file-moved"},
 					Key:       "/similar-file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/similar-file"},
 					Key:       "/similar-file",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-moved"},
 					Key:       "/file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-moved"},
 					Key:       "/file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/similar-file"},
 					Key:       "/similar-file",
 					Batch:     batch,
@@ -341,51 +341,51 @@ func TestSortClosestMove(t *testing.T) {
 
 	Convey("Test SortClosestMoves deep", t, func() {
 
-		batch := NewSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		batch := newSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
 		moves := batch.sortClosestMoves(bTestCtx, []*Move{
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 					Key:       "/a/similar-file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 					Key:       "/a/similar-file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/similar-file"},
 					Key:       "/a/similar-file",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-moved"},
 					Key:       "/file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-moved"},
 					Key:       "/file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/similar-file"},
 					Key:       "/a/similar-file",
 					Batch:     batch,
@@ -398,51 +398,51 @@ func TestSortClosestMove(t *testing.T) {
 
 	Convey("Test SortClosestMoves deeper", t, func() {
 
-		batch := NewSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		batch := newSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
 		moves := batch.sortClosestMoves(bTestCtx, []*Move{
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
 					Key:       "/a/b/c/similar-file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
 					Key:       "/a/b/c/similar-file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/similar-file"},
 					Key:       "/a/similar-file",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-moved"},
 					Key:       "/file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-moved"},
 					Key:       "/file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/similar-file"},
 					Key:       "/a/similar-file",
 					Batch:     batch,
@@ -455,51 +455,51 @@ func TestSortClosestMove(t *testing.T) {
 
 	Convey("Test SortClosestMoves crossing", t, func() {
 
-		batch := NewSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		batch := newSimpleBatch(endpoints.NewMemDB(), endpoints.NewMemDB())
 		moves := batch.sortClosestMoves(bTestCtx, []*Move{
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 					Key:       "/a/similar-file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 					Key:       "/a/similar-file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/similar-file"},
 					Key:       "/similar-file",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/file-moved"},
 					Key:       "/a/file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
 					Batch:     batch,
 				},
 			},
 			{
-				createEvent: &BatchOperation{
+				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/file-moved"},
 					Key:       "/a/file-moved",
 					Batch:     batch,
 				},
-				deleteEvent: &BatchOperation{
+				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/similar-file"},
 					Key:       "/similar-file",
 					Batch:     batch,
@@ -512,7 +512,7 @@ func TestSortClosestMove(t *testing.T) {
 
 }
 
-func diffFromSnaps(folder string) (*Diff, error) {
+func diffFromSnaps(folder string) (*TreeDiff, error) {
 	right := endpoints.NewMemDB()
 	e := right.FromJSON("./testdata/" + folder + "/right.json")
 	if e != nil {
@@ -524,7 +524,9 @@ func diffFromSnaps(folder string) (*Diff, error) {
 	if e != nil {
 		return nil, e
 	}
-	return ComputeDiff(testCtx, left, right, nil)
+	diff := newTreeDiff(testCtx, left, right)
+	e = diff.Compute()
+	return diff, e
 }
 
 func TestScenariosFromSnapshot(t *testing.T) {
@@ -534,8 +536,8 @@ func TestScenariosFromSnapshot(t *testing.T) {
 		diff, e := diffFromSnaps("move-folder")
 		So(e, ShouldBeNil)
 
-		So(diff.MissingRight, ShouldHaveLength, 15)
-		So(diff.MissingLeft, ShouldHaveLength, 15)
+		So(diff.missingRight, ShouldHaveLength, 15)
+		So(diff.missingLeft, ShouldHaveLength, 15)
 
 		b, e := diff.ToUnidirectionalBatch(model.DirectionRight)
 		sb := b.(*SimpleBatch)
@@ -551,9 +553,9 @@ func TestScenariosFromSnapshot(t *testing.T) {
 		diff, e := diffFromSnaps("update-content")
 		So(e, ShouldBeNil)
 
-		So(diff.MissingRight, ShouldHaveLength, 0)
-		So(diff.MissingLeft, ShouldHaveLength, 0)
-		So(diff.Conflicts, ShouldHaveLength, 1)
+		So(diff.missingRight, ShouldHaveLength, 0)
+		So(diff.missingLeft, ShouldHaveLength, 0)
+		So(diff.conflicts, ShouldHaveLength, 1)
 
 		b, e := diff.ToUnidirectionalBatch(model.DirectionRight)
 		sb := b.(*SimpleBatch)

@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan int) (model.Stater, error) {
+func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (model.Stater, error) {
 
 	if s.Direction == model.DirectionBi {
 
@@ -56,12 +56,13 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 }
 
-func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan int) (merger.Batch, error) {
+func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (merger.Batch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
-	diff, e := merger.ComputeDiff(ctx, source, targetAsSource, statusChan)
-
+	diff := merger.NewDiff(ctx, source, targetAsSource)
+	diff.SetupChannels(statusChan, nil)
+	e := diff.Compute()
 	if e == nil && dryRun {
 		fmt.Println(diff.String())
 	}
@@ -78,7 +79,7 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 		return nil, err
 	}
 	batch.Filter(ctx)
-	batch.SetupChannels(doneChan, statusChan)
+	batch.SetupChannels(statusChan, doneChan)
 
 	log.Logger(ctx).Debug("### SENDING TO MERGER", zap.Any("stats", batch.Stats()))
 
@@ -95,7 +96,7 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 	return batch, nil
 }
 
-func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan int) (*merger.BidirectionalBatch, error) {
+func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (*merger.BidirectionalBatch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -136,7 +137,9 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	} else {
 
 		log.Logger(ctx).Info("Computing Batches from Sources")
-		diff, e := merger.ComputeDiff(ctx, source, targetAsSource, statusChan)
+		diff := merger.NewDiff(ctx, source, targetAsSource)
+		diff.SetupChannels(statusChan, nil)
+		e := diff.Compute()
 		log.Logger(ctx).Info("### GOT DIFF", zap.Any("diff", diff))
 		if e != nil || dryRun {
 			if doneChan != nil {
@@ -147,7 +150,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 		sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
 		target, _ := model.AsPathSyncTarget(s.Target)
-		if ers := merger.SolveConflicts(ctx, diff.Conflicts, sourceAsTarget, target); len(ers) > 0 {
+		if ers := merger.SolveConflicts(ctx, diff.Conflicts(), sourceAsTarget, target); len(ers) > 0 {
 			log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
 		}
 		var err error
@@ -177,15 +180,17 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	}
 
 	// Wait for both batch to be processed to send the doneChan info
-	dChan := make(chan int, 2)
-	bb.Left.SetupChannels(dChan, statusChan)
-	bb.Right.SetupChannels(dChan, statusChan)
+	dChan := make(chan interface{}, 2)
+	bb.Left.SetupChannels(statusChan, dChan)
+	bb.Right.SetupChannels(statusChan, dChan)
 	go func() {
 		i := 0
 		totalSize := 0
 		for s := range dChan {
 			i++
-			totalSize += s
+			if size, ok := s.(int); ok {
+				totalSize += size
+			}
 			if i == 2 {
 				close(dChan)
 				if doneChan != nil {
@@ -208,7 +213,8 @@ func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.
 		// Do not capture now
 		return snap, nil, nil
 	}
-	diff, er := merger.ComputeDiff(ctx, source, snap, nil)
+	diff := merger.NewDiff(ctx, source, snap)
+	er = diff.Compute()
 	if er != nil {
 		return nil, nil, er
 	}

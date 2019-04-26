@@ -41,15 +41,17 @@ func TestComputeSourcesDiff(t *testing.T) {
 	Convey("Test various Diffs", t, func() {
 
 		var left, right *endpoints.MemDB
-		var diff *Diff
+		var diff *TreeDiff
 
 		Convey("Test empty source and target", func() {
 			left = endpoints.NewMemDB()
 			right = endpoints.NewMemDB()
-			diff, _ = ComputeDiff(testCtx, left, right, nil)
+			diff = newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
 			So(diff, ShouldNotBeNil)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 0)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
 		})
 
 		Convey("Test file in left", func() {
@@ -60,9 +62,11 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			diff, _ = ComputeDiff(testCtx, left, right, nil)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 1)
+			diff = newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 1)
 		})
 
 		Convey("Test file in right", func() {
@@ -73,9 +77,11 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			diff, _ = ComputeDiff(testCtx, left, right, nil)
-			So(diff.MissingLeft, ShouldHaveLength, 1)
-			So(diff.MissingRight, ShouldHaveLength, 0)
+			diff = newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 1)
+			So(diff.missingRight, ShouldHaveLength, 0)
 		})
 
 		Convey("Test files in both", func() {
@@ -91,9 +97,11 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			diff, _ = ComputeDiff(testCtx, left, right, nil)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 0)
+			diff = newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
 		})
 
 		Convey("Test ignored files", func() {
@@ -129,9 +137,11 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			diff, _ = ComputeDiff(testCtx, left, right, nil)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 0)
+			diff = newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
 		})
 
 	})
@@ -147,18 +157,13 @@ func TestTreeDiff(t *testing.T) {
 			left = endpoints.NewMemDB()
 			right = endpoints.NewMemDB()
 			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
 			// Trigger printout for test coverage
 			t1.PrintOut()
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff, ShouldNotBeNil)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 0)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 0)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
 
 		})
 
@@ -170,17 +175,11 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 1)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 1)
-
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 1)
 		})
 
 		Convey("Test file in right", func() {
@@ -191,17 +190,11 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 1)
-			So(diff.MissingRight, ShouldHaveLength, 0)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 1)
-			So(diff2.MissingRight, ShouldHaveLength, 0)
-
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 1)
+			So(diff.missingRight, ShouldHaveLength, 0)
 		})
 
 		Convey("Test files in both", func() {
@@ -216,19 +209,12 @@ func TestTreeDiff(t *testing.T) {
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
-			},
-				true)
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 0)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 0)
-
+			}, true)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
 		})
 
 		Convey("Test conflicts : folder UUID", func() {
@@ -246,12 +232,13 @@ func TestTreeDiff(t *testing.T) {
 				Uuid: "uuid2",
 				Etag: "uuid2-hash",
 			}, true)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 0)
-			So(diff2.Conflicts, ShouldHaveLength, 1)
-			So(diff2.Conflicts[0].Type, ShouldEqual, ConflictFolderUUID)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
+			So(diff.conflicts, ShouldHaveLength, 1)
+			So(diff.conflicts[0].Type, ShouldEqual, ConflictFolderUUID)
 
 		})
 
@@ -268,12 +255,13 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "uuid2-hash",
 			}, true)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 0)
-			So(diff2.Conflicts, ShouldHaveLength, 1)
-			So(diff2.Conflicts[0].Type, ShouldEqual, ConflictFileContent)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
+			So(diff.conflicts, ShouldHaveLength, 1)
+			So(diff.conflicts[0].Type, ShouldEqual, ConflictFileContent)
 
 		})
 
@@ -290,12 +278,13 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_COLLECTION,
 				Etag: "hash2",
 			}, true)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 0)
-			So(diff2.Conflicts, ShouldHaveLength, 1)
-			So(diff2.Conflicts[0].Type, ShouldEqual, ConflictNodeType)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
+			So(diff.conflicts, ShouldHaveLength, 1)
+			So(diff.conflicts[0].Type, ShouldEqual, ConflictNodeType)
 
 		})
 
@@ -332,17 +321,11 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 0)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 0)
-
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 0)
 		})
 
 		Convey("Test Rename", func() {
@@ -374,15 +357,11 @@ func TestTreeDiff(t *testing.T) {
 			h1 := t1.GetHash()
 			h2 := t2.GetHash()
 			So(h1, ShouldNotEqual, h2)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 1)
-			So(diff.MissingRight, ShouldHaveLength, 1)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 1)
-			So(diff2.MissingRight, ShouldHaveLength, 1)
-
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 1)
+			So(diff.missingRight, ShouldHaveLength, 1)
 		})
 
 		Convey("Test further files", func() {
@@ -409,17 +388,11 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hashme",
 			}, true)
-			t2, _ := TreeNodeFromSource(right)
-			t1, _ := TreeNodeFromSource(left)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 2)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 2)
-
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 2)
 		})
 
 		Convey("Test subfolders files", func() {
@@ -446,17 +419,11 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hashme",
 			}, true)
-			t2, _ := TreeNodeFromSource(right)
-			t1, _ := TreeNodeFromSource(left)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 1)
-			So(diff.MissingRight, ShouldHaveLength, 3)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 1)
-			So(diff2.MissingRight, ShouldHaveLength, 3)
-
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 1)
+			So(diff.missingRight, ShouldHaveLength, 3)
 		})
 
 		Convey("Test subfolders insert", func() {
@@ -471,27 +438,18 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa", Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 2)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 2)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 2)
 
 			// Test reverse
-			diff4, _ := ComputeDiff(testCtx, right, left, nil)
-			So(diff4.MissingLeft, ShouldHaveLength, 2)
-			So(diff4.MissingRight, ShouldHaveLength, 0)
-
-			diff3 := &Diff{}
-			MergeNodes(t2, t1, diff3)
-			So(diff3.MissingLeft, ShouldHaveLength, 2)
-			So(diff3.MissingRight, ShouldHaveLength, 0)
-
+			diff = newTreeDiff(testCtx, right, left)
+			e = diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 2)
+			So(diff.missingRight, ShouldHaveLength, 0)
 		})
 
 		Convey("Test subfolders recursive", func() {
@@ -508,26 +466,18 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa", Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 4)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 4)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 4)
 
 			// Test reverse
-			diff4, _ := ComputeDiff(testCtx, right, left, nil)
-			So(diff4.MissingLeft, ShouldHaveLength, 4)
-			So(diff4.MissingRight, ShouldHaveLength, 0)
-
-			diff3 := &Diff{}
-			MergeNodes(t2, t1, diff3)
-			So(diff3.MissingLeft, ShouldHaveLength, 4)
-			So(diff3.MissingRight, ShouldHaveLength, 0)
+			diff4 := newTreeDiff(testCtx, right, left)
+			e4 := diff4.Compute()
+			So(e4, ShouldBeNil)
+			So(diff4.missingLeft, ShouldHaveLength, 4)
+			So(diff4.missingRight, ShouldHaveLength, 0)
 
 		})
 
@@ -544,26 +494,18 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/eq", Type: tree.NodeType_LEAF, Etag: "eq"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 1)
-			So(diff.MissingRight, ShouldHaveLength, 2)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 1)
-			So(diff2.MissingRight, ShouldHaveLength, 2)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 1)
+			So(diff.missingRight, ShouldHaveLength, 2)
 
 			// Test reverse
-			diff4, _ := ComputeDiff(testCtx, right, left, nil)
-			So(diff4.MissingLeft, ShouldHaveLength, 2)
-			So(diff4.MissingRight, ShouldHaveLength, 1)
-
-			diff3 := &Diff{}
-			MergeNodes(t2, t1, diff3)
-			So(diff3.MissingLeft, ShouldHaveLength, 2)
-			So(diff3.MissingRight, ShouldHaveLength, 1)
+			diff4 := newTreeDiff(testCtx, right, left)
+			e4 := diff4.Compute()
+			So(e4, ShouldBeNil)
+			So(diff4.missingLeft, ShouldHaveLength, 2)
+			So(diff4.missingRight, ShouldHaveLength, 1)
 
 		})
 
@@ -577,26 +519,18 @@ func TestTreeDiff(t *testing.T) {
 				}
 			}
 
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 10100)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 10100)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 10100)
 
 			// Test reverse
-			diff4, _ := ComputeDiff(testCtx, right, left, nil)
-			So(diff4.MissingLeft, ShouldHaveLength, 10100)
-			So(diff4.MissingRight, ShouldHaveLength, 0)
-
-			diff3 := &Diff{}
-			MergeNodes(t2, t1, diff3)
-			So(diff3.MissingLeft, ShouldHaveLength, 10100)
-			So(diff3.MissingRight, ShouldHaveLength, 0)
+			diff4 := newTreeDiff(testCtx, right, left)
+			e4 := diff4.Compute()
+			So(e4, ShouldBeNil)
+			So(diff4.missingLeft, ShouldHaveLength, 10100)
+			So(diff4.missingRight, ShouldHaveLength, 0)
 
 			// Rename on the right
 			for i := 0; i < 100; i++ {
@@ -614,12 +548,11 @@ func TestTreeDiff(t *testing.T) {
 				}
 			}
 
-			t1, _ = TreeNodeFromSource(left)
-			t2, _ = TreeNodeFromSource(right)
-			diff = &Diff{Left: left, Right: right, Context: context.Background()}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 101)
-			So(diff.MissingRight, ShouldHaveLength, 101)
+			diff = newTreeDiff(testCtx, left, right)
+			e = diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 101)
+			So(diff.missingRight, ShouldHaveLength, 101)
 			b, e := diff.ToUnidirectionalBatch(model.DirectionLeft)
 			s := b.(*SimpleBatch)
 			So(e, ShouldBeNil)
@@ -640,26 +573,17 @@ func TestTreeDiff(t *testing.T) {
 				}
 			}
 
-			t1, _ := TreeNodeFromSource(left)
-			t2, _ := TreeNodeFromSource(right)
-			diff := &Diff{}
-			MergeNodes(t1, t2, diff)
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 10100)
-
-			diff2, _ := ComputeDiff(testCtx, left, right, nil)
-			So(diff2.MissingLeft, ShouldHaveLength, 0)
-			So(diff2.MissingRight, ShouldHaveLength, 10100)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 10100)
 
 			// Test reverse
-			diff4, _ := ComputeDiff(testCtx, right, left, nil)
-			So(diff4.MissingLeft, ShouldHaveLength, 10100)
-			So(diff4.MissingRight, ShouldHaveLength, 0)
-
-			diff3 := &Diff{}
-			MergeNodes(t2, t1, diff3)
-			So(diff3.MissingLeft, ShouldHaveLength, 10100)
-			So(diff3.MissingRight, ShouldHaveLength, 0)
+			diff4 := newTreeDiff(testCtx, right, left)
+			diff4.Compute()
+			So(diff4.missingLeft, ShouldHaveLength, 10100)
+			So(diff4.missingRight, ShouldHaveLength, 0)
 
 		})
 
@@ -672,7 +596,7 @@ func TestTreeDiff(t *testing.T) {
 					left.CreateNode(testCtx, &tree.Node{Path: fmt.Sprintf("/tmp%d/tmp%d", i, j), Type: tree.NodeType_LEAF, Etag: ""}, true)
 				}
 			}
-			statusChan := make(chan BatchProcessStatus)
+			statusChan := make(chan ProcessStatus)
 			doneChan := make(chan bool, 1)
 			go func() {
 				for {
@@ -684,10 +608,12 @@ func TestTreeDiff(t *testing.T) {
 					}
 				}
 			}()
-			diff, _ := ComputeDiff(testCtx, left, right, statusChan)
+			diff := newTreeDiff(testCtx, left, right)
+			e := diff.Compute()
+			So(e, ShouldBeNil)
 			doneChan <- true
-			So(diff.MissingLeft, ShouldHaveLength, 0)
-			So(diff.MissingRight, ShouldHaveLength, 10100)
+			So(diff.missingLeft, ShouldHaveLength, 0)
+			So(diff.missingRight, ShouldHaveLength, 10100)
 
 		})
 

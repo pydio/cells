@@ -47,7 +47,7 @@ func TestProcess(t *testing.T) {
 
 		source := endpoints.NewMemDB()
 		target := endpoints.NewMemDB()
-		batch := merger.NewSimpleBatch(source, target)
+		batch := merger.NewBatch(source, target)
 
 		source.CreateNode(testCtx, &tree.Node{
 			Path: "/mkfile",
@@ -87,7 +87,7 @@ func TestProcess(t *testing.T) {
 			Etag: "filehash",
 		}, true)
 
-		batch.Enqueue(&merger.BatchOperation{
+		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/mkfile",
 			},
@@ -100,7 +100,7 @@ func TestProcess(t *testing.T) {
 			},
 			Batch: batch,
 		})
-		batch.Enqueue(&merger.BatchOperation{
+		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/to-be-deleted",
 			},
@@ -113,7 +113,7 @@ func TestProcess(t *testing.T) {
 			},
 			Batch: batch,
 		})
-		batch.Enqueue(&merger.BatchOperation{
+		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/moved-file",
 			},
@@ -124,7 +124,7 @@ func TestProcess(t *testing.T) {
 			},
 			Batch: batch,
 		}, "/to-be-moved")
-		batch.Enqueue(&merger.BatchOperation{
+		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/moved-folder",
 			},
@@ -135,7 +135,7 @@ func TestProcess(t *testing.T) {
 			},
 			Batch: batch,
 		}, "/folder-to-be-moved")
-		batch.Enqueue(&merger.BatchOperation{
+		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/mkdir",
 			},

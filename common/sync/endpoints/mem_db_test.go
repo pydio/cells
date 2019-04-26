@@ -112,8 +112,8 @@ func TestDiffEmpty(t *testing.T) {
 
 	Convey("Diffing two similar stubs", t, func(){
 		diff := proc.ComputeSourcesDiff(stubDb1, stubDb2)
-		So(diff.MissingLeft, ShouldHaveLength, 0)
-		So(diff.MissingRight, ShouldHaveLength, 0)
+		So(diff.missingLeft, ShouldHaveLength, 0)
+		So(diff.missingRight, ShouldHaveLength, 0)
 	})
 
 }
@@ -136,8 +136,8 @@ func TestDiff(t *testing.T){
 
 	Convey("Diffing two different stubs", t, func(){
 		diff := proc.ComputeSourcesDiff(stubDb1, stubDb2)
-		So(diff.MissingLeft, ShouldHaveLength, 1)
-		So(diff.MissingRight, ShouldHaveLength, 1)
+		So(diff.missingLeft, ShouldHaveLength, 1)
+		So(diff.missingRight, ShouldHaveLength, 1)
 	})
 
 }

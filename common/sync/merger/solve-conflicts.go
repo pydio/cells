@@ -27,37 +27,6 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-type ConflictType int
-
-const (
-	ConflictFolderUUID ConflictType = iota
-	ConflictFileContent
-	ConflictNodeType
-)
-
-type Conflict struct {
-	Type      ConflictType
-	NodeLeft  *tree.Node
-	NodeRight *tree.Node
-}
-
-func ConflictsByType(cc []*Conflict, conflictType ConflictType) (conflicts []*Conflict) {
-	for _, c := range cc {
-		if c.Type == conflictType {
-			conflicts = append(conflicts, c)
-		}
-	}
-	return
-}
-
-func MostRecentNode(n1, n2 *tree.Node) *tree.Node {
-	if n1.MTime > n2.MTime {
-		return n1
-	} else {
-		return n2
-	}
-}
-
 func SolveConflicts(ctx context.Context, conflicts []*Conflict, left model.Endpoint, right model.Endpoint) (errs []error) {
 
 	// Try to refresh UUIDs on target

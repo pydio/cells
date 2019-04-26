@@ -34,38 +34,32 @@ type SimpleBatch struct {
 	source model.PathSyncSource
 	target model.PathSyncTarget
 
-	createFiles      map[string]*BatchOperation
-	updateFiles      map[string]*BatchOperation
-	createFolders    map[string]*BatchOperation
-	deletes          map[string]*BatchOperation
-	fileMoves        map[string]*BatchOperation
-	folderMoves      map[string]*BatchOperation
-	refreshFilesUuid map[string]*BatchOperation
+	createFiles      map[string]*Operation
+	updateFiles      map[string]*Operation
+	createFolders    map[string]*Operation
+	deletes          map[string]*Operation
+	fileMoves        map[string]*Operation
+	folderMoves      map[string]*Operation
+	refreshFilesUuid map[string]*Operation
 
 	sessionProvider        model.SessionProvider
 	sessionProviderContext context.Context
 
-	statusChan chan BatchProcessStatus
-	doneChan   chan int
+	statusChan chan ProcessStatus
+	doneChan   chan interface{}
 }
 
-type BatchProcessStatus struct {
-	IsError      bool
-	StatusString string
-	Progress     float32
-}
-
-func NewSimpleBatch(source model.PathSyncSource, target model.PathSyncTarget) (batch *SimpleBatch) {
+func newSimpleBatch(source model.PathSyncSource, target model.PathSyncTarget) (batch *SimpleBatch) {
 	batch = &SimpleBatch{
 		source:           source,
 		target:           target,
-		createFiles:      make(map[string]*BatchOperation),
-		updateFiles:      make(map[string]*BatchOperation),
-		createFolders:    make(map[string]*BatchOperation),
-		deletes:          make(map[string]*BatchOperation),
-		fileMoves:        make(map[string]*BatchOperation),
-		folderMoves:      make(map[string]*BatchOperation),
-		refreshFilesUuid: make(map[string]*BatchOperation),
+		createFiles:      make(map[string]*Operation),
+		updateFiles:      make(map[string]*Operation),
+		createFolders:    make(map[string]*Operation),
+		deletes:          make(map[string]*Operation),
+		fileMoves:        make(map[string]*Operation),
+		folderMoves:      make(map[string]*Operation),
+		refreshFilesUuid: make(map[string]*Operation),
 	}
 	return batch
 }
@@ -75,20 +69,20 @@ func (b *SimpleBatch) SetSessionProvider(providerContext context.Context, provid
 	b.sessionProviderContext = providerContext
 }
 
-func (b *SimpleBatch) SetupChannels(done chan int, status chan BatchProcessStatus) {
+func (b *SimpleBatch) SetupChannels(status chan ProcessStatus, done chan interface{}) {
 	b.statusChan = status
 	b.doneChan = done
 }
 
-func (b *SimpleBatch) Status(s BatchProcessStatus) {
+func (b *SimpleBatch) Status(s ProcessStatus) {
 	if b.statusChan != nil {
 		b.statusChan <- s
 	}
 }
 
-func (b *SimpleBatch) Done(operations int) {
+func (b *SimpleBatch) Done(info interface{}) {
 	if b.doneChan != nil {
-		b.doneChan <- operations
+		b.doneChan <- info
 	}
 }
 
@@ -128,7 +122,7 @@ func (b *SimpleBatch) FinishSessionProvider(sessionUuid string) error {
 	return nil
 }
 
-func (b *SimpleBatch) Enqueue(event *BatchOperation, key ...string) {
+func (b *SimpleBatch) Enqueue(event *Operation, key ...string) {
 	k := event.Key
 	if len(key) > 0 {
 		k = key[0]
@@ -151,8 +145,8 @@ func (b *SimpleBatch) Enqueue(event *BatchOperation, key ...string) {
 	}
 }
 
-func (b *SimpleBatch) EventsByType(types []BatchOperationType, sorted ...bool) (events []*BatchOperation) {
-	var data map[string]*BatchOperation
+func (b *SimpleBatch) EventsByType(types []OperationType, sorted ...bool) (events []*Operation) {
+	var data map[string]*Operation
 	for _, t := range types {
 		switch t {
 		case OpCreateFile:
@@ -306,7 +300,7 @@ func (b *SimpleBatch) String() string {
 	return output
 }
 
-func (b *SimpleBatch) sortedKeys(events map[string]*BatchOperation) []string {
+func (b *SimpleBatch) sortedKeys(events map[string]*Operation) []string {
 	var keys []string
 	for k, _ := range events {
 		keys = append(keys, k)

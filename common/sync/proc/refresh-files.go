@@ -37,7 +37,7 @@ func (pr *Processor) refreshFilesUuid(batch merger.Batch) {
 	var dirs []string
 	var target model.PathSyncSource
 	var source model.UuidReceiver
-	toRefresh := batch.EventsByType([]merger.BatchOperationType{merger.OpRefreshUuid})
+	toRefresh := batch.EventsByType([]merger.OperationType{merger.OpRefreshUuid})
 	refreshesByKey := make(map[string]bool)
 	for _, c := range toRefresh {
 		if s, ok := c.Source().(model.UuidReceiver); ok {

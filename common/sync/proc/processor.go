@@ -49,7 +49,7 @@ type Processor struct {
 	eventChannels []chan model.ProcessorEvent
 }
 
-type ProcessFunc func(event *merger.BatchOperation, operationId string, progress chan int64) error
+type ProcessFunc func(event *merger.Operation, operationId string, progress chan int64) error
 
 func NewProcessor(ctx context.Context) *Processor {
 	return &Processor{
@@ -82,7 +82,7 @@ func (pr *Processor) sendEvent(event model.ProcessorEvent) {
 	}
 }
 
-func (pr *Processor) lockFileTo(batchedEvent *merger.BatchOperation, path string, operationId string) {
+func (pr *Processor) lockFileTo(batchedEvent *merger.Operation, path string, operationId string) {
 	if source, ok := model.AsPathSyncSource(batchedEvent.Target()); pr.LocksChannel != nil && ok {
 		pr.LocksChannel <- filters.LockEvent{
 			Source:      source,
@@ -92,7 +92,7 @@ func (pr *Processor) lockFileTo(batchedEvent *merger.BatchOperation, path string
 	}
 }
 
-func (pr *Processor) unlockFile(batchedEvent *merger.BatchOperation, path string) {
+func (pr *Processor) unlockFile(batchedEvent *merger.Operation, path string) {
 	if source, castOk := model.AsPathSyncSource(batchedEvent.Target()); castOk && pr.UnlocksChannel != nil {
 		d := 2 * time.Second
 		if source.GetEndpointInfo().EchoTime > 0 {
@@ -123,20 +123,20 @@ func (pr *Processor) process(batch merger.Batch) {
 	})
 
 	operationId := uuid.New()
-	var event *merger.BatchOperation
+	var event *merger.Operation
 
 	total := batch.ProgressTotal()
 	var cursor int64
 
-	batch.Status(merger.BatchProcessStatus{StatusString: fmt.Sprintf("Start processing batch (total bytes %d)", total)})
+	batch.Status(merger.ProcessStatus{StatusString: fmt.Sprintf("Start processing batch (total bytes %d)", total)})
 
-	sessionFlush := func(nonEmpty []*merger.BatchOperation) {}
+	sessionFlush := func(nonEmpty []*merger.Operation) {}
 	session, err := batch.StartSessionProvider(&tree.Node{Path: "/"})
 	if err != nil {
 		pr.Logger().Error("Error while starting Indexation Session", zap.Error(err))
 	} else {
 		defer batch.FinishSessionProvider(session.Uuid)
-		sessionFlush = func(nonEmpty []*merger.BatchOperation) {
+		sessionFlush = func(nonEmpty []*merger.Operation) {
 			if len(nonEmpty) == 0 {
 				return
 			}
@@ -145,12 +145,12 @@ func (pr *Processor) process(batch merger.Batch) {
 	}
 
 	// Create Folders
-	for _, event := range batch.EventsByType([]merger.BatchOperationType{merger.OpCreateFolder}, true) {
+	for _, event := range batch.EventsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
 		pr.applyProcessFunc(event, operationId, pr.processCreateFolder, "Created Folder", "Creating Folder", "Error while creating folder", &cursor, total, zap.String("path", event.EventInfo.Path))
 	}
 
 	// Move folders
-	folderMoves := batch.EventsByType([]merger.BatchOperationType{merger.OpMoveFolder}, true)
+	folderMoves := batch.EventsByType([]merger.OperationType{merger.OpMoveFolder}, true)
 	sessionFlush(folderMoves)
 	for _, event := range folderMoves {
 		toPath := event.EventInfo.Path
@@ -159,7 +159,7 @@ func (pr *Processor) process(batch merger.Batch) {
 	}
 
 	// Move files
-	fileMoves := batch.EventsByType([]merger.BatchOperationType{merger.OpMoveFile}, true)
+	fileMoves := batch.EventsByType([]merger.OperationType{merger.OpMoveFile}, true)
 	sessionFlush(fileMoves)
 	for _, event := range fileMoves {
 		toPath := event.EventInfo.Path
@@ -168,7 +168,7 @@ func (pr *Processor) process(batch merger.Batch) {
 	}
 
 	// Create files
-	createFiles := batch.EventsByType([]merger.BatchOperationType{merger.OpCreateFile, merger.OpUpdateFile})
+	createFiles := batch.EventsByType([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile})
 	sessionFlush(createFiles)
 	if batch.HasTransfers() {
 		// Process with a parallel Queue
@@ -197,7 +197,7 @@ func (pr *Processor) process(batch merger.Batch) {
 	}
 
 	// Deletes
-	deletes := batch.EventsByType([]merger.BatchOperationType{merger.OpDelete})
+	deletes := batch.EventsByType([]merger.OperationType{merger.OpDelete})
 	sessionFlush(deletes)
 	for _, event = range deletes {
 		if event.Node == nil {
@@ -206,9 +206,9 @@ func (pr *Processor) process(batch merger.Batch) {
 		pr.applyProcessFunc(event, operationId, pr.processDelete, "Deleted Node", "Deleting Node", "Error while deleting node", &cursor, total, zap.String("path", event.Node.Path))
 	}
 
-	batch.Status(merger.BatchProcessStatus{StatusString: "Finished processing batch"})
+	batch.Status(merger.ProcessStatus{StatusString: "Finished processing batch"})
 
-	if len(batch.EventsByType([]merger.BatchOperationType{merger.OpRefreshUuid})) > 0 {
+	if len(batch.EventsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
 		go pr.refreshFilesUuid(batch)
 	}
 
@@ -218,7 +218,7 @@ func (pr *Processor) process(batch merger.Batch) {
 	})
 }
 
-func (pr *Processor) applyProcessFunc(event *merger.BatchOperation, operationId string, callback ProcessFunc, completeString string, progressString string, errorString string, cursor *int64, total int64, fields ...zapcore.Field) error {
+func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId string, callback ProcessFunc, completeString string, progressString string, errorString string, cursor *int64, total int64, fields ...zapcore.Field) error {
 
 	fields = append(fields, zap.String("target", event.Target().GetEndpointInfo().URI))
 
@@ -230,7 +230,7 @@ func (pr *Processor) applyProcessFunc(event *merger.BatchOperation, operationId 
 			*cursor += p
 			progress := float32(*cursor) / float32(total)
 			if progress-lastProgress > 0.01 { // Send 1 per percent
-				event.Batch.Status(merger.BatchProcessStatus{
+				event.Batch.Status(merger.ProcessStatus{
 					StatusString: pr.logAsString(progressString, nil, fields...),
 					Progress:     progress,
 				})
@@ -254,7 +254,7 @@ func (pr *Processor) applyProcessFunc(event *merger.BatchOperation, operationId 
 			isError = true
 			loggerString = errorString
 		}
-		event.Batch.Status(merger.BatchProcessStatus{
+		event.Batch.Status(merger.ProcessStatus{
 			IsError:      isError,
 			StatusString: pr.logAsString(loggerString, err, fields...),
 			Progress:     float32(*cursor / total),

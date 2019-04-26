@@ -233,15 +233,15 @@ func (s *Handler) watchConfigs() {
 // TriggerResync sets 2 servers in sync
 func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest, resp *protosync.ResyncResponse) error {
 
-	var statusChan chan merger.BatchProcessStatus
-	var doneChan chan int
+	var statusChan chan merger.ProcessStatus
+	var doneChan chan interface{}
 	fullLog := &jobs.ActionLog{
 		OutputMessage: &jobs.ActionMessage{},
 	}
 
 	if req.Task != nil {
-		statusChan = make(chan merger.BatchProcessStatus)
-		doneChan = make(chan int)
+		statusChan = make(chan merger.ProcessStatus)
+		doneChan = make(chan interface{})
 
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
 		theTask := req.Task
