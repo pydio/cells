@@ -194,6 +194,7 @@ func (b *SimpleBatch) Filter(ctx context.Context) {
 }
 
 func (b *SimpleBatch) FilterToTarget(ctx context.Context) {
+
 	for p, e := range b.createFiles {
 		// Check it's not already on target
 		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.Node.Etag {
@@ -201,6 +202,15 @@ func (b *SimpleBatch) FilterToTarget(ctx context.Context) {
 			delete(b.createFiles, p)
 		}
 	}
+
+	for p, e := range b.updateFiles {
+		// Check it's not already on target
+		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.Node.Etag {
+			log.Logger(ctx).Debug("Skipping Update File", node.Zap())
+			delete(b.updateFiles, p)
+		}
+	}
+
 	for p, e := range b.createFolders {
 		// Check it's not already on target
 		if node, err := e.Target().LoadNode(ctx, p); err == nil {
