@@ -34,6 +34,13 @@ func (b *SimpleBatch) filterCreateFiles(ctx context.Context) {
 		}
 	}
 
+	for _, updateEvent := range b.updateFiles {
+		if model.Ignores(b.Target(), updateEvent.Key) {
+			delete(b.createFiles, updateEvent.Key)
+			continue
+		}
+	}
+
 }
 
 func (b *SimpleBatch) filterCreateFolders(ctx context.Context) {
