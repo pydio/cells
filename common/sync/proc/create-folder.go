@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (pr *Processor) processCreateFolder(event *merger.BatchEvent, operationId string, pg chan int64) error {
+func (pr *Processor) processCreateFolder(event *merger.BatchOperation, operationId string, pg chan int64) error {
 
 	pg <- 1
 	localPath := event.EventInfo.Path

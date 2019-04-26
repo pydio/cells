@@ -47,7 +47,7 @@ func TestProcess(t *testing.T) {
 
 		source := endpoints.NewMemDB()
 		target := endpoints.NewMemDB()
-		batch := merger.NewBatch(source, target)
+		batch := merger.NewSimpleBatch(source, target)
 
 		source.CreateNode(testCtx, &tree.Node{
 			Path: "/mkfile",
@@ -87,62 +87,67 @@ func TestProcess(t *testing.T) {
 			Etag: "filehash",
 		}, true)
 
-		batch.CreateFiles["/mkfile"] = &merger.BatchEvent{
+		batch.Enqueue(&merger.BatchOperation{
 			EventInfo: model.EventInfo{
 				Path: "/mkfile",
 			},
-			Key: "/mkfile",
+			Key:  "/mkfile",
+			Type: merger.OpCreateFile,
 			Node: &tree.Node{
 				Path: "/mkfile",
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			},
 			Batch: batch,
-		}
-		batch.Deletes["/to-be-deleted"] = &merger.BatchEvent{
+		})
+		batch.Enqueue(&merger.BatchOperation{
 			EventInfo: model.EventInfo{
 				Path: "/to-be-deleted",
 			},
-			Key: "/to-be-deleted",
+			Key:  "/to-be-deleted",
+			Type: merger.OpDelete,
 			Node: &tree.Node{
 				Path: "/to-be-deleted",
 				Type: tree.NodeType_LEAF,
 				Etag: "delhash",
 			},
 			Batch: batch,
-		}
-		batch.FileMoves["/to-be-moved"] = &merger.BatchEvent{
+		})
+		batch.Enqueue(&merger.BatchOperation{
 			EventInfo: model.EventInfo{
 				Path: "/moved-file",
 			},
-			Key: "/moved-file",
+			Key:  "/moved-file",
+			Type: merger.OpMoveFile,
 			Node: &tree.Node{
 				Path: "/to-be-moved",
 			},
 			Batch: batch,
-		}
-		batch.FolderMoves["/folder-to-be-moved"] = &merger.BatchEvent{
+		}, "/to-be-moved")
+		batch.Enqueue(&merger.BatchOperation{
 			EventInfo: model.EventInfo{
 				Path: "/moved-folder",
 			},
-			Key: "/moved-folder",
+			Type: merger.OpMoveFolder,
+			Key:  "/moved-folder",
 			Node: &tree.Node{
 				Path: "/folder-to-be-moved",
 			},
 			Batch: batch,
-		}
-		batch.CreateFolders["/mkdir"] = &merger.BatchEvent{
+		}, "/folder-to-be-moved")
+		batch.Enqueue(&merger.BatchOperation{
 			EventInfo: model.EventInfo{
 				Path: "/mkdir",
 			},
-			Key: "/mkdir",
+			Key:  "/mkdir",
+			Type: merger.OpCreateFolder,
 			Node: &tree.Node{
 				Path: "/mkdir",
 				Type: tree.NodeType_COLLECTION,
 				Uuid: "uuid",
 			},
 			Batch: batch,
-		}
+		})
 
 		m.process(batch)
 		time.Sleep(2 * time.Second)

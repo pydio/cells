@@ -41,7 +41,7 @@ func (pr *ProgressReader) Read(p []byte) (n int, e error) {
 	return n, e
 }
 
-func (pr *Processor) processCreateFile(event *merger.BatchEvent, operationId string, pg chan int64) error {
+func (pr *Processor) processCreateFile(event *merger.BatchOperation, operationId string, pg chan int64) error {
 
 	dataTarget, dtOk := model.AsDataSyncTarget(event.Target())
 	dataSource, dsOk := model.AsDataSyncSource(event.Source())

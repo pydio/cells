@@ -17,330 +17,55 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 package merger
 
 import (
 	"context"
-	"path"
-	"strings"
 
-	"github.com/pborman/uuid"
-
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-
-	common2 "github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
 
-type Batch struct {
-	Source                 model.PathSyncSource
-	Target                 model.PathSyncTarget
-	CreateFiles            map[string]*BatchEvent
-	UpdateFiles            map[string]*BatchEvent
-	CreateFolders          map[string]*BatchEvent
-	Deletes                map[string]*BatchEvent
-	FileMoves              map[string]*BatchEvent
-	FolderMoves            map[string]*BatchEvent
-	RefreshFilesUuid       map[string]*BatchEvent
-	SessionProvider        model.SessionProvider
-	SessionProviderContext context.Context
-	StatusChan             chan BatchProcessStatus
-	DoneChan               chan int
-}
+// Batch represents a set of operations to be processed
+type Batch interface {
+	model.Stater
 
-type BatchEvent struct {
-	EventInfo model.EventInfo
-	Node      *tree.Node
-	Key       string
-	Batch     *Batch
-}
+	// Source get or set the source of this batch
+	Source(newSource ...model.PathSyncSource) model.PathSyncSource
+	// Target get or set the target of this batch
+	Target(newTarget ...model.PathSyncTarget) model.PathSyncTarget
 
-func (b *BatchEvent) Source() model.PathSyncSource {
-	return b.Batch.Source
-}
+	// Enqueue stacks a BatchOperation - By default, it is registered with the event.Key, but an optional key can be passed.
+	// TODO : check this key param is really necessary
+	Enqueue(event *BatchOperation, key ...string)
+	// EventsByTypes retrieves all events of a given type
+	EventsByType(types []BatchOperationType, sorted ...bool) (events []*BatchOperation)
+	// Filter tries to detect unnecessary changes locally
+	Filter(ctx context.Context)
+	// FilterToTarget tries to compare changes to target and remove unnecessary ones
+	FilterToTarget(ctx context.Context)
 
-func (b *BatchEvent) Target() model.PathSyncTarget {
-	return b.Batch.Target
-}
+	// HasTransfers tels if the source and target will exchange actual data.
+	HasTransfers() bool
+	// Size returns the total number of operations
+	Size() int
+	// ProgressTotal returns the total number of bytes to be processed, to be used for progress.
+	// Basically, file transfers operations returns the file size, but other operations return a 1 byte size.
+	ProgressTotal() int64
 
-type BatchProcessStatus struct {
-	IsError      bool
-	StatusString string
-	Progress     float32
-}
+	// SetupChannels register channels for listening to status and done infos
+	SetupChannels(done chan int, status chan BatchProcessStatus)
+	// Status notify of a new BatchProcessStatus
+	Status(s BatchProcessStatus)
+	// Done notify the batch is processed, operations is the number of processed operations
+	Done(operations int)
 
-func NewBatch(source model.PathSyncSource, target model.PathSyncTarget) (batch *Batch) {
-	batch = &Batch{
-		Source:           source,
-		Target:           target,
-		CreateFiles:      make(map[string]*BatchEvent),
-		UpdateFiles:      make(map[string]*BatchEvent),
-		CreateFolders:    make(map[string]*BatchEvent),
-		Deletes:          make(map[string]*BatchEvent),
-		FileMoves:        make(map[string]*BatchEvent),
-		FolderMoves:      make(map[string]*BatchEvent),
-		RefreshFilesUuid: make(map[string]*BatchEvent),
-	}
-	return batch
-}
-
-func (b *Batch) Filter(ctx context.Context) {
-
-	checksumProvider := b.Source.(model.ChecksumProvider)
-
-	for _, createEvent := range b.CreateFiles {
-		if model.Ignores(b.Target, createEvent.Key) {
-			delete(b.CreateFiles, createEvent.Key)
-			continue
-		}
-		var node *tree.Node
-		var err error
-		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
-			log.Logger(ctx).Debug("Create File", node.Zap())
-			node = createEvent.EventInfo.ScanSourceNode
-		} else {
-			// Todo : Feed node from event instead of calling LoadNode() again?
-			node, err = b.Source.LoadNode(createEvent.EventInfo.CreateContext(ctx), createEvent.EventInfo.Path)
-			if err == nil {
-				log.Logger(ctx).Debug("Load File", node.Zap())
-			}
-		}
-		if err != nil {
-			delete(b.CreateFiles, createEvent.Key)
-			if _, exists := b.Deletes[createEvent.Key]; exists {
-				delete(b.Deletes, createEvent.Key)
-			}
-		} else {
-			createEvent.Node = node
-			if node.Uuid == "" && path.Base(node.Path) != common2.PYDIO_SYNC_HIDDEN_FILE_META {
-				b.RefreshFilesUuid[createEvent.Key] = createEvent
-			}
-			if model.NodeRequiresChecksum(node) && checksumProvider != nil {
-				if e := checksumProvider.ComputeChecksum(node); e == nil {
-					log.Logger(ctx).Info("Recomputing Checksum for node", node.Zap())
-				} else {
-					log.Logger(ctx).Error("Cannot Recompute checksum for node", node.Zap())
-				}
-			}
-		}
-	}
-
-	var folderUUIDs map[string][]*tree.Node
-	var refresher model.UuidFoldersRefresher
-	var ok bool
-	if refresher, ok = b.Source.(model.UuidFoldersRefresher); ok && len(b.CreateFolders) > 0 {
-		if c, e := refresher.ExistingFolders(ctx); e == nil {
-			folderUUIDs = c
-		}
-	}
-
-	for _, createEvent := range b.CreateFolders {
-		if model.Ignores(b.Target, createEvent.Key) {
-			delete(b.CreateFiles, createEvent.Key)
-			continue
-		}
-		var node *tree.Node
-		var err error
-		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
-			node = createEvent.EventInfo.ScanSourceNode
-		} else {
-			// Force reload to make sure to generate .pydio at that point
-			node, err = b.Source.LoadNode(createEvent.EventInfo.CreateContext(ctx), createEvent.EventInfo.Path)
-		}
-		if err != nil {
-			delete(b.CreateFolders, createEvent.Key)
-			if _, exists := b.Deletes[createEvent.Key]; exists {
-				delete(b.Deletes, createEvent.Key)
-			}
-		} else {
-			createEvent.Node = node
-		}
-		log.Logger(ctx).Debug("Create Folder", zap.Any("node", createEvent.Node))
-		if refresher != nil && folderUUIDs != nil && len(folderUUIDs) > 0 {
-			if _, ok := folderUUIDs[createEvent.Node.Uuid]; ok {
-				// There is a duplicate - update Uuid
-				refreshNode := createEvent.Node.Clone()
-				refreshNode.Uuid = uuid.New()
-				if newNode, err := refresher.UpdateFolderUuid(ctx, refreshNode); err == nil {
-					createEvent.Node = newNode
-				}
-			}
-		}
-	}
-
-	b.detectFolderMoves(ctx)
-
-	var possibleMoves []*Move
-	for _, deleteEvent := range b.Deletes {
-		localPath := deleteEvent.EventInfo.Path
-		var dbNode *tree.Node
-		if deleteEvent.Node != nil {
-			// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
-			dbNode = deleteEvent.Node
-		} else {
-			dbNode, _ = b.Target.LoadNode(deleteEvent.EventInfo.CreateContext(ctx), localPath)
-			log.Logger(ctx).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
-		}
-		if dbNode != nil {
-			deleteEvent.Node = dbNode
-			if dbNode.IsLeaf() {
-				var found bool
-				// Look by UUID first
-				for _, createEvent := range b.CreateFiles {
-					if createEvent.Node != nil && createEvent.Node.Uuid != "" && createEvent.Node.Uuid == dbNode.Uuid {
-						log.Logger(ctx).Debug("Existing leaf node with Uuid: safe move to ", createEvent.Node.ZapPath())
-						createEvent.Node = dbNode
-						b.FileMoves[createEvent.Key] = createEvent
-						delete(b.Deletes, deleteEvent.Key)
-						delete(b.CreateFiles, createEvent.Key)
-						found = true
-						break
-					}
-				}
-				// Look by Etag
-				if !found {
-					for _, createEvent := range b.CreateFiles {
-						if createEvent.Node != nil && createEvent.Node.Etag == dbNode.Etag {
-							log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createEvent.Node.ZapPath())
-							possibleMoves = append(possibleMoves, &Move{
-								deleteEvent: deleteEvent,
-								createEvent: createEvent,
-								dbNode:      dbNode,
-							})
-						}
-					}
-				}
-			}
-		} else {
-			_, createFileExists := b.CreateFiles[deleteEvent.Key]
-			_, createFolderExists := b.CreateFolders[deleteEvent.Key]
-			if createFileExists || createFolderExists {
-				// There was a create & remove in the same batch, on a non indexed node.
-				// We are not sure of the order, Stat the file.
-				var testLeaf bool
-				if createFileExists {
-					testLeaf = true
-				} else {
-					testLeaf = false
-				}
-				existNode, _ := b.Source.LoadNode(deleteEvent.EventInfo.CreateContext(ctx), deleteEvent.EventInfo.Path, testLeaf)
-				if existNode == nil {
-					// File does not exist finally, ignore totally
-					if createFileExists {
-						delete(b.CreateFiles, deleteEvent.Key)
-					}
-					if createFolderExists {
-						delete(b.CreateFolders, deleteEvent.Key)
-					}
-				}
-			}
-			// Remove from delete anyway : node is not in the index
-			delete(b.Deletes, deleteEvent.Key)
-		}
-	}
-
-	moves := b.sortClosestMoves(ctx, possibleMoves)
-	for _, move := range moves {
-		log.Logger(ctx).Debug("Picked closest move", zap.Object("move", move))
-		move.createEvent.Node = move.dbNode
-		b.FileMoves[move.createEvent.Key] = move.createEvent
-		delete(b.Deletes, move.deleteEvent.Key)
-		delete(b.CreateFiles, move.createEvent.Key)
-	}
-
-	// Prune Deletes: remove children if parent is already deleted
-	var deleteDelete []string
-	for _, folderDeleteEvent := range b.Deletes {
-		deletePath := folderDeleteEvent.Node.Path + "/"
-		for deleteKey, delEvent := range b.Deletes {
-			from := delEvent.Node.Path
-			if strings.HasPrefix(from, deletePath) {
-				deleteDelete = append(deleteDelete, deleteKey)
-			}
-		}
-	}
-	for _, del := range deleteDelete {
-		log.Logger(ctx).Debug("Ignoring Delete for key " + del + " as parent is already delete")
-		delete(b.Deletes, del)
-	}
-
-	for _, del := range b.Deletes {
-		if model.Ignores(b.Target, del.Key) {
-			delete(b.Deletes, del.Key)
-			continue
-		}
-	}
-
-}
-
-func (b *Batch) HasTransfers() bool {
-	_, ok1 := model.AsDataSyncSource(b.Source)
-	_, ok2 := model.AsDataSyncTarget(b.Target)
-	return ok1 && ok2
-}
-
-func (b *Batch) Size() int {
-	return len(b.CreateFolders) + len(b.FolderMoves) + len(b.CreateFiles) + len(b.FileMoves) + len(b.Deletes)
-}
-
-func (b *Batch) ProgressTotal() int64 {
-	if b.HasTransfers() {
-		var total int64
-		for _, c := range b.CreateFiles {
-			total += c.Node.Size
-		}
-		total += int64(len(b.CreateFolders) + len(b.FolderMoves) + len(b.FileMoves) + len(b.Deletes))
-		return total
-	} else {
-		return int64(b.Size())
-	}
-}
-
-func (b *Batch) Stats() map[string]interface{} {
-	return map[string]interface{}{
-		"EndpointSource": b.Source.GetEndpointInfo().URI,
-		"EndpointTarget": b.Target.GetEndpointInfo().URI,
-		"CreateFiles":    len(b.CreateFiles),
-		"CreateFolders":  len(b.CreateFolders),
-		"MoveFiles":      len(b.FileMoves),
-		"MoveFolders":    len(b.FolderMoves),
-		"Deletes":        len(b.Deletes),
-	}
-}
-
-func (b *Batch) String() string {
-	if len(b.CreateFiles)+len(b.CreateFolders)+len(b.Deletes)+len(b.FolderMoves)+len(b.FileMoves) == 0 {
-		return ""
-	}
-	output := "Batch on Target " + b.Target.GetEndpointInfo().URI + "\n"
-	for k, _ := range b.CreateFiles {
-		output += " + File " + k + "\n"
-	}
-	for k, _ := range b.CreateFolders {
-		output += " + Folder " + k + "\n"
-	}
-	for k, _ := range b.Deletes {
-		output += " - Delete " + k + "\n"
-	}
-	for k, m := range b.FileMoves {
-		output += " = Move File " + m.Node.Path + " to " + k + "\n"
-	}
-	for k, m := range b.FolderMoves {
-		output += " = Move Folder " + m.Node.Path + " to " + k + "\n"
-	}
-	return output
-}
-
-func (b *Batch) Zaps() []zapcore.Field {
-	return []zapcore.Field{
-		zap.Any("CreateFile", b.CreateFiles),
-		zap.Any("CreateFolders", b.CreateFolders),
-		zap.Any("Deletes", b.Deletes),
-		zap.Any("FileMoves", b.FileMoves),
-		zap.Any("FolderMoves", b.FolderMoves),
-	}
+	// SetSessionProvider registers a target as supporting the SessionProvider interface
+	SetSessionProvider(providerContext context.Context, provider model.SessionProvider)
+	// StartSessionProvider calls StartSession on the underlying provider if it is set
+	StartSessionProvider(rootNode *tree.Node) (*tree.IndexationSession, error)
+	// FlushSessionProvider calls FlushSession on the underlying provider if it is set
+	FlushSessionProvider(sessionUuid string) error
+	// FinishSessionProvider calls FinishSession on the underlying provider if it is set
+	FinishSessionProvider(sessionUuid string) error
 }

@@ -62,14 +62,14 @@ func SolveConflicts(ctx context.Context, conflicts []*Conflict, left model.Endpo
 
 	// Try to refresh UUIDs on target
 	var refresher model.UuidFoldersRefresher
-	var ok, refresherRight, refresherLeft bool
-	if refresher, ok = right.(model.UuidFoldersRefresher); ok {
+	var canRefresh, refresherRight, refresherLeft bool
+	if refresher, canRefresh = right.(model.UuidFoldersRefresher); canRefresh {
 		refresherRight = true
-	} else if refresher, ok = left.(model.UuidFoldersRefresher); ok {
+	} else if refresher, canRefresh = left.(model.UuidFoldersRefresher); canRefresh {
 		refresherLeft = true
 	}
 	for _, c := range conflicts {
-		if c.Type == ConflictFolderUUID && ok {
+		if c.Type == ConflictFolderUUID && canRefresh {
 			var srcUuid *tree.Node
 			if refresherRight {
 				srcUuid = c.NodeLeft

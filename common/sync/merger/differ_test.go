@@ -148,6 +148,8 @@ func TestTreeDiff(t *testing.T) {
 			right = endpoints.NewMemDB()
 			t1, _ := TreeNodeFromSource(left)
 			t2, _ := TreeNodeFromSource(right)
+			// Trigger printout for test coverage
+			t1.PrintOut()
 			diff := &Diff{}
 			MergeNodes(t1, t2, diff)
 			So(diff, ShouldNotBeNil)
@@ -226,6 +228,74 @@ func TestTreeDiff(t *testing.T) {
 			diff2, _ := ComputeDiff(testCtx, left, right, nil)
 			So(diff2.MissingLeft, ShouldHaveLength, 0)
 			So(diff2.MissingRight, ShouldHaveLength, 0)
+
+		})
+
+		Convey("Test conflicts : folder UUID", func() {
+			left = endpoints.NewMemDB()
+			right = endpoints.NewMemDB()
+			right.CreateNode(testCtx, &tree.Node{
+				Path: "/aaa",
+				Type: tree.NodeType_COLLECTION,
+				Uuid: "uuid1",
+				Etag: "uuid1-hash",
+			}, true)
+			left.CreateNode(testCtx, &tree.Node{
+				Path: "/aaa",
+				Type: tree.NodeType_COLLECTION,
+				Uuid: "uuid2",
+				Etag: "uuid2-hash",
+			}, true)
+
+			diff2, _ := ComputeDiff(testCtx, left, right, nil)
+			So(diff2.MissingLeft, ShouldHaveLength, 0)
+			So(diff2.MissingRight, ShouldHaveLength, 0)
+			So(diff2.Conflicts, ShouldHaveLength, 1)
+			So(diff2.Conflicts[0].Type, ShouldEqual, ConflictFolderUUID)
+
+		})
+
+		Convey("Test conflicts : file contents", func() {
+			left = endpoints.NewMemDB()
+			right = endpoints.NewMemDB()
+			right.CreateNode(testCtx, &tree.Node{
+				Path: "/aaa",
+				Type: tree.NodeType_LEAF,
+				Etag: "uuid1-hash",
+			}, true)
+			left.CreateNode(testCtx, &tree.Node{
+				Path: "/aaa",
+				Type: tree.NodeType_LEAF,
+				Etag: "uuid2-hash",
+			}, true)
+
+			diff2, _ := ComputeDiff(testCtx, left, right, nil)
+			So(diff2.MissingLeft, ShouldHaveLength, 0)
+			So(diff2.MissingRight, ShouldHaveLength, 0)
+			So(diff2.Conflicts, ShouldHaveLength, 1)
+			So(diff2.Conflicts[0].Type, ShouldEqual, ConflictFileContent)
+
+		})
+
+		Convey("Test conflicts : node type", func() {
+			left = endpoints.NewMemDB()
+			right = endpoints.NewMemDB()
+			right.CreateNode(testCtx, &tree.Node{
+				Path: "/aaa",
+				Type: tree.NodeType_LEAF,
+				Etag: "hash1",
+			}, true)
+			left.CreateNode(testCtx, &tree.Node{
+				Path: "/aaa",
+				Type: tree.NodeType_COLLECTION,
+				Etag: "hash2",
+			}, true)
+
+			diff2, _ := ComputeDiff(testCtx, left, right, nil)
+			So(diff2.MissingLeft, ShouldHaveLength, 0)
+			So(diff2.MissingRight, ShouldHaveLength, 0)
+			So(diff2.Conflicts, ShouldHaveLength, 1)
+			So(diff2.Conflicts[0].Type, ShouldEqual, ConflictNodeType)
 
 		})
 
@@ -551,10 +621,13 @@ func TestTreeDiff(t *testing.T) {
 			So(diff.MissingLeft, ShouldHaveLength, 101)
 			So(diff.MissingRight, ShouldHaveLength, 101)
 			b, e := diff.ToUnidirectionalBatch(model.DirectionLeft)
+			s := b.(*SimpleBatch)
 			So(e, ShouldBeNil)
-			So(b.Deletes, ShouldHaveLength, 101)
-			So(b.CreateFiles, ShouldHaveLength, 100)
-			So(b.CreateFolders, ShouldHaveLength, 1)
+			So(s.deletes, ShouldHaveLength, 101)
+			So(s.createFiles, ShouldHaveLength, 100)
+			So(s.createFolders, ShouldHaveLength, 1)
+			So(diff.String(), ShouldNotBeEmpty)
+			So(diff.Stats(), ShouldNotBeEmpty)
 		})
 
 		Convey("Test massive folders with compute hash", func() {
@@ -587,6 +660,34 @@ func TestTreeDiff(t *testing.T) {
 			MergeNodes(t2, t1, diff3)
 			So(diff3.MissingLeft, ShouldHaveLength, 10100)
 			So(diff3.MissingRight, ShouldHaveLength, 0)
+
+		})
+
+		Convey("Test diff with chan", func() {
+			left := endpoints.NewMemDB()
+			right := endpoints.NewMemDB()
+			for i := 0; i < 100; i++ {
+				left.CreateNode(testCtx, &tree.Node{Path: fmt.Sprintf("/tmp%d", i), Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
+				for j := 0; j < 100; j++ {
+					left.CreateNode(testCtx, &tree.Node{Path: fmt.Sprintf("/tmp%d/tmp%d", i, j), Type: tree.NodeType_LEAF, Etag: ""}, true)
+				}
+			}
+			statusChan := make(chan BatchProcessStatus)
+			doneChan := make(chan bool, 1)
+			go func() {
+				for {
+					select {
+					case <-statusChan:
+						break
+					case <-doneChan:
+						return
+					}
+				}
+			}()
+			diff, _ := ComputeDiff(testCtx, left, right, statusChan)
+			doneChan <- true
+			So(diff.MissingLeft, ShouldHaveLength, 0)
+			So(diff.MissingRight, ShouldHaveLength, 10100)
 
 		})
 

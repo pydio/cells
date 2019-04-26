@@ -56,7 +56,7 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 }
 
-func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan int) (*merger.Batch, error) {
+func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan int) (merger.Batch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -78,10 +78,9 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 		return nil, err
 	}
 	batch.Filter(ctx)
-	batch.StatusChan = statusChan
-	batch.DoneChan = doneChan
+	batch.SetupChannels(doneChan, statusChan)
 
-	log.Logger(ctx).Debug("### SENDING TO MERGER", batch.Zaps()...)
+	log.Logger(ctx).Debug("### SENDING TO MERGER", zap.Any("stats", batch.Stats()))
 
 	var asProvider model.Endpoint
 	if s.Direction == model.DirectionRight {
@@ -90,8 +89,7 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 		asProvider = s.Source
 	}
 	if provider, ok := model.AsSessionProvider(asProvider); ok {
-		batch.SessionProvider = provider
-		batch.SessionProviderContext = ctx
+		batch.SetSessionProvider(ctx, provider)
 	}
 
 	return batch, nil
@@ -106,7 +104,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 	var useSnapshots, captureSnapshots bool
 	var leftSnap, rightSnap model.Snapshoter
-	var leftBatch, rightBatch *merger.Batch
+	var leftBatch, rightBatch merger.Batch
 
 	if s.SnapshotFactory != nil && !force {
 		var er1, er2 error
@@ -171,22 +169,17 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 	}
 
-	bb.Left.StatusChan = statusChan
-	bb.Right.StatusChan = statusChan
-
 	if provider, ok := model.AsSessionProvider(s.Target); ok {
-		bb.Left.SessionProvider = provider
-		bb.Left.SessionProviderContext = ctx
+		bb.Left.SetSessionProvider(ctx, provider)
 	}
 	if provider, ok := model.AsSessionProvider(s.Source); ok {
-		bb.Right.SessionProvider = provider
-		bb.Right.SessionProviderContext = ctx
+		bb.Right.SetSessionProvider(ctx, provider)
 	}
 
-	// Wait for both batch to be processed to send the DoneChan info
+	// Wait for both batch to be processed to send the doneChan info
 	dChan := make(chan int, 2)
-	bb.Left.DoneChan = dChan
-	bb.Right.DoneChan = dChan
+	bb.Left.SetupChannels(dChan, statusChan)
+	bb.Right.SetupChannels(dChan, statusChan)
 	go func() {
 		i := 0
 		totalSize := 0
@@ -205,7 +198,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	return bb, nil
 }
 
-func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, *merger.Batch, error) {
+func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, merger.Batch, error) {
 
 	snap, er := s.SnapshotFactory.Load(name)
 	if er != nil {

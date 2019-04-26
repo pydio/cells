@@ -31,20 +31,23 @@ import (
 )
 
 // TODO
-func (pr *Processor) refreshFilesUuid(batch *merger.Batch) {
+func (pr *Processor) refreshFilesUuid(batch merger.Batch) {
 
 	// Find parent path
 	var dirs []string
 	var target model.PathSyncSource
 	var source model.UuidReceiver
-	for k, c := range batch.RefreshFilesUuid {
+	toRefresh := batch.EventsByType([]merger.BatchOperationType{merger.OpRefreshUuid})
+	refreshesByKey := make(map[string]bool)
+	for _, c := range toRefresh {
 		if s, ok := c.Source().(model.UuidReceiver); ok {
 			source = s
 			if t, ok2 := c.Target().(model.PathSyncSource); ok2 {
-				dirs = append(dirs, path.Dir(k))
+				dirs = append(dirs, path.Dir(c.Key))
 				target = t
 			}
 		}
+		refreshesByKey[c.Key] = true
 	}
 	if source != nil && target != nil {
 		pref := mtree.CommonPrefix("/"[0], dirs...)
@@ -56,7 +59,7 @@ func (pr *Processor) refreshFilesUuid(batch *merger.Batch) {
 			if err != nil {
 				return
 			}
-			if _, ok := batch.RefreshFilesUuid[node.Path]; ok {
+			if _, ok := refreshesByKey[node.Path]; ok {
 				source.UpdateNodeUuid(pr.GlobalContext, node)
 			}
 		}, pref)

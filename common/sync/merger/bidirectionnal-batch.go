@@ -24,70 +24,28 @@ import (
 	"context"
 	"strings"
 
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/model"
 )
 
 type BidirectionalBatch struct {
-	Left  *Batch
-	Right *Batch
+	Left  Batch
+	Right Batch
 }
 
 // Merge takes consider current batches are delta B(t-1) -> B(t) and merge them as proper instructions
 func (b *BidirectionalBatch) Merge(ctx context.Context) error {
 
 	// Naive Merge - Cross Targets
-	lt, _ := model.AsPathSyncTarget(b.Left.Source)
-	rt, _ := model.AsPathSyncTarget(b.Right.Source)
+	lt, _ := model.AsPathSyncTarget(b.Left.Source())
+	rt, _ := model.AsPathSyncTarget(b.Right.Source())
 
-	b.Left.Target = rt
-	b.Right.Target = lt
+	b.Left.Target(rt)
+	b.Right.Target(lt)
 
-	b.Filter(ctx, b.Left)
-	b.Filter(ctx, b.Right)
+	b.Left.FilterToTarget(ctx)
+	b.Right.FilterToTarget(ctx)
 
 	return nil
-}
-
-func (b *BidirectionalBatch) Filter(ctx context.Context, batch *Batch) {
-	for p, e := range batch.CreateFiles {
-		// Check it's not already on target
-		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.Node.Etag {
-			log.Logger(ctx).Debug("Skipping Create File", node.Zap())
-			delete(batch.CreateFiles, p)
-		}
-	}
-	for p, e := range batch.CreateFolders {
-		// Check it's not already on target
-		if node, err := e.Target().LoadNode(ctx, p); err == nil {
-			log.Logger(ctx).Debug("Skipping Create Folder", node.Zap())
-			delete(batch.CreateFolders, p)
-		}
-	}
-	/*
-		// Check it's not already deleted on target
-		// Problem is if delete is inside a move, it will be a false positive
-		for p, e := range batch.Deletes {
-				if _, err := e.Target().LoadNode(ctx, p); err != nil && errors.Parse(err.Error()).Code == 404 {
-					log.Logger(ctx).Debug("Skipping Delete for path " + p)
-					delete(batch.Deletes, p)
-				}
-		}
-	*/
-	for p, e := range batch.FolderMoves {
-		// Check it's not already on target
-		if n, err := e.Target().LoadNode(ctx, p); err == nil {
-			log.Logger(ctx).Debug("Skipping Folder move", n.Zap())
-			delete(batch.FolderMoves, p)
-		}
-	}
-	for p, e := range batch.FileMoves {
-		// Check it's not already on target
-		if n, err := e.Target().LoadNode(ctx, p); err == nil && n.Etag == e.Node.Etag {
-			log.Logger(ctx).Debug("Skipping File move for path " + p)
-			delete(batch.FileMoves, p)
-		}
-	}
 }
 
 func (b *BidirectionalBatch) String() string {

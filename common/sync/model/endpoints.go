@@ -7,6 +7,8 @@ import (
 	"path"
 	"time"
 
+	"github.com/pydio/cells/common"
+
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -39,6 +41,10 @@ func Ignores(endpoint Endpoint, name string) bool {
 		}
 	}
 	return false
+}
+
+func IsFolderHiddenFile(name string) bool {
+	return path.Base(name) == common.PYDIO_SYNC_HIDDEN_FILE_META
 }
 
 type WatchConnectionInfo int

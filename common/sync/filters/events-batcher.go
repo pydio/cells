@@ -41,7 +41,7 @@ type EventsBatcher struct {
 	batchCacheMutex *sync.Mutex
 	batchCache      map[string][]model.EventInfo
 
-	batchOut         chan *merger.Batch
+	batchOut         chan merger.Batch
 	eventChannels    []chan model.ProcessorEvent
 	closeSessionChan chan string
 	batchesStatus    chan merger.BatchProcessStatus
@@ -58,7 +58,7 @@ func (ev *EventsBatcher) sendEvent(event model.ProcessorEvent) {
 	}
 }
 
-func (ev *EventsBatcher) FilterBatch(batch *merger.Batch) {
+func (ev *EventsBatcher) FilterBatch(batch merger.Batch) {
 
 	ev.sendEvent(model.ProcessorEvent{
 		Type: "filter:start",
@@ -74,40 +74,43 @@ func (ev *EventsBatcher) FilterBatch(batch *merger.Batch) {
 func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
-	batch := merger.NewBatch(ev.Source, ev.Target)
-	batch.StatusChan = ev.batchesStatus
-	batch.DoneChan = ev.batchesDone
+	batch := merger.NewSimpleBatch(ev.Source, ev.Target)
+	batch.SetupChannels(ev.batchesDone, ev.batchesStatus)
 	/*
 		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {
-			batch.SessionProvider = p
-			batch.SessionProviderContext = events[0].CreateContext(ev.globalContext)
+			batch.sessionProvider = p
+			batch.sessionProviderContext = events[0].CreateContext(ev.globalContext)
 		}
 	*/
 
 	for _, event := range events {
 		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
 		key := event.Path
-		var bEvent = &merger.BatchEvent{
+		var bEvent = &merger.BatchOperation{
 			Batch:     batch,
 			Key:       key,
 			EventInfo: event,
 		}
 		if event.Type == model.EventCreate || event.Type == model.EventRename {
 			if event.Folder {
-				batch.CreateFolders[key] = bEvent
+				bEvent.Type = merger.OpCreateFolder
 			} else {
-				batch.CreateFiles[key] = bEvent
+				bEvent.Type = merger.OpCreateFile
 			}
+			batch.Enqueue(bEvent)
+
 		} else if event.Type == model.EventSureMove {
 			event.Path = event.MoveTarget.Path
 			bEvent.Node = event.MoveSource
 			if event.MoveSource.IsLeaf() {
-				batch.FileMoves[event.Path] = bEvent
+				bEvent.Type = merger.OpMoveFile
 			} else {
-				batch.FolderMoves[event.Path] = bEvent
+				bEvent.Type = merger.OpMoveFolder
 			}
+			batch.Enqueue(bEvent, event.Path)
 		} else {
-			batch.Deletes[key] = bEvent
+			bEvent.Type = merger.OpDelete
+			batch.Enqueue(bEvent)
 		}
 	}
 
@@ -125,7 +128,7 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 
 }
 
-func (ev *EventsBatcher) BatchEvents(in chan model.EventInfo, out chan *merger.Batch, duration time.Duration) {
+func (ev *EventsBatcher) BatchEvents(in chan model.EventInfo, out chan merger.Batch, duration time.Duration) {
 
 	ev.batchOut = out
 	var batch []model.EventInfo
