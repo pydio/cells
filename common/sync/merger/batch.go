@@ -255,10 +255,10 @@ func (b *Batch) Filter(ctx context.Context) {
 	// Prune Deletes: remove children if parent is already deleted
 	var deleteDelete []string
 	for _, folderDeleteEvent := range b.Deletes {
-		deletePath := folderDeleteEvent.Node.Path
+		deletePath := folderDeleteEvent.Node.Path + "/"
 		for deleteKey, delEvent := range b.Deletes {
 			from := delEvent.Node.Path
-			if len(from) > len(deletePath) && strings.HasPrefix(from, deletePath) {
+			if strings.HasPrefix(from, deletePath) {
 				deleteDelete = append(deleteDelete, deleteKey)
 			}
 		}
