@@ -141,14 +141,20 @@ func (pr *Processor) process(batch *merger.Batch) {
 		batch.StatusChan <- merger.BatchProcessStatus{StatusString: fmt.Sprintf("Start processing batch (total bytes %d)", total)}
 	}
 
-	var sessionUuid string
-	if batch.SessionProvider != nil {
-		sess, err := batch.SessionProvider.StartSession(batch.SessionProviderContext, &tree.Node{Path: "/"})
+	sessionFlush := func(nonEmpty map[string]*merger.BatchEvent) {}
+	if batch.SessionProvider != nil && batch.SessionProviderContext != nil {
+		spCtx := batch.SessionProviderContext
+		session, err := batch.SessionProvider.StartSession(spCtx, &tree.Node{Path: "/"})
 		if err != nil {
 			pr.Logger().Error("Error while starting Indexation Session", zap.Error(err))
 		} else {
-			sessionUuid = sess.Uuid
-			defer batch.SessionProvider.FinishSession(batch.SessionProviderContext, sessionUuid)
+			defer batch.SessionProvider.FinishSession(spCtx, session.Uuid)
+			sessionFlush = func(nonEmpty map[string]*merger.BatchEvent) {
+				if len(nonEmpty) == 0 {
+					return
+				}
+				batch.SessionProvider.FlushSession(spCtx, session.Uuid)
+			}
 		}
 	}
 
@@ -159,11 +165,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 			batch.StatusChan, &cursor, total, zap.String("path", event.EventInfo.Path))
 	}
 
-	if len(batch.FolderMoves) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
-		batch.SessionProvider.FlushSession(batch.SessionProviderContext, sessionUuid)
-	}
-
 	// Move folders
+	sessionFlush(batch.FolderMoves)
 	for _, eKey := range pr.sortedKeys(batch.FolderMoves) {
 		event := batch.FolderMoves[eKey]
 		toPath := event.EventInfo.Path
@@ -172,11 +175,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 			batch.StatusChan, &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	}
 
-	if len(batch.FileMoves) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
-		batch.SessionProvider.FlushSession(batch.SessionProviderContext, sessionUuid)
-	}
-
 	// Move files
+	sessionFlush(batch.FileMoves)
 	for _, eKey := range pr.sortedKeys(batch.FileMoves) {
 		event := batch.FileMoves[eKey]
 		toPath := event.EventInfo.Path
@@ -185,11 +185,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 			batch.StatusChan, &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	}
 
-	if len(batch.CreateFiles) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
-		batch.SessionProvider.FlushSession(batch.SessionProviderContext, sessionUuid)
-	}
-
 	// Create files
+	sessionFlush(batch.CreateFiles)
 	if batch.HasTransfers() {
 		// Process with a parallel Queue
 		wg := &sync.WaitGroup{}
@@ -218,11 +215,8 @@ func (pr *Processor) process(batch *merger.Batch) {
 		}
 	}
 
-	if len(batch.Deletes) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
-		batch.SessionProvider.FlushSession(batch.SessionProviderContext, sessionUuid)
-	}
-
 	// Deletes
+	sessionFlush(batch.Deletes)
 	for _, event = range batch.Deletes {
 		if event.Node == nil {
 			continue
