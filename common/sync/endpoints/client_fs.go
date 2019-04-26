@@ -45,6 +45,10 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+const (
+	SyncTmpPrefix = ".tmp.write."
+)
+
 // TODO MOVE IN A fs_windows FILE TO AVOID RUNTIME OS CHECK
 func CanonicalPath(path string) string {
 
@@ -147,7 +151,7 @@ func (c *FSClient) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err erro
 			walknFc("", nil, err)
 			return nil
 		}
-		if len(path) == 0 || path == "/" {
+		if len(path) == 0 || path == "/" || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
 			return nil
 		}
 		path = c.normalize(path)
@@ -311,6 +315,23 @@ func (d *Discarder) Close() error {
 	return nil
 }
 
+type WrapperWriter struct {
+	io.WriteCloser
+	tmpPath    string
+	targetPath string
+	fs         afero.Fs
+}
+
+func (w *WrapperWriter) Close() error {
+	err := w.WriteCloser.Close()
+	if err != nil {
+		w.fs.Remove(w.tmpPath)
+		return err
+	} else {
+		return w.fs.Rename(w.tmpPath, w.targetPath)
+	}
+}
+
 func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
 
 	// Ignore .pydio except for root folder .pydio
@@ -319,15 +340,18 @@ func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteClose
 		return w, nil
 	}
 	path = c.denormalize(path)
-	_, e := c.FS.Stat(path)
-	var file afero.File
-	var openErr error
-	if os.IsNotExist(e) {
-		file, openErr = c.FS.Create(path)
-	} else {
-		file, openErr = c.FS.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0666)
+	tmpPath := filepath.Join(filepath.Dir(path), SyncTmpPrefix+filepath.Base(path))
+	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY, 0666)
+	if openErr != nil {
+		return nil, openErr
 	}
-	return file, openErr
+	wrapper := &WrapperWriter{
+		WriteCloser: file,
+		fs:          c.FS,
+		tmpPath:     tmpPath,
+		targetPath:  path,
+	}
+	return wrapper, nil
 
 }
 
@@ -428,7 +452,7 @@ func (c *FSClient) Watch(recursivePath string, connectionInfo chan model.WatchCo
 	go func() {
 		for event := range out {
 
-			if model.IsIgnoredFile(event.Path()) {
+			if model.IsIgnoredFile(event.Path()) || strings.HasPrefix(filepath.Base(event.Path()), SyncTmpPrefix) {
 				continue
 			}
 

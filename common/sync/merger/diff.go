@@ -36,7 +36,7 @@ type Diff struct {
 	Right        model.PathSyncSource
 	MissingLeft  []*tree.Node
 	MissingRight []*tree.Node
-	FolderUUIDs  []*Conflict
+	Conflicts    []*Conflict
 	Context      context.Context
 }
 
@@ -81,9 +81,9 @@ func (diff *Diff) String() string {
 			output += "\n " + node.Path
 		}
 	}
-	if len(diff.FolderUUIDs) > 0 {
-		output += "\n Diverging FolderUUIDs : "
-		for _, c := range diff.FolderUUIDs {
+	if len(diff.Conflicts) > 0 {
+		output += "\n Diverging Conflicts : "
+		for _, c := range diff.Conflicts {
 			output += "\n " + c.NodeLeft.Path
 		}
 	}
@@ -96,7 +96,7 @@ func (diff *Diff) Stats() map[string]interface{} {
 		"EndpointRight": diff.Right.GetEndpointInfo().URI,
 		"MissingLeft":   len(diff.MissingLeft),
 		"MissingRight":  len(diff.MissingRight),
-		"FolderUUIDs":   len(diff.FolderUUIDs),
+		"Conflicts":     len(diff.Conflicts),
 	}
 }
 
@@ -111,16 +111,24 @@ func (diff *Diff) ToUnidirectionalBatch(direction model.DirectionType) (batch *B
 		batch.CreateFolders = diff.FilterMissing(batch, diff.MissingRight, true, false)
 		batch.CreateFiles = diff.FilterMissing(batch, diff.MissingRight, false, false)
 		batch.Deletes = diff.FilterMissing(batch, diff.MissingLeft, false, true)
-		return batch, nil
 	} else if direction == model.DirectionLeft && leftOk {
 		batch = NewBatch(diff.Right, leftTarget)
 		batch.CreateFolders = diff.FilterMissing(batch, diff.MissingLeft, true, false)
 		batch.CreateFiles = diff.FilterMissing(batch, diff.MissingLeft, false, false)
 		batch.Deletes = diff.FilterMissing(batch, diff.MissingRight, false, true)
-		return batch, nil
+	} else {
+		return nil, errors.New("error while extracting unidirectional batch. either left or right is not a sync target")
 	}
-	return nil, errors.New("error while extracting unidirectional batch. either left or right is not a sync target")
-
+	for _, c := range ConflictsByType(diff.Conflicts, ConflictFileContent) {
+		n := MostRecentNode(c.NodeLeft, c.NodeRight)
+		batch.UpdateFiles[n.Path] = &BatchEvent{
+			Key:       n.Path,
+			Batch:     batch,
+			Node:      n,
+			EventInfo: model.NodeToEventInfo(diff.Context, n.Path, n, model.EventCreate),
+		}
+	}
+	return
 }
 
 // ToBidirectionalBatch transforms this diff to a batch

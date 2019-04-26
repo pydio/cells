@@ -1,17 +1,40 @@
+/*
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package task
 
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/endpoints"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan bool) (model.Stater, error) {
+func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan int) (model.Stater, error) {
 
 	if s.Direction == model.DirectionBi {
 
@@ -33,7 +56,7 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 }
 
-func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan bool) (*merger.Batch, error) {
+func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan int) (*merger.Batch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -45,7 +68,7 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 	log.Logger(ctx).Debug("### GOT DIFF", zap.Any("diff", diff))
 	if e != nil || dryRun {
 		if doneChan != nil {
-			doneChan <- true
+			doneChan <- 0
 		}
 		return nil, e
 	}
@@ -74,7 +97,7 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 	return batch, nil
 }
 
-func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan bool) (*merger.BidirectionalBatch, error) {
+func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.BatchProcessStatus, doneChan chan int) (*merger.BidirectionalBatch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -119,14 +142,14 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 		log.Logger(ctx).Info("### GOT DIFF", zap.Any("diff", diff))
 		if e != nil || dryRun {
 			if doneChan != nil {
-				doneChan <- true
+				doneChan <- 0
 			}
 			return nil, e
 		}
 
 		sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
 		target, _ := model.AsPathSyncTarget(s.Target)
-		if ers := merger.SolveConflicts(ctx, diff.FolderUUIDs, sourceAsTarget, target); len(ers) > 0 {
+		if ers := merger.SolveConflicts(ctx, diff.Conflicts, sourceAsTarget, target); len(ers) > 0 {
 			log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
 		}
 		var err error
@@ -161,17 +184,19 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	}
 
 	// Wait for both batch to be processed to send the DoneChan info
-	dChan := make(chan bool, 2)
+	dChan := make(chan int, 2)
 	bb.Left.DoneChan = dChan
 	bb.Right.DoneChan = dChan
 	go func() {
 		i := 0
-		for range dChan {
+		totalSize := 0
+		for s := range dChan {
 			i++
+			totalSize += s
 			if i == 2 {
 				close(dChan)
 				if doneChan != nil {
-					doneChan <- true
+					doneChan <- totalSize
 				}
 			}
 		}
@@ -204,5 +229,53 @@ func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.
 	}
 
 	return snap, batch, nil
+
+}
+
+func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
+
+	source, _ := model.AsPathSyncSource(s.Source)
+	targetAsSource, _ := model.AsPathSyncSource(s.Target)
+
+	if s.Direction == model.DirectionBi && s.SnapshotFactory != nil {
+
+		leftSnap, err := s.SnapshotFactory.Load("left")
+		if err != nil {
+			return err
+		}
+		if e := s.walkToJSON(ctx, leftSnap, filepath.Join(targetFolder, "snap-source.json")); e != nil {
+			return e
+		}
+
+		rightSnap, err := s.SnapshotFactory.Load("right")
+		if err != nil {
+			return err
+		}
+		if e := s.walkToJSON(ctx, rightSnap, filepath.Join(targetFolder, "snap-target.json")); e != nil {
+			return e
+		}
+
+	}
+
+	if e := s.walkToJSON(ctx, source, filepath.Join(targetFolder, "source.json")); e != nil {
+		return e
+	}
+
+	if e := s.walkToJSON(ctx, targetAsSource, filepath.Join(targetFolder, "target.json")); e != nil {
+		return e
+	}
+
+	return nil
+
+}
+
+func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, jsonFile string) error {
+
+	db := endpoints.NewMemDB()
+	source.Walk(func(path string, node *tree.Node, err error) {
+		db.CreateNode(ctx, node, false)
+	})
+
+	return db.ToJSON(jsonFile)
 
 }

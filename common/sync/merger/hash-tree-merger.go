@@ -25,24 +25,28 @@ func MergeNodes(left *TreeNode, right *TreeNode, diff *Diff) {
 	if left.GetHash() == right.GetHash() {
 		return
 	}
-	if left.IsLeaf() && right.IsLeaf() {
-		// Compare on MTimes and Enqueue
-		if left.MTime >= right.MTime {
-			diff.MissingRight = left.Enqueue(diff.MissingRight)
-		} else {
-			diff.MissingLeft = right.Enqueue(diff.MissingLeft)
-		}
-		return
-	} else if left.Type != right.Type {
-		// Node type changed ! Enqueue both as missing and browse children if necessary
-		diff.MissingRight = left.Enqueue(diff.MissingRight)
-		diff.MissingLeft = right.Enqueue(diff.MissingLeft)
-	} else if !left.IsLeaf() && !right.IsLeaf() && left.Uuid != right.Uuid {
-		diff.FolderUUIDs = append(diff.FolderUUIDs, &Conflict{
+	if left.Type != right.Type {
+		// Node changed of type - Register conflict and keep browsing
+		diff.Conflicts = append(diff.Conflicts, &Conflict{
+			Type:      ConflictNodeType,
 			NodeLeft:  &left.Node,
 			NodeRight: &right.Node,
-			Type:      ConflictFolderUUID,
 		})
+	} else if !left.IsLeaf() && left.Uuid != right.Uuid {
+		// Folder has different UUID - Register conflict and keep browsing
+		diff.Conflicts = append(diff.Conflicts, &Conflict{
+			Type:      ConflictFolderUUID,
+			NodeLeft:  &left.Node,
+			NodeRight: &right.Node,
+		})
+	} else if left.IsLeaf() {
+		// Files differ - Register conflict and return (no children)
+		diff.Conflicts = append(diff.Conflicts, &Conflict{
+			Type:      ConflictFileContent,
+			NodeLeft:  &left.Node,
+			NodeRight: &right.Node,
+		})
+		return
 	}
 	cL := left.GetCursor()
 	cR := right.GetCursor()

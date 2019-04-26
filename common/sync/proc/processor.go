@@ -111,13 +111,17 @@ func (pr *Processor) unlockFile(batchedEvent *merger.BatchEvent, path string) {
 
 func (pr *Processor) process(batch *merger.Batch) {
 
+	// Merge UpdateFiles into CreateFiles
+	for k, e := range batch.UpdateFiles {
+		batch.CreateFiles[k] = e
+	}
+	s := batch.Size()
 	if batch.DoneChan != nil {
 		defer func() {
-			batch.DoneChan <- true
+			batch.DoneChan <- s
 		}()
 	}
-
-	if batch.Size() == 0 {
+	if s == 0 {
 		// Nothing to do !
 		return
 	}
@@ -199,8 +203,10 @@ func (pr *Processor) process(batch *merger.Batch) {
 					<-throttle
 					wg.Done()
 				}()
-				pr.applyProcessFunc(eventCopy, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file",
-					batch.StatusChan, &cursor, total, zap.String("path", eventCopy.EventInfo.Path))
+				model.Retry(func() error {
+					return pr.applyProcessFunc(eventCopy, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file",
+						batch.StatusChan, &cursor, total, zap.String("path", eventCopy.EventInfo.Path))
+				}, 5*time.Second, 20*time.Second)
 			}()
 		}
 		wg.Wait()
@@ -241,7 +247,7 @@ func (pr *Processor) process(batch *merger.Batch) {
 
 func (pr *Processor) applyProcessFunc(event *merger.BatchEvent, operationId string, callback ProcessFunc,
 	completeString string, progressString string, errorString string, statusChan chan merger.BatchProcessStatus, cursor *int64,
-	total int64, fields ...zapcore.Field) {
+	total int64, fields ...zapcore.Field) error {
 
 	fields = append(fields, zap.String("target", event.Target().GetEndpointInfo().URI))
 
@@ -284,6 +290,7 @@ func (pr *Processor) applyProcessFunc(event *merger.BatchEvent, operationId stri
 		}
 	}
 
+	return err
 }
 
 func (pr *Processor) logAsString(msg string, err error, fields ...zapcore.Field) string {

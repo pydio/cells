@@ -61,16 +61,24 @@ func (b *Batch) sortClosestMoves(logCtx context.Context, possibleMoves []*Move) 
 
 	// Dedup by source
 	greatestSource := make(map[string]*Move)
+	targets := make(map[string]bool)
 	for _, m := range possibleMoves {
 		source := m.deleteEvent.Key
 		byT, ok := greatestSource[source]
 		for _, m2 := range possibleMoves {
-			target2 := m2.deleteEvent.Key
-			if target2 == source {
-				if !ok || m2.Distance() > byT.Distance() {
-					greatestSource[source] = m2
-				}
+			source2 := m2.deleteEvent.Key
+			if source2 != source {
+				continue
 			}
+			if _, alreadyUsed := targets[m2.createEvent.Key]; alreadyUsed {
+				continue
+			}
+			if !ok || m2.Distance() > byT.Distance() {
+				greatestSource[source] = m2
+			}
+		}
+		if m, ok := greatestSource[source]; ok {
+			targets[m.createEvent.Key] = true
 		}
 	}
 
@@ -83,15 +91,14 @@ func (b *Batch) sortClosestMoves(logCtx context.Context, possibleMoves []*Move) 
 		}
 	}
 
-	for target, m := range greatestTarget {
-		log.Logger(logCtx).Debug("Greatest Move", zap.Any("k", target), zap.Any("from", m.deleteEvent.Key), zap.Any("to", m.createEvent.Key))
+	for _, m := range greatestTarget {
 		moves = append(moves, m)
 	}
 
 	return
 }
 
-func (b *Batch) detectFolderMoves(logCtx context.Context) {
+func (b *Batch) detectFolderMoves(ctx context.Context) {
 	sorted := b.sortedKeys(b.Deletes)
 	target, ok := model.AsPathSyncTarget(b.Target)
 
@@ -108,39 +115,52 @@ func (b *Batch) detectFolderMoves(logCtx context.Context) {
 			// no need to reload from target
 			dbNode = deleteEvent.Node
 		} else if ok {
-			dbNode, _ = target.LoadNode(deleteEvent.EventInfo.CreateContext(logCtx), localPath)
-			log.Logger(logCtx).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
+			dbNode, _ = target.LoadNode(deleteEvent.EventInfo.CreateContext(ctx), localPath)
+			log.Logger(ctx).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
 		}
 		if dbNode == nil || dbNode.IsLeaf() {
 			continue
 		}
 
 		for _, createEvent := range b.CreateFolders {
-			log.Logger(logCtx).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", createEvent.Node.Zap(), dbNode.Zap())
+			log.Logger(ctx).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", createEvent.Node.Zap(), dbNode.Zap())
 			if createEvent.Node.Uuid == dbNode.Uuid {
-				log.Logger(logCtx).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.Uuid), zap.String("path", dbNode.Path))
+				log.Logger(ctx).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.Uuid), zap.String("path", dbNode.Path))
 				createEvent.Node = dbNode
 				b.FolderMoves[createEvent.Key] = createEvent
-				b.pruneMovesByPath(deleteEvent.Key, createEvent.Key)
+				b.pruneMovesByPath(ctx, deleteEvent.Key, createEvent.Key)
 				break
 			}
 		}
 	}
+
+	b.rescanMoves()
 }
 
-func (b *Batch) pruneMovesByPath(from, to string) {
+func (b *Batch) pruneMovesByPath(ctx context.Context, from, to string) {
 	// First remove folder from Creates/Deletes
 
 	delete(b.Deletes, from)
 	delete(b.CreateFolders, to)
 	fromPrefix := from + "/"
 	// Now remove all children
-	for p, _ := range b.Deletes {
+	for p, deleteEvent := range b.Deletes {
 		if !strings.HasPrefix(p, fromPrefix) {
 			continue
 		}
 		targetPath := path.Join(to, strings.TrimPrefix(p, fromPrefix))
-		if _, ok := b.CreateFiles[targetPath]; ok {
+		if createEvent, ok := b.CreateFiles[targetPath]; ok {
+			if createEvent.Node != nil && deleteEvent.Node != nil && createEvent.Node.Etag != deleteEvent.Node.Etag {
+				n := MostRecentNode(createEvent.Node, deleteEvent.Node)
+				n.Path = targetPath
+				// Will require additional Transfer
+				b.UpdateFiles[targetPath] = &BatchEvent{
+					Key:       targetPath,
+					Node:      n,
+					Batch:     b,
+					EventInfo: model.NodeToEventInfo(ctx, targetPath, n, model.EventCreate),
+				}
+			}
 			delete(b.CreateFiles, targetPath)
 			delete(b.Deletes, p)
 		} else if _, ok2 := b.CreateFolders[targetPath]; ok2 {
@@ -154,8 +174,46 @@ func (b *Batch) pruneMovesByPath(from, to string) {
 
 }
 
+func (b *Batch) rescanMoves() {
+
+	testPath := func(from, name string) bool {
+		return len(name) > len(from) && strings.HasPrefix(name, strings.TrimRight(from, "/")+"/")
+	}
+	replacePath := func(from, to, name string) string {
+		return strings.TrimRight(to, "/") + "/" + strings.TrimPrefix(name, strings.TrimRight(from, "/")+"/")
+	}
+
+	// Scan sub-moves
+	for _, to := range b.sortedKeys(b.FolderMoves) {
+		from := b.FolderMoves[to].Node.Path
+		// Look for other moves that where originating from the initial folder
+		for _, to2 := range b.sortedKeys(b.FolderMoves) {
+			from2 := b.FolderMoves[to2].Node.Path
+			if testPath(from, from2) {
+				b.FolderMoves[to2].Node.Path = replacePath(from, to, from2)
+			}
+		}
+	}
+
+	// Scan Deletes
+	for to, move := range b.FolderMoves {
+		from := move.Node.Path
+		for delKey, delEv := range b.Deletes {
+			if testPath(from, delKey) {
+				newKey := replacePath(from, to, delKey)
+				delete(b.Deletes, delKey)
+				delEv.Key = newKey
+				delEv.Node.Path = newKey
+				delEv.EventInfo.Path = newKey
+				b.Deletes[newKey] = delEv
+			}
+		}
+	}
+
+}
+
 func (b *Batch) sortedKeys(data map[string]*BatchEvent) []string {
-	out := make([]string, len(data))
+	var out []string
 	for k, _ := range data {
 		out = append(out, k)
 	}

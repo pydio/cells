@@ -22,8 +22,10 @@ package endpoints
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -227,6 +229,19 @@ func (db *MemDB) Stats() string {
 		}
 	}
 	return fmt.Sprintf("Snapshot contains %v files and %v folders", leafs, colls)
+}
+
+func (db *MemDB) ToJSON(name string) error {
+	data, _ := json.Marshal(db.Nodes)
+	return ioutil.WriteFile(name, data, 0666)
+}
+
+func (db *MemDB) FromJSON(name string) error {
+	data, err := ioutil.ReadFile(name)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, &db.Nodes)
 }
 
 func NewMemDB() *MemDB {

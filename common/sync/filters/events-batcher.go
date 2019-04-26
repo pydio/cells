@@ -45,7 +45,7 @@ type EventsBatcher struct {
 	eventChannels    []chan model.ProcessorEvent
 	closeSessionChan chan string
 	batchesStatus    chan merger.BatchProcessStatus
-	batchesDone      chan bool
+	batchesDone      chan int
 }
 
 func (ev *EventsBatcher) RegisterEventChannel(out chan model.ProcessorEvent) {
@@ -180,7 +180,7 @@ func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
 	ev.closeSessionChan <- sessionUuid
 }
 
-func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, batchesStatus chan merger.BatchProcessStatus, batchesDone chan bool,
+func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, batchesStatus chan merger.BatchProcessStatus, batchesDone chan int,
 ) *EventsBatcher {
 
 	return &EventsBatcher{

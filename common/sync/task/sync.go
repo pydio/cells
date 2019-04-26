@@ -49,7 +49,7 @@ type Sync struct {
 	paused        bool
 	watchConn     chan model.WatchConnectionInfo
 	batchesStatus chan merger.BatchProcessStatus
-	batchesDone   chan bool
+	batchesDone   chan int
 }
 
 // BroadcastCloseSession forwards session id to underlying batchers
@@ -148,7 +148,7 @@ func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
 	s.SnapshotFactory = factory
 }
 
-func (s *Sync) SetSyncEventsChan(statusChan chan merger.BatchProcessStatus, batchDone chan bool, events chan interface{}) {
+func (s *Sync) SetSyncEventsChan(statusChan chan merger.BatchProcessStatus, batchDone chan int, events chan interface{}) {
 	s.batchesStatus = statusChan
 	s.batchesDone = batchDone
 	if events != nil {

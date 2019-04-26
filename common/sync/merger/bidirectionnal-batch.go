@@ -24,8 +24,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/micro/go-micro/errors"
-
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -66,13 +64,16 @@ func (b *BidirectionalBatch) Filter(ctx context.Context, batch *Batch) {
 			delete(batch.CreateFolders, p)
 		}
 	}
-	for p, e := range batch.Deletes {
-		// Check it's not already on target
-		if _, err := e.Target().LoadNode(ctx, p); err != nil && errors.Parse(err.Error()).Code == 404 {
-			log.Logger(ctx).Debug("Skipping Delete for path " + p)
-			delete(batch.Deletes, p)
+	/*
+		// Check it's not already deleted on target
+		// Problem is if delete is inside a move, it will be a false positive
+		for p, e := range batch.Deletes {
+				if _, err := e.Target().LoadNode(ctx, p); err != nil && errors.Parse(err.Error()).Code == 404 {
+					log.Logger(ctx).Debug("Skipping Delete for path " + p)
+					delete(batch.Deletes, p)
+				}
 		}
-	}
+	*/
 	for p, e := range batch.FolderMoves {
 		// Check it's not already on target
 		if n, err := e.Target().LoadNode(ctx, p); err == nil {

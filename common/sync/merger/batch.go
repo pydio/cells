@@ -40,6 +40,7 @@ type Batch struct {
 	Source                 model.PathSyncSource
 	Target                 model.PathSyncTarget
 	CreateFiles            map[string]*BatchEvent
+	UpdateFiles            map[string]*BatchEvent
 	CreateFolders          map[string]*BatchEvent
 	Deletes                map[string]*BatchEvent
 	FileMoves              map[string]*BatchEvent
@@ -48,7 +49,7 @@ type Batch struct {
 	SessionProvider        model.SessionProvider
 	SessionProviderContext context.Context
 	StatusChan             chan BatchProcessStatus
-	DoneChan               chan bool
+	DoneChan               chan int
 }
 
 type BatchEvent struct {
@@ -77,6 +78,7 @@ func NewBatch(source model.PathSyncSource, target model.PathSyncTarget) (batch *
 		Source:           source,
 		Target:           target,
 		CreateFiles:      make(map[string]*BatchEvent),
+		UpdateFiles:      make(map[string]*BatchEvent),
 		CreateFolders:    make(map[string]*BatchEvent),
 		Deletes:          make(map[string]*BatchEvent),
 		FileMoves:        make(map[string]*BatchEvent),

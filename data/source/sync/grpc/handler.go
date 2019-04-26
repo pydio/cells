@@ -234,14 +234,14 @@ func (s *Handler) watchConfigs() {
 func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest, resp *protosync.ResyncResponse) error {
 
 	var statusChan chan merger.BatchProcessStatus
-	var doneChan chan bool
+	var doneChan chan int
 	fullLog := &jobs.ActionLog{
 		OutputMessage: &jobs.ActionMessage{},
 	}
 
 	if req.Task != nil {
 		statusChan = make(chan merger.BatchProcessStatus)
-		doneChan = make(chan bool)
+		doneChan = make(chan int)
 
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
 		theTask := req.Task
