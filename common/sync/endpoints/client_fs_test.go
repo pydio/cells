@@ -281,9 +281,8 @@ func TestWriteNode(t *testing.T) {
 		w, e := c.GetWriterOn("/test", 0)
 		So(w, ShouldNotBeNil)
 		So(e, ShouldBeNil)
-		defer w.Close()
 		io.Copy(w, r)
-
+		w.Close()
 		s, err := c.FS.Stat("/test")
 		So(err, ShouldBeNil)
 		So(s.IsDir(), ShouldBeFalse)
