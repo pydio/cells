@@ -1,0 +1,102 @@
+/*
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+package cache
+
+import (
+	"context"
+	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/tree"
+)
+
+// EventWithContext composes a NodeChangeEvent and a context
+type EventWithContext struct {
+	tree.NodeChangeEvent
+	Ctx context.Context
+}
+
+// EventsBatcher debounces events on a given timeframe and calls process on them afterward
+type EventsBatcher struct {
+	Events chan *EventWithContext
+	Done   chan bool
+
+	globalCtx  context.Context
+	batch      []*EventWithContext
+	debounce   time.Duration
+	idle       time.Duration
+	maxEvents  int
+	processOne func(context.Context, *tree.NodeChangeEvent)
+}
+
+// NewEventsBatcher inits a new EventsBatcher
+func NewEventsBatcher(ctx context.Context, debounce time.Duration, idle time.Duration, max int, process func(context.Context, *tree.NodeChangeEvent)) *EventsBatcher {
+	b := &EventsBatcher{
+		Events: make(chan *EventWithContext),
+		Done:   make(chan bool, 1),
+
+		globalCtx:  ctx,
+		debounce:   debounce,
+		idle:       idle,
+		maxEvents:  max,
+		processOne: process,
+	}
+	go b.Start()
+	return b
+}
+
+// Start starts listening to incoming events
+func (b *EventsBatcher) Start() {
+	next := b.debounce
+	for {
+		select {
+		case e := <-b.Events:
+			b.batch = append(b.batch, e)
+			if b.maxEvents > 0 && len(b.batch) > b.maxEvents {
+				b.process()
+			}
+			next = b.debounce
+		case <-time.After(next):
+			b.process()
+			next = b.idle
+		case <-b.Done:
+			b.process()
+			return
+		}
+	}
+}
+
+// Stop stops listening to incoming events
+func (b *EventsBatcher) Stop() {
+	b.Done <- true
+}
+
+func (b *EventsBatcher) process() {
+	if len(b.batch) == 0 {
+		return
+	}
+	log.Logger(b.globalCtx).Debug("Processing NodeEvents Batch", zap.Int("size", len(b.batch)))
+	for _, e := range b.batch {
+		b.processOne(e.Ctx, &e.NodeChangeEvent)
+	}
+	b.batch = []*EventWithContext{}
+}

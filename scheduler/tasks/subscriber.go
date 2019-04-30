@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -61,6 +62,7 @@ type Subscriber struct {
 
 	jobsLock    *sync.RWMutex
 	RootContext context.Context
+	batcher     *cache.EventsBatcher
 }
 
 // NewSubscriber creates a multiplexer for tasks managements and messages
@@ -79,6 +81,8 @@ func NewSubscriber(parentContext context.Context, client client.Client, server s
 	PubSub = pubsub.New(0)
 
 	s.RootContext = context.WithValue(parentContext, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+
+	s.batcher = cache.NewEventsBatcher(s.RootContext, 2*time.Second, 20*time.Second, 2000, s.processNodeEvent)
 
 	server.Subscribe(server.NewSubscriber(common.TOPIC_JOB_CONFIG_EVENT, s.jobsChangeEvent))
 	server.Subscribe(server.NewSubscriber(common.TOPIC_TREE_CHANGES, s.nodeEvent))
@@ -129,6 +133,11 @@ func (s *Subscriber) Init() error {
 	}, 3*time.Second, 20*time.Second)
 
 	return nil
+}
+
+// Stop closes internal EventsBatcher
+func (s *Subscriber) Stop() {
+	s.batcher.Done <- true
 }
 
 // ListenToMainQueue starts a go routine that listens to the Event Bus
@@ -246,16 +255,45 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 		return nil
 	}
 
-	s.jobsLock.Lock()
-	defer s.jobsLock.Unlock()
-
 	// Always ignore events on Temporary nodes
 	if event.Target != nil && event.Target.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
 		return nil
 	}
 
+	s.jobsLock.Lock()
+	defer s.jobsLock.Unlock()
+
 	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
+
+	s.batcher.Events <- &cache.EventWithContext{
+		NodeChangeEvent: *event,
+		Ctx:             ctx,
+	}
+
+	/*
+		for jobId, jobData := range s.JobsDefinitions {
+			if jobData.Inactive {
+				continue
+			}
+			if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(event, jobData.NodeEventFilter) {
+				continue
+			}
+			for _, eName := range jobData.EventNames {
+				if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
+					if event.Type == eType {
+						log.Logger(ctx).Debug("Run Job " + jobId + " on event " + eName)
+						task := NewTaskFromEvent(ctx, jobData, event)
+						go task.EnqueueRunnables(s.Client, s.MainQueue)
+					}
+				}
+			}
+		}
+	*/
+	return nil
+}
+
+func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChangeEvent) {
 
 	for jobId, jobData := range s.JobsDefinitions {
 		if jobData.Inactive {
@@ -274,7 +312,7 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 			}
 		}
 	}
-	return nil
+
 }
 
 // Reacts to a trigger linked to a nodeChange event.
