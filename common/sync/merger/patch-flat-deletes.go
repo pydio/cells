@@ -7,7 +7,7 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (b *SimpleBatch) filterDeletes(ctx context.Context) {
+func (b *FlatPatch) filterDeletes(ctx context.Context) {
 
 	// Prune Deletes: remove children if parent is already deleted
 	var deleteDelete []string

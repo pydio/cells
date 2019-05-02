@@ -24,15 +24,12 @@ import (
 	"context"
 	"sort"
 
-	"github.com/pydio/cells/common/proto/tree"
-
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/model"
 )
 
-type SimpleBatch struct {
-	source model.PathSyncSource
-	target model.PathSyncTarget
+type FlatPatch struct {
+	AbstractPatch
 
 	createFiles      map[string]*Operation
 	updateFiles      map[string]*Operation
@@ -41,18 +38,14 @@ type SimpleBatch struct {
 	fileMoves        map[string]*Operation
 	folderMoves      map[string]*Operation
 	refreshFilesUuid map[string]*Operation
-
-	sessionProvider        model.SessionProvider
-	sessionProviderContext context.Context
-
-	statusChan chan ProcessStatus
-	doneChan   chan interface{}
 }
 
-func newSimpleBatch(source model.PathSyncSource, target model.PathSyncTarget) (batch *SimpleBatch) {
-	batch = &SimpleBatch{
-		source:           source,
-		target:           target,
+func newFlatPatch(source model.PathSyncSource, target model.PathSyncTarget) (patch *FlatPatch) {
+	patch = &FlatPatch{
+		AbstractPatch: AbstractPatch{
+			source: source,
+			target: target,
+		},
 		createFiles:      make(map[string]*Operation),
 		updateFiles:      make(map[string]*Operation),
 		createFolders:    make(map[string]*Operation),
@@ -61,68 +54,10 @@ func newSimpleBatch(source model.PathSyncSource, target model.PathSyncTarget) (b
 		folderMoves:      make(map[string]*Operation),
 		refreshFilesUuid: make(map[string]*Operation),
 	}
-	return batch
+	return patch
 }
 
-func (b *SimpleBatch) SetSessionProvider(providerContext context.Context, provider model.SessionProvider) {
-	b.sessionProvider = provider
-	b.sessionProviderContext = providerContext
-}
-
-func (b *SimpleBatch) SetupChannels(status chan ProcessStatus, done chan interface{}) {
-	b.statusChan = status
-	b.doneChan = done
-}
-
-func (b *SimpleBatch) Status(s ProcessStatus) {
-	if b.statusChan != nil {
-		b.statusChan <- s
-	}
-}
-
-func (b *SimpleBatch) Done(info interface{}) {
-	if b.doneChan != nil {
-		b.doneChan <- info
-	}
-}
-
-func (b *SimpleBatch) Source(newSource ...model.PathSyncSource) model.PathSyncSource {
-	if len(newSource) > 0 {
-		b.source = newSource[0]
-	}
-	return b.source
-}
-
-func (b *SimpleBatch) Target(newTarget ...model.PathSyncTarget) model.PathSyncTarget {
-	if len(newTarget) > 0 {
-		b.target = newTarget[0]
-	}
-	return b.target
-}
-
-func (b *SimpleBatch) StartSessionProvider(rootNode *tree.Node) (*tree.IndexationSession, error) {
-	if b.sessionProvider != nil {
-		return b.sessionProvider.StartSession(b.sessionProviderContext, rootNode)
-	} else {
-		return &tree.IndexationSession{Uuid: "fake-session", Description: "Noop Session"}, nil
-	}
-}
-
-func (b *SimpleBatch) FlushSessionProvider(sessionUuid string) error {
-	if b.sessionProvider != nil {
-		return b.sessionProvider.FlushSession(b.sessionProviderContext, sessionUuid)
-	}
-	return nil
-}
-
-func (b *SimpleBatch) FinishSessionProvider(sessionUuid string) error {
-	if b.sessionProvider != nil {
-		return b.sessionProvider.FinishSession(b.sessionProviderContext, sessionUuid)
-	}
-	return nil
-}
-
-func (b *SimpleBatch) Enqueue(event *Operation, key ...string) {
+func (b *FlatPatch) Enqueue(event *Operation, key ...string) {
 	k := event.Key
 	if len(key) > 0 {
 		k = key[0]
@@ -145,7 +80,7 @@ func (b *SimpleBatch) Enqueue(event *Operation, key ...string) {
 	}
 }
 
-func (b *SimpleBatch) EventsByType(types []OperationType, sorted ...bool) (events []*Operation) {
+func (b *FlatPatch) EventsByType(types []OperationType, sorted ...bool) (events []*Operation) {
 	var data map[string]*Operation
 	for _, t := range types {
 		switch t {
@@ -179,7 +114,7 @@ func (b *SimpleBatch) EventsByType(types []OperationType, sorted ...bool) (event
 	return
 }
 
-func (b *SimpleBatch) Filter(ctx context.Context) {
+func (b *FlatPatch) Filter(ctx context.Context) {
 
 	b.filterCreateFiles(ctx)
 
@@ -193,7 +128,7 @@ func (b *SimpleBatch) Filter(ctx context.Context) {
 
 }
 
-func (b *SimpleBatch) FilterToTarget(ctx context.Context) {
+func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 
 	for p, e := range b.createFiles {
 		// Check it's not already on target
@@ -245,17 +180,17 @@ func (b *SimpleBatch) FilterToTarget(ctx context.Context) {
 
 }
 
-func (b *SimpleBatch) HasTransfers() bool {
+func (b *FlatPatch) HasTransfers() bool {
 	_, ok1 := model.AsDataSyncSource(b.Source())
 	_, ok2 := model.AsDataSyncTarget(b.Target())
 	return ok1 && ok2
 }
 
-func (b *SimpleBatch) Size() int {
+func (b *FlatPatch) Size() int {
 	return len(b.createFolders) + len(b.folderMoves) + len(b.createFiles) + len(b.updateFiles) + len(b.fileMoves) + len(b.deletes)
 }
 
-func (b *SimpleBatch) ProgressTotal() int64 {
+func (b *FlatPatch) ProgressTotal() int64 {
 	if b.HasTransfers() {
 		var total int64
 		for _, c := range b.createFiles {
@@ -271,24 +206,24 @@ func (b *SimpleBatch) ProgressTotal() int64 {
 	}
 }
 
-func (b *SimpleBatch) Stats() map[string]interface{} {
+func (b *FlatPatch) Stats() map[string]interface{} {
 	return map[string]interface{}{
-		"EndpointSource": b.Source().GetEndpointInfo().URI,
-		"EndpointTarget": b.Target().GetEndpointInfo().URI,
-		"createFiles":    len(b.createFiles),
-		"updateFiles":    len(b.updateFiles),
-		"createFolders":  len(b.createFolders),
-		"MoveFiles":      len(b.fileMoves),
-		"MoveFolders":    len(b.folderMoves),
-		"Deletes":        len(b.deletes),
+		"Source":        b.Source().GetEndpointInfo().URI,
+		"Target":        b.Target().GetEndpointInfo().URI,
+		"createFiles":   len(b.createFiles),
+		"updateFiles":   len(b.updateFiles),
+		"createFolders": len(b.createFolders),
+		"moveFiles":     len(b.fileMoves),
+		"moveFolders":   len(b.folderMoves),
+		"deletes":       len(b.deletes),
 	}
 }
 
-func (b *SimpleBatch) String() string {
+func (b *FlatPatch) String() string {
 	if len(b.createFiles)+len(b.createFolders)+len(b.deletes)+len(b.folderMoves)+len(b.fileMoves) == 0 {
 		return ""
 	}
-	output := "Batch on Target " + b.Target().GetEndpointInfo().URI + "\n"
+	output := "Patch on Target " + b.Target().GetEndpointInfo().URI + "\n"
 	for k, _ := range b.createFiles {
 		output += " + File " + k + "\n"
 	}
@@ -310,7 +245,7 @@ func (b *SimpleBatch) String() string {
 	return output
 }
 
-func (b *SimpleBatch) sortedKeys(events map[string]*Operation) []string {
+func (b *FlatPatch) sortedKeys(events map[string]*Operation) []string {
 	var keys []string
 	for k, _ := range events {
 		keys = append(keys, k)

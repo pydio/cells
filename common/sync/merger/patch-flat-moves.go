@@ -56,7 +56,7 @@ func (m *Move) Distance() int {
 	return len(strings.Split(pref, sep))
 }
 
-func (b *SimpleBatch) detectFileMoves(ctx context.Context) {
+func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 
 	var possibleMoves []*Move
 	for _, deleteEvent := range b.deletes {
@@ -129,7 +129,7 @@ func (b *SimpleBatch) detectFileMoves(ctx context.Context) {
 
 }
 
-func (b *SimpleBatch) sortClosestMoves(logCtx context.Context, possibleMoves []*Move) (moves []*Move) {
+func (b *FlatPatch) sortClosestMoves(logCtx context.Context, possibleMoves []*Move) (moves []*Move) {
 
 	// Dedup by source
 	greatestSource := make(map[string]*Move)
@@ -170,7 +170,7 @@ func (b *SimpleBatch) sortClosestMoves(logCtx context.Context, possibleMoves []*
 	return
 }
 
-func (b *SimpleBatch) detectFolderMoves(ctx context.Context) {
+func (b *FlatPatch) detectFolderMoves(ctx context.Context) {
 	sorted := b.sortedKeys(b.deletes)
 	target, ok := model.AsPathSyncTarget(b.Target())
 
@@ -209,7 +209,7 @@ func (b *SimpleBatch) detectFolderMoves(ctx context.Context) {
 	b.rescanMoves()
 }
 
-func (b *SimpleBatch) pruneMovesByPath(ctx context.Context, from, to string) {
+func (b *FlatPatch) pruneMovesByPath(ctx context.Context, from, to string) {
 	// First remove folder from Creates/Deletes
 
 	delete(b.deletes, from)
@@ -229,7 +229,7 @@ func (b *SimpleBatch) pruneMovesByPath(ctx context.Context, from, to string) {
 				b.updateFiles[targetPath] = &Operation{
 					Key:       targetPath,
 					Node:      n,
-					Batch:     b,
+					Patch:     b,
 					EventInfo: model.NodeToEventInfo(ctx, targetPath, n, model.EventCreate),
 				}
 			}
@@ -246,7 +246,7 @@ func (b *SimpleBatch) pruneMovesByPath(ctx context.Context, from, to string) {
 
 }
 
-func (b *SimpleBatch) rescanMoves() {
+func (b *FlatPatch) rescanMoves() {
 
 	testPath := func(from, name string) bool {
 		return len(name) > len(from) && strings.HasPrefix(name, strings.TrimRight(from, "/")+"/")

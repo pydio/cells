@@ -21,8 +21,13 @@
 package filters
 
 import (
+	"context"
+	"strings"
 	"sync"
 
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -45,6 +50,7 @@ type EchoFilter struct {
 }
 
 func (f *EchoFilter) lockFileTo(source model.PathSyncSource, path string, operationId string) {
+	log.Logger(context.Background()).Info("Locking File "+path, zap.String("source", source.GetEndpointInfo().URI))
 	var operations map[string]string
 	var ok bool
 	if operations, ok = f.sourcesOperations[source]; !ok {
@@ -56,6 +62,7 @@ func (f *EchoFilter) lockFileTo(source model.PathSyncSource, path string, operat
 
 func (f *EchoFilter) unlockFile(source model.PathSyncSource, path string) {
 	if operations, ok := f.sourcesOperations[source]; ok {
+		log.Logger(context.Background()).Info("Unlocking File "+path, zap.String("source", source.GetEndpointInfo().URI))
 		delete(operations, path)
 		if len(operations) == 0 {
 			delete(f.sourcesOperations, source)
@@ -68,7 +75,18 @@ func (f *EchoFilter) filterEvent(event model.EventInfo) model.EventInfo {
 	if operations, ok := f.sourcesOperations[event.PathSyncSource]; ok {
 		if value, pOk := operations[event.Path]; pOk {
 			event.OperationId = value
+			log.Logger(context.Background()).Info("Filter Event - Setting OperationId on event " + event.Path + " and unlocking")
+			delete(operations, event.Path)
+			if len(operations) == 0 {
+				delete(f.sourcesOperations, event.PathSyncSource)
+			}
 			return event
+		}
+		for wild, value := range operations {
+			if strings.HasSuffix(wild, "/*") && strings.HasPrefix(event.Path, strings.TrimSuffix(wild, "*")) {
+				log.Logger(context.Background()).Info("Filtering Event on wild card - Setting OperationId on event " + event.Path)
+				event.OperationId = value
+			}
 		}
 	}
 	//log.Printf("No associated operation for event %v - map was %v, source was %v", event, f.sourcesOperations, event.PathSyncSource)
@@ -110,7 +128,6 @@ func (f *EchoFilter) CreateFilter() (in, out chan model.EventInfo) {
 			}
 			f.Lock()
 			e := f.filterEvent(event)
-			//log.Printf("Sending to filter output %v", e)
 			out <- e
 			f.Unlock()
 		}

@@ -128,6 +128,10 @@ type Snapshoter interface {
 	Capture(ctx context.Context, source PathSyncSource) error
 }
 
+type SnapshotUpdater interface {
+	SetUpdateSnapshot(PathSyncTarget)
+}
+
 type SnapshotFactory interface {
 	Load(name string) (Snapshoter, error)
 }

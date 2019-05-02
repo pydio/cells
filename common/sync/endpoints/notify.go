@@ -49,6 +49,62 @@ var (
 
 )
 
+type FSEventDebouncer struct {
+	Input chan model.EventInfo
+	out   chan model.EventInfo
+	errs  chan error
+	c     *FSClient
+}
+
+func NewFSEventDebouncer(out chan model.EventInfo, errors chan error, c *FSClient, finished func()) *FSEventDebouncer {
+	d := &FSEventDebouncer{
+		out:   out,
+		errs:  errors,
+		c:     c,
+		Input: make(chan model.EventInfo),
+	}
+	go func() {
+		defer finished()
+		var eventInfo model.EventInfo
+		var lastSize int64
+		var lastTime time.Time
+		bounceTime := 500 * time.Millisecond
+		for {
+			select {
+			case ev := <-d.Input:
+				s, e := c.FS.Stat(ev.Path)
+				if os.IsNotExist(e) && ev.Type != model.EventRemove {
+					return
+				}
+				eventInfo = ev
+				if ev.Type != model.EventRemove {
+					lastSize = s.Size()
+					lastTime = s.ModTime()
+				}
+			case <-time.After(bounceTime):
+				if eventInfo.Path != "" {
+					s, e := c.FS.Stat(eventInfo.Path)
+					if os.IsNotExist(e) {
+						if eventInfo.Type == model.EventRemove {
+							d.out <- eventInfo
+						}
+						return
+					}
+					if s.Size() != lastSize || s.ModTime().After(lastTime) {
+						// Wait another round
+						break
+					}
+					lastSize = s.Size()
+					lastTime = s.ModTime()
+					d.out <- eventInfo
+				}
+				return
+			}
+		}
+	}()
+	return d
+}
+
 // PipeChan builds a new dynamically sized channel
 func PipeChan(capacity int) (inputCh chan notify.EventInfo, outputCh chan notify.EventInfo) {
 
@@ -128,7 +184,6 @@ func notifyEventToEventInfo(c *FSClient, event notify.EventInfo) (eventInfo mode
 	eventPath := strings.TrimPrefix(CanonicalPath(event.Path()), c.RootPath)
 	normalizedPath := c.normalize(eventPath)
 	if isEventType(EventTypeCreate, event.Event()) || isEventType(EventTypeWrite, event.Event()) {
-
 		var e error
 		i, e = c.FS.Stat(eventPath)
 		if e != nil {
@@ -148,7 +203,6 @@ func notifyEventToEventInfo(c *FSClient, event notify.EventInfo) (eventInfo mode
 		}, nil
 
 	} else if isEventType(EventTypeRename, event.Event()) {
-
 		var e error
 		i, e = c.FS.Stat(eventPath)
 		if e != nil {
@@ -172,7 +226,6 @@ func notifyEventToEventInfo(c *FSClient, event notify.EventInfo) (eventInfo mode
 		}, nil
 
 	} else if isEventType(EventTypeDelete, event.Event()) {
-
 		return model.EventInfo{
 			Time:           now(),
 			Path:           normalizedPath,

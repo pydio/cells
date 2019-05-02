@@ -56,7 +56,7 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 }
 
-func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (merger.Batch, error) {
+func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (merger.Patch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -96,16 +96,16 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 	return batch, nil
 }
 
-func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (*merger.BidirectionalBatch, error) {
+func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (*merger.BidirectionalPatch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 
-	var bb *merger.BidirectionalBatch
+	var bb *merger.BidirectionalPatch
 
 	var useSnapshots, captureSnapshots bool
 	var leftSnap, rightSnap model.Snapshoter
-	var leftBatch, rightBatch merger.Batch
+	var leftBatch, rightBatch merger.Patch
 
 	if s.SnapshotFactory != nil && !force {
 		var er1, er2 error
@@ -125,7 +125,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 		log.Logger(ctx).Info("Computing Batches from Snapshots")
 		leftBatch.Filter(ctx)
 		rightBatch.Filter(ctx)
-		bb = &merger.BidirectionalBatch{
+		bb = &merger.BidirectionalPatch{
 			Left:  leftBatch,
 			Right: rightBatch,
 		}
@@ -203,14 +203,21 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	return bb, nil
 }
 
-func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, merger.Batch, error) {
+func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, merger.Patch, error) {
 
+	snapUpdater, ok2 := source.(model.SnapshotUpdater)
 	snap, er := s.SnapshotFactory.Load(name)
 	if er != nil {
+		if ok2 {
+			snapUpdater.SetUpdateSnapshot(nil)
+		}
 		return nil, nil, er
 	}
 	if snap.IsEmpty() {
 		// Do not capture now
+		if ok2 {
+			snapUpdater.SetUpdateSnapshot(nil)
+		}
 		return snap, nil, nil
 	}
 	diff := merger.NewDiff(ctx, source, snap)
@@ -225,6 +232,10 @@ func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.
 	}
 	if e := snap.Capture(ctx, source); e != nil {
 		log.Logger(ctx).Error("Error while capturing snapshot!", zap.Error(e))
+	}
+	updatable, ok1 := snap.(model.PathSyncTarget)
+	if ok1 && ok2 {
+		snapUpdater.SetUpdateSnapshot(updatable)
 	}
 
 	return snap, batch, nil

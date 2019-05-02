@@ -36,7 +36,7 @@ import (
 )
 
 // Diff represent basic differences between two sources
-// It can be then transformed to Batch, depending on the sync being
+// It can be then transformed to Patch, depending on the sync being
 // unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
 type TreeDiff struct {
 	left  model.PathSyncSource
@@ -109,7 +109,7 @@ func (diff *TreeDiff) Compute() error {
 }
 
 // ToUnidirectionalBatch transforms this diff to a batch
-func (diff *TreeDiff) ToUnidirectionalBatch(direction model.DirectionType) (batch Batch, err error) {
+func (diff *TreeDiff) ToUnidirectionalBatch(direction model.DirectionType) (batch Patch, err error) {
 
 	rightTarget, rightOk := diff.right.(model.PathSyncTarget)
 	leftTarget, leftOk := diff.left.(model.PathSyncTarget)
@@ -132,16 +132,18 @@ func (diff *TreeDiff) ToUnidirectionalBatch(direction model.DirectionType) (batc
 		batch.Enqueue(&Operation{
 			Key:       n.Path,
 			Type:      OpUpdateFile,
-			Batch:     batch,
+			Patch:     batch,
 			Node:      n,
 			EventInfo: model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate),
 		})
 	}
+	log.Logger(diff.ctx).Info("Sending Unidirectionnal batch", zap.Any("batch", batch.Stats()))
+	//fmt.Println(batch)
 	return
 }
 
 // ToBidirectionalBatch transforms this diff to a batch
-func (diff *TreeDiff) ToBidirectionalBatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (batch *BidirectionalBatch, err error) {
+func (diff *TreeDiff) ToBidirectionalBatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (batch *BidirectionalPatch, err error) {
 
 	leftBatch := NewBatch(leftTarget.(model.PathSyncSource), rightTarget)
 	if rightTarget != nil {
@@ -155,10 +157,13 @@ func (diff *TreeDiff) ToBidirectionalBatch(leftTarget model.PathSyncTarget, righ
 		diff.toMissing(rightBatch, diff.missingLeft, false, false)
 	}
 
-	batch = &BidirectionalBatch{
+	batch = &BidirectionalPatch{
 		Left:  leftBatch,
 		Right: rightBatch,
 	}
+
+	log.Logger(diff.ctx).Info("Sending Bidirectionnal batch", zap.Any("batch", batch.Stats()))
+	//fmt.Println(batch)
 	return batch, nil
 
 }
@@ -281,7 +286,7 @@ func (diff *TreeDiff) mergeNodes(left *TreeNode, right *TreeNode) {
 }
 
 // toMissing transforms Missing slices to BatchEvents
-func (diff *TreeDiff) toMissing(batch Batch, in []*tree.Node, folders bool, removes bool) {
+func (diff *TreeDiff) toMissing(batch Patch, in []*tree.Node, folders bool, removes bool) {
 
 	var eventType model.EventType
 	var batchEventType OperationType
@@ -305,7 +310,7 @@ func (diff *TreeDiff) toMissing(batch Batch, in []*tree.Node, folders bool, remo
 				Type:      batchEventType,
 				Node:      n,
 				EventInfo: eventInfo,
-				Batch:     batch,
+				Patch:     batch,
 			})
 		}
 	}

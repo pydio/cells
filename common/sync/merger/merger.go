@@ -59,7 +59,7 @@ type Operation struct {
 	Type      OperationType
 	Node      *tree.Node
 	EventInfo model.EventInfo
-	Batch     Batch
+	Patch     Patch
 }
 
 // NewDiff creates a new Diff implementation
@@ -67,13 +67,13 @@ func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyn
 	return newTreeDiff(ctx, left, right)
 }
 
-// NewBatch creates a new Batch implementation
-func NewBatch(source model.PathSyncSource, target model.PathSyncTarget) Batch {
-	return newSimpleBatch(source, target)
+// NewBatch creates a new Patch implementation
+func NewBatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
+	return newFlatPatch(source, target)
 }
 
-// Batch represents a set of operations to be processed
-type Batch interface {
+// Patch represents a set of operations to be processed
+type Patch interface {
 	model.Stater
 	StatusProvider
 
@@ -111,7 +111,7 @@ type Batch interface {
 }
 
 // Diff represents basic differences between two sources
-// It can be then transformed to Batch, depending on the sync being
+// It can be then transformed to Patch, depending on the sync being
 // unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
 type Diff interface {
 	model.Stater
@@ -120,9 +120,9 @@ type Diff interface {
 	// Compute performs the actual Diff operation
 	Compute() error
 	// ToUnidirectionalBatch transforms current diff into a set of batch operations
-	ToUnidirectionalBatch(direction model.DirectionType) (batch Batch, err error)
+	ToUnidirectionalBatch(direction model.DirectionType) (batch Patch, err error)
 	// ToBidirectionalBatch transforms current diff into a set of 2 batches of operations
-	ToBidirectionalBatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (batch *BidirectionalBatch, err error)
+	ToBidirectionalBatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (batch *BidirectionalPatch, err error)
 	// conflicts list discovered conflicts
 	Conflicts() []*Conflict
 }
@@ -162,11 +162,32 @@ func MostRecentNode(n1, n2 *tree.Node) *tree.Node {
 }
 
 func (e *Operation) Source() model.PathSyncSource {
-	return e.Batch.Source()
+	return e.Patch.Source()
 }
 
 func (e *Operation) Target() model.PathSyncTarget {
-	return e.Batch.Target()
+	return e.Patch.Target()
+}
+
+func (e *Operation) String() string {
+	switch e.Type {
+	case OpMoveFolder:
+		return "MoveFolder to " + e.Key
+	case OpMoveFile:
+		return "MoveFile to " + e.Key
+	case OpCreateFile:
+		return "CreateFile"
+	case OpCreateFolder:
+		return "CreateFolder"
+	case OpUpdateFile:
+		return "UpdateFile"
+	case OpDelete:
+		return "Delete"
+	case OpRefreshUuid:
+		return "RefreshUuid"
+	default:
+		return "UnknownType"
+	}
 }
 
 func (e *Operation) NodeFromSource(ctx context.Context) (node *tree.Node, err error) {

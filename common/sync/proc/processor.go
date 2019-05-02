@@ -39,7 +39,7 @@ import (
 )
 
 type Processor struct {
-	BatchesChannel  chan merger.Batch
+	BatchesChannel  chan merger.Patch
 	RequeueChannels map[model.PathSyncSource]chan model.EventInfo
 	LocksChannel    chan filters.LockEvent
 	UnlocksChannel  chan filters.UnlockEvent
@@ -53,7 +53,7 @@ type ProcessFunc func(event *merger.Operation, operationId string, progress chan
 
 func NewProcessor(ctx context.Context) *Processor {
 	return &Processor{
-		BatchesChannel:  make(chan merger.Batch),
+		BatchesChannel:  make(chan merger.Patch),
 		RequeueChannels: make(map[model.PathSyncSource]chan model.EventInfo),
 		JobsInterrupt:   make(chan bool),
 		GlobalContext:   ctx,
@@ -108,7 +108,7 @@ func (pr *Processor) unlockFile(batchedEvent *merger.Operation, path string) {
 	}
 }
 
-func (pr *Processor) process(batch merger.Batch) {
+func (pr *Processor) process(batch merger.Patch) {
 
 	s := batch.Size()
 	defer batch.Done(s)
@@ -184,7 +184,7 @@ func (pr *Processor) process(batch merger.Batch) {
 					wg.Done()
 				}()
 				model.Retry(func() error {
-					return pr.applyProcessFunc(eventCopy, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file", &cursor, total, zap.String("path", eventCopy.EventInfo.Path))
+					return pr.applyProcessFunc(eventCopy, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file", &cursor, total, zap.String("path", eventCopy.EventInfo.Path), zap.String("eTag", eventCopy.Node.Etag))
 				}, 5*time.Second, 20*time.Second)
 			}()
 		}
@@ -230,7 +230,7 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 			*cursor += p
 			progress := float32(*cursor) / float32(total)
 			if progress-lastProgress > 0.01 { // Send 1 per percent
-				event.Batch.Status(merger.ProcessStatus{
+				event.Patch.Status(merger.ProcessStatus{
 					StatusString: pr.logAsString(progressString, nil, fields...),
 					Progress:     progress,
 				})
@@ -254,7 +254,7 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 			isError = true
 			loggerString = errorString
 		}
-		event.Batch.Status(merger.ProcessStatus{
+		event.Patch.Status(merger.ProcessStatus{
 			IsError:      isError,
 			StatusString: pr.logAsString(loggerString, err, fields...),
 			Progress:     float32(*cursor / total),
@@ -277,7 +277,8 @@ func (pr *Processor) ProcessBatches() {
 		select {
 		case batch, open := <-pr.BatchesChannel:
 			if !open {
-				continue
+				log.Logger(pr.GlobalContext).Info("Stop processing batches, pr.BatchesChannel is closed")
+				return
 			}
 			pr.process(batch)
 		}

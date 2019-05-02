@@ -9,7 +9,7 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (b *SimpleBatch) filterCreateFiles(ctx context.Context) {
+func (b *FlatPatch) filterCreateFiles(ctx context.Context) {
 
 	checksumProvider := b.Source().(model.ChecksumProvider)
 
@@ -43,7 +43,7 @@ func (b *SimpleBatch) filterCreateFiles(ctx context.Context) {
 
 }
 
-func (b *SimpleBatch) filterCreateFolders(ctx context.Context) {
+func (b *FlatPatch) filterCreateFolders(ctx context.Context) {
 
 	var existingFolders map[string][]*tree.Node
 	var refresher model.UuidFoldersRefresher

@@ -21,49 +21,39 @@
 package merger
 
 import (
-	"context"
-	"strings"
+	"testing"
 
 	"github.com/pydio/cells/common/sync/model"
+
+	"github.com/pydio/cells/common/proto/tree"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
-type BidirectionalPatch struct {
-	Left  Patch
-	Right Patch
-}
-
-// Merge takes consider current batches are delta B(t-1) -> B(t) and merge them as proper instructions
-func (p *BidirectionalPatch) Merge(ctx context.Context) error {
-
-	// Naive Merge - Cross Targets
-	lt, _ := model.AsPathSyncTarget(p.Left.Source())
-	rt, _ := model.AsPathSyncTarget(p.Right.Source())
-
-	p.Left.Target(rt)
-	p.Right.Target(lt)
-
-	p.Left.FilterToTarget(ctx)
-	p.Right.FilterToTarget(ctx)
-
-	return nil
-}
-
-func (p *BidirectionalPatch) String() string {
-	var lines []string
-	l := p.Left.String()
-	if l != "" {
-		lines = append(lines, l)
-	}
-	r := p.Right.String()
-	if r != "" {
-		lines = append(lines, r)
-	}
-	return strings.Join(lines, "\n")
-}
-
-func (p *BidirectionalPatch) Stats() map[string]interface{} {
-	return map[string]interface{}{
-		"Left":  p.Left.Stats(),
-		"Right": p.Right.Stats(),
-	}
+func TestOpNodePaths(t *testing.T) {
+	Convey("Test OpNode paths", t, func() {
+		root := NewTreeNode(&tree.Node{Path: "/"})
+		root.AddOperation(&Operation{
+			Key:  "a/b",
+			Node: &tree.Node{Path: "a/b", Type: tree.NodeType_COLLECTION},
+			Type: OpCreateFolder,
+		})
+		root.AddOperation(&Operation{
+			Key:  "a/b/c",
+			Node: &tree.Node{Path: "a/b/c"},
+			Type: OpCreateFile,
+		})
+		root.AddOperation(&Operation{
+			Key:  "a/b/d",
+			Node: &tree.Node{Path: "a/b/d"},
+			Type: OpCreateFile,
+		})
+		root.AddOperation(&Operation{
+			Key:       "m/v/rename",
+			Node:      &tree.Node{Path: "m/v/p"},
+			EventInfo: model.EventInfo{Path: "m/v/rename"},
+			Type:      OpMoveFile,
+		})
+		root.PrintOut()
+	})
 }

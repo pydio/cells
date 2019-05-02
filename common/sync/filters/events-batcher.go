@@ -22,6 +22,7 @@ package filters
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -41,7 +42,7 @@ type EventsBatcher struct {
 	batchCacheMutex *sync.Mutex
 	batchCache      map[string][]model.EventInfo
 
-	batchOut         chan merger.Batch
+	batchOut         chan merger.Patch
 	eventChannels    []chan model.ProcessorEvent
 	closeSessionChan chan string
 	batchesStatus    chan merger.ProcessStatus
@@ -58,7 +59,7 @@ func (ev *EventsBatcher) sendEvent(event model.ProcessorEvent) {
 	}
 }
 
-func (ev *EventsBatcher) FilterBatch(batch merger.Batch) {
+func (ev *EventsBatcher) FilterBatch(batch merger.Patch) {
 
 	ev.sendEvent(model.ProcessorEvent{
 		Type: "filter:start",
@@ -87,7 +88,7 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
 		key := event.Path
 		var bEvent = &merger.Operation{
-			Batch:     batch,
+			Patch:     batch,
 			Key:       key,
 			EventInfo: event,
 		}
@@ -124,11 +125,16 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 		Data: batch,
 	})
 
+	if batch.Size() > 0 {
+		log.Logger(ev.globalContext).Info("****** Sending Patch from Events")
+		fmt.Println(batch)
+	}
+
 	ev.batchOut <- batch
 
 }
 
-func (ev *EventsBatcher) BatchEvents(in chan model.EventInfo, out chan merger.Batch, duration time.Duration) {
+func (ev *EventsBatcher) BatchEvents(in chan model.EventInfo, out chan merger.Patch, duration time.Duration) {
 
 	ev.batchOut = out
 	var batch []model.EventInfo

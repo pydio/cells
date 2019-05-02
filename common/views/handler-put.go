@@ -47,6 +47,19 @@ type PutHandler struct {
 
 type onCreateErrorFunc func()
 
+func retryOnDuplicate(callback func() (*tree.CreateNodeResponse, error), retries ...int) (*tree.CreateNodeResponse, error) {
+	resp, e := callback()
+	var r int
+	if len(retries) > 0 {
+		r = retries[0]
+	}
+	if e != nil && strings.Contains(e.Error(), "Duplicate entry") && r < 3 {
+		<-time.After(100 * time.Millisecond)
+		resp, e = retryOnDuplicate(callback, r+1)
+	}
+	return resp, e
+}
+
 // Create a temporary node before calling a Put request. If it is an update, should send back the already existing node
 // Returns the node, a flag to tell wether it is created or not, and eventually an error
 // The Put event will afterward update the index
@@ -73,7 +86,10 @@ func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, si
 	}
 
 	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
-	createResp, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
+	//createResp, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
+	createResp, er := retryOnDuplicate(func() (*tree.CreateNodeResponse, error) {
+		return treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
+	})
 	if er != nil {
 		return nil, er, nil
 	}

@@ -98,7 +98,7 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			},
-			Batch: batch,
+			Patch: batch,
 		})
 		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
@@ -111,7 +111,7 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "delhash",
 			},
-			Batch: batch,
+			Patch: batch,
 		})
 		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
@@ -122,7 +122,7 @@ func TestProcess(t *testing.T) {
 			Node: &tree.Node{
 				Path: "/to-be-moved",
 			},
-			Batch: batch,
+			Patch: batch,
 		}, "/to-be-moved")
 		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
@@ -133,7 +133,7 @@ func TestProcess(t *testing.T) {
 			Node: &tree.Node{
 				Path: "/folder-to-be-moved",
 			},
-			Batch: batch,
+			Patch: batch,
 		}, "/folder-to-be-moved")
 		batch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
@@ -146,7 +146,7 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_COLLECTION,
 				Uuid: "uuid",
 			},
-			Batch: batch,
+			Patch: batch,
 		})
 
 		m.process(batch)

@@ -30,6 +30,14 @@ func (pr *Processor) processDelete(event *merger.Operation, operationId string, 
 	deletePath := event.Node.Path
 	pr.lockFileTo(event, deletePath, operationId)
 	defer pr.unlockFile(event, deletePath)
+	/*
+		// TODO: Shall we handle the wildcard for locking ? It will not unlock automatically
+			if !event.Node.IsLeaf() {
+				deleteWild := strings.TrimRight(deletePath, "/") + "/*"
+				pr.lockFileTo(event, deleteWild, operationId)
+				defer pr.unlockFile(event, deleteWild)
+			}
+	*/
 	ctx := event.EventInfo.CreateContext(pr.GlobalContext)
 	err := event.Target().DeleteNode(ctx, deletePath)
 

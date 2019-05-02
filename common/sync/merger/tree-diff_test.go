@@ -554,7 +554,7 @@ func TestTreeDiff(t *testing.T) {
 			So(diff.missingLeft, ShouldHaveLength, 101)
 			So(diff.missingRight, ShouldHaveLength, 101)
 			b, e := diff.ToUnidirectionalBatch(model.DirectionLeft)
-			s := b.(*SimpleBatch)
+			s := b.(*FlatPatch)
 			So(e, ShouldBeNil)
 			So(s.deletes, ShouldHaveLength, 101)
 			So(s.createFiles, ShouldHaveLength, 100)

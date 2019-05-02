@@ -31,7 +31,7 @@ import (
 )
 
 // TODO
-func (pr *Processor) refreshFilesUuid(batch merger.Batch) {
+func (pr *Processor) refreshFilesUuid(batch merger.Patch) {
 
 	// Find parent path
 	var dirs []string

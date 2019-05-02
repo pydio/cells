@@ -32,6 +32,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"sync"
 
 	errors2 "github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
@@ -97,15 +98,20 @@ func (c *FSClient) denormalize(path string) string {
 // Takes a root folder as main parameter
 // Underlying calls to FS are done through Afero.FS virtualization, allowing for mockups and automated testings.
 type FSClient struct {
-	RootPath string
-	FS       afero.Fs
+	RootPath       string
+	FS             afero.Fs
+	updateSnapshot model.PathSyncTarget
+}
+
+func (c *FSClient) SetUpdateSnapshot(target model.PathSyncTarget) {
+	c.updateSnapshot = target
 }
 
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
 		URI: "fs://" + c.RootPath,
-		RequiresFoldersRescan: true,
+		RequiresFoldersRescan: false,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
 	}
@@ -120,6 +126,9 @@ func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node
 	data := make(map[string][]*tree.Node)
 	final := make(map[string][]*tree.Node)
 	err := c.Walk(func(path string, node *tree.Node, err error) {
+		if err != nil || node == nil {
+			return
+		}
 		if node.IsLeaf() {
 			return
 		}
@@ -241,6 +250,10 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 		if node.Uuid != "" {
 			afero.WriteFile(c.FS, filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(node.Uuid), 0777)
 		}
+		if c.updateSnapshot != nil {
+			log.Logger(ctx).Info("[FS] Update Snapshot - Create", node.ZapPath())
+			c.updateSnapshot.CreateNode(ctx, node, updateIfExists)
+		}
 	}
 	return err
 }
@@ -254,11 +267,18 @@ func (c *FSClient) DeleteNode(ctx context.Context, path string) (err error) {
 	if !os.IsNotExist(e) {
 		err = c.FS.RemoveAll(c.denormalize(path))
 	}
+	if err == nil && c.updateSnapshot != nil {
+		log.Logger(ctx).Info("[FS] Update Snapshot - Delete " + path)
+		c.updateSnapshot.DeleteNode(ctx, path)
+	}
 	return err
 }
 
 // Move file or folder around.
 func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
+
+	oldInitial := oldPath
+	newInitial := newPath
 
 	oldPath = c.denormalize(oldPath)
 	newPath = c.denormalize(newPath)
@@ -270,6 +290,10 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 		} else {
 			err = c.FS.Rename(oldPath, newPath)
 		}
+	}
+	if err == nil && c.updateSnapshot != nil {
+		log.Logger(ctx).Info("[FS] Update Snapshot - Move from " + oldPath + " to " + newPath)
+		c.updateSnapshot.MoveNode(ctx, oldInitial, newInitial)
 	}
 	return err
 
@@ -317,18 +341,26 @@ func (d *Discarder) Close() error {
 
 type WrapperWriter struct {
 	io.WriteCloser
-	tmpPath    string
-	targetPath string
-	fs         afero.Fs
+	tmpPath      string
+	targetPath   string
+	client       *FSClient
+	snapshotPath string
 }
 
 func (w *WrapperWriter) Close() error {
 	err := w.WriteCloser.Close()
 	if err != nil {
-		w.fs.Remove(w.tmpPath)
+		w.client.FS.Remove(w.tmpPath)
 		return err
 	} else {
-		return w.fs.Rename(w.tmpPath, w.targetPath)
+		e := w.client.FS.Rename(w.tmpPath, w.targetPath)
+		if e == nil && w.client.updateSnapshot != nil {
+			ctx := context.Background()
+			n, _ := w.client.LoadNode(ctx, w.snapshotPath, true)
+			log.Logger(ctx).Info("[FS] Update Snapshot", n.Zap())
+			w.client.updateSnapshot.CreateNode(ctx, n, true)
+		}
+		return e
 	}
 }
 
@@ -339,6 +371,7 @@ func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteClose
 		w := &Discarder{}
 		return w, nil
 	}
+	snapshotPath := path
 	path = c.denormalize(path)
 	tmpPath := filepath.Join(filepath.Dir(path), SyncTmpPrefix+filepath.Base(path))
 	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY, 0666)
@@ -346,10 +379,11 @@ func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteClose
 		return nil, openErr
 	}
 	wrapper := &WrapperWriter{
-		WriteCloser: file,
-		fs:          c.FS,
-		tmpPath:     tmpPath,
-		targetPath:  path,
+		WriteCloser:  file,
+		client:       c,
+		tmpPath:      tmpPath,
+		targetPath:   path,
+		snapshotPath: snapshotPath,
 	}
 	return wrapper, nil
 
@@ -450,17 +484,41 @@ func (c *FSClient) Watch(recursivePath string, connectionInfo chan model.WatchCo
 	// Get fsnotify notifications for events and errors, and sent them
 	// using eventChan and errorChan
 	go func() {
+		writes := make(map[string]*FSEventDebouncer)
+		writesMux := &sync.Mutex{}
 		for event := range out {
 
 			if model.IsIgnoredFile(event.Path()) || strings.HasPrefix(filepath.Base(event.Path()), SyncTmpPrefix) {
 				continue
 			}
-
 			eventInfo, eventError := notifyEventToEventInfo(c, event)
 			if eventError != nil {
 				errorChan <- eventError
 			} else if eventInfo.Path != "" {
-				eventChan <- eventInfo
+
+				if !eventInfo.Folder {
+
+					var d *FSEventDebouncer
+					writesMux.Lock()
+					d, o := writes[event.Path()]
+					if !o {
+						p := event.Path()
+						d = NewFSEventDebouncer(eventChan, errorChan, c, func() {
+							writesMux.Lock()
+							delete(writes, p)
+							writesMux.Unlock()
+						})
+						writes[event.Path()] = d
+					}
+					writesMux.Unlock()
+					d.Input <- eventInfo
+
+				} else {
+
+					eventChan <- eventInfo
+
+				}
+
 			}
 
 		}

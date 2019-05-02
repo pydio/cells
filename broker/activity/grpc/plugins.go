@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/common/utils/meta"
 )
 
@@ -73,11 +74,19 @@ func init() {
 				// Register Subscribers
 				subscriber := NewEventsSubscriber(dao)
 				s := m.Options().Server
+				batcher := cache.NewEventsBatcher(m.Options().Context, 3*time.Second, 20*time.Second, 2000, func(ctx context.Context, msg *tree.NodeChangeEvent) {
+					subscriber.HandleNodeChange(ctx, msg)
+				})
+				m.Init(micro.BeforeStop(func() error {
+					batcher.Stop()
+					return nil
+				}))
 				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_TREE_CHANGES, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
 					if msg.Optimistic {
 						return nil
 					}
-					return subscriber.HandleNodeChange(ctx, msg)
+					batcher.Events <- &cache.EventWithContext{NodeChangeEvent: *msg, Ctx: ctx}
+					return nil
 				})); err != nil {
 					return err
 				}

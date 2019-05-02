@@ -26,6 +26,7 @@ type TreeNode struct {
 	childrenKeys []string
 	parent       *TreeNode
 	sorted       []*TreeNode
+	Operation    *Operation
 }
 
 // TreeNodeFromSource populates a hash tree with leafs and folders by walking a source.
@@ -117,7 +118,11 @@ func (t *TreeNode) SortedChildren() []*TreeNode {
 // PrintOut sends to fmt.Println a tree version of this node
 func (t *TreeNode) PrintOut() {
 	level := t.GetLevel()
-	fmt.Println(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash())
+	op := ""
+	if t.Operation != nil {
+		op = "\t\t ** " + t.Operation.String()
+	}
+	fmt.Println(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash() + op)
 	for _, c := range t.SortedChildren() {
 		c.PrintOut()
 	}
@@ -164,6 +169,51 @@ func (t *TreeNode) GetHash() string {
 	}
 	t.Etag = fmt.Sprintf("%x", h.Sum(nil))
 	return t.Etag
+}
+
+// SourcePath when this is an operation tree, return the Source path of the node
+func (t *TreeNode) SourcePath() string {
+	if t.parent == nil {
+		return t.Path
+	}
+	return path.Join(t.parent.SourcePath(), t.Label())
+}
+
+// TargetPath when this is an operation tree, return the Target path of the node
+func (t *TreeNode) TargetPath() string {
+	if t.parent == nil {
+		return t.Path
+	}
+	label := t.Label()
+	if t.Operation != nil && (t.Operation.Type == OpMoveFolder || t.Operation.Type == OpMoveFile) {
+		// Compute target from t.Operation.Event.Path instead of Node Path
+		label = path.Base(strings.Trim(t.Operation.EventInfo.Path, "/"))
+	}
+	return path.Join(t.parent.SourcePath(), label)
+}
+
+// AddOperationAtPath registers an operation at a given path, by eventually building
+// traversing nodes without operations on them
+func (t *TreeNode) AddOperation(op *Operation) {
+	crtParent := t
+	p := op.Node.Path
+	split := strings.Split(p, "/")
+	for i, _ := range split {
+		childPath := strings.Join(split[:i+1], "/")
+		if i == len(split)-1 {
+			n := NewTreeNode(op.Node)
+			n.Operation = op
+			crtParent.AddChild(n)
+		} else {
+			if c, o := crtParent.children[childPath]; o {
+				crtParent = c
+			} else {
+				n := NewTreeNode(&tree.Node{Path: childPath})
+				crtParent.AddChild(n)
+				crtParent = n
+			}
+		}
+	}
 }
 
 // ChildrenCursor provides a Nexter for browsing a node children
