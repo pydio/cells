@@ -111,7 +111,7 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
 		URI: "fs://" + c.RootPath,
-		RequiresFoldersRescan: false,
+		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
 	}

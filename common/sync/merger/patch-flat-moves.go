@@ -94,7 +94,7 @@ func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 			_, createFileExists := b.createFiles[deleteEvent.Key]
 			_, createFolderExists := b.createFolders[deleteEvent.Key]
 			if createFileExists || createFolderExists {
-				// There was a create & remove in the same batch, on a non indexed node.
+				// There was a create & remove in the same patch, on a non indexed node.
 				// We are not sure of the order, Stat the file.
 				var testLeaf bool
 				if createFileExists {

@@ -108,63 +108,63 @@ func (diff *TreeDiff) Compute() error {
 
 }
 
-// ToUnidirectionalBatch transforms this diff to a batch
-func (diff *TreeDiff) ToUnidirectionalBatch(direction model.DirectionType) (batch Patch, err error) {
+// ToUnidirectionalPatch transforms this diff to a patch
+func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error) {
 
 	rightTarget, rightOk := diff.right.(model.PathSyncTarget)
 	leftTarget, leftOk := diff.left.(model.PathSyncTarget)
 
 	if direction == model.DirectionRight && rightOk {
-		batch = NewBatch(diff.left, rightTarget)
-		diff.toMissing(batch, diff.missingRight, true, false)
-		diff.toMissing(batch, diff.missingRight, false, false)
-		diff.toMissing(batch, diff.missingLeft, false, true)
+		patch = NewPatch(diff.left, rightTarget)
+		diff.toMissing(patch, diff.missingRight, true, false)
+		diff.toMissing(patch, diff.missingRight, false, false)
+		diff.toMissing(patch, diff.missingLeft, false, true)
 	} else if direction == model.DirectionLeft && leftOk {
-		batch = NewBatch(diff.right, leftTarget)
-		diff.toMissing(batch, diff.missingLeft, true, false)
-		diff.toMissing(batch, diff.missingLeft, false, false)
-		diff.toMissing(batch, diff.missingRight, false, true)
+		patch = NewPatch(diff.right, leftTarget)
+		diff.toMissing(patch, diff.missingLeft, true, false)
+		diff.toMissing(patch, diff.missingLeft, false, false)
+		diff.toMissing(patch, diff.missingRight, false, true)
 	} else {
-		return nil, errors.New("error while extracting unidirectional batch. either left or right is not a sync target")
+		return nil, errors.New("error while extracting unidirectional patch. either left or right is not a sync target")
 	}
 	for _, c := range ConflictsByType(diff.conflicts, ConflictFileContent) {
 		n := MostRecentNode(c.NodeLeft, c.NodeRight)
-		batch.Enqueue(&Operation{
+		patch.Enqueue(&Operation{
 			Key:       n.Path,
 			Type:      OpUpdateFile,
-			Patch:     batch,
+			Patch:     patch,
 			Node:      n,
 			EventInfo: model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate),
 		})
 	}
-	log.Logger(diff.ctx).Info("Sending Unidirectionnal batch", zap.Any("batch", batch.Stats()))
-	//fmt.Println(batch)
+	log.Logger(diff.ctx).Info("Sending Unidirectionnal patch", zap.Any("patch", patch.Stats()))
+	//fmt.Println(patch)
 	return
 }
 
-// ToBidirectionalBatch transforms this diff to a batch
-func (diff *TreeDiff) ToBidirectionalBatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (batch *BidirectionalPatch, err error) {
+// ToBidirectionalPatch transforms this diff to a patch
+func (diff *TreeDiff) ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error) {
 
-	leftBatch := NewBatch(leftTarget.(model.PathSyncSource), rightTarget)
+	leftPatch := NewPatch(leftTarget.(model.PathSyncSource), rightTarget)
 	if rightTarget != nil {
-		diff.toMissing(leftBatch, diff.missingRight, true, false)
-		diff.toMissing(leftBatch, diff.missingRight, false, false)
+		diff.toMissing(leftPatch, diff.missingRight, true, false)
+		diff.toMissing(leftPatch, diff.missingRight, false, false)
 	}
 
-	rightBatch := NewBatch(rightTarget.(model.PathSyncSource), leftTarget)
+	rightPatch := NewPatch(rightTarget.(model.PathSyncSource), leftTarget)
 	if leftTarget != nil {
-		diff.toMissing(rightBatch, diff.missingLeft, true, false)
-		diff.toMissing(rightBatch, diff.missingLeft, false, false)
+		diff.toMissing(rightPatch, diff.missingLeft, true, false)
+		diff.toMissing(rightPatch, diff.missingLeft, false, false)
 	}
 
-	batch = &BidirectionalPatch{
-		Left:  leftBatch,
-		Right: rightBatch,
+	patch = &BidirectionalPatch{
+		Left:  leftPatch,
+		Right: rightPatch,
 	}
 
-	log.Logger(diff.ctx).Info("Sending Bidirectionnal batch", zap.Any("batch", batch.Stats()))
-	//fmt.Println(batch)
-	return batch, nil
+	log.Logger(diff.ctx).Info("Sending Bidirectionnal patch", zap.Any("patch", patch.Stats()))
+	//fmt.Println(patch)
+	return patch, nil
 
 }
 
@@ -286,7 +286,7 @@ func (diff *TreeDiff) mergeNodes(left *TreeNode, right *TreeNode) {
 }
 
 // toMissing transforms Missing slices to BatchEvents
-func (diff *TreeDiff) toMissing(batch Patch, in []*tree.Node, folders bool, removes bool) {
+func (diff *TreeDiff) toMissing(patch Patch, in []*tree.Node, folders bool, removes bool) {
 
 	var eventType model.EventType
 	var batchEventType OperationType
@@ -305,12 +305,12 @@ func (diff *TreeDiff) toMissing(batch Patch, in []*tree.Node, folders bool, remo
 	for _, n := range in {
 		if removes || !folders && n.IsLeaf() || folders && !n.IsLeaf() {
 			eventInfo := model.NodeToEventInfo(diff.ctx, n.Path, n, eventType)
-			batch.Enqueue(&Operation{
+			patch.Enqueue(&Operation{
 				Key:       n.Path,
 				Type:      batchEventType,
 				Node:      n,
 				EventInfo: eventInfo,
-				Patch:     batch,
+				Patch:     patch,
 			})
 		}
 	}

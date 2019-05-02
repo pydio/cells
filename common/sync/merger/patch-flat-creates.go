@@ -36,7 +36,7 @@ func (b *FlatPatch) filterCreateFiles(ctx context.Context) {
 
 	for _, updateEvent := range b.updateFiles {
 		if model.Ignores(b.Target(), updateEvent.Key) {
-			delete(b.createFiles, updateEvent.Key)
+			delete(b.updateFiles, updateEvent.Key)
 			continue
 		}
 	}

@@ -40,18 +40,18 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 		bi, e := s.RunBi(ctx, dryRun, force, statusChan, doneChan)
 		if e == nil {
-			s.Processor.BatchesChannel <- bi.Left
-			s.Processor.BatchesChannel <- bi.Right
+			s.Processor.PatchChan <- bi.Left
+			s.Processor.PatchChan <- bi.Right
 		}
 		return bi, e
 
 	} else {
 
-		batch, e := s.RunUni(ctx, dryRun, force, statusChan, doneChan)
+		patch, e := s.RunUni(ctx, dryRun, force, statusChan, doneChan)
 		if e == nil {
-			s.Processor.BatchesChannel <- batch
+			s.Processor.PatchChan <- patch
 		}
-		return batch, e
+		return patch, e
 	}
 
 }
@@ -74,14 +74,14 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 		return nil, e
 	}
 
-	batch, err := diff.ToUnidirectionalBatch(s.Direction)
+	patch, err := diff.ToUnidirectionalPatch(s.Direction)
 	if err != nil {
 		return nil, err
 	}
-	batch.Filter(ctx)
-	batch.SetupChannels(statusChan, doneChan)
+	patch.Filter(ctx)
+	patch.SetupChannels(statusChan, doneChan)
 
-	log.Logger(ctx).Debug("### SENDING TO MERGER", zap.Any("stats", batch.Stats()))
+	log.Logger(ctx).Debug("### SENDING TO MERGER", zap.Any("stats", patch.Stats()))
 
 	var asProvider model.Endpoint
 	if s.Direction == model.DirectionRight {
@@ -90,10 +90,10 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 		asProvider = s.Source
 	}
 	if provider, ok := model.AsSessionProvider(asProvider); ok {
-		batch.SetSessionProvider(ctx, provider)
+		patch.SetSessionProvider(ctx, provider)
 	}
 
-	return batch, nil
+	return patch, nil
 }
 
 func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (*merger.BidirectionalPatch, error) {
@@ -122,7 +122,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 	if useSnapshots {
 
-		log.Logger(ctx).Info("Computing Batches from Snapshots")
+		log.Logger(ctx).Info("Computing patches from Snapshots")
 		leftBatch.Filter(ctx)
 		rightBatch.Filter(ctx)
 		bb = &merger.BidirectionalPatch{
@@ -136,7 +136,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 	} else {
 
-		log.Logger(ctx).Info("Computing Batches from Sources")
+		log.Logger(ctx).Info("Computing patches from Sources")
 		diff := merger.NewDiff(ctx, source, targetAsSource)
 		diff.SetupChannels(statusChan, nil)
 		e := diff.Compute()
@@ -154,7 +154,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 			log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
 		}
 		var err error
-		bb, err = diff.ToBidirectionalBatch(sourceAsTarget, target)
+		bb, err = diff.ToBidirectionalPatch(sourceAsTarget, target)
 		if err != nil {
 			return nil, err
 		}
@@ -226,7 +226,7 @@ func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.
 		return nil, nil, er
 	}
 	// We want to apply changes from source onto snapshot
-	batch, er := diff.ToUnidirectionalBatch(model.DirectionRight)
+	patch, er := diff.ToUnidirectionalPatch(model.DirectionRight)
 	if er != nil {
 		return nil, nil, er
 	}
@@ -238,7 +238,7 @@ func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.
 		snapUpdater.SetUpdateSnapshot(updatable)
 	}
 
-	return snap, batch, nil
+	return snap, patch, nil
 
 }
 

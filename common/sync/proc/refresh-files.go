@@ -31,13 +31,13 @@ import (
 )
 
 // TODO
-func (pr *Processor) refreshFilesUuid(batch merger.Patch) {
+func (pr *Processor) refreshFilesUuid(patch merger.Patch) {
 
 	// Find parent path
 	var dirs []string
 	var target model.PathSyncSource
 	var source model.UuidReceiver
-	toRefresh := batch.EventsByType([]merger.OperationType{merger.OpRefreshUuid})
+	toRefresh := patch.EventsByType([]merger.OperationType{merger.OpRefreshUuid})
 	refreshesByKey := make(map[string]bool)
 	for _, c := range toRefresh {
 		if s, ok := c.Source().(model.UuidReceiver); ok {

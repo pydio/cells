@@ -553,7 +553,7 @@ func TestTreeDiff(t *testing.T) {
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 101)
 			So(diff.missingRight, ShouldHaveLength, 101)
-			b, e := diff.ToUnidirectionalBatch(model.DirectionLeft)
+			b, e := diff.ToUnidirectionalPatch(model.DirectionLeft)
 			s := b.(*FlatPatch)
 			So(e, ShouldBeNil)
 			So(s.deletes, ShouldHaveLength, 101)

@@ -59,28 +59,28 @@ func (ev *EventsBatcher) sendEvent(event model.ProcessorEvent) {
 	}
 }
 
-func (ev *EventsBatcher) FilterBatch(batch merger.Patch) {
+func (ev *EventsBatcher) FilterPatch(patch merger.Patch) {
 
 	ev.sendEvent(model.ProcessorEvent{
 		Type: "filter:start",
-		Data: batch,
+		Data: patch,
 	})
-	batch.Filter(ev.globalContext)
+	patch.Filter(ev.globalContext)
 	ev.sendEvent(model.ProcessorEvent{
 		Type: "filter:end",
-		Data: batch,
+		Data: patch,
 	})
 }
 
 func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
-	batch := merger.NewBatch(ev.Source, ev.Target)
-	batch.SetupChannels(ev.batchesStatus, ev.batchesDone)
+	patch := merger.NewPatch(ev.Source, ev.Target)
+	patch.SetupChannels(ev.batchesStatus, ev.batchesDone)
 	/*
 		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {
-			batch.sessionProvider = p
-			batch.sessionProviderContext = events[0].CreateContext(ev.globalContext)
+			patch.sessionProvider = p
+			patch.sessionProviderContext = events[0].CreateContext(ev.globalContext)
 		}
 	*/
 
@@ -88,7 +88,7 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
 		key := event.Path
 		var bEvent = &merger.Operation{
-			Patch:     batch,
+			Patch:     patch,
 			Key:       key,
 			EventInfo: event,
 		}
@@ -98,7 +98,7 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 			} else {
 				bEvent.Type = merger.OpCreateFile
 			}
-			batch.Enqueue(bEvent)
+			patch.Enqueue(bEvent)
 
 		} else if event.Type == model.EventSureMove {
 			event.Path = event.MoveTarget.Path
@@ -108,29 +108,29 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 			} else {
 				bEvent.Type = merger.OpMoveFolder
 			}
-			batch.Enqueue(bEvent, event.Path)
+			patch.Enqueue(bEvent, event.Path)
 		} else {
 			bEvent.Type = merger.OpDelete
-			batch.Enqueue(bEvent)
+			patch.Enqueue(bEvent)
 		}
 	}
 
 	ev.sendEvent(model.ProcessorEvent{
 		Type: "filter:start",
-		Data: batch,
+		Data: patch,
 	})
-	batch.Filter(ev.globalContext)
+	patch.Filter(ev.globalContext)
 	ev.sendEvent(model.ProcessorEvent{
 		Type: "filter:end",
-		Data: batch,
+		Data: patch,
 	})
 
-	if batch.Size() > 0 {
+	if patch.Size() > 0 {
 		log.Logger(ev.globalContext).Info("****** Sending Patch from Events")
-		fmt.Println(batch)
+		fmt.Println(patch)
 	}
 
-	ev.batchOut <- batch
+	ev.batchOut <- patch
 
 }
 

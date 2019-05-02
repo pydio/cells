@@ -78,10 +78,10 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	if s.EchoFilter != nil {
 		var out chan model.EventInfo
 		input, out = s.EchoFilter.CreateFilter()
-		go s.batcher.BatchEvents(out, s.Processor.BatchesChannel, 1*time.Second)
+		go s.batcher.BatchEvents(out, s.Processor.PatchChan, 1*time.Second)
 	} else {
 		input = make(chan model.EventInfo)
-		go s.batcher.BatchEvents(input, s.Processor.BatchesChannel, 1*time.Second)
+		go s.batcher.BatchEvents(input, s.Processor.PatchChan, 1*time.Second)
 	}
 	s.Processor.AddRequeueChannel(source, input)
 
@@ -201,7 +201,7 @@ func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool) (model.State
 func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, direction model.DirectionType) *Sync {
 
 	processor := proc.NewProcessor(ctx)
-	go processor.ProcessBatches()
+	go processor.ProcessPatches()
 	s := &Sync{
 		Source:    left,
 		Target:    right,
@@ -211,8 +211,8 @@ func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, dir
 
 	if direction == model.DirectionBi {
 		filter := filters.NewEchoFilter()
-		processor.LocksChannel = filter.LockEvents
-		processor.UnlocksChannel = filter.UnlockEvents
+		processor.LocksChan = filter.LockEvents
+		processor.UnlocksChan = filter.UnlockEvents
 		go filter.ListenLocksEvents()
 		s.EchoFilter = filter
 	}

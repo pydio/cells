@@ -47,7 +47,7 @@ func TestProcess(t *testing.T) {
 
 		source := endpoints.NewMemDB()
 		target := endpoints.NewMemDB()
-		batch := merger.NewBatch(source, target)
+		patch := merger.NewPatch(source, target)
 
 		source.CreateNode(testCtx, &tree.Node{
 			Path: "/mkfile",
@@ -87,7 +87,7 @@ func TestProcess(t *testing.T) {
 			Etag: "filehash",
 		}, true)
 
-		batch.Enqueue(&merger.Operation{
+		patch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/mkfile",
 			},
@@ -98,9 +98,9 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			},
-			Patch: batch,
+			Patch: patch,
 		})
-		batch.Enqueue(&merger.Operation{
+		patch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/to-be-deleted",
 			},
@@ -111,9 +111,9 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "delhash",
 			},
-			Patch: batch,
+			Patch: patch,
 		})
-		batch.Enqueue(&merger.Operation{
+		patch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/moved-file",
 			},
@@ -122,9 +122,9 @@ func TestProcess(t *testing.T) {
 			Node: &tree.Node{
 				Path: "/to-be-moved",
 			},
-			Patch: batch,
+			Patch: patch,
 		}, "/to-be-moved")
-		batch.Enqueue(&merger.Operation{
+		patch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/moved-folder",
 			},
@@ -133,9 +133,9 @@ func TestProcess(t *testing.T) {
 			Node: &tree.Node{
 				Path: "/folder-to-be-moved",
 			},
-			Patch: batch,
+			Patch: patch,
 		}, "/folder-to-be-moved")
-		batch.Enqueue(&merger.Operation{
+		patch.Enqueue(&merger.Operation{
 			EventInfo: model.EventInfo{
 				Path: "/mkdir",
 			},
@@ -146,10 +146,10 @@ func TestProcess(t *testing.T) {
 				Type: tree.NodeType_COLLECTION,
 				Uuid: "uuid",
 			},
-			Patch: batch,
+			Patch: patch,
 		})
 
-		m.process(batch)
+		m.process(patch)
 		time.Sleep(2 * time.Second)
 
 		newDir, derr := target.LoadNode(testCtx, "/mkdir")

@@ -67,8 +67,8 @@ func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyn
 	return newTreeDiff(ctx, left, right)
 }
 
-// NewBatch creates a new Patch implementation
-func NewBatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
+// NewPatch creates a new Patch implementation
+func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
 	return newFlatPatch(source, target)
 }
 
@@ -77,9 +77,9 @@ type Patch interface {
 	model.Stater
 	StatusProvider
 
-	// Source get or set the source of this batch
+	// Source get or set the source of this patch
 	Source(newSource ...model.PathSyncSource) model.PathSyncSource
-	// Target get or set the target of this batch
+	// Target get or set the target of this patch
 	Target(newTarget ...model.PathSyncTarget) model.PathSyncTarget
 
 	// Enqueue stacks a Operation - By default, it is registered with the event.Key, but an optional key can be passed.
@@ -119,10 +119,10 @@ type Diff interface {
 
 	// Compute performs the actual Diff operation
 	Compute() error
-	// ToUnidirectionalBatch transforms current diff into a set of batch operations
-	ToUnidirectionalBatch(direction model.DirectionType) (batch Patch, err error)
-	// ToBidirectionalBatch transforms current diff into a set of 2 batches of operations
-	ToBidirectionalBatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (batch *BidirectionalPatch, err error)
+	// ToUnidirectionalPatch transforms current diff into a set of patch operations
+	ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error)
+	// ToBidirectionalPatch transforms current diff into a set of 2 batches of operations
+	ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error)
 	// conflicts list discovered conflicts
 	Conflicts() []*Conflict
 }
@@ -140,7 +140,7 @@ type StatusProvider interface {
 	SetupChannels(status chan ProcessStatus, done chan interface{})
 	// Status notify of a new ProcessStatus
 	Status(s ProcessStatus)
-	// Done notify the batch is processed, operations is the number of processed operations
+	// Done notify the patch is processed, operations is the number of processed operations
 	Done(info interface{})
 }
 

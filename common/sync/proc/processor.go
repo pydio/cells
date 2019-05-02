@@ -39,12 +39,13 @@ import (
 )
 
 type Processor struct {
-	BatchesChannel  chan merger.Patch
+	PatchChan       chan merger.Patch
+	LocksChan       chan filters.LockEvent
+	UnlocksChan     chan filters.UnlockEvent
 	RequeueChannels map[model.PathSyncSource]chan model.EventInfo
-	LocksChannel    chan filters.LockEvent
-	UnlocksChannel  chan filters.UnlockEvent
-	JobsInterrupt   chan bool
-	GlobalContext   context.Context
+
+	JobsInterrupt chan bool
+	GlobalContext context.Context
 
 	eventChannels []chan model.ProcessorEvent
 }
@@ -53,7 +54,7 @@ type ProcessFunc func(event *merger.Operation, operationId string, progress chan
 
 func NewProcessor(ctx context.Context) *Processor {
 	return &Processor{
-		BatchesChannel:  make(chan merger.Patch),
+		PatchChan:       make(chan merger.Patch, 1),
 		RequeueChannels: make(map[model.PathSyncSource]chan model.EventInfo),
 		JobsInterrupt:   make(chan bool),
 		GlobalContext:   ctx,
@@ -61,7 +62,7 @@ func NewProcessor(ctx context.Context) *Processor {
 }
 
 func (pr *Processor) Shutdown() {
-	close(pr.BatchesChannel)
+	close(pr.PatchChan)
 }
 
 func (pr *Processor) Logger() *zap.Logger {
@@ -82,9 +83,9 @@ func (pr *Processor) sendEvent(event model.ProcessorEvent) {
 	}
 }
 
-func (pr *Processor) lockFileTo(batchedEvent *merger.Operation, path string, operationId string) {
-	if source, ok := model.AsPathSyncSource(batchedEvent.Target()); pr.LocksChannel != nil && ok {
-		pr.LocksChannel <- filters.LockEvent{
+func (pr *Processor) lockFileTo(operation *merger.Operation, path string, operationId string) {
+	if source, ok := model.AsPathSyncSource(operation.Target()); pr.LocksChan != nil && ok {
+		pr.LocksChan <- filters.LockEvent{
 			Source:      source,
 			Path:        path,
 			OperationId: operationId,
@@ -92,15 +93,15 @@ func (pr *Processor) lockFileTo(batchedEvent *merger.Operation, path string, ope
 	}
 }
 
-func (pr *Processor) unlockFile(batchedEvent *merger.Operation, path string) {
-	if source, castOk := model.AsPathSyncSource(batchedEvent.Target()); castOk && pr.UnlocksChannel != nil {
+func (pr *Processor) unlockFile(operation *merger.Operation, path string) {
+	if source, castOk := model.AsPathSyncSource(operation.Target()); castOk && pr.UnlocksChan != nil {
 		d := 2 * time.Second
 		if source.GetEndpointInfo().EchoTime > 0 {
 			d = source.GetEndpointInfo().EchoTime
 		}
 		go func() {
 			<-time.After(d)
-			pr.UnlocksChannel <- filters.UnlockEvent{
+			pr.UnlocksChan <- filters.UnlockEvent{
 				Source: source,
 				Path:   path,
 			}
@@ -108,10 +109,10 @@ func (pr *Processor) unlockFile(batchedEvent *merger.Operation, path string) {
 	}
 }
 
-func (pr *Processor) process(batch merger.Patch) {
+func (pr *Processor) process(patch merger.Patch) {
 
-	s := batch.Size()
-	defer batch.Done(s)
+	s := patch.Size()
+	defer patch.Done(s)
 
 	if s == 0 {
 		return
@@ -119,38 +120,38 @@ func (pr *Processor) process(batch merger.Patch) {
 
 	pr.sendEvent(model.ProcessorEvent{
 		Type: "merger:start",
-		Data: batch,
+		Data: patch,
 	})
 
 	operationId := uuid.New()
 	var event *merger.Operation
 
-	total := batch.ProgressTotal()
+	total := patch.ProgressTotal()
 	var cursor int64
 
-	batch.Status(merger.ProcessStatus{StatusString: fmt.Sprintf("Start processing batch (total bytes %d)", total)})
+	patch.Status(merger.ProcessStatus{StatusString: fmt.Sprintf("Start processing patch (total bytes %d)", total)})
 
 	sessionFlush := func(nonEmpty []*merger.Operation) {}
-	session, err := batch.StartSessionProvider(&tree.Node{Path: "/"})
+	session, err := patch.StartSessionProvider(&tree.Node{Path: "/"})
 	if err != nil {
 		pr.Logger().Error("Error while starting Indexation Session", zap.Error(err))
 	} else {
-		defer batch.FinishSessionProvider(session.Uuid)
+		defer patch.FinishSessionProvider(session.Uuid)
 		sessionFlush = func(nonEmpty []*merger.Operation) {
 			if len(nonEmpty) == 0 {
 				return
 			}
-			batch.FlushSessionProvider(session.Uuid)
+			patch.FlushSessionProvider(session.Uuid)
 		}
 	}
 
 	// Create Folders
-	for _, event := range batch.EventsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
+	for _, event := range patch.EventsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
 		pr.applyProcessFunc(event, operationId, pr.processCreateFolder, "Created Folder", "Creating Folder", "Error while creating folder", &cursor, total, zap.String("path", event.EventInfo.Path))
 	}
 
 	// Move folders
-	folderMoves := batch.EventsByType([]merger.OperationType{merger.OpMoveFolder}, true)
+	folderMoves := patch.EventsByType([]merger.OperationType{merger.OpMoveFolder}, true)
 	sessionFlush(folderMoves)
 	for _, event := range folderMoves {
 		toPath := event.EventInfo.Path
@@ -159,7 +160,7 @@ func (pr *Processor) process(batch merger.Patch) {
 	}
 
 	// Move files
-	fileMoves := batch.EventsByType([]merger.OperationType{merger.OpMoveFile}, true)
+	fileMoves := patch.EventsByType([]merger.OperationType{merger.OpMoveFile}, true)
 	sessionFlush(fileMoves)
 	for _, event := range fileMoves {
 		toPath := event.EventInfo.Path
@@ -168,9 +169,9 @@ func (pr *Processor) process(batch merger.Patch) {
 	}
 
 	// Create files
-	createFiles := batch.EventsByType([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile})
+	createFiles := patch.EventsByType([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile})
 	sessionFlush(createFiles)
-	if batch.HasTransfers() {
+	if patch.HasTransfers() {
 		// Process with a parallel Queue
 		wg := &sync.WaitGroup{}
 		throttle := make(chan struct{}, 3)
@@ -197,7 +198,7 @@ func (pr *Processor) process(batch merger.Patch) {
 	}
 
 	// Deletes
-	deletes := batch.EventsByType([]merger.OperationType{merger.OpDelete})
+	deletes := patch.EventsByType([]merger.OperationType{merger.OpDelete})
 	sessionFlush(deletes)
 	for _, event = range deletes {
 		if event.Node == nil {
@@ -206,15 +207,15 @@ func (pr *Processor) process(batch merger.Patch) {
 		pr.applyProcessFunc(event, operationId, pr.processDelete, "Deleted Node", "Deleting Node", "Error while deleting node", &cursor, total, zap.String("path", event.Node.Path))
 	}
 
-	batch.Status(merger.ProcessStatus{StatusString: "Finished processing batch"})
+	patch.Status(merger.ProcessStatus{StatusString: "Finished processing patch"})
 
-	if len(batch.EventsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
-		go pr.refreshFilesUuid(batch)
+	if len(patch.EventsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
+		go pr.refreshFilesUuid(patch)
 	}
 
 	pr.sendEvent(model.ProcessorEvent{
 		Type: "end",
-		Data: batch,
+		Data: patch,
 	})
 }
 
@@ -271,16 +272,16 @@ func (pr *Processor) logAsString(msg string, err error, fields ...zapcore.Field)
 	return msg
 }
 
-func (pr *Processor) ProcessBatches() {
+func (pr *Processor) ProcessPatches() {
 
 	for {
 		select {
-		case batch, open := <-pr.BatchesChannel:
+		case patch, open := <-pr.PatchChan:
 			if !open {
-				log.Logger(pr.GlobalContext).Info("Stop processing batches, pr.BatchesChannel is closed")
+				log.Logger(pr.GlobalContext).Info("Stop processing patches, pr.PatchChan is closed")
 				return
 			}
-			pr.process(batch)
+			pr.process(patch)
 		}
 	}
 
