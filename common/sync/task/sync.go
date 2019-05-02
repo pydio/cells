@@ -74,10 +74,16 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 
 	// Now wire batches to processor
 	s.batcher = filters.NewEventsBatcher(ctx, source, target, s.batchesStatus, s.batchesDone)
-
-	filterIn, filterOut := s.EchoFilter.CreateFilter()
-	s.Processor.AddRequeueChannel(source, filterIn)
-	go s.batcher.BatchEvents(filterOut, s.Processor.BatchesChannel, 1*time.Second)
+	var input chan model.EventInfo
+	if s.EchoFilter != nil {
+		var out chan model.EventInfo
+		input, out = s.EchoFilter.CreateFilter()
+		go s.batcher.BatchEvents(out, s.Processor.BatchesChannel, 1*time.Second)
+	} else {
+		input = make(chan model.EventInfo)
+		go s.batcher.BatchEvents(input, s.Processor.BatchesChannel, 1*time.Second)
+	}
+	s.Processor.AddRequeueChannel(source, input)
 
 	go func() {
 		// Wait for all events.
@@ -89,7 +95,7 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 					continue
 				}
 				if !s.paused {
-					filterIn <- event
+					input <- event
 				}
 			case err, ok := <-watchObject.Errors():
 				if !ok {
@@ -194,20 +200,22 @@ func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool) (model.State
 
 func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, direction model.DirectionType) *Sync {
 
-	filter := filters.NewEchoFilter()
 	processor := proc.NewProcessor(ctx)
-	processor.LocksChannel = filter.LockEvents
-	processor.UnlocksChannel = filter.UnlockEvents
 	go processor.ProcessBatches()
-	go filter.ListenLocksEvents()
-
-	return &Sync{
+	s := &Sync{
 		Source:    left,
 		Target:    right,
 		Direction: direction,
-
-		EchoFilter: filter,
-		Processor:  processor,
+		Processor: processor,
 	}
 
+	if direction == model.DirectionBi {
+		filter := filters.NewEchoFilter()
+		processor.LocksChannel = filter.LockEvents
+		processor.UnlocksChannel = filter.UnlockEvents
+		go filter.ListenLocksEvents()
+		s.EchoFilter = filter
+	}
+
+	return s
 }
