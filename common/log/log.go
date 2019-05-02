@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	config2 "github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -172,7 +172,7 @@ func Logger(ctx context.Context) *zap.Logger {
 	return newLogger
 }
 
-// Auditer returns a zap logger with as much context as possible
+// Auditer returns a zap logger for Audit with as much context as possible.
 func Auditer(ctx context.Context) *zap.Logger {
 	if AuditLogger == nil {
 		return zap.New(nil)
@@ -189,7 +189,7 @@ func Auditer(ctx context.Context) *zap.Logger {
 	return newLogger
 }
 
-// Auditer returns a zap logger with as much context as possible
+// TasksLogger returns a zap logger for tasks with as much context as possible.
 func TasksLogger(ctx context.Context) *zap.Logger {
 	if TasksLoggerImpl == nil {
 		return zap.New(nil)
@@ -206,7 +206,7 @@ func TasksLogger(ctx context.Context) *zap.Logger {
 	return newLogger
 }
 
-// GetAuditId simply returns a zap field that contains this message id to ease audit log analysis
+// GetAuditId simply returns a zap field that contains this message id to ease audit log analysis.
 func GetAuditId(msgId string) zapcore.Field {
 	return zap.String(common.KEY_MSG_ID, msgId)
 }
@@ -223,7 +223,7 @@ func (m micrologger) Logf(f string, v ...interface{}) {
 	m.Info(fmt.Sprintf(f, v...))
 }
 
-// RFC3369TimeEncoder serializes a time.Time to an RFC3339-formatted string
+// RFC3369TimeEncoder serializes a time.Time to an RFC3339-formatted string.
 func RFC3369TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format(time.RFC3339))
 }
@@ -244,7 +244,7 @@ func Info(msg string, fields ...zapcore.Field) {
 	logger.Info(msg, fields...)
 }
 
-// Enrich the passed logger with generic context info, used by both syslog and audit loggers
+// Enrich the passed logger with generic context info, used by the various defined loggers.
 func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 	if span, ok := servicecontext.SpanFromContext(ctx); ok {
 		if len(span.RootParentId) > 0 {
