@@ -66,7 +66,7 @@ func (r *ResourceProviderHandler) IsAllowed(ctx context.Context, resourceId stri
 	if r.MatchPolicies(ctx, resourceId, policies, action) {
 		return nil
 	} else {
-		return errors.Forbidden(r.ServiceName, fmt.Sprintf("Action %s is not allowed on %s %s", action.String(), r.ResourceName, resourceId))
+		return errors.Forbidden(r.ServiceName, "Action %s is not allowed on %s with ID: %s", action.String(), r.ResourceName, resourceId))
 	}
 
 }

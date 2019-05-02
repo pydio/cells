@@ -22,7 +22,6 @@ package views
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/micro/go-micro/client"
@@ -66,8 +65,8 @@ func (a *PathWorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (
 					return ws, true, nil
 				}
 			}
-			// There is a workspace but it is not in the ACL !
-			return nil, false, errors.Forbidden("workspace.not.accessible", fmt.Sprintf("Workspace %s is not accessible", parts[0]))
+			// There is a workspace but it is not in the ACL !"
+			return nil, false, errors.Forbidden("workspace.not.accessible", "Workspace %s is not accessible", parts[0])
 		} else {
 			// Root without workspace part
 			return nil, false, nil
