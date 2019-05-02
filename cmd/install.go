@@ -66,6 +66,8 @@ var (
 	niBindUrl        string
 	niExtUrl         string
 	niDisableSsl     bool
+	niCertFile       string
+	niKeyFile        string
 	niLeEmailContact string
 	niLeAcceptEula   bool
 )
@@ -129,23 +131,27 @@ var installCmd = &cobra.Command{
 				prefix = "https://"
 				config.Set(true, "cert", "proxy", "ssl")
 
-				if niLeEmailContact != "" {
+				if niCertFile != "" && niKeyFile != "" {
+					config.Set(niCertFile, "cert", "proxy", "certFile")
+					config.Set(niKeyFile, "cert", "proxy", "keyFile")
+					saveMsg += "With provided certificate"
 
+				} else if niLeEmailContact != "" {
 					// TODO add an option to provide specific CA URL
 					if !niLeAcceptEula {
 						cmd.Print("fatal: you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
 						os.Exit(1)
 					}
-
-					saveMsg += "With Let's Encrypt automatic cert generation"
 					config.Set(false, "cert", "proxy", "self")
 					config.Set(niLeEmailContact, "cert", "proxy", "email")
 					config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
+					saveMsg += "With Let's Encrypt automatic cert generation"
 
 				} else {
 					config.Set(true, "cert", "proxy", "self")
 					saveMsg += "With self signed certificate"
 				}
+				// config.Save("cli", "Install / Non-Interactive / With SSL")
 			}
 
 			internal, _ = url.Parse(prefix + niBindUrl)
@@ -355,8 +361,10 @@ func init() {
 
 	flags := installCmd.PersistentFlags()
 	flags.StringVar(&niBindUrl, "bind", "", "[Non interactive mode] internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.StringVar(&niExtUrl, "external", "", "[Non interactive mode] external URL:PORT exposed to outside")
-	flags.BoolVar(&niDisableSsl, "no_ssl", false, "[Non interactive mode] do not enable self signed automatically")
+	flags.StringVar(&niExtUrl, "external", "", "[Non interactive mode] external PROTOCOL:URL:PORT exposed to the outside")
+	flags.BoolVar(&niDisableSsl, "no_ssl", false, "[Non interactive mode] use raw http (no TLS)")
+	flags.StringVar(&niCertFile, "ssl_cert_file", "", "[Non interactive mode] ssl cert file path")
+	flags.StringVar(&niKeyFile, "ssl_key_file", "", "[Non interactive mode] ssl key file path")
 	flags.StringVar(&niLeEmailContact, "le_email", "", "[Non interactive mode] contact e-mail for Let's Encrypt provided certificate")
 	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "[Non interactive mode] accept Let's Encrypt EULA")
 
