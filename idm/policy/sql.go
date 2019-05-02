@@ -30,7 +30,7 @@ import (
 	"github.com/ory/ladon"
 	manager "github.com/ory/ladon/manager/sql"
 	"github.com/pborman/uuid"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -56,7 +56,7 @@ var (
 	}
 )
 
-// Init of the MySQL DAO
+// Init of the SQL DAO. Also performs migration when necessary.
 func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// First - Create Ladon package tables

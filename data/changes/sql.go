@@ -62,12 +62,12 @@ var (
 	}
 )
 
-// sqlimpl for the sql implementation
+// sqlimpl for the SQL implementation.
 type sqlimpl struct {
 	sql.DAO
 }
 
-// Add to the mysql DB
+// Init also performs migrations when necessary.
 func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super

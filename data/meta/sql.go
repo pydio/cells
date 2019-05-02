@@ -44,12 +44,12 @@ var (
 	mu atomic.Value
 )
 
-// Impl of the Mysql interface
+// Impl of the SQL interface.
 type sqlimpl struct {
 	sql.DAO
 }
 
-// Init handler for the SQL DAO
+// Init handler for the SQL DAO.
 func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super

@@ -31,14 +31,14 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
 )
@@ -53,7 +53,7 @@ var (
 	}
 )
 
-// Impl of the Mysql interface
+// Impl of the SQL interface
 type sqlimpl struct {
 	*sql.Handler
 
@@ -96,7 +96,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
-// Add to the mysql DB
+// Add to the underlying SQL DB.
 func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 	var update bool
@@ -181,7 +181,7 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
 }
 
-// Search in the mysql DB
+// Search in the SQL DB.
 func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 
 	queryString, args, err := s.buildSearchQuery(query, false, false)
@@ -224,7 +224,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 	return nil
 }
 
-// Deleteete from the mysql DB
+// Delete from the SQL DB.
 func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 
 	queryString, args, err := s.buildSearchQuery(query, false, true)

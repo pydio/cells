@@ -98,7 +98,7 @@ var (
 	}
 )
 
-// Impl of the Mysql interface
+// Impl of the SQL interface.
 type sqlimpl struct {
 	*sql.Handler
 
@@ -106,7 +106,7 @@ type sqlimpl struct {
 	*index.IndexSQL
 }
 
-// Init handler for the SQL DAO
+// Init handler for the SQL DAO.
 func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
@@ -151,7 +151,7 @@ func safeGroupPath(gPath string) string {
 	return fmt.Sprintf("/%s", strings.Trim(gPath, "/"))
 }
 
-// Add to the mysql DB
+// Add to the underlying SQL DB.
 func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 
 	// s.Lock()
@@ -418,7 +418,7 @@ func (s *sqlimpl) Count(query sql.Enquirer, includeParents ...bool) (int, error)
 
 }
 
-// Search in the mysql DB
+// Search in the SQL DB.
 func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents ...bool) error {
 
 	// s.Lock()
@@ -509,7 +509,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 	return nil
 }
 
-// Del from the mysql DB
+// Del from the SQL DB.
 func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 
 	queryString, args, err := s.makeSearchQuery(query, false, true, true)
