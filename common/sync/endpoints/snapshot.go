@@ -30,7 +30,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
+	"github.com/etcd-io/bbolt"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/micro/go-micro/errors"
 
@@ -44,7 +44,7 @@ var (
 )
 
 type Snapshot struct {
-	db         *bolt.DB
+	db         *bbolt.DB
 	name       string
 	empty      bool
 	folderPath string
@@ -69,7 +69,7 @@ func (s *Snapshot) unmarshal(value []byte) (*tree.Node, error) {
 }
 
 func (s *Snapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
-	return s.db.Update(func(tx *bolt.Tx) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
 			return fmt.Errorf("cannot find root bucket")
@@ -94,7 +94,7 @@ func (s *Snapshot) UpdateNode(ctx context.Context, node *tree.Node) (err error) 
 }
 
 func (s *Snapshot) DeleteNode(ctx context.Context, path string) (err error) {
-	return s.db.Update(func(tx *bolt.Tx) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
 			return fmt.Errorf("cannot find root bucket")
@@ -117,7 +117,7 @@ func (s *Snapshot) DeleteNode(ctx context.Context, path string) (err error) {
 }
 
 func (s *Snapshot) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
-	return s.db.Update(func(tx *bolt.Tx) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
 			return fmt.Errorf("cannot find root bucket")
@@ -146,7 +146,7 @@ func (s *Snapshot) MoveNode(ctx context.Context, oldPath string, newPath string)
 
 func NewSnapshot(name, syncUuid string) (*Snapshot, error) {
 	s := &Snapshot{name: name}
-	options := bolt.DefaultOptions
+	options := bbolt.DefaultOptions
 	options.Timeout = 5 * time.Second
 	appDir := config.ApplicationDataDir()
 	s.folderPath = filepath.Join(appDir, "sync", syncUuid)
@@ -155,7 +155,7 @@ func NewSnapshot(name, syncUuid string) (*Snapshot, error) {
 	if _, err := os.Stat(p); err != nil {
 		s.empty = true
 	}
-	db, err := bolt.Open(p, 0644, options)
+	db, err := bbolt.Open(p, 0644, options)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func (s *Snapshot) Close(delete ...bool) {
 }
 
 func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource) error {
-	if e := s.db.Update(func(tx *bolt.Tx) error {
+	if e := s.db.Update(func(tx *bbolt.Tx) error {
 		if b := tx.Bucket(bucketName); b != nil {
 			return tx.DeleteBucket(bucketName)
 		}
@@ -183,7 +183,7 @@ func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource) err
 	}); e != nil {
 		return e
 	}
-	e := s.db.Update(func(tx *bolt.Tx) error {
+	e := s.db.Update(func(tx *bbolt.Tx) error {
 		b, e := tx.CreateBucketIfNotExists(bucketName)
 		if e != nil {
 			return e
@@ -199,7 +199,7 @@ func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource) err
 }
 
 func (s *Snapshot) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
-	err = s.db.View(func(tx *bolt.Tx) error {
+	err = s.db.View(func(tx *bbolt.Tx) error {
 		if b := tx.Bucket(bucketName); b != nil {
 			value := b.Get([]byte(path))
 			if value != nil {
@@ -227,15 +227,15 @@ func (s *Snapshot) GetEndpointInfo() model.EndpointInfo {
 }
 
 func (s *Snapshot) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
-	err = s.db.View(func(tx *bolt.Tx) error {
+	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
 			return nil
 		}
 		return b.ForEach(func(k, v []byte) error {
-			path := string(k)
+			key := string(k)
 			if node, e := s.unmarshal(v); e == nil {
-				walknFc(path, node, nil)
+				walknFc(key, node, nil)
 			}
 			return nil
 		})
