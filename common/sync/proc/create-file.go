@@ -31,13 +31,15 @@ import (
 
 type ProgressReader struct {
 	io.Reader
-	cursor int64
-	pg     chan int64
+	cursor    int64
+	pg        chan int64
+	totalRead int64
 }
 
 func (pr *ProgressReader) Read(p []byte) (n int, e error) {
 	n, e = pr.Reader.Read(p)
 	pr.pg <- int64(n)
+	pr.totalRead += int64(n)
 	return n, e
 }
 
@@ -65,7 +67,12 @@ func (pr *Processor) processCreateFile(event *merger.Operation, operationId stri
 		defer func() {
 			writer.Close()
 		}()
-		_, err := io.Copy(writer, &ProgressReader{Reader: reader, pg: pg})
+		progressReader := &ProgressReader{Reader: reader, pg: pg}
+		_, err := io.Copy(writer, progressReader)
+		if err != nil && progressReader.totalRead > 0 {
+			// Revert progress count to 0 for this operation
+			pg <- -progressReader.totalRead
+		}
 
 		return err
 

@@ -49,7 +49,9 @@ func (b *AbstractPatch) SetupChannels(status chan ProcessStatus, done chan inter
 
 func (b *AbstractPatch) Status(s ProcessStatus) {
 	if b.statusChan != nil {
-		b.statusChan <- s
+		go func() {
+			b.statusChan <- s
+		}()
 	}
 }
 
