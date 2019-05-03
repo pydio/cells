@@ -32,9 +32,11 @@ type DAO interface {
 
 	ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, error)
 	SaveEncryptedBlockInfo(nodeUuid string, b *encryption.Block) error
+	GetEncryptedLegacyBlockInfo(nodeUuid string) (*encryption.Block, error)
 	ClearNodeEncryptedBlockInfo(nodeUuid string) error
 
 	SaveNode(node *encryption.Node) error
+	GetNode(nodeUuid string) (*encryption.Node, error)
 	DeleteNode(nodeUuid string) error
 
 	SaveNodeKey(nodeKey *encryption.NodeKey) error

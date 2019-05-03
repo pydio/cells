@@ -22,19 +22,19 @@ package grpc
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/data/key"
+	"go.uber.org/zap"
 )
 
 const (
-	aesGCMTagSize   = 16
-	blockHeaderSize = 12
-	nodeKeySize     = 32
+	aesGCMTagSize = 16
 )
 
 type NodeKeyManagerHandler struct{}
@@ -42,6 +42,7 @@ type NodeKeyManagerHandler struct{}
 func getDAO(ctx context.Context) (key.DAO, error) {
 	dao := servicecontext.GetDAO(ctx)
 	if dao == nil {
+		log.Logger(ctx).Error("failed to get dao", zap.Error(errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")))
 		return nil, errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")
 	}
 
@@ -65,80 +66,102 @@ func (km *NodeKeyManagerHandler) HandleTreeChanges(ctx context.Context, msg *tre
 func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryption.GetNodeInfoRequest, rsp *encryption.GetNodeInfoResponse) error {
 	dao, err := getDAO(ctx)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	rsp.NodeInfo = new(encryption.NodeInfo)
 
-	rsp.NodeInfo.NodeKey, err = dao.GetNodeKey(req.NodeId, req.UserId)
+	rsp.NodeInfo.Node, err = dao.GetNode(req.NodeId)
 	if err != nil {
 		return err
 	}
 
-	if req.PlainOffset > 0 {
+	rsp.NodeInfo.NodeKey, err = dao.GetNodeKey(req.NodeId, req.UserId)
+	if err != nil {
+		log.Logger(ctx).Error("failed to get node key", zap.Error(err))
+		return err
+	}
+
+	if rsp.NodeInfo.Node.Legacy {
+		log.Logger(ctx).Info("node has legacy flag", zap.String("id", rsp.NodeInfo.Node.NodeId))
+		rsp.NodeInfo.Block, err = dao.GetEncryptedLegacyBlockInfo(req.NodeId)
+
+		if req.WithRange {
+			skippedPlainBlockCount := req.PlainOffset / int64(rsp.NodeInfo.Block.BlockSize)
+			skippedBytesCount := skippedPlainBlockCount * int64(rsp.NodeInfo.Block.BlockSize)
+
+			encryptedBlockSize := rsp.NodeInfo.Block.BlockSize + aesGCMTagSize
+			encryptedRangeOffset := skippedPlainBlockCount * int64(encryptedBlockSize)
+
+			rsp.NodeInfo.Block.Nonce = rsp.NodeInfo.Block.Nonce[int(skippedBytesCount):]
+			rsp.HeadSKippedPlainBytesCount = req.PlainOffset - int64(uint32(skippedPlainBlockCount)*rsp.NodeInfo.Block.BlockSize)
+			rsp.EncryptedOffset = encryptedRangeOffset
+			rsp.EncryptedCount = -1
+		}
+
+	} else if req.WithRange {
 		cursor, err := dao.ListEncryptedBlockInfo(req.NodeId)
 		if err != nil {
-			return nil
+			log.Logger(ctx).Info("failed to list node blocks", zap.String("id", rsp.NodeInfo.Node.NodeId))
+			return err
 		}
 
 		defer func() {
 			_ = cursor.Close()
 		}()
 
-		foundEncryptedOffset := false
-		foundEncryptedLimit := req.PlainLength > 0
+		encryptedOffsetCursor := int64(0)
+		encryptedLimitCursor := int64(0)
 
-		encryptedOffset := int64(32)
-		encryptedLimit := int64(0)
-		currentPlainOffset := int64(0)
-		currentPlainLength := int64(0)
+		plainLimitCursor := req.PlainOffset + req.PlainLength
+		plainOffsetCursor := int64(0)
 
-		for cursor.HasNext() && !foundEncryptedOffset && !foundEncryptedLimit {
-			next, err := cursor.Next()
-			if err != nil {
-				return err
-			}
+		foundEncryptedOffset := plainOffsetCursor == int64(req.PlainOffset)
+		foundEncryptedLimit := req.PlainLength <= 0
+
+		for cursor.HasNext() {
+			next, _ := cursor.Next()
 			b := next.(*encryption.Block)
 
-			plainBlockSize := int64(b.BlockSize - aesGCMTagSize)
-			encryptedBlockSize := int64(b.BlockSize + blockHeaderSize)
+			plainBlockSize := int64(b.BlockSize) - aesGCMTagSize
+			encryptedBlockSize := int64(b.BlockSize + b.HeaderSize)
 
-			encryptedLimit += encryptedBlockSize
+			nextPlainOffset := plainOffsetCursor + plainBlockSize
+			encryptedLimitCursor += encryptedBlockSize
 
 			if !foundEncryptedOffset {
-				left := req.PlainOffset - currentPlainOffset
-				if left == 0 {
+				if nextPlainOffset > req.PlainOffset {
 					foundEncryptedOffset = true
-					rsp.HeadSKippedPlainBytesCount = 0
+					rsp.HeadSKippedPlainBytesCount = req.PlainOffset - plainOffsetCursor
+					rsp.EncryptedOffset = encryptedOffsetCursor
 
-				} else if left <= plainBlockSize {
-					foundEncryptedOffset = true
-					rsp.HeadSKippedPlainBytesCount = req.PlainOffset - currentPlainOffset
-					currentPlainLength = plainBlockSize - rsp.HeadSKippedPlainBytesCount
-
-					if currentPlainLength >= req.PlainLength {
+					if nextPlainOffset >= plainLimitCursor {
+						rsp.EncryptedCount = encryptedBlockSize
 						foundEncryptedLimit = true
-						break
 					}
-					continue
-				} else {
-					currentPlainOffset += plainBlockSize
-					encryptedOffset += encryptedBlockSize
 				}
+				encryptedOffsetCursor += encryptedBlockSize
+				plainOffsetCursor = nextPlainOffset
 			}
 
 			if foundEncryptedOffset && !foundEncryptedLimit {
-				if currentPlainLength+plainBlockSize >= req.PlainLength {
+				if nextPlainOffset >= plainLimitCursor {
 					foundEncryptedLimit = true
+					rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
+					break
 				}
+				plainOffsetCursor = nextPlainOffset
 			}
 		}
-		_ = cursor.Close()
 
-		rsp.EncryptedOffset = encryptedOffset
-		rsp.EncryptedCount = encryptedLimit - encryptedOffset
+		if !foundEncryptedLimit {
+			rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
+		}
+
+		fmt.Println("encrypted offset =", rsp.EncryptedOffset)
+		fmt.Println("encrypted count =", rsp.EncryptedCount)
+		//rsp.EncryptedCount = -1
 	}
-
 	return err
 }
 
@@ -148,32 +171,42 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 		return err
 	}
 
+	var req *encryption.SetNodeInfoRequest
 	addedNodeEntry := false
 	clearedOldBlocks := false
 
 	for {
-		req, err := stream.Recv()
+		req, err = stream.Recv()
 		if err != nil {
-			return err
-		}
-
-		if req == nil {
+			log.Logger(ctx).Error("failed to read SetInfoRequest", zap.Error(err))
 			break
 		}
 
+		// previous was the last when there is no attribute set in request object
+		if req.NodeKey == nil && req.NodeId == "" && req.Block == nil {
+			fmt.Println("received done request")
+			_ = stream.SendMsg(&encryption.SetNodeInfoResponse{})
+			break
+		}
+
+		fmt.Println("received SetInfoRequest", zap.Any("content", req))
 		if !addedNodeEntry && req.NodeKey != nil {
 			err = dao.SaveNode(&encryption.Node{
 				NodeId: req.NodeId,
 				Legacy: false,
 			})
 			if err != nil {
-				return err
+				log.Logger(ctx).Error("failed to save node info", zap.Error(err))
+				err = stream.SendMsg(err)
+				break
 			}
 
 			nk := req.NodeKey
 			err = dao.SaveNodeKey(nk)
 			if err != nil {
-				return err
+				log.Logger(ctx).Error("failed to save node key", zap.Error(err))
+				err = stream.SendMsg(err)
+				break
 			}
 			addedNodeEntry = true
 		}
@@ -181,18 +214,31 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 		if req.NodeKey != nil && !clearedOldBlocks {
 			err := dao.ClearNodeEncryptedBlockInfo(req.NodeId)
 			if err != nil {
-				return err
+				log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
+				err = stream.SendMsg(err)
+				break
 			}
 			clearedOldBlocks = true
 		}
 
 		err = dao.SaveEncryptedBlockInfo(req.NodeId, req.Block)
 		if err != nil {
-			return err
+			log.Logger(ctx).Error("failed to save block", zap.Error(err))
+			err = stream.SendMsg(err)
+			break
+		}
+
+		err = stream.SendMsg(&encryption.SetNodeInfoResponse{})
+		if err != nil {
+			break
 		}
 	}
 
-	return nil
+	if sce := stream.Close(); sce != nil {
+		log.Logger(ctx).Error("stream close error", zap.Error(sce))
+	}
+
+	return err
 }
 
 func (km *NodeKeyManagerHandler) DeleteNode(ctx context.Context, req *encryption.DeleteNodeRequest, rsp *encryption.DeleteNodeResponse) error {
