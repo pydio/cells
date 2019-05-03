@@ -31,7 +31,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var (
@@ -55,7 +55,7 @@ func PolicyHttpWrapper(h http.Handler) http.Handler {
 				log.Logger(c).Debug("Got Claims", zap.Any("claims", claims))
 				policyRequestContext[HttpMetaJwtClientApp] = claims.ClientApp
 				policyRequestContext[HttpMetaJwtIssuer] = claims.Issuer
-				subjects = utils.PolicyRequestSubjectsFromClaims(claims)
+				subjects = permissions.PolicyRequestSubjectsFromClaims(claims)
 			}
 		} else {
 			log.Logger(c).Debug("No Claims Found", zap.Any("ctx", c))
@@ -68,7 +68,7 @@ func PolicyHttpWrapper(h http.Handler) http.Handler {
 			Action:   r.Method,
 		}
 
-		utils.PolicyContextFromMetadata(policyRequestContext, c)
+		permissions.PolicyContextFromMetadata(policyRequestContext, c)
 		if len(policyRequestContext) > 0 {
 			request.Context = policyRequestContext
 		}

@@ -22,13 +22,13 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"go.uber.org/zap"
-
-	"fmt"
+	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -37,11 +37,10 @@ import (
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
-	"github.com/pydio/cells/common/utils"
-	"gopkg.in/doug-martin/goqu.v4"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
-func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includeParent bool, checkEmpty bool) (string, error) {
+func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includeParent bool, checkEmpty bool) (string, []interface{}, error) {
 
 	converter := &queryConverter{
 		treeDao:       s.IndexSQL,
@@ -49,13 +48,13 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 	}
 
 	var db *goqu.Database
-	db = goqu.New(s.Driver(), nil)
+	db = goqu.New(s.Driver(), s.DB())
 	var wheres []goqu.Expression
 
 	if query.GetResourcePolicyQuery() != nil {
 		resourceExpr, e := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
 		if e != nil {
-			return "", e
+			return "", nil, e
 		}
 		if resourceExpr != nil {
 			wheres = append(wheres, resourceExpr)
@@ -67,14 +66,14 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 		wheres = append(wheres, expression)
 	} else {
 		if checkEmpty {
-			return "", fmt.Errorf("condition cannot be empty")
+			return "", nil, fmt.Errorf("condition cannot be empty")
 		}
-		wheres = append(wheres, goqu.I("t.uuid").Eq(goqu.I("n.uuid")))
 	}
 
-	dataset := db.From()
-	dataset = dataset.From(goqu.I("idm_user_idx_tree").As("t"), goqu.I("idm_user_idx_nodes").As("n"))
-	dataset = dataset.Where(goqu.And(wheres...))
+	dataset := db.From(goqu.I("idm_user_idx_tree").As("t")).Prepared(true)
+	if len(wheres) > 0 {
+		dataset = dataset.Where(goqu.And(wheres...))
+	}
 
 	if countOnly {
 
@@ -82,8 +81,8 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 
 	} else {
 
-		dataset = dataset.Select(goqu.I("t.uuid"), goqu.I("t.level"), goqu.I("t.rat"), goqu.I("n.name"), goqu.I("n.leaf"), goqu.I("n.etag"))
-		dataset = dataset.Order(goqu.I("n.name").Asc())
+		dataset = dataset.Select(goqu.I("t.uuid"), goqu.I("t.level"), goqu.I("t.rat"), goqu.I("t.name"), goqu.I("t.leaf"), goqu.I("t.etag"))
+		dataset = dataset.Order(goqu.I("t.name").Asc())
 		offset, limit := int64(0), int64(-1)
 		if query.GetLimit() > 0 {
 			limit = query.GetLimit()
@@ -97,9 +96,7 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 
 	}
 
-	queryString, _, err := dataset.ToSql()
-	return queryString, err
-
+	return dataset.ToSql()
 }
 
 type queryConverter struct {
@@ -113,8 +110,6 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 	var attributeOrLogin bool
 
 	q := new(idm.UserSingleQuery)
-	// Basic joint
-	expressions = append(expressions, goqu.I("t.uuid").Eq(goqu.I("n.uuid")))
 
 	if err := ptypes.UnmarshalAny(val, q); err != nil {
 		log.Logger(context.Background()).Error("Cannot unmarshal", zap.Any("v", val), zap.Error(err))
@@ -132,9 +127,9 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			q.AttributeValue = q.Login
 			attributeOrLogin = true
 		} else {
-			expressions = append(expressions, sql.GetExpressionForString(q.Not, "n.name", q.Login))
+			expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.name", q.Login))
 			if !q.Not {
-				expressions = append(expressions, goqu.I("n.leaf").Eq(1))
+				expressions = append(expressions, goqu.I("t.leaf").Eq(1))
 			}
 		}
 	}
@@ -188,9 +183,9 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 
 	// Filter by Node Type
 	if q.NodeType == idm.NodeType_USER {
-		expressions = append(expressions, goqu.I("n.leaf").Eq(1))
+		expressions = append(expressions, goqu.I("t.leaf").Eq(1))
 	} else if q.NodeType == idm.NodeType_GROUP {
-		expressions = append(expressions, goqu.I("n.leaf").Eq(0))
+		expressions = append(expressions, goqu.I("t.leaf").Eq(0))
 	}
 
 	if len(q.AttributeName) > 0 {
@@ -217,7 +212,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			attQ = "EXISTS (" + attQ + ")"
 		}
 		if attributeOrLogin {
-			expressions = append(expressions, goqu.Or(goqu.L(attQ), sql.GetExpressionForString(false, "n.name", q.Login)))
+			expressions = append(expressions, goqu.Or(goqu.L(attQ), sql.GetExpressionForString(false, "t.name", q.Login)))
 		} else {
 			expressions = append(expressions, goqu.L(attQ))
 		}
@@ -288,7 +283,7 @@ func groupToNode(g *idm.User) *tree.Node {
 	return n
 }
 
-func nodeToUser(t *utils.TreeNode) *idm.User {
+func nodeToUser(t *mtree.TreeNode) *idm.User {
 	u := &idm.User{
 		Uuid:      t.Uuid,
 		Login:     t.Name(),
@@ -310,7 +305,7 @@ func nodeToUser(t *utils.TreeNode) *idm.User {
 	return u
 }
 
-func nodeToGroup(t *utils.TreeNode) *idm.User {
+func nodeToGroup(t *mtree.TreeNode) *idm.User {
 	return &idm.User{
 		Uuid:       t.Uuid,
 		IsGroup:    true,

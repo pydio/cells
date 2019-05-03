@@ -23,11 +23,13 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/idm/acl"
 )
 
@@ -45,7 +47,7 @@ func init() {
 				},
 			}),
 			service.WithMicro(func(m micro.Service) error {
-				m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
+				m.Init(micro.Metadata(map[string]string{meta.ServiceMetaProvider: "stream"}))
 				handler := new(Handler)
 				idm.RegisterACLServiceHandler(m.Server(), handler)
 				tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)
@@ -55,6 +57,17 @@ func init() {
 
 				// Clean acls on Nodes deletion
 				m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_TREE_CHANGES, &NodesCleaner{Handler: handler}))
+
+				// For when it will be used: clean locks at startup
+				/*
+					dao := servicecontext.GetDAO(m.Options().Context).(acl.DAO)
+					if dao != nil {
+						q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{Actions: []*idm.ACLAction{{Name: permissions.AclLock.Name}}})
+						if num, _ := dao.Del(&service2.Query{SubQueries: []*any.Any{q}}); num > 0 {
+							log.Logger(m.Options().Context).Info(fmt.Sprintf("Cleaned %d locks in ACLs", num))
+						}
+					}
+				*/
 
 				return nil
 			}),

@@ -42,8 +42,8 @@ import (
 	_ "github.com/pydio/cells/frontend/front-srv/rest"
 	_ "github.com/pydio/cells/frontend/front-srv/web"
 
-	_ "github.com/pydio/cells/data/changes/grpc"
-	_ "github.com/pydio/cells/data/changes/rest"
+	//	_ "github.com/pydio/cells/data/changes/grpc"
+	//	_ "github.com/pydio/cells/data/changes/rest"
 	_ "github.com/pydio/cells/data/docstore/grpc"
 	_ "github.com/pydio/cells/data/key/grpc"
 	_ "github.com/pydio/cells/data/meta/grpc"
@@ -97,6 +97,7 @@ import (
 	_ "github.com/pydio/cells/scheduler/actions/archive"
 	_ "github.com/pydio/cells/scheduler/actions/changes"
 	_ "github.com/pydio/cells/scheduler/actions/cmd"
+	_ "github.com/pydio/cells/scheduler/actions/idm"
 	_ "github.com/pydio/cells/scheduler/actions/images"
 	_ "github.com/pydio/cells/scheduler/actions/scheduler"
 	_ "github.com/pydio/cells/scheduler/actions/tree"

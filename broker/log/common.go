@@ -39,6 +39,7 @@ type MessageRepository interface {
 	ListLogs(string, int32, int32) (chan log.ListLogResponse, error)
 	DeleteLogs(string) (int64, error)
 	AggregatedLogs(string, string, int32) (chan log.TimeRangeResponse, error)
+	Resync() error
 }
 
 /* HELPER METHODS */

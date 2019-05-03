@@ -50,12 +50,17 @@ var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
+var _lodashDebounce = require('lodash.debounce');
+
+var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
+
 var _Pydio$requireLib = _pydio2["default"].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
 
 var _Pydio$requireLib2 = _pydio2["default"].requireLib('boot');
 
+var JobsStore = _Pydio$requireLib2.JobsStore;
 var moment = _Pydio$requireLib2.moment;
 
 var TaskActivity = (function (_React$Component) {
@@ -71,7 +76,23 @@ var TaskActivity = (function (_React$Component) {
     _createClass(TaskActivity, [{
         key: "componentDidMount",
         value: function componentDidMount() {
+            var _this = this;
+
             this.loadActivity(this.props);
+            this._loadDebounced = (0, _lodashDebounce2["default"])(function (jobId) {
+                console.log(jobId, _this.props);
+                if (jobId && _this.props.task && _this.props.task.JobID === jobId) {
+                    _this.loadActivity(_this.props);
+                }
+            }, 500);
+            JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+        }
+    }, {
+        key: "componentWillUnmount",
+        value: function componentWillUnmount() {
+            if (this._loadDebounced) {
+                JobsStore.getInstance().stopObserving("tasks_updated", this._loadDebounced);
+            }
         }
     }, {
         key: "componentWillReceiveProps",
@@ -86,7 +107,7 @@ var TaskActivity = (function (_React$Component) {
     }, {
         key: "loadActivity",
         value: function loadActivity(props) {
-            var _this = this;
+            var _this2 = this;
 
             var task = props.task;
 
@@ -103,9 +124,9 @@ var TaskActivity = (function (_React$Component) {
             request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
             this.setState({ loading: true });
             api.listTasksLogs(request).then(function (response) {
-                _this.setState({ activity: response.Logs || [], loading: false });
+                _this2.setState({ activity: response.Logs || [], loading: false });
             })["catch"](function () {
-                _this.setState({ activity: [], loading: false });
+                _this2.setState({ activity: [], loading: false });
             });
         }
     }, {
@@ -123,7 +144,7 @@ var TaskActivity = (function (_React$Component) {
                 } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'] }];
             return _react2["default"].createElement(
                 "div",
-                { style: { height: 600 } },
+                { style: { height: 400 } },
                 _react2["default"].createElement(MaterialTable, {
                     columns: columns,
                     data: activity,

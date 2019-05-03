@@ -102,12 +102,14 @@ class UsersSearchBox extends React.Component{
         return (
             <div className={(this.props.className?this.props.className:'')} style={{display:'flex', alignItems:'center', maxWidth:220, ...this.props.style}}>
                 <div style={{flex: 1}}>
+                    <form autoComplete={"off"}>
                     <TextField ref="query"
                                onKeyDown={this.keyDown.bind(this)}
                                floatingLabelText={this.props.textLabel}
                                fullWidth={true}
                                floatingLabelStyle={{overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}}
                     />
+                    </form>
                 </div>
                 <div style={{paddingTop:22, opacity:0.3}}>
                     <IconButton

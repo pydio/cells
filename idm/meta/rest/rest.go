@@ -27,11 +27,11 @@ import (
 	"strings"
 
 	"github.com/emicklei/go-restful"
-	"go.uber.org/zap"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
@@ -44,7 +44,7 @@ import (
 	"github.com/pydio/cells/common/service"
 	serviceproto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/meta/namespace"
 )
@@ -80,9 +80,9 @@ func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, op
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: []string{nodeUuid},
-		Actions: []*idm.ACLAction{{Name: utils.ACL_CONTENT_LOCK.Name}},
+		Actions: []*idm.ACLAction{{Name: permissions.AclContentLock.Name}},
 	})
-	userName, _ := utils.FindUserNameInContext(ctx)
+	userName, _ := permissions.FindUserNameInContext(ctx)
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &serviceproto.Query{SubQueries: []*any.Any{q}}})
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, e)
 			return
 		}
-		if meta.Namespace == utils.ACL_CONTENT_LOCK.Name {
+		if meta.Namespace == permissions.AclContentLock.Name {
 			e := s.updateLock(ctx, meta, input.Operation)
 			if e != nil {
 				service.RestErrorDetect(req, rsp, e)
@@ -189,6 +189,19 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			} else {
 				log.Logger(ctx).Error("Cannot decode jsonDef "+ns.Namespace+": "+ns.JsonDefinition, zap.Error(jE))
 			}
+		}
+		// Now update policies for input Meta
+		if meta.Namespace == namespace.ReservedNamespaceBookmark {
+			userName, c := permissions.FindUserNameInContext(ctx)
+			userUuid, _ := c.DecodeUserUuid()
+			meta.Policies = []*serviceproto.ResourcePolicy{
+				{Action: serviceproto.ResourcePolicyAction_OWNER, Subject: userUuid, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_READ, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "user:" + userName, Effect: serviceproto.ResourcePolicy_allow},
+				{Action: serviceproto.ResourcePolicyAction_WRITE, Subject: "profile:admin", Effect: serviceproto.ResourcePolicy_allow},
+			}
+		} else {
+			meta.Policies = ns.Policies
 		}
 	}
 	// Some existing meta will be updated / deleted : load their policies and check their rights!
@@ -279,6 +292,22 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		claims := value.(claim.Claims)
 		if claims.Profile != "admin" {
 			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER_META, "You are not allowed to edit namespaces"))
+			return
+		}
+	}
+	// Validate input
+	type jsonCheck struct {
+		Type string
+		Data interface{} `json:"data,omitempty"`
+	}
+	for _, ns := range input.Namespaces {
+		if !strings.HasPrefix(ns.Namespace, "usermeta-") {
+			service.RestError500(req, rsp, fmt.Errorf("user defined meta must start with usermeta- prefix"))
+			return
+		}
+		var check jsonCheck
+		if e := json.Unmarshal([]byte(ns.JsonDefinition), &check); e != nil {
+			service.RestError500(req, rsp, fmt.Errorf("invalid json definition for namespace: "+e.Error()))
 			return
 		}
 	}

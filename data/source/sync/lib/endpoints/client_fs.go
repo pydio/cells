@@ -21,6 +21,7 @@
 package endpoints
 
 import (
+	"bytes"
 	"context"
 	"crypto/md5"
 	"errors"
@@ -102,6 +103,10 @@ func (c *FSClient) GetEndpointInfo() common.EndpointInfo {
 		RequiresNormalization: runtime.GOOS == "darwin",
 	}
 
+}
+
+func (c *FSClient) ComputeChecksum(node *tree.Node) error {
+	return fmt.Errorf("not.implemented")
 }
 
 func (c *FSClient) Walk(walknFc common.WalkNodesFunc, pathes ...string) (err error) {
@@ -265,8 +270,20 @@ func (c *FSClient) moveRecursively(oldPath string, newPath string) (err error) {
 
 }
 
+type Discarder struct {
+	bytes.Buffer
+}
+
+func (d *Discarder) Close() error {
+	return nil
+}
+
 func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
 
+	if filepath.Base(path) == servicescommon.PYDIO_SYNC_HIDDEN_FILE_META {
+		w := &Discarder{}
+		return w, nil
+	}
 	path = c.denormalize(path)
 	_, e := c.FS.Stat(path)
 	var file afero.File
@@ -301,7 +318,7 @@ func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
 	uidFile, uidErr := c.FS.OpenFile(filepath.Join(path, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META), os.O_RDONLY, 0777)
 	if uidErr != nil && os.IsNotExist(uidErr) {
 		uid = fmt.Sprintf("%s", uuid.NewV4())
-		we := afero.WriteFile(c.FS, filepath.Join(path, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META), []byte(uid), 0777)
+		we := afero.WriteFile(c.FS, filepath.Join(path, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META), []byte(uid), 0666)
 		if we != nil {
 			return "", we
 		}

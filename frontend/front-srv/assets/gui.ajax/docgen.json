@@ -1,5 +1,88 @@
 {
   "access.gateway": {
+    "dialog/CrossWsDropDialog.js": [
+      {
+        "description": "",
+        "displayName": "CrossWsContent",
+        "methods": [
+          {
+            "name": "move",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "targetNode",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "share",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "getButtons",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "updater",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "pydio": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Pydio"
+            },
+            "required": false,
+            "description": ""
+          },
+          "selection": {
+            "type": {
+              "name": "instanceOf",
+              "value": "PydioDataModel"
+            },
+            "required": false,
+            "description": ""
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "0",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      }
+    ],
     "dialog/OtherEditorPickerDialog.js": [
       {
         "description": "",
@@ -1395,6 +1478,13 @@
       {
         "description": "",
         "methods": [
+          {
+            "name": "componentWillUnmounnt",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
           {
             "name": "reloadList",
             "docblock": null,
@@ -4356,11 +4446,6 @@
     "AdminScheduler/board/JobBoard.js": [
       {
         "description": "",
-        "displayName": "ActionsLog",
-        "methods": []
-      },
-      {
-        "description": "",
         "displayName": "JobBoard",
         "methods": [
           {
@@ -4406,6 +4491,85 @@
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/JobSchedule.js": [
+      {
+        "description": "",
+        "displayName": "JobSchedule",
+        "methods": [
+          {
+            "name": "updateJob",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "parseIso8601",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "makeIso8601FromState",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "state",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "changeFrequency",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "f",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "readableString",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "short",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ]
@@ -14980,7 +15144,7 @@
           },
           {
             "name": "deleteUserMetaTagsWithHttpInfo",
-            "docblock": "List Tags for a given namespace\n@param {String} namespace \n@param {String} tags \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteUserMetaTagsResponse} and HTTP response",
+            "docblock": "Delete one or all tags for a given namespace (use * for all tags)\n@param {String} namespace \n@param {String} tags \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteUserMetaTagsResponse} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -15004,11 +15168,11 @@
                 "name": "Promise"
               }
             },
-            "description": "List Tags for a given namespace"
+            "description": "Delete one or all tags for a given namespace (use * for all tags)"
           },
           {
             "name": "deleteUserMetaTags",
-            "docblock": "List Tags for a given namespace\n@param {String} namespace \n@param {String} tags \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteUserMetaTagsResponse}",
+            "docblock": "Delete one or all tags for a given namespace (use * for all tags)\n@param {String} namespace \n@param {String} tags \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteUserMetaTagsResponse}",
             "modifiers": [],
             "params": [
               {
@@ -15032,7 +15196,7 @@
                 "name": "Promise"
               }
             },
-            "description": "List Tags for a given namespace"
+            "description": "Delete one or all tags for a given namespace (use * for all tags)"
           },
           {
             "name": "listUserMetaNamespaceWithHttpInfo",
@@ -15104,7 +15268,7 @@
           },
           {
             "name": "putUserMetaTagWithHttpInfo",
-            "docblock": "List Tags for a given namespace\n@param {String} namespace \n@param {module:model/RestPutUserMetaTagRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestPutUserMetaTagResponse} and HTTP response",
+            "docblock": "Add a new value to Tags for a given namespace\n@param {String} namespace \n@param {module:model/RestPutUserMetaTagRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestPutUserMetaTagResponse} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -15128,11 +15292,11 @@
                 "name": "Promise"
               }
             },
-            "description": "List Tags for a given namespace"
+            "description": "Add a new value to Tags for a given namespace"
           },
           {
             "name": "putUserMetaTag",
-            "docblock": "List Tags for a given namespace\n@param {String} namespace \n@param {module:model/RestPutUserMetaTagRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestPutUserMetaTagResponse}",
+            "docblock": "Add a new value to Tags for a given namespace\n@param {String} namespace \n@param {module:model/RestPutUserMetaTagRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestPutUserMetaTagResponse}",
             "modifiers": [],
             "params": [
               {
@@ -15156,7 +15320,7 @@
                 "name": "Promise"
               }
             },
-            "description": "List Tags for a given namespace"
+            "description": "Add a new value to Tags for a given namespace"
           },
           {
             "name": "searchUserMetaWithHttpInfo",
@@ -37896,6 +38060,37 @@
         "description": "",
         "methods": [
           {
+            "name": "displayModeFromPrefs",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "defaultMode",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "displayModeToPrefs",
+            "docblock": "Save displayMode to user prefs\n@param mode\n@return {string}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "mode",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "string"
+              }
+            },
+            "description": "Save displayMode to user prefs"
+          },
+          {
             "name": "resize",
             "docblock": null,
             "modifiers": [],
@@ -37984,6 +38179,13 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "buildDisplayModeItems",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           },
           {

@@ -42,9 +42,9 @@ type DAO interface {
 	// of an existing user and/or an error if something went wrong.
 	Add(interface{}) (interface{}, []*tree.Node, error)
 
-	Del(sql.Enquirer) (numRows int64, e error)
+	Del(sql.Enquirer, chan *idm.User) (numRows int64, e error)
 	Search(sql.Enquirer, *[]interface{}, ...bool) error
-	Count(sql.Enquirer) (int, error)
+	Count(sql.Enquirer, ...bool) (int, error)
 	Bind(userName string, password string) (*idm.User, error)
 	CleanRole(roleId string) error
 }

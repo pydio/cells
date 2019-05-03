@@ -30,7 +30,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type PathWorkspaceHandler struct {
@@ -56,7 +56,7 @@ func (a *PathWorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (
 	}
 
 	// User context, folder path must start with /wsId/ or we are listing the root.
-	if accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList); ok {
+	if accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList); ok {
 		parts := strings.Split(strings.Trim(node.Path, "/"), "/")
 		if len(parts) > 0 && len(parts[0]) > 0 {
 			// Find by slug
@@ -121,7 +121,7 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 	_, _, wsFound := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
 	if wsFound != nil && errors.Parse(wsFound.Error()).Status == "Not Found" {
 		// List user workspaces here
-		accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
+		accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 		if !ok {
 			return nil, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find user workspaces")
 		}

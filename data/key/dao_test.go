@@ -22,6 +22,7 @@ package key
 
 import (
 	"fmt"
+	"github.com/pydio/cells/common/proto/encryption"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey"
@@ -55,28 +56,46 @@ func TestMain(m *testing.M) {
 
 func TestSqlimpl_InsertNode(t *testing.T) {
 	convey.Convey("Test Put key", t, func() {
-		err := mockDAO.InsertNode("node_id", []byte("nonce"), 4)
+		err := mockDAO.SaveNode(&encryption.Node{
+			NodeId: "node_id",
+			Legacy: false,
+		})
 		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_SetNodeKey(t *testing.T) {
 	convey.Convey("Set node key", t, func() {
-		err := mockDAO.SetNodeKey("node_id", "pydio", "pydio", []byte("key"))
+		err := mockDAO.SaveNodeKey(&encryption.NodeKey{
+			NodeId:  "node_id",
+			UserId:  "pydio",
+			OwnerId: "pydio",
+			KeyData: []byte("key"),
+		})
 		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_SetNodeKey2(t *testing.T) {
 	convey.Convey("Set node share key 1", t, func() {
-		err := mockDAO.SetNodeKey("node_id", "pydio", "user-1", []byte("key"))
+		err := mockDAO.SaveNodeKey(&encryption.NodeKey{
+			NodeId:  "node_id",
+			UserId:  "pydio",
+			OwnerId: "user-1",
+			KeyData: []byte("key"),
+		})
 		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_SetNodeKey3(t *testing.T) {
 	convey.Convey("Set node share key 2", t, func() {
-		err := mockDAO.SetNodeKey("node_id", "pydio", "user-2", []byte("key"))
+		err := mockDAO.SaveNodeKey(&encryption.NodeKey{
+			NodeId:  "node_id",
+			UserId:  "pydio",
+			OwnerId: "user-2",
+			KeyData: []byte("key"),
+		})
 		convey.So(err, convey.ShouldBeNil)
 	})
 }
@@ -91,14 +110,21 @@ func TestSqlimpl_GetNodeKey(t *testing.T) {
 
 func TestSqlimpl_DeleteNodeSharedKey(t *testing.T) {
 	convey.Convey("Get node key", t, func() {
-		err := mockDAO.DeleteNodeSharedKey("node_id", "pydio", "user-1")
+		err := mockDAO.DeleteNodeKey(&encryption.NodeKey{
+			NodeId:  "node_id",
+			OwnerId: "pydio",
+			UserId:  "user-1",
+		})
 		convey.So(err, convey.ShouldBeNil)
 	})
 }
 
 func TestSqlimpl_DeleteNodeAllSharedKey(t *testing.T) {
 	convey.Convey("Get node key", t, func() {
-		err := mockDAO.DeleteNodeAllSharedKey("node_id", "pydio")
+		err := mockDAO.DeleteNodeKey(&encryption.NodeKey{
+			NodeId:  "node_id",
+			OwnerId: "pydio",
+		})
 		convey.So(err, convey.ShouldBeNil)
 	})
 }

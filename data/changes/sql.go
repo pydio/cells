@@ -103,7 +103,6 @@ func (s *sqlimpl) Put(c *tree.SyncChange) error {
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(
 		c.NodeId,
@@ -125,7 +124,6 @@ func (s *sqlimpl) BulkPut(changes []*tree.SyncChange) error {
 	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	var values []interface{}
 	for _, change := range changes {
@@ -142,7 +140,6 @@ func (s *sqlimpl) HasNodeById(id string) (bool, error) {
 	if stmt == nil {
 		return false, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	row := stmt.QueryRow(id)
 	var nodeID string
@@ -168,7 +165,6 @@ func (s *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 			if stmt == nil {
 				return
 			}
-			defer stmt.Close()
 
 			rarch, err := stmt.Query(seq, p, p)
 			if err != nil {
@@ -207,7 +203,6 @@ func (s *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 		if stmt == nil {
 			return
 		}
-		defer stmt.Close()
 
 		r, err := stmt.Query(seq, p, p)
 		if err != nil {
@@ -252,7 +247,6 @@ func (s *sqlimpl) FirstSeq() (uint64, error) {
 	if stmt == nil {
 		return 0, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	row := stmt.QueryRow()
 	err := row.Scan(&last)
@@ -263,7 +257,6 @@ func (s *sqlimpl) FirstSeq() (uint64, error) {
 		if stmt == nil {
 			return 0, fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 
 		rowtmp := stmt.QueryRow()
 		var count uint64
@@ -288,7 +281,6 @@ func (s *sqlimpl) LastSeq() (uint64, error) {
 	if stmt == nil {
 		return 0, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 	row := stmt.QueryRow()
 	err := row.Scan(&last)
 	if err != nil {
@@ -296,7 +288,6 @@ func (s *sqlimpl) LastSeq() (uint64, error) {
 		if stmt == nil {
 			return 0, fmt.Errorf("Unknown statement")
 		}
-		defer stmt.Close()
 		rowtmp := stmt.QueryRow()
 		var count uint64
 		err2 := rowtmp.Scan(&count)
@@ -338,13 +329,11 @@ func (s *sqlimpl) Archive(seq uint64) error {
 	if archive == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer archive.Close()
 
 	delete := s.GetStmt("delete")
 	if delete == nil {
 		return fmt.Errorf("Unknown statement")
 	}
-	defer delete.Close()
 
 	if stmt := tx.Stmt(archive); stmt != nil {
 		defer stmt.Close()

@@ -22,16 +22,19 @@ package views
 
 import (
 	"context"
+	"path"
 	"strings"
 	"time"
 
+	context2 "github.com/pydio/cells/common/utils/context"
+
 	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
@@ -39,7 +42,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var (
@@ -136,18 +139,10 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 	return m.VirtualNodes
 }
 
-// ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
-// and the current metadata contained in context.
-func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool *ClientsPool, create bool) (*tree.Node, error) {
-
-	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
+// ResolvePathWithVars performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
+func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tree.Node, vars map[string]string, clientsPool *ClientsPool) (*tree.Node, error) {
 
 	resolved := &tree.Node{}
-	userName, _ := utils.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
-	if userName == "" {
-		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
-		return nil, errors.New(VIEWS_LIBRARY_NAME, "No Claims found in context", 500)
-	}
 	resolutionString := vNode.MetaStore["resolution"]
 	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
 
@@ -160,13 +155,13 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			datasourceKeys[key] = key
 		}
 		in := map[string]interface{}{
-			"User":        &utils.JsUser{Name: userName},
+			"User":        &permissions.JsUser{Name: vars["User.Name"]},
 			"DataSources": datasourceKeys,
 		}
 		out := map[string]interface{}{
 			"Path": "",
 		}
-		if e := utils.RunJavaScript(ctx, resolutionString, in, out); e == nil {
+		if e := permissions.RunJavaScript(ctx, resolutionString, in, out); e == nil {
 			resolved.Path = out["Path"].(string)
 			//log.Logger(ctx).Debug("Javascript Resolved Objects", zap.Any("in", in), zap.Any("out", out))
 		} else {
@@ -175,7 +170,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		}
 
 	} else {
-		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", userName, -1)
+		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", vars["User.Name"], -1)
 	}
 
 	resolved.Type = vNode.Type
@@ -183,13 +178,55 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	parts := strings.Split(resolved.Path, "/")
 	resolved.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, parts[0])
 	resolved.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, strings.Join(parts[1:], "/"))
+
+	return resolved, nil
+
+}
+
+// ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
+// and the current metadata contained in context.
+func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool *ClientsPool, create bool, retry ...bool) (*tree.Node, error) {
+
+	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
+
+	resolved := &tree.Node{}
+	userName, _ := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
+	if userName == "" {
+		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
+		return nil, errors.New(VIEWS_LIBRARY_NAME, "No Claims found in context", 500)
+	}
+	vars := map[string]string{"User.Name": userName}
+	resolved, e := m.ResolvePathWithVars(ctx, vNode, vars, clientsPool)
+	if e != nil {
+		return nil, e
+	}
+
 	if readResp, e := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
 		return readResp.Node, nil
+	} else if errors.Parse(e.Error()).Code == 404 {
+		if len(retry) == 0 {
+			// Retry once
+			clientsPool.listDatasources()
+			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(clientsPool.Sources)))
+			return m.ResolveInContext(ctx, vNode, clientsPool, create, true)
+		} else {
+			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", clientsPool.Sources))
+		}
 	}
 	if create {
 		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
 			return nil, err
 		} else {
+			// Manually create the .pydio file
+			router := NewStandardRouter(RouterOptions{AdminView: true})
+			newNode := createResp.Node.Clone()
+			newNode.Path = path.Join(newNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
+			nodeUuid := newNode.Uuid
+			createCtx := context2.WithAdditionalMetadata(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+			_, pE := router.PutObject(createCtx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))})
+			if pE != nil {
+				log.Logger(ctx).Error("Could not create hidden file for resolved node", newNode.Zap("resolved"), zap.Error(pE))
+			}
 			if e := m.copyRecycleRootAcl(ctx, vNode, createResp.Node); e != nil {
 				return nil, e
 			}
@@ -205,7 +242,7 @@ func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tre
 	// Check if vNode has this flag set
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		NodeIDs: []string{vNode.Uuid},
-		Actions: []*idm.ACLAction{utils.ACL_RECYCLE_ROOT},
+		Actions: []*idm.ACLAction{permissions.AclRecycleRoot},
 	})
 	st, e := cl.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {
@@ -229,7 +266,7 @@ func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tre
 	cl.CreateACL(ctx, &idm.CreateACLRequest{
 		ACL: &idm.ACL{
 			NodeID: resolved.Uuid,
-			Action: utils.ACL_RECYCLE_ROOT,
+			Action: permissions.AclRecycleRoot,
 		},
 	})
 

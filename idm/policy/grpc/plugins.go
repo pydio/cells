@@ -68,6 +68,10 @@ func init() {
 					TargetVersion: service.ValidVersion("1.2.2"),
 					Up:            Upgrade122,
 				},
+				{
+					TargetVersion: service.ValidVersion("1.4.2"),
+					Up:            Upgrade142,
+				},
 			}),
 			service.WithMicro(func(m micro.Service) error {
 				handler := new(Handler)
@@ -270,5 +274,37 @@ func Upgrade122(ctx context.Context) error {
 		}
 	}
 	log.Logger(ctx).Info("Upgraded policy model to v1.2.2")
+	return nil
+}
+
+// Upgrade120 performs upgrade on policies starting at v1.2.0
+func Upgrade142(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(policy.DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.Uuid == "rest-apis-default-accesses" {
+			group.Policies = append(group.Policies, policy.LadonToProtoPolicy(&ladon.DefaultPolicy{
+				ID:          "user-ws-readonly",
+				Description: "PolicyGroup.LoggedUsers.Rule4",
+				Subjects:    []string{"profile:standard", "profile:shared"},
+				Resources: []string{
+					"rest:/workspace/<.+>",
+				},
+				Actions: []string{"DELETE", "PUT", "PATCH"},
+				Effect:  ladon.DenyAccess,
+			}))
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
+			}
+		}
+	}
 	return nil
 }

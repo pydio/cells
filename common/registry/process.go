@@ -25,29 +25,16 @@
 package registry
 
 import (
-	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/micro/go-micro/registry"
-
-	"github.com/pydio/cells/common/service/metrics"
 )
 
 var (
 	ProcessStartTags []string
 )
-
-func BuildServiceMeta() map[string]string {
-	return map[string]string{
-		"PID":       fmt.Sprintf("%d", os.Getpid()),
-		"parentPID": fmt.Sprintf("%d", os.Getppid()),
-		"metrics":   fmt.Sprintf("%d", metrics.GetExposedPort()),
-		"start":     strings.Join(ProcessStartTags, ","),
-	}
-}
 
 type Process struct {
 	Id          string
@@ -71,7 +58,7 @@ func NewProcess(pid string) *Process {
 }
 
 func (p *pydioregistry) registerProcessFromNode(n *registry.Node, serviceName string) {
-	pid, ok := n.Metadata["PID"]
+	pid, ok := n.Metadata[serviceMetaPID]
 	if !ok {
 		return
 	}
@@ -85,22 +72,22 @@ func (p *pydioregistry) registerProcessFromNode(n *registry.Node, serviceName st
 	process.PeerId = n.Id
 	process.PeerAddress = n.Address
 	process.Services[serviceName] = serviceName
-	if parent, ok := n.Metadata["parentPID"]; ok {
+	if parent, ok := n.Metadata[serviceMetaParentPID]; ok {
 		process.ParentId = parent
 	}
-	if port, ok := n.Metadata["metrics"]; ok {
+	if port, ok := n.Metadata[serviceMetaMetrics]; ok {
 		if met, e := strconv.ParseInt(port, 10, 32); e == nil {
 			process.MetricsPort = int(met)
 		}
 	}
-	if start, ok := n.Metadata["start"]; ok {
+	if start, ok := n.Metadata[serviceMetaStartTag]; ok {
 		process.StartTag = start
 	}
 	p.processes[pid] = process
 }
 
 func (p *pydioregistry) deregisterProcessFromNode(n *registry.Node, serviceName string) {
-	pid, hasP := n.Metadata["PID"]
+	pid, hasP := n.Metadata[serviceMetaPID]
 	if !hasP {
 		// A full peer was deleted
 		for pid, proc := range p.processes {

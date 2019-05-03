@@ -29,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -43,7 +43,7 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 
 	ctx := context.WithValue(context.Background(), claim.ContextKey, claims)
 	vNodeManager := views.GetVirtualNodesManager()
-	if accessList, err := utils.AccessListFromContextClaims(ctx); err == nil {
+	if accessList, err := permissions.AccessListFromContextClaims(ctx); err == nil {
 		roles := accessList.OrderedRoles
 		workspaces := accessList.Workspaces
 		// Resolve workspaces roots in the current context

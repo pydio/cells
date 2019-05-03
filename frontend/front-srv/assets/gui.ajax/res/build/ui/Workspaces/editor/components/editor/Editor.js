@@ -180,6 +180,7 @@ var Editor = (function (_React$Component) {
         var activeTab = _props2.activeTab;
         var fixedToolbar = _props2.fixedToolbar;
         var hideToolbar = _props2.hideToolbar;
+        var tabDeleteAll = _props2.tabDeleteAll;
         var hideSelectionControls = _props2.hideSelectionControls;
         var prevSelectionDisabled = _props2.prevSelectionDisabled;
         var nextSelectionDisabled = _props2.nextSelectionDisabled;
@@ -213,12 +214,28 @@ var Editor = (function (_React$Component) {
         }, style);
 
         var toolbarStyle = styles.toolbar['default'];
+        var keyPress = undefined;
+        if (onSelectNext || onSelectPrev) {
+            keyPress = function (e) {
+                if (e.key === 'ArrowLeft' && onSelectPrev && !prevSelectionDisabled) {
+                    try {
+                        onSelectPrev();
+                    } catch (e) {}
+                } else if (e.key === 'ArrowRight' && onSelectNext && !nextSelectionDisabled) {
+                    try {
+                        onSelectNext();
+                    } catch (e) {}
+                } else if (e.key === 'Escape' && tabDeleteAll) {
+                    tabDeleteAll();
+                }
+            };
+        }
 
         return React.createElement(
             _materialUi.Paper,
             { zDepth: 5, style: paperStyle, onClick: function (e) {
                     return _this.handleBlurOnSelection(e);
-                } },
+                }, tabIndex: "-1", onKeyDown: keyPress },
             !hideToolbar && React.createElement(_EditorToolbar2['default'], { style: toolbarStyle, display: fixedToolbar ? "fixed" : "removable" }),
             React.createElement(
                 'div',

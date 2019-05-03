@@ -21,6 +21,7 @@ import Observable from 'pydio/lang/observable'
 import {JobsServiceApi, JobsListJobsRequest, JobsDeleteTasksRequest, JobsJob, JobsTask, JobsTaskStatus, JobsCtrlCommand, JobsCommand} from 'pydio/http/rest-api'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
+import {debounce} from 'lodash'
 
 class JobsStore extends Observable {
 
@@ -33,6 +34,7 @@ class JobsStore extends Observable {
         this.loaded = false;
         this.tasksList = new Map();
         this.localJobs = new Map();
+        this.reloadPending = debounce(this.scanPending, 5000);
         this.pydio.observe("task_message", jsonObject => {
 
             const {Job, TaskUpdated} = jsonObject;
@@ -43,7 +45,17 @@ class JobsStore extends Observable {
             }
             this.tasksList.set(job.ID, job);
             this.notify("tasks_updated", job.ID);
-
+            let hasPending = false;
+            if (job.Tasks) {
+                job.Tasks.forEach(task => {
+                    if (task.Status === 'Running' && task.StatusMessage === 'Pending') {
+                        hasPending = true;
+                    }
+                })
+            }
+            if (hasPending) {
+                this.reloadPending();
+            }
         });
 
         this.pydio.observe("registry_loaded", ()=>{
@@ -54,6 +66,27 @@ class JobsStore extends Observable {
             }, 500);
         });
 
+    }
+
+    scanPending() {
+        if(!this.pydio.user || !this.tasksList || !this.tasksList.size){
+            return;
+        }
+        let hasPending = false;
+        this.tasksList.forEach(job => {
+            if (job.Tasks) {
+                job.Tasks.forEach(task => {
+                    if (task.Status === 'Running' && task.StatusMessage === 'Pending') {
+                        hasPending = true;
+                    }
+                })
+            }
+        });
+        if (hasPending) {
+            this.getJobs(true).then(() =>{
+                this.notify("tasks_updated");
+            });
+        }
     }
 
     /**
@@ -70,7 +103,10 @@ class JobsStore extends Observable {
 
         if(!this.loaded || forceRefresh) {
             // Reset to local tasks only, then reload
-            this.tasksList = this.localJobs;
+            this.tasksList = new Map();
+            this.localJobs.forEach(j => {
+                this.tasksList.set(j.ID, j);
+            });
             return new Promise((resolve,reject) => {
                 const api = new JobsServiceApi(PydioApi.getRestClient());
                 const request = new JobsListJobsRequest();

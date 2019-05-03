@@ -130,9 +130,10 @@ class CodeMirror extends React.Component {
 			this.state.isFocused ? 'ReactCodeMirror--focused' : null,
 			this.props.className
 		);
+        const {cmStyle} = this.props;
 
 		return (
-			<div className={editorClassName} style={{width: "100%", height:"100%", zIndex: 0}}>
+			<div className={editorClassName} style={{width: "100%", height:"100%", zIndex: 0, ...cmStyle}}>
 				<textarea ref="textarea" defaultValue={this.props.value} autoComplete="off" />
 			</div>
 		);

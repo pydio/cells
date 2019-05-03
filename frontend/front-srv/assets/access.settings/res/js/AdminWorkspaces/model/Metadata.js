@@ -52,12 +52,13 @@ class Metadata {
 }
 
 Metadata.MetaTypes = {
-    "string":"Text",
-    "textarea":"Long Text",
-    "stars_rate": "Stars Rating",
-    "css_label": "Color Labels",
-    "tags": "Extensible Tags",
-    "choice": "Selection"
+    "string":       "Text",
+    "textarea":     "Long Text",
+    "stars_rate":   "Stars Rating",
+    "css_label":    "Color Labels",
+    "tags":         "Extensible Tags",
+    "choice":       "Selection",
+    "json":         "JSON"
 };
 
 export {Metadata as default}

@@ -25,7 +25,12 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/pydio/cells/common/service/context"
+
+	net2 "github.com/pydio/cells/common/utils/net"
 
 	"github.com/nats-io/gnatsd/server"
 	"github.com/spf13/cobra"
@@ -49,6 +54,9 @@ func run() {
 
 	if reg == "nats" {
 		opts := new(server.Options)
+		if len(net2.DefaultAdvertiseAddress) > 0 {
+			opts.ClientAdvertise = net2.DefaultAdvertiseAddress
+		}
 
 		host, p, err := net.SplitHostPort(regAddress)
 		if err != nil {
@@ -94,7 +102,9 @@ func run() {
 		hd = server.New(opts)
 
 		// Configure the logger based on the flags
-		hd.SetLogger(logger{log.Logger(context.Background())}, true, false)
+		ctx := servicecontext.WithServiceName(context.Background(), "nats")
+		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
+		hd.SetLogger(logger{log.Logger(ctx)}, true, false)
 
 		// Start things up. Block here until done.
 		go func() {
@@ -130,7 +140,11 @@ func (l logger) Fatalf(str string, args ...interface{}) {
 }
 
 func (l logger) Noticef(str string, args ...interface{}) {
-	l.Debug(fmt.Sprintf(str, args...))
+	if strings.Contains(str, "Slow Consumer Detected") {
+		l.Error(fmt.Sprintf(str+". Some events have been dropped, your hardware may be undersized.", args...))
+	} else {
+		l.Debug(fmt.Sprintf(str, args...))
+	}
 }
 
 func (l logger) Tracef(str string, args ...interface{}) {

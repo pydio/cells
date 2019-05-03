@@ -49,6 +49,7 @@ type Service interface {
 	AddDependency(string)
 	SetRunningNodes([]*registry.Node)
 	RunningNodes() []*registry.Node
+	DAO() interface{}
 
 	IsGeneric() bool
 	IsGRPC() bool
@@ -95,7 +96,6 @@ func (c *pydioregistry) GetServicesByName(name string) []Service {
 
 // ListServices gives the list of all services registered (whether started or not) in the main registry
 func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
-
 	var services []Service
 
 	servicesID, ok := goraph.TopologicalSort(c.graph)
@@ -106,6 +106,25 @@ func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
 	for _, serviceID := range servicesID {
 		if service, ok := c.register[serviceID.String()]; ok {
 			if !service.IsExcluded() || (len(withExcluded) > 0 && withExcluded[0]) {
+				services = append(services, service)
+			}
+		}
+	}
+
+	return services, nil
+}
+
+func (c *pydioregistry) ListServicesWithFilter(fn func(Service) bool) ([]Service, error) {
+	var services []Service
+
+	servicesID, ok := goraph.TopologicalSort(c.graph)
+	if !ok {
+		return nil, fmt.Errorf("Could not sort services")
+	}
+
+	for _, serviceID := range servicesID {
+		if service, ok := c.register[serviceID.String()]; ok {
+			if fn(service) {
 				services = append(services, service)
 			}
 		}

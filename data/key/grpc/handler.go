@@ -22,141 +22,251 @@ package grpc
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/data/key"
+	"go.uber.org/zap"
+)
+
+const (
+	aesGCMTagSize = 16
 )
 
 type NodeKeyManagerHandler struct{}
 
+func getDAO(ctx context.Context) (key.DAO, error) {
+	dao := servicecontext.GetDAO(ctx)
+	if dao == nil {
+		log.Logger(ctx).Error("failed to get dao", zap.Error(errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")))
+		return nil, errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")
+	}
+
+	keyDao, ok := dao.(key.DAO)
+	if !ok {
+		return nil, errors.InternalServerError(common.SERVICE_META, "wrong DAO type found, wrong initialization")
+	}
+	return keyDao, nil
+}
+
 func (km *NodeKeyManagerHandler) HandleTreeChanges(ctx context.Context, msg *tree.NodeChangeEvent) error {
-	if msg.Type == tree.NodeChangeEvent_DELETE {
+	if !msg.Optimistic && msg.Type == tree.NodeChangeEvent_DELETE {
 		req := &encryption.DeleteNodeRequest{
-			NodeIds: []string{
-				msg.Source.Uuid,
-			},
+			NodeId: msg.Source.Uuid,
 		}
 		return km.DeleteNode(ctx, req, &encryption.DeleteNodeResponse{})
 	}
 	return nil
 }
 
-func (km *NodeKeyManagerHandler) DeleteNode(ctx context.Context, req *encryption.DeleteNodeRequest, rsp *encryption.DeleteNodeResponse) error {
-	dao := servicecontext.GetDAO(ctx)
-	if dao == nil {
-		return errors.InternalServerError(common.SERVICE_META, "No DAO found Wrong initialization")
+func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryption.GetNodeInfoRequest, rsp *encryption.GetNodeInfoResponse) error {
+	dao, err := getDAO(ctx)
+	if err != nil {
+		return err
 	}
-	keyDao := dao.(key.DAO)
 
-	rsp.AllDeleted = true
-	rsp.Deleted = []string{}
-	for i := range req.NodeIds {
-		nodeUuid := req.NodeIds[i]
-		err := keyDao.DeleteNode(nodeUuid)
-		rsp.AllDeleted = rsp.AllDeleted && err != nil
-		if err == nil {
-			rsp.Deleted = append(rsp.Deleted, nodeUuid)
+	rsp.NodeInfo = new(encryption.NodeInfo)
+
+	rsp.NodeInfo.Node, err = dao.GetNode(req.NodeId)
+	if err != nil {
+		return err
+	}
+
+	rsp.NodeInfo.NodeKey, err = dao.GetNodeKey(req.NodeId, req.UserId)
+	if err != nil {
+		log.Logger(ctx).Error("failed to get node key", zap.Error(err))
+		return err
+	}
+
+	if rsp.NodeInfo.Node.Legacy {
+		log.Logger(ctx).Info("node has legacy flag", zap.String("id", rsp.NodeInfo.Node.NodeId))
+		rsp.NodeInfo.Block, err = dao.GetEncryptedLegacyBlockInfo(req.NodeId)
+
+		if req.WithRange {
+			skippedPlainBlockCount := req.PlainOffset / int64(rsp.NodeInfo.Block.BlockSize)
+			skippedBytesCount := skippedPlainBlockCount * int64(rsp.NodeInfo.Block.BlockSize)
+
+			encryptedBlockSize := rsp.NodeInfo.Block.BlockSize + aesGCMTagSize
+			encryptedRangeOffset := skippedPlainBlockCount * int64(encryptedBlockSize)
+
+			rsp.NodeInfo.Block.Nonce = rsp.NodeInfo.Block.Nonce[int(skippedBytesCount):]
+			rsp.HeadSKippedPlainBytesCount = req.PlainOffset - int64(uint32(skippedPlainBlockCount)*rsp.NodeInfo.Block.BlockSize)
+			rsp.EncryptedOffset = encryptedRangeOffset
+			rsp.EncryptedCount = -1
+		}
+
+	} else if req.WithRange {
+		cursor, err := dao.ListEncryptedBlockInfo(req.NodeId)
+		if err != nil {
+			log.Logger(ctx).Info("failed to list node blocks", zap.String("id", rsp.NodeInfo.Node.NodeId))
+			return err
+		}
+
+		defer func() {
+			_ = cursor.Close()
+		}()
+
+		encryptedOffsetCursor := int64(0)
+		encryptedLimitCursor := int64(0)
+
+		plainLimitCursor := req.PlainOffset + req.PlainLength
+		plainOffsetCursor := int64(0)
+
+		foundEncryptedOffset := plainOffsetCursor == int64(req.PlainOffset)
+		foundEncryptedLimit := req.PlainLength <= 0
+
+		for cursor.HasNext() {
+			next, _ := cursor.Next()
+			b := next.(*encryption.Block)
+
+			plainBlockSize := int64(b.BlockSize) - aesGCMTagSize
+			encryptedBlockSize := int64(b.BlockSize + b.HeaderSize)
+
+			nextPlainOffset := plainOffsetCursor + plainBlockSize
+			encryptedLimitCursor += encryptedBlockSize
+
+			if !foundEncryptedOffset {
+				if nextPlainOffset > req.PlainOffset {
+					foundEncryptedOffset = true
+					rsp.HeadSKippedPlainBytesCount = req.PlainOffset - plainOffsetCursor
+					rsp.EncryptedOffset = encryptedOffsetCursor
+
+					if nextPlainOffset >= plainLimitCursor {
+						rsp.EncryptedCount = encryptedBlockSize
+						foundEncryptedLimit = true
+					}
+				}
+				encryptedOffsetCursor += encryptedBlockSize
+				plainOffsetCursor = nextPlainOffset
+			}
+
+			if foundEncryptedOffset && !foundEncryptedLimit {
+				if nextPlainOffset >= plainLimitCursor {
+					foundEncryptedLimit = true
+					rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
+					break
+				}
+				plainOffsetCursor = nextPlainOffset
+			}
+		}
+
+		if !foundEncryptedLimit {
+			rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
+		}
+
+		fmt.Println("encrypted offset =", rsp.EncryptedOffset)
+		fmt.Println("encrypted count =", rsp.EncryptedCount)
+		//rsp.EncryptedCount = -1
+	}
+	return err
+}
+
+func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encryption.NodeKeyManager_SetNodeInfoStream) error {
+	dao, err := getDAO(ctx)
+	if err != nil {
+		return err
+	}
+
+	var req *encryption.SetNodeInfoRequest
+	addedNodeEntry := false
+	clearedOldBlocks := false
+
+	for {
+		req, err = stream.Recv()
+		if err != nil {
+			log.Logger(ctx).Error("failed to read SetInfoRequest", zap.Error(err))
+			break
+		}
+
+		// previous was the last when there is no attribute set in request object
+		if req.NodeKey == nil && req.NodeId == "" && req.Block == nil {
+			fmt.Println("received done request")
+			_ = stream.SendMsg(&encryption.SetNodeInfoResponse{})
+			break
+		}
+
+		fmt.Println("received SetInfoRequest", zap.Any("content", req))
+		if !addedNodeEntry && req.NodeKey != nil {
+			err = dao.SaveNode(&encryption.Node{
+				NodeId: req.NodeId,
+				Legacy: false,
+			})
+			if err != nil {
+				log.Logger(ctx).Error("failed to save node info", zap.Error(err))
+				err = stream.SendMsg(err)
+				break
+			}
+
+			nk := req.NodeKey
+			err = dao.SaveNodeKey(nk)
+			if err != nil {
+				log.Logger(ctx).Error("failed to save node key", zap.Error(err))
+				err = stream.SendMsg(err)
+				break
+			}
+			addedNodeEntry = true
+		}
+
+		if req.NodeKey != nil && !clearedOldBlocks {
+			err := dao.ClearNodeEncryptedBlockInfo(req.NodeId)
+			if err != nil {
+				log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
+				err = stream.SendMsg(err)
+				break
+			}
+			clearedOldBlocks = true
+		}
+
+		err = dao.SaveEncryptedBlockInfo(req.NodeId, req.Block)
+		if err != nil {
+			log.Logger(ctx).Error("failed to save block", zap.Error(err))
+			err = stream.SendMsg(err)
+			break
+		}
+
+		err = stream.SendMsg(&encryption.SetNodeInfoResponse{})
+		if err != nil {
+			break
 		}
 	}
-	return nil
+
+	if sce := stream.Close(); sce != nil {
+		log.Logger(ctx).Error("stream close error", zap.Error(sce))
+	}
+
+	return err
 }
 
-func (km *NodeKeyManagerHandler) SetNodeParams(ctx context.Context, req *encryption.SetNodeParamsRequest, rsp *encryption.SetNodeParamsResponse) error {
-	dao := servicecontext.GetDAO(ctx)
-	if dao == nil {
-		return errors.InternalServerError(common.SERVICE_META, "No DAO found Wrong initialization")
-	}
-	keyDao := dao.(key.DAO)
-	return keyDao.InsertNode(req.NodeId, req.Params.Nonce, req.Params.BlockSize)
-}
-
-func (km *NodeKeyManagerHandler) GetNodeKey(ctx context.Context, req *encryption.GetNodeKeyRequest, rsp *encryption.GetNodeKeyResponse) error {
-	dao := servicecontext.GetDAO(ctx)
-	if dao == nil {
-		return errors.InternalServerError(common.SERVICE_META, "No DAO found Wrong initialization")
-	}
-	keyDao := dao.(key.DAO)
-
-	r, err := keyDao.GetNodeKey(req.NodeId, req.UserId)
+func (km *NodeKeyManagerHandler) DeleteNode(ctx context.Context, req *encryption.DeleteNodeRequest, rsp *encryption.DeleteNodeResponse) error {
+	dao, err := getDAO(ctx)
 	if err != nil {
 		return err
 	}
-
-	if r != nil {
-		rsp.OwnerId = r.OwnerId
-		rsp.EncryptedKey = r.Data
-		rsp.BlockSize = r.BlockSize
-		rsp.Nonce = r.Nonce
-	}
-
-	return nil
-}
-
-func (km *NodeKeyManagerHandler) SetNodeKey(ctx context.Context, req *encryption.SetNodeKeyRequest, rsp *encryption.SetNodeKeyResponse) error {
-	dao := servicecontext.GetDAO(ctx)
-	if dao == nil {
-		return errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")
-	}
-	keyDao := dao.(key.DAO)
-	var k = req.Key
-
-	err := keyDao.InsertNode(k.NodeId, k.Nonce, k.BlockSize)
-	if err != nil {
-		log.Logger(ctx).Error("failed to register node", zap.Error(err))
-		return err
-	}
-
-	return keyDao.SetNodeKey(k.NodeId, k.OwnerId, k.UserId, k.Data)
+	return dao.DeleteNode(req.NodeId)
 }
 
 func (km *NodeKeyManagerHandler) DeleteNodeKey(ctx context.Context, req *encryption.DeleteNodeKeyRequest, rsp *encryption.DeleteNodeKeyResponse) error {
-	dao := servicecontext.GetDAO(ctx)
-	if dao == nil {
-		return errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")
+	dao, err := getDAO(ctx)
+	if err != nil {
+		return err
 	}
-	keyDao := dao.(key.DAO)
-
-	errorStr := ""
-	for i := range req.Users {
-		err := keyDao.DeleteNodeKey(req.NodeId, req.Users[i])
-		if err != nil {
-			errorStr += err.Error() + "\n"
-		}
-	}
-
-	if len(errorStr) > 0 {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, errorStr)
-	}
-	return nil
+	return dao.DeleteNodeKey(&encryption.NodeKey{
+		UserId: req.UserId,
+		NodeId: req.NodeId,
+	})
 }
 
 func (km *NodeKeyManagerHandler) DeleteNodeSharedKey(ctx context.Context, req *encryption.DeleteNodeSharedKeyRequest, rsp *encryption.DeleteNodeSharedKeyResponse) error {
-	dao := servicecontext.GetDAO(ctx)
-	if dao == nil {
-		return errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")
+	dao, err := getDAO(ctx)
+	if err != nil {
+		return err
 	}
-	keyDao := dao.(key.DAO)
-
-	if req.Users == nil || len(req.Users) == 0 {
-		return keyDao.DeleteNodeAllSharedKey(req.NodeId, req.OwnerId)
-	}
-
-	errorStr := ""
-	for i := range req.Users {
-		err := keyDao.DeleteNodeSharedKey(req.NodeId, req.OwnerId, req.Users[i])
-		if err != nil {
-			errorStr += err.Error() + "\n"
-		}
-	}
-	if len(errorStr) > 0 {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, errorStr)
-	}
-	return nil
+	return dao.DeleteNodeKey(&encryption.NodeKey{
+		UserId: req.UserId,
+		NodeId: req.NodeId,
+	})
 }

@@ -42,6 +42,9 @@ export default function (pydio) {
             PydioApi.getRestClient().userJob('move', jobParams).then(r => {
                 const m = pydio.MessageHash['rename.processing'].replace('%1', node.getLabel()).replace('%2', newValue);
                 pydio.UI.displayMessage('SUCCESS', m);
+                n.getMetadata().set('pending_operation', m);
+                n.getMetadata().set('pending_operation_uuid', r.JobUuid);
+                n.notify('meta_replaced', n);
                 pydio.getContextHolder().setSelectedNodes([]);
             });
         };

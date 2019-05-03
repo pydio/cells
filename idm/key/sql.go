@@ -83,7 +83,6 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 	if insertStmt == nil {
 		return fmt.Errorf("Unknown stmt")
 	}
-	defer insertStmt.Close()
 
 	var bytes = []byte{}
 	var err error
@@ -101,7 +100,6 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 		if updateStmt == nil {
 			return fmt.Errorf("Unknown stmt")
 		}
-		defer updateStmt.Close()
 
 		_, err = updateStmt.Exec(key.Content, bytes, key.Owner, key.ID)
 	}
@@ -113,7 +111,6 @@ func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) 
 	if getStmt == nil {
 		return nil, fmt.Errorf("Unknown stmt")
 	}
-	defer getStmt.Close()
 
 	rows, err := getStmt.Query(owner, KeyID)
 	if err != nil {
@@ -128,7 +125,6 @@ func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) 
 		var bytes []byte
 		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes)
 		if err != nil {
-			rows.Close()
 			return nil, err
 		}
 
@@ -146,7 +142,6 @@ func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 	if getStmt == nil {
 		return nil, fmt.Errorf("Unknown stmt")
 	}
-	defer getStmt.Close()
 
 	rows, err := getStmt.Query(owner)
 
@@ -183,7 +178,6 @@ func (dao *sqlimpl) DeleteKey(owner string, keyID string) error {
 	if delStmt == nil {
 		return fmt.Errorf("Unknown stmt")
 	}
-	defer delStmt.Close()
 
 	_, err := delStmt.Exec(owner, keyID)
 	return err

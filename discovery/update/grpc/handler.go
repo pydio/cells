@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/update"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	update2 "github.com/pydio/cells/discovery/update"
 )
 
@@ -91,7 +91,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 	}
 
 	log.Logger(ctx).Info("Update binary now", zap.Any("package", apply))
-	uName, _ := utils.FindUserNameInContext(ctx)
+	uName, _ := permissions.FindUserNameInContext(ctx)
 
 	// Defining new Context
 	newCtx := context.Background()

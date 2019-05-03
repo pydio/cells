@@ -156,6 +156,15 @@ function LinkWrapper(pydio, activity) {
             } else if (href.startsWith('user://')) {
                 var userId = href.replace('user://', '');
                 return _react2['default'].createElement(UserAvatar, { userId: userId, displayAvatar: false, richOnClick: true, style: { cursor: 'pointer', display: 'inline-block', color: 'rgb(66, 140, 179)' }, pydio: pydio });
+            } else if (href.startsWith('workspaces://')) {
+                (function () {
+                    var wsId = href.replace('workspaces://', '');
+                    if (pydio.user && pydio.user.getRepositoriesList().get(wsId)) {
+                        onClick = function () {
+                            pydio.triggerRepositoryChange(wsId);
+                        };
+                    }
+                })();
             }
             return _react2['default'].createElement(
                 'a',
@@ -230,7 +239,7 @@ var Activity = (function (_React$Component2) {
                 };
             }
 
-            var className = undefined;
+            var className = '';
             var title = undefined;
             switch (activity.type) {
                 case "Create":
@@ -258,16 +267,28 @@ var Activity = (function (_React$Component2) {
                     className = "file-send";
                     title = "Moved";
                     break;
+                case "Share":
+                    className = "share-variant";
+                    if (activity.object.type === "Cell") {
+                        className = "icomoon-cells";
+                    } else if (activity.object.type === "Workspace") {
+                        className = "folder";
+                    }
+                    title = "Shared";
+                    break;
                 default:
                     break;
             }
+            if (className.indexOf('icomoon-') === -1) {
+                className = 'mdi mdi-' + className;
+            }
             if (listContext === 'NODE-LEAF') {
                 blockStyle = { margin: '16px 10px' };
-                actionIcon = _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-" + className, title: title, style: { fontSize: 17, color: 'rgba(0,0,0,0.17)' } });
+                actionIcon = _react2['default'].createElement(_materialUi.FontIcon, { className: className, title: title, style: { fontSize: 17, color: 'rgba(0,0,0,0.17)' } });
             } else {
                 if (displayContext === 'mainList') {
                     return _react2['default'].createElement(_materialUi.ListItem, {
-                        leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-" + className, color: 'rgba(0,0,0,.33)' }),
+                        leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: className, color: 'rgba(0,0,0,.33)' }),
                         primaryText: secondary,
                         secondaryText: _react2['default'].createElement(
                             'div',
@@ -277,7 +298,7 @@ var Activity = (function (_React$Component2) {
                         disabled: true
                     });
                 } else if (displayContext === 'popover') {
-                    var leftIcon = _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-" + className, title: title, style: { padding: '0 8px', fontSize: 20, color: 'rgba(0,0,0,0.17)' } });
+                    var leftIcon = _react2['default'].createElement(_materialUi.FontIcon, { className: className, title: title, style: { padding: '0 8px', fontSize: 20, color: 'rgba(0,0,0,0.17)' } });
                     summary = _react2['default'].createElement(
                         'div',
                         { style: { display: 'flex', alignItems: 'center' } },

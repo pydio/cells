@@ -79,7 +79,9 @@ var getSelection = function getSelection(node) {
         node.getParent().getChildren().forEach(function (child) {
             return selection.push(child);
         });
-        selection = selection.filter(getSelectionFilter);
+        selection = selection.filter(getSelectionFilter).sort(function (a, b) {
+            return a.getLabel().localeCompare(b.getLabel(), undefined, { numeric: true });
+        });
 
         resolve({
             selection: selection,

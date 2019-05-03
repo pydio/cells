@@ -40,7 +40,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/minio-go"
 )
 
@@ -72,7 +72,7 @@ type (
 		idm.Workspace
 		Root          *tree.Node
 		Binary        bool
-		AncestorsList []*tree.Node
+		AncestorsList map[string][]*tree.Node
 	}
 
 	PutRequestData struct {
@@ -128,11 +128,11 @@ type Handler interface {
 	SetClientsPool(p *ClientsPool)
 }
 
-func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInfo) context.Context {
+func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInfo, reset ...bool) context.Context {
 	//log.Logger(ctx).Error("branchInfo", zap.Any("branchInfo", branchInfo))
 	value := ctx.Value(ctxBranchInfoKey{})
 	var data map[string]BranchInfo
-	if value != nil {
+	if value != nil && len(reset) == 0 {
 		data = value.(map[string]BranchInfo)
 	} else {
 		data = make(map[string]BranchInfo)
@@ -154,16 +154,16 @@ func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, bool) {
 
 func UserWorkspacesFromContext(ctx context.Context) map[string]*idm.Workspace {
 	if value := ctx.Value(CtxUserAccessListKey{}); value != nil {
-		accessList := value.(*utils.AccessList)
+		accessList := value.(*permissions.AccessList)
 		return accessList.Workspaces
 	} else {
 		return make(map[string]*idm.Workspace)
 	}
 }
 
-func AccessListFromContext(ctx context.Context) (*utils.AccessList, error) {
+func AccessListFromContext(ctx context.Context) (*permissions.AccessList, error) {
 	if value := ctx.Value(CtxUserAccessListKey{}); value != nil {
-		accessList := value.(*utils.AccessList)
+		accessList := value.(*permissions.AccessList)
 		return accessList, nil
 	} else {
 		return nil, errors.New("Cannot find access list in context")
@@ -173,18 +173,23 @@ func AccessListFromContext(ctx context.Context) (*utils.AccessList, error) {
 func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, p *ClientsPool, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
 
 	branchInfo, hasBranchInfo := GetBranchInfo(ctx, identifier)
-	if hasBranchInfo && len(branchInfo.AncestorsList) > 0 {
-		return ctx, branchInfo.AncestorsList, nil
+	if hasBranchInfo && branchInfo.AncestorsList != nil {
+		if ancestors, ok := branchInfo.AncestorsList[node.Path]; ok {
+			return ctx, ancestors, nil
+		}
 	}
-	searchFunc := utils.BuildAncestorsList
+	searchFunc := tree.BuildAncestorsList
 	if orParents {
-		searchFunc = utils.BuildAncestorsListOrParent
+		searchFunc = tree.BuildAncestorsListOrParent
 	}
 	if parents, err := searchFunc(ctx, p.GetTreeClient(), node); err != nil {
 		return ctx, nil, err
 	} else {
 		if hasBranchInfo {
-			branchInfo.AncestorsList = parents
+			if branchInfo.AncestorsList == nil {
+				branchInfo.AncestorsList = make(map[string][]*tree.Node, 1)
+			}
+			branchInfo.AncestorsList[node.Path] = parents
 			ctx = WithBranchInfo(ctx, identifier, branchInfo)
 		}
 		return ctx, parents, nil

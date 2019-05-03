@@ -24,9 +24,10 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
@@ -187,4 +188,20 @@ func (s *BoltStore) ListDocuments(storeID string, query *docstore.DocumentQuery)
 	}()
 
 	return res, done, nil
+}
+
+// ListStores list all buckets
+func (s *BoltStore) ListStores() ([]string, error) {
+	var stores []string
+	e := s.db.View(func(tx *bolt.Tx) error {
+		return tx.ForEach(func(name []byte, b *bolt.Bucket) error {
+			n := string(name)
+			if strings.HasPrefix(n, storeBucketString) {
+				// This is a bucket
+				stores = append(stores, strings.TrimPrefix(n, storeBucketString))
+			}
+			return nil
+		})
+	})
+	return stores, e
 }

@@ -25,42 +25,42 @@ import (
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
 // DAO interface
 type DAO interface {
-	Path(strpath string, create bool, reqNode ...*tree.Node) (utils.MPath, []*utils.TreeNode, error)
+	Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error)
 
 	// Simple Add / Set / Delete
-	AddNode(*utils.TreeNode) error
-	SetNode(*utils.TreeNode) error
-	DelNode(*utils.TreeNode) error
+	AddNode(*mtree.TreeNode) error
+	SetNode(*mtree.TreeNode) error
+	DelNode(*mtree.TreeNode) error
 
 	// Simple Add / Set / Delete
-	AddNodeStream(int) (chan *utils.TreeNode, chan error)
+	AddNodeStream(int) (chan *mtree.TreeNode, chan error)
 	Flush(bool) error
 
 	// Batch Add / Set / Delete
-	GetNodes(...utils.MPath) chan *utils.TreeNode
+	GetNodes(...mtree.MPath) chan *mtree.TreeNode
 	SetNodes(string, int64) sql.BatchSender
 
 	// Getters
-	GetNode(utils.MPath) (*utils.TreeNode, error)
-	GetNodeByUUID(string) (*utils.TreeNode, error)
-	GetNodeChild(utils.MPath, string) (*utils.TreeNode, error)
-	GetNodeLastChild(utils.MPath) (*utils.TreeNode, error)
-	GetNodeFirstAvailableChildIndex(utils.MPath) (uint64, error)
-	GetNodeChildrenCount(utils.MPath) int
-	GetNodeChildren(utils.MPath) chan *utils.TreeNode
-	GetNodeTree(utils.MPath) chan *utils.TreeNode
+	GetNode(mtree.MPath) (*mtree.TreeNode, error)
+	GetNodeByUUID(string) (*mtree.TreeNode, error)
+	GetNodeChild(mtree.MPath, string) (*mtree.TreeNode, error)
+	GetNodeLastChild(mtree.MPath) (*mtree.TreeNode, error)
+	GetNodeFirstAvailableChildIndex(mtree.MPath) (uint64, error)
+	GetNodeChildrenCounts(mtree.MPath) (int, int)
+	GetNodeChildren(mtree.MPath) chan *mtree.TreeNode
+	GetNodeTree(mtree.MPath) chan *mtree.TreeNode
 
-	MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNode) error
+	MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error
 
-	PushCommit(node *utils.TreeNode) error
-	DeleteCommits(node *utils.TreeNode) error
-	ListCommits(node *utils.TreeNode) ([]*tree.ChangeLog, error)
-	ResyncDirtyEtags(rootNode *utils.TreeNode) error
+	PushCommit(node *mtree.TreeNode) error
+	DeleteCommits(node *mtree.TreeNode) error
+	ListCommits(node *mtree.TreeNode) ([]*tree.ChangeLog, error)
+	ResyncDirtyEtags(rootNode *mtree.TreeNode) error
 	CleanResourcesOnDeletion() (error, string)
 }
 

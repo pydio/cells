@@ -1,9 +1,9 @@
 {
   "Mail.Main.Copyright": {
-    "other": "Filesharinglösung mit Stolz präsentiert von Pydio"
+    "other": "Filesharing-Lösung mit Stolz präsentiert von Pydio"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "Wenn die {ACTION}-Taste für SIe nicht funktioniert, kopieren Sie einfach die URL und fügen Sie diese in die Adressleiste in Ihrem Web-Browser ein."
+    "other": "Wenn die {ACTION}-Taste für Sie nicht funktioniert, kopieren Sie einfach die URL und fügen diese in die Adressleiste Ihres Web-Browsers ein."
   },
   "Mail.Main.Greeting": {
     "other": "Hallo"
@@ -208,5 +208,26 @@
   },
   "Mail.Config.Sendmail.Executable.Other": {
     "other": "Anderer Pfad (manuell in pydio.json setzen)"
+  },
+  "Mail.Config.FromName.Label": {
+    "other": "Standard-Anzeigename des Absenders"
+  },
+  "Mail.Config.FromName.Description": {
+    "other": "Anzeigename der per Default beim Senden von E-Mails genutzt werden soll."
+  },
+  "Mail.Config.FromCtl.Label": {
+    "other": "Handhabung von From/Sender"
+  },
+  "Mail.Config.FromCtl.Description": {
+    "other": "Legt fest, wie From/Sender zu setzen sind. Ist für den sendenden Benutzer keine E-Mail Adresse hinterlegt, wird imm die Standard FROM Adresse genutzt."
+  },
+  "Mail.Config.FromCtlUser.Label": {
+    "other": "E-Mail VOM Benutzer senden"
+  },
+  "Mail.Config.FromCtlSender.Label": {
+    "other": "E-Mail IM AUFTRAG des Benutzers senden"
+  },
+  "Mail.Config.FromCtlDefault.Label": {
+    "other": "Immer von der Standard Adresse/Name senden"
   }
 }

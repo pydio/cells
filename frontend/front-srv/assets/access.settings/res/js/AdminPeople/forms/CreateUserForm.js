@@ -102,35 +102,40 @@ const CreateUserForm = React.createClass({
         return (
             <div style={{width:'100%'}}>
                 {path}
-                <div style={{width:'100%'}}>
-                    <TextField
-                        ref="user_id"
-                        onChange={this.checkLogin}
-                        fullWidth={true}
-                        floatingLabelText={this.context.getMessage('ajxp_admin.user.21')}
-                        errorText={this.state.loginErrorText}
-                    />
-                </div>
-                <div>
-                    <TextField
-                        ref="pass"
-                        type="password"
-                        floatingLabelText={this.context.getMessage('ajxp_admin.user.22')}
-                        onChange={this.checkPassword}
-                        fullWidth={true}
-                        errorText={this.state.passErrorText || this.state.passHintText}
-                    />
-                </div>
-                <div>
-                    <TextField
-                        ref="passconf"
-                        type="password"
-                        floatingLabelText={this.context.getMessage('ajxp_admin.user.23')}
-                        onChange={this.checkPassword}
-                        fullWidth={true}
-                        errorText={this.state.confirmErrorText}
-                    />
-                </div>
+                <form autoComplete={"off"}>
+                    <div style={{width:'100%'}}>
+                        <TextField
+                            ref="user_id"
+                            onChange={this.checkLogin}
+                            fullWidth={true}
+                            floatingLabelText={this.context.getMessage('ajxp_admin.user.21')}
+                            errorText={this.state.loginErrorText}
+                            autoComplete={"nope"}
+                        />
+                    </div>
+                    <div>
+                        <TextField
+                            ref="pass"
+                            type="password"
+                            floatingLabelText={this.context.getMessage('ajxp_admin.user.22')}
+                            onChange={this.checkPassword}
+                            fullWidth={true}
+                            errorText={this.state.passErrorText || this.state.passHintText}
+                            autoComplete={"new-password"}
+                        />
+                    </div>
+                    <div>
+                        <TextField
+                            ref="passconf"
+                            type="password"
+                            floatingLabelText={this.context.getMessage('ajxp_admin.user.23')}
+                            onChange={this.checkPassword}
+                            fullWidth={true}
+                            errorText={this.state.confirmErrorText}
+                            autoComplete={"confirm-password"}
+                        />
+                    </div>
+                </form>
             </div>
         );
     }

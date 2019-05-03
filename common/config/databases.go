@@ -35,7 +35,6 @@ var (
 func loadDatabases() {
 	Get("databases").Scan(&databases)
 
-	//defaultDriver, defaultDSN = databases.Database(Get("defaults", "database").String("default"))
 	if defaultDbKey := Get("defaults", "database").String(""); defaultDbKey != "" {
 		if _, ok := databases[defaultDbKey]; ok {
 			sMap := databases.StringMap(defaultDbKey)

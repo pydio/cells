@@ -388,6 +388,7 @@ message ChangeEvent {
     Role Role = 4;
     Workspace Workspace = 5;
     ACL Acl = 6;
+    UserMetaNamespace MetaNamespace = 8;
     map<string,string> Attributes = 7;
 }
 

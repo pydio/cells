@@ -25,12 +25,17 @@ import (
 	"context"
 	"path"
 
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	proto "github.com/pydio/cells/common/proto/docstore"
+	"github.com/pydio/cells/common/proto/sync"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/docstore"
 )
@@ -66,20 +71,35 @@ func init() {
 
 				for id, json := range defaults() {
 					if doc, e := store.GetDocument(common.DOCSTORE_ID_VIRTUALNODES, id); e == nil && doc != nil {
-						continue // Already defined
+						var reStore bool
+						if id == "my-files" {
+							// Check if my-files is up-to-date
+							var vNode tree.Node
+							if e := jsonpb.UnmarshalString(doc.Data, &vNode); e == nil {
+								if _, ok := vNode.MetaStore["onDelete"]; !ok {
+									log.Logger(m.Options().Context).Info("Upgrading my-files template path for onDelete policy")
+									reStore = true
+								}
+							} else {
+								log.Logger(m.Options().Context).Info("Cannot unmarshall", zap.Error(e))
+							}
+						}
+						if !reStore {
+							continue
+						}
 					}
 					handler.PutDocument(context.Background(),
 						&proto.PutDocumentRequest{StoreID: common.DOCSTORE_ID_VIRTUALNODES, DocumentID: id, Document: &proto.Document{
-							ID:            id,
-							Owner:         common.PYDIO_SYSTEM_USERNAME,
-							Data:          json,
-							IndexableMeta: json,
+							ID:    id,
+							Owner: common.PYDIO_SYSTEM_USERNAME,
+							Data:  json,
 						}}, &proto.PutDocumentResponse{})
 				}
 
 				m.Init(micro.BeforeStop(handler.Close))
 
 				proto.RegisterDocStoreHandler(m.Options().Server, handler)
+				sync.RegisterSyncEndpointHandler(m.Options().Server, handler)
 
 				return nil
 			}),
@@ -90,8 +110,8 @@ func init() {
 func defaults() map[string]string {
 
 	return map[string]string{
-		"my-files": "{\"Uuid\":\"my-files\",\"Path\":\"my-files\",\"Type\":\"COLLECTION\",\"MetaStore\":{\"name\":\"my-files\",\"resolution\":\"\\/\\/ Default node used for storing personal users data in separate folders. \\n\\/\\/ Use Ctrl+Space to see the objects available for completion.\\nPath = DataSources.personal + \\\"\\/\\\" + User.Name;\",\"contentType\":\"text\\/javascript\"}}",
-		"cells":    "{\"Uuid\":\"cells\",\"Path\":\"cells\",\"Type\":\"COLLECTION\",\"MetaStore\":{\"name\":\"cells\",\"resolution\":\"\\/\\/ Default node used as parent for creating empty cells. \\n\\/\\/ Use Ctrl+Space to see the objects available for completion.\\nPath = DataSources.cellsdata + \\\"\\/\\\" + User.Name;\",\"contentType\":\"text\\/javascript\"}}",
+		"my-files": `{"Uuid":"my-files","Path":"my-files","Type":"COLLECTION","MetaStore":{"name":"my-files", "onDelete":"rename-uuid","resolution":"\/\/ Default node used for storing personal users data in separate folders. \n\/\/ Use Ctrl+Space to see the objects available for completion.\nPath = DataSources.personal + \"\/\" + User.Name;","contentType":"text\/javascript"}}`,
+		"cells":    `{"Uuid":"cells","Path":"cells","Type":"COLLECTION","MetaStore":{"name":"cells","resolution":"\/\/ Default node used as parent for creating empty cells. \n\/\/ Use Ctrl+Space to see the objects available for completion.\nPath = DataSources.cellsdata + \"\/\" + User.Name;","contentType":"text\/javascript"}}`,
 	}
 
 }

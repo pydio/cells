@@ -24,7 +24,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/auth"
 	"go.uber.org/zap"

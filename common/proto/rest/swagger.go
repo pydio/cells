@@ -1,5 +1,4 @@
 package rest
-
 var SwaggerJson = `{
   "swagger": "2.0",
   "info": {
@@ -2592,7 +2591,7 @@ var SwaggerJson = `{
         ]
       },
       "post": {
-        "summary": "List Tags for a given namespace",
+        "summary": "Add a new value to Tags for a given namespace",
         "operationId": "PutUserMetaTag",
         "responses": {
           "200": {
@@ -2625,7 +2624,7 @@ var SwaggerJson = `{
     },
     "/user-meta/tags/{Namespace}/{Tags}": {
       "delete": {
-        "summary": "List Tags for a given namespace",
+        "summary": "Delete one or all tags for a given namespace (use * for all tags)",
         "operationId": "DeleteUserMetaTags",
         "responses": {
           "200": {
@@ -2968,6 +2967,7 @@ var SwaggerJson = `{
         "UPDATE_PATH",
         "UPDATE_CONTENT",
         "UPDATE_META",
+        "UPDATE_USER_META",
         "DELETE"
       ],
       "default": "CREATE"
@@ -3278,7 +3278,9 @@ var SwaggerJson = `{
         "View",
         "Workspace",
         "Digest",
-        "Folder"
+        "Folder",
+        "Cell",
+        "Share"
       ],
       "default": "BaseObject",
       "title": "- Collection: CollectionTypes\n - Application: Actor Types\n - Article: Objects Types\n - Accept: Activity Types\n - Workspace: Pydio Types"
@@ -4655,6 +4657,12 @@ var SwaggerJson = `{
             "$ref": "#/definitions/jobsTask"
           },
           "title": "Filled with currently running tasks"
+        },
+        "NodeEventFilter": {
+          "$ref": "#/definitions/jobsNodesSelector"
+        },
+        "UserEventFilter": {
+          "$ref": "#/definitions/jobsUsersSelector"
         }
       }
     },
@@ -6918,6 +6926,14 @@ var SwaggerJson = `{
         },
         "Target": {
           "$ref": "#/definitions/treeNode"
+        },
+        "Silent": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "Optimistic": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     },
@@ -6990,15 +7006,23 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Node": {
-          "$ref": "#/definitions/treeNode"
+          "$ref": "#/definitions/treeNode",
+          "title": "Input node"
         },
         "WithCommits": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Gather commit information"
         },
         "WithExtendedStats": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Get extended stats - For folders, computes ChildrenCount"
+        },
+        "ObjectStats": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Used internally for the router ReadNode request, stat the datasource instead of index"
         }
       },
       "title": "Request / Responses Messages"

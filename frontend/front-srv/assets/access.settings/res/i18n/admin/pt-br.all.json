@@ -263,6 +263,9 @@
   "ds.status.ko": {
     "other": "Services stopped"
   },
+  "ds.status.ko-peers": {
+    "other": "Node %s not found"
+  },
   "ds.status.na": {
     "other": "N/A"
   },
@@ -271,6 +274,9 @@
   },
   "ds.status.ok": {
     "other": "All services running"
+  },
+  "ds.status.starting": {
+    "other": "Starting datasource..."
   },
   "ds.status.sync": {
     "other": "Sync down"
@@ -556,6 +562,9 @@
   },
   "logs.export.disabled": {
     "other": "Pick a date or filter result"
+  },
+  "logs.export.clicklink": {
+    "other": "Click on the link to download"
   },
   "logs.filter.period": {
     "other": "Time Period"
@@ -1609,6 +1618,24 @@
   },
   "scheduler.trigger.delete.node": {
     "other": "Delete Node"
+  },
+  "scheduler.trigger.create.user": {
+    "other": "Create User"
+  },
+  "scheduler.trigger.read.user": {
+    "other": "Read User"
+  },
+  "scheduler.trigger.update.user": {
+    "other": "Update User"
+  },
+  "scheduler.trigger.delete.user": {
+    "other": "Delete User"
+  },
+  "scheduler.trigger.bind.user": {
+    "other": "User Bind"
+  },
+  "scheduler.trigger.logout.user": {
+    "other": "User Logout"
   },
   "scheduler.trigger.events": {
     "other": "Events"

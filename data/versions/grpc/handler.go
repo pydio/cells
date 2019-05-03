@@ -27,10 +27,10 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/errors"
+	"github.com/patrickmn/go-cache"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/patrickmn/go-cache"
 	"github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/broker/activity/render"
 	"github.com/pydio/cells/common"
@@ -40,8 +40,8 @@ import (
 	activity2 "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/data/versions"
 )
 
@@ -70,7 +70,7 @@ func NewChangeLogFromNode(ctx context.Context, node *tree.Node, event *tree.Node
 	c.MTime = node.MTime
 	c.Size = node.Size
 	c.Event = event
-	c.OwnerUuid, _ = utils.FindUserNameInContext(ctx)
+	c.OwnerUuid, _ = permissions.FindUserNameInContext(ctx)
 	return c
 
 }

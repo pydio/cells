@@ -368,6 +368,25 @@ func (i *indexImpl) Search(req *SearchRequest) (sr *SearchResult, err error) {
 	return i.SearchInContext(context.Background(), req)
 }
 
+var documentMatchEmptySize int
+var searchContextEmptySize int
+var facetResultEmptySize int
+var documentEmptySize int
+
+func init() {
+	var dm search.DocumentMatch
+	documentMatchEmptySize = dm.Size()
+
+	var sc search.SearchContext
+	searchContextEmptySize = sc.Size()
+
+	var fr search.FacetResult
+	facetResultEmptySize = fr.Size()
+
+	var d document.Document
+	documentEmptySize = d.Size()
+}
+
 // memNeededForSearch is a helper function that returns an estimate of RAM
 // needed to execute a search request.
 func memNeededForSearch(req *SearchRequest,
@@ -385,35 +404,27 @@ func memNeededForSearch(req *SearchRequest,
 	// overhead, size in bytes from collector
 	estimate += topnCollector.Size()
 
-	var dm search.DocumentMatch
-	sizeOfDocumentMatch := dm.Size()
-
 	// pre-allocing DocumentMatchPool
-	var sc search.SearchContext
-	estimate += sc.Size() + numDocMatches*sizeOfDocumentMatch
+	estimate += searchContextEmptySize + numDocMatches*documentMatchEmptySize
 
 	// searcher overhead
 	estimate += searcher.Size()
 
 	// overhead from results, lowestMatchOutsideResults
-	estimate += (numDocMatches + 1) * sizeOfDocumentMatch
+	estimate += (numDocMatches + 1) * documentMatchEmptySize
 
 	// additional overhead from SearchResult
-	var sr SearchResult
-	estimate += sr.Size()
+	estimate += reflectStaticSizeSearchResult + reflectStaticSizeSearchStatus
 
 	// overhead from facet results
 	if req.Facets != nil {
-		var fr search.FacetResult
-		estimate += len(req.Facets) * fr.Size()
+		estimate += len(req.Facets) * facetResultEmptySize
 	}
 
 	// highlighting, store
-	var d document.Document
 	if len(req.Fields) > 0 || req.Highlight != nil {
-		for i := 0; i < (req.Size + req.From); i++ { // size + from => number of hits
-			estimate += (req.Size + req.From) * d.Size()
-		}
+		// Size + From => number of hits
+		estimate += (req.Size + req.From) * documentEmptySize
 	}
 
 	return uint64(estimate)
@@ -447,6 +458,7 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 	searcher, err := req.Query.Searcher(indexReader, i.m, search.SearcherOptions{
 		Explain:            req.Explain,
 		IncludeTermVectors: req.IncludeLocations || req.Highlight != nil,
+		Score:              req.Score,
 	})
 	if err != nil {
 		return nil, err
@@ -530,70 +542,12 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 	}
 
 	for _, hit := range hits {
-		if len(req.Fields) > 0 || highlighter != nil {
-			doc, err := indexReader.Document(hit.ID)
-			if err == nil && doc != nil {
-				if len(req.Fields) > 0 {
-					fieldsToLoad := deDuplicate(req.Fields)
-					for _, f := range fieldsToLoad {
-						for _, docF := range doc.Fields {
-							if f == "*" || docF.Name() == f {
-								var value interface{}
-								switch docF := docF.(type) {
-								case *document.TextField:
-									value = string(docF.Value())
-								case *document.NumericField:
-									num, err := docF.Number()
-									if err == nil {
-										value = num
-									}
-								case *document.DateTimeField:
-									datetime, err := docF.DateTime()
-									if err == nil {
-										value = datetime.Format(time.RFC3339)
-									}
-								case *document.BooleanField:
-									boolean, err := docF.Boolean()
-									if err == nil {
-										value = boolean
-									}
-								case *document.GeoPointField:
-									lon, err := docF.Lon()
-									if err == nil {
-										lat, err := docF.Lat()
-										if err == nil {
-											value = []float64{lon, lat}
-										}
-									}
-								}
-								if value != nil {
-									hit.AddFieldValue(docF.Name(), value)
-								}
-							}
-						}
-					}
-				}
-				if highlighter != nil {
-					highlightFields := req.Highlight.Fields
-					if highlightFields == nil {
-						// add all fields with matches
-						highlightFields = make([]string, 0, len(hit.Locations))
-						for k := range hit.Locations {
-							highlightFields = append(highlightFields, k)
-						}
-					}
-					for _, hf := range highlightFields {
-						highlighter.BestFragmentsInField(hit, doc, hf, 1)
-					}
-				}
-			} else if doc == nil {
-				// unexpected case, a doc ID that was found as a search hit
-				// was unable to be found during document lookup
-				return nil, ErrorIndexReadInconsistency
-			}
-		}
 		if i.name != "" {
 			hit.Index = i.name
+		}
+		err = LoadAndHighlightFields(hit, req, i.name, indexReader, highlighter)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -609,9 +563,7 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 	return &SearchResult{
 		Status: &SearchStatus{
 			Total:      1,
-			Failed:     0,
 			Successful: 1,
-			Errors:     make(map[string]error),
 		},
 		Request:  req,
 		Hits:     hits,
@@ -620,6 +572,75 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 		Took:     searchDuration,
 		Facets:   collector.FacetResults(),
 	}, nil
+}
+
+func LoadAndHighlightFields(hit *search.DocumentMatch, req *SearchRequest,
+	indexName string, r index.IndexReader,
+	highlighter highlight.Highlighter) error {
+	if len(req.Fields) > 0 || highlighter != nil {
+		doc, err := r.Document(hit.ID)
+		if err == nil && doc != nil {
+			if len(req.Fields) > 0 {
+				fieldsToLoad := deDuplicate(req.Fields)
+				for _, f := range fieldsToLoad {
+					for _, docF := range doc.Fields {
+						if f == "*" || docF.Name() == f {
+							var value interface{}
+							switch docF := docF.(type) {
+							case *document.TextField:
+								value = string(docF.Value())
+							case *document.NumericField:
+								num, err := docF.Number()
+								if err == nil {
+									value = num
+								}
+							case *document.DateTimeField:
+								datetime, err := docF.DateTime()
+								if err == nil {
+									value = datetime.Format(time.RFC3339)
+								}
+							case *document.BooleanField:
+								boolean, err := docF.Boolean()
+								if err == nil {
+									value = boolean
+								}
+							case *document.GeoPointField:
+								lon, err := docF.Lon()
+								if err == nil {
+									lat, err := docF.Lat()
+									if err == nil {
+										value = []float64{lon, lat}
+									}
+								}
+							}
+							if value != nil {
+								hit.AddFieldValue(docF.Name(), value)
+							}
+						}
+					}
+				}
+			}
+			if highlighter != nil {
+				highlightFields := req.Highlight.Fields
+				if highlightFields == nil {
+					// add all fields with matches
+					highlightFields = make([]string, 0, len(hit.Locations))
+					for k := range hit.Locations {
+						highlightFields = append(highlightFields, k)
+					}
+				}
+				for _, hf := range highlightFields {
+					highlighter.BestFragmentsInField(hit, doc, hf, 1)
+				}
+			}
+		} else if doc == nil {
+			// unexpected case, a doc ID that was found as a search hit
+			// was unable to be found during document lookup
+			return ErrorIndexReadInconsistency
+		}
+	}
+
+	return nil
 }
 
 // Fields returns the name of all the fields this

@@ -94,6 +94,9 @@ $ cells admin user-profile -u 'USER_LOGIN' --profile '%s'
 		}
 
 		for _, user := range users {
+			if user.Attributes == nil {
+				user.Attributes = make(map[string]string, 1)
+			}
 			user.Attributes["profile"] = userTargetProfile
 			if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
 				User: user,

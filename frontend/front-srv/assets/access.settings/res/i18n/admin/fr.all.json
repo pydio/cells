@@ -263,6 +263,9 @@
   "ds.status.ko": {
     "other": "Services stoppés"
   },
+  "ds.status.ko-peers": {
+    "other": "Le noeud %s n'a pas été trouvé"
+  },
   "ds.status.na": {
     "other": "N/A"
   },
@@ -271,6 +274,9 @@
   },
   "ds.status.ok": {
     "other": "Tous les services OK"
+  },
+  "ds.status.starting": {
+    "other": "Démarrage de la Datasource..."
   },
   "ds.status.sync": {
     "other": "Sync HS"
@@ -556,6 +562,9 @@
   },
   "logs.export.disabled": {
     "other": "Filtrer les résultats"
+  },
+  "logs.export.clicklink": {
+    "other": "Cliquez sur le lien pour télécharger"
   },
   "logs.filter.period": {
     "other": "Période"
@@ -1609,6 +1618,24 @@
   },
   "scheduler.trigger.delete.node": {
     "other": "Suppression"
+  },
+  "scheduler.trigger.create.user": {
+    "other": "Utilisateur créé"
+  },
+  "scheduler.trigger.read.user": {
+    "other": "Utilisateur accédé"
+  },
+  "scheduler.trigger.update.user": {
+    "other": "Utilisateur mis à jour"
+  },
+  "scheduler.trigger.delete.user": {
+    "other": "Utilisateur supprimé"
+  },
+  "scheduler.trigger.bind.user": {
+    "other": "Utilisateur authentifié"
+  },
+  "scheduler.trigger.logout.user": {
+    "other": "Utilisateur déconnecté"
   },
   "scheduler.trigger.events": {
     "other": "Evénements"

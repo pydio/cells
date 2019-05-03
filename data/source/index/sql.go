@@ -28,7 +28,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
 var (
@@ -62,9 +62,9 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 		}
 	}
 
-	if _, err := s.IndexSQL.GetNode(utils.NewMPath(1)); err != nil {
+	if _, err := s.IndexSQL.GetNode(mtree.NewMPath(1)); err != nil {
 		log.Logger(context.Background()).Info("Creating root node in index ")
-		treeNode := utils.NewTreeNode()
+		treeNode := mtree.NewTreeNode()
 		treeNode.Type = tree.NodeType_COLLECTION
 		treeNode.Uuid = "ROOT"
 		treeNode.SetMPath(1)

@@ -92,23 +92,29 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 
 		// Let's extract the basic information from the tree and store it
 		s.UpdateNode(ctx, &tree.UpdateNodeRequest{
-			To: e.Target,
+			To:     e.Target,
+			Silent: e.Silent,
 		}, &tree.UpdateNodeResponse{})
 		break
 	case tree.NodeChangeEvent_UPDATE_PATH:
 		log.Logger(ctx).Debug("Received Update event", zap.Any("event", e))
 
 		// Let's extract the basic information from the tree and store it
-		s.UpdateNode(ctx, &tree.UpdateNodeRequest{
-			To: e.Target,
-		}, &tree.UpdateNodeResponse{})
+		if er := s.UpdateNode(ctx, &tree.UpdateNodeRequest{
+			To:     e.Target,
+			Silent: e.Silent,
+		}, &tree.UpdateNodeResponse{}); er == nil {
+			// UpdateNode will trigger an UPDATE_META, forward UPDATE_PATH event as well
+			client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, e))
+		}
 		break
 	case tree.NodeChangeEvent_UPDATE_META:
 		log.Logger(ctx).Debug("Received Update meta", zap.Any("event", e))
 
 		// Let's extract the basic information from the tree and store it
 		s.UpdateNode(ctx, &tree.UpdateNodeRequest{
-			To: e.Target,
+			To:     e.Target,
+			Silent: e.Silent,
 		}, &tree.UpdateNodeResponse{})
 		break
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
@@ -120,7 +126,8 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 		log.Logger(ctx).Debug("Received Delete content", zap.Any("event", e))
 
 		s.DeleteNode(ctx, &tree.DeleteNodeRequest{
-			Node: e.Source,
+			Node:   e.Source,
+			Silent: e.Silent,
 		}, &tree.DeleteNodeResponse{})
 	default:
 		log.Logger(ctx).Debug("Ignoring event type", zap.Any("event", e.GetType()))
@@ -243,12 +250,11 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	resp.Success = true
 
-	if !req.Silent {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-			Type:   tree.NodeChangeEvent_UPDATE_META,
-			Target: req.Node,
-		}))
-	}
+	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+		Type:   tree.NodeChangeEvent_UPDATE_META,
+		Target: req.Node,
+		Silent: req.Silent,
+	}))
 
 	return nil
 }
@@ -280,12 +286,18 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	resp.Success = true
 
-	if !req.Silent {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-			Type:   tree.NodeChangeEvent_UPDATE_META,
-			Target: req.To,
-		}))
+	// Reload all merged meta now
+	if metadata, err := dao.GetMetadata(req.To.Uuid); err == nil && metadata != nil && len(metadata) > 0 {
+		for k, v := range metadata {
+			req.To.MetaStore[k] = v
+		}
 	}
+	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+		Type:   tree.NodeChangeEvent_UPDATE_META,
+		Target: req.To,
+		Silent: req.Silent,
+	}))
+
 	return nil
 }
 
@@ -306,12 +318,11 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 
 	result.Success = true
 
-	if !request.Silent {
-		client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-			Type:   tree.NodeChangeEvent_DELETE,
-			Source: request.Node,
-		}))
-	}
+	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+		Type:   tree.NodeChangeEvent_DELETE,
+		Source: request.Node,
+		Silent: request.Silent,
+	}))
 
 	return nil
 }

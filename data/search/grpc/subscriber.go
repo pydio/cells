@@ -35,9 +35,11 @@ type EventsSubscriber struct {
 // Handle the events received and send them to the subscriber
 func (e *EventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 
-	e.outputChannel <- &event.EventWithContext{
-		Context: ctx,
-		Event:   msg,
-	}
+	go func() {
+		e.outputChannel <- &event.EventWithContext{
+			Context: ctx,
+			Event:   msg,
+		}
+	}()
 	return nil
 }

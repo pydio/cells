@@ -56,6 +56,49 @@ func BlevePutLog(idx bleve.Index, line map[string]string) error {
 	return nil
 }
 
+func BleveDuplicateIndex(from bleve.Index, to bleve.Index) error {
+
+	var q query.Query
+	q = bleve.NewMatchAllQuery()
+	req := bleve.NewSearchRequest(q)
+	req.Size = 5000
+	page := 0
+
+	for {
+
+		fmt.Printf("Reindexing logs from page %d\n", page)
+		targetBatch := to.NewBatch()
+		req.From = page * req.Size
+		sr, err := from.Search(req)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		for _, hit := range sr.Hits {
+			doc, err := from.Document(hit.ID)
+			if err != nil {
+				continue
+			}
+
+			// create and populate a ListLogResult
+			currMsg := &log.LogMessage{}
+			UnmarshallLogMsgFromDoc(doc, currMsg)
+			indexableLog := &IndexableLog{LogMessage: *currMsg}
+			targetBatch.Index(hit.ID, indexableLog)
+		}
+		if err := to.Batch(targetBatch); err != nil {
+			return err
+		}
+		if sr.Total <= uint64((page+1)*req.Size) {
+			break
+		}
+		page++
+
+	}
+
+	return nil
+}
+
 // BleveListLogs queries the bleve index, based on the passed query string.
 // It returns the results as a stream of log.ListLogResponse with the values of the indexed fields
 // for each corresponding hit.
@@ -133,18 +176,13 @@ func BleveDeleteLogs(idx bleve.Index, str string) (int64, error) {
 		sr, _ = idx.Search(req)
 	}
 	var count int64
+	b := idx.NewBatch()
 	for _, hit := range sr.Hits {
-		// fmt.Printf("## Hit#%d:\n", i)
-		// fmt.Printf("%v\n", *hit)
-
-		err := idx.Delete(hit.ID)
-		if err != nil {
-			continue
-		}
+		b.Delete(hit.ID)
 		count++
 	}
 
-	return count, nil
+	return count, idx.Batch(b)
 }
 
 // MarshallLogMsg creates an IndexableLog object and populates the inner LogMessage with known fields of the passed JSON line.

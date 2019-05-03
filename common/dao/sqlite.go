@@ -30,10 +30,19 @@ type sqlite struct {
 }
 
 func (s *sqlite) Open(dsn string) (Conn, error) {
-	if db, err := getSqlConnection("sqlite3", dsn); err != nil {
+	db, err := getSqlConnection("sqlite3", dsn)
+	if err != nil {
 		return nil, err
-	} else {
-		s.conn = db
-		return db, nil
 	}
+
+	s.conn = db
+	return db, nil
+}
+
+func (s *sqlite) GetConn() Conn {
+	return s.conn
+}
+
+func (s *sqlite) SetMaxConnectionsForWeight(num int) {
+	// Not implemented
 }

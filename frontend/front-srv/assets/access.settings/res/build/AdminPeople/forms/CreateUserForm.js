@@ -127,39 +127,46 @@ var CreateUserForm = _react2['default'].createClass({
             { style: { width: '100%' } },
             path,
             _react2['default'].createElement(
-                'div',
-                { style: { width: '100%' } },
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'user_id',
-                    onChange: this.checkLogin,
-                    fullWidth: true,
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.21'),
-                    errorText: this.state.loginErrorText
-                })
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'pass',
-                    type: 'password',
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.22'),
-                    onChange: this.checkPassword,
-                    fullWidth: true,
-                    errorText: this.state.passErrorText || this.state.passHintText
-                })
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'passconf',
-                    type: 'password',
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.23'),
-                    onChange: this.checkPassword,
-                    fullWidth: true,
-                    errorText: this.state.confirmErrorText
-                })
+                'form',
+                { autoComplete: "off" },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { width: '100%' } },
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'user_id',
+                        onChange: this.checkLogin,
+                        fullWidth: true,
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.21'),
+                        errorText: this.state.loginErrorText,
+                        autoComplete: "nope"
+                    })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'pass',
+                        type: 'password',
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.22'),
+                        onChange: this.checkPassword,
+                        fullWidth: true,
+                        errorText: this.state.passErrorText || this.state.passHintText,
+                        autoComplete: "new-password"
+                    })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'passconf',
+                        type: 'password',
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.23'),
+                        onChange: this.checkPassword,
+                        fullWidth: true,
+                        errorText: this.state.confirmErrorText,
+                        autoComplete: "confirm-password"
+                    })
+                )
             )
         );
     }

@@ -58,17 +58,32 @@ var SingleJobProgress = (function (_React$Component) {
     SingleJobProgress.prototype.reloadTask = function reloadTask() {
         var _this2 = this;
 
-        var jobID = this.props.jobID;
+        var _props = this.props;
+        var jobID = _props.jobID;
+        var taskID = _props.taskID;
 
         this.store.getJobs(false).then(function (tasksList) {
             if (tasksList && tasksList.has(jobID)) {
                 var job = tasksList.get(jobID);
+                _this2.setState({ jobLabel: job.Label });
                 if (job.Tasks && job.Tasks.length) {
-                    var task = job.Tasks[0];
-                    if (task.Progress === 1 && _this2.props.onEnd) {
-                        _this2.props.onEnd();
+                    var task = undefined;
+                    if (taskID) {
+                        var filtered = job.Tasks.filter(function (t) {
+                            return t.ID === taskID;
+                        });
+                        if (filtered.length) {
+                            task = filtered[0];
+                        }
+                    } else {
+                        task = job.Tasks[0];
                     }
-                    _this2.setState({ task: task });
+                    if (task) {
+                        if (task.Progress === 1 && _this2.props.onEnd) {
+                            _this2.props.onEnd();
+                        }
+                        _this2.setState({ task: task });
+                    }
                 }
             }
         });
@@ -84,22 +99,33 @@ var SingleJobProgress = (function (_React$Component) {
     };
 
     SingleJobProgress.prototype.render = function render() {
-        var task = this.state.task;
-        var _props = this.props;
-        var style = _props.style;
-        var labelStyle = _props.labelStyle;
-        var progressStyle = _props.progressStyle;
+        var _state = this.state;
+        var task = _state.task;
+        var jobLabel = _state.jobLabel;
+        var _props2 = this.props;
+        var style = _props2.style;
+        var labelStyle = _props2.labelStyle;
+        var progressStyle = _props2.progressStyle;
+        var noProgress = _props2.noProgress;
+        var noLabel = _props2.noLabel;
+        var circular = _props2.circular;
+        var thickness = _props2.thickness;
+        var size = _props2.size;
 
         if (!task) {
             return _react2['default'].createElement(
                 'div',
                 null,
-                '...'
+                jobLabel ? jobLabel : "..."
             );
         }
         var progress = undefined;
-        if (task.HasProgress && task.Status !== 'Error' && task.Progress < 1) {
-            progress = _react2['default'].createElement(_materialUi.LinearProgress, { mode: 'determinate', min: 0, max: 100, value: task.Progress * 100, style: { width: '100%' } });
+        if (!noProgress && task.HasProgress && task.Status !== 'Error' && task.Progress < 1) {
+            if (circular) {
+                progress = _react2['default'].createElement(_materialUi.CircularProgress, { mode: 'determinate', min: 0, max: 100, value: task.Progress * 100, size: size, thickness: thickness });
+            } else {
+                progress = _react2['default'].createElement(_materialUi.LinearProgress, { mode: 'determinate', min: 0, max: 100, value: task.Progress * 100, style: { width: '100%' } });
+            }
         }
         var lStyle = _extends({}, labelStyle);
         if (task.Status === 'Error') {
@@ -109,7 +135,7 @@ var SingleJobProgress = (function (_React$Component) {
         return _react2['default'].createElement(
             'div',
             { style: style },
-            _react2['default'].createElement(
+            !noLabel && _react2['default'].createElement(
                 'div',
                 { style: lStyle },
                 task.StatusMessage.split("\n").map(function (s) {

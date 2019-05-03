@@ -25,7 +25,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/policy/conditions"
 )
 
@@ -137,6 +137,16 @@ var (
 					Effect:  ladon.AllowAccess,
 				}),
 				LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "user-ws-readonly",
+					Description: "PolicyGroup.LoggedUsers.Rule4",
+					Subjects:    []string{"profile:standard", "profile:shared"},
+					Resources: []string{
+						"rest:/workspace/<.+>",
+					},
+					Actions: []string{"DELETE", "PUT", "PATCH"},
+					Effect:  ladon.DenyAccess,
+				}),
+				LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "user-meta-tags-no-delete",
 					Description: "PolicyGroup.LoggedUsers.Rule3",
 					Subjects:    []string{"profile:standard", "profile:shared"},
@@ -195,7 +205,7 @@ var (
 						servicecontext.HttpMetaRemoteAddress: &conditions.StringNotMatchCondition{
 							Matches: "localhost|127.0.0.1|::1",
 						},
-						utils.PolicyNodeMetaName: &ladon.StringMatchCondition{
+						permissions.PolicyNodeMetaName: &ladon.StringMatchCondition{
 							Matches: "target",
 						},
 					},
@@ -211,7 +221,7 @@ var (
 						servicecontext.HttpMetaRemoteAddress: &conditions.StringNotMatchCondition{
 							Matches: "localhost|127.0.0.1|::1",
 						},
-						utils.PolicyNodeMetaName: &ladon.StringMatchCondition{
+						permissions.PolicyNodeMetaName: &ladon.StringMatchCondition{
 							Matches: "(.+)\\.png",
 						},
 					},

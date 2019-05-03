@@ -25,7 +25,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+)
+
+const (
+	IdmEventObjectUser = "USER"
 )
 
 // NodeChangeEventName builds a simple string from a given event type
@@ -49,4 +54,37 @@ func ParseNodeChangeEventName(eventName string) (tree.NodeChangeEvent_EventType,
 		return tree.NodeChangeEvent_EventType(value32), true
 	}
 	return -1, false
+}
+
+// IdmChangeEventName builds a string representation for scheduler events for listening
+// to a specific IDM event. For the moment ONLY USER EVENTS are supported
+func IdmChangeEventName(objectType string, eventType idm.ChangeEventType) string {
+	return fmt.Sprintf("IDM_CHANGE:%s:%v", objectType, int32(eventType))
+}
+
+// MatchesIdmChangeEvent compares a string representation of scheduler trigger event
+// with an actual idm.ChangeEvent - Only User Events are supported
+func MatchesIdmChangeEvent(eventName string, event *idm.ChangeEvent) bool {
+	if !strings.HasPrefix(eventName, "IDM_CHANGE:") {
+		return false
+	}
+	parts := strings.Split(eventName, ":")
+	if len(parts) != 3 {
+		return false
+	}
+	if parts[0] != "IDM_CHANGE" {
+		return false
+	}
+	if parts[1] != IdmEventObjectUser || event.User == nil {
+		return false
+	}
+	evType, e := strconv.ParseInt(parts[2], 10, 32)
+	if e != nil {
+		return false
+	}
+	if int32(evType) != int32(event.Type) {
+		return false
+	}
+
+	return true
 }

@@ -79,7 +79,7 @@ func (c *ResyncAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action
 // Run the actual action code
 func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	ctx, _ = context.WithTimeout(ctx, 5*time.Minute)
+	ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
 	syncClient := sync.NewSyncEndpointClient(c.ServiceName, defaults.NewClient())
 	_, e := syncClient.TriggerResync(ctx, &sync.ResyncRequest{
 		Path:   c.Path,

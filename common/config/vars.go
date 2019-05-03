@@ -24,6 +24,8 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -87,32 +89,32 @@ func Default() config.Config {
 	once.Do(func() {
 		if GetRemoteSource() {
 			// Warning, loading remoteSource will trigger a call to defaults.NewClient()
-
 			defaultConfig = &Config{config.NewConfig(
 				config.WithSource(newRemoteSource(config.SourceName("config"))),
 				config.PollInterval(10*time.Second),
 			)}
-			return
-		}
-		initVersionStore()
-		defaultConfig = &Config{config.NewConfig(
-			config.WithSource(newLocalSource()),
-			config.PollInterval(10*time.Second),
-		)}
-		if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
-			e2 := saveConfig(defaultConfig, common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
-			if e2 != nil {
-				fmt.Println("[Configs] Error while saving upgraded configs")
-			} else {
-				fmt.Println("[Configs] successfully saved config after upgrade - Reloading from source")
-			}
-			// Reload fully from source to make sure it's in sync with JSON
+		} else {
+			initVersionStore()
 			defaultConfig = &Config{config.NewConfig(
 				config.WithSource(newLocalSource()),
 				config.PollInterval(10*time.Second),
 			)}
-		} else if e != nil {
-			fmt.Errorf("[Configs] something went wrong while upgrading configs: %s", e.Error())
+
+			if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
+				e2 := saveConfig(defaultConfig, common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
+				if e2 != nil {
+					fmt.Println("[Configs] Error while saving upgraded configs")
+				} else {
+					fmt.Println("[Configs] successfully saved config after upgrade - Reloading from source")
+				}
+				// Reload fully from source to make sure it's in sync with JSON
+				defaultConfig = &Config{config.NewConfig(
+					config.WithSource(newLocalSource()),
+					config.PollInterval(10*time.Second),
+				)}
+			} else if e != nil {
+				fmt.Printf("[Configs] something went wrong while upgrading configs: %s\n", e.Error())
+			}
 		}
 	})
 	return defaultConfig
@@ -125,6 +127,22 @@ func newEnvSource() config.Source {
 }
 
 func newLocalSource() config.Source {
+	// If file exists and is not empty, check it has valid JSON content
+	fName := filepath.Join(PydioConfigDir, PydioConfigFile)
+	if data, err := ioutil.ReadFile(fName); err == nil && len(data) > 0 {
+		var whatever map[string]interface{}
+		if e := json.Unmarshal(data, &whatever); e != nil {
+			errColor := "\033[1;31m%s\033[0m"
+			fmt.Println("**************************************************************************************")
+			fmt.Println("It seems that your configuration file contains invalid JSON. Did you edit it manually?")
+			fmt.Println("File is located at " + fName)
+			fmt.Println("Error was: ", fmt.Sprintf(errColor, e.Error()))
+			fmt.Println("")
+			fmt.Printf(errColor, "FATAL ERROR : Aborting now\n")
+			fmt.Println("**************************************************************************************")
+			log.Fatal(e)
+		}
+	}
 	return file.NewSource(
 		config.SourceName(filepath.Join(PydioConfigDir, PydioConfigFile)),
 	)

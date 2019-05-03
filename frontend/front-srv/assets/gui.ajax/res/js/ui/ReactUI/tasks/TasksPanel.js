@@ -62,10 +62,13 @@ class TasksPanel extends React.Component{
         if(this.state.folded) {
             return ;
         }
-        const {innerPane} = this.refs;
         let newScroll = 8;
-        for(let i=0; i<innerPane.children.length; i++){
-            newScroll += innerPane.children.item(i).clientHeight + 8;
+
+        const {innerPane} = this.refs;
+        if (innerPane && innerPane.children){
+            for(let i=0; i<innerPane.children.length; i++){
+                newScroll += innerPane.children.item(i).clientHeight + 8;
+            }
         }
         if(newScroll && this.state.innerScroll !== newScroll){
             this.setState({innerScroll: newScroll});

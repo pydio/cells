@@ -25,11 +25,12 @@ import (
 	"context"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/log"
 	. "github.com/pydio/cells/data/source/sync/lib/common"
 	"github.com/pydio/cells/data/source/sync/lib/filters"
 	"github.com/pydio/cells/data/source/sync/lib/proc"
-	"go.uber.org/zap"
 )
 
 type Sync struct {
@@ -40,9 +41,19 @@ type Sync struct {
 	Merger     *proc.Merger
 	Direction  string
 
+	batcher   *filters.EventsBatcher
 	doneChans []chan bool
 }
 
+// BroadcastCloseSession forwards session id to underlying batchers
+func (s *Sync) BroadcastCloseSession(sessionUuid string) {
+	if s.batcher == nil {
+		return
+	}
+	s.batcher.ForceCloseSession(sessionUuid)
+}
+
+// SetupWatcher starts watching events for sync
 func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target PathSyncTarget) error {
 
 	var err error
@@ -55,25 +66,26 @@ func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target P
 	s.doneChans = append(s.doneChans, watchObject.DoneChan)
 
 	// Now wire batches to processor
-	batcher := filters.NewEventsBatcher(ctx, source, target)
+	s.batcher = filters.NewEventsBatcher(ctx, source, target)
 
 	filterIn, filterOut := s.EchoFilter.CreateFilter()
 	s.Merger.AddRequeueChannel(source, filterIn)
-	go batcher.BatchEvents(filterOut, s.Merger.BatchesChannel, 1*time.Second)
+	go s.batcher.BatchEvents(filterOut, s.Merger.BatchesChannel, 1*time.Second)
 
 	go func() {
-
 		// Wait for all events.
 		for {
 			select {
 			case event, ok := <-watchObject.Events():
 				if !ok {
+					<-time.After(1*time.Second)
 					continue
 				}
 				//log.Logger(ctx).Info("WATCH EVENT", zap.Any("e", event))
 				filterIn <- event
 			case err, ok := <-watchObject.Errors():
 				if !ok {
+					<-time.After(5*time.Second)
 					continue
 				}
 				if err != nil {
@@ -87,6 +99,7 @@ func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target P
 
 }
 
+// InitialSnapshots computes and compares full left and right snapshots
 func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan chan filters.BatchProcessStatus, doneChan chan bool) (diff *proc.SourceDiff, e error) {
 
 	source, _ := AsPathSyncSource(s.Source)
@@ -95,11 +108,15 @@ func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan cha
 
 	//log.Logger(ctx).Info("### GOT DIFF", zap.Any("diff", diff))
 	if e != nil {
-		doneChan <- true
+		if doneChan != nil {
+			doneChan <- true
+		}
 		return nil, e
 	}
 	if dryRun {
-		doneChan <- true
+		if doneChan != nil {
+			doneChan <- true
+		}
 		return diff, nil
 	}
 
@@ -185,6 +202,7 @@ func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan cha
 	return diff, nil
 }
 
+// Shutdown closes channels
 func (s *Sync) Shutdown() {
 	defer func() {
 		// ignore 'close on closed channel'
@@ -196,6 +214,7 @@ func (s *Sync) Shutdown() {
 	s.Merger.Shutdown()
 }
 
+// Start makes a first sync and setup watchers
 func (s *Sync) Start(ctx context.Context) {
 	source, sOk := AsPathSyncSource(s.Source)
 	target, tOk := AsPathSyncTarget(s.Target)
@@ -210,7 +229,24 @@ func (s *Sync) Start(ctx context.Context) {
 }
 
 func (s *Sync) Resync(ctx context.Context, dryRun bool, statusChan chan filters.BatchProcessStatus, doneChan chan bool) (*proc.SourceDiff, error) {
-	return s.InitialSnapshots(ctx, dryRun, statusChan, doneChan)
+	var err error
+	defer func() {
+		if e := recover(); e != nil {
+			if er, ok := e.(error); ok {
+				err = er
+				if statusChan != nil {
+					statusChan <- filters.BatchProcessStatus{
+						IsError:      true,
+						StatusString: err.Error(),
+						Progress:     1,
+					}
+				}
+			}
+		}
+	}()
+	var diff *proc.SourceDiff
+	diff, err = s.InitialSnapshots(ctx, dryRun, statusChan, doneChan)
+	return diff, err
 }
 
 func NewSync(ctx context.Context, left Endpoint, right Endpoint) *Sync {

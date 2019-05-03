@@ -17,7 +17,7 @@ import (
 	service2 "github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/acl"
 )
 
@@ -42,7 +42,7 @@ func UpgradeTo120(ctx context.Context) error {
 	metaClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{
-			{Name: utils.ACL_WSROOT_ACTION_NAME},
+			{Name: permissions.AclWsrootActionName},
 		},
 	})
 	acls := new([]interface{})
@@ -77,7 +77,7 @@ func UpgradeTo120(ctx context.Context) error {
 				WorkspaceID: val.WorkspaceID,
 				NodeID:      val.NodeID,
 				RoleID:      val.RoleID,
-				Action:      utils.ACL_RECYCLE_ROOT,
+				Action:      permissions.AclRecycleRoot,
 			}
 			log.Logger(ctx).Info("Inserting new ACL")
 			if e := dao.Add(newAcl); e != nil {
@@ -104,7 +104,7 @@ func UpgradeTo120(ctx context.Context) error {
 			}
 			newAcl := &idm.ACL{
 				NodeID: resp.Node.Uuid,
-				Action: utils.ACL_RECYCLE_ROOT,
+				Action: permissions.AclRecycleRoot,
 			}
 			log.Logger(ctx).Info("Should insert new ACL for personal folder", resp.Node.ZapPath())
 			if e := dao.Add(newAcl); e != nil {

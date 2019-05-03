@@ -99,7 +99,6 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 	if stmt == nil {
 		return false, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	exists := stmt.QueryRow(workspace.UUID)
 	count := new(int)
@@ -123,7 +122,6 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 	if stmt == nil {
 		return false, fmt.Errorf("Unknown statement")
 	}
-	defer stmt.Close()
 
 	_, err := stmt.Exec(workspace.UUID, workspace.Label, workspace.Description, workspace.Attributes, workspace.Slug, workspace.Scope, time.Now().Unix())
 	if err != nil {
@@ -142,7 +140,6 @@ func (s *sqlimpl) slugExists(slug string) bool {
 	if stmt == nil {
 		return false
 	}
-	defer stmt.Close()
 
 	exists := stmt.QueryRow(slug)
 	count := new(int)
@@ -160,12 +157,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 	if e != nil {
 		return e
 	}
-	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, -1)
+	queryString, args, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, -1)
 	if err != nil {
 		return err
 	}
 
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return err
 	}
@@ -189,12 +186,12 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	//whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
 	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
-	queryString, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
+	queryString, args, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := s.DB().Exec(queryString)
+	res, err := s.DB().Exec(queryString, args...)
 	if err != nil {
 		return 0, err
 	}

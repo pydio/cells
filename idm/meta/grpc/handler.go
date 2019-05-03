@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/cache"
-	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/meta"
 )
 
@@ -61,44 +60,34 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
 	namespaces, _ := dao.GetNamespaceDao().List()
-	var reloadUuids []string
+	var nodeUuids []string
 	for _, metadata := range request.MetaDatas {
 		h.clearCacheForNode(metadata.NodeUuid)
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// ADD / UPDATE
 			if newMeta, _, err := dao.Set(metadata); err == nil {
-				if ns, ok := namespaces[metadata.Namespace]; ok && ns.Indexable {
-					reloadUuids = append(reloadUuids, metadata.NodeUuid)
-				}
+				nodeUuids = append(nodeUuids, metadata.NodeUuid)
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 			} else {
 				return err
 			}
 		} else {
 			// DELETE
-			if err := dao.Del(metadata); err != nil {
-				return err
+			if err := dao.Del(metadata); err == nil {
+				nodeUuids = append(nodeUuids, metadata.NodeUuid)
 			} else {
-				if ns, ok := namespaces[metadata.Namespace]; ok && ns.Indexable {
-					reloadUuids = append(reloadUuids, metadata.NodeUuid)
-				}
+				return err
 			}
 		}
 	}
 
 	subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
 	go func() {
-		router := views.NewUuidRouter(views.RouterOptions{AdminView: true})
 		bgCtx := context.Background()
 
-		for _, nodeId := range reloadUuids {
-			// Reload node
-			r, e := router.ReadNode(bgCtx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeId}})
-			if e != nil {
-				continue
-			}
-			node := r.Node
-			// Reload Metas
+		for _, nodeId := range nodeUuids {
+			// Reload node & Reload Metas
+			node := &tree.Node{Uuid: nodeId, MetaStore: make(map[string]string)}
 			metas, e := dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
 				Subjects: subjects,
 			})
@@ -106,13 +95,12 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				continue
 			}
 			for _, val := range metas {
-				if ns, ok := namespaces[val.Namespace]; ok && ns.Indexable {
+				if _, ok := namespaces[val.Namespace]; ok {
 					node.MetaStore[val.Namespace] = val.JsonValue
 				}
 			}
-			log.Logger(ctx).Debug("Publishing UPDATE META for node, shall we update the node, or switch to UPDATE_META_DELTA?", node.Zap())
 			client.Publish(bgCtx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-				Type:   tree.NodeChangeEvent_UPDATE_META,
+				Type:   tree.NodeChangeEvent_UPDATE_USER_META,
 				Target: node,
 			}))
 		}
@@ -188,12 +176,22 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 	for _, metaNameSpace := range request.Namespaces {
 		if err := dao.Del(metaNameSpace); err != nil {
 			return err
+		} else {
+			client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+				Type:          idm.ChangeEventType_DELETE,
+				MetaNamespace: metaNameSpace,
+			}))
 		}
 	}
 	if request.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
 		for _, metaNameSpace := range request.Namespaces {
 			if err := dao.Add(metaNameSpace); err != nil {
 				return err
+			} else {
+				client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+					Type:          idm.ChangeEventType_CREATE,
+					MetaNamespace: metaNameSpace,
+				}))
 			}
 			response.Namespaces = append(response.Namespaces, metaNameSpace)
 		}

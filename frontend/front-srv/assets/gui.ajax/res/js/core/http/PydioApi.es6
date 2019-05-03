@@ -26,6 +26,7 @@ import RestCreateSelectionRequest from './gen/model/RestCreateSelectionRequest'
 import TreeNode from "./gen/model/TreeNode";
 import TreeServiceApi from "./gen/api/TreeServiceApi";
 import AjxpNode from "../model/AjxpNode";
+import lscache from 'lscache'
 
 // Extend S3 ManagedUpload to get progress info about each part
 class ManagedMultipart extends AWS.S3.ManagedUpload{
@@ -79,7 +80,7 @@ class PydioApi{
 
     static getMultipartThreshold(){
         const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_THRESHOLD");
-        if(conf) {
+        if(conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 100 * 1024 * 1024;
@@ -88,7 +89,7 @@ class PydioApi{
 
     static getMultipartPartSize(){
         const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_PART_SIZE");
-        if(conf) {
+        if(conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 50 * 1024 * 1024;
@@ -97,10 +98,19 @@ class PydioApi{
 
     static getMultipartPartQueueSize(){
         const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_QUEUE_SIZE");
-        if(conf) {
+        if(conf && parseInt(conf)) {
             return parseInt(conf);
         } else {
             return 3;
+        }
+    }
+
+    static getMultipartUploadTimeout(){
+        const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_TIMEOUT_MINUTES");
+        if(conf && parseInt(conf)) {
+            return parseInt(conf) * 60 * 1000;
+        } else {
+            return 3 * 60 * 1000;
         }
     }
 
@@ -241,7 +251,10 @@ class PydioApi{
                 AWS.config.update({
                     accessKeyId: 'gateway',
                     secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true
+                    s3ForcePathStyle: true,
+                    httpOptions:{
+                        timeout:PydioApi.getMultipartUploadTimeout()
+                    },
                 });
                 const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
                 const signed = s3.getSignedUrl('putObject', params);
@@ -272,6 +285,9 @@ class PydioApi{
                     accessKeyId: jwt,
                     secretAccessKey: 'gatewaysecret',
                     s3ForcePathStyle: true,
+                    httpOptions:{
+                        timeout:PydioApi.getMultipartUploadTimeout()
+                    },
                     endpoint:url.replace('/io', ''),
                 });
                 const managed = new ManagedMultipart({
@@ -339,6 +355,10 @@ class PydioApi{
                 break;
             case 'detect':
                 cType = PathUtils.getAjxpMimeType(node);
+                // Prevent html interpreters
+                if(cType === 'html' || cType === 'xhtml'){
+                    cType = 'text/plain'
+                }
                 cDisposition = 'inline';
                 break;
             default:
@@ -363,18 +383,15 @@ class PydioApi{
         }
 
         const resolver = (jwt, cb) => {
-            let meta = node.getMetadata().get('presignedUrls');
-            let cacheKey = jwt + params.Key;
+            let cacheKey = node.getMetadata().get('uuid') + jwt + params.Key;
             if(cType){
                cacheKey += "#" + cType;
             }
-            const cached = meta ? meta.get(cacheKey) : null;
+            lscache.setBucket('cells.presigned');
+            const cached = lscache.get(cacheKey);
             if(cached){
                 cb(cached);
                 return;
-            }
-            if(!meta) {
-                meta = new Map();
             }
 
             AWS.config.update({
@@ -386,8 +403,9 @@ class PydioApi{
             const signed = s3.getSignedUrl('getObject', params);
             const output = signed + '&pydio_jwt=' + jwt;
             cb(output);
-            meta.set(cacheKey, output);
-            node.getMetadata().set('presignedUrls', meta);
+
+            lscache.set(cacheKey, output, 120);
+            lscache.resetBucket();
         };
 
         if (callback === null) {

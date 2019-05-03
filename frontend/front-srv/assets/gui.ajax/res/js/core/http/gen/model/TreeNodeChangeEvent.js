@@ -67,6 +67,12 @@ export default class TreeNodeChangeEvent {
             if (data.hasOwnProperty('Target')) {
                 obj['Target'] = TreeNode.constructFromObject(data['Target']);
             }
+            if (data.hasOwnProperty('Silent')) {
+                obj['Silent'] = ApiClient.convertToType(data['Silent'], 'Boolean');
+            }
+            if (data.hasOwnProperty('Optimistic')) {
+                obj['Optimistic'] = ApiClient.convertToType(data['Optimistic'], 'Boolean');
+            }
         }
         return obj;
     }
@@ -83,6 +89,14 @@ export default class TreeNodeChangeEvent {
     * @member {module:model/TreeNode} Target
     */
     Target = undefined;
+    /**
+    * @member {Boolean} Silent
+    */
+    Silent = undefined;
+    /**
+    * @member {Boolean} Optimistic
+    */
+    Optimistic = undefined;
 
 
 

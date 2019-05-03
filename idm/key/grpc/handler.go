@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/log"
 	enc "github.com/pydio/cells/common/proto/encryption"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/idm/key"
 )
 
@@ -169,7 +169,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 			return err
 		}
 	} else if k != nil && !req.Override {
-		return errors.BadRequest(common.SERVICE_ENC_KEY, "Key already exists with this id!")
+		return errors.BadRequest(common.SERVICE_ENC_KEY, fmt.Sprintf("Key already exists with [%s] id", req.Key.ID))
 	}
 
 	log.Logger(ctx).Info("Opening sealed key with imported password")

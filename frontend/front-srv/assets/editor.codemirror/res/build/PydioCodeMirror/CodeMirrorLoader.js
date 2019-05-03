@@ -117,6 +117,7 @@ var CodeMirrorLoader = (function (_React$Component) {
 
             // If Code Mirror library is not loaded, do not go further
             if (!this.state.codemirrorInstance) return null;
+            var cmStyle = this.props.cmStyle;
 
             return React.createElement(_CodeMirror2['default'], {
                 name: this.state.url,
@@ -126,7 +127,8 @@ var CodeMirrorLoader = (function (_React$Component) {
 
                 onLoad: this.onLoad,
                 onChange: this.props.onChange,
-                onCursorChange: this.props.onCursorChange
+                onCursorChange: this.props.onCursorChange,
+                cmStyle: cmStyle
             });
         }
     }]);

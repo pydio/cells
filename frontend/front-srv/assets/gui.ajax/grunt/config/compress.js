@@ -46,4 +46,16 @@ module.exports = {
         ext: '.material.min.css.gz'
 
     },
+    docgen:{
+        options: {
+            mode: 'gzip',
+            level:gzipLevel,
+        },
+        expand: true,
+        cwd: '.',
+        src: ['docgen.json'],
+        dest: '',
+        ext: '.json.gz'
+
+    }
 };

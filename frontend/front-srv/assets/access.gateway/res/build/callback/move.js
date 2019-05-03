@@ -18,18 +18,39 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _pydioUtilPath = require("pydio/util/path");
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+var _pydioUtilLang = require("pydio/util/lang");
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
 var _require$requireLib = require('pydio').requireLib('components');
 
 var DNDActionParameter = _require$requireLib.DNDActionParameter;
 
-exports['default'] = function (pydio) {
+exports["default"] = function (pydio) {
     var MessageHash = pydio.MessageHash;
+
+    var comparePaths = function comparePaths(source, target) {
+        var otherRepo = target.getMetadata().has('repository_id');
+        if (target.isLeaf() || target.getPath() === source.getPath() || !otherRepo && _pydioUtilLang2["default"].trimRight(target.getPath(), "/") === _pydioUtilPath2["default"].getDirname(source.getPath())) {
+            throw new Error('Cannot drop on leaf or on same path');
+        } else if (target.getMetadata().has("virtual_root")) {
+            throw new Error('Cannot drop on virtual root');
+        } else if (source.getMetadata().has("ws_root")) {
+            throw new Error('Cannot move roots around');
+        }
+    };
 
     return function (controller) {
         var dndActionParameter = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
@@ -40,18 +61,33 @@ exports['default'] = function (pydio) {
 
                 var target = dndActionParameter.getTarget();
                 var source = dndActionParameter.getSource();
-                if (target.isLeaf() || target.getPath() === source.getPath()) {
-                    throw new Error('Cannot drop on leaf or on same path');
-                } else if (target.getMetadata().has("virtual_root")) {
-                    throw new Error('Cannot drop on virtual root');
-                } else if (source.getMetadata().has("ws_root")) {
-                    throw new Error('Cannot move roots around');
-                } else {
-                    return false;
-                }
+                comparePaths(source, target);
+                return false;
             } else if (dndActionParameter.getStep() === DNDActionParameter.STEP_END_DRAG) {
+
+                try {
+                    comparePaths(dndActionParameter.getSource(), dndActionParameter.getTarget());
+                } catch (e) {
+                    return;
+                }
+
                 var _selection = controller.getDataModel();
                 var targetPath = dndActionParameter.getTarget().getPath();
+                var targetWsId = null;
+                // Putting on a different repository_id
+                if (dndActionParameter.getTarget().getMetadata().has('repository_id')) {
+                    targetWsId = dndActionParameter.getTarget().getMetadata().get('repository_id');
+                    var ws = dndActionParameter.getTarget().getMetadata().get('workspaceEntry');
+                    if (ws && ws.getRepositoryType() === "cell") {
+                        pydio.UI.openComponentInModal('FSActions', 'CrossWsDropDialog', {
+                            target: dndActionParameter.getTarget(),
+                            source: dndActionParameter.getSource(),
+                            dropEffect: dndActionParameter.getDropEffect() || 'move',
+                            cellWs: ws
+                        });
+                        return;
+                    }
+                }
                 var moveFunction = require('./applyCopyOrMove')(pydio);
                 var sourceNode = dndActionParameter.getSource();
                 var selectedNodes = _selection.getSelectedNodes();
@@ -60,10 +96,9 @@ exports['default'] = function (pydio) {
                     var newSel = new PydioDataModel();
                     newSel.setContextNode(_selection.getContextNode());
                     newSel.setSelectedNodes([dndActionParameter.getSource()]);
-                    _selection = newSel;
-                    moveFunction('move', newSel, targetPath);
+                    moveFunction(dndActionParameter.getDropEffect() || 'move', newSel, targetPath, targetWsId);
                 } else {
-                    moveFunction('move', _selection, targetPath);
+                    moveFunction(dndActionParameter.getDropEffect() || 'move', _selection, targetPath, targetWsId);
                 }
             }
 
@@ -85,4 +120,4 @@ exports['default'] = function (pydio) {
     };
 };
 
-module.exports = exports['default'];
+module.exports = exports["default"];

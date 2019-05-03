@@ -320,6 +320,34 @@ func TestIndex(t *testing.T) {
 
 	})
 
+	Convey("Test grep file name", t, func() {
+
+		nodeAccent := &tree.Node{Path: "/test.jpg", Uuid: "my-jpg-node"}
+		resp, err := send(s, "CreateNode", &tree.CreateNodeRequest{Node: nodeAccent})
+		So(err, ShouldBeNil)
+		So(resp, ShouldNotBeNil)
+		resp, err = send(s, "CreateNode", &tree.CreateNodeRequest{Node: &tree.Node{Path: "/other/sub/picture.jpg", Uuid: "my-other-jpg-node"}})
+		So(err, ShouldBeNil)
+		So(resp, ShouldNotBeNil)
+
+		resp, _ = send(s, "ListNodes", &tree.ListNodesRequest{
+			Node:      &tree.Node{Path: "/", MetaStore: map[string]string{"grep": "\".jpg$\""}},
+			Recursive: true,
+		})
+		So(resp.(*List), ShouldNotBeNil)
+
+		var nodes []*tree.Node
+		for {
+			response, err := resp.(*List).Recv()
+			if err != nil {
+				break
+			}
+			nodes = append(nodes, response.Node)
+		}
+		So(len(nodes), ShouldEqual, 2)
+
+	})
+
 	Convey("Test file with a space at the end", t, func() {
 
 		nodeAccent := &tree.Node{Path: "/test.ext ", Uuid: "my-node"}

@@ -190,6 +190,16 @@ func (c *S3Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
 
 }
 
+func (c *S3Client) ComputeChecksum(node *tree.Node) error {
+	p := c.getFullPath(node.GetPath())
+	if newInfo, err := c.s3forceComputeEtag(minio.ObjectInfo{Key: p}); err == nil {
+		node.Etag = strings.Trim(newInfo.ETag, "\"")
+	} else {
+		return err
+	}
+	return nil
+}
+
 func (c *S3Client) Walk(walknFc common.WalkNodesFunc, pathes ...string) (err error) {
 
 	ctx := context.Background()
@@ -250,26 +260,17 @@ func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path str
 			}
 			folderObjectInfo := objectInfo
 			//This will be called again inside the walknFc
+			c.createFolderIdsWhileWalking(createdDirs, walknFc, folderKey, objectInfo.LastModified, true)
 			folderObjectInfo.ETag, _, _ = c.readOrCreateFolderId(folderKey)
 			s3FileInfo := NewS3FolderInfo(folderObjectInfo)
 			walknFc(c.normalize(folderKey), s3FileInfo, nil)
 			createdDirs[folderKey] = true
-			//previousDir = folderKey
-			//continue
 		}
 		if c.isIgnoredFile(objectInfo.Key) {
 			continue
 		}
 		if folderKey != "" && folderKey != "." {
-			c.createFolderIdsWhileWalking(createdDirs, walknFc, folderKey, objectInfo.LastModified)
-		}
-		if objectInfo.ETag == "" && objectInfo.Size > 0 {
-			var etagErr error
-			objectInfo, etagErr = c.s3forceComputeEtag(objectInfo)
-			if etagErr != nil {
-				log.Logger(c.globalContext).Error("Error while computing eTag", zap.Error(etagErr))
-				continue
-			}
+			c.createFolderIdsWhileWalking(createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
 		}
 		s3FileInfo := NewS3FileInfo(objectInfo)
 		walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
@@ -278,10 +279,17 @@ func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path str
 }
 
 // Will try to create PYDIO_SYNC_HIDDEN_FILE_META to avoid missing empty folders
-func (c *S3Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time) {
+func (c *S3Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
 
 	parts := strings.Split(currentDir, "/")
-	for i := 0; i < len(parts); i++ {
+	max := len(parts)
+	if skipLast {
+		max = len(parts) - 1
+		if max == 0 {
+			return
+		}
+	}
+	for i := 0; i < max; i++ {
 		testDir := strings.Join(parts[0:i+1], "/")
 		if _, exists := createdDirs[testDir]; exists {
 			continue
@@ -306,32 +314,14 @@ func (c *S3Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walk
 
 func (c *S3Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectInfo, error) {
 
-	if objectInfo.Size == 0 {
-		return objectInfo, nil
-	}
-	//log.Println("No Etag, try copying object " + c.Bucket + "/" + objectInfo.Key)
-
 	var destinationInfo minio.DestinationInfo
 	var sourceInfo minio.SourceInfo
 
-	destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key+"--COMPUTE_HASH", nil, nil)
+	destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, nil)
 	sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key, nil)
+	sourceInfo.Headers.Set(servicescommon.X_AMZ_META_DIRECTIVE, "REPLACE")
 	copyErr := c.Mc.CopyObject(destinationInfo, sourceInfo)
 	if copyErr != nil {
-		log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
-		return objectInfo, copyErr
-	}
-
-	destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, nil)
-	sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key+"--COMPUTE_HASH", nil)
-	copyErr = c.Mc.CopyObject(destinationInfo, sourceInfo)
-	if copyErr != nil {
-		log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
-		return objectInfo, copyErr
-	}
-
-	removeErr := c.Mc.RemoveObject(c.Bucket, objectInfo.Key+"--COMPUTE_HASH")
-	if removeErr != nil {
 		log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
 		return objectInfo, copyErr
 	}
@@ -389,10 +379,6 @@ func (c *S3Client) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 // UpdateNodeUuid makes this endpoint an UuidReceiver
 func (c *S3Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
 
-	if node.IsLeaf() {
-		return nil, errors.New("UpdateNodeUuid is only supported by folders")
-	}
-	hiddenPath := fmt.Sprintf("%v/%s", node.Path, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
 	var uid string
 	if node.Uuid != "" {
 		uid = node.Uuid
@@ -400,8 +386,23 @@ func (c *S3Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.N
 		uid = fmt.Sprintf("%s", uuid.NewV4())
 		node.Uuid = uid
 	}
-	_, err := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
-	return node, err
+
+	if node.IsLeaf() {
+		d, e := minio.NewDestinationInfo(c.Bucket, c.getFullPath(node.Path), nil, map[string]string{
+			servicescommon.X_AMZ_META_DIRECTIVE: "REPLACE",
+			servicescommon.X_AMZ_META_NODE_UUID: node.Uuid,
+		})
+		if e != nil {
+			return nil, e
+		}
+		s := minio.NewSourceInfo(c.Bucket, c.getFullPath(node.Path), nil)
+		err := c.Mc.CopyObject(d, s)
+		return node, err
+	} else {
+		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+		_, err := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
+		return node, err
+	}
 
 }
 
@@ -431,7 +432,7 @@ func (c *S3Client) readOrCreateFolderId(folderPath string) (uid string, created 
 	// Does not exists
 	// Create dir uuid now
 	uid = fmt.Sprintf("%s", uuid.NewV4())
-	log.Logger(c.globalContext).Debug("Create Hidden File for folder", zap.String("path", hiddenPath))
+	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
 	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	h := md5.New()
 	io.Copy(h, strings.NewReader(uid))
@@ -458,14 +459,17 @@ func (c *S3Client) getFileHash(path string) (uid string, hash string, metaSize i
 		metaSize, _ = strconv.ParseInt(size, 10, 64)
 	}
 	etag := strings.Trim(objectInfo.ETag, "\"")
-	if len(etag) == 0 {
-		var etagE error
-		objectInfo, etagE = c.s3forceComputeEtag(objectInfo)
-		if etagE != nil {
-			return uid, "", metaSize, etagE
+	/*
+		if len(etag) == 0 || etag == common.DefaultEtag {
+			fmt.Println("getFileHash - Recompute ETAG")
+			var etagE error
+			objectInfo, etagE = c.s3forceComputeEtag(objectInfo)
+			if etagE != nil {
+				return uid, "", metaSize, etagE
+			}
+			etag = strings.Trim(objectInfo.ETag, "\"")
 		}
-		etag = strings.Trim(objectInfo.ETag, "\"")
-	}
+	*/
 	return uid, etag, metaSize, nil
 }
 
@@ -536,6 +540,7 @@ func (c *S3Client) Watch(recursivePath string) (*common.WatchObject, error) {
 					continue
 				}
 				objectPath = c.getLocalPath(objectPath)
+
 				if strings.HasPrefix(record.EventName, "s3:ObjectCreated:") {
 					log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.Any("event", record))
 					eventChan <- common.EventInfo{

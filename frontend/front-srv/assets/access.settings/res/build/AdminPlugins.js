@@ -2082,7 +2082,6 @@ var _coreServiceExposedConfigs2 = _interopRequireDefault(_coreServiceExposedConf
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var moment = _Pydio$requireLib.moment;
-var Loader = _Pydio$requireLib.Loader;
 var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
 
 var UpdaterDashboard = _react2['default'].createClass({
@@ -2091,7 +2090,9 @@ var UpdaterDashboard = _react2['default'].createClass({
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     getInitialState: function getInitialState() {
-        return { check: -1 };
+        var pydio = this.props.pydio;
+
+        return { check: -1, backend: pydio.Parameters.get("backend") };
     },
 
     componentDidMount: function componentDidMount() {
@@ -2104,6 +2105,18 @@ var UpdaterDashboard = _react2['default'].createClass({
         var pydio = this.props.pydio;
 
         this.setState({ loading: true });
+
+        var url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/bootconf';
+        window.fetch(url, {
+            method: 'GET',
+            credentials: 'same-origin'
+        }).then(function (response) {
+            response.json().then(function (data) {
+                if (data.backend) {
+                    _this.setState({ backend: data.backend });
+                }
+            })['catch'](function () {});
+        })['catch'](function () {});
 
         var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();
@@ -2175,7 +2188,6 @@ var UpdaterDashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var list = null;
-        var pydio = this.props.pydio;
         var _state2 = this.state;
         var packages = _state2.packages;
         var check = _state2.check;
@@ -2184,6 +2196,7 @@ var UpdaterDashboard = _react2['default'].createClass({
         var updateApplied = _state2.updateApplied;
         var selectedPackage = _state2.selectedPackage;
         var watchJob = _state2.watchJob;
+        var backend = _state2.backend;
 
         var subHeaderStyle = {
             backgroundColor: '#f5f5f5',
@@ -2275,8 +2288,6 @@ var UpdaterDashboard = _react2['default'].createClass({
                     });
                 } }));
         }
-
-        var backend = pydio.Parameters.get("backend");
 
         return _react2['default'].createElement(
             'div',

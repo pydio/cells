@@ -64,9 +64,7 @@ var EncryptionKeys = (function (_React$Component) {
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.listEncryptionKeys(new _pydioHttpRestApi.EncryptionAdminListKeysRequest()).then(function (result) {
-                if (result.Keys) {
-                    _this.setState({ keys: result.Keys });
-                }
+                _this.setState({ keys: result.Keys || [] });
             });
         }
     }, {

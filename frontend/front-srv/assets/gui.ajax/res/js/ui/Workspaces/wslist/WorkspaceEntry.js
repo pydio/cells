@@ -341,17 +341,15 @@ let WorkspaceEntry =React.createClass({
                     treeToggle = <span style={{opacity: .3}} className={'workspace-additional-action ' + toggleIcon} onClick={this.toggleFoldersPanelOpen}></span>;
                 }
             }
-            //icon = "mdi mdi-folder-open";
             iconStyle.opacity = 1;
             iconStyle.color = accent2;
         }else{
-            /*
             menuNode = new Node('/', false, workspace.getLabel());
             menuNode.setRoot(true);
             const metaMap = new Map();
             metaMap.set('repository_id', workspace.getId());
+            metaMap.set('workspaceEntry', workspace);
             menuNode.setMetadata(metaMap);
-            */
         }
 
         const {popoverOpen, popoverAnchor, popoverTop, popoverHeight} = this.state;

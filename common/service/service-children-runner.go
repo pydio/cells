@@ -34,8 +34,6 @@ import (
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
 
-	"net"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -43,7 +41,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string)) ServiceOption {
@@ -291,22 +289,9 @@ func (c *ChildrenRunner) FilterOutSource(ctx context.Context, sourceName string)
 				return true
 			}
 		}
-		if val, ok := basic["PeerAddress"]; ok {
-			limitToAddress := val.(string)
-
-			peerIP := net.ParseIP(limitToAddress)
-			localIPs, _ := utils.GetAvailableIPs()
-
-			found := false
-			for _, localIP := range localIPs {
-				if peerIP.Equal(localIP) {
-					found = true
-				}
-			}
-			if !found {
-				log.Logger(ctx).Info(fmt.Sprintf("Ignoring %s as PeerAddress (%s) does not correspond to any current peer ip", c.childPrefix+sourceName, limitToAddress))
-				return true
-			}
+		if val, ok := basic["PeerAddress"]; ok && !net.PeerAddressIsLocal(val.(string)) {
+			log.Logger(ctx).Info(fmt.Sprintf("Ignoring %s as PeerAddress (%s) does not correspond to any current peer ip", c.childPrefix+sourceName, val))
+			return true
 		}
 	}
 

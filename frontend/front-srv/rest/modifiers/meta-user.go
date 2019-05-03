@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/pydio/cells/common/service/proto"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
@@ -34,13 +36,33 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 	columns := &frontend.Ccolumns{}
 	searchables := make(map[string]string)
 	searchableRenderers := make(map[string]string)
+	var crtAdmin bool
+	if status.User.Logged && status.User.UserObject.Attributes != nil {
+		if p, ok := status.User.UserObject.Attributes[idm.UserAttrProfile]; ok && p == common.PYDIO_PROFILE_ADMIN {
+			crtAdmin = true
+		}
+	}
 
 	for _, ns := range namespaces {
+
+		var readAdminOnly bool
+		for _, p := range ns.Policies {
+			if p.Action == service.ResourcePolicyAction_READ && p.Subject == "profile:admin" {
+				readAdminOnly = true
+			}
+		}
+		if readAdminOnly && !crtAdmin {
+			continue
+		}
+
 		var nsDef map[string]interface{}
 		if e := json.Unmarshal([]byte(ns.JsonDefinition), &nsDef); e != nil {
 			continue
 		}
 		nsType := nsDef["type"].(string)
+		if nsType == "json" {
+			continue
+		}
 
 		column := &frontend.Cadditional_column{
 			AttrmessageString:    ns.Label,
@@ -85,7 +107,7 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		columns.Cadditional_column = append(columns.Cadditional_column, column)
 	}
 
-	// Add a section in the regsistry_contribution
+	// Add a section in the registry_contribution
 	if registry.Cclient_configs == nil {
 		registry.Cclient_configs = &frontend.Cclient_configs{
 			Ccomponent_config: []*frontend.Ccomponent_config{},

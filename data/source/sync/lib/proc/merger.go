@@ -209,6 +209,10 @@ func (b *Merger) process(batch *filters.Batch) {
 		batch.StatusChan <- filters.BatchProcessStatus{StatusString: "Finished processing batch"}
 	}
 
+	if len(batch.RefreshFilesUuid) > 0 {
+		go b.refreshFilesUuid(batch)
+	}
+
 	b.sendEvent(ProcessorEvent{
 		Type: "merger:end",
 		Data: batch,

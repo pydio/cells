@@ -29,16 +29,14 @@ import (
 	"io"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 	"golang.org/x/net/webdav"
-
-	minio "github.com/pydio/minio-go"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -63,11 +61,14 @@ type File struct {
 	fs   *FileSystem
 	node *tree.Node
 	ctx  context.Context
+
 	// wrappedCtx context.Context
 	name     string
 	off      int64
 	children []os.FileInfo
-	// multipartId string
+
+	// When writing to new node, remove temporary on error
+	createErrorCallback func() error
 }
 
 func (fi *FileInfo) Name() string {
@@ -101,12 +102,10 @@ func (fs *FileSystem) Mkdir(ctx context.Context, name string, perm os.FileMode) 
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
-	if fs.Debug {
-		log.Logger(ctx).Debug("FileSystem.Mkdir", zap.String("name", name))
-	}
+	log.Logger(ctx).Debug("FileSystem.Mkdir", zap.String("name", name))
 
 	if strings.HasPrefix(path.Base(name), ".") {
-		return errors.Forbidden("DAV", "Cannot create hidden files")
+		return errors.Forbidden("DAV", "Cannot create hidden folders")
 	}
 
 	if !strings.HasSuffix(name, "/") {
@@ -122,24 +121,17 @@ func (fs *FileSystem) Mkdir(ctx context.Context, name string, perm os.FileMode) 
 	if err == nil {
 		return os.ErrExist
 	}
-
-	base := ""
-	for _, elem := range strings.Split(strings.Trim(name, "/"), "/") {
-		base += "/" + elem
-		_, err := fs.stat(ctx, base)
-		if err == nil {
-			continue
-		}
-		_, err = fs.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
-			Path: base,
-			Mode: int32(perm.Perm() | os.ModeDir),
-			Type: tree.NodeType_COLLECTION,
-		}})
-		if err != nil {
-			return err
-		}
+	// Stat parent
+	if _, err = fs.stat(ctx, path.Dir(strings.TrimSuffix(name, "/"))); err != nil {
+		log.Logger(ctx).Error("FileSystem.Mkdir check parent "+path.Dir(name), zap.Error(err))
+		return os.ErrNotExist
 	}
-	return nil
+	_, err = fs.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
+		Path: name,
+		Mode: int32(perm.Perm() | os.ModeDir),
+		Type: tree.NodeType_COLLECTION,
+	}})
+	return err
 }
 
 // OpenFile is called before a put or a simple get to retrieve a given file
@@ -147,9 +139,7 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
-	if fs.Debug {
-		log.Logger(ctx).Debug("FileSystem.OpenFile", zap.String("name", name))
-	}
+	log.Logger(ctx).Debug("FileSystem.OpenFile", zap.String("name", name), zap.Any("create", flag&os.O_CREATE))
 
 	var err error
 	if name, err = clearName(name); err != nil {
@@ -157,6 +147,7 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 	}
 
 	var node *tree.Node
+	var onErrorCallback func() error
 
 	//  O_CREATE: create a new file if none exists.
 	if flag&os.O_CREATE != 0 {
@@ -179,7 +170,8 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 			node = readResp.Node
 		} else {
 			// new file
-			if strings.HasPrefix(path.Base(name), ".") { // do not authorize hidden files
+			base := path.Base(name)
+			if strings.HasPrefix(base, ".") && base != ".DS_Store" && !strings.HasPrefix(base, "._") { // do not authorize hidden files
 				return nil, os.ErrPermission
 			}
 			createNodeResponse, createErr := fs.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
@@ -193,6 +185,12 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 				return &File{}, createErr
 			}
 			node = createNodeResponse.Node
+			c := node.Clone()
+			onErrorCallback = func() error {
+				log.Logger(ctx).Info("-- DELETING TEMPORARY NODE", c.Zap())
+				_, e := fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: c})
+				return e
+			}
 		}
 	} else { // Do not create when file does not exist
 		readResp, err := fs.Router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: name}})
@@ -203,15 +201,23 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 		}
 	}
 
-	return &File{fs: fs, node: node, name: name, off: 0, children: nil, ctx: ctx}, nil
+	return &File{
+		fs:                  fs,
+		node:                node,
+		name:                name,
+		off:                 0,
+		children:            nil,
+		ctx:                 ctx,
+		createErrorCallback: onErrorCallback,
+	}, nil
 }
 
 // ReadFrom bypasses the usual Reader interface to implement multipart uploads to the minio server,
 // rather than using the default Write method that is called by webdav via io.Copy.
 // It enables among others the definition of a part size that is more appropriate than the default 32K used by io.COPY
 func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
-	f.fs.mu.Lock()
-	defer f.fs.mu.Unlock()
+	//f.fs.mu.Lock()
+	//defer f.fs.mu.Unlock()
 
 	// Initialize the multipart upload
 	// TO BE REMOVED: was used to reset the path to initial value (end user / external world point of view )
@@ -224,12 +230,16 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 
 	multipartID, err := f.fs.Router.MultipartCreate(f.ctx, f.node, &views.MultipartRequestData{})
 	if err != nil {
+		log.Logger(f.ctx).Error("Error while creating multipart")
+		if f.createErrorCallback != nil {
+			if e := f.createErrorCallback(); e != nil {
+				log.Logger(f.ctx).Error("Error while deleting temporary node")
+			}
+		}
 		return 0, err
 	}
 
-	if f.fs.Debug {
-		log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartID)
-	}
+	log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartID)
 
 	partsInfo := make(map[int]minio.ObjectPart)
 
@@ -249,12 +259,12 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 			sr, er := r.Read(shortBuf)
 			longBuf = append(longBuf[:nr], shortBuf[:sr]...)
 			nr += sr
-			if f.fs.Debug {
-				log.Logger(f.ctx).Debug(fmt.Sprintf("#%d - Sizes:  sr: %d, shortbuf: %d, longBuf: %d", ii, nr, len(shortBuf), len(longBuf)))
-			}
+			log.Logger(f.ctx).Debug(fmt.Sprintf("#%d - Sizes:  sr: %d, shortbuf: %d, longBuf: %d", ii, nr, len(shortBuf), len(longBuf)))
 
 			if er != nil {
-				log.Logger(f.ctx).Error("Read buffer exception ", zap.Error(er))
+				if er != io.EOF {
+					log.Logger(f.ctx).Error("Read buffer exception ", zap.Error(er))
+				}
 				err = er
 				break
 			}
@@ -265,8 +275,8 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 				Size:              int64(nr), // int64(len(buf)),
 				MultipartUploadID: multipartID,
 				MultipartPartID:   i, // must be >= 1
-				Md5Sum:            sumMD5(longBuf),
-				Sha256Sum:         sum256(longBuf),
+				//Md5Sum:            sumMD5(longBuf),
+				Sha256Sum: sum256(longBuf),
 				// TODO:     Metadata map[string]string, EncryptionMaterial encrypt.Materials
 			}
 
@@ -298,6 +308,11 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 
 	if err != nil {
 		log.Logger(f.ctx).Error("fail to write multiple part ", zap.Error(err))
+		if f.createErrorCallback != nil {
+			if e := f.createErrorCallback(); e != nil {
+				log.Logger(f.ctx).Error("Error while deleting temporary node")
+			}
+		}
 		return written, err
 	}
 
@@ -307,6 +322,11 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	for j := 1; j <= len(partsInfo); j++ {
 		part, ok := partsInfo[j]
 		if !ok {
+			if f.createErrorCallback != nil {
+				if e := f.createErrorCallback(); e != nil {
+					log.Logger(f.ctx).Error("Error while deleting temporary node")
+				}
+			}
 			return written, minio.ErrInvalidArgument(fmt.Sprintf("Missing part number %d", j))
 		}
 		completeParts[j-1] = minio.CompletePart{
@@ -315,9 +335,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 		}
 	}
 
-	if f.fs.Debug {
-		log.Logger(f.ctx).Debug(fmt.Sprintf("Uploaded %d parts", len(partsInfo)), zap.Any("CompleteParts", completeParts))
-	}
+	log.Logger(f.ctx).Info(fmt.Sprintf("Uploaded %d parts", len(partsInfo)), zap.Any("CompleteParts", completeParts))
 
 	// Will be useful when we use goroutines and channels
 	// // Sort all completed parts.
@@ -329,11 +347,21 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	objInfo, err := f.fs.Router.MultipartComplete(f.ctx, f.node, multipartID, completeParts)
 
 	if err != nil {
+		if f.createErrorCallback != nil {
+			if e := f.createErrorCallback(); e != nil {
+				log.Logger(f.ctx).Error("Error while deleting temporary node")
+			}
+		}
 		return written, err
 	}
 
 	if written != objInfo.Size {
 		err = io.ErrShortWrite
+		if f.createErrorCallback != nil {
+			if e := f.createErrorCallback(); e != nil {
+				log.Logger(f.ctx).Error("Error while deleting temporary node")
+			}
+		}
 		return written, err
 	}
 
@@ -350,9 +378,7 @@ func (fs *FileSystem) RemoveAll(ctx context.Context, name string) error {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
-	if fs.Debug {
-		log.Logger(ctx).Debug("FileSystem.RemoveAll", zap.String("name", name))
-	}
+	log.Logger(ctx).Debug("FileSystem.RemoveAll", zap.String("name", name))
 
 	return fs.removeAll(ctx, name)
 }
@@ -361,7 +387,7 @@ func (fs *FileSystem) Rename(ctx context.Context, oldName, newName string) error
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
-	log.Logger(ctx).Debug("FileSystem.Rename", zap.String("from", oldName), zap.String("to", newName))
+	log.Logger(ctx).Info("FileSystem.Rename", zap.String("from", oldName), zap.String("to", newName))
 
 	var err error
 	if oldName, err = clearName(oldName); err != nil {
@@ -389,6 +415,9 @@ func (fs *FileSystem) Rename(ctx context.Context, oldName, newName string) error
 	//_, err = fs.db.Exec(`update filesystem set name = ? where name = ?`, newName, oldName)
 	fromNode := of.(*FileInfo).node
 	_, err = fs.Router.UpdateNode(ctx, &tree.UpdateNodeRequest{From: fromNode, To: &tree.Node{Path: newName}})
+	if err != nil {
+		log.Logger(ctx).Info("FileSystem.Rename", fromNode.Zap(), zap.String("to", newName), zap.Error(err))
+	}
 	return err
 }
 
@@ -397,33 +426,30 @@ func (fs *FileSystem) Stat(ctx context.Context, name string) (os.FileInfo, error
 	defer fs.mu.Unlock()
 
 	fi, err := fs.stat(ctx, name)
-	if fs.Debug && err == nil {
+	if err == nil {
 		log.Logger(ctx).Debug("FileSystem.Stat", zap.String("name", name), zap.String("fi", (fi.(*FileInfo)).String()), zap.Error(err))
 	} else {
-		log.Logger(ctx).Error("FileSystem.Stat - Not Found", zap.String("name", name))
+		log.Logger(ctx).Debug("FileSystem.Stat - Not Found", zap.String("name", name))
 		err = os.ErrNotExist
 	}
 	return fi, err
 }
 
 func (f *File) Close() error {
-	if f.fs.Debug {
-		log.Logger(f.ctx).Debug("File.Close", zap.Any("file", f))
-	}
+	log.Logger(f.ctx).Debug("File.Close", zap.Any("file", f))
 	return nil
 }
 
 func (f *File) Read(p []byte) (int, error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
-	if f.fs.Debug {
-		log.Logger(f.ctx).Debug("File.Read", zap.Any("fileNode", f.node), zap.Int("size", len(p)))
-	}
 
 	reader, err := f.fs.Router.GetObject(f.ctx, f.node, &views.GetRequestData{StartOffset: f.off, Length: int64(len(p))})
 	if err != nil {
-		log.Logger(f.ctx).Error("Getting Reader on node", zap.Error(err))
+		log.Logger(f.ctx).Debug("File.Read Failed", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap(), zap.Error(err))
 		return 0, err
+	} else {
+		log.Logger(f.ctx).Debug("File.Read Success", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap())
 	}
 	defer reader.Close()
 	length, err := reader.Read(p)
@@ -442,9 +468,7 @@ func (f *File) Readdir(count int) ([]os.FileInfo, error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
 
-	if f.fs.Debug {
-		log.Logger(f.ctx).Debug("File.Readdir", zap.Any("file", f))
-	}
+	log.Logger(f.ctx).Debug("File.Readdir", zap.Any("file", f))
 
 	if f.children == nil {
 
@@ -487,9 +511,8 @@ func (f *File) Readdir(count int) ([]os.FileInfo, error) {
 func (f *File) Seek(offset int64, whence int) (int64, error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
-	if f.fs.Debug {
-		log.Logger(f.ctx).Debug("File.Seek", zap.Any("file", f), zap.Int64("offset", offset))
-	}
+
+	log.Logger(f.ctx).Debug("File.Seek", zap.Any("file", f), zap.Int64("offset", offset))
 
 	var err error
 	switch whence {
@@ -507,12 +530,14 @@ func (f *File) Seek(offset int64, whence int) (int64, error) {
 }
 
 func (f *File) Stat() (os.FileInfo, error) {
+	if f.node != nil {
+		return &FileInfo{node: f.node}, nil
+	}
+
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
 
-	if f.fs.Debug {
-		log.Logger(f.ctx).Debug("File.Stat", zap.Any("file", f))
-	}
+	log.Logger(f.ctx).Info("File.Stat", zap.Any("file node", f.node))
 
 	return f.fs.stat(f.ctx, f.name)
 }
@@ -542,10 +567,6 @@ func clearName(name string) (string, error) {
 	if !strings.HasPrefix(name, "/") {
 		return "", os.ErrInvalid
 	}
-	base := filepath.Base(name)
-	if base == ".DS_Store" /*|| strings.HasPrefix(base, "._")*/ {
-		return "", os.ErrNotExist
-	}
 
 	return name, nil
 }
@@ -555,13 +576,43 @@ func (fs *FileSystem) removeAll(ctx context.Context, name string) error {
 	if name, err = clearName(name); err != nil {
 		return err
 	}
-
-	_, err = fs.stat(ctx, name)
+	var fi os.FileInfo
+	fi, err = fs.stat(ctx, name)
 	if err != nil {
 		return err
 	}
-	//node := fi.(*FileInfo).node
-	_, err = fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{Path: name}})
+	node := fi.(*FileInfo).node
+	if node.IsLeaf() {
+		_, err = fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{Path: name, Type: tree.NodeType_LEAF}})
+	} else {
+		// Now list all children and delete them all
+		stream, err := fs.Router.ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
+		if err != nil {
+			return err
+		}
+		defer stream.Close()
+		for {
+			resp, e := stream.Recv()
+			if e != nil {
+				break
+			}
+			if resp == nil {
+				continue
+			}
+			if !resp.Node.IsLeaf() {
+				resp.Node.Path += "/" + common.PYDIO_SYNC_HIDDEN_FILE_META
+				resp.Node.Type = tree.NodeType_LEAF
+			}
+			if _, err := fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node}); err != nil {
+				log.Logger(ctx).Error("Error while deleting node child", resp.Node.Zap(), zap.Error(err))
+				return err
+			}
+		}
+		_, err = fs.Router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
+			Path: path.Join(name, common.PYDIO_SYNC_HIDDEN_FILE_META),
+			Type: tree.NodeType_LEAF,
+		}})
+	}
 	return err
 }
 
@@ -576,7 +627,9 @@ func (fs *FileSystem) stat(ctx context.Context, name string) (os.FileInfo, error
 		Path: name,
 	}})
 	if err != nil {
-		log.Logger(ctx).Error("ReadNode Error", zap.Error(err))
+		if errors.Parse(err.Error()).Code != 404 && !strings.Contains(err.Error(), " NotFound ") {
+			log.Logger(ctx).Error("ReadNode Error", zap.Error(err))
+		}
 		return nil, err
 	}
 

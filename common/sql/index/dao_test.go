@@ -30,13 +30,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/common/utils/mtree"
+
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils"
 )
 
 var (
@@ -159,6 +160,7 @@ func TestMysql(t *testing.T) {
 
 		// Setting MTime to 0 so we can compare
 		node.MTime = 0
+		node.Size = 0
 		node.Path = "mockLongNode"
 
 		So(node.Node, ShouldResemble, mockLongNode.Node)
@@ -197,9 +199,17 @@ func TestMysql(t *testing.T) {
 	// Getting children count
 	Convey("Test Getting the Children Count of a node", t, func() {
 
-		count := getDAO(ctxNoCache).GetNodeChildrenCount(mockLongNodeMPath)
+		_, count := getDAO(ctxNoCache).GetNodeChildrenCounts(mockLongNodeMPath)
 
 		So(count, ShouldEqual, 2)
+	})
+
+	// Getting children count
+	Convey("Test Getting the Children Cumulated Size", t, func() {
+
+		parent, _ := getDAO(ctxNoCache).GetNode(mockLongNodeMPath)
+
+		So(parent.Size, ShouldEqual, mockLongNodeChild1.Size+mockLongNodeChild2.Size)
 	})
 
 	// Setting a file
@@ -242,7 +252,7 @@ func TestMysql(t *testing.T) {
 		mpath := mockLongNodeMPath
 
 		for len(mpath) > 0 {
-			node := utils.NewTreeNode()
+			node := mtree.NewTreeNode()
 			node.SetMPath(mpath...)
 			b.Send(node)
 			mpath = mpath.Parent()
@@ -256,13 +266,13 @@ func TestMysql(t *testing.T) {
 	// Setting a mpath multiple times
 	Convey("Setting a same mpath multiple times", t, func() {
 
-		node1 := utils.NewTreeNode()
+		node1 := mtree.NewTreeNode()
 		node1.Node = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
 		node1.SetMPath(1, 21, 12, 7)
 		err := getDAO(ctxNoCache).AddNode(node1)
 		So(err, ShouldBeNil)
 
-		node2 := utils.NewTreeNode()
+		node2 := mtree.NewTreeNode()
 		node2.Node = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
 		node2.SetMPath(1, 21, 12, 7)
 		err = getDAO(ctxNoCache).AddNode(node2)
@@ -271,19 +281,19 @@ func TestMysql(t *testing.T) {
 
 	Convey("Test wrong children due to same MPath start", t, func() {
 
-		node1 := utils.NewTreeNode()
+		node1 := mtree.NewTreeNode()
 		node1.Node = &tree.Node{Uuid: "parent1", Type: tree.NodeType_COLLECTION}
 		node1.SetMPath(1, 1)
 
-		node2 := utils.NewTreeNode()
+		node2 := mtree.NewTreeNode()
 		node2.Node = &tree.Node{Uuid: "parent2", Type: tree.NodeType_COLLECTION}
 		node2.SetMPath(1, 15)
 
-		node11 := utils.NewTreeNode()
+		node11 := mtree.NewTreeNode()
 		node11.Node = &tree.Node{Uuid: "child1.1", Type: tree.NodeType_COLLECTION}
 		node11.SetMPath(1, 1, 1)
 
-		node21 := utils.NewTreeNode()
+		node21 := mtree.NewTreeNode()
 		node21.Node = &tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION}
 		node21.SetMPath(1, 15, 1)
 
@@ -297,7 +307,7 @@ func TestMysql(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		// List Root
-		nodes := getDAO(ctxNoCache).GetNodeChildren(utils.MPath{1})
+		nodes := getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1})
 		count := 0
 		for range nodes {
 			count++
@@ -305,7 +315,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeTree(utils.MPath{1})
+		nodes = getDAO(ctxNoCache).GetNodeTree(mtree.MPath{1})
 		count = 0
 		for c := range nodes {
 			log.Println(c)
@@ -314,7 +324,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 8) // Because of previous tests there are other nodes
 
 		// List Parent1 Children
-		nodes = getDAO(ctxNoCache).GetNodeChildren(utils.MPath{1, 1})
+		nodes = getDAO(ctxNoCache).GetNodeChildren(mtree.MPath{1, 1})
 		count = 0
 		for range nodes {
 			count++
@@ -342,36 +352,36 @@ func TestMysql(t *testing.T) {
 		const etag3 = "zzzz"
 		const etag4 = "qqqq"
 
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.Node = &tree.Node{Uuid: "etag-parent-folder", Type: tree.NodeType_COLLECTION}
 		node.SetMPath(1, 16)
 		node.Etag = "-1"
 
-		node11 := utils.NewTreeNode()
+		node11 := mtree.NewTreeNode()
 		node11.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
 		node11.SetMPath(1, 16, 1)
 		node11.Etag = etag1
 		node11.SetMeta("name", "\"bbb\"")
 
-		node12 := utils.NewTreeNode()
+		node12 := mtree.NewTreeNode()
 		node12.Node = &tree.Node{Uuid: "etag-child-2", Type: tree.NodeType_LEAF}
 		node12.SetMPath(1, 16, 2)
 		node12.Etag = etag2
 		node12.SetMeta("name", "\"aaa\"")
 
-		node13 := utils.NewTreeNode()
+		node13 := mtree.NewTreeNode()
 		node13.Node = &tree.Node{Uuid: "etag-child-3", Type: tree.NodeType_COLLECTION}
 		node13.SetMPath(1, 16, 3)
 		node13.Etag = "-1"
 		node13.SetMeta("name", "\"ccc\"")
 
-		node14 := utils.NewTreeNode()
+		node14 := mtree.NewTreeNode()
 		node14.Node = &tree.Node{Uuid: "etag-child-child-1", Type: tree.NodeType_LEAF}
 		node14.SetMPath(1, 16, 3, 1)
 		node14.Etag = etag3
 		node14.SetMeta("name", "\"a-aaa\"")
 
-		node15 := utils.NewTreeNode()
+		node15 := mtree.NewTreeNode()
 		node15.Node = &tree.Node{Uuid: "etag-child-child-2", Type: tree.NodeType_LEAF}
 		node15.SetMPath(1, 16, 3, 2)
 		node15.Etag = etag4
@@ -414,7 +424,7 @@ func TestCommits(t *testing.T) {
 
 	Convey("Test Insert / List / Delete", t, func() {
 
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
 		node.SetMPath(1, 16, 1)
 		node.Etag = "first-etag"
@@ -450,7 +460,7 @@ func TestStreams(t *testing.T) {
 		c, e := getDAO(ctxNoCache).AddNodeStream(5)
 
 		for i := 1; i <= 1152; i++ {
-			node := utils.NewTreeNode()
+			node := mtree.NewTreeNode()
 			node.Node = &tree.Node{Uuid: "testing-stream" + strconv.Itoa(i), Type: tree.NodeType_LEAF}
 			node.SetMPath(1, 17, uint64(i))
 
@@ -461,7 +471,7 @@ func TestStreams(t *testing.T) {
 
 		So(<-e, ShouldBeNil)
 
-		idx, err := getDAO(ctxNoCache).GetNodeFirstAvailableChildIndex(utils.NewMPath(1, 17))
+		idx, err := getDAO(ctxNoCache).GetNodeFirstAvailableChildIndex(mtree.NewMPath(1, 17))
 		So(err, ShouldBeNil)
 		So(idx, ShouldEqual, 1153)
 	})

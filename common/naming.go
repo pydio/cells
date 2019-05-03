@@ -121,6 +121,7 @@ const (
 	TOPIC_ACTIVITY_EVENT   = "topic.pydio.activity.event"
 	TOPIC_CHAT_EVENT       = "topic.pydio.chat.event"
 	TOPIC_DATASOURCE_EVENT = "topic.pydio.datasource.event"
+	TOPIC_INDEX_EVENT      = "topic.pydio.index.event"
 )
 
 // Define constants for metadata and fixed datasources
@@ -146,6 +147,7 @@ const (
 	PYDIO_SYNC_HIDDEN_FILE_META = ".pydio"
 	X_AMZ_META_CLEAR_SIZE       = "X-Amz-Meta-Pydio-Clear-Size"
 	X_AMZ_META_NODE_UUID        = "X-Amz-Meta-Pydio-Node-Uuid"
+	X_AMZ_META_DIRECTIVE        = "X-Amz-Metadata-Directive"
 
 	PYDIO_PROFILE_ADMIN    = "admin"
 	PYDIO_PROFILE_STANDARD = "standard"
@@ -179,9 +181,10 @@ const (
 
 // Defaults for DB connexions.
 const (
-	DB_MAX_OPEN_CONNS    = 0
-	DB_MAX_IDLE_CONNS    = 20
-	DB_CONN_MAX_LIFETIME = 5 * time.Minute
+	DB_NUM_RESERVED_CONNECTIONS = 10
+	DB_MAX_OPEN_CONNS           = 20
+	DB_MAX_IDLE_CONNS           = 20
+	DB_CONN_MAX_LIFETIME        = 24 * time.Hour
 )
 
 // Main code information. Set by the go linker in the resulting binary when doing 'make main'

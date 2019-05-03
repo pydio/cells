@@ -198,9 +198,15 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 
 /* LOGGING SUPPORT */
 
+func (a *Action) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("ID", a.ID)
+	encoder.AddReflected("Parameters", a.Parameters)
+	return nil
+}
+
 // Zap simply returns a zapcore.Field object populated with this Action under a standard key
 func (a *Action) Zap() zapcore.Field {
-	return zap.Any(common.KEY_ACTION, a)
+	return zap.Object(common.KEY_ACTION, a)
 }
 
 // ZapId simply calls zap.String() with ActionId standard key and this Action id

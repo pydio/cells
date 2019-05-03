@@ -24,6 +24,7 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+	log2 "log"
 	"os"
 	"os/signal"
 	"regexp"
@@ -31,6 +32,11 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/micro/go-micro/server"
+	"github.com/micro/go-web"
+
+	"github.com/pydio/cells/common/utils/net"
 
 	"github.com/micro/go-micro/broker"
 	microregistry "github.com/micro/go-micro/registry"
@@ -189,14 +195,14 @@ func init() {
 
 	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
 	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))
-
-	flags.String("consul_config", "", "Configuration file for consul")
-	viper.BindPFlag("consul_config", flags.Lookup("consul_config"))
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+
+	// Check PrivateIP and setup Advertise
+	initAdvertiseIP()
 
 	nats.Init()
 	metrics.Init()
@@ -238,6 +244,21 @@ func initServices() {
 	registry.Init()
 
 	registry.Default.AfterInit()
+}
+
+func initAdvertiseIP() {
+	ok, advertise, err := net.DetectHasPrivateIP()
+	if err != nil {
+		log2.Fatal(err.Error())
+	}
+	if !ok {
+		net.DefaultAdvertiseAddress = advertise
+		web.DefaultAddress = advertise + ":0"
+		server.DefaultAddress = advertise + ":0"
+		if advertise != "127.0.0.1" {
+			fmt.Println("Warning: no private IP detected for binding broker. Will bind to " + net.DefaultAdvertiseAddress + ", which may give public access to the broker.")
+		}
+	}
 }
 
 func handleRegistry() {
@@ -332,7 +353,7 @@ func handleSignals() {
 
 				initServices()
 
-				// Stop all services
+				// Start all services
 				for _, service := range allServices {
 					if service.Name() == "nats" {
 						continue

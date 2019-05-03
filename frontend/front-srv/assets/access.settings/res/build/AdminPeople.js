@@ -22318,6 +22318,14 @@ var _Callbacks = require('./Callbacks');
 
 var _Callbacks2 = _interopRequireDefault(_Callbacks);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+
+var JobsStore = _Pydio$requireLib.JobsStore;
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -22341,6 +22349,28 @@ var Dashboard = _react2['default'].createClass({
             dataModel: dataModel,
             showAnon: false
         };
+    },
+
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        var jStore = JobsStore.getInstance();
+        this._jStoreObserver = function (jobId) {
+            if (jobId && jobId.indexOf('delete-group-') === 0) {
+                jStore.getJobs().then(function (jobs) {
+                    try {
+                        if (jobs.get(jobId).Tasks[0].Status === 'Finished') {
+                            _this.reloadList();
+                        }
+                    } catch (e) {}
+                });
+            }
+        };
+        jStore.observe("tasks_updated", this._jStoreObserver);
+    },
+
+    componentWillUnmounnt: function componentWillUnmounnt() {
+        JobsStore.getInstance().stopObserving("tasks_updated", this._jStoreObserver);
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(newProps) {
@@ -22479,7 +22509,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     openRoleEditor: function openRoleEditor(node) {
-        var _this = this;
+        var _this2 = this;
 
         var initialSection = arguments.length <= 1 || arguments[1] === undefined ? 'activity' : arguments[1];
         var _props2 = this.props;
@@ -22501,7 +22531,7 @@ var Dashboard = _react2['default'].createClass({
                 onRequestTabClose: this.closeRoleEditor,
                 advancedAcl: advancedAcl,
                 afterSave: function afterSave() {
-                    _this.reloadList();
+                    _this2.reloadList();
                 }
             }
         };
@@ -22524,7 +22554,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     renderNodeActions: function renderNodeActions(node) {
-        var _this2 = this;
+        var _this3 = this;
 
         var mime = node.getAjxpMime();
         var iconStyle = {
@@ -22538,18 +22568,18 @@ var Dashboard = _react2['default'].createClass({
         var actions = [];
         if (mime === 'user_editable' || mime === 'group') {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
-                    _this2.openRoleEditor(node);
+                    _this3.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                    _this2.deleteAction(node);
+                    _this3.deleteAction(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
         } else if (mime === 'user') {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
-                    _this2.openRoleEditor(node);
+                    _this3.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
@@ -22585,7 +22615,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     applyFilter: function applyFilter(profile) {
-        var _this3 = this;
+        var _this4 = this;
 
         if (profile === 'toggle-anon') {
             this.setState({ showAnon: !this.state.showAnon });
@@ -22596,12 +22626,12 @@ var Dashboard = _react2['default'].createClass({
         currentNode.getMetadata().set('userProfileFilter', profile);
         currentNode.getMetadata()['delete']('paginationData');
         this.setState({ currentNode: currentNode }, function () {
-            _this3.reloadList();
+            _this4.reloadList();
         });
     },
 
     render: function render() {
-        var _this4 = this;
+        var _this5 = this;
 
         var fontIconStyle = {
             style: {
@@ -22676,7 +22706,7 @@ var Dashboard = _react2['default'].createClass({
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 value: profileFilter,
                 onChange: function (e, val) {
-                    _this4.applyFilter(val);
+                    _this5.applyFilter(val);
                 },
                 desktop: true
             },
@@ -22755,7 +22785,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":162,"./Callbacks":157,"./UsersSearchBox":161,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
+},{"../editor/Editor":162,"./Callbacks":157,"./UsersSearchBox":161,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23525,12 +23555,16 @@ var UsersSearchBox = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1 } },
-                    _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
-                        onKeyDown: this.keyDown.bind(this),
-                        floatingLabelText: this.props.textLabel,
-                        fullWidth: true,
-                        floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
-                    })
+                    _react2['default'].createElement(
+                        'form',
+                        { autoComplete: "off" },
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
+                            onKeyDown: this.keyDown.bind(this),
+                            floatingLabelText: this.props.textLabel,
+                            fullWidth: true,
+                            floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
+                        })
+                    )
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -25905,10 +25939,16 @@ var Role = (function (_Observable) {
         }
 
         /**
-         * @return {Promise<any>}
+         * In Action, replace policy / pName to policy:pName
+         * @param acls [IdmACL]
+         * @return [IdmACL]
          */
     }, {
         key: 'loadAcls',
+
+        /**
+         * @return {Promise<any>}
+         */
         value: function loadAcls() {
             var _q$RoleIDs,
                 _this3 = this;
@@ -25928,22 +25968,20 @@ var Role = (function (_Observable) {
             })));
             request.Queries.push(q);
             return api.searchAcls(request).then(function (collection) {
+                var acls = Role.FormatPolicyAclFromStore(collection.ACLs || []);
                 if (_this3.parentRoles.length) {
-                    (function () {
-                        var acls = collection.ACLs || [];
-                        if (!parentsOnly) {
-                            _this3.acls = acls.filter(function (acl) {
-                                return acl.RoleID === _this3.idmRole.Uuid;
-                            });
-                        }
-                        _this3.parentRoles.forEach(function (r) {
-                            _this3.parentAcls[r.Uuid] = acls.filter(function (acl) {
-                                return acl.RoleID === r.Uuid;
-                            });
+                    if (!parentsOnly) {
+                        _this3.acls = acls.filter(function (acl) {
+                            return acl.RoleID === _this3.idmRole.Uuid;
                         });
-                    })();
+                    }
+                    _this3.parentRoles.forEach(function (r) {
+                        _this3.parentAcls[r.Uuid] = acls.filter(function (acl) {
+                            return acl.RoleID === r.Uuid;
+                        });
+                    });
                 } else {
-                    _this3.acls = collection.ACLs || [];
+                    _this3.acls = acls;
                 }
                 if (!parentsOnly) {
                     _this3.makeSnapshot();
@@ -25992,7 +26030,7 @@ var Role = (function (_Observable) {
                     }
                     return Promise.all(ps).then(function (res) {
                         var p2 = [];
-                        _this4.acls.forEach(function (acl) {
+                        Role.FormatPolicyAclToStore(_this4.acls).forEach(function (acl) {
                             p2.push(aclApi.putAcl(acl));
                         });
                         return Promise.all(p2).then(function (results) {
@@ -26000,7 +26038,7 @@ var Role = (function (_Observable) {
                             results.forEach(function (res) {
                                 newAcls.push(res);
                             });
-                            _this4.acls = newAcls;
+                            _this4.acls = Role.FormatPolicyAclFromStore(newAcls);
                             _this4.makeSnapshot();
                             _this4.dirty = false;
                             _this4.notify("update");
@@ -26280,6 +26318,37 @@ var Role = (function (_Observable) {
                     } else {
                         return out;
                     }
+                }
+            });
+        }
+    }], [{
+        key: 'FormatPolicyAclFromStore',
+        value: function FormatPolicyAclFromStore(acls) {
+            return acls.map(function (acl) {
+                if (acl.Action && acl.Action.Name === 'policy') {
+                    acl.Action.Name = 'policy:' + acl.Action.Value;
+                    acl.Action.Value = '1';
+                }
+                return acl;
+            });
+        }
+
+        /**
+         * In Action, replace policy:pName to policy/pName
+         * @param acls [IdmACL]
+         * @return [IdmACL]
+         */
+    }, {
+        key: 'FormatPolicyAclToStore',
+        value: function FormatPolicyAclToStore(acls) {
+            return acls.map(function (acl) {
+                if (acl.Action && acl.Action.Name.indexOf('policy:') === 0) {
+                    var copy = _pydioHttpRestApi.IdmACL.constructFromObject(JSON.parse(JSON.stringify(acl)));
+                    copy.Action.Name = 'policy';
+                    copy.Action.Value = acl.Action.Name.split(':')[1];
+                    return copy;
+                } else {
+                    return acl;
                 }
             });
         }
@@ -28279,39 +28348,46 @@ var CreateUserForm = _react2['default'].createClass({
             { style: { width: '100%' } },
             path,
             _react2['default'].createElement(
-                'div',
-                { style: { width: '100%' } },
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'user_id',
-                    onChange: this.checkLogin,
-                    fullWidth: true,
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.21'),
-                    errorText: this.state.loginErrorText
-                })
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'pass',
-                    type: 'password',
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.22'),
-                    onChange: this.checkPassword,
-                    fullWidth: true,
-                    errorText: this.state.passErrorText || this.state.passHintText
-                })
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'passconf',
-                    type: 'password',
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.23'),
-                    onChange: this.checkPassword,
-                    fullWidth: true,
-                    errorText: this.state.confirmErrorText
-                })
+                'form',
+                { autoComplete: "off" },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { width: '100%' } },
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'user_id',
+                        onChange: this.checkLogin,
+                        fullWidth: true,
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.21'),
+                        errorText: this.state.loginErrorText,
+                        autoComplete: "nope"
+                    })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'pass',
+                        type: 'password',
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.22'),
+                        onChange: this.checkPassword,
+                        fullWidth: true,
+                        errorText: this.state.passErrorText || this.state.passHintText,
+                        autoComplete: "new-password"
+                    })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        ref: 'passconf',
+                        type: 'password',
+                        floatingLabelText: this.context.getMessage('ajxp_admin.user.23'),
+                        onChange: this.checkPassword,
+                        fullWidth: true,
+                        errorText: this.state.confirmErrorText,
+                        autoComplete: "confirm-password"
+                    })
+                )
             )
         );
     }

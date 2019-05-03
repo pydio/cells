@@ -263,6 +263,9 @@
   "ds.status.ko": {
     "other": "Dienste wurden angehalten"
   },
+  "ds.status.ko-peers": {
+    "other": "Node %s nicht gefunden"
+  },
   "ds.status.na": {
     "other": "N/A"
   },
@@ -271,6 +274,9 @@
   },
   "ds.status.ok": {
     "other": "Alle Dienste werden ausgeführt"
+  },
+  "ds.status.starting": {
+    "other": "Datasource wird gestartet..."
   },
   "ds.status.sync": {
     "other": "Sync ausgefallen"
@@ -556,6 +562,9 @@
   },
   "logs.export.disabled": {
     "other": "Wählen Sie ein Datum oder Filtern Sie Ergebnisse aus"
+  },
+  "logs.export.clicklink": {
+    "other": "Klicken Sie auf den Link zum Herunterladen"
   },
   "logs.filter.period": {
     "other": "Zeitraum"
@@ -1086,7 +1095,7 @@
     "other": "Alle Benutzer"
   },
   "user.filter.anon": {
-    "other": "Show anonymous"
+    "other": "Anonyme anzeigen"
   },
   "versions.editor.delete": {
     "other": "Richtlinie löschen"
@@ -1609,6 +1618,24 @@
   },
   "scheduler.trigger.delete.node": {
     "other": "Node löschen"
+  },
+  "scheduler.trigger.create.user": {
+    "other": "Benutzer erstellen"
+  },
+  "scheduler.trigger.read.user": {
+    "other": "Benutzer lesen"
+  },
+  "scheduler.trigger.update.user": {
+    "other": "Benutzer aktualisieren"
+  },
+  "scheduler.trigger.delete.user": {
+    "other": "Benutzer löschen"
+  },
+  "scheduler.trigger.bind.user": {
+    "other": "Benutzer Bind"
+  },
+  "scheduler.trigger.logout.user": {
+    "other": "Benutzer abmelden"
   },
   "scheduler.trigger.events": {
     "other": "Ereignisse"

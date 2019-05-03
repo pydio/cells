@@ -25,6 +25,7 @@ import (
 	"github.com/micro/protobuf/ptypes"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
@@ -32,11 +33,11 @@ import (
 
 func getDefaultJobs() []*jobs.Job {
 
-	searchQuery, _ := ptypes.MarshalAny(&tree.Query{
+	imagesQuery, _ := ptypes.MarshalAny(&tree.Query{
 		Extension: "jpg,png,jpeg,gif,bmp,tiff",
 	})
 
-	searchQueryExif, _ := ptypes.MarshalAny(&tree.Query{
+	exifQuery, _ := ptypes.MarshalAny(&tree.Query{
 		Extension: "jpg",
 	})
 
@@ -51,13 +52,18 @@ func getDefaultJobs() []*jobs.Job {
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
 		},
+		NodeEventFilter: &jobs.NodesSelector{
+			Query: &service.Query{
+				SubQueries: []*any.Any{imagesQuery},
+			},
+		},
 		Actions: []*jobs.Action{
 			{
 				ID:         "actions.images.thumbnails",
 				Parameters: map[string]string{"ThumbSizes": `{"sm":300,"md":1024}`},
 				NodesFilter: &jobs.NodesSelector{
 					Query: &service.Query{
-						SubQueries: []*any.Any{searchQuery},
+						SubQueries: []*any.Any{imagesQuery},
 					},
 				},
 			},
@@ -65,7 +71,7 @@ func getDefaultJobs() []*jobs.Job {
 				ID: "actions.images.exif",
 				NodesFilter: &jobs.NodesSelector{
 					Query: &service.Query{
-						SubQueries: []*any.Any{searchQueryExif},
+						SubQueries: []*any.Any{exifQuery},
 					},
 				},
 			},
@@ -81,12 +87,17 @@ func getDefaultJobs() []*jobs.Job {
 		EventNames: []string{
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
 		},
+		NodeEventFilter: &jobs.NodesSelector{
+			Query: &service.Query{
+				SubQueries: []*any.Any{imagesQuery},
+			},
+		},
 		Actions: []*jobs.Action{
 			{
 				ID: "actions.images.clean",
 				NodesFilter: &jobs.NodesSelector{
 					Query: &service.Query{
-						SubQueries: []*any.Any{searchQuery},
+						SubQueries: []*any.Any{imagesQuery},
 					},
 				},
 			},
@@ -109,20 +120,39 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
-	archiveChangesJob := &jobs.Job{
-		ID:             "archive-changes-job",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
-		Label:          "Jobs.Default.ArchiveJobs",
-		MaxConcurrency: 1,
-		Schedule: &jobs.Schedule{
-			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:03/PT10M",
+	/*
+		archiveChangesJob := &jobs.Job{
+			ID:             "archive-changes-job",
+			Owner:          common.PYDIO_SYSTEM_USERNAME,
+			Label:          "Jobs.Default.ArchiveJobs",
+			MaxConcurrency: 1,
+			Schedule: &jobs.Schedule{
+				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:03/PT10M",
+			},
+			Actions: []*jobs.Action{
+				{
+					ID: "actions.changes.archive",
+					Parameters: map[string]string{
+						"remainingRows": "1000",
+					},
+				},
+			},
+		}
+	*/
+
+	cleanUserDataJob := &jobs.Job{
+		ID:                "clean-user-data",
+		Owner:             common.PYDIO_SYSTEM_USERNAME,
+		Label:             "Clean or transfer user data on deletion",
+		Inactive:          false,
+		MaxConcurrency:    5,
+		TasksSilentUpdate: true,
+		EventNames: []string{
+			jobs.IdmChangeEventName(jobs.IdmEventObjectUser, idm.ChangeEventType_DELETE),
 		},
 		Actions: []*jobs.Action{
 			{
-				ID: "actions.changes.archive",
-				Parameters: map[string]string{
-					"remainingRows": "1000",
-				},
+				ID: "actions.idm.clean-user-data",
 			},
 		},
 	}
@@ -135,7 +165,7 @@ func getDefaultJobs() []*jobs.Job {
 		MaxConcurrency: 1,
 		Actions: []*jobs.Action{
 			{
-				ID: "FAKE",
+				ID: "actions.test.fake",
 				Parameters: map[string]string{
 					"timer":  "10000",
 					"ticker": "5",
@@ -148,7 +178,7 @@ func getDefaultJobs() []*jobs.Job {
 		ID:             "fake-users-job",
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
 		Label:          "Jobs.Default.FakeUsersJob",
-		Inactive:       false,
+		Inactive:       true,
 		MaxConcurrency: 1,
 		Actions: []*jobs.Action{
 			{
@@ -162,10 +192,11 @@ func getDefaultJobs() []*jobs.Job {
 	}
 
 	fakeRPCJob := &jobs.Job{
-		ID:             "fake-long-job",
+		ID:             "fake-rpc-job",
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
 		Label:          "Jobs.Default.FakeGrpcJob",
 		MaxConcurrency: 1,
+		Inactive:       true,
 		Actions: []*jobs.Action{
 			{
 				ID: "actions.cmd.rpc",
@@ -178,15 +209,46 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
+	selectorQuery, _ := ptypes.MarshalAny(&tree.Query{
+		// Use the Tree search
+		MaxSize:    5 * 1024 * 1024,
+		Type:       tree.NodeType_LEAF,
+		PathPrefix: []string{"/"},
+		Extension:  "jpg|png",
+		// Use the Search Server instead
+		//FreeString: "+Meta.ImageDimensions.Height:>=2000",
+	})
+	fakeSelectorJob := &jobs.Job{
+		ID:             "fake-nodes-selector",
+		Owner:          common.PYDIO_SYSTEM_USERNAME,
+		Label:          "Perform a fake action on a subset (images smaller than 5MB)",
+		MaxConcurrency: 1,
+		Inactive:       true,
+		Actions: []*jobs.Action{
+			{
+				ID: "actions.test.fake",
+				Parameters: map[string]string{
+					"timer":  "100",
+					"ticker": "1",
+				},
+				NodesSelector: &jobs.NodesSelector{
+					Query: &service.Query{SubQueries: []*any.Any{selectorQuery}},
+				},
+			},
+		},
+	}
+
 	defJobs := []*jobs.Job{
 		thumbnailsJob,
 		cleanThumbsJob,
 		stuckTasksJob,
-		archiveChangesJob,
+		//archiveChangesJob,
+		cleanUserDataJob,
 		// Testing Jobs
 		fakeLongJob,
 		fakeRPCJob,
 		fakeUsersJob,
+		fakeSelectorJob,
 	}
 
 	return defJobs

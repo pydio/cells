@@ -15,14 +15,14 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
 // LoadRootNodesForWorkspace loads all root nodes for this workspace
 func (h *WorkspaceHandler) loadRootNodesForWorkspace(ctx context.Context, ws *idm.Workspace) error {
 
-	acls, err := utils.GetACLsForWorkspace(ctx, []string{ws.UUID}, &idm.ACLAction{Name: utils.ACL_WSROOT_ACTION_NAME})
+	acls, err := permissions.GetACLsForWorkspace(ctx, []string{ws.UUID}, &idm.ACLAction{Name: permissions.AclWsrootActionName})
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		// Delete current Root Nodes ACLs
 		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 			WorkspaceIDs: []string{ws.UUID},
-			Actions:      []*idm.ACLAction{{Name: utils.ACL_WSROOT_ACTION_NAME}, {Name: utils.ACL_RECYCLE_ROOT.Name}},
+			Actions:      []*idm.ACLAction{{Name: permissions.AclWsrootActionName}, {Name: permissions.AclRecycleRoot.Name}},
 		})
 		_, e := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 		if e != nil {
@@ -102,7 +102,7 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 			WorkspaceID: ws.UUID,
 			NodeID:      nodeId,
-			Action:      &idm.ACLAction{Name: utils.ACL_WSROOT_ACTION_NAME, Value: node.GetPath()},
+			Action:      &idm.ACLAction{Name: permissions.AclWsrootActionName, Value: node.GetPath()},
 		}}); e != nil {
 			return e
 		}
@@ -110,7 +110,7 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 			WorkspaceID: ws.UUID,
 			NodeID:      nodeId,
-			Action:      utils.ACL_RECYCLE_ROOT,
+			Action:      permissions.AclRecycleRoot,
 		}}); e != nil {
 			return e
 		}
@@ -161,7 +161,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 			RoleIDs:      []string{"ROOT_GROUP"},
 		})
 		q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
-			Actions: []*idm.ACLAction{utils.ACL_READ, utils.ACL_WRITE},
+			Actions: []*idm.ACLAction{permissions.AclRead, permissions.AclWrite},
 		})
 		stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 			Query: &service.Query{
@@ -179,10 +179,10 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 			if e != nil {
 				break
 			}
-			if r.ACL.Action.Name == utils.ACL_READ.Name {
+			if r.ACL.Action.Name == permissions.AclRead.Name {
 				read = true
 			}
-			if r.ACL.Action.Name == utils.ACL_WRITE.Name {
+			if r.ACL.Action.Name == permissions.AclWrite.Name {
 				write = true
 			}
 		}
@@ -205,7 +205,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 		workspace.Attributes = string(jsonAttributes)
 
 	} else {
-		log.Logger(ctx).Info("Manage default Rights: " + value)
+		log.Logger(ctx).Debug("Manage default Rights: " + value)
 
 		// Delete RootRole values first
 		q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
@@ -213,7 +213,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 			RoleIDs:      []string{"ROOT_GROUP"},
 		})
 		q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
-			Actions: []*idm.ACLAction{utils.ACL_READ, utils.ACL_WRITE},
+			Actions: []*idm.ACLAction{permissions.AclRead, permissions.AclWrite},
 		})
 		_, err := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
 			Query: &service.Query{
@@ -238,7 +238,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 					WorkspaceID: workspace.UUID,
 					RoleID:      "ROOT_GROUP",
 					NodeID:      node.Uuid,
-					Action:      utils.ACL_READ,
+					Action:      permissions.AclRead,
 				}})
 			}
 			if write {
@@ -246,7 +246,7 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 					WorkspaceID: workspace.UUID,
 					RoleID:      "ROOT_GROUP",
 					NodeID:      node.Uuid,
-					Action:      utils.ACL_WRITE,
+					Action:      permissions.AclWrite,
 				}})
 			}
 		}
@@ -273,13 +273,13 @@ func (h *WorkspaceHandler) allowCurrentUser(ctx context.Context, workspace *idm.
 				WorkspaceID: workspace.UUID,
 				RoleID:      userId,
 				NodeID:      node.Uuid,
-				Action:      utils.ACL_READ,
+				Action:      permissions.AclRead,
 			}})
 			aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 				WorkspaceID: workspace.UUID,
 				RoleID:      userId,
 				NodeID:      node.Uuid,
-				Action:      utils.ACL_WRITE,
+				Action:      permissions.AclWrite,
 			}})
 		}
 	}

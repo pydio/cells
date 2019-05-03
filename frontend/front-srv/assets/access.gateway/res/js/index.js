@@ -21,6 +21,7 @@
 import OtherEditorPickerDialog from './dialog/OtherEditorPickerDialog'
 import TreeDialog from './dialog/TreeDialog'
 import UploadDialog from './dialog/UploadDialog'
+import CrossWsDropDialog from './dialog/CrossWsDropDialog'
 
 import Callbacks from './callback/index'
 import Listeners from './listener/index'
@@ -31,5 +32,6 @@ export {
 
     UploadDialog,
     OtherEditorPickerDialog,
-    TreeDialog
+    TreeDialog,
+    CrossWsDropDialog
 }

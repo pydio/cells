@@ -30,6 +30,7 @@ type DAO interface {
 	ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, jobIDs []string, taskCursor ...int32) (chan *jobs.Job, chan bool, error)
 
 	PutTask(task *jobs.Task) error
+	PutTasks(task map[string]map[string]*jobs.Task) error
 	ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor ...int32) (chan *jobs.Task, chan bool, error)
 	DeleteTasks(jobId string, taskId []string) error
 }

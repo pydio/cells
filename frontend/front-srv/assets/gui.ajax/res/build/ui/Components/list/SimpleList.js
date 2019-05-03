@@ -1012,28 +1012,35 @@ var SimpleList = React.createClass({
                         var aLeaf = nodeA.isLeaf();
                         var bLeaf = nodeB.isLeaf();
                         var res = aLeaf && !bLeaf ? 1 : !aLeaf && bLeaf ? -1 : 0;
-                        if (res !== 0) return res;
-                        res = nodeA.getLabel().localeCompare(nodeB.getLabel());
-                        return res;
+                        if (res !== 0) {
+                            return res;
+                        } else {
+                            return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, { numeric: true });
+                        }
                     };
                 } else {
                     sortFunction = function (a, b) {
                         if (a.parent) {
                             return -1;
                         }
-                        var aMeta = a.node.getMetadata().get(attribute) || "";
-                        var bMeta = b.node.getMetadata().get(attribute) || "";
+                        if (b.parent) {
+                            return 1;
+                        }
                         var res = undefined;
                         if (sortType === 'number') {
+                            var aMeta = a.node.getMetadata().get(attribute) || 0;
+                            var bMeta = b.node.getMetadata().get(attribute) || 0;
                             aMeta = parseFloat(aMeta);
                             bMeta = parseFloat(bMeta);
                             res = direction === 'asc' ? aMeta - bMeta : bMeta - aMeta;
                         } else if (sortType === 'string') {
+                            var aMeta = a.node.getMetadata().get(attribute) || "";
+                            var bMeta = b.node.getMetadata().get(attribute) || "";
                             res = direction === 'asc' ? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta);
                         }
                         if (res === 0) {
                             // Resort by label to make it stable
-                            var labComp = a.node.getLabel().localeCompare(b.node.getLabel());
+                            var labComp = a.node.getLabel().localeCompare(b.node.getLabel(), undefined, { numeric: true });
                             res = direction === 'asc' ? labComp : -labComp;
                         }
                         return res;

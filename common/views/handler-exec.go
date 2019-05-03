@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"encoding/hex"
 	"io"
 	"io/ioutil"
 	"strings"
@@ -33,13 +34,15 @@ import (
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
-	"encoding/hex"
-
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	context2 "github.com/pydio/cells/common/utils/context"
+)
+
+var (
+	noSuchKeyString = "The specified key does not exist."
 )
 
 type Executor struct {
@@ -54,14 +57,48 @@ func (a *Executor) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilte
 
 func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 
-	resp, err := e.clientsPool.GetTreeClient().ReadNode(ctx, in, opts...)
-	if err != nil {
-		if errors.Parse(err.Error()).Code != 404 {
-			log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
+	if in.ObjectStats {
+		info, ok := GetBranchInfo(ctx, "in")
+		if !ok {
+			return nil, errors.BadRequest(VIEWS_LIBRARY_NAME, "Cannot find S3 client, did you insert a resolver middleware?")
 		}
+		writer := info.Client
+		statOpts := minio.StatObjectOptions{}
+		m := map[string]string{}
+		if meta, ok := context2.MinioMetaFromContext(ctx); ok {
+			for k, v := range meta {
+				m[k] = v
+				statOpts.Set(k, v)
+			}
+		}
+		s3Path := e.buildS3Path(info, in.Node)
+		if oi, e := writer.StatObject(info.ObjectsBucket, s3Path, statOpts); e != nil {
+			if e.Error() == noSuchKeyString {
+				e = errors.NotFound("not.found", "object not found in datasource: %s", s3Path)
+			}
+			log.Logger(ctx).Info("ReadNodeRequest/ObjectsStats Failed", zap.Any("r", in), zap.Error(e))
+			return nil, e
+		} else {
+			// Build fake node from Stats
+			out := in.Node.Clone()
+			out.Etag = oi.ETag
+			out.Size = oi.Size
+			out.MTime = oi.LastModified.Unix()
+			resp := &tree.ReadNodeResponse{Node: out}
+			return resp, nil
+		}
+	} else {
+
+		resp, err := e.clientsPool.GetTreeClient().ReadNode(ctx, in, opts...)
+		if err != nil {
+			if errors.Parse(err.Error()).Code != 404 {
+				log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
+			}
+		}
+
+		return resp, err
 	}
 
-	return resp, err
 }
 
 func (e *Executor) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {
@@ -118,21 +155,29 @@ func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, o
 		return nil, errors.BadRequest(VIEWS_LIBRARY_NAME, "Cannot find S3 client, did you insert a resolver middleware?")
 	}
 	writer := info.Client
-	if session := in.IndexationSession; session != "" {
-		m := map[string]string{}
-		if meta, ok := context2.MinioMetaFromContext(ctx); ok {
-			m = meta
+	statOpts := minio.StatObjectOptions{}
+	m := map[string]string{}
+	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
+		for k, v := range meta {
+			m[k] = v
+			statOpts.Set(k, v)
 		}
-		m["X-Pydio-Session"] = session
-		ctx = metadata.NewContext(ctx, m)
 	}
-	log.Logger(ctx).Debug("Exec.DeleteNode", in.Node.Zap(), zap.Any("ctx", ctx))
+	if session := in.IndexationSession; session != "" {
+		m["X-Pydio-Session"] = session
+	}
+	ctx = metadata.NewContext(ctx, m)
+	log.Logger(ctx).Debug("Exec.DeleteNode", in.Node.Zap())
 
 	s3Path := e.buildS3Path(info, in.Node)
-	err := writer.RemoveObjectWithContext(ctx, info.ObjectsBucket, s3Path)
 	success := true
+	var err error
+	if _, sE := writer.StatObject(info.ObjectsBucket, s3Path, statOpts); sE != nil && sE.Error() == noSuchKeyString && in.Node.IsLeaf() {
+		log.Logger(ctx).Info("Exec.DeleteNode : cannot find object in s3! Should it be removed from index?", in.Node.ZapPath())
+	}
+	err = writer.RemoveObjectWithContext(ctx, info.ObjectsBucket, s3Path)
 	if err != nil {
-		log.Logger(ctx).Error("Error while deleting node", zap.Error(err))
+		log.Logger(ctx).Error("Error while deleting in s3 "+s3Path, zap.Error(err))
 		success = false
 	}
 	return &tree.DeleteNodeResponse{Success: success}, err
@@ -229,14 +274,6 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	destBucket := destInfo.ObjectsBucket
 	srcBucket := srcInfo.ObjectsBucket
 
-	// var srcSse, destSse minio.SSEInfo
-	// if requestData.srcEncryptionMaterial != nil {
-	// 	srcSse = minio.NewSSEInfo([]byte(requestData.srcEncryptionMaterial.GetDecrypted()), "")
-	// }
-	// if requestData.destEncryptionMaterial != nil {
-	// 	destSse = minio.NewSSEInfo([]byte(requestData.destEncryptionMaterial.GetDecrypted()), "")
-	// }
-
 	fromPath := e.buildS3Path(srcInfo, from)
 	toPath := e.buildS3Path(destInfo, to)
 
@@ -260,10 +297,14 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 		_, err := destClient.CopyObject(srcBucket, fromPath, destBucket, toPath, requestData.Metadata)
 		if err != nil {
+			if err.Error() == noSuchKeyString {
+				err = errors.NotFound("object.not.found", "object was not found, this is not normal: %s", fromPath)
+			}
+			log.Logger(ctx).Error("HandlerExec: Error on CopyObject", zap.Error(err))
 			return 0, err
 		}
 		stat, _ := destClient.StatObject(destBucket, toPath, opts)
-		log.Logger(ctx).Debug("CopyObject / Same Clients", zap.Int64("written", stat.Size))
+		log.Logger(ctx).Debug("HandlerExec: CopyObject / Same Clients", zap.Int64("written", stat.Size))
 		return stat.Size, nil
 
 	} else {
@@ -276,20 +317,38 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		}
 		reader, err = srcClient.GetObjectWithContext(ctx, srcBucket, fromPath, minio.GetObjectOptions{})
 		if err != nil {
-			log.Logger(ctx).Error("CopyObject / Different Clients - Read Source Error", zap.Error(err))
+			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients - Read Source Error", zap.Error(err))
 			return 0, err
 		}
-
+		defer reader.Close()
+		if requestData.Metadata != nil {
+			if dir, o := requestData.Metadata[common.X_AMZ_META_DIRECTIVE]; o && dir == "COPY" {
+				requestData.Metadata[common.X_AMZ_META_NODE_UUID] = from.Uuid
+			}
+			// append metadata to the context as well, as it may switch to putObjectMultipart
+			ctxMeta := make(map[string]string)
+			if m, ok := context2.MinioMetaFromContext(ctx); ok {
+				ctxMeta = m
+			}
+			for k, v := range requestData.Metadata {
+				if strings.HasPrefix(k, "X-Amz-") {
+					continue
+				}
+				ctxMeta[k] = v
+			}
+			ctx = context2.WithMetadata(ctx, ctxMeta)
+		}
+		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
 		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
 		if err != nil {
-			log.Logger(ctx).Error("CopyObject / Different Clients",
+			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients",
 				zap.Error(err),
 				zap.Any("srcStat", srcStat),
 				zap.Any("srcInfo", srcInfo),
 				zap.Any("destInfo", destInfo),
 				zap.Any("to", toPath))
 		} else {
-			log.Logger(ctx).Debug("CopyObject / Different Clients", zap.Int64("written", oi))
+			log.Logger(ctx).Debug("HandlerExec: CopyObject / Different Clients", zap.Int64("written", oi))
 		}
 		return oi, err
 

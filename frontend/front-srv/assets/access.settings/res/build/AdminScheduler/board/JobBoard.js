@@ -57,6 +57,7 @@ var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
+var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
 
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
@@ -176,11 +177,17 @@ var JobBoard = (function (_React$Component) {
             };
 
             var keys = [{ name: 'ID', label: m('task.id'), hideSmall: true }, { name: 'StartTime', label: m('task.start'), useMoment: true }, { name: 'EndTime', label: m('task.end'), useMoment: true, hideSmall: true }, { name: 'Status', label: m('task.status') }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
-                    if (row.Status === 'Error') return _react2['default'].createElement(
-                        'span',
-                        { style: { fontWeight: 500, color: '#E53935' } },
-                        row.StatusMessage
-                    );else return row.StatusMessage;
+                    if (row.Status === 'Error') {
+                        return _react2['default'].createElement(
+                            'span',
+                            { style: { fontWeight: 500, color: '#E53935' } },
+                            row.StatusMessage
+                        );
+                    } else if (row.Status === 'Running') {
+                        return _react2['default'].createElement(SingleJobProgress, { pydio: pydio, jobID: row.JobID, taskID: row.ID });
+                    } else {
+                        return row.StatusMessage;
+                    }
                 } }, { name: 'Actions', label: '', style: { textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
 
             var _props2 = this.props;
@@ -203,10 +210,10 @@ var JobBoard = (function (_React$Component) {
             });
 
             var actions = [];
-            if (jobsEditable) {
-                actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
-            }
             if (!job.EventNames) {
+                if (jobsEditable) {
+                    actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
+                }
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
                         JobsStore.getInstance().controlJob(job, 'RunOnce');
                     } }));
@@ -280,7 +287,12 @@ var JobBoard = (function (_React$Component) {
                             data: running,
                             columns: keys,
                             showCheckboxes: false,
-                            emptyStateString: m('tasks.running.empty')
+                            emptyStateString: m('tasks.running.empty'),
+                            onSelectRows: function (rows) {
+                                if (rows.length === 1 && running.length) {
+                                    _this3.setState({ taskLogs: rows[0] });
+                                }
+                            }
                         })
                     ),
                     _react2['default'].createElement(AdminComponents.SubHeader, {

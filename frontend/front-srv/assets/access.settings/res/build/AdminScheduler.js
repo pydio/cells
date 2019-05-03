@@ -65,13 +65,22 @@ var Dashboard = _react2['default'].createClass({
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
-    eventsNames: {
+    nodeEventsNames: {
         '0': 'trigger.create.node',
         '1': 'trigger.read.node',
         '2': 'trigger.update.path',
         '3': 'trigger.update.content',
         '4': 'trigger.update.metadata',
         '5': 'trigger.delete.node'
+    },
+
+    userEventsNames: {
+        '0': 'trigger.create.user',
+        '1': 'trigger.read.user',
+        '2': 'trigger.update.user',
+        '3': 'trigger.delete.user',
+        '4': 'trigger.bind.user',
+        '5': 'trigger.logout.user'
     },
 
     getInitialState: function getInitialState() {
@@ -135,9 +144,19 @@ var Dashboard = _react2['default'].createClass({
             }
         }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+        this._poll = setInterval(function () {
+            if (_this3.state && _this3.state.selectJob) {
+                _this3.loadOne(_this3.state.selectJob, true);
+            } else {
+                _this3.load(true);
+            }
+        }, 10000);
     },
 
     componentWillUnmount: function componentWillUnmount() {
+        if (this._poll) {
+            clearInterval(this._poll);
+        }
         JobsStore.getInstance().stopObserving("tasks_updated");
     },
 
@@ -230,7 +249,9 @@ var Dashboard = _react2['default'].createClass({
                 data.TriggerValue = 2;
                 data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(function (e) {
                     if (e.indexOf('NODE_CHANGE:') === 0) {
-                        return m(_this5.eventsNames[e.replace('NODE_CHANGE:', '')]);
+                        return m(_this5.nodeEventsNames[e.replace('NODE_CHANGE:', '')]);
+                    } else if (e.indexOf('IDM_CHANGE:USER:') === 0) {
+                        return m(_this5.userEventsNames[e.replace('IDM_CHANGE:USER:', '')]);
                     } else {
                         return e;
                     }
@@ -452,6 +473,7 @@ var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
+var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
 
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
@@ -571,11 +593,17 @@ var JobBoard = (function (_React$Component) {
             };
 
             var keys = [{ name: 'ID', label: m('task.id'), hideSmall: true }, { name: 'StartTime', label: m('task.start'), useMoment: true }, { name: 'EndTime', label: m('task.end'), useMoment: true, hideSmall: true }, { name: 'Status', label: m('task.status') }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
-                    if (row.Status === 'Error') return _react2['default'].createElement(
-                        'span',
-                        { style: { fontWeight: 500, color: '#E53935' } },
-                        row.StatusMessage
-                    );else return row.StatusMessage;
+                    if (row.Status === 'Error') {
+                        return _react2['default'].createElement(
+                            'span',
+                            { style: { fontWeight: 500, color: '#E53935' } },
+                            row.StatusMessage
+                        );
+                    } else if (row.Status === 'Running') {
+                        return _react2['default'].createElement(SingleJobProgress, { pydio: pydio, jobID: row.JobID, taskID: row.ID });
+                    } else {
+                        return row.StatusMessage;
+                    }
                 } }, { name: 'Actions', label: '', style: { textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
 
             var _props2 = this.props;
@@ -598,10 +626,10 @@ var JobBoard = (function (_React$Component) {
             });
 
             var actions = [];
-            if (jobsEditable) {
-                actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
-            }
             if (!job.EventNames) {
+                if (jobsEditable) {
+                    actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
+                }
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
                         JobsStore.getInstance().controlJob(job, 'RunOnce');
                     } }));
@@ -675,7 +703,12 @@ var JobBoard = (function (_React$Component) {
                             data: running,
                             columns: keys,
                             showCheckboxes: false,
-                            emptyStateString: m('tasks.running.empty')
+                            emptyStateString: m('tasks.running.empty'),
+                            onSelectRows: function (rows) {
+                                if (rows.length === 1 && running.length) {
+                                    _this3.setState({ taskLogs: rows[0] });
+                                }
+                            }
                         })
                     ),
                     _react2['default'].createElement(AdminComponents.SubHeader, {
@@ -1212,12 +1245,17 @@ var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
+var _lodashDebounce = require('lodash.debounce');
+
+var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
+
 var _Pydio$requireLib = _pydio2["default"].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
 
 var _Pydio$requireLib2 = _pydio2["default"].requireLib('boot');
 
+var JobsStore = _Pydio$requireLib2.JobsStore;
 var moment = _Pydio$requireLib2.moment;
 
 var TaskActivity = (function (_React$Component) {
@@ -1233,7 +1271,23 @@ var TaskActivity = (function (_React$Component) {
     _createClass(TaskActivity, [{
         key: "componentDidMount",
         value: function componentDidMount() {
+            var _this = this;
+
             this.loadActivity(this.props);
+            this._loadDebounced = (0, _lodashDebounce2["default"])(function (jobId) {
+                console.log(jobId, _this.props);
+                if (jobId && _this.props.task && _this.props.task.JobID === jobId) {
+                    _this.loadActivity(_this.props);
+                }
+            }, 500);
+            JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+        }
+    }, {
+        key: "componentWillUnmount",
+        value: function componentWillUnmount() {
+            if (this._loadDebounced) {
+                JobsStore.getInstance().stopObserving("tasks_updated", this._loadDebounced);
+            }
         }
     }, {
         key: "componentWillReceiveProps",
@@ -1248,7 +1302,7 @@ var TaskActivity = (function (_React$Component) {
     }, {
         key: "loadActivity",
         value: function loadActivity(props) {
-            var _this = this;
+            var _this2 = this;
 
             var task = props.task;
 
@@ -1265,9 +1319,9 @@ var TaskActivity = (function (_React$Component) {
             request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
             this.setState({ loading: true });
             api.listTasksLogs(request).then(function (response) {
-                _this.setState({ activity: response.Logs || [], loading: false });
+                _this2.setState({ activity: response.Logs || [], loading: false });
             })["catch"](function () {
-                _this.setState({ activity: [], loading: false });
+                _this2.setState({ activity: [], loading: false });
             });
         }
     }, {
@@ -1285,7 +1339,7 @@ var TaskActivity = (function (_React$Component) {
                 } }, { name: 'Msg', label: pydio.MessageHash['ajxp_admin.logs.message'] }];
             return _react2["default"].createElement(
                 "div",
-                { style: { height: 600 } },
+                { style: { height: 400 } },
                 _react2["default"].createElement(MaterialTable, {
                     columns: columns,
                     data: activity,
@@ -1302,7 +1356,7 @@ var TaskActivity = (function (_React$Component) {
 exports["default"] = TaskActivity;
 module.exports = exports["default"];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],5:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],5:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

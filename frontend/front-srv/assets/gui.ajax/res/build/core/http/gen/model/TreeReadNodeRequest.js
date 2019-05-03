@@ -46,6 +46,7 @@ var TreeReadNodeRequest = (function () {
         this.Node = undefined;
         this.WithCommits = undefined;
         this.WithExtendedStats = undefined;
+        this.ObjectStats = undefined;
     }
 
     /**
@@ -69,6 +70,9 @@ var TreeReadNodeRequest = (function () {
             if (data.hasOwnProperty('WithExtendedStats')) {
                 obj['WithExtendedStats'] = _ApiClient2['default'].convertToType(data['WithExtendedStats'], 'Boolean');
             }
+            if (data.hasOwnProperty('ObjectStats')) {
+                obj['ObjectStats'] = _ApiClient2['default'].convertToType(data['ObjectStats'], 'Boolean');
+            }
         }
         return obj;
     };
@@ -88,4 +92,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} WithExtendedStats
+*/
+
+/**
+* @member {Boolean} ObjectStats
 */

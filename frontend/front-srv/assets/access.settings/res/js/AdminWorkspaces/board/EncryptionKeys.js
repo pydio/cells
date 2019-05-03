@@ -27,9 +27,7 @@ class EncryptionKeys extends React.Component{
     load() {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.listEncryptionKeys(new EncryptionAdminListKeysRequest()).then(result => {
-            if(result.Keys){
-                this.setState({keys : result.Keys});
-            }
+            this.setState({keys : result.Keys || []});
         })
     }
 

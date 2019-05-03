@@ -24,6 +24,7 @@ package grpc
 import (
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/common/proto/jobs"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
@@ -38,9 +39,9 @@ func init() {
 			service.Description("Tasks are running jobs dispatched on multiple workers"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
 			service.WithMicro(func(m micro.Service) error {
+				jobs.RegisterTaskServiceHandler(m.Options().Server, new(Handler))
 				multiplexer := tasks.NewSubscriber(m.Options().Context, m.Options().Client, m.Options().Server)
 				multiplexer.Init()
-
 				return nil
 			}),
 		)

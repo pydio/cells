@@ -16,9 +16,14 @@ service NodeProviderStreamer{
 
 // Request / Responses Messages
 message ReadNodeRequest {
+    // Input node
     Node Node = 1;
+    // Gather commit information
     bool WithCommits = 2;
+    // Get extended stats - For folders, computes ChildrenCount
     bool WithExtendedStats = 3;
+    // Used internally for the router ReadNode request, stat the datasource instead of index
+    bool ObjectStats = 4;
 }
 
 message ReadNodeResponse {
@@ -386,13 +391,23 @@ message NodeChangeEvent{
         UPDATE_PATH = 2;
         UPDATE_CONTENT = 3;
         UPDATE_META = 4;
+        UPDATE_USER_META = 6;
         DELETE = 5;
     }
     EventType Type = 1;
     Node Source = 2;
     Node Target = 3;
+    bool Silent = 4;
+    bool Optimistic = 5;
 }
 
+message IndexEvent {
+    bool ErrorDetected = 1;
+    string DataSourceName = 2;
+    string ErrorPath = 3;
+
+    string SessionForceClose = 4;
+}
 
 
 // ==========================================================

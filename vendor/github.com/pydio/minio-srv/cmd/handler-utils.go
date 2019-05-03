@@ -157,6 +157,9 @@ func extractMetadataFromMap(ctx context.Context, v map[string][]string, m map[st
 			if !strings.HasPrefix(strings.ToLower(key), strings.ToLower(prefix)) {
 				continue
 			}
+			if key == "X-Amz-Meta-X-Pydio-Session" || key == "X-Amz-Meta-X-Pydio-Move" {
+				continue
+			}
 			value, ok := v[key]
 			if ok {
 				m[key] = strings.Join(value, ",")
@@ -204,6 +207,14 @@ func extractReqParams(r *http.Request) map[string]string {
 		for k, v := range pydioMeta {
 			meta[k] = v
 		}
+	}
+	if sess := r.Header.Get("X-Amz-Meta-X-Pydio-Session"); sess != "" {
+		meta["X-Pydio-Session"] = sess
+	}
+	if sess := r.Header.Get("X-Amz-Meta-X-Pydio-Move"); sess != "" {
+		meta["X-Pydio-Move"] = sess
+	} else if sess := r.Header.Get("X-Pydio-Move"); sess != "" {
+		meta["X-Pydio-Move"] = sess
 	}
 	return meta
 }

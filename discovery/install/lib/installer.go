@@ -23,15 +23,22 @@ package lib
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"go.uber.org/zap"
 
-	"encoding/json"
-
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
+)
+
+const (
+	INSTALL_ALL = 1 << iota
+	INSTALL_DB
+	INSTALL_DS
+	INSTALL_CONFIG
+	INSTALL_FRONTEND
 )
 
 type InstallProgressEvent struct {
@@ -39,35 +46,42 @@ type InstallProgressEvent struct {
 	Message  string
 }
 
-func Install(ctx context.Context, c *install.InstallConfig, publisher func(event *InstallProgressEvent)) error {
+func Install(ctx context.Context, c *install.InstallConfig, flags byte, publisher func(event *InstallProgressEvent)) error {
 
 	log.Logger(ctx).Info("Starting installation now", zap.String("bindUrl", c.InternalUrl))
 
-	if err := actionDatabaseAdd(c); err != nil {
-		log.Logger(ctx).Error("Error while adding database", zap.Error(err))
-		return err
+	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_DB) != 0 {
+		if err := actionDatabaseAdd(c); err != nil {
+			log.Logger(ctx).Error("Error while adding database", zap.Error(err))
+			return err
+		}
+		publisher(&InstallProgressEvent{Message: "Created main database", Progress: 30})
 	}
-	publisher(&InstallProgressEvent{Message: "Created main database", Progress: 30})
 
-	if err := actionDatasourceAdd(c); err != nil {
-		log.Logger(ctx).Error("Error while adding datasource", zap.Error(err))
-		return err
+	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_DS) != 0 {
+		if err := actionDatasourceAdd(c); err != nil {
+			log.Logger(ctx).Error("Error while adding datasource", zap.Error(err))
+			return err
+		}
+		publisher(&InstallProgressEvent{Message: "Created default datasources", Progress: 60})
 	}
-	publisher(&InstallProgressEvent{Message: "Created default datasources", Progress: 60})
 
-	c.ExternalFrontPlugins = fmt.Sprintf("%d", utils.GetAvailablePort())
-	if err := actionConfigsSet(c); err != nil {
-		log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
-		return err
+	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_CONFIG) != 0 {
+		c.ExternalFrontPlugins = fmt.Sprintf("%d", net.GetAvailablePort())
+		if err := actionConfigsSet(c); err != nil {
+			log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
+			return err
+		}
+		publisher(&InstallProgressEvent{Message: "Configuration of gateway services", Progress: 80})
 	}
-	publisher(&InstallProgressEvent{Message: "Configuration of gateway services", Progress: 80})
 
-	if err := actionFrontendsAdd(c); err != nil {
-		log.Logger(ctx).Error("Error while creating logs directory", zap.Error(err))
-		return err
+	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_FRONTEND) != 0 {
+		if err := actionFrontendsAdd(c); err != nil {
+			log.Logger(ctx).Error("Error while creating logs directory", zap.Error(err))
+			return err
+		}
+		publisher(&InstallProgressEvent{Message: "Creation of logs directory", Progress: 99})
 	}
-	publisher(&InstallProgressEvent{Message: "Creation of logs directory", Progress: 99})
-
 	return nil
 
 }

@@ -41,6 +41,9 @@
   "PolicyGroup.LoggedUsers.Rule3": {
     "other": "Benutzer-Meta verhindern das Löschen von Tags"
   },
+  "PolicyGroup.LoggedUsers.Rule4": {
+    "other": "Standard-Benutzer können Arbeitsumgebung nicht erstellen/löschen"
+  },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect-Vorgänge"
   },

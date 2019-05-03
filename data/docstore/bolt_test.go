@@ -25,6 +25,8 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/common/proto/docstore"
 )
 
 func TestNewBoltStore(t *testing.T) {
@@ -36,10 +38,17 @@ func TestNewBoltStore(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(bs, ShouldNotBeNil)
 
+		bs.PutDocument("mystore", &docstore.Document{ID: "1", Data: "Data"})
+		stores, e := bs.ListStores()
+		So(e, ShouldBeNil)
+		So(stores, ShouldHaveLength, 1)
+		So(stores[0], ShouldEqual, "mystore")
+
 		e = bs.Close()
 		So(e, ShouldBeNil)
 		stat, _ := os.Stat(p)
 		So(stat, ShouldBeNil)
 
 	})
+
 }

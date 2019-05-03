@@ -88,8 +88,9 @@ var CompressionDialog = React.createClass({
         var buff = base;
         while (this.props.userSelection.fileNameExists(result + '.' + extension, true)) {
             if (index > 0) {
-                result = buff + "-" + index;index++;
+                result = buff + "-" + index;
             }
+            index++;
         }
         return result;
     },
@@ -199,8 +200,7 @@ var Callbacks = (function () {
                 });
                 // will be computed automatically
                 var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
-                console.log('Sending background job', job);
-                api.userCreateJob("compress", job);
+                api.userCreateJob("extract", job);
             }
         }
     }]);

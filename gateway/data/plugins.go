@@ -26,15 +26,16 @@ import (
 	"fmt"
 	"os"
 
+	minio "github.com/pydio/minio-srv/cmd"
+	"github.com/pydio/minio-srv/cmd/gateway/pydio"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
-	minio "github.com/pydio/minio-srv/cmd"
-	"github.com/pydio/minio-srv/cmd/gateway/pydio"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 type logger struct {
@@ -56,7 +57,7 @@ func (l *logger) Audit(entry interface{}) {
 func init() {
 
 	plugins.Register(func() {
-		port := utils.GetAvailablePort()
+		port := net.GetAvailablePort()
 		service.NewService(
 			service.Name(common.SERVICE_GATEWAY_DATA),
 			service.Tag(common.SERVICE_TAG_GATEWAY),

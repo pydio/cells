@@ -37,6 +37,7 @@ export default function (pydio) {
             if (r.RestoreJobs && r.RestoreJobs.length){
                 nodes.forEach(n => {
                     n.getMetadata().set('pending_operation', r.RestoreJobs[0].Label);
+                    n.getMetadata().set('pending_operation_uuid', r.RestoreJobs[0].Uuid);
                     n.notify('meta_replaced', n);
                 })
             }

@@ -24,12 +24,17 @@ package dav
 import (
 	"context"
 
-	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/views"
+)
+
+var (
+	davRouter *views.Router
 )
 
 func init() {
@@ -48,10 +53,14 @@ func init() {
 						return nil
 					}), nil
 			}, func(s service.Service) (micro.Option, error) {
+
 				srv := defaults.NewHTTPServer()
-
-				handler := newHandler(s.Options().Context)
-
+				davRouter = views.NewStandardRouter(views.RouterOptions{
+					WatchRegistry: true,
+					AuditEvent:    true,
+					Synchronous:   true,
+				})
+				handler := newHandler(s.Options().Context, davRouter)
 				err := srv.Handle(srv.NewHandler(handler))
 				if err != nil {
 					return nil, err

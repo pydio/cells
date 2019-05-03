@@ -27,17 +27,22 @@ package grpc
 
 import (
 	"context"
+	"time"
 
 	"github.com/micro/go-micro"
+
 	"github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	proto "github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils/meta"
 )
 
 var (
@@ -62,15 +67,24 @@ func init() {
 			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 				m.Init(
-					micro.Metadata(map[string]string{"MetaProvider": "stream"}),
+					micro.Metadata(map[string]string{meta.ServiceMetaProvider: "stream"}),
 				)
-
+				dao := servicecontext.GetDAO(m.Options().Context).(activity.DAO)
 				// Register Subscribers
-				subscriber := &MicroEventsSubscriber{
-					client: tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
+				subscriber := NewEventsSubscriber(dao)
+				s := m.Options().Server
+				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_TREE_CHANGES, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
+					if msg.Optimistic {
+						return nil
+					}
+					return subscriber.HandleNodeChange(ctx, msg)
+				})); err != nil {
+					return err
 				}
 
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, subscriber)); err != nil {
+				if err := s.Subscribe(s.NewSubscriber(common.TOPIC_IDM_EVENT, func(ctx context.Context, msg *idm.ChangeEvent) error {
+					return subscriber.HandleIdmChange(ctx, msg)
+				})); err != nil {
 					return err
 				}
 
@@ -105,8 +119,10 @@ func RegisterDigestJob(ctx context.Context) error {
 		},
 	}
 
-	cliJob := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
-	_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
-	return e
+	return service.Retry(func() error {
+		cliJob := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		return e
+	}, 5*time.Second, 20*time.Second)
 
 }

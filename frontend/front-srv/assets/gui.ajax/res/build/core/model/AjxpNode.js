@@ -275,9 +275,11 @@ var AjxpNode = (function (_Observable) {
      */
 
     AjxpNode.prototype.replaceBy = function replaceBy(ajxpNode, metaMerge) {
+        var _this = this;
+
         this._isLeaf = ajxpNode._isLeaf;
         var pathChanged = false;
-        if (ajxpNode.getPath() && this._path != ajxpNode.getPath()) {
+        if (ajxpNode.getPath() && this._path !== ajxpNode.getPath()) {
             var originalPath = this._path;
             if (this.getParent()) {
                 var parentChildrenIndex = this.getParent()._children;
@@ -300,9 +302,11 @@ var AjxpNode = (function (_Observable) {
         this._isLoaded = ajxpNode._isLoaded;
         this.fake = ajxpNode.fake;
         var meta = ajxpNode.getMetadata();
-        if (metaMerge == "override") this._metadata = new Map();
+        if (metaMerge === "override") {
+            this._metadata = new Map();
+        }
         meta.forEach((function (value, key) {
-            if (metaMerge == "override") {
+            if (metaMerge === "override") {
                 this._metadata.set(key, value);
             } else {
                 if (this._metadata.has(key) && value === "") {
@@ -312,14 +316,15 @@ var AjxpNode = (function (_Observable) {
             }
         }).bind(this));
         if (pathChanged && !this._isLeaf && this.getChildren().size) {
-            window.setTimeout((function () {
-                this.reload(this._iNodeProvider);
-            }).bind(this), 100);
-            return;
+            this.getChildren().forEach(function (c) {
+                _this.removeChild(c);
+            });
+            this.setLoaded(false);
+        } else {
+            ajxpNode.getChildren().forEach(function (child) {
+                _this.addChild(child);
+            });
         }
-        ajxpNode.getChildren().forEach((function (child) {
-            this.addChild(child);
-        }).bind(this));
         this.notify("node_replaced", this);
     };
 

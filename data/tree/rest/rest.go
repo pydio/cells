@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	"github.com/emicklei/go-restful"
+	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -41,8 +42,8 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	rest_meta "github.com/pydio/cells/data/meta/rest"
 	"github.com/pydio/cells/data/templates"
@@ -171,7 +172,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 		return
 	}
 	ctx := req.Request.Context()
-	username, _ := utils.FindUserNameInContext(ctx)
+	username, _ := permissions.FindUserNameInContext(ctx)
 	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	output := &rest.DeleteNodesResponse{}
@@ -186,7 +187,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			service.RestErrorDetect(req, resp, er)
 			return
 		}
-		if eLock := utils.CheckContentLock(ctx, read.Node); eLock != nil {
+		if eLock := permissions.CheckContentLock(ctx, read.Node); eLock != nil {
 			service.RestErrorDetect(req, resp, eLock)
 			return
 		}
@@ -195,6 +196,10 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			_, ancestors, e := views.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(), false)
 			if e != nil {
 				return e
+			}
+			accessList := ctx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			if !accessList.CanWrite(ctx, ancestors...) {
+				return errors.Forbidden("node.not.writeable", "Node is not writable")
 			}
 			if sourceInRecycle(ctx, filtered, ancestors) {
 				// Now, this is a real delete!
@@ -254,9 +259,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			}
 		}
 
-		jobUuid := uuid.New()
+		jobUuid := "copy-move-" + uuid.New()
 		job := &jobs.Job{
-			ID:             "copy-move-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          username,
 			Label:          moveLabel,
 			Inactive:       false,
@@ -295,9 +300,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	if len(deleteJobs.RealDeletes) > 0 {
 
 		taskLabel := T("Jobs.User.Delete")
-		jobUuid := uuid.New()
+		jobUuid := "delete-" + uuid.New()
 		job := &jobs.Job{
-			ID:             "delete-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          username,
 			Label:          taskLabel,
 			Inactive:       false,
@@ -339,7 +344,7 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 		return
 	}
 	ctx := req.Request.Context()
-	username, _ := utils.FindUserNameInContext(ctx)
+	username, _ := permissions.FindUserNameInContext(ctx)
 	selectionUuid := uuid.New()
 	dcClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	data, _ := json.Marshal(input.Nodes)
@@ -373,7 +378,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	}
 	output := &rest.RestoreNodesResponse{}
 	ctx := req.Request.Context()
-	username, _ := utils.FindUserNameInContext(ctx)
+	username, _ := permissions.FindUserNameInContext(ctx)
 	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	moveLabel := T("Jobs.User.DirMove")
@@ -399,7 +404,15 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 			} else {
 				moveLabel = T("Jobs.User.DirMove")
 			}
-
+			targetNode := &tree.Node{Path: originalFullPath}
+			_, ancestors, e := views.AncestorsListFromContext(ctx, targetNode, "in", router.GetClientsPool(), true)
+			if e != nil {
+				return e
+			}
+			accessList := ctx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			if !accessList.CanWrite(ctx, ancestors...) {
+				return errors.Forbidden("node.not.writeable", "Original location is not writable")
+			}
 			log.Logger(ctx).Info("Should restore node", zap.String("from", currentFullPath), zap.String("to", originalFullPath))
 			jobUuid := uuid.New()
 			job := &jobs.Job{

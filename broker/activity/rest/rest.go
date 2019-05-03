@@ -39,8 +39,8 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -108,7 +108,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 	}
 
 	var collection []*activity.Object
-	accessList, err := utils.AccessListFromContextClaims(ctx)
+	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if len(accessList.Workspaces) == 0 || err != nil {
 		// Return Empty collection
 		rsp.WriteEntity(activity2.Collection(collection))

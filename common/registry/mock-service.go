@@ -112,3 +112,6 @@ func (m *mockService) BeforeInit() error {
 func (m *mockService) AfterInit() error {
 	return nil
 }
+func (m *mockService) DAO() interface{} {
+	return nil
+}

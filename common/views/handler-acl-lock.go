@@ -25,7 +25,7 @@ import (
 	"io"
 
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type AclLockFilter struct {
@@ -37,7 +37,7 @@ func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader i
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
 		return a.next.PutObject(ctx, node, reader, requestData)
 	}
-	if err := utils.CheckContentLock(ctx, node); err != nil {
+	if err := permissions.CheckContentLock(ctx, node); err != nil {
 		return 0, err
 	}
 	return a.next.PutObject(ctx, node, reader, requestData)
@@ -47,7 +47,7 @@ func (a *AclLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, 
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
 		return a.next.MultipartCreate(ctx, target, requestData)
 	}
-	if err := utils.CheckContentLock(ctx, target); err != nil {
+	if err := permissions.CheckContentLock(ctx, target); err != nil {
 		return "", err
 	}
 	return a.next.MultipartCreate(ctx, target, requestData)

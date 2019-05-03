@@ -22146,7 +22146,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -22224,6 +22224,7 @@ var DataSourcesBoard = (function (_React$Component) {
             importResult: null,
             keyOperationError: null,
             startedServices: [],
+            peerAddresses: [],
             m: function m(id) {
                 return props.pydio.MessageHash["ajxp_admin.ds." + id] || id;
             }
@@ -22235,9 +22236,13 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function componentDidMount() {
             var _this = this;
 
+            var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
             this.statusPoller = setInterval(function () {
                 _modelDataSource2['default'].loadStatuses().then(function (data) {
                     _this.setState({ startedServices: data.Services });
+                });
+                api.listPeersAddresses().then(function (res) {
+                    _this.setState({ peerAddresses: res.PeerAddresses || [] });
                 });
             }, 2500);
             this.load();
@@ -22252,7 +22257,13 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function load() {
             var _this2 = this;
 
-            this.setState({ dsLoaded: false, versionsLoaded: false });
+            var newDsName = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+            this.setState({
+                dsLoaded: false,
+                versionsLoaded: false,
+                newDsName: newDsName
+            });
             _modelDataSource2['default'].loadDatasources().then(function (data) {
                 _this2.setState({ dataSources: data.DataSources || [], dsLoaded: true });
             });
@@ -22293,9 +22304,13 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'computeStatus',
         value: function computeStatus(dataSource) {
+            var _this3 = this;
+
             var _state = this.state;
             var startedServices = _state.startedServices;
+            var peerAddresses = _state.peerAddresses;
             var m = _state.m;
+            var newDsName = _state.newDsName;
 
             if (!startedServices.length) {
                 return m('status.na');
@@ -22313,12 +22328,37 @@ var DataSourcesBoard = (function (_React$Component) {
                 }
             });
             if (index && sync && object) {
-                return m('status.ok');
+                if (newDsName && dataSource.Name === newDsName) {
+                    setTimeout(function () {
+                        _this3.setState({ newDsName: null });
+                    }, 100);
+                }
+                return _react2['default'].createElement(
+                    'span',
+                    { style: { color: '#1b5e20' } },
+                    _react2['default'].createElement('span', { className: "mdi mdi-check" }),
+                    ' ',
+                    m('status.ok')
+                );
+            } else if (newDsName && dataSource.Name === newDsName) {
+                return _react2['default'].createElement(
+                    'span',
+                    { style: { color: '#ef6c00' } },
+                    _react2['default'].createElement('span', { className: "mdi mdi-timer-sand" }),
+                    ' ',
+                    m('status.starting')
+                );
             } else if (!index && !sync && !object) {
+                var koMessage = m('status.ko');
+                if (peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1) {
+                    koMessage = m('status.ko-peers').replace('%s', dataSource.PeerAddress);
+                }
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#e53935' } },
-                    m('status.ko')
+                    _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
+                    ' ',
+                    koMessage
                 );
             } else {
                 var services = [];
@@ -22334,6 +22374,8 @@ var DataSourcesBoard = (function (_React$Component) {
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#e53935' } },
+                    _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
+                    ' ',
                     services.join(' - ')
                 );
             }
@@ -22396,7 +22438,7 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var _state2 = this.state;
             var dataSources = _state2.dataSources;
@@ -22411,7 +22453,15 @@ var DataSourcesBoard = (function (_React$Component) {
             var pydio = _props2.pydio;
             var versioningReadonly = _props2.versioningReadonly;
 
-            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15 } }, { name: 'StorageType', label: m('storage'), renderCell: function renderCell(row) {
+            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '20%' }, headerStyle: { width: '20%' } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
+                    return row.Disabled ? _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#757575' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle-outline" }),
+                        ' ',
+                        m('status.disabled')
+                    ) : _this4.computeStatus(row);
+                } }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '20%' }, headerStyle: { width: '20%' }, renderCell: function renderCell(row) {
                     var s = 'storage.fs';
                     switch (row.StorageType) {
                         case "S3":
@@ -22427,26 +22477,24 @@ var DataSourcesBoard = (function (_React$Component) {
                             break;
                     }
                     return m(s);
-                } }, { name: 'Status', label: m('status'), hideSmall: true, renderCell: function renderCell(row) {
-                    return row.Disabled ? m('status.disabled') : _this3.computeStatus(row);
-                } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, renderCell: function renderCell(row) {
-                    return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
-                } }, { name: 'VersioningPolicyName', label: m('versioning'), hideSmall: true, renderCell: function renderCell(row) {
+                } }, { name: 'VersioningPolicyName', label: m('versioning'), style: { width: '15%' }, headerStyle: { width: '15%' }, hideSmall: true, renderCell: function renderCell(row) {
                     var pol = versioningPolicies.find(function (obj) {
                         return obj.Uuid === row['VersioningPolicyName'];
                     });
                     if (pol) {
                         return pol.Name;
                     } else {
-                        return row['VersioningPolicyName'];
+                        return row['VersioningPolicyName'] || '-';
                     }
+                } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%' }, renderCell: function renderCell(row) {
+                    return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
                 } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
             var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) })];
             if (!versioningReadonly) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
-                        _this3.openVersionPolicy();
+                        _this4.openVersionPolicy();
                     } }));
             }
             var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
@@ -22586,9 +22634,7 @@ var EncryptionKeys = (function (_React$Component) {
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.listEncryptionKeys(new _pydioHttpRestApi.EncryptionAdminListKeysRequest()).then(function (result) {
-                if (result.Keys) {
-                    _this.setState({ keys: result.Keys });
-                }
+                _this.setState({ keys: result.Keys || [] });
             });
         }
     }, {
@@ -23215,7 +23261,7 @@ var VirtualNodes = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                { className: 'vertical-layout workspaces-list layout-fill' },
+                { className: 'vertical-layout workspaces-list layout-fill', style: { height: '100%' } },
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: m('title'),
                     icon: "mdi mdi-help-network",
@@ -23249,20 +23295,24 @@ var VirtualNodes = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: 20, paddingBottom: 0 } },
-                    m('legend.1'),
-                    _react2['default'].createElement('br', null),
-                    !readonly && _react2['default'].createElement(
-                        'span',
-                        null,
-                        m('legend.2')
+                    { className: "layout-fill", style: { overflowY: 'auto' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 20, paddingBottom: 0 } },
+                        m('legend.1'),
+                        _react2['default'].createElement('br', null),
+                        !readonly && _react2['default'].createElement(
+                            'span',
+                            null,
+                            m('legend.2')
+                        )
+                    ),
+                    nodesLoaded && dataSourcesLoaded && vNodes,
+                    (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
+                        'div',
+                        { style: { margin: 16, textAlign: 'center', padding: 20 } },
+                        pydio.MessageHash['ajxp_admin.home.6']
                     )
-                ),
-                nodesLoaded && dataSourcesLoaded && vNodes,
-                (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
-                    'div',
-                    { style: { margin: 16, textAlign: 'center', padding: 20 } },
-                    pydio.MessageHash['ajxp_admin.home.6']
                 )
             );
         }
@@ -23762,9 +23812,20 @@ var DataSourceEditor = (function (_React$Component) {
         value: function saveSource() {
             var _this5 = this;
 
+            var _state = this.state;
+            var observable = _state.observable;
+            var create = _state.create;
+
             this.state.observable.saveSource().then(function () {
+                var newDsName = null;
+                if (create) {
+                    newDsName = observable.getModel().Name;
+                }
                 _this5.setState({ valid: true, dirty: false, create: false });
-                _this5.props.reloadList();
+                if (create) {
+                    _this5.props.closeEditor();
+                }
+                _this5.props.reloadList(newDsName);
             });
         }
     }, {
@@ -23784,9 +23845,14 @@ var DataSourceEditor = (function (_React$Component) {
     }, {
         key: 'confirmEncryption',
         value: function confirmEncryption(value) {
-            var model = this.state.model;
+            var _state2 = this.state;
+            var model = _state2.model;
+            var encryptionKeys = _state2.encryptionKeys;
 
             model.EncryptionMode = value ? "MASTER" : "CLEAR";
+            if (value && !model.EncryptionKey && encryptionKeys && encryptionKeys.length) {
+                model.EncryptionKey = encryptionKeys[0].ID;
+            }
             this.setState({ showDialog: false, dialogTargetValue: null });
         }
     }, {
@@ -23794,16 +23860,18 @@ var DataSourceEditor = (function (_React$Component) {
         value: function render() {
             var _this6 = this;
 
-            var storageTypes = this.props.storageTypes;
-            var _state = this.state;
-            var model = _state.model;
-            var create = _state.create;
-            var observable = _state.observable;
-            var encryptionKeys = _state.encryptionKeys;
-            var versioningPolicies = _state.versioningPolicies;
-            var showDialog = _state.showDialog;
-            var dialogTargetValue = _state.dialogTargetValue;
-            var m = _state.m;
+            var _props = this.props;
+            var storageTypes = _props.storageTypes;
+            var pydio = _props.pydio;
+            var _state3 = this.state;
+            var model = _state3.model;
+            var create = _state3.create;
+            var observable = _state3.observable;
+            var encryptionKeys = _state3.encryptionKeys;
+            var versioningPolicies = _state3.versioningPolicies;
+            var showDialog = _state3.showDialog;
+            var dialogTargetValue = _state3.dialogTargetValue;
+            var m = _state3.m;
 
             var titleActionBarButtons = [];
             if (!create) {
@@ -23932,6 +24000,8 @@ var DataSourceEditor = (function (_React$Component) {
             if (model.StorageType && !storageData[model.StorageType]) {
                 storageData[model.StorageType] = storages[model.StorageType];
             }
+
+            var cannotEnableEnc = model.EncryptionMode !== 'MASTER' && (!encryptionKeys || !encryptionKeys.length);
 
             return _react2['default'].createElement(
                 PydioComponents.PaperEditorLayout,
@@ -24116,9 +24186,10 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('enc'), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState'] + ')' : ''), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
                                 _this6.toggleEncryption(v);
-                            } })
+                            },
+                            disabled: cannotEnableEnc })
                     ),
                     model.EncryptionMode === "MASTER" && _react2['default'].createElement(
                         _materialUi.SelectField,
@@ -24300,6 +24371,23 @@ var AutocompleteTree = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         { style: { color: '#c62828' } },
+                        base
+                    )
+                );
+            } else if (node.MetaStore && node.MetaStore['symlink']) {
+                // Symbolic link
+                label = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement(
+                        'span',
+                        null,
+                        dir
+                    ),
+                    '/',
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#1976d2' } },
                         base
                     )
                 );
@@ -26524,7 +26612,8 @@ var DataSource = (function (_Observable) {
                         _this.internalInvalid = false;
                         target['ApiKey'] = target['ApiSecret'] = ''; // reset values
                     } else if (p === 'Name') {
-                            val = _pydioUtilLang2['default'].computeStringSlug(val).replace("-", "").substr(0, 50);
+                            // Limit Name to 33 chars
+                            val = _pydioUtilLang2['default'].computeStringSlug(val).replace("-", "").substr(0, 33);
                         } else if (p === 'folder') {
                             if (val[0] !== '/') {
                                 val = '/' + val;
@@ -26786,7 +26875,8 @@ Metadata.MetaTypes = {
     "stars_rate": "Stars Rating",
     "css_label": "Color Labels",
     "tags": "Extensible Tags",
-    "choice": "Selection"
+    "choice": "Selection",
+    "json": "JSON"
 };
 
 exports['default'] = Metadata;
@@ -26885,6 +26975,7 @@ var VirtualNode = (function (_Observable) {
             this.data.MetaStore = {
                 name: "",
                 resolution: "",
+                onDelete: "rename-uuid",
                 contentType: "text/javascript"
             };
         }

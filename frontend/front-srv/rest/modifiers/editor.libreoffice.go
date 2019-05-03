@@ -52,6 +52,7 @@ func init() {
 	plugins.Register(func() {
 		caddy.RegisterPluginTemplate(
 			caddy.TemplateFunc(play),
+			[]string{"frontend", "plugin", "editor.libreoffice"},
 			"/wopi/",
 			"/loleaflet/",
 			"/hosting/discovery",

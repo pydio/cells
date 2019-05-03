@@ -22,25 +22,30 @@
 package grpc
 
 import (
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
-
 	"context"
+
+	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	service2 "github.com/pydio/cells/common/service/proto"
+	meta2 "github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/idm/meta"
+)
+
+var (
+	Name = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER_META
 )
 
 func init() {
 	plugins.Register(func() {
 		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META),
+			service.Name(Name),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("User-defined Metadata"),
 			service.WithStorage(meta.NewDAO, "idm_usr_meta"),
@@ -53,7 +58,10 @@ func init() {
 			service.WithMicro(func(m micro.Service) error {
 				ctx := m.Options().Context
 				server := NewHandler()
-				m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
+				m.Init(micro.Metadata(map[string]string{
+					meta2.ServiceMetaProvider:   "stream",
+					meta2.ServiceMetaNsProvider: "list",
+				}))
 				m.Init(micro.BeforeStop(func() error {
 					server.Stop()
 					return nil
@@ -62,7 +70,7 @@ func init() {
 				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, server)
 
 				// Clean role on user deletion
-				cleaner := NewCleaner(server, servicecontext.GetDAO(ctx))
+				cleaner := NewCleaner(servicecontext.GetDAO(ctx))
 				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
 					return err
 				}

@@ -83,6 +83,7 @@ class CodeMirrorLoader extends React.Component {
 
         // If Code Mirror library is not loaded, do not go further
         if (!this.state.codemirrorInstance) return null
+        const {cmStyle} = this.props;
 
         return (
             <CodeMirror
@@ -94,6 +95,7 @@ class CodeMirrorLoader extends React.Component {
                 onLoad={this.onLoad}
                 onChange={this.props.onChange}
                 onCursorChange={this.props.onCursorChange}
+                cmStyle={cmStyle}
             />
         )
     }

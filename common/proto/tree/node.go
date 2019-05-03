@@ -107,7 +107,7 @@ func (node *Node) HasMetaKey(keyName string) bool {
 
 // AllMetaDeserialized unmarshall all defined metadata to JSON objects,
 // skipping reserved meta (e.g. meta that have a key prefixed by "pydio:")
-func (node *Node) AllMetaDeserialized() map[string]interface{} {
+func (node *Node) AllMetaDeserialized(excludes map[string]struct{}) map[string]interface{} {
 
 	if len(node.MetaStore) == 0 {
 		return map[string]interface{}{}
@@ -116,6 +116,11 @@ func (node *Node) AllMetaDeserialized() map[string]interface{} {
 	for k := range node.MetaStore {
 		if strings.HasPrefix(k, "pydio:") {
 			continue
+		}
+		if excludes != nil {
+			if _, x := excludes[k]; x {
+				continue
+			}
 		}
 		var data interface{}
 		node.GetMeta(k, &data)
@@ -146,39 +151,48 @@ func (node *Node) LegacyMeta(meta map[string]interface{}) {
 	}
 }
 
-/*
-type jsonMarshallableNode struct {
-	Node
-	Meta         map[string]interface{} `json:"Meta"`
-	ReadableType string                 `json:"type"`
-}
-
-// Specific JSON Marshalling for backward compatibility with previous Pydio
-// versions
-func (node *Node) MarshalJSONPB(marshaler *jsonpb.Marshaler) ([]byte, error) {
-
-	meta := node.AllMetaDeserialized()
-	node.LegacyMeta(meta)
-	output := &jsonMarshallableNode{Node: *node}
-	output.Meta = meta
-	output.MetaStore = nil
-	if node.Type == NodeType_LEAF {
-		output.ReadableType = "LEAF"
-		meta["is_file"] = true
-	} else if node.Type == NodeType_COLLECTION {
-		output.ReadableType = "COLLECTION"
-		meta["is_file"] = false
-	}
-	return json.Marshal(output)
-
-}
-*/
-
 /* LOGGING SUPPORT */
+// MarshalLogObject implements custom marshalling for logs
+func (node *Node) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if node == nil {
+		return nil
+	}
+	if node.Uuid != "" {
+		encoder.AddString("Uuid", node.Uuid)
+	}
+	if node.Path != "" {
+		encoder.AddString("Path", node.Path)
+	}
+	if node.Etag != "" {
+		encoder.AddString("Etag", node.Etag)
+	}
+	if node.MTime > 0 {
+		encoder.AddTime("MTime", node.GetModTime())
+	}
+	if node.Size > 0 {
+		encoder.AddInt64("Size", node.GetSize())
+	}
+	if node.MetaStore != nil {
+		encoder.AddReflected("MetaStore", node.MetaStore)
+	}
+	return nil
+}
 
 // Zap simply returns a zapcore.Field object populated with this node and with a standard key
-func (node *Node) Zap() zapcore.Field {
-	return zap.Any(common.KEY_NODE, node)
+func (node *Node) Zap(key ...string) zapcore.Field {
+	if len(key) > 0 {
+		return zap.Object(key[0], node)
+	} else {
+		return zap.Object(common.KEY_NODE, node)
+	}
+}
+
+func (node *Node) Zaps(key ...string) []zapcore.Field {
+	k := common.KEY_NODE
+	if len(key) > 0 {
+		k = key[0]
+	}
+	return []zapcore.Field{node.ZapUuid(), node.ZapPath(), node.Zap(k)}
 }
 
 // ZapPath simply calls zap.String() with NodePath standard key and this node path
@@ -191,14 +205,75 @@ func (node *Node) ZapUuid() zapcore.Field {
 	return zap.String(common.KEY_NODE_UUID, node.GetUuid())
 }
 
+// MarshalLogObject implements custom marshalling for logs
+func (log *ChangeLog) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if log == nil {
+		return nil
+	}
+	if log.Uuid != "" {
+		encoder.AddString("Uuid", log.Uuid)
+	}
+	if log.Description != "" {
+		encoder.AddString("Description", log.Description)
+	}
+	if log.OwnerUuid != "" {
+		encoder.AddString("OwnerUuid", log.OwnerUuid)
+	}
+	if log.MTime > 0 {
+		encoder.AddTime("MTime", time.Unix(log.MTime, 0))
+	}
+	if log.Size > 0 {
+		encoder.AddInt64("Size", log.Size)
+	}
+	if log.Event != nil {
+		encoder.AddReflected("Event", log.Event)
+	}
+	return nil
+}
+
 // Zap simply returns a zapcore.Field object populated with this ChangeLog uneder a standard key
 func (log *ChangeLog) Zap() zapcore.Field {
-	return zap.Any(common.KEY_CHANGE_LOG, log)
+	return zap.Object(common.KEY_CHANGE_LOG, log)
+}
+
+// MarshalLogObject implements custom marshalling for logs
+func (policy *VersioningPolicy) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if policy == nil {
+		return nil
+	}
+	if policy.Uuid != "" {
+		encoder.AddString("Uuid", policy.Uuid)
+	}
+	if policy.Name != "" {
+		encoder.AddString("Name", policy.Name)
+	}
+	if policy.Description != "" {
+		encoder.AddString("Description", policy.Description)
+	}
+	if policy.VersionsDataSourceName != "" {
+		encoder.AddString("VersionsDataSourceName", policy.VersionsDataSourceName)
+	}
+	if policy.VersionsDataSourceBucket != "" {
+		encoder.AddString("VersionsDataSourceBucket", policy.VersionsDataSourceBucket)
+	}
+	if policy.IgnoreFilesGreaterThan > 0 {
+		encoder.AddInt64("IgnoreFilesGreaterThan", policy.IgnoreFilesGreaterThan)
+	}
+	if policy.MaxSizePerFile > 0 {
+		encoder.AddInt64("MaxSizePerFile", policy.MaxSizePerFile)
+	}
+	if policy.MaxTotalSize > 0 {
+		encoder.AddInt64("MaxTotalSize", policy.MaxTotalSize)
+	}
+	if len(policy.KeepPeriods) > 0 {
+		encoder.AddReflected("Periods", policy.KeepPeriods)
+	}
+	return nil
 }
 
 // Zap simply returns a zapcore.Field object populated with this VersioningPolicy under a standard key
 func (policy *VersioningPolicy) Zap() zapcore.Field {
-	return zap.Any(common.KEY_VERSIONING_POLICY, policy)
+	return zap.Object(common.KEY_VERSIONING_POLICY, policy)
 }
 
 // Zap simply returns a zapcore.Field object populated with this VersioningPolicy under a standard key

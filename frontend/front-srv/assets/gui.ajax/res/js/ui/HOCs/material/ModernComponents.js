@@ -58,14 +58,20 @@ function withModernTheme(formComponent) {
             return styleProps;
         }
 
+        componentDidMount(){
+            if (this.props.focusOnMount && this.refs.component){
+                this.refs.component.focus();
+            }
+        }
+
         render() {
 
             if (formComponent === TextField) {
                 const styleProps = this.mergedProps({...styles.textField});
-                return <TextField {...this.props} {...styleProps} />
+                return <TextField {...this.props} {...styleProps} ref={"component"} />
             } else if (formComponent === SelectField) {
                 const styleProps = this.mergedProps({...styles.selectField});
-                return <SelectField {...this.props} {...styleProps}/>
+                return <SelectField {...this.props} {...styleProps} ref={"component"}/>
             } else {
                 return null;
             }

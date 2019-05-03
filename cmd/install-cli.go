@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/lib"
 )
 
@@ -79,13 +79,13 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 
 	defaultPort := "8080"
 	var internalHost string
-	defaultIps, e := utils.GetAvailableIPs()
+	defaultIps, e := net.GetAvailableIPs()
 	if e != nil {
 		return
 	}
 	var items []string
 
-	testExt, eExt := utils.GetOutboundIP()
+	testExt, eExt := net.GetOutboundIP()
 	if eExt == nil {
 		items = append(items, fmt.Sprintf("%s:%s", testExt.String(), defaultPort))
 	}
@@ -168,7 +168,7 @@ var installCliCmd = &cobra.Command{
 
 		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
 		if micro == 0 {
-			micro = utils.GetAvailablePort()
+			micro = net.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
 			config.Save("cli", "Install / Setting default Ports")
 		}
@@ -199,7 +199,7 @@ var installCliCmd = &cobra.Command{
 
 		fmt.Println("")
 		fmt.Println("\033[1m## Performing Installation\033[0m")
-		e := lib.Install(context.Background(), installConfig, func(event *lib.InstallProgressEvent) {
+		e := lib.Install(context.Background(), installConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 			fmt.Println(p.IconGood + " " + event.Message)
 		})
 		if e != nil {

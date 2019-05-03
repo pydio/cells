@@ -102,7 +102,6 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 	var update bool
 	if role.Uuid != "" {
 		if stmt := s.GetStmt("Exists"); stmt != nil {
-			defer stmt.Close()
 			exists := stmt.QueryRow(role.Uuid)
 			count := new(int)
 			if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
@@ -123,7 +122,6 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 	if !update {
 		if stmt := s.GetStmt("AddRole"); stmt != nil {
-			defer stmt.Close()
 
 			if _, err := stmt.Exec(
 				role.Uuid,
@@ -142,7 +140,6 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 		}
 	} else {
 		if stmt := s.GetStmt("UpdateRole"); stmt != nil {
-			defer stmt.Close()
 
 			if _, err := stmt.Exec(
 				role.Label,
@@ -166,12 +163,12 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
-	queryString, err := s.buildSearchQuery(query, true, false)
+	queryString, args, err := s.buildSearchQuery(query, true, false)
 	if err != nil {
 		return 0, err
 	}
 
-	res := s.DB().QueryRow(queryString)
+	res := s.DB().QueryRow(queryString, args...)
 	if err != nil {
 		return 0, err
 	}
@@ -187,14 +184,14 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 // Search in the mysql DB
 func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 
-	queryString, err := s.buildSearchQuery(query, false, false)
+	queryString, args, err := s.buildSearchQuery(query, false, false)
 	if err != nil {
 		return err
 	}
 
 	// log.Logger(context.Background()).Debug("Decoded SQL query: " + queryString)
 	//log.Logger(context.Background()).Info("Search Roles: "+queryString, zap.Any("subjects", query.GetResourcePolicyQuery().GetSubjects()))
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return err
 	}
@@ -230,12 +227,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 // Deleteete from the mysql DB
 func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 
-	queryString, err := s.buildSearchQuery(query, false, true)
+	queryString, args, err := s.buildSearchQuery(query, false, true)
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := s.DB().Exec(queryString)
+	res, err := s.DB().Exec(queryString, args...)
 	if err != nil {
 		return 0, err
 	}
@@ -248,28 +245,24 @@ func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 	return rows, nil
 }
 
-func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bool) (string, error) {
+func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bool) (string, []interface{}, error) {
 
 	ex := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
 
 	if delete {
-
 		return sql.DeleteStringFromExpression("idm_roles", s.Driver(), ex)
-
 	} else {
 
 		resourceExpr, e := s.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
 		if e != nil {
-			return "", e
+			return "", nil, e
 		}
 		if countOnly {
 			return sql.CountStringFromExpression("idm_roles", "uuid", s.Driver(), query, ex, resourceExpr)
 		} else {
 			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceExpr, -1)
 		}
-
 	}
-
 }
 
 type queryBuilder idm.RoleSingleQuery

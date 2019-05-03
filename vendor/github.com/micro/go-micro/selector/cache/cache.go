@@ -2,7 +2,6 @@
 package cache
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -131,7 +130,6 @@ func (c *cacheSelector) get(service string) ([]*registry.Service, error) {
 
 	// not found error then return
 	if err == registry.ErrNotFound {
-		fmt.Println("HER WE ARE")
 		return nil, selector.ErrNotFound
 	}
 

@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
 	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -65,7 +65,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Received Graph.UserState API request for uuid")
 
-	accessList, err := utils.AccessListFromContextClaims(ctx)
+	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
@@ -121,12 +121,12 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	responseObject := &rest.RelationResponse{}
 
 	// Find all workspaces in common
-	contextAccessList, err := utils.AccessListFromContextClaims(ctx)
+	contextAccessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	targetUserAccessList, _, err := utils.AccessListFromUser(ctx, userName, false)
+	targetUserAccessList, _, err := permissions.AccessListFromUser(ctx, userName, false)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return

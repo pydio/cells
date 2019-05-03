@@ -22,15 +22,15 @@ package rest
 
 import (
 	"context"
+	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"strings"
-
-	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
 )
@@ -46,14 +46,14 @@ import (
 func compress(ctx context.Context, selectedPathes []string, targetNodePath string, format string, languages ...string) (string, error) {
 
 	T := lang.Bundle().GetTranslationFunc(languages...)
-	jobUuid := uuid.NewUUID().String()
+	jobUuid := "compress-folders-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
-		for i, path := range selectedPathes {
-			node := &tree.Node{Path: path}
+		for i, p := range selectedPathes {
+			node := &tree.Node{Path: p}
 			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
@@ -64,10 +64,18 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 		if targetNodePath != "" {
 			node := &tree.Node{Path: targetNodePath}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+			targetCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
+			}
+			accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			_, toParents, err := views.AncestorsListFromContext(targetCtx, node, "sel", getRouter().GetClientsPool(), true)
+			if err != nil {
+				return err
+			}
+			if !accessList.CanWrite(targetCtx, toParents...) {
+				return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
 			}
 			targetNodePath = node.Path
 		}
@@ -75,7 +83,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 		log.Logger(ctx).Debug("Submitting selected pathes for compression", zap.Any("pathes", selectedPathes))
 
 		job := &jobs.Job{
-			ID:             "compress-folders-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          userName,
 			Label:          T("Jobs.User.Compress"),
 			Inactive:       false,
@@ -110,7 +118,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 func extract(ctx context.Context, selectedNode string, targetPath string, format string, languages ...string) (string, error) {
 
-	jobUuid := uuid.NewUUID().String()
+	jobUuid := "extract-archive-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 	T := lang.Bundle().GetTranslationFunc(languages...)
@@ -123,20 +131,31 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			return nodeErr
 		}
-		selectedNode = node.Path
+		archiveNode := node.Path
 
+		targetNode := &tree.Node{Path: targetPath}
+		if targetPath == "" {
+			targetNode.Path = path.Dir(selectedNode)
+		}
+		targetCtx, realNode, nodeErr := inputFilter(ctx, targetNode, "sel")
+		if nodeErr != nil {
+			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", targetNode), zap.Error(nodeErr))
+			return nodeErr
+		}
 		if targetPath != "" {
-			node := &tree.Node{Path: targetPath}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
-			if nodeErr != nil {
-				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
-				return nodeErr
-			}
-			targetPath = node.Path
+			targetPath = realNode.Path
+		}
+		accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+		_, toParents, err := views.AncestorsListFromContext(targetCtx, realNode, "sel", getRouter().GetClientsPool(), true)
+		if err != nil {
+			return err
+		}
+		if !accessList.CanWrite(targetCtx, toParents...) {
+			return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
 		}
 
 		job := &jobs.Job{
-			ID:             "extract-archive-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          userName,
 			Label:          T("Jobs.User.Extract"),
 			Inactive:       false,
@@ -152,14 +171,14 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 						"target": targetPath,
 					},
 					NodesSelector: &jobs.NodesSelector{
-						Pathes: []string{selectedNode},
+						Pathes: []string{archiveNode},
 					},
 				},
 			},
 		}
 
 		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
-		_, err := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		_, err = cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return err
 
 	})
@@ -179,26 +198,37 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		taskLabel = T("Jobs.User.DirMove")
 	}
 
-	jobUuid := uuid.NewUUID().String()
+	jobUuid := "copy-move-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
 		var loadedNodes []*tree.Node
-		for i, path := range selectedPathes {
-			node := &tree.Node{Path: path}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+		for i, p := range selectedPathes {
+			node := &tree.Node{Path: p}
+			srcCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
 				return nodeErr
 			}
+			if move {
+				accessList := srcCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+				_, toParents, err := views.AncestorsListFromContext(srcCtx, node, "sel", getRouter().GetClientsPool(), false)
+				if err != nil {
+					return err
+				}
+				if !accessList.CanWrite(srcCtx, toParents...) {
+					return errors.Forbidden("node.not.writeable", "Source location cannot be move!")
+				}
+			}
+
 			r, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
 			if e != nil {
 				return e
 			}
 			if move {
-				if e := utils.CheckContentLock(ctx, r.Node); e != nil {
+				if e := permissions.CheckContentLock(ctx, r.Node); e != nil {
 					return e
 				}
 			}
@@ -228,11 +258,20 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 				dir, base = filepath.Split(targetNodePath)
 			}
 			node := &tree.Node{Path: dir}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
+			targetCtx, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node Parent", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
 			}
+			accessList := targetCtx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			_, toParents, err := views.AncestorsListFromContext(targetCtx, node, "sel", getRouter().GetClientsPool(), true)
+			if err != nil {
+				return err
+			}
+			if !accessList.CanWrite(targetCtx, toParents...) {
+				return errors.Forbidden("node.not.writeable", "Target Location is not writeable")
+			}
+
 			if targetIsParent {
 				targetNodePath = node.Path
 			} else {
@@ -259,7 +298,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		}
 
 		job := &jobs.Job{
-			ID:             "copy-move-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          userName,
 			Label:          taskLabel,
 			Inactive:       false,
@@ -294,65 +333,6 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 	return jobUuid, err
 }
 
-func backgroundDelete(ctx context.Context, selectedPathes []string, childrenOnly bool, languages ...string) (string, error) {
-
-	T := lang.Bundle().GetTranslationFunc(languages...)
-
-	taskLabel := T("Jobs.User.Delete")
-
-	jobUuid := uuid.NewUUID().String()
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userName := claims.Name
-
-	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-
-		for i, path := range selectedPathes {
-			node := &tree.Node{Path: path}
-			_, node, nodeErr := inputFilter(ctx, node, "sel")
-			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
-			if nodeErr != nil {
-				return nodeErr
-			}
-			selectedPathes[i] = node.Path
-		}
-
-		log.Logger(ctx).Debug("Creating background delete job", zap.Any("pathes", selectedPathes), zap.Bool("childrenOnly", childrenOnly))
-
-		var params = map[string]string{}
-		if childrenOnly {
-			params["childrenOnly"] = "true"
-		}
-
-		job := &jobs.Job{
-			ID:             "delete-" + jobUuid,
-			Owner:          userName,
-			Label:          taskLabel,
-			Inactive:       false,
-			Languages:      languages,
-			MaxConcurrency: 1,
-			AutoStart:      true,
-			AutoClean:      true,
-			Actions: []*jobs.Action{
-				{
-					ID:         "actions.tree.delete",
-					Parameters: params,
-					NodesSelector: &jobs.NodesSelector{
-						//Collect: true,
-						Pathes: selectedPathes,
-					},
-				},
-			},
-		}
-
-		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
-		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
-		return er
-
-	})
-
-	return jobUuid, err
-}
-
 func syncDatasource(ctx context.Context, dsName string, languages ...string) (string, error) {
 
 	T := lang.Bundle().GetTranslationFunc(languages...)
@@ -369,7 +349,7 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 	}
 
 	job := &jobs.Job{
-		ID:             "resync-ds-" + dsName,
+		ID:             jobUuid,
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
 		Label:          T("Jobs.User.ResyncDS", map[string]string{"DsName": dsName}),
 		Inactive:       false,
@@ -437,7 +417,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
 	for _, url := range urls {
 
-		jobUuid := uuid.NewUUID().String()
+		jobUuid := "wget-" + uuid.New()
 		jobUuids = append(jobUuids, jobUuid)
 
 		var params = map[string]string{
@@ -450,7 +430,7 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 			basename = jobUuid
 		}
 		job := &jobs.Job{
-			ID:             "wget-" + jobUuid,
+			ID:             jobUuid,
 			Owner:          userName,
 			Label:          taskLabel,
 			Inactive:       false,

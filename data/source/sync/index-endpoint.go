@@ -23,6 +23,7 @@ package sync
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"go.uber.org/zap"
@@ -50,13 +51,21 @@ func (i *IndexEndpoint) GetEndpointInfo() commonsync.EndpointInfo {
 
 }
 
+func (i *IndexEndpoint) ComputeChecksum(node *tree.Node) error {
+	return fmt.Errorf("not.implemented")
+}
+
 func (i *IndexEndpoint) Walk(walknFc commonsync.WalkNodesFunc, pathes ...string) (err error) {
 
+	p := ""
+	if len(pathes) > 0 {
+		p = pathes[0]
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	responseClient, e := i.readerClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{
-			Path: "",
+			Path: p,
 		},
 		Recursive: true,
 	})
@@ -66,10 +75,7 @@ func (i *IndexEndpoint) Walk(walknFc commonsync.WalkNodesFunc, pathes ...string)
 	defer responseClient.Close()
 	for {
 		response, rErr := responseClient.Recv()
-		if rErr != nil {
-			walknFc("", nil, rErr)
-		}
-		if response == nil {
+		if rErr != nil || response == nil {
 			break
 		}
 		response.Node.Path = strings.TrimLeft(response.Node.Path, "/")
@@ -84,8 +90,7 @@ func (i *IndexEndpoint) Watch(recursivePath string) (*commonsync.WatchObject, er
 
 func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
 
-	log.Logger(ctx).Debug("LoadNode", zap.String("path", path))
-
+	log.Logger(ctx).Debug("LoadNode ByPath" + path)
 	resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Path: path,
@@ -101,6 +106,7 @@ func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool)
 // LoadNodeByUuid makes this endpoint an UuidProvider
 func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error) {
 
+	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
 	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Uuid: uuid,
@@ -108,7 +114,6 @@ func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *
 	}); e != nil {
 		return nil, e
 	} else {
-		log.Logger(ctx).Debug("Loading Node By Uuid has response:", resp.Node.Zap())
 		return resp.Node, nil
 	}
 

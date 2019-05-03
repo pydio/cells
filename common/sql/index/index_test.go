@@ -4,25 +4,26 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/common/utils/mtree"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils"
 )
 
 var (
 	options config.Map
 
-	mockNode *utils.TreeNode
+	mockNode *mtree.TreeNode
 
-	mockLongNodeMPath       utils.MPath
-	mockLongNodeChild1MPath utils.MPath
-	mockLongNodeChild2MPath utils.MPath
+	mockLongNodeMPath       mtree.MPath
+	mockLongNodeChild1MPath mtree.MPath
+	mockLongNodeChild2MPath mtree.MPath
 
-	mockLongNode       *utils.TreeNode
-	mockLongNodeChild1 *utils.TreeNode
-	mockLongNodeChild2 *utils.TreeNode
+	mockLongNode       *mtree.TreeNode
+	mockLongNodeChild1 *mtree.TreeNode
+	mockLongNodeChild2 *mtree.TreeNode
 )
 
 func init() {
@@ -37,17 +38,19 @@ func init() {
 
 	mockLongNode = NewNode(&tree.Node{
 		Uuid: "mockLongNode",
-		Type: tree.NodeType_LEAF,
+		Type: tree.NodeType_COLLECTION,
 	}, mockLongNodeMPath, []string{"mockLongNode"})
 
 	mockLongNodeChild1 = NewNode(&tree.Node{
 		Uuid: "mockLongNodeChild1",
 		Type: tree.NodeType_LEAF,
+		Size: 25,
 	}, mockLongNodeChild1MPath, []string{"mockLongNodeChild1"})
 
 	mockLongNodeChild2 = NewNode(&tree.Node{
 		Uuid: "mockLongNodeChild2",
 		Type: tree.NodeType_LEAF,
+		Size: 27,
 	}, mockLongNodeChild2MPath, []string{"mockLongNodeChild2"})
 }
 

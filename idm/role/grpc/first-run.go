@@ -23,9 +23,8 @@ package grpc
 import (
 	"context"
 	"encoding/json"
-	"time"
-
 	"fmt"
+	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -35,7 +34,7 @@ import (
 	service2 "github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/role"
 )
 
@@ -87,8 +86,8 @@ func InitRoles(ctx context.Context) error {
 				Policies:  rootPolicies,
 			},
 			Acls: []*idm.ACL{
-				{RoleID: "ROOT_GROUP", Action: utils.ACL_READ, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
-				{RoleID: "ROOT_GROUP", Action: utils.ACL_WRITE, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
+				{RoleID: "ROOT_GROUP", Action: permissions.AclRead, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
+				{RoleID: "ROOT_GROUP", Action: permissions.AclWrite, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
 				{RoleID: "ROOT_GROUP", Action: &idm.ACLAction{Name: "parameter:core.conf:lang", Value: string(langJ)}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 			},
 		},
@@ -100,8 +99,8 @@ func InitRoles(ctx context.Context) error {
 				Policies:    rootPolicies,
 			},
 			Acls: []*idm.ACL{
-				{RoleID: "ADMINS", Action: utils.ACL_READ, WorkspaceID: "settings", NodeID: "settings-ROOT"},
-				{RoleID: "ADMINS", Action: utils.ACL_WRITE, WorkspaceID: "settings", NodeID: "settings-ROOT"},
+				{RoleID: "ADMINS", Action: permissions.AclRead, WorkspaceID: "settings", NodeID: "settings-ROOT"},
+				{RoleID: "ADMINS", Action: permissions.AclWrite, WorkspaceID: "settings", NodeID: "settings-ROOT"},
 			},
 		},
 		{
@@ -112,7 +111,7 @@ func InitRoles(ctx context.Context) error {
 				Policies:    externalPolicies,
 			},
 			Acls: []*idm.ACL{
-				{RoleID: "EXTERNAL_USERS", Action: utils.ACL_DENY, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
+				{RoleID: "EXTERNAL_USERS", Action: permissions.AclDeny, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:open_user_shares", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},

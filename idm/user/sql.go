@@ -37,11 +37,11 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/sql/resources"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
 const (
@@ -57,25 +57,25 @@ var (
 		"AddRole":              `replace into idm_user_roles (uuid, role) values (?, ?)`,
 		"GetRoles":             `select role from idm_user_roles where uuid = ?`,
 		"DeleteUserRoles":      `delete from idm_user_roles where uuid = ?`,
-		"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_nodes)`,
+		"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_tree)`,
 		"DeleteRoleById":       `delete from idm_user_roles where role = ?`,
-		"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_nodes)`,
+		"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_tree)`,
 	}
 
 	unPrepared = map[string]func(...interface{}) string{
 		"WhereGroupPath": func(args ...interface{}) string {
 			mpath := []byte(args[0].(string))
 			level := args[1].(int)
-			return fmt.Sprintf(`(%s) and t.level = %d`, getMPathLike("", mpath), level)
+			return fmt.Sprintf(`(%s) and t.level = %d`, getMPathLike(mpath), level)
 		},
 		"WhereGroupPathRecursive": func(args ...interface{}) string {
 			mpath := []byte(args[0].(string))
 			level := args[1].(int)
-			return fmt.Sprintf(`(%s) and t.level >= %d`, getMPathLike("", mpath), level)
+			return fmt.Sprintf(`(%s) and t.level >= %d`, getMPathLike(mpath), level)
 		},
 		"WhereGroupPathIncludeParent": func(args ...interface{}) string {
 			mpath := []byte(args[0].(string))
-			return fmt.Sprintf(`(%s)`, getMPathEquals("", mpath))
+			return fmt.Sprintf(`(%s)`, getMPathEquals(mpath))
 		},
 		"WhereHasAttributes": func(args ...interface{}) string {
 			return fmt.Sprintf(`EXISTS (select a.name from idm_user_attributes as a WHERE %s and a.uuid = t.uuid)`, args...)
@@ -183,8 +183,8 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 				reqFromPath := "/" + strings.Trim(node.Path, "/")
 				reqToPath := objectPath
 
-				var pathFrom, pathTo utils.MPath
-				var nodeFrom, nodeTo *utils.TreeNode
+				var pathFrom, pathTo mtree.MPath
+				var nodeFrom, nodeTo *mtree.TreeNode
 
 				if pathFrom, _, err = s.IndexSQL.Path(reqFromPath, false); err != nil || pathFrom == nil {
 					return nil, createdNodes, err
@@ -234,7 +234,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 
 	if len(created) == 0 && node.Etag != "" {
 		log.Logger(context.Background()).Debug("User update w/ password")
-		updateNode := utils.NewTreeNode()
+		updateNode := mtree.NewTreeNode()
 		updateNode.SetMPath(mPath...)
 		if err := s.IndexSQL.DelNode(updateNode); err != nil {
 			return nil, createdNodes, err
@@ -249,8 +249,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		user.Uuid = foundOrCreatedNode.Uuid
 	}
 
-	// Remove existing attributes, replace with new ones
-	// TODO: should we put these two operations (delete / insert) inside a transaction?
+	// Remove existing attributes and roles, replace with new ones using a transaction
 	if user.GroupLabel != "" {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
@@ -262,58 +261,99 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		}
 		user.Attributes[idm.UserAttrLabelLike] = user.Login
 	}
-	if stmt := s.GetStmt("DeleteAttributes"); stmt != nil {
-		defer stmt.Close()
 
-		if _, err := stmt.Exec(user.Uuid); err != nil {
-			return nil, createdNodes, err
+	// Use a transaction to perform update on the user
+	db := s.DB()
+
+	// Start a transaction
+	tx, errTx := db.BeginTx(context.Background(), nil)
+	if errTx != nil {
+		return nil, createdNodes, errTx
+	}
+
+	// Checking transaction went fine
+	defer func() {
+		if errTx != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	// Insure we can retrieve all necessary prepared statements
+	delAttributes := s.GetStmt("DeleteAttributes")
+	if delAttributes == nil {
+		errTx = fmt.Errorf("Unknown statement")
+		return nil, createdNodes, errTx
+	}
+	addAttribute := s.GetStmt("AddAttribute")
+	if addAttribute == nil {
+		errTx = fmt.Errorf("Unknown statement")
+		return nil, createdNodes, errTx
+	}
+	delUserRoles := s.GetStmt("DeleteUserRoles")
+	if delUserRoles == nil {
+		errTx = fmt.Errorf("Unknown statement")
+		return nil, createdNodes, errTx
+	}
+	addUserRole := s.GetStmt("AddRole")
+	if addUserRole == nil {
+		errTx = fmt.Errorf("Unknown statement")
+		return nil, createdNodes, errTx
+	}
+
+	// Execute retrieved statements within the transaction
+	if stmt := tx.Stmt(delAttributes); stmt != nil {
+		defer stmt.Close()
+		if _, errTx = stmt.Exec(user.Uuid); errTx != nil {
+			return nil, createdNodes, errTx
 		}
 	} else {
-		return nil, createdNodes, fmt.Errorf("unknown statement")
+		return nil, createdNodes, fmt.Errorf("Empty statement")
 	}
-	for attr, val := range user.Attributes {
-		if stmt := s.GetStmt("AddAttribute"); stmt != nil {
-			defer stmt.Close()
 
-			if _, err := stmt.Exec(
+	for attr, val := range user.Attributes {
+		if stmt := tx.Stmt(addAttribute); stmt != nil {
+			defer stmt.Close()
+			if _, errTx = stmt.Exec(
 				user.Uuid,
 				attr,
 				val,
-			); err != nil {
-				return nil, createdNodes, err
+			); errTx != nil {
+				return nil, createdNodes, errTx
 			}
 		} else {
-			return nil, createdNodes, fmt.Errorf("unknown statement")
+			return nil, createdNodes, fmt.Errorf("Empty statement")
 		}
 	}
 
-	if stmt := s.GetStmt("DeleteUserRoles"); stmt != nil {
+	if stmt := tx.Stmt(delUserRoles); stmt != nil {
 		defer stmt.Close()
-
-		if _, err := stmt.Exec(user.Uuid); err != nil {
-			return nil, createdNodes, err
+		if _, errTx = stmt.Exec(user.Uuid); errTx != nil {
+			return nil, createdNodes, errTx
 		}
 	} else {
-		return nil, createdNodes, fmt.Errorf("unknown statement")
+		return nil, createdNodes, fmt.Errorf("Empty statement")
 	}
+
 	for _, role := range user.Roles {
 		if role.UserRole || role.GroupRole {
 			continue
 		}
 
-		if stmt := s.GetStmt("AddRole"); stmt != nil {
+		if stmt := tx.Stmt(addUserRole); stmt != nil {
 			defer stmt.Close()
-
-			if _, err := stmt.Exec(
+			if _, errTx = stmt.Exec(
 				user.Uuid,
 				role.Uuid,
-			); err != nil {
-				return nil, createdNodes, err
+			); errTx != nil {
+				return nil, createdNodes, errTx
 			}
 		} else {
-			return nil, createdNodes, fmt.Errorf("unknown statement")
+			return nil, createdNodes, fmt.Errorf("Empty statement")
 		}
 	}
+
 	for _, n := range created {
 		createdNodes = append(createdNodes, n.Node)
 	}
@@ -354,17 +394,22 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 }
 
 // Count counts the number of users matching the passed query in the SQL DB.
-func (s *sqlimpl) Count(query sql.Enquirer) (int, error) {
+func (s *sqlimpl) Count(query sql.Enquirer, includeParents ...bool) (int, error) {
 
 	s.Lock()
 	defer s.Unlock()
 
-	queryString, err := s.makeSearchQuery(query, true, false, false)
+	parents := false
+	if len(includeParents) > 0 {
+		parents = includeParents[0]
+	}
+
+	queryString, args, err := s.makeSearchQuery(query, true, parents, false)
 	if err != nil {
 		return 0, err
 	}
 
-	row := s.DB().QueryRow(queryString)
+	row := s.DB().QueryRow(queryString, args...)
 	total := new(int)
 	err = row.Scan(
 		&total,
@@ -384,13 +429,13 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		includeParents = withParents[0]
 	}
 
-	queryString, err := s.makeSearchQuery(query, false, includeParents, false)
+	queryString, args, err := s.makeSearchQuery(query, false, includeParents, false)
 	if err != nil {
 		return err
 	}
 
 	log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), zap.Any("q2", query.GetSubQueries()))
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return err
 	}
@@ -412,7 +457,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 			&leaf,
 			&etag,
 		)
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.SetBytes(rat)
 		node.Uuid = uuid
 		node.Etag = etag
@@ -465,23 +510,27 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 }
 
 // Del from the mysql DB
-func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
+func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 
-	queryString, err := s.makeSearchQuery(query, false, true, true)
+	queryString, args, err := s.makeSearchQuery(query, false, true, true)
 	if err != nil {
 		return 0, err
 	}
 
+	type delStruct struct {
+		node   *mtree.TreeNode
+		object *idm.User
+	}
 	log.Logger(context.Background()).Debug("Delete", zap.String("q", queryString))
 
-	res, err := s.DB().Query(queryString)
+	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return 0, err
 	}
 
 	rows := int64(0)
 
-	var nodes []*utils.TreeNode
+	var data []*delStruct
 	for res.Next() {
 		var uuid string
 		var level uint32
@@ -497,24 +546,37 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 			&leaf,
 			&etag,
 		)
-		node := utils.NewTreeNode()
+		node := mtree.NewTreeNode()
 		node.SetBytes(rat)
 		node.Uuid = uuid
 		node.Level = int(level)
-		nodes = append(nodes, node)
+		node.Etag = etag
+		s.rebuildGroupPath(node)
+		node.SetMeta("name", name)
+
+		var userOrGroup *idm.User
+		if leaf == 0 {
+			node.Node.Type = tree.NodeType_COLLECTION
+			userOrGroup = nodeToGroup(node)
+		} else {
+			node.Node.Type = tree.NodeType_LEAF
+			userOrGroup = nodeToUser(node)
+		}
+		data = append(data, &delStruct{node: node, object: userOrGroup})
 	}
 	res.Close()
 
-	for _, node := range nodes {
+	for _, toDel := range data {
 
-		if err := s.IndexSQL.DelNode(node); err != nil {
+		if err := s.IndexSQL.DelNode(toDel.node); err != nil {
 			return rows, err
 		}
 
-		if err := s.deleteNodeData(node.Uuid); err != nil {
+		if err := s.deleteNodeData(toDel.node.Uuid); err != nil {
 			return rows, err
 		}
 
+		users <- toDel.object
 		rows++
 	}
 
@@ -550,7 +612,7 @@ func (s *sqlimpl) deleteNodeData(uuid string) error {
 	return nil
 }
 
-func (s *sqlimpl) rebuildGroupPath(node *utils.TreeNode) {
+func (s *sqlimpl) rebuildGroupPath(node *mtree.TreeNode) {
 	if len(node.Path) == 0 {
 		var path []string
 		roles := []string{}
@@ -567,17 +629,13 @@ func (s *sqlimpl) rebuildGroupPath(node *utils.TreeNode) {
 }
 
 // where t.mpath = ?
-func getMPathEquals(tableAlias string, mpath []byte) string {
+func getMPathEquals(mpath []byte) string {
 	var res []string
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
 
 	for {
 		var cnt int
 		cnt = (len(mpath) - 1) / indexLen
-		res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+		res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 
 		if idx := cnt * indexLen; idx == 0 {
 			break
@@ -590,12 +648,8 @@ func getMPathEquals(tableAlias string, mpath []byte) string {
 }
 
 // t.mpath LIKE ?
-func getMPathLike(tableAlias string, mpath []byte) string {
+func getMPathLike(mpath []byte) string {
 	var res []string
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
 
 	mpath = append(mpath, []byte(".%")...)
 
@@ -605,10 +659,10 @@ func getMPathLike(tableAlias string, mpath []byte) string {
 		cnt = (len(mpath) - 1) / indexLen
 
 		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 			done = true
 		} else {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
+			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 		}
 
 		if idx := cnt * indexLen; idx == 0 {
@@ -619,48 +673,4 @@ func getMPathLike(tableAlias string, mpath []byte) string {
 	}
 
 	return strings.Join(res, " and ")
-}
-
-// and (t.mpath = ? OR t.mpath LIKE ?)
-func getMPathEqualsOrLike(tableAlias string, mpath []byte) string {
-	var res []string
-
-	if tableAlias != "" {
-		tableAlias = tableAlias + "."
-	}
-
-	mpath = append(mpath, []byte(".%")...)
-
-	done := false
-	for {
-		var cnt int
-		cnt = (len(mpath) - 1) / indexLen
-
-		if !done {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):len(mpath)-2]))
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
-			done = true
-		} else {
-			res = append(res, fmt.Sprintf(`%smpath%d LIKE "%s"`, tableAlias, cnt+1, mpath[(cnt*indexLen):]))
-		}
-
-		if idx := cnt * indexLen; idx == 0 {
-			break
-		}
-
-		mpath = mpath[0 : cnt*indexLen]
-	}
-
-	return strings.Join(res, " or ")
-}
-
-// where t.mpath in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-func getMPathesIn(tableAlias string, mpathes ...string) string {
-
-	var res []string
-	for _, mpath := range mpathes {
-		res = append(res, fmt.Sprintf(`(%s)`, getMPathEquals(tableAlias, []byte(mpath))))
-	}
-
-	return strings.Join(res, " or ")
 }

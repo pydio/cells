@@ -61,12 +61,13 @@ function collectDrop(connect, monitor) {
 }
 
 var DNDActionParameter = (function () {
-    function DNDActionParameter(source, target, step) {
+    function DNDActionParameter(source, target, step, dropEffect) {
         _classCallCheck(this, DNDActionParameter);
 
         this._source = source;
         this._target = target;
         this._step = step;
+        this._dropEffect = dropEffect;
     }
 
     DNDActionParameter.prototype.getSource = function getSource() {
@@ -81,6 +82,10 @@ var DNDActionParameter = (function () {
         return this._step;
     };
 
+    DNDActionParameter.prototype.getDropEffect = function getDropEffect() {
+        return this._dropEffect;
+    };
+
     return DNDActionParameter;
 })();
 
@@ -89,7 +94,7 @@ DNDActionParameter.STEP_END_DRAG = 'endDrag';
 DNDActionParameter.STEP_CAN_DROP = 'canDrop';
 DNDActionParameter.STEP_HOVER_DROP = 'hover';
 
-var applyDNDAction = function applyDNDAction(source, target, step) {
+var applyDNDAction = function applyDNDAction(source, target, step, dropEffect) {
     var Controller = window.pydio.Controller;
 
     var dnd = Controller.defaultActions.get("dragndrop");
@@ -105,7 +110,7 @@ var applyDNDAction = function applyDNDAction(source, target, step) {
             }
         }
         //dndAction.enable();
-        var params = new DNDActionParameter(source, target, step);
+        var params = new DNDActionParameter(source, target, step, dropEffect);
         var checkModule = dndAction.options.dragndropCheckModule;
         if (step === DNDActionParameter.STEP_CAN_DROP && checkModule) {
             if (!FuncUtils.getFunctionByName(checkModule, window)) {
@@ -138,7 +143,7 @@ var nodeDragSource = {
         var item = monitor.getItem();
         var dropResult = monitor.getDropResult();
         try {
-            applyDNDAction(item.node, dropResult.node, DNDActionParameter.STEP_END_DRAG);
+            applyDNDAction(item.node, dropResult.node, DNDActionParameter.STEP_END_DRAG, dropResult.dropEffect);
         } catch (e) {}
     }
 };

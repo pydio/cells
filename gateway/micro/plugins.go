@@ -29,8 +29,9 @@ import (
 	"github.com/micro/go-api"
 	ahandler "github.com/micro/go-api/handler"
 	ahttp "github.com/micro/go-api/handler/http"
-	"github.com/micro/go-api/router"
+	// "github.com/micro/go-api/router"
 	micro "github.com/micro/go-micro"
+	"github.com/pydio/cells/common/micro/router"
 	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"

@@ -69,6 +69,7 @@ var SimpleList = _Pydio$requireLib.SimpleList;
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
 
 var moment = _Pydio$requireLib2.moment;
+var SingleJobProgress = _Pydio$requireLib2.SingleJobProgress;
 
 var ComponentConfigsParser = (function () {
     function ComponentConfigsParser() {
@@ -82,7 +83,7 @@ var ComponentConfigsParser = (function () {
                 message: '1',
                 width: '50%',
                 renderCell: MainFilesList.tableEntryRenderCell,
-                sortType: 'string',
+                sortType: 'file-natural',
                 remoteSortAttribute: 'ajxp_label'
             },
             filesize: {
@@ -112,10 +113,14 @@ var ComponentConfigsParser = (function () {
         var messages = global.pydio.MessageHash;
         columnsNodes.forEach(function (colNode) {
             var name = colNode.getAttribute('attributeName');
+            var sortType = colNode.getAttribute('sortType');
+            var sorts = { 'String': 'string', 'StringDirFile': 'string', 'MyDate': 'number', 'CellSorterValue': 'number' };
+            sortType = sorts[sortType] || 'string';
+            if (name === 'bytesize') sortType = 'number';
             columns[name] = {
                 message: colNode.getAttribute('messageId'),
                 label: colNode.getAttribute('messageString') ? colNode.getAttribute('messageString') : messages[colNode.getAttribute('messageId')],
-                sortType: messages[colNode.getAttribute('sortType')]
+                sortType: sortType
             };
             if (name === 'ajxp_label') {
                 columns[name].renderCell = MainFilesList.tableEntryRenderCell;
@@ -128,7 +133,6 @@ var ComponentConfigsParser = (function () {
                     }, true);
                 })();
             }
-            columns[name]['sortType'] = 'string';
         });
         configs.set('columns', columns);
         return configs;
@@ -180,16 +184,57 @@ var MainFilesList = _react2['default'].createClass({
     getInitialState: function getInitialState() {
         var configParser = new ComponentConfigsParser();
         var columns = configParser.loadConfigs('FilesList').get('columns');
+        var dMode = this.displayModeFromPrefs(this.props.displayMode);
+        var tSize = 200;
+        if (dMode === 'grid-320') {
+            tSize = 320;
+        } else if (dMode === 'grid-80') {
+            tSize = 80;
+        }
         return {
             contextNode: this.props.pydio.getContextHolder().getContextNode(),
-            displayMode: this.props.displayMode ? this.props.displayMode : 'list',
-            thumbNearest: 200,
-            thumbSize: 200,
+            displayMode: dMode,
+            thumbNearest: tSize,
+            thumbSize: tSize,
             elementsPerLine: 5,
             columns: columns ? columns : configParser.getDefaultListColumns(),
             parentIsScrolling: this.props.parentIsScrolling,
             repositoryId: this.props.pydio.repositoryId
         };
+    },
+
+    displayModeFromPrefs: function displayModeFromPrefs(defaultMode) {
+        var pydio = this.props.pydio;
+
+        if (!pydio.user) {
+            return defaultMode || 'list';
+        }
+        var slug = pydio.user.getActiveRepositoryObject().getSlug();
+        var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
+        if (guiPrefs['FilesListDisplayMode'] && guiPrefs['FilesListDisplayMode'][slug]) {
+            return guiPrefs['FilesListDisplayMode'][slug];
+        }
+        return defaultMode || 'list';
+    },
+
+    /**
+     * Save displayMode to user prefs
+     * @param mode
+     * @return {string}
+     */
+    displayModeToPrefs: function displayModeToPrefs(mode) {
+        var pydio = this.props.pydio;
+
+        if (!pydio.user) {
+            return 'list';
+        }
+        var slug = pydio.user.getActiveRepositoryObject().getSlug();
+        var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
+        var dPrefs = guiPrefs['FilesListDisplayMode'] || {};
+        dPrefs[slug] = mode;
+        guiPrefs['FilesListDisplayMode'] = dPrefs;
+        pydio.user.setPreference('gui_preferences', guiPrefs, true);
+        pydio.user.savePreference('gui_preferences');
     },
 
     componentDidMount: function componentDidMount() {
@@ -229,9 +274,23 @@ var MainFilesList = _react2['default'].createClass({
             this.props.pydio.getController().updateGuiActions(this.getPydioActions());
             var configParser = new ComponentConfigsParser();
             var columns = configParser.loadConfigs('FilesList').get('columns');
+            var dMode = this.displayModeFromPrefs(this.state ? this.state.displayMode : 'list');
+            if (this.state.displayMode !== dMode && dMode.indexOf('grid-') === 0) {
+                var tSize = 200;
+                if (dMode === 'grid-320') {
+                    tSize = 320;
+                } else if (dMode === 'grid-80') {
+                    tSize = 80;
+                }
+                this.setState({
+                    thumbNearest: tSize,
+                    thumbSize: tSize
+                });
+            }
             this.setState({
                 repositoryId: this.props.pydio.repositoryId,
-                columns: columns ? columns : configParser.getDefaultListColumns()
+                columns: columns ? columns : configParser.getDefaultListColumns(),
+                displayMode: dMode
             });
         }
     },
@@ -396,11 +455,15 @@ var MainFilesList = _react2['default'].createClass({
         var otherPieces = [];
 
         if (metaData.has('pending_operation')) {
-            return _react2['default'].createElement(
-                'span',
-                { style: { fontStyle: 'italic', color: 'rgba(0,0,0,.33)' } },
-                metaData.get('pending_operation')
-            );
+            if (metaData.has('pending_operation_uuid')) {
+                return _react2['default'].createElement(SingleJobProgress, { jobID: metaData.get('pending_operation_uuid'), style: { display: 'flex', flexDirection: 'row-reverse', alignItems: 'center' }, progressStyle: { width: 60, paddingRight: 10 }, labelStyle: { flex: 1 } });
+            } else {
+                return _react2['default'].createElement(
+                    'span',
+                    { style: { fontStyle: 'italic', color: 'rgba(0,0,0,.33)' } },
+                    metaData.get('pending_operation')
+                );
+            }
         }
 
         if (metaData.get('ajxp_modiftime')) {
@@ -493,6 +556,27 @@ var MainFilesList = _react2['default'].createClass({
                 near = parseInt(displayMode.split('-')[1]);
             }
             _this3.recomputeThumbnailsDimension(near);
+            _this3.displayModeToPrefs(displayMode);
+            _this3.props.pydio.notify('actions_refreshed');
+        });
+    },
+
+    buildDisplayModeItems: function buildDisplayModeItems() {
+        var _this4 = this;
+
+        var displayMode = this.state.displayMode;
+
+        var list = [{ name: 'List', title: 227, icon_class: 'mdi mdi-view-list', value: 'list', hasAccessKey: true, accessKey: 'list_access_key' }, { name: 'Detail', title: 461, icon_class: 'mdi mdi-view-headline', value: 'detail', hasAccessKey: true, accessKey: 'detail_access_key' }, { name: 'Thumbs', title: 229, icon_class: 'mdi mdi-view-grid', value: 'grid-160', hasAccessKey: true, accessKey: 'thumbs_access_key' }, { name: 'Thumbs large', title: 229, icon_class: 'mdi mdi-view-agenda', value: 'grid-320', hasAccessKey: false }, { name: 'Thumbs small', title: 229, icon_class: 'mdi mdi-view-module', value: 'grid-80', hasAccessKey: false }];
+        return list.map(function (item) {
+            var i = _extends({}, item);
+            var value = item.value;
+            i.callback = function () {
+                _this4.switchDisplayMode(i.value);
+            };
+            if (value === displayMode) {
+                i.icon_class = 'mdi mdi-check';
+            }
+            return i;
         });
     },
 
@@ -520,17 +604,7 @@ var MainFilesList = _react2['default'].createClass({
             contextMenu: false,
             infoPanel: false
         }, {}, {}, {
-            staticItems: [{ name: 'List', title: 227, icon_class: 'mdi mdi-view-list', callback: (function () {
-                    this.switchDisplayMode('list');
-                }).bind(this), hasAccessKey: true, accessKey: 'list_access_key' }, { name: 'Detail', title: 461, icon_class: 'mdi mdi-view-headline', callback: (function () {
-                    this.switchDisplayMode('detail');
-                }).bind(this), hasAccessKey: true, accessKey: 'detail_access_key' }, { name: 'Thumbs', title: 229, icon_class: 'mdi mdi-view-grid', callback: (function () {
-                    this.switchDisplayMode('grid-160');
-                }).bind(this), hasAccessKey: true, accessKey: 'thumbs_access_key' }, { name: 'Thumbs large', title: 229, icon_class: 'mdi mdi-view-agenda', callback: (function () {
-                    this.switchDisplayMode('grid-320');
-                }).bind(this), hasAccessKey: false }, { name: 'Thumbs small', title: 229, icon_class: 'mdi mdi-view-module', callback: (function () {
-                    this.switchDisplayMode('grid-80');
-                }).bind(this), hasAccessKey: false }]
+            dynamicBuilder: this.buildDisplayModeItems.bind(this)
         });
         var buttons = new Map();
         buttons.set('switch_display_mode', multiAction);

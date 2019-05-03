@@ -24,6 +24,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/common/log"
+
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common"
@@ -59,10 +61,7 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 	if e != nil {
 		return input.WithError(e), e
 	}
-	input.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: fmt.Sprintf("Pruned %d stuck jobs", len(resp.FixedTaskIds)),
-	})
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Pruned %d stuck jobs", len(resp.FixedTaskIds)))
 
 	// Prune number of tasks per jobs
 	resp2, e := cli.DeleteTasks(ctx, &jobs.DeleteTasksRequest{
@@ -75,20 +74,15 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 	if e != nil {
 		return input.WithError(e), e
 	}
-	input.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: fmt.Sprintf("Pruned number of tasks to 1000 for each job (deleted %d tasks)", len(resp2.Deleted)),
-	})
+	log.TasksLogger(ctx).Info(fmt.Sprintf("Pruned number of tasks to 1000 for each job (deleted %d tasks)", len(resp2.Deleted)))
 
 	// Prune cleanable jobs
 	resp3, e := cli.DeleteJob(ctx, &jobs.DeleteJobRequest{CleanableJobs: true})
 	if e != nil {
 		return input.WithError(e), e
 	}
-	input.AppendOutput(&jobs.ActionOutput{
-		Success:    true,
-		StringBody: fmt.Sprintf("Deleted %d AutoClean jobs", resp3.DeleteCount),
-	})
+	msg := fmt.Sprintf("Deleted %d AutoClean jobs", resp3.DeleteCount)
+	log.TasksLogger(ctx).Info(msg)
 
 	return input, nil
 }

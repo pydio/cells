@@ -39,11 +39,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/common/utils/std"
+
 	"github.com/emicklei/proto"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-plugins/client/grpc"
 	"github.com/micro/go-plugins/registry/nats"
-	"github.com/pydio/cells/common/utils"
 )
 
 var (
@@ -142,7 +143,7 @@ func clearRandoms() {
 
 func addRandomToList() string {
 
-	r := utils.Randkey(50)
+	r := std.Randkey(50)
 
 	randomMutex.Lock()
 	defer randomMutex.Unlock()

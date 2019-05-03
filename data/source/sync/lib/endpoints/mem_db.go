@@ -165,6 +165,10 @@ func (db *MemDB) Watch(recursivePath string) (*common.WatchObject, error) {
 	return nil, errors.New("Not implemented")
 }
 
+func (db *MemDB) ComputeChecksum(node *tree.Node) error {
+	return fmt.Errorf("not.implemented")
+}
+
 /*************************/
 /* Other Methods 	 */
 /*************************/

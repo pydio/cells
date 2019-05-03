@@ -29,9 +29,11 @@ import (
 
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/registry"
+	"github.com/spf13/pflag"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
-	"github.com/spf13/pflag"
 )
 
 var (
@@ -51,6 +53,7 @@ type Registry interface {
 	GetPeers() map[string]*Peer
 	GetProcesses() map[string]*Process
 	ListServices(withExcluded ...bool) ([]Service, error)
+	ListServicesWithFilter(func(Service) bool) ([]Service, error)
 	ListRunningServices() ([]Service, error)
 	ListServicesWithMicroMeta(string, ...string) ([]Service, error)
 	SetServiceStopped(string) error
@@ -85,6 +88,11 @@ func Init(opts ...Option) {
 // ListServices returns the list of services that are started in the system
 func ListServices(withExcluded ...bool) ([]Service, error) {
 	return Default.ListServices(withExcluded...)
+}
+
+// ListServicesWithFilter returns the list of services that are started in the system
+func ListServicesWithFilter(fn func(Service) bool) ([]Service, error) {
+	return Default.ListServicesWithFilter(fn)
 }
 
 // ListRunningServices returns the list of services that are started in the system
@@ -243,14 +251,22 @@ func (c *pydioregistry) GetPeers() map[string]*Peer {
 	return c.peers
 }
 
-func (c *pydioregistry) GetPeer(address string) *Peer {
-
-	if p, ok := c.peers[address]; ok {
+// GetInitialPeer retrieves or creates a fake peer for attaching services to a fake node.
+func (c *pydioregistry) GetInitialPeer() *Peer {
+	if p, ok := c.peers["INITIAL"]; ok {
 		return p
 	}
+	p := NewPeer("INITIAL")
+	c.peers["INITIAL"] = p
+	return p
+}
 
-	new := NewPeer(address)
-	c.peers[address] = new
-
-	return new
+// GetPeer retrieves or creates a Peer from the Node info
+func (c *pydioregistry) GetPeer(node *registry.Node) *Peer {
+	if p, ok := c.peers[node.Address]; ok {
+		return p
+	}
+	p := NewPeer(node.Address, node.Metadata)
+	c.peers[node.Address] = p
+	return p
 }

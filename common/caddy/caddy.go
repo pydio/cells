@@ -88,6 +88,7 @@ type Caddy struct {
 	player        TemplateFunc
 	pathes        []string
 	templates     []TemplateFunc
+	configPaths   [][]string
 	instance      *caddy.Instance
 }
 
@@ -126,10 +127,13 @@ func Get() *Caddy {
 }
 
 // RegisterPluginTemplate adds a TemplateFunc to be called for each plugin
-func RegisterPluginTemplate(fn TemplateFunc, pathes ...string) error {
+func RegisterPluginTemplate(fn TemplateFunc, watchConfigPath []string, pathes ...string) error {
 
 	mainCaddy.pathes = append(mainCaddy.pathes, pathes...)
 	mainCaddy.templates = append(mainCaddy.templates, fn)
+	if len(watchConfigPath) > 0 {
+		mainCaddy.configPaths = append(mainCaddy.configPaths, watchConfigPath)
+	}
 
 	return nil
 }
@@ -165,6 +169,19 @@ func Restart() error {
 	}()
 
 	return nil
+}
+
+func StartWithFastRestart() error {
+	e := Start()
+	go func() {
+		<-time.After(2 * time.Second)
+		if restartRequired {
+			log.Logger(context.Background()).Debug("Restarting Proxy Now (fast restart)")
+			restartRequired = false
+			restart()
+		}
+	}()
+	return e
 }
 
 func restart() error {
@@ -218,6 +235,10 @@ func GetPathes() []string {
 
 func GetTemplates() []TemplateFunc {
 	return mainCaddy.templates
+}
+
+func GetConfigPaths() [][]string {
+	return mainCaddy.configPaths
 }
 
 func internalURLFromServices(name string, uri ...string) string {

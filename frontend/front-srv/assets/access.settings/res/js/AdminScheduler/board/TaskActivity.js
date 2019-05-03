@@ -25,7 +25,8 @@ import {Paper} from 'material-ui'
 import {JobsServiceApi, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
 
 const {MaterialTable} = Pydio.requireLib('components');
-const {moment} = Pydio.requireLib('boot');
+const {JobsStore, moment} = Pydio.requireLib('boot');
+import debounce from 'lodash.debounce'
 
 class TaskActivity extends React.Component{
 
@@ -36,6 +37,19 @@ class TaskActivity extends React.Component{
 
     componentDidMount(){
         this.loadActivity(this.props);
+        this._loadDebounced = debounce((jobId) => {
+            console.log(jobId, this.props);
+            if (jobId && this.props.task && this.props.task.JobID === jobId) {
+                this.loadActivity(this.props);
+            }
+        }, 500);
+        JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+    }
+
+    componentWillUnmount(){
+        if(this._loadDebounced){
+            JobsStore.getInstance().stopObserving("tasks_updated", this._loadDebounced);
+        }
     }
 
     componentWillReceiveProps(nextProps){
@@ -80,7 +94,7 @@ class TaskActivity extends React.Component{
             {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message']}
         ];
         return (
-            <div style={{height:600}}>
+            <div style={{height:400}}>
                 <MaterialTable
                     columns={columns}
                     data={activity}

@@ -36,8 +36,8 @@ import (
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var (
@@ -76,6 +76,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Sending Email", zap.Any("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
+	langs := i18n.UserLanguagesFromRestRequest(req, config.Default())
 	cli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
@@ -88,12 +89,16 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 		Name:    claims.DisplayName,
 	}
 	message.From.Uuid, _ = claims.DecodeUserUuid()
-	message.From.Name = claims.Name
-	message.From.Address = claims.Email
+	if message.From.Name == "" {
+		message.From.Name = claims.Name
+	}
 
 	var resolvedTos []*mailer.User
 	for _, to := range message.To {
 		if resolved, e := mh.ResolveUser(ctx, to); e == nil {
+			if resolved.Language == "" && len(langs) > 0 {
+				resolved.Language = langs[0]
+			}
 			resolvedTos = append(resolvedTos, resolved)
 		} else {
 			log.Logger(ctx).Error("ignoring sendmail for user as no email was found", zap.Any("user", to))
@@ -127,7 +132,7 @@ func (mh *MailerHandler) ResolveUser(ctx context.Context, user *mailer.User) (*m
 	}
 	emailOrAddress := user.Uuid
 	// Check if it's a user Login
-	if u, e := utils.SearchUniqueUser(ctx, emailOrAddress, ""); e == nil && u != nil {
+	if u, e := permissions.SearchUniqueUser(ctx, emailOrAddress, ""); e == nil && u != nil {
 		if email, has := u.GetAttributes()["email"]; has {
 			output := &mailer.User{Uuid: u.GetUuid(), Address: email}
 			if display, has := u.GetAttributes()["displayName"]; has {

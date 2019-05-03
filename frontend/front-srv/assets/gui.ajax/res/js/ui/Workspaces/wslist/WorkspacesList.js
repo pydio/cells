@@ -20,21 +20,23 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-const {withVerticalScroll} = Pydio.requireLib('hoc');
-const {EmptyStateView} = Pydio.requireLib('components');
+const {withVerticalScroll, ModernTextField} = Pydio.requireLib('hoc');
 import WorkspaceEntry from './WorkspaceEntry'
 const Repository = require('pydio/model/repository');
 import ResourcesManager from 'pydio/http/resources-manager'
-import {IconButton, Popover, FlatButton} from 'material-ui'
+import {IconButton, Popover, FlatButton, TextField} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
-import LangUtils from 'pydio/util/lang'
 import Color from 'color'
 
 class WorkspacesList extends React.Component{
 
     constructor(props, context){
         super(props, context);
-        this.state = this.stateFromPydio(props.pydio);
+        this.state = {
+            ...this.stateFromPydio(props.pydio),
+            toggleFilter: false,
+            filterValue: ''
+        };
         this._reloadObserver = () => {
             this.setState(this.stateFromPydio(this.props.pydio));
         };
@@ -62,8 +64,8 @@ class WorkspacesList extends React.Component{
 
     render(){
         let entries = [], sharedEntries = [], createAction;
-        const {workspaces,showTreeForWorkspace, activeRepoIsHome} = this.state;
-        const {pydio, className, style, filterByType, muiTheme, sectionTitleStyle} = this.props;
+        const {workspaces,showTreeForWorkspace, activeRepoIsHome, toggleFilter, filterValue} = this.state;
+        const {pydio, className, filterByType, muiTheme, sectionTitleStyle} = this.props;
         let selectHint, titleMarginFirst;
         // TEMP TESTS
         if (false && activeRepoIsHome) {
@@ -71,9 +73,7 @@ class WorkspacesList extends React.Component{
                 padding: '14px 18px 12px',
                 color: '#2196F3',
                 fontWeight: 500,
-                backgroundColor: '#E3F2FD',
-                /*borderBottom: '1px solid #BBDEFB',
-                fontStyle: 'italic'*/
+                backgroundColor: '#E3F2FD'
             };
             const hintIconStyle = {
                 display: 'inline-block',
@@ -86,14 +86,16 @@ class WorkspacesList extends React.Component{
         workspaces.forEach((o,k)=>{
             wsList.push(o);
         });
-        wsList.sort(LangUtils.arraySorter('getLabel', true));
+        wsList.sort((oA, oB) => {
+            return oA.getLabel().localeCompare(oB.getLabel(), undefined, {numeric: true});
+        });
 
         wsList.forEach(function(object){
 
             const key = object.getId();
-            if (Repository.isInternal(key)) return;
-            if (object.hasContentFilter()) return;
-            if (object.getAccessStatus() === 'declined') return;
+            if (Repository.isInternal(key)) {
+                return;
+            }
 
             const entry = (
                 <WorkspaceEntry
@@ -104,7 +106,9 @@ class WorkspacesList extends React.Component{
                 />
             );
             if(object.getOwner()) {
-                sharedEntries.push(entry);
+                if(!toggleFilter || !filterValue || object.getLabel().toLowerCase().indexOf(filterValue.toLowerCase()) >= 0) {
+                    sharedEntries.push(entry);
+                }
             } else {
                 entries.push(entry);
             }
@@ -121,25 +125,26 @@ class WorkspacesList extends React.Component{
                 })
             })
         }.bind(this);
+        const buttonStyles = {
+            button: {
+                width: 36,
+                height: 36,
+                padding: 6,
+                position:'absolute',
+                right: 4,
+                top: 8
+            },
+            icon : {
+                fontSize: 22,
+                color: muiTheme.palette.primary1Color //'rgba(0,0,0,.54)'
+            }
+        };
         if(this.createRepositoryEnabled()){
-            const styles = {
-                button: {
-                    width: 36,
-                    height: 36,
-                    padding: 6,
-                    position:'absolute',
-                    right: 4,
-                    top: 8
-                },
-                icon : {
-                    fontSize: 22,
-                    color: muiTheme.palette.primary1Color //'rgba(0,0,0,.54)'
-                }
-            };
             if(sharedEntries.length){
                 createAction = <IconButton
-                    style={styles.button}
-                    iconStyle={styles.icon}
+                    key={"create-cell"}
+                    style={buttonStyles.button}
+                    iconStyle={buttonStyles.icon}
                     iconClassName={"mdi mdi-plus"}
                     tooltip={messages[417]}
                     tooltipPosition={"top-left"}
@@ -171,14 +176,42 @@ class WorkspacesList extends React.Component{
 
         }
         const s = titleMarginFirst ? {...sectionTitleStyle, marginTop:5} : {...sectionTitleStyle};
+        let cellsSectionStyle = {...s, position:'relative', overflow:'visible', padding:'16px 16px', transition:'none'};
+        let cellsSectionTitle = (
+            <div
+                key="shared-title"
+                className="section-title"
+                style={cellsSectionStyle}
+            ><span style={{cursor:'pointer'}} title={messages['cells.quick-filter']} onClick={()=>{this.setState({toggleFilter: true})}}>{messages[469]} <span style={{fontSize: 12, opacity: '0.4',marginLeft: 3}} className={"mdi mdi-filter"}/></span>{createAction}</div>
+        );
+        if(toggleFilter) {
+            cellsSectionTitle = (
+                <div key="shared-title" className="section-title" style={{...cellsSectionStyle, paddingLeft: 12, paddingRight: 8, textTransform: 'none', transition:'none'}}>
+                    <ModernTextField
+                        focusOnMount={true}
+                        fullWidth={true}
+                        style={{marginTop: -16, marginBottom: -16, top: -1}}
+                        hintText={messages['cells.quick-filter']}
+                        hintStyle={{fontWeight: 400}}
+                        inputStyle={{fontWeight: 400, color:muiTheme.palette.primary1Color}}
+                        value={filterValue}
+                        onChange={(e,v) => {this.setState({filterValue:v})}}
+                        onBlur={()=>{setTimeout(()=>{if(!filterValue) this.setState({toggleFilter:false})}, 150)}}
+                    />
+                    <IconButton key={"close-filter"} iconClassName={"mdi mdi-close"} style={buttonStyles.button} iconStyle={buttonStyles.icon} onTouchTap={()=>{this.setState({toggleFilter: false, filterValue:''})}}/>
+                </div>
+            );
+        }
         sections.push({
             k:'shared',
-            title: <div key="shared-title" className="section-title" style={{...s, position:'relative', overflow:'visible', padding:'16px 16px'}}>{messages[469]}{createAction}</div>,
+            title: cellsSectionTitle,
             content: <div key="shared-ws" className="workspaces">{sharedEntries}</div>
         });
 
         let classNames = ['user-workspaces-list'];
-        if(className) classNames.push(className);
+        if(className) {
+            classNames.push(className);
+        }
 
         if(filterByType){
             let ret;

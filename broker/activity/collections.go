@@ -29,7 +29,7 @@ import (
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -65,7 +65,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 	c := createObject()
 	c.Type = activity.ObjectType_Digest
 
-	accessList, _ := utils.AccessListFromContextClaims(ctx)
+	accessList, _ := permissions.AccessListFromContextClaims(ctx)
 	if len(accessList.Workspaces) == 0 {
 		log.Logger(ctx).Error("no workspaces found while building activity digest")
 		return c, nil

@@ -27,6 +27,8 @@ import (
 	"strings"
 
 	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/index/scorch"
+	"github.com/blevesearch/bleve/index/store/boltdb"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -50,7 +52,7 @@ func NewBleveEngine(bleveIndexPath string, deleteOnClose ...bool) (*BleveServer,
 	if e == nil {
 		index, err = bleve.Open(bleveIndexPath)
 	} else {
-		index, err = bleve.New(bleveIndexPath, bleve.NewIndexMapping())
+		index, err = bleve.NewUsing(bleveIndexPath, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
 	}
 	if err != nil {
 		return nil, err
@@ -106,21 +108,17 @@ func (s *BleveServer) DeleteDocument(storeID string, docID string) error {
 
 }
 
-func (s *BleveServer) ClearIndex(ctx context.Context) error {
+func (s *BleveServer) Reset() error {
+
 	// List all nodes and remove them
-	request := bleve.NewSearchRequest(bleve.NewMatchAllQuery())
-	MaxUint := ^uint(0)
-	MaxInt := int(MaxUint >> 1)
-	request.Size = MaxInt
-	searchResult, err := s.Engine.Search(request)
-	if err != nil {
-		return err
+	s.Engine.Close()
+	if e := os.RemoveAll(s.IndexPath); e != nil {
+		return e
 	}
-	for _, hit := range searchResult.Hits {
-		log.Logger(ctx).Info("ClearIndex", zap.String("hit", hit.ID))
-		s.Engine.Delete(hit.ID)
-	}
-	return nil
+	var err error
+	s.Engine, err = bleve.NewUsing(s.IndexPath, bleve.NewIndexMapping(), scorch.Name, boltdb.Name, nil)
+	return err
+
 }
 
 func (s *BleveServer) SearchDocuments(storeID string, query *docstore.DocumentQuery, countOnly bool) ([]string, int64, error) {

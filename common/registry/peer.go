@@ -31,19 +31,26 @@ import (
 )
 
 type Peer struct {
-	address string
+	address  string
+	hostname string
 
 	// List of services associated
 	lock     *sync.RWMutex
 	register map[string]*registry.Service
 }
 
-func NewPeer(address string) *Peer {
-	return &Peer{
+func NewPeer(address string, nodeMeta ...map[string]string) *Peer {
+	p := &Peer{
 		address:  address,
 		lock:     &sync.RWMutex{},
 		register: make(map[string]*registry.Service),
 	}
+	if len(nodeMeta) > 0 {
+		if h, ok := nodeMeta[0][serviceMetaHostname]; ok {
+			p.hostname = h
+		}
+	}
+	return p
 }
 
 func (p *Peer) Add(c *registry.Service, id string) {
@@ -72,4 +79,16 @@ func (p *Peer) GetServices(name ...string) []*registry.Service {
 	}
 
 	return y
+}
+
+func (p *Peer) GetAddress() string {
+	return p.address
+}
+
+func (p *Peer) GetHostname() string {
+	return p.hostname
+}
+
+func (p *Peer) IsInitial() bool {
+	return p.address == "INITIAL"
 }

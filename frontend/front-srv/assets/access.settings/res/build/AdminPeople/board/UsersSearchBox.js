@@ -153,12 +153,16 @@ var UsersSearchBox = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1 } },
-                    _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
-                        onKeyDown: this.keyDown.bind(this),
-                        floatingLabelText: this.props.textLabel,
-                        fullWidth: true,
-                        floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
-                    })
+                    _react2['default'].createElement(
+                        'form',
+                        { autoComplete: "off" },
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
+                            onKeyDown: this.keyDown.bind(this),
+                            floatingLabelText: this.props.textLabel,
+                            fullWidth: true,
+                            floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
+                        })
+                    )
                 ),
                 _react2['default'].createElement(
                     'div',

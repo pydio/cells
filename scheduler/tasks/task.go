@@ -30,11 +30,17 @@ import (
 	"github.com/micro/protobuf/ptypes"
 	"github.com/pborman/uuid"
 
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/scheduler/actions"
+)
+
+var (
+	ContextJobUuid  = "X-Pydio-Job-Uuid"
+	ContextTaskUuid = "X-Pydio-Task-Uuid"
 )
 
 type Task struct {
@@ -47,7 +53,7 @@ type Task struct {
 }
 
 func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Task {
-	ctxUserName, _ := utils.FindUserNameInContext(ctx)
+	ctxUserName, _ := permissions.FindUserNameInContext(ctx)
 	taskID := uuid.New()
 	operationID := job.ID + "-" + taskID[0:8]
 	c := servicecontext.WithOperationID(ctx, operationID)
@@ -193,6 +199,14 @@ func (t *Task) createMessage(event interface{}) jobs.ActionMessage {
 
 		any, _ := ptypes.MarshalAny(triggerEvent)
 		initialInput.Event = any
+
+	} else if userEvent, ok := event.(*idm.ChangeEvent); ok {
+
+		any, _ := ptypes.MarshalAny(userEvent)
+		initialInput.Event = any
+		if userEvent.User != nil {
+			initialInput = initialInput.WithUser(userEvent.User)
+		}
 
 	}
 

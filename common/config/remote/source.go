@@ -131,7 +131,7 @@ func (w *sourceWatcher) Stop() error {
 // UpdateRemote sends an Update request to a remote Config Service
 func UpdateRemote(configId string, val interface{}, path ...string) error {
 
-	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, nil)
+	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
 	data, _ := json.Marshal(val)
 	hasher := md5.New()
 	hasher.Write(data)

@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -54,8 +55,9 @@ import (
 
 // Handler structure
 type Handler struct {
-	globalCtx context.Context
-	dsName    string
+	globalCtx      context.Context
+	dsName         string
+	errorsDetected chan string
 
 	IndexClient  tree.NodeProviderClient
 	S3client     synccommon.PathSyncTarget
@@ -65,12 +67,15 @@ type Handler struct {
 
 	watcher    config2.Watcher
 	reloadChan chan bool
+	stop       chan bool
 }
 
 func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 	h := &Handler{
-		globalCtx: ctx,
-		dsName:    datasource,
+		globalCtx:      ctx,
+		dsName:         datasource,
+		errorsDetected: make(chan string),
+		stop:           make(chan bool),
 	}
 	var syncConfig *object.DataSource
 	if err := servicecontext.ScanConfig(ctx, &syncConfig); err != nil {
@@ -83,13 +88,27 @@ func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 func (s *Handler) Start() {
 	s.syncTask.Start(s.globalCtx)
 	go s.watchConfigs()
+	go s.watchErrors()
 }
 
 func (s *Handler) Stop() {
+	s.stop <- true
 	s.syncTask.Shutdown()
 	if s.watcher != nil {
 		s.watcher.Stop()
 	}
+}
+
+// BroadcastCloseSession forwards session id to underlying sync task
+func (s *Handler) BroadcastCloseSession(sessionUuid string) {
+	if s.syncTask == nil {
+		return
+	}
+	s.syncTask.BroadcastCloseSession(sessionUuid)
+}
+
+func (s *Handler) NotifyError(errorPath string) {
+	s.errorsDetected <- errorPath
 }
 
 func (s *Handler) initSync(syncConfig *object.DataSource) error {
@@ -148,6 +167,38 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 }
 
+func (s *Handler) watchErrors() {
+	var branch string
+	for {
+		select {
+		case e := <-s.errorsDetected:
+			e = "/" + strings.TrimLeft(e, "/")
+			if len(branch) == 0 {
+				branch = e
+			} else {
+				path := strings.Split(e, "/")
+				stack := strings.Split(branch, "/")
+				max := math.Min(float64(len(stack)), float64(len(path)))
+				var commonParent []string
+				for i := 0; i < int(max); i++ {
+					if stack[i] == path[i] {
+						commonParent = append(commonParent, stack[i])
+					}
+				}
+				branch = "/" + strings.TrimLeft(strings.Join(commonParent, "/"), "/")
+			}
+		case <-time.After(5 * time.Second):
+			if len(branch) > 0 {
+				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
+				branch = ""
+				s.syncTask.Resync(context.Background(), false, nil, nil)
+			}
+		case <-s.stop:
+			return
+		}
+	}
+}
+
 func (s *Handler) watchConfigs() {
 	serviceName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + s.dsName
 	watcher, e := config.Default().Watch("services", serviceName)
@@ -198,6 +249,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		autoClient.StartListening(taskChan)
 
 		theTask.StatusMessage = "Starting"
+		theTask.HasProgress = true
 		theTask.Progress = 0
 		theTask.Status = jobs.TaskStatus_Running
 		theTask.StartTime = int32(time.Now().Unix())
@@ -212,6 +264,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 				select {
 				case status := <-statusChan:
 					theTask.StatusMessage = status.StatusString
+					theTask.HasProgress = true
 					theTask.Progress = status.Progress
 					theTask.Status = jobs.TaskStatus_Running
 					if status.IsError {
@@ -222,6 +275,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 					taskChan <- theTask
 				case <-doneChan:
 					theTask := req.Task
+					theTask.HasProgress = true
 					theTask.StatusMessage = "Complete"
 					theTask.Progress = 1
 					theTask.EndTime = int32(time.Now().Unix())
@@ -241,6 +295,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			theTask := req.Task
 			taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
 			theTask.StatusMessage = "Error"
+			theTask.HasProgress = true
 			theTask.Progress = 1
 			theTask.EndTime = int32(time.Now().Unix())
 			theTask.Status = jobs.TaskStatus_Error
@@ -250,8 +305,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}
 		return e
 	}
-	data, _ := json.Marshal(diff)
 	if e == nil {
+		data, _ := json.Marshal(diff.Stats())
 		resp.JsonDiff = string(data)
 	}
 	resp.Success = true

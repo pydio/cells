@@ -57,6 +57,40 @@ class Role extends Observable{
     }
 
     /**
+     * In Action, replace policy / pName to policy:pName
+     * @param acls [IdmACL]
+     * @return [IdmACL]
+     */
+    static FormatPolicyAclFromStore(acls) {
+        return acls.map(acl => {
+            if (acl.Action && acl.Action.Name === 'policy') {
+                acl.Action.Name = 'policy:' + acl.Action.Value;
+                acl.Action.Value = '1';
+            }
+            return acl;
+        })
+    }
+
+
+    /**
+     * In Action, replace policy:pName to policy/pName
+     * @param acls [IdmACL]
+     * @return [IdmACL]
+     */
+    static FormatPolicyAclToStore(acls){
+        return acls.map(acl => {
+            if (acl.Action && acl.Action.Name.indexOf('policy:') === 0) {
+                const copy = IdmACL.constructFromObject(JSON.parse(JSON.stringify(acl)));
+                copy.Action.Name = 'policy';
+                copy.Action.Value = acl.Action.Name.split(':')[1];
+                return copy;
+            }else {
+                return acl;
+            }
+        })
+    }
+
+    /**
      * @return {Promise<any>}
      */
     loadAcls(parentsOnly = false){
@@ -71,8 +105,8 @@ class Role extends Observable{
         q.RoleIDs.push(...this.parentRoles.map(pRole => pRole.Uuid));
         request.Queries.push(q);
         return api.searchAcls(request).then(collection => {
+            const acls = Role.FormatPolicyAclFromStore(collection.ACLs || []);
             if(this.parentRoles.length){
-                const acls = collection.ACLs || [];
                 if(!parentsOnly){
                     this.acls = acls.filter(acl => acl.RoleID === this.idmRole.Uuid);
                 }
@@ -80,7 +114,7 @@ class Role extends Observable{
                     this.parentAcls[r.Uuid] = acls.filter(acl => acl.RoleID === r.Uuid);
                 });
             }else{
-                this.acls = collection.ACLs || [];
+                this.acls = acls;
             }
             if(!parentsOnly){
                 this.makeSnapshot();
@@ -123,7 +157,7 @@ class Role extends Observable{
                 }
                 return Promise.all(ps).then(res => {
                     let p2 = [];
-                    this.acls.forEach(acl => {
+                    Role.FormatPolicyAclToStore(this.acls).forEach(acl => {
                         p2.push(aclApi.putAcl(acl));
                     });
                     return Promise.all(p2).then((results) => {
@@ -131,7 +165,7 @@ class Role extends Observable{
                         results.forEach(res => {
                             newAcls.push(res);
                         });
-                        this.acls = newAcls;
+                        this.acls = Role.FormatPolicyAclFromStore(newAcls);
                         this.makeSnapshot();
                         this.dirty = false;
                         this.notify("update");

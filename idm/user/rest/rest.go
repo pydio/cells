@@ -26,6 +26,11 @@ import (
 	"io"
 	"strings"
 
+	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/idm/user/grpc"
+
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -41,7 +46,7 @@ import (
 	"github.com/pydio/cells/common/service/frontend"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 var profilesLevel = map[string]int{
@@ -113,7 +118,7 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 			continue
 		}
 		u := resp.User
-		u.Roles = utils.GetRolesForUser(ctx, u, false)
+		u.Roles = permissions.GetRolesForUser(ctx, u, false)
 		result = u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies))
 	}
 
@@ -202,10 +207,10 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 			u := resp.User
 			if resp.User.IsGroup {
 				u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
-				u.Roles = utils.GetRolesForUser(ctx, u, true)
+				u.Roles = permissions.GetRolesForUser(ctx, u, true)
 				response.Groups = append(response.Groups, u)
 			} else {
-				u.Roles = utils.GetRolesForUser(ctx, u, false)
+				u.Roles = permissions.GetRolesForUser(ctx, u, false)
 				response.Users = append(response.Users, u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 			}
 		}
@@ -224,7 +229,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	login := req.PathParameter("Login")
 	ctx := req.Request.Context()
 	singleQ := &idm.UserSingleQuery{}
-	uName, claims := utils.FindUserNameInContext(ctx)
+	uName, claims := permissions.FindUserNameInContext(ctx)
 	if strings.HasSuffix(req.Request.RequestURI, "%2F") || strings.HasSuffix(req.Request.RequestURI, "/") {
 		log.Logger(req.Request.Context()).Info("Received User.Delete API request (GROUP)", zap.String("login", login), zap.String("crtGroup", claims.GroupPath), zap.String("request", req.Request.RequestURI))
 		if strings.HasPrefix(claims.GroupPath, "/"+login) {
@@ -272,20 +277,53 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		break
 	}
 
-	// Now delete user or group
-	n, e := cli.DeleteUser(req.Request.Context(), &idm.DeleteUserRequest{Query: mainQuery})
-	if e != nil {
-		service.RestError500(req, rsp, e)
-	} else {
-		msg := fmt.Sprintf("Deleted user [%s]", login)
-		if n.RowsDeleted > 1 {
-			msg = fmt.Sprintf("Deleted %d users", n.RowsDeleted)
+	if singleQ.GroupPath != "" {
+
+		uName, _ := permissions.FindUserNameInContext(ctx)
+		// This is a group deletion - send it in background
+		jobUuid := uuid.New()
+		job := &jobs.Job{
+			ID:             "delete-group-" + jobUuid,
+			Owner:          uName,
+			Label:          "Delete groups in background",
+			MaxConcurrency: 1,
+			AutoStart:      true,
+			AutoClean:      true,
+			Actions: []*jobs.Action{
+				{
+					ID: grpc.DeleteUsersActionName,
+					Parameters: map[string]string{
+						"groupPath": singleQ.GroupPath,
+					},
+				},
+			},
 		}
 
-		log.Auditer(ctx).Info(msg,
-			log.GetAuditId(common.AUDIT_USER_DELETE),
-		)
-		rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		if er != nil {
+			service.RestError500(req, rsp, er)
+		} else {
+			rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: 0})
+		}
+
+	} else {
+
+		// Now delete user or group
+		n, e := cli.DeleteUser(req.Request.Context(), &idm.DeleteUserRequest{Query: mainQuery})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+		} else {
+			msg := fmt.Sprintf("Deleted user [%s]", login)
+			if n.RowsDeleted > 1 {
+				msg = fmt.Sprintf("Deleted %d users", n.RowsDeleted)
+			}
+
+			log.Auditer(ctx).Info(msg,
+				log.GetAuditId(common.AUDIT_USER_DELETE),
+			)
+			rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
+		}
 	}
 
 }
@@ -309,13 +347,13 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			update = existing
 		}
 	} else {
-		if _, err := utils.SearchUniqueUser(ctx, inputUser.Login, ""); err == nil {
+		if _, err := permissions.SearchUniqueUser(ctx, inputUser.Login, ""); err == nil {
 			service.RestError403(req, rsp, fmt.Errorf("User with the same login already exists!"))
 			return
 		}
 	}
 	var existingAcls []*idm.ACL
-	ctxLogin, ctxClaims := utils.FindUserNameInContext(ctx)
+	ctxLogin, ctxClaims := permissions.FindUserNameInContext(ctx)
 	if update != nil {
 		// Check User Policies
 		if !s.MatchPolicies(ctx, update.Uuid, update.Policies, service2.ResourcePolicyAction_WRITE) {
@@ -352,7 +390,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		// Load current ACLs for personal role
 		for _, r := range update.Roles {
 			if r.UserRole {
-				existingAcls = utils.GetACLsForRoles(ctx, []*idm.Role{r}, &idm.ACLAction{Name: "parameter:*"})
+				existingAcls = permissions.GetACLsForRoles(ctx, []*idm.Role{r}, &idm.ACLAction{Name: "parameter:*"})
 			}
 		}
 		// Put back the pydio: attributes
@@ -536,12 +574,12 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		}
 		u = resp.User
 		if !resp.User.IsGroup {
-			u.Roles = utils.GetRolesForUser(ctx, u, false)
+			u.Roles = permissions.GetRolesForUser(ctx, u, false)
 			u = u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies))
 			paramsAclsToAttributes(ctx, []*idm.User{u})
 		} else if len(u.Roles) == 0 {
 			u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
-			u.Roles = utils.GetRolesForUser(ctx, u, true)
+			u.Roles = permissions.GetRolesForUser(ctx, u, true)
 		}
 		break
 	}
@@ -712,7 +750,7 @@ func (s *UserHandler) userById(ctx context.Context, userId string, cli idm.UserS
 			continue
 		}
 		user = rsp.User
-		user.Roles = utils.GetRolesForUser(ctx, user, false)
+		user.Roles = permissions.GetRolesForUser(ctx, user, false)
 		exists = true
 		break
 	}
@@ -742,7 +780,7 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 	if len(roles) == 0 {
 		return
 	}
-	for _, acl := range utils.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "parameter:*"}) {
+	for _, acl := range permissions.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "parameter:*"}) {
 		for _, user := range users {
 			if allowedAclKey(acl.Action.Name, user.PoliciesContextEditable) && user.Uuid == acl.RoleID {
 				user.Attributes[acl.Action.Name] = acl.Action.Value

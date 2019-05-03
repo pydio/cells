@@ -29,12 +29,13 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pydio/cells/common/utils/mtree"
+
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/tree"
 	commonsql "github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils"
 )
 
 var (
@@ -48,15 +49,15 @@ type daocache struct {
 	session string
 
 	// MPAth Cache
-	cache      map[string]*utils.TreeNode
-	childCache map[string][]*utils.TreeNode
+	cache      map[string]*mtree.TreeNode
+	childCache map[string][]*mtree.TreeNode
 
 	// NameCache
-	nameCache map[string][]*utils.TreeNode
+	nameCache map[string][]*mtree.TreeNode
 
 	mutex *sync.RWMutex
 
-	insertChan chan *utils.TreeNode
+	insertChan chan *mtree.TreeNode
 	insertDone chan bool
 
 	errors []error
@@ -75,9 +76,9 @@ func NewDAOCache(session string, d DAO) DAO {
 	c := &daocache{
 		DAO:        d,
 		session:    session,
-		cache:      make(map[string]*utils.TreeNode),
-		childCache: make(map[string][]*utils.TreeNode),
-		nameCache:  make(map[string][]*utils.TreeNode),
+		cache:      make(map[string]*mtree.TreeNode),
+		childCache: make(map[string][]*mtree.TreeNode),
+		nameCache:  make(map[string][]*mtree.TreeNode),
 		mutex:      &sync.RWMutex{},
 		insertChan: ic,
 		insertDone: id,
@@ -116,11 +117,11 @@ func (d *daocache) resync() {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 
-	d.cache = make(map[string]*utils.TreeNode)
-	d.childCache = make(map[string][]*utils.TreeNode)
-	d.nameCache = make(map[string][]*utils.TreeNode)
+	d.cache = make(map[string]*mtree.TreeNode)
+	d.childCache = make(map[string][]*mtree.TreeNode)
+	d.nameCache = make(map[string][]*mtree.TreeNode)
 
-	for node := range d.DAO.GetNodeTree(utils.NewMPath(1)) {
+	for node := range d.DAO.GetNodeTree(mtree.NewMPath(1)) {
 		mpath := node.MPath.String()
 		pmpath := node.MPath.Parent().String()
 
@@ -145,6 +146,11 @@ func (d *daocache) GetConn() dao.Conn {
 // GetConn sets the connection of the underlying dao
 func (d *daocache) SetConn(conn dao.Conn) {
 	d.DAO.(dao.DAO).SetConn(conn)
+}
+
+// CloseConn closes the connection of the underlying dao
+func (d *daocache) CloseConn() error {
+	return d.DAO.(dao.DAO).CloseConn()
 }
 
 // GetConn sets a prefix for tables and statements in the dao
@@ -188,7 +194,7 @@ func (d *daocache) Unlock() {
 }
 
 // Path resolution for a node
-func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (utils.MPath, []*utils.TreeNode, error) {
+func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error) {
 
 	if len(strpath) == 0 || strpath == "/" {
 		return []uint64{1}, nil, nil
@@ -207,12 +213,12 @@ func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (uti
 
 	// We are in creation mode, so we need to retrieve the parent node
 	// In this function, we consider that the parent node always exists
-	ppath := utils.NewMPath(1)
+	ppath := mtree.NewMPath(1)
 	if len(names) > 1 {
 		if pnode, err := d.GetNodeByPath(names[0 : len(names)-1]); err != nil {
 			return nil, nil, err
 		} else {
-			ppath = utils.NewMPathFromMPath(pnode.MPath)
+			ppath = mtree.NewMPathFromMPath(pnode.MPath)
 		}
 	}
 
@@ -225,7 +231,7 @@ func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (uti
 			source = reqNode[0]
 		}
 
-		mpath := utils.NewMPath(append(ppath, index)...)
+		mpath := mtree.NewMPath(append(ppath, index)...)
 
 		node := NewNode(source, mpath, names)
 
@@ -242,7 +248,7 @@ func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (uti
 			return nil, nil, err
 		}
 
-		return node.MPath, []*utils.TreeNode{node}, nil
+		return node.MPath, []*mtree.TreeNode{node}, nil
 	}
 }
 
@@ -279,8 +285,8 @@ func (d *daocache) Flush(final bool) error {
 }
 
 // AddNodeStream should not be used directly with the cache
-func (d *daocache) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
-	c := make(chan *utils.TreeNode)
+func (d *daocache) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
+	c := make(chan *mtree.TreeNode)
 	e := make(chan error)
 
 	go func() {
@@ -294,7 +300,7 @@ func (d *daocache) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 }
 
 // AddNode to the cache and prepares it to be added to the database
-func (d *daocache) AddNode(node *utils.TreeNode) error {
+func (d *daocache) AddNode(node *mtree.TreeNode) error {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 
@@ -313,7 +319,7 @@ func (d *daocache) AddNode(node *utils.TreeNode) error {
 	return nil
 }
 
-func (d *daocache) SetNode(node *utils.TreeNode) error {
+func (d *daocache) SetNode(node *mtree.TreeNode) error {
 
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
@@ -327,7 +333,7 @@ func (d *daocache) SetNode(node *utils.TreeNode) error {
 	return nil
 }
 
-func (d *daocache) DelNode(node *utils.TreeNode) error {
+func (d *daocache) DelNode(node *mtree.TreeNode) error {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 
@@ -341,7 +347,7 @@ func (d *daocache) DelNode(node *utils.TreeNode) error {
 }
 
 // Batch Add / Set / Delete
-func (d *daocache) GetNodes(pathes ...utils.MPath) chan *utils.TreeNode {
+func (d *daocache) GetNodes(pathes ...mtree.MPath) chan *mtree.TreeNode {
 	return d.DAO.GetNodes(pathes...)
 }
 
@@ -350,7 +356,7 @@ func (d *daocache) SetNodes(etag string, size int64) commonsql.BatchSender {
 }
 
 // Getters
-func (d *daocache) GetNode(path utils.MPath) (*utils.TreeNode, error) {
+func (d *daocache) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 
@@ -361,7 +367,7 @@ func (d *daocache) GetNode(path utils.MPath) (*utils.TreeNode, error) {
 	return d.DAO.GetNode(path)
 }
 
-func (d *daocache) GetNodeByUUID(uuid string) (*utils.TreeNode, error) {
+func (d *daocache) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 	return d.DAO.GetNodeByUUID(uuid)
 }
 
@@ -389,7 +395,7 @@ func testEq(a, b []string) bool {
 }
 
 // GetNodeByPath
-func (d *daocache) GetNodeByPath(path []string) (*utils.TreeNode, error) {
+func (d *daocache) GetNodeByPath(path []string) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 
@@ -407,7 +413,7 @@ func (d *daocache) GetNodeByPath(path []string) (*utils.TreeNode, error) {
 			return node, nil
 		}
 
-		potentialNodes := []*utils.TreeNode{}
+		potentialNodes := []*mtree.TreeNode{}
 
 		// Keeping only nodes on right level
 		for _, node := range nodes {
@@ -421,13 +427,13 @@ func (d *daocache) GetNodeByPath(path []string) (*utils.TreeNode, error) {
 		}
 
 		// Resetting potentialNodes
-		newPotentialNodes := []*utils.TreeNode{}
+		newPotentialNodes := []*mtree.TreeNode{}
 
 		// Removing nodes with wrong parent
 		for i := len(path) - 2; i >= 0; i-- {
 			for _, node := range potentialNodes {
 
-				mpath := utils.NewMPath(node.MPath[0 : i+2]...)
+				mpath := mtree.NewMPath(node.MPath[0 : i+2]...)
 
 				if pnode, ok := d.cache[mpath.String()]; !ok {
 					// We can't find the node in the cache - this could be a problem
@@ -446,14 +452,14 @@ func (d *daocache) GetNodeByPath(path []string) (*utils.TreeNode, error) {
 
 			// Resetting potentialNodes
 			potentialNodes = newPotentialNodes
-			newPotentialNodes = []*utils.TreeNode{}
+			newPotentialNodes = []*mtree.TreeNode{}
 		}
 	}
 
 	return nil, fmt.Errorf("node presumably missing")
 }
 
-func (d *daocache) GetNodeChild(path utils.MPath, name string) (*utils.TreeNode, error) {
+func (d *daocache) GetNodeChild(path mtree.MPath, name string) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 
@@ -467,13 +473,13 @@ func (d *daocache) GetNodeChild(path utils.MPath, name string) (*utils.TreeNode,
 
 	return d.DAO.GetNodeChild(path, name)
 }
-func (d *daocache) GetNodeLastChild(path utils.MPath) (*utils.TreeNode, error) {
+func (d *daocache) GetNodeLastChild(path mtree.MPath) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 
 	// Looping
 	var currentLast uint64
-	var currentLastNode *utils.TreeNode
+	var currentLastNode *mtree.TreeNode
 	if nodes, ok := d.childCache[path.String()]; ok {
 		for _, node := range nodes {
 			last := node.MPath[len(node.MPath)-1]
@@ -490,7 +496,7 @@ func (d *daocache) GetNodeLastChild(path utils.MPath) (*utils.TreeNode, error) {
 
 	return d.DAO.GetNodeLastChild(path)
 }
-func (d *daocache) GetNodeFirstAvailableChildIndex(path utils.MPath) (uint64, error) {
+func (d *daocache) GetNodeFirstAvailableChildIndex(path mtree.MPath) (uint64, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
 
@@ -533,7 +539,7 @@ func (d *daocache) GetNodeFirstAvailableChildIndex(path utils.MPath) (uint64, er
 
 }
 
-func (d *daocache) GetNodeChildrenCount(path utils.MPath) int {
+func (d *daocache) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
@@ -544,12 +550,12 @@ func (d *daocache) GetNodeChildrenCount(path utils.MPath) int {
 		res = len(nodes)
 	}
 
-	return res
+	return res, 0
 }
 
-func (d *daocache) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
+func (d *daocache) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 
-	c := make(chan *utils.TreeNode)
+	c := make(chan *mtree.TreeNode)
 
 	go func() {
 		d.mutex.RLock()
@@ -566,8 +572,8 @@ func (d *daocache) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
 	return c
 }
 
-func (d *daocache) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
-	c := make(chan *utils.TreeNode)
+func (d *daocache) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
+	c := make(chan *mtree.TreeNode)
 
 	go func() {
 		d.mutex.RLock()
@@ -585,7 +591,7 @@ func (d *daocache) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 
 	return c
 }
-func (d *daocache) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNode) error {
+func (d *daocache) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
 
 	err := d.DAO.MoveNodeTree(nodeFrom, nodeTo)
 
@@ -593,16 +599,16 @@ func (d *daocache) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNode
 
 	return err
 }
-func (d *daocache) PushCommit(node *utils.TreeNode) error {
+func (d *daocache) PushCommit(node *mtree.TreeNode) error {
 	return d.DAO.PushCommit(node)
 }
-func (d *daocache) DeleteCommits(node *utils.TreeNode) error {
+func (d *daocache) DeleteCommits(node *mtree.TreeNode) error {
 	return d.DAO.DeleteCommits(node)
 }
-func (d *daocache) ListCommits(node *utils.TreeNode) ([]*tree.ChangeLog, error) {
+func (d *daocache) ListCommits(node *mtree.TreeNode) ([]*tree.ChangeLog, error) {
 	return d.DAO.ListCommits(node)
 }
-func (d *daocache) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
+func (d *daocache) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 	err := d.DAO.ResyncDirtyEtags(rootNode)
 
 	d.resync()

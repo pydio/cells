@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Anderer Editor..."
+    "other": "Andere auswählen..."
   },
   "2": {
     "other": "Die Datei in einem anderen Editor öffnen"
@@ -13,5 +13,32 @@
   },
   "5": {
     "other": "Zuordnung löschen"
+  },
+  "drop.cell.picker": {
+    "other": "Aktion für %s auswählen..."
+  },
+  "drop.cell.share.legend": {
+    "other": "Neue Element zu dieser Zelle hinzufügen"
+  },
+  "drop.cell.copymove.legend": {
+    "other": "Innerhalb %s"
+  },
+  "drop.cell.file.share": {
+    "other": "Datei teilen"
+  },
+  "drop.cell.folder.share": {
+    "other": "Ordner teilen"
+  },
+  "drop.cell.file.move": {
+    "other": "Datei verschieben"
+  },
+  "drop.cell.folder.move": {
+    "other": "Ordner verschieben"
+  },
+  "drop.cell.file.copy": {
+    "other": "Datei kopieren"
+  },
+  "drop.cell.folder.copy": {
+    "other": "Ordner kopieren"
   }
 }

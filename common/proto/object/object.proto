@@ -1,4 +1,5 @@
 syntax="proto3";
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 
 package object;
 
@@ -43,7 +44,7 @@ enum EncryptionMode {
 
 // DataSource Object description
 message DataSource {
-    string Name = 1;
+    string Name = 1 [(validator.field) = {length_lt: 34}];
     bool Disabled = 2;
 
     StorageType StorageType = 3;

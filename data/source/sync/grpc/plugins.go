@@ -66,6 +66,19 @@ func init() {
 				service.AutoStart(false),
 				service.WithMicro(func(m micro.Service) error {
 
+					m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_INDEX_EVENT, func(ctx context.Context, msg *tree.IndexEvent) error {
+						if syncHandler == nil {
+							return nil
+						}
+						if msg.SessionForceClose != "" {
+							syncHandler.BroadcastCloseSession(msg.SessionForceClose)
+						}
+						if msg.ErrorDetected && msg.DataSourceName == syncHandler.dsName {
+							syncHandler.NotifyError(msg.ErrorPath)
+						}
+						return nil
+					}))
+
 					m.Init(micro.AfterStart(func() error {
 
 						s := m.Options().Server

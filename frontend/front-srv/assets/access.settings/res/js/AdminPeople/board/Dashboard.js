@@ -27,6 +27,8 @@ import ResourcesManager from 'pydio/http/resources-manager'
 import UsersSearchBox from './UsersSearchBox'
 import AjxpNode from 'pydio/model/node'
 import Callbacks from './Callbacks'
+import Pydio from 'pydio'
+const {JobsStore} = Pydio.requireLib('boot');
 
 let Dashboard = React.createClass({
 
@@ -47,6 +49,28 @@ let Dashboard = React.createClass({
             dataModel:dataModel,
             showAnon: false,
         };
+    },
+
+    componentDidMount(){
+        const jStore = JobsStore.getInstance();
+        this._jStoreObserver = (jobId) => {
+            if(jobId && jobId.indexOf('delete-group-') === 0) {
+                jStore.getJobs().then(jobs => {
+                    try{
+                        if(jobs.get(jobId).Tasks[0].Status === 'Finished') {
+                            this.reloadList();
+                        }
+                    } catch (e) {
+
+                    }
+                });
+            }
+        };
+        jStore.observe("tasks_updated", this._jStoreObserver);
+    },
+
+    componentWillUnmounnt(){
+        JobsStore.getInstance().stopObserving("tasks_updated", this._jStoreObserver);
     },
 
     componentWillReceiveProps(newProps){

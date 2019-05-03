@@ -21,15 +21,14 @@
 package activity
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-
-	"bytes"
 	"strconv"
 	"strings"
 
-	"github.com/boltdb/bolt"
+	bolt "github.com/etcd-io/bbolt"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/proto/activity"
@@ -329,6 +328,43 @@ func (dao *boltdbimpl) Delete(ownerType activity.OwnerType, ownerId string) erro
 		}
 		return b.DeleteBucket([]byte(ownerId))
 
+	})
+
+	if err != nil || ownerType != activity.OwnerType_USER {
+		return err
+	}
+
+	// When clearing for a given user, clear from nodes data
+	err = dao.DB().Update(func(tx *bolt.Tx) error {
+		nodesBucket := tx.Bucket([]byte(activity.OwnerType_NODE.String()))
+		if nodesBucket == nil {
+			return nil
+		}
+		// Browse nodes bucket and remove activities
+		nodesBucket.ForEach(func(k, v []byte) error {
+			if v != nil {
+				return nil
+			}
+			if outbox := nodesBucket.Bucket(k).Bucket([]byte(BoxOutbox)); outbox != nil {
+				outbox.ForEach(func(k, v []byte) error {
+					var acObject activity.Object
+					if err := json.Unmarshal(v, &acObject); err == nil && acObject.Actor != nil && acObject.Actor.Id == ownerId {
+						outbox.Delete(k)
+					}
+					return nil
+				})
+			}
+			if subscriptions := nodesBucket.Bucket(k).Bucket([]byte(BoxSubscriptions)); subscriptions != nil {
+				subscriptions.ForEach(func(k, v []byte) error {
+					if string(k) == ownerId {
+						subscriptions.Delete(k)
+					}
+					return nil
+				})
+			}
+			return nil
+		})
+		return nil
 	})
 
 	return err

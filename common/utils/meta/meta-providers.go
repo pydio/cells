@@ -1,3 +1,4 @@
+// Package meta provides tool for reading metadata from services declaring "MetaProvider" support
 package meta
 
 import (
@@ -11,6 +12,11 @@ import (
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
+)
+
+const (
+	ServiceMetaProvider   = "MetaProvider"
+	ServiceMetaNsProvider = "MetaNsProvider"
 )
 
 type MetaProviderCloser func()
@@ -91,7 +97,7 @@ func getMetaProviderStreamers(withCoreMeta bool) ([]tree.NodeProviderStreamerCli
 	}
 
 	// Other Meta Providers (running services only)
-	services, err := registry.ListServicesWithMicroMeta("MetaProvider", "stream")
+	services, err := registry.ListServicesWithMicroMeta(ServiceMetaProvider, "stream")
 	if err != nil {
 		return nil, names
 	}

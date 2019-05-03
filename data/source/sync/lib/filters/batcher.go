@@ -22,14 +22,18 @@ package filters
 
 import (
 	"context"
+	"path"
 	"strings"
 	"sync"
 	"time"
 
+	common2 "github.com/pydio/cells/common"
+
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/data/source/sync/lib/common"
-	"go.uber.org/zap"
 )
 
 type EventsBatcher struct {
@@ -40,8 +44,9 @@ type EventsBatcher struct {
 	batchCacheMutex *sync.Mutex
 	batchCache      map[string][]common.EventInfo
 
-	batchOut      chan *Batch
-	eventChannels []chan common.ProcessorEvent
+	batchOut         chan *Batch
+	eventChannels    []chan common.ProcessorEvent
+	closeSessionChan chan string
 }
 
 func (ev *EventsBatcher) RegisterEventChannel(out chan common.ProcessorEvent) {
@@ -60,17 +65,16 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		Type: "filter:start",
 		Data: batch,
 	})
-	var createEvent *BatchedEvent
-	for _, createEvent = range batch.CreateFiles {
+	for _, createEvent := range batch.CreateFiles {
 		var node *tree.Node
 		var err error
 		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
 			node = createEvent.EventInfo.ScanSourceNode
-			log.Logger(ev.globalContext).Debug("Create File", zap.Any("node", node))
+			log.Logger(ev.globalContext).Debug("Create File", node.Zap())
 		} else {
 			// Todo : Feed node from event instead of calling LoadNode() again?
 			node, err = ev.Source.LoadNode(createEvent.EventInfo.CreateContext(ev.globalContext), createEvent.EventInfo.Path)
-			log.Logger(ev.globalContext).Debug("Load File", zap.Any("node", node))
+			log.Logger(ev.globalContext).Debug("Load File", node.Zap())
 		}
 		if err != nil {
 			delete(batch.CreateFiles, createEvent.Key)
@@ -79,10 +83,13 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 			}
 		} else {
 			createEvent.Node = node
+			if node.Uuid == "" && path.Base(node.Path) != common2.PYDIO_SYNC_HIDDEN_FILE_META {
+				batch.RefreshFilesUuid[createEvent.Key] = createEvent
+			}
 		}
 	}
 
-	for _, createEvent = range batch.CreateFolders {
+	for _, createEvent := range batch.CreateFolders {
 		var node *tree.Node
 		var err error
 		if createEvent.EventInfo.ScanEvent && createEvent.EventInfo.ScanSourceNode != nil {
@@ -101,34 +108,46 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		log.Logger(ev.globalContext).Debug("Create Folder", zap.Any("node", createEvent.Node))
 	}
 
+	detectFolderMoves(ev.globalContext, batch, ev.Target)
+
+	var possibleMoves []*Move
 	for _, deleteEvent := range batch.Deletes {
 		localPath := deleteEvent.EventInfo.Path
-		dbNode, _ := ev.Target.LoadNode(deleteEvent.EventInfo.CreateContext(ev.globalContext), localPath)
-		log.Logger(ev.globalContext).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
+		var dbNode *tree.Node
+		if deleteEvent.Node != nil {
+			// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
+			dbNode = deleteEvent.Node
+		} else {
+			dbNode, _ = ev.Target.LoadNode(deleteEvent.EventInfo.CreateContext(ev.globalContext), localPath)
+			log.Logger(ev.globalContext).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
+		}
 		if dbNode != nil {
 			deleteEvent.Node = dbNode
 			if dbNode.IsLeaf() {
-				for _, createEvent = range batch.CreateFiles {
-					if createEvent.Node != nil && (createEvent.Node.Etag == dbNode.Etag || createEvent.Node.Uuid == dbNode.Uuid) {
-						log.Logger(ev.globalContext).Debug("Existing leaf node with same hash or Uuid: this is a move", zap.String("etag", dbNode.Etag), zap.String("path", dbNode.Path))
+				var found bool
+				// Look by UUID first
+				for _, createEvent := range batch.CreateFiles {
+					if createEvent.Node != nil && createEvent.Node.Uuid == dbNode.Uuid {
+						log.Logger(ev.globalContext).Debug("Existing leaf node with Uuid: safe move to ", createEvent.Node.ZapPath())
 						createEvent.Node = dbNode
 						batch.FileMoves[createEvent.Key] = createEvent
 						delete(batch.Deletes, deleteEvent.Key)
 						delete(batch.CreateFiles, createEvent.Key)
+						found = true
 						break
 					}
 				}
-
-			} else {
-				for _, createEvent = range batch.CreateFolders {
-					log.Logger(ev.globalContext).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", createEvent.Node.Zap(), dbNode.Zap())
-					if createEvent.Node.Uuid == dbNode.Uuid {
-						log.Logger(ev.globalContext).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.Uuid), zap.String("path", dbNode.Path))
-						createEvent.Node = dbNode
-						batch.FolderMoves[createEvent.Key] = createEvent
-						delete(batch.Deletes, deleteEvent.Key)
-						delete(batch.CreateFolders, createEvent.Key)
-						break
+				// Look by Etag
+				if !found {
+					for _, createEvent := range batch.CreateFiles {
+						if createEvent.Node != nil && createEvent.Node.Etag == dbNode.Etag {
+							log.Logger(ev.globalContext).Debug("Existing leaf node with same ETag: enqueuing possible move", createEvent.Node.ZapPath())
+							possibleMoves = append(possibleMoves, &Move{
+								deleteEvent: deleteEvent,
+								createEvent: createEvent,
+								dbNode:      dbNode,
+							})
+						}
 					}
 				}
 			}
@@ -160,34 +179,13 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		}
 	}
 
-	// Prune Moves: remove MoveFiles if MoveFolder is associated
-	deleteFileMoves := []string{}
-	deleteFolderMoves := []string{}
-	for _, folderMoveEvent := range batch.FolderMoves {
-		folderFrom := folderMoveEvent.Node.Path
-		folderTo := folderMoveEvent.EventInfo.Path
-		for fMoveKey, moveEvent := range batch.FileMoves {
-			from := moveEvent.Node.Path
-			to := moveEvent.EventInfo.Path
-			if strings.HasPrefix(from, folderFrom) && strings.HasPrefix(to, folderTo) {
-				deleteFileMoves = append(deleteFileMoves, fMoveKey)
-			}
-		}
-		for folderMoveKey, moveEvent := range batch.FolderMoves {
-			from := moveEvent.Node.Path
-			to := moveEvent.EventInfo.Path
-			if len(from) > len(folderFrom) && len(to) > len(folderTo) && strings.HasPrefix(from, folderFrom) && strings.HasPrefix(to, folderTo) {
-				deleteFolderMoves = append(deleteFolderMoves, folderMoveKey)
-			}
-		}
-	}
-	for _, del := range deleteFileMoves {
-		log.Logger(ev.globalContext).Debug("Ignoring Move for file " + del + " as folder is already moved")
-		delete(batch.FileMoves, del)
-	}
-	for _, del := range deleteFolderMoves {
-		log.Logger(ev.globalContext).Debug("Ignoring Move for folder " + del + " as folder is already moved")
-		delete(batch.FolderMoves, del)
+	moves := sortClosestMoves(ev.globalContext, possibleMoves)
+	for _, move := range moves {
+		log.Logger(ev.globalContext).Debug("Picked closest move", zap.Object("move", move))
+		move.createEvent.Node = move.dbNode
+		batch.FileMoves[move.createEvent.Key] = move.createEvent
+		delete(batch.Deletes, move.deleteEvent.Key)
+		delete(batch.CreateFiles, move.createEvent.Key)
 	}
 
 	// Prune Deletes: remove children if parent is already deleted
@@ -212,10 +210,16 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 	})
 }
 
-func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo) {
+func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	batch := NewBatch()
+	/*
+		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {
+			batch.SessionProvider = p
+			batch.SessionProviderContext = events[0].CreateContext(ev.globalContext)
+		}
+	*/
 
 	for _, event := range events {
 		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
@@ -236,9 +240,7 @@ func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo) {
 			batch.Deletes[key] = bEvent
 		}
 	}
-	log.Logger(ev.globalContext).Debug("Batch Before Filtering", batch.Zaps()...)
 	ev.FilterBatch(batch)
-	log.Logger(ev.globalContext).Debug("Batch After Filtering", batch.Zaps()...)
 	ev.batchOut <- batch
 
 }
@@ -251,6 +253,7 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 	for {
 		select {
 		case event := <-in:
+			//log.Logger(ev.globalContext).Info("Received S3 Event", zap.Any("e", event))
 			// Add to queue
 			if session := event.Metadata["X-Pydio-Session"]; session != "" {
 				if strings.HasPrefix(session, "close-") {
@@ -259,22 +262,32 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 					ev.batchCacheMutex.Lock()
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
-					go ev.ProcessEvents(ev.batchCache[session])
+					go ev.ProcessEvents(ev.batchCache[session], true)
 					delete(ev.batchCache, session)
 					ev.batchCacheMutex.Unlock()
 				} else {
 					ev.batchCacheMutex.Lock()
+					log.Logger(ev.globalContext).Debug("[batcher] Batching Event in session "+session, zap.Any("e", event))
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					ev.batchCacheMutex.Unlock()
 				}
 			} else if event.ScanEvent || event.OperationId == "" {
+				log.Logger(ev.globalContext).Debug("[batcher] Batching Event without session ", zap.Any("e", event))
 				batch = append(batch, event)
 			}
+		case session := <-ev.closeSessionChan:
+			ev.batchCacheMutex.Lock()
+			if events, ok := ev.batchCache[session]; ok {
+				log.Logger(ev.globalContext).Debug("[batcher] Force closing session now!")
+				go ev.ProcessEvents(events, true)
+				delete(ev.batchCache, session)
+			}
+			ev.batchCacheMutex.Unlock()
 		case <-time.After(duration):
 			// Process Queue
 			if len(batch) > 0 {
 				log.Logger(ev.globalContext).Debug("[batcher] Processing batch after timeout")
-				go ev.ProcessEvents(batch)
+				go ev.ProcessEvents(batch, false)
 				batch = nil
 			}
 		}
@@ -283,14 +296,19 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 
 }
 
+func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
+	ev.closeSessionChan <- sessionUuid
+}
+
 func NewEventsBatcher(ctx context.Context, source common.PathSyncSource, target common.PathSyncTarget) *EventsBatcher {
 
 	return &EventsBatcher{
-		Source:          source,
-		Target:          target,
-		globalContext:   ctx,
-		batchCache:      make(map[string][]common.EventInfo),
-		batchCacheMutex: &sync.Mutex{},
+		Source:           source,
+		Target:           target,
+		globalContext:    ctx,
+		batchCache:       make(map[string][]common.EventInfo),
+		batchCacheMutex:  &sync.Mutex{},
+		closeSessionChan: make(chan string, 1),
 	}
 
 }

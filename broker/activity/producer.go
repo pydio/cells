@@ -24,9 +24,34 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
+
 	"github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 )
+
+func AclActivity(author string, workspace *idm.Workspace, permission string) (ac *activity.Object) {
+	ac = createObject()
+	ac.Type = activity.ObjectType_Share
+	t := activity.ObjectType_Workspace
+	if workspace.Scope == idm.WorkspaceScope_ROOM {
+		t = activity.ObjectType_Cell
+	}
+	ac.Object = &activity.Object{
+		Type: t,
+		Name: workspace.Label,
+		Id:   workspace.UUID,
+	}
+	ac.Actor = &activity.Object{
+		Type: activity.ObjectType_Person,
+		Name: author,
+		Id:   author,
+	}
+	ac.Updated = &timestamp.Timestamp{
+		Seconds: time.Now().Unix(),
+	}
+	return
+}
 
 func DocumentActivity(author string, event *tree.NodeChangeEvent) (ac *activity.Object, detectedNode *tree.Node) {
 

@@ -24,8 +24,9 @@ package grpc
 import (
 	"sync"
 
-	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
@@ -60,6 +61,7 @@ func init() {
 
 				tree.RegisterNodeProviderHandler(m.Options().Server, treeServer)
 				tree.RegisterNodeReceiverHandler(m.Options().Server, treeServer)
+				tree.RegisterSearcherHandler(m.Options().Server, treeServer)
 
 				go watchRegistry(ctx, treeServer)
 

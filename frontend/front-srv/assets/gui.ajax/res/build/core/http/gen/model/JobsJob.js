@@ -27,6 +27,10 @@ var _JobsAction = require('./JobsAction');
 
 var _JobsAction2 = _interopRequireDefault(_JobsAction);
 
+var _JobsNodesSelector = require('./JobsNodesSelector');
+
+var _JobsNodesSelector2 = _interopRequireDefault(_JobsNodesSelector);
+
 var _JobsSchedule = require('./JobsSchedule');
 
 var _JobsSchedule2 = _interopRequireDefault(_JobsSchedule);
@@ -34,6 +38,10 @@ var _JobsSchedule2 = _interopRequireDefault(_JobsSchedule);
 var _JobsTask = require('./JobsTask');
 
 var _JobsTask2 = _interopRequireDefault(_JobsTask);
+
+var _JobsUsersSelector = require('./JobsUsersSelector');
+
+var _JobsUsersSelector2 = _interopRequireDefault(_JobsUsersSelector);
 
 /**
 * The JobsJob model module.
@@ -64,6 +72,8 @@ var JobsJob = (function () {
         this.MaxConcurrency = undefined;
         this.TasksSilentUpdate = undefined;
         this.Tasks = undefined;
+        this.NodeEventFilter = undefined;
+        this.UserEventFilter = undefined;
     }
 
     /**
@@ -116,6 +126,12 @@ var JobsJob = (function () {
             }
             if (data.hasOwnProperty('Tasks')) {
                 obj['Tasks'] = _ApiClient2['default'].convertToType(data['Tasks'], [_JobsTask2['default']]);
+            }
+            if (data.hasOwnProperty('NodeEventFilter')) {
+                obj['NodeEventFilter'] = _JobsNodesSelector2['default'].constructFromObject(data['NodeEventFilter']);
+            }
+            if (data.hasOwnProperty('UserEventFilter')) {
+                obj['UserEventFilter'] = _JobsUsersSelector2['default'].constructFromObject(data['UserEventFilter']);
             }
         }
         return obj;
@@ -176,4 +192,12 @@ module.exports = exports['default'];
 
 /**
 * @member {Array.<module:model/JobsTask>} Tasks
+*/
+
+/**
+* @member {module:model/JobsNodesSelector} NodeEventFilter
+*/
+
+/**
+* @member {module:model/JobsUsersSelector} UserEventFilter
 */

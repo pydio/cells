@@ -945,28 +945,35 @@ let SimpleList = React.createClass({
                     const aLeaf = nodeA.isLeaf();
                     const bLeaf = nodeB.isLeaf();
                     let res = (aLeaf && !bLeaf ? 1 : ( !aLeaf && bLeaf ? -1 : 0));
-                    if(res !== 0) return res;
-                    res = nodeA.getLabel().localeCompare(nodeB.getLabel());
-                    return res;
+                    if(res !== 0) {
+                        return res;
+                    } else {
+                        return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
+                    }
                 };
             }else{
                 sortFunction = (a, b) => {
                     if (a.parent){
                         return -1;
                     }
-                    let aMeta = a.node.getMetadata().get(attribute) || "";
-                    let bMeta = b.node.getMetadata().get(attribute) || "";
+                    if (b.parent){
+                        return 1;
+                    }
                     let res;
                     if(sortType === 'number'){
+                        let aMeta = a.node.getMetadata().get(attribute) || 0;
+                        let bMeta = b.node.getMetadata().get(attribute) || 0;
                         aMeta = parseFloat(aMeta);
                         bMeta = parseFloat(bMeta);
                         res  = (direction === 'asc' ? aMeta - bMeta : bMeta - aMeta);
                     }else if(sortType === 'string'){
+                        let aMeta = a.node.getMetadata().get(attribute) || "";
+                        let bMeta = b.node.getMetadata().get(attribute) || "";
                         res = (direction === 'asc'? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta));
                     }
                     if(res === 0){
                         // Resort by label to make it stable
-                        let labComp = a.node.getLabel().localeCompare(b.node.getLabel());
+                        let labComp = a.node.getLabel().localeCompare(b.node.getLabel(), undefined, {numeric: true});
                         res = (direction === 'asc' ? labComp : -labComp);
                     }
                     return res;

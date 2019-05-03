@@ -23,8 +23,9 @@ package cmd
 import (
 	"log"
 
-	"github.com/pydio/cells/common/utils"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common/utils/docs"
 )
 
 var docPath string
@@ -44,7 +45,7 @@ github.com/spf13/cobra/doc and the vendor/github.com/cpuguy83/go-md2man/md2man/r
 		if docPath == "" {
 			log.Fatal("Cannot get path flag")
 		} else {
-			err := utils.GenMarkdownTree(RootCmd, docPath)
+			err := docs.GenMarkdownTree(RootCmd, docPath)
 			if err != nil {
 				log.Fatal(err)
 			}

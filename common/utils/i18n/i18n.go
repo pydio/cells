@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+// Package i18n wraps go-i18n lib for manipulating bundles
 package i18n
 
 import (
@@ -25,12 +25,13 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/pydio/cells/common/utils/permissions"
+
 	"github.com/emicklei/go-restful"
 	"github.com/pydio/go-os/config"
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/utils"
 )
 
 var (
@@ -130,7 +131,7 @@ func UserLanguage(ctx context.Context, user *idm.User, conf config.Config) strin
 		return defaultLanguage
 	}
 	// from last to first, try to find the "parameter:core.conf:lang" action
-	langActions := utils.GetACLsForRoles(ctx, user.Roles, &idm.ACLAction{Name: "parameter:core.conf:lang"})
+	langActions := permissions.GetACLsForRoles(ctx, user.Roles, &idm.ACLAction{Name: "parameter:core.conf:lang"})
 	if len(langActions) == 0 {
 		return defaultLanguage
 	}

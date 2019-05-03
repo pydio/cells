@@ -32,6 +32,7 @@ message Mail {
     int32 Retries = 15;
     repeated string sendErrors = 16;
 
+    User Sender = 17;
 }
 
 service MailerService {

@@ -31,13 +31,22 @@ const Dashboard = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
-    eventsNames: {
+    nodeEventsNames: {
         '0':'trigger.create.node',
         '1':'trigger.read.node',
         '2':'trigger.update.path',
         '3':'trigger.update.content',
         '4':'trigger.update.metadata',
         '5':'trigger.delete.node'
+    },
+
+    userEventsNames: {
+        '0': 'trigger.create.user',
+        '1': 'trigger.read.user',
+        '2': 'trigger.update.user',
+        '3': 'trigger.delete.user',
+        '4': 'trigger.bind.user',
+        '5': 'trigger.logout.user'
     },
 
     getInitialState(){
@@ -88,9 +97,19 @@ const Dashboard = React.createClass({
             }
         }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
+        this._poll = setInterval(()=>{
+            if (this.state && this.state.selectJob){
+                this.loadOne(this.state.selectJob, true);
+            } else {
+                this.load(true)
+            }
+        }, 10000);
     },
 
     componentWillUnmount(){
+        if(this._poll){
+            clearInterval(this._poll);
+        }
         JobsStore.getInstance().stopObserving("tasks_updated");
     },
 
@@ -158,8 +177,10 @@ const Dashboard = React.createClass({
             } else if(job.EventNames) {
                 data.TriggerValue = 2;
                 data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(e => {
-                    if(e.indexOf('NODE_CHANGE:') === 0){
-                        return m(this.eventsNames[e.replace('NODE_CHANGE:', '')]);
+                    if(e.indexOf('NODE_CHANGE:') === 0) {
+                        return m(this.nodeEventsNames[e.replace('NODE_CHANGE:', '')]);
+                    } else if(e.indexOf('IDM_CHANGE:USER:') === 0) {
+                        return m(this.userEventsNames[e.replace('IDM_CHANGE:USER:', '')]);
                     }else {
                         return e;
                     }

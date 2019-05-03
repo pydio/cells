@@ -138,6 +138,7 @@ func (v *AbstractBranchFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 		Node:              out,
 		WithCommits:       in.WithCommits,
 		WithExtendedStats: in.WithExtendedStats,
+		ObjectStats:       in.ObjectStats,
 	}, opts...)
 	if err == nil && response.Node != nil {
 		_, out2, oE := v.outputMethod(ctx, response.Node, "in")
@@ -191,7 +192,7 @@ func (v *AbstractBranchFilter) UpdateNode(ctx context.Context, in *tree.UpdateNo
 	if err != nil {
 		return nil, err
 	}
-	_, outTo, _ := v.inputMethod(ctx, in.To, "to")
+	ctx, outTo, _ := v.inputMethod(ctx, in.To, "to")
 
 	newReq := proto.Clone(in).(*tree.UpdateNodeRequest)
 	newReq.From = out

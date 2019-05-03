@@ -283,7 +283,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 			if len(foundOriginal) > 0 && foundOriginal == node.Etag {
 				// No update necessary
 				logger.Debug("Ignoring Resize: thumb already exists in store", zap.Any("original", oi))
-				return false, nil
+				return true, nil
 			}
 		}
 
