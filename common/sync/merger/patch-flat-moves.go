@@ -95,16 +95,8 @@ func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 			_, createFolderExists := b.createFolders[deleteEvent.Key]
 			if createFileExists || createFolderExists {
 				// There was a create & remove in the same patch, on a non indexed node.
-				// We are not sure of the order, Stat the file.
-				var testLeaf bool
-				if createFileExists {
-					testLeaf = true
-				} else {
-					testLeaf = false
-				}
-				existNode, _ := b.Source().LoadNode(deleteEvent.EventInfo.CreateContext(ctx), deleteEvent.EventInfo.Path, testLeaf)
-				if existNode == nil {
-					// File does not exist finally, ignore totally
+				// We are not sure of the order, stat the file, and remove from creates if it does not finally exists
+				if test, _ := b.Source().LoadNode(deleteEvent.EventInfo.CreateContext(ctx), deleteEvent.EventInfo.Path); test == nil {
 					if createFileExists {
 						delete(b.createFiles, deleteEvent.Key)
 					}

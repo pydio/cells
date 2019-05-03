@@ -9,8 +9,6 @@ import (
 type DirectionType int
 
 const (
-	// Use unique path separator everywhere
-	InternalPathSeparator = "/"
 	// Minio default Etag when a new file is detected
 	DefaultEtag = "00000000000000000000000000000000-1"
 
@@ -25,8 +23,8 @@ func IsIgnoredFile(path string) (ignored bool) {
 
 func DirWithInternalSeparator(filePath string) string {
 
-	segments := strings.Split(filePath, InternalPathSeparator)
-	return strings.Join(segments[:len(segments)-1], InternalPathSeparator)
+	segments := strings.Split(filePath, "/")
+	return strings.Join(segments[:len(segments)-1], "/")
 
 }
 

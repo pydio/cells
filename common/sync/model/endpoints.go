@@ -122,6 +122,10 @@ type SessionProvider interface {
 	FinishSession(ctx context.Context, sessionUuid string) error
 }
 
+type HashStoreConsumer interface {
+	SetHashStore(store Endpoint)
+}
+
 type Snapshoter interface {
 	PathSyncSource
 	IsEmpty() bool
