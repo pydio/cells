@@ -38,6 +38,7 @@ import (
 	"github.com/pborman/uuid"
 	"github.com/rjeczalik/notify"
 	"github.com/spf13/afero"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -49,37 +50,47 @@ const (
 	SyncTmpPrefix = ".tmp.write."
 )
 
-type Discarder struct {
-	bytes.Buffer
-}
+// TODO MOVE IN A fs_windows FILE TO AVOID RUNTIME OS CHECK
+func CanonicalPath(path string) string {
 
-func (d *Discarder) Close() error {
-	return nil
-}
-
-type WrapperWriter struct {
-	io.WriteCloser
-	tmpPath      string
-	targetPath   string
-	client       *FSClient
-	snapshotPath string
-}
-
-func (w *WrapperWriter) Close() error {
-	err := w.WriteCloser.Close()
-	if err != nil {
-		w.client.FS.Remove(w.tmpPath)
-		return err
-	} else {
-		e := w.client.FS.Rename(w.tmpPath, w.targetPath)
-		if e == nil && w.client.updateSnapshot != nil {
-			ctx := context.Background()
-			n, _ := w.client.LoadNode(ctx, w.snapshotPath, true)
-			log.Logger(ctx).Info("[FS] Update Snapshot", n.Zap())
-			w.client.updateSnapshot.CreateNode(ctx, n, true)
+	if runtime.GOOS == "windows" {
+		// Remove any leading slash/backslash
+		path = strings.TrimLeft(path, "/\\")
+		p, e := filepath.EvalSymlinks(path)
+		if e != nil {
+			return path
+		} else if p != path {
+			// Make sure drive letter is lowerCase
+			volume := filepath.VolumeName(p)
+			if strings.HasSuffix(volume, ":") {
+				p = strings.ToLower(volume) + strings.TrimPrefix(p, volume)
+			}
+			return p
 		}
-		return e
 	}
+	return path
+
+}
+
+func (c *FSClient) normalize(path string) string {
+	path = strings.TrimLeft(path, string(os.PathSeparator))
+	if runtime.GOOS == "darwin" {
+		return string(norm.NFC.Bytes([]byte(path)))
+	} else if runtime.GOOS == "windows" {
+		return strings.Replace(path, string(os.PathSeparator), model.InternalPathSeparator, -1)
+	}
+	return path
+}
+
+func (c *FSClient) denormalize(path string) string {
+	// Make sure it starts with a /
+	path = fmt.Sprintf("/%v", strings.TrimLeft(path, model.InternalPathSeparator))
+	if runtime.GOOS == "darwin" {
+		return string(norm.NFD.Bytes([]byte(path)))
+	} else if runtime.GOOS == "windows" {
+		return strings.Replace(path, model.InternalPathSeparator, string(os.PathSeparator), -1)
+	}
+	return path
 }
 
 // FSClient implementation of an endpoint
@@ -90,28 +101,10 @@ type FSClient struct {
 	RootPath       string
 	FS             afero.Fs
 	updateSnapshot model.PathSyncTarget
-	hashStore      model.Endpoint
-}
-
-func NewFSClient(rootPath string) (*FSClient, error) {
-	c := &FSClient{}
-	rootPath = c.denormalize(rootPath)
-	rootPath = strings.TrimRight(rootPath, "/")
-	c.RootPath = CanonicalPath(rootPath)
-	c.FS = afero.NewBasePathFs(afero.NewOsFs(), c.RootPath)
-	_, e := c.FS.Stat("/")
-	if e != nil {
-		return nil, errors.New("Cannot stat root folder " + c.RootPath + "!")
-	}
-	return c, nil
 }
 
 func (c *FSClient) SetUpdateSnapshot(target model.PathSyncTarget) {
 	c.updateSnapshot = target
-}
-
-func (c *FSClient) SetHashStore(source model.Endpoint) {
-	c.hashStore = source
 }
 
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
@@ -120,8 +113,84 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 		URI: "fs://" + c.RootPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
+		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
 	}
 
+}
+
+func (c *FSClient) ComputeChecksum(node *tree.Node) error {
+	return fmt.Errorf("not.implemented")
+}
+
+func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error) {
+	data := make(map[string][]*tree.Node)
+	final := make(map[string][]*tree.Node)
+	err := c.Walk(func(path string, node *tree.Node, err error) {
+		if err != nil || node == nil {
+			return
+		}
+		if node.IsLeaf() {
+			return
+		}
+		if s, ok := data[node.Uuid]; ok {
+			s = append(s, node)
+			final[node.Uuid] = s
+		} else {
+			data[node.Uuid] = make([]*tree.Node, 1)
+			data[node.Uuid] = append(data[node.Uuid], node)
+		}
+	})
+	return final, err
+}
+
+func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
+	p := c.denormalize(node.Path)
+	var err error
+	pFile := filepath.Join(p, common.PYDIO_SYNC_HIDDEN_FILE_META)
+	if err = c.FS.Remove(pFile); err == nil {
+		log.Logger(ctx).Info("Refreshing folder Uuid for", node.ZapPath())
+		err = afero.WriteFile(c.FS, pFile, []byte(node.Uuid), 0666)
+	}
+	return node, err
+}
+
+func (c *FSClient) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
+	wrappingFunc := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			walknFc("", nil, err)
+			return nil
+		}
+		if len(path) == 0 || path == "/" || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
+			return nil
+		}
+		path = c.normalize(path)
+		node, lErr := c.LoadNode(context.Background(), path, !info.IsDir())
+		if lErr != nil {
+			walknFc("", nil, lErr)
+			return nil
+		}
+
+		node.MTime = info.ModTime().Unix()
+		node.Size = info.Size()
+		node.Mode = int32(info.Mode())
+
+		walknFc(path, node, nil)
+		return nil
+	}
+	// Todo : check pathes exists and return error if not ?
+	if len(pathes) > 0 {
+		for _, path := range pathes {
+			// Go be send in concurrency?
+
+			err = afero.Walk(c.FS, c.denormalize(path), wrappingFunc)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	} else {
+		return afero.Walk(c.FS, model.InternalPathSeparator, wrappingFunc)
+	}
 }
 
 // LoadNode is the Read in CRUD.
@@ -172,7 +241,7 @@ func (c *FSClient) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 
 func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
-		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of createNode")
+		return errors.New("This is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
 	fPath := c.denormalize(node.Path)
 	_, e := c.FS.Stat(fPath)
@@ -230,44 +299,148 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 
 }
 
-func (c *FSClient) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
+// Internal function expects already denormalized form
+func (c *FSClient) moveRecursively(oldPath string, newPath string) (err error) {
 
-	wrappingFunc := func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			walknFc("", nil, err)
-			return nil
-		}
-		if len(path) == 0 || path == "/" || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
-			return nil
-		}
-		path = c.normalize(path)
-		node, lErr := c.LoadNode(context.Background(), path, !info.IsDir())
-		if lErr != nil {
-			walknFc("", nil, lErr)
-			return nil
-		}
-
-		node.MTime = info.ModTime().Unix()
-		node.Size = info.Size()
-		node.Mode = int32(info.Mode())
-
-		walknFc(path, node, nil)
+	// Some fs require moving resources recursively
+	moves := make(map[int]string)
+	indexes := make([]int, 0)
+	i := 0
+	afero.Walk(c.FS, oldPath, func(wPath string, info os.FileInfo, err error) error {
+		//newWPath := newPath + strings.TrimPrefix(wPath, oldPath)
+		indexes = append(indexes, i)
+		moves[i] = wPath
+		i++
 		return nil
+	})
+	total := len(indexes)
+	for key := range indexes {
+		//c.FS.Rename(moveK, moveV)
+		key = total - key
+		wPath := moves[key]
+		if len(wPath) == 0 {
+			continue
+		}
+		msg := fmt.Sprintf("Moving %v to %v", wPath, newPath+strings.TrimPrefix(wPath, oldPath))
+		log.Logger(context.Background()).Debug(msg)
+		c.FS.Rename(wPath, newPath+strings.TrimPrefix(wPath, oldPath))
 	}
-	// Todo : check pathes exists and return error if not ?
-	if len(pathes) > 0 {
-		for _, path := range pathes {
-			// Go be send in concurrency?
+	c.FS.Rename(oldPath, newPath)
+	//rename(oldPath,)
+	return nil
 
-			err = afero.Walk(c.FS, c.denormalize(path), wrappingFunc)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
+}
+
+type Discarder struct {
+	bytes.Buffer
+}
+
+func (d *Discarder) Close() error {
+	return nil
+}
+
+type WrapperWriter struct {
+	io.WriteCloser
+	tmpPath      string
+	targetPath   string
+	client       *FSClient
+	snapshotPath string
+}
+
+func (w *WrapperWriter) Close() error {
+	err := w.WriteCloser.Close()
+	if err != nil {
+		w.client.FS.Remove(w.tmpPath)
+		return err
 	} else {
-		return afero.Walk(c.FS, "/", wrappingFunc)
+		e := w.client.FS.Rename(w.tmpPath, w.targetPath)
+		if e == nil && w.client.updateSnapshot != nil {
+			ctx := context.Background()
+			n, _ := w.client.LoadNode(ctx, w.snapshotPath, true)
+			log.Logger(ctx).Info("[FS] Update Snapshot", n.Zap())
+			w.client.updateSnapshot.CreateNode(ctx, n, true)
+		}
+		return e
 	}
+}
+
+func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
+
+	// Ignore .pydio except for root folder .pydio
+	if filepath.Base(path) == common.PYDIO_SYNC_HIDDEN_FILE_META && strings.Trim(path, "/") != common.PYDIO_SYNC_HIDDEN_FILE_META {
+		w := &Discarder{}
+		return w, nil
+	}
+	snapshotPath := path
+	path = c.denormalize(path)
+	tmpPath := filepath.Join(filepath.Dir(path), SyncTmpPrefix+filepath.Base(path))
+	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY, 0666)
+	if openErr != nil {
+		return nil, openErr
+	}
+	wrapper := &WrapperWriter{
+		WriteCloser:  file,
+		client:       c,
+		tmpPath:      tmpPath,
+		targetPath:   path,
+		snapshotPath: snapshotPath,
+	}
+	return wrapper, nil
+
+}
+
+func (c *FSClient) GetReaderOn(path string) (out io.ReadCloser, err error) {
+
+	return c.FS.Open(c.denormalize(path))
+
+}
+
+// Expects already denormalized form
+func (c *FSClient) getNodeIdentifier(path string, leaf bool) (uid string, e error) {
+	if leaf {
+		return c.getFileHash(path)
+	} else {
+		return c.readOrCreateFolderId(path)
+	}
+}
+
+// Expects already denormalized form
+func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
+
+	uidFile, uidErr := c.FS.OpenFile(filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), os.O_RDONLY, 0777)
+	if uidErr != nil && os.IsNotExist(uidErr) {
+		uid = uuid.New()
+		we := afero.WriteFile(c.FS, filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(uid), 0666)
+		if we != nil {
+			return "", we
+		}
+	} else {
+		uidFile.Close()
+		content, re := afero.ReadFile(c.FS, filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META))
+		if re != nil {
+			return "", re
+		}
+		uid = fmt.Sprintf("%s", content)
+	}
+	return uid, nil
+
+}
+
+// Expects already denormalized form
+func (c *FSClient) getFileHash(path string) (hash string, e error) {
+
+	f, err := c.FS.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := md5.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 
 }
 
@@ -358,150 +531,15 @@ func (c *FSClient) Watch(recursivePath string, connectionInfo chan model.WatchCo
 	}, nil
 }
 
-func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
-
-	// Ignore .pydio except for root folder .pydio
-	if filepath.Base(path) == common.PYDIO_SYNC_HIDDEN_FILE_META && strings.Trim(path, "/") != common.PYDIO_SYNC_HIDDEN_FILE_META {
-		w := &Discarder{}
-		return w, nil
+func NewFSClient(rootPath string) (*FSClient, error) {
+	c := &FSClient{}
+	rootPath = c.denormalize(rootPath)
+	rootPath = strings.TrimRight(rootPath, model.InternalPathSeparator)
+	c.RootPath = CanonicalPath(rootPath)
+	c.FS = afero.NewBasePathFs(afero.NewOsFs(), c.RootPath)
+	_, e := c.FS.Stat("/")
+	if e != nil {
+		return nil, errors.New("Cannot stat root folder " + c.RootPath + "!")
 	}
-	snapshotPath := path
-	path = c.denormalize(path)
-	tmpPath := filepath.Join(filepath.Dir(path), SyncTmpPrefix+filepath.Base(path))
-	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY, 0666)
-	if openErr != nil {
-		return nil, openErr
-	}
-	wrapper := &WrapperWriter{
-		WriteCloser:  file,
-		client:       c,
-		tmpPath:      tmpPath,
-		targetPath:   path,
-		snapshotPath: snapshotPath,
-	}
-	return wrapper, nil
-
-}
-
-func (c *FSClient) GetReaderOn(path string) (out io.ReadCloser, err error) {
-
-	return c.FS.Open(c.denormalize(path))
-
-}
-
-func (c *FSClient) ComputeChecksum(node *tree.Node) error {
-	return fmt.Errorf("not.implemented")
-}
-
-func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error) {
-	data := make(map[string][]*tree.Node)
-	final := make(map[string][]*tree.Node)
-	err := c.Walk(func(path string, node *tree.Node, err error) {
-		if err != nil || node == nil {
-			return
-		}
-		if node.IsLeaf() {
-			return
-		}
-		if s, ok := data[node.Uuid]; ok {
-			s = append(s, node)
-			final[node.Uuid] = s
-		} else {
-			data[node.Uuid] = make([]*tree.Node, 1)
-			data[node.Uuid] = append(data[node.Uuid], node)
-		}
-	})
-	return final, err
-}
-
-func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
-	p := c.denormalize(node.Path)
-	var err error
-	pFile := filepath.Join(p, common.PYDIO_SYNC_HIDDEN_FILE_META)
-	if err = c.FS.Remove(pFile); err == nil {
-		log.Logger(ctx).Info("Refreshing folder Uuid for", node.ZapPath())
-		err = afero.WriteFile(c.FS, pFile, []byte(node.Uuid), 0666)
-	}
-	return node, err
-}
-
-// Internal function expects already denormalized form
-func (c *FSClient) moveRecursively(oldPath string, newPath string) (err error) {
-
-	// Some fs require moving resources recursively
-	moves := make(map[int]string)
-	indexes := make([]int, 0)
-	i := 0
-	afero.Walk(c.FS, oldPath, func(wPath string, info os.FileInfo, err error) error {
-		//newWPath := newPath + strings.TrimPrefix(wPath, oldPath)
-		indexes = append(indexes, i)
-		moves[i] = wPath
-		i++
-		return nil
-	})
-	total := len(indexes)
-	for key := range indexes {
-		//c.FS.Rename(moveK, moveV)
-		key = total - key
-		wPath := moves[key]
-		if len(wPath) == 0 {
-			continue
-		}
-		msg := fmt.Sprintf("Moving %v to %v", wPath, newPath+strings.TrimPrefix(wPath, oldPath))
-		log.Logger(context.Background()).Debug(msg)
-		c.FS.Rename(wPath, newPath+strings.TrimPrefix(wPath, oldPath))
-	}
-	c.FS.Rename(oldPath, newPath)
-	//rename(oldPath,)
-	return nil
-
-}
-
-// Expects already denormalized form
-func (c *FSClient) getNodeIdentifier(path string, leaf bool) (uid string, e error) {
-	if leaf {
-		return c.getFileHash(path)
-	} else {
-		return c.readOrCreateFolderId(path)
-	}
-}
-
-// Expects already denormalized form
-func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
-
-	uidFile, uidErr := c.FS.OpenFile(filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), os.O_RDONLY, 0777)
-	if uidErr != nil && os.IsNotExist(uidErr) {
-		uid = uuid.New()
-		we := afero.WriteFile(c.FS, filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(uid), 0666)
-		if we != nil {
-			return "", we
-		}
-	} else {
-		uidFile.Close()
-		content, re := afero.ReadFile(c.FS, filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META))
-		if re != nil {
-			return "", re
-		}
-		uid = fmt.Sprintf("%s", content)
-	}
-	return uid, nil
-
-}
-
-// Expects already denormalized form
-func (c *FSClient) getFileHash(path string) (hash string, e error) {
-
-	f, err := c.FS.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	h := md5.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
-
+	return c, nil
 }
