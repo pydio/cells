@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"path"
+	"sort"
 	"strings"
 
 	"go.uber.org/zap"
@@ -34,10 +35,29 @@ import (
 	"github.com/pydio/cells/common/utils/mtree"
 )
 
+const (
+	maxUint = ^uint(0)
+	maxInt  = int(maxUint >> 1)
+)
+
 type Move struct {
 	deleteEvent *Operation
 	createEvent *Operation
 	dbNode      *tree.Node
+}
+
+// ByAge implements sort.Interface based on the Age field.
+type bySourceDeep []*Move
+
+func (a bySourceDeep) Len() int { return len(a) }
+func (a bySourceDeep) folderDepth(m *Move) int {
+	return len(strings.Split(strings.Trim(m.deleteEvent.Key, "/"), "/"))
+}
+func (a bySourceDeep) Less(i, j int) bool {
+	return a.folderDepth(a[i]) > a.folderDepth(a[j])
+}
+func (a bySourceDeep) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
 }
 
 func (m *Move) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
@@ -52,6 +72,9 @@ func (m *Move) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 func (m *Move) Distance() int {
 	sep := "/"
+	if m.deleteEvent.Key == m.createEvent.Key {
+		return maxInt
+	}
 	pref := mtree.CommonPrefix(sep[0], m.deleteEvent.Key, m.createEvent.Key)
 	return len(strings.Split(pref, sep))
 }
@@ -67,11 +90,15 @@ func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 				// Look by UUID first
 				for _, createEvent := range b.createFiles {
 					if createEvent.Node != nil && createEvent.Node.Uuid != "" && createEvent.Node.Uuid == dbNode.Uuid {
-						log.Logger(ctx).Debug("Existing leaf node with Uuid: safe move to ", createEvent.Node.ZapPath())
-						createEvent.Node = dbNode
-						b.fileMoves[createEvent.Key] = createEvent
+						// Now remove from delete/create
 						delete(b.deletes, deleteEvent.Key)
 						delete(b.createFiles, createEvent.Key)
+						// Enqueue in moves only if path differ
+						if createEvent.Node.Path != dbNode.Path {
+							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", createEvent.Node.ZapPath())
+							createEvent.Node = dbNode
+							b.fileMoves[createEvent.Key] = createEvent
+						}
 						found = true
 						break
 					}
@@ -121,10 +148,14 @@ func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 	moves := b.sortClosestMoves(ctx, possibleMoves)
 	for _, move := range moves {
 		log.Logger(ctx).Debug("Picked closest move", zap.Object("move", move))
-		move.createEvent.Node = move.dbNode
-		b.fileMoves[move.createEvent.Key] = move.createEvent
+		// Remove from deletes/creates
 		delete(b.deletes, move.deleteEvent.Key)
 		delete(b.createFiles, move.createEvent.Key)
+		// Enqueue in move if Paths differ
+		if move.createEvent.Node.Path != move.dbNode.Path {
+			move.createEvent.Node = move.dbNode
+			b.fileMoves[move.createEvent.Key] = move.createEvent
+		}
 	}
 
 }
@@ -134,15 +165,17 @@ func (b *FlatPatch) sortClosestMoves(logCtx context.Context, possibleMoves []*Mo
 	// Dedup by source
 	greatestSource := make(map[string]*Move)
 	targets := make(map[string]bool)
+	sort.Sort(bySourceDeep(possibleMoves))
 	for _, m := range possibleMoves {
 		source := m.deleteEvent.Key
-		byT, ok := greatestSource[source]
 		for _, m2 := range possibleMoves {
+			byT, ok := greatestSource[source]
 			source2 := m2.deleteEvent.Key
+			target2 := m2.createEvent.Key
 			if source2 != source {
 				continue
 			}
-			if _, alreadyUsed := targets[m2.createEvent.Key]; alreadyUsed {
+			if _, alreadyUsed := targets[target2]; alreadyUsed {
 				continue
 			}
 			if !ok || m2.Distance() > byT.Distance() {

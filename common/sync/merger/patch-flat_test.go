@@ -394,12 +394,35 @@ func TestSortClosestMove(t *testing.T) {
 		})
 
 		So(moves, ShouldHaveLength, 2)
+		var keys int
+		for _, m := range moves {
+			if m.deleteEvent.Key == "/a/similar-file" {
+				So(m.createEvent.Key, ShouldEqual, "/a/similar-file-moved")
+				keys++
+			} else if m.deleteEvent.Key == "/file-to-move" {
+				So(m.createEvent.Key, ShouldEqual, "/file-moved")
+				keys++
+			}
+		}
+		So(keys, ShouldEqual, 2)
 	})
 
 	Convey("Test SortClosestMoves deeper", t, func() {
 
 		patch := newFlatPatch(endpoints.NewMemDB(), endpoints.NewMemDB())
 		moves := patch.sortClosestMoves(bTestCtx, []*Move{
+			{
+				createEvent: &Operation{
+					EventInfo: model.EventInfo{Path: "/file-moved"},
+					Key:       "/file-moved",
+					Patch:     patch,
+				},
+				deleteEvent: &Operation{
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
+					Key:       "/file-to-move",
+					Patch:     patch,
+				},
+			},
 			{
 				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
@@ -414,8 +437,8 @@ func TestSortClosestMove(t *testing.T) {
 			},
 			{
 				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
-					Key:       "/a/b/c/similar-file-moved",
+					EventInfo: model.EventInfo{Path: "/file-moved"},
+					Key:       "/file-moved",
 					Patch:     patch,
 				},
 				deleteEvent: &Operation{
@@ -426,20 +449,8 @@ func TestSortClosestMove(t *testing.T) {
 			},
 			{
 				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-moved"},
-					Key:       "/file-moved",
-					Patch:     patch,
-				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
-					Patch:     patch,
-				},
-			},
-			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-moved"},
-					Key:       "/file-moved",
+					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
+					Key:       "/a/b/c/similar-file-moved",
 					Patch:     patch,
 				},
 				deleteEvent: &Operation{
@@ -451,6 +462,18 @@ func TestSortClosestMove(t *testing.T) {
 		})
 
 		So(moves, ShouldHaveLength, 2)
+		var keys int
+		for _, m := range moves {
+			if m.deleteEvent.Key == "/a/similar-file" {
+				So(m.createEvent.Key, ShouldEqual, "/a/b/c/similar-file-moved")
+				keys++
+			} else if m.deleteEvent.Key == "/file-to-move" {
+				So(m.createEvent.Key, ShouldEqual, "/file-moved")
+				keys++
+			}
+		}
+		So(keys, ShouldEqual, 2)
+
 	})
 
 	Convey("Test SortClosestMoves crossing", t, func() {
@@ -471,18 +494,6 @@ func TestSortClosestMove(t *testing.T) {
 			},
 			{
 				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
-					Key:       "/a/similar-file-moved",
-					Patch:     patch,
-				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/similar-file"},
-					Key:       "/similar-file",
-					Patch:     patch,
-				},
-			},
-			{
-				createEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/a/file-moved"},
 					Key:       "/a/file-moved",
 					Patch:     patch,
@@ -490,6 +501,18 @@ func TestSortClosestMove(t *testing.T) {
 				deleteEvent: &Operation{
 					EventInfo: model.EventInfo{Path: "/file-to-move"},
 					Key:       "/file-to-move",
+					Patch:     patch,
+				},
+			},
+			{
+				createEvent: &Operation{
+					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
+					Key:       "/a/similar-file-moved",
+					Patch:     patch,
+				},
+				deleteEvent: &Operation{
+					EventInfo: model.EventInfo{Path: "/similar-file"},
+					Key:       "/similar-file",
 					Patch:     patch,
 				},
 			},
@@ -508,6 +531,103 @@ func TestSortClosestMove(t *testing.T) {
 		})
 
 		So(moves, ShouldHaveLength, 2)
+		var keys int
+		for _, m := range moves {
+			if m.deleteEvent.Key == "/similar-file" {
+				keys++
+			} else if m.deleteEvent.Key == "/file-to-move" {
+				keys++
+			}
+		}
+		So(keys, ShouldEqual, 2)
+	})
+
+	Convey("Test SortClosestMoves same paths", t, func() {
+		patch := newFlatPatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		moves := patch.sortClosestMoves(bTestCtx, []*Move{
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+			},
+			{
+				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+			},
+		})
+		So(moves, ShouldHaveLength, 4)
+		var keys int
+		for _, m := range moves {
+			if m.deleteEvent.Key == "/move1" {
+				So(m.createEvent.Key, ShouldEqual, "/move1")
+				keys++
+			} else if m.deleteEvent.Key == "/move2" {
+				So(m.createEvent.Key, ShouldEqual, "/move2")
+				keys++
+			} else if m.deleteEvent.Key == "/move3" {
+				So(m.createEvent.Key, ShouldEqual, "/move3")
+				keys++
+			} else if m.deleteEvent.Key == "/move4" {
+				So(m.createEvent.Key, ShouldEqual, "/move4")
+				keys++
+			}
+		}
+		So(keys, ShouldEqual, 4)
 	})
 
 }
