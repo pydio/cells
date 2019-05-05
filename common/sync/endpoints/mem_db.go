@@ -46,6 +46,16 @@ type MemDB struct {
 	eventChannels []chan DBEvent
 }
 
+func NewMemDB() *MemDB {
+	db := &MemDB{}
+	db.CreateNode(context.Background(), &tree.Node{
+		Path: string(os.PathSeparator),
+		Type: tree.NodeType_COLLECTION,
+		Uuid: "root",
+	}, true)
+	return db
+}
+
 func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
@@ -242,14 +252,4 @@ func (db *MemDB) FromJSON(name string) error {
 		return err
 	}
 	return json.Unmarshal(data, &db.Nodes)
-}
-
-func NewMemDB() *MemDB {
-	db := &MemDB{}
-	db.CreateNode(context.Background(), &tree.Node{
-		Path: string(os.PathSeparator),
-		Type: tree.NodeType_COLLECTION,
-		Uuid: "root",
-	}, true)
-	return db
 }
