@@ -116,7 +116,7 @@ func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, o
 		newNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsPath+"/"+common.PYDIO_SYNC_HIDDEN_FILE_META)
 		meta := make(map[string]string)
 		if session := in.IndexationSession; session != "" {
-			meta["X-Pydio-Session"] = session
+			meta[common.XPydioSessionUuid] = session
 		}
 		if !in.UpdateIfExists {
 			if read, er := e.GetObject(ctx, newNode, &GetRequestData{StartOffset: 0, Length: 36}); er == nil {
@@ -169,7 +169,7 @@ func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, o
 		}
 	}
 	if session := in.IndexationSession; session != "" {
-		m["X-Pydio-Session"] = session
+		m[common.XPydioSessionUuid] = session
 	}
 	ctx = metadata.NewContext(ctx, m)
 	log.Logger(ctx).Debug("Exec.DeleteNode", in.Node.Zap())

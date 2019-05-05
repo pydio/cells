@@ -27,6 +27,8 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/metadata"
+
+	"github.com/pydio/cells/common"
 )
 
 const (
@@ -79,8 +81,10 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	if h, ok := req.Header["X-Pydio-Span-Id"]; ok {
 		meta[SpanMetadataId] = strings.Join(h, "")
 	}
-	if h, ok := req.Header["X-Pydio-Session"]; ok && len(h) > 0 {
-		meta["X-Pydio-Session"] = h[0]
+	for _, key := range common.XSpecialPydioHeaders {
+		if h, ok := req.Header[key]; ok && len(h) > 0 {
+			meta[key] = h[0]
+		}
 	}
 	if req.RequestURI != "" {
 		meta[HttpMetaRequestURI] = req.RequestURI

@@ -30,6 +30,7 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -633,9 +634,7 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 		}
 	}
 
-	//
-	// INIT EVENTS AND PATHES TO UPDATE
-	//
+	// Init Event from source/target parameters
 	var event *tree.NodeChangeEvent
 	mpathes := make(map[*mtree.MPath]int64)
 	if sourceNode == nil {
@@ -669,28 +668,30 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 		}
 	}
 
-	//
-	// NOW SEND REAL EVENTS OR STACK THEM IN SESSION BATCHER
-	//
-	if event != nil {
-		//pub := client.NewPublication(common.TOPIC_INDEX_CHANGES, event)
-		if batcher != nil {
-			event.Silent = true
-			batcher.Notify(common.TOPIC_INDEX_CHANGES, event)
-		} else {
-			client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, event))
+	// Enrich Event Metadata field
+	if md, ok := metadata.FromContext(ctx); ok {
+		if event.Metadata == nil {
+			event.Metadata = make(map[string]string, len(md))
+		}
+		for k, v := range md {
+			for _, header := range common.XSpecialPydioHeaders {
+				// May return special headers in lowercase, we don't want that.
+				if k == strings.ToLower(header) {
+					k = header
+					break
+				}
+			}
+			event.Metadata[k] = v
 		}
 	}
 
-	/*
-		for mp, delta := range mpathes {
-			if batcher != nil {
-				s.batcherUpdateParents(batcher, delta, *mp)
-			} else {
-				s.daoUpdateParents(dao, delta, *mp)
-			}
-		}
-	*/
+	// Publish either to batcher or to broker directly
+	if batcher != nil {
+		event.Silent = true
+		batcher.Notify(common.TOPIC_INDEX_CHANGES, event)
+	} else {
+		client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, event))
+	}
 
 	return nil
 }

@@ -167,17 +167,17 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 				meta := make(map[string]string, 1)
 				if move {
-					meta["X-Amz-Metadata-Directive"] = "COPY"
+					meta[common.X_AMZ_META_DIRECTIVE] = "COPY"
 				} else {
-					meta["X-Amz-Metadata-Directive"] = "REPLACE"
+					meta[common.X_AMZ_META_DIRECTIVE] = "REPLACE"
 				}
-				meta["X-Pydio-Session"] = session
+				meta[common.XPydioSessionUuid] = session
 				if crossDs {
 					if idx == len(children)-1 {
-						meta["X-Pydio-Session"] = "close-" + session
+						meta[common.XPydioSessionUuid] = "close-" + session
 					}
 					if move {
-						meta["X-Pydio-Move"] = childNode.Uuid
+						meta[common.XPydioMoveUuid] = childNode.Uuid
 					}
 				}
 				_, e := router.CopyObject(ctx, childNode, targetNode, &CopyRequestData{Metadata: meta})
@@ -201,7 +201,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				}
 				delCtx := ctx
 				if crossDs {
-					delCtx = context2.WithAdditionalMetadata(ctx, map[string]string{"X-Pydio-Move": childNode.Uuid})
+					delCtx = context2.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: childNode.Uuid})
 				}
 				_, moveErr := router.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
 				if moveErr != nil {
@@ -233,7 +233,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		if move {
 			meta["X-Amz-Metadata-Directive"] = "COPY"
 			if crossDs {
-				meta["X-Pydio-Move"] = sourceNode.Uuid
+				meta[common.XPydioMoveUuid] = sourceNode.Uuid
 			}
 		} else {
 			meta["X-Amz-Metadata-Directive"] = "REPLACE"
@@ -247,7 +247,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		// Remove Source Node
 		if move {
 			if crossDs {
-				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{"X-Pydio-Move": sourceNode.Uuid})
+				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: sourceNode.Uuid})
 			}
 			_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
 			if moveErr != nil {
