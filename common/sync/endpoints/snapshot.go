@@ -31,7 +31,7 @@ import (
 	"time"
 
 	"github.com/etcd-io/bbolt"
-	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common/config"
@@ -40,7 +40,8 @@ import (
 )
 
 var (
-	bucketName = []byte("snapshot")
+	bucketName        = []byte("snapshot")
+	captureBucketName = []byte("capture")
 )
 
 type Snapshot struct {
@@ -50,22 +51,23 @@ type Snapshot struct {
 	folderPath string
 }
 
-func (s *Snapshot) marshal(node *tree.Node) []byte {
-	marshaller := jsonpb.Marshaler{
-		EnumsAsInts: true,
+func NewSnapshot(name, syncUuid string) (*Snapshot, error) {
+	s := &Snapshot{name: name}
+	options := bbolt.DefaultOptions
+	options.Timeout = 5 * time.Second
+	appDir := config.ApplicationDataDir()
+	s.folderPath = filepath.Join(appDir, "sync", syncUuid)
+	os.MkdirAll(s.folderPath, 0755)
+	p := filepath.Join(s.folderPath, "snapshot-"+name)
+	if _, err := os.Stat(p); err != nil {
+		s.empty = true
 	}
-	value := bytes.NewBuffer(nil)
-	marshaller.Marshal(value, node)
-	return value.Bytes()
-}
-
-func (s *Snapshot) unmarshal(value []byte) (*tree.Node, error) {
-	var n tree.Node
-	if e := jsonpb.Unmarshal(bytes.NewBuffer(value), &n); e != nil {
-		return nil, e
-	} else {
-		return &n, nil
+	db, err := bbolt.Open(p, 0644, options)
+	if err != nil {
+		return nil, err
 	}
+	s.db = db
+	return s, nil
 }
 
 func (s *Snapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
@@ -144,25 +146,6 @@ func (s *Snapshot) MoveNode(ctx context.Context, oldPath string, newPath string)
 	})
 }
 
-func NewSnapshot(name, syncUuid string) (*Snapshot, error) {
-	s := &Snapshot{name: name}
-	options := bbolt.DefaultOptions
-	options.Timeout = 5 * time.Second
-	appDir := config.ApplicationDataDir()
-	s.folderPath = filepath.Join(appDir, "sync", syncUuid)
-	os.MkdirAll(s.folderPath, 0755)
-	p := filepath.Join(s.folderPath, "snapshot-"+name)
-	if _, err := os.Stat(p); err != nil {
-		s.empty = true
-	}
-	db, err := bbolt.Open(p, 0644, options)
-	if err != nil {
-		return nil, err
-	}
-	s.db = db
-	return s, nil
-}
-
 func (s *Snapshot) IsEmpty() bool {
 	return s.empty
 }
@@ -175,24 +158,46 @@ func (s *Snapshot) Close(delete ...bool) {
 }
 
 func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource) error {
-	if e := s.db.Update(func(tx *bbolt.Tx) error {
-		if b := tx.Bucket(bucketName); b != nil {
-			return tx.DeleteBucket(bucketName)
-		}
-		return nil
-	}); e != nil {
-		return e
-	}
+	// Capture in temporary bucket
 	e := s.db.Update(func(tx *bbolt.Tx) error {
-		b, e := tx.CreateBucketIfNotExists(bucketName)
-		if e != nil {
+		var capture *bbolt.Bucket
+		var e error
+		if b := tx.Bucket(captureBucketName); b != nil {
+			if e = tx.DeleteBucket(captureBucketName); e != nil {
+				return e
+			}
+		}
+		if capture, e = tx.CreateBucket(captureBucketName); e != nil {
 			return e
 		}
 		return source.Walk(func(path string, node *tree.Node, err error) {
-			b.Put([]byte(path), s.marshal(node))
+			capture.Put([]byte(path), s.marshal(node))
 		})
 	})
-	if e == nil {
+	if e != nil {
+		return e
+	}
+	// Now copy all to original bucket
+	if e = s.db.Update(func(tx *bbolt.Tx) error {
+		var clear *bbolt.Bucket
+		var e error
+		if b := tx.Bucket(bucketName); b != nil {
+			if e = tx.DeleteBucket(bucketName); e != nil {
+				return e
+			}
+		}
+		if clear, e = tx.CreateBucket(bucketName); e != nil {
+			return e
+		}
+		if captured := tx.Bucket(captureBucketName); captured != nil {
+			if e := captured.ForEach(func(k, v []byte) error {
+				return clear.Put(k, v)
+			}); e != nil {
+				return e
+			}
+		}
+		return tx.DeleteBucket(captureBucketName)
+	}); e == nil {
 		s.empty = false
 	}
 	return e
@@ -249,4 +254,20 @@ func (s *Snapshot) Watch(recursivePath string, connectionInfo chan model.WatchCo
 
 func (s *Snapshot) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
+}
+
+func (s *Snapshot) marshal(node *tree.Node) []byte {
+	store := node.Clone()
+	store.MetaStore = nil
+	data, _ := proto.Marshal(node)
+	return data
+}
+
+func (s *Snapshot) unmarshal(value []byte) (*tree.Node, error) {
+	var n tree.Node
+	if e := proto.Unmarshal(value, &n); e != nil {
+		return nil, e
+	} else {
+		return &n, nil
+	}
 }
