@@ -72,24 +72,24 @@ func (f *EchoFilter) unlockFile(source model.PathSyncSource, path string) {
 
 func (f *EchoFilter) filterEvent(event model.EventInfo) model.EventInfo {
 
-	if operations, ok := f.sourcesOperations[event.PathSyncSource]; ok {
+	if operations, ok := f.sourcesOperations[event.Source]; ok {
 		if value, pOk := operations[event.Path]; pOk {
 			event.OperationId = value
-			log.Logger(context.Background()).Info("Filter Event - Setting OperationId on event " + event.Path + " and unlocking")
+			log.Logger(context.Background()).Debug("Filter Event - Setting OperationId on event " + event.Path + " and unlocking")
 			delete(operations, event.Path)
 			if len(operations) == 0 {
-				delete(f.sourcesOperations, event.PathSyncSource)
+				delete(f.sourcesOperations, event.Source)
 			}
 			return event
 		}
 		for wild, value := range operations {
 			if strings.HasSuffix(wild, "/*") && strings.HasPrefix(event.Path, strings.TrimSuffix(wild, "*")) {
-				log.Logger(context.Background()).Info("Filtering Event on wild card - Setting OperationId on event " + event.Path)
+				log.Logger(context.Background()).Debug("Filtering Event on wild card - Setting OperationId on event " + event.Path)
 				event.OperationId = value
 			}
 		}
 	}
-	//log.Printf("No associated operation for event %v - map was %v, source was %v", event, f.sourcesOperations, event.PathSyncSource)
+	//log.Printf("No associated operation for event %v - map was %v, source was %v", event, f.sourcesOperations, event.Source)
 	return event
 
 }

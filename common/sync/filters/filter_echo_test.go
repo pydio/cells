@@ -23,7 +23,6 @@ package filters
 import (
 	"testing"
 
-	"github.com/pydio/cells/common/sync/endpoints"
 	"github.com/pydio/cells/common/sync/model"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -50,16 +49,16 @@ func TestEchoFilter_CreateFilter(t *testing.T) {
 	Convey("Test event filtering", t, func() {
 
 		f := NewEchoFilter()
-		source := endpoints.NewMemDB()
+		source := model.NewMemDB()
 		f.lockFileTo(source, "/file-path", "UniqueOperationId")
 
 		event := model.EventInfo{
-			Path:           "/file-path",
-			PathSyncSource: source,
+			Path:   "/file-path",
+			Source: source,
 		}
 		event2 := model.EventInfo{
-			Path:           "/another-file-path",
-			PathSyncSource: source,
+			Path:   "/another-file-path",
+			Source: source,
 		}
 
 		Convey("Test event is filtered out after lock", func() {

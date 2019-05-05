@@ -30,6 +30,8 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/errors"
+	"github.com/pborman/uuid"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -39,6 +41,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/sync/model"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -61,11 +64,12 @@ func (nw *NoopWriter) Close() error {
 
 type RouterEndpoint struct {
 	sync.Mutex
-	router    *views.Router
-	root      string
-	ctx       context.Context
-	options   Options
-	watchConn chan model.WatchConnectionInfo
+	clientUUID string
+	router     *views.Router
+	root       string
+	ctx        context.Context
+	options    Options
+	watchConn  chan model.WatchConnectionInfo
 
 	recentMkDirs   []*tree.Node
 	updateSnapshot model.PathSyncTarget
@@ -77,13 +81,18 @@ type Options struct {
 
 func NewRouterEndpoint(root string, options Options) *RouterEndpoint {
 	return &RouterEndpoint{
-		root:    root,
-		options: options,
+		root:       root,
+		options:    options,
+		clientUUID: uuid.New(),
 	}
 }
 
 func (r *RouterEndpoint) SetUpdateSnapshot(target model.PathSyncTarget) {
 	r.updateSnapshot = target
+}
+
+func (r *RouterEndpoint) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
+	// Do nothing - we assume Snapshot was updated directly during Watch when receiving events
 }
 
 func (r *RouterEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
@@ -101,7 +110,7 @@ func (r *RouterEndpoint) GetEndpointInfo() model.EndpointInfo {
 		URI: "router://" + r.root,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
-		EchoTime:              60 * time.Second,
+		SupportsTargetEcho:    true,
 		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
 	}
 }
@@ -156,7 +165,11 @@ func (r *RouterEndpoint) Watch(recursivePath string, connectionInfo chan model.W
 		for {
 			select {
 			case c := <-changes:
-				r.changeToEventInfo(obj.EventInfoChan, c)
+				if c.Metadata == nil || c.Metadata[common.XPydioClientUuid] != r.clientUUID {
+					r.changeToEventInfo(obj.EventInfoChan, c)
+				} else {
+					log.Logger(r.getContext()).Debug("Ignoring change from same clientUUID", zap.Any("c", c))
+				}
 			case er := <-finished:
 				log.Logger(r.getContext()).Info("Connection finished " + er.Error())
 				if connectionInfo != nil {
@@ -205,44 +218,47 @@ func (r *RouterEndpoint) changeToEventInfo(events chan model.EventInfo, change *
 	if change.Type == tree.NodeChangeEvent_CREATE || change.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
 		log.Logger(r.getContext()).Debug("Got Event " + change.Type.String() + " - " + change.Target.Path + " - " + change.Target.Etag)
 		events <- model.EventInfo{
-			Type:           model.EventCreate,
-			Path:           change.Target.Path,
-			Etag:           change.Target.Etag,
-			Time:           now,
-			Folder:         !change.Target.IsLeaf(),
-			Size:           change.Target.Size,
-			PathSyncSource: r,
+			Type:     model.EventCreate,
+			Path:     change.Target.Path,
+			Etag:     change.Target.Etag,
+			Time:     now,
+			Folder:   !change.Target.IsLeaf(),
+			Size:     change.Target.Size,
+			Metadata: change.Metadata,
+			Source:   r,
 		}
 		if r.updateSnapshot != nil {
-			log.Logger(r.getContext()).Info("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Target.Path + "-" + change.Target.Etag)
+			log.Logger(r.getContext()).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Target.Path + "-" + change.Target.Etag)
 			r.updateSnapshot.CreateNode(r.getContext(), change.Target, true)
 		}
 	} else if change.Type == tree.NodeChangeEvent_DELETE {
 		log.Logger(r.getContext()).Debug("Got Event " + change.Type.String() + " - " + change.Source.Path)
 		events <- model.EventInfo{
-			Type:           model.EventRemove,
-			Path:           change.Source.Path,
-			Time:           now,
-			PathSyncSource: r,
+			Type:     model.EventRemove,
+			Path:     change.Source.Path,
+			Time:     now,
+			Metadata: change.Metadata,
+			Source:   r,
 		}
 		if r.updateSnapshot != nil {
-			log.Logger(r.getContext()).Info("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
+			log.Logger(r.getContext()).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
 			r.updateSnapshot.DeleteNode(r.getContext(), change.Source.Path)
 		}
 	} else if change.Type == tree.NodeChangeEvent_UPDATE_PATH {
 		log.Logger(r.getContext()).Debug("Got Move Event " + change.Type.String() + " - " + change.Source.Path + " - " + change.Target.Path)
 		events <- model.EventInfo{
-			Type:           model.EventSureMove,
-			Path:           change.Target.Path,
-			Folder:         !change.Target.IsLeaf(),
-			Size:           change.Target.Size,
-			Etag:           change.Target.Etag,
-			MoveSource:     change.Source,
-			MoveTarget:     change.Target,
-			PathSyncSource: r,
+			Type:       model.EventSureMove,
+			Path:       change.Target.Path,
+			Folder:     !change.Target.IsLeaf(),
+			Size:       change.Target.Size,
+			Etag:       change.Target.Etag,
+			MoveSource: change.Source,
+			MoveTarget: change.Target,
+			Metadata:   change.Metadata,
+			Source:     r,
 		}
 		if r.updateSnapshot != nil {
-			log.Logger(r.getContext()).Info("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
+			log.Logger(r.getContext()).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
 			r.updateSnapshot.MoveNode(r.getContext(), change.Source.Path, change.Target.Path)
 		}
 	}
@@ -412,6 +428,9 @@ func (r *RouterEndpoint) getContext(ctx ...context.Context) context.Context {
 	if len(ctx) > 0 {
 		c = ctx[0]
 	}
+	c = context2.WithAdditionalMetadata(c, map[string]string{
+		common.XPydioClientUuid: r.clientUUID,
+	})
 	return context.WithValue(c, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
 }
 

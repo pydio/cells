@@ -27,7 +27,6 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/sync/endpoints"
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -39,7 +38,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Test simple case", t, func() {
 
-		patch := newFlatPatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		patch := newFlatPatch(model.NewMemDB(), model.NewMemDB())
 		patch.Filter(bTestCtx)
 		So(patch, ShouldNotBeNil)
 
@@ -47,7 +46,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Ignore Create file if not existing in source", t, func() {
 
-		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
+		source, target := model.NewMemDB(), model.NewMemDB()
 		patch := newFlatPatch(source, target)
 		patch.createFiles["/ignored-file"] = &Operation{
 			EventInfo: model.EventInfo{
@@ -72,7 +71,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Do not ignore create file if existing in source", t, func() {
 
-		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
+		source, target := model.NewMemDB(), model.NewMemDB()
 		patch := newFlatPatch(source, target)
 		source.CreateNode(bTestCtx, &tree.Node{
 			Path: "/ignored-file",
@@ -95,7 +94,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Detect file move/rename", t, func() {
 
-		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
+		source, target := model.NewMemDB(), model.NewMemDB()
 		patch := newFlatPatch(source, target)
 
 		target.CreateNode(bTestCtx, &tree.Node{
@@ -132,7 +131,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Detect multiple moves of nodes with same etags", t, func() {
 
-		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
+		source, target := model.NewMemDB(), model.NewMemDB()
 		patch := newFlatPatch(source, target)
 		target.CreateNode(bTestCtx, &tree.Node{
 			Path: "/file-to-move",
@@ -193,7 +192,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Detect fast create/delete on same node and file does not exist at the end", t, func() {
 
-		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
+		source, target := model.NewMemDB(), model.NewMemDB()
 		patch := newFlatPatch(source, target)
 
 		patch.createFiles["/a/file-touched"] = &Operation{
@@ -218,7 +217,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Detect fast create/delete on same node and file does exist at the end", t, func() {
 
-		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
+		source, target := model.NewMemDB(), model.NewMemDB()
 		patch := newFlatPatch(source, target)
 
 		source.CreateNode(bTestCtx, &tree.Node{
@@ -249,7 +248,7 @@ func TestBatch_Filter(t *testing.T) {
 
 	Convey("Filter pruned deletion", t, func() {
 
-		source, target := endpoints.NewMemDB(), endpoints.NewMemDB()
+		source, target := model.NewMemDB(), model.NewMemDB()
 		patch := newFlatPatch(source, target)
 		n1 := &tree.Node{
 			Path: "/a",
@@ -284,7 +283,7 @@ func TestSortClosestMove(t *testing.T) {
 
 	Convey("Test SortClosestMoves flat", t, func() {
 
-		patch := newFlatPatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		patch := newFlatPatch(model.NewMemDB(), model.NewMemDB())
 		moves := patch.sortClosestMoves(bTestCtx, []*Move{
 			{
 				createEvent: &Operation{
@@ -341,7 +340,7 @@ func TestSortClosestMove(t *testing.T) {
 
 	Convey("Test SortClosestMoves deep", t, func() {
 
-		patch := newFlatPatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		patch := newFlatPatch(model.NewMemDB(), model.NewMemDB())
 		moves := patch.sortClosestMoves(bTestCtx, []*Move{
 			{
 				createEvent: &Operation{
@@ -409,7 +408,7 @@ func TestSortClosestMove(t *testing.T) {
 
 	Convey("Test SortClosestMoves deeper", t, func() {
 
-		patch := newFlatPatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		patch := newFlatPatch(model.NewMemDB(), model.NewMemDB())
 		moves := patch.sortClosestMoves(bTestCtx, []*Move{
 			{
 				createEvent: &Operation{
@@ -478,7 +477,7 @@ func TestSortClosestMove(t *testing.T) {
 
 	Convey("Test SortClosestMoves crossing", t, func() {
 
-		patch := newFlatPatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		patch := newFlatPatch(model.NewMemDB(), model.NewMemDB())
 		moves := patch.sortClosestMoves(bTestCtx, []*Move{
 			{
 				createEvent: &Operation{
@@ -543,7 +542,7 @@ func TestSortClosestMove(t *testing.T) {
 	})
 
 	Convey("Test SortClosestMoves same paths", t, func() {
-		patch := newFlatPatch(endpoints.NewMemDB(), endpoints.NewMemDB())
+		patch := newFlatPatch(model.NewMemDB(), model.NewMemDB())
 		moves := patch.sortClosestMoves(bTestCtx, []*Move{
 			{
 				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
@@ -633,13 +632,13 @@ func TestSortClosestMove(t *testing.T) {
 }
 
 func diffFromSnaps(folder string) (*TreeDiff, error) {
-	right := endpoints.NewMemDB()
+	right := model.NewMemDB()
 	e := right.FromJSON("./testdata/" + folder + "/right.json")
 	if e != nil {
 		return nil, e
 	}
 
-	left := endpoints.NewMemDB()
+	left := model.NewMemDB()
 	e = left.FromJSON("./testdata/" + folder + "/left.json")
 	if e != nil {
 		return nil, e

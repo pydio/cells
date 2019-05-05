@@ -38,7 +38,7 @@ type EventInfo struct {
 	Etag           string
 	Folder         bool
 	Path           string
-	PathSyncSource PathSyncSource
+	Source         PathSyncSource
 	Type           EventType
 	Host           string
 	Port           string
@@ -109,6 +109,7 @@ func NodeToEventInfo(ctx context.Context, path string, node *tree.Node, eventTyp
 		Type:           eventType,
 		ScanEvent:      true,
 		ScanSourceNode: node,
+		Metadata:       make(map[string]string),
 	}
 	if ctx != nil {
 		if meta, ok := metadata.FromContext(ctx); ok {

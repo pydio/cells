@@ -72,6 +72,23 @@ func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
 	return newFlatPatch(source, target)
 }
 
+// ClonePatch creates a new patch with the same operations but different source/targets
+func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
+	f := newFlatPatch(source, target)
+	for _, op := range origin.OperationsByType([]OperationType{}) {
+		// Clone Op with new Patch reference
+		op1 := &Operation{
+			Patch:     f,
+			Key:       op.Key,
+			Node:      op.Node,
+			Type:      op.Type,
+			EventInfo: op.EventInfo,
+		}
+		f.Enqueue(op1)
+	}
+	return f
+}
+
 // Patch represents a set of operations to be processed
 type Patch interface {
 	model.Stater
@@ -86,7 +103,7 @@ type Patch interface {
 	// TODO : check this key param is really necessary
 	Enqueue(event *Operation, key ...string)
 	// EventsByTypes retrieves all events of a given type
-	EventsByType(types []OperationType, sorted ...bool) (events []*Operation)
+	OperationsByType(types []OperationType, sorted ...bool) (events []*Operation)
 	// Filter tries to detect unnecessary changes locally
 	Filter(ctx context.Context)
 	// FilterToTarget tries to compare changes to target and remove unnecessary ones

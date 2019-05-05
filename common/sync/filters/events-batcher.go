@@ -59,19 +59,6 @@ func (ev *EventsBatcher) sendEvent(event model.ProcessorEvent) {
 	}
 }
 
-func (ev *EventsBatcher) FilterPatch(patch merger.Patch) {
-
-	ev.sendEvent(model.ProcessorEvent{
-		Type: "filter:start",
-		Data: patch,
-	})
-	patch.Filter(ev.globalContext)
-	ev.sendEvent(model.ProcessorEvent{
-		Type: "filter:end",
-		Data: patch,
-	})
-}
-
 func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
@@ -128,6 +115,9 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 	if patch.Size() > 0 {
 		log.Logger(ev.globalContext).Info("****** Sending Patch from Events")
 		fmt.Println(patch)
+	}
+	if updater, ok := patch.Source().(model.SnapshotUpdater); ok {
+		updater.PatchUpdateSnapshot(ev.globalContext, patch)
 	}
 
 	ev.batchOut <- patch

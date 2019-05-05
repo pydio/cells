@@ -65,7 +65,7 @@ func basicDiff(l, r model.PathSyncSource) error {
 
 func TestSnapshot(t *testing.T) {
 
-	source := NewMemDB()
+	source := model.NewMemDB()
 	ctx := context.Background()
 	source.Nodes = []*tree.Node{
 		{Path: "a", Type: tree.NodeType_COLLECTION},

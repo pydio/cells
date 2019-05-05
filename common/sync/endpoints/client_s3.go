@@ -547,88 +547,88 @@ func (c *S3Client) Watch(recursivePath string, connectionInfo chan model.WatchCo
 				if strings.HasPrefix(record.EventName, "s3:ObjectCreated:") {
 					log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.Any("event", record))
 					eventChan <- model.EventInfo{
-						Time:           record.EventTime,
-						Size:           record.S3.Object.Size,
-						Etag:           record.S3.Object.ETag,
-						Path:           objectPath,
-						Folder:         folder,
-						PathSyncSource: c,
-						Type:           model.EventCreate,
-						Host:           record.Source.Host,
-						Port:           record.Source.Port,
-						UserAgent:      record.Source.UserAgent,
-						Metadata:       stripCloseParameters(additionalCreate != "", record.RequestParameters),
+						Time:      record.EventTime,
+						Size:      record.S3.Object.Size,
+						Etag:      record.S3.Object.ETag,
+						Path:      objectPath,
+						Folder:    folder,
+						Source:    c,
+						Type:      model.EventCreate,
+						Host:      record.Source.Host,
+						Port:      record.Source.Port,
+						UserAgent: record.Source.UserAgent,
+						Metadata:  stripCloseParameters(additionalCreate != "", record.RequestParameters),
 					}
 					if additionalCreate != "" {
 						// Send also the PYDIO_SYNC_HIDDEN_FILE_META event
 						log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectCreated"), zap.String("path", additionalCreate))
 						eventChan <- model.EventInfo{
-							Time:           record.EventTime,
-							Size:           record.S3.Object.Size,
-							Etag:           record.S3.Object.ETag,
-							Path:           additionalCreate,
-							Folder:         false,
-							PathSyncSource: c,
-							Type:           model.EventCreate,
-							Host:           record.Source.Host,
-							Port:           record.Source.Port,
-							UserAgent:      record.Source.UserAgent,
-							Metadata:       record.RequestParameters,
+							Time:      record.EventTime,
+							Size:      record.S3.Object.Size,
+							Etag:      record.S3.Object.ETag,
+							Path:      additionalCreate,
+							Folder:    false,
+							Source:    c,
+							Type:      model.EventCreate,
+							Host:      record.Source.Host,
+							Port:      record.Source.Port,
+							UserAgent: record.Source.UserAgent,
+							Metadata:  record.RequestParameters,
 						}
 					}
 
 				} else if strings.HasPrefix(record.EventName, "s3:ObjectRemoved:") {
 					log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectRemoved"), zap.String("path", objectPath))
 					eventChan <- model.EventInfo{
-						Time:           record.EventTime,
-						Path:           objectPath,
-						Folder:         folder,
-						PathSyncSource: c,
-						Type:           model.EventRemove,
-						Host:           record.Source.Host,
-						Port:           record.Source.Port,
-						UserAgent:      record.Source.UserAgent,
-						Metadata:       stripCloseParameters(additionalCreate != "", record.RequestParameters),
+						Time:      record.EventTime,
+						Path:      objectPath,
+						Folder:    folder,
+						Source:    c,
+						Type:      model.EventRemove,
+						Host:      record.Source.Host,
+						Port:      record.Source.Port,
+						UserAgent: record.Source.UserAgent,
+						Metadata:  stripCloseParameters(additionalCreate != "", record.RequestParameters),
 					}
 					if additionalCreate != "" {
 						log.Logger(c.globalContext).Debug("S3 Event", zap.String("event", "ObjectRemoved"), zap.String("path", additionalCreate))
 						eventChan <- model.EventInfo{
-							Time:           record.EventTime,
-							Path:           additionalCreate,
-							Folder:         false,
-							PathSyncSource: c,
-							Type:           model.EventRemove,
-							Host:           record.Source.Host,
-							Port:           record.Source.Port,
-							UserAgent:      record.Source.UserAgent,
-							Metadata:       record.RequestParameters,
+							Time:      record.EventTime,
+							Path:      additionalCreate,
+							Folder:    false,
+							Source:    c,
+							Type:      model.EventRemove,
+							Host:      record.Source.Host,
+							Port:      record.Source.Port,
+							UserAgent: record.Source.UserAgent,
+							Metadata:  record.RequestParameters,
 						}
 					}
 				} else if record.EventName == minio.ObjectAccessedGet {
 					eventChan <- model.EventInfo{
-						Time:           record.EventTime,
-						Size:           record.S3.Object.Size,
-						Etag:           record.S3.Object.ETag,
-						Path:           objectPath,
-						PathSyncSource: c,
-						Type:           model.EventAccessedRead,
-						Host:           record.Source.Host,
-						Port:           record.Source.Port,
-						UserAgent:      record.Source.UserAgent,
-						Metadata:       record.RequestParameters,
+						Time:      record.EventTime,
+						Size:      record.S3.Object.Size,
+						Etag:      record.S3.Object.ETag,
+						Path:      objectPath,
+						Source:    c,
+						Type:      model.EventAccessedRead,
+						Host:      record.Source.Host,
+						Port:      record.Source.Port,
+						UserAgent: record.Source.UserAgent,
+						Metadata:  record.RequestParameters,
 					}
 				} else if record.EventName == minio.ObjectAccessedHead {
 					eventChan <- model.EventInfo{
-						Time:           record.EventTime,
-						Size:           record.S3.Object.Size,
-						Etag:           record.S3.Object.ETag,
-						Path:           objectPath,
-						PathSyncSource: c,
-						Type:           model.EventAccessedStat,
-						Host:           record.Source.Host,
-						Port:           record.Source.Port,
-						UserAgent:      record.Source.UserAgent,
-						Metadata:       record.RequestParameters,
+						Time:      record.EventTime,
+						Size:      record.S3.Object.Size,
+						Etag:      record.S3.Object.ETag,
+						Path:      objectPath,
+						Source:    c,
+						Type:      model.EventAccessedStat,
+						Host:      record.Source.Host,
+						Port:      record.Source.Port,
+						UserAgent: record.Source.UserAgent,
+						Metadata:  record.RequestParameters,
 					}
 				}
 			}
@@ -645,7 +645,7 @@ func stripCloseParameters(do bool, params map[string]string) map[string]string {
 	}
 	newParams := make(map[string]string, len(params))
 	for k, v := range params {
-		if k == "X-Pydio-Session" && strings.HasPrefix(v, "close-") {
+		if k == servicescommon.XPydioSessionUuid && strings.HasPrefix(v, "close-") {
 			newParams[k] = strings.TrimPrefix(v, "close-")
 		} else {
 			newParams[k] = v

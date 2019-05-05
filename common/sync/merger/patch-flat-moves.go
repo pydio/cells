@@ -79,6 +79,10 @@ func (m *Move) Distance() int {
 	return len(strings.Split(pref, sep))
 }
 
+func (m *Move) SameBase() bool {
+	return path.Base(m.deleteEvent.Key) == path.Base(m.createEvent.Key)
+}
+
 func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 
 	var possibleMoves []*Move
@@ -88,16 +92,17 @@ func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 			if dbNode.IsLeaf() {
 				var found bool
 				// Look by UUID first
-				for _, createEvent := range b.createFiles {
-					if createEvent.Node != nil && createEvent.Node.Uuid != "" && createEvent.Node.Uuid == dbNode.Uuid {
+				for _, opCreate := range b.createFiles {
+					if opCreate.Node != nil && opCreate.Node.Uuid != "" && opCreate.Node.Uuid == dbNode.Uuid {
 						// Now remove from delete/create
 						delete(b.deletes, deleteEvent.Key)
-						delete(b.createFiles, createEvent.Key)
+						delete(b.createFiles, opCreate.Key)
 						// Enqueue in moves only if path differ
-						if createEvent.Node.Path != dbNode.Path {
-							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", createEvent.Node.ZapPath())
-							createEvent.Node = dbNode
-							b.fileMoves[createEvent.Key] = createEvent
+						if opCreate.Node.Path != dbNode.Path {
+							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", opCreate.Node.ZapPath())
+							opCreate.Node = dbNode
+							opCreate.Type = OpMoveFile
+							b.fileMoves[opCreate.Key] = opCreate
 						}
 						found = true
 						break
@@ -154,6 +159,7 @@ func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 		// Enqueue in move if Paths differ
 		if move.createEvent.Node.Path != move.dbNode.Path {
 			move.createEvent.Node = move.dbNode
+			move.createEvent.Type = OpMoveFile
 			b.fileMoves[move.createEvent.Key] = move.createEvent
 		}
 	}
@@ -178,7 +184,7 @@ func (b *FlatPatch) sortClosestMoves(logCtx context.Context, possibleMoves []*Mo
 			if _, alreadyUsed := targets[target2]; alreadyUsed {
 				continue
 			}
-			if !ok || m2.Distance() > byT.Distance() {
+			if !ok || m2.Distance() > byT.Distance() || m2.SameBase() && !byT.SameBase() {
 				greatestSource[source] = m2
 			}
 		}
@@ -227,13 +233,14 @@ func (b *FlatPatch) detectFolderMoves(ctx context.Context) {
 			continue
 		}
 
-		for _, createEvent := range b.createFolders {
-			log.Logger(ctx).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", createEvent.Node.Zap(), dbNode.Zap())
-			if createEvent.Node.Uuid == dbNode.Uuid {
+		for _, opCreate := range b.createFolders {
+			log.Logger(ctx).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", opCreate.Node.Zap(), dbNode.Zap())
+			if opCreate.Node.Uuid == dbNode.Uuid {
 				log.Logger(ctx).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.Uuid), zap.String("path", dbNode.Path))
-				createEvent.Node = dbNode
-				b.folderMoves[createEvent.Key] = createEvent
-				b.pruneMovesByPath(ctx, deleteEvent.Key, createEvent.Key)
+				opCreate.Node = dbNode
+				opCreate.Type = OpMoveFolder
+				b.folderMoves[opCreate.Key] = opCreate
+				b.pruneMovesByPath(ctx, deleteEvent.Key, opCreate.Key)
 				break
 			}
 		}

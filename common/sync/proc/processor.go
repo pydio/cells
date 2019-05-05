@@ -63,6 +63,7 @@ func NewProcessor(ctx context.Context) *Processor {
 
 func (pr *Processor) Shutdown() {
 	close(pr.PatchChan)
+	close(pr.JobsInterrupt)
 }
 
 func (pr *Processor) Logger() *zap.Logger {
@@ -85,6 +86,9 @@ func (pr *Processor) sendEvent(event model.ProcessorEvent) {
 
 func (pr *Processor) lockFileTo(operation *merger.Operation, path string, operationId string) {
 	if source, ok := model.AsPathSyncSource(operation.Target()); pr.LocksChan != nil && ok {
+		if source.GetEndpointInfo().SupportsTargetEcho {
+			return // no lock needed, do nothing
+		}
 		pr.LocksChan <- filters.LockEvent{
 			Source:      source,
 			Path:        path,
@@ -95,6 +99,9 @@ func (pr *Processor) lockFileTo(operation *merger.Operation, path string, operat
 
 func (pr *Processor) unlockFile(operation *merger.Operation, path string) {
 	if source, castOk := model.AsPathSyncSource(operation.Target()); castOk && pr.UnlocksChan != nil {
+		if source.GetEndpointInfo().SupportsTargetEcho {
+			return // no lock needed, do nothing
+		}
 		d := 2 * time.Second
 		if source.GetEndpointInfo().EchoTime > 0 {
 			d = source.GetEndpointInfo().EchoTime
@@ -109,7 +116,7 @@ func (pr *Processor) unlockFile(operation *merger.Operation, path string) {
 	}
 }
 
-func (pr *Processor) process(patch merger.Patch) {
+func (pr *Processor) Process(patch merger.Patch) {
 
 	s := patch.Size()
 	defer patch.Done(s)
@@ -146,12 +153,12 @@ func (pr *Processor) process(patch merger.Patch) {
 	}
 
 	// Create Folders
-	for _, event := range patch.EventsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
+	for _, event := range patch.OperationsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
 		pr.applyProcessFunc(event, operationId, pr.processCreateFolder, "Created Folder", "Creating Folder", "Error while creating folder", &cursor, total, zap.String("path", event.EventInfo.Path))
 	}
 
 	// Move folders
-	folderMoves := patch.EventsByType([]merger.OperationType{merger.OpMoveFolder}, true)
+	folderMoves := patch.OperationsByType([]merger.OperationType{merger.OpMoveFolder}, true)
 	sessionFlush(folderMoves)
 	for _, event := range folderMoves {
 		toPath := event.EventInfo.Path
@@ -160,7 +167,7 @@ func (pr *Processor) process(patch merger.Patch) {
 	}
 
 	// Move files
-	fileMoves := patch.EventsByType([]merger.OperationType{merger.OpMoveFile}, true)
+	fileMoves := patch.OperationsByType([]merger.OperationType{merger.OpMoveFile}, true)
 	sessionFlush(fileMoves)
 	for _, event := range fileMoves {
 		toPath := event.EventInfo.Path
@@ -169,7 +176,7 @@ func (pr *Processor) process(patch merger.Patch) {
 	}
 
 	// Create files
-	createFiles := patch.EventsByType([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile})
+	createFiles := patch.OperationsByType([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile})
 	sessionFlush(createFiles)
 	if patch.HasTransfers() {
 		// Process with a parallel Queue
@@ -198,7 +205,7 @@ func (pr *Processor) process(patch merger.Patch) {
 	}
 
 	// Deletes
-	deletes := patch.EventsByType([]merger.OperationType{merger.OpDelete})
+	deletes := patch.OperationsByType([]merger.OperationType{merger.OpDelete})
 	sessionFlush(deletes)
 	for _, event = range deletes {
 		if event.Node == nil {
@@ -209,7 +216,7 @@ func (pr *Processor) process(patch merger.Patch) {
 
 	patch.Status(merger.ProcessStatus{StatusString: "Finished processing patch"})
 
-	if len(patch.EventsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
+	if len(patch.OperationsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
 		go pr.refreshFilesUuid(patch)
 	}
 
@@ -281,7 +288,7 @@ func (pr *Processor) ProcessPatches() {
 				log.Logger(pr.GlobalContext).Info("Stop processing patches, pr.PatchChan is closed")
 				return
 			}
-			pr.process(patch)
+			pr.Process(patch)
 		}
 	}
 

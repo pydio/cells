@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package endpoints
+package model
 
 import (
 	"context"
@@ -55,12 +55,10 @@ func TestStub(t *testing.T) {
 		Type: tree.NodeType_LEAF,
 		Etag: "filehash",
 	}, true)
-	t.Log(stubDb)
+
 	stubDb.MoveNode(memTestCtx, "/test", "/testrenamed")
-	t.Log(stubDb)
 	stubDb.MoveNode(memTestCtx, "/testrenamed", "/test")
 	stubDb.DeleteNode(memTestCtx, "/test")
-	t.Log(stubDb)
 
 	Convey("Test Db Nodes length is 3", t, func() {
 		So(stubDb.Nodes, ShouldHaveLength, 3)

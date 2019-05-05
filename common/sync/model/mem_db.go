@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package endpoints
+package model
 
 import (
 	"context"
@@ -32,7 +32,6 @@ import (
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
 )
 
 type DBEvent struct {
@@ -56,9 +55,9 @@ func NewMemDB() *MemDB {
 	return db
 }
 
-func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
+func (c *MemDB) GetEndpointInfo() EndpointInfo {
 
-	return model.EndpointInfo{
+	return EndpointInfo{
 		URI: "memdb://",
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
@@ -152,7 +151,7 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 /*************************/
 /* Path Sync Source 	 */
 /*************************/
-func (db *MemDB) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
+func (db *MemDB) Walk(walknFc WalkNodesFunc, pathes ...string) (err error) {
 	var ignore bool
 	for _, node := range db.Nodes {
 		if len(pathes) > 0 {
@@ -173,7 +172,7 @@ func (db *MemDB) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error)
 	return nil
 }
 
-func (db *MemDB) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
+func (db *MemDB) Watch(recursivePath string, connectionInfo chan WatchConnectionInfo) (*WatchObject, error) {
 	return nil, errors.New("Not implemented")
 }
 

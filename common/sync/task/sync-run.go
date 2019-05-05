@@ -29,7 +29,6 @@ import (
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/endpoints"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -109,8 +108,8 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 	if s.SnapshotFactory != nil && !force {
 		var er1, er2 error
-		leftSnap, leftBatch, er1 = s.BatchFromSnapshot(ctx, "left", source, true)
-		rightSnap, rightBatch, er2 = s.BatchFromSnapshot(ctx, "right", targetAsSource, true)
+		leftSnap, leftBatch, er1 = s.PatchFromSnapshot(ctx, "left", source, true)
+		rightSnap, rightBatch, er2 = s.PatchFromSnapshot(ctx, "right", targetAsSource, true)
 		if er1 == nil && er2 == nil {
 			if leftSnap.IsEmpty() || rightSnap.IsEmpty() {
 				captureSnapshots = true
@@ -203,9 +202,10 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	return bb, nil
 }
 
-func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, merger.Patch, error) {
+func (s *Sync) PatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, merger.Patch, error) {
 
 	snapUpdater, ok2 := source.(model.SnapshotUpdater)
+	hashStoreReader, ok3 := source.(model.HashStoreReader)
 	snap, er := s.SnapshotFactory.Load(name)
 	if er != nil {
 		if ok2 {
@@ -219,6 +219,9 @@ func (s *Sync) BatchFromSnapshot(ctx context.Context, name string, source model.
 			snapUpdater.SetUpdateSnapshot(nil)
 		}
 		return snap, nil, nil
+	}
+	if ok3 {
+		hashStoreReader.SetRefHashStore(snap)
 	}
 	diff := merger.NewDiff(ctx, source, snap)
 	er = diff.Compute()
@@ -281,7 +284,7 @@ func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
 
 func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, jsonFile string) error {
 
-	db := endpoints.NewMemDB()
+	db := model.NewMemDB()
 	source.Walk(func(path string, node *tree.Node, err error) {
 		db.CreateNode(ctx, node, false)
 	})

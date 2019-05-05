@@ -80,7 +80,24 @@ func (b *FlatPatch) Enqueue(event *Operation, key ...string) {
 	}
 }
 
-func (b *FlatPatch) EventsByType(types []OperationType, sorted ...bool) (events []*Operation) {
+// OperationsByType returns operations, eventually filtered by one or more types.
+// If types is empty, all operations are returned. If sorted is true, operations are sorted by key.
+func (b *FlatPatch) OperationsByType(types []OperationType, sorted ...bool) (events []*Operation) {
+	if len(types) == 0 {
+		// Return all types
+		for _, ops := range []map[string]*Operation{b.createFiles, b.updateFiles, b.createFolders, b.deletes, b.fileMoves, b.folderMoves, b.refreshFilesUuid} {
+			if len(sorted) > 0 && sorted[0] {
+				for _, key := range b.sortedKeys(ops) {
+					events = append(events, ops[key])
+				}
+			} else {
+				for _, op := range ops {
+					events = append(events, op)
+				}
+			}
+		}
+		return
+	}
 	var data map[string]*Operation
 	for _, t := range types {
 		switch t {
@@ -155,7 +172,7 @@ func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 	}
 	/*
 		// Check it's not already deleted on target
-		// Problem is if delete is inside a move, it will be a false positive
+		// TODO Problem is if delete is inside a move, it will be a false positive
 		for p, e := range b.deletes {
 				if _, err := e.Target().LoadNode(ctx, p); err != nil && errors.Parse(err.Error()).Code == 404 {
 					log.Logger(ctx).Debug("Skipping Delete for path " + p)

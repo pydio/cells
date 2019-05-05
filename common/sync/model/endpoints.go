@@ -58,6 +58,7 @@ type EndpointInfo struct {
 	URI                   string
 	RequiresNormalization bool
 	RequiresFoldersRescan bool
+	SupportsTargetEcho    bool
 	EchoTime              time.Duration
 	Ignores               []string
 }
@@ -130,10 +131,15 @@ type Snapshoter interface {
 
 type SnapshotUpdater interface {
 	SetUpdateSnapshot(PathSyncTarget)
+	PatchUpdateSnapshot(ctx context.Context, patch interface{})
 }
 
 type SnapshotFactory interface {
 	Load(name string) (Snapshoter, error)
+}
+
+type HashStoreReader interface {
+	SetRefHashStore(source PathSyncSource)
 }
 
 type Stater interface {

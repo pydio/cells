@@ -194,12 +194,12 @@ func notifyEventToEventInfo(c *FSClient, event notify.EventInfo) (eventInfo mode
 			return empty, e
 		}
 		return model.EventInfo{
-			Time:           now(),
-			Size:           i.Size(),
-			Folder:         i.IsDir(),
-			Path:           normalizedPath,
-			Type:           model.EventCreate,
-			PathSyncSource: c,
+			Time:   now(),
+			Size:   i.Size(),
+			Folder: i.IsDir(),
+			Path:   normalizedPath,
+			Type:   model.EventCreate,
+			Source: c,
 		}, nil
 
 	} else if isEventType(EventTypeRename, event.Event()) {
@@ -208,29 +208,29 @@ func notifyEventToEventInfo(c *FSClient, event notify.EventInfo) (eventInfo mode
 		if e != nil {
 			if os.IsNotExist(e) {
 				return model.EventInfo{
-					Time:           now(),
-					Path:           normalizedPath,
-					Type:           model.EventRemove,
-					PathSyncSource: c,
+					Time:   now(),
+					Path:   normalizedPath,
+					Type:   model.EventRemove,
+					Source: c,
 				}, nil
 			}
 			return empty, e
 		}
 		return model.EventInfo{
-			Time:           now(),
-			Size:           i.Size(),
-			Folder:         i.IsDir(),
-			Path:           normalizedPath,
-			Type:           model.EventRename,
-			PathSyncSource: c,
+			Time:   now(),
+			Size:   i.Size(),
+			Folder: i.IsDir(),
+			Path:   normalizedPath,
+			Type:   model.EventRename,
+			Source: c,
 		}, nil
 
 	} else if isEventType(EventTypeDelete, event.Event()) {
 		return model.EventInfo{
-			Time:           now(),
-			Path:           normalizedPath,
-			Type:           model.EventRemove,
-			PathSyncSource: c,
+			Time:   now(),
+			Path:   normalizedPath,
+			Type:   model.EventRemove,
+			Source: c,
 		}, nil
 	} else {
 		// Ignore other events

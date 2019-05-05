@@ -28,7 +28,6 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/endpoints"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -45,8 +44,8 @@ func TestProcess(t *testing.T) {
 		defer m.Shutdown()
 		So(m, ShouldNotBeNil)
 
-		source := endpoints.NewMemDB()
-		target := endpoints.NewMemDB()
+		source := model.NewMemDB()
+		target := model.NewMemDB()
 		patch := merger.NewPatch(source, target)
 
 		source.CreateNode(testCtx, &tree.Node{
@@ -149,7 +148,7 @@ func TestProcess(t *testing.T) {
 			Patch: patch,
 		})
 
-		m.process(patch)
+		m.Process(patch)
 		time.Sleep(2 * time.Second)
 
 		newDir, derr := target.LoadNode(testCtx, "/mkdir")
