@@ -356,6 +356,7 @@ func (this *NodeChangeEvent) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Target", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *IndexEvent) Validate() error {

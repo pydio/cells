@@ -276,7 +276,7 @@ func (policy *VersioningPolicy) Zap() zapcore.Field {
 	return zap.Object(common.KEY_VERSIONING_POLICY, policy)
 }
 
-// Zap simply returns a zapcore.Field object populated with this VersioningPolicy under a standard key
+// Zap simply returns a zapcore.Field object populated with this NodeChangeEvent under a standard key
 func (msg *NodeChangeEvent) Zap() zapcore.Field {
 	return zap.Any(common.KEY_NODE_CHANGE_EVENT, msg)
 }

@@ -405,6 +405,7 @@ message NodeChangeEvent{
     EventType Type = 1;
     Node Source = 2;
     Node Target = 3;
+    map<string,string> Metadata = 6;
     bool Silent = 4;
     bool Optimistic = 5;
 }
