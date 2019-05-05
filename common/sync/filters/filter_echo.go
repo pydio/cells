@@ -50,7 +50,7 @@ type EchoFilter struct {
 }
 
 func (f *EchoFilter) lockFileTo(source model.PathSyncSource, path string, operationId string) {
-	log.Logger(context.Background()).Info("Locking File "+path, zap.String("source", source.GetEndpointInfo().URI))
+	log.Logger(context.Background()).Debug("Locking File "+path, zap.String("source", source.GetEndpointInfo().URI))
 	var operations map[string]string
 	var ok bool
 	if operations, ok = f.sourcesOperations[source]; !ok {
@@ -62,7 +62,7 @@ func (f *EchoFilter) lockFileTo(source model.PathSyncSource, path string, operat
 
 func (f *EchoFilter) unlockFile(source model.PathSyncSource, path string) {
 	if operations, ok := f.sourcesOperations[source]; ok {
-		log.Logger(context.Background()).Info("Unlocking File "+path, zap.String("source", source.GetEndpointInfo().URI))
+		log.Logger(context.Background()).Debug("Unlocking File "+path, zap.String("source", source.GetEndpointInfo().URI))
 		delete(operations, path)
 		if len(operations) == 0 {
 			delete(f.sourcesOperations, source)
