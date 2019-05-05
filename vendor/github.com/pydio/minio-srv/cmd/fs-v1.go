@@ -21,13 +21,6 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/pydio/minio-srv/cmd/logger"
-	"github.com/pydio/minio-srv/pkg/hash"
-	"github.com/pydio/minio-srv/pkg/lock"
-	"github.com/pydio/minio-srv/pkg/madmin"
-	"github.com/pydio/minio-srv/pkg/mimedb"
-	"github.com/pydio/minio-srv/pkg/mountinfo"
-	"github.com/pydio/minio-srv/pkg/policy"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -38,6 +31,14 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/pydio/minio-srv/cmd/logger"
+	"github.com/pydio/minio-srv/pkg/hash"
+	"github.com/pydio/minio-srv/pkg/lock"
+	"github.com/pydio/minio-srv/pkg/madmin"
+	"github.com/pydio/minio-srv/pkg/mimedb"
+	"github.com/pydio/minio-srv/pkg/mountinfo"
+	"github.com/pydio/minio-srv/pkg/policy"
 )
 
 // Default etag is used for pre-existing objects.

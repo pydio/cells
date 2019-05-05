@@ -148,6 +148,9 @@ const (
 	X_AMZ_META_CLEAR_SIZE       = "X-Amz-Meta-Pydio-Clear-Size"
 	X_AMZ_META_NODE_UUID        = "X-Amz-Meta-Pydio-Node-Uuid"
 	X_AMZ_META_DIRECTIVE        = "X-Amz-Metadata-Directive"
+	XPydioClientUuid            = "X-Pydio-Client-Uuid"
+	XPydioSessionUuid           = "X-Pydio-Session"
+	XPydioMoveUuid              = "X-Pydio-Move"
 
 	PYDIO_PROFILE_ADMIN    = "admin"
 	PYDIO_PROFILE_STANDARD = "standard"
@@ -162,6 +165,14 @@ const (
 	META_FLAG_WORKSPACE_ROOT = "ws_root"
 	META_FLAG_VIRTUAL_ROOT   = "virtual_root"
 	NODE_FLAG_ETAG_TEMPORARY = "temporary"
+)
+
+var (
+	XSpecialPydioHeaders = []string{
+		XPydioClientUuid,
+		XPydioSessionUuid,
+		XPydioMoveUuid,
+	}
 )
 
 // DocStore constants for StoreID's

@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/pydio/cells/common"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/minio-srv/cmd/logger"
 	"github.com/pydio/minio-srv/pkg/handlers"
@@ -157,7 +158,14 @@ func extractMetadataFromMap(ctx context.Context, v map[string][]string, m map[st
 			if !strings.HasPrefix(strings.ToLower(key), strings.ToLower(prefix)) {
 				continue
 			}
-			if key == "X-Amz-Meta-X-Pydio-Session" || key == "X-Amz-Meta-X-Pydio-Move" {
+			var specialHeader bool
+			for _, pHead := range common.XSpecialPydioHeaders{
+				if key == "X-Amz-Meta-" + pHead {
+					specialHeader = true
+					break
+				}
+			}
+			if specialHeader{
 				continue
 			}
 			value, ok := v[key]
@@ -208,13 +216,12 @@ func extractReqParams(r *http.Request) map[string]string {
 			meta[k] = v
 		}
 	}
-	if sess := r.Header.Get("X-Amz-Meta-X-Pydio-Session"); sess != "" {
-		meta["X-Pydio-Session"] = sess
-	}
-	if sess := r.Header.Get("X-Amz-Meta-X-Pydio-Move"); sess != "" {
-		meta["X-Pydio-Move"] = sess
-	} else if sess := r.Header.Get("X-Pydio-Move"); sess != "" {
-		meta["X-Pydio-Move"] = sess
+	for _, key := range common.XSpecialPydioHeaders {
+		if v := r.Header.Get("X-Amz-Meta-" + key); v != "" {
+			meta[key] = v
+		} else if v := r.Header.Get(key); v != "" {
+			meta[key] = v
+		}
 	}
 	return meta
 }
