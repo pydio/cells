@@ -482,7 +482,11 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 		if newEvent.Source != nil {
 			newEvent.Source.Path = strings.TrimPrefix(newEvent.Source.Path, filterPath)
 		}
-
+		if newEvent.Metadata != nil {
+			// Do not forward this metadata to clients
+			delete(newEvent.Metadata, common.XPydioSessionUuid)
+			delete(newEvent.Metadata, common.XPydioMoveUuid)
+		}
 		if e := streamer.Send(newEvent); e != nil {
 			return e
 		}
