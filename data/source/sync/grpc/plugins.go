@@ -29,6 +29,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
 
 	"github.com/pydio/cells/common"
@@ -118,20 +119,20 @@ func init() {
 
 						syncHandler.Start()
 
+						// Now post a job to start indexation in background
 						md := make(map[string]string)
 						md[common.PYDIO_CONTEXT_USER_KEY] = common.PYDIO_SYSTEM_USERNAME
 						ctx = metadata.NewContext(ctx, md)
-						// Now post a job to start indexation in background
 						e = service.Retry(func() error {
 							jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
-							if resp, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil && resp.Job != nil {
-								log.Logger(ctx).Info("Sending event to start datasource resync")
+							if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
+								log.Logger(ctx).Debug("Sending event to start trigger re-indexation")
 								client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
 									JobID:  "resync-ds-" + datasource,
 									RunNow: true,
 								}))
-							} else {
-								log.Logger(ctx).Info("Create job to start datasource resync")
+							} else if errors.Parse(err.Error()).Code == 404 {
+								log.Logger(ctx).Info("Creating job in scheduler to trigger re-indexation")
 								job := &jobs.Job{
 									ID:             "resync-ds-" + datasource,
 									Owner:          common.PYDIO_SYSTEM_USERNAME,
@@ -152,13 +153,15 @@ func init() {
 									Job: job,
 								})
 								return e
+							} else {
+								log.Logger(ctx).Debug("Could not get info about job, retrying...")
+								return err
 							}
 							return nil
-						}, 10*time.Second)
+						}, 5*time.Second)
 						if e != nil {
-							log.Logger(ctx).Error("Sync service started but could not contact Job service to trigger reindexation")
+							log.Logger(ctx).Error("service started but could not contact Job service to trigger re-indexation")
 						}
-
 						return nil
 					}))
 
