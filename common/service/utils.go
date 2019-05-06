@@ -27,6 +27,10 @@ import (
 
 func Retry(f func() error, seconds ...time.Duration) error {
 
+	if err := f(); err == nil {
+		return nil
+	}
+
 	tick := time.Tick(1 * time.Second)
 	timeout := time.After(30 * time.Second)
 	if len(seconds) == 2 {
