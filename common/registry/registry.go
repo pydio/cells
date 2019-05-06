@@ -126,6 +126,8 @@ func (c *pydioregistry) Init(opts ...Option) {
 	for _, o := range opts {
 		o(&c.opts)
 	}
+
+	c.maintainRunningServicesList()
 }
 
 // Deregister sets a service as excluded in the registry
