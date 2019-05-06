@@ -45,11 +45,12 @@ import (
 	"github.com/pydio/cells/common/views"
 )
 
-func init() {
-	natsregistry.Enable()
-	natsbroker.Enable()
-	grpctransport.Enable()
+var (
+	routerOnce *sync.Once
+)
 
+func init() {
+	routerOnce = &sync.Once{}
 }
 
 type NoopWriter struct{}
@@ -80,6 +81,12 @@ type Options struct {
 }
 
 func NewRouterEndpoint(root string, options Options) *RouterEndpoint {
+	routerOnce.Do(func() {
+		natsregistry.Enable()
+		natsbroker.Enable()
+		grpctransport.Enable()
+		registry.Init()
+	})
 	return &RouterEndpoint{
 		root:       root,
 		options:    options,
