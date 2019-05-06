@@ -175,11 +175,11 @@ func StartWithFastRestart() error {
 	e := Start()
 	go func() {
 		<-time.After(2 * time.Second)
-		if restartRequired {
-			log.Logger(context.Background()).Debug("Restarting Proxy Now (fast restart)")
-			restartRequired = false
-			restart()
-		}
+
+		log.Logger(context.Background()).Debug("Restarting Proxy Now (fast restart)")
+
+		restart()
+		restartRequired = false
 	}()
 	return e
 }
