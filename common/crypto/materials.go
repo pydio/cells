@@ -32,7 +32,7 @@ import (
 	"strings"
 )
 
-var defaultBlockSIze = 10 * 1024 * 1024
+var defaultBlockSIze = int64(10 * 1024 * 1024)
 
 const (
 	AESGCMAuthTagSize = 16
@@ -52,26 +52,9 @@ const (
 )
 
 type BlockHandler interface {
-	Handle(block *encryption.Block) error
+	SendKey(key *encryption.NodeKey) error
+	SendBlock(block *encryption.Block) error
 	Close() error
-}
-
-type handlerFunc struct {
-	handleFunc func(block *encryption.Block) error
-}
-
-func (hf *handlerFunc) Handle(b *encryption.Block) error {
-	return hf.handleFunc(b)
-}
-
-func (hf *handlerFunc) Close() error {
-	return nil
-}
-
-func NewBlockHandlerFunc(hf func(block *encryption.Block) error) BlockHandler {
-	return &handlerFunc{
-		handleFunc: hf,
-	}
 }
 
 // EncryptedBlockHeaderOption
@@ -526,6 +509,16 @@ func (m *AESGCMEncryptionMaterials) SetPlainRange(offset, length int64) {
 	}
 }
 
+func (m *AESGCMEncryptionMaterials) CalculateOutputSize(plainSize int64) int64 {
+	blocks := plainSize / defaultBlockSIze
+	encryptedBlockSize := blocks * (defaultBlockSIze + 110)
+	if blocks*defaultBlockSIze != plainSize {
+		lastBLockSize := (plainSize % defaultBlockSIze) + 110
+		encryptedBlockSize += lastBLockSize
+	}
+	return encryptedBlockSize
+}
+
 func (m *AESGCMEncryptionMaterials) SetupEncryptMode(stream io.Reader) error {
 	m.mode = 1
 	m.stream = stream
@@ -690,7 +683,7 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 					OwnerId:    m.encInfo.NodeKey.OwnerId,
 					Nonce:      nonce,
 				}
-				_ = m.encryptedBlockHandler.Handle(publishedBlock)
+				_ = m.encryptedBlockHandler.SendBlock(publishedBlock)
 			}
 		}
 
