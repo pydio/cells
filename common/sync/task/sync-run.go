@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"go.uber.org/zap"
 
@@ -33,35 +34,56 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (model.Stater, error) {
+func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}, paths ...string) (model.Stater, error) {
 
 	if s.Direction == model.DirectionBi {
 
-		bi, e := s.RunBi(ctx, dryRun, force, statusChan, doneChan)
-		if e == nil {
-			s.Processor.PatchChan <- bi.Left
-			s.Processor.PatchChan <- bi.Right
+		bb, e := s.RunBi(ctx, dryRun, force, statusChan, doneChan)
+		if e != nil {
+			return nil, e
 		}
-		return bi, e
+		out := model.NewMultiStater()
+		for k, b := range bb {
+			out[k] = b
+			s.Processor.PatchChan <- b.Left
+			s.Processor.PatchChan <- b.Right
+		}
+		return out, e
 
 	} else {
-
-		patch, e := s.RunUni(ctx, dryRun, force, statusChan, doneChan)
-		if e == nil {
-			s.Processor.PatchChan <- patch
+		if len(paths) == 0 {
+			patch, e := s.RunUni(ctx, "/", dryRun, force, statusChan, doneChan)
+			if e == nil {
+				s.Processor.PatchChan <- patch
+			}
+			return patch, e
+		} else {
+			multi := model.NewMultiStater()
+			var errors []string
+			for _, p := range paths {
+				if patch, e := s.RunUni(ctx, p, dryRun, force, statusChan, doneChan); e == nil {
+					s.Processor.PatchChan <- patch
+					multi[p] = patch
+				} else {
+					errors = append(errors, e.Error())
+				}
+			}
+			if len(errors) > 0 {
+				return multi, fmt.Errorf(strings.Join(errors, "-"))
+			}
+			return multi, nil
 		}
-		return patch, e
 	}
 
 }
 
-func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (merger.Patch, error) {
+func (s *Sync) RunUni(ctx context.Context, rootPath string, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (merger.Patch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 	diff := merger.NewDiff(ctx, source, targetAsSource)
 	diff.SetupChannels(statusChan, nil)
-	e := diff.Compute()
+	e := diff.Compute(rootPath)
 	if e == nil && dryRun {
 		fmt.Println(diff.String())
 	}
@@ -95,21 +117,29 @@ func (s *Sync) RunUni(ctx context.Context, dryRun bool, force bool, statusChan c
 	return patch, nil
 }
 
-func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (*merger.BidirectionalPatch, error) {
+func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (map[string]*merger.BidirectionalPatch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 
-	var bb *merger.BidirectionalPatch
-
 	var useSnapshots, captureSnapshots bool
 	var leftSnap, rightSnap model.Snapshoter
-	var leftBatch, rightBatch merger.Patch
+	var leftPatches, rightPatches map[string]merger.Patch
+
+	var roots []string
+	for _, r := range s.Roots {
+		roots = append(roots, r)
+	}
+	if len(roots) == 0 {
+		roots = append(roots, "/")
+	}
+
+	bb := make(map[string]*merger.BidirectionalPatch, len(roots))
 
 	if s.SnapshotFactory != nil && !force {
 		var er1, er2 error
-		leftSnap, leftBatch, er1 = s.PatchFromSnapshot(ctx, "left", source, true)
-		rightSnap, rightBatch, er2 = s.PatchFromSnapshot(ctx, "right", targetAsSource, true)
+		leftSnap, leftPatches, er1 = s.PatchesFromSnapshot(ctx, "left", source, roots)
+		rightSnap, rightPatches, er2 = s.PatchesFromSnapshot(ctx, "right", targetAsSource, roots)
 		if er1 == nil && er2 == nil {
 			if leftSnap.IsEmpty() || rightSnap.IsEmpty() {
 				captureSnapshots = true
@@ -122,66 +152,73 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	if useSnapshots {
 
 		log.Logger(ctx).Info("Computing patches from Snapshots")
-		leftBatch.Filter(ctx)
-		rightBatch.Filter(ctx)
-		bb = &merger.BidirectionalPatch{
-			Left:  leftBatch,
-			Right: rightBatch,
-		}
-		log.Logger(ctx).Debug("BB-Before Merge", zap.Any("stats", bb.Stats()))
-		if err := bb.Merge(ctx); err != nil {
-			return nil, err
+		for _, r := range roots {
+			leftPatches[r].Filter(ctx)
+			rightPatches[r].Filter(ctx)
+			b := &merger.BidirectionalPatch{
+				Left:  leftPatches[r],
+				Right: rightPatches[r],
+			}
+			if err := b.Merge(ctx); err != nil {
+				return nil, err
+			}
+			bb[r] = b
 		}
 
 	} else {
 
 		log.Logger(ctx).Info("Computing patches from Sources")
-		diff := merger.NewDiff(ctx, source, targetAsSource)
-		diff.SetupChannels(statusChan, nil)
-		e := diff.Compute()
-		log.Logger(ctx).Info("### GOT DIFF", zap.Any("diff", diff))
-		if e != nil || dryRun {
-			if doneChan != nil {
-				doneChan <- 0
+		for _, r := range roots {
+			diff := merger.NewDiff(ctx, source, targetAsSource)
+			diff.SetupChannels(statusChan, nil)
+			e := diff.Compute(r)
+			log.Logger(ctx).Info("### Got Diff for Root", zap.String("r", r), zap.Any("diff", diff))
+			if e != nil || dryRun {
+				if doneChan != nil {
+					doneChan <- 0
+				}
+				return nil, e
 			}
-			return nil, e
-		}
 
-		sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
-		target, _ := model.AsPathSyncTarget(s.Target)
-		if ers := merger.SolveConflicts(ctx, diff.Conflicts(), sourceAsTarget, target); len(ers) > 0 {
-			log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
-		}
-		var err error
-		bb, err = diff.ToBidirectionalPatch(sourceAsTarget, target)
-		if err != nil {
-			return nil, err
-		}
+			sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
+			target, _ := model.AsPathSyncTarget(s.Target)
+			if ers := merger.SolveConflicts(ctx, diff.Conflicts(), sourceAsTarget, target); len(ers) > 0 {
+				log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
+			}
+			b, err := diff.ToBidirectionalPatch(sourceAsTarget, target)
+			if err != nil {
+				return nil, err
+			}
 
-		log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", bb.Stats()))
+			log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", b.Stats()))
 
-		bb.Left.Filter(ctx)
-		bb.Right.Filter(ctx)
+			b.Left.Filter(ctx)
+			b.Right.Filter(ctx)
+			bb[r] = b
+
+		}
 
 		if captureSnapshots {
 			log.Logger(ctx).Info("Capturing first snapshots now")
-			leftSnap.Capture(ctx, source)
-			rightSnap.Capture(ctx, targetAsSource)
+			leftSnap.Capture(ctx, source, roots...)
+			rightSnap.Capture(ctx, targetAsSource, roots...)
 		}
 
 	}
 
-	if provider, ok := model.AsSessionProvider(s.Target); ok {
-		bb.Left.SetSessionProvider(ctx, provider)
+	// Wait all patches to be processed to send the doneChan info
+	patchCount := 2 * len(bb)
+	dChan := make(chan interface{}, patchCount)
+	for _, b := range bb {
+		if provider, ok := model.AsSessionProvider(s.Target); ok {
+			b.Left.SetSessionProvider(ctx, provider)
+		}
+		if provider, ok := model.AsSessionProvider(s.Source); ok {
+			b.Right.SetSessionProvider(ctx, provider)
+		}
+		b.Left.SetupChannels(statusChan, dChan)
+		b.Right.SetupChannels(statusChan, dChan)
 	}
-	if provider, ok := model.AsSessionProvider(s.Source); ok {
-		bb.Right.SetSessionProvider(ctx, provider)
-	}
-
-	// Wait for both batch to be processed to send the doneChan info
-	dChan := make(chan interface{}, 2)
-	bb.Left.SetupChannels(statusChan, dChan)
-	bb.Right.SetupChannels(statusChan, dChan)
 	go func() {
 		i := 0
 		totalSize := 0
@@ -190,7 +227,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 			if size, ok := s.(int); ok {
 				totalSize += size
 			}
-			if i == 2 {
+			if i == patchCount {
 				close(dChan)
 				if doneChan != nil {
 					doneChan <- totalSize
@@ -202,7 +239,7 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	return bb, nil
 }
 
-func (s *Sync) PatchFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, capture bool) (model.Snapshoter, merger.Patch, error) {
+func (s *Sync) PatchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string) (model.Snapshoter, map[string]merger.Patch, error) {
 
 	snapUpdater, ok2 := source.(model.SnapshotUpdater)
 	hashStoreReader, ok3 := source.(model.HashStoreReader)
@@ -223,17 +260,21 @@ func (s *Sync) PatchFromSnapshot(ctx context.Context, name string, source model.
 	if ok3 {
 		hashStoreReader.SetRefHashStore(snap)
 	}
-	diff := merger.NewDiff(ctx, source, snap)
-	er = diff.Compute()
-	if er != nil {
-		return nil, nil, er
+	patches := make(map[string]merger.Patch, len(roots))
+	for _, r := range roots {
+		diff := merger.NewDiff(ctx, source, snap)
+		er = diff.Compute(r)
+		if er != nil {
+			return nil, nil, er
+		}
+		// We want to apply changes from source onto snapshot
+		patch, er := diff.ToUnidirectionalPatch(model.DirectionRight)
+		if er != nil {
+			return nil, nil, er
+		}
+		patches[r] = patch
 	}
-	// We want to apply changes from source onto snapshot
-	patch, er := diff.ToUnidirectionalPatch(model.DirectionRight)
-	if er != nil {
-		return nil, nil, er
-	}
-	if e := snap.Capture(ctx, source); e != nil {
+	if e := snap.Capture(ctx, source, roots...); e != nil {
 		log.Logger(ctx).Error("Error while capturing snapshot!", zap.Error(e))
 	}
 	updatable, ok1 := snap.(model.PathSyncTarget)
@@ -241,7 +282,7 @@ func (s *Sync) PatchFromSnapshot(ctx context.Context, name string, source model.
 		snapUpdater.SetUpdateSnapshot(updatable)
 	}
 
-	return snap, patch, nil
+	return snap, patches, nil
 
 }
 
@@ -287,7 +328,7 @@ func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, json
 	db := model.NewMemDB()
 	source.Walk(func(path string, node *tree.Node, err error) {
 		db.CreateNode(ctx, node, false)
-	})
+	}, "/")
 
 	return db.ToJSON(jsonFile)
 

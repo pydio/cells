@@ -1,0 +1,112 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+package filters
+
+import (
+	"strings"
+
+	"github.com/pydio/cells/common/sync/model"
+)
+
+// SelectiveRootsFilter is a Pipe filtering events that are outside of the selective roots
+type SelectiveRootsFilter struct {
+	roots []string
+	done  chan bool
+	in    chan model.EventInfo
+	out   chan model.EventInfo
+}
+
+// NewSelectiveRoots creates a new SelectiveRootsFilter and starts listening to events
+func NewSelectiveRootsFilter(roots []string, in chan model.EventInfo) *SelectiveRootsFilter {
+	s := &SelectiveRootsFilter{
+		done: make(chan bool),
+		in:   in,
+		out:  make(chan model.EventInfo),
+	}
+	for _, r := range roots {
+		r = strings.TrimLeft(r, "/")
+		if r != "" {
+			s.roots = append(s.roots, r)
+		}
+	}
+	go s.Start()
+	return s
+}
+
+// GetOutput returns the output chan
+func (s *SelectiveRootsFilter) GetOutput() chan model.EventInfo {
+	return s.out
+}
+
+// Start listens to events and filter them
+func (s *SelectiveRootsFilter) Start() {
+	for {
+		select {
+		case ev := <-s.in:
+			switch ev.Type {
+			case model.EventRemove, model.EventCreate, model.EventRename:
+				if !s.isOutside(ev.Path) {
+					s.out <- ev
+				}
+				break
+			case model.EventSureMove:
+				srcOut := s.isOutside(ev.MoveSource.Path)
+				targetOut := s.isOutside(ev.MoveTarget.Path)
+				if srcOut && targetOut {
+					break
+				}
+				if srcOut {
+					// Transform to create
+					ev.Type = model.EventCreate
+					ev.Path = ev.MoveTarget.Path
+					ev.Etag = ev.MoveTarget.Etag
+				} else if targetOut {
+					// Transform to delete
+					ev.Type = model.EventRemove
+					ev.Path = ev.MoveSource.Path
+					ev.Etag = ev.MoveSource.Etag
+				}
+				s.out <- ev
+			default:
+				break
+			}
+		case <-s.done:
+			return
+		}
+	}
+}
+
+// Close stops the filter from listening
+func (s *SelectiveRootsFilter) Close() {
+	close(s.done)
+}
+
+// isOutside checks if a given path is outside of roots
+func (s *SelectiveRootsFilter) isOutside(event string) bool {
+	var in bool
+	for _, root := range s.roots {
+		if strings.HasPrefix(strings.TrimLeft(event, "/"), root+"/") {
+			in = true
+			break
+		}
+	}
+	return !in
+}

@@ -151,21 +151,10 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 /*************************/
 /* Path Sync Source 	 */
 /*************************/
-func (db *MemDB) Walk(walknFc WalkNodesFunc, pathes ...string) (err error) {
-	var ignore bool
+func (db *MemDB) Walk(walknFc WalkNodesFunc, root string) (err error) {
 	for _, node := range db.Nodes {
-		if len(pathes) > 0 {
-			// If there are some limitations on path, detect them
-			ignore = false
-			for _, testPath := range pathes {
-				if !strings.HasPrefix(node.Path, testPath) {
-					ignore = true
-					break
-				}
-			}
-			if ignore {
-				continue
-			}
+		if root != "/" && !strings.HasPrefix(node.Path, root) {
+			continue
 		}
 		walknFc(node.Path, node, nil)
 	}

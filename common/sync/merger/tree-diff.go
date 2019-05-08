@@ -60,9 +60,9 @@ func newTreeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 }
 
 // Compute performs the actual diff between left and right
-func (diff *TreeDiff) Compute() error {
-	lTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
-	rTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
+func (diff *TreeDiff) Compute(root string) error {
+	lTree := NewTree()
+	rTree := NewTree()
 	var errs []error
 	wg := &sync.WaitGroup{}
 
@@ -78,11 +78,11 @@ func (diff *TreeDiff) Compute() error {
 			diff.Status(ProcessStatus{StatusString: fmt.Sprintf("[%s] Loading snapshot", logId)})
 			var err error
 			if logId == "left" {
-				if lTree, err = TreeNodeFromSource(diff.left); err == nil {
+				if lTree, err = TreeNodeFromSource(diff.left, root); err == nil {
 					h = lTree.GetHash()
 				}
 			} else if logId == "right" {
-				if rTree, err = TreeNodeFromSource(diff.right); err == nil {
+				if rTree, err = TreeNodeFromSource(diff.right, root); err == nil {
 					h = rTree.GetHash()
 				}
 			}

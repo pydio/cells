@@ -173,7 +173,7 @@ func TestWalkS3(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			c.Walk(walk)
+			c.Walk(walk, "/")
 		}()
 		wg.Wait()
 

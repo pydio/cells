@@ -38,6 +38,7 @@ type Sync struct {
 	Source    model.Endpoint
 	Target    model.Endpoint
 	Direction model.DirectionType
+	Roots     []string
 
 	SnapshotFactory model.SnapshotFactory
 	EchoFilter      *filters.EchoFilter
@@ -78,10 +79,19 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	if s.EchoFilter != nil {
 		var out chan model.EventInfo
 		input, out = s.EchoFilter.CreateFilter()
+		if len(s.Roots) > 0 {
+			rootsFilter := filters.NewSelectiveRootsFilter(s.Roots, out)
+			out = rootsFilter.GetOutput()
+		}
 		go s.batcher.BatchEvents(out, s.Processor.PatchChan, 1*time.Second)
 	} else {
 		input = make(chan model.EventInfo)
-		go s.batcher.BatchEvents(input, s.Processor.PatchChan, 1*time.Second)
+		batchIn := input
+		if len(s.Roots) > 0 {
+			rootsFilter := filters.NewSelectiveRootsFilter(s.Roots, input)
+			batchIn = rootsFilter.GetOutput()
+		}
+		go s.batcher.BatchEvents(batchIn, s.Processor.PatchChan, 1*time.Second)
 	}
 	s.Processor.AddRequeueChannel(source, input)
 
@@ -195,7 +205,7 @@ func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool) (model.State
 			}
 		}
 	}()
-	return s.Run(ctx, dryRun, force, s.batchesStatus, s.batchesDone)
+	return s.Run(ctx, dryRun, force, s.batchesStatus, s.batchesDone, s.Roots...)
 }
 
 func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, direction model.DirectionType) *Sync {

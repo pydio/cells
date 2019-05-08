@@ -122,14 +122,10 @@ func (r *RouterEndpoint) GetEndpointInfo() model.EndpointInfo {
 	}
 }
 
-func (r *RouterEndpoint) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
-	p := ""
-	if len(pathes) > 0 {
-		p = pathes[0]
-	}
-	log.Logger(r.getContext()).Debug("Walking Router on " + r.rooted(p))
+func (r *RouterEndpoint) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+	log.Logger(r.getContext()).Debug("Walking Router on " + r.rooted(root))
 	s, e := r.getRouter().ListNodes(r.getContext(), &tree.ListNodesRequest{
-		Node:      &tree.Node{Path: r.rooted(p)},
+		Node:      &tree.Node{Path: r.rooted(root)},
 		Recursive: true,
 	})
 	if e != nil {

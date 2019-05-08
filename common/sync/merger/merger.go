@@ -135,7 +135,7 @@ type Diff interface {
 	StatusProvider
 
 	// Compute performs the actual Diff operation
-	Compute() error
+	Compute(root string) error
 	// ToUnidirectionalPatch transforms current diff into a set of patch operations
 	ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error)
 	// ToBidirectionalPatch transforms current diff into a set of 2 batches of operations

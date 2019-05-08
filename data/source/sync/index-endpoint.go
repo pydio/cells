@@ -57,17 +57,16 @@ func (i *IndexEndpoint) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
-func (i *IndexEndpoint) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
+func (i *IndexEndpoint) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 
-	p := ""
-	if len(pathes) > 0 {
-		p = pathes[0]
+	if root == "/" {
+		root = ""
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	responseClient, e := i.readerClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{
-			Path: p,
+			Path: root,
 		},
 		Recursive: true,
 	})

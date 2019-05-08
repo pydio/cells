@@ -196,13 +196,14 @@ func (c *FSClient) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 
 }
 
-func (c *FSClient) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
+func (c *FSClient) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+	root = strings.TrimLeft(root, "/")
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			walknFc("", nil, err)
 			return nil
 		}
-		if len(path) == 0 || path == "/" || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
+		if len(path) == 0 || path == "/" || c.normalize(path) == root || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
 			return nil
 		}
 
@@ -215,17 +216,7 @@ func (c *FSClient) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err erro
 
 		return nil
 	}
-
-	if len(pathes) > 0 {
-		for _, path := range pathes {
-			if err = afero.Walk(c.FS, c.denormalize(path), wrappingFunc); err != nil {
-				return err
-			}
-		}
-		return nil
-	} else {
-		return afero.Walk(c.FS, model.InternalPathSeparator, wrappingFunc)
-	}
+	return afero.Walk(c.FS, root, wrappingFunc)
 }
 
 // Watches for all fs events on an input path.
@@ -396,7 +387,7 @@ func (c *FSClient) ExistingFolders(ctx context.Context) (map[string][]*tree.Node
 			data[node.Uuid] = make([]*tree.Node, 1)
 			data[node.Uuid] = append(data[node.Uuid], node)
 		}
-	})
+	}, "/")
 	return final, err
 }
 

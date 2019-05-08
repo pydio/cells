@@ -72,7 +72,7 @@ type WalkNodesFunc func(path string, node *tree.Node, err error)
 
 type PathSyncSource interface {
 	Endpoint
-	Walk(walknFc WalkNodesFunc, pathes ...string) (err error)
+	Walk(walknFc WalkNodesFunc, root string) (err error)
 	Watch(recursivePath string, connectionInfo chan WatchConnectionInfo) (*WatchObject, error)
 }
 
@@ -126,7 +126,7 @@ type SessionProvider interface {
 type Snapshoter interface {
 	PathSyncSource
 	IsEmpty() bool
-	Capture(ctx context.Context, source PathSyncSource) error
+	Capture(ctx context.Context, source PathSyncSource, paths ...string) error
 }
 
 type SnapshotUpdater interface {
@@ -145,4 +145,26 @@ type HashStoreReader interface {
 type Stater interface {
 	fmt.Stringer
 	Stats() map[string]interface{}
+}
+
+type MultiStater map[string]Stater
+
+func NewMultiStater() MultiStater {
+	return make(map[string]Stater)
+}
+
+func (m MultiStater) String() string {
+	s := ""
+	for k, stater := range m {
+		s += k + " : " + stater.String() + "\n"
+	}
+	return s
+}
+
+func (m MultiStater) Stats() map[string]interface{} {
+	out := make(map[string]interface{}, len(m))
+	for k, stater := range m {
+		out[k] = stater.Stats()
+	}
+	return out
 }

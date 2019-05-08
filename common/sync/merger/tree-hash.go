@@ -33,9 +33,21 @@ type TreeNode struct {
 // When it comes accross a LEAF without Etag value, it asks the source to recompute it in a
 // parallel fashion with throttling (max 15 at the same time).  At the end of the operation,
 // the tree should be fully loaded with all LEAF etags (but not COLL etags).
-func TreeNodeFromSource(source model.PathSyncSource) (*TreeNode, error) {
-	root := NewTreeNode(&tree.Node{Path: "/", Etag: "-1"})
-	dirs := map[string]*TreeNode{".": root}
+func TreeNodeFromSource(source model.PathSyncSource, root string) (*TreeNode, error) {
+	rootNode := NewTreeNode(&tree.Node{Path: "/", Etag: "-1"})
+	dirs := map[string]*TreeNode{".": rootNode}
+	crtRoot := rootNode
+	// Create branch for root
+	for _, part := range strings.Split(strings.Trim(root, "/"), "/") {
+		f := NewTreeNode(&tree.Node{
+			Path: path.Join(strings.TrimLeft(crtRoot.Path, "/"), part),
+			Etag: "-1",
+			Type: tree.NodeType_COLLECTION,
+		})
+		crtRoot.AddChild(f)
+		dirs[f.Path] = f
+		crtRoot = f
+	}
 	wg := &sync.WaitGroup{}
 	throttle := make(chan struct{}, 15)
 	checksumProvider := source.(model.ChecksumProvider)
@@ -69,9 +81,13 @@ func TreeNodeFromSource(source model.PathSyncSource) (*TreeNode, error) {
 				dirs[strings.Trim(t.GetPath(), "/")] = t
 			}
 		}
-	})
+	}, root)
 	wg.Wait()
-	return root, err
+	return rootNode, err
+}
+
+func NewTree() *TreeNode {
+	return NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
 }
 
 // NewTreeNode creates a new node from a tree.Node. Can be a root, a COLL or a LEAF.

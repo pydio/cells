@@ -41,11 +41,11 @@ func basicDiff(l, r model.PathSyncSource) error {
 	l.Walk(func(path string, node *tree.Node, err error) {
 		left[path] = node
 		leftPaths = append(leftPaths, path)
-	})
+	}, "/")
 	r.Walk(func(path string, node *tree.Node, err error) {
 		right[path] = node
 		rightPaths = append(rightPaths, path)
-	})
+	}, "/")
 	if len(right) != len(left) {
 		return fmt.Errorf("lengths differ")
 	}

@@ -203,7 +203,7 @@ func (c *S3Client) ComputeChecksum(node *tree.Node) error {
 	return nil
 }
 
-func (c *S3Client) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
+func (c *S3Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 
 	ctx := context.Background()
 	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
@@ -226,19 +226,7 @@ func (c *S3Client) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err erro
 		walknFc(path, node, nil)
 		return nil
 	}
-
-	if len(pathes) > 0 {
-		for _, nPath := range pathes {
-			// Go be send in concurrency?
-			e := c.actualLsRecursive(c.getFullPath(nPath), wrappingFunc)
-			if e != nil {
-				return e
-			}
-		}
-		return nil
-	} else {
-		return c.actualLsRecursive(c.RootPath, wrappingFunc)
-	}
+	return c.actualLsRecursive(c.getFullPath(root), wrappingFunc)
 }
 
 func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path string, info *S3FileInfo, err error) error) (err error) {

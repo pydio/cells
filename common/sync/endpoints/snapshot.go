@@ -157,7 +157,7 @@ func (s *Snapshot) Close(delete ...bool) {
 	}
 }
 
-func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource) error {
+func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource, paths ...string) error {
 	// Capture in temporary bucket
 	e := s.db.Update(func(tx *bbolt.Tx) error {
 		var capture *bbolt.Bucket
@@ -170,9 +170,21 @@ func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource) err
 		if capture, e = tx.CreateBucket(captureBucketName); e != nil {
 			return e
 		}
-		return source.Walk(func(path string, node *tree.Node, err error) {
-			capture.Put([]byte(path), s.marshal(node))
-		})
+		if len(paths) == 0 {
+			return source.Walk(func(path string, node *tree.Node, err error) {
+				capture.Put([]byte(path), s.marshal(node))
+			}, "/")
+		} else {
+			for _, p := range paths {
+				e := source.Walk(func(path string, node *tree.Node, err error) {
+					capture.Put([]byte(path), s.marshal(node))
+				}, p)
+				if e != nil {
+					return e
+				}
+			}
+			return nil
+		}
 	})
 	if e != nil {
 		return e
@@ -231,7 +243,8 @@ func (s *Snapshot) GetEndpointInfo() model.EndpointInfo {
 	}
 }
 
-func (s *Snapshot) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err error) {
+func (s *Snapshot) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+	root = strings.Trim(root, "/") + "/"
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
@@ -239,6 +252,9 @@ func (s *Snapshot) Walk(walknFc model.WalkNodesFunc, pathes ...string) (err erro
 		}
 		return b.ForEach(func(k, v []byte) error {
 			key := string(k)
+			if root != "/" && !strings.HasPrefix(key, root) {
+				return nil
+			}
 			if node, e := s.unmarshal(v); e == nil {
 				walknFc(key, node, nil)
 			}
