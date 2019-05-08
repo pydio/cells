@@ -49,8 +49,10 @@ func (pr *Processor) processCreateFile(event *merger.Operation, operationId stri
 	dataSource, dsOk := model.AsDataSyncSource(event.Source())
 
 	localPath := event.EventInfo.Path
-	defer pr.unlockFile(event, localPath)
-	pr.lockFileTo(event, localPath, operationId)
+	if pr.Connector != nil {
+		defer pr.Connector.UnlockFile(event, localPath)
+		pr.Connector.LockFile(event, localPath, operationId)
+	}
 	if dtOk && dsOk {
 
 		reader, rErr := dataSource.GetReaderOn(localPath)

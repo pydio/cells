@@ -40,8 +40,7 @@ func TestEchoFilter_CreateFilter(t *testing.T) {
 	Convey("Test CreateFilter output", t, func() {
 
 		f := NewEchoFilter()
-		in, out := f.CreateFilter()
-		So(in, ShouldNotBeNil)
+		out := f.Pipe(make(chan model.EventInfo))
 		So(out, ShouldNotBeNil)
 
 	})

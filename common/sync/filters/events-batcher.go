@@ -34,6 +34,9 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+// EventsBatcher will batch incoming events and process them after a certain idle time.
+// If incoming events have a SessionUuid, events are batched separately in-memory and processed
+// once a close-session event is received
 type EventsBatcher struct {
 	Source        model.PathSyncSource
 	Target        model.PathSyncTarget
@@ -42,28 +45,105 @@ type EventsBatcher struct {
 	batchCacheMutex *sync.Mutex
 	batchCache      map[string][]model.EventInfo
 
-	batchOut         chan merger.Patch
-	eventChannels    []chan model.ProcessorEvent
+	patches          chan merger.Patch
 	closeSessionChan chan string
-	batchesStatus    chan merger.ProcessStatus
-	batchesDone      chan interface{}
+	statuses         chan merger.ProcessStatus
+	done             chan interface{}
+	debounce         time.Duration
 }
 
-func (ev *EventsBatcher) RegisterEventChannel(out chan model.ProcessorEvent) {
-	ev.eventChannels = append(ev.eventChannels, out)
-}
+// NewEventsBatcher creates a new EventsBatcher
+func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, statuses chan merger.ProcessStatus, done chan interface{}, debounce ...time.Duration) *EventsBatcher {
 
-func (ev *EventsBatcher) sendEvent(event model.ProcessorEvent) {
-	for _, channel := range ev.eventChannels {
-		channel <- event
+	b := &EventsBatcher{
+		Source:        source,
+		Target:        target,
+		globalContext: ctx,
+
+		batchCache:      make(map[string][]model.EventInfo),
+		batchCacheMutex: &sync.Mutex{},
+
+		closeSessionChan: make(chan string, 1),
+		statuses:         statuses,
+		done:             done,
 	}
+	if len(debounce) > 0 {
+		b.debounce = debounce[0]
+	} else {
+		b.debounce = 1 * time.Second
+	}
+
+	return b
 }
 
-func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool) {
+// Batch starts processing incoming events and turn them into Patch
+func (ev *EventsBatcher) Batch(in chan model.EventInfo, out chan merger.Patch) {
+	ev.patches = out
+	go ev.batchEvents(in)
+}
+
+// ForceCloseSession makes sure an in-memory session is always flushed
+func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
+	ev.closeSessionChan <- sessionUuid
+}
+
+func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
+
+	var batch []model.EventInfo
+
+	for {
+		select {
+		case event, ok := <-in:
+			if !ok {
+				return
+			}
+			// Add to queue
+			if session := event.Metadata["X-Pydio-Session"]; session != "" {
+				if strings.HasPrefix(session, "close-") {
+					session = strings.TrimPrefix(session, "close-")
+
+					ev.batchCacheMutex.Lock()
+					ev.batchCache[session] = append(ev.batchCache[session], event)
+					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
+					go ev.processEvents(ev.batchCache[session], true)
+					delete(ev.batchCache, session)
+					ev.batchCacheMutex.Unlock()
+				} else {
+					ev.batchCacheMutex.Lock()
+					log.Logger(ev.globalContext).Debug("[batcher] Batching Event in session "+session, zap.Any("e", event))
+					ev.batchCache[session] = append(ev.batchCache[session], event)
+					ev.batchCacheMutex.Unlock()
+				}
+			} else if event.ScanEvent || event.OperationId == "" {
+				log.Logger(ev.globalContext).Debug("[batcher] Batching Event without session ", zap.Any("e", event))
+				batch = append(batch, event)
+			}
+		case session := <-ev.closeSessionChan:
+			ev.batchCacheMutex.Lock()
+			if events, ok := ev.batchCache[session]; ok {
+				log.Logger(ev.globalContext).Debug("[batcher] Force closing session now!")
+				go ev.processEvents(events, true)
+				delete(ev.batchCache, session)
+			}
+			ev.batchCacheMutex.Unlock()
+		case <-time.After(ev.debounce):
+			// Process Queue
+			if len(batch) > 0 {
+				log.Logger(ev.globalContext).Debug("[batcher] Processing batch after timeout")
+				go ev.processEvents(batch, false)
+				batch = nil
+			}
+		}
+
+	}
+
+}
+
+func (ev *EventsBatcher) processEvents(events []model.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	patch := merger.NewPatch(ev.Source, ev.Target)
-	patch.SetupChannels(ev.batchesStatus, ev.batchesDone)
+	patch.SetupChannels(ev.statuses, ev.done)
 	/*
 		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {
 			patch.sessionProvider = p
@@ -102,16 +182,7 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 		}
 	}
 
-	ev.sendEvent(model.ProcessorEvent{
-		Type: "filter:start",
-		Data: patch,
-	})
 	patch.Filter(ev.globalContext)
-	ev.sendEvent(model.ProcessorEvent{
-		Type: "filter:end",
-		Data: patch,
-	})
-
 	if patch.Size() > 0 {
 		log.Logger(ev.globalContext).Info("****** Sending Patch from Events")
 		fmt.Println(patch)
@@ -120,77 +191,6 @@ func (ev *EventsBatcher) ProcessEvents(events []model.EventInfo, asSession bool)
 		updater.PatchUpdateSnapshot(ev.globalContext, patch)
 	}
 
-	ev.batchOut <- patch
-
-}
-
-func (ev *EventsBatcher) BatchEvents(in chan model.EventInfo, out chan merger.Patch, duration time.Duration) {
-
-	ev.batchOut = out
-	var batch []model.EventInfo
-
-	for {
-		select {
-		case event := <-in:
-			//log.Logger(ev.globalContext).Info("Received S3 Event", zap.Any("e", event))
-			// Add to queue
-			if session := event.Metadata["X-Pydio-Session"]; session != "" {
-				if strings.HasPrefix(session, "close-") {
-					session = strings.TrimPrefix(session, "close-")
-
-					ev.batchCacheMutex.Lock()
-					ev.batchCache[session] = append(ev.batchCache[session], event)
-					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
-					go ev.ProcessEvents(ev.batchCache[session], true)
-					delete(ev.batchCache, session)
-					ev.batchCacheMutex.Unlock()
-				} else {
-					ev.batchCacheMutex.Lock()
-					log.Logger(ev.globalContext).Debug("[batcher] Batching Event in session "+session, zap.Any("e", event))
-					ev.batchCache[session] = append(ev.batchCache[session], event)
-					ev.batchCacheMutex.Unlock()
-				}
-			} else if event.ScanEvent || event.OperationId == "" {
-				log.Logger(ev.globalContext).Debug("[batcher] Batching Event without session ", zap.Any("e", event))
-				batch = append(batch, event)
-			}
-		case session := <-ev.closeSessionChan:
-			ev.batchCacheMutex.Lock()
-			if events, ok := ev.batchCache[session]; ok {
-				log.Logger(ev.globalContext).Debug("[batcher] Force closing session now!")
-				go ev.ProcessEvents(events, true)
-				delete(ev.batchCache, session)
-			}
-			ev.batchCacheMutex.Unlock()
-		case <-time.After(duration):
-			// Process Queue
-			if len(batch) > 0 {
-				log.Logger(ev.globalContext).Debug("[batcher] Processing batch after timeout")
-				go ev.ProcessEvents(batch, false)
-				batch = nil
-			}
-		}
-
-	}
-
-}
-
-func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
-	ev.closeSessionChan <- sessionUuid
-}
-
-func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, batchesStatus chan merger.ProcessStatus, batchesDone chan interface{},
-) *EventsBatcher {
-
-	return &EventsBatcher{
-		Source:           source,
-		Target:           target,
-		globalContext:    ctx,
-		batchCache:       make(map[string][]model.EventInfo),
-		batchCacheMutex:  &sync.Mutex{},
-		closeSessionChan: make(chan string, 1),
-		batchesStatus:    batchesStatus,
-		batchesDone:      batchesDone,
-	}
+	ev.patches <- patch
 
 }

@@ -35,11 +35,9 @@ type SelectiveRootsFilter struct {
 }
 
 // NewSelectiveRoots creates a new SelectiveRootsFilter and starts listening to events
-func NewSelectiveRootsFilter(roots []string, in chan model.EventInfo) *SelectiveRootsFilter {
+func NewSelectiveRootsFilter(roots []string) *SelectiveRootsFilter {
 	s := &SelectiveRootsFilter{
 		done: make(chan bool),
-		in:   in,
-		out:  make(chan model.EventInfo),
 	}
 	for _, r := range roots {
 		r = strings.TrimLeft(r, "/")
@@ -47,8 +45,15 @@ func NewSelectiveRootsFilter(roots []string, in chan model.EventInfo) *Selective
 			s.roots = append(s.roots, r)
 		}
 	}
-	go s.Start()
 	return s
+}
+
+func (s *SelectiveRootsFilter) Pipe(in chan model.EventInfo) chan model.EventInfo {
+	out := make(chan model.EventInfo)
+	s.in = in
+	s.out = out
+	go s.start()
+	return out
 }
 
 // GetOutput returns the output chan
@@ -57,10 +62,15 @@ func (s *SelectiveRootsFilter) GetOutput() chan model.EventInfo {
 }
 
 // Start listens to events and filter them
-func (s *SelectiveRootsFilter) Start() {
+func (s *SelectiveRootsFilter) start() {
+	defer close(s.out)
+	defer close(s.done)
 	for {
 		select {
-		case ev := <-s.in:
+		case ev, ok := <-s.in:
+			if !ok {
+				return
+			}
 			switch ev.Type {
 			case model.EventRemove, model.EventCreate, model.EventRename:
 				if !s.isOutside(ev.Path) {

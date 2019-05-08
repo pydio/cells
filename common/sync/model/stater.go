@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -17,24 +17,34 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+package model
 
-package proc
+import "fmt"
 
-import (
-	"github.com/pydio/cells/common/sync/merger"
-)
+// Stater can provide a json-serializable description of its content
+type Stater interface {
+	fmt.Stringer
+	Stats() map[string]interface{}
+}
 
-func (pr *Processor) processDelete(event *merger.Operation, operationId string, pg chan int64) error {
+type MultiStater map[string]Stater
 
-	pg <- 1
-	deletePath := event.Node.Path
-	if pr.Connector != nil {
-		pr.Connector.LockFile(event, deletePath, operationId)
-		defer pr.Connector.UnlockFile(event, deletePath)
+func NewMultiStater() MultiStater {
+	return make(map[string]Stater)
+}
+
+func (m MultiStater) String() string {
+	s := ""
+	for k, stater := range m {
+		s += k + " : " + stater.String() + "\n"
 	}
-	ctx := event.EventInfo.CreateContext(pr.GlobalContext)
-	err := event.Target().DeleteNode(ctx, deletePath)
+	return s
+}
 
-	return err
-
+func (m MultiStater) Stats() map[string]interface{} {
+	out := make(map[string]interface{}, len(m))
+	for k, stater := range m {
+		out[k] = stater.Stats()
+	}
+	return out
 }

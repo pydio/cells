@@ -74,6 +74,8 @@ type RouterEndpoint struct {
 
 	recentMkDirs   []*tree.Node
 	updateSnapshot model.PathSyncTarget
+
+	watchCtxCancelled bool
 }
 
 type Options struct {
@@ -184,6 +186,7 @@ func (r *RouterEndpoint) Watch(recursivePath string, connectionInfo chan model.W
 			case <-obj.DoneChan:
 				log.Logger(r.getContext()).Info("Stopping event watcher")
 				cancel()
+				r.watchCtxCancelled = true
 				return
 			}
 		}
@@ -280,6 +283,9 @@ func (r *RouterEndpoint) receiveEvents(ctx context.Context, changes chan *tree.N
 	}
 	for {
 		change, e := streamer.Recv()
+		if r.watchCtxCancelled {
+			return
+		}
 		if e != nil {
 			log.Logger(r.getContext()).Error("Stopping watcher on error" + e.Error())
 			finished <- e

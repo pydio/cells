@@ -192,7 +192,7 @@ func (s *Handler) watchErrors() {
 				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
 				branch = ""
 				s.syncTask.SetSyncEventsChan(nil, nil, nil)
-				s.syncTask.Resync(context.Background(), false, false)
+				s.syncTask.Run(context.Background(), false, false)
 			}
 		case <-s.stop:
 			return
@@ -290,7 +290,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}()
 	}
 	s.syncTask.SetSyncEventsChan(statusChan, doneChan, nil)
-	result, e := s.syncTask.Resync(context.Background(), req.DryRun, false)
+	result, e := s.syncTask.Run(context.Background(), req.DryRun, false)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task

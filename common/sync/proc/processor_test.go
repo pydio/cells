@@ -41,7 +41,6 @@ func TestProcess(t *testing.T) {
 	Convey("Test basic processing", t, func() {
 
 		m := NewProcessor(testCtx)
-		defer m.Shutdown()
 		So(m, ShouldNotBeNil)
 
 		source := model.NewMemDB()

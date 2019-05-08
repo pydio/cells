@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -33,89 +33,37 @@ import (
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/filters"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
 
-type Processor struct {
-	PatchChan       chan merger.Patch
-	LocksChan       chan filters.LockEvent
-	UnlocksChan     chan filters.UnlockEvent
-	RequeueChannels map[model.PathSyncSource]chan model.EventInfo
-
-	JobsInterrupt chan bool
-	GlobalContext context.Context
-
-	eventChannels []chan model.ProcessorEvent
-}
-
+// ProcessFunc is a generic function signature for applying an operation
 type ProcessFunc func(event *merger.Operation, operationId string, progress chan int64) error
 
+// ProcessorConnector defines a set of event based functions that can be called during processing
+type ProcessorConnector interface {
+	// Requeue send a fake event to be requeued in original Event chan input
+	Requeue(source model.PathSyncSource, event model.EventInfo)
+	// LockFile sends LockEvent for Echo Filtering
+	LockFile(operation *merger.Operation, path string, operationId string)
+	// UnlockFile sends UnlockEvent for Echo Filtering
+	UnlockFile(operation *merger.Operation, path string)
+}
+
+// Processor is a simple processor without external connections
+type Processor struct {
+	GlobalContext context.Context
+	Connector     ProcessorConnector
+}
+
+// NewProcessor creates a new processor
 func NewProcessor(ctx context.Context) *Processor {
 	return &Processor{
-		PatchChan:       make(chan merger.Patch, 1),
-		RequeueChannels: make(map[model.PathSyncSource]chan model.EventInfo),
-		JobsInterrupt:   make(chan bool),
-		GlobalContext:   ctx,
+		GlobalContext: ctx,
 	}
 }
 
-func (pr *Processor) Shutdown() {
-	close(pr.PatchChan)
-	close(pr.JobsInterrupt)
-}
-
-func (pr *Processor) Logger() *zap.Logger {
-	return log.Logger(pr.GlobalContext)
-}
-
-func (pr *Processor) AddRequeueChannel(source model.PathSyncSource, channel chan model.EventInfo) {
-	pr.RequeueChannels[source] = channel
-}
-
-func (pr *Processor) RegisterEventChannel(out chan model.ProcessorEvent) {
-	pr.eventChannels = append(pr.eventChannels, out)
-}
-
-func (pr *Processor) sendEvent(event model.ProcessorEvent) {
-	for _, channel := range pr.eventChannels {
-		channel <- event
-	}
-}
-
-func (pr *Processor) lockFileTo(operation *merger.Operation, path string, operationId string) {
-	if source, ok := model.AsPathSyncSource(operation.Target()); pr.LocksChan != nil && ok {
-		if source.GetEndpointInfo().SupportsTargetEcho {
-			return // no lock needed, do nothing
-		}
-		pr.LocksChan <- filters.LockEvent{
-			Source:      source,
-			Path:        path,
-			OperationId: operationId,
-		}
-	}
-}
-
-func (pr *Processor) unlockFile(operation *merger.Operation, path string) {
-	if source, castOk := model.AsPathSyncSource(operation.Target()); castOk && pr.UnlocksChan != nil {
-		if source.GetEndpointInfo().SupportsTargetEcho {
-			return // no lock needed, do nothing
-		}
-		d := 2 * time.Second
-		if source.GetEndpointInfo().EchoTime > 0 {
-			d = source.GetEndpointInfo().EchoTime
-		}
-		go func() {
-			<-time.After(d)
-			pr.UnlocksChan <- filters.UnlockEvent{
-				Source: source,
-				Path:   path,
-			}
-		}()
-	}
-}
-
+// Process calls all Operations to be performed on a Patch
 func (pr *Processor) Process(patch merger.Patch) {
 
 	s := patch.Size()
@@ -124,11 +72,6 @@ func (pr *Processor) Process(patch merger.Patch) {
 	if s == 0 {
 		return
 	}
-
-	pr.sendEvent(model.ProcessorEvent{
-		Type: "merger:start",
-		Data: patch,
-	})
 
 	operationId := uuid.New()
 	var event *merger.Operation
@@ -220,22 +163,24 @@ func (pr *Processor) Process(patch merger.Patch) {
 		go pr.refreshFilesUuid(patch)
 	}
 
-	pr.sendEvent(model.ProcessorEvent{
-		Type: "end",
-		Data: patch,
-	})
 }
 
+// Logger is a shortcut for log.Logger(pr.globalContext) function
+func (pr *Processor) Logger() *zap.Logger {
+	return log.Logger(pr.GlobalContext)
+}
+
+// applyProcessFunc takes a ProcessFunc and handle progress, status messages, etc
 func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId string, callback ProcessFunc, completeString string, progressString string, errorString string, cursor *int64, total int64, fields ...zapcore.Field) error {
 
 	fields = append(fields, zap.String("target", event.Target().GetEndpointInfo().URI))
 
-	pg := make(chan int64)
+	pgs := make(chan int64)
 	var lastProgress float32
-	defer close(pg)
+	defer close(pgs)
 	go func() {
-		for p := range pg {
-			*cursor += p
+		for pg := range pgs {
+			*cursor += pg
 			progress := float32(*cursor) / float32(total)
 			if progress-lastProgress > 0.01 { // Send 1 per percent
 				event.Patch.Status(merger.ProcessStatus{
@@ -247,7 +192,7 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 		}
 	}()
 
-	err := callback(event, operationId, pg)
+	err := callback(event, operationId, pgs)
 	if err != nil {
 		fields = append(fields, zap.Error(err))
 		pr.Logger().Error(errorString, fields...)
@@ -272,24 +217,10 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 	return err
 }
 
+// logAsStrings transforms zap Fields to string
 func (pr *Processor) logAsString(msg string, err error, fields ...zapcore.Field) string {
 	for _, field := range fields {
 		msg += " - " + field.String
 	}
 	return msg
-}
-
-func (pr *Processor) ProcessPatches() {
-
-	for {
-		select {
-		case patch, open := <-pr.PatchChan:
-			if !open {
-				log.Logger(pr.GlobalContext).Info("Stop processing patches, pr.PatchChan is closed")
-				return
-			}
-			pr.Process(patch)
-		}
-	}
-
 }

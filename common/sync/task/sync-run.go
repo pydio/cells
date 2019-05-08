@@ -34,35 +34,35 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}, paths ...string) (model.Stater, error) {
+func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {
 
 	if s.Direction == model.DirectionBi {
 
-		bb, e := s.RunBi(ctx, dryRun, force, statusChan, doneChan)
+		bb, e := s.runBi(ctx, dryRun, force)
 		if e != nil {
 			return nil, e
 		}
 		out := model.NewMultiStater()
 		for k, b := range bb {
 			out[k] = b
-			s.Processor.PatchChan <- b.Left
-			s.Processor.PatchChan <- b.Right
+			s.processor.PatchChan <- b.Left
+			s.processor.PatchChan <- b.Right
 		}
 		return out, e
 
 	} else {
-		if len(paths) == 0 {
-			patch, e := s.RunUni(ctx, "/", dryRun, force, statusChan, doneChan)
+		if len(s.Roots) == 0 {
+			patch, e := s.runUni(ctx, "/", dryRun, force)
 			if e == nil {
-				s.Processor.PatchChan <- patch
+				s.processor.PatchChan <- patch
 			}
 			return patch, e
 		} else {
 			multi := model.NewMultiStater()
 			var errors []string
-			for _, p := range paths {
-				if patch, e := s.RunUni(ctx, p, dryRun, force, statusChan, doneChan); e == nil {
-					s.Processor.PatchChan <- patch
+			for _, p := range s.Roots {
+				if patch, e := s.runUni(ctx, p, dryRun, force); e == nil {
+					s.processor.PatchChan <- patch
 					multi[p] = patch
 				} else {
 					errors = append(errors, e.Error())
@@ -77,20 +77,20 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool, statusChan chan
 
 }
 
-func (s *Sync) RunUni(ctx context.Context, rootPath string, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (merger.Patch, error) {
+func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force bool) (merger.Patch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 	diff := merger.NewDiff(ctx, source, targetAsSource)
-	diff.SetupChannels(statusChan, nil)
+	diff.SetupChannels(s.statuses, nil)
 	e := diff.Compute(rootPath)
 	if e == nil && dryRun {
 		fmt.Println(diff.String())
 	}
 	log.Logger(ctx).Debug("### GOT DIFF", zap.Any("diff", diff))
 	if e != nil || dryRun {
-		if doneChan != nil {
-			doneChan <- 0
+		if s.runDone != nil {
+			s.runDone <- 0
 		}
 		return nil, e
 	}
@@ -100,7 +100,7 @@ func (s *Sync) RunUni(ctx context.Context, rootPath string, dryRun bool, force b
 		return nil, err
 	}
 	patch.Filter(ctx)
-	patch.SetupChannels(statusChan, doneChan)
+	patch.SetupChannels(s.statuses, s.runDone)
 
 	log.Logger(ctx).Debug("### SENDING TO MERGER", zap.Any("stats", patch.Stats()))
 
@@ -117,7 +117,7 @@ func (s *Sync) RunUni(ctx context.Context, rootPath string, dryRun bool, force b
 	return patch, nil
 }
 
-func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan chan merger.ProcessStatus, doneChan chan interface{}) (map[string]*merger.BidirectionalPatch, error) {
+func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*merger.BidirectionalPatch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -136,10 +136,10 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 
 	bb := make(map[string]*merger.BidirectionalPatch, len(roots))
 
-	if s.SnapshotFactory != nil && !force {
+	if s.snapshotFactory != nil && !force {
 		var er1, er2 error
-		leftSnap, leftPatches, er1 = s.PatchesFromSnapshot(ctx, "left", source, roots)
-		rightSnap, rightPatches, er2 = s.PatchesFromSnapshot(ctx, "right", targetAsSource, roots)
+		leftSnap, leftPatches, er1 = s.patchesFromSnapshot(ctx, "left", source, roots)
+		rightSnap, rightPatches, er2 = s.patchesFromSnapshot(ctx, "right", targetAsSource, roots)
 		if er1 == nil && er2 == nil {
 			if leftSnap.IsEmpty() || rightSnap.IsEmpty() {
 				captureSnapshots = true
@@ -170,12 +170,12 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 		log.Logger(ctx).Info("Computing patches from Sources")
 		for _, r := range roots {
 			diff := merger.NewDiff(ctx, source, targetAsSource)
-			diff.SetupChannels(statusChan, nil)
+			diff.SetupChannels(s.statuses, nil)
 			e := diff.Compute(r)
 			log.Logger(ctx).Info("### Got Diff for Root", zap.String("r", r), zap.Any("diff", diff))
 			if e != nil || dryRun {
-				if doneChan != nil {
-					doneChan <- 0
+				if s.runDone != nil {
+					s.runDone <- 0
 				}
 				return nil, e
 			}
@@ -216,21 +216,21 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 		if provider, ok := model.AsSessionProvider(s.Source); ok {
 			b.Right.SetSessionProvider(ctx, provider)
 		}
-		b.Left.SetupChannels(statusChan, dChan)
-		b.Right.SetupChannels(statusChan, dChan)
+		b.Left.SetupChannels(s.statuses, dChan)
+		b.Right.SetupChannels(s.statuses, dChan)
 	}
 	go func() {
 		i := 0
 		totalSize := 0
-		for s := range dChan {
+		for si := range dChan {
 			i++
-			if size, ok := s.(int); ok {
+			if size, ok := si.(int); ok {
 				totalSize += size
 			}
 			if i == patchCount {
 				close(dChan)
-				if doneChan != nil {
-					doneChan <- totalSize
+				if s.runDone != nil {
+					s.runDone <- totalSize
 				}
 			}
 		}
@@ -239,11 +239,11 @@ func (s *Sync) RunBi(ctx context.Context, dryRun bool, force bool, statusChan ch
 	return bb, nil
 }
 
-func (s *Sync) PatchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string) (model.Snapshoter, map[string]merger.Patch, error) {
+func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string) (model.Snapshoter, map[string]merger.Patch, error) {
 
 	snapUpdater, ok2 := source.(model.SnapshotUpdater)
 	hashStoreReader, ok3 := source.(model.HashStoreReader)
-	snap, er := s.SnapshotFactory.Load(name)
+	snap, er := s.snapshotFactory.Load(name)
 	if er != nil {
 		if ok2 {
 			snapUpdater.SetUpdateSnapshot(nil)
@@ -291,9 +291,9 @@ func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 
-	if s.Direction == model.DirectionBi && s.SnapshotFactory != nil {
+	if s.Direction == model.DirectionBi && s.snapshotFactory != nil {
 
-		leftSnap, err := s.SnapshotFactory.Load("left")
+		leftSnap, err := s.snapshotFactory.Load("left")
 		if err != nil {
 			return err
 		}
@@ -301,7 +301,7 @@ func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
 			return e
 		}
 
-		rightSnap, err := s.SnapshotFactory.Load("right")
+		rightSnap, err := s.snapshotFactory.Load("right")
 		if err != nil {
 			return err
 		}

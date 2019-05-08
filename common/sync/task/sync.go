@@ -23,11 +23,7 @@ package task
 
 import (
 	"context"
-	"time"
 
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/filters"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
@@ -40,93 +36,65 @@ type Sync struct {
 	Direction model.DirectionType
 	Roots     []string
 
-	SnapshotFactory model.SnapshotFactory
-	EchoFilter      *filters.EchoFilter
-	Processor       *proc.Processor
+	snapshotFactory model.SnapshotFactory
+	echoFilter      *filters.EchoFilter
+	eventsBatchers  []*filters.EventsBatcher
+	processor       *proc.ConnectedProcessor
 
-	batcher   *filters.EventsBatcher
+	paused    bool
 	doneChans []chan bool
-
-	paused        bool
-	watchConn     chan model.WatchConnectionInfo
-	batchesStatus chan merger.ProcessStatus
-	batchesDone   chan interface{}
+	watchConn chan model.WatchConnectionInfo
+	statuses  chan merger.ProcessStatus
+	runDone   chan interface{}
 }
 
-// BroadcastCloseSession forwards session id to underlying batchers
-func (s *Sync) BroadcastCloseSession(sessionUuid string) {
-	if s.batcher == nil {
-		return
+func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, direction model.DirectionType, roots ...string) *Sync {
+
+	s := &Sync{
+		Source:    left,
+		Target:    right,
+		Direction: direction,
+		Roots:     roots,
 	}
-	s.batcher.ForceCloseSession(sessionUuid)
+
+	// Init processor
+	s.processor = proc.NewConnectedProcessor(ctx)
+
+	// Init EchoFilter
+	if direction == model.DirectionBi {
+		s.echoFilter = filters.NewEchoFilter()
+		s.processor.SetLocksChan(s.echoFilter.GetLocksChan())
+	}
+
+	return s
 }
 
-// SetupWatcher starts watching events for sync
-func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget) error {
+// Start makes a first sync and setup watchers
+func (s *Sync) Start(ctx context.Context) {
 
-	var err error
-	watchObject, err := source.Watch("", s.watchConn)
-	if err != nil {
-		log.Logger(ctx).Error("Error While Setting up Watcher on source", zap.Any("source", source), zap.Error(err))
-		return err
+	s.processor.Start()
+	if s.echoFilter != nil {
+		s.echoFilter.Start()
 	}
 
-	s.doneChans = append(s.doneChans, watchObject.DoneChan)
-
-	// Now wire batches to processor
-	s.batcher = filters.NewEventsBatcher(ctx, source, target, s.batchesStatus, s.batchesDone)
-	var input chan model.EventInfo
-	if s.EchoFilter != nil {
-		var out chan model.EventInfo
-		input, out = s.EchoFilter.CreateFilter()
-		if len(s.Roots) > 0 {
-			rootsFilter := filters.NewSelectiveRootsFilter(s.Roots, out)
-			out = rootsFilter.GetOutput()
-		}
-		go s.batcher.BatchEvents(out, s.Processor.PatchChan, 1*time.Second)
-	} else {
-		input = make(chan model.EventInfo)
-		batchIn := input
-		if len(s.Roots) > 0 {
-			rootsFilter := filters.NewSelectiveRootsFilter(s.Roots, input)
-			batchIn = rootsFilter.GetOutput()
-		}
-		go s.batcher.BatchEvents(batchIn, s.Processor.PatchChan, 1*time.Second)
+	source, sOk := model.AsPathSyncSource(s.Source)
+	target, tOk := model.AsPathSyncTarget(s.Target)
+	if s.Direction != model.DirectionLeft && sOk && tOk {
+		s.SetupWatcher(ctx, source, target)
 	}
-	s.Processor.AddRequeueChannel(source, input)
-
-	go func() {
-		// Wait for all events.
-		for {
-			select {
-			case event, ok := <-watchObject.Events():
-				if !ok {
-					<-time.After(1 * time.Second)
-					continue
-				}
-				if !s.paused {
-					input <- event
-				}
-			case err, ok := <-watchObject.Errors():
-				if !ok {
-					<-time.After(5 * time.Second)
-					continue
-				}
-				if err != nil {
-					log.Logger(ctx).Error("Received error from watcher", zap.Error(err))
-				}
-			}
-		}
-	}()
-
-	return nil
-
+	source2, sOk2 := model.AsPathSyncSource(s.Target)
+	target2, tOk2 := model.AsPathSyncTarget(s.Source)
+	if s.Direction != model.DirectionRight && sOk2 && tOk2 {
+		s.SetupWatcher(ctx, source2, target2)
+	}
 }
 
+// Pause should pause the sync
 func (s *Sync) Pause() {
 	s.paused = true
 }
 
+// Resume should resume the sync
 func (s *Sync) Resume() {
 	s.paused = false
 }
@@ -143,30 +111,44 @@ func (s *Sync) Shutdown() {
 	if s.watchConn != nil {
 		close(s.watchConn)
 	}
-	s.Processor.Shutdown()
-}
-
-// Start makes a first sync and setup watchers
-func (s *Sync) Start(ctx context.Context) {
-	source, sOk := model.AsPathSyncSource(s.Source)
-	target, tOk := model.AsPathSyncTarget(s.Target)
-	if s.Direction != model.DirectionLeft && sOk && tOk {
-		s.SetupWatcher(ctx, source, target)
-	}
-	source2, sOk2 := model.AsPathSyncSource(s.Target)
-	target2, tOk2 := model.AsPathSyncTarget(s.Source)
-	if s.Direction != model.DirectionRight && sOk2 && tOk2 {
-		s.SetupWatcher(ctx, source2, target2)
+	s.processor.Stop()
+	if s.echoFilter != nil {
+		s.echoFilter.Stop()
 	}
 }
 
+// Run runs the sync with panic recovery
+func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {
+	if s.paused {
+		return &merger.TreeDiff{}, nil
+	}
+	var err error
+	defer func() {
+		if e := recover(); e != nil {
+			if er, ok := e.(error); ok {
+				err = er
+				if s.statuses != nil {
+					s.statuses <- merger.ProcessStatus{
+						IsError:      true,
+						StatusString: err.Error(),
+						Progress:     1,
+					}
+				}
+			}
+		}
+	}()
+	return s.run(ctx, dryRun, force)
+}
+
+// SetSnapshotFactory set up a factory for loading/saving snapshots
 func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
-	s.SnapshotFactory = factory
+	s.snapshotFactory = factory
 }
 
+// SetSyncEventsChan wires internal sync event to external status channels
 func (s *Sync) SetSyncEventsChan(statusChan chan merger.ProcessStatus, batchDone chan interface{}, events chan interface{}) {
-	s.batchesStatus = statusChan
-	s.batchesDone = batchDone
+	s.statuses = statusChan
+	s.runDone = batchDone
 	if events != nil {
 		// Forward internal events to sync event
 		s.watchConn = make(chan model.WatchConnectionInfo)
@@ -186,46 +168,9 @@ func (s *Sync) SetSyncEventsChan(statusChan chan merger.ProcessStatus, batchDone
 	}
 }
 
-func (s *Sync) Resync(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {
-	if s.paused {
-		return &merger.TreeDiff{}, nil
+// BroadcastCloseSession forwards session id to underlying batchers
+func (s *Sync) BroadcastCloseSession(sessionUuid string) {
+	for _, b := range s.eventsBatchers {
+		b.ForceCloseSession(sessionUuid)
 	}
-	var err error
-	defer func() {
-		if e := recover(); e != nil {
-			if er, ok := e.(error); ok {
-				err = er
-				if s.batchesStatus != nil {
-					s.batchesStatus <- merger.ProcessStatus{
-						IsError:      true,
-						StatusString: err.Error(),
-						Progress:     1,
-					}
-				}
-			}
-		}
-	}()
-	return s.Run(ctx, dryRun, force, s.batchesStatus, s.batchesDone, s.Roots...)
-}
-
-func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, direction model.DirectionType) *Sync {
-
-	processor := proc.NewProcessor(ctx)
-	go processor.ProcessPatches()
-	s := &Sync{
-		Source:    left,
-		Target:    right,
-		Direction: direction,
-		Processor: processor,
-	}
-
-	if direction == model.DirectionBi {
-		filter := filters.NewEchoFilter()
-		processor.LocksChan = filter.LockEvents
-		processor.UnlocksChan = filter.UnlockEvents
-		go filter.ListenLocksEvents()
-		s.EchoFilter = filter
-	}
-
-	return s
 }

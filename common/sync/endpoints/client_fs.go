@@ -45,7 +45,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
-	proc2 "github.com/pydio/cells/common/sync/proc"
+	"github.com/pydio/cells/common/sync/proc"
 )
 
 const (
@@ -167,9 +167,8 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	}
 	newPatch := merger.ClonePatch(c, c.updateSnapshot, p)
 	// TODO - Probably better to call patch.Process() ... Or target.Apply(patch) ?
-	proc := proc2.NewProcessor(ctx)
-	proc.Process(newPatch)
-	proc.Shutdown()
+	pr := proc.NewProcessor(ctx)
+	pr.Process(newPatch)
 }
 
 func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
@@ -197,13 +196,12 @@ func (c *FSClient) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 }
 
 func (c *FSClient) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
-	root = strings.TrimLeft(root, "/")
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			walknFc("", nil, err)
 			return nil
 		}
-		if len(path) == 0 || path == "/" || c.normalize(path) == root || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
+		if len(path) == 0 || path == "/" || c.normalize(path) == strings.TrimLeft(root, "/") || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
 			return nil
 		}
 
@@ -254,6 +252,7 @@ func (c *FSClient) Watch(recursivePath string, connectionInfo chan model.WatchCo
 		notify.Stop(in)
 		close(eventChan)
 		close(errorChan)
+		close(in)
 	}()
 
 	// Get fsnotify notifications for events and errors, and sent them

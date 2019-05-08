@@ -362,6 +362,33 @@ func TestWalkFS(t *testing.T) {
 	})
 }
 
+func TestWalkWithRoot(t *testing.T) {
+
+	Convey("Test walking the tree", t, func() {
+
+		c := FilledMockedClient()
+		objects := make(map[string]*tree.Node)
+		walk := func(path string, node *tree.Node, err error) {
+			if err != nil {
+				log.Println("Walk Func Error ", err)
+			}
+			if !model.IsIgnoredFile(path) {
+				objects[path] = node
+			}
+		}
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			c.Walk(walk, "/folder/subfolder1")
+		}()
+		wg.Wait()
+
+		// Will include the root and the PYDIO_SYNC_HIDDEN_FILE_META files
+		So(objects, ShouldHaveLength, 2)
+	})
+}
+
 func TestCanonicalPath(t *testing.T) {
 
 	Convey("Testing lower case", t, func() {

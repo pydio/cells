@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,23 +18,24 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package proc
+package model
 
-import (
-	"github.com/pydio/cells/common/sync/merger"
+type LockEventType int
+
+const (
+	LockEventLock LockEventType = iota
+	LockEventUnlock
 )
 
-func (pr *Processor) processDelete(event *merger.Operation, operationId string, pg chan int64) error {
+type ProcessorEvent struct {
+	Type string
+	Data interface{}
+}
 
-	pg <- 1
-	deletePath := event.Node.Path
-	if pr.Connector != nil {
-		pr.Connector.LockFile(event, deletePath, operationId)
-		defer pr.Connector.UnlockFile(event, deletePath)
-	}
-	ctx := event.EventInfo.CreateContext(pr.GlobalContext)
-	err := event.Target().DeleteNode(ctx, deletePath)
-
-	return err
-
+// LockEvent is a simple struct for signaling lock/unlock operation
+type LockEvent struct {
+	Type        LockEventType
+	Source      PathSyncSource
+	Path        string
+	OperationId string
 }
