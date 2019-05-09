@@ -4,12 +4,11 @@ const { AbstractDialogModifier } = Pydio.requireLib('boot');
 
 const LoginMessage = () => (
     <div>
-        <div>Please use one of the following username / password to log in :</div>
-        <br/>
+        <div>Please use one of the following username / password to log in:</div>
+        <br />
         <div>- admin / admin</div>
-        <div>- demo / demo</div>
-        <div>- alice / P@ssw0rd</div>
-        <div>- bob / P@ssw0rd</div>
+        <div>- alice / alice</div>
+        <div>- bob / bob</div>
     </div>
 )
 
