@@ -22,12 +22,12 @@
 package rest
 
 import (
-	"github.com/gobuffalo/packr"
-	"github.com/pydio/cells/common/plugins"
-
 	"encoding/gob"
 
+	"github.com/gobuffalo/packr"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/frontend/front-srv/rest/modifiers"
@@ -39,25 +39,20 @@ var BasePluginsBox = frontend.PluginBox{
 		"access.gateway",
 		"access.homepage",
 		"access.settings",
+		"action.avatar",
+		"action.compression",
 		"action.share",
+		"action.user",
 		"auth.pydio",
 		"authfront.session_login",
 		"conf.pydio",
+		"core.activitystreams",
 		"core.auth",
 		"core.authfront",
 		"core.conf",
 		"core.mailer",
 		"core.pydio",
 		"core.uploader",
-		"editor.libreoffice",
-		"gui.ajax",
-		"gui.mobile",
-		"meta.user",
-		"action.avatar",
-		"action.compression",
-		"action.demo_counter",
-		"action.user",
-		"core.activitystreams",
 		"editor.browser",
 		"editor.ckeditor",
 		"editor.codemirror",
@@ -70,9 +65,12 @@ var BasePluginsBox = frontend.PluginBox{
 		"editor.soundmanager",
 		"editor.text",
 		"editor.video",
+		"gui.ajax",
+		"gui.mobile",
 		"meta.comments",
 		"meta.exif",
 		"meta.simple_lock",
+		"meta.user",
 		"meta.versions",
 		"uploader.html",
 		"uploader.http",
