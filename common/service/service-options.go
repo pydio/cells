@@ -80,8 +80,8 @@ type ServiceOptions struct {
 	BeforeInit  []func(Service) error
 	AfterInit   []func(Service) error
 	BeforeStart []func(Service) error
-	BeforeStop  []func(Service) error
 	AfterStart  []func(Service) error
+	BeforeStop  []func(Service) error
 	AfterStop   []func(Service) error
 
 	OnRegexpMatch func(Service, []string) error
