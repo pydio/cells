@@ -24,7 +24,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/packr"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/common"
 	service "github.com/pydio/cells/common/service/proto"
@@ -42,14 +42,14 @@ var (
 	}
 )
 
-// Impl of the Mysql interface
+// Impl of the SQL interface.
 type ResourcesSQL struct {
 	*sql.Handler
 
 	LeftIdentifier string
 }
 
-// Add to the mysql DB
+// Init performs necessary migration.
 func (s *ResourcesSQL) Init(options common.ConfigValues) error {
 
 	migrations := &sql.PackrMigrationSource{
@@ -74,7 +74,7 @@ func (s *ResourcesSQL) Init(options common.ConfigValues) error {
 	return nil
 }
 
-// AddPolicy persists a policy in the underlying storage
+// AddPolicy persists a policy in the underlying storage.
 func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePolicy) error {
 
 	prepared := s.GetStmt("AddRuleForResource")
@@ -87,7 +87,7 @@ func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePoli
 
 }
 
-// AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
+// AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones.
 func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*service.ResourcePolicy) error {
 	if update {
 		if err := s.DeletePoliciesForResource(resourceId); err != nil {

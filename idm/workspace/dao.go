@@ -20,7 +20,7 @@
 
 // Package workspace implements workspace persistence layer.
 //
-// It is currently backed by a MySQL db.
+// It is currently backed by a SQL db.
 package workspace
 
 import (

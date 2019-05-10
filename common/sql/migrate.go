@@ -7,7 +7,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 	"gopkg.in/gorp.v1"
 )
 

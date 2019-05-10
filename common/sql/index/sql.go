@@ -38,7 +38,7 @@ import (
 
 	"github.com/gobuffalo/packr"
 	"github.com/pborman/uuid"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -93,18 +93,18 @@ func init() {
 	}
 	queries["insertCommit"] = func(mpathes ...string) string {
 		return `
-		insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size)
-		values (?, ?, ?, ?)`
+		 insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size)
+		 values (?, ?, ?, ?)`
 	}
 	queries["insertCommitWithData"] = func(mpathes ...string) string {
 		return `
-		insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size, data)
-		values (?, ?, ?, ?, ?)`
+		 insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size, data)
+		 values (?, ?, ?, ?, ?)`
 	}
 	queries["updateTree"] = func(mpathes ...string) string {
 		return `
-		update %%PREFIX%%_idx_tree set level = ?, hash = ?, name = ?, leaf=?, mtime=?, etag=?, size=?, mode=?, mpath1 = ?, mpath2 = ?, mpath3 = ?, mpath4 = ?,  rat = ?
-		where uuid = ?`
+		 update %%PREFIX%%_idx_tree set level = ?, hash = ?, name = ?, leaf=?, mtime=?, etag=?, size=?, mode=?, mpath1 = ?, mpath2 = ?, mpath3 = ?, mpath4 = ?,  rat = ?
+		 where uuid = ?`
 	}
 	queries["updateEtag"] = func(mpathes ...string) string {
 		return `UPDATE %%PREFIX%%_idx_tree set etag = ? WHERE uuid = ?`
@@ -112,123 +112,123 @@ func init() {
 
 	queries["deleteCommits"] = func(mpathes ...string) string {
 		return `
-		delete from %%PREFIX%%_idx_commits where uuid = ?`
+		 delete from %%PREFIX%%_idx_commits where uuid = ?`
 	}
 	queries["selectCommits"] = func(mpathes ...string) string {
 		return `
-		select etag, mtime, size, data from %%PREFIX%%_idx_commits where uuid = ? ORDER BY id DESC
-	`
+		 select etag, mtime, size, data from %%PREFIX%%_idx_commits where uuid = ? ORDER BY id DESC
+	 `
 	}
 	queries["selectNodeUuid"] = func(mpathes ...string) string {
 		return `
-		select uuid, level, rat, name, leaf, mtime, etag, size, mode
-        from %%PREFIX%%_idx_tree where uuid = ?`
+		 select uuid, level, rat, name, leaf, mtime, etag, size, mode
+		 from %%PREFIX%%_idx_tree where uuid = ?`
 	}
 
 	queries["updateNodes"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathesIn(mpathes...)
 
 		return fmt.Sprintf(`
-			update %%PREFIX%%_idx_tree set mtime = ?, etag = ?, size = size + ?
-			where (%s)`, sub), args
+			 update %%PREFIX%%_idx_tree set mtime = ?, etag = ?, size = size + ?
+			 where (%s)`, sub), args
 	}
 
 	queries["deleteTree"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathEqualsOrLike([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
-			delete from %%PREFIX%%_idx_tree
-			where (%s)`, sub), args
+			 delete from %%PREFIX%%_idx_tree
+			 where (%s)`, sub), args
 	}
 
 	queries["selectNode"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathEquals([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
-		SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
-		FROM %%PREFIX%%_idx_tree
-		WHERE %s`, sub), args
+		 SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+		 FROM %%PREFIX%%_idx_tree
+		 WHERE %s`, sub), args
 	}
 
 	queries["selectNodes"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathesIn(mpathes...)
 
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
-			FROM %%PREFIX%%_idx_tree
-			WHERE (%s)	
-			ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
+			 SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE (%s)	
+			 ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
 	}
 
 	queries["tree"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
-			FROM %%PREFIX%%_idx_tree
-			WHERE %s and level >= ?
-			ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
+			 SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE %s and level >= ?
+			 ORDER BY mpath1, mpath2, mpath3, mpath4`, sub), args
 	}
 
 	queries["children"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
-			FROM %%PREFIX%%_idx_tree
-			WHERE %s AND level = ?
-			ORDER BY name`, sub), args
+			 SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE %s AND level = ?
+			 ORDER BY name`, sub), args
 	}
 
 	queries["child"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
-			FROM %%PREFIX%%_idx_tree
-			WHERE %s AND level = ? AND name like ?`, sub), args
+			 SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE %s AND level = ? AND name like ?`, sub), args
 	}
 
 	queries["lastChild"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
-			FROM %%PREFIX%%_idx_tree
-			WHERE %s AND level = ?
-			ORDER BY mpath4, mpath3, mpath2, mpath1 DESC LIMIT 1`, sub), args
+			 SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE %s AND level = ?
+			 ORDER BY mpath4, mpath3, mpath2, mpath1 DESC LIMIT 1`, sub), args
 	}
 
 	queries["childrenEtags"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT etag
-			FROM %%PREFIX%%_idx_tree
-			WHERE %s AND level = ?
-			ORDER BY name`, sub), args
+			 SELECT etag
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE %s AND level = ?
+			 ORDER BY name`, sub), args
 	}
 
 	queries["dirtyEtags"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathEqualsOrLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
-			FROM %%PREFIX%%_idx_tree
-			WHERE etag = '-1' AND (%s) AND level >= ?
-			ORDER BY level DESC`, sub), args
+			 SELECT uuid, level, rat, name, leaf, mtime, etag, size, mode
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE etag = '-1' AND (%s) AND level >= ?
+			 ORDER BY level DESC`, sub), args
 	}
 
 	queries["childrenCount"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select leaf, count(leaf)
-			FROM %%PREFIX%%_idx_tree
-			WHERE %s AND level = ? AND name != '.pydio'
-			GROUP BY leaf`, sub), args
+			 select leaf, count(leaf)
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE %s AND level = ? AND name != '.pydio'
+			 GROUP BY leaf`, sub), args
 	}
 
 	queries["childrenSize"] = func(mpathes ...string) (string, []interface{}) {
 		sub, args := getMPathLike([]byte(mpathes[0]))
 		return fmt.Sprintf(`
-			select sum(size)
-			FROM %%PREFIX%%_idx_tree
-			WHERE %s AND level >= ? AND leaf=1`, sub), args
+			 select sum(size)
+			 FROM %%PREFIX%%_idx_tree
+			 WHERE %s AND level >= ? AND leaf=1`, sub), args
 	}
 
 }
@@ -282,7 +282,7 @@ func (dao *IndexSQL) CleanResourcesOnDeletion() (error, string) {
 	return nil, "Removed tables for index"
 }
 
-// AddNode to the mysql database
+// AddNode to the underlying SQL DB.
 func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 
 	dao.Lock()
@@ -329,7 +329,7 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 	return nil
 }
 
-// AddNodeStream creates a channel to write to the database to the mysql database
+// AddNodeStream creates a channel to write to the SQL database
 func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 
 	c := make(chan *mtree.TreeNode)
@@ -643,7 +643,7 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 
 }
 
-// SetNodes returns a channel and waits for arriving nodes before updating them in batch
+// SetNodes returns a channel and waits for arriving nodes before updating them in batch.
 func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 
 	b := NewBatchSend()
@@ -703,13 +703,13 @@ func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 	}
 
 	/*
-		if len(dao.commitsTableName) > 0 {
-			if _, err = dao.GetStmt("deleteCommits").Exec(
-				mpath, mpathLike,
-			); err != nil {
-				return err
-			}
-		}
+		 if len(dao.commitsTableName) > 0 {
+			 if _, err = dao.GetStmt("deleteCommits").Exec(
+				 mpath, mpathLike,
+			 ); err != nil {
+				 return err
+			 }
+		 }
 	*/
 
 	return nil

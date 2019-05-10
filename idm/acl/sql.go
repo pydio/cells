@@ -87,7 +87,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
-// Add to the mysql DB
+// Add to the SQL DB.
 func (dao *sqlimpl) Add(in interface{}) error {
 
 	val, ok := in.(*idm.ACL)
@@ -149,7 +149,7 @@ func (dao *sqlimpl) Add(in interface{}) error {
 	return nil
 }
 
-// Search in the mysql DB
+// Search in the SQL DB.
 func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 
 	db := goqu.New(dao.Driver(), dao.DB())
@@ -224,7 +224,7 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 	return nil
 }
 
-// Del from the mysql DB
+// Del from the SQL DB.
 func (dao *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	whereExpression := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver())

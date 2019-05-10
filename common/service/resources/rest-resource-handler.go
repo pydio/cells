@@ -31,7 +31,7 @@ import (
 
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 )
 
 // Signature for a function that can load policies from a given resource
@@ -66,7 +66,7 @@ func (r *ResourceProviderHandler) IsAllowed(ctx context.Context, resourceId stri
 	if r.MatchPolicies(ctx, resourceId, policies, action) {
 		return nil
 	} else {
-		return errors.Forbidden(r.ServiceName, fmt.Sprintf("Action %s is not allowed on %s %s", action.String(), r.ResourceName, resourceId))
+		return errors.Forbidden(r.ServiceName, "Action %s is not allowed on %s with ID: %s", action.String(), r.ResourceName, resourceId)
 	}
 
 }
