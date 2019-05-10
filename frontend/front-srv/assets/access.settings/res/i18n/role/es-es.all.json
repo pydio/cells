@@ -141,7 +141,7 @@
     "other": "Deshabilitar Acciones"
   },
   "47": {
-    "other": "Search Roles"
+    "other": "Buscar Roles"
   },
   "5": {
     "other": "Acciones"
@@ -159,15 +159,15 @@
     "other": "Selecciona los workspaces a los que este workspace va a tener acceso. Use el valor 'Denegar' para sobreescribir el valor de un rol anterior o denegar el acceso a este workspace incluso a roles heredados."
   },
   "dashboard.description": {
-    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+    "other": "Los roles son contenedores de Listas de Acceso para permitir el acceso a cualquiera de los entornos de trabajo o personalizar parámetros y acciones. Pueden ser asignados a cualquier usuario de forma manual."
   },
   "dashboard.technical.hide": {
-    "other": "Hide technical roles"
+    "other": "Ocultar roles técnicos"
   },
   "dashboard.technical.show": {
-    "other": "Show technical roles"
+    "other": "Mostrar roles técnicos"
   },
   "last_update": {
-    "other": "Last updated"
+    "other": "Último actualizado"
   }
 }

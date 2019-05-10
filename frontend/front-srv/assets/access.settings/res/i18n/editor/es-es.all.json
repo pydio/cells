@@ -144,10 +144,10 @@
     "other": "Compartido por %1 desde el workspace %2"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "Información básica del usuario. Utilice el botón de la derecha para ver más acciones."
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "Alternar el perfil y los roles para conceder permisos a este usuario automáticamente."
   },
   "6": {
     "other": "Guardar valor"
@@ -162,42 +162,42 @@
     "other": "Sólo lectura"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "Administrar roles de usuario"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "Añadir para..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Todos los Entornos de Trabajo"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "Solo Cells compartidas"
   },
   "parameters.scope.workspace": {
-    "other": "Workspace %s"
+    "other": "Entorno de Trabajo %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "Añadir Parámetro o Acción personalizados"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "No hay parámetros o acciones"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "Página de inicio"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "Página de bienvenida mostrada después de iniciar sesión"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "Consola de Administración"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Consola de Administración de Pydio Cells"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "Derechos establecidos manualmente"
   },
   "acls.rights.advanced.root": {
-    "other": "Whole workspace"
+    "other": "Entorno de trabajo completo"
   }
 }

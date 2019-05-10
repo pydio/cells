@@ -15,30 +15,30 @@
     "other": "Borrar las asociaciones existentes"
   },
   "drop.cell.picker": {
-    "other": "Pick action for %s..."
+    "other": "Elegir acción para %s..."
   },
   "drop.cell.share.legend": {
-    "other": "Add new item to this cell"
+    "other": "Añadir nuevo elemento a esta celda"
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "Dentro %s"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "Compartir archivo"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "Compartir carpeta"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "Mover archivo"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "Mover carpeta"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "Copiar archivo"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "Copiar carpeta"
   }
 }
