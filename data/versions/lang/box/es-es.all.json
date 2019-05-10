@@ -1,88 +1,88 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "Tarea Basada en Eventos para replicar datos al realizar diferentes versiones"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "Versión {{.Uuid}} creada dentro de la información de versión "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "Metadatos de versión creados para {{.Uuid}}"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "Versión {{.Count}} depurada",
+    "other": "Versiones {{.Count}} depuradas"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "Limpiando archivos de versiones para nodos eliminados"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "Se ha eliminado correctamente la versión {{.Count}}",
+    "other": "Se han eliminado exitosamente las versiones {{.Count}}."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "Directivas"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "Nombre"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "Nombre de la Directiva"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "Descripción"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "Descripción de la directiva"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "Almacenar"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "Fuente de datos utilizada para almacenar versiones"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Bucket"
+    "other": "Repositorio de datos"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "Repositorio utilizado dentro de esta fuente de datos"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "Límites de tamaño"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "Tamaño global de todas las versiones guardadas en este repositorio"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Limitar el tamaño total. Si se alcanza el límite, se eliminarán las versiones más antiguas. Usa -1 para la opción \"sin limite\""
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "Tamaños acumulado de versiones de un archivo dado"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Limitar el tamaño para todas las versiones de un archivo. Si se alcanza el límite, se eliminarán las versiones más antiguas. Usa -1 para la opción \"sin limite\""
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "Ignorar archivos mayores que..."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "NO se admiten archivos de versión cuyo tamaño sobrepase este límite. Usar -1 para \"sin límite\""
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "Periodos de Retención"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "Número de versiones a conservar por período"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "Inicio del Periodo"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "Punto de inicio utilizado al computar el periodo. 0 es el momento del último conjunto de versiones, use otro período para establecer un límite"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "Número máximo de versiones"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "Número máximo de versiones a conservar durante este período. Use -1 para mantener todas las versiones, 0 para eliminarlas todas."
   }
 }

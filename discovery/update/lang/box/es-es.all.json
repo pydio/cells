@@ -1,47 +1,47 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Actualizar Configuración"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "Actualizar Servidor"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "URL Http del servidor de actualización"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "Clave Pública"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Clave oficial utilizada para verificar la firma de archivos binarios."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "Actualizar Canal"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "Canal utilizado para solicitar actualizaciones. Permanece en \"Estable\" si no estás seguro."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "Estable"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Dev (bajo tu responsabilidad)"
   },
   "Update.Config.ProxyHost.Label": {
     "other": "Proxy"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "Host de un servidor proxy si es necesario para conexiones salientes"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "Usuario de Proxy"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "Usuario para identificación del servidor proxy"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "Contraseña del Proxy"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "Contraseña para la identificación del servidor proxy"
   }
 }

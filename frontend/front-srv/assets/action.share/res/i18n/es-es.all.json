@@ -504,70 +504,70 @@
     "other": "Carpetas Compartidas"
   },
   "245": {
-    "other": "%s personal invitation(s) sent"
+    "other": "%s invitación(es) personal(es) enviada(s)"
   },
   "246": {
-    "other": "Open cell"
+    "other": "Abrir celda"
   },
   "247": {
-    "other": "Edit cell"
+    "other": "Editar celda"
   },
   "248": {
-    "other": "Delete cell"
+    "other": "Eliminar celda"
   },
   "249": {
-    "other": "Contents"
+    "other": "Contenidos"
   },
   "25": {
     "other": "Sin límites"
   },
   "250": {
-    "other": "Cells"
+    "other": "Celdas"
   },
   "251": {
-    "other": "Link"
+    "other": "Enlace"
   },
   "252": {
-    "other": "Access"
+    "other": "Acceso"
   },
   "253": {
-    "other": "Visibility"
+    "other": "Visibilidad"
   },
   "254": {
-    "other": "Shared in cells"
+    "other": "Compartido en celdas"
   },
   "255": {
-    "other": "Are you sure you want to delete all cells and links on this item?"
+    "other": "¿Está seguro de que desea eliminar todas las celdas y enlaces de este elemento?"
   },
   "256": {
-    "other": "Shares for %s"
+    "other": "Compartir para %s"
   },
   "257": {
-    "other": "Created on %s"
+    "other": "Creado el %s"
   },
   "258": {
-    "other": "Edit cell users"
+    "other": "Editar usuarios"
   },
   "259": {
-    "other": "Remove from this cell"
+    "other": "Eliminar de esta celda"
   },
   "26": {
     "other": "Elija usuarios o grupos y ajuste sus derechos de acceso. 'Escribir' creará un repositorio únicamente para cargas."
   },
   "260": {
-    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+    "other": "La carpeta está compartida en las siguientes células. Puede editar la lista de usuarios o crear una nueva celda."
   },
   "261": {
-    "other": "Pick users or groups who will have access to this cell"
+    "other": "Escoja los usuarios o grupos que tendrán acceso a esta celda"
   },
   "262": {
-    "other": "Share this folder with other users by creating a new cell"
+    "other": "Comparta esta carpeta con otros usuarios creando una nueva celda"
   },
   "263": {
-    "other": "Add to Cell..."
+    "other": "Añadir a la celda..."
   },
   "264": {
-    "other": "+ New Cell"
+    "other": "+ Nueva Celda"
   },
   "265": {
     "other": "Link Label"
