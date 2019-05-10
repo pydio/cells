@@ -240,25 +240,25 @@
     "other": "Importar Usuarios (sólo Enterprise)"
   },
   "172": {
-    "other": "Services"
+    "other": "Servicios"
   },
   "173": {
-    "other": "Pydio Backend Services and their running status"
+    "other": "Servicios de Backend de Pydio y su estado de ejecución"
   },
   "174": {
-    "other": "Identity Management"
+    "other": "Gestión de identidades"
   },
   "175": {
-    "other": "Data Management"
+    "other": "Gestión de datos"
   },
   "176": {
-    "other": "Security Policies"
+    "other": "Políticas de seguridad"
   },
   "177": {
-    "other": "Security Policies"
+    "other": "Políticas de seguridad"
   },
   "18": {
-    "other": "I.P."
+    "other": "P.I."
   },
   "19": {
     "other": "Nivel"
@@ -300,7 +300,7 @@
     "other": "Leer"
   },
   "2b": {
-    "other": "Data Management"
+    "other": "Gestión de Datos"
   },
   "3": {
     "other": "Carpetas"
@@ -336,7 +336,7 @@
     "other": "DataSources"
   },
   "3c": {
-    "other": "Template Paths"
+    "other": "Ruta de Plantillas"
   },
   "4": {
     "other": "Registros"
@@ -537,13 +537,13 @@
     "other": "Plugins"
   },
   "topbar.title": {
-    "other": "Cells Console"
+    "other": "Consola de Cells"
   },
   "topbar.button.advanced": {
-    "other": "Show/hide advanced parameters"
+    "other": "Mostrar/ocultar parámetros avanzados"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "Más información sobre Pydio Cells"
   },
   "group_access": {
     "other": "g"

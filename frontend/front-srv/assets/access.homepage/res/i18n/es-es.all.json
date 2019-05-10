@@ -63,7 +63,7 @@
     "other": "Android"
   },
   "59": {
-    "other": "iPhone/iPad"
+    "other": "iPhone / iPad"
   },
   "60": {
     "other": "Mac OS (Beta)"
@@ -162,13 +162,13 @@
     "other": "Archivos offline con Desktop Sync Client"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "Descarga de aplicaciones"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Subida Rápida"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Tutorial de vídeo"
   },
   "desc": {
     "other": "Página de bienvenida"

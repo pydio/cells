@@ -1,68 +1,68 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Acceso efectuado por {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "Objeto accedido: {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Actor}} ha accedido al objeto {{.Object}}"
   },
   "Cell": {
     "other": "Cell"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Creado por {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "Objeto creado: {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} ha sido creado por {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Eliminado por {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "Objeto eliminado {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} ha sido eliminado por {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "Compartido en {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} ha compartido {{.Object}} contigo"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "Este es tu Boletín Diario de Pydio"
   },
   "Document": {
-    "other": "Document"
+    "other": "Documento"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Carpeta"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Modificado por {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "Objeto Modificado: {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} ha sido modificado por {{.Actor}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "Cambiado de lugar por {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "Objeto cambiado de lugar: {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} ha sido cambiado de lugar por {{.Actor}}"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "Espacio de Trabajo"
   }
 }
