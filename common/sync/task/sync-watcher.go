@@ -82,14 +82,11 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	}()
 
 	if watchObject.ConnectionInfo == nil && s.watchConn != nil {
-		// This Watcher does not send info about its connection state
-		// So we assume it's connected
-		ev := &model.EndpointStatus{
+		// This Watcher does not send info about its connection state - so we declare it as connected
+		s.watchConn <- &model.EndpointStatus{
 			WatchConnection: model.WatchConnected,
 			EndpointInfo:    source.GetEndpointInfo(),
 		}
-		log.Logger(ctx).Info("Sending WatchConnected", zap.Any("event", ev))
-		s.watchConn <- ev
 	}
 
 	return nil

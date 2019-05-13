@@ -81,11 +81,23 @@ func (s *Sync) Start(ctx context.Context) {
 	target, tOk := model.AsPathSyncTarget(s.Target)
 	if s.Direction != model.DirectionLeft && sOk && tOk {
 		s.SetupWatcher(ctx, source, target)
+	} else if s.watchConn != nil {
+		// No need to setup watcher, assume connected
+		s.watchConn <- &model.EndpointStatus{
+			WatchConnection: model.WatchConnected,
+			EndpointInfo:    source.GetEndpointInfo(),
+		}
 	}
 	source2, sOk2 := model.AsPathSyncSource(s.Target)
 	target2, tOk2 := model.AsPathSyncTarget(s.Source)
 	if s.Direction != model.DirectionRight && sOk2 && tOk2 {
 		s.SetupWatcher(ctx, source2, target2)
+	} else if s.watchConn != nil {
+		// No need to setup watcher, assume connected
+		s.watchConn <- &model.EndpointStatus{
+			WatchConnection: model.WatchConnected,
+			EndpointInfo:    source2.GetEndpointInfo(),
+		}
 	}
 }
 
