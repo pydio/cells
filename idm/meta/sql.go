@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
 	"github.com/pydio/cells/idm/meta/namespace"
@@ -49,7 +49,7 @@ var (
 	}
 )
 
-// Impl of the Mysql interface
+// Impl of the sql interface
 type sqlimpl struct {
 	*sql.Handler
 
@@ -62,7 +62,7 @@ func (dao *sqlimpl) GetNamespaceDao() namespace.DAO {
 	return dao.nsDAO
 }
 
-// Init handler for the SQL DAO
+// Init handler for the SQL DAO.
 func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
@@ -107,7 +107,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
-// Add or Update a UserMeta to the DB
+// Add or Update a UserMeta to the DB.
 func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 	var (
 		update bool
@@ -175,7 +175,7 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 	return meta, update, err
 }
 
-// Delete meta by their Id
+// Delete meta by their Id.
 func (dao *sqlimpl) Del(meta *idm.UserMeta) (e error) {
 	stmt := dao.GetStmt("DeleteMeta")
 	if stmt == nil {
@@ -190,7 +190,7 @@ func (dao *sqlimpl) Del(meta *idm.UserMeta) (e error) {
 	return nil
 }
 
-// Search meta on their conditions
+// Search meta on their conditions.
 func (dao *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) ([]*idm.UserMeta, error) {
 
 	db := goqu.New(dao.Driver(), dao.DB())

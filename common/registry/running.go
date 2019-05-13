@@ -39,10 +39,6 @@ var (
 // They may or may not belong to the app registry so we create a mock service in case they don't
 func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 
-	runningOnce.Do(func() {
-		c.maintainRunningServicesList()
-	})
-
 	var services []Service
 
 	for _, p := range GetPeers() {

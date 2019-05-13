@@ -1,6 +1,6 @@
 {
   "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
-    "other": "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path."
+    "other": "Ruta absoluta a la carpeta en el servidor. Puede usar PYDIO_DATA_PATH y PYDIO_INSTALL_PATH para apuntar a la ruta de datos por defecto de Pydio y ruta de instalación del directorio raíz."
   },
   "Create": {
     "other": "Crear"

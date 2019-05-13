@@ -22,7 +22,7 @@ package config
 
 import "github.com/pydio/cells/common/sql"
 
-// Impl of the Mysql interface
+// Impl of the sql interface.
 type sqlimpl struct {
 	*sql.Handler
 }

@@ -243,7 +243,7 @@ func init() {
 				if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
 					sName := string(p.Message().Body)
 					if needsRestart(sName) {
-						log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("serviceName", sName))
+						log.Logger(s.Options().Context).Debug("Received Start Message - Will Restart Caddy - ", zap.Any("serviceName", sName))
 						return caddy.Restart()
 					}
 					return nil

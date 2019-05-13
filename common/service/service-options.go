@@ -80,8 +80,8 @@ type ServiceOptions struct {
 	BeforeInit  []func(Service) error
 	AfterInit   []func(Service) error
 	BeforeStart []func(Service) error
-	BeforeStop  []func(Service) error
 	AfterStart  []func(Service) error
+	BeforeStop  []func(Service) error
 	AfterStop   []func(Service) error
 
 	OnRegexpMatch func(Service, []string) error
@@ -94,6 +94,7 @@ type ServiceOptions struct {
 	webHandlerWraps []func(http.Handler) http.Handler
 }
 
+// ServiceOption defines a generic entry point to configure ServiceOptions store during initialisation.
 type ServiceOption func(*ServiceOptions)
 
 func newOptions(opts ...ServiceOption) ServiceOptions {
@@ -102,6 +103,7 @@ func newOptions(opts ...ServiceOption) ServiceOptions {
 	opt.Registry = registry.Default
 	opt.AutoStart = true
 
+	// Sequentially execute all ServiceOption methods to configure this service ServiceOptions store
 	for _, o := range opts {
 		o(&opt)
 	}
@@ -240,15 +242,15 @@ func BeforeStart(fn func(Service) error) ServiceOption {
 	}
 }
 
-func BeforeStop(fn func(Service) error) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.BeforeStop = append(o.BeforeStop, fn)
-	}
-}
-
 func AfterStart(fn func(Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.AfterStart = append(o.AfterStart, fn)
+	}
+}
+
+func BeforeStop(fn func(Service) error) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.BeforeStop = append(o.BeforeStop, fn)
 	}
 }
 
