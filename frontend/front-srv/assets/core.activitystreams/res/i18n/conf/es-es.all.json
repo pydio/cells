@@ -9,13 +9,13 @@
     "other": "Notificaciones de escritorio"
   },
   "Display Workspaces Activity": {
-    "other": "Display Workspaces Activity"
+    "other": "Mostrar actividad de los espacios de trabajo"
   },
   "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration.": {
     "other": "Mostrar una nueva entrada con todos los eventos que suceden en un repositorio de usuario y alertas. Se debe configurar una base de datos SQL para la configuración de FEED_DRIVER."
   },
   "Display workspaces activity to the users in the right-hand information panel": {
-    "other": "Display workspaces activity to the users in the right-hand information panel"
+    "other": "Mostrar actividad de los espacios de trabajo a los usuarios en el panel de información de la derecha"
   },
   "Feed Instance": {
     "other": "Instancia de feed"
