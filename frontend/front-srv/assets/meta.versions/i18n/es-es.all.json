@@ -15,13 +15,13 @@
     "other": "¿Estás seguro de que quieres hacer esto? Se creará una versión nueva del documento con la versión seleccionada."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "No se encontraron versiones anteriores"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Las versiones se crean al actualizar el contenido del archivo"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Versiones anteriores para '%s'"
   },
   "2": {
     "other": "Versiones anteriores del documento"
