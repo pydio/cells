@@ -62,6 +62,7 @@ import (
 
 	_ "github.com/pydio/cells/gateway/data"
 	_ "github.com/pydio/cells/gateway/dav"
+	_ "github.com/pydio/cells/gateway/grpc"
 	_ "github.com/pydio/cells/gateway/micro"
 	_ "github.com/pydio/cells/gateway/proxy"
 	_ "github.com/pydio/cells/gateway/websocket/api"
