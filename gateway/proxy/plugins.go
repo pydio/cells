@@ -48,10 +48,6 @@ import (
 
 var (
 	caddyfile = `
-		https://localhost:8081 {
-		proxy / {{.Grpc | serviceAddress}} {
-		}
-		}
 		{{.Bind}} {
 		proxy /a  {{.Micro | urls}} {
 			without /a
@@ -160,7 +156,6 @@ var (
 		Micro        string
 		Dex          string
 		Gateway      string
-		Grpc         string
 		WebSocket    string
 		FrontPlugins string
 		DAV          string
@@ -178,7 +173,6 @@ var (
 		Micro:        common.SERVICE_MICRO_API,
 		Dex:          common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
 		Gateway:      common.SERVICE_GATEWAY_DATA,
-		Grpc:         common.SERVICE_GATEWAY_GRPC,
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
 		FrontPlugins: common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
 		DAV:          common.SERVICE_GATEWAY_DAV,
