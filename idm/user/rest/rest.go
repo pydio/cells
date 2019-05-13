@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
@@ -585,8 +586,25 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	}
 	rsp.WriteEntity(u)
 
-	if sendEmail {
+	_, hasEmailAddress := u.Attributes["email"]
+	if sendEmail && hasEmailAddress{
 		// Now send email to user!
+		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
+		mailCli.SendMail(ctx, &mailer.SendMailRequest{
+			InQueue: false,
+			Mail: &mailer.Mail{
+				To: []*mailer.User{{
+					Uuid:    u.Uuid,
+					Name:    u.Attributes["displayName"],
+					Address: u.Attributes["email"],
+				}},
+				TemplateId: "Welcome",
+				TemplateData: map[string]string{
+					"Login": inputUser.Login,
+					"Password": inputUser.Password,
+				},
+			},
+		})
 	}
 
 }
