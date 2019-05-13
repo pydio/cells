@@ -120,49 +120,6 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []
 	return roles
 }
 
-// GetRoles Objects from a list of role names
-func GetRoles(ctx context.Context, names []string) []*idm.Role {
-
-	var roles []*idm.Role
-	if len(names) == 0 {
-		return roles
-	}
-
-	query, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{Uuid: names})
-	roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
-	stream, err := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*any.Any{query}}})
-
-	if err != nil {
-		if !strings.Contains(err.Error(), "context canceled") {
-			log.Logger(ctx).Error("Failed to retrieve roles", zap.Error(err), zap.Any("c", ctx))
-		}
-		return nil
-	}
-
-	defer stream.Close()
-
-	for {
-		response, err := stream.Recv()
-
-		if err != nil {
-			break
-		}
-
-		roles = append(roles, response.GetRole())
-	}
-
-	var sorted []*idm.Role
-	for _, name := range names {
-		for _, role := range roles {
-			if role.Uuid == name {
-				sorted = append(sorted, role)
-			}
-		}
-	}
-	//log.Logger(ctx).Debug("GetRoles", zap.Any("roles", sorted))
-	return sorted
-}
-
 // GetACLsForRoles compiles ALCs for a list of roles
 func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACLAction) []*idm.ACL {
 
@@ -340,8 +297,13 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		return accessList, nil
 	}
 
+	user, err := SearchUniqueUser(ctx, claims.Name, "")
+	if err != nil {
+		return nil, err
+	}
+
 	//log.Logger(ctx).Debug("Roles inside Claims", zap.String("roles", claims.Roles))
-	roles := GetRoles(ctx, strings.Split(claims.Roles, ","))
+	roles := user.Roles
 	accessList = NewAccessList(roles)
 	accessList.Append(GetACLsForRoles(ctx, roles, AclRead, AclDeny, AclWrite, AclLock, AclPolicy))
 	ResolvePolicyRequest = func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {

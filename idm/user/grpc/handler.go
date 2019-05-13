@@ -77,18 +77,13 @@ func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest, resp *
 	}
 
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
-	autoApplies, e := h.loadAutoAppliesRoles(ctx)
-	if e != nil {
-		return e
-	}
-
 	user, err := dao.Bind(req.UserName, req.Password)
 	if err != nil {
 		return err
 	}
 	resp.User = user
 	resp.User.Password = ""
-	h.applyAutoApplies(resp.User, autoApplies)
+
 	client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
 		Type: idm.ChangeEventType_BIND,
 		User: user,
