@@ -453,7 +453,7 @@
     "other": "Pantalla completa"
   },
   "236": {
-    "other": "Restore"
+    "other": "Restaurar"
   },
   "237": {
     "other": "Contraseña anterior"
@@ -951,10 +951,10 @@
     "other": "Muy fuerte"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Por favor, use sólo caracteres en minúsculas para los registros"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Por favor, use caracteres alfanuméricos o correos electrónicos válidos para los registros"
   },
   "386": {
     "other": "Es la tercera vez que no logra iniciar su sesión.\\nPor su seguridad, rellene el código que aparece en la imagen."
@@ -1731,88 +1731,88 @@
     "other": "Limitar búsqueda al workspace actual"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "Este campo no puede quedar vacío"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "Pila de registro de errores"
   },
   "623": {
-    "other": "Copy"
+    "other": "Copiar"
   },
   "624": {
-    "other": "Copied!"
+    "other": "¡Copiado!"
   },
   "625": {
-    "other": "Letter"
+    "other": "Letra"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Archivos compartidos conmigo"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "Compartido desde servidores remotos"
   },
   "628": {
-    "other": "Revert"
+    "other": "Deshacer"
   },
   "629": {
-    "other": "No records yet"
+    "other": "No hay registros todavía"
   },
   "63": {
     "other": "Salir"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "Carpetas compartidas conmigo"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "¡Esta celda está vacía!"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "No hay Celdas aún"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "Las celdas son espacios compartidos con otras personas para colaborar en documentos"
   },
   "634": {
-    "other": "You"
+    "other": "Usted"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Su grupo"
   },
   "634c": {
-    "other": "All users"
+    "other": "Todos los usuarios"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "Sala de Chat"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Empiece a escribir y pulse Enter"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "No hay mensajes todavía, ¡empiece a chatear con los usuarios de esta celda!"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "La celda contiene múltiples carpetas o archivos raíz, no puede subir datos directamente aquí."
   },
   "639": {
-    "other": "In this cell"
+    "other": "En esta celda"
   },
   "64": {
     "other": "Archivo XLS"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Crear una celda con %s"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "Eliminar de la celda actual"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "Añadir a la celda actual"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "Ahora usted comparte una celda con %s"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "No se puede crear la celda: %s"
   },
   "65": {
     "other": "Archivo Word"
@@ -1857,7 +1857,7 @@
     "other": "Enviar"
   },
   "78": {
-    "other": "Pass"
+    "other": "Aprobado"
   },
   "79": {
     "other": "Archivo PDF"
@@ -1965,10 +1965,10 @@
     "other": "en %s días"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "HORA"
   },
   "date_relative_time_format": {
-    "other": "H:i"
+    "other": "H:m"
   },
   "date_relative_today": {
     "other": "hoy a las TIME"
@@ -2097,7 +2097,7 @@
     "other": "Cargador"
   },
   "plugtype.title.cache": {
-    "other": "Cache server"
+    "other": "Servidor de caché"
   },
   "plugtype.title.conf": {
     "other": "Almacenamiento de la configuración"
@@ -2142,7 +2142,7 @@
     "other": "Abreviadores URL"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "Cargadores"
   },
   "preview_access_key": {
     "other": "e"
@@ -2178,57 +2178,57 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Acceso público"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Moviendo archivo en segundo plano ..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Moviendo carpeta en segundo plano ..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Copiando la selección en segundo plano ..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Archivo bloqueado"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Carpeta bloqueada"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "Actualmente visualizando este archivo"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "Actualmente visualizando esta carpeta"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Archivo compartido, haga clic para editar"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Carpeta compartida, haga clic para editar"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "El archivo está marcado"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "La carpeta está marcada"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Archivo vacío"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Documento sin título"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "¡No utilizar / en nombres de archivo!"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "¡Por favor, utilice un valor diferente para renombrar!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "Renombrando %1 como %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Filtrar celdas"
   }
 }
