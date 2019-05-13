@@ -570,70 +570,70 @@
     "other": "+ Nueva Celda"
   },
   "265": {
-    "other": "Link Label"
+    "other": "Etiqueta del enlace"
   },
   "266": {
-    "other": "Link Description"
+    "other": "Descripción del enlace"
   },
   "267": {
-    "other": "Cell Label"
+    "other": "Etiqueta de la celda"
   },
   "268": {
-    "other": "Cell Description"
+    "other": "Descripción de la Celda"
   },
   "269": {
-    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+    "other": "Se creará una celda compartida con %USERS. ¡Elija las carpetas que quiera compartir o simplemente deje que Pydio cree una carpeta vacía!"
   },
   "27": {
     "other": "Compartir archivo"
   },
   "270": {
-    "other": "users"
+    "other": "usuarios"
   },
   "271": {
-    "other": "groups"
+    "other": "grupos"
   },
   "272": {
-    "other": "teams"
+    "other": "equipos"
   },
   "273": {
-    "other": "nobody"
+    "other": "ninguno"
   },
   "274": {
-    "other": " and "
+    "other": " y "
   },
   "275": {
-    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+    "other": "Cree celdas para colaborar con otros usuarios. Primero, comience describiendo el objeto de esta celda."
   },
   "276": {
-    "other": "Title of your cell"
+    "other": "Título de la celda"
   },
   "277": {
-    "other": "Optionally add a description"
+    "other": "Opcionalmente, añada una descripción"
   },
   "278": {
-    "other": "Choose who you will share data with"
+    "other": "Elija con quién compartirá los datos"
   },
   "279": {
-    "other": "Create cell now!"
+    "other": "¡Cree la celda ahora!"
   },
   "28": {
     "other": "Compartir carpeta"
   },
   "280": {
-    "other": "Cell has its own folder"
+    "other": "La celda tiene su propia carpeta"
   },
   "281": {
-    "other": "Cell will be created in a new folder"
+    "other": "La celda se creará en una nueva carpeta"
   },
   "282": {
-    "other": "Add an existing folder..."
+    "other": "Añadir una carpeta existente..."
   },
   "283": {
-    "other": "Select a node in the tree..."
+    "other": "Seleccione un nodo en el árbol..."
   },
   "284": {
-    "other": "Visible in %s cells"
+    "other": "Visible en %s celdas"
   },
   "29": {
     "other": "Enlace público"
@@ -891,12 +891,12 @@
     "other": "Todos los elementos compartidos"
   },
   "cells.create.advanced": {
-    "other": "Add users/data"
+    "other": "Añadir usuarios/datos"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "o"
   },
   "cells.create.title.fill.folders": {
-    "other": "Share existing folder(s)"
+    "other": "Compartir carpeta(s) existente(s)"
   }
 }

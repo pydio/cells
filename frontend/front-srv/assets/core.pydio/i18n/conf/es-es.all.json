@@ -18,7 +18,7 @@
     "other": "Configuración de la API - Redirecciona la URL para la Aplicación OAuth"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
+    "other": "Ruta absoluta a la carpeta pública donde se crearán enlaces temporales de descarga. Esto se utiliza para enlaces heredados, los enlaces recién creados ya no lo usan, sino que utilizan la URI Base."
   },
   "Admin Login": {
     "other": "Inicio de Administrador"
@@ -114,7 +114,7 @@
     "other": "Funciones de Compresión"
   },
   "Core Connexion": {
-    "other": "Core Connexion"
+    "other": "Conexión Central"
   },
   "DSN": {
     "other": "DSN"
@@ -159,7 +159,7 @@
     "other": "Dirección predeterminada de la ordenación"
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+    "other": "Delega las operaciones de descarga en un agente alternativo, ya sea servidor web o agente pydio. Cuidado, esto requiere que se instalen módulos externos. Al usar XSendFile/XaccelRedirect, tiene que añadir manualmente las carpetas donde los archivos se descargarán en la configuración del módulo"
   },
   "Descending": {
     "other": "Descendente"
@@ -168,7 +168,7 @@
     "other": "Descripción"
   },
   "Digest Realm": {
-    "other": "Digest Realm"
+    "other": "Dominio Digest"
   },
   "Disable WebDAV": {
     "other": "Desactivar WebDAV"
@@ -183,10 +183,10 @@
     "other": "Mostrar lista de archivos y carpetas cuando se accede desde el navegador."
   },
   "Download Delegation": {
-    "other": "Download Delegation"
+    "other": "Delegación de Descargas"
   },
   "Download Folder (Legacy)": {
-    "other": "Download Folder (Legacy)"
+    "other": "Carpeta de Descarga (Legacy)"
   },
   "Download URL": {
     "other": "URL de Descarga"
@@ -201,10 +201,10 @@
     "other": "Activar WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
-    "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
+    "other": "Habilitar WebDAV por defecto para todos los usuarios. Si se configura en \"false\", los usuarios tendrán que activar manualmente WebDAV a través del panel de preferencias."
   },
   "Enable for all users": {
-    "other": "Enable for all users"
+    "other": "Habilitar para todos los usuarios"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
     "other": "Activar el soporte WebDAV. Por favor LEE LA DOCUMENTACIÓN para usar esta función de forma segura."
@@ -276,7 +276,7 @@
     "other": "Si está activado, se configura un límite por encima de cual no se comprimen los archivos."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+    "other": "Si no se infiere directamente de la URL actual de pydio más la URI de base pública, remplace la URL de acceso público aquí."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
     "other": "Si se configura una URL, el inicio de usuario no muestra la pantalla de inicio de sesión y se redirecciona a esta URL."
@@ -318,7 +318,7 @@
     "other": "Nombre"
   },
   "OAuth Commons": {
-    "other": "OAuth Commons"
+    "other": "Parámetros Comunes OAuth"
   },
   "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line.": {
     "other": "Corriendo IIS en Windows, configurar esta opción como true si la extensión COM está cargada, esto puede activar el uso de la línea de comandos php."
@@ -339,7 +339,7 @@
     "other": "Etiqueta pregenerada para el nuevo workspace, puedes usar PYDIO_USER en este campo."
   },
   "Public Base URI": {
-    "other": "Public Base URI"
+    "other": "URI de Base Pública"
   },
   "Pydio Main Options": {
     "other": "Opciones Principales de Pydio"
@@ -435,7 +435,7 @@
     "other": "Comprueba los credenciales del usuario para conectarse a Pydio. Atención, ¡la variable PYDIO_SESSION_SET_CREDENTIALS debe estar configurada como true!"
   },
   "URI where to serve the public links": {
-    "other": "URI where to serve the public links"
+    "other": "URI donde servir los enlaces públicos"
   },
   "Use COM class": {
     "other": "Usar clase COM"

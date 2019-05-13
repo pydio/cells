@@ -27,28 +27,28 @@
     "other": "Mostrar archivos procesados"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "Si existe un archivo con el mismo nombre:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "Detener la subida y notificarme"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Renombrar carpetas y archivos"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Renombrar sólo archivos (fusionar carpetas)"
   },
   "2": {
     "other": "Subiendo %s archivos"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "Sobrescribir el archivo existente sin notificarlo"
   },
   "22": {
-    "other": "Options"
+    "other": "Opciones"
   },
   "23": {
-    "other": "Errors"
+    "other": "Errores"
   },
   "3": {
     "other": "No tienes permisos para subir este archivo aquí"
@@ -72,9 +72,9 @@
     "other": ""
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "Preparando archivos y carpetas para subir..."
   },
   "drophere": {
-    "other": "Drop Files Here"
+    "other": "Soltar archivos aquí"
   }
 }
