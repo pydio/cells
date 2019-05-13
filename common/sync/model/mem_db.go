@@ -161,7 +161,7 @@ func (db *MemDB) Walk(walknFc WalkNodesFunc, root string) (err error) {
 	return nil
 }
 
-func (db *MemDB) Watch(recursivePath string, connectionInfo chan WatchConnectionInfo) (*WatchObject, error) {
+func (db *MemDB) Watch(recursivePath string) (*WatchObject, error) {
 	return nil, errors.New("Not implemented")
 }
 

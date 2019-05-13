@@ -116,7 +116,7 @@ func (r *RouterEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool
 
 func (r *RouterEndpoint) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: "router://" + r.root,
+		URI: "router:///" + strings.TrimLeft(r.root, "/"),
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		SupportsTargetEcho:    true,
@@ -152,21 +152,23 @@ func (r *RouterEndpoint) Walk(walknFc model.WalkNodesFunc, root string) (err err
 	return
 }
 
-func (r *RouterEndpoint) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
+func (r *RouterEndpoint) Watch(recursivePath string) (*model.WatchObject, error) {
 
-	r.watchConn = connectionInfo
+	r.watchConn = make(chan model.WatchConnectionInfo)
 	changes := make(chan *tree.NodeChangeEvent)
 	finished := make(chan error)
 	ctx, cancel := context.WithCancel(r.getContext())
 
 	obj := &model.WatchObject{
-		EventInfoChan: make(chan model.EventInfo),
-		DoneChan:      make(chan bool, 1),
-		ErrorChan:     make(chan error),
+		EventInfoChan:  make(chan model.EventInfo),
+		DoneChan:       make(chan bool, 1),
+		ErrorChan:      make(chan error),
+		ConnectionInfo: r.watchConn,
 	}
 	go func() {
 		defer close(finished)
 		defer close(obj.EventInfoChan)
+		defer close(r.watchConn)
 		for {
 			select {
 			case c := <-changes:
@@ -177,8 +179,8 @@ func (r *RouterEndpoint) Watch(recursivePath string, connectionInfo chan model.W
 				}
 			case er := <-finished:
 				log.Logger(r.getContext()).Info("Connection finished " + er.Error())
-				if connectionInfo != nil {
-					connectionInfo <- model.WatchDisconnected
+				if r.watchConn != nil {
+					r.watchConn <- model.WatchDisconnected
 				}
 				<-time.After(5 * time.Second)
 				log.Logger(r.getContext()).Info("Restarting events watcher after 5s")

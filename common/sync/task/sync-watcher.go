@@ -14,7 +14,7 @@ import (
 func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget) error {
 
 	var err error
-	watchObject, err := source.Watch("", s.watchConn)
+	watchObject, err := source.Watch("")
 	if err != nil {
 		log.Logger(ctx).Error("Error While Setting up Watcher on source", zap.Any("source", source), zap.Error(err))
 		return err
@@ -66,12 +66,31 @@ func (s *Sync) SetupWatcher(ctx context.Context, source model.PathSyncSource, ta
 				if err != nil {
 					log.Logger(ctx).Error("Received error from watcher", zap.Error(err))
 				}
+			case connInfo := <-watchObject.ConnectionInfo:
+				if s.watchConn != nil {
+					s.watchConn <- &model.EndpointStatus{
+						WatchConnection: connInfo,
+						EndpointInfo:    source.GetEndpointInfo(),
+					}
+				}
 			case <-inputCloser:
+
 				close(input)
 				return
 			}
 		}
 	}()
+
+	if watchObject.ConnectionInfo == nil && s.watchConn != nil {
+		// This Watcher does not send info about its connection state
+		// So we assume it's connected
+		ev := &model.EndpointStatus{
+			WatchConnection: model.WatchConnected,
+			EndpointInfo:    source.GetEndpointInfo(),
+		}
+		log.Logger(ctx).Info("Sending WatchConnected", zap.Any("event", ev))
+		s.watchConn <- ev
+	}
 
 	return nil
 

@@ -65,13 +65,6 @@ func IsFolderHiddenFile(name string) bool {
 	return path.Base(name) == common.PYDIO_SYNC_HIDDEN_FILE_META
 }
 
-type WatchConnectionInfo int
-
-const (
-	WatchConnected WatchConnectionInfo = iota
-	WatchDisconnected
-)
-
 type EndpointInfo struct {
 	URI                   string
 	RequiresNormalization bool
@@ -91,7 +84,7 @@ type WalkNodesFunc func(path string, node *tree.Node, err error)
 type PathSyncSource interface {
 	Endpoint
 	Walk(walknFc WalkNodesFunc, root string) (err error)
-	Watch(recursivePath string, connectionInfo chan WatchConnectionInfo) (*WatchObject, error)
+	Watch(recursivePath string) (*WatchObject, error)
 }
 
 type ChecksumProvider interface {

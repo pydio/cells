@@ -85,7 +85,7 @@ func (i *IndexEndpoint) Walk(walknFc model.WalkNodesFunc, root string) (err erro
 	return nil
 }
 
-func (i *IndexEndpoint) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
+func (i *IndexEndpoint) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, errors.New("Watch Not Implemented")
 }
 

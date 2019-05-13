@@ -264,7 +264,7 @@ func (s *Snapshot) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 	return err
 }
 
-func (s *Snapshot) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
+func (s *Snapshot) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, fmt.Errorf("not.implemented")
 }
 

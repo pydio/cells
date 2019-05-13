@@ -43,7 +43,7 @@ type Sync struct {
 
 	paused    bool
 	doneChans []chan bool
-	watchConn chan model.WatchConnectionInfo
+	watchConn chan *model.EndpointStatus
 	statuses  chan merger.ProcessStatus
 	runDone   chan interface{}
 }
@@ -151,7 +151,7 @@ func (s *Sync) SetSyncEventsChan(statusChan chan merger.ProcessStatus, batchDone
 	s.runDone = batchDone
 	if events != nil {
 		// Forward internal events to sync event
-		s.watchConn = make(chan model.WatchConnectionInfo)
+		s.watchConn = make(chan *model.EndpointStatus)
 		go func() {
 			for {
 				select {

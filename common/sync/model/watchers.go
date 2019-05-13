@@ -82,6 +82,18 @@ func (e EventInfo) CreateContext(ctx context.Context) context.Context {
 	}
 }
 
+type WatchConnectionInfo int
+
+const (
+	WatchConnected WatchConnectionInfo = iota
+	WatchDisconnected
+)
+
+type EndpointStatus struct {
+	EndpointInfo
+	WatchConnection WatchConnectionInfo
+}
+
 type WatchObject struct {
 	// eventInfo will be put on this chan
 	EventInfoChan chan EventInfo
@@ -89,6 +101,9 @@ type WatchObject struct {
 	ErrorChan chan error
 	// will stop the watcher goroutines
 	DoneChan chan bool
+	// Provides info about the internal watcher connection
+	// Can be nill if the internal watcher does not support such notifications
+	ConnectionInfo chan WatchConnectionInfo
 }
 
 // NextEvent pops the next event from the EventInfoChan
@@ -113,6 +128,10 @@ func (w *WatchObject) Events() chan EventInfo {
 // Errors returns the chan receiving errors
 func (w *WatchObject) Errors() chan error {
 	return w.ErrorChan
+}
+
+func (w *WatchObject) ConnectionInfos() chan WatchConnectionInfo {
+	return w.ConnectionInfo
 }
 
 // Close the watcher, will stop all goroutines

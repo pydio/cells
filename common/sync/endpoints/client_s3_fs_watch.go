@@ -57,7 +57,7 @@ func NewS3ClientFSWatch(ctx context.Context, url string, key string, secret stri
 
 }
 
-func (c *S3ClientFSWatch) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
+func (c *S3ClientFSWatch) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)

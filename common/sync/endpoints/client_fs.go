@@ -218,7 +218,7 @@ func (c *FSClient) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 }
 
 // Watches for all fs events on an input path.
-func (c *FSClient) Watch(recursivePath string, connectionInfo chan model.WatchConnectionInfo) (*model.WatchObject, error) {
+func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
