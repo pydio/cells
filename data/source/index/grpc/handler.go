@@ -191,7 +191,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 // ReadNode implementation for the TreeServer.
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
 
-	defer track("ReadNode", ctx, time.Now(), req, resp)
+	defer track(ctx, "ReadNode", time.Now(), req, resp)
 
 	dao := servicecontext.GetDAO(ctx).(index.DAO)
 	name := servicecontext.GetServiceName(ctx)
@@ -272,7 +272,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 // ListNodes implementation for the TreeServer.
 func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream) error {
 
-	defer track("ListNodes", ctx, time.Now(), req, resp)
+	defer track(ctx, "ListNodes", time.Now(), req, resp)
 
 	dao := servicecontext.GetDAO(ctx).(index.DAO)
 	name := servicecontext.GetServiceName(ctx)
@@ -294,7 +294,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 			node, err = dao.GetNodeByUUID(req.GetNode().GetUuid())
 			if err != nil {
-				return errors.NotFound(name, "could not find node by UUID with %s, cause: ", req.GetNode().GetUuid(), err.Error())
+				return errors.NotFound(name, "could not find node by UUID with %s, cause: %s", req.GetNode().GetUuid(), err.Error())
 			}
 
 		} else {
@@ -408,7 +408,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 // UpdateNode implementation for the TreeServer.
 func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, resp *tree.UpdateNodeResponse) (err error) {
-	defer track("UpdateNode", ctx, time.Now(), req, resp)
+	defer track(ctx, "UpdateNode", time.Now(), req, resp)
 
 	log.Logger(ctx).Debug("Entering UpdateNode")
 	defer func() {
@@ -483,7 +483,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest, resp *tree.DeleteNodeResponse) (err error) {
 
 	log.Logger(ctx).Debug("DeleteNode", zap.Any("request", req))
-	defer track("DeleteNode", ctx, time.Now(), req, resp)
+	defer track(ctx, "DeleteNode", time.Now(), req, resp)
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic recovered in DeleteNode: %s. Node path was %s", r, req.Node.Path)
@@ -746,7 +746,7 @@ func (s *TreeServer) CreateNodeStream(ctx context.Context, stream tree.NodeRecei
 	return err
 }
 
-func track(fn string, ctx context.Context, start time.Time, req interface{}, resp interface{}) {
+func track(ctx context.Context, fn string, start time.Time, req interface{}, resp interface{}) {
 	log.Logger(ctx).Debug(fn, zap.Duration("time", time.Since(start)), zap.Any("req", req), zap.Any("resp", resp))
 }
 
