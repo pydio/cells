@@ -1,84 +1,74 @@
 package grpc
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/pydio/cells/common/proto/tree"
-	service2 "github.com/pydio/cells/common/service/proto"
+	"context"
 
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
+	"github.com/micro/go-micro/metadata"
+	"github.com/micro/go-micro/server"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
 )
 
 func init() {
+
 	plugins.Register(func() {
 		service.NewService(
 			service.Name(common.SERVICE_GATEWAY_GRPC),
 			service.Tag(common.SERVICE_TAG_GATEWAY),
-			service.RouterDependencies(),
-			service.Description("GRPC Gateway to services"),
-			func(o *service.ServiceOptions) {
-				o.Version = common.Version().String()
-				o.Micro = micro.NewService()
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.Description("External GRPC Access"),
+			service.WithMicro(func(m micro.Service) error {
 
-				o.MicroInit = func(s service.Service) error {
+				m.Init(micro.WrapHandler(JWTWrapper(m.Options().Context)))
 
-					name := s.Name()
-					ctx := servicecontext.WithServiceName(s.Options().Context, name)
+				h := &TreeHandler{}
+				srv := m.Options().Server
+				tree.RegisterNodeProviderHandler(srv, h)
+				tree.RegisterNodeReceiverHandler(srv, h)
+				tree.RegisterNodeChangesStreamerHandler(srv, h)
 
-					s.Options().Micro.Init(
-						micro.Client(defaults.NewClient()),
-						micro.Server(defaults.NewServer()),
-						micro.Registry(defaults.Registry()),
-						micro.RegisterTTL(time.Second*30),
-						micro.RegisterInterval(time.Second*10),
-						micro.Transport(defaults.Transport()),
-						micro.Broker(defaults.Broker()),
-					)
-
-					meta := registry.BuildServiceMeta()
-					// context is always added last - so that there is no override
-					s.Options().Micro.Init(
-						micro.Context(ctx),
-						micro.Name(name),
-						micro.WrapClient(servicecontext.SpanClientWrapper),
-						micro.Metadata(meta),
-						micro.AfterStart(func() error {
-							h := &TreeHandler{}
-							tree.RegisterNodeProviderHandler(s.Options().Micro.Server(), h)
-							sh := &service.StatusHandler{}
-							fmt.Println(s.Address())
-							sh.SetAddress(s.Address())
-							st := &service.StopHandler{}
-							st.SetService(s)
-							service2.RegisterServiceHandler(s.Options().Micro.Server(), sh)
-							micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, s.Options().Micro.Server(), st)
-
-							log.Logger(ctx).Info("started")
-							return nil
-						}),
-						micro.BeforeStop(func() error {
-							log.Logger(ctx).Info("stopping")
-							return nil
-						}),
-						micro.AfterStart(func() error {
-							return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
-						}),
-					)
-
-					return nil
-				}
-
-			},
+				return nil
+			}),
 		)
 	})
+
+}
+
+func JWTWrapper(serviceCtx context.Context) func(handlerFunc server.HandlerFunc) server.HandlerFunc {
+
+	return func(handlerFunc server.HandlerFunc) server.HandlerFunc {
+
+		jwtVerifier := auth.DefaultJWTVerifier()
+
+		return func(ctx context.Context, req server.Request, rsp interface{}) error {
+
+			if meta, ok := metadata.FromContext(ctx); ok {
+
+				bearer, o := meta["x-pydio-bearer"] //strings.Join(meta.Get("x-pydio-bearer"), "")
+				if o {
+					var err error
+					ctx, _, err = jwtVerifier.Verify(ctx, bearer)
+					if err != nil {
+						log.Auditer(serviceCtx).Error(
+							"Blocked invalid JWT",
+							log.GetAuditId(common.AUDIT_INVALID_JWT),
+						)
+						return err
+					} else {
+						log.Logger(serviceCtx).Debug("Got valid Claims from Bearer!")
+					}
+				}
+			}
+
+			return handlerFunc(ctx, req, rsp)
+
+		}
+	}
 
 }

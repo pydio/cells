@@ -95,6 +95,7 @@ type ChecksumProvider interface {
 type PathSyncTarget interface {
 	Endpoint
 	CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error)
+	// TODO : IS THIS EVER USED?
 	UpdateNode(ctx context.Context, node *tree.Node) (err error)
 	DeleteNode(ctx context.Context, path string) (err error)
 	MoveNode(ctx context.Context, oldPath string, newPath string) (err error)

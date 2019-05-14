@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package endpoints
+package snapshot
 
 import (
 	"context"
@@ -29,10 +29,10 @@ import (
 
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
+	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 func basicDiff(l, r model.PathSyncSource) error {
@@ -102,7 +102,7 @@ func TestSnapshot(t *testing.T) {
 	Convey("CaptureSnapshotFlat", t, func() {
 		taken := time.Now()
 		testId := uuid.New()
-		snapshot, e := NewSnapshot("tests", "test-snap-tree-"+testId)
+		snapshot, e := NewBoltSnapshot("tests", "test-snap-tree-"+testId)
 		So(e, ShouldBeNil)
 		defer func() {
 			snapshot.Close(true)

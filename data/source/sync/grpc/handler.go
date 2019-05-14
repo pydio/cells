@@ -44,12 +44,12 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/sync/endpoints"
+	"github.com/pydio/cells/common/sync/endpoints/index"
+	"github.com/pydio/cells/common/sync/endpoints/s3"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/pydio/cells/common/sync/task"
 	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/data/source/sync"
 	"github.com/pydio/cells/scheduler/tasks"
 )
 
@@ -114,11 +114,11 @@ func (s *Handler) NotifyError(errorPath string) {
 func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 	ctx := s.globalCtx
-	datasource := s.dsName
+	dataSource := s.dsName
 
 	var minioConfig *object.MinioConfig
 	service.Retry(func() error {
-		log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Objects")
+		log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Objects")
 		cli := object.NewObjectsEndpointClient(registry.GetClient(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName))
 		resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 		if err != nil {
@@ -132,13 +132,12 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	if minioConfig == nil {
 		return fmt.Errorf("objects not reachable")
 	}
-	//	log.Logger(ctx).Info("Init On MinioConfig", zap.Any("c", minioConfig))
 
 	var source model.PathSyncTarget
 	if syncConfig.Watch {
 		return fmt.Errorf("datasource watch is not implemented yet")
 	} else {
-		s3client, errs3 := endpoints.NewS3Client(ctx,
+		s3client, errs3 := s3.NewClient(ctx,
 			minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, syncConfig.ObjectsBucket, syncConfig.ObjectsBaseFolder)
 		if errs3 != nil {
 			return errs3
@@ -150,12 +149,11 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		source = s3client
 	}
 
-	indexName, indexClient := registry.GetClient(common.SERVICE_DATA_INDEX_ + datasource)
+	indexName, indexClient := registry.GetClient(common.SERVICE_DATA_INDEX_ + dataSource)
 	indexClientWrite := tree.NewNodeReceiverClient(indexName, indexClient)
 	indexClientRead := tree.NewNodeProviderClient(indexName, indexClient)
 	sessionClient := tree.NewSessionIndexerClient(indexName, indexClient)
-
-	target := sync.NewIndexEndpoint(datasource, indexClientRead, indexClientWrite, sessionClient)
+	target := index.NewClient(dataSource, indexClientRead, indexClientWrite, sessionClient)
 
 	s.S3client = source
 	s.IndexClient = indexClientRead

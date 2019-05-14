@@ -28,6 +28,7 @@ import (
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/registry"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -87,6 +88,19 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	endpointResponse.Endpoints["chats"] = fmt.Sprintf("%s://%s/ws/chat", wsProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["websocket"] = fmt.Sprintf("%s://%s/ws/event", wsProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["frontend"] = fmt.Sprintf("%s://%s", httpProtocol, urlParsed.Host)
+
+	// Detect GRPC Service Ports
+	var grpcPorts []string
+	if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC); e == nil {
+		for _, s := range ss {
+			for _, n := range s.Nodes {
+				grpcPorts = append(grpcPorts, fmt.Sprintf("%d", n.Port))
+			}
+		}
+	}
+	if len(grpcPorts) > 0 {
+		endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
+	}
 
 	resp.WriteEntity(endpointResponse)
 

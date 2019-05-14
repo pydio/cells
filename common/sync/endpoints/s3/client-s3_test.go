@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package endpoints
+package s3
 
 import (
 	"bytes"
@@ -29,10 +29,11 @@ import (
 	"sync"
 	"testing"
 
+	. "github.com/smartystreets/goconvey/convey"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/minio-go"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 type MinioClientMock struct {
@@ -86,7 +87,7 @@ func (c *MinioClientMock) ListenBucketNotification(bucketName, prefix, suffix st
 	return out
 }
 
-func NewS3Mock() *S3Client {
+func NewS3Mock() *Client {
 	mock := &MinioClientMock{
 		objects: make(map[string]minio.ObjectInfo),
 	}
@@ -97,7 +98,7 @@ func NewS3Mock() *S3Client {
 	mock.objects["folder/"+common.PYDIO_SYNC_HIDDEN_FILE_META] = minio.ObjectInfo{
 		Key: "folder/" + common.PYDIO_SYNC_HIDDEN_FILE_META,
 	}
-	client := &S3Client{
+	client := &Client{
 		Mc:       mock,
 		Bucket:   "bucket",
 		RootPath: "",

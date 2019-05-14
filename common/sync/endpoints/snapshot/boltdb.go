@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package endpoints
+package snapshot
 
 import (
 	"bytes"
@@ -44,15 +44,15 @@ var (
 	captureBucketName = []byte("capture")
 )
 
-type Snapshot struct {
+type BoltSnapshot struct {
 	db         *bbolt.DB
 	name       string
 	empty      bool
 	folderPath string
 }
 
-func NewSnapshot(name, syncUuid string) (*Snapshot, error) {
-	s := &Snapshot{name: name}
+func NewBoltSnapshot(name, syncUuid string) (*BoltSnapshot, error) {
+	s := &BoltSnapshot{name: name}
 	options := bbolt.DefaultOptions
 	options.Timeout = 5 * time.Second
 	appDir := config.ApplicationDataDir()
@@ -70,7 +70,7 @@ func NewSnapshot(name, syncUuid string) (*Snapshot, error) {
 	return s, nil
 }
 
-func (s *Snapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
@@ -91,11 +91,11 @@ func (s *Snapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 	})
 }
 
-func (s *Snapshot) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
+func (s *BoltSnapshot) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
 	return s.CreateNode(ctx, node, true)
 }
 
-func (s *Snapshot) DeleteNode(ctx context.Context, path string) (err error) {
+func (s *BoltSnapshot) DeleteNode(ctx context.Context, path string) (err error) {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
@@ -118,7 +118,7 @@ func (s *Snapshot) DeleteNode(ctx context.Context, path string) (err error) {
 	})
 }
 
-func (s *Snapshot) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
+func (s *BoltSnapshot) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
@@ -146,18 +146,18 @@ func (s *Snapshot) MoveNode(ctx context.Context, oldPath string, newPath string)
 	})
 }
 
-func (s *Snapshot) IsEmpty() bool {
+func (s *BoltSnapshot) IsEmpty() bool {
 	return s.empty
 }
 
-func (s *Snapshot) Close(delete ...bool) {
+func (s *BoltSnapshot) Close(delete ...bool) {
 	s.db.Close()
 	if len(delete) > 0 && delete[0] && s.folderPath != "" {
 		os.RemoveAll(s.folderPath)
 	}
 }
 
-func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource, paths ...string) error {
+func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource, paths ...string) error {
 	// Capture in temporary bucket
 	e := s.db.Update(func(tx *bbolt.Tx) error {
 		var capture *bbolt.Bucket
@@ -215,7 +215,7 @@ func (s *Snapshot) Capture(ctx context.Context, source model.PathSyncSource, pat
 	return e
 }
 
-func (s *Snapshot) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		if b := tx.Bucket(bucketName); b != nil {
 			value := b.Get([]byte(path))
@@ -235,7 +235,7 @@ func (s *Snapshot) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 	return
 }
 
-func (s *Snapshot) GetEndpointInfo() model.EndpointInfo {
+func (s *BoltSnapshot) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
 		URI: "snapshot://" + s.name,
 		RequiresNormalization: false,
@@ -243,7 +243,7 @@ func (s *Snapshot) GetEndpointInfo() model.EndpointInfo {
 	}
 }
 
-func (s *Snapshot) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+func (s *BoltSnapshot) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 	root = strings.Trim(root, "/") + "/"
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
@@ -264,22 +264,22 @@ func (s *Snapshot) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 	return err
 }
 
-func (s *Snapshot) Watch(recursivePath string) (*model.WatchObject, error) {
+func (s *BoltSnapshot) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, fmt.Errorf("not.implemented")
 }
 
-func (s *Snapshot) ComputeChecksum(node *tree.Node) error {
+func (s *BoltSnapshot) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
-func (s *Snapshot) marshal(node *tree.Node) []byte {
+func (s *BoltSnapshot) marshal(node *tree.Node) []byte {
 	store := node.Clone()
 	store.MetaStore = nil
 	data, _ := proto.Marshal(node)
 	return data
 }
 
-func (s *Snapshot) unmarshal(value []byte) (*tree.Node, error) {
+func (s *BoltSnapshot) unmarshal(value []byte) (*tree.Node, error) {
 	var n tree.Node
 	if e := proto.Unmarshal(value, &n); e != nil {
 		return nil, e

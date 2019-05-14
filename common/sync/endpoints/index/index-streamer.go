@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package sync
+package index
 
 import (
 	"context"
@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
-type IndexStreamer struct {
+type Streamer struct {
 	done chan bool
 
 	readIsOpen bool
@@ -59,8 +59,8 @@ type IndexStreamer struct {
 	serviceName string
 }
 
-func NewIndexStreamer(serviceName string) *IndexStreamer {
-	i := &IndexStreamer{
+func NewStreamer(serviceName string) *Streamer {
+	i := &Streamer{
 		serviceName: serviceName,
 		done:        make(chan bool, 1),
 
@@ -83,12 +83,12 @@ func NewIndexStreamer(serviceName string) *IndexStreamer {
 	return i
 }
 
-func (i *IndexStreamer) Stop() {
+func (i *Streamer) Stop() {
 	i.done <- true
 	i.delIsOpen, i.createIsOpen, i.updateIsOpen, i.readIsOpen = false, false, false, false
 }
 
-func (i *IndexStreamer) StartReader(ctx context.Context) error {
+func (i *Streamer) StartReader(ctx context.Context) error {
 
 	//fmt.Println("Starting Reader for service " + i.serviceName)
 	reader := tree.NewNodeProviderStreamerClient(i.serviceName, defaults.NewClient())
@@ -137,7 +137,7 @@ func (i *IndexStreamer) StartReader(ctx context.Context) error {
 	return nil
 }
 
-func (i *IndexStreamer) StartDeleter(ctx context.Context) error {
+func (i *Streamer) StartDeleter(ctx context.Context) error {
 
 	//fmt.Println("Starting Deleter for service " + i.serviceName)
 	delClient := tree.NewNodeReceiverStreamClient(i.serviceName, defaults.NewClient())
@@ -180,7 +180,7 @@ func (i *IndexStreamer) StartDeleter(ctx context.Context) error {
 	return nil
 }
 
-func (i *IndexStreamer) StartCreator(ctx context.Context) error {
+func (i *Streamer) StartCreator(ctx context.Context) error {
 
 	//fmt.Println("Starting Creator for service " + i.serviceName)
 	createClient := tree.NewNodeReceiverStreamClient(i.serviceName, defaults.NewClient())
@@ -224,7 +224,7 @@ func (i *IndexStreamer) StartCreator(ctx context.Context) error {
 	return nil
 }
 
-func (i *IndexStreamer) StartUpdater(ctx context.Context) error {
+func (i *Streamer) StartUpdater(ctx context.Context) error {
 
 	//fmt.Println("Starting Updater for service " + i.serviceName)
 	updateClient := tree.NewNodeReceiverStreamClient(i.serviceName, defaults.NewClient())
@@ -267,7 +267,7 @@ func (i *IndexStreamer) StartUpdater(ctx context.Context) error {
 	return nil
 }
 
-func (i *IndexStreamer) ReadNode(ctx context.Context, request *tree.ReadNodeRequest) (response *tree.ReadNodeResponse, err error) {
+func (i *Streamer) ReadNode(ctx context.Context, request *tree.ReadNodeRequest) (response *tree.ReadNodeResponse, err error) {
 
 	if !i.readIsOpen {
 		if e := i.StartReader(ctx); e != nil {
@@ -300,7 +300,7 @@ func (i *IndexStreamer) ReadNode(ctx context.Context, request *tree.ReadNodeRequ
 	return
 }
 
-func (i *IndexStreamer) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (response *tree.DeleteNodeResponse, err error) {
+func (i *Streamer) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (response *tree.DeleteNodeResponse, err error) {
 
 	if !i.delIsOpen {
 		if e := i.StartDeleter(ctx); e != nil {
@@ -333,7 +333,7 @@ func (i *IndexStreamer) DeleteNode(ctx context.Context, request *tree.DeleteNode
 	return
 }
 
-func (i *IndexStreamer) CreateNode(ctx context.Context, request *tree.CreateNodeRequest) (response *tree.CreateNodeResponse, err error) {
+func (i *Streamer) CreateNode(ctx context.Context, request *tree.CreateNodeRequest) (response *tree.CreateNodeResponse, err error) {
 
 	if !i.createIsOpen {
 		if e := i.StartCreator(ctx); e != nil {
@@ -366,7 +366,7 @@ func (i *IndexStreamer) CreateNode(ctx context.Context, request *tree.CreateNode
 	return
 }
 
-func (i *IndexStreamer) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest) (response *tree.UpdateNodeResponse, err error) {
+func (i *Streamer) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest) (response *tree.UpdateNodeResponse, err error) {
 
 	if !i.updateIsOpen {
 		if e := i.StartUpdater(ctx); e != nil {

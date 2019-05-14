@@ -477,10 +477,10 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 		}
 
 		if newEvent.Target != nil {
-			newEvent.Target.Path = strings.TrimPrefix(newEvent.Target.Path, filterPath)
+			//newEvent.Target.Path = strings.TrimPrefix(newEvent.Target.Path, filterPath)
 		}
 		if newEvent.Source != nil {
-			newEvent.Source.Path = strings.TrimPrefix(newEvent.Source.Path, filterPath)
+			//newEvent.Source.Path = strings.TrimPrefix(newEvent.Source.Path, filterPath)
 		}
 		if newEvent.Metadata != nil {
 			// Do not forward this metadata to clients
@@ -510,7 +510,7 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 						break
 					}
 					child := r.Node
-					child.Path = strings.TrimPrefix(child.Path, filterPath)
+					//child.Path = strings.TrimPrefix(child.Path, filterPath)
 					streamer.Send(&tree.NodeChangeEvent{
 						Type:   tree.NodeChangeEvent_CREATE,
 						Target: child,

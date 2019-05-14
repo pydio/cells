@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package sync
+package index
 
 import (
 	"context"
@@ -34,16 +34,16 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-type IndexEndpoint struct {
+type Client struct {
 	readerClient    tree.NodeProviderClient
 	writerClient    tree.NodeReceiverClient
 	sessionClient   tree.SessionIndexerClient
 	internalSession *tree.IndexationSession
-	streamer        *IndexStreamer
+	streamer        *Streamer
 	dsName          string
 }
 
-func (i *IndexEndpoint) GetEndpointInfo() model.EndpointInfo {
+func (i *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
 		URI: "index://" + i.dsName,
@@ -53,11 +53,11 @@ func (i *IndexEndpoint) GetEndpointInfo() model.EndpointInfo {
 
 }
 
-func (i *IndexEndpoint) ComputeChecksum(node *tree.Node) error {
+func (i *Client) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
-func (i *IndexEndpoint) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+func (i *Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 
 	if root == "/" {
 		root = ""
@@ -85,11 +85,11 @@ func (i *IndexEndpoint) Walk(walknFc model.WalkNodesFunc, root string) (err erro
 	return nil
 }
 
-func (i *IndexEndpoint) Watch(recursivePath string) (*model.WatchObject, error) {
+func (i *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, errors.New("Watch Not Implemented")
 }
 
-func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (i *Client) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByPath" + path)
 	resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
@@ -105,7 +105,7 @@ func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool)
 }
 
 // LoadNodeByUuid makes this endpoint an UuidProvider
-func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error) {
+func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
 	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
@@ -120,7 +120,7 @@ func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *
 
 }
 
-func (i *IndexEndpoint) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (i *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 
 	session := i.indexationSession()
 
@@ -137,11 +137,11 @@ func (i *IndexEndpoint) CreateNode(ctx context.Context, node *tree.Node, updateI
 	return err
 }
 
-func (i *IndexEndpoint) UpdateNode(ctx context.Context, node *tree.Node) error {
+func (i *Client) UpdateNode(ctx context.Context, node *tree.Node) error {
 	return i.CreateNode(ctx, node, true)
 }
 
-func (i *IndexEndpoint) DeleteNode(ctx context.Context, path string) (err error) {
+func (i *Client) DeleteNode(ctx context.Context, path string) (err error) {
 
 	session := i.indexationSession()
 
@@ -158,7 +158,7 @@ func (i *IndexEndpoint) DeleteNode(ctx context.Context, path string) (err error)
 	return err
 }
 
-func (i *IndexEndpoint) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
+func (i *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 
 	log.Logger(ctx).Info("MoveNode", zap.String("oldPath", oldPath), zap.String("newPath", newPath))
 
@@ -175,7 +175,7 @@ func (i *IndexEndpoint) MoveNode(ctx context.Context, oldPath string, newPath st
 	return err
 }
 
-func (i *IndexEndpoint) StartSession(ctx context.Context, rootNode *tree.Node) (*tree.IndexationSession, error) {
+func (i *Client) StartSession(ctx context.Context, rootNode *tree.Node) (*tree.IndexationSession, error) {
 	sess := &tree.IndexationSession{
 		Uuid:        uuid.New(),
 		Description: "Indexation",
@@ -190,18 +190,18 @@ func (i *IndexEndpoint) StartSession(ctx context.Context, rootNode *tree.Node) (
 	}
 }
 
-func (i *IndexEndpoint) FlushSession(ctx context.Context, sessionUuid string) error {
+func (i *Client) FlushSession(ctx context.Context, sessionUuid string) error {
 	_, err := i.sessionClient.FlushSession(ctx, &tree.FlushSessionRequest{Session: &tree.IndexationSession{Uuid: sessionUuid}})
 	return err
 }
 
-func (i *IndexEndpoint) FinishSession(ctx context.Context, sessionUuid string) error {
+func (i *Client) FinishSession(ctx context.Context, sessionUuid string) error {
 	_, err := i.sessionClient.CloseSession(ctx, &tree.CloseSessionRequest{Session: &tree.IndexationSession{Uuid: sessionUuid}})
 	i.internalSession = nil
 	return err
 }
 
-func (i *IndexEndpoint) indexationSession() string {
+func (i *Client) indexationSession() string {
 	sessionUuid := ""
 	if i.internalSession != nil {
 		sessionUuid = i.internalSession.Uuid
@@ -209,12 +209,12 @@ func (i *IndexEndpoint) indexationSession() string {
 	return sessionUuid
 }
 
-func NewIndexEndpoint(dsName string, reader tree.NodeProviderClient, writer tree.NodeReceiverClient, sessionClient tree.SessionIndexerClient) *IndexEndpoint {
-	return &IndexEndpoint{
+func NewClient(dsName string, reader tree.NodeProviderClient, writer tree.NodeReceiverClient, sessionClient tree.SessionIndexerClient) *Client {
+	return &Client{
 		readerClient:  reader,
 		writerClient:  writer,
 		sessionClient: sessionClient,
 		dsName:        dsName,
-		//streamer:      NewIndexStreamer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dsName),
+		//streamer:      NewStreamer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_ + dsName),
 	}
 }

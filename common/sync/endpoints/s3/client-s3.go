@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package endpoints
+// Package s3 provides an endpoint for connecting to Amazon S3 or an S3-compatible storage
+package s3
 
 import (
 	"bytes"
@@ -34,8 +35,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/sync/model"
-
 	"github.com/pydio/minio-go"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
@@ -44,6 +43,7 @@ import (
 	servicescommon "github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 var (
@@ -54,7 +54,7 @@ var (
 // TODO
 // For Minio, add an initialization for detecting empty
 // folders and creating PYDIO_SYNC_HIDDEN_FILE_META
-type S3Client struct {
+type Client struct {
 	Mc                          MockableMinio
 	Bucket                      string
 	RootPath                    string
@@ -62,13 +62,13 @@ type S3Client struct {
 	globalContext               context.Context
 }
 
-func NewS3Client(ctx context.Context, url string, key string, secret string, bucket string, rootPath string) (*S3Client, error) {
+func NewClient(ctx context.Context, url string, key string, secret string, bucket string, rootPath string) (*Client, error) {
 	mc, e := minio.New(url, key, secret, false)
 	if e != nil {
 		return nil, e
 	}
 	mc.SetAppInfo(UserAgentAppName, UserAgentVersion)
-	return &S3Client{
+	return &Client{
 		Mc:            mc,
 		Bucket:        bucket,
 		RootPath:      strings.TrimRight(rootPath, "/"),
@@ -76,7 +76,7 @@ func NewS3Client(ctx context.Context, url string, key string, secret string, buc
 	}, e
 }
 
-func (c *S3Client) GetEndpointInfo() model.EndpointInfo {
+func (c *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
 		URI: "s3:///" + path.Join(c.Bucket, c.RootPath),
@@ -86,25 +86,25 @@ func (c *S3Client) GetEndpointInfo() model.EndpointInfo {
 
 }
 
-func (c *S3Client) normalize(path string) string {
+func (c *Client) normalize(path string) string {
 	if c.ServerRequiresNormalization {
 		return string(norm.NFC.Bytes([]byte(path)))
 	}
 	return path
 }
 
-func (c *S3Client) denormalize(path string) string {
+func (c *Client) denormalize(path string) string {
 	if c.ServerRequiresNormalization {
 		return string(norm.NFD.Bytes([]byte(path)))
 	}
 	return path
 }
 
-func (c *S3Client) getLocalPath(eventPath string) string {
+func (c *Client) getLocalPath(eventPath string) string {
 	return strings.TrimPrefix(c.normalize(eventPath), c.normalize(c.RootPath))
 }
 
-func (c *S3Client) getFullPath(path string) string {
+func (c *Client) getFullPath(path string) string {
 	path = c.denormalize(path)
 	if c.RootPath == "" {
 		return strings.TrimLeft(path, "/")
@@ -113,7 +113,7 @@ func (c *S3Client) getFullPath(path string) string {
 	}
 }
 
-func (c *S3Client) Stat(path string) (i os.FileInfo, err error) {
+func (c *Client) Stat(path string) (i os.FileInfo, err error) {
 	objectInfo, e := c.Mc.StatObject(c.Bucket, c.getFullPath(path), minio.StatObjectOptions{})
 	if e != nil {
 		// Try folder
@@ -126,7 +126,7 @@ func (c *S3Client) Stat(path string) (i os.FileInfo, err error) {
 	return NewS3FileInfo(objectInfo), nil
 }
 
-func (c *S3Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+func (c *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
 		return errors.New("This is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
@@ -135,11 +135,11 @@ func (c *S3Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 	return err
 }
 
-func (c *S3Client) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
+func (c *Client) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
 	return c.CreateNode(ctx, node, true)
 }
 
-func (c *S3Client) DeleteNode(ctx context.Context, path string) (err error) {
+func (c *Client) DeleteNode(ctx context.Context, path string) (err error) {
 	path = c.getFullPath(path)
 
 	doneChan := make(chan struct{})
@@ -154,7 +154,7 @@ func (c *S3Client) DeleteNode(ctx context.Context, path string) (err error) {
 	return err
 }
 
-func (c *S3Client) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
+func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 
 	doneChan := make(chan struct{})
 	defer close(doneChan)
@@ -175,7 +175,7 @@ func (c *S3Client) MoveNode(ctx context.Context, oldPath string, newPath string)
 
 }
 
-func (c *S3Client) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
+func (c *Client) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
 
 	path = c.getFullPath(path)
 	reader, out := io.Pipe()
@@ -187,13 +187,13 @@ func (c *S3Client) GetWriterOn(path string, targetSize int64) (out io.WriteClose
 
 }
 
-func (c *S3Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
+func (c *Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
 
 	return c.Mc.GetObject(c.Bucket, c.getFullPath(path), minio.GetObjectOptions{})
 
 }
 
-func (c *S3Client) ComputeChecksum(node *tree.Node) error {
+func (c *Client) ComputeChecksum(node *tree.Node) error {
 	p := c.getFullPath(node.GetPath())
 	if newInfo, err := c.s3forceComputeEtag(minio.ObjectInfo{Key: p}); err == nil {
 		node.Etag = strings.Trim(newInfo.ETag, "\"")
@@ -203,7 +203,7 @@ func (c *S3Client) ComputeChecksum(node *tree.Node) error {
 	return nil
 }
 
-func (c *S3Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+func (c *Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 
 	ctx := context.Background()
 	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
@@ -229,7 +229,7 @@ func (c *S3Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 	return c.actualLsRecursive(c.getFullPath(root), wrappingFunc)
 }
 
-func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path string, info *S3FileInfo, err error) error) (err error) {
+func (c *Client) actualLsRecursive(recursivePath string, walknFc func(path string, info *S3FileInfo, err error) error) (err error) {
 	doneChan := make(chan struct{})
 	defer close(doneChan)
 	createdDirs := make(map[string]bool)
@@ -270,7 +270,7 @@ func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path str
 }
 
 // Will try to create PYDIO_SYNC_HIDDEN_FILE_META to avoid missing empty folders
-func (c *S3Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
+func (c *Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
 
 	parts := strings.Split(currentDir, "/")
 	max := len(parts)
@@ -303,7 +303,7 @@ func (c *S3Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walk
 
 }
 
-func (c *S3Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectInfo, error) {
+func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectInfo, error) {
 
 	var destinationInfo minio.DestinationInfo
 	var sourceInfo minio.SourceInfo
@@ -324,7 +324,7 @@ func (c *S3Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.Object
 
 }
 
-func (c *S3Client) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (c *Client) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
 	var hash, uid string = "", ""
 	var isLeaf bool = false
 	var metaSize int64
@@ -368,7 +368,7 @@ func (c *S3Client) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 }
 
 // UpdateNodeUuid makes this endpoint an UuidReceiver
-func (c *S3Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
+func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
 
 	var uid string
 	if node.Uuid != "" {
@@ -397,7 +397,7 @@ func (c *S3Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.N
 
 }
 
-func (c *S3Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag string, metaSize int64, e error) {
+func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag string, metaSize int64, e error) {
 	if leaf {
 		return c.getFileHash(c.getFullPath(path))
 	} else {
@@ -406,7 +406,7 @@ func (c *S3Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag s
 	}
 }
 
-func (c *S3Client) readOrCreateFolderId(folderPath string) (uid string, created minio.ObjectInfo, e error) {
+func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created minio.ObjectInfo, e error) {
 
 	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
 	object, err := c.Mc.GetObject(c.Bucket, hiddenPath, minio.GetObjectOptions{})
@@ -439,7 +439,7 @@ func (c *S3Client) readOrCreateFolderId(folderPath string) (uid string, created 
 
 }
 
-func (c *S3Client) getFileHash(path string) (uid string, hash string, metaSize int64, e error) {
+func (c *Client) getFileHash(path string) (uid string, hash string, metaSize int64, e error) {
 	metaSize = -1
 	objectInfo, e := c.Mc.StatObject(c.Bucket, path, minio.StatObjectOptions{})
 	if e != nil {
@@ -464,7 +464,7 @@ func (c *S3Client) getFileHash(path string) (uid string, hash string, metaSize i
 	return uid, etag, metaSize, nil
 }
 
-func (c *S3Client) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
 	errorChan := make(chan error)
@@ -642,7 +642,7 @@ func stripCloseParameters(do bool, params map[string]string) map[string]string {
 	return newParams
 }
 
-func (c *S3Client) isIgnoredFile(path string, record ...minio.NotificationEvent) bool {
+func (c *Client) isIgnoredFile(path string, record ...minio.NotificationEvent) bool {
 	if len(record) > 0 && strings.Contains(record[0].Source.UserAgent, UserAgentAppName) {
 		return true
 	}

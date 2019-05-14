@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,6 +18,6 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package endpoints provides implementations of various synchronization endpoints
-// Currently supported are FS, S3 and in-memory DB
-package endpoints
+// Package snapshot provides fast in-memory or on-file implementations of endpoint
+// for storing snapshots
+package snapshot
