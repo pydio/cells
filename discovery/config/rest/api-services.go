@@ -236,7 +236,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	}
 	touched, e := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: touchFile}, selectorOption)
 	if e != nil {
-		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder (%s) is writeable by the application")
+		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder (%s) is writeable by the application", parentName)
 	} else {
 		if _, er := wCl.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: touched.Node}, selectorOption); er != nil {
 			log.Logger(ctx).Error("Could not delete tmp file written when creating datasource on peer " + newSource.PeerAddress)
