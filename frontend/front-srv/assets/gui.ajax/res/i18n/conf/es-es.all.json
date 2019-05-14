@@ -9,13 +9,13 @@
     "other": "Mensaje adicional que se muestra en la pantalla de inicio"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "Dominio de Análisis"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "Eventos de análisis"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "ID de Análisis"
   },
   "Append a title to the image logo": {
     "other": "Añadir título al logo"
@@ -93,10 +93,10 @@
     "other": "Muestra la Herramienta de Estilo"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "Habilitar Tour de Bienvenida"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "Habilitar la activación del tour de bienvenida breve en primera visita"
   },
   "Fetch Window (no repeat)": {
     "other": "No repetir"
@@ -111,13 +111,13 @@
     "other": "Google Analytics"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "Dominio de análisis de Google Analytics"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "Eventos de análisis de Google Analytics"
   },
   "Google Analytics Analytics ID": {
-    "other": "Google Analytics Analytics ID"
+    "other": "ID de Análisis Google Analytics"
   },
   "Height of the custom icon (with the px mention)": {
     "other": "Altura del icono (en px)"
@@ -180,7 +180,7 @@
     "other": "Ajusta la posición superior del logo"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Minisitio"
   },
   "Minisite Logo": {
     "other": "Logo de Minisitio"
@@ -204,7 +204,7 @@
     "other": "Configura el dominio para Analytics (no es necesario)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Establecer el dominio para sus informes de análisis (¡no obligatorio!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
     "other": "Configura los parámetros de algunas aplicaciones. Si activas Emails, usa el botón Test para comprobar la configuración de PHP."
@@ -270,9 +270,9 @@
     "other": "Anchura de la imagen personalizada (por defecto 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "Alerta al usuario de que la sesión web está a punto de expirar. Número de minutos antes de la expiración de la sesión"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "Advertencia antes de que expire de la sesión"
   }
 }
