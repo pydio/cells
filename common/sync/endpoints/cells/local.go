@@ -54,12 +54,14 @@ type Local struct {
 
 // NewLocal creates a new instance of a Local endpoint
 func NewLocal(root string, options Options) *Local {
-	localRouterOnce.Do(func() {
-		natsregistry.Enable()
-		natsbroker.Enable()
-		grpctransport.Enable()
-		registry.Init()
-	})
+	if options.LocalInitRegistry {
+		localRouterOnce.Do(func() {
+			natsregistry.Enable()
+			natsbroker.Enable()
+			grpctransport.Enable()
+			registry.Init()
+		})
+	}
 	l := &Local{
 		abstract: abstract{
 			root:       strings.TrimLeft(root, "/"),

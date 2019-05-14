@@ -58,6 +58,13 @@ type clientProviderFactory interface {
 	GetObjectsClient(context.Context) (context.Context, objectsClient, error)
 }
 
+type Options struct {
+	// If router is started in an independant process, call basic initialization to connect to registry.
+	LocalInitRegistry bool
+	// If a sync is connecting two endpoint of a same server, we have to make sure to avoid Uuid collision
+	RenewFolderUuids bool
+}
+
 type abstract struct {
 	sync.Mutex
 	factory clientProviderFactory
@@ -472,8 +479,4 @@ func (nw *NoopWriter) Write(p []byte) (n int, err error) {
 
 func (nw *NoopWriter) Close() error {
 	return nil
-}
-
-type Options struct {
-	RenewFolderUuids bool
 }
