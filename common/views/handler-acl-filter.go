@@ -131,7 +131,7 @@ func (a *AclFilterHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRe
 		return nil, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return nil, errors.Forbidden("parent.not.writeable", "Target Location is not writeable")
+		return nil, errors.Forbidden("parent.not.writeable", "Target Location is not writeable (CreateNode)")
 	}
 	return a.next.CreateNode(ctx, in, opts...)
 }
@@ -222,7 +222,7 @@ func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *
 		return 0, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Location is not writeable")
+		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Location is not writeable (CopyObject)")
 	}
 	return a.next.CopyObject(ctx, from, to, requestData)
 }

@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
 	context2 "github.com/pydio/cells/common/utils/context"
 )
 
@@ -445,6 +446,13 @@ func (e *Executor) MultipartListObjectParts(ctx context.Context, target *tree.No
 	}
 	s3Path := e.buildS3Path(info, target)
 	return info.Client.ListObjectPartsWithContext(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, maxParts)
+}
+
+func (e *Executor) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...client.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
+
+	cli := tree.NewNodeChangesStreamerClient(registry.GetClient(common.SERVICE_TREE))
+	return cli.StreamChanges(ctx, in, opts...)
+
 }
 
 func (e *Executor) buildS3Path(branchInfo BranchInfo, node *tree.Node) string {

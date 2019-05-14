@@ -231,6 +231,10 @@ func (v *Router) MultipartListObjectParts(ctx context.Context, target *tree.Node
 	return v.handlers[0].MultipartListObjectParts(ctx, target, uploadID, partNumberMarker, maxParts)
 }
 
+func (v *Router) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...client.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
+	return v.handlers[0].StreamChanges(ctx, in, opts...)
+}
+
 // To respect Handler interface
 func (v *Router) SetNextHandler(h Handler)      {}
 func (v *Router) SetClientsPool(p *ClientsPool) {}

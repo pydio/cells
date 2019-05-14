@@ -23,6 +23,7 @@ package views
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -221,4 +222,8 @@ func (h *HandlerMock) MultipartListObjectParts(ctx context.Context, target *tree
 	h.Nodes["in"] = target
 	h.Context = ctx
 	return minio.ListObjectPartsResult{}, nil
+}
+
+func (h *HandlerMock) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...client.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
+	return nil, fmt.Errorf("not.implemented")
 }

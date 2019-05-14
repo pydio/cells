@@ -27,6 +27,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// TODO Switch to Proto encoding instead of json?
 type WrappingStreamer struct {
 	w       *io.PipeWriter
 	r       *io.PipeReader
@@ -77,6 +78,61 @@ func (l *WrappingStreamer) RecvMsg(interface{}) error {
 }
 
 func (l *WrappingStreamer) Close() error {
+	l.closed = true
+	l.w.Close()
+	return nil
+}
+
+type ChangesWrappingStreamer struct {
+	w       *io.PipeWriter
+	r       *io.PipeReader
+	closed  bool
+	recvErr error
+}
+
+func NewChangesWrappingStreamer() *ChangesWrappingStreamer {
+	r, w := io.Pipe()
+
+	return &ChangesWrappingStreamer{
+		w:      w,
+		r:      r,
+		closed: false,
+	}
+}
+
+func (l *ChangesWrappingStreamer) Send(resp *tree.NodeChangeEvent) error {
+	enc := json.NewEncoder(l.w)
+	enc.Encode(resp)
+	return nil
+}
+
+func (l *ChangesWrappingStreamer) SendMsg(interface{}) error {
+	return nil
+}
+
+func (l *ChangesWrappingStreamer) SendError(err error) error {
+	l.recvErr = err
+	return nil
+}
+
+func (l *ChangesWrappingStreamer) Recv() (*tree.NodeChangeEvent, error) {
+	if l.recvErr != nil {
+		return nil, l.recvErr
+	}
+	if l.closed {
+		return nil, io.EOF
+	}
+	resp := &tree.NodeChangeEvent{}
+	dec := json.NewDecoder(l.r)
+	err := dec.Decode(resp)
+	return resp, err
+}
+
+func (l *ChangesWrappingStreamer) RecvMsg(interface{}) error {
+	return nil
+}
+
+func (l *ChangesWrappingStreamer) Close() error {
 	l.closed = true
 	l.w.Close()
 	return nil

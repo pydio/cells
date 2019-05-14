@@ -187,6 +187,61 @@ func (v *AbstractBranchFilter) ListNodes(ctx context.Context, in *tree.ListNodes
 	return s, nil
 }
 
+func (v *AbstractBranchFilter) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...client.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
+
+	ctx, rootPathNode, err := v.inputMethod(ctx, &tree.Node{Path: in.RootPath}, "in")
+	if err != nil {
+		return nil, err
+	}
+	newReq := proto.Clone(in).(*tree.StreamChangesRequest)
+	newReq.RootPath = rootPathNode.Path
+	stream, err := v.next.StreamChanges(ctx, newReq, opts...)
+	if err != nil {
+		return nil, err
+	}
+	s := NewChangesWrappingStreamer()
+	go func() {
+		defer stream.Close()
+		defer s.Close()
+		for {
+			ev, err := stream.Recv()
+			if err != nil {
+				if err != io.EOF && err != io.ErrUnexpectedEOF {
+					s.SendError(err)
+				}
+				break
+			}
+			if ev == nil {
+				continue
+			}
+			event := proto.Clone(ev).(*tree.NodeChangeEvent)
+			if event.Target != nil {
+				if _, out, oE := v.outputMethod(ctx, event.Target, "in"); oE != nil {
+					event.Target = nil
+				} else {
+					event.Target = out
+				}
+			}
+			if event.Source != nil {
+				if _, out, oE := v.outputMethod(ctx, event.Source, "in"); oE != nil {
+					event.Source = nil
+				} else {
+					event.Source = out
+				}
+			}
+			if event.Target == nil && event.Source == nil {
+				continue
+			} else if event.Target == nil && event.Type != tree.NodeChangeEvent_DELETE {
+				event.Type = tree.NodeChangeEvent_DELETE
+			} else if event.Source == nil && event.Type != tree.NodeChangeEvent_CREATE {
+				event.Type = tree.NodeChangeEvent_CREATE
+			}
+			s.Send(event)
+		}
+	}()
+	return s, nil
+}
+
 func (v *AbstractBranchFilter) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...client.CallOption) (*tree.UpdateNodeResponse, error) {
 	ctx, out, err := v.inputMethod(ctx, in.From, "from")
 	if err != nil {

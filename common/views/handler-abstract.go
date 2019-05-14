@@ -115,6 +115,14 @@ func (a *AbstractHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeReq
 	return a.next.DeleteNode(ctx, in, opts...)
 }
 
+func (a *AbstractHandler) StreamChanges(ctx context.Context, in *tree.StreamChangesRequest, opts ...client.CallOption) (tree.NodeChangesStreamer_StreamChangesClient, error) {
+	ctx, err := a.wrapContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return a.next.StreamChanges(ctx, in, opts...)
+}
+
 func (a *AbstractHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
 	ctx, err := a.wrapContext(ctx)
 	if err != nil {

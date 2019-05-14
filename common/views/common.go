@@ -111,6 +111,7 @@ type NodesCallback func(inputFilter NodeFilter, outputFilter NodeFilter) error
 type Handler interface {
 	tree.NodeProviderClient
 	tree.NodeReceiverClient
+	tree.NodeChangesStreamerClient
 	GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error)
 	PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error)
 	CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error)
@@ -179,10 +180,12 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 		}
 	}
 	searchFunc := tree.BuildAncestorsList
+	n := node.Clone()
 	if orParents {
+		n.Uuid = "" // Make sure to look by path
 		searchFunc = tree.BuildAncestorsListOrParent
 	}
-	if parents, err := searchFunc(ctx, p.GetTreeClient(), node); err != nil {
+	if parents, err := searchFunc(ctx, p.GetTreeClient(), n); err != nil {
 		return ctx, nil, err
 	} else {
 		if hasBranchInfo {
