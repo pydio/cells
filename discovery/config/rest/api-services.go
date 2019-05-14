@@ -112,7 +112,7 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 
 }
 
-// List folders on a given peer to configure a local folder datasource
+// ListPeerFolders lists folders on a given peer to configure a local folder datasource.
 func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) {
 
 	var listReq rest.ListPeerFoldersRequest
@@ -145,7 +145,7 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 
 }
 
-// ListProcesses List running Processes from registry, with option PeerId or ServiceName filter
+// ListProcesses lists running Processes from registry, with option PeerId or ServiceName filter.
 func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 
 	var listReq rest.ListProcessesRequest
@@ -236,7 +236,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	}
 	touched, e := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: touchFile}, selectorOption)
 	if e != nil {
-		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder ("+parentName+") is writeable by the application")
+		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder (%s) is writeable by the application", parentName)
 	} else {
 		if _, er := wCl.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: touched.Node}, selectorOption); er != nil {
 			log.Logger(ctx).Error("Could not delete tmp file written when creating datasource on peer " + newSource.PeerAddress)
@@ -246,8 +246,8 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	return nil
 }
 
-// Start Stop services
-func (s *Handler) ControlService(req *restful.Request, resp *restful.Response) {
+// ControlService is a leagcy method that does not do anything. Should be removed.
+func (h *Handler) ControlService(req *restful.Request, resp *restful.Response) {
 
 	// var ctrlRequest rest.ControlServiceRequest
 	// if err := req.ReadEntity(&ctrlRequest); err != nil {
@@ -282,8 +282,8 @@ func (s *Handler) ControlService(req *restful.Request, resp *restful.Response) {
 
 }
 
-// Transform a service object to proto message
-func (s *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service {
+// serviceToRest transforms a service object to a proto message.
+func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service {
 	status := ctl.ServiceStatus_STOPPED
 	if running {
 		status = ctl.ServiceStatus_STARTED

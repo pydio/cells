@@ -72,7 +72,7 @@ func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, op
 			}
 		}
 	}
-	return nil, errors.NotFound(common.SERVICE_DATA_INDEX_, "Node not found", 404)
+	return nil, errors.NotFound(common.SERVICE_DATA_INDEX_, "Node not found")
 
 }
 
