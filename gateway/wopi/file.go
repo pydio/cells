@@ -29,6 +29,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -48,6 +49,7 @@ type File struct {
 	Version          string
 	UserFriendlyName string
 	UserCanWrite     bool
+	LastModifiedTime string
 	PydioPath        string
 }
 
@@ -133,11 +135,12 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 func buildFileFromNode(ctx context.Context, n *tree.Node) *File {
 
 	f := File{
-		BaseFileName: n.GetStringMeta("name"),
-		OwnerId:      "pydio", // TODO get an ownerID?
-		Size:         n.GetSize(),
-		Version:      fmt.Sprintf("%d", n.GetModTime().Unix()),
-		PydioPath:    n.Path,
+		BaseFileName:     n.GetStringMeta("name"),
+		OwnerId:          "pydio", // TODO get an ownerID?
+		Size:             n.GetSize(),
+		Version:          fmt.Sprintf("%d", n.GetModTime().Unix()),
+		LastModifiedTime: n.GetModTime().Format(time.RFC3339),
+		PydioPath:        n.Path,
 	}
 
 	// Find user info in claims, if any
