@@ -122,26 +122,12 @@ func ConvertUserApiToIdentity(idmUser *idm.User, authSourceName string) (ident c
 		email = ""
 	}
 
-	displayName, ok := idmUser.Attributes["displayName"]
-	if !ok {
-		displayName = ""
-	}
-
-	profile, ok := idmUser.Attributes["profile"]
-	if !ok {
-		profile = "standard"
-	}
-
 	return connector.Identity{
 		UserID:        idmUser.Uuid,
 		Username:      idmUser.Login,
 		Email:         email,
 		EmailVerified: true,
 		Groups:        []string{},
-		AuthSource:    authSourceName,
-		DisplayName:   displayName,
-		GroupPath:     idmUser.GetGroupPath(),
-		Profile:       profile,
 	}
 }
 
