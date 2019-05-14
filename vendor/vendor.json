@@ -3306,18 +3306,6 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
-			"checksumSHA1": "v7JvA8xYrYPkgol6XU29z2aPvcQ=",
-			"path": "github.com/pydio/cells-sdk-go",
-			"revision": "e99a049421d6897910d60a0cbbfc39a71362187d",
-			"revisionTime": "2019-05-14T15:27:13Z"
-		},
-		{
-			"checksumSHA1": "3w5nYk0cFW3e05dhOwnMFNXksac=",
-			"path": "github.com/pydio/cells-sdk-go/transport",
-			"revision": "e99a049421d6897910d60a0cbbfc39a71362187d",
-			"revisionTime": "2019-05-14T15:27:13Z"
-		},
-		{
 			"checksumSHA1": "fYA/Rl0HUmTWPs8Vvwfr4m+ow9M=",
 			"path": "github.com/pydio/config-srv/config",
 			"revision": "64a62c922b843136452584805c96bd9ae3f98347",
