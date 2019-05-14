@@ -110,8 +110,6 @@ func (p *pydioAPIConnector) loadUserInfo(ctx context.Context, identity *connecto
 		roles = append(roles, response.GetRole().GetUuid())
 	}
 
-	identity.Roles = roles
-
 	return nil
 }
 

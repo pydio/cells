@@ -139,7 +139,7 @@ func buildFileFromNode(ctx context.Context, n *tree.Node) *File {
 		OwnerId:          "pydio", // TODO get an ownerID?
 		Size:             n.GetSize(),
 		Version:          fmt.Sprintf("%d", n.GetModTime().Unix()),
-		LastModifiedTime: fmt.Sprintf("%d", n.GetModTime().Format(time.RFC3339)),
+		LastModifiedTime: n.GetModTime().Format(time.RFC3339),
 		PydioPath:        n.Path,
 	}
 

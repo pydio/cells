@@ -36,15 +36,6 @@ type Identity struct {
 
 	Groups []string
 
-	// Additional claims for Pydio
-	// To be added
-	//Uuid 			string
-	AuthSource  string
-	DisplayName string
-	Profile 	string
-	Roles       []string
-	GroupPath   string
-
 	// ConnectorData holds data used by the connector for subsequent requests after initial
 	// authentication, such as access tokens for upstream provides.
 	//
@@ -125,21 +116,6 @@ func SetAttribute(i *Identity, attName string, attVal []string) (err error) {
 		i.Email = attVal[0]
 		//case "EmailVerified":
 		//	i.EmailVerified = true
-	case "AuthSource":
-		i.AuthSource = attVal[0]
-	case "DisplayName":
-		i.DisplayName = attVal[0]
-	case "GroupPath":
-		i.GroupPath = attVal[0]
-	case "Profile":
-		i.Profile = attVal[0]
-
-	case "Roles":
-		if len(attVal) > 0 {
-			for _, val := range attVal {
-				i.Roles = append(i.Roles, strings.TrimSpace(val))
-			}
-		}
 	default:
 	}
 	return nil

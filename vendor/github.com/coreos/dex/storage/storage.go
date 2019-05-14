@@ -143,8 +143,8 @@ type Client struct {
 	IdTokensExpiry string `json:"IdTokensExpiry" yaml:"IdTokensExpiry"`
 
 	// Additional constraints on refresh tokens and how they are garbage collected
-	RefreshTokensExpiry string `json:"RefreshTokensExpiry" yaml:"RefreshTokensExpiry"`
-	OfflineSessionsSliding bool `json:"OfflineSessionsSliding"`
+	RefreshTokensExpiry    string `json:"RefreshTokensExpiry" yaml:"RefreshTokensExpiry"`
+	OfflineSessionsSliding bool   `json:"OfflineSessionsSliding"`
 }
 
 // Claims represents the ID Token claims supported by the server.
@@ -237,8 +237,6 @@ type AuthCode struct {
 	ConnectorID   string
 	ConnectorData []byte
 	Claims        Claims
-	// Additional claims for Pydio
-	PClaims PydioClaims
 
 	Expiry time.Time
 }

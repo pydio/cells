@@ -712,10 +712,10 @@
 			"revisionTime": "2018-03-19T02:42:43Z"
 		},
 		{
-			"checksumSHA1": "gJqPpMcZ+8pC1D1dMIvnO09vO6w=",
+			"checksumSHA1": "SF0rewA3MFeqWP80Lnkhin9eJ5k=",
 			"path": "github.com/coreos/dex",
-			"revision": "ccc655d04a4252d135b951565dcf3102f20cdb4c",
-			"revisionTime": "2019-02-27T14:54:11Z"
+			"revision": "f6741d18376fbc8d71aef29d6e709f5400654bec",
+			"revisionTime": "2019-03-05T22:49:02Z"
 		},
 		{
 			"checksumSHA1": "0a1SxY6u2ChUk16fhbO3pcFf41M=",
