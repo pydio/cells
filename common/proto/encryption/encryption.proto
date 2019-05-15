@@ -118,6 +118,7 @@ message AdminCreateKeyResponse {
 service NodeKeyManager {
     rpc GetNodeInfo (GetNodeInfoRequest) returns (GetNodeInfoResponse);
     rpc SetNodeInfo (stream SetNodeInfoRequest) returns (SetNodeInfoResponse);
+    rpc CopyNodeInfo (CopyNodeInfoRequest) returns (CopyNodeInfoResponse);
 
     rpc DeleteNode (DeleteNodeRequest) returns (DeleteNodeResponse);
     rpc DeleteNodeKey (DeleteNodeKeyRequest) returns (DeleteNodeKeyResponse);
@@ -130,15 +131,18 @@ message NodeKey {
     string OwnerId = 3;
     bytes KeyData = 6;
 }
+
 message Node {
     string NodeId = 1;
     bool Legacy = 2;
 }
+
 message NodeInfo {
     Node Node = 1;
     NodeKey NodeKey = 2;
     Block Block = 3;
 }
+
 message Block {
     string OwnerId = 1;
     uint32 PartId = 2;
@@ -148,6 +152,15 @@ message Block {
     bytes Nonce = 6;
 }
 
+message RangedBlock {
+    string OwnerId = 1;
+    uint32 PartId = 2;
+    uint32 SeqStart = 3;
+    uint32 SeqEnd = 4;
+    uint32 HeaderSize = 5;
+    uint32 BlockSize = 6;
+}
+
 message GetNodeInfoRequest {
     string UserId = 1;
     string NodeId = 2;
@@ -155,6 +168,7 @@ message GetNodeInfoRequest {
     int64 PlainOffset = 4;
     int64 PlainLength = 5;
 }
+
 message GetNodeInfoResponse {
     NodeInfo NodeInfo = 1;
     int64 HeadSKippedPlainBytesCount = 2;
@@ -164,12 +178,15 @@ message GetNodeInfoResponse {
 }
 
 message SetNodeInfoRequest {
-    string NodeId = 1;
-    NodeKey NodeKey = 2;
-    Block Block = 3;
+    string action = 1;
+    SetNodeKeyRequest SetNodeKey = 2;
+    SetNodeBlockRequest SetBlock = 3;
 }
-message SetNodeInfoResponse {
 
+message SetNodeInfoResponse {
+    string ErrorText = 1;
+    SetNodeKeyResponse SetNodeKey = 2;
+    SetNodeBlockResponse SetBlock = 3;
 }
 
 message DeleteNodeRequest {
@@ -190,3 +207,20 @@ message DeleteNodeSharedKeyRequest {
     string NodeId = 3;
 }
 message DeleteNodeSharedKeyResponse {}
+
+message SetNodeKeyRequest {
+    NodeKey NodeKey = 1;
+}
+message SetNodeKeyResponse {}
+
+message SetNodeBlockRequest {
+    string NodeUuid = 1;
+    Block Block = 2;
+}
+message SetNodeBlockResponse {}
+
+message CopyNodeInfoRequest {
+    string NodeUuid = 1;
+    string NodeCopyUuid = 2;
+}
+message CopyNodeInfoResponse {}

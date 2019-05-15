@@ -140,6 +140,9 @@ func (this *NodeInfo) Validate() error {
 func (this *Block) Validate() error {
 	return nil
 }
+func (this *RangedBlock) Validate() error {
+	return nil
+}
 func (this *GetNodeInfoRequest) Validate() error {
 	return nil
 }
@@ -152,19 +155,29 @@ func (this *GetNodeInfoResponse) Validate() error {
 	return nil
 }
 func (this *SetNodeInfoRequest) Validate() error {
-	if this.NodeKey != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.NodeKey); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("NodeKey", err)
+	if this.SetNodeKey != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SetNodeKey); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SetNodeKey", err)
 		}
 	}
-	if this.Block != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Block); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Block", err)
+	if this.SetBlock != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SetBlock); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SetBlock", err)
 		}
 	}
 	return nil
 }
 func (this *SetNodeInfoResponse) Validate() error {
+	if this.SetNodeKey != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SetNodeKey); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SetNodeKey", err)
+		}
+	}
+	if this.SetBlock != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SetBlock); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SetBlock", err)
+		}
+	}
 	return nil
 }
 func (this *DeleteNodeRequest) Validate() error {
@@ -183,5 +196,33 @@ func (this *DeleteNodeSharedKeyRequest) Validate() error {
 	return nil
 }
 func (this *DeleteNodeSharedKeyResponse) Validate() error {
+	return nil
+}
+func (this *SetNodeKeyRequest) Validate() error {
+	if this.NodeKey != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.NodeKey); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("NodeKey", err)
+		}
+	}
+	return nil
+}
+func (this *SetNodeKeyResponse) Validate() error {
+	return nil
+}
+func (this *SetNodeBlockRequest) Validate() error {
+	if this.Block != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Block); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Block", err)
+		}
+	}
+	return nil
+}
+func (this *SetNodeBlockResponse) Validate() error {
+	return nil
+}
+func (this *CopyNodeInfoRequest) Validate() error {
+	return nil
+}
+func (this *CopyNodeInfoResponse) Validate() error {
 	return nil
 }

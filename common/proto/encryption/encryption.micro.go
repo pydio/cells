@@ -30,6 +30,7 @@ It has these top-level messages:
 	Node
 	NodeInfo
 	Block
+	RangedBlock
 	GetNodeInfoRequest
 	GetNodeInfoResponse
 	SetNodeInfoRequest
@@ -40,6 +41,12 @@ It has these top-level messages:
 	DeleteNodeKeyResponse
 	DeleteNodeSharedKeyRequest
 	DeleteNodeSharedKeyResponse
+	SetNodeKeyRequest
+	SetNodeKeyResponse
+	SetNodeBlockRequest
+	SetNodeBlockResponse
+	CopyNodeInfoRequest
+	CopyNodeInfoResponse
 */
 package encryption
 
@@ -222,6 +229,7 @@ func (h *UserKeyStore) AdminImportKey(ctx context.Context, in *AdminImportKeyReq
 type NodeKeyManagerClient interface {
 	GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest, opts ...client.CallOption) (*GetNodeInfoResponse, error)
 	SetNodeInfo(ctx context.Context, opts ...client.CallOption) (NodeKeyManager_SetNodeInfoClient, error)
+	CopyNodeInfo(ctx context.Context, in *CopyNodeInfoRequest, opts ...client.CallOption) (*CopyNodeInfoResponse, error)
 	DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...client.CallOption) (*DeleteNodeResponse, error)
 	DeleteNodeKey(ctx context.Context, in *DeleteNodeKeyRequest, opts ...client.CallOption) (*DeleteNodeKeyResponse, error)
 	DeleteNodeSharedKey(ctx context.Context, in *DeleteNodeSharedKeyRequest, opts ...client.CallOption) (*DeleteNodeSharedKeyResponse, error)
@@ -291,6 +299,16 @@ func (x *nodeKeyManagerSetNodeInfoClient) Send(m *SetNodeInfoRequest) error {
 	return x.stream.Send(m)
 }
 
+func (c *nodeKeyManagerClient) CopyNodeInfo(ctx context.Context, in *CopyNodeInfoRequest, opts ...client.CallOption) (*CopyNodeInfoResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.CopyNodeInfo", in)
+	out := new(CopyNodeInfoResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *nodeKeyManagerClient) DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...client.CallOption) (*DeleteNodeResponse, error) {
 	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.DeleteNode", in)
 	out := new(DeleteNodeResponse)
@@ -326,6 +344,7 @@ func (c *nodeKeyManagerClient) DeleteNodeSharedKey(ctx context.Context, in *Dele
 type NodeKeyManagerHandler interface {
 	GetNodeInfo(context.Context, *GetNodeInfoRequest, *GetNodeInfoResponse) error
 	SetNodeInfo(context.Context, NodeKeyManager_SetNodeInfoStream) error
+	CopyNodeInfo(context.Context, *CopyNodeInfoRequest, *CopyNodeInfoResponse) error
 	DeleteNode(context.Context, *DeleteNodeRequest, *DeleteNodeResponse) error
 	DeleteNodeKey(context.Context, *DeleteNodeKeyRequest, *DeleteNodeKeyResponse) error
 	DeleteNodeSharedKey(context.Context, *DeleteNodeSharedKeyRequest, *DeleteNodeSharedKeyResponse) error
@@ -376,6 +395,10 @@ func (x *nodeKeyManagerSetNodeInfoStream) Recv() (*SetNodeInfoRequest, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func (h *NodeKeyManager) CopyNodeInfo(ctx context.Context, in *CopyNodeInfoRequest, out *CopyNodeInfoResponse) error {
+	return h.NodeKeyManagerHandler.CopyNodeInfo(ctx, in, out)
 }
 
 func (h *NodeKeyManager) DeleteNode(ctx context.Context, in *DeleteNodeRequest, out *DeleteNodeResponse) error {
