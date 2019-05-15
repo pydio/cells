@@ -141,7 +141,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 
 // PutObject enriches request metadata for PutObject with Encryption Materials, if required by datasource.
 func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
-
+	fmt.Println("[HANDLER ENCRYPT] > Put Object")
 	if strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
 		return e.next.PutObject(ctx, node, reader, requestData)
 	}
@@ -179,8 +179,19 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 		return 0, err
 	}
 
-	createdNodeInfo := false
 	var plainEncryptionKey []byte
+
+	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
+	if err != nil {
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to save node encryption info", zap.Error(err))
+		return 0, err
+	}
+	streamer := &setBlockStream{
+		client:   streamClient,
+		nodeUuid: clone.Uuid,
+		keySent:  false,
+		ctx:      ctx,
+	}
 
 	info, err := e.getNodeInfoForWrite(ctx, clone)
 	if err != nil {
@@ -203,24 +214,16 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to encrypt node key", zap.Error(err))
 			return 0, err
 		}
-		createdNodeInfo = true
+		err = streamer.SendKey(info.NodeKey)
+		if err != nil {
+			log.Logger(ctx).Error("failed to set nodeKey", zap.Error(err))
+			return 0, err
+		}
 	} else {
 		plainEncryptionKey, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
 	}
 
-	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
-	if err != nil {
-		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to save node encryption info", zap.Error(err))
-		return 0, err
-	}
-
-	encryptionMaterials := crypto.NewAESGCMMaterials(plainEncryptionKey, info, &setBlockStream{
-		client:          streamClient,
-		nodeUuid:        clone.Uuid,
-		shouldSaveInfo:  createdNodeInfo,
-		sentInfoWithKey: false,
-		info:            info,
-	})
+	encryptionMaterials := crypto.NewAESGCMMaterials(plainEncryptionKey, info, streamer)
 	if err := encryptionMaterials.SetupEncryptMode(reader); err != nil {
 		return 0, err
 	}
@@ -278,7 +281,7 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 		requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", cloneFrom.Size)
 		l, er := e.next.CopyObject(ctx, from, to, requestData)
 		if er == nil {
-			err := e.copyEncryptionMaterials(ctx, cloneFrom, cloneTo)
+			err := e.copyNodeEncryptionData(ctx, cloneFrom, cloneTo)
 			if err == nil {
 				er = err
 			}
@@ -293,7 +296,7 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 		if readErr != nil {
 			return 0, readErr
 		} else if rsp.Node == nil {
-			return 0, fmt.Errorf("empty node returned")
+			return 0, fmt.Errorf("no node found that matches %s", cloneFrom)
 		}
 		cloneFrom = rsp.Node
 		reader, err := e.GetObject(readCtx, cloneFrom, &GetRequestData{StartOffset: 0, Length: cloneFrom.Size})
@@ -328,7 +331,102 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 		}
 		return oi, err
 	}
+}
 
+func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+	var err error
+	branchInfo, ok := GetBranchInfo(ctx, "in")
+	if !ok || branchInfo.EncryptionMode != object.EncryptionMode_MASTER {
+		return e.next.MultipartCreate(ctx, target, requestData)
+	}
+
+	clone := target.Clone()
+	if len(clone.Uuid) == 0 {
+		rsp, readErr := e.next.ReadNode(ctx, &tree.ReadNodeRequest{
+			Node: target,
+		})
+
+		if readErr != nil {
+			return "", errors.NotFound("views.Handler.encryption", "failed to get node UUID: %s", readErr)
+		}
+
+		if len(rsp.Node.Uuid) == 0 {
+			return "", errors.NotFound("views.Handler.encryption", "failed to get node UUID")
+		}
+		clone.Uuid = rsp.Node.Uuid
+	}
+	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create:", zap.String("UUID", clone.Uuid), zap.String("Path", clone.Path))
+
+	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	if dsName == "" {
+		_ = clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, branchInfo.Name)
+	}
+
+	keyProtectionTool, err := e.getKeyProtectionTool(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	var plainEncryptionKey []byte
+
+	info, err := e.getNodeInfoForWrite(ctx, clone)
+	if err != nil {
+		pe := errors.Parse(err.Error())
+		if pe.Code != 404 {
+			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to get Multi Part  node info", zap.Error(err))
+			return "", err
+		}
+
+		log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: New node: creating node info")
+		info, err = e.createNodeInfo(ctx, clone)
+		if err != nil {
+			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to create Multi Part  node info", zap.Error(err))
+			return "", err
+		}
+
+		log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Protecting key")
+		plainEncryptionKey = info.NodeKey.KeyData
+		info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, plainEncryptionKey)
+		if err != nil {
+			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to encrypt Multi Part  node key", zap.Error(err))
+			return "", err
+		}
+	} else {
+		return e.next.MultipartCreate(ctx, target, requestData)
+	}
+
+	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
+	if err != nil {
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to save Multi Part node encryption info", zap.Error(err))
+		return "", err
+	}
+
+	nodeBlocksStreamer := &setBlockStream{
+		client:   streamClient,
+		nodeUuid: clone.Uuid,
+		keySent:  false,
+		ctx:      ctx,
+	}
+
+	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Sending key to encryption meta service")
+	err = nodeBlocksStreamer.SendKey(info.NodeKey)
+	if err != nil {
+		log.Logger(ctx).Error("failed to create nodeInfo", zap.Error(err))
+		return "", err
+	}
+
+	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Protecting key")
+	if err := nodeBlocksStreamer.Close(); err != nil {
+		log.Logger(ctx).Error("failed to close setNodeInfo stream", zap.Error(err))
+	}
+
+	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Node info created!")
+	str, err := e.next.MultipartCreate(ctx, target, requestData)
+	if err != nil {
+		log.Logger(ctx).Error("Handler encrypt pultipart Create NEXT FAILED", zap.Error(err))
+	}
+
+	return str, err
 }
 
 func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
@@ -354,7 +452,7 @@ func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *
 		clone.Uuid = rsp.Node.Uuid
 	}
 
-	log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Put Multi Part Object", zap.String("UUID", clone.Uuid), zap.String("Path", clone.Path))
+	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart put", zap.String("UUID", clone.Uuid), zap.String("Path", clone.Path))
 
 	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	if dsName == "" {
@@ -366,81 +464,57 @@ func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *
 		return minio.ObjectPart{}, err
 	}
 
-	createdNodeInfo := false
-	var plainEncryptionKey []byte
-
-	info, err := e.getNodeInfoForWrite(ctx, clone)
-	if err != nil {
-		pe := errors.Parse(err.Error())
-		if pe.Code != 404 {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to get Multi Part  node info", zap.Error(err))
-			return minio.ObjectPart{}, err
-		}
-
-		log.Logger(ctx).Info("[HANDLER ENCRYPT] > New node: creating node info")
-		info, err = e.createNodeInfo(ctx, clone)
-		if err != nil {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to create Multi Part  node info", zap.Error(err))
-			return minio.ObjectPart{}, err
-		}
-
-		plainEncryptionKey = info.NodeKey.KeyData
-		info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, plainEncryptionKey)
-		if err != nil {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to encrypt Multi Part  node key", zap.Error(err))
-			return minio.ObjectPart{}, err
-		}
-		createdNodeInfo = true
-	} else {
-		plainEncryptionKey, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
-	}
-
 	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
 	if err != nil {
-		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to save Multi Part node encryption info", zap.Error(err))
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart put: Failed to save node encryption info", zap.Error(err))
 		return minio.ObjectPart{}, err
 	}
 
-	encryptionMaterials := crypto.NewAESGCMMaterials(plainEncryptionKey, info, &setBlockStream{
-		client:          streamClient,
-		nodeUuid:        clone.Uuid,
-		shouldSaveInfo:  createdNodeInfo,
-		sentInfoWithKey: false,
-		info:            info,
-		partId:          uint32(partNumberMarker),
-	})
+	nodeBlocksStreamer := &setBlockStream{
+		client:   streamClient,
+		nodeUuid: clone.Uuid,
+		keySent:  true,
+		partId:   uint32(partNumberMarker),
+		ctx:      ctx,
+	}
+	info, err := e.getNodeInfoForWrite(ctx, clone)
+	if err != nil {
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart put: Failed to get node info", zap.Error(err))
+		return minio.ObjectPart{}, err
+	}
+
+	plainEncryptionKey, err := keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
+	if err != nil {
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart put: Failed to unseal key", zap.Error(err))
+		return minio.ObjectPart{}, err
+	}
+
+	encryptionMaterials := crypto.NewAESGCMMaterials(plainEncryptionKey, info, nodeBlocksStreamer)
 	if err := encryptionMaterials.SetupEncryptMode(reader); err != nil {
 		return minio.ObjectPart{}, err
 	}
 
-	requestData.Size = -1
+	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size)
 	requestData.Md5Sum = nil
 	requestData.Sha256Sum = nil
-	return e.next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, encryptionMaterials, requestData)
-
+	part, err := e.next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, encryptionMaterials, requestData)
+	if err != nil {
+		log.Logger(ctx).Error("failed to put multi part", zap.Error(err))
+	}
+	return part, err
 }
 
-func (e *EncryptionHandler) copyEncryptionMaterials(ctx context.Context, source *tree.Node, copy *tree.Node) error {
-	//does not handle cross-copy if ever exists somewhere in pydio
-	/*dsName := source.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-	var wsUser = fmt.Sprintf("ds:%s", dsName)
-
-	nodeKey, err := e.getNodeEncryptionKey(ctx, wsUser, source.Uuid)
-	if err != nil {
-		return err
+func (e *EncryptionHandler) copyNodeEncryptionData(ctx context.Context, source *tree.Node, copy *tree.Node) error {
+	nodeEncryptionClient := e.nodeKeyManagerClient
+	if nodeEncryptionClient == nil {
+		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY, defaults.NewClient())
 	}
 
-	copyNodeKey := &encryption.NodeKey{
-		BlockSize: nodeKey.BlockSize,
-		Payload:      nodeKey.Payload,
-		NodeId:    copy.Uuid,
-		Nonce:     nodeKey.Nonce,
-		OwnerId:   wsUser,
-		UserId:    wsUser,
-	}
-	return e.setNodeEncryptionKey(ctx, copyNodeKey)*/
-	// TODO handle that
-	return nil
+	_, err := nodeEncryptionClient.CopyNodeInfo(ctx, &encryption.CopyNodeInfoRequest{
+		NodeUuid:     source.Uuid,
+		NodeCopyUuid: copy.Uuid,
+	})
+	return err
 }
 
 func (e *EncryptionHandler) getNodeInfoForRead(ctx context.Context, node *tree.Node, requestData *GetRequestData) (*encryption.NodeInfo, int64, int64, int64, error) {
@@ -540,45 +614,89 @@ func (e *EncryptionHandler) getNodeKeyManagerClient() encryption.NodeKeyManagerC
 
 // setBlockStream
 type setBlockStream struct {
-	client          encryption.NodeKeyManager_SetNodeInfoClient
-	info            *encryption.NodeInfo
-	sentInfoWithKey bool
-	shouldSaveInfo  bool
-	nodeUuid        string
-	position        uint32
-	partId          uint32
+	client   encryption.NodeKeyManager_SetNodeInfoClient
+	keySent  bool
+	nodeUuid string
+	position uint32
+	partId   uint32
+	ctx      context.Context
+	err      error
 }
 
-func (streamer *setBlockStream) Handle(block *encryption.Block) error {
-	streamer.position++
-	block.Position = streamer.position
-	block.PartId = streamer.partId
-
-	setNodeInfoRequest := &encryption.SetNodeInfoRequest{
-		Block:  block,
-		NodeId: streamer.nodeUuid,
+func (streamer *setBlockStream) SendKey(key *encryption.NodeKey) error {
+	if streamer.err != nil {
+		return streamer.err
 	}
 
-	if streamer.shouldSaveInfo && !streamer.sentInfoWithKey {
-		streamer.sentInfoWithKey = true
-		setNodeInfoRequest.NodeKey = streamer.info.NodeKey
-	}
+	//log.Logger(streamer.ctx).Info("[BLOCK STREAMER] > set key", zap.Any("key", key))
+	key.NodeId = streamer.nodeUuid
 
-	err := streamer.client.SendMsg(setNodeInfoRequest)
-	if err != nil {
-		if err == io.EOF {
-			return nil
-		}
-		log.Logger(context.Background()).Error("[HANDLER ENCRYPT] > Failed to save node block info", zap.Error(err))
-		return err
+	streamer.err = streamer.client.SendMsg(&encryption.SetNodeInfoRequest{
+		Action: "key",
+		SetNodeKey: &encryption.SetNodeKeyRequest{
+			NodeKey: key,
+		},
+	})
+	if streamer.err != nil {
+		log.Logger(streamer.ctx).Error("[HANDLER ENCRYPT] > set key: Failed to save node key", zap.Error(streamer.err))
+		return streamer.err
 	}
 
 	var rsp encryption.SetNodeInfoResponse
-	return streamer.client.RecvMsg(&rsp)
+	streamer.err = streamer.client.RecvMsg(&rsp)
+	if streamer.err != nil {
+		log.Logger(streamer.ctx).Error("[HANDLER ENCRYPT] > set key: Failed to save node key", zap.Error(streamer.err))
+		return streamer.err
+	} else if rsp.ErrorText != "" {
+		return errors.Parse(rsp.ErrorText)
+	}
+	return streamer.err
+}
+
+func (streamer *setBlockStream) SendBlock(block *encryption.Block) error {
+	if streamer.err != nil {
+		return streamer.err
+	}
+
+	streamer.position++
+	block.Position = streamer.position
+	block.PartId = streamer.partId
+	block.Nonce = nil
+
+	setNodeInfoRequest := &encryption.SetNodeInfoRequest{
+		Action: "block",
+		SetBlock: &encryption.SetNodeBlockRequest{
+			NodeUuid: streamer.nodeUuid,
+			Block:    block,
+		},
+	}
+	//log.Logger(streamer.ctx).Info("[BLOCK STREAMER] > set block", zap.Any("block", block))
+
+	streamer.err = streamer.client.SendMsg(setNodeInfoRequest)
+	if streamer.err != nil {
+		log.Logger(streamer.ctx).Error("[BLOCK STREAMER] > set block: Failed to save node block info", zap.Error(streamer.err))
+		return streamer.err
+	}
+
+	var rsp encryption.SetNodeInfoResponse
+	streamer.err = streamer.client.RecvMsg(&rsp)
+	if streamer.err != nil {
+		log.Logger(streamer.ctx).Error("[BLOCK STREAMER] > set block: Failed to save node block info", zap.Error(streamer.err))
+	} else if rsp.ErrorText != "" {
+		return errors.Parse(rsp.ErrorText)
+	}
+	return streamer.err
 }
 
 func (streamer *setBlockStream) Close() error {
 	// send empty node to notify the end of the exchange
-	_ = streamer.client.SendMsg(&encryption.SetNodeInfoRequest{})
+	//log.Logger(streamer.ctx).Info("[BLOCK STREAMER] > set block: closing streamer")
+	_ = streamer.client.Send(&encryption.SetNodeInfoRequest{
+		Action: "close",
+	})
+
+	var rsp encryption.SetNodeInfoResponse
+	_ = streamer.client.RecvMsg(&rsp)
+
 	return streamer.client.Close()
 }
