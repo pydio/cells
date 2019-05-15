@@ -55,17 +55,19 @@ func (sc *mockSetNodeInfoStream) exchange() {
 			return
 		}
 
-		if req.NodeKey != nil {
-			sc.keys[req.NodeId] = req.NodeKey
-		}
+		switch req.Action {
+		case "key":
+			sc.keys[req.SetNodeKey.NodeKey.NodeId] = req.SetNodeKey.NodeKey
+		case "block":
 
-		if req.Block != nil {
-			nodeBlocks := sc.blocks[req.NodeId]
+			nodeBlocks := sc.blocks[req.SetBlock.NodeUuid]
 			if nodeBlocks == nil {
 				nodeBlocks = []*encryption.Block{}
 			}
-			nodeBlocks = append(nodeBlocks, req.Block)
-			sc.blocks[req.NodeId] = nodeBlocks
+			nodeBlocks = append(nodeBlocks, req.SetBlock.Block)
+			sc.blocks[req.SetBlock.NodeUuid] = nodeBlocks
+		case "close":
+			break
 		}
 
 		rsp := &encryption.SetNodeInfoResponse{}
@@ -82,9 +84,9 @@ func (sc *mockSetNodeInfoStream) RecvMsg(msgi interface{}) error {
 	o := <-sc.inStream
 	inMsg := o.(*encryption.SetNodeInfoRequest)
 	msg := msgi.(*encryption.SetNodeInfoRequest)
-	msg.NodeKey = inMsg.NodeKey
-	msg.Block = inMsg.Block
-	msg.NodeId = inMsg.NodeId
+	msg.SetNodeKey = inMsg.SetNodeKey
+	msg.SetBlock = inMsg.SetBlock
+	msg.Action = inMsg.Action
 	return nil
 }
 
@@ -211,6 +213,10 @@ func (m *mockNodeKeyManagerClient) SetNodeInfo(ctx context.Context, opts ...clie
 	stream := newMockSendInfoStream(m.keys, m.blocks)
 	go stream.exchange()
 	return stream.getClient(), nil
+}
+
+func (m *mockNodeKeyManagerClient) CopyNodeInfo(ctx context.Context, in *encryption.CopyNodeInfoRequest, opts ...client.CallOption) (*encryption.CopyNodeInfoResponse, error) {
+	return nil, nil
 }
 
 func (m *mockNodeKeyManagerClient) DeleteNode(ctx context.Context, in *encryption.DeleteNodeRequest, opts ...client.CallOption) (*encryption.DeleteNodeResponse, error) {
