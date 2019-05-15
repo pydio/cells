@@ -22,6 +22,7 @@ package registry
 
 import (
 	"fmt"
+	"net"
 	"strings"
 	"sync"
 	"time"
@@ -88,22 +89,24 @@ func (c *pydioregistry) SetServiceStopped(name string) error {
 
 // maintain a list of services currently running for easy discovery
 func (c *pydioregistry) maintainRunningServicesList() {
-
 	initialServices, _ := defaults.Registry().ListServices()
 	for _, r := range initialServices {
 		// Initially, we retrieve each service to ensure we have the correct list
 		services, _ := defaults.Registry().GetService(r.Name)
 		for _, s := range services {
-			if len(s.Endpoints) == 0 {
-				continue
-			}
-
 			for _, n := range s.Nodes {
+
+				_, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
+				if err != nil {
+					continue
+				}
+
 				c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
 				c.registerProcessFromNode(n, s.Name)
 			}
 		}
 	}
+	elapsed := time.Since(start)
 
 	go func() {
 
