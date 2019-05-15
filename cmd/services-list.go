@@ -21,6 +21,8 @@
 package cmd
 
 import (
+	"fmt"
+	"net"
 	"os"
 	"regexp"
 	"text/tabwriter"
@@ -60,9 +62,14 @@ var (
 	`
 )
 
+type Service interface {
+	Name() string
+	IsRunning() bool
+}
+
 type Tags struct {
 	Name     string
-	Services map[string]registry.Service
+	Services map[string]Service
 	Tags     map[string]*Tags
 }
 
@@ -93,7 +100,21 @@ $ ` + os.Args[0] + ` list -t=broker
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		// If we have an error (registry not running) the running list simply is empty
-		runningServices, _ = defaults.Registry().ListServices()
+		services, _ := defaults.Registry().ListServices()
+		for _, r := range services {
+			// Initially, we retrieve each service to ensure we have the correct list
+			ss, _ := defaults.Registry().GetService(r.Name)
+			for _, s := range ss {
+				for _, n := range s.Nodes {
+					_, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
+					if err != nil {
+						continue
+					}
+
+					runningServices = append(runningServices, s)
+				}
+			}
+		}
 
 		// Removing install services
 		registry.Default.Filter(func(s registry.Service) bool {
@@ -191,27 +212,38 @@ func init() {
 }
 
 func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
-	s, _ := registry.ListServices()
-	r, _ := registry.ListRunningServices()
-
-	all := []registry.Service{}
-	all = append(all, s...)
-	all = append(all, r...)
-
 	tags := make(map[string]*Tags)
-	for _, s := range all {
+	for _, s := range allServices {
 		name := s.Name()
 
 		if f(s) {
 			for _, tag := range s.Tags() {
 				if _, ok := tags[tag]; !ok {
-					tags[tag] = &Tags{Name: tag, Services: make(map[string]registry.Service)}
+					tags[tag] = &Tags{Name: tag, Services: make(map[string]Service)}
 				}
 
-				tags[tag].Services[name] = s
+				tags[tag].Services[name] = &runningService{name}
 			}
 		}
 	}
 
 	return tags
+}
+
+type runningService struct {
+	name string
+}
+
+func (s *runningService) Name() string {
+	return s.name
+}
+
+func (s *runningService) IsRunning() bool {
+	for _, r := range runningServices {
+		if r.Name == s.name {
+			return true
+		}
+	}
+
+	return false
 }
