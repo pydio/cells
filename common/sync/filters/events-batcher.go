@@ -22,7 +22,6 @@ package filters
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -184,8 +183,7 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo, asSession bool)
 
 	patch.Filter(ev.globalContext)
 	if patch.Size() > 0 {
-		log.Logger(ev.globalContext).Info("****** Sending Patch from Events")
-		fmt.Println(patch)
+		log.Logger(ev.globalContext).Info("****** Sending Patch from Events", zap.Any("stats", patch.Stats()))
 	}
 	if updater, ok := patch.Source().(model.SnapshotUpdater); ok {
 		updater.PatchUpdateSnapshot(ev.globalContext, patch)

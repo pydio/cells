@@ -61,22 +61,31 @@ func (pr *Processor) processCreateFile(event *merger.Operation, operationId stri
 			return rErr
 		}
 		defer reader.Close()
-		writer, wErr := dataTarget.GetWriterOn(localPath, event.Node.Size)
+		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(localPath, event.Node.Size)
 		if wErr != nil {
 			pr.Logger().Error("Cannot get writer on target", zap.String("job", "create"), zap.String("path", localPath), zap.Error(wErr))
 			return wErr
 		}
-		defer func() {
-			writer.Close()
-		}()
 		progressReader := &ProgressReader{Reader: reader, pg: pg}
 		_, err := io.Copy(writer, progressReader)
 		if err != nil && progressReader.totalRead > 0 {
 			// Revert progress count to 0 for this operation
 			pg <- -progressReader.totalRead
 		}
-
-		return err
+		writer.Close()
+		if err == nil && writeDone != nil {
+			// Wait for real write to be finished
+			for {
+				select {
+				case <-writeDone:
+					return nil
+				case e := <-writeErr:
+					return e
+				}
+			}
+		} else {
+			return err
+		}
 
 	} else {
 

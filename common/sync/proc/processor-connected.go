@@ -40,9 +40,7 @@ type ConnectedProcessor struct {
 // NewConnectedProcessor creates a new connected processor
 func NewConnectedProcessor(ctx context.Context) *ConnectedProcessor {
 	p := &ConnectedProcessor{
-		Processor: Processor{
-			GlobalContext: ctx,
-		},
+		Processor:       *NewProcessor(ctx),
 		PatchChan:       make(chan merger.Patch, 1),
 		RequeueChannels: make(map[model.PathSyncSource]chan model.EventInfo),
 		JobsInterrupt:   make(chan bool),

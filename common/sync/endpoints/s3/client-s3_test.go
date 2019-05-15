@@ -220,10 +220,10 @@ func TestGetWriterOnS3(t *testing.T) {
 	Convey("Test Get Writer on node", t, func() {
 
 		c := NewS3Mock()
-		w, err := c.GetWriterOn("/file", 0)
+		w, _, _, err := c.GetWriterOn("/file", 0)
+		So(err, ShouldBeNil)
 		defer w.Close()
 		So(w, ShouldNotBeNil)
-		So(err, ShouldBeNil)
 
 	})
 

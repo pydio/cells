@@ -332,7 +332,7 @@ func (c *abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	if err != nil {
 		return err
 	}
-	read, e := cliRead.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: c.rooted(name)}}, client.WithRequestTimeout(5*time.Minute))
+	read, e := cliRead.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: c.rooted(name)}})
 	if e != nil {
 		if errors.Parse(e.Error()).Code == 404 {
 			return nil
@@ -344,7 +344,7 @@ func (c *abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = cliWrite.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: proto.Clone(read.Node).(*tree.Node)})
+	_, err = cliWrite.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: proto.Clone(read.Node).(*tree.Node)}, client.WithRequestTimeout(5*time.Minute))
 	return
 }
 
@@ -369,13 +369,17 @@ func (c *abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 	}
 }
 
-func (c *abstract) GetWriterOn(p string, targetSize int64) (out io.WriteCloser, err error) {
+func (c *abstract) GetWriterOn(p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	if targetSize == 0 {
-		return nil, fmt.Errorf("cannot create empty files")
+		return nil, writeDone, writeErr, fmt.Errorf("cannot create empty files")
 	}
+	writeDone = make(chan bool, 1)
+	writeErr = make(chan error, 1)
 	if path.Base(p) == common.PYDIO_SYNC_HIDDEN_FILE_META {
 		log.Logger(c.globalCtx).Debug("[router] Ignoring " + p)
-		return &NoopWriter{}, nil
+		defer close(writeDone)
+		defer close(writeErr)
+		return &NoopWriter{}, writeDone, writeErr, nil
 	}
 	c.flushRecentMkDirs()
 	n := &tree.Node{Path: c.rooted(p)}
@@ -383,7 +387,7 @@ func (c *abstract) GetWriterOn(p string, targetSize int64) (out io.WriteCloser, 
 
 	ctx, cli, err := c.factory.GetObjectsClient(c.getContext())
 	if err != nil {
-		return nil, err
+		return nil, writeDone, writeErr, err
 	}
 	meta := make(map[string]string)
 	if md, ok := metadata.FromContext(ctx); ok {
@@ -392,13 +396,18 @@ func (c *abstract) GetWriterOn(p string, targetSize int64) (out io.WriteCloser, 
 		}
 	}
 	go func() {
+		defer func() {
+			close(writeDone)
+			close(writeErr)
+		}()
 		_, e := cli.PutObject(ctx, n, reader, &views.PutRequestData{Size: targetSize, Metadata: meta})
 		if e != nil {
 			fmt.Println("[ERROR]", "Cannot PutObject", e.Error())
+			writeErr <- e
 		}
 		reader.Close()
 	}()
-	return out, nil
+	return out, writeDone, writeErr, nil
 
 }
 

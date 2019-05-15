@@ -54,12 +54,16 @@ type ProcessorConnector interface {
 type Processor struct {
 	GlobalContext context.Context
 	Connector     ProcessorConnector
+	QueueSize     int
+	Silent        bool
 }
 
 // NewProcessor creates a new processor
 func NewProcessor(ctx context.Context) *Processor {
 	return &Processor{
 		GlobalContext: ctx,
+		QueueSize:     4,
+		Silent:        false,
 	}
 }
 
@@ -97,7 +101,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 
 	// Create Folders
 	for _, event := range patch.OperationsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
-		pr.applyProcessFunc(event, operationId, pr.processCreateFolder, "Created Folder", "Creating Folder", "Error while creating folder", &cursor, total, zap.String("path", event.EventInfo.Path))
+		pr.applyProcessFunc(event, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", event.EventInfo.Path))
 	}
 
 	// Move folders
@@ -106,7 +110,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 	for _, event := range folderMoves {
 		toPath := event.EventInfo.Path
 		fromPath := event.Node.Path
-		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved Folder", "Moving Folder", "Error while moving folder", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
+		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved folder", "Moving folder", "Error while moving folder", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	}
 
 	// Move files
@@ -115,7 +119,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 	for _, event := range fileMoves {
 		toPath := event.EventInfo.Path
 		fromPath := event.Node.Path
-		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved File", "Moving File", "Error while moving file", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
+		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved file", "Moving file", "Error while moving file", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	}
 
 	// Create files
@@ -124,7 +128,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 	if patch.HasTransfers() {
 		// Process with a parallel Queue
 		wg := &sync.WaitGroup{}
-		throttle := make(chan struct{}, 3)
+		throttle := make(chan struct{}, pr.QueueSize)
 		for _, event = range createFiles {
 			wg.Add(1)
 			eventCopy := event
@@ -135,7 +139,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 					wg.Done()
 				}()
 				model.Retry(func() error {
-					return pr.applyProcessFunc(eventCopy, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file", &cursor, total, zap.String("path", eventCopy.EventInfo.Path), zap.String("eTag", eventCopy.Node.Etag))
+					return pr.applyProcessFunc(eventCopy, operationId, pr.processCreateFile, "Transferred file", "Transferring file", "Error while transferring file", &cursor, total, zap.String("path", eventCopy.EventInfo.Path), zap.String("eTag", eventCopy.Node.Etag))
 				}, 5*time.Second, 20*time.Second)
 			}()
 		}
@@ -143,7 +147,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 	} else {
 		// Process Serialized
 		for _, event = range createFiles {
-			pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Created File", "Transferring File", "Error while creating file", &cursor, total, zap.String("path", event.EventInfo.Path))
+			pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Indexed file", "Indexing file", "Error while indexing file", &cursor, total, zap.String("path", event.EventInfo.Path))
 		}
 	}
 
@@ -154,7 +158,11 @@ func (pr *Processor) Process(patch merger.Patch) {
 		if event.Node == nil {
 			continue
 		}
-		pr.applyProcessFunc(event, operationId, pr.processDelete, "Deleted Node", "Deleting Node", "Error while deleting node", &cursor, total, zap.String("path", event.Node.Path))
+		nS := "folder"
+		if event.Node.IsLeaf() {
+			nS = "file"
+		}
+		pr.applyProcessFunc(event, operationId, pr.processDelete, "Deleted "+nS, "Deleting "+nS, "Error while deleting "+nS, &cursor, total, zap.String("path", event.Node.Path))
 	}
 
 	patch.Status(merger.ProcessStatus{StatusString: "Finished processing patch"})
@@ -195,9 +203,13 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 	err := callback(event, operationId, pgs)
 	if err != nil {
 		fields = append(fields, zap.Error(err))
-		pr.Logger().Error(errorString, fields...)
+		if !pr.Silent {
+			pr.Logger().Error(errorString, fields...)
+		}
 	} else {
-		pr.Logger().Info(completeString, fields...)
+		if !pr.Silent {
+			pr.Logger().Info(completeString, fields...)
+		}
 	}
 
 	if total > 0 {

@@ -167,8 +167,8 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 		return
 	}
 	newPatch := merger.ClonePatch(c, c.updateSnapshot, p)
-	// TODO - Probably better to call patch.Process() ... Or target.Apply(patch) ?
 	pr := proc.NewProcessor(ctx)
+	pr.Silent = true
 	pr.Process(newPatch)
 }
 
@@ -318,7 +318,7 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 			afero.WriteFile(c.FS, filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(node.Uuid), 0777)
 		}
 		if c.updateSnapshot != nil {
-			log.Logger(ctx).Info("[FS] Update Snapshot - Create", node.ZapPath())
+			log.Logger(ctx).Debug("[FS] Update Snapshot - Create", node.ZapPath())
 			c.updateSnapshot.CreateNode(ctx, node, updateIfExists)
 		}
 	}
@@ -335,7 +335,7 @@ func (c *FSClient) DeleteNode(ctx context.Context, path string) (err error) {
 		err = c.FS.RemoveAll(c.denormalize(path))
 	}
 	if err == nil && c.updateSnapshot != nil {
-		log.Logger(ctx).Info("[FS] Update Snapshot - Delete " + path)
+		log.Logger(ctx).Debug("[FS] Update Snapshot - Delete " + path)
 		c.updateSnapshot.DeleteNode(ctx, path)
 	}
 	return err
@@ -359,7 +359,7 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 		}
 	}
 	if err == nil && c.updateSnapshot != nil {
-		log.Logger(ctx).Info("[FS] Update Snapshot - Move from " + oldPath + " to " + newPath)
+		log.Logger(ctx).Debug("[FS] Update Snapshot - Move from " + oldPath + " to " + newPath)
 		c.updateSnapshot.MoveNode(ctx, oldInitial, newInitial)
 	}
 	return err
@@ -402,19 +402,19 @@ func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree
 	return node, err
 }
 
-func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
+func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 
 	// Ignore .pydio except for root folder .pydio
 	if filepath.Base(path) == common.PYDIO_SYNC_HIDDEN_FILE_META && strings.Trim(path, "/") != common.PYDIO_SYNC_HIDDEN_FILE_META {
 		w := &Discarder{}
-		return w, nil
+		return w, writeDone, writeErr, nil
 	}
 	snapshotPath := path
 	path = c.denormalize(path)
 	tmpPath := filepath.Join(filepath.Dir(path), SyncTmpPrefix+filepath.Base(path))
 	file, openErr := c.FS.OpenFile(tmpPath, os.O_CREATE|os.O_WRONLY, 0666)
 	if openErr != nil {
-		return nil, openErr
+		return nil, writeDone, writeErr, openErr
 	}
 	wrapper := &WrapperWriter{
 		WriteCloser:  file,
@@ -423,7 +423,7 @@ func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteClose
 		targetPath:   path,
 		snapshotPath: snapshotPath,
 	}
-	return wrapper, nil
+	return wrapper, writeDone, writeErr, nil
 
 }
 

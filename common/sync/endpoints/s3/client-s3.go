@@ -175,15 +175,24 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 
 }
 
-func (c *Client) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error) {
+func (c *Client) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 
+	writeErr = make(chan error, 1)
+	writeDone = make(chan bool, 1)
 	path = c.getFullPath(path)
 	reader, out := io.Pipe()
 	go func() {
-		c.Mc.PutObject(c.Bucket, path, reader, targetSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
-		reader.Close()
+		defer func() {
+			reader.Close()
+			close(writeDone)
+			close(writeErr)
+		}()
+		_, e := c.Mc.PutObject(c.Bucket, path, reader, targetSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+		if e != nil {
+			writeErr <- e
+		}
 	}()
-	return out, nil
+	return out, writeDone, writeErr, nil
 
 }
 

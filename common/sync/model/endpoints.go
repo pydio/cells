@@ -103,7 +103,7 @@ type PathSyncTarget interface {
 
 type DataSyncTarget interface {
 	PathSyncTarget
-	GetWriterOn(path string, targetSize int64) (out io.WriteCloser, err error)
+	GetWriterOn(path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error)
 }
 
 type DataSyncSource interface {
