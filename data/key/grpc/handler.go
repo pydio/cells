@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -31,11 +30,16 @@ import (
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/data/key"
 	"go.uber.org/zap"
+	"io"
 )
 
 const (
 	aesGCMTagSize = 16
 )
+
+type NodeInfoMessage struct {
+	Message interface{}
+}
 
 type NodeKeyManagerHandler struct{}
 
@@ -84,7 +88,19 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 
 	if rsp.NodeInfo.Node.Legacy {
 		log.Logger(ctx).Info("node has legacy flag", zap.String("id", rsp.NodeInfo.Node.NodeId))
-		rsp.NodeInfo.Block, err = dao.GetEncryptedLegacyBlockInfo(req.NodeId)
+		block, err := dao.GetEncryptedLegacyBlockInfo(req.NodeId)
+		if err != nil {
+			return err
+		}
+
+		rsp.NodeInfo = &encryption.NodeInfo{
+			Block: &encryption.Block{
+				HeaderSize: block.HeaderSize,
+				BlockSize:  block.BlockSize,
+				OwnerId:    block.OwnerId,
+				Nonce:      block.Nonce,
+			},
+		}
 
 		if req.WithRange {
 			skippedPlainBlockCount := req.PlainOffset / int64(rsp.NodeInfo.Block.BlockSize)
@@ -105,10 +121,9 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 			log.Logger(ctx).Info("failed to list node blocks", zap.String("id", rsp.NodeInfo.Node.NodeId))
 			return err
 		}
+		defer cursor.Close()
 
-		defer func() {
-			_ = cursor.Close()
-		}()
+		log.Logger(ctx).Info("input range", zap.Int64("offset", req.PlainOffset), zap.Int64("limit", req.PlainOffset+req.PlainLength))
 
 		encryptedOffsetCursor := int64(0)
 		encryptedLimitCursor := int64(0)
@@ -119,48 +134,51 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 		foundEncryptedOffset := plainOffsetCursor == int64(req.PlainOffset)
 		foundEncryptedLimit := req.PlainLength <= 0
 
-		for cursor.HasNext() {
+		done := false
+		for cursor.HasNext() && !done {
 			next, _ := cursor.Next()
-			b := next.(*encryption.Block)
+			b := next.(*key.RangedBlocks)
 
 			plainBlockSize := int64(b.BlockSize) - aesGCMTagSize
 			encryptedBlockSize := int64(b.BlockSize + b.HeaderSize)
 
-			nextPlainOffset := plainOffsetCursor + plainBlockSize
-			encryptedLimitCursor += encryptedBlockSize
+			count := int(b.SeqEnd-b.SeqStart) + 1
 
-			if !foundEncryptedOffset {
-				if nextPlainOffset > req.PlainOffset {
-					foundEncryptedOffset = true
-					rsp.HeadSKippedPlainBytesCount = req.PlainOffset - plainOffsetCursor
-					rsp.EncryptedOffset = encryptedOffsetCursor
+			for i := 0; i < count; i++ {
+				nextPlainOffset := plainOffsetCursor + plainBlockSize
+				encryptedLimitCursor += encryptedBlockSize
 
-					if nextPlainOffset >= plainLimitCursor {
-						rsp.EncryptedCount = encryptedBlockSize
-						foundEncryptedLimit = true
+				if !foundEncryptedOffset {
+					if nextPlainOffset > req.PlainOffset {
+						foundEncryptedOffset = true
+						rsp.HeadSKippedPlainBytesCount = req.PlainOffset - plainOffsetCursor
+						rsp.EncryptedOffset = encryptedOffsetCursor
+
+						if nextPlainOffset >= plainLimitCursor {
+							rsp.EncryptedCount = encryptedBlockSize
+							foundEncryptedLimit = true
+						}
 					}
+					encryptedOffsetCursor += encryptedBlockSize
+					plainOffsetCursor = nextPlainOffset
 				}
-				encryptedOffsetCursor += encryptedBlockSize
-				plainOffsetCursor = nextPlainOffset
-			}
 
-			if foundEncryptedOffset && !foundEncryptedLimit {
-				if nextPlainOffset >= plainLimitCursor {
-					foundEncryptedLimit = true
-					rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
-					break
+				if foundEncryptedOffset && !foundEncryptedLimit {
+					if nextPlainOffset >= plainLimitCursor {
+						foundEncryptedLimit = true
+						rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
+						done = true
+						break
+					}
+					plainOffsetCursor = nextPlainOffset
 				}
-				plainOffsetCursor = nextPlainOffset
 			}
 		}
 
 		if !foundEncryptedLimit {
 			rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
 		}
-
-		fmt.Println("encrypted offset =", rsp.EncryptedOffset)
-		fmt.Println("encrypted count =", rsp.EncryptedCount)
-		//rsp.EncryptedCount = -1
+		log.Logger(ctx).Info("calculated range", zap.Int64("offset", rsp.EncryptedOffset), zap.Int64("limit", rsp.EncryptedOffset+rsp.EncryptedCount))
 	}
 	return err
 }
@@ -171,74 +189,101 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 		return err
 	}
 
-	var req *encryption.SetNodeInfoRequest
-	addedNodeEntry := false
-	clearedOldBlocks := false
+	log.Logger(ctx).Info("[DATA KEY SERVICE] Starting SET-NODE-INFO session...")
 
-	for {
-		req, err = stream.Recv()
+	sessionOpened := true
+
+	var rangedBlocks *key.RangedBlocks
+	var nodeUuid string
+
+	for sessionOpened {
+
+		var req encryption.SetNodeInfoRequest
+		var rsp encryption.SetNodeInfoResponse
+
+		err = stream.RecvMsg(&req)
 		if err != nil {
-			log.Logger(ctx).Error("failed to read SetInfoRequest", zap.Error(err))
+			if err != io.EOF {
+				log.Logger(ctx).Error("[DATA KEY SERVICE] failed to read SetInfoRequest", zap.Error(err))
+			}
 			break
 		}
 
-		// previous was the last when there is no attribute set in request object
-		if req.NodeKey == nil && req.NodeId == "" && req.Block == nil {
-			fmt.Println("received done request")
-			_ = stream.SendMsg(&encryption.SetNodeInfoResponse{})
-			break
-		}
+		log.Logger(ctx).Info("[DATA KEY SERVICE] new info request")
 
-		fmt.Println("received SetInfoRequest", zap.Any("content", req))
-		if !addedNodeEntry && req.NodeKey != nil {
-			err = dao.SaveNode(&encryption.Node{
-				NodeId: req.NodeId,
-				Legacy: false,
-			})
+		switch req.Action {
+
+		case "key":
+			log.Logger(ctx).Info("[DATA KEY SERVICE] Setting node key", zap.Any("KEY", req.SetNodeKey.NodeKey))
+			err = km.saveNodeKey(ctx, dao, req.SetNodeKey.NodeKey)
 			if err != nil {
-				log.Logger(ctx).Error("failed to save node info", zap.Error(err))
-				err = stream.SendMsg(err)
-				break
+				rsp.ErrorText = err.Error()
+				log.Logger(ctx).Error("failed to save key", zap.Error(err))
 			}
 
-			nk := req.NodeKey
-			err = dao.SaveNodeKey(nk)
-			if err != nil {
-				log.Logger(ctx).Error("failed to save node key", zap.Error(err))
-				err = stream.SendMsg(err)
-				break
+		case "block":
+			log.Logger(ctx).Info("[DATA KEY SERVICE] Setting node block", zap.Any("BLOCK", req.SetBlock.Block))
+
+			if nodeUuid == "" {
+				nodeUuid = req.SetBlock.NodeUuid
 			}
-			addedNodeEntry = true
-		}
 
-		if req.NodeKey != nil && !clearedOldBlocks {
-			err := dao.ClearNodeEncryptedBlockInfo(req.NodeId)
-			if err != nil {
-				log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
-				err = stream.SendMsg(err)
-				break
+			tmpRangeBlock := &key.RangedBlocks{
+				BlockSize:  req.SetBlock.Block.BlockSize,
+				OwnerId:    req.SetBlock.Block.OwnerId,
+				HeaderSize: req.SetBlock.Block.HeaderSize,
+				PartId:     req.SetBlock.Block.PartId,
 			}
-			clearedOldBlocks = true
+
+			if rangedBlocks == nil {
+				rangedBlocks = tmpRangeBlock
+
+			} else if req.SetBlock.Block.BlockSize != rangedBlocks.BlockSize || req.SetBlock.Block.HeaderSize != rangedBlocks.HeaderSize {
+				log.Logger(ctx).Info("[DATA KEY SERVICE] Storing block in data", zap.Any("RANGED BLOCK", rangedBlocks))
+				err = dao.SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
+				if err != nil {
+					rsp.ErrorText = err.Error()
+					log.Logger(ctx).Error("failed to save block", zap.Error(err))
+				} else {
+					newEnd := rangedBlocks.SeqEnd + 1
+					tmpRangeBlock.SeqStart = newEnd
+					tmpRangeBlock.SeqEnd = newEnd
+					rangedBlocks = tmpRangeBlock
+				}
+
+			} else {
+				rangedBlocks.SeqEnd++
+			}
+
+		case "close":
+			sessionOpened = false
+			if rangedBlocks != nil {
+				err = dao.SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
+				rangedBlocks = nil
+			}
 		}
 
-		err = dao.SaveEncryptedBlockInfo(req.NodeId, req.Block)
-		if err != nil {
-			log.Logger(ctx).Error("failed to save block", zap.Error(err))
-			err = stream.SendMsg(err)
-			break
-		}
-
-		err = stream.SendMsg(&encryption.SetNodeInfoResponse{})
+		err = stream.SendMsg(&rsp)
 		if err != nil {
 			break
 		}
 	}
 
+	log.Logger(ctx).Info("[DATA KEY SERVICE] Closing SET-NODE-INFO session...")
 	if sce := stream.Close(); sce != nil {
-		log.Logger(ctx).Error("stream close error", zap.Error(sce))
+		log.Logger(ctx).Error("[DATA KEY SERVICE] stream close error", zap.Error(sce))
 	}
-
 	return err
+}
+
+func (km *NodeKeyManagerHandler) CopyNodeInfo(ctx context.Context, req *encryption.CopyNodeInfoRequest, rsp *encryption.CopyNodeInfoResponse) error {
+	log.Logger(ctx).Info("Copying node ", zap.String("source", req.NodeUuid), zap.String("target", req.NodeCopyUuid))
+	dao, err := getDAO(ctx)
+	if err != nil {
+		log.Logger(ctx).Error("failed to copy node info", zap.Error(err))
+		return err
+	}
+	return dao.CopyNode(req.NodeUuid, req.NodeCopyUuid)
 }
 
 func (km *NodeKeyManagerHandler) DeleteNode(ctx context.Context, req *encryption.DeleteNodeRequest, rsp *encryption.DeleteNodeResponse) error {
@@ -269,4 +314,36 @@ func (km *NodeKeyManagerHandler) DeleteNodeSharedKey(ctx context.Context, req *e
 		UserId: req.UserId,
 		NodeId: req.NodeId,
 	})
+}
+
+func (km *NodeKeyManagerHandler) saveNodeKey(ctx context.Context, dao key.DAO, nodeKey *encryption.NodeKey) error {
+	err := dao.SaveNode(&encryption.Node{
+		NodeId: nodeKey.NodeId,
+		Legacy: false,
+	})
+	if err != nil {
+		log.Logger(ctx).Error("failed to save node info", zap.Error(err))
+		return err
+	}
+
+	err = dao.SaveNodeKey(nodeKey)
+	if err != nil {
+		log.Logger(ctx).Error("failed to save node key", zap.Error(err))
+		return err
+	}
+
+	err = dao.ClearNodeEncryptedBlockInfo(nodeKey.NodeId)
+	if err != nil {
+		log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+func (km *NodeKeyManagerHandler) saveBlock(ctx context.Context, dao key.DAO) error {
+	return nil
+}
+
+func (km *NodeKeyManagerHandler) createCopy(ctx context.Context, req *encryption.GetNodeInfoResponse, rsp *encryption.GetNodeInfoResponse) error {
+	return nil
 }
