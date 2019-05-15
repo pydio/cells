@@ -37,21 +37,25 @@ import (
 
 var (
 	queries = map[string]interface{}{
-		"node_select":                `SELECT * FROM enc_nodes WHERE node_id=?;`,
-		"node_insert":                `INSERT INTO enc_nodes VALUES (?, ?);`,
-		"node_update":                `UPDATE enc_nodes SET legacy=? WHERE node_id=?;`,
-		"node_delete":                `DELETE FROM enc_nodes WHERE node_id=?;`,
-		"node_key_insert":            `INSERT INTO enc_node_keys (node_id,owner_id,user_id,key_data) VALUES (?,?,?,?)`,
-		"node_key_select":            `SELECT * FROM enc_node_keys WHERE node_id=? AND user_id=?;`,
-		"node_key_delete":            `DELETE FROM enc_node_keys WHERE node_id=? AND user_id=?;`,
-		"node_shared_key_delete":     `DELETE FROM enc_node_keys WHERE user_id<>owner_id AND node_id=? AND owner_id=? AND user_id=?`,
-		"node_shared_key_delete_all": `DELETE FROM enc_node_keys WHERE  user_id<>owner_id AND node_id=? AND owner_id=?`,
-		"node_block_insert":          `INSERT INTO enc_node_blocks VALUES (?, ?, ?, ?, ?, ?, ?);`,
-		"node_block_select":          `SELECT * FROM enc_node_blocks WHERE node_id=? order by part_id, block_position;`,
-		"node_block_delete":          `DELETE FROM enc_node_blocks WHERE node_id=?;`,
-		"node_block_part_delete":     `DELETE FROM enc_node_blocks WHERE node_id=? and part_id=?;`,
-		"node_legacy_block_select":   `SELECT * FROM legacy_enc_nodes WHERE node_id=?;`,
-		"node_legacy_block_delete":   `DELETE FROM legacy_enc_nodes WHERE node_id=?;`,
+		"node_select":                   `SELECT * FROM enc_nodes WHERE node_id=?;`,
+		"node_insert":                   `INSERT INTO enc_nodes VALUES (?, ?);`,
+		"node_update":                   `UPDATE enc_nodes SET legacy=? WHERE node_id=?;`,
+		"node_delete":                   `DELETE FROM enc_nodes WHERE node_id=?;`,
+		"node_key_insert":               `INSERT INTO enc_node_keys (node_id,owner_id,user_id,key_data) VALUES (?,?,?,?)`,
+		"node_key_select":               `SELECT * FROM enc_node_keys WHERE node_id=? AND user_id=?;`,
+		"node_key_select_all":           `SELECT * FROM enc_node_keys WHERE node_id=?;`,
+		"node_key_copy":                 `INSERT INTO enc_node_keys (SELECT ?, owner_id, user_id, key_data FROM enc_node_keys WHERE node_id=?);`,
+		"node_key_delete":               `DELETE FROM enc_node_keys WHERE node_id=? AND user_id=?;`,
+		"node_shared_key_delete":        `DELETE FROM enc_node_keys WHERE user_id<>owner_id AND node_id=? AND owner_id=? AND user_id=?`,
+		"node_shared_key_delete_all":    `DELETE FROM enc_node_keys WHERE  user_id<>owner_id AND node_id=? AND owner_id=?`,
+		"node_block_insert":             `INSERT INTO enc_node_blocks VALUES (?, ?, ?, ?, ?, ?, ?);`,
+		"node_block_select":             `SELECT * FROM enc_node_blocks WHERE node_id=? order by part_id, seq_start;`,
+		"node_block_copy":               `INSERT INTO enc_node_blocks (SELECT ?, part_id, seq_start, seq_end, block_data_size, block_header_size, owner FROM enc_node_blocks WHERE node_id=?);`,
+		"node_block_delete":             `DELETE FROM enc_node_blocks WHERE node_id=?;`,
+		"node_block_part_delete":        `DELETE FROM enc_node_blocks WHERE node_id=? and part_id=?;`,
+		"node_legacy_block_select":      `SELECT * FROM enc_legacy_nodes WHERE node_id=?;`,
+		"node_legacy_block_delete":      `DELETE FROM enc_legacy_nodes WHERE node_id=?;`,
+		"node_legacy_part_block_delete": `DELETE FROM enc_legacy_nodes WHERE node_id=? and part_id=?;`,
 	}
 	mu atomic.Value
 )
@@ -99,21 +103,22 @@ func (h *sqlimpl) ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, er
 
 	rows, err := stmt.Query(nodeUuid)
 	if err != nil {
+		log.Error("failed to list node blocks", zap.Error(err))
 		return nil, err
 	}
 	return NewDBCursor(rows, scanBlock), nil
 }
 
-func (h *sqlimpl) SaveEncryptedBlockInfo(nodeUuid string, b *encryption.Block) error {
+func (h *sqlimpl) SaveEncryptedBlockInfo(nodeUuid string, b *RangedBlocks) error {
 	stmt := h.GetStmt("node_block_insert")
 	if stmt == nil {
 		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_block_insert")
 	}
-	_, err := stmt.Exec(nodeUuid, b.PartId, b.Position, b.BlockSize, b.HeaderSize, b.Nonce, b.OwnerId)
+	_, err := stmt.Exec(nodeUuid, b.PartId, b.SeqStart, b.SeqEnd, b.BlockSize, b.HeaderSize, b.OwnerId)
 	return err
 }
 
-func (h *sqlimpl) GetEncryptedLegacyBlockInfo(nodeUuid string) (*encryption.Block, error) {
+func (h *sqlimpl) GetEncryptedLegacyBlockInfo(nodeUuid string) (*RangedBlocks, error) {
 	stmt := h.GetStmt("node_legacy_block_select")
 	if stmt == nil {
 		return nil, errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_legacy_block_select")
@@ -123,14 +128,14 @@ func (h *sqlimpl) GetEncryptedLegacyBlockInfo(nodeUuid string) (*encryption.Bloc
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	if rows.Next() {
-		block := new(encryption.Block)
+		block := new(RangedBlocks)
 		var nodeId string
 		err = rows.Scan(&nodeId, &block.Nonce, &block.BlockSize)
 		return block, err
 	}
-	_ = rows.Close()
 	return nil, errors.NotFound("node.key.dao", "no info found for node %s", nodeUuid)
 }
 
@@ -141,6 +146,84 @@ func (h *sqlimpl) ClearNodeEncryptedBlockInfo(nodeUuid string) error {
 	}
 	_, err := stmt.Exec(nodeUuid)
 	return err
+}
+
+func (h *sqlimpl) ClearNodeEncryptedPartBlockInfo(nodeUuid string, partID int) error {
+	stmt := h.GetStmt("node_part_block_delete")
+	if stmt == nil {
+		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_block_delete")
+	}
+	_, err := stmt.Exec(nodeUuid, partID)
+	return err
+}
+
+func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
+	ctx := context.Background()
+	err := h.SaveNode(&encryption.Node{
+		NodeId: targetUuid,
+		Legacy: false,
+	})
+	if err != nil {
+		log.Logger(ctx).Error("failed to save new node", zap.Error(err))
+		return err
+	}
+
+	log.Logger(ctx).Info("Copying all node keys")
+	keysCursor, err := h.GetAllNodeKey(srcUuid)
+	if err != nil {
+		log.Logger(ctx).Error("failed to list source key list", zap.Error(err))
+		return err
+	}
+	defer keysCursor.Close()
+
+	for keysCursor.HasNext() {
+		ki, err := keysCursor.Next()
+		if err != nil {
+			_ = keysCursor.Close()
+			return err
+		}
+
+		nodeKey := ki.(*encryption.NodeKey)
+		nodeKey.NodeId = targetUuid
+
+		log.Logger(ctx).Info("Saving", zap.Any("key", nodeKey))
+		err = h.SaveNodeKey(nodeKey)
+		if err != nil {
+			log.Logger(ctx).Error("failed to save key", zap.Any("key", nodeKey), zap.Error(err))
+			_ = keysCursor.Close()
+			return err
+		}
+	}
+
+	log.Logger(ctx).Info("Copying all node blocks")
+	cursor, err := h.ListEncryptedBlockInfo(srcUuid)
+	if err != nil {
+		log.Logger(ctx).Error("failed to list source block list", zap.Error(err))
+		return err
+	}
+	defer cursor.Close()
+
+	stmt := h.GetStmt("node_block_insert")
+	for cursor.HasNext() {
+		bi, err := cursor.Next()
+		if err != nil {
+			log.Error("failed to get next block in cursor", zap.Error(err))
+			_ = cursor.Close()
+			return err
+		}
+
+		b := bi.(*RangedBlocks)
+		log.Logger(ctx).Info("Saving", zap.Any("block", b))
+		_, err = stmt.Exec(targetUuid, b.PartId, b.SeqStart, b.SeqEnd, b.BlockSize, b.HeaderSize, b.HeaderSize)
+		if err != nil {
+			log.Logger(ctx).Error("failed to save block", zap.Any("block", b), zap.Error(err))
+			_ = cursor.Close()
+			return err
+		}
+	}
+
+	log.Logger(ctx).Info("node copy done!")
+	return nil
 }
 
 func (h *sqlimpl) SaveNode(node *encryption.Node) error {
@@ -167,6 +250,8 @@ func (h *sqlimpl) GetNode(nodeUuid string) (*encryption.Node, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	if rows.Next() {
 		node := new(encryption.Node)
 		var intLegacy int
@@ -174,7 +259,6 @@ func (h *sqlimpl) GetNode(nodeUuid string) (*encryption.Node, error) {
 		node.Legacy = intLegacy == 1
 		return node, err
 	}
-	_ = rows.Close()
 	return nil, errors.NotFound("node.key.dao", "no entry for %s key", nodeUuid)
 }
 
@@ -210,9 +294,9 @@ func (h *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey,
 	}
 
 	c := NewDBCursor(rows, scanNodeKey)
+	defer c.Close()
 
 	if !c.HasNext() {
-		_ = c.Close()
 		err = errors.NotFound("node.key.dao", "no key found for node %s", nodeUuid)
 		log.Logger(context.Background()).Error("failed to query node key", zap.Error(err))
 		return nil, err
@@ -220,7 +304,6 @@ func (h *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey,
 
 	k, err := c.Next()
 	if err != nil {
-		_ = c.Close()
 		log.Logger(context.Background()).Error("failed to parse node key", zap.Error(err))
 		return nil, err
 	}
@@ -235,6 +318,19 @@ func (h *sqlimpl) DeleteNodeKey(key *encryption.NodeKey) error {
 	}
 	_, err := stmt.Exec(key.NodeId, key.UserId)
 	return err
+}
+
+func (h *sqlimpl) GetAllNodeKey(nodeUuid string) (QueryResultCursor, error) {
+	stmt := h.GetStmt("node_key_select_all")
+	if stmt == nil {
+		return nil, errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_key_select_all")
+	}
+
+	rows, err := stmt.Query(nodeUuid)
+	if err != nil {
+		return nil, err
+	}
+	return NewDBCursor(rows, scanNodeKey), nil
 }
 
 // dbRowScanner
@@ -268,9 +364,12 @@ func (c *DBCursor) Next() (interface{}, error) {
 
 // scanBlock
 func scanBlock(rows *sqldb.Rows) (interface{}, error) {
-	b := new(encryption.Block)
+	b := new(RangedBlocks)
 	var nodeId string
-	err := rows.Scan(&nodeId, &b.PartId, &b.Position, &b.BlockSize, &b.HeaderSize, &b.Nonce, &b.OwnerId)
+	err := rows.Scan(&nodeId, &b.PartId, &b.SeqStart, &b.SeqEnd, &b.BlockSize, &b.HeaderSize, &b.OwnerId)
+	if err != nil {
+		log.Logger(context.Background()).Error("failed to read node block entry in sql result")
+	}
 	return b, err
 }
 
@@ -289,5 +388,8 @@ func scanNode(rows *sqldb.Rows) (interface{}, error) {
 func scanNodeKey(rows *sqldb.Rows) (interface{}, error) {
 	k := new(encryption.NodeKey)
 	err := rows.Scan(&k.NodeId, &k.OwnerId, &k.UserId, &k.KeyData)
+	if err != nil {
+		log.Logger(context.Background()).Error("failed to read node key entry in sql result")
+	}
 	return k, err
 }

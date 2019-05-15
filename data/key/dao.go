@@ -31,9 +31,12 @@ type DAO interface {
 	dao.DAO
 
 	ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, error)
-	SaveEncryptedBlockInfo(nodeUuid string, b *encryption.Block) error
-	GetEncryptedLegacyBlockInfo(nodeUuid string) (*encryption.Block, error)
+	SaveEncryptedBlockInfo(nodeUuid string, b *RangedBlocks) error
+	GetEncryptedLegacyBlockInfo(nodeUuid string) (*RangedBlocks, error)
+	ClearNodeEncryptedPartBlockInfo(nodeUuid string, partId int) error
 	ClearNodeEncryptedBlockInfo(nodeUuid string) error
+
+	CopyNode(srcUuid, targetUuid string) error
 
 	SaveNode(node *encryption.Node) error
 	GetNode(nodeUuid string) (*encryption.Node, error)
@@ -42,12 +45,6 @@ type DAO interface {
 	SaveNodeKey(nodeKey *encryption.NodeKey) error
 	GetNodeKey(node string, user string) (*encryption.NodeKey, error)
 	DeleteNodeKey(nodeKey *encryption.NodeKey) error
-}
-
-type BlockInfo struct {
-	NodeKey   encryption.NodeKey
-	BlockSize uint32
-	PartId    uint32
 }
 
 type QueryResultCursor interface {
@@ -62,4 +59,14 @@ func NewDAO(o dao.DAO) dao.DAO {
 		return &sqlimpl{DAO: v}
 	}
 	return nil
+}
+
+type RangedBlocks struct {
+	OwnerId    string
+	PartId     uint32
+	SeqStart   uint32
+	SeqEnd     uint32
+	HeaderSize uint32
+	BlockSize  uint32
+	Nonce      []byte
 }
