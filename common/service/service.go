@@ -374,6 +374,9 @@ func (s *service) Start() {
 
 			if err := s.Options().Micro.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
+				if stopper, ok := s.Options().Micro.(Stopper); ok {
+					stopper.Stop()
+				}
 				cancel()
 			}
 		}()
@@ -389,10 +392,12 @@ func (s *service) Start() {
 			}
 			if err := s.Options().Web.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
+				if stopper, ok := s.Options().Micro.(Stopper); ok {
+					stopper.Stop()
+				}
 				cancel()
 			}
 		}()
-
 	}
 
 	for _, f := range s.Options().AfterStart {
