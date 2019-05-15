@@ -81,7 +81,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string) (*TreeNode, er
 				dirs[strings.Trim(t.GetPath(), "/")] = t
 			}
 		}
-	}, root)
+	}, root, true)
 	wg.Wait()
 	return rootNode, err
 }

@@ -328,7 +328,7 @@ func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, json
 	db := model.NewMemDB()
 	source.Walk(func(path string, node *tree.Node, err error) {
 		db.CreateNode(ctx, node, false)
-	}, "/")
+	}, "/", true)
 
 	return db.ToJSON(jsonFile)
 

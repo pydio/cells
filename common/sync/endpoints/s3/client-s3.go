@@ -212,7 +212,7 @@ func (c *Client) ComputeChecksum(node *tree.Node) error {
 	return nil
 }
 
-func (c *Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
 	ctx := context.Background()
 	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
@@ -235,15 +235,15 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 		walknFc(path, node, nil)
 		return nil
 	}
-	return c.actualLsRecursive(c.getFullPath(root), wrappingFunc)
+	return c.actualLsRecursive(recursive, c.getFullPath(root), wrappingFunc)
 }
 
-func (c *Client) actualLsRecursive(recursivePath string, walknFc func(path string, info *S3FileInfo, err error) error) (err error) {
+func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc func(path string, info *S3FileInfo, err error) error) (err error) {
 	doneChan := make(chan struct{})
 	defer close(doneChan)
 	createdDirs := make(map[string]bool)
 	log.Logger(c.globalContext).Info("Listing all S3 objects for path", zap.String("bucket", c.Bucket), zap.String("path", recursivePath))
-	for objectInfo := range c.Mc.ListObjectsV2(c.Bucket, recursivePath, true, doneChan) {
+	for objectInfo := range c.Mc.ListObjectsV2(c.Bucket, recursivePath, recursive, doneChan) {
 		if objectInfo.Err != nil {
 			log.Logger(c.globalContext).Error("Error while listing", zap.Error(objectInfo.Err))
 			return objectInfo.Err

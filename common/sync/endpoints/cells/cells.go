@@ -103,13 +103,16 @@ func (c *abstract) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 	return out, nil
 }
 
-func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	log.Logger(c.globalCtx).Debug("Walking Router on " + c.rooted(root))
 	ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext())
 	if err != nil {
 		return err
 	}
-	s, e := cli.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: c.rooted(root)}, Recursive: true}, client.WithRequestTimeout(2*time.Minute))
+	s, e := cli.ListNodes(ctx, &tree.ListNodesRequest{
+		Node:      &tree.Node{Path: c.rooted(root)},
+		Recursive: recursive,
+	}, client.WithRequestTimeout(2*time.Minute))
 	if e != nil {
 		return e
 	}

@@ -85,7 +85,7 @@ func (pr *Processor) processCreateFolder(event *merger.Operation, operationId st
 			}
 			return
 		}
-		go event.Source().Walk(visit, event.EventInfo.Path)
+		go event.Source().Walk(visit, event.EventInfo.Path, true)
 	}
 
 	return nil

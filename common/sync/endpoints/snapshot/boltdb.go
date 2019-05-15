@@ -173,12 +173,12 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 		if len(paths) == 0 {
 			return source.Walk(func(path string, node *tree.Node, err error) {
 				capture.Put([]byte(path), s.marshal(node))
-			}, "/")
+			}, "/", true)
 		} else {
 			for _, p := range paths {
 				e := source.Walk(func(path string, node *tree.Node, err error) {
 					capture.Put([]byte(path), s.marshal(node))
-				}, p)
+				}, p, true)
 				if e != nil {
 					return e
 				}
@@ -243,7 +243,7 @@ func (s *BoltSnapshot) GetEndpointInfo() model.EndpointInfo {
 	}
 }
 
-func (s *BoltSnapshot) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+func (s *BoltSnapshot) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	root = strings.Trim(root, "/") + "/"
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
@@ -253,6 +253,9 @@ func (s *BoltSnapshot) Walk(walknFc model.WalkNodesFunc, root string) (err error
 		return b.ForEach(func(k, v []byte) error {
 			key := string(k)
 			if root != "/" && !strings.HasPrefix(key, root) {
+				return nil
+			}
+			if !recursive && strings.Contains(strings.TrimPrefix(key, root), "/") {
 				return nil
 			}
 			if node, e := s.unmarshal(v); e == nil {

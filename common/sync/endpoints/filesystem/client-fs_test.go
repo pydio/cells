@@ -346,7 +346,7 @@ func TestWalkFS(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			c.Walk(walk, "/")
+			c.Walk(walk, "/", true)
 		}()
 		wg.Wait()
 
@@ -380,7 +380,7 @@ func TestWalkWithRoot(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			c.Walk(walk, "/folder/subfolder1")
+			c.Walk(walk, "/folder/subfolder1", true)
 		}()
 		wg.Wait()
 

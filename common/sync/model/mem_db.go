@@ -151,10 +151,13 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 /*************************/
 /* Path Sync Source 	 */
 /*************************/
-func (db *MemDB) Walk(walknFc WalkNodesFunc, root string) (err error) {
+func (db *MemDB) Walk(walknFc WalkNodesFunc, root string, recursive bool) (err error) {
 	for _, node := range db.Nodes {
 		if root != "/" && !strings.HasPrefix(node.Path, root) {
 			continue
+		}
+		if !recursive && strings.Contains(strings.TrimPrefix(node.Path, root), "/") {
+			return nil
 		}
 		walknFc(node.Path, node, nil)
 	}

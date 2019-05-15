@@ -62,7 +62,7 @@ func (pr *Processor) refreshFilesUuid(patch merger.Patch) {
 			if _, ok := refreshesByKey[node.Path]; ok {
 				source.UpdateNodeUuid(pr.GlobalContext, node)
 			}
-		}, pref)
+		}, pref, true)
 	}
 
 }

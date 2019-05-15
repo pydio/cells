@@ -57,7 +57,7 @@ func (i *Client) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
-func (i *Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
+func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
 	if root == "/" {
 		root = ""
@@ -68,7 +68,7 @@ func (i *Client) Walk(walknFc model.WalkNodesFunc, root string) (err error) {
 		Node: &tree.Node{
 			Path: root,
 		},
-		Recursive: true,
+		Recursive: recursive,
 	})
 	if e != nil {
 		return e

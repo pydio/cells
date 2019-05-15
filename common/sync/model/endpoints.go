@@ -83,7 +83,7 @@ type WalkNodesFunc func(path string, node *tree.Node, err error)
 
 type PathSyncSource interface {
 	Endpoint
-	Walk(walknFc WalkNodesFunc, root string) (err error)
+	Walk(walknFc WalkNodesFunc, root string, recursive bool) (err error)
 	Watch(recursivePath string) (*WatchObject, error)
 }
 
