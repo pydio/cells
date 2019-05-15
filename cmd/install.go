@@ -105,6 +105,13 @@ var installCmd = &cobra.Command{
 
  Services will all start automatically after the install process is finished.
 	 `,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		if err := checkFdlimit(); err != nil {
+			return err
+		}
+
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 
 		cmd.Println("")
