@@ -421,7 +421,7 @@ func (b *EncryptedBlock) Read(reader io.Reader) (int, error) {
 	b.Header = new(EncryptedBlockHeader)
 	n, err := b.Header.Read(reader)
 	if err != nil {
-		return 0, err
+		return n, err
 	}
 	totalRead += n
 
@@ -442,24 +442,21 @@ func (b *EncryptedBlock) Read(reader io.Reader) (int, error) {
 
 // AESGCMEncryptionMaterials
 type AESGCMEncryptionMaterials struct {
-	stream            io.Reader
-	eof               bool
-	bufferedProcessed *bytes.Buffer
-
-	encryptionKey  []byte
-	plainBlockSize int32
-	nonceBuffer    *bytes.Buffer
-
+	stream                io.Reader
+	eof                   bool
+	bufferedProcessed     *bytes.Buffer
+	encryptionKey         []byte
+	plainBlockSize        int32
+	nonceBuffer           *bytes.Buffer
 	totalProcessedServed  int64
 	plainRangeOffset      int64
 	plainRangeLimit       int64
 	plainDataStreamCursor int64
-
 	reachedRangeLimit     bool
 	encInfo               *encryption.NodeInfo
 	encryptedBlockHandler BlockHandler
-
-	mode int
+	mode                  int
+	lastBlockRange        *encryption.Block
 }
 
 // NewRangeAESGCMMaterials creates an encryption materials that use AES GCM
@@ -625,7 +622,6 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 		if availableData > 0 {
 			n, _ := m.bufferedProcessed.Read(b[totalRead:])
 			totalRead += n
-
 			if totalRead == l {
 				log.Println("done encrypt-reading")
 				return totalRead, nil
@@ -633,10 +629,6 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 
 		} else if m.eof {
 			log.Println("done encrypt-reading. reached EOF")
-			if m.encryptedBlockHandler != nil {
-				log.Println("closing meta store stream")
-				_ = m.encryptedBlockHandler.Close()
-			}
 			return totalRead, io.EOF
 		}
 
@@ -683,16 +675,32 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 					OwnerId:    m.encInfo.NodeKey.OwnerId,
 					Nonce:      nonce,
 				}
-				_ = m.encryptedBlockHandler.SendBlock(publishedBlock)
+
+				err = m.encryptedBlockHandler.SendBlock(publishedBlock)
+				if err != nil {
+					// we create a new error because sendBlock might return io.EOF
+					return 0, errors.New("failed to send block")
+				}
+				if m.eof {
+					err = m.encryptedBlockHandler.Close()
+					if err != nil {
+						return 0, err
+					}
+				}
+			}
+		} else if m.eof {
+			err = m.encryptedBlockHandler.Close()
+			if err != nil {
+				return 0, err
 			}
 		}
-
 	}
 	return totalRead, nil
 }
 
 func (m *AESGCMEncryptionMaterials) decryptRead(b []byte) (int, error) {
-	originalStreamTotalRead := 0
+	return m.cleanDecryptRead(b)
+	/*originalStreamTotalRead := 0
 	totalRead := 0
 	l := len(b)
 	leftToRead := int(m.plainRangeLimit - m.plainRangeOffset - m.totalProcessedServed)
@@ -705,7 +713,8 @@ func (m *AESGCMEncryptionMaterials) decryptRead(b []byte) (int, error) {
 			fmt.Println("decrypt served = ", totalRead, " / on total read ", originalStreamTotalRead)
 		}
 	}()
-	//fmt.Println("decrypt read into buffer of size = ", len(b))
+
+
 	for totalRead < l {
 		availableData := m.bufferedProcessed.Len()
 		if availableData > 0 && !m.reachedRangeLimit {
@@ -727,21 +736,21 @@ func (m *AESGCMEncryptionMaterials) decryptRead(b []byte) (int, error) {
 			return totalRead, io.EOF
 		}
 
-		if !m.eof {
-			fmt.Println("\n\n\nreading block")
-			// decrypt the next block
-			b := &EncryptedBlock{}
-			count, err := b.Read(m.stream)
-			if err != nil {
-				m.eof = err == io.EOF
-				if !m.eof {
-					fmt.Println("Block reading failed. Cause => ", err)
-					return 0, err
-				}
-			}
-			originalStreamTotalRead += count
 
-			//if count > 0 {
+		fmt.Println("\n\n\nreading block")
+		// decrypt the next block
+		b := &EncryptedBlock{}
+		count, err := b.Read(m.stream)
+		if err != nil {
+			m.eof = err == io.EOF
+			if !m.eof {
+				fmt.Println("Block reading failed. Cause => ", err)
+				return 0, err
+			}
+		}
+		originalStreamTotalRead += count
+
+		if count > 0 {
 			fmt.Println("opening sealed data")
 			data, err := Open(m.encryptionKey, b.Header.Nonce, b.Payload)
 			if err != nil {
@@ -765,12 +774,79 @@ func (m *AESGCMEncryptionMaterials) decryptRead(b []byte) (int, error) {
 				fmt.Println("buffering only len =", len(data))
 			}
 			m.bufferedProcessed.Write(data)
-			//}
 		}
 	}
 
 	//fmt.Println("total read = ", totalRead)
-	return totalRead, nil
+	return totalRead, nil*/
+}
+
+func (m *AESGCMEncryptionMaterials) cleanDecryptRead(b []byte) (int, error) {
+	if m.reachedRangeLimit {
+		return 0, io.EOF
+	}
+
+	totalRead := 0
+	l := len(b)
+
+	leftToRead := int(m.plainRangeLimit - m.plainRangeOffset - m.totalProcessedServed)
+	if leftToRead <= 0 || leftToRead > l {
+		leftToRead = l
+	}
+
+	for {
+		expectedReadCount := leftToRead - totalRead
+
+		n, _ := m.bufferedProcessed.Read(b[totalRead:leftToRead])
+		totalRead += n
+		m.totalProcessedServed += int64(n)
+		m.reachedRangeLimit = m.plainRangeLimit == m.plainRangeOffset+int64(m.totalProcessedServed)
+
+		if n == expectedReadCount || m.reachedRangeLimit {
+			return totalRead, nil
+		}
+
+		if m.eof {
+			m.reachedRangeLimit = true
+			return totalRead, nil
+		}
+
+		b := &EncryptedBlock{}
+		count, err := b.Read(m.stream)
+		if err != nil {
+			m.eof = err == io.EOF
+			if !m.eof {
+				fmt.Println("Block reading failed. Cause => ", err)
+				return 0, err
+			}
+		}
+
+		if count > 0 {
+			fmt.Println("opening sealed data")
+			data, err := Open(m.encryptionKey, b.Header.Nonce, b.Payload)
+			if err != nil {
+				fmt.Println("failed to open sealed block:", err)
+				return 0, err
+			}
+			fmt.Println("opened len = ", len(data))
+
+			// We skip out of range data
+			if m.plainDataStreamCursor < m.plainRangeOffset {
+				bytesToConsumeSize := int(m.plainRangeOffset - m.plainDataStreamCursor)
+				fmt.Println("byte count to ignore ", bytesToConsumeSize, "/", len(data))
+				if bytesToConsumeSize > len(data) {
+					fmt.Println("consuming all...")
+					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(len(data))
+					data = data[0:0]
+				} else {
+					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(bytesToConsumeSize)
+					data = data[bytesToConsumeSize:]
+				}
+				fmt.Println("buffering only len =", len(data))
+			}
+			m.bufferedProcessed.Write(data)
+		}
+	}
 }
 
 func readMax(reader io.Reader, buff []byte) (int, error) {
