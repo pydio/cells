@@ -23,16 +23,13 @@ package cells
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 
 	servicecontext "github.com/pydio/cells/common/service/context"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
-	"github.com/micro/go-micro/registry"
 	microgrpc "github.com/micro/go-plugins/client/grpc"
-	"github.com/micro/go-plugins/registry/memory"
 	"github.com/pborman/uuid"
 
 	sdk "github.com/pydio/cells-sdk-go"
@@ -57,7 +54,10 @@ func NewRemote(config *sdk.SdkConfig, root string, options Options) *Remote {
 		},
 		config: config,
 	}
-	c.factory = &remoteClientFactory{config: config}
+	c.factory = &remoteClientFactory{
+		config:   config,
+		registry: NewDynamicRegistry(config),
+	}
 	c.source = c
 	logCtx := context.Background()
 	logCtx = servicecontext.WithServiceName(logCtx, "endpoint.cells.remote")
@@ -78,7 +78,8 @@ func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 }
 
 type remoteClientFactory struct {
-	config *sdk.SdkConfig
+	config   *sdk.SdkConfig
+	registry *DynamicRegistry
 }
 
 func (f *remoteClientFactory) GetNodeProviderClient(ctx context.Context) (context.Context, tree.NodeProviderClient, error) {
@@ -111,31 +112,38 @@ func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Con
 }
 
 func (f *remoteClientFactory) getClient(ctx context.Context) (context.Context, client.Client, error) {
-	jwt, host, port, err := transport.DetectGrpcPort(f.config)
+	jwt, err := transport.RetrieveToken(f.config)
 	if err != nil {
 		return nil, nil, err
 	}
-	p, _ := strconv.ParseInt(port, 10, 32)
-	services := map[string][]*registry.Service{
-		transport.TargetServiceName: {
-			&registry.Service{
-				Name:    transport.TargetServiceName,
-				Version: "latest",
-				Nodes: []*registry.Node{
-					{
-						Id:      "cells.server",
-						Address: host,
-						Port:    int(p),
+	/*
+		host, port, err := transport.DetectGrpcPort(f.config, false)
+		if err != nil {
+			return nil, nil, err
+		}
+		p, _ := strconv.ParseInt(port, 10, 32)
+		services := map[string][]*registry.Service{
+			transport.TargetServiceName: {
+				&registry.Service{
+					Name:    transport.TargetServiceName,
+					Version: "latest",
+					Nodes: []*registry.Node{
+						{
+							Id:      "cells.server",
+							Address: host,
+							Port:    int(p),
+						},
 					},
 				},
 			},
-		},
-	}
+		}
+	*/
 	// create registry
 	microClient := microgrpc.NewClient(
-		client.Registry(memory.NewRegistry(
-			memory.Services(services),
-		)),
+		client.Registry(f.registry.Micro),
+		client.Wrap(func(i client.Client) client.Client {
+			return &RegistryRefreshClient{w: i, r: f.registry}
+		}),
 	)
 	var md metadata.Metadata
 	if m, ok := metadata.FromContext(ctx); ok {
