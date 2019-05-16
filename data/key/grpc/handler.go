@@ -87,30 +87,31 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 	}
 
 	if rsp.NodeInfo.Node.Legacy {
-		log.Logger(ctx).Info("node has legacy flag", zap.String("id", rsp.NodeInfo.Node.NodeId))
+
 		block, err := dao.GetEncryptedLegacyBlockInfo(req.NodeId)
 		if err != nil {
+			log.Logger(ctx).Error("failed to load legacy block info", zap.Error(err))
 			return err
 		}
 
-		rsp.NodeInfo = &encryption.NodeInfo{
-			Block: &encryption.Block{
-				HeaderSize: block.HeaderSize,
-				BlockSize:  block.BlockSize,
-				OwnerId:    block.OwnerId,
-				Nonce:      block.Nonce,
-			},
+		rsp.NodeInfo.Block = &encryption.Block{
+			HeaderSize: block.HeaderSize,
+			BlockSize:  block.BlockSize,
+			OwnerId:    block.OwnerId,
+			Nonce:      block.Nonce,
 		}
 
 		if req.WithRange {
 			skippedPlainBlockCount := req.PlainOffset / int64(rsp.NodeInfo.Block.BlockSize)
-			skippedBytesCount := skippedPlainBlockCount * int64(rsp.NodeInfo.Block.BlockSize)
+			skippedBytesCount := req.PlainOffset - skippedPlainBlockCount*int64(rsp.NodeInfo.Block.BlockSize)
 
 			encryptedBlockSize := rsp.NodeInfo.Block.BlockSize + aesGCMTagSize
 			encryptedRangeOffset := skippedPlainBlockCount * int64(encryptedBlockSize)
 
-			rsp.NodeInfo.Block.Nonce = rsp.NodeInfo.Block.Nonce[int(skippedBytesCount):]
-			rsp.HeadSKippedPlainBytesCount = req.PlainOffset - int64(uint32(skippedPlainBlockCount)*rsp.NodeInfo.Block.BlockSize)
+			skippedNonceByteCount := 12 * skippedPlainBlockCount
+			rsp.NodeInfo.Block.Nonce = rsp.NodeInfo.Block.Nonce[skippedNonceByteCount:]
+
+			rsp.HeadSKippedPlainBytesCount = skippedBytesCount
 			rsp.EncryptedOffset = encryptedRangeOffset
 			rsp.EncryptedCount = -1
 		}
@@ -178,8 +179,8 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 		if !foundEncryptedLimit {
 			rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
 		}
-		log.Logger(ctx).Info("calculated range", zap.Int64("offset", rsp.EncryptedOffset), zap.Int64("limit", rsp.EncryptedOffset+rsp.EncryptedCount))
 	}
+
 	return err
 }
 
