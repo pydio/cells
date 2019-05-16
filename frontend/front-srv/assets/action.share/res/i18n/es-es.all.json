@@ -15,7 +15,7 @@
     "other": "Carpetas compartidas"
   },
   "103": {
-    "other": "Todas las carpetas compartidas como repositorios o minisitios."
+    "other": "Todas las carpetas compartidas como workspaces o minisitios."
   },
   "104": {
     "other": "Mostrando primer enlace, hay %s más"
@@ -51,16 +51,16 @@
     "other": "Compartir esta página"
   },
   "113": {
-    "other": "Como repositorio"
+    "other": "Como Nuevo Workspace"
   },
   "114": {
-    "other": "Compartir carpeta como nuevo repositorio"
+    "other": "Compartir carpeta con usuarios internos"
   },
   "115": {
-    "other": "Como minisitio"
+    "other": "Como enlace Web"
   },
   "116": {
-    "other": "Publicar contenido de carpeta"
+    "other": "Publicar contenido de carpeta como minisitio"
   },
   "117": {
     "other": "Como minisitio privado"

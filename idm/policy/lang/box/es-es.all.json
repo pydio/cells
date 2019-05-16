@@ -75,7 +75,7 @@
     "other": "Permite el acceso a un espacio de trabajo sólo durante un período determinado"
   },
   "PolicyGroup.ACLSamplePeriod.Rule1": {
-    "other": "Ejemplo de regla ACL, que permite el acceso sólo en Febrero y marzo de 2018"
+    "other": "ACL Rule example, allowing access only in Feb. and March 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
     "other": "[Example] No se permite el acceso después de una fecha determinada"
@@ -90,7 +90,7 @@
     "other": "Denegar lectura/escritura si la fecha es posterior al 28-02-2018"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": ". [Example] Sólo se permite el acceso durante horas de trabajo"
+    "other": "[Example] Access allowed only during business hours"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Habilitar el acceso a un espacio de trabajo sólo en determinados días dentro de las horas predefinidas"
