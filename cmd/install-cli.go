@@ -243,8 +243,8 @@ func promptDB(c *install.InstallConfig) error {
 	dbTcpHost := p.Prompt{Label: "Database Hostname", Validate: notEmpty, Default: c.DbTCPHostname}
 	dbTcpPort := p.Prompt{Label: "Database Port", Validate: validPortNumber, Default: c.DbTCPPort}
 
-	dbName := p.Prompt{Label: "Database Name", Validate: notEmpty, Default: "cells"}
-	dbUser := p.Prompt{Label: "Database User", Validate: notEmpty}
+	dbName := p.Prompt{Label: "Database Name", Validate: notEmpty, Default: c.DbTCPName}
+	dbUser := p.Prompt{Label: "Database User", Validate: notEmpty, Default: c.DbTCPUser}
 	dbPass := p.Prompt{Label: "Database Password (leave empty if not needed)", Mask: '*'}
 
 	dbSocketFile := p.Prompt{Label: "Socket File", Validate: notEmpty}
