@@ -149,6 +149,9 @@ func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, err
 	rootPath = c.denormalize(rootPath)
 	rootPath = strings.TrimRight(rootPath, model.InternalPathSeparator)
 	c.RootPath = CanonicalPath(rootPath)
+	if options.BrowseOnly && c.RootPath == "" {
+		c.RootPath = "/"
+	}
 	c.FS = afero.NewBasePathFs(afero.NewOsFs(), c.RootPath)
 	_, e := c.FS.Stat("/")
 	if e != nil {
