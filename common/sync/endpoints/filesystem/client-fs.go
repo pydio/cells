@@ -139,10 +139,13 @@ type FSClient struct {
 	FS             afero.Fs
 	updateSnapshot model.PathSyncTarget
 	refHashStore   model.PathSyncSource
+	options        model.EndpointOptions
 }
 
-func NewFSClient(rootPath string) (*FSClient, error) {
-	c := &FSClient{}
+func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, error) {
+	c := &FSClient{
+		options: options,
+	}
 	rootPath = c.denormalize(rootPath)
 	rootPath = strings.TrimRight(rootPath, model.InternalPathSeparator)
 	c.RootPath = CanonicalPath(rootPath)
@@ -326,7 +329,7 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 	_, e := c.FS.Stat(fPath)
 	if os.IsNotExist(e) {
 		err = c.FS.MkdirAll(fPath, 0777)
-		if node.Uuid != "" {
+		if node.Uuid != "" && !c.options.BrowseOnly {
 			afero.WriteFile(c.FS, filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(node.Uuid), 0777)
 		}
 		if c.updateSnapshot != nil {
@@ -489,6 +492,9 @@ func (c *FSClient) getNodeIdentifier(path string, leaf bool) (uid string, e erro
 // Expects already denormalized form
 func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
 
+	if c.options.BrowseOnly {
+		return uuid.New(), nil
+	}
 	uidFile, uidErr := c.FS.OpenFile(filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), os.O_RDONLY, 0777)
 	if uidErr != nil && os.IsNotExist(uidErr) {
 		uid = uuid.New()

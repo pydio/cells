@@ -74,6 +74,10 @@ type EndpointInfo struct {
 	Ignores               []string
 }
 
+type EndpointOptions struct {
+	BrowseOnly bool
+}
+
 type Endpoint interface {
 	LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error)
 	GetEndpointInfo() EndpointInfo

@@ -59,6 +59,7 @@ type clientProviderFactory interface {
 }
 
 type Options struct {
+	model.EndpointOptions
 	// If router is started in an independant process, call basic initialization to connect to registry.
 	LocalInitRegistry bool
 	// If a sync is connecting two endpoint of a same server, we have to make sure to avoid Uuid collision

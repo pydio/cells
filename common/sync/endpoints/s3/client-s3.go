@@ -59,10 +59,11 @@ type Client struct {
 	Bucket                      string
 	RootPath                    string
 	ServerRequiresNormalization bool
+	options                     model.EndpointOptions
 	globalContext               context.Context
 }
 
-func NewClient(ctx context.Context, url string, key string, secret string, bucket string, rootPath string) (*Client, error) {
+func NewClient(ctx context.Context, url string, key string, secret string, bucket string, rootPath string, options model.EndpointOptions) (*Client, error) {
 	mc, e := minio.New(url, key, secret, false)
 	if e != nil {
 		return nil, e
@@ -72,6 +73,7 @@ func NewClient(ctx context.Context, url string, key string, secret string, bucke
 		Mc:            mc,
 		Bucket:        bucket,
 		RootPath:      strings.TrimRight(rootPath, "/"),
+		options:       options,
 		globalContext: ctx,
 	}, e
 }
@@ -281,6 +283,10 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 // Will try to create PYDIO_SYNC_HIDDEN_FILE_META to avoid missing empty folders
 func (c *Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
 
+	// Do not create hidden files in BrowseOnly mode
+	if c.options.BrowseOnly {
+		return
+	}
 	parts := strings.Split(currentDir, "/")
 	max := len(parts)
 	if skipLast {
@@ -432,11 +438,22 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 	// Does not exists
 	// Create dir uuid now
 	uid = fmt.Sprintf("%s", uuid.NewV4())
-	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
-	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	h := md5.New()
 	io.Copy(h, strings.NewReader(uid))
 	Etag := fmt.Sprintf("%x", h.Sum(nil))
+
+	if c.options.BrowseOnly {
+		// Return fake file without actually creating it
+		return uid, minio.ObjectInfo{
+			ETag:         Etag,
+			Key:          hiddenPath,
+			LastModified: time.Now(),
+			Size:         36,
+			ContentType:  "text/plain",
+		}, nil
+	}
+	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
+	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	created = minio.ObjectInfo{
 		ETag:         Etag,
 		Key:          hiddenPath,
