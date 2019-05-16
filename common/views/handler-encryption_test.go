@@ -142,7 +142,7 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 	branchInfo.EncryptionMode = object.EncryptionMode_MASTER
 	ctx = WithBranchInfo(ctx, "in", branchInfo)
 
-	data := "blamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfd"
+	data := "blamekhkds sdsfsdfdsfdblamekhkds sdsdzkjdqzkhgiàrjv=iu=éàioeruopée"
 
 	Convey("Test Put Object w. Enc", t, func() {
 		reqData := &PutRequestData{}
@@ -264,8 +264,8 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 			node := tree.Node{Path: "encTest", Uuid: "encTest", Size: int64(fileSize)}
 			_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
 			reader, e := handler.GetObject(ctx, &node, reqData)
-			So(reader, ShouldNotBeNil)
 			So(e, ShouldBeNil)
+			So(reader, ShouldNotBeNil)
 
 			readData, err := ioutil.ReadAll(reader)
 			So(err == nil || err == io.EOF, ShouldBeTrue)

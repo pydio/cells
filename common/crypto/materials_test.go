@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"github.com/pydio/cells/common/proto/encryption"
 	. "github.com/smartystreets/goconvey/convey"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -224,12 +225,12 @@ func Test_AESGCMEncryptionMaterials(t *testing.T) {
 		input, err := os.Open(plainFilename)
 		So(err, ShouldBeNil)
 
-		materials := NewAESGCMMaterials(key, ni, nil)
+		materials := NewAESGCMMaterials(ni, nil)
 		err = materials.SetupEncryptMode(input)
 		So(err, ShouldBeNil)
 
 		encryptedData, err := ioutil.ReadAll(materials)
-		So(err, ShouldBeNil)
+		So(err == nil || err == io.EOF, ShouldEqual, true)
 
 		err = ioutil.WriteFile(encryptedFilename, encryptedData, os.ModePerm)
 		So(err, ShouldBeNil)
@@ -241,7 +242,7 @@ func Test_AESGCMEncryptionMaterials(t *testing.T) {
 		input, err := os.Open(encryptedFilename)
 		So(err, ShouldBeNil)
 
-		materials := NewAESGCMMaterials(key, ni, nil)
+		materials := NewAESGCMMaterials(ni, nil)
 		err = materials.SetupDecryptMode(input)
 		So(err, ShouldBeNil)
 

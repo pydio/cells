@@ -488,11 +488,7 @@ func (m *AESGCMEncryptionMaterials) Read(b []byte) (int, error) {
 	if m.mode == 1 {
 		return m.encryptRead(b)
 	} else if m.mode == 2 {
-		if m.encInfo.Node.Legacy {
-			return m.legacyDecryptRead(b)
-		} else {
-			return m.decryptRead(b)
-		}
+		return m.decryptRead(b)
 	} else {
 		return 0, errors.New("no mode set")
 	}
@@ -535,10 +531,6 @@ func (m *AESGCMEncryptionMaterials) SetupDecryptMode(stream io.Reader) error {
 		m.plainBlockSize = int32(m.encInfo.Block.BlockSize)
 	}
 	return nil
-}
-
-func (m *AESGCMEncryptionMaterials) legacyDecryptRead(b []byte) (int, error) {
-	return m.cleanLegacyDecryptRead(b)
 }
 
 func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
@@ -617,9 +609,11 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 				}
 			}
 		} else if m.eof {
-			err = m.encryptedBlockHandler.Close()
-			if err != nil {
-				return 0, err
+			if m.encryptedBlockHandler != nil {
+				err = m.encryptedBlockHandler.Close()
+				if err != nil {
+					return 0, err
+				}
 			}
 		}
 	}
@@ -627,197 +621,27 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 }
 
 func (m *AESGCMEncryptionMaterials) decryptRead(b []byte) (int, error) {
-	return m.cleanDecryptRead(b)
-	/*originalStreamTotalRead := 0
+	if m.reachedRangeLimit {
+		return 0, io.EOF
+	}
+
 	totalRead := 0
 	l := len(b)
+
 	leftToRead := int(m.plainRangeLimit - m.plainRangeOffset - m.totalProcessedServed)
 	if leftToRead <= 0 || leftToRead > l {
 		leftToRead = l
 	}
 
-	defer func() {
-		if totalRead == 0 {
-			fmt.Println("decrypt served = ", totalRead, " / on total read ", originalStreamTotalRead)
-		}
-	}()
+	for {
+		expectedReadCount := leftToRead - totalRead
 
-
-	for totalRead < l {
-		availableData := m.bufferedProcessed.Len()
-		if availableData > 0 && !m.reachedRangeLimit {
-			n, _ := m.bufferedProcessed.Read(b[totalRead:leftToRead])
+		n, _ := m.bufferedProcessed.Read(b[totalRead:leftToRead])
+		if n > 0 {
 			totalRead += n
 			m.totalProcessedServed += int64(n)
-
 			m.reachedRangeLimit = m.plainRangeLimit == m.plainRangeOffset+int64(m.totalProcessedServed)
-			if leftToRead == l || m.reachedRangeLimit {
-				return totalRead, nil
-			}
-
-		} else if m.eof || m.reachedRangeLimit {
-			//we leave if we reached the limit or the end of original stream
-			return totalRead, io.EOF
-
-		} else if m.plainDataStreamCursor > 0 && m.plainDataStreamCursor == m.plainRangeLimit {
-			m.reachedRangeLimit = true
-			return totalRead, io.EOF
 		}
-
-
-		fmt.Println("\n\n\nreading block")
-		// decrypt the next block
-		b := &EncryptedBlock{}
-		count, err := b.Read(m.stream)
-		if err != nil {
-			m.eof = err == io.EOF
-			if !m.eof {
-				fmt.Println("Block reading failed. Cause => ", err)
-				return 0, err
-			}
-		}
-		originalStreamTotalRead += count
-
-		if count > 0 {
-			fmt.Println("opening sealed data")
-			data, err := Open(m.encryptionKey, b.Header.Nonce, b.Payload)
-			if err != nil {
-				fmt.Println("failed to open sealed block:", err)
-				return 0, err
-			}
-			fmt.Println("opened len = ", len(data))
-
-			// We skip out of range data
-			if m.plainDataStreamCursor < m.plainRangeOffset {
-				bytesToConsumeSize := int(m.plainRangeOffset - m.plainDataStreamCursor)
-				fmt.Println("byte count to ignore ", bytesToConsumeSize, "/", len(data))
-				if bytesToConsumeSize > len(data) {
-					fmt.Println("consuming all...")
-					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(len(data))
-					data = data[0:0]
-				} else {
-					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(bytesToConsumeSize)
-					data = data[bytesToConsumeSize:]
-				}
-				fmt.Println("buffering only len =", len(data))
-			}
-			m.bufferedProcessed.Write(data)
-		}
-	}
-
-	//fmt.Println("total read = ", totalRead)
-	return totalRead, nil*/
-}
-
-func (m *AESGCMEncryptionMaterials) cleanLegacyDecryptRead(b []byte) (int, error) {
-	if m.reachedRangeLimit {
-		return 0, io.EOF
-	}
-
-	blockSize := int(m.plainBlockSize + AESGCMAuthTagSize)
-	blockBuffer := make([]byte, blockSize)
-
-	totalRead := 0
-	l := len(b)
-
-	leftToRead := int(m.plainRangeLimit - m.plainRangeOffset - m.totalProcessedServed)
-	//fmt.Printf("reading data of size %d\n", leftToRead)
-
-	if leftToRead <= 0 || leftToRead > l {
-		leftToRead = l
-	}
-
-	for {
-		expectedReadCount := leftToRead - totalRead
-		n, _ := m.bufferedProcessed.Read(b[totalRead:leftToRead])
-		if n > 0 {
-			totalRead += n
-			m.totalProcessedServed += int64(n)
-			if m.plainRangeLimit > 0 {
-				m.reachedRangeLimit = m.plainRangeLimit == m.plainRangeOffset+int64(m.totalProcessedServed)
-			}
-
-			if n == expectedReadCount || m.reachedRangeLimit {
-				return totalRead, nil
-			}
-		}
-
-		if m.eof {
-			m.reachedRangeLimit = true
-			return totalRead, nil
-		}
-
-		fmt.Printf("[ENCRYPTION MATERIALS] > reading encrypted data\n")
-		n, err := readMax(m.stream, blockBuffer)
-		if err != nil {
-			m.eof = err == io.EOF
-			if !m.eof {
-				return 0, err
-			}
-		}
-
-		fmt.Printf("[ENCRYPTION MATERIALS] > read data of size %d\n", n)
-		if n > 0 {
-			if n != blockSize {
-				fmt.Println("[ENCRYPTION MATERIALS] > read the last block")
-			}
-
-			nonce := make([]byte, AESGCMNonceSize)
-			count, err := m.nonceBuffer.Read(nonce)
-			if err != nil {
-				fmt.Println("[ENCRYPTION MATERIALS] > failed to read nonce. Cause => ", err)
-				return 0, err
-			}
-
-			fmt.Println("[ENCRYPTION MATERIALS] > read nonce count => ", count)
-			fmt.Printf("[ENCRYPTION MATERIALS] > nonce: %s\n", base64.StdEncoding.EncodeToString(nonce))
-
-			opened, err := Open(m.encryptionKey, nonce, blockBuffer[:n])
-			if err != nil {
-				fmt.Println("[ENCRYPTION MATERIALS] > failed to decrypt data. Cause => ", err)
-				return 0, err
-			} else {
-				fmt.Println("[ENCRYPTION MATERIALS] > block successfully decrypted")
-			}
-
-			// We skip out of range data
-			if m.plainDataStreamCursor < m.plainRangeOffset {
-				bytesToConsumeSize := int(m.plainRangeOffset - m.plainDataStreamCursor)
-				if bytesToConsumeSize > len(opened) {
-					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(len(opened))
-					opened = opened[0:0]
-				} else {
-					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(bytesToConsumeSize)
-					opened = opened[bytesToConsumeSize:]
-				}
-			}
-			// feed plain data buffer
-			m.bufferedProcessed.Write(opened)
-		}
-
-	}
-}
-
-func (m *AESGCMEncryptionMaterials) cleanDecryptRead(b []byte) (int, error) {
-	if m.reachedRangeLimit {
-		return 0, io.EOF
-	}
-
-	totalRead := 0
-	l := len(b)
-
-	leftToRead := int(m.plainRangeLimit - m.plainRangeOffset - m.totalProcessedServed)
-	if leftToRead <= 0 || leftToRead > l {
-		leftToRead = l
-	}
-
-	for {
-		expectedReadCount := leftToRead - totalRead
-
-		n, _ := m.bufferedProcessed.Read(b[totalRead:leftToRead])
-		totalRead += n
-		m.totalProcessedServed += int64(n)
-		m.reachedRangeLimit = m.plainRangeLimit == m.plainRangeOffset+int64(m.totalProcessedServed)
 
 		if n == expectedReadCount || m.reachedRangeLimit {
 			return totalRead, nil
@@ -838,7 +662,7 @@ func (m *AESGCMEncryptionMaterials) cleanDecryptRead(b []byte) (int, error) {
 			}
 		}
 
-		if count > 0 {
+		if count > 0 && !m.eof {
 			fmt.Println("opening sealed data")
 			data, err := Open(m.encryptionKey, b.Header.Nonce, b.Payload)
 			if err != nil {
@@ -995,83 +819,6 @@ func (m *legacyReadMaterials) SetupDecryptMode(stream io.Reader) error {
 	return nil
 }
 
-/*func (m *RangeAESGCMMaterials) decryptRead(b []byte) (int, error) {
-	var totalPlainBytesRead = 0
-	l := len(b)
-	encryptedBuffer := make([]byte, m.encryptedBlockSize)
-	encryptedBufferCursor := 0
-
-	for totalPlainBytesRead < l {
-		//check if there is available already read and decrypted and buffered data from original stream
-		availablePlainBufferedData := m.bufferedPlainBytes.Len()
-		if availablePlainBufferedData > 0 && !m.reachedRangeLimit {
-
-			// Adjust buffer is buffer size is bigger than size of current range
-			limit := int(m.plainRangeLimit - m.plainRangeOffset - int64(totalPlainBytesRead))
-			if limit > l {
-				limit = l
-			}
-
-			n, _ := m.bufferedPlainBytes.Read(b[totalPlainBytesRead:limit])
-			totalPlainBytesRead += n
-
-			m.reachedRangeLimit = m.plainRangeLimit == m.plainRangeOffset+int64(totalPlainBytesRead)
-			if totalPlainBytesRead == l || m.reachedRangeLimit {
-				return totalPlainBytesRead, nil
-			}
-
-		} else if m.eof || m.plainDataStreamCursor == m.plainRangeLimit || m.reachedRangeLimit {
-			//we leave if we reached the limit or the end of original stream
-			return totalPlainBytesRead, io.EOF
-		}
-
-		n, err := m.encryptedReader.Read(encryptedBuffer[encryptedBufferCursor:])
-		m.totalEncryptedRead += int64(n)
-		if err != nil {
-			m.eof = err == io.EOF
-			if !m.eof {
-				return n, err
-			}
-		}
-		m.blockCount++
-		encryptedBufferCursor += n
-
-		// if buffer of encryptedBlockSize length is full or we reached the end of the encrypted data stream
-		// then we proceed to decryption
-		if encryptedBufferCursor != 0 && (encryptedBufferCursor == int(m.encryptedBlockSize) || m.eof) {
-			nonce := make([]byte, AESGCMNonceSize)
-			nl, err := m.nonceBuffer.Read(nonce)
-			if err != nil || nl < AESGCMNonceSize {
-				fmt.Println("Error while reading nonce for decrypting data!", err.Error())
-				return 0, errors.New("Read nonce failed")
-			}
-
-			encryptedBufferPart := encryptedBuffer[:encryptedBufferCursor]
-			opened, err := Open(m.encryptionKey, nonce, encryptedBufferPart)
-			if err != nil {
-				fmt.Printf("Error while decrypting data on range: %d - %d => %s !\n", m.plainRangeOffset, m.plainRangeLimit, err.Error())
-				return 0, err
-			}
-			encryptedBufferCursor = 0
-
-			// We skip out of range data
-			if m.plainDataStreamCursor < m.plainRangeOffset {
-				bytesToConsumeSize := int(m.plainRangeOffset - m.plainDataStreamCursor)
-				if bytesToConsumeSize > len(opened) {
-					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(len(opened))
-					opened = opened[0:0]
-				} else {
-					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(bytesToConsumeSize)
-					opened = opened[bytesToConsumeSize:]
-				}
-			}
-
-			// feed plain data buffer
-			m.bufferedPlainBytes.Write(opened)
-		}
-	}
-	return totalPlainBytesRead, nil
-}*/
 func (m *legacyReadMaterials) decryptRead(b []byte) (int, error) {
 	leftToRead := m.plainRangeLimit - m.plainRangeOffset - m.totalPlainBytesRead
 	if leftToRead == 0 {

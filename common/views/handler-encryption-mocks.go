@@ -3,6 +3,7 @@ package views
 import (
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -28,6 +29,7 @@ type mockSetNodeInfoStream struct {
 	cursor int
 
 	exchangeError error
+	//closed bool
 }
 
 func newMockSendInfoStream(keys map[string]*encryption.NodeKey, blocks map[string][]*encryption.Block) *mockSetNodeInfoStream {
@@ -57,7 +59,12 @@ func (sc *mockSetNodeInfoStream) exchange() {
 
 		switch req.Action {
 		case "key":
-			sc.keys[req.SetNodeKey.NodeKey.NodeId] = req.SetNodeKey.NodeKey
+			//create copy because object is updated in handler
+			nodeKeyBytes, _ := json.Marshal(req.SetNodeKey.NodeKey)
+			var nodeKeyCopy encryption.NodeKey
+			_ = json.Unmarshal(nodeKeyBytes, &nodeKeyCopy)
+
+			sc.keys[req.SetNodeKey.NodeKey.NodeId] = &nodeKeyCopy
 		case "block":
 
 			nodeBlocks := sc.blocks[req.SetBlock.NodeUuid]
@@ -81,7 +88,10 @@ func (sc *mockSetNodeInfoStream) SendMsg(msg interface{}) error {
 }
 
 func (sc *mockSetNodeInfoStream) RecvMsg(msgi interface{}) error {
-	o := <-sc.inStream
+	o, ok := <-sc.inStream
+	if !ok {
+		return nil
+	}
 	inMsg := o.(*encryption.SetNodeInfoRequest)
 	msg := msgi.(*encryption.SetNodeInfoRequest)
 	msg.SetNodeKey = inMsg.SetNodeKey
@@ -91,8 +101,8 @@ func (sc *mockSetNodeInfoStream) RecvMsg(msgi interface{}) error {
 }
 
 func (sc *mockSetNodeInfoStream) Close() error {
-	close(sc.inStream)
-	close(sc.outStream)
+	/*close(sc.inStream)
+	close(sc.outStream)*/
 	return nil
 }
 
@@ -117,7 +127,7 @@ func (sc *mockSendBlockStreamClient) RecvMsg(msgi interface{}) error {
 }
 
 func (sc *mockSendBlockStreamClient) Close() error {
-	close(sc.outStream)
+	//close(sc.outStream)
 	return nil
 }
 
@@ -145,13 +155,18 @@ func (m *mockNodeKeyManagerClient) GetNodeInfo(ctx context.Context, in *encrypti
 		return nil, errors.NotFound("mock.NodeKeyManager", "Key not found")
 	}
 
+	//create copy because object is updated in handler
+	nodeKeyBytes, _ := json.Marshal(nodeKey)
+	var nodeKeyCopy encryption.NodeKey
+	_ = json.Unmarshal(nodeKeyBytes, &nodeKeyCopy)
+
 	rsp := &encryption.GetNodeInfoResponse{
 		NodeInfo: &encryption.NodeInfo{
 			Node: &encryption.Node{
 				NodeId: in.NodeId,
 				Legacy: false,
 			},
-			NodeKey: nodeKey,
+			NodeKey: &nodeKeyCopy,
 		},
 	}
 
