@@ -93,29 +93,11 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 			log.Logger(ctx).Error("failed to load legacy block info", zap.Error(err))
 			return err
 		}
-
 		rsp.NodeInfo.Block = &encryption.Block{
-			HeaderSize: block.HeaderSize,
-			BlockSize:  block.BlockSize,
-			OwnerId:    block.OwnerId,
-			Nonce:      block.Nonce,
+			BlockSize: block.BlockSize,
+			OwnerId:   block.OwnerId,
+			Nonce:     block.Nonce,
 		}
-
-		if req.WithRange {
-			skippedPlainBlockCount := req.PlainOffset / int64(rsp.NodeInfo.Block.BlockSize)
-			skippedBytesCount := req.PlainOffset - skippedPlainBlockCount*int64(rsp.NodeInfo.Block.BlockSize)
-
-			encryptedBlockSize := rsp.NodeInfo.Block.BlockSize + aesGCMTagSize
-			encryptedRangeOffset := skippedPlainBlockCount * int64(encryptedBlockSize)
-
-			skippedNonceByteCount := 12 * skippedPlainBlockCount
-			rsp.NodeInfo.Block.Nonce = rsp.NodeInfo.Block.Nonce[skippedNonceByteCount:]
-
-			rsp.HeadSKippedPlainBytesCount = skippedBytesCount
-			rsp.EncryptedOffset = encryptedRangeOffset
-			rsp.EncryptedCount = -1
-		}
-
 	} else if req.WithRange {
 		cursor, err := dao.ListEncryptedBlockInfo(req.NodeId)
 		if err != nil {
