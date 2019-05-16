@@ -39,13 +39,13 @@
     "other": "Comprimiendo..."
   },
   "6": {
-    "other": "Añadiendo archivo al archivo comprimido... %s "
+    "other": "Añadiendo documentos al archivo comprimido... %s "
   },
   "7": {
-    "other": "Durante la compresión en %s ..."
+    "other": "Compresión en %s ..."
   },
   "8": {
-    "other": "¡El archivo terminó correctamente!"
+    "other": "¡El archivo ha sido creado correctamente!!"
   },
   "9": {
     "other": "Extraer"

@@ -18,7 +18,7 @@
     "other": "Actualizar Canal"
   },
   "Update.Config.Channel.Description": {
-    "other": "Canal utilizado para solicitar actualizaciones. Permanece en \"Estable\" si no estás seguro."
+    "other": "Canal utilizado para solicitar actualizaciones. Mantener en \"Estable\" si no se está seguro."
   },
   "Update.Config.Channel.ValueStable": {
     "other": "Estable"
