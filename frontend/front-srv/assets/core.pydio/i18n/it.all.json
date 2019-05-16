@@ -1980,22 +1980,22 @@
     "other": "ieri alle TIME"
   },
   "delete_access_key": {
-    "other": "E"
-  },
-  "detail_access_key": {
     "other": "D"
   },
+  "detail_access_key": {
+    "other": "L"
+  },
   "download_access_key": {
-    "other": "S"
+    "other": "w"
   },
   "edit_access_key": {
-    "other": "M"
+    "other": "E"
   },
   "empty_recycle_access_key": {
-    "other": "o"
+    "other": "y"
   },
   "file_access_key": {
-    "other": "f"
+    "other": "F"
   },
   "folder_access_key": {
     "other": "N"
@@ -2007,16 +2007,16 @@
     "other": "L"
   },
   "list_access_key": {
-    "other": "L"
+    "other": "i"
   },
   "move_access_key": {
-    "other": "p"
+    "other": "M"
   },
   "open_with_access": {
-    "other": "c"
+    "other": "e"
   },
   "parent_access_key": {
-    "other": "u"
+    "other": "P"
   },
   "plugtype.desc.access": {
     "other": "Plugin che definiscono come un workspace potrà accedere al suo backend (un archivio di file o qualsiasi altro) e ai principali layout e azioni."
@@ -2154,13 +2154,13 @@
     "other": "Operazioni bulk"
   },
   "refresh_access_key": {
-    "other": "A"
+    "other": "h"
   },
   "rename_access_key": {
     "other": "R"
   },
   "restore_access_key": {
-    "other": "i"
+    "other": "o"
   },
   "settings_access_key": {
     "other": "g"

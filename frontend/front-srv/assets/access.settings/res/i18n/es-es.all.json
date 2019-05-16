@@ -42,7 +42,7 @@
     "other": "Carpetas y Usuarios"
   },
   "111": {
-    "other": "Registro y otros datos"
+    "other": "Backend"
   },
   "112": {
     "other": "<b>Aplicar este rol por defecto</b> para todos los usuarios nuevos."
@@ -66,16 +66,16 @@
     "other": "Nuevo grupo"
   },
   "119": {
-    "other": "Fijar grupo de usuario"
+    "other": "Establecer grupo de usuarios"
   },
   "12": {
     "other": "Meta Plugin"
   },
   "120": {
-    "other": "Házte Pro"
+    "other": "Pasar a la versión Pro"
   },
   "121": {
-    "other": "Consigue soporte profesional"
+    "other": "Obtener soporte profesional para su instalación"
   },
   "122": {
     "other": "Todas las Configuraciones"
@@ -84,13 +84,13 @@
     "other": "Otros Plugins"
   },
   "124": {
-    "other": "Fuentes"
+    "other": "Fuente"
   },
   "125": {
     "other": "Alias"
   },
   "126": {
-    "other": "¿Está seguro que quiere eliminar el/los elemento(s)?"
+    "other": "¿Está seguro que quiere eliminar el/los elemento(s) seleccionados?"
   },
   "127": {
     "other": "Atención, por favor no use caracteres especiales, el usuario se creará con el id '%s'"
@@ -99,16 +99,16 @@
     "other": "Grupo eliminado correctamente"
   },
   "129": {
-    "other": "Actualizar Plugins"
+    "other": "Actualizar caché de plugins"
   },
   "13": {
     "other": "¿Seguro que desea eliminar esta fuente?"
   },
   "130": {
-    "other": "Limpia el almacenamiento de los plugins, puede ser necesario para ver plugins nuevos."
+    "other": "Borrar caché de plugins, puede ser necesario para ver qué nuevos plugins aparecen en la lista."
   },
   "131": {
-    "other": "¡Los archivos de los plugins se borraron correctamente!"
+    "other": "¡Los archivos de caché de plugins se eliminaron correctamente!"
   },
   "132": {
     "other": "Actualizado, aunque está usando el modo SKIP_CACHE (ver bootstrap_context.php)."
@@ -117,7 +117,7 @@
     "other": "Parámetros del Núcleo de la Aplicación"
   },
   "134": {
-    "other": "Activa/Desactiva plugins adicionales, comprueba si están funcionando correctamente y configura parámetros globales de los plugins."
+    "other": "Activar/desactivar plugins adicionales de características, compruebe si están funcionando correctamente, configure parámetros globales de los plugins."
   },
   "135": {
     "other": "Activa/Desactiva plugins del núcleo (autentificación, configuración, correo, etc), comprueba si están funcionando correctamente. La configuración de estos plugins se hace usando Opciones Principales"
@@ -228,7 +228,7 @@
     "other": "%1 usuarios movidos al grupo %2"
   },
   "169": {
-    "other": "No se movio ningún usuario, ¡algo ha ido mal!"
+    "other": "No se ha movido ningún usuario, ¡ha debido haber un error!"
   },
   "17": {
     "other": "Fecha"
@@ -237,7 +237,7 @@
     "other": "Activar %1 (%2)"
   },
   "171": {
-    "other": "Importar Usuarios (sólo Enterprise)"
+    "other": "Importar Usuarios (sólo versión Enterprise)"
   },
   "172": {
     "other": "Servicios"
@@ -276,7 +276,7 @@
     "other": "Parámetros"
   },
   "22a": {
-    "other": "Más Parámetros"
+    "other": "Más info"
   },
   "23": {
     "other": "Nombre de prueba"
@@ -285,19 +285,19 @@
     "other": "Datos de prueba"
   },
   "25": {
-    "other": "Acceso a Carpetas"
+    "other": "Acceso a los Workspaces"
   },
   "26": {
     "other": "Modificar contraseña"
   },
   "27": {
-    "other": "Administrar privilegios"
+    "other": "Privilegios de Administrador"
   },
   "28": {
     "other": "¿El usuario tiene privilegios de administrador?"
   },
   "29": {
-    "other": "Leer"
+    "other": "Lectura"
   },
   "2b": {
     "other": "Gestión de Datos"
@@ -306,7 +306,7 @@
     "other": "Carpetas"
   },
   "30": {
-    "other": "Escribir"
+    "other": "Escritura"
   },
   "32": {
     "other": "Controlador de Acceso"
@@ -324,7 +324,7 @@
     "other": "¡Faltan campos obligatorios!"
   },
   "37": {
-    "other": "¡Atención, las contraseñas no coinciden!"
+    "other": "La nueva contraseña y su confirmación no coinciden!"
   },
   "38": {
     "other": "¡Por favor rellene el campo de usuario!"
@@ -333,19 +333,19 @@
     "other": "¡Por favor rellene los dos campos de contraseña!"
   },
   "3b": {
-    "other": "DataSources"
+    "other": "Almacenamiento"
   },
   "3c": {
     "other": "Ruta de Plantillas"
   },
   "4": {
-    "other": "Registros"
+    "other": "Registros/Logs"
   },
   "40": {
     "other": "¡Por favor marque la casilla para confirmar!"
   },
   "41": {
-    "other": "Opciones de Controlador"
+    "other": "Nodos de fuente de datos"
   },
   "42": {
     "other": "¡Por favor elija un Controlador!"
@@ -357,13 +357,13 @@
     "other": "Usuario creado correctamente"
   },
   "45": {
-    "other": "Cambiado el privilegio de administrador del usuario "
+    "other": "Cambiar el derecho de administrador para este usuario "
   },
   "46": {
     "other": "Cambiados los privilegios del usuario "
   },
   "47": {
-    "other": "Salvados los datos del usuario "
+    "other": "Datos guardados para el usuario "
   },
   "48": {
     "other": "Contraseña cambiada correctamente para el usuario "
@@ -375,19 +375,19 @@
     "other": "PHP"
   },
   "50": {
-    "other": "Error: ya existe una carpeta con ese nombre"
+    "other": "Ya existe un workspace con el mismo nombre"
   },
   "51": {
     "other": "No puede escribirse en el directorio conf."
   },
   "52": {
-    "other": "¡Carpeta creada correctamente! Ahora puede añadir metadatos para completar la información, añadir índices automáticos, etc."
+    "other": "¡Workspace creado correctamente! Ahora puede añadir metadatos para completar la información, añadir índices automáticos, etc"
   },
   "53": {
-    "other": "Error editando la carpeta"
+    "other": "Error al intentar editar el workspace"
   },
   "54": {
-    "other": "Carpeta editada correctamente"
+    "other": "Workspace editado correctamente"
   },
   "55": {
     "other": "Atención, en este momento solo puede añadir una instancia de cada plugin."
@@ -396,19 +396,19 @@
     "other": "Meta Fuente añadida satisfactoriamente"
   },
   "57": {
-    "other": "Meta Fuente borrada correctamente"
+    "other": "Meta Fuente eliminada correctamente"
   },
   "58": {
     "other": "Meta Fuente editada correctamente"
   },
   "59": {
-    "other": "Carpeta borrada correctamente"
+    "other": "Workspace eliminado correctamente"
   },
   "6": {
     "other": "Nombre de Usuario"
   },
   "60": {
-    "other": "Usuario borrado correctamente"
+    "other": "Usuario eliminado correctamente"
   },
   "61": {
     "other": "¡Argumentos erróneos!"
@@ -432,7 +432,7 @@
     "other": "No puede encontrarse el rol "
   },
   "68": {
-    "other": "Rol borrado correctamente"
+    "other": "Rol eliminado correctamente"
   },
   "69": {
     "other": "Roles"
@@ -468,16 +468,16 @@
     "other": "Datos Personales"
   },
   "79": {
-    "other": "Carpeta"
+    "other": "Workspace"
   },
   "8": {
-    "other": "Etiqueta de Carpeta"
+    "other": "Etiqueta del Workspace"
   },
   "80": {
-    "other": "Ajustes detallado de este usuario (pulse en una carpeta si quiere configurarla para que ésta se abra por defecto cuando el usuario inicie sesión)"
+    "other": "Acceso detallado para este usuario (Haga clic en una etiqueta del workspace si desea convertirlo en el workspace predeterminado cuando el usuario inicie sesión)"
   },
   "81": {
-    "other": "Datos específicos de carpeta"
+    "other": "Datos específicos del workspace"
   },
   "82": {
     "other": "Editar usuarios por lotes"
@@ -492,13 +492,13 @@
     "other": "Filtrado manual de acciones"
   },
   "86": {
-    "other": "Lista de acciones (separadas por coma) que serán deshabilitadas en este rol sin importar los derechos de acceso."
+    "other": "lista de acciones (separadas por coma) que serán deshabilitadas en este rol, independientemente de sus privilegios de acceso."
   },
   "87": {
     "other": "Acciones para este rol actualizadas correctamente"
   },
   "88": {
-    "other": "Esta carpeta está definida en el archivo de configuración, no puede editar sus meta fuentes desde el interface gráfico."
+    "other": "Este workspace está definido en el archivo de configuración, no puede editar sus meta fuentes desde la interfaz gráfica (GUI)."
   },
   "89": {
     "other": "Datos específicos del usuario"
@@ -507,10 +507,10 @@
     "other": "Tipo de Acceso"
   },
   "90": {
-    "other": "Repositorio"
+    "other": "Nuevo Workspace"
   },
   "91": {
-    "other": "Plantilla"
+    "other": "Nueva Plantilla"
   },
   "92": {
     "other": "Crear una nueva plantilla"
@@ -522,19 +522,19 @@
     "other": "Editar por lotes"
   },
   "95": {
-    "other": "Elija una etiqueta y un controlador para acceder a los datos (compruebe todos las secciones para campos obligatorios, puede posicionar el cursor del ratón sobre la etiqueta para obtener más información)."
+    "other": "Elija una etiqueta y un controlador para acceder a los datos (compruebe todas las secciones en los campos obligatorios, puede posicionar el cursor del ratón sobre la etiqueta para obtener más información)."
   },
   "96": {
-    "other": "Cuando seleccione una etiqueta y un controlador, active los campos que quiera que se rellenen automáticamente en la plantilla. Los otros campos serán preguntados al usuario. Puede activar algunos campos y dejarlos vacíos si quiere que queden ocultos para el usuario."
+    "other": "Cuando seleccione una etiqueta y un controlador, active los campos que quiera que se rellenen automáticamente en la plantilla. Los otros campos serán completados por el usuario. Puede activar algunos campos y dejarlos vacíos si quiere que queden ocultos para el usuario."
   },
   "97": {
     "other": "Opciones del plugin actualizadas correctamente"
   },
   "98": {
-    "other": "Configuraciones del núcleo"
+    "other": "Núcleo de la Aplicación"
   },
   "99": {
-    "other": "Plugins"
+    "other": "Plugins de Funcionalidades"
   },
   "topbar.title": {
     "other": "Consola de Cells"

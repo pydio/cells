@@ -3,7 +3,7 @@
     "other": "Tarea Basada en Eventos para replicar datos al realizar diferentes versiones"
   },
   "Job.Version.StatusFile": {
-    "other": "Versión {{.Uuid}} creada dentro de la información de versión "
+    "other": "Versión {{.Uuid}} creada dentro del bucket de versión"
   },
   "Job.Version.StatusMeta": {
     "other": "Metadatos de versión creados para {{.Uuid}}"
@@ -41,22 +41,22 @@
     "other": "Fuente de datos utilizada para almacenar versiones"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other": "Repositorio de datos"
+    "other": "Bucket"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Repositorio utilizado dentro de esta fuente de datos"
+    "other": "Bucket utilizado dentro de esta fuente de datos"
   },
   "Config.GroupSizes.Title": {
     "other": "Límites de tamaño"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Tamaño global de todas las versiones guardadas en este repositorio"
+    "other": "Tamaño global de todas las versiones guardadas en este bucket"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
     "other": "Limitar el tamaño total. Si se alcanza el límite, se eliminarán las versiones más antiguas. Usa -1 para la opción \"sin limite\""
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Tamaños acumulado de versiones de un archivo dado"
+    "other": "Tamaños acumulados de versiones de un archivo dado"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
     "other": "Limitar el tamaño para todas las versiones de un archivo. Si se alcanza el límite, se eliminarán las versiones más antiguas. Usa -1 para la opción \"sin limite\""
