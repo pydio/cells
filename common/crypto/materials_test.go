@@ -206,7 +206,7 @@ func Test_AESGCMEncryptionMaterials(t *testing.T) {
 	key := make([]byte, 32)
 	_, _ = rand.Read(key)
 
-	defaultBlockSIze = 4 * 1024
+	defaultBlockSize = 4 * 1024
 	ni := &encryption.NodeInfo{
 		Node: &encryption.Node{
 			NodeId: "test",
