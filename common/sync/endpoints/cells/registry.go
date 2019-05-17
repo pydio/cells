@@ -14,6 +14,10 @@ import (
 	"github.com/pydio/cells-sdk-go/transport"
 )
 
+var (
+	RemoteCellsServiceName = "pydio.gateway.grpc"
+)
+
 type DynamicRegistry struct {
 	config *sdk.SdkConfig
 	Micro  registry.Registry
@@ -50,7 +54,7 @@ func (d *DynamicRegistry) detectService(reload bool) (*registry.Service, error) 
 	}
 	p, _ := strconv.ParseInt(port, 10, 32)
 	return &registry.Service{
-		Name:    transport.TargetServiceName,
+		Name:    RemoteCellsServiceName,
 		Version: "latest",
 		Nodes: []*registry.Node{
 			{

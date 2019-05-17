@@ -87,7 +87,7 @@ func (f *remoteClientFactory) GetNodeProviderClient(ctx context.Context) (contex
 	if e != nil {
 		return nil, nil, e
 	}
-	return ctx, tree.NewNodeProviderClient(transport.TargetServiceName, cli), nil
+	return ctx, tree.NewNodeProviderClient(RemoteCellsServiceName, cli), nil
 }
 
 func (f *remoteClientFactory) GetNodeReceiverClient(ctx context.Context) (context.Context, tree.NodeReceiverClient, error) {
@@ -95,7 +95,7 @@ func (f *remoteClientFactory) GetNodeReceiverClient(ctx context.Context) (contex
 	if e != nil {
 		return nil, nil, e
 	}
-	return ctx, tree.NewNodeReceiverClient(transport.TargetServiceName, cli), nil
+	return ctx, tree.NewNodeReceiverClient(RemoteCellsServiceName, cli), nil
 }
 
 func (f *remoteClientFactory) GetNodeChangesStreamClient(ctx context.Context) (context.Context, tree.NodeChangesStreamerClient, error) {
@@ -103,7 +103,7 @@ func (f *remoteClientFactory) GetNodeChangesStreamClient(ctx context.Context) (c
 	if e != nil {
 		return nil, nil, e
 	}
-	return ctx, tree.NewNodeChangesStreamerClient(transport.TargetServiceName, cli), nil
+	return ctx, tree.NewNodeChangesStreamerClient(RemoteCellsServiceName, cli), nil
 }
 
 func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Context, objectsClient, error) {
