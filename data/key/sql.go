@@ -168,7 +168,6 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 		return err
 	}
 
-	log.Logger(ctx).Info("Copying all node keys")
 	keysCursor, err := h.GetAllNodeKey(srcUuid)
 	if err != nil {
 		log.Logger(ctx).Error("failed to list source key list", zap.Error(err))
@@ -195,7 +194,6 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 		}
 	}
 
-	log.Logger(ctx).Info("Copying all node blocks")
 	cursor, err := h.ListEncryptedBlockInfo(srcUuid)
 	if err != nil {
 		log.Logger(ctx).Error("failed to list source block list", zap.Error(err))

@@ -582,7 +582,6 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 
 			data, err := SealWithNonce(m.encryptionKey, nonce, buff[:count])
 			if err != nil {
-				fmt.Println("failed to seal data. Cause => ", err)
 				return 0, err
 			}
 
@@ -611,16 +610,13 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 
 				err = m.encryptedBlockHandler.SendBlock(publishedBlock)
 				if err != nil {
-					fmt.Println("Materials failed to send block", err)
 					// we create a new error because sendBlock might return io.EOF
 					return 0, errors.New("failed to send block")
 				}
 
 				if m.eof {
-					fmt.Println("Materials reached end of file. Now closing handler")
 					err = m.encryptedBlockHandler.Close()
 					if err != nil {
-						fmt.Println("Failed to close stream error", err)
 						return 0, err
 					}
 				}
@@ -667,33 +663,26 @@ func (m *AESGCMEncryptionMaterials) decryptRead(b []byte) (int, error) {
 		if err != nil {
 			m.eof = err == io.EOF
 			if !m.eof {
-				fmt.Println("Block reading failed. Cause => ", err)
 				return 0, err
 			}
 		}
 
 		if count > 0 && !m.eof {
-			fmt.Println("opening sealed data")
 			data, err := Open(m.encryptionKey, b.Header.Nonce, b.Payload)
 			if err != nil {
-				fmt.Println("failed to open sealed block:", err)
 				return 0, err
 			}
-			fmt.Println("opened len = ", len(data))
 
 			// We skip out of range data
 			if m.plainDataStreamCursor < m.plainRangeOffset {
 				bytesToConsumeSize := int(m.plainRangeOffset - m.plainDataStreamCursor)
-				fmt.Println("byte count to ignore ", bytesToConsumeSize, "/", len(data))
 				if bytesToConsumeSize > len(data) {
-					fmt.Println("consuming all...")
 					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(len(data))
 					data = data[0:0]
 				} else {
 					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(bytesToConsumeSize)
 					data = data[bytesToConsumeSize:]
 				}
-				fmt.Println("buffering only len =", len(data))
 			}
 			m.bufferedProcessed.Write(data)
 		}
@@ -883,14 +872,12 @@ func (m *legacyReadMaterials) decryptRead(b []byte) (int, error) {
 			nonce := make([]byte, AESGCMNonceSize)
 			nl, err := m.nonceBuffer.Read(nonce)
 			if err != nil || nl < AESGCMNonceSize {
-				fmt.Println("Error while reading nonce for decrypting data!", err.Error())
-				return 0, errors.New("Read nonce failed")
+				return 0, errors.New("read nonce failed")
 			}
 
 			encryptedBufferPart := encryptedBuffer[:encryptedBufferCursor]
 			opened, err := Open(m.encryptionKey, nonce, encryptedBufferPart)
 			if err != nil {
-				fmt.Printf("Error while decrypting data on range: %d - %d => %s !\n", m.plainRangeOffset, m.plainRangeLimit, err.Error())
 				return 0, err
 			}
 			encryptedBufferCursor = 0

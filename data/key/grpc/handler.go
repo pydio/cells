@@ -171,9 +171,6 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 	if err != nil {
 		return err
 	}
-
-	log.Logger(ctx).Info("[DATA KEY SERVICE] Starting SET-NODE-INFO session...")
-
 	sessionOpened := true
 
 	var rangedBlocks *key.RangedBlocks
@@ -192,12 +189,9 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 			break
 		}
 
-		log.Logger(ctx).Info("[DATA KEY SERVICE] new info request")
-
 		switch req.Action {
 
 		case "key":
-			log.Logger(ctx).Info("[DATA KEY SERVICE] Setting node key", zap.Any("KEY", req.SetNodeKey.NodeKey))
 			err = km.saveNodeKey(ctx, dao, req.SetNodeKey.NodeKey)
 			if err != nil {
 				rsp.ErrorText = err.Error()
@@ -205,8 +199,6 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 			}
 
 		case "block":
-			log.Logger(ctx).Info("[DATA KEY SERVICE] Setting node block", zap.Any("BLOCK", req.SetBlock.Block))
-
 			if nodeUuid == "" {
 				nodeUuid = req.SetBlock.NodeUuid
 			}
@@ -222,7 +214,6 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 				rangedBlocks = tmpRangeBlock
 
 			} else if req.SetBlock.Block.BlockSize != rangedBlocks.BlockSize || req.SetBlock.Block.HeaderSize != rangedBlocks.HeaderSize {
-				log.Logger(ctx).Info("[DATA KEY SERVICE] Storing block in data", zap.Any("RANGED BLOCK", rangedBlocks))
 				err = dao.SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
 				if err != nil {
 					rsp.ErrorText = err.Error()
@@ -252,7 +243,6 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 		}
 	}
 
-	log.Logger(ctx).Info("[DATA KEY SERVICE] Closing SET-NODE-INFO session...")
 	if sce := stream.Close(); sce != nil {
 		log.Logger(ctx).Error("[DATA KEY SERVICE] stream close error", zap.Error(sce))
 	}
@@ -260,7 +250,6 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 }
 
 func (km *NodeKeyManagerHandler) CopyNodeInfo(ctx context.Context, req *encryption.CopyNodeInfoRequest, rsp *encryption.CopyNodeInfoResponse) error {
-	log.Logger(ctx).Info("Copying node ", zap.String("source", req.NodeUuid), zap.String("target", req.NodeCopyUuid))
 	dao, err := getDAO(ctx)
 	if err != nil {
 		log.Logger(ctx).Error("failed to copy node info", zap.Error(err))
