@@ -164,8 +164,11 @@ func (pr *Processor) Process(patch merger.Patch) {
 		}
 		pr.applyProcessFunc(event, operationId, pr.processDelete, "Deleted "+nS, "Deleting "+nS, "Error while deleting "+nS, &cursor, total, zap.String("path", event.Node.Path))
 	}
-
-	patch.Status(merger.ProcessStatus{StatusString: "Finished processing patch"})
+	var pg float32
+	if total > 0 {
+		pg = float32(cursor) / float32(total)
+	}
+	patch.Status(merger.ProcessStatus{StatusString: "Finished processing patch", Progress: pg})
 
 	if len(patch.OperationsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
 		go pr.refreshFilesUuid(patch)
@@ -191,6 +194,7 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 			*cursor += pg
 			progress := float32(*cursor) / float32(total)
 			if progress-lastProgress > 0.01 { // Send 1 per percent
+				log.Logger(pr.GlobalContext).Debug("Sending PG", zap.Float32("pg", progress))
 				event.Patch.Status(merger.ProcessStatus{
 					StatusString: pr.logAsString(progressString, nil, fields...),
 					Progress:     progress,
@@ -219,10 +223,12 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 			isError = true
 			loggerString = errorString
 		}
+		end := float32(*cursor) / float32(total)
+		log.Logger(pr.GlobalContext).Debug("Sending PG END", zap.Float32("pg", end))
 		event.Patch.Status(merger.ProcessStatus{
 			IsError:      isError,
 			StatusString: pr.logAsString(loggerString, err, fields...),
-			Progress:     float32(*cursor / total),
+			Progress:     end,
 		})
 	}
 
