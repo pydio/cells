@@ -38,7 +38,7 @@ class UploadItem extends StatusItem {
         } else {
             this._label = file.name;
         }
-        if(file.size > PydioApi.getMultipartThreshold() && !targetNode.getMetadata().has("datasource_encrypted")){
+        if(file.size > PydioApi.getMultipartThreshold()){
             this.createParts();
         }
         if(parent){
@@ -150,7 +150,7 @@ class UploadItem extends StatusItem {
             return;
         }
         // For encrypted datasource, do not use multipart!
-        if (this._targetNode.getMetadata().has("datasource_encrypted") || this.getSize() < PydioApi.getMultipartThreshold()) {
+        if (this.getSize() < PydioApi.getMultipartThreshold()) {
             PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
                 this.xhr = xhr;
             });
