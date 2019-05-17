@@ -18,14 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package model
+package memory
 
 import (
 	"context"
 	"testing"
 
-	"github.com/pydio/cells/common/proto/tree"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/common/proto/tree"
 )
 
 var (

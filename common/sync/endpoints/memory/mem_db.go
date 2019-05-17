@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package model
+package memory
 
 import (
 	"context"
@@ -32,6 +32,7 @@ import (
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 type DBEvent struct {
@@ -55,9 +56,9 @@ func NewMemDB() *MemDB {
 	return db
 }
 
-func (c *MemDB) GetEndpointInfo() EndpointInfo {
+func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
-	return EndpointInfo{
+	return model.EndpointInfo{
 		URI: "memdb://",
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
@@ -151,7 +152,7 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 /*************************/
 /* Path Sync Source 	 */
 /*************************/
-func (db *MemDB) Walk(walknFc WalkNodesFunc, root string, recursive bool) (err error) {
+func (db *MemDB) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	for _, node := range db.Nodes {
 		if root != "/" && !strings.HasPrefix(node.Path, root) {
 			continue
@@ -164,7 +165,7 @@ func (db *MemDB) Walk(walknFc WalkNodesFunc, root string, recursive bool) (err e
 	return nil
 }
 
-func (db *MemDB) Watch(recursivePath string) (*WatchObject, error) {
+func (db *MemDB) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, errors.New("Not implemented")
 }
 

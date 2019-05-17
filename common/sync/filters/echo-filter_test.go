@@ -23,9 +23,10 @@ package filters
 import (
 	"testing"
 
-	"github.com/pydio/cells/common/sync/model"
-
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/common/sync/endpoints/memory"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 func TestEchoFilter_CreateFilter(t *testing.T) {
@@ -48,7 +49,7 @@ func TestEchoFilter_CreateFilter(t *testing.T) {
 	Convey("Test event filtering", t, func() {
 
 		f := NewEchoFilter()
-		source := model.NewMemDB()
+		source := memory.NewMemDB()
 		f.lockFileTo(source, "/file-path", "UniqueOperationId")
 
 		event := model.EventInfo{

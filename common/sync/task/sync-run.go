@@ -26,6 +26,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pydio/cells/common/sync/endpoints/memory"
+
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -325,7 +327,7 @@ func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
 
 func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, jsonFile string) error {
 
-	db := model.NewMemDB()
+	db := memory.NewMemDB()
 	source.Walk(func(path string, node *tree.Node, err error) {
 		db.CreateNode(ctx, node, false)
 	}, "/", true)

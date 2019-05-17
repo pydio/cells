@@ -27,6 +27,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/common/sync/endpoints/memory"
+
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -65,7 +67,7 @@ func basicDiff(l, r model.PathSyncSource) error {
 
 func TestSnapshot(t *testing.T) {
 
-	source := model.NewMemDB()
+	source := memory.NewMemDB()
 	ctx := context.Background()
 	source.Nodes = []*tree.Node{
 		{Path: "a", Type: tree.NodeType_COLLECTION},

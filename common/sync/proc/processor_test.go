@@ -25,6 +25,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pydio/cells/common/sync/endpoints/memory"
+
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -43,8 +45,8 @@ func TestProcess(t *testing.T) {
 		m := NewProcessor(testCtx)
 		So(m, ShouldNotBeNil)
 
-		source := model.NewMemDB()
-		target := model.NewMemDB()
+		source := memory.NewMemDB()
+		target := memory.NewMemDB()
 		patch := merger.NewPatch(source, target)
 
 		source.CreateNode(testCtx, &tree.Node{

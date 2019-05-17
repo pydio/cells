@@ -25,10 +25,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pydio/cells/common/sync/model"
+	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/pydio/cells/common/sync/endpoints/memory"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 var (
@@ -39,12 +40,12 @@ func TestComputeSourcesDiff(t *testing.T) {
 
 	Convey("Test various Diffs", t, func() {
 
-		var left, right *model.MemDB
+		var left, right *memory.MemDB
 		var diff *TreeDiff
 
 		Convey("Test empty source and target", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			diff = newTreeDiff(testCtx, left, right)
 			e := diff.Compute("/")
 			So(e, ShouldBeNil)
@@ -54,8 +55,8 @@ func TestComputeSourcesDiff(t *testing.T) {
 		})
 
 		Convey("Test file in left", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			left.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -69,8 +70,8 @@ func TestComputeSourcesDiff(t *testing.T) {
 		})
 
 		Convey("Test file in right", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -84,8 +85,8 @@ func TestComputeSourcesDiff(t *testing.T) {
 		})
 
 		Convey("Test files in both", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -104,8 +105,8 @@ func TestComputeSourcesDiff(t *testing.T) {
 		})
 
 		Convey("Test ignored files", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -151,10 +152,10 @@ func TestTreeDiff(t *testing.T) {
 
 	Convey("Test Tree Diffs", t, func() {
 
-		var left, right *model.MemDB
+		var left, right *memory.MemDB
 		Convey("Test empty source and target", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			t1, _ := TreeNodeFromSource(left, "/")
 			// Trigger printout for test coverage
 			t1.PrintOut()
@@ -167,8 +168,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test file in left", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			left.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -182,8 +183,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test file in right", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -197,8 +198,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test files in both", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -217,8 +218,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test conflicts : folder UUID", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_COLLECTION,
@@ -242,8 +243,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test conflicts : file contents", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -265,8 +266,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test conflicts : node type", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -288,8 +289,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test ignored files", func() {
-			left = model.NewMemDB()
-			right = model.NewMemDB()
+			left = memory.NewMemDB()
+			right = memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_LEAF,
@@ -328,8 +329,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test Rename", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			left.CreateNode(testCtx, &tree.Node{
 				Path: "aaa",
 				Type: tree.NodeType_COLLECTION,
@@ -364,8 +365,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test further files", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_COLLECTION,
@@ -395,8 +396,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test subfolders files", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			right.CreateNode(testCtx, &tree.Node{
 				Path: "/aaa",
 				Type: tree.NodeType_COLLECTION,
@@ -426,8 +427,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test subfolders insert", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa", Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa/b", Type: tree.NodeType_LEAF, Etag: "hashme"}, true)
@@ -452,8 +453,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test subfolders recursive", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa", Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa/b", Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
@@ -481,8 +482,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test subfolders both", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa", Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
 			left.CreateNode(testCtx, &tree.Node{Path: "/aaa/b", Type: tree.NodeType_LEAF, Etag: "hashme"}, true)
@@ -509,8 +510,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test massive folders", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			for i := 0; i < 100; i++ {
 				left.CreateNode(testCtx, &tree.Node{Path: fmt.Sprintf("/tmp%d", i), Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
 				for j := 0; j < 100; j++ {
@@ -563,8 +564,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test massive folders with compute hash", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			for i := 0; i < 100; i++ {
 				left.CreateNode(testCtx, &tree.Node{Path: fmt.Sprintf("/tmp%d", i), Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
 				for j := 0; j < 100; j++ {
@@ -587,8 +588,8 @@ func TestTreeDiff(t *testing.T) {
 		})
 
 		Convey("Test diff with chan", func() {
-			left := model.NewMemDB()
-			right := model.NewMemDB()
+			left := memory.NewMemDB()
+			right := memory.NewMemDB()
 			for i := 0; i < 100; i++ {
 				left.CreateNode(testCtx, &tree.Node{Path: fmt.Sprintf("/tmp%d", i), Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
 				for j := 0; j < 100; j++ {
