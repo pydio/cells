@@ -116,28 +116,6 @@ func (f *remoteClientFactory) getClient(ctx context.Context) (context.Context, c
 	if err != nil {
 		return nil, nil, err
 	}
-	/*
-		host, port, err := transport.DetectGrpcPort(f.config, false)
-		if err != nil {
-			return nil, nil, err
-		}
-		p, _ := strconv.ParseInt(port, 10, 32)
-		services := map[string][]*registry.Service{
-			transport.TargetServiceName: {
-				&registry.Service{
-					Name:    transport.TargetServiceName,
-					Version: "latest",
-					Nodes: []*registry.Node{
-						{
-							Id:      "cells.server",
-							Address: host,
-							Port:    int(p),
-						},
-					},
-				},
-			},
-		}
-	*/
 	// create registry
 	microClient := microgrpc.NewClient(
 		client.Registry(f.registry.Micro),
