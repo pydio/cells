@@ -477,9 +477,9 @@ func NewAESGCMMaterials(info *encryption.NodeInfo, blockHandler BlockHandler) *A
 }
 
 func (m *AESGCMEncryptionMaterials) Close() error {
-	closer, ok := m.stream.(io.Closer)
-	if ok {
-		return closer.Close()
+	fmt.Printf("Materials processed %d bytes\n", m.totalProcessedServed)
+	if closer, ok := m.stream.(io.Closer); ok {
+		_ = closer.Close()
 	}
 	return nil
 }
@@ -503,11 +503,20 @@ func (m *AESGCMEncryptionMaterials) SetPlainRange(offset, length int64) {
 	}
 }
 
-func (m *AESGCMEncryptionMaterials) CalculateOutputSize(plainSize int64) int64 {
-	blocks := plainSize / defaultBlockSize
-	encryptedBlockSize := blocks * (defaultBlockSize + 110)
-	if blocks*defaultBlockSize != plainSize {
-		lastBLockSize := (plainSize % defaultBlockSize) + 110
+func (m *AESGCMEncryptionMaterials) CalculateOutputSize(plainSize int64, user string) int64 {
+	var header EncryptedBlockHeader
+	header.Options = new(Options)
+	header.Options.UserId = user
+	header.Options.Key = make([]byte, 32)
+	header.Nonce = make([]byte, 12)
+
+	buffer := bytes.NewBuffer([]byte{})
+	headerSize, _ := header.Write(buffer)
+
+	blockCount := plainSize / defaultBlockSize
+	encryptedBlockSize := blockCount * (defaultBlockSize + int64(headerSize) + AESGCMAuthTagSize)
+	if blockCount*defaultBlockSize != plainSize {
+		lastBLockSize := (plainSize % defaultBlockSize) + int64(headerSize) + AESGCMAuthTagSize
 		encryptedBlockSize += lastBLockSize
 	}
 	return encryptedBlockSize
@@ -516,15 +525,18 @@ func (m *AESGCMEncryptionMaterials) CalculateOutputSize(plainSize int64) int64 {
 func (m *AESGCMEncryptionMaterials) SetupEncryptMode(stream io.Reader) error {
 	m.mode = 1
 	m.stream = stream
+	m.totalProcessedServed = 0
+	m.eof = false
 	m.bufferedProcessed = bytes.NewBuffer([]byte{})
 	return nil
 }
 
 func (m *AESGCMEncryptionMaterials) SetupDecryptMode(stream io.Reader) error {
 	m.mode = 2
-	m.bufferedProcessed = bytes.NewBuffer([]byte{})
 	m.stream = stream
+	m.totalProcessedServed = 0
 	m.eof = false
+	m.bufferedProcessed = bytes.NewBuffer([]byte{})
 
 	if m.encInfo.Node.Legacy {
 		m.nonceBuffer = bytes.NewBuffer(m.encInfo.Block.Nonce)
@@ -542,6 +554,7 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 		if availableData > 0 {
 			n, _ := m.bufferedProcessed.Read(b[totalRead:])
 			totalRead += n
+			m.totalProcessedServed += int64(n)
 			if totalRead == l {
 				log.Println("done encrypt-reading")
 				return totalRead, nil
@@ -583,7 +596,7 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 			b.Header = h
 			err = b.SetPayload(data)
 			if err != nil {
-				log.Println("failed to set block payload. Cause => ", err)
+				log.Println("failed to build block from stream. Cause => ", err)
 				return 0, err
 			}
 			_, _ = b.Write(m.bufferedProcessed)
@@ -598,21 +611,18 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 
 				err = m.encryptedBlockHandler.SendBlock(publishedBlock)
 				if err != nil {
+					fmt.Println("Materials failed to send block", err)
 					// we create a new error because sendBlock might return io.EOF
 					return 0, errors.New("failed to send block")
 				}
+
 				if m.eof {
+					fmt.Println("Materials reached end of file. Now closing handler")
 					err = m.encryptedBlockHandler.Close()
 					if err != nil {
+						fmt.Println("Failed to close stream error", err)
 						return 0, err
 					}
-				}
-			}
-		} else if m.eof {
-			if m.encryptedBlockHandler != nil {
-				err = m.encryptedBlockHandler.Close()
-				if err != nil {
-					return 0, err
 				}
 			}
 		}

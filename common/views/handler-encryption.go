@@ -69,7 +69,6 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 	}
 
 	clone := node.Clone()
-	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Get Object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
 
 	if len(node.Uuid) == 0 || node.Size == 0 {
 		rsp, readErr := e.next.ReadNode(ctx, &tree.ReadNodeRequest{
@@ -105,8 +104,6 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 	if offset == 0 && length == 0 {
 		length = -1
 	}
-
-	log.Logger(ctx).Info("Received node info:", zap.Any("Content", info), zap.Int64("offset", offset), zap.Int64("count", length))
 
 	keyProtectionTool, err := e.getKeyProtectionTool(ctx)
 	if err != nil {
@@ -159,7 +156,6 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 
 // PutObject enriches request metadata for PutObject with Encryption Materials, if required by datasource.
 func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
-	fmt.Println("[HANDLER ENCRYPT] > Put Object")
 	if strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
 		return e.next.PutObject(ctx, node, reader, requestData)
 	}
@@ -171,7 +167,6 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 	}
 
 	clone := node.Clone()
-	log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Put Object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
 	if len(clone.Uuid) == 0 {
 		rsp, readErr := e.next.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: node,
@@ -245,9 +240,9 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 		return 0, err
 	}
 
-	requestData.Size = -1
 	requestData.Md5Sum = nil
 	requestData.Sha256Sum = nil
+	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
 	n, err := e.next.PutObject(ctx, node, encryptionMaterials, requestData)
 	return n, err
 }
@@ -278,7 +273,6 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 	cloneFrom := from.Clone()
 	cloneTo := to.Clone()
 	if sameClient {
-		log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Copy Object Same DS", cloneTo.Zap("from"), zap.String("UUID", from.Uuid), zap.String("Path", from.Path))
 		if len(cloneFrom.Uuid) == 0 {
 			rsp, readErr := e.next.ReadNode(readCtx, &tree.ReadNodeRequest{
 				Node: from,
@@ -372,7 +366,6 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 		}
 		clone.Uuid = rsp.Node.Uuid
 	}
-	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create:", zap.String("UUID", clone.Uuid), zap.String("Path", clone.Path))
 
 	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	if dsName == "" {
@@ -425,22 +418,19 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 		ctx:      ctx,
 	}
 
-	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Sending key to encryption meta service")
 	err = nodeBlocksStreamer.SendKey(info.NodeKey)
 	if err != nil {
 		log.Logger(ctx).Error("failed to create nodeInfo", zap.Error(err))
 		return "", err
 	}
 
-	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Protecting key")
 	if err := nodeBlocksStreamer.Close(); err != nil {
 		log.Logger(ctx).Error("failed to close setNodeInfo stream", zap.Error(err))
 	}
 
-	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Node info created!")
 	str, err := e.next.MultipartCreate(ctx, target, requestData)
 	if err != nil {
-		log.Logger(ctx).Error("Handler encrypt pultipart Create NEXT FAILED", zap.Error(err))
+		log.Logger(ctx).Error("Handler encrypt multipart Create NEXT FAILED", zap.Error(err))
 	}
 
 	return str, err
@@ -468,8 +458,6 @@ func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *
 		}
 		clone.Uuid = rsp.Node.Uuid
 	}
-
-	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart put", zap.String("UUID", clone.Uuid), zap.String("Path", clone.Path))
 
 	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	if dsName == "" {
@@ -511,9 +499,10 @@ func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *
 		return minio.ObjectPart{}, err
 	}
 
-	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size)
 	requestData.Md5Sum = nil
 	requestData.Sha256Sum = nil
+	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
+
 	part, err := e.next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, encryptionMaterials, requestData)
 	if err != nil {
 		log.Logger(ctx).Error("failed to put multi part", zap.Error(err))
