@@ -552,10 +552,10 @@
     "other": "Eliminar de esta celda"
   },
   "26": {
-    "other": "Elija usuarios o grupos y ajuste sus derechos de acceso. 'Escribir' creará un repositorio únicamente para cargas."
+    "other": "Elija usuarios o grupos y establezca sus permisos de acceso. El permiso de 'Escritura' creará un workspace que sólo permite subir documentos."
   },
   "260": {
-    "other": "La carpeta está compartida en las siguientes células. Puede editar la lista de usuarios o crear una nueva celda."
+    "other": "La carpeta está compartida en las siguientes celdas. Puede editar la lista de usuarios o crear una nueva celda."
   },
   "261": {
     "other": "Escoja los usuarios o grupos que tendrán acceso a esta celda"
@@ -636,13 +636,13 @@
     "other": "Visible en %s celdas"
   },
   "29": {
-    "other": "Enlace público"
+    "other": "Enlace Web"
   },
   "3": {
     "other": "Contraseña incorrecta"
   },
   "30": {
-    "other": "Accesos de usuario"
+    "other": "Compartir con..."
   },
   "31": {
     "other": "Leer"
@@ -654,13 +654,13 @@
     "other": "Ver"
   },
   "34": {
-    "other": "Existente o nuevo usuarios"
+    "other": "Usuario nuevo o existente"
   },
   "35": {
     "other": "Nombre"
   },
   "36": {
-    "other": "Los usuarios con los que ha compartido verán la carpeta como un nuevo repositorio con el siguiente nombre."
+    "other": "Establezca una etiqueta y una breve descripción"
   },
   "37": {
     "other": "Confirmar"
@@ -672,28 +672,28 @@
     "other": "Ver la actividad de este archivo"
   },
   "4": {
-    "other": "Introduce la contraseña correcta y haz clic en la imagen para descargar <b>%s</b> a tu disco duro."
+    "other": "Introduzca la contraseña correcta y haga click en la imagen para descargar <b>%s</b> a su disco duro"
   },
   "40": {
     "other": "Invitaciones"
   },
   "41": {
-    "other": "Envía invitaciones por correo electrónico a los usuarios con los que ha compartido este elemento."
+    "other": "Envíe invitaciones por correo electrónico a los usuarios con los que ha compartido este elemento."
   },
   "42": {
-    "other": "Un usuario de %s está compartiendo este enlace contigo"
+    "other": "Un usuario de %s está compartiendo este enlace con usted"
   },
   "43": {
-    "other": "Un usuario de %s está compartiendo esta carpeta contigo"
+    "other": "Un usuario de %s está compartiendo esta carpeta con usted"
   },
   "44": {
-    "other": "%s Compartir"
+    "other": "Compartir %s"
   },
   "45": {
     "other": "Enviar invitación"
   },
   "46": {
-    "other": "Abrir el repositorio %s1 directamente en %s2"
+    "other": "Abrir workspace %s1 directamente en %s2"
   },
   "46_file": {
     "other": "Abrir archivo %s1"
@@ -726,13 +726,13 @@
     "other": "ninguno"
   },
   "54": {
-    "other": "Con..."
+    "other": "Compartido con"
   },
   "55": {
     "other": "Compartido..."
   },
   "56": {
-    "other": "Configure intercambio..."
+    "other": "Configure la función de compartir..."
   },
   "57": {
     "other": "veces"
@@ -744,7 +744,7 @@
     "other": "Página de descargas"
   },
   "6": {
-    "other": "Dejar de compartir"
+    "other": "Detener la función de compartir"
   },
   "60": {
     "other": "Enlace de Descarga Directa"
@@ -756,37 +756,37 @@
     "other": "Dirección de minisitio"
   },
   "63": {
-    "other": "Nueva carpeta"
+    "other": "Nuevo workspace"
   },
   "64": {
-    "other": "Para usuarios internos y externos, la carpeta aparecerá como una nueva en la lista de carpetas del usuario."
+    "other": "Para usuarios internos y externos, la carpeta aparecerá como un nuevo workspace en la lista de workspaces de los usuarios."
   },
   "65": {
-    "other": "Minisitio público (no se requiere identificación)"
+    "other": "Minisite público (no se requiere autenticación)"
   },
   "66": {
-    "other": "Para usuarios externos la carpeta aparecerá como una nueva dirección pública en su lista de carpetas."
+    "other": "Para usuarios externos, la carpeta aparecerá en una nueva dirección pública como una simple lista de archivos."
   },
   "67": {
-    "other": "Minisitio privado (se requiere identificación)"
+    "other": "Minisitio privado (se requiere autenticación)"
   },
   "68": {
-    "other": "Para usuarios internos o externos la carpeta aparecerá como una nueva dirección en su lista de carpetas, pero se requerirá identificación de usuario"
+    "other": "Para usuarios internos o externos, la carpeta aparecerá en una nueva dirección como una simple lista de archivos, pero se requerirá autenticación de usuario"
   },
   "69": {
     "other": "Configure el Minisitio"
   },
   "69r": {
-    "other": "Configure el Minisitio"
+    "other": "Parámetros de enlace"
   },
   "7": {
-    "other": "Dejar de compartir no eliminará el archivo. Si quieres cambiar los parámetros, vuele a compartir el archivo."
+    "other": "Detener la función de compartir no eliminará el archivo. Si quiere cambiar los parámetros, vuelva a compartir el archivo."
   },
   "70": {
-    "other": "Use las casillas de verificación para conceder permisos a esta carpeta para el público. Si selecciona solamente 'Cargar' esta carpeta aparecerá vacía para que los usuarios puedan dejar archivos en ella."
+    "other": "Use las casillas de verificación para conceder permisos a esta carpeta para el público. Si selecciona solamente 'Subida' esta carpeta estará vacía y los usuarios podrán guardar archivos en ella."
   },
   "70r": {
-    "other": "Etiquetas y permisos asignados a usuarios que acceden al minisitio"
+    "other": "Permisos concedidos a los usuarios que acceden a este enlace"
   },
   "71": {
     "other": "Permisos"
@@ -798,13 +798,13 @@
     "other": "Descargar"
   },
   "74": {
-    "other": "Cargar"
+    "other": "Subir archivos"
   },
   "74b": {
     "other": "Editar"
   },
   "75": {
-    "other": "Por favor use un número positivo para Caducidad y Límite de Descargas."
+    "other": "Por favor, utilice un número positivo para los campos de Expiración y límite de Descargas."
   },
   "76": {
     "other": "Por favor, habilite las cookies para acceder a esta aplicación"
@@ -825,10 +825,10 @@
     "other": "Enviar enlace por correo electrónico a una selección de usuarios o direcciones"
   },
   "80b": {
-    "other": "Invitar a visitar este repositorio a los usuarios seleccionados vía correo electrónico"
+    "other": "Invite por correo electrónico a los usuarios seleccionados a visitar este workspace"
   },
   "81": {
-    "other": "visto"
+    "other": "dejar de visualizar"
   },
   "82": {
     "other": "no visto"
