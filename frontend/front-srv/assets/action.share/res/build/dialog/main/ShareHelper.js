@@ -37,7 +37,15 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+
+var moment = _Pydio$requireLib.moment;
 
 var ShareHelper = (function () {
     function ShareHelper() {
@@ -231,17 +239,18 @@ var ShareHelper = (function () {
                 var linkObject = linkModel.getLink();
                 if (node.isLeaf()) {
                     templateId = "PublicFile";
-                    templateData["FileName"] = node.getLabel();
+                    templateData["FileName"] = linkObject.Label || node.getLabel();
                 } else {
                     templateId = "PublicFolder";
-                    templateData["FolderName"] = node.getLabel();
+                    templateData["FolderName"] = linkObject.Label || node.getLabel();
                 }
                 templateData["LinkPath"] = "/public/" + linkObject.LinkHash;
                 if (linkObject.MaxDownloads) {
                     templateData["MaxDownloads"] = linkObject.MaxDownloads + "";
                 }
                 if (linkObject.AccessEnd) {
-                    templateData["Expire"] = linkObject.AccessEnd;
+                    var m = moment(new Date(linkObject.AccessEnd * 1000));
+                    templateData["Expire"] = m.format('LL');
                 }
             } else {
                 templateId = "Cell";

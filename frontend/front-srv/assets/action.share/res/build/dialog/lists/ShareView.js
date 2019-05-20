@@ -221,6 +221,9 @@ var ShareView = (function (_React$Component) {
                                 icon = 'mdi mdi-file';
                             }
                         }
+                        if (res.Link && res.Link.Label) {
+                            basename = res.Link.Label + ' (' + basename + ')';
+                        }
                         return _react2['default'].createElement(_materialUi.ListItem, {
                             primaryText: basename,
                             secondaryText: res.Link ? m(251) + ': ' + res.Link.Description : m(284).replace('%s', res.Cells.length),
