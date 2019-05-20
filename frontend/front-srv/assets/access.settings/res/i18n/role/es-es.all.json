@@ -96,7 +96,7 @@
     "other": "Etiqueta del Rol"
   },
   "33": {
-    "other": "Aplicar automáticamente a usuario con el perfil..."
+    "other": "Aplicar automáticamente a usuarios con el perfil..."
   },
   "34": {
     "other": "ID del Grupo"
@@ -114,13 +114,13 @@
     "other": "heredado"
   },
   "39": {
-    "other": "Deshabilitado"
+    "other": "Deshabilitar"
   },
   "4": {
     "other": "ACL"
   },
   "40": {
-    "other": "Habilitado"
+    "other": "Habilitar"
   },
   "41": {
     "other": "Borrar"
@@ -132,13 +132,13 @@
     "other": "Seleccione uno o más"
   },
   "44": {
-    "other": "Ajuste Fino de Plugins"
+    "other": "Ajuste Avanzado de Plugins"
   },
   "45": {
     "other": "Listas de Control de Acceso"
   },
   "46": {
-    "other": "Deshabilitar Acciones"
+    "other": "Acciones deshabilitadas"
   },
   "47": {
     "other": "Buscar Roles"
@@ -156,7 +156,7 @@
     "other": "Información Personal"
   },
   "9": {
-    "other": "Selecciona los workspaces a los que este workspace va a tener acceso. Use el valor 'Denegar' para sobreescribir el valor de un rol anterior o denegar el acceso a este workspace incluso a roles heredados."
+    "other": "Seleccione los workspaces a los que se puede tener acceso con este rol. Use el valor 'Denegar' para sobreescribir el valor de un rol anterior o denegar el acceso a este workspace incluso a roles heredados."
   },
   "dashboard.description": {
     "other": "Los roles son contenedores de Listas de Acceso para permitir el acceso a cualquiera de los entornos de trabajo o personalizar parámetros y acciones. Pueden ser asignados a cualquier usuario de forma manual."

@@ -3,31 +3,31 @@
     "other": "Monitorizar..."
   },
   "10": {
-    "other": "Alguien abra el archivo"
+    "other": "Alguien está abriendo el archivo"
   },
   "10b": {
-    "other": "Alguien explore la carpeta"
+    "other": "Alguien está explorando la carpeta"
   },
   "11": {
     "other": "Modificación"
   },
   "12": {
-    "other": "Alguien modifique el archivo"
+    "other": "Alguien está modificando el archivo"
   },
   "12b": {
-    "other": "Alguien modifique un archivo dentro de esta carpeta"
+    "other": "Alguien está modificando un archivo dentro de esta carpeta"
   },
   "13": {
     "other": "Ambos"
   },
   "14": {
-    "other": "Alguien abra o escriba en el archivo"
+    "other": "Alguien está abriendo o escribiendo en el archivo"
   },
   "14b": {
-    "other": "Alguien explore o modifique el contenido de la carpeta"
+    "other": "Alguien está explorando o modificando el contenido de la carpeta"
   },
   "2": {
-    "other": "Notificar cuando se accede a esta carpeta"
+    "other": "Recibir una notificación cuando se accede a esta carpeta"
   },
   "3": {
     "other": "Detener monitorización"
@@ -36,13 +36,13 @@
     "other": "Detener monitorización de accesos a esta carpeta"
   },
   "5": {
-    "other": "Monitorizar..."
+    "other": "Vigilar..."
   },
   "6": {
-    "other": "Monitorizar cambios en este archivo"
+    "other": "Vigilar cambios en este archivo"
   },
   "7": {
-    "other": "Detener monitorización"
+    "other": "Stop watching"
   },
   "8": {
     "other": "Detener monitorización de cambios en este archivo"

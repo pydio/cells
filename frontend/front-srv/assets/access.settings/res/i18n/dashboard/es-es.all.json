@@ -21,19 +21,19 @@
     "other": "He implementado una función nueva: GitHub Pull Requests"
   },
   "cont.topic.report": {
-    "other": "¡Creo que he encontrado un bug! Abra un hilo en el foro."
+    "other": "¡Creo que he encontrado un bug! Publicar en el foro."
   },
   "cont.topic.report.2": {
-    "other": "Mi bug se ha confirmado: abra un GitHub Issue."
+    "other": "El bug está calificado: abrir una incidencia de github."
   },
   "cont.topic.translate": {
     "other": "¿Cómo crear o completar una traducción?"
   },
   "ent.advanced": {
-    "other": "Panel de Administrador Avanzado"
+    "other": "Panel de Control de Administrador Avanzado"
   },
   "ent.advanced.legend": {
-    "other": "Panel de administración único para monitorizar la plataforma en tiempo real."
+    "other": "Panel de control de administrador único para monitorizar la plataforma en tiempo real."
   },
   "ent.btn.contact": {
     "other": "Contacto de Ventas"
@@ -42,10 +42,10 @@
     "other": "Saber más"
   },
   "ent.features": {
-    "other": "Funcionalidad dirigida a la Empresa"
+    "other": "Funcionalidades para empresas"
   },
   "ent.features.legend": {
-    "other": "Funcionalidad para Empresas: AD/LDAP Connectors, EasyTransfer y mucho más..."
+    "other": "Funcionalidades para Empresas: AD/LDAP Connectors, EasyTransfer y mucho más..."
   },
   "ent.subtitle": {
     "other": "MÁS FUNCIONALIDADES - GDPR-READY - BRANDING EXTENDIDO"
@@ -66,10 +66,10 @@
     "other": "Ir al Foro"
   },
   "kb.intro": {
-    "other": "Además del foro nuestra web tiene muchos documentos para ayudarle. Asegúrese de mirar en la documentación antes de crear un hilo en el foro ;-)"
+    "other": "Además del foro, nuestra web tiene muchos documentos para ayudarle. Asegúrese de consultar en la documentación antes de crear un hilo en el foro ;-)"
   },
   "kb.subtitle": {
-    "other": "Nuestro F.A.Q. y tutorial, a.k.a RTFM"
+    "other": "Nuestra sección F.A.Q. y tutorial, a.k.a RTFM"
   },
   "kb.title": {
     "other": "Consiga ayuda"
@@ -84,7 +84,7 @@
     "other": "Comenzando"
   },
   "welc.btn.users": {
-    "other": "Sobre Gestión de Usuario"
+    "other": "Sobre Gestión de Usuarios"
   },
   "welc.btn.ws": {
     "other": "Sobre Workspaces"

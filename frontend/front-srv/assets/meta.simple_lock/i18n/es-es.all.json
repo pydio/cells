@@ -3,15 +3,15 @@
     "other": "Bloquear"
   },
   "2": {
-    "other": "Bloquear el elemento"
+    "other": "Bloquear elemento seleccionado"
   },
   "3": {
     "other": "Desbloquear"
   },
   "4": {
-    "other": "Debloquea el elemento"
+    "other": "Debloquear"
   },
   "5": {
-    "other": "Este archivo está bloqueado por otro usuario, es problable que lo esté editando, no tienes permisos para modificarlo."
+    "other": "Este archivo está bloqueado por otro usuario, es problable que lo esté editando, no tiene permisos para modificarlo."
   }
 }
