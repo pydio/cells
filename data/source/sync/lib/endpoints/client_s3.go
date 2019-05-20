@@ -62,10 +62,10 @@ type S3Client struct {
 
 func NewS3Client(ctx context.Context, url string, key string, secret string, bucket string, rootPath string) (*S3Client, error) {
 	mc, e := minio.New(url, key, secret, false)
-	mc.SetAppInfo(UserAgentAppName, UserAgentVersion)
 	if e != nil {
 		return nil, e
 	}
+	mc.SetAppInfo(UserAgentAppName, UserAgentVersion)
 	return &S3Client{
 		Mc:            mc,
 		Bucket:        bucket,
