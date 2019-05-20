@@ -9,7 +9,7 @@
     "other": "Elegir donde se abrirán los documentos"
   },
   "Choose where the http links are opened": {
-    "other": "Elegir donde se abrir los enlaces http"
+    "other": "Elegir donde se abrirán los enlaces http"
   },
   "External Window": {
     "other": "Ventana Externa"
@@ -18,7 +18,7 @@
     "other": "Abrir documentos en..."
   },
   "Open file in a new browser window, thus using native browser capabilities.": {
-    "other": "Abrir archivo en una nueva ventana del navegador, se usa las capacidades nativa del navegador."
+    "other": "Abrir archivo en una nueva ventana del navegador, se usan las capacidades nativas del navegador."
   },
   "Open link in...": {
     "other": "Abrir enlace en..."

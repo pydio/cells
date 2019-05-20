@@ -9,10 +9,10 @@
     "other": "Elija otro editor para abrir este archivo"
   },
   "4": {
-    "other": "Atención, estos editores no parecen soportar este tipo de archivos, ¡su comportamiento puede ser impredecible!"
+    "other": "¡Atención, estos editores no soportan este tipo de archivos, su comportamiento puede ser impredecible!"
   },
   "5": {
-    "other": "Borrar las asociaciones existentes"
+    "other": "Eliminar asociaciones"
   },
   "drop.cell.picker": {
     "other": "Elegir acción para %s..."

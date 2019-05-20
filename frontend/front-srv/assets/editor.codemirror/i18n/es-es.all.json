@@ -9,16 +9,16 @@
     "other": "Resaltar Sintáxis con CodeMirror"
   },
   "3": {
-    "other": "Ajuste Línea"
+    "other": "Wrapping"
   },
   "3b": {
     "other": "Activa ajuste de línea"
   },
   "4": {
-    "other": "Número"
+    "other": "Números"
   },
   "5": {
-    "other": "Activa el número de línea"
+    "other": "Toggle lines numbers"
   },
   "6": {
     "other": "Salta a Línea"
@@ -30,6 +30,6 @@
     "other": "Rehacer"
   },
   "9": {
-    "other": "Búsqueda"
+    "other": "Búsqueda de texto"
   }
 }
