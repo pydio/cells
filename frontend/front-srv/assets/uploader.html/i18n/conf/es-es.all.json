@@ -3,16 +3,16 @@
     "other": "Siempre Sobreescribir"
   },
   "Auto Close": {
-    "other": "Auto Cerrar"
+    "other": "Cierre automático"
   },
   "Auto Rename File": {
-    "other": "Auto Renombrado"
+    "other": "Renombrado Automático de Archivo"
   },
   "Auto Start": {
-    "other": "Auto Comenzar"
+    "other": "Inicio automático"
   },
   "Auto-switching HTML5 or IFrame uploader.": {
-    "other": "Uploader en HTML5 o IFrame."
+    "other": "Conmutación automática entre cargadores HTML5 o IFrame."
   },
   "Default Behaviour": {
     "other": "Comportamiento Predeterminado"

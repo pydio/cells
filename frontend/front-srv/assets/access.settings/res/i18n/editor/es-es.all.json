@@ -21,7 +21,7 @@
     "other": "Seleccione un parámetro o acción y pulse Añadir. Puede buscar en los parámetros usando al campo de abajo."
   },
   "16": {
-    "other": "Mostrar/Ocultar Heredado"
+    "other": "Mostrar/Ocultar valores heredados"
   },
   "17": {
     "other": "Añadir Parámetro o Acción"
@@ -57,13 +57,13 @@
     "other": "Información de Grupos"
   },
   "27": {
-    "other": "Info Grupos"
+    "other": "Info de Grupos"
   },
   "28": {
     "other": "Información de Roles"
   },
   "29": {
-    "other": "Info Roles"
+    "other": "Info de Roles"
   },
   "3": {
     "other": "Deshabilitado"
@@ -90,7 +90,7 @@
     "other": "Páginas de la Aplicación"
   },
   "37": {
-    "other": "Configurar Parámetros"
+    "other": "Personalizar Parámetros"
   },
   "38": {
     "other": "Parámetros de la Aplicación"
@@ -123,22 +123,22 @@
     "other": "Parámetros y Acciones"
   },
   "47": {
-    "other": "Ajuste de parámetros y acciones para workspaces"
+    "other": "Ajuste de parámetros y acciones para workspaces específicos"
   },
   "49": {
-    "other": "Intercambios"
+    "other": "Elementos compartidos"
   },
   "5": {
     "other": "Sobreescribir valor"
   },
   "50": {
-    "other": "Archivos y Carpetas Compartidas"
+    "other": "Carpetas y Archivos Compartidos"
   },
   "51": {
     "other": "Con este usuario"
   },
   "52": {
-    "other": "Por este usuario"
+    "other": "Celdas y enlaces públicos creados por este usuario"
   },
   "53": {
     "other": "Compartido por %1 desde el workspace %2"
@@ -168,13 +168,13 @@
     "other": "Añadir para..."
   },
   "parameters.scope.all": {
-    "other": "Todos los Entornos de Trabajo"
+    "other": "Todos los Workspaces"
   },
   "parameters.scope.shared": {
-    "other": "Solo Cells compartidas"
+    "other": "Solo celdas compartidas"
   },
   "parameters.scope.workspace": {
-    "other": "Entorno de Trabajo %s"
+    "other": "Workspace %s"
   },
   "parameters.custom.add": {
     "other": "Añadir Parámetro o Acción personalizados"
@@ -198,6 +198,6 @@
     "other": "Derechos establecidos manualmente"
   },
   "acls.rights.advanced.root": {
-    "other": "Entorno de trabajo completo"
+    "other": "Workspace completo"
   }
 }

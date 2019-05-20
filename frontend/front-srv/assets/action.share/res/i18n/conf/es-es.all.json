@@ -12,7 +12,7 @@
     "other": "Autorizaciones"
   },
   "Avoid labels duplication": {
-    "other": "Evitar etiquetas duplicadas"
+    "other": "Evitar duplicación de etiquetas"
   },
   "Background Color": {
     "other": "Color de Fondo"
@@ -24,13 +24,13 @@
     "other": "Crea y muestra un código QR para el enlace compartido"
   },
   "Disable Folder Sharing": {
-    "other": "Desactiva Intercambio de Carpetas"
+    "other": "Desactivar Intercambio de Carpetas"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Prohibe al usuario crear una carpeta compartida si ya existe un workspace con la misma etiqueta"
+    "other": "No permitir a los usuarios crear carpetas compartidas si un workspace ya existe con la misma etiqueta"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
-    "other": "No permite a los usuarios crear enlaces públicos, sólo privados (con contraseña)"
+    "other": "No permitir a los usuarios crear enlaces públicos, sólo privados (con contraseña)"
   },
   "Download Button": {
     "other": "Botón de Descarga"
@@ -42,25 +42,25 @@
     "other": "Texto de descarga con contraseña"
   },
   "Enable folder sharing": {
-    "other": "Activa intercambio de carpetas"
+    "other": "Activar el uso compartido de carpetas"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Activa intercambio de carpetas (workspace y minisitio)"
+    "other": "Activar uso compartido de carpetas (workspace y minisitio)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
-    "other": "Activar intercambio interno de archivos (intercambio con usuarios o usuarios temporales)"
+    "other": "Activar uso compartido de archivos internos (uso compartido con usuarios o usuarios temporales)"
   },
   "Enable internal folder sharing (sharing with users existing or temporary users)": {
-    "other": "Activa intercambio interno de carpetas (intercambio con usuarios o usuarios temporales)"
+    "other": "Activar uso compartido de carpetas internas (uso compartido con usuarios o usuarios temporales)"
   },
   "Enable public link generation for files": {
-    "other": "Activa la generación de enlaces públicos para los archivos"
+    "other": "Activar la generación de enlaces públicos para los archivos"
   },
   "Enable public links for files": {
-    "other": "Activa enlaces públicos para los archivos"
+    "other": "Activar enlaces públicos para los archivos"
   },
   "Files: enable internal sharing": {
-    "other": "Archivos: activar intercambio interno"
+    "other": "Archivos: activar uso compartido interno"
   },
   "Files: enable public links": {
     "other": "Archivos: activar enlaces públicos"
@@ -69,13 +69,13 @@
     "other": "Compartir Carpeta"
   },
   "Folders: enable internal sharing": {
-    "other": "Carpetas: activar intercambio interno"
+    "other": "Carpetas: activar uso compartido interno"
   },
   "Folders: enable public links": {
     "other": "Carpetas: activar enlaces públicos"
   },
   "Force External Mailer": {
-    "other": "Usa Gestor de Correo Externo"
+    "other": "Forzar Gestor de Correo Externo"
   },
   "Fork Events Forwarding": {
     "other": "Fork Events Forwarding"
@@ -87,13 +87,13 @@
     "other": "Hash editable por el usuario"
   },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
-    "other": "Si tienes problemas de rendimiento modificando archivos en directorios muy profundos, prueba a activar esta opción. Asegurate de lo que estás haciendo, esta opción puede activar muchos procesos php en el servidor."
+    "other": "Si tiene problemas de rendimiento al modificar archivos en directorios de muchos niveles, pruebe a activar esta opción. Asegurese de lo que está haciendo, esta opción puede activar muchos procesos php en el servidor."
   },
   "Image used as a button for downloading the file": {
-    "other": "Usar imagen como botón de descarga"
+    "other": "Imagen usada como botón para descargar el archivo"
   },
   "Internal Sharing": {
-    "other": "Intercambio Interno"
+    "other": "Uso compartido Interno"
   },
   "Link Generation": {
     "other": "Generación de Enlace"
@@ -105,10 +105,10 @@
     "other": "Número máximo de descargas por archivo, 0 = ilimitado"
   },
   "Maximum file download limit": {
-    "other": "Número máximo de descargas por archivo"
+    "other": "Límite máximo de descarga de archivos"
   },
   "Maximum file expiration limit": {
-    "other": "Tiempo de expiración máximo de archivo"
+    "other": "Límite máximo de expiración de archivos"
   },
   "Maximum share expiration limit for file, 0 = unlimited": {
     "other": "Tiempo de expiración máximo para archivos compartidos, 0 = ilimitado"
@@ -129,25 +129,25 @@
     "other": "Título de la Página"
   },
   "Set password mandatory": {
-    "other": "Contraseña obligatoria"
+    "other": "Establecer contraseña obligatoria"
   },
   "Share Center actions and hooks": {
     "other": "Acciones del Centro de Intercambio y hooks"
   },
   "Share page background color.": {
-    "other": "Color de fondo de la página de intercambio."
+    "other": "Compartir color de fondo de la página."
   },
   "Share page text color.": {
-    "other": "Color de texto de la página de intercambio."
+    "other": "Compartir color de texto de página."
   },
   "Share page text shadow color.": {
-    "other": "Color de la sombra del texto de la página de intercambio."
+    "other": "Compartir color de sombra de texto de página."
   },
   "Shared users configurations": {
     "other": "Configuración de usuario compartida"
   },
   "Sharing Features": {
-    "other": "Opciones de Intercambio"
+    "other": "Funcionalidades de Uso Compartido"
   },
   "Text Color": {
     "other": "Color de Texto"
@@ -156,19 +156,19 @@
     "other": "Sombra de Texto"
   },
   "Tmp users prefix": {
-    "other": "Prefijo usuario temporal"
+    "other": "Prefijo de usuarios Tmp"
   },
   "Use Rewrite Rule": {
-    "other": "Usar Rewrite Rule"
+    "other": "Usar regla de reescritura"
   },
   "Use external mailer for invitations": {
     "other": "Usar gestor de correo externo para invitaciones"
   },
   "Use web server RewriteEngine mechanism to generate prettier URLs": {
-    "other": "Usa el RewriteEngine del servidor web para generar URLs más legibles"
+    "other": "Usa la funcionalidad RewriteEngine del servidor web para generar URLs más legibles"
   },
   "Weblink Page": {
-    "other": "Página Enlace Web"
+    "other": "Página de enlace web"
   },
   "Workspaces only": {
     "other": "Sólo Workspaces"
