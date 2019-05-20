@@ -40,8 +40,8 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
@@ -587,24 +587,34 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	rsp.WriteEntity(u)
 
 	_, hasEmailAddress := u.Attributes["email"]
-	if sendEmail && hasEmailAddress{
-		// Now send email to user!
+	if sendEmail && hasEmailAddress {
+		// Now send email to user in background
 		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.SERVICE_MAILER))
-		mailCli.SendMail(ctx, &mailer.SendMailRequest{
-			InQueue: false,
-			Mail: &mailer.Mail{
-				To: []*mailer.User{{
-					Uuid:    u.Uuid,
-					Name:    u.Attributes["displayName"],
-					Address: u.Attributes["email"],
-				}},
-				TemplateId: "Welcome",
-				TemplateData: map[string]string{
-					"Login": inputUser.Login,
-					"Password": inputUser.Password,
-				},
+		email := &mailer.Mail{
+			To: []*mailer.User{{
+				Uuid:    u.Uuid,
+				Name:    u.Attributes["displayName"],
+				Address: u.Attributes["email"],
+			}},
+			TemplateId: "Welcome",
+			TemplateData: map[string]string{
+				"Login":    inputUser.Login,
+				"Password": inputUser.Password,
 			},
-		})
+		}
+		c := context.Background()
+		if u := ctx.Value(common.PYDIO_CONTEXT_USER_KEY); u != nil {
+			c = context.WithValue(c, common.PYDIO_CONTEXT_USER_KEY, u)
+		}
+		go func() {
+			_, er := mailCli.SendMail(c, &mailer.SendMailRequest{
+				InQueue: false,
+				Mail:    email,
+			})
+			if er != nil {
+				log.Logger(ctx).Error("Could not send email to new user", zap.Error(er))
+			}
+		}()
 	}
 
 }
