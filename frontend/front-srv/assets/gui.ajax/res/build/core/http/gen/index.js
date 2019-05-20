@@ -705,6 +705,14 @@ var _modelRestTemplateNode = require('./model/RestTemplateNode');
 
 var _modelRestTemplateNode2 = _interopRequireDefault(_modelRestTemplateNode);
 
+var _modelRestUpdateSharePoliciesRequest = require('./model/RestUpdateSharePoliciesRequest');
+
+var _modelRestUpdateSharePoliciesRequest2 = _interopRequireDefault(_modelRestUpdateSharePoliciesRequest);
+
+var _modelRestUpdateSharePoliciesResponse = require('./model/RestUpdateSharePoliciesResponse');
+
+var _modelRestUpdateSharePoliciesResponse2 = _interopRequireDefault(_modelRestUpdateSharePoliciesResponse);
+
 var _modelRestUserBookmarksRequest = require('./model/RestUserBookmarksRequest');
 
 var _modelRestUserBookmarksRequest2 = _interopRequireDefault(_modelRestUserBookmarksRequest);
@@ -2183,6 +2191,20 @@ exports.
  * @property {module:model/RestTemplateNode}
  */
 RestTemplateNode = _modelRestTemplateNode2['default'];
+exports.
+
+/**
+ * The RestUpdateSharePoliciesRequest model constructor.
+ * @property {module:model/RestUpdateSharePoliciesRequest}
+ */
+RestUpdateSharePoliciesRequest = _modelRestUpdateSharePoliciesRequest2['default'];
+exports.
+
+/**
+ * The RestUpdateSharePoliciesResponse model constructor.
+ * @property {module:model/RestUpdateSharePoliciesResponse}
+ */
+RestUpdateSharePoliciesResponse = _modelRestUpdateSharePoliciesResponse2['default'];
 exports.
 
 /**

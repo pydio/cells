@@ -141,9 +141,10 @@ exports['default'] = React.createClass({
                 AlwaysLast: true,
                 Component: React.createElement(ResourcePoliciesPanel, {
                     pydio: pydio,
-                    resourceType: 'workspace',
+                    resourceType: 'cell',
+                    description: m('cell.visibility.advanced'),
                     resourceId: model.getUuid(),
-                    style: {},
+                    style: { margin: -10 },
                     skipTitle: true,
                     onSavePolicies: function () {},
                     readonly: false,

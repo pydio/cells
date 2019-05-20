@@ -115,10 +115,11 @@ var VisibilityPanel = _react2['default'].createClass({
         var subjectDisables = { READ: subjectsHidden, WRITE: subjectsHidden };
         return _react2['default'].createElement(
             'div',
-            { style: this.props.style, title: this.props.getMessage('199') },
+            { style: this.props.style },
             linkModel.getLink().Uuid && _react2['default'].createElement(ResourcePoliciesPanel, {
                 pydio: pydio,
-                resourceType: 'workspace',
+                resourceType: 'link',
+                description: this.props.getMessage('link.visibility.advanced'),
                 resourceId: linkModel.getLink().Uuid,
                 skipTitle: true,
                 onSavePolicies: this.onSavePolicies.bind(this),

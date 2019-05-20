@@ -248,6 +248,7 @@ var ActionsPanel = (function (_React$Component) {
                     'div',
                     { style: { width: 256, height: 320 } },
                     React.createElement(_policiesResourcePoliciesPanel2['default'], {
+                        description: this.props.pydio.MessageHash['visibility.users.advanced'],
                         pydio: this.props.pydio,
                         resourceType: resourceType,
                         resourceId: resourceId,

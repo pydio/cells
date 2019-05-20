@@ -209,12 +209,14 @@ class CompositeCard extends React.Component {
                             </div>
                         )
                     });
-                    tabs.left.push({
-                        Label:m(253),
-                        Value:'link-visibility',
-                        Component:( <VisibilityPanel pydio={pydio} linkModel={links[0]}/> ),
-                        AlwaysLast: true
-                    })
+                    if(links[0].isEditable()){
+                        tabs.left.push({
+                            Label:m(253),
+                            Value:'link-visibility',
+                            Component:( <VisibilityPanel pydio={pydio} linkModel={links[0]}/> ),
+                            AlwaysLast: true
+                        })
+                    }
                 }
             }
 
