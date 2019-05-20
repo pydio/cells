@@ -222,7 +222,7 @@
     "other": "Enlace obsoleto"
   },
   "162": {
-    "other": "Tiene uno o mas enlaces antiguos en este archivo. Por favor, reemplácelo con un nuevo enlace deteniendo este intercambio y recreando una nueva. Copie el 'hash' del intercambio (la útima parte del enlace, p.e. http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) y úselo en el nuevo diálogo de intercambio para estar seguro de que el enlace seguirá activo tras la migración."
+    "other": "Tiene uno o más enlaces antiguos en este archivo. Los enlaces siguen activos, por lo que puede reemplazarlos con un nuevo enlace de compartir deteniendo esta acción y creando un nuevo enlace. Copie el 'hash' (la última parte del enlace, por ejemplo: http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) y aplíquelo al nuevo enlace usando el formulario 'Cambiar parámetros'."
   },
   "163": {
     "other": "Arrastre archivos aquí (para minisitios con subida de archivos habilitada)"
@@ -342,7 +342,7 @@
     "other": "Puede seleccionar la apariencia de este enlace en el navegador."
   },
   "199": {
-    "other": "Visibilidad"
+    "other": "Visibilidad de los Recursos Compartidos"
   },
   "2": {
     "other": "Haga clic en la imagen para descargar <b>%s</b> a su disco duro"
@@ -834,10 +834,10 @@
     "other": "no visto"
   },
   "83": {
-    "other": "Conmuta el estado de visto para recibir o no notificaciones cuando el archivo se haya descargado"
+    "other": "Cambie el estado de visualización para recibir o no notificaciones cuando el archivo se haya descargado"
   },
   "83b": {
-    "other": "Conmuta el estado de visto para recibir o no notificaciones cuando el repositorio es consultado"
+    "other": "Cambie el estado de visualización para recibir o no notificaciones cuando el workspace es consultado"
   },
   "84": {
     "other": "contraseña"
@@ -849,7 +849,7 @@
     "other": "expira"
   },
   "87": {
-    "other": "Este enlace expirará automáticamente en..."
+    "other": "Este enlace expirará automáticamente el..."
   },
   "88": {
     "other": "descargas"
@@ -858,7 +858,7 @@
     "other": "Número de descargas / descargas autorizadas. Click para restablecer el contador de descargas."
   },
   "9": {
-    "other": "Usa este botón para dejar de compartir esta carpeta"
+    "other": "Utilice este botón para dejar de compartir esta carpeta"
   },
   "90": {
     "other": "Enlace URL"
@@ -885,7 +885,7 @@
     "other": "Dejar de compartir esta carpeta con otros usuarios"
   },
   "98": {
-    "other": "Mis intercambios"
+    "other": "Mis Elementos Compartidos"
   },
   "99": {
     "other": "Todos los elementos compartidos"
@@ -898,5 +898,11 @@
   },
   "cells.create.title.fill.folders": {
     "other": "Compartir carpeta(s) existente(s)"
+  },
+  "cell.visibility.advanced": {
+    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
+  },
+  "link.visibility.advanced": {
+    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
   }
 }

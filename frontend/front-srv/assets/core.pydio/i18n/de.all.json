@@ -2230,5 +2230,41 @@
   },
   "cells.quick-filter": {
     "other": "Zellen filtern"
+  },
+  "visibility.panel.title": {
+    "other": "Visibility"
+  },
+  "visibility.panel.right-read": {
+    "other": "View"
+  },
+  "visibility.panel.right-edit": {
+    "other": "Edit"
+  },
+  "visibility.panel.list.users": {
+    "other": "Users"
+  },
+  "visibility.panel.list.teams": {
+    "other": "Your Teams"
+  },
+  "visibility.panel.edit": {
+    "other": "Change visibility"
+  },
+  "visibility.panel.save": {
+    "other": "Save changes"
+  },
+  "visibility.panel.revert": {
+    "other": "Revert changes"
+  },
+  "visibility.panel.error": {
+    "other": "An error occured"
+  },
+  "visibility.panel.pickuser": {
+    "other": "Pick a user..."
+  },
+  "visibility.panel.setvisible": {
+    "other": "Set visible to..."
+  },
+  "visibility.users.advanced": {
+    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
   }
 }

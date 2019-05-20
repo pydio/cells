@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "Restaurar Contraseña"
+    "other": "Restablecer contraseña"
   },
   "2": {
-    "other": "Configurar tu contraseña"
+    "other": "Establezca su nueva contraseña"
   },
   "3": {
-    "other": "Por favor introduce tu usuario, se enviará un enlace a tu correo."
+    "other": "Por favor introduzca su usuario, se enviará un enlace a su correo."
   },
   "4": {
-    "other": "Tu identificador"
+    "other": "Su identificador o email"
   },
   "5": {
-    "other": "Se ha enviado un enlace al correo de tu cuenta. Pulsa en el enlace del correo para volver a crear la contraseña."
+    "other": "Se ha enviado una solicitud de contraseña para restablecer el correo electrónico registrado con su cuenta. Haga click en el enlace del correo electrónico para crear una nueva una contraseña."
   },
   "6": {
-    "other": "Gracias, ¡ahora puedes iniciar sesión!"
+    "other": "Gracias, ¡ahora puede iniciar sesión!"
   },
   "7": {
-    "other": "Se ha enviado una solicitud de restauración de contraseña a tu correo asociado a la cuenta. Si no has sido tu quien la ha solicitado, ignora este correo. Si lo solicistaste pulsa en el siguiente enlace para cambiar la contraseña:"
+    "other": "Se ha enviado una solicitud de restauración de contraseña al correo asociado a su cuenta. Si no ha sido usted quien la ha solicitado, ignore este correo. Si la solicitó, pulse en el siguiente enlace para cambiar la contraseña:"
   },
   "8": {
-    "other": "Usar el formulario para restaurar la contraseña. Introduce tu usuario y la nueva contraseña dos veces."
+    "other": "Usar el formulario para restaurar la contraseña. Introduzca el usuario y la nueva contraseña dos veces."
   }
 }

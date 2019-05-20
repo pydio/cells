@@ -3,6 +3,6 @@
     "other": "Versiones basadas en Git"
   },
   "Keep tracks of all files modifications using a local Git repository": {
-    "other": "Sigue todas las modificaciones de archivos usando un repositorio Git local"
+    "other": "Mantener trazabilidad de todas las modificaciones de archivos usando un workspace local de Git"
   }
 }

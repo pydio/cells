@@ -18,13 +18,13 @@
     "other": "Permitir a los usuarios elegir un usuario existente al compartir una carpeta"
   },
   "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
-    "other": "Permitir de buscar usuarios de otros grupos a través de autocompletar (puede ser útil si la opción anterior se establece en False) y compartir repositorios con ellos"
+    "other": "Permitir buscar usuarios de otros grupos a través de autocompletar (puede ser útil si la opción anterior se establece en False) y compartir repositorios con ellos"
   },
   "Always Override": {
-    "other": "Ignorar Siempre"
+    "other": "Sustituir Siempre"
   },
   "Always override other roles, included group roles.": {
-    "other": "Ignorar siempre otros roles, incluido los roles de grupo."
+    "other": "Sustituir siempre otros roles, incluido los roles de grupo."
   },
   "Avatar": {
     "other": "Avatar"
@@ -51,7 +51,7 @@
     "other": "Workspace por defecto"
   },
   "Default start repository": {
-    "other": "Workspace de inicio por defecto"
+    "other": "Workspace predeterminado que se muestra después de iniciar sesión. 'Home' es la página de bienvenida con el motor de actividad y búsqueda."
   },
   "Display roles and/or groups": {
     "other": "Mostrar roles y/o grupos"
@@ -78,7 +78,7 @@
     "other": "Mostrar el nombre completo a los demás"
   },
   "Generic Conf Features": {
-    "other": "Configuraciones genéricas"
+    "other": "Funcionalidades de configuración genéricas"
   },
   "Hide real login": {
     "other": "Ocultar nombre de inicio de sesión real"
@@ -90,7 +90,7 @@
     "other": "Si se establece, esta acción se activará automáticamente en el inicio de sesión de los usuarios. Puede ser cerrar la sesión (para bloquear a los usuarios), cambiar contraseña (para forzar el cambio de contraseña), o cualquier otra cosa"
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
-    "other": "Si el usuario 'Invitado' está habilitado, recordar sus preferencias a través de sesiones."
+    "other": "Si el usuario 'Invitado' está habilitado, recordar sus preferencias en todas las sesiones."
   },
   "Image displayed next to the user name": {
     "other": "Imagen mostrada junto al nombre de usuario"
@@ -108,7 +108,7 @@
     "other": "Idioma"
   },
   "Let user create repositories": {
-    "other": "Permitir al usuario crear repositorios"
+    "other": "Permitir al usuario crear workspaces"
   },
   "Let user create repositories from templates": {
     "other": "Permitir al usuario crear repositorios usando plantillas"
@@ -123,10 +123,10 @@
     "other": "Lista de parámetros a editar al crear un nuevo usuario compartido."
   },
   "Make regexp mandatory": {
-    "other": "Regexp obligatorio"
+    "other": "Hacer regexp obligatorio"
   },
   "Maximum number of shared users per user": {
-    "other": "Número máximo de usuarios compartidos por usuario"
+    "other": "Número máximo de usuarios compartidos por cada usuario"
   },
   "Maximum number of users displayed in the users autocompleter": {
     "other": "Número máximo de usuarios mostrados en la lista autocompletada de usuarios"
@@ -138,7 +138,7 @@
     "other": "Nombre"
   },
   "Preferences Saving": {
-    "other": "Preferencias de guardado"
+    "other": "Guardando Preferencias"
   },
   "Remember guest preferences": {
     "other": "Recordar preferencias de invitado"
@@ -177,7 +177,7 @@
     "other": "Roles ocultos en la lista. Lista separada por ',' o empezar con 'preg: ' para expresiones regulares regex."
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Roles que deben mostrarse en la lista. Lista separada por ',' o empezar con 'preg: ' para expresiones regulares regex."
+    "other": "Algunos roles deberían mostrarse en la lista. Lista separada por ',' o empezar con 'preg: ' para expresiones regulares regex."
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
     "other": "Utilice esta opción para evitar la carga automática del estado de la interfaz (última carpeta, pestañas abiertas, etc)"
@@ -207,7 +207,7 @@
     "other": "Si los usuarios pueden crear sus propios repositorios, hacerlo basándose en plantillas predefinidas."
   },
   "Worskpace creation delegation": {
-    "other": "Delegación de la creación de repositorios"
+    "other": "Delegación de la creación de workspaces"
   },
   "role prefix": {
     "other": "Prefijo del rol"

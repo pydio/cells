@@ -1,9 +1,9 @@
 {
   "1": {
-    "other": "Etiquetas"
+    "other": "Metadatos"
   },
   "10": {
-    "other": "Nueva etiqueta o existente"
+    "other": "Etiqueta nueva o existente"
   },
   "11": {
     "other": "No hay metadatos, pulse para añadir"
@@ -24,22 +24,22 @@
     "other": "Sin etiqueta"
   },
   "3": {
-    "other": "Sin valorar"
+    "other": "Eliminar calificación"
   },
   "4": {
-    "other": "Poca importancia"
+    "other": "Bajo"
   },
   "5": {
     "other": "Pendiente"
   },
   "6": {
-    "other": "A revisar"
+    "other": "Personal"
   },
   "7": {
-    "other": "Importante"
+    "other": "Trabajo"
   },
   "8": {
-    "other": "Urgente"
+    "other": "Importante"
   },
   "9": {
     "other": "Sin valor"

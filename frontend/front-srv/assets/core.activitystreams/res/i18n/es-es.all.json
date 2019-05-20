@@ -9,7 +9,7 @@
     "other": "Actividad del archivo"
   },
   "12": {
-    "other": "Dependiendo de su navegador, esto va a pedir un permiso específico. Para desactivar, ir a través de las preferencias del navegador y excepciones. Si ya ha activado esta función, probablemente no pasará nada."
+    "other": "Dependiendo de su navegador, se le pedirá un permiso específico. Para desactivar, cambiar las preferencias del navegador y excepciones. Si ya ha activado esta función, probablemente no pasará nada."
   },
   "13": {
     "other": "Su navegador parece no soportar de momento las notificaciones de escritorio."
@@ -33,7 +33,7 @@
     "other": "Más"
   },
   "2": {
-    "other": "Fuente de Notificaciones"
+    "other": "Sistema de notificaciones"
   },
   "20": {
     "other": "Cargando notificaciones..."
@@ -57,6 +57,6 @@
     "other": "No hay alertas"
   },
   "9": {
-    "other": "Actividad del repositorio"
+    "other": "Actividad del workspace"
   }
 }
