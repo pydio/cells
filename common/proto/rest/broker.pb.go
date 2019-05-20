@@ -132,6 +132,8 @@ It has these top-level messages:
 	DeleteShareLinkResponse
 	ListSharedResourcesRequest
 	ListSharedResourcesResponse
+	UpdateSharePoliciesRequest
+	UpdateSharePoliciesResponse
 	TemplateNode
 	Template
 	ListTemplatesRequest

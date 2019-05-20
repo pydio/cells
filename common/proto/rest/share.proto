@@ -145,3 +145,14 @@ message ListSharedResourcesResponse{
     int32 Limit = 3;
     int32 Total = 4;
 }
+
+message UpdateSharePoliciesRequest{
+    string Uuid = 1;
+    repeated service.ResourcePolicy Policies = 2;
+}
+
+message UpdateSharePoliciesResponse{
+    bool Success = 1;
+    repeated service.ResourcePolicy Policies = 2;
+    bool PoliciesContextEditable = 3;
+}
