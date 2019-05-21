@@ -96,8 +96,6 @@ var EditionPanel = (function (_React$Component) {
     };
 
     EditionPanel.prototype._handleNodePushed = function _handleNodePushed(object) {
-        var _this2 = this;
-
         var _props = this.props;
         var pydio = _props.pydio;
         var tabCreate = _props.tabCreate;
@@ -108,26 +106,15 @@ var EditionPanel = (function (_React$Component) {
         var editorData = object.editorData;
 
         pydio.Registry.loadEditorResources(editorData.resourcesManager, function () {
-            var EditorClass = null;
-
-            if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
-                _this2.setState({
-                    error: "Cannot find editor component (" + editorData.editorClass + ")!"
-                });
-                return;
-            }
-
             var tabId = tabCreate({
                 id: node.getLabel(),
                 title: node.getLabel(),
                 url: node.getPath(),
-                icon: PydioWorkspaces.FilePreview,
-                Editor: EditorClass.Editor,
-                Controls: EditorClass.Controls,
-                pydio: pydio,
+                metadata: node.getMetadata(),
+                readonly: node.hasMetadataInBranch("node_readonly", "true"),
                 node: node,
                 editorData: editorData,
-                registry: pydio.Registry
+                icon: PydioWorkspaces.FilePreview
             }).id;
 
             editorSetActiveTab(tabId);

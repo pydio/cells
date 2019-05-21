@@ -18,17 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// export const mapStateToProps = (state, props) => ({
-//     ...state.tabs.filter(({editorData, node}) => editorData && props.editorData && editorData.id === props.editorData.id && node.getPath() === props.node.getPath())[0],
-//     ...props
-// })
+import { getActiveTab } from "../selectors";
 
 export const mapStateToProps = (state, props) => {
-    const {editor, tabs} = state
-    const tab = tabs.reduce((current, tab) => tab.id === editor.activeTabId ? tab : current, {})
-
     return {
         ...props,
-        tab,
+        tab: getActiveTab(state),
     }
 }

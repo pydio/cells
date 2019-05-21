@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import { ToolbarGroup, IconButton } from 'material-ui';
 
 const { ModalAppBar } = PydioComponents
-const { makeTransitionHOC, EditorActions } = Pydio.requireLib('hoc');
+const { getActiveTab, makeTransitionHOC, EditorActions } = Pydio.requireLib('hoc');
 
 // Display components
 // TODO - should be two motions for appearing and disappearing, based on a condition in the props
@@ -84,13 +84,10 @@ export default class EditorToolbar extends React.Component {
 
 // REDUX - Then connect the redux store
 function mapStateToProps(state, ownProps) {
-    const { editor = {}, tabs = [] } = state
-    const { activeTabId = -1} = editor
-
-    const activeTab = tabs.filter(tab => tab.id === activeTabId)[0] || {}
+    const tab = getActiveTab(state)
 
     return  {
         ...ownProps,
-        title: activeTab.title
+        title: tab.title
     }
 }

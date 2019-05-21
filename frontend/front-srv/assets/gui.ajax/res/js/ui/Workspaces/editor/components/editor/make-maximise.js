@@ -44,13 +44,14 @@ const makeMaximise = (Target) => {
         }
 
         render() {
+            const {style = {}} = this.props
+            const {width = "0", height = "0"} = style
+
             const {maximised} = this.state
             const motionStyle = {
-                width: maximised ? spring(TARGET, ANIMATION) : spring(parseInt(this.props.style.width.replace(/%$/, '')), ANIMATION),
-                height: maximised ? spring(TARGET, ANIMATION) : spring(parseInt(this.props.style.height.replace(/%$/, '')), ANIMATION)
+                width: maximised ? spring(TARGET, ANIMATION) : spring(parseInt(width.replace(/%$/, '')), ANIMATION),
+                height: maximised ? spring(TARGET, ANIMATION) : spring(parseInt(height.replace(/%$/, '')), ANIMATION)
             };
-
-            let {style} = this.props || {style: {}}
 
             return (
                 <Motion style={motionStyle}>
@@ -59,7 +60,7 @@ const makeMaximise = (Target) => {
                             <Target
                                 {...this.props}
                                 style={{
-                                    ...this.props.style,
+                                    ...style,
                                     width: `${width}%`,
                                     height: `${height}%`,
                                     transition: "none"

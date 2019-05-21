@@ -64,7 +64,6 @@ class EditionPanel extends React.Component {
     }
 
     _handleNodePushed(object) {
-
         const {pydio, tabCreate, editorModify, editorSetActiveTab} = this.props
 
         const {node = {}, editorData} = object
@@ -72,26 +71,15 @@ class EditionPanel extends React.Component {
         pydio.Registry.loadEditorResources(
             editorData.resourcesManager,
             () => {
-                let EditorClass = null
-
-                if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
-                    this.setState({
-                        error: "Cannot find editor component (" + editorData.editorClass + ")!"
-                    })
-                    return
-                }
-
                 let tabId = tabCreate({
                     id: node.getLabel(),
                     title: node.getLabel(),
                     url: node.getPath(),
-                    icon: PydioWorkspaces.FilePreview,
-                    Editor: EditorClass.Editor,
-                    Controls: EditorClass.Controls,
-                    pydio,
+                    metadata: node.getMetadata(),
+                    readonly: node.hasMetadataInBranch("node_readonly", "true"),
                     node,
                     editorData,
-                    registry: pydio.Registry
+                    icon: PydioWorkspaces.FilePreview
                 }).id
 
                 editorSetActiveTab(tabId)

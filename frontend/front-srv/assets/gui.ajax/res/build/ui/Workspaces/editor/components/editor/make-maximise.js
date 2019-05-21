@@ -63,26 +63,28 @@ var makeMaximise = function makeMaximise(Target) {
         _class.prototype.render = function render() {
             var _this = this;
 
+            var _props$style = this.props.style;
+            var style = _props$style === undefined ? {} : _props$style;
+            var _style$width = style.width;
+            var width = _style$width === undefined ? "0" : _style$width;
+            var _style$height = style.height;
+            var height = _style$height === undefined ? "0" : _style$height;
             var maximised = this.state.maximised;
 
             var motionStyle = {
-                width: maximised ? _reactMotion.spring(TARGET, ANIMATION) : _reactMotion.spring(parseInt(this.props.style.width.replace(/%$/, '')), ANIMATION),
-                height: maximised ? _reactMotion.spring(TARGET, ANIMATION) : _reactMotion.spring(parseInt(this.props.style.height.replace(/%$/, '')), ANIMATION)
+                width: maximised ? _reactMotion.spring(TARGET, ANIMATION) : _reactMotion.spring(parseInt(width.replace(/%$/, '')), ANIMATION),
+                height: maximised ? _reactMotion.spring(TARGET, ANIMATION) : _reactMotion.spring(parseInt(height.replace(/%$/, '')), ANIMATION)
             };
-
-            var _ref = this.props || { style: {} };
-
-            var style = _ref.style;
 
             return React.createElement(
                 _reactMotion.Motion,
                 { style: motionStyle },
-                function (_ref2) {
-                    var width = _ref2.width;
-                    var height = _ref2.height;
+                function (_ref) {
+                    var width = _ref.width;
+                    var height = _ref.height;
 
                     return React.createElement(Target, _extends({}, _this.props, {
-                        style: _extends({}, _this.props.style, {
+                        style: _extends({}, style, {
                             width: width + '%',
                             height: height + '%',
                             transition: "none"

@@ -27,11 +27,11 @@ import { IconButton, Paper } from 'material-ui';
 import Tab from './EditorTab';
 import EditorToolbar from './EditorToolbar';
 import Button from './EditorButton';
-import makeMinimise from './make-minimise';
+import _ from 'lodash';
 
 const MAX_ITEMS = 4;
 
-const { makeMotion, makeTransitionHOC, withMouseTracker, withSelectionControls, withContainerSize, EditorActions } = Pydio.requireLib('hoc');
+const { getActiveTab, makeMotion, makeTransitionHOC, withMouseTracker, withSelectionControls, withContainerSize, EditorActions } = Pydio.requireLib('hoc');
 
 const styles = {
     selectionButtonLeft: {
@@ -60,6 +60,17 @@ const styles = {
             flexShrink: 0
         }
     }
+}
+
+function difference(object, base) {
+	function changes(object, base) {
+		return _.transform(object, function(result, value, key) {
+			if (!_.isEqual(value, base[key])) {
+				result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+			}
+		});
+	}
+	return changes(object, base);
 }
 
 // MAIN COMPONENT
@@ -91,41 +102,8 @@ export default class Editor extends React.Component {
     }
 
     renderChild() {
-        const {activeTab, tabs} = this.props
-
-        const filteredTabs = tabs.filter(({editorData}) => editorData)
-
-        return filteredTabs.map((tab, index) => {
-            let style = {
-                display: "flex",
-                width: (100 / MAX_ITEMS) + "%",
-                height: "40%",
-                margin: "10px",
-                overflow: "hidden",
-                whiteSpace: "nowrap"
-            }
-
-            if (filteredTabs.length > MAX_ITEMS) {
-                if (index < MAX_ITEMS) {
-                    style.flex = 1
-                } else {
-                    style.flex = 0
-                    style.margin = 0
-                }
-            }
-
-            if (activeTab) {
-                if (tab.id === activeTab.id) {
-                    style.margin = 0
-                    style.flex = 1
-                } else {
-                    style.flex = 0
-                    style.margin = 0
-                }
-            }
-
-            return <Tab key={`editortab${tab.id}`} id={tab.id} style={{...style}} />
-        })
+        const {activeTab} = this.props
+        return <Tab id={activeTab.id} />
     }
 
     render() {
@@ -214,16 +192,14 @@ export default class Editor extends React.Component {
 // REDUX - Then connect the redux store
 function mapStateToProps(state, ownProps) {
     const { editor = {}, tabs = [] } = state
-    const { activeTabId = -1, isMinimised = false, fixedToolbar = false, focusOnSelection = false } = editor
-
-    const activeTab = tabs.filter(tab => tab.id === activeTabId)[0]
+    const { isMinimised = false, fixedToolbar = false, focusOnSelection = false } = editor
 
     return  {
         ...ownProps,
         fixedToolbar: fixedToolbar,
         hideToolbar: !ownProps.displayToolbar || (!fixedToolbar && focusOnSelection && !ownProps.isNearTop),
         hideSelectionControls: !ownProps.browseable || (focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && ! ownProps.isNearRight),
-        activeTab,
+        activeTab: getActiveTab(state),
         tabs,
         isMinimised,
     }
