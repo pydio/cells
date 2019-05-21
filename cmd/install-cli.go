@@ -292,7 +292,7 @@ func promptDB(c *install.InstallConfig) error {
 		}
 	}
 	if res := lib.PerformCheck(context.Background(), "DB", c); !res.Success {
-		fmt.Println(p.IconBad + " Wrong Database information, Try again")
+		fmt.Println(p.IconBad + " Cannot connect to database, please review the parameters")
 		return promptDB(c)
 	}
 	fmt.Println(p.IconGood + " Successfully connected to the database")
