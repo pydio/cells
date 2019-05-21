@@ -49,6 +49,7 @@
     "reactify": "^1.1.1",
     "reconnecting-websocket": "^3.2.2",
     "redux": "*",
+    "reselect": "^4.0.0",
     "superagent": "^3.8.2",
     "systemjs": "^0.20.11",
     "uuid4": "^1.0.0",

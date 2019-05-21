@@ -30,7 +30,8 @@ import {LocalisationActions, LocalisationControls} from './localisation/index'
 import {URLProvider} from './urls'
 import PaletteModifier from './PaletteModifier'
 import * as Animations from "./animations";
-import reducers from './editor/reducers/index'
+import reducers from './editor/reducers/index';
+import * as selectors from './selectors/index';
 import * as actions from './editor/actions';
 import withVerticalScroll from './scrollbar/withVerticalScroll';
 import dropProvider from './drop/dropProvider'
@@ -70,6 +71,7 @@ const PydioHOCs = {
     URLProvider,
     SizeProviders,
     ...controls,
+    ...selectors,
 };
 
 export {PydioHOCs as default}

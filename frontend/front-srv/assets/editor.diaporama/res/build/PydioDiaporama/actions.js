@@ -42,9 +42,8 @@ var onSelectionChange = function onSelectionChange(_ref) {
 exports.onSelectionChange = onSelectionChange;
 var onToggleResolution = function onToggleResolution(_ref2) {
   var dispatch = _ref2.dispatch;
-  var tab = _ref2.tab;
   return function (high) {
-    return dispatch(EditorActions.tabModify({ id: tab.id, resolution: high ? "hi" : "lo" }));
+    return dispatch(EditorActions.editorModify({ resolution: high ? "hi" : "lo" }));
   };
 };
 exports.onToggleResolution = onToggleResolution;
