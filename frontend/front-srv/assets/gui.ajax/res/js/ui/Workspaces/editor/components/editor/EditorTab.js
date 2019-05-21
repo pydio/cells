@@ -25,7 +25,6 @@ import Draggable from 'react-draggable';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
 import _ from 'lodash';
-import { pure } from 'recompose';
 
 const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, getActiveTab, getEditorResolution, withMenu, withContentControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 

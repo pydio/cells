@@ -47,7 +47,6 @@
     "react-tap-event-plugin": "^2.0.1",
     "react-textfit": "^0.1.9",
     "reactify": "^1.1.1",
-    "recompose": "^0.30.0",
     "reconnecting-websocket": "^3.2.2",
     "redux": "*",
     "reselect": "^4.0.0",

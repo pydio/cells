@@ -56,8 +56,6 @@ var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _recompose = require('recompose');
-
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var EditorActions = _Pydio$requireLib.EditorActions;
