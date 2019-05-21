@@ -51,13 +51,13 @@
     "other": "Errores"
   },
   "3": {
-    "other": "No tienes permisos para subir este archivo aquí"
+    "other": "No tiene permisos para subir este archivo aquí"
   },
   "4": {
-    "other": "Selecciona Archivo"
+    "other": "Seleccionar Archivo"
   },
   "5": {
-    "other": "Selecciona Carpeta"
+    "other": "Seleccionar Carpeta"
   },
   "6": {
     "other": "No se puede cancelar la creación de la carpeta"
@@ -66,7 +66,7 @@
     "other": "Subiendo archivos al servidor..."
   },
   "8": {
-    "other": "Parece que tu navegador no permite soltar carpetas"
+    "other": "Parece que su navegador no permite soltar carpetas"
   },
   "9": {
     "other": ""

@@ -15,7 +15,7 @@
     "other": "Use este campo de búsqueda para encontrar archivos o carpetas en cualquier workspace. Sólo se muestran los 5 primeros resultados, entre en el workspace para mostrar más resultados y opciones de búsqueda."
   },
   "tour.globsearch.2": {
-    "other": "Si no realiza una búsqueda, se muestra un historial reciente de archivos y carpetas accedidas recientemente."
+    "other": "Si no realiza una búsqueda, se muestra un historial de archivos y carpetas a los que se ha accedido recientemente."
   },
   "tour.globsearch.title": {
     "other": "Búsqueda Global"
@@ -54,34 +54,34 @@
     "other": "Saltar"
   },
   "tour.openworkspace": {
-    "other": "Al ser su primera conexión su historial estará probablemente vacío. Entre en un workspace o un Cell para añadir archivos."
+    "other": "Al ser su primera conexión, su historial estará probablemente vacío. Entre en un workspace o una celda para añadir archivos."
   },
   "tour.openworkspace.title": {
     "other": "Abrir un workspace"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directorio de todos los usuarios con acceso a la plataforma. Cree sus propios usuarios y equipos que para compartir recursos"
+    "other": "Directorio de todos los usuarios con acceso a la plataforma. Cree sus propios usuarios y equipos para compartir recursos"
   },
   "tour.uwidget.alerts": {
-    "other": "El panel de alertas le informará cuando un usuario con quien ha compartido algún recurso acceda al mismo. Puede enviarle directamente un correo."
+    "other": "El panel de alertas le informará cuando un usuario con quien ha compartido algún recurso accede al mismo. Puede enviarle directamente un correo."
   },
   "tour.uwidget.home": {
     "other": "Vuelva al panel de bienvenida con este botón"
   },
   "tour.uwidget.menu": {
-    "other": "Acceder a otras opciones: gestionar su perfil y opciones de seguridad, explorar recursos compartidos, salir de la plataforma."
+    "other": "Acceso a otras opciones: gestionar perfil y opciones de seguridad, explorar recursos compartidos, salir de la plataforma."
   },
   "tour.uwidget.title": {
     "other": "Cuadro de Usuario"
   },
   "tour.welcomemodal.skip": {
-    "other": "Salta"
+    "other": "Saltar"
   },
   "tour.welcomemodal.start": {
     "other": "Empezar la visita"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "¡Arrastre y suelte su mejor foto para su perfil! Le haremos una visita rápida para guiarle por la interfaz web."
+    "other": "¡Arrastre y suelte una foto para su perfil! Haremos una visita guiada rápida para que se familiarice con la interfaz web."
   },
   "tour.welcomemodal.title": {
     "other": "Bienvenido a APPLICATION_TITLE"
@@ -93,13 +93,13 @@
     "other": "Widgets"
   },
   "tour.workspaces.1": {
-    "other": "Los Workspaces son las carpetas superiores que le ayudarán a organizar sus datos. Puede tener acceso exclusivo o compartirlas con muchas gente."
+    "other": "Los Workspaces son las carpetas superiores que le ayudarán a organizar sus datos. Puede tener acceso exclusivo o compartirlas con otras personas."
   },
   "tour.workspaces.2": {
     "other": "Otros usuarios pueden compartir sus carpetas con usted: también apareceran como Cells aquí."
   },
   "tour.workspaces.title": {
-    "other": "Espacios de Trabajo y celdas"
+    "other": "Workspaces & Cells"
   },
   "background.jobs.title": {
     "other": "Trabajos en ejecución"

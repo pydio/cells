@@ -1,6 +1,6 @@
 {
   "Async downloader to load a file from another source": {
-    "other": "Carga un archivo desde otra fuente de forma asíncrona"
+    "other": "Sistema de descarga asíncrono para cargar un archivo desde otra fuente"
   },
   "Remote Download": {
     "other": "Servidor Remoto"

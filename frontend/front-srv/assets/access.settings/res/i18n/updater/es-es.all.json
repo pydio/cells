@@ -3,7 +3,7 @@
     "other": "Actualizar"
   },
   "10": {
-    "other": "Esto es una prueba. Por favor revisa los registros de todas las acciones que se realicen y si todo está bien pulsa 'Ejecuta la importación real'"
+    "other": "Esto es una prueba. Por favor revise los registros de todas las acciones que se realicen y si todo está bien pulse 'Ejecutar la importación real'"
   },
   "11": {
     "other": "Migrar meta.serial"
@@ -18,7 +18,7 @@
     "other": "Ejecutar la migración"
   },
   "15": {
-    "other": "¿Estás seguro que quieres realizar la actualización?"
+    "other": "¿Estás seguro que quiere realizar la actualización?"
   },
   "16": {
     "other": "Los siguientes paquetes serán descargados y actualizados."
@@ -27,13 +27,13 @@
     "other": "Comprobando actualizaciones disponibles..."
   },
   "18": {
-    "other": "No se han detectado actualizaciones: pulsa para comprobar de nuevo."
+    "other": "No se han encontrado actualizaciones: pulsa para comprobar de nuevo."
   },
   "19": {
-    "other": "Pulsa para comprobar las actualiaciones"
+    "other": "Haga click para buscar las actualizaciones"
   },
   "2": {
-    "other": "Actualización Automática"
+    "other": "Actualización Automática de Software"
   },
   "20": {
     "other": "Comprobar"
@@ -45,7 +45,7 @@
     "other": "La versión actual es %1 (%2)."
   },
   "3": {
-    "other": "Pulse en el botón para comenzar la actualización. Por favor asegurate que el directorio de software esta instalado antes de comenzar. Si tienes un aviso 'Linux Package', significa que no puedes realizar la actualización desde la aplicación, tienes que usar el gestor de paquetes de tu servidor."
+    "other": "Pulse en el botón para comenzar la actualización. Por favor asegurese de que la carpeta de software esta instalada antes de comenzar. Si tiene un aviso 'Linux Package', significa que no puede realizar la actualización desde la aplicación, tiene que usar el gestor de paquetes de su servidor."
   },
   "4": {
     "other": "Comenzar actualización"
@@ -54,7 +54,7 @@
     "other": "Desde 3.2.4"
   },
   "6": {
-    "other": "Importa los datos de configuración desde 3.2.4"
+    "other": "Importe los datos de configuración desde 3.2.4"
   },
   "7": {
     "other": "Simular la importación de datos"

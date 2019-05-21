@@ -20,7 +20,7 @@
 import PydioApi from './PydioApi'
 import {UserServiceApi, IdmUserSingleQuery, RestSearchUserRequest,
     RoleServiceApi, IdmRoleSingleQuery, RestSearchRoleRequest,
-    WorkspaceServiceApi, IdmWorkspaceSingleQuery, RestSearchWorkspaceRequest, IdmWorkspaceScope} from './gen/index';
+    WorkspaceServiceApi, IdmWorkspaceSingleQuery, RestSearchWorkspaceRequest, ShareServiceApi, RestUpdateSharePoliciesRequest} from './gen/index';
 
 class Policies {
 
@@ -82,6 +82,22 @@ class Policies {
                 reject(error);
             })
         });
+    }
+
+    static saveSharePolicies(shareId, policies) {
+        const {api, request} = Policies.workspaceData(shareId);
+        return api.searchWorkspaces(request).then((result) => {
+            if (result.Total === 0 || !result.Workspaces) {
+                throw new Error('Cannot find share!');
+            }
+            const shareApi = new ShareServiceApi(PydioApi.getRestClient());
+            const shareRequest = new RestUpdateSharePoliciesRequest();
+            shareRequest.Uuid = shareId;
+            shareRequest.Policies = policies;
+            return shareApi.updateSharePolicies(shareRequest).then(response => {
+                return response.Policies
+            });
+        })
     }
 
     /**
@@ -222,6 +238,8 @@ class Policies {
             case 'team':
                 return Policies.rolesPolicies(resourceId);
             case 'workspace':
+            case 'cell':
+            case 'link':
                 return Policies.workspacePolicies(resourceId);
             default:
                 return Promise.reject(new Error('Unsupported resource type ' + resourceType));
@@ -244,6 +262,9 @@ class Policies {
                 return Policies.saveRolesPolicies(resourceId, policies);
             case 'workspace':
                 return Policies.saveWorkspacesPolicies(resourceId, policies);
+            case 'cell':
+            case 'link':
+                return Policies.saveSharePolicies(resourceId, policies);
             default:
                 return Promise.reject(new Error('Unsupported resource type ' + resourceType));
         }

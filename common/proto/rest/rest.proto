@@ -693,6 +693,13 @@ service ShareService {
             body: "*"
         };
     }
+    // Updates policies associated to the underlying workspace for a Cell or a ShareLink
+    rpc UpdateSharePolicies(UpdateSharePoliciesRequest) returns (UpdateSharePoliciesResponse) {
+        option(google.api.http) = {
+            put: "/share/policies"
+            body: "*"
+        };
+    }
 }
 
 // InstallService

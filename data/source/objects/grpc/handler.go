@@ -23,15 +23,14 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 	minio "github.com/pydio/minio-srv/cmd"
 	// Import minio gateways
 	_ "github.com/pydio/minio-srv/cmd/gateway"
-
-	"io/ioutil"
-	"path/filepath"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"

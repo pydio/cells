@@ -1,27 +1,27 @@
 {
   "1.android": {
-    "other": "Hay una cliente nativo de APPLICATION_TITLE para acceder a %s en Android."
+    "other": "Hay un cliente nativo APPLICATION_TITLE disponible para acceder a %s en Android OS."
   },
   "1.ios": {
-    "other": "¡Hay una aplicación nativa para acceder a %s desde iPhone/iPad!"
+    "other": "¡Hay una aplicación nativa disponible para acceder a %s a través de iPhone/iPad!"
   },
   "2.android": {
-    "other": "Ya la tengo, ábrela y añade este servidor a mis servidores"
+    "other": "Ya la tengo, abrir y añadir este servidor a mis servidores remotos preconfigurados"
   },
   "2.ios": {
-    "other": "Ya la tengo, ábrela y añade este servidor a mis servidores"
+    "other": "Ya la tengo, abrir y añadir este servidor a mis servidores remotos"
   },
   "3.android": {
-    "other": "No la tengo, ¡envíame a la Play Store!"
+    "other": "No la tengo, ¡ir ahora a Play Store!"
   },
   "3.ios": {
-    "other": "No la tengo, ¡envíame a la App Store!"
+    "other": "No la tengo, ¡ir ahora a App Store!"
   },
   "4.android": {
-    "other": "No me importa, déjame usar la version web de %s."
+    "other": "No importa, usaré la version web de %s."
   },
   "4.ios": {
-    "other": "No me importa, déjame usar la version web de %s."
+    "other": "No importa, usaré la version web de %s."
   },
   "Mobile": {
     "other": "Móvil"

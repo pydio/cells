@@ -55,6 +55,14 @@ var _modelRestShareLink = require('../model/RestShareLink');
 
 var _modelRestShareLink2 = _interopRequireDefault(_modelRestShareLink);
 
+var _modelRestUpdateSharePoliciesRequest = require('../model/RestUpdateSharePoliciesRequest');
+
+var _modelRestUpdateSharePoliciesRequest2 = _interopRequireDefault(_modelRestUpdateSharePoliciesRequest);
+
+var _modelRestUpdateSharePoliciesResponse = require('../model/RestUpdateSharePoliciesResponse');
+
+var _modelRestUpdateSharePoliciesResponse2 = _interopRequireDefault(_modelRestUpdateSharePoliciesResponse);
+
 /**
 * ShareService service.
 * @module api/ShareServiceApi
@@ -354,6 +362,45 @@ var ShareServiceApi = (function () {
 
   ShareServiceApi.prototype.putShareLink = function putShareLink(body) {
     return this.putShareLinkWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Updates policies associated to the underlying workspace for a Cell or a ShareLink
+   * @param {module:model/RestUpdateSharePoliciesRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestUpdateSharePoliciesResponse} and HTTP response
+   */
+
+  ShareServiceApi.prototype.updateSharePoliciesWithHttpInfo = function updateSharePoliciesWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling updateSharePolicies");
+    }
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestUpdateSharePoliciesResponse2['default'];
+
+    return this.apiClient.callApi('/share/policies', 'PUT', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Updates policies associated to the underlying workspace for a Cell or a ShareLink
+   * @param {module:model/RestUpdateSharePoliciesRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestUpdateSharePoliciesResponse}
+   */
+
+  ShareServiceApi.prototype.updateSharePolicies = function updateSharePolicies(body) {
+    return this.updateSharePoliciesWithHttpInfo(body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

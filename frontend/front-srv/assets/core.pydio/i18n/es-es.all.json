@@ -1,9 +1,9 @@
 {
   "0": {
-    "other": "Última ver."
+    "other": "Última versión"
   },
   "1": {
-    "other": "Nombre"
+    "other": "Nombre del archivo"
   },
   "10": {
     "other": "Archivo de Texto"
@@ -30,13 +30,13 @@
     "other": "Enviar Correo"
   },
   "107": {
-    "other": "Tu nombre y/o correo"
+    "other": "Su nombre y/o correo"
   },
   "108": {
     "other": "Correo de destino"
   },
   "109": {
-    "other": "Enlace"
+    "other": "Enlace URL"
   },
   "11": {
     "other": "Javascript"
@@ -54,7 +54,7 @@
     "other": "¡La selección está vacía!"
   },
   "114": {
-    "other": "¡Error desconocido al copiar!"
+    "other": "¡Ha ocurrido un error durante la copia!"
   },
   "115": {
     "other": "El archivo ha sido correctamente guardado"
@@ -75,7 +75,7 @@
     "other": "Imagen GIF"
   },
   "120": {
-    "other": "¡No puedes borrar todo el árbol!"
+    "other": "¡No puede borrar todo el árbol!"
   },
   "121": {
     "other": "Archivo de Imagen "
@@ -90,7 +90,7 @@
     "other": "¿Sobreescribir archivos existentes?"
   },
   "125": {
-    "other": "Ya existe un archivo/carpeta con ese nombre (no se distinguen mayúsculas/minúsculas). ¡Elige otro!"
+    "other": "Ya existe un archivo/carpeta con ese nombre (no se distinguen mayúsculas/minúsculas). ¡Elija otro!"
   },
   "126": {
     "other": "Miniaturas"
@@ -114,7 +114,7 @@
     "other": "Detalles"
   },
   "132": {
-    "other": "Ningún archivo"
+    "other": "Ningún archivo ni carpeta"
   },
   "133": {
     "other": "Nombre"
@@ -126,7 +126,7 @@
     "other": "Dimensiones"
   },
   "136": {
-    "other": "Ver Imagen Mayor"
+    "other": "Ver Imagen más grande"
   },
   "138": {
     "other": "Última Modificación"
@@ -147,10 +147,10 @@
     "other": "Conectado como "
   },
   "143": {
-    "other": "Modo de Invitado. Ingresa."
+    "other": "Navegación como invitado. Iniciar sesión."
   },
   "144": {
-    "other": "No conectado."
+    "other": "Sesión no iniciada."
   },
   "145": {
     "other": "Mis Favoritos"
@@ -165,7 +165,7 @@
     "other": "Superior"
   },
   "149": {
-    "other": "Actualizar"
+    "other": "Recargar"
   },
   "15": {
     "other": "Página HTML"
@@ -177,10 +177,10 @@
     "other": "Cambiar vista..."
   },
   "152": {
-    "other": "Favorito"
+    "other": "Cambiar Favorito"
   },
   "153": {
-    "other": "Añadir ubicación actual a Mis favoritos"
+    "other": "Añadir/eliminar elemento a Mis favoritos"
   },
   "154": {
     "other": "Nueva Carpeta"
@@ -213,22 +213,22 @@
     "other": "Editar archivos de texto en línea."
   },
   "163": {
-    "other": "Acceder"
+    "other": "Iniciar sesión"
   },
   "164": {
     "other": "Desconectar"
   },
   "165": {
-    "other": "Configurar"
+    "other": "Configuración"
   },
   "166": {
-    "other": "Acerca de Pydio"
+    "other": "Acerca de"
   },
   "167": {
     "other": "Acerca de Pydio"
   },
   "168": {
-    "other": "Acceder a APPLICATION_TITLE"
+    "other": "Conectar a APPLICATION_TITLE"
   },
   "169": {
     "other": "Desconectar de APPLICATION_TITLE"
@@ -240,13 +240,13 @@
     "other": "Carpeta Actual"
   },
   "171": {
-    "other": "Examinar"
+    "other": "Explorar"
   },
   "172": {
     "other": "Tu Selección"
   },
   "173": {
-    "other": "Nombre de la nueva carpeta"
+    "other": "Nuevo nombre de carpeta"
   },
   "174": {
     "other": "Nombre del nuevo archivo"
@@ -273,19 +273,19 @@
     "other": "Introducir usuario/contraseña"
   },
   "181": {
-    "other": "Usuario"
+    "other": "Iniciar Sesión"
   },
   "182": {
     "other": "Contraseña"
   },
   "183": {
-    "other": "¡Selecciona una carpeta de destino distinta a la de origen!"
+    "other": "¡Seleccione una carpeta de destino distinta a la de origen!"
   },
   "184": {
     "other": "Buscar en la carpeta actual y en las subcarpetas"
   },
   "185": {
-    "other": "Parar la búsqueda"
+    "other": "Detener búsqueda"
   },
   "186": {
     "other": "Previsualización de Imagen"
@@ -306,22 +306,22 @@
     "other": "Vista por Defecto"
   },
   "192": {
-    "other": "Detalles"
+    "other": "Lista"
   },
   "193": {
     "other": "Miniaturas"
   },
   "194": {
-    "other": "Cambiar Clave"
+    "other": "Cambiar Contraseña"
   },
   "195": {
     "other": "Preferencias de Usuario"
   },
   "196": {
-    "other": "¡Tu idioma difiere del idioma actual!\\n ¿Quieres recargar la página para cambiar el idioma?"
+    "other": "¡Su idioma difiere del idioma actual!\\n ¿Quiere recargar la página para cambiar el idioma?"
   },
   "197": {
-    "other": "¡Preferencias de usuario correctamente modificadas! \\n\\nSi has cambiado tu contraseña, tendrá efecto tras la desconexión."
+    "other": "El cambio de contraseña tendrá efecto después de que se inicie sesión."
   },
   "198": {
     "other": "Nuevo"
@@ -339,13 +339,13 @@
     "other": "Cambiar repositorio a..."
   },
   "201": {
-    "other": "¡Cuidado, algunos cambios no se han guardado!\\n ¿Estás seguro de querer cerrar?"
+    "other": "¡Cuidado, algunos cambios no se han guardado!\\n ¿Está seguro de querer cerrar?"
   },
   "202": {
     "other": "¡Cuidado, copia recursiva!"
   },
   "203": {
-    "other": "La carpeta de destino y la carpeta original son la misma!"
+    "other": "La carpeta de destino y la carpeta de origen son la misma!"
   },
   "204": {
     "other": "El archivo \""
@@ -360,40 +360,40 @@
     "other": "No tienes permisos de escritura en esta carpeta"
   },
   "208": {
-    "other": "No tienes permisos de lectura en esta carpeta"
+    "other": "No tiene permisos de lectura en esta carpeta"
   },
   "209": {
-    "other": "¡Error interno del servidor, contacta con el Administrador!"
+    "other": "¡Error interno del servidor, contacte con el Administrador!"
   },
   "21": {
     "other": "Script PHP"
   },
   "210": {
-    "other": "Falló el envío"
+    "other": "Subida fallida"
   },
   "211": {
-    "other": "¡El archivo es demasiado grande!"
+    "other": "¡El archivo es demasiado grande! Por favor, póngase en contacto con su administrador o utilice el cliente de sincronización de escritorio."
   },
   "212": {
-    "other": "¡Ningún archivo encontrado en el servidor!"
+    "other": "¡No se encontró ningún archivo en el servidor!"
   },
   "213": {
-    "other": "Error mientrás se copiaba el archivo en la carpeta actual"
+    "other": "Error al copiar el archivo a la carpeta actual"
   },
   "214": {
-    "other": "Examinar archivos"
+    "other": "Explorar"
   },
   "215": {
-    "other": "Iniciar Envío"
+    "other": "Comenzar subida"
   },
   "216": {
-    "other": "Limpiar Cola"
+    "other": "Limpiar"
   },
   "217": {
     "other": "Limpieza Completada"
   },
   "218": {
-    "other": "Quitar de la cola"
+    "other": "Eliminar de la cola"
   },
   "219": {
     "other": "Completado"
@@ -405,7 +405,7 @@
     "other": "Vaciar"
   },
   "221": {
-    "other": "Vaciar Papelera"
+    "other": "Vaciar Papelera de reciclaje"
   },
   "222": {
     "other": "Restaurar"
@@ -420,16 +420,16 @@
     "other": "Renombrar favorito"
   },
   "226": {
-    "other": "Lista"
+    "other": "Detalles"
   },
   "227": {
-    "other": "Detalles Lista"
+    "other": "Cambiar a vista detallada de tabla"
   },
   "228": {
     "other": "Miniaturas"
   },
   "229": {
-    "other": "Vista de Miniaturas"
+    "other": "Cambiar a vista de miniaturas"
   },
   "23": {
     "other": "Archivo"
@@ -462,16 +462,16 @@
     "other": "¡Las contraseñas no son iguales!"
   },
   "239": {
-    "other": "Escribe tu contraseña actual"
+    "other": "Escriba su contraseña actual"
   },
   "24": {
-    "other": "Carpeta superior"
+    "other": "Directorio superior"
   },
   "240": {
     "other": "¡Contraseña incorrecta!"
   },
   "241": {
-    "other": "Se han guardado tus preferencias!"
+    "other": "Se han guardado sus preferencias!"
   },
   "242": {
     "other": "Registro SVN"
@@ -501,25 +501,25 @@
     "other": "Subir uno o más archivos (max %s) a la carpeta: "
   },
   "250": {
-    "other": "Repositorios"
+    "other": "Workspaces"
   },
   "251": {
     "other": "Registros"
   },
   "252": {
-    "other": "Tamaño máximo de envío alcanzado."
+    "other": "Se ha alcanzado el límite de tamaño del archivo."
   },
   "253": {
-    "other": "Error HTTP:"
+    "other": "Ha habido un error HTTP:"
   },
   "254": {
-    "other": "Error E/S:"
+    "other": "Ha habido un error IO:"
   },
   "255": {
-    "other": "Error de seguridad:"
+    "other": "Se ha producido un error de seguridad:"
   },
   "256": {
-    "other": "Transferido"
+    "other": "Subido"
   },
   "257": {
     "other": "Eliminar"
@@ -528,7 +528,7 @@
     "other": "Número de archivos:"
   },
   "259": {
-    "other": "Tamaño combinado:"
+    "other": "Tamaño total:"
   },
   "26": {
     "other": "Crear nueva carpeta en: "
@@ -540,7 +540,7 @@
     "other": "Recordarme"
   },
   "262": {
-    "other": "Alguno de los archivos parece que ya existen\\n en la carpeta elegida\\n ¿Qué quieres hacer?"
+    "other": "Uno o más archivos existen \\nya en la carpeta elegida. \\n¿Qué quiere hacer?"
   },
   "263": {
     "other": "Sobreescribir"
@@ -570,10 +570,10 @@
     "other": "Editar la estructura de la tabla"
   },
   "271": {
-    "other": "Borrar"
+    "other": "Eliminar"
   },
   "272": {
-    "other": "Borrar la tabla abierta"
+    "other": "Eliminar la tabla abierta"
   },
   "273": {
     "other": "Insertar"
@@ -582,16 +582,16 @@
     "other": "Crear un nuevo registro"
   },
   "275": {
-    "other": "¿Estas seguro que quieres borrar las tablas seleccionadas?"
+    "other": "¿Está seguro de que quiere eliminar las tablas seleccionadas?"
   },
   "276": {
-    "other": "Edita el registro seleccionado"
+    "other": "Editar el registro seleccionado"
   },
   "277": {
-    "other": "Borra los registros seleccionados"
+    "other": "Eliminar los registros seleccionados"
   },
   "278": {
-    "other": "¿Estas seguro que quieres borrar los registros seleccionados?"
+    "other": "¿Está seguro de que quiere eliminar los registros seleccionados?"
   },
   "279": {
     "other": "Tablas"
@@ -603,7 +603,7 @@
     "other": "Registros"
   },
   "281": {
-    "other": "Limites"
+    "other": "Límites de subida"
   },
   "282": {
     "other": "Tamaño por archivo"
@@ -615,10 +615,10 @@
     "other": "Número de archivos"
   },
   "285": {
-    "other": "No se encuentra ese usuario. Inténtalo de nuevo.\\n Comprueba que las mayúsculas no estén activadas!"
+    "other": "No se encuentra ese usuario. Inténtelo de nuevo.\\n Compruebe que las mayúsculas no estén activadas!"
   },
   "286": {
-    "other": "Este usuario está caducado en la versión actual, utiliza el procedimiento de actualización."
+    "other": "Su usuario está obsoleto con la versión actual, por favor utilice el procedimiento de actualización."
   },
   "287": {
     "other": "Permisos de archivo"
@@ -636,22 +636,22 @@
     "other": "Todo"
   },
   "291": {
-    "other": "¿Aplicar a niveles inferiores?"
+    "other": "¿Aplicar de forma recursiva?"
   },
   "292": {
-    "other": "Enlace público"
+    "other": "Compartir"
   },
   "293": {
     "other": "Crear un enlace público a este archivo"
   },
   "294": {
-    "other": "Tiempo de caducidad del enlace (en días) y contraseña (es posible dejarlo en blanco)."
+    "other": "Tiempo de caducidad del enlace (en días) y contraseña (dejar vacío si no hay contraseña)."
   },
   "295": {
     "other": "Expiración"
   },
   "296": {
-    "other": "Copia la dirección que aparece debajo:"
+    "other": "Copiar la URL siguiente:"
   },
   "297": {
     "other": "Nuevo usuario"
@@ -660,52 +660,52 @@
     "other": "Crea un nuevo usuario"
   },
   "299": {
-    "other": "Nuevo Repositorio"
+    "other": "Workspaces"
   },
   "3": {
     "other": "Tipo"
   },
   "30": {
-    "other": "Escribe un nombre para la carpeta y después haz click en &quot;Crear&quot;"
+    "other": "Escriba un nombre para la carpeta y después haga click en &quot;Crear&quot;"
   },
   "300": {
-    "other": "Crea un nuevo repositorio"
+    "other": "Crea un nuevo workspace"
   },
   "301": {
-    "other": "Edita la configuración"
+    "other": "Editar la configuración"
   },
   "302": {
-    "other": "Copia como texto"
+    "other": "Copiar como texto"
   },
   "303": {
-    "other": "Copia lo seleccionado como texto con tabulaciones."
+    "other": "Copiar lo seleccionado como texto con tabulaciones."
   },
   "304": {
     "other": "Atrás"
   },
   "305": {
-    "other": "Vuelve a la página principal"
+    "other": "Volver a la página principal"
   },
   "306": {
-    "other": "Demasiadas carpetas"
+    "other": "Demasiados elementos"
   },
   "307": {
-    "other": "Rellena los campos opcionales"
+    "other": "Rellene los campos opcionales"
   },
   "308": {
-    "other": "Genera el enlace"
+    "other": "Generar enlace"
   },
   "309": {
     "other": "Crear"
   },
   "31": {
-    "other": "Debes seleccionar un archivo"
+    "other": "Debe seleccionar un archivo"
   },
   "310": {
     "other": "Opciones"
   },
   "311": {
-    "other": "Sube automáticamente en cuanto se añade un archivo."
+    "other": "Subir automáticamente cuando se agrega un archivo"
   },
   "312": {
     "other": "Opciones de subida"
@@ -720,13 +720,13 @@
     "other": "Comprimir selección en"
   },
   "316": {
-    "other": "Abrir con..."
+    "other": "Ver/Editar"
   },
   "317": {
-    "other": "Visor código fuente"
+    "other": "Editor de Código Fuente"
   },
   "318": {
-    "other": "CodePress visor de código fuente"
+    "other": "Visor de código fuente de CodePress"
   },
   "319": {
     "other": " Editor HTML"
@@ -735,16 +735,16 @@
     "other": "Explorar"
   },
   "320": {
-    "other": "Editor visual para archivos HTML"
+    "other": "Editor WYSIWYG para HTML"
   },
   "321": {
-    "other": "Selecciona"
+    "other": "Seleccionar"
   },
   "322": {
-    "other": "Selecciona el archivo actual"
+    "other": "Seleccionar el archivo actual"
   },
   "323": {
-    "other": "Envía este enlace por e-mail"
+    "other": "Envíar este enlace por e-mail"
   },
   "324": {
     "other": "No hay editor disponible"
@@ -753,22 +753,22 @@
     "other": "Más adecuado"
   },
   "326": {
-    "other": "No adecuado"
+    "other": "No hay ninguno adecuado"
   },
   "327": {
     "other": "100%"
   },
   "328": {
-    "other": "Visor PDF"
+    "other": "Lector de documentos"
   },
   "329": {
-    "other": "Para ver PDF en línea"
+    "other": "Ver pdf, svg, tif y más en línea"
   },
   "33": {
-    "other": "¡Error al enviar el archivo!"
+    "other": "¡Error al subir el archivo!"
   },
   "330": {
-    "other": "Por favor espera mientras se crean las páginas..."
+    "other": "Por favor, espere mientras las páginas se están procesando..."
   },
   "331": {
     "other": "Página"
@@ -777,22 +777,22 @@
     "other": "de"
   },
   "333": {
-    "other": "Pixlr editor de imagenes"
+    "other": "Editor de imágenes Pixlr"
   },
   "334": {
     "other": "más"
   },
   "335": {
-    "other": "Escribe un número de página entre 1 y "
+    "other": "Escriba un número de página entre 1 y "
   },
   "336": {
-    "other": "Lo siento, pero no puedes arrastrar carpetas, sólamente archivos."
+    "other": "Lo sentimos, pero no puede arrastrar carpetas, sólamente archivos!"
   },
   "337": {
     "other": "Iniciar subida automáticamente"
   },
   "338": {
-    "other": "Cerrar al finalizar"
+    "other": "Cerrar panel después de que la subida haya terminado"
   },
   "339": {
     "other": "Archivos existentes"
@@ -819,13 +819,13 @@
     "other": "No se pudo obtener información de versión"
   },
   "346": {
-    "other": "Tu versión es la más nueva"
+    "other": "Su versión está actualizada"
   },
   "347": {
-    "other": "Tienes una versión mas nueva(%s). Visita %s"
+    "other": "¡Una nueva versión (%s) está disponible! Visite %s"
   },
   "348": {
-    "other": "Has compartido una nueva carpeta."
+    "other": "Se ha compartido un nuevo workspace."
   },
   "349": {
     "other": "Cuidado, faltan argumentos"
@@ -834,19 +834,19 @@
     "other": "ha sido correctamente creado en la carpeta"
   },
   "350": {
-    "other": "Ya existe un usuario con el mismo nombre. Elige otro nombre de usuario."
+    "other": "Ya existe un usuario con el mismo nombre. Elija otro nombre de usuario."
   },
   "351": {
-    "other": "No tienes permisos para compartir elementos públicamente."
+    "other": "No tiene permisos para compartir elementos públicamente."
   },
   "352": {
-    "other": "Ya existe un repositorio con el mismo nombre. Elige otro nombre de repositorio."
+    "other": "Ya existe un workspace con el mismo nombre. Elige otro nombre."
   },
   "353": {
     "other": "Usuario de Destino"
   },
   "354": {
-    "other": "Crea un nuevo usuario o elige uno de los ya incluidos en la lista."
+    "other": "Cree un nuevo usuario o elija uno de los ya incluidos en la lista."
   },
   "355": {
     "other": "Nombre de usuario"
@@ -858,7 +858,7 @@
     "other": "Repositorio de Destino"
   },
   "358": {
-    "other": "Elige un nombre para el elemento compartido."
+    "other": "Elija un nombre para el elemento compartido."
   },
   "359": {
     "other": "Etiqueta"
@@ -870,25 +870,25 @@
     "other": "Permisos"
   },
   "361": {
-    "other": "Leer"
+    "other": "Lectura"
   },
   "362": {
-    "other": "Escribir"
+    "other": "Escritura"
   },
   "363": {
     "other": "Elementos compartidos"
   },
   "364": {
-    "other": "No tienes permisos para efectuar esta operación"
+    "other": "No tiene permisos para efectuar esta operación"
   },
   "365": {
-    "other": "No estás autorizado a subir más de %s archivos de una vez."
+    "other": "No está autorizado a subir más de %s archivos de una vez."
   },
   "366": {
     "other": "Este usuario no tiene ninguna carpeta activa."
   },
   "367": {
-    "other": "No estás autorizado a subir este tipo de archivos. Elige entre estas extensiones: "
+    "other": "No está autorizado a subir este tipo de archivos. Elija entre estas extensiones: "
   },
   "368": {
     "other": "Se ha extraido lo seleccionado del archivo %s a la carpeta %s"
@@ -897,40 +897,40 @@
     "other": "Enlace directo"
   },
   "37": {
-    "other": "Debes introducir un nombre válido"
+    "other": "Debe introducir un nombre válido"
   },
   "370": {
-    "other": "Descarga pública"
+    "other": "Descarga pública de APPLICATION_TITLE"
   },
   "371": {
-    "other": "Se requiere una contraseña para descargar"
+    "other": "Se requiere una contraseña para esta descarga"
   },
   "372": {
-    "other": "Repositorio Actual"
+    "other": "Workspace Actual"
   },
   "373": {
     "other": "Destino"
   },
   "374": {
-    "other": "No puedes copiar carpetas entre repositorios"
+    "other": "No puede copiar carpetas entre workspaces"
   },
   "375": {
-    "other": "Advertencia, has estado inactivo desde hace más de __IDLE__, serás desconectado en __LOGOUT__"
+    "other": "Advertencia, ha estado inactivo desde hace más de __IDLE__. Para seguridad de sus datos, su sesión se cerrará en __LOGOUT__"
   },
   "375t": {
     "other": "¿Está aún ahí?"
   },
   "376": {
-    "other": "Pulsa en cualquier lado para reactivar"
+    "other": "Pulse en cualquier lado para reactivar su sesión"
   },
   "378": {
     "other": "Aviso, la contraseña está vacía o es demasiado corta."
   },
   "379": {
-    "other": "Palabra no segura"
+    "other": "¡Contraseña no segura!"
   },
   "38": {
-    "other": "La carpeta"
+    "other": "El directorio"
   },
   "380": {
     "other": "Demasiado corta"
@@ -969,19 +969,19 @@
     "other": "Código"
   },
   "391": {
-    "other": "No hay depósito"
+    "other": "No hay Repositorio"
   },
   "392": {
-    "other": "Aviso, la versión de APPLICATION_TITLE ha cambiado (ahora es %s), borre el caché del explorador y actualice la página para asegurarse de que todo funciona."
+    "other": "Advertencia, la versión APPLICATION_TITLE ha cambiado (ahora %s), por favor, borre la caché de su navegador y actualice la página para asegurarse de que todo funciona!"
   },
   "393": {
-    "other": "Aviso, la longitud de los nombres debe ser inferior a %s, se truncará este nombre de archivo."
+    "other": "¡Advertencia, la longitud de los nombres debe ser inferior a %s! ¡El nombre de este archivo será acortado!"
   },
   "394": {
     "other": "Lo sentimos, no es posible compartir carpetas en este momento utilizando el controlador de autenticación actual (los usuarios no se pueden editar). No obstante, sigue siendo posible compartir archivos."
   },
   "395": {
-    "other": "El elemento que ha soltado parece una carpeta y las carpetas no se pueden cargar en el servidor. ¿Seguro que desea cargar?"
+    "other": "El elemento que ha soltado parece ser una carpeta y las carpetas no se pueden subir al servidor. ¿Seguro que desea subirla?"
   },
   "396": {
     "other": "Método de autenticación"
@@ -1011,25 +1011,25 @@
     "other": "http://www.hjsplit.org/"
   },
   "403": {
-    "other": "Preferencias de WebDAV"
+    "other": "WebDAV"
   },
   "404": {
-    "other": "Puede usar el protocolo WebDAV para montar sus repositorios de APPLICATION_TITLE como 'unidad en red' en varios clientes, incluyendo Windows, Mac, iPhone, etc."
+    "other": "WebDAV es un protocolo que le permite montar sus workspaces APPLICATION_TITLE como una 'unidad de red' directamente en su escritorio. Para activar esta característica, por favor, compruebe la casilla de abajo, e introduzca su contraseña si es necesario."
   },
   "405": {
-    "other": "Use las siguientes URLs para acceder a sus repositorios usando su cuenta de usuario y contraseña. Advertencia, esto no funcionará a menos que defina esta característica como 'activa' e ingrese su contraseña."
+    "other": "Cualquier cliente WebDAV le pedirá una dirección, un login y una contraseña. Utilice la URL de abajo junto con su nombre y contraseña estándar."
   },
   "406": {
-    "other": "Activar compartir con WebDAV"
+    "other": "Activar la función compartir de WebDAV"
   },
   "407": {
-    "other": "Ingrese su contraseña si es la primera vez que activa compartir con webDAV, o si quiere tipear una nueva contraseña:"
+    "other": "Introduzca su contraseña si es la primera vez que está activando acciones de webDAV, o si desea volver a escribir una nueva contraseña:"
   },
   "408": {
-    "other": "Se ha activado exitosamente compartir con WebDAV, ¡recuerde actualizar su contraseña si esta es su primera vez!"
+    "other": "Se ha activado exitosamente la función de compartir de WebDAV, ¡recuerde actualizar su contraseña si esta es su primera vez"
   },
   "409": {
-    "other": "Se ha desactivado exitosamente compartir con WebDAV"
+    "other": "Se ha desactivado exitosamente la función de compartir de WebDAV"
   },
   "41": {
     "other": "ha sido renombrado a"
@@ -1041,7 +1041,7 @@
     "other": "Abrir"
   },
   "412": {
-    "other": "Subir solamente"
+    "other": "Sólo subida"
   },
   "413": {
     "other": "Compartido por"
@@ -1056,10 +1056,10 @@
     "other": "Panel Izquierdo"
   },
   "417": {
-    "other": "Agregar repositorio..."
+    "other": "Crear Celda..."
   },
   "418": {
-    "other": "Crear su propio repositorio"
+    "other": "Crear Celda"
   },
   "419": {
     "other": "Cargando plantillas..."
@@ -1068,40 +1068,40 @@
     "other": "a"
   },
   "420": {
-    "other": "Plantillas"
+    "other": "Por favor, seleccione una plantilla de la lista"
   },
   "421": {
     "other": "Nuevo %s"
   },
   "422": {
-    "other": "Por favor complete los parámetros requeridos. Navegue por los títulos de campos con su mouse para más información."
+    "other": "Por favor complete los parámetros requeridos. Navegue por los títulos de campos con el ratón para más información."
   },
   "423": {
-    "other": "Borrar repositorio"
+    "other": "Borrar workspace"
   },
   "424": {
-    "other": "¿Está seguro que desea eliminar este repositorio? La operación es irreversible."
+    "other": "¿Está seguro que desea eliminar este workspace? La operación es irreversible."
   },
   "425": {
-    "other": "El repositorio se ha creado y está en su lista de repositorios, si quiere eliminarlo, asegúrese de cambiar a otro repositorio, luego pulse la cruz roja al lado del nombre de repositorio."
+    "other": "Se ha creado el workspace y se ha añadido a la lista de workspaces. Si desea eliminarlo, asegúrese de cambiar a otro workspace, luego pulse la cruz roja que hay al lado del nombre del workspace."
   },
   "426": {
-    "other": "Ocurrió un error al crear el repositorio"
+    "other": "Ocurrió un error al crear el workspace"
   },
   "427": {
-    "other": "Ocurrió un error al borrar el repositorio"
+    "other": "Ocurrió un error al eliminar el workspace"
   },
   "428": {
-    "other": "El repositorio ha sido eliminado"
+    "other": "El workspace ha sido eliminado correctamente"
   },
   "429": {
-    "other": "Así aparecerá el repositorio en su lista."
+    "other": "Así es cómo el workspace aparecerá en su lista."
   },
   "43": {
     "other": "ya existe (no se distinguen mayúsculas/minúsculas)"
   },
   "430": {
-    "other": "Archivos por Defecto"
+    "other": "Archivos comunes"
   },
   "431": {
     "other": "Plantilla de ejemplo"
@@ -1122,7 +1122,7 @@
     "other": "error"
   },
   "437": {
-    "other": "¡Ups!, parece que su token de seguridad ha expirado, ¡por favor %s refrescando su navegador!"
+    "other": "¡Vaya, parece que su token de seguridad ha expirado! Por favor, %s pulsando F5 o refrescar en su navegador!"
   },
   "438": {
     "other": "recargar la página"
@@ -1164,7 +1164,7 @@
     "other": "Creando %s, elija una contraseña"
   },
   "45": {
-    "other": "carpeta"
+    "other": "directorio"
   },
   "450": {
     "other": "Ordenar por ..."
@@ -1182,7 +1182,7 @@
     "other": "Seleccione archivos en su ordenador"
   },
   "455": {
-    "other": "Mis Carpetas"
+    "other": "Workspaces"
   },
   "456": {
     "other": "Más"
@@ -1194,16 +1194,16 @@
     "other": "eliminar"
   },
   "459": {
-    "other": "Carpeta principal"
+    "other": "Carpeta superior"
   },
   "46": {
     "other": "archivo"
   },
   "460": {
-    "other": "Detalles"
+    "other": "Lista"
   },
   "461": {
-    "other": "Cambiar a vista detallada"
+    "other": "Cambiar a vista de lista"
   },
   "462": {
     "other": "Previsualizar"
@@ -1212,10 +1212,10 @@
     "other": "Descargar todo"
   },
   "464": {
-    "other": "Descargar la carpeta completa en un solo archivo (zip)"
+    "other": "Descargar todo el contenido del workspace de una vez (archivo zip)"
   },
   "465": {
-    "other": "Mostrar URLs alternativas (montar carpetas por separado)"
+    "other": "Mostrar URLs alternativas (montar workspaces por separado)"
   },
   "466": {
     "other": "Cargando..."
@@ -1224,25 +1224,25 @@
     "other": "Todos los Elementos Compartidos"
   },
   "468": {
-    "other": "Mis Carpetas"
+    "other": "Workspaces"
   },
   "469": {
-    "other": "Compartido conmigo"
+    "other": "Celdas"
   },
   "47": {
     "other": "¿Quieres realmente borrar el"
   },
   "470": {
-    "other": "Creado %date"
+    "other": "Creado el %date"
   },
   "471": {
-    "other": "Creado por %user %date"
+    "other": "Creado por %user el %date"
   },
   "472": {
     "other": "Compartido por %user"
   },
   "473": {
-    "other": "Compartido por %user %date"
+    "other": "Compartido por %user el %date"
   },
   "474": {
     "other": "No hay descripción disponible"
@@ -1251,7 +1251,7 @@
     "other": "Archivos compartidos con todos los usuarios"
   },
   "476": {
-    "other": "Su espacio de trabajo personal"
+    "other": "Su workspace personal"
   },
   "477": {
     "other": "Seleccione un archivo o carpeta para ver aquí sus detalles"
@@ -1266,16 +1266,16 @@
     "other": "Aceptar"
   },
   "480": {
-    "other": "Explorar todas las carpetas del repositorio actual."
+    "other": "Explorar todas las carpetas del workspace actual."
   },
   "481": {
-    "other": "Todos sus archivos y carpetas compartidas"
+    "other": "Todos sus archivos y carpetas compartidos"
   },
   "482": {
-    "other": "Acceso rápido a sus elementos marcados"
+    "other": "Acceso rápido a sus elementos favoritos"
   },
   "483": {
-    "other": "¡Usted no está autorizado para crear más usuarios!"
+    "other": "¡No está autorizado para crear más usuarios!"
   },
   "484": {
     "other": "Crear usuario"
@@ -1296,7 +1296,7 @@
     "other": "Metadatos"
   },
   "49": {
-    "other": "Cancelar"
+    "other": "CANCELAR"
   },
   "490": {
     "other": "Rango de fechas"
@@ -1341,7 +1341,7 @@
     "other": "o"
   },
   "502": {
-    "other": "Carpeta"
+    "other": "Solo carpetas"
   },
   "503": {
     "other": "Tamaño"
@@ -1359,16 +1359,16 @@
     "other": "Bienvenido a %s"
   },
   "508": {
-    "other": "Acabo de crear una cuenta para usted en %s. Para conectar, por favor haga click en el siguiente enlace %link y use estas credenciales:  <br><br> Usuario: %user <br><br> Contraseña: %pass"
+    "other": "Se acaba de crear una cuenta para usted en %s. Para conectar, haga click en el siguiente enlace %link y use estas credenciales:  <br><br> Usuario: %user <br><br> Contraseña: %pass"
   },
   "509": {
-    "other": "Guardar la lista actual de usuarios como un equipo personal"
+    "other": "Guardar como un equipo"
   },
   "51": {
-    "other": "Editar"
+    "other": "Editor de texto"
   },
   "510": {
-    "other": "Por favor, introduzca el nombre del equipo"
+    "other": "Por favor, introduzca una etiqueta para el equipo"
   },
   "511": {
     "other": "Mi %s"
@@ -1455,34 +1455,34 @@
     "other": "¡El archivos es demasiado grande! El tamaño máximo autorizado es %i"
   },
   "538": {
-    "other": "Error al subir: ¡ningún archivo encontrado en el servidor!"
+    "other": "Error de subida: ¡no se encontró ningún archivo en el servidor!"
   },
   "539": {
-    "other": "Error al subir: archivo parcialmente subido"
+    "other": "Error de subida: el archivo no está completo"
   },
   "54": {
     "other": "Cancelar"
   },
   "540": {
-    "other": "Error al subir: no puede encontrar el directorio temporal"
+    "other": "Error de subida: no se puede encontrar el directorio temporal"
   },
   "541": {
-    "other": "Error al subir: no se puede escribir en el directorio temporal"
+    "other": "Error de subida: no se puede escribir en el directorio temporal"
   },
   "542": {
-    "other": "Error al subir: una extensión de PHP se detuvo el proceso de carga."
+    "other": "Error de subida: una extensión PHP detuvo el proceso de subida."
   },
   "543": {
     "other": "Resultados limitados a %s."
   },
   "544": {
-    "other": "Mostrar todo"
+    "other": "Mostrar más"
   },
   "545": {
-    "other": "Diálogo de Intercambio"
+    "other": "Compartir de forma remota"
   },
   "546": {
-    "other": "Este elemento ha sido compartido contigo por %%OWNER%% desde una localización remota. ¿Quieres continuar?"
+    "other": "Este elemento ha sido compartido con usted por %%OWNER%% desde una localización remota. ¿Quiere continuar?"
   },
   "547": {
     "other": "Aceptar"
@@ -1491,13 +1491,13 @@
     "other": "Rechazar"
   },
   "549": {
-    "other": "Has aceptado anteriormente este elemento que fue compartido contigo por %%OWNER%% desde una localización remota. ¿Quieres rechazarlo?"
+    "other": "Anteriormente ha aceptado este elemento que fue compartido con usted por %%OWNER%% desde una localización remota. ¿Quiere rechazarlo?"
   },
   "55": {
     "other": "ha sido modificado"
   },
   "550": {
-    "other": "Rechazar intercambio"
+    "other": "Rechazar este elemento compartido"
   },
   "551": {
     "other": "Rechazar"
@@ -1506,7 +1506,7 @@
     "other": "Por favor introduzca la contraseña."
   },
   "553": {
-    "other": "Contraseña incorrecta, por favor prueba de nuevo. \\n ¡Comprueba que no este activo el bloqueo de mayúsculas!"
+    "other": "Contraseña incorrecta, por favor pruebe de nuevo. \\n ¡Compruebe que no esté activo el bloqueo de mayúsculas!"
   },
   "554": {
     "other": "%s resultado(s) en la papelera de reciclaje"
@@ -1515,7 +1515,7 @@
     "other": "Lanzando tarea %s en segundo plano"
   },
   "557": {
-    "other": "Credenciales requeridos"
+    "other": "Credenciales requeridas"
   },
   "558": {
     "other": "Por favor introduzca la contraseña para acceder a este workspace."
@@ -1530,7 +1530,7 @@
     "other": "Autenticación requerida"
   },
   "561": {
-    "other": "Te vamos a redirigir a la página de Autenticación del proveedor. Si no te redirecciona automáticamente, pulsa OK para reintentar..."
+    "other": "Va a ser redirigido a la página de Autenticación del proveedor. Si no es redireccionado automáticamente, pulse OK para reintentar..."
   },
   "562": {
     "other": "¡Esta carpeta está vacía!"
@@ -1581,7 +1581,7 @@
     "other": "%s miembros"
   },
   "577": {
-    "other": "No miembros"
+    "other": "No Hay Miembros"
   },
   "578": {
     "other": "Etiqueta del Equipo"
@@ -1602,22 +1602,22 @@
     "other": "Borrar Usuario"
   },
   "583": {
-    "other": "Buscar en el Directorio"
+    "other": "Buscar Directorio"
   },
   "584": {
     "other": "Directorio"
   },
   "585": {
-    "other": "Sin Usuarios Externos"
+    "other": "No hay usuarios externos"
   },
   "586": {
-    "other": "Cree sus propios usuarios y comparta archivos y carpetas desde sus workspaces."
+    "other": "Cree sus propios usuarios y comparta con ellos archivos y carpetas desde sus workspaces."
   },
   "587": {
     "other": "Sin resultados"
   },
   "588": {
-    "other": "Empiece a escribir en la casilla de búsqueda para encontrar usuarios"
+    "other": "Escriba en la casilla de búsqueda para encontrar usuarios"
   },
   "589": {
     "other": "Usuario externo"
@@ -1665,10 +1665,10 @@
     "other": "Editar usuario"
   },
   "601": {
-    "other": "Has compartido una cell"
+    "other": "Una celda compartida"
   },
   "602": {
-    "other": "Has compartido %1 cells"
+    "other": "%1 celdas compartidas"
   },
   "603": {
     "other": "Equipo"
@@ -1683,7 +1683,7 @@
     "other": "Menos opciones de búsqueda"
   },
   "607": {
-    "other": "Buscar en todos los workspaces"
+    "other": "Su actividad reciente - Escriba para buscar archivos dentro de todos los workspaces"
   },
   "608": {
     "other": "Carpeta actual"
@@ -1722,7 +1722,7 @@
     "other": "Cambiar lenguaje..."
   },
   "619": {
-    "other": "Limitar búsqueda a la carpeta actual"
+    "other": "Limitar búsqueda a la carpeta actual y subcarpetas"
   },
   "62": {
     "other": "Directorio raíz"
@@ -1839,7 +1839,7 @@
     "other": "Este archivo ya existe (no se distinguen mayúsculas/minúsculas)"
   },
   "72": {
-    "other": "La carpeta raíz no es correcta. Compruébalo en el archivo conf/conf.php"
+    "other": "La carpeta raíz no es correcta. Compruébelo en el archivo conf/conf.php"
   },
   "73": {
     "other": "ha sido copiado a la carpeta"
@@ -1863,7 +1863,7 @@
     "other": "Archivo PDF"
   },
   "8": {
-    "other": "Carpeta"
+    "other": "Directorio"
   },
   "80": {
     "other": "Archivo MOV"
@@ -1908,31 +1908,31 @@
     "other": "Idioma"
   },
   "93": {
-    "other": "Para escoger un idioma, tu navegador debe aceptar cookies."
+    "other": "Para escoger un idioma, su navegador debe aceptar cookies."
   },
   "94": {
     "other": "Conectar"
   },
   "95": {
-    "other": "Escoge tu idioma:"
+    "other": "Elija un idioma:"
   },
   "96": {
-    "other": "Escoge la carpeta de destino en el árbol de carpetas: "
+    "other": "Seleccione la carpeta de destino en el árbol de carpetas: "
   },
   "97": {
-    "other": "Enviar Archivo"
+    "other": "Subir archivo"
   },
   "98": {
-    "other": "Haz en cualquier punto del diálogo para cerrarlo."
+    "other": "Haga clic en cualquier punto de este cuadro de diálogo para cerrarlo."
   },
   "99": {
-    "other": "no se puede escribir. Puede que haya un problema de permisos, compruébalo con tu administrador."
+    "other": "no es escribible. Puede haber un problema de permisos. Por favor, compruebelo con su administrador."
   },
   "about_access_key": {
-    "other": "r"
+    "other": "A"
   },
   "bookmarks_access_key": {
-    "other": "F"
+    "other": "B"
   },
   "byte_unit_symbol": {
     "other": "B"
@@ -1944,7 +1944,7 @@
     "other": "R"
   },
   "create_user_accesskey": {
-    "other": "N"
+    "other": "U"
   },
   "date_format": {
     "other": "d/m/Y H:i"
@@ -1980,46 +1980,46 @@
     "other": "ayer a las TIME"
   },
   "delete_access_key": {
-    "other": "S"
-  },
-  "detail_access_key": {
     "other": "D"
   },
+  "detail_access_key": {
+    "other": "L"
+  },
   "download_access_key": {
-    "other": "g"
+    "other": "w"
   },
   "edit_access_key": {
-    "other": "t"
+    "other": "E"
   },
   "empty_recycle_access_key": {
-    "other": "V"
+    "other": "y"
   },
   "file_access_key": {
-    "other": "A"
+    "other": "F"
   },
   "folder_access_key": {
-    "other": "p"
+    "other": "N"
   },
   "languageLabel": {
     "other": "Español"
   },
   "leftpane_accesskey": {
-    "other": "I"
+    "other": "L"
   },
   "list_access_key": {
-    "other": "L"
+    "other": "i"
   },
   "move_access_key": {
     "other": "M"
   },
   "open_with_access": {
-    "other": "c"
+    "other": "e"
   },
   "parent_access_key": {
-    "other": "u"
+    "other": "P"
   },
   "plugtype.desc.access": {
-    "other": "Plugins que definen cómo un repositorio accederá tanto a su back-end (sistema de archivos o similar) y a los principales acciones y diseños."
+    "other": "Plugins que definen cómo un workspace accederá tanto a su back-end (sistema de archivos o similar) y a las principales acciones y diseños."
   },
   "plugtype.desc.action": {
     "other": "Plugins orientados a características para varios aspectos"
@@ -2028,13 +2028,13 @@
     "other": "Como la información de los usuarios es almacenada en el backend"
   },
   "plugtype.desc.authfront": {
-    "other": "Métodos para reunir credenciales de identificación (web form, api key, etc)"
+    "other": "Métodos para recolectar credenciales de identificación (formulario web, clave api, etc)"
   },
   "plugtype.desc.boot": {
-    "other": "Plugin único para la carga del framework."
+    "other": "Plugin único para cargar el framework"
   },
   "plugtype.desc.cache": {
-    "other": "Plugin único para configurar un servidor de almacenamiento usado por la aplicación"
+    "other": "Plugin único para configurar el servidor de caché usado por la aplicación"
   },
   "plugtype.desc.conf": {
     "other": "Cómo los datos de almacenamiento son guardados en el backend"
@@ -2049,13 +2049,13 @@
     "other": "Implementaciones para almacenamiento de datos de eventos (de momento únicamente SQL)"
   },
   "plugtype.desc.gui": {
-    "other": "Interfaz web principal y sus declinaciones"
+    "other": "Interfaz web principal, temas y extensiones"
   },
   "plugtype.desc.helper": {
     "other": "Herramientas auxiliares para las tareas administrativas"
   },
   "plugtype.desc.index": {
-    "other": "Herramientas para indexación de datos que proporciona la opción de búsqueda rápida"
+    "other": "Herramientas para indexación de datos que proporcionan la opción de búsqueda rápida"
   },
   "plugtype.desc.log": {
     "other": "Envia los registros de aplicación a varios canales"
@@ -2064,19 +2064,19 @@
     "other": "Herramientas que permiten a la aplicación enviar correos electrónicos"
   },
   "plugtype.desc.meta": {
-    "other": "Características adicionales para ser añadidas a los repositorios"
+    "other": "Características adicionales para ser añadidas a los workspaces"
   },
   "plugtype.desc.metastore": {
     "other": "Implementaciones varias para el almacenamiento de metadatos junto con archivos y carpetas"
   },
   "plugtype.desc.mq": {
-    "other": "Implementaciones de un servidor PUB/SUB simple"
+    "other": "Implementaciones de un simple servidor PUB/SUB"
   },
   "plugtype.desc.sec": {
     "other": "Funciones Avanzadas de Seguridad"
   },
   "plugtype.desc.shorten": {
-    "other": "Servicios web para la abreviación de enlaces públicos"
+    "other": "Servicios web para acortar enlaces públicos"
   },
   "plugtype.desc.uploader": {
     "other": "Implementación de uploaders usando varias tecnologías (html, js, java...)"
@@ -2115,7 +2115,7 @@
     "other": "Interfaz gráfica del usuario"
   },
   "plugtype.title.helper": {
-    "other": "Auxiliares"
+    "other": "Herramienta de Ayuda"
   },
   "plugtype.title.index": {
     "other": "Indexación"
@@ -2124,10 +2124,10 @@
     "other": "Registradores"
   },
   "plugtype.title.mailer": {
-    "other": "Enviadores de correo"
+    "other": "Gestores de Correo"
   },
   "plugtype.title.meta": {
-    "other": "Meta aspectos del repositorio"
+    "other": "Meta Aspectos del workspace"
   },
   "plugtype.title.metastore": {
     "other": "Almacenamiento de metadatos"
@@ -2139,7 +2139,7 @@
     "other": "Seguridad"
   },
   "plugtype.title.shorten": {
-    "other": "Abreviadores URL"
+    "other": "Acortamiento URL"
   },
   "plugtype.title.uploader": {
     "other": "Cargadores"
@@ -2148,31 +2148,31 @@
     "other": "e"
   },
   "react.1": {
-    "other": "carpeta contenedora"
+    "other": "carpeta superior"
   },
   "react.2": {
     "other": "acciones masivas"
   },
   "refresh_access_key": {
-    "other": "z"
+    "other": "h"
   },
   "rename_access_key": {
-    "other": "n"
+    "other": "R"
   },
   "restore_access_key": {
     "other": "R"
   },
   "settings_access_key": {
-    "other": "o"
+    "other": "g"
   },
   "svn_log_access_key": {
     "other": "L"
   },
   "thumbs_access_key": {
-    "other": "i"
+    "other": "T"
   },
   "upload_access_key": {
-    "other": "b"
+    "other": "U"
   },
   "view_access_key": {
     "other": "V"
@@ -2230,5 +2230,41 @@
   },
   "cells.quick-filter": {
     "other": "Filtrar celdas"
+  },
+  "visibility.panel.title": {
+    "other": "Visibilidad"
+  },
+  "visibility.panel.right-read": {
+    "other": "Ver"
+  },
+  "visibility.panel.right-edit": {
+    "other": "Editar"
+  },
+  "visibility.panel.list.users": {
+    "other": "Usuarios"
+  },
+  "visibility.panel.list.teams": {
+    "other": "Sus equipos"
+  },
+  "visibility.panel.edit": {
+    "other": "Cambiar la visibilidad"
+  },
+  "visibility.panel.save": {
+    "other": "Guardar los cambios"
+  },
+  "visibility.panel.revert": {
+    "other": "Revertir los cambios"
+  },
+  "visibility.panel.error": {
+    "other": "Ocurrió un error"
+  },
+  "visibility.panel.pickuser": {
+    "other": "Seleccione un usuario..."
+  },
+  "visibility.panel.setvisible": {
+    "other": "Set visible to..."
+  },
+  "visibility.users.advanced": {
+    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
   }
 }

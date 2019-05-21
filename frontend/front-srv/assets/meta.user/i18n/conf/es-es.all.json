@@ -3,7 +3,7 @@
     "other": "Información Adicional"
   },
   "Color labels": {
-    "other": "Color de Etiquetas"
+    "other": "Etiquetas de color"
   },
   "Column visibility": {
     "other": "Visibilidad de las Columnas"
@@ -12,7 +12,7 @@
     "other": "Creado por..."
   },
   "Depending on the field type. Currently used for selection only": {
-    "other": "Depende del tipo de campo. Actualmente usado sólo para selección."
+    "other": "Dependiendo del tipo de campo. Actualmente se utiliza sólo para la selección"
   },
   "Field ID": {
     "other": "ID del Campo"
@@ -27,7 +27,7 @@
     "other": "Archivo oculto usado en la carpeta para guardar los metadatos"
   },
   "Id of fiels, use standard characters here.": {
-    "other": "ID de los campos, usa carácteres estándar."
+    "other": "Id de campos, utilice caracteres estándar aquí."
   },
   "Label": {
     "other": "Etiqueta"
@@ -36,7 +36,7 @@
     "other": "Etiqueta del campo, formato amigable"
   },
   "Last updated by...": {
-    "other": "Actualizado por..."
+    "other": "Modificado por última vez por..."
   },
   "Long text": {
     "other": "Texto largo"
@@ -45,7 +45,7 @@
     "other": "Meta Archivo"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "Selección (configura opciones en Información Adicional)"
+    "other": "Selección (configurar opciones en Información Adicional)"
   },
   "Set default visibility.": {
     "other": "Visibilidad predeterminada."
@@ -57,10 +57,10 @@
     "other": "Implementación de metadatos almacenados en archivos ocultos."
   },
   "Stars Rating": {
-    "other": "Estrellas"
+    "other": "Calificación por estrellas"
   },
   "Tags (extensible sets of values)": {
-    "other": "Tags (conjunto extensible de valores)"
+    "other": "Etiquetas (conjuntos extensibles de valores)"
   },
   "Text Metadata": {
     "other": "Metadatos de Texto"

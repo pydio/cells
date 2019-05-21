@@ -73,11 +73,12 @@ let VisibilityPanel = React.createClass({
         subjectsHidden["user:" + linkModel.getLink().UserLogin] = true;
         let subjectDisables = {READ:subjectsHidden, WRITE:subjectsHidden};
         return (
-            <div style={this.props.style} title={this.props.getMessage('199')}>
+            <div style={this.props.style}>
                 {linkModel.getLink().Uuid &&
                     <ResourcePoliciesPanel
                         pydio={pydio}
-                        resourceType="workspace"
+                        resourceType="link"
+                        description={this.props.getMessage('link.visibility.advanced')}
                         resourceId={linkModel.getLink().Uuid}
                         skipTitle={true}
                         onSavePolicies={this.onSavePolicies.bind(this)}
