@@ -157,7 +157,8 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	node, err = dao.GetNode(path)
 	if err != nil || node == nil {
-		return fmt.Errorf("could not retrieve node %s", reqPath)
+		// return fmt.Errorf("could not retrieve node %s", reqPath)
+		return errors.NotFound(name, "Could not retrieve node %s", reqPath)
 	}
 
 	if previousEtag == common.NODE_FLAG_ETAG_TEMPORARY {

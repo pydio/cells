@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 type Queue interface {
@@ -79,12 +79,12 @@ func GetSender(t string, conf config.Map) (Sender, error) {
 	}
 
 	if sender == nil {
-		return nil, errors.NotFound(common.SERVICE_MAILER, "cannot find sender for type "+t)
+		return nil, errors.NotFound(common.SERVICE_MAILER, "cannot find sender for type %s", t)
 	}
 
 	err := sender.Configure(conf)
 	if err != nil {
-		return nil, errors.InternalServerError(common.SERVICE_MAILER, "cannot configure send type "+t)
+		return nil, errors.InternalServerError(common.SERVICE_MAILER, "cannot configure sender for type %s", t)
 	}
 
 	return sender, nil
