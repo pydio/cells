@@ -57,14 +57,15 @@ var _EditorButton = require('./EditorButton');
 
 var _EditorButton2 = _interopRequireDefault(_EditorButton);
 
-var _makeMinimise = require('./make-minimise');
+var _lodash = require('lodash');
 
-var _makeMinimise2 = _interopRequireDefault(_makeMinimise);
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var MAX_ITEMS = 4;
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
+var getActiveTab = _Pydio$requireLib.getActiveTab;
 var makeMotion = _Pydio$requireLib.makeMotion;
 var makeTransitionHOC = _Pydio$requireLib.makeTransitionHOC;
 var withMouseTracker = _Pydio$requireLib.withMouseTracker;
@@ -101,6 +102,17 @@ var styles = {
     }
 };
 
+function difference(object, base) {
+    function changes(object, base) {
+        return _lodash2['default'].transform(object, function (result, value, key) {
+            if (!_lodash2['default'].isEqual(value, base[key])) {
+                result[key] = _lodash2['default'].isObject(value) && _lodash2['default'].isObject(base[key]) ? changes(value, base[key]) : value;
+            }
+        });
+    }
+    return changes(object, base);
+}
+
 // MAIN COMPONENT
 
 var Editor = (function (_React$Component) {
@@ -130,62 +142,25 @@ var Editor = (function (_React$Component) {
     };
 
     Editor.prototype.renderChild = function renderChild() {
-        var _props = this.props;
-        var activeTab = _props.activeTab;
-        var tabs = _props.tabs;
+        var activeTab = this.props.activeTab;
 
-        var filteredTabs = tabs.filter(function (_ref) {
-            var editorData = _ref.editorData;
-            return editorData;
-        });
-
-        return filteredTabs.map(function (tab, index) {
-            var style = {
-                display: "flex",
-                width: 100 / MAX_ITEMS + "%",
-                height: "40%",
-                margin: "10px",
-                overflow: "hidden",
-                whiteSpace: "nowrap"
-            };
-
-            if (filteredTabs.length > MAX_ITEMS) {
-                if (index < MAX_ITEMS) {
-                    style.flex = 1;
-                } else {
-                    style.flex = 0;
-                    style.margin = 0;
-                }
-            }
-
-            if (activeTab) {
-                if (tab.id === activeTab.id) {
-                    style.margin = 0;
-                    style.flex = 1;
-                } else {
-                    style.flex = 0;
-                    style.margin = 0;
-                }
-            }
-
-            return React.createElement(_EditorTab2['default'], { key: 'editortab' + tab.id, id: tab.id, style: _extends({}, style) });
-        });
+        return React.createElement(_EditorTab2['default'], { id: activeTab.id });
     };
 
     Editor.prototype.render = function render() {
         var _this = this;
 
-        var _props2 = this.props;
-        var style = _props2.style;
-        var activeTab = _props2.activeTab;
-        var fixedToolbar = _props2.fixedToolbar;
-        var hideToolbar = _props2.hideToolbar;
-        var tabDeleteAll = _props2.tabDeleteAll;
-        var hideSelectionControls = _props2.hideSelectionControls;
-        var prevSelectionDisabled = _props2.prevSelectionDisabled;
-        var nextSelectionDisabled = _props2.nextSelectionDisabled;
-        var onSelectPrev = _props2.onSelectPrev;
-        var onSelectNext = _props2.onSelectNext;
+        var _props = this.props;
+        var style = _props.style;
+        var activeTab = _props.activeTab;
+        var fixedToolbar = _props.fixedToolbar;
+        var hideToolbar = _props.hideToolbar;
+        var tabDeleteAll = _props.tabDeleteAll;
+        var hideSelectionControls = _props.hideSelectionControls;
+        var prevSelectionDisabled = _props.prevSelectionDisabled;
+        var nextSelectionDisabled = _props.nextSelectionDisabled;
+        var onSelectPrev = _props.onSelectPrev;
+        var onSelectNext = _props.onSelectNext;
 
         var parentStyle = {
             display: "flex",
@@ -290,8 +265,6 @@ function mapStateToProps(state, ownProps) {
     var editor = _state$editor === undefined ? {} : _state$editor;
     var _state$tabs = state.tabs;
     var tabs = _state$tabs === undefined ? [] : _state$tabs;
-    var _editor$activeTabId = editor.activeTabId;
-    var activeTabId = _editor$activeTabId === undefined ? -1 : _editor$activeTabId;
     var _editor$isMinimised = editor.isMinimised;
     var isMinimised = _editor$isMinimised === undefined ? false : _editor$isMinimised;
     var _editor$fixedToolbar = editor.fixedToolbar;
@@ -299,15 +272,11 @@ function mapStateToProps(state, ownProps) {
     var _editor$focusOnSelection = editor.focusOnSelection;
     var focusOnSelection = _editor$focusOnSelection === undefined ? false : _editor$focusOnSelection;
 
-    var activeTab = tabs.filter(function (tab) {
-        return tab.id === activeTabId;
-    })[0];
-
     return _extends({}, ownProps, {
         fixedToolbar: fixedToolbar,
         hideToolbar: !ownProps.displayToolbar || !fixedToolbar && focusOnSelection && !ownProps.isNearTop,
         hideSelectionControls: !ownProps.browseable || focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight,
-        activeTab: activeTab,
+        activeTab: getActiveTab(state),
         tabs: tabs,
         isMinimised: isMinimised
     });

@@ -68,6 +68,10 @@ var _editorReducersIndex = require('./editor/reducers/index');
 
 var _editorReducersIndex2 = _interopRequireDefault(_editorReducersIndex);
 
+var _selectorsIndex = require('./selectors/index');
+
+var selectors = _interopRequireWildcard(_selectorsIndex);
+
 var _editorActions = require('./editor/actions');
 
 var actions = _interopRequireWildcard(_editorActions);
@@ -120,7 +124,7 @@ var PydioHOCs = _extends({
     PaletteModifier: _PaletteModifier2['default'],
     URLProvider: _urls.URLProvider,
     SizeProviders: _sizeIndex.SizeProviders
-}, controls);
+}, controls, selectors);
 
 exports['default'] = PydioHOCs;
 module.exports = exports['default'];

@@ -37,6 +37,7 @@ var ModalAppBar = _PydioComponents.ModalAppBar;
 
 var _Pydio$requireLib = Pydio.requireLib('hoc');
 
+var getActiveTab = _Pydio$requireLib.getActiveTab;
 var makeTransitionHOC = _Pydio$requireLib.makeTransitionHOC;
 var EditorActions = _Pydio$requireLib.EditorActions;
 
@@ -125,19 +126,10 @@ var EditorToolbar = (function (_React$Component) {
 
 exports['default'] = EditorToolbar;
 function mapStateToProps(state, ownProps) {
-    var _state$editor = state.editor;
-    var editor = _state$editor === undefined ? {} : _state$editor;
-    var _state$tabs = state.tabs;
-    var tabs = _state$tabs === undefined ? [] : _state$tabs;
-    var _editor$activeTabId = editor.activeTabId;
-    var activeTabId = _editor$activeTabId === undefined ? -1 : _editor$activeTabId;
-
-    var activeTab = tabs.filter(function (tab) {
-        return tab.id === activeTabId;
-    })[0] || {};
+    var tab = getActiveTab(state);
 
     return _extends({}, ownProps, {
-        title: activeTab.title
+        title: tab.title
     });
 }
 module.exports = exports['default'];

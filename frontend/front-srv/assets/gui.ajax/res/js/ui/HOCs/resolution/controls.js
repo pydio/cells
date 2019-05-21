@@ -29,8 +29,7 @@ export const withResolutionControls = (Component) => {
         @connect(mapStateToProps)
         class ResolutionControls extends React.Component {
             render() {
-                const {tab = {}, ...remaining} = this.props;
-                const {resolution = "hi"} = tab;
+                const {resolution, ...remaining} = this.props;
 
                 const fn = handler("onToggleResolution", this.props)
 

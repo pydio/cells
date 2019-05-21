@@ -22,11 +22,12 @@ import Pydio from 'pydio'
 import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField, Snackbar } from 'material-ui';
 import { connect } from 'react-redux';
 import Draggable from 'react-draggable';
-import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
+import _ from 'lodash';
+import { pure } from 'recompose';
 
-const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withContentControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
+const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, getActiveTab, getEditorResolution, withMenu, withContentControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 
 const styles = {
     textField: {
@@ -52,8 +53,10 @@ const styles = {
     }
 }
 
+
+
 @connect(mapStateToProps, EditorActions)
-export default class Tab extends React.Component {
+export default class Tab extends React.PureComponent {
     static get styles() {
         return {
             container: {
@@ -84,10 +87,53 @@ export default class Tab extends React.Component {
     }
 
     render() {
-        const {node, displaySnackbar, snackbarMessage, editorData, Editor, Controls, Actions, id, isActive, editorSetActiveTab, style, tabModify} = this.props
+        const {Editor} = this.props
+        const {id, node, snackbarMessage, editorData, isActive, style} = this.props
+        const {editorSetActiveTab, tabModify} = this.props
+
+        if (!Editor) {
+            return null
+        }
 
         const select = () => editorSetActiveTab(id)
-        const cardStyle = {backgroundColor:'transparent', borderRadius: 0, ...style};
+        const cardStyle = {
+            display: "flex",
+            height: "40%",
+            flex: 1,
+            margin: 0,
+            overflow: "hidden", 
+            whiteSpace: "nowrap",
+            backgroundColor:'transparent',
+            borderRadius: 0,
+        };
+
+        // let style = {
+            //     display: "flex",
+            //     width: (100 / MAX_ITEMS) + "%",
+            //     height: "40%",
+            //     margin: "10px",
+            //     overflow: "hidden",
+            //     whiteSpace: "nowrap"
+            // }
+
+            // if (filteredTabs.length > MAX_ITEMS) {
+            //     if (index < MAX_ITEMS) {
+            //         style.flex = 1
+            //     } else {
+            //         style.flex = 0
+            //         style.margin = 0
+            //     }
+            // }
+
+            // if (activeTab) {
+            //     if (tab.id === activeTab.id) {
+            //         style.margin = 0
+            //         style.flex = 1
+            //     } else {
+            //         style.flex = 0
+            //         style.margin = 0
+            //     }
+            // }
 
         return !isActive ? (
             <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={isActive} expanded={isActive} onExpandChange={!isActive ? select : null}>
@@ -145,7 +191,7 @@ class BottomBar extends React.Component {
 
     render() {
         const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
-        const {readonly, size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
+        const {readonly, size, scale, playing = false, resolution, onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
 
         // Content functions
         const {saveable, undoable, redoable, onSave, onUndo, onRedo, saveDisabled, undoDisabled, redoDisabled} = this.props
@@ -293,18 +339,29 @@ class BottomBar extends React.Component {
 }
 
 function mapStateToProps(state, ownProps) {
-    const { editor, tabs } = state
+    const { editor } = state
+    const current = getActiveTab(state)
+    
+    const {readonly = true, message = "", editorData = {}} = current
+    const editorClass = FuncUtils.getFunctionByName(editorData.editorClass, window)
 
-    let current = tabs.filter(tab => tab.id === ownProps.id)[0] || {}
-
-    const {node, message = ""} = current
+    if (!editorClass) {
+        return {
+            ...ownProps,
+            ...current,
+        }
+    }
 
     return  {
         ...ownProps,
         ...current,
+        resolution: getEditorResolution(state),
         isActive: editor.activeTabId === current.id,
         snackbarMessage: message,
-        readonly: node.hasMetadataInBranch("node_readonly", "true"),
+        readonly: readonly,
+        Editor: editorClass.Editor,
+        Controls: editorClass.Controls,
+        Actions: editorClass.Actions
     }
 }
 

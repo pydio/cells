@@ -46,15 +46,17 @@ var _reactDraggable = require('react-draggable');
 
 var _reactDraggable2 = _interopRequireDefault(_reactDraggable);
 
-var _reactPanAndZoomHoc = require('react-pan-and-zoom-hoc');
-
-var _reactPanAndZoomHoc2 = _interopRequireDefault(_reactPanAndZoomHoc);
-
 var _redux = require('redux');
 
 var _makeMaximise = require('./make-maximise');
 
 var _makeMaximise2 = _interopRequireDefault(_makeMaximise);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _recompose = require('recompose');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -64,6 +66,8 @@ var ContentActions = _Pydio$requireLib.ContentActions;
 var SizeActions = _Pydio$requireLib.SizeActions;
 var SelectionActions = _Pydio$requireLib.SelectionActions;
 var LocalisationActions = _Pydio$requireLib.LocalisationActions;
+var getActiveTab = _Pydio$requireLib.getActiveTab;
+var getEditorResolution = _Pydio$requireLib.getEditorResolution;
 var withMenu = _Pydio$requireLib.withMenu;
 var withContentControls = _Pydio$requireLib.withContentControls;
 var withSizeControls = _Pydio$requireLib.withSizeControls;
@@ -94,34 +98,73 @@ var styles = {
     }
 };
 
-var Tab = (function (_React$Component) {
-    _inherits(Tab, _React$Component);
+var Tab = (function (_React$PureComponent) {
+    _inherits(Tab, _React$PureComponent);
 
     function Tab() {
         _classCallCheck(this, _Tab);
 
-        _React$Component.apply(this, arguments);
+        _React$PureComponent.apply(this, arguments);
     }
 
     Tab.prototype.render = function render() {
+        var Editor = this.props.Editor;
         var _props = this.props;
+        var id = _props.id;
         var node = _props.node;
-        var displaySnackbar = _props.displaySnackbar;
         var snackbarMessage = _props.snackbarMessage;
         var editorData = _props.editorData;
-        var Editor = _props.Editor;
-        var Controls = _props.Controls;
-        var Actions = _props.Actions;
-        var id = _props.id;
         var isActive = _props.isActive;
-        var editorSetActiveTab = _props.editorSetActiveTab;
         var style = _props.style;
-        var tabModify = _props.tabModify;
+        var _props2 = this.props;
+        var editorSetActiveTab = _props2.editorSetActiveTab;
+        var tabModify = _props2.tabModify;
+
+        if (!Editor) {
+            return null;
+        }
 
         var select = function select() {
             return editorSetActiveTab(id);
         };
-        var cardStyle = _extends({ backgroundColor: 'transparent', borderRadius: 0 }, style);
+        var cardStyle = {
+            display: "flex",
+            height: "40%",
+            flex: 1,
+            margin: 0,
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            backgroundColor: 'transparent',
+            borderRadius: 0
+        };
+
+        // let style = {
+        //     display: "flex",
+        //     width: (100 / MAX_ITEMS) + "%",
+        //     height: "40%",
+        //     margin: "10px",
+        //     overflow: "hidden",
+        //     whiteSpace: "nowrap"
+        // }
+
+        // if (filteredTabs.length > MAX_ITEMS) {
+        //     if (index < MAX_ITEMS) {
+        //         style.flex = 1
+        //     } else {
+        //         style.flex = 0
+        //         style.margin = 0
+        //     }
+        // }
+
+        // if (activeTab) {
+        //     if (tab.id === activeTab.id) {
+        //         style.margin = 0
+        //         style.flex = 1
+        //     } else {
+        //         style.flex = 0
+        //         style.margin = 0
+        //     }
+        // }
 
         return !isActive ? React.createElement(
             AnimatedCard,
@@ -191,17 +234,17 @@ var Tab = (function (_React$Component) {
     var _Tab = Tab;
     Tab = _reactRedux.connect(mapStateToProps, EditorActions)(Tab) || Tab;
     return Tab;
-})(React.Component);
+})(React.PureComponent);
 
 exports['default'] = Tab;
 
-var BottomBar = (function (_React$Component2) {
-    _inherits(BottomBar, _React$Component2);
+var BottomBar = (function (_React$Component) {
+    _inherits(BottomBar, _React$Component);
 
     function BottomBar(props) {
         _classCallCheck(this, _BottomBar);
 
-        _React$Component2.call(this, props);
+        _React$Component.call(this, props);
 
         var size = props.size;
         var scale = props.scale;
@@ -232,42 +275,41 @@ var BottomBar = (function (_React$Component2) {
         var magnifyDisabled = _state$magnifyDisabled === undefined ? false : _state$magnifyDisabled;
         var _state$plusDisabled = _state.plusDisabled;
         var plusDisabled = _state$plusDisabled === undefined ? false : _state$plusDisabled;
-        var _props2 = this.props;
-        var readonly = _props2.readonly;
-        var size = _props2.size;
-        var scale = _props2.scale;
-        var _props2$playing = _props2.playing;
-        var playing = _props2$playing === undefined ? false : _props2$playing;
-        var _props2$resolution = _props2.resolution;
-        var resolution = _props2$resolution === undefined ? "hi" : _props2$resolution;
-        var onAutoPlayToggle = _props2.onAutoPlayToggle;
-        var onSizeChange = _props2.onSizeChange;
-        var onResolutionToggle = _props2.onResolutionToggle;
+        var _props3 = this.props;
+        var readonly = _props3.readonly;
+        var size = _props3.size;
+        var scale = _props3.scale;
+        var _props3$playing = _props3.playing;
+        var playing = _props3$playing === undefined ? false : _props3$playing;
+        var resolution = _props3.resolution;
+        var onAutoPlayToggle = _props3.onAutoPlayToggle;
+        var onSizeChange = _props3.onSizeChange;
+        var onResolutionToggle = _props3.onResolutionToggle;
 
-        var remaining = _objectWithoutProperties(_props2, ['readonly', 'size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
+        var remaining = _objectWithoutProperties(_props3, ['readonly', 'size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
 
         // Content functions
-        var _props3 = this.props;
-        var saveable = _props3.saveable;
-        var undoable = _props3.undoable;
-        var redoable = _props3.redoable;
-        var onSave = _props3.onSave;
-        var onUndo = _props3.onUndo;
-        var onRedo = _props3.onRedo;
-        var saveDisabled = _props3.saveDisabled;
-        var undoDisabled = _props3.undoDisabled;
-        var redoDisabled = _props3.redoDisabled;
         var _props4 = this.props;
-        var onToggleLineNumbers = _props4.onToggleLineNumbers;
-        var onToggleLineWrapping = _props4.onToggleLineWrapping;
+        var saveable = _props4.saveable;
+        var undoable = _props4.undoable;
+        var redoable = _props4.redoable;
+        var onSave = _props4.onSave;
+        var onUndo = _props4.onUndo;
+        var onRedo = _props4.onRedo;
+        var saveDisabled = _props4.saveDisabled;
+        var undoDisabled = _props4.undoDisabled;
+        var redoDisabled = _props4.redoDisabled;
         var _props5 = this.props;
-        var onSearch = _props5.onSearch;
-        var onJumpTo = _props5.onJumpTo;
+        var onToggleLineNumbers = _props5.onToggleLineNumbers;
+        var onToggleLineWrapping = _props5.onToggleLineWrapping;
+        var _props6 = this.props;
+        var onSearch = _props6.onSearch;
+        var onJumpTo = _props6.onJumpTo;
 
         var editable = (saveable || undoable || redoable) && !readonly;
-        var _props6 = this.props;
-        var editortools = _props6.editortools;
-        var searchable = _props6.searchable;
+        var _props7 = this.props;
+        var editortools = _props7.editortools;
+        var searchable = _props7.searchable;
 
         // Resolution functions
         var hdable = this.props.hdable;
@@ -426,20 +468,30 @@ var BottomBar = (function (_React$Component2) {
 
 function mapStateToProps(state, ownProps) {
     var editor = state.editor;
-    var tabs = state.tabs;
 
-    var current = tabs.filter(function (tab) {
-        return tab.id === ownProps.id;
-    })[0] || {};
+    var current = getActiveTab(state);
 
-    var node = current.node;
+    var _current$readonly = current.readonly;
+    var readonly = _current$readonly === undefined ? true : _current$readonly;
     var _current$message = current.message;
     var message = _current$message === undefined ? "" : _current$message;
+    var _current$editorData = current.editorData;
+    var editorData = _current$editorData === undefined ? {} : _current$editorData;
+
+    var editorClass = FuncUtils.getFunctionByName(editorData.editorClass, window);
+
+    if (!editorClass) {
+        return _extends({}, ownProps, current);
+    }
 
     return _extends({}, ownProps, current, {
+        resolution: getEditorResolution(state),
         isActive: editor.activeTabId === current.id,
         snackbarMessage: message,
-        readonly: node.hasMetadataInBranch("node_readonly", "true")
+        readonly: readonly,
+        Editor: editorClass.Editor,
+        Controls: editorClass.Controls,
+        Actions: editorClass.Actions
     });
 }
 

@@ -31,7 +31,6 @@ const makeMinimise = (Target) => {
     return (
         @makeMotion({scale: 1}, {scale: 0.5}, {
             check: (props) => {
-                console.log("checking ", props)
                 return props.minimise && (!props.minimised)
             }
         })
