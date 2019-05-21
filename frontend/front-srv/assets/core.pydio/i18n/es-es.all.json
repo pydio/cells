@@ -2232,34 +2232,34 @@
     "other": "Filtrar celdas"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Visibilidad"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Ver"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Editar"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Usuarios"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Sus equipos"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Cambiar la visibilidad"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Guardar los cambios"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Revertir los cambios"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Ocurrió un error"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Seleccione un usuario..."
   },
   "visibility.panel.setvisible": {
     "other": "Set visible to..."

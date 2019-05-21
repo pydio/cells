@@ -2232,39 +2232,39 @@
     "other": "Filtrer les Cells"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Visibilité"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Voir"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Editer"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Utilisateurs"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Vos équipes"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Modifier"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Sauver les changements"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Revenir en arrière"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Une erreur est survenue"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Choisir un utilisateur..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Rendre visible pour..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Cette fonctionnalité avancée vous permet de décider si un utilisateur que vous avez créé peut être visible ou modifiable par les autres utilisateurs. Par défaut, les utilisateurs de votre carnet d'adresse ne sont visibles que par vous."
   }
 }
