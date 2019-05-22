@@ -651,7 +651,7 @@
     "other": "Escribir"
   },
   "33": {
-    "other": "Ver"
+    "other": "Monitorizar"
   },
   "34": {
     "other": "Usuario nuevo o existente"
@@ -666,10 +666,10 @@
     "other": "Confirmar"
   },
   "38": {
-    "other": "Ver el contenido de esta carpeta"
+    "other": "Monitorizar el contenido de esta carpeta"
   },
   "39": {
-    "other": "Ver la actividad de este archivo"
+    "other": "Monitorizar la actividad de este archivo"
   },
   "4": {
     "other": "Introduzca la contraseña correcta y haga click en la imagen para descargar <b>%s</b> a su disco duro"
@@ -702,7 +702,7 @@
     "other": "Abrir mini %s1"
   },
   "47": {
-    "other": "Estado de visualización actualizado correctamente"
+    "other": "Estado de monitorización actualizado correctamente"
   },
   "48": {
     "other": "No se le permite acceder a estos datos"
@@ -828,16 +828,16 @@
     "other": "Invite por correo electrónico a los usuarios seleccionados a visitar este workspace"
   },
   "81": {
-    "other": "dejar de visualizar"
+    "other": "detener la monitorización"
   },
   "82": {
-    "other": "no visto"
+    "other": "monitorizar"
   },
   "83": {
-    "other": "Cambie el estado de visualización para recibir o no notificaciones cuando el archivo se haya descargado"
+    "other": "Toggle watch status to receive or not notifications when file is downloaded"
   },
   "83b": {
-    "other": "Cambie el estado de visualización para recibir o no notificaciones cuando el workspace es consultado"
+    "other": "Cambie el estado de monitorización para recibir o no notificaciones cuando el workspace es consultado"
   },
   "84": {
     "other": "contraseña"

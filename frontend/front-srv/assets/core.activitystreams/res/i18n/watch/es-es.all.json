@@ -36,13 +36,13 @@
     "other": "Detener monitorización de accesos a esta carpeta"
   },
   "5": {
-    "other": "Vigilar..."
+    "other": "Monitorizar..."
   },
   "6": {
-    "other": "Vigilar cambios en este archivo"
+    "other": "Watch this file for changes"
   },
   "7": {
-    "other": "Stop watching"
+    "other": "Detener monitorización"
   },
   "8": {
     "other": "Detener monitorización de cambios en este archivo"
