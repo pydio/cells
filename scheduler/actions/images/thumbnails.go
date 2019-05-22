@@ -157,7 +157,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		return errors.InternalServerError(common.SERVICE_JOBS, "Node does not have enough metadata for Resize (missing Source data)")
 	}
 
-	log.Logger(ctx).Debug("[THUMB EXTRACTOR]  Getting object content", zap.String("Path", node.Path), zap.Int64("Size", node.Size))
+	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Getting object content", zap.String("Path", node.Path), zap.Int64("Size", node.Size))
 	var reader io.ReadCloser
 	var err error
 
@@ -176,7 +176,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	displayMemStat(ctx, "BEFORE DECODE")
 	src, err := imaging.Decode(reader)
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_JOBS, "Error during decode :"+err.Error())
+		return errors.InternalServerError(common.SERVICE_JOBS, "Cannot decode image to create thumb: %s", err.Error())
 	}
 	displayMemStat(ctx, "AFTER DECODE")
 

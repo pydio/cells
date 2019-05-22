@@ -27,8 +27,8 @@ import (
 	"fmt"
 	"time"
 
-	"go.uber.org/zap"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
@@ -176,14 +176,14 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	err = open(req.Key, []byte(req.StrPassword))
 	if err != nil {
 		rsp.Success = false
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, fmt.Sprintf("unable to decrypt %s for import", req.Key.ID), err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "unable to decrypt %s for import, cause: %s", req.Key.ID, err.Error())
 	}
 
 	log.Logger(ctx).Info("Sealing with master key")
 	err = sealWithMasterKey(req.Key)
 	if err != nil {
 		rsp.Success = false
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, fmt.Sprintf("unable to encrypt %s.%s nfor export", common.PYDIO_SYSTEM_USERNAME, req.Key.ID), err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "unable to encrypt %s.%s for export, cause: %s", common.PYDIO_SYSTEM_USERNAME, req.Key.ID, err.Error())
 	}
 
 	if req.Key.CreationDate == 0 {

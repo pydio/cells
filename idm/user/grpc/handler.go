@@ -43,8 +43,8 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/user"
@@ -330,13 +330,13 @@ func (h *Handler) SearchUser(ctx context.Context, request *idm.SearchUserRequest
 		if usr, ok := in.(*idm.User); ok {
 			usr.Password = ""
 			if usr.Policies, e = dao.GetPoliciesForResource(usr.Uuid); e != nil {
-				log.Logger(ctx).Error("Error while loading policies for user "+usr.Uuid, zap.Error(e))
+				log.Logger(ctx).Error("cannot load policies for user "+usr.Uuid, zap.Error(e))
 				continue
 			}
 			h.applyAutoApplies(usr, autoApplies)
 			response.Send(&idm.SearchUserResponse{User: usr})
 		} else {
-			return errors.InternalServerError(common.SERVICE_USER, "Wrong type received! Should have been idm.User or idm.Group")
+			return errors.InternalServerError(common.SERVICE_USER, "wrong type received, should have been idm.User or idm.Group")
 		}
 	}
 
