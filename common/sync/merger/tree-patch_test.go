@@ -388,12 +388,23 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 		b.Filter(context.Background())
 		moves := b.OperationsByType([]OperationType{OpMoveFolder})
 		So(moves, ShouldHaveLength, 4)
-		sb := b.(*FlatPatch)
-		So(sb.folderMoves["A2"].Node.Path, ShouldEqual, "A1")
-		So(sb.folderMoves["A2/B2"].Node.Path, ShouldEqual, "A2/B1")
-		So(sb.folderMoves["A2/B2/C2"].Node.Path, ShouldEqual, "A2/B2/C1")
-		So(sb.folderMoves["A2/B2/C2/D2"].Node.Path, ShouldEqual, "A2/B2/C2/D1")
-
+		if p, ok := b.(*TreePatch); ok {
+			// Flag operations as processed
+			var i int
+			p.WalkOperations([]OperationType{OpMoveFolder}, func(operation *Operation) {
+				if i == 0 {
+					So(operation.Node.Path, ShouldEqual, "A1")
+				} else if i == 1 {
+					So(operation.Node.Path, ShouldEqual, "A2/B1")
+				} else if i == 2 {
+					So(operation.Node.Path, ShouldEqual, "A2/B2/C1")
+				} else if i == 3 {
+					So(operation.Node.Path, ShouldEqual, "A2/B2/C2/D1")
+				}
+				operation.Processed = true
+				i++
+			})
+		}
 	})
 
 	Convey("SNAP - Delete Inside Moved Folder", t, func() {
@@ -404,7 +415,11 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		b.Filter(context.Background())
-		So(b.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
+		moves := b.OperationsByType([]OperationType{OpMoveFolder})
+		So(moves, ShouldHaveLength, 1)
+		for _, m := range moves {
+			m.Processed = true
+		}
 		deletes := b.OperationsByType([]OperationType{OpDelete})
 		So(deletes, ShouldHaveLength, 1)
 		So(deletes[0].Key, ShouldEqual, "RENAME/crash-updatecells.log")

@@ -60,6 +60,7 @@ type Operation struct {
 	Node      *tree.Node
 	EventInfo model.EventInfo
 	Patch     Patch
+	Processed bool
 }
 
 // NewDiff creates a new Diff implementation
@@ -69,7 +70,7 @@ func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyn
 
 // NewPatch creates a new Patch implementation
 func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
-	return newFlatPatch(source, target)
+	return newTreePatch(source, target)
 }
 
 // ClonePatch creates a new patch with the same operations but different source/targets

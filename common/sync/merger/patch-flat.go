@@ -197,14 +197,9 @@ func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 
 }
 
-func (b *FlatPatch) HasTransfers() bool {
-	_, ok1 := model.AsDataSyncSource(b.Source())
-	_, ok2 := model.AsDataSyncTarget(b.Target())
-	return ok1 && ok2
-}
-
 func (b *FlatPatch) Size() int {
-	return len(b.createFolders) + len(b.folderMoves) + len(b.createFiles) + len(b.updateFiles) + len(b.fileMoves) + len(b.deletes)
+	all := b.OperationsByType([]OperationType{})
+	return len(all)
 }
 
 func (b *FlatPatch) ProgressTotal() int64 {

@@ -27,8 +27,9 @@ type TreeNode struct {
 	parent       *TreeNode
 	sorted       []*TreeNode
 
-	Operation    *Operation
-	OpMoveTarget *TreeNode
+	PathOperation *Operation
+	DataOperation *Operation
+	OpMoveTarget  *TreeNode
 }
 
 // TreeNodeFromSource populates a hash tree with leafs and folders by walking a source.
@@ -137,8 +138,15 @@ func (t *TreeNode) SortedChildren() []*TreeNode {
 func (t *TreeNode) PrintOut() {
 	level := t.GetLevel()
 	op := ""
-	if t.Operation != nil {
-		op = "\t\t ** " + t.Operation.String()
+	var ops []string
+	if t.PathOperation != nil {
+		ops = append(ops, t.PathOperation.String())
+	}
+	if t.DataOperation != nil {
+		ops = append(ops, t.DataOperation.String())
+	}
+	if len(ops) > 0 {
+		op = "\t\t ** " + strings.Join(ops, "|")
 	}
 	fmt.Println(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash() + op)
 	for _, c := range t.SortedChildren() {
@@ -155,6 +163,14 @@ func (t *TreeNode) AddChild(n *TreeNode) {
 	n.parent = t
 	// Will force resorting keys next time
 	t.sorted = nil
+}
+
+func (t *TreeNode) ClearChildren() {
+	t.Lock()
+	t.children = make(map[string]*TreeNode)
+	t.sorted = []*TreeNode{}
+	t.childrenKeys = []string{}
+	t.Unlock()
 }
 
 // GetLevel computes the current level of this node (depth)
@@ -189,7 +205,7 @@ func (t *TreeNode) GetHash() string {
 	return t.Etag
 }
 
-// OriginalPath when this is an operation tree, return the Source path of the node
+// OriginalPath rebuilds node Path climbing to the root
 func (t *TreeNode) OriginalPath() string {
 	if t.parent == nil {
 		return t.Path
@@ -197,17 +213,17 @@ func (t *TreeNode) OriginalPath() string {
 	return path.Join(t.parent.OriginalPath(), t.Label())
 }
 
-// ModifiedPath when this is an operation tree, return the Target path of the node
-func (t *TreeNode) ModifiedPath(first bool) string {
+// ProcessedPath builds node Path to the root taking all moves into account
+func (t *TreeNode) ProcessedPath(first bool, asProcessed bool) string {
 	if t.parent == nil {
 		return t.Path
 	}
 	label := t.Label()
-	if !first && t.Operation != nil && (t.Operation.Type == OpMoveFolder || t.Operation.Type == OpMoveFile) {
+	if !first && t.PathOperation != nil && (t.PathOperation.Type == OpMoveFolder || t.PathOperation.Type == OpMoveFile) && (asProcessed || t.PathOperation.Processed) {
 		// Compute target from t.Operation.Event.Path instead of Node Path
-		label = path.Base(strings.Trim(t.Operation.EventInfo.Path, "/"))
+		label = path.Base(strings.Trim(t.PathOperation.EventInfo.Path, "/"))
 	}
-	return path.Join(t.parent.ModifiedPath(false), label)
+	return path.Join(t.parent.ProcessedPath(false, asProcessed), label)
 }
 
 // QueueOperation registers an operation at a given path, by eventually building
@@ -226,10 +242,14 @@ func (t *TreeNode) QueueOperation(op *Operation) {
 				last = NewTreeNode(op.Node)
 				crtParent.AddChild(last)
 			}
-			last.Operation = op
-			if op.Type == OpMoveFolder || op.Type == OpMoveFile {
-				// Link to the target
+			switch op.Type {
+			case OpMoveFile, OpMoveFolder:
+				last.PathOperation = op
 				last.OpMoveTarget = t.getRoot().createNodeDeep(op.Key)
+			case OpCreateFolder, OpDelete:
+				last.PathOperation = op
+			case OpCreateFile, OpUpdateFile, OpRefreshUuid:
+				last.DataOperation = op
 			}
 		} else if c, o := crtParent.children[childPath]; o {
 			crtParent = c
@@ -265,38 +285,47 @@ func (t *TreeNode) createNodeDeep(p string) *TreeNode {
 	return crtParent
 }
 
+func (t *TreeNode) Walk(cb func(n *TreeNode) bool) {
+	if pruneBranch := cb(t); pruneBranch {
+		t.ClearChildren()
+		return
+	}
+	for _, c := range t.SortedChildren() {
+		c.Walk(cb)
+	}
+}
+
 func (t *TreeNode) WalkOperations(opTypes []OperationType, callback func(*Operation)) {
-	filter := func(o *Operation) (call bool, walk bool) {
+	filter := func(o *Operation) bool {
 		if o == nil {
-			return false, true
+			return false
 		}
-		walk = o.Type != OpDelete
 		if len(opTypes) == 0 {
-			return true, walk
+			return true
 		}
 		for _, oT := range opTypes {
 			if o.Type == oT {
-				return true, walk
+				return true
 			}
 		}
-		return false, walk
+		return false
 	}
-
-	call, walk := filter(t.Operation)
-	if call {
+	// TODO CLONE OPERATION?
+	recompute := func(t *TreeNode, o *Operation) {
+		o.Node.Path = t.ProcessedPath(true, false)
 		if t.OpMoveTarget != nil {
-			// Check modified are ok
-			modSrc := t.ModifiedPath(true)
-			modTarget := t.OpMoveTarget.ModifiedPath(true)
-			if modSrc == modTarget {
-				fmt.Println("Move will finally be identic, ignoring", modSrc, modTarget)
-				return
-			}
+			o.Key = t.OpMoveTarget.ProcessedPath(true, false)
+		} else {
+			o.Key = o.Node.Path
 		}
-		callback(t.Operation)
 	}
-	if !walk {
-		return
+	if filter(t.PathOperation) {
+		recompute(t, t.PathOperation)
+		callback(t.PathOperation)
+	}
+	if filter(t.DataOperation) {
+		recompute(t, t.DataOperation)
+		callback(t.DataOperation)
 	}
 	for _, c := range t.SortedChildren() {
 		c.WalkOperations(opTypes, callback)

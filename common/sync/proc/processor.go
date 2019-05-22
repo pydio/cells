@@ -100,8 +100,8 @@ func (pr *Processor) Process(patch merger.Patch) {
 	}
 
 	// Create Folders
-	for _, event := range patch.OperationsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
-		pr.applyProcessFunc(event, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", event.EventInfo.Path))
+	for _, operation := range patch.OperationsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
+		pr.applyProcessFunc(operation, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", operation.EventInfo.Path))
 	}
 
 	// Move folders
@@ -182,9 +182,9 @@ func (pr *Processor) Logger() *zap.Logger {
 }
 
 // applyProcessFunc takes a ProcessFunc and handle progress, status messages, etc
-func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId string, callback ProcessFunc, completeString string, progressString string, errorString string, cursor *int64, total int64, fields ...zapcore.Field) error {
+func (pr *Processor) applyProcessFunc(op *merger.Operation, operationId string, callback ProcessFunc, completeString string, progressString string, errorString string, cursor *int64, total int64, fields ...zapcore.Field) error {
 
-	fields = append(fields, zap.String("target", event.Target().GetEndpointInfo().URI))
+	fields = append(fields, zap.String("target", op.Target().GetEndpointInfo().URI))
 
 	pgs := make(chan int64)
 	var lastProgress float32
@@ -195,7 +195,7 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 			progress := float32(*cursor) / float32(total)
 			if progress-lastProgress > 0.01 { // Send 1 per percent
 				log.Logger(pr.GlobalContext).Debug("Sending PG", zap.Float32("pg", progress))
-				event.Patch.Status(merger.ProcessStatus{
+				op.Patch.Status(merger.ProcessStatus{
 					StatusString: pr.logAsString(progressString, nil, fields...),
 					Progress:     progress,
 				})
@@ -204,13 +204,14 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 		}
 	}()
 
-	err := callback(event, operationId, pgs)
+	err := callback(op, operationId, pgs)
 	if err != nil {
 		fields = append(fields, zap.Error(err))
 		if !pr.Silent {
 			pr.Logger().Error(errorString, fields...)
 		}
 	} else {
+		op.Processed = true
 		if !pr.Silent {
 			pr.Logger().Info(completeString, fields...)
 		}
@@ -225,7 +226,7 @@ func (pr *Processor) applyProcessFunc(event *merger.Operation, operationId strin
 		}
 		end := float32(*cursor) / float32(total)
 		log.Logger(pr.GlobalContext).Debug("Sending PG END", zap.Float32("pg", end))
-		event.Patch.Status(merger.ProcessStatus{
+		op.Patch.Status(merger.ProcessStatus{
 			IsError:      isError,
 			StatusString: pr.logAsString(loggerString, err, fields...),
 			Progress:     end,

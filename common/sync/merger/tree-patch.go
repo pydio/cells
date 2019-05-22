@@ -24,18 +24,19 @@ import (
 	"context"
 	"sort"
 
+	"github.com/pydio/cells/common/log"
+
 	"github.com/pydio/cells/common/sync/model"
 )
 
 type TreePatch struct {
 	AbstractPatch
+	TreeNode
 
 	createFiles   map[string]*Operation
 	createFolders map[string]*Operation
 	deletes       map[string]*Operation
 	refreshUUIDs  map[string]*Operation
-
-	tree *TreeNode
 }
 
 func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget) *TreePatch {
@@ -44,7 +45,7 @@ func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget) *Tre
 			source: source,
 			target: target,
 		},
-		tree:          NewTree(),
+		TreeNode:      *NewTree(),
 		createFiles:   make(map[string]*Operation),
 		createFolders: make(map[string]*Operation),
 		deletes:       make(map[string]*Operation),
@@ -60,7 +61,7 @@ func (t *TreePatch) Enqueue(op *Operation, key ...string) {
 	}
 	switch op.Type {
 	case OpMoveFolder, OpMoveFile, OpUpdateFile:
-		t.tree.QueueOperation(op)
+		t.QueueOperation(op)
 	case OpCreateFile:
 		t.createFiles[op.Key] = op
 	case OpCreateFolder:
@@ -75,7 +76,7 @@ func (t *TreePatch) Enqueue(op *Operation, key ...string) {
 
 func (t *TreePatch) OperationsByType(types []OperationType, sorted ...bool) (events []*Operation) {
 	// walk tree to collect operations
-	t.tree.WalkOperations(types, func(operation *Operation) {
+	t.WalkOperations(types, func(operation *Operation) {
 		events = append(events, operation)
 	})
 	return
@@ -93,33 +94,53 @@ func (t *TreePatch) Filter(ctx context.Context) {
 
 	t.enqueueRemaining(ctx)
 
-	t.tree.PrintOut()
+	t.prune(ctx)
+
+	t.PrintOut()
 
 }
 
 func (t *TreePatch) FilterToTarget(ctx context.Context) {
-	panic("implement me")
+	log.Logger(ctx).Error("FilterToTarget Not Implemented Yet")
 }
 
 func (t *TreePatch) HasTransfers() bool {
-	panic("implement me")
+	var count int
+	t.WalkOperations([]OperationType{OpCreateFile, OpUpdateFile}, func(operation *Operation) {
+		count++
+	})
+	return count > 0
 }
 
 func (t *TreePatch) Size() int {
-	panic("implement me")
+	all := t.OperationsByType([]OperationType{})
+	return len(all)
 }
 
 func (t *TreePatch) ProgressTotal() int64 {
-	panic("implement me")
+	if t.HasTransfers() {
+		var total int64
+		t.WalkOperations([]OperationType{}, func(operation *Operation) {
+			switch operation.Type {
+			case OpCreateFolder, OpMoveFolder, OpMoveFile, OpDelete:
+				total++
+			case OpCreateFile, OpUpdateFile:
+				total += operation.Node.Size
+			}
+		})
+		return total
+	} else {
+		return int64(t.Size())
+	}
 }
 
 func (t *TreePatch) String() string {
-	t.tree.PrintOut()
-	return t.tree.String()
+	t.PrintOut()
+	return ""
 }
 
 func (t *TreePatch) Stats() map[string]interface{} {
-	panic("implement me")
+	return map[string]interface{}{"operationsCount": t.Size()}
 }
 
 func (t *TreePatch) sortedKeys(events map[string]*Operation) []string {

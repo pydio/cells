@@ -2,6 +2,7 @@ package merger
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
@@ -81,12 +82,21 @@ func (t *TreePatch) detectFileMoves(ctx context.Context) {
 						// Now remove from delete/create
 						delete(t.deletes, deleteEvent.Key)
 						delete(t.createFiles, opCreate.Key)
-						// Enqueue in moves only if path differ
+						// Enqueue Update if Etag differ
+						if opCreate.Node.Etag != "" && opCreate.Node.Etag != dbNode.Etag {
+							t.QueueOperation(&Operation{
+								Type:      OpUpdateFile,
+								Node:      dbNode,
+								Key:       deleteEvent.Key,
+								EventInfo: deleteEvent.EventInfo,
+							})
+						}
+						// Enqueue in moves if path differ
 						if opCreate.Node.Path != dbNode.Path {
 							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", opCreate.Node.ZapPath())
 							opCreate.Node = dbNode
 							opCreate.Type = OpMoveFile
-							t.tree.QueueOperation(opCreate)
+							t.QueueOperation(opCreate)
 						}
 						found = true
 						break
@@ -144,7 +154,7 @@ func (t *TreePatch) detectFileMoves(ctx context.Context) {
 		if move.createEvent.Node.Path != move.dbNode.Path {
 			move.createEvent.Node = move.dbNode
 			move.createEvent.Type = OpMoveFile
-			t.tree.QueueOperation(move.createEvent)
+			t.QueueOperation(move.createEvent)
 		}
 	}
 
@@ -180,7 +190,7 @@ func (t *TreePatch) detectFolderMoves(ctx context.Context) {
 				log.Logger(ctx).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.Uuid), zap.String("path", dbNode.Path))
 				opCreate.Node = dbNode
 				opCreate.Type = OpMoveFolder
-				t.tree.QueueOperation(opCreate)
+				t.QueueOperation(opCreate)
 				delete(t.deletes, deleteEvent.Key)
 				delete(t.createFolders, opCreate.Key)
 				//t.pruneMovesByPath(ctx, deleteEvent.Key, opCreate.Key)
@@ -194,14 +204,35 @@ func (t *TreePatch) detectFolderMoves(ctx context.Context) {
 
 func (t *TreePatch) enqueueRemaining(ctx context.Context) {
 	for _, c := range t.createFolders {
-		t.tree.QueueOperation(c)
+		t.QueueOperation(c)
 	}
 	for _, c := range t.createFiles {
-		t.tree.QueueOperation(c)
+		t.QueueOperation(c)
 	}
 	for _, c := range t.deletes {
-		t.tree.QueueOperation(c)
+		t.QueueOperation(c)
 	}
+}
+
+func (t *TreePatch) prune(ctx context.Context) {
+	t.Walk(func(n *TreeNode) (prune bool) {
+		if n.OpMoveTarget != nil {
+			// Compare finally paths after all tree will be processed
+			modSrc := n.ProcessedPath(true, true)
+			modTarget := n.OpMoveTarget.ProcessedPath(true, true)
+			if modSrc == modTarget {
+				fmt.Println("Move will finally be identical, remove PathOperation", modSrc, modTarget)
+				n.PathOperation = nil
+				n.OpMoveTarget = nil
+
+			}
+		}
+		if n.PathOperation != nil && n.PathOperation.Type == OpDelete && !n.IsLeaf() {
+			fmt.Println("Delete folder found, remove all branch underneath!", n.Path)
+			prune = true
+		}
+		return
+	})
 }
 
 /*

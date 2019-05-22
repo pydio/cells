@@ -96,3 +96,9 @@ func (b *AbstractPatch) FinishSessionProvider(sessionUuid string) error {
 	}
 	return nil
 }
+
+func (b *AbstractPatch) HasTransfers() bool {
+	_, ok1 := model.AsDataSyncSource(b.Source())
+	_, ok2 := model.AsDataSyncTarget(b.Target())
+	return ok1 && ok2
+}
