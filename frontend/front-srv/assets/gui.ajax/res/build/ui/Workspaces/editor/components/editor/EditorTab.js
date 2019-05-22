@@ -474,7 +474,7 @@ function mapStateToProps(state, ownProps) {
     var _current$message = current.message;
     var message = _current$message === undefined ? "" : _current$message;
     var _current$editorData = current.editorData;
-    var editorData = _current$editorData === undefined ? {} : _current$editorData;
+    var editorData = _current$editorData === undefined ? { editorClass: "" } : _current$editorData;
 
     var editorClass = FuncUtils.getFunctionByName(editorData.editorClass, window);
 

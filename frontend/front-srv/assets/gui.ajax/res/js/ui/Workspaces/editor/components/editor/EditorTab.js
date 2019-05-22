@@ -341,7 +341,8 @@ function mapStateToProps(state, ownProps) {
     const { editor } = state
     const current = getActiveTab(state)
     
-    const {readonly = true, message = "", editorData = {}} = current
+    const {readonly = true, message = "", editorData = {editorClass: ""}} = current
+
     const editorClass = FuncUtils.getFunctionByName(editorData.editorClass, window)
 
     if (!editorClass) {
