@@ -1,7 +1,7 @@
 import Observable from 'pydio/lang/observable'
 import PydioApi from 'pydio/http/api'
 import {IdmRole, IdmACL, IdmACLAction, ACLServiceApi, RoleServiceApi, RestSearchACLRequest, IdmACLSingleQuery} from 'pydio/http/rest-api';
-import {sync as uuid} from 'uuid4'
+import uuid from 'uuid4'
 
 class Role extends Observable{
 

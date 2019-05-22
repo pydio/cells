@@ -491,7 +491,7 @@ var IdmApi = (function () {
     IdmApi.prototype.createRole = function createRole(roleLabel) {
         var api = new _genApiRoleServiceApi2["default"](this.client);
         var idmRole = new _genModelIdmRole2["default"]();
-        idmRole.Uuid = _uuid42["default"].sync();
+        idmRole.Uuid = _uuid42["default"]();
         idmRole.Label = roleLabel;
         return api.setRole(idmRole.Uuid, idmRole);
     };
@@ -542,7 +542,7 @@ var IdmApi = (function () {
     };
 
     /**
-     *
+     * Create a team from a list of user Ids
      * @param teamName string
      * @param userIds array
      * @param callback optional callback
@@ -555,7 +555,7 @@ var IdmApi = (function () {
         return this.policiesForUniqueUser(pydio.user).then(function (policies) {
             var roleApi = new _genApiRoleServiceApi2["default"](_this2.client);
             var role = new _genModelIdmRole2["default"]();
-            role.Uuid = _utilLangUtils2["default"].computeStringSlug(teamName) + "-" + _uuid42["default"].sync().substr(0, 4);
+            role.Uuid = _utilLangUtils2["default"].computeStringSlug(teamName) + "-" + _uuid42["default"]().substr(0, 4);
             role.Label = teamName;
             role.IsTeam = true;
             role.Policies = policies;
