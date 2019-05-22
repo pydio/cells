@@ -2196,10 +2196,10 @@
     "other": "Carpeta bloqueada"
   },
   "overlay.watch.file": {
-    "other": "Actualmente visualizando este archivo"
+    "other": "Actualmente monitorizando este archivo"
   },
   "overlay.watch.folder": {
-    "other": "Actualmente visualizando esta carpeta"
+    "other": "Actualmente monitorizando esta carpeta"
   },
   "overlay.shared.file": {
     "other": "Archivo compartido, haga clic para editar"
