@@ -234,32 +234,3 @@ func (t *TreePatch) prune(ctx context.Context) {
 		return
 	})
 }
-
-/*
-func (t *TreePatch) filterDeletes(ctx context.Context) {
-
-	// Prune Deletes: remove children if parent is already deleted
-	// Should not be necessary
-	var deleteDelete []string
-	for _, folderDeleteEvent := range t.deletes {
-		deletePath := folderDeleteEvent.Node.Path + "/"
-		for deleteKey, delEvent := range t.deletes {
-			from := delEvent.Node.Path
-			if strings.HasPrefix(from, deletePath) {
-				deleteDelete = append(deleteDelete, deleteKey)
-			}
-		}
-	}
-	for _, del := range deleteDelete {
-		delete(t.deletes, del)
-	}
-
-	for _, del := range t.deletes {
-		if model.Ignores(t.Target(), del.Key) {
-			delete(t.deletes, del.Key)
-			continue
-		}
-	}
-
-}
-*/

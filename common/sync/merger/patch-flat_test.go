@@ -395,11 +395,12 @@ func TestScenariosFromSnapshot(t *testing.T) {
 		b.Filter(context.Background())
 		moves := b.OperationsByType([]OperationType{OpMoveFolder})
 		So(moves, ShouldHaveLength, 4)
-		sb := b.(*FlatPatch)
-		So(sb.folderMoves["A2"].Node.Path, ShouldEqual, "A1")
-		So(sb.folderMoves["A2/B2"].Node.Path, ShouldEqual, "A2/B1")
-		So(sb.folderMoves["A2/B2/C2"].Node.Path, ShouldEqual, "A2/B2/C1")
-		So(sb.folderMoves["A2/B2/C2/D2"].Node.Path, ShouldEqual, "A2/B2/C2/D1")
+		if sb, ok := b.(*FlatPatch); ok {
+			So(sb.folderMoves["A2"].Node.Path, ShouldEqual, "A1")
+			So(sb.folderMoves["A2/B2"].Node.Path, ShouldEqual, "A2/B1")
+			So(sb.folderMoves["A2/B2/C2"].Node.Path, ShouldEqual, "A2/B2/C1")
+			So(sb.folderMoves["A2/B2/C2/D2"].Node.Path, ShouldEqual, "A2/B2/C2/D1")
+		}
 
 	})
 
@@ -414,7 +415,7 @@ func TestScenariosFromSnapshot(t *testing.T) {
 		So(b.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
 		deletes := b.OperationsByType([]OperationType{OpDelete})
 		So(deletes, ShouldHaveLength, 1)
-		So(deletes[0].Key, ShouldEqual, "RENAME/crash-updatecells.log")
+		So(deletes[0].Key, ShouldEqual, "AZERTY/crash-updatecells.log")
 
 	})
 

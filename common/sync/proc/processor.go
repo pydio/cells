@@ -78,60 +78,62 @@ func (pr *Processor) Process(patch merger.Patch) {
 	}
 
 	operationId := uuid.New()
-	var event *merger.Operation
 
 	total := patch.ProgressTotal()
 	var cursor int64
 
 	patch.Status(merger.ProcessStatus{StatusString: fmt.Sprintf("Start processing patch (total bytes %d)", total)})
+	stats := patch.Stats()
 
-	sessionFlush := func(nonEmpty []*merger.Operation) {}
+	sessionFlush := func(stats map[string]interface{}, tt ...merger.OperationType) {}
 	session, err := patch.StartSessionProvider(&tree.Node{Path: "/"})
 	if err != nil {
 		pr.Logger().Error("Error while starting Indexation Session", zap.Error(err))
 	} else {
 		defer patch.FinishSessionProvider(session.Uuid)
-		sessionFlush = func(nonEmpty []*merger.Operation) {
-			if len(nonEmpty) == 0 {
-				return
+		sessionFlush = func(stats map[string]interface{}, tt ...merger.OperationType) {
+			for _, t := range tt {
+				if val, ok := stats[t.String()]; ok {
+					if val.(int) > 0 {
+						patch.FlushSessionProvider(session.Uuid)
+						return
+					}
+				}
 			}
-			patch.FlushSessionProvider(session.Uuid)
 		}
 	}
 
 	// Create Folders
-	for _, operation := range patch.OperationsByType([]merger.OperationType{merger.OpCreateFolder}, true) {
+	patch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation *merger.Operation) {
 		pr.applyProcessFunc(operation, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", operation.EventInfo.Path))
-	}
+	})
 
+	sessionFlush(stats, merger.OpMoveFolder)
 	// Move folders
-	folderMoves := patch.OperationsByType([]merger.OperationType{merger.OpMoveFolder}, true)
-	sessionFlush(folderMoves)
-	for _, event := range folderMoves {
-		toPath := event.EventInfo.Path
-		fromPath := event.Node.Path
-		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved folder", "Moving folder", "Error while moving folder", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
-	}
+	patch.WalkOperations([]merger.OperationType{merger.OpMoveFolder}, func(operation *merger.Operation) {
+		toPath := operation.EventInfo.Path
+		fromPath := operation.Node.Path
+		pr.applyProcessFunc(operation, operationId, pr.processMove, "Moved folder", "Moving folder", "Error while moving folder", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
+	})
 
 	// Move files
-	fileMoves := patch.OperationsByType([]merger.OperationType{merger.OpMoveFile}, true)
-	sessionFlush(fileMoves)
-	for _, event := range fileMoves {
-		toPath := event.EventInfo.Path
-		fromPath := event.Node.Path
-		pr.applyProcessFunc(event, operationId, pr.processMove, "Moved file", "Moving file", "Error while moving file", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
-	}
+	sessionFlush(stats, merger.OpMoveFile)
+	patch.WalkOperations([]merger.OperationType{merger.OpMoveFile}, func(operation *merger.Operation) {
+		toPath := operation.EventInfo.Path
+		fromPath := operation.Node.Path
+		pr.applyProcessFunc(operation, operationId, pr.processMove, "Moved file", "Moving file", "Error while moving file", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
+	})
 
 	// Create files
 	createFiles := patch.OperationsByType([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile})
-	sessionFlush(createFiles)
+	sessionFlush(stats, merger.OpCreateFile, merger.OpUpdateFile)
 	if patch.HasTransfers() {
 		// Process with a parallel Queue
 		wg := &sync.WaitGroup{}
 		throttle := make(chan struct{}, pr.QueueSize)
-		for _, event = range createFiles {
+		for _, op := range createFiles {
 			wg.Add(1)
-			eventCopy := event
+			opCopy := op
 			go func() {
 				throttle <- struct{}{}
 				defer func() {
@@ -139,30 +141,30 @@ func (pr *Processor) Process(patch merger.Patch) {
 					wg.Done()
 				}()
 				model.Retry(func() error {
-					return pr.applyProcessFunc(eventCopy, operationId, pr.processCreateFile, "Transferred file", "Transferring file", "Error while transferring file", &cursor, total, zap.String("path", eventCopy.EventInfo.Path), zap.String("eTag", eventCopy.Node.Etag))
+					return pr.applyProcessFunc(opCopy, operationId, pr.processCreateFile, "Transferred file", "Transferring file", "Error while transferring file", &cursor, total, zap.String("path", opCopy.EventInfo.Path), zap.String("eTag", opCopy.Node.Etag))
 				}, 5*time.Second, 20*time.Second)
 			}()
 		}
 		wg.Wait()
 	} else {
 		// Process Serialized
-		for _, event = range createFiles {
+		for _, event := range createFiles {
 			pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Indexed file", "Indexing file", "Error while indexing file", &cursor, total, zap.String("path", event.EventInfo.Path))
 		}
 	}
 
 	// Deletes
 	deletes := patch.OperationsByType([]merger.OperationType{merger.OpDelete})
-	sessionFlush(deletes)
-	for _, event = range deletes {
-		if event.Node == nil {
+	sessionFlush(stats, merger.OpDelete)
+	for _, op := range deletes {
+		if op.Node == nil {
 			continue
 		}
 		nS := "folder"
-		if event.Node.IsLeaf() {
+		if op.Node.IsLeaf() {
 			nS = "file"
 		}
-		pr.applyProcessFunc(event, operationId, pr.processDelete, "Deleted "+nS, "Deleting "+nS, "Error while deleting "+nS, &cursor, total, zap.String("path", event.Node.Path))
+		pr.applyProcessFunc(op, operationId, pr.processDelete, "Deleted "+nS, "Deleting "+nS, "Error while deleting "+nS, &cursor, total, zap.String("path", op.Node.Path))
 	}
 	var pg float32
 	if total > 0 {

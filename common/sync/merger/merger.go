@@ -105,6 +105,9 @@ type Patch interface {
 	Enqueue(event *Operation, key ...string)
 	// EventsByTypes retrieves all events of a given type
 	OperationsByType(types []OperationType, sorted ...bool) (events []*Operation)
+	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
+	WalkOperations(opTypes []OperationType, callback func(*Operation))
+
 	// Filter tries to detect unnecessary changes locally
 	Filter(ctx context.Context)
 	// FilterToTarget tries to compare changes to target and remove unnecessary ones

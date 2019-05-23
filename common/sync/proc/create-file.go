@@ -43,15 +43,15 @@ func (pr *ProgressReader) Read(p []byte) (n int, e error) {
 	return n, e
 }
 
-func (pr *Processor) processCreateFile(event *merger.Operation, operationId string, pg chan int64) error {
+func (pr *Processor) processCreateFile(operation *merger.Operation, operationId string, pg chan int64) error {
 
-	dataTarget, dtOk := model.AsDataSyncTarget(event.Target())
-	dataSource, dsOk := model.AsDataSyncSource(event.Source())
+	dataTarget, dtOk := model.AsDataSyncTarget(operation.Target())
+	dataSource, dsOk := model.AsDataSyncSource(operation.Source())
 
-	localPath := event.EventInfo.Path
+	localPath := operation.EventInfo.Path
 	if pr.Connector != nil {
-		defer pr.Connector.UnlockFile(event, localPath)
-		pr.Connector.LockFile(event, localPath, operationId)
+		defer pr.Connector.UnlockFile(operation, localPath)
+		pr.Connector.LockFile(operation, localPath, operationId)
 	}
 	if dtOk && dsOk {
 
@@ -61,7 +61,7 @@ func (pr *Processor) processCreateFile(event *merger.Operation, operationId stri
 			return rErr
 		}
 		defer reader.Close()
-		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(localPath, event.Node.Size)
+		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(localPath, operation.Node.Size)
 		if wErr != nil {
 			pr.Logger().Error("Cannot get writer on target", zap.String("job", "create"), zap.String("path", localPath), zap.Error(wErr))
 			return wErr
@@ -91,10 +91,10 @@ func (pr *Processor) processCreateFile(event *merger.Operation, operationId stri
 
 		pg <- 1
 		update := false
-		if event.Node.Uuid != "" {
+		if operation.Node.Uuid != "" {
 			update = true
 		}
-		return event.Target().CreateNode(event.EventInfo.CreateContext(pr.GlobalContext), event.Node, update)
+		return operation.Target().CreateNode(operation.EventInfo.CreateContext(pr.GlobalContext), operation.Node, update)
 	}
 
 }

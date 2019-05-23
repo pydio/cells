@@ -97,6 +97,8 @@ func (t *TreePatch) Filter(ctx context.Context) {
 
 	t.prune(ctx)
 
+	fmt.Println("Source: " + t.source.GetEndpointInfo().URI)
+	fmt.Println("Target: " + t.target.GetEndpointInfo().URI)
 	fmt.Println(t.PrintTree())
 
 }

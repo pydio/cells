@@ -24,19 +24,19 @@ import (
 	"github.com/pydio/cells/common/sync/merger"
 )
 
-func (pr *Processor) processMove(event *merger.Operation, operationId string, pg chan int64) error {
+func (pr *Processor) processMove(operation *merger.Operation, operationId string, pg chan int64) error {
 
 	pg <- 1
-	toPath := event.EventInfo.Path
-	fromPath := event.Node.Path
+	toPath := operation.EventInfo.Path
+	fromPath := operation.Node.Path
 
 	if pr.Connector != nil {
-		pr.Connector.LockFile(event, toPath, operationId)
-		pr.Connector.LockFile(event, fromPath, operationId)
-		defer pr.Connector.UnlockFile(event, toPath)
-		defer pr.Connector.UnlockFile(event, fromPath)
+		pr.Connector.LockFile(operation, toPath, operationId)
+		pr.Connector.LockFile(operation, fromPath, operationId)
+		defer pr.Connector.UnlockFile(operation, toPath)
+		defer pr.Connector.UnlockFile(operation, fromPath)
 	}
 
-	return event.Target().MoveNode(event.EventInfo.CreateContext(pr.GlobalContext), fromPath, toPath)
+	return operation.Target().MoveNode(operation.EventInfo.CreateContext(pr.GlobalContext), fromPath, toPath)
 
 }

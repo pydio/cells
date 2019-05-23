@@ -80,6 +80,13 @@ func (b *FlatPatch) Enqueue(event *Operation, key ...string) {
 	}
 }
 
+// WalkOperations implements interface by calling OperationsByType under the hood
+func (b *FlatPatch) WalkOperations(opTypes []OperationType, callback func(*Operation)) {
+	for _, o := range b.OperationsByType(opTypes, true) {
+		callback(o)
+	}
+}
+
 // OperationsByType returns operations, eventually filtered by one or more types.
 // If types is empty, all operations are returned. If sorted is true, operations are sorted by key.
 func (b *FlatPatch) OperationsByType(types []OperationType, sorted ...bool) (events []*Operation) {
@@ -220,14 +227,15 @@ func (b *FlatPatch) ProgressTotal() int64 {
 
 func (b *FlatPatch) Stats() map[string]interface{} {
 	return map[string]interface{}{
-		"Source":        b.Source().GetEndpointInfo().URI,
-		"Target":        b.Target().GetEndpointInfo().URI,
-		"createFiles":   len(b.createFiles),
-		"updateFiles":   len(b.updateFiles),
-		"createFolders": len(b.createFolders),
-		"moveFiles":     len(b.fileMoves),
-		"moveFolders":   len(b.folderMoves),
-		"deletes":       len(b.deletes),
+		"Source":                b.Source().GetEndpointInfo().URI,
+		"Target":                b.Target().GetEndpointInfo().URI,
+		OpCreateFile.String():   len(b.createFiles),
+		OpUpdateFile.String():   len(b.updateFiles),
+		OpCreateFolder.String(): len(b.createFolders),
+		OpMoveFile.String():     len(b.fileMoves),
+		OpMoveFolder.String():   len(b.folderMoves),
+		OpDelete.String():       len(b.deletes),
+		OpRefreshUuid.String():  len(b.refreshFilesUuid),
 	}
 }
 
