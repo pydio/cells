@@ -35,8 +35,6 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
@@ -155,11 +153,9 @@ func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 		defer close(c.watchConn)
 		for {
 			select {
-			case ch := <-changes:
-				if ch.Metadata == nil || ch.Metadata[common.XPydioClientUuid] != c.clientUUID {
-					c.changeToEventInfo(obj.EventInfoChan, ch)
-				} else {
-					log.Logger(c.globalCtx).Debug("Ignoring change from same clientUUID", zap.Any("c", c))
+			case changeEvent := <-changes:
+				if event, send := c.changeToEventInfo(changeEvent); send {
+					obj.EventInfoChan <- event
 				}
 			case er := <-finished:
 				log.Logger(c.globalCtx).Info("Connection finished " + er.Error())
@@ -199,17 +195,17 @@ func (c *abstract) changeValidPath(n *tree.Node) bool {
 	return true
 }
 
-func (c *abstract) changeToEventInfo(events chan model.EventInfo, change *tree.NodeChangeEvent) {
+func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.EventInfo, send bool) {
 
 	TimeFormatFS := "2006-01-02T15:04:05.000Z"
 	now := time.Now().UTC().Format(TimeFormatFS)
 	if !c.changeValidPath(change.Target) || !c.changeValidPath(change.Source) {
 		return
 	}
-
+	send = change.Metadata == nil || change.Metadata[common.XPydioClientUuid] != c.clientUUID
 	if change.Type == tree.NodeChangeEvent_CREATE || change.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
 		log.Logger(c.globalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Target.Path + " - " + change.Target.Etag)
-		events <- model.EventInfo{
+		event = model.EventInfo{
 			Type:     model.EventCreate,
 			Path:     change.Target.Path,
 			Etag:     change.Target.Etag,
@@ -225,7 +221,7 @@ func (c *abstract) changeToEventInfo(events chan model.EventInfo, change *tree.N
 		}
 	} else if change.Type == tree.NodeChangeEvent_DELETE {
 		log.Logger(c.globalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Source.Path)
-		events <- model.EventInfo{
+		event = model.EventInfo{
 			Type:     model.EventRemove,
 			Path:     change.Source.Path,
 			Time:     now,
@@ -238,7 +234,7 @@ func (c *abstract) changeToEventInfo(events chan model.EventInfo, change *tree.N
 		}
 	} else if change.Type == tree.NodeChangeEvent_UPDATE_PATH {
 		log.Logger(c.globalCtx).Debug("Got Move Event " + change.Type.String() + " - " + change.Source.Path + " - " + change.Target.Path)
-		events <- model.EventInfo{
+		event = model.EventInfo{
 			Type:       model.EventSureMove,
 			Path:       change.Target.Path,
 			Folder:     !change.Target.IsLeaf(),

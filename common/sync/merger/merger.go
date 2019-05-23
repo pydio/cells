@@ -75,7 +75,7 @@ func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
 
 // ClonePatch creates a new patch with the same operations but different source/targets
 func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
-	f := newFlatPatch(source, target)
+	f := newTreePatch(source, target)
 	for _, op := range origin.OperationsByType([]OperationType{}) {
 		// Clone Op with new Patch reference
 		op1 := &Operation{
