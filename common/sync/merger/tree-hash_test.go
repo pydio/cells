@@ -59,6 +59,6 @@ func TestOpNodePaths(t *testing.T) {
 			EventInfo: model.EventInfo{Path: "m/v/rename"},
 			Type:      OpMoveFile,
 		})
-		root.PrintOut()
+		t.Log(root.PrintTree())
 	})
 }

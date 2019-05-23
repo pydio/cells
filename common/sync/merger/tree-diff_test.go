@@ -158,7 +158,7 @@ func TestTreeDiff(t *testing.T) {
 			right = memory.NewMemDB()
 			t1, _ := TreeNodeFromSource(left, "/")
 			// Trigger printout for test coverage
-			t1.PrintOut()
+			t.Log(t1.PrintTree())
 			diff := newTreeDiff(testCtx, left, right)
 			e := diff.Compute("/")
 			So(e, ShouldBeNil)

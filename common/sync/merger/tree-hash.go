@@ -135,7 +135,7 @@ func (t *TreeNode) SortedChildren() []*TreeNode {
 }
 
 // PrintOut sends to fmt.Println a tree version of this node
-func (t *TreeNode) PrintOut() {
+func (t *TreeNode) PrintTree() string {
 	level := t.GetLevel()
 	op := ""
 	var ops []string
@@ -148,10 +148,11 @@ func (t *TreeNode) PrintOut() {
 	if len(ops) > 0 {
 		op = "\t\t ** " + strings.Join(ops, "|")
 	}
-	fmt.Println(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash() + op)
+	s := fmt.Sprintf(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash() + op + "\n")
 	for _, c := range t.SortedChildren() {
-		c.PrintOut()
+		s += c.PrintTree()
 	}
+	return s
 }
 
 // AddChild appends a child to the children map (with lock)

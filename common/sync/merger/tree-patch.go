@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	"github.com/pydio/cells/common/log"
@@ -96,7 +97,7 @@ func (t *TreePatch) Filter(ctx context.Context) {
 
 	t.prune(ctx)
 
-	t.PrintOut()
+	fmt.Println(t.PrintTree())
 
 }
 
@@ -135,12 +136,25 @@ func (t *TreePatch) ProgressTotal() int64 {
 }
 
 func (t *TreePatch) String() string {
-	t.PrintOut()
-	return ""
+	return t.Source().GetEndpointInfo().URI + "\n" + t.PrintTree()
 }
 
 func (t *TreePatch) Stats() map[string]interface{} {
-	return map[string]interface{}{"operationsCount": t.Size()}
+	s := map[string]interface{}{
+		"Type":   "TreePatch",
+		"Source": t.Source().GetEndpointInfo().URI,
+		"Target": t.Target().GetEndpointInfo().URI,
+	}
+	t.WalkOperations([]OperationType{}, func(operation *Operation) {
+		opType := operation.Type.String()
+		if val, ok := s[opType]; ok {
+			count := val.(int)
+			s[opType] = count + 1
+		} else {
+			s[opType] = 1
+		}
+	})
+	return s
 }
 
 func (t *TreePatch) sortedKeys(events map[string]*Operation) []string {

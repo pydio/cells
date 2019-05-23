@@ -233,3 +233,23 @@ func (e *Operation) NodeInTarget(ctx context.Context) (node *tree.Node, found bo
 		}
 	}
 }
+
+func (t OperationType) String() string {
+	switch t {
+	case OpCreateFolder:
+		return "CreateFolder"
+	case OpCreateFile:
+		return "CreateFile"
+	case OpMoveFolder:
+		return "MoveFolder"
+	case OpMoveFile:
+		return "MoveFile"
+	case OpUpdateFile:
+		return "UpdateFile"
+	case OpDelete:
+		return "Delete"
+	case OpRefreshUuid:
+		return "RefreshUuid"
+	}
+	return ""
+}
