@@ -134,8 +134,8 @@ func (pr *Processor) Process(patch merger.Patch) {
 		for _, op := range createFiles {
 			wg.Add(1)
 			opCopy := op
+			throttle <- struct{}{}
 			go func() {
-				throttle <- struct{}{}
 				defer func() {
 					<-throttle
 					wg.Done()
