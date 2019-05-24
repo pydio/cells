@@ -49,13 +49,13 @@ func TestBatch_Filter(t *testing.T) {
 
 		source, target := memory.NewMemDB(), memory.NewMemDB()
 		patch := newFlatPatch(source, target)
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
 			eventInfo: model.EventInfo{
 				Path: "/ignored-file",
 			},
 		})
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpCreateFolder,
 			eventInfo: model.EventInfo{
 				Path: "/ignored-folder",
@@ -78,7 +78,7 @@ func TestBatch_Filter(t *testing.T) {
 			Etag: "hash",
 		}, true)
 
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
 			eventInfo: model.EventInfo{
 				Path: "/ignored-file",
@@ -106,13 +106,13 @@ func TestBatch_Filter(t *testing.T) {
 			Etag: "hash",
 		}, true)
 
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
 			eventInfo: model.EventInfo{
 				Path: "/a/file-moved",
 			},
 		})
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpDelete,
 			eventInfo: model.EventInfo{
 				Path: "/file-to-move",
@@ -150,25 +150,25 @@ func TestBatch_Filter(t *testing.T) {
 			Etag: "hash",
 		}, true)
 
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
 			eventInfo: model.EventInfo{
 				Path: "/a/file-moved",
 			},
 		})
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpDelete,
 			eventInfo: model.EventInfo{
 				Path: "/file-to-move",
 			},
 		})
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
 			eventInfo: model.EventInfo{
 				Path: "/a/similar-file-moved",
 			},
 		})
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpDelete,
 			eventInfo: model.EventInfo{
 				Path: "/similar-file",
@@ -187,13 +187,13 @@ func TestBatch_Filter(t *testing.T) {
 		source, target := memory.NewMemDB(), memory.NewMemDB()
 		patch := newFlatPatch(source, target)
 
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
 			eventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
 		})
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpDelete,
 			eventInfo: model.EventInfo{
 				Path: "/a/file-touched",
@@ -216,13 +216,13 @@ func TestBatch_Filter(t *testing.T) {
 			Etag: "hash",
 		}, true)
 
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
 			eventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
 		})
-		patch.Enqueue(&Operation{
+		patch.Enqueue(&patchOperation{
 			opType: OpDelete,
 			eventInfo: model.EventInfo{
 				Path: "/a/file-touched",
@@ -256,9 +256,9 @@ func TestBatch_Filter(t *testing.T) {
 		source.CreateNode(bTestCtx, n1, true)
 		source.CreateNode(bTestCtx, n2, true)
 		source.CreateNode(bTestCtx, n3, true)
-		patch.Enqueue(&Operation{opType: OpDelete, eventInfo: model.EventInfo{Path: n1.Path}, node: n1})
-		patch.Enqueue(&Operation{opType: OpDelete, eventInfo: model.EventInfo{Path: n2.Path}, node: n2})
-		patch.Enqueue(&Operation{opType: OpDelete, eventInfo: model.EventInfo{Path: n3.Path}, node: n3})
+		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: n1.Path}, node: n1})
+		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: n2.Path}, node: n2})
+		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: n3.Path}, node: n3})
 
 		patch.Filter(bTestCtx)
 		So(patch.OperationsByType([]OperationType{OpDelete}), ShouldHaveLength, 2)
@@ -270,10 +270,10 @@ func TestBatch_Filter(t *testing.T) {
 		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u1", Path: "/target"}, false)
 		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u2", Path: "/target/sub"}, false)
 		patch := newFlatPatch(source, target)
-		patch.Enqueue(&Operation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/target"}, node: &tree.Node{Uuid: "u1", Path: "/target"}})
-		patch.Enqueue(&Operation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/target/sub"}, node: &tree.Node{Uuid: "u2", Path: "/target/sub"}})
-		patch.Enqueue(&Operation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source"}, node: &tree.Node{Uuid: "u1", Path: "/source"}})
-		patch.Enqueue(&Operation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub"}, node: &tree.Node{Uuid: "u2", Path: "/source/sub"}})
+		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/target"}, node: &tree.Node{Uuid: "u1", Path: "/target"}})
+		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/target/sub"}, node: &tree.Node{Uuid: "u2", Path: "/target/sub"}})
+		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source"}, node: &tree.Node{Uuid: "u1", Path: "/source"}})
+		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub"}, node: &tree.Node{Uuid: "u2", Path: "/source/sub"}})
 		patch.Filter(bTestCtx)
 		So(patch.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
 		So(patch.OperationsByType([]OperationType{OpMoveFile}), ShouldHaveLength, 0)
@@ -370,10 +370,10 @@ func TestScenariosFromSnapshot(t *testing.T) {
 		moves := b.OperationsByType([]OperationType{OpMoveFolder})
 		So(moves, ShouldHaveLength, 4)
 		if sb, ok := b.(*FlatPatch); ok {
-			So(sb.folderMoves["A2"].node.Path, ShouldEqual, "A1")
-			So(sb.folderMoves["A2/B2"].node.Path, ShouldEqual, "A2/B1")
-			So(sb.folderMoves["A2/B2/C2"].node.Path, ShouldEqual, "A2/B2/C1")
-			So(sb.folderMoves["A2/B2/C2/D2"].node.Path, ShouldEqual, "A2/B2/C2/D1")
+			So(sb.folderMoves["A2"].(*patchOperation).node.Path, ShouldEqual, "A1")
+			So(sb.folderMoves["A2/B2"].(*patchOperation).node.Path, ShouldEqual, "A2/B1")
+			So(sb.folderMoves["A2/B2/C2"].(*patchOperation).node.Path, ShouldEqual, "A2/B2/C1")
+			So(sb.folderMoves["A2/B2/C2/D2"].(*patchOperation).node.Path, ShouldEqual, "A2/B2/C2/D1")
 		}
 
 	})

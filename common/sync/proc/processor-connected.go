@@ -97,7 +97,7 @@ func (pr *ConnectedProcessor) Requeue(source model.PathSyncSource, event model.E
 }
 
 // LockFile implements Connector func
-func (pr *ConnectedProcessor) LockFile(operation *merger.Operation, path string, operationId string) {
+func (pr *ConnectedProcessor) LockFile(operation merger.Operation, path string, operationId string) {
 	if source, ok := model.AsPathSyncSource(operation.Target()); pr.LocksChan != nil && ok {
 		if source.GetEndpointInfo().SupportsTargetEcho {
 			return // no lock needed, do nothing
@@ -112,7 +112,7 @@ func (pr *ConnectedProcessor) LockFile(operation *merger.Operation, path string,
 }
 
 // UnlockFile implements Connector func
-func (pr *ConnectedProcessor) UnlockFile(operation *merger.Operation, path string) {
+func (pr *ConnectedProcessor) UnlockFile(operation merger.Operation, path string) {
 	if source, castOk := model.AsPathSyncSource(operation.Target()); castOk && pr.LocksChan != nil {
 		if source.GetEndpointInfo().SupportsTargetEcho {
 			return // no lock needed, do nothing

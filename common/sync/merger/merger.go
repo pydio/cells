@@ -73,11 +73,11 @@ type Patch interface {
 
 	// Enqueue stacks a Operation - By default, it is registered with the event.Key, but an optional key can be passed.
 	// TODO : check this key param is really necessary
-	Enqueue(event *Operation, key ...string)
+	Enqueue(event Operation, key ...string)
 	// EventsByTypes retrieves all events of a given type
-	OperationsByType(types []OperationType, sorted ...bool) (events []*Operation)
+	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
 	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
-	WalkOperations(opTypes []OperationType, callback func(*Operation))
+	WalkOperations(opTypes []OperationType, callback func(Operation))
 
 	// Filter tries to detect unnecessary changes locally
 	Filter(ctx context.Context)
@@ -100,6 +100,32 @@ type Patch interface {
 	FlushSessionProvider(sessionUuid string) error
 	// FinishSessionProvider calls FinishSession on the underlying provider if it is set
 	FinishSessionProvider(sessionUuid string) error
+}
+
+type Operation interface {
+	Clone(replaceType ...OperationType) Operation
+	IsTypeMove() bool
+	IsTypeData() bool
+	IsTypePath() bool
+	SetProcessed()
+	IsProcessed() bool
+	Status(status ProcessStatus)
+	GetRefPath() string
+	UpdateRefPath(p string)
+	GetMoveOriginPath() string
+	UpdateMoveOriginPath(p string)
+	IsScanEvent() bool
+	SetNode(n *tree.Node)
+	GetNode() *tree.Node
+	Type() OperationType
+	UpdateType(t OperationType)
+	CreateContext(ctx context.Context) context.Context
+	Source() model.PathSyncSource
+	Target() model.PathSyncTarget
+	AttachToPatch(p Patch)
+	NodeFromSource(ctx context.Context) (node *tree.Node, err error)
+	NodeInTarget(ctx context.Context) (node *tree.Node, found bool)
+	String() string
 }
 
 // Diff represents basic differences between two sources

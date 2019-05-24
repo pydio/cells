@@ -87,11 +87,11 @@ func TestProcess(t *testing.T) {
 			Etag: "filehash",
 		}, true)
 
-		patch.Enqueue(merger.NewOpFromEvent(merger.OpCreateFile, model.EventInfo{Path: "mkfile"}, &tree.Node{Path: "mkfile", Type: tree.NodeType_LEAF, Etag: "hash"}))
-		patch.Enqueue(merger.NewOpFromEvent(merger.OpCreateFolder, model.EventInfo{Path: "mkdir"}, &tree.Node{Path: "mkdir", Type: tree.NodeType_COLLECTION, Uuid: "uuid"}))
-		patch.Enqueue(merger.NewOpFromEvent(merger.OpDelete, model.EventInfo{Path: "to-be-deleted"}, &tree.Node{Path: "to-be-deleted", Type: tree.NodeType_LEAF, Etag: "delhash"}))
-		patch.Enqueue(merger.NewOpFromEvent(merger.OpMoveFile, model.EventInfo{Path: "moved-file"}, &tree.Node{Path: "to-be-moved", Type: tree.NodeType_LEAF}))
-		patch.Enqueue(merger.NewOpFromEvent(merger.OpMoveFolder, model.EventInfo{Path: "moved-folder"}, &tree.Node{Path: "folder-to-be-moved", Type: tree.NodeType_COLLECTION}))
+		patch.Enqueue(merger.NewOperation(merger.OpCreateFile, model.EventInfo{Path: "mkfile"}, &tree.Node{Path: "mkfile", Type: tree.NodeType_LEAF, Etag: "hash"}))
+		patch.Enqueue(merger.NewOperation(merger.OpCreateFolder, model.EventInfo{Path: "mkdir"}, &tree.Node{Path: "mkdir", Type: tree.NodeType_COLLECTION, Uuid: "uuid"}))
+		patch.Enqueue(merger.NewOperation(merger.OpDelete, model.EventInfo{Path: "to-be-deleted"}, &tree.Node{Path: "to-be-deleted", Type: tree.NodeType_LEAF, Etag: "delhash"}))
+		patch.Enqueue(merger.NewOperation(merger.OpMoveFile, model.EventInfo{Path: "moved-file"}, &tree.Node{Path: "to-be-moved", Type: tree.NodeType_LEAF}))
+		patch.Enqueue(merger.NewOperation(merger.OpMoveFolder, model.EventInfo{Path: "moved-folder"}, &tree.Node{Path: "folder-to-be-moved", Type: tree.NodeType_COLLECTION}))
 
 		patch.Filter(testCtx)
 		m.Process(patch)

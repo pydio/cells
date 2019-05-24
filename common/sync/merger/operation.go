@@ -27,6 +27,164 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+type patchOperation struct {
+	opType    OperationType
+	node      *tree.Node
+	eventInfo model.EventInfo
+	processed bool
+	patch     Patch
+}
+
+func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) Operation {
+	o := &patchOperation{
+		opType:    t,
+		eventInfo: e,
+	}
+	if len(loadedNode) > 0 {
+		o.node = loadedNode[0]
+	}
+	return o
+}
+
+func (o *patchOperation) Clone(replaceType ...OperationType) Operation {
+	op := &patchOperation{
+		opType:    o.opType,
+		eventInfo: o.eventInfo,
+		node:      o.node,
+	}
+	if len(replaceType) > 0 {
+		op.opType = replaceType[0]
+	}
+	return op
+}
+
+func (o *patchOperation) IsTypeMove() bool {
+	return o.opType == OpMoveFolder || o.opType == OpMoveFile
+}
+
+func (o *patchOperation) IsTypeData() bool {
+	return o.opType == OpCreateFile || o.opType == OpUpdateFile
+}
+
+func (o *patchOperation) IsTypePath() bool {
+	return o.opType == OpCreateFolder || o.opType == OpDelete || o.IsTypeMove()
+}
+
+func (o *patchOperation) SetProcessed() {
+	o.processed = true
+}
+
+func (o *patchOperation) IsProcessed() bool {
+	return o.processed
+}
+
+func (o *patchOperation) Status(status ProcessStatus) {
+	o.patch.Status(status)
+}
+
+func (o *patchOperation) GetRefPath() string {
+	return o.eventInfo.Path
+}
+
+func (o *patchOperation) UpdateRefPath(p string) {
+	o.eventInfo.Path = p
+	// If not a move, update underlying node path as well (otherwise use UpdateMoveOriginPath)
+	if o.node != nil && o.IsTypeMove() {
+		o.node.Path = p
+	}
+}
+
+func (o *patchOperation) GetMoveOriginPath() string {
+	return o.node.Path
+}
+
+func (o *patchOperation) UpdateMoveOriginPath(p string) {
+	o.node.Path = p
+}
+
+func (o *patchOperation) IsScanEvent() bool {
+	return o.eventInfo.ScanEvent
+}
+
+func (o *patchOperation) SetNode(n *tree.Node) {
+	o.node = n
+}
+
+func (o *patchOperation) GetNode() *tree.Node {
+	return o.node
+}
+
+func (o *patchOperation) Type() OperationType {
+	return o.opType
+}
+
+func (o *patchOperation) UpdateType(t OperationType) {
+	o.opType = t
+}
+
+func (o *patchOperation) CreateContext(ctx context.Context) context.Context {
+	return o.eventInfo.CreateContext(ctx)
+}
+
+func (o *patchOperation) Source() model.PathSyncSource {
+	return o.patch.Source()
+}
+
+func (o *patchOperation) Target() model.PathSyncTarget {
+	return o.patch.Target()
+}
+
+func (o *patchOperation) AttachToPatch(p Patch) {
+	o.patch = p
+}
+
+func (o *patchOperation) NodeFromSource(ctx context.Context) (node *tree.Node, err error) {
+	if o.eventInfo.ScanEvent && o.eventInfo.ScanSourceNode != nil {
+		node = o.eventInfo.ScanSourceNode
+	} else {
+		node, err = o.Source().LoadNode(o.CreateContext(ctx), o.GetRefPath())
+	}
+	if err == nil {
+		o.node = node
+	}
+	return
+}
+
+func (o *patchOperation) NodeInTarget(ctx context.Context) (node *tree.Node, found bool) {
+	if o.node != nil {
+		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
+		return o.node, true
+	} else {
+		node, err := o.Target().LoadNode(o.CreateContext(ctx), o.GetRefPath())
+		if err != nil {
+			return nil, false
+		} else {
+			return node, true
+		}
+	}
+}
+
+func (o *patchOperation) String() string {
+	switch o.opType {
+	case OpMoveFolder:
+		return "MoveFolder to " + o.GetRefPath()
+	case OpMoveFile:
+		return "MoveFile to " + o.GetRefPath()
+	case OpCreateFile:
+		return "CreateFile"
+	case OpCreateFolder:
+		return "CreateFolder"
+	case OpUpdateFile:
+		return "UpdateFile"
+	case OpDelete:
+		return "Delete"
+	case OpRefreshUuid:
+		return "RefreshUuid"
+	default:
+		return "UnknownType"
+	}
+}
+
 type OperationType int
 
 const (
@@ -57,162 +215,4 @@ func (t OperationType) String() string {
 		return "RefreshUuid"
 	}
 	return ""
-}
-
-type Operation struct {
-	opType    OperationType
-	node      *tree.Node
-	eventInfo model.EventInfo
-	processed bool
-	patch     Patch
-}
-
-func NewOpFromEvent(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) *Operation {
-	o := &Operation{
-		opType:    t,
-		eventInfo: e,
-	}
-	if len(loadedNode) > 0 {
-		o.node = loadedNode[0]
-	}
-	return o
-}
-
-func (o *Operation) Clone(replaceType ...OperationType) *Operation {
-	op := &Operation{
-		opType:    o.opType,
-		eventInfo: o.eventInfo,
-		node:      o.node,
-	}
-	if len(replaceType) > 0 {
-		op.opType = replaceType[0]
-	}
-	return op
-}
-
-func (o *Operation) IsTypeMove() bool {
-	return o.opType == OpMoveFolder || o.opType == OpMoveFile
-}
-
-func (o *Operation) IsTypeData() bool {
-	return o.opType == OpCreateFile || o.opType == OpUpdateFile
-}
-
-func (o *Operation) IsTypePath() bool {
-	return o.opType == OpCreateFolder || o.opType == OpDelete || o.IsTypeMove()
-}
-
-func (o *Operation) SetProcessed() {
-	o.processed = true
-}
-
-func (o *Operation) IsProcessed() bool {
-	return o.processed
-}
-
-func (o *Operation) Status(status ProcessStatus) {
-	o.patch.Status(status)
-}
-
-func (o *Operation) GetRefPath() string {
-	return o.eventInfo.Path
-}
-
-func (o *Operation) UpdateRefPath(p string) {
-	o.eventInfo.Path = p
-	// If not a move, update underlying node path as well (otherwise use UpdateMoveOriginPath)
-	if o.node != nil && o.IsTypeMove() {
-		o.node.Path = p
-	}
-}
-
-func (o *Operation) GetMoveOriginPath() string {
-	return o.node.Path
-}
-
-func (o *Operation) UpdateMoveOriginPath(p string) {
-	o.node.Path = p
-}
-
-func (o *Operation) IsScanEvent() bool {
-	return o.eventInfo.ScanEvent
-}
-
-func (o *Operation) SetNode(n *tree.Node) {
-	o.node = n
-}
-
-func (o *Operation) GetNode() *tree.Node {
-	return o.node
-}
-
-func (o *Operation) Type() OperationType {
-	return o.opType
-}
-
-func (o *Operation) UpdateType(t OperationType) {
-	o.opType = t
-}
-
-func (o *Operation) CreateContext(ctx context.Context) context.Context {
-	return o.eventInfo.CreateContext(ctx)
-}
-
-func (o *Operation) Source() model.PathSyncSource {
-	return o.patch.Source()
-}
-
-func (o *Operation) Target() model.PathSyncTarget {
-	return o.patch.Target()
-}
-
-func (o *Operation) AttachToPatch(p Patch) {
-	o.patch = p
-}
-
-func (o *Operation) NodeFromSource(ctx context.Context) (node *tree.Node, err error) {
-	if o.eventInfo.ScanEvent && o.eventInfo.ScanSourceNode != nil {
-		node = o.eventInfo.ScanSourceNode
-	} else {
-		node, err = o.Source().LoadNode(o.CreateContext(ctx), o.GetRefPath())
-	}
-	if err == nil {
-		o.node = node
-	}
-	return
-}
-
-func (o *Operation) NodeInTarget(ctx context.Context) (node *tree.Node, found bool) {
-	if o.node != nil {
-		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
-		return o.node, true
-	} else {
-		node, err := o.Target().LoadNode(o.CreateContext(ctx), o.GetRefPath())
-		if err != nil {
-			return nil, false
-		} else {
-			return node, true
-		}
-	}
-}
-
-func (o *Operation) String() string {
-	switch o.opType {
-	case OpMoveFolder:
-		return "MoveFolder to " + o.GetRefPath()
-	case OpMoveFile:
-		return "MoveFile to " + o.GetRefPath()
-	case OpCreateFile:
-		return "CreateFile"
-	case OpCreateFolder:
-		return "CreateFolder"
-	case OpUpdateFile:
-		return "UpdateFile"
-	case OpDelete:
-		return "Delete"
-	case OpRefreshUuid:
-		return "RefreshUuid"
-	default:
-		return "UnknownType"
-	}
 }

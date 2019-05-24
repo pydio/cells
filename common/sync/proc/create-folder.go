@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (pr *Processor) processCreateFolder(operation *merger.Operation, operationId string, pg chan int64) error {
+func (pr *Processor) processCreateFolder(operation merger.Operation, operationId string, pg chan int64) error {
 
 	pg <- 1
 	localPath := operation.GetRefPath()

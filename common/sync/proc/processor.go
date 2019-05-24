@@ -38,16 +38,16 @@ import (
 )
 
 // ProcessFunc is a generic function signature for applying an operation
-type ProcessFunc func(event *merger.Operation, operationId string, progress chan int64) error
+type ProcessFunc func(event merger.Operation, operationId string, progress chan int64) error
 
 // ProcessorConnector defines a set of event based functions that can be called during processing
 type ProcessorConnector interface {
 	// Requeue send a fake event to be requeued in original Event chan input
 	Requeue(source model.PathSyncSource, event model.EventInfo)
 	// LockFile sends LockEvent for Echo Filtering
-	LockFile(operation *merger.Operation, path string, operationId string)
+	LockFile(operation merger.Operation, path string, operationId string)
 	// UnlockFile sends UnlockEvent for Echo Filtering
-	UnlockFile(operation *merger.Operation, path string)
+	UnlockFile(operation merger.Operation, path string)
 }
 
 // Processor is a simple processor without external connections
@@ -104,13 +104,13 @@ func (pr *Processor) Process(patch merger.Patch) {
 	}
 
 	// Create Folders
-	patch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation *merger.Operation) {
+	patch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
 		pr.applyProcessFunc(operation, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", operation.GetRefPath()))
 	})
 
 	sessionFlush(stats, merger.OpMoveFolder)
 	// Move folders
-	patch.WalkOperations([]merger.OperationType{merger.OpMoveFolder}, func(operation *merger.Operation) {
+	patch.WalkOperations([]merger.OperationType{merger.OpMoveFolder}, func(operation merger.Operation) {
 		toPath := operation.GetRefPath()
 		fromPath := operation.GetMoveOriginPath()
 		pr.applyProcessFunc(operation, operationId, pr.processMove, "Moved folder", "Moving folder", "Error while moving folder", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
@@ -118,7 +118,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 
 	// Move files
 	sessionFlush(stats, merger.OpMoveFile)
-	patch.WalkOperations([]merger.OperationType{merger.OpMoveFile}, func(operation *merger.Operation) {
+	patch.WalkOperations([]merger.OperationType{merger.OpMoveFile}, func(operation merger.Operation) {
 		toPath := operation.GetRefPath()
 		fromPath := operation.GetMoveOriginPath()
 		pr.applyProcessFunc(operation, operationId, pr.processMove, "Moved file", "Moving file", "Error while moving file", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
@@ -184,7 +184,7 @@ func (pr *Processor) Logger() *zap.Logger {
 }
 
 // applyProcessFunc takes a ProcessFunc and handle progress, status messages, etc
-func (pr *Processor) applyProcessFunc(op *merger.Operation, operationId string, callback ProcessFunc, completeString string, progressString string, errorString string, cursor *int64, total int64, fields ...zapcore.Field) error {
+func (pr *Processor) applyProcessFunc(op merger.Operation, operationId string, callback ProcessFunc, completeString string, progressString string, errorString string, cursor *int64, total int64, fields ...zapcore.Field) error {
 
 	fields = append(fields, zap.String("target", op.Target().GetEndpointInfo().URI))
 

@@ -34,10 +34,10 @@ type TreePatch struct {
 	AbstractPatch
 	TreeNode
 
-	createFiles   map[string]*Operation
-	createFolders map[string]*Operation
-	deletes       map[string]*Operation
-	refreshUUIDs  map[string]*Operation
+	createFiles   map[string]Operation
+	createFolders map[string]Operation
+	deletes       map[string]Operation
+	refreshUUIDs  map[string]Operation
 }
 
 func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget) *TreePatch {
@@ -47,15 +47,15 @@ func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget) *Tre
 			target: target,
 		},
 		TreeNode:      *NewTree(),
-		createFiles:   make(map[string]*Operation),
-		createFolders: make(map[string]*Operation),
-		deletes:       make(map[string]*Operation),
-		refreshUUIDs:  make(map[string]*Operation),
+		createFiles:   make(map[string]Operation),
+		createFolders: make(map[string]Operation),
+		deletes:       make(map[string]Operation),
+		refreshUUIDs:  make(map[string]Operation),
 	}
 	return p
 }
 
-func (t *TreePatch) Enqueue(op *Operation, key ...string) {
+func (t *TreePatch) Enqueue(op Operation, key ...string) {
 
 	if model.Ignores(t.target, op.GetRefPath()) {
 		return
@@ -76,9 +76,9 @@ func (t *TreePatch) Enqueue(op *Operation, key ...string) {
 
 }
 
-func (t *TreePatch) OperationsByType(types []OperationType, sorted ...bool) (events []*Operation) {
+func (t *TreePatch) OperationsByType(types []OperationType, sorted ...bool) (events []Operation) {
 	// walk tree to collect operations
-	t.WalkOperations(types, func(operation *Operation) {
+	t.WalkOperations(types, func(operation Operation) {
 		events = append(events, operation)
 	})
 	return
@@ -110,7 +110,7 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 
 func (t *TreePatch) HasTransfers() bool {
 	var count int
-	t.WalkOperations([]OperationType{OpCreateFile, OpUpdateFile}, func(operation *Operation) {
+	t.WalkOperations([]OperationType{OpCreateFile, OpUpdateFile}, func(operation Operation) {
 		count++
 	})
 	return count > 0
@@ -124,7 +124,7 @@ func (t *TreePatch) Size() int {
 func (t *TreePatch) ProgressTotal() int64 {
 	if t.HasTransfers() {
 		var total int64
-		t.WalkOperations([]OperationType{}, func(operation *Operation) {
+		t.WalkOperations([]OperationType{}, func(operation Operation) {
 			switch operation.Type() {
 			case OpCreateFolder, OpMoveFolder, OpMoveFile, OpDelete:
 				total++
@@ -148,7 +148,7 @@ func (t *TreePatch) Stats() map[string]interface{} {
 		"Source": t.Source().GetEndpointInfo().URI,
 		"Target": t.Target().GetEndpointInfo().URI,
 	}
-	t.WalkOperations([]OperationType{}, func(operation *Operation) {
+	t.WalkOperations([]OperationType{}, func(operation Operation) {
 		opType := operation.Type().String()
 		if val, ok := s[opType]; ok {
 			count := val.(int)
@@ -160,7 +160,7 @@ func (t *TreePatch) Stats() map[string]interface{} {
 	return s
 }
 
-func (t *TreePatch) sortedKeys(events map[string]*Operation) []string {
+func (t *TreePatch) sortedKeys(events map[string]Operation) []string {
 	var keys []string
 	for k, _ := range events {
 		keys = append(keys, k)

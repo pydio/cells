@@ -65,7 +65,7 @@ func (t *TreeNode) PruneIdentityPathOperation() bool {
 
 // QueueOperation registers an operation at a given path, by eventually building
 // traversing nodes without operations on them
-func (t *TreeNode) QueueOperation(op *Operation) {
+func (t *TreeNode) QueueOperation(op Operation) {
 	crtParent := t
 	n := op.GetNode()
 	p := n.Path
@@ -100,8 +100,8 @@ func (t *TreeNode) QueueOperation(op *Operation) {
 }
 
 // WalkOperations walks the tree looking for operation of a certain type
-func (t *TreeNode) WalkOperations(opTypes []OperationType, callback func(*Operation)) {
-	filter := func(o *Operation) bool {
+func (t *TreeNode) WalkOperations(opTypes []OperationType, callback func(Operation)) {
+	filter := func(o Operation) bool {
 		if o == nil {
 			return false
 		}
@@ -116,7 +116,7 @@ func (t *TreeNode) WalkOperations(opTypes []OperationType, callback func(*Operat
 		return false
 	}
 	// TODO CLONE OPERATION?
-	recompute := func(t *TreeNode, o *Operation) {
+	recompute := func(t *TreeNode, o Operation) {
 		if t.OpMoveTarget != nil {
 			o.UpdateRefPath(t.OpMoveTarget.ProcessedPath(false))
 			o.UpdateMoveOriginPath(t.ProcessedPath(false))

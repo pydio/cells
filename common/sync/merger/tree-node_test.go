@@ -33,23 +33,23 @@ import (
 func TestOpNodePaths(t *testing.T) {
 	Convey("Test OpNode paths", t, func() {
 		root := NewTreeNode(&tree.Node{Path: "/"})
-		root.QueueOperation(&Operation{
+		root.QueueOperation(&patchOperation{
 			node:   &tree.Node{Path: "a/b", Type: tree.NodeType_COLLECTION},
 			opType: OpCreateFolder,
 		})
-		root.QueueOperation(&Operation{
+		root.QueueOperation(&patchOperation{
 			node:   &tree.Node{Path: "a/b/c"},
 			opType: OpCreateFile,
 		})
-		root.QueueOperation(&Operation{
+		root.QueueOperation(&patchOperation{
 			node:   &tree.Node{Path: "a/b/c"},
 			opType: OpDelete,
 		})
-		root.QueueOperation(&Operation{
+		root.QueueOperation(&patchOperation{
 			node:   &tree.Node{Path: "a/b/d"},
 			opType: OpCreateFile,
 		})
-		root.QueueOperation(&Operation{
+		root.QueueOperation(&patchOperation{
 			node:      &tree.Node{Path: "m/v/p"},
 			eventInfo: model.EventInfo{Path: "m/v/rename"},
 			opType:    OpMoveFile,

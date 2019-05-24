@@ -166,7 +166,7 @@ func (b *FlatPatch) pruneMovesByPath(ctx context.Context, from, to string) {
 				n.Path = targetPath
 				fakeEvent := model.NodeToEventInfo(ctx, targetPath, n, model.EventCreate)
 				// Will require additional Transfer
-				b.Enqueue(NewOpFromEvent(OpUpdateFile, fakeEvent, n))
+				b.Enqueue(NewOperation(OpUpdateFile, fakeEvent, n))
 			}
 			delete(b.createFiles, targetPath)
 			delete(b.deletes, p)

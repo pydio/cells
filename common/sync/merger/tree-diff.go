@@ -129,7 +129,7 @@ func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType) (patc
 	}
 	for _, c := range ConflictsByType(diff.conflicts, ConflictFileContent) {
 		n := MostRecentNode(c.NodeLeft, c.NodeRight)
-		patch.Enqueue(NewOpFromEvent(OpUpdateFile, model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate), n))
+		patch.Enqueue(NewOperation(OpUpdateFile, model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate), n))
 	}
 	log.Logger(diff.ctx).Info("Sending Unidirectionnal patch", zap.Any("patch", patch.Stats()))
 	//fmt.Println(patch)
@@ -299,7 +299,7 @@ func (diff *TreeDiff) toMissing(patch Patch, in []*tree.Node, folders bool, remo
 	for _, n := range in {
 		if removes || !folders && n.IsLeaf() || folders && !n.IsLeaf() {
 			eventInfo := model.NodeToEventInfo(diff.ctx, n.Path, n, eventType)
-			patch.Enqueue(NewOpFromEvent(batchEventType, eventInfo, n))
+			patch.Enqueue(NewOperation(batchEventType, eventInfo, n))
 		}
 	}
 

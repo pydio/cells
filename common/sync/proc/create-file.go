@@ -43,7 +43,7 @@ func (pr *ProgressReader) Read(p []byte) (n int, e error) {
 	return n, e
 }
 
-func (pr *Processor) processCreateFile(operation *merger.Operation, operationId string, pg chan int64) error {
+func (pr *Processor) processCreateFile(operation merger.Operation, operationId string, pg chan int64) error {
 
 	dataTarget, dtOk := model.AsDataSyncTarget(operation.Target())
 	dataSource, dsOk := model.AsDataSyncSource(operation.Source())

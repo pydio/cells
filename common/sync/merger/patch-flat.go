@@ -31,13 +31,13 @@ import (
 type FlatPatch struct {
 	AbstractPatch
 
-	createFiles      map[string]*Operation
-	updateFiles      map[string]*Operation
-	createFolders    map[string]*Operation
-	deletes          map[string]*Operation
-	fileMoves        map[string]*Operation
-	folderMoves      map[string]*Operation
-	refreshFilesUuid map[string]*Operation
+	createFiles      map[string]Operation
+	updateFiles      map[string]Operation
+	createFolders    map[string]Operation
+	deletes          map[string]Operation
+	fileMoves        map[string]Operation
+	folderMoves      map[string]Operation
+	refreshFilesUuid map[string]Operation
 }
 
 func newFlatPatch(source model.PathSyncSource, target model.PathSyncTarget) (patch *FlatPatch) {
@@ -46,18 +46,18 @@ func newFlatPatch(source model.PathSyncSource, target model.PathSyncTarget) (pat
 			source: source,
 			target: target,
 		},
-		createFiles:      make(map[string]*Operation),
-		updateFiles:      make(map[string]*Operation),
-		createFolders:    make(map[string]*Operation),
-		deletes:          make(map[string]*Operation),
-		fileMoves:        make(map[string]*Operation),
-		folderMoves:      make(map[string]*Operation),
-		refreshFilesUuid: make(map[string]*Operation),
+		createFiles:      make(map[string]Operation),
+		updateFiles:      make(map[string]Operation),
+		createFolders:    make(map[string]Operation),
+		deletes:          make(map[string]Operation),
+		fileMoves:        make(map[string]Operation),
+		folderMoves:      make(map[string]Operation),
+		refreshFilesUuid: make(map[string]Operation),
 	}
 	return patch
 }
 
-func (b *FlatPatch) Enqueue(op *Operation, key ...string) {
+func (b *FlatPatch) Enqueue(op Operation, key ...string) {
 	op.AttachToPatch(b)
 	k := op.GetRefPath()
 	if len(key) > 0 {
@@ -82,7 +82,7 @@ func (b *FlatPatch) Enqueue(op *Operation, key ...string) {
 }
 
 // WalkOperations implements interface by calling OperationsByType under the hood
-func (b *FlatPatch) WalkOperations(opTypes []OperationType, callback func(*Operation)) {
+func (b *FlatPatch) WalkOperations(opTypes []OperationType, callback func(Operation)) {
 	for _, o := range b.OperationsByType(opTypes, true) {
 		callback(o)
 	}
@@ -90,10 +90,10 @@ func (b *FlatPatch) WalkOperations(opTypes []OperationType, callback func(*Opera
 
 // OperationsByType returns operations, eventually filtered by one or more types.
 // If types is empty, all operations are returned. If sorted is true, operations are sorted by key.
-func (b *FlatPatch) OperationsByType(types []OperationType, sorted ...bool) (events []*Operation) {
+func (b *FlatPatch) OperationsByType(types []OperationType, sorted ...bool) (events []Operation) {
 	if len(types) == 0 {
 		// Return all types
-		for _, ops := range []map[string]*Operation{b.createFiles, b.updateFiles, b.createFolders, b.deletes, b.fileMoves, b.folderMoves, b.refreshFilesUuid} {
+		for _, ops := range []map[string]Operation{b.createFiles, b.updateFiles, b.createFolders, b.deletes, b.fileMoves, b.folderMoves, b.refreshFilesUuid} {
 			if len(sorted) > 0 && sorted[0] {
 				for _, key := range b.sortedKeys(ops) {
 					events = append(events, ops[key])
@@ -106,7 +106,7 @@ func (b *FlatPatch) OperationsByType(types []OperationType, sorted ...bool) (eve
 		}
 		return
 	}
-	var data map[string]*Operation
+	var data map[string]Operation
 	for _, t := range types {
 		switch t {
 		case OpCreateFile:
@@ -266,7 +266,7 @@ func (b *FlatPatch) String() string {
 	return output
 }
 
-func (b *FlatPatch) sortedKeys(events map[string]*Operation) []string {
+func (b *FlatPatch) sortedKeys(events map[string]Operation) []string {
 	var keys []string
 	for k, _ := range events {
 		keys = append(keys, k)

@@ -16,8 +16,8 @@ const (
 )
 
 type Move struct {
-	deleteOp *Operation
-	createOp *Operation
+	deleteOp Operation
+	createOp Operation
 	dbNode   *tree.Node
 }
 

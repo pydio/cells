@@ -47,8 +47,8 @@ type TreeNode struct {
 	parent       *TreeNode
 	sorted       []*TreeNode
 
-	PathOperation *Operation
-	DataOperation *Operation
+	PathOperation Operation
+	DataOperation Operation
 	OpMoveTarget  *TreeNode
 }
 

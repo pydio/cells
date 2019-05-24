@@ -172,7 +172,7 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo, asSession bool)
 			t = merger.OpDelete
 		}
 
-		operation := merger.NewOpFromEvent(t, event)
+		operation := merger.NewOperation(t, event)
 		if event.Type == model.EventSureMove {
 			operation.SetNode(event.MoveSource)
 		}
