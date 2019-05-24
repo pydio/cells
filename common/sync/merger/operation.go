@@ -33,12 +33,14 @@ type patchOperation struct {
 	eventInfo model.EventInfo
 	processed bool
 	patch     Patch
+	dir       OperationDirection
 }
 
 func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) Operation {
 	o := &patchOperation{
 		opType:    t,
 		eventInfo: e,
+		dir:       OperationDirRight,
 	}
 	if len(loadedNode) > 0 {
 		o.node = loadedNode[0]
@@ -76,6 +78,11 @@ func (o *patchOperation) SetProcessed() {
 
 func (o *patchOperation) IsProcessed() bool {
 	return o.processed
+}
+
+func (o *patchOperation) SetDirection(direction OperationDirection) Operation {
+	o.dir = direction
+	return o
 }
 
 func (o *patchOperation) Status(status ProcessStatus) {
@@ -127,11 +134,19 @@ func (o *patchOperation) CreateContext(ctx context.Context) context.Context {
 }
 
 func (o *patchOperation) Source() model.PathSyncSource {
-	return o.patch.Source()
+	if o.dir == OperationDirDefault || o.dir == OperationDirRight {
+		return o.patch.Source()
+	} else {
+		return o.patch.Target().(model.PathSyncSource)
+	}
 }
 
 func (o *patchOperation) Target() model.PathSyncTarget {
-	return o.patch.Target()
+	if o.dir == OperationDirDefault || o.dir == OperationDirRight {
+		return o.patch.Target()
+	} else {
+		return o.patch.Source().(model.PathSyncTarget)
+	}
 }
 
 func (o *patchOperation) AttachToPatch(p Patch) {

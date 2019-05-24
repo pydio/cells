@@ -141,7 +141,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 func (ev *EventsBatcher) processEvents(events []model.EventInfo, asSession bool) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
-	patch := merger.NewPatch(ev.Source, ev.Target)
+	patch := merger.NewPatch(ev.Source, ev.Target, merger.PatchOptions{MoveDetection: true})
 	patch.SetupChannels(ev.statuses, ev.done)
 	/*
 		if p, o := common.AsSessionProvider(ev.Target); o && asSession && len(events) > 30 {

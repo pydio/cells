@@ -22,18 +22,41 @@ package merger
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/model"
 )
 
 type BidirectionalPatch struct {
-	Left  Patch
-	Right Patch
+	TreePatch
+	conflicts []*Conflict
+}
+
+func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*BidirectionalPatch, error) {
+	source := left.Source()
+	target, _ := model.AsPathSyncTarget(right.Source())
+	b := &BidirectionalPatch{
+		TreePatch: *newTreePatch(source, target, PatchOptions{MoveDetection: false}),
+	}
+	left.Filter(ctx)
+	right.Filter(ctx)
+	l, ok1 := left.(*TreePatch)
+	r, ok2 := right.(*TreePatch)
+	var e error
+	if ok1 && ok2 {
+		b.mergeTrees(&l.TreeNode, &r.TreeNode)
+		log.Logger(ctx).Info("After merge tree in BiPatch")
+		fmt.Println(b.String())
+	}
+	b.FilterToTarget(ctx)
+	return b, e
 }
 
 // Merge takes consider current batches are delta B(t-1) -> B(t) and merge them as proper instructions
-func (p *BidirectionalPatch) Merge(ctx context.Context) error {
+/*
+func (p *BidirectionalPatch) Merge(ctx context.Context, left, right *TreePatch) error {
 
 	// Naive Merge - Cross Targets
 	lt, _ := model.AsPathSyncTarget(p.Left.Source())
@@ -42,28 +65,61 @@ func (p *BidirectionalPatch) Merge(ctx context.Context) error {
 	p.Left.Target(rt)
 	p.Right.Target(lt)
 
-	p.Left.FilterToTarget(ctx)
-	p.Right.FilterToTarget(ctx)
+	left, ok1 := p.Left.(*TreePatch)
+	right, ok2 := p.Right.(*TreePatch)
+	if ok1 && ok2 {
+		p.mergeTrees(&left.TreeNode, &right.TreeNode)
+		log.Logger(ctx).Info("After merge tree in BiPatch")
+		fmt.Println(p.result.String())
+	} else {
+		p.Left.FilterToTarget(ctx)
+		p.Right.FilterToTarget(ctx)
+	}
 
 	return nil
 }
+*/
 
-func (p *BidirectionalPatch) String() string {
-	var lines []string
-	l := p.Left.String()
-	if l != "" {
-		lines = append(lines, l)
+func (p *BidirectionalPatch) mergeTrees(left, right *TreeNode) {
+	cL := left.GetCursor()
+	cR := right.GetCursor()
+	a := cL.Next()
+	b := cR.Next()
+	for a != nil || b != nil {
+		if a != nil && b != nil {
+			switch strings.Compare(a.Label(), b.Label()) {
+			case 0:
+				// MAYBE A Conflict here!
+				p.EnqueueOperations(a, OperationDirRight)
+				p.EnqueueOperations(b, OperationDirLeft)
+				p.mergeTrees(a, b)
+				a = cL.Next()
+				b = cR.Next()
+				continue
+			case 1:
+				p.EnqueueOperations(b, OperationDirLeft)
+				b = cR.Next()
+				continue
+			case -1:
+				p.EnqueueOperations(a, OperationDirRight)
+				a = cL.Next()
+				continue
+			}
+		} else if a == nil && b != nil {
+			p.EnqueueOperations(b, OperationDirLeft)
+			b = cR.Next()
+			continue
+		} else if b == nil && a != nil {
+			p.EnqueueOperations(a, OperationDirRight)
+			a = cL.Next()
+			continue
+		}
 	}
-	r := p.Right.String()
-	if r != "" {
-		lines = append(lines, r)
-	}
-	return strings.Join(lines, "\n")
+
 }
 
-func (p *BidirectionalPatch) Stats() map[string]interface{} {
-	return map[string]interface{}{
-		"Left":  p.Left.Stats(),
-		"Right": p.Right.Stats(),
-	}
+func (p *BidirectionalPatch) EnqueueOperations(branch *TreeNode, direction OperationDirection) {
+	branch.WalkOperations([]OperationType{}, func(operation Operation) {
+		p.Enqueue(operation.Clone().SetDirection(direction))
+	})
 }

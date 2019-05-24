@@ -1,3 +1,5 @@
+// +build ignore
+
 /*
  * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -18,7 +20,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package merger
+package flat
 
 import (
 	"context"

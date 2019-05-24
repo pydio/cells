@@ -40,11 +40,12 @@ type TreePatch struct {
 	refreshUUIDs  map[string]Operation
 }
 
-func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget) *TreePatch {
+func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) *TreePatch {
 	p := &TreePatch{
 		AbstractPatch: AbstractPatch{
-			source: source,
-			target: target,
+			source:  source,
+			target:  target,
+			options: options,
 		},
 		TreeNode:      *NewTree(),
 		createFiles:   make(map[string]Operation),
@@ -65,11 +66,23 @@ func (t *TreePatch) Enqueue(op Operation, key ...string) {
 	case OpMoveFolder, OpMoveFile, OpUpdateFile:
 		t.QueueOperation(op)
 	case OpCreateFile:
-		t.createFiles[op.GetRefPath()] = op
+		if t.options.MoveDetection {
+			t.createFiles[op.GetRefPath()] = op
+		} else {
+			t.QueueOperation(op)
+		}
 	case OpCreateFolder:
-		t.createFolders[op.GetRefPath()] = op
+		if t.options.MoveDetection {
+			t.createFolders[op.GetRefPath()] = op
+		} else {
+			t.QueueOperation(op)
+		}
 	case OpDelete:
-		t.deletes[op.GetRefPath()] = op
+		if t.options.MoveDetection {
+			t.deletes[op.GetRefPath()] = op
+		} else {
+			t.QueueOperation(op)
+		}
 	case OpRefreshUuid:
 		t.refreshUUIDs[op.GetRefPath()] = op
 	}

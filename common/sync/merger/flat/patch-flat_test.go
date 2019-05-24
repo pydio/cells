@@ -1,3 +1,5 @@
+// +build ignore
+
 /*
  * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -18,7 +20,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package merger
+package flat
 
 import (
 	"context"
@@ -279,23 +281,6 @@ func TestBatch_Filter(t *testing.T) {
 		So(patch.OperationsByType([]OperationType{OpMoveFile}), ShouldHaveLength, 0)
 	})
 
-}
-
-func diffFromSnaps(folder string) (*TreeDiff, error) {
-	right := memory.NewMemDB()
-	e := right.FromJSON("./testdata/" + folder + "/right.json")
-	if e != nil {
-		return nil, e
-	}
-
-	left := memory.NewMemDB()
-	e = left.FromJSON("./testdata/" + folder + "/left.json")
-	if e != nil {
-		return nil, e
-	}
-	diff := newTreeDiff(testCtx, left, right)
-	e = diff.Compute("/")
-	return diff, e
 }
 
 func TestScenariosFromSnapshot(t *testing.T) {

@@ -47,7 +47,7 @@ func TestProcess(t *testing.T) {
 
 		source := memory.NewMemDB()
 		target := memory.NewMemDB()
-		patch := merger.NewPatch(source, target)
+		patch := merger.NewPatch(source, target, merger.PatchOptions{MoveDetection: true})
 
 		source.CreateNode(testCtx, &tree.Node{
 			Path: "mkfile",

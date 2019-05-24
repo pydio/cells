@@ -27,8 +27,9 @@ import (
 )
 
 type AbstractPatch struct {
-	source model.PathSyncSource
-	target model.PathSyncTarget
+	options PatchOptions
+	source  model.PathSyncSource
+	target  model.PathSyncTarget
 
 	sessionProvider        model.SessionProvider
 	sessionProviderContext context.Context

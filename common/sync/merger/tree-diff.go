@@ -115,12 +115,12 @@ func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType) (patc
 	leftTarget, leftOk := diff.left.(model.PathSyncTarget)
 
 	if direction == model.DirectionRight && rightOk {
-		patch = NewPatch(diff.left, rightTarget)
+		patch = NewPatch(diff.left, rightTarget, PatchOptions{MoveDetection: true})
 		diff.toMissing(patch, diff.missingRight, true, false)
 		diff.toMissing(patch, diff.missingRight, false, false)
 		diff.toMissing(patch, diff.missingLeft, false, true)
 	} else if direction == model.DirectionLeft && leftOk {
-		patch = NewPatch(diff.right, leftTarget)
+		patch = NewPatch(diff.right, leftTarget, PatchOptions{MoveDetection: true})
 		diff.toMissing(patch, diff.missingLeft, true, false)
 		diff.toMissing(patch, diff.missingLeft, false, false)
 		diff.toMissing(patch, diff.missingRight, false, true)
@@ -137,28 +137,20 @@ func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType) (patc
 }
 
 // ToBidirectionalPatch transforms this diff to a patch
-func (diff *TreeDiff) ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error) {
+func (diff *TreeDiff) ToBidirectionalPatches(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (leftPatch Patch, rightPatch Patch) {
 
-	leftPatch := NewPatch(leftTarget.(model.PathSyncSource), rightTarget)
+	leftPatch = NewPatch(leftTarget.(model.PathSyncSource), rightTarget, PatchOptions{MoveDetection: true})
 	if rightTarget != nil {
 		diff.toMissing(leftPatch, diff.missingRight, true, false)
 		diff.toMissing(leftPatch, diff.missingRight, false, false)
 	}
 
-	rightPatch := NewPatch(rightTarget.(model.PathSyncSource), leftTarget)
+	rightPatch = NewPatch(rightTarget.(model.PathSyncSource), leftTarget, PatchOptions{MoveDetection: true})
 	if leftTarget != nil {
 		diff.toMissing(rightPatch, diff.missingLeft, true, false)
 		diff.toMissing(rightPatch, diff.missingLeft, false, false)
 	}
-
-	patch = &BidirectionalPatch{
-		Left:  leftPatch,
-		Right: rightPatch,
-	}
-
-	log.Logger(diff.ctx).Info("Sending Bidirectionnal patch", zap.Any("patch", patch.Stats()))
-	//fmt.Println(patch)
-	return patch, nil
+	return
 
 }
 

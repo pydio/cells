@@ -39,7 +39,7 @@ func TestTreePatch_Filter(t *testing.T) {
 
 	Convey("Test simple case", t, func() {
 
-		patch := newTreePatch(memory.NewMemDB(), memory.NewMemDB())
+		patch := newTreePatch(memory.NewMemDB(), memory.NewMemDB(), PatchOptions{})
 		patch.Filter(ctx)
 		So(patch, ShouldNotBeNil)
 
@@ -48,7 +48,7 @@ func TestTreePatch_Filter(t *testing.T) {
 	Convey("Ignore Create file if not existing in source", t, func() {
 
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		patch := newTreePatch(source, target)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
 			eventInfo: model.EventInfo{
@@ -71,7 +71,7 @@ func TestTreePatch_Filter(t *testing.T) {
 	Convey("Do not ignore create file if existing in source", t, func() {
 
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		patch := newTreePatch(source, target)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 		source.CreateNode(ctx, &tree.Node{
 			Path: "/ignored-file",
 			Type: tree.NodeType_LEAF,
@@ -93,7 +93,7 @@ func TestTreePatch_Filter(t *testing.T) {
 	Convey("Detect file move/rename", t, func() {
 
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		patch := newTreePatch(source, target)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 
 		target.CreateNode(ctx, &tree.Node{
 			Path: "/file-to-move",
@@ -128,7 +128,7 @@ func TestTreePatch_Filter(t *testing.T) {
 	Convey("Detect multiple moves of nodes with same etags", t, func() {
 
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		patch := newTreePatch(source, target)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 		target.CreateNode(ctx, &tree.Node{
 			Path: "/file-to-move",
 			Type: tree.NodeType_LEAF,
@@ -185,7 +185,7 @@ func TestTreePatch_Filter(t *testing.T) {
 	Convey("Detect fast create/delete on same node and file does not exist at the end", t, func() {
 
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		patch := newTreePatch(source, target)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 
 		patch.Enqueue(&patchOperation{
 			opType: OpCreateFile,
@@ -208,7 +208,7 @@ func TestTreePatch_Filter(t *testing.T) {
 	Convey("Detect fast create/delete on same node and file does exist at the end", t, func() {
 
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		patch := newTreePatch(source, target)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 
 		source.CreateNode(ctx, &tree.Node{
 			Path: "/a/file-touched",
@@ -237,7 +237,7 @@ func TestTreePatch_Filter(t *testing.T) {
 	Convey("Filter pruned deletion", t, func() {
 
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		patch := newTreePatch(source, target)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 		n1 := &tree.Node{
 			Path: "/a",
 			Type: tree.NodeType_COLLECTION,
@@ -271,11 +271,11 @@ func TestPrunedMove(t *testing.T) {
 
 	Convey("Filter pruned move subfolder", t, func() {
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u1", Path: "/subfolder/target"}, false)
-		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u2", Path: "/subfolder/target/sub"}, false)
-		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u3", Path: "/subfolder/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}, false)
-		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u4", Path: "/subfolder/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}, false)
-		patch := newTreePatch(source, target)
+		source.CreateNode(ctx, &tree.Node{Uuid: "u1", Path: "/subfolder/target"}, false)
+		source.CreateNode(ctx, &tree.Node{Uuid: "u2", Path: "/subfolder/target/sub"}, false)
+		source.CreateNode(ctx, &tree.Node{Uuid: "u3", Path: "/subfolder/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}, false)
+		source.CreateNode(ctx, &tree.Node{Uuid: "u4", Path: "/subfolder/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}, false)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/subfolder/target"}, node: &tree.Node{Uuid: "u1", Path: "/subfolder/target"}})
 		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/subfolder/target/sub"}, node: &tree.Node{Uuid: "u2", Path: "/subfolder/target/sub"}})
 		patch.Enqueue(&patchOperation{opType: OpCreateFile, eventInfo: model.EventInfo{Path: "/subfolder/target/sub/file1"}, node: &tree.Node{Uuid: "u3", Path: "/subfolder/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
@@ -284,18 +284,18 @@ func TestPrunedMove(t *testing.T) {
 		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub"}, node: &tree.Node{Uuid: "u2", Path: "/source/sub"}})
 		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub/file1"}, node: &tree.Node{Uuid: "u3", Path: "/source/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
 		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub/file2"}, node: &tree.Node{Uuid: "u4", Path: "/source/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
-		patch.Filter(bTestCtx)
+		patch.Filter(ctx)
 		So(patch.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
 		So(patch.OperationsByType([]OperationType{OpMoveFile}), ShouldHaveLength, 0)
 	})
 
 	Convey("Filter pruned move", t, func() {
 		source, target := memory.NewMemDB(), memory.NewMemDB()
-		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u1", Path: "/target"}, false)
-		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u2", Path: "/target/sub"}, false)
-		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u3", Path: "/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}, false)
-		source.CreateNode(bTestCtx, &tree.Node{Uuid: "u4", Path: "/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}, false)
-		patch := newTreePatch(source, target)
+		source.CreateNode(ctx, &tree.Node{Uuid: "u1", Path: "/target"}, false)
+		source.CreateNode(ctx, &tree.Node{Uuid: "u2", Path: "/target/sub"}, false)
+		source.CreateNode(ctx, &tree.Node{Uuid: "u3", Path: "/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}, false)
+		source.CreateNode(ctx, &tree.Node{Uuid: "u4", Path: "/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}, false)
+		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/target"}, node: &tree.Node{Uuid: "u1", Path: "/target"}})
 		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/target/sub"}, node: &tree.Node{Uuid: "u2", Path: "/target/sub"}})
 		patch.Enqueue(&patchOperation{opType: OpCreateFile, eventInfo: model.EventInfo{Path: "/target/sub/file1"}, node: &tree.Node{Uuid: "u3", Path: "/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
@@ -304,7 +304,7 @@ func TestPrunedMove(t *testing.T) {
 		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub"}, node: &tree.Node{Uuid: "u2", Path: "/source/sub"}})
 		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub/file1"}, node: &tree.Node{Uuid: "u3", Path: "/source/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
 		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub/file2"}, node: &tree.Node{Uuid: "u4", Path: "/source/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
-		patch.Filter(bTestCtx)
+		patch.Filter(ctx)
 		So(patch.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
 		So(patch.OperationsByType([]OperationType{OpMoveFile}), ShouldHaveLength, 0)
 	})
@@ -420,4 +420,21 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 
 	})
 
+}
+
+func diffFromSnaps(folder string) (*TreeDiff, error) {
+	right := memory.NewMemDB()
+	e := right.FromJSON("./testdata/" + folder + "/right.json")
+	if e != nil {
+		return nil, e
+	}
+
+	left := memory.NewMemDB()
+	e = left.FromJSON("./testdata/" + folder + "/left.json")
+	if e != nil {
+		return nil, e
+	}
+	diff := newTreeDiff(testCtx, left, right)
+	e = diff.Compute("/")
+	return diff, e
 }

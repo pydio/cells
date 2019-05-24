@@ -42,6 +42,10 @@ type Conflict struct {
 	NodeRight *tree.Node
 }
 
+type PatchOptions struct {
+	MoveDetection bool
+}
+
 // Patch represents a set of operations to be processed
 type Patch interface {
 	model.Stater
@@ -55,10 +59,10 @@ type Patch interface {
 	// Enqueue stacks a Operation - By default, it is registered with the event.Key, but an optional key can be passed.
 	// TODO : check this key param is really necessary
 	Enqueue(event Operation, key ...string)
-	// EventsByTypes retrieves all events of a given type
-	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
 	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
 	WalkOperations(opTypes []OperationType, callback func(Operation))
+	// EventsByTypes retrieves all events of a given type
+	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
 
 	// Filter tries to detect unnecessary changes locally
 	Filter(ctx context.Context)
@@ -117,6 +121,14 @@ func (t OperationType) String() string {
 	return ""
 }
 
+type OperationDirection int
+
+const (
+	OperationDirDefault = iota
+	OperationDirLeft
+	OperationDirRight
+)
+
 // Operation describes an atomic operation to be passed to a processor and applied to an endpoint
 type Operation interface {
 	Clone(replaceType ...OperationType) Operation
@@ -124,6 +136,7 @@ type Operation interface {
 	IsTypeData() bool
 	IsTypePath() bool
 	SetProcessed()
+	SetDirection(OperationDirection) Operation
 	IsProcessed() bool
 	Status(status ProcessStatus)
 	GetRefPath() string
@@ -156,7 +169,7 @@ type Diff interface {
 	// ToUnidirectionalPatch transforms current diff into a set of patch operations
 	ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error)
 	// ToBidirectionalPatch transforms current diff into a set of 2 batches of operations
-	ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error)
+	ToBidirectionalPatches(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (leftPatch Patch, rightPatch Patch)
 	// conflicts list discovered conflicts
 	Conflicts() []*Conflict
 }
@@ -184,13 +197,13 @@ func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyn
 }
 
 // NewPatch creates a new Patch implementation
-func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
-	return newTreePatch(source, target)
+func NewPatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) Patch {
+	return newTreePatch(source, target, options)
 }
 
 // ClonePatch creates a new patch with the same operations but different source/targets
 func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
-	patch := newTreePatch(source, target)
+	patch := newTreePatch(source, target, PatchOptions{MoveDetection: false})
 	for _, op := range origin.OperationsByType([]OperationType{}) {
 		patch.Enqueue(op.Clone()) // Will update patch reference
 	}
