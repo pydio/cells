@@ -42,25 +42,6 @@ type Conflict struct {
 	NodeRight *tree.Node
 }
 
-// NewDiff creates a new Diff implementation
-func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) Diff {
-	return newTreeDiff(ctx, left, right)
-}
-
-// NewPatch creates a new Patch implementation
-func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
-	return newTreePatch(source, target)
-}
-
-// ClonePatch creates a new patch with the same operations but different source/targets
-func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
-	patch := newTreePatch(source, target)
-	for _, op := range origin.OperationsByType([]OperationType{}) {
-		patch.Enqueue(op.Clone()) // Will update patch reference
-	}
-	return patch
-}
-
 // Patch represents a set of operations to be processed
 type Patch interface {
 	model.Stater
@@ -102,6 +83,41 @@ type Patch interface {
 	FinishSessionProvider(sessionUuid string) error
 }
 
+// OperationType describes the type of operation to be applied
+type OperationType int
+
+const (
+	OpCreateFile OperationType = iota
+	OpUpdateFile
+	OpCreateFolder
+	OpMoveFolder
+	OpMoveFile
+	OpDelete
+	OpRefreshUuid
+)
+
+// String gives a string representation of this integer type
+func (t OperationType) String() string {
+	switch t {
+	case OpCreateFolder:
+		return "CreateFolder"
+	case OpCreateFile:
+		return "CreateFile"
+	case OpMoveFolder:
+		return "MoveFolder"
+	case OpMoveFile:
+		return "MoveFile"
+	case OpUpdateFile:
+		return "UpdateFile"
+	case OpDelete:
+		return "Delete"
+	case OpRefreshUuid:
+		return "RefreshUuid"
+	}
+	return ""
+}
+
+// Operation describes an atomic operation to be passed to a processor and applied to an endpoint
 type Operation interface {
 	Clone(replaceType ...OperationType) Operation
 	IsTypeMove() bool
@@ -162,6 +178,26 @@ type StatusProvider interface {
 	Done(info interface{})
 }
 
+// NewDiff creates a new Diff implementation
+func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) Diff {
+	return newTreeDiff(ctx, left, right)
+}
+
+// NewPatch creates a new Patch implementation
+func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
+	return newTreePatch(source, target)
+}
+
+// ClonePatch creates a new patch with the same operations but different source/targets
+func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
+	patch := newTreePatch(source, target)
+	for _, op := range origin.OperationsByType([]OperationType{}) {
+		patch.Enqueue(op.Clone()) // Will update patch reference
+	}
+	return patch
+}
+
+// ConflictsByType filters a slice of conflicts for a given type
 func ConflictsByType(cc []*Conflict, conflictType ConflictType) (conflicts []*Conflict) {
 	for _, c := range cc {
 		if c.Type == conflictType {
@@ -171,6 +207,7 @@ func ConflictsByType(cc []*Conflict, conflictType ConflictType) (conflicts []*Co
 	return
 }
 
+// MostRecentNode compares two nodes Modification Time and returns the most recent one
 func MostRecentNode(n1, n2 *tree.Node) *tree.Node {
 	if n1.MTime > n2.MTime {
 		return n1
