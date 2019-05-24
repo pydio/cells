@@ -43,11 +43,11 @@ func (pr *Processor) refreshFilesUuid(patch merger.Patch) {
 		if s, ok := c.Source().(model.UuidReceiver); ok {
 			source = s
 			if t, ok2 := c.Target().(model.PathSyncSource); ok2 {
-				dirs = append(dirs, path.Dir(c.Key))
+				dirs = append(dirs, path.Dir(c.GetRefPath()))
 				target = t
 			}
 		}
-		refreshesByKey[c.Key] = true
+		refreshesByKey[c.GetRefPath()] = true
 	}
 	if source != nil && target != nil {
 		pref := mtree.CommonPrefix("/"[0], dirs...)

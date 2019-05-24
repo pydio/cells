@@ -11,10 +11,10 @@ func (b *FlatPatch) filterDeletes(ctx context.Context) {
 
 	// Prune Deletes: remove children if parent is already deleted
 	var deleteDelete []string
-	for _, folderDeleteEvent := range b.deletes {
-		deletePath := folderDeleteEvent.Node.Path + "/"
-		for deleteKey, delEvent := range b.deletes {
-			from := delEvent.Node.Path
+	for _, folderDeleteOp := range b.deletes {
+		deletePath := folderDeleteOp.GetRefPath() + "/"
+		for deleteKey, delOp := range b.deletes {
+			from := delOp.GetRefPath()
 			if strings.HasPrefix(from, deletePath) {
 				deleteDelete = append(deleteDelete, deleteKey)
 			}
@@ -25,8 +25,8 @@ func (b *FlatPatch) filterDeletes(ctx context.Context) {
 	}
 
 	for _, del := range b.deletes {
-		if model.Ignores(b.Target(), del.Key) {
-			delete(b.deletes, del.Key)
+		if model.Ignores(b.Target(), del.GetRefPath()) {
+			delete(b.deletes, del.GetRefPath())
 			continue
 		}
 	}

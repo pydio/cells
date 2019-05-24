@@ -57,26 +57,27 @@ func newFlatPatch(source model.PathSyncSource, target model.PathSyncTarget) (pat
 	return patch
 }
 
-func (b *FlatPatch) Enqueue(event *Operation, key ...string) {
-	k := event.Key
+func (b *FlatPatch) Enqueue(op *Operation, key ...string) {
+	op.AttachToPatch(b)
+	k := op.GetRefPath()
 	if len(key) > 0 {
 		k = key[0]
 	}
-	switch event.Type {
+	switch op.Type() {
 	case OpCreateFile:
-		b.createFiles[k] = event
+		b.createFiles[k] = op
 	case OpUpdateFile:
-		b.updateFiles[k] = event
+		b.updateFiles[k] = op
 	case OpCreateFolder:
-		b.createFolders[k] = event
+		b.createFolders[k] = op
 	case OpDelete:
-		b.deletes[k] = event
+		b.deletes[k] = op
 	case OpMoveFile:
-		b.fileMoves[k] = event
+		b.fileMoves[k] = op
 	case OpMoveFolder:
-		b.folderMoves[k] = event
+		b.folderMoves[k] = op
 	case OpRefreshUuid:
-		b.refreshFilesUuid[k] = event
+		b.refreshFilesUuid[k] = op
 	}
 }
 
@@ -156,7 +157,7 @@ func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 
 	for p, e := range b.createFiles {
 		// Check it's not already on target
-		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.Node.Etag {
+		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.GetNode().Etag {
 			log.Logger(ctx).Debug("Skipping Create File", node.Zap())
 			delete(b.createFiles, p)
 		}
@@ -164,7 +165,7 @@ func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 
 	for p, e := range b.updateFiles {
 		// Check it's not already on target
-		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.Node.Etag {
+		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.GetNode().Etag {
 			log.Logger(ctx).Debug("Skipping Update File", node.Zap())
 			delete(b.updateFiles, p)
 		}
@@ -196,7 +197,7 @@ func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 	}
 	for p, e := range b.fileMoves {
 		// Check it's not already on target
-		if n, err := e.Target().LoadNode(ctx, p); err == nil && n.Etag == e.Node.Etag {
+		if n, err := e.Target().LoadNode(ctx, p); err == nil && n.Etag == e.GetNode().Etag {
 			log.Logger(ctx).Debug("Skipping File move for path " + p)
 			delete(b.fileMoves, p)
 		}
@@ -213,10 +214,10 @@ func (b *FlatPatch) ProgressTotal() int64 {
 	if b.HasTransfers() {
 		var total int64
 		for _, c := range b.createFiles {
-			total += c.Node.Size
+			total += c.GetNode().Size
 		}
 		for _, c := range b.updateFiles {
-			total += c.Node.Size
+			total += c.GetNode().Size
 		}
 		total += int64(len(b.createFolders) + len(b.folderMoves) + len(b.fileMoves) + len(b.deletes))
 		return total
@@ -257,10 +258,10 @@ func (b *FlatPatch) String() string {
 		output += " - Delete " + k + "\n"
 	}
 	for k, m := range b.fileMoves {
-		output += " = Move File " + m.Node.Path + " to " + k + "\n"
+		output += " = Move File " + m.GetMoveOriginPath() + " to " + k + "\n"
 	}
 	for k, m := range b.folderMoves {
-		output += " = Move Folder " + m.Node.Path + " to " + k + "\n"
+		output += " = Move Folder " + m.GetMoveOriginPath() + " to " + k + "\n"
 	}
 	return output
 }

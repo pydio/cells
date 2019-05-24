@@ -105,22 +105,22 @@ func (pr *Processor) Process(patch merger.Patch) {
 
 	// Create Folders
 	patch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation *merger.Operation) {
-		pr.applyProcessFunc(operation, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", operation.EventInfo.Path))
+		pr.applyProcessFunc(operation, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", operation.GetRefPath()))
 	})
 
 	sessionFlush(stats, merger.OpMoveFolder)
 	// Move folders
 	patch.WalkOperations([]merger.OperationType{merger.OpMoveFolder}, func(operation *merger.Operation) {
-		toPath := operation.EventInfo.Path
-		fromPath := operation.Node.Path
+		toPath := operation.GetRefPath()
+		fromPath := operation.GetMoveOriginPath()
 		pr.applyProcessFunc(operation, operationId, pr.processMove, "Moved folder", "Moving folder", "Error while moving folder", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	})
 
 	// Move files
 	sessionFlush(stats, merger.OpMoveFile)
 	patch.WalkOperations([]merger.OperationType{merger.OpMoveFile}, func(operation *merger.Operation) {
-		toPath := operation.EventInfo.Path
-		fromPath := operation.Node.Path
+		toPath := operation.GetRefPath()
+		fromPath := operation.GetMoveOriginPath()
 		pr.applyProcessFunc(operation, operationId, pr.processMove, "Moved file", "Moving file", "Error while moving file", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	})
 
@@ -141,7 +141,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 					wg.Done()
 				}()
 				model.Retry(func() error {
-					return pr.applyProcessFunc(opCopy, operationId, pr.processCreateFile, "Transferred file", "Transferring file", "Error while transferring file", &cursor, total, zap.String("path", opCopy.EventInfo.Path), zap.String("eTag", opCopy.Node.Etag))
+					return pr.applyProcessFunc(opCopy, operationId, pr.processCreateFile, "Transferred file", "Transferring file", "Error while transferring file", &cursor, total, zap.String("path", opCopy.GetRefPath()), zap.String("eTag", opCopy.GetNode().Etag))
 				}, 5*time.Second, 20*time.Second)
 			}()
 		}
@@ -149,7 +149,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 	} else {
 		// Process Serialized
 		for _, event := range createFiles {
-			pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Indexed file", "Indexing file", "Error while indexing file", &cursor, total, zap.String("path", event.EventInfo.Path))
+			pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Indexed file", "Indexing file", "Error while indexing file", &cursor, total, zap.String("path", event.GetRefPath()))
 		}
 	}
 
@@ -157,14 +157,14 @@ func (pr *Processor) Process(patch merger.Patch) {
 	deletes := patch.OperationsByType([]merger.OperationType{merger.OpDelete})
 	sessionFlush(stats, merger.OpDelete)
 	for _, op := range deletes {
-		if op.Node == nil {
+		if op.GetNode() == nil {
 			continue
 		}
 		nS := "folder"
-		if op.Node.IsLeaf() {
+		if op.GetNode().IsLeaf() {
 			nS = "file"
 		}
-		pr.applyProcessFunc(op, operationId, pr.processDelete, "Deleted "+nS, "Deleting "+nS, "Error while deleting "+nS, &cursor, total, zap.String("path", op.Node.Path))
+		pr.applyProcessFunc(op, operationId, pr.processDelete, "Deleted "+nS, "Deleting "+nS, "Error while deleting "+nS, &cursor, total, zap.String("path", op.GetNode().Path))
 	}
 	var pg float32
 	if total > 0 {
@@ -197,7 +197,7 @@ func (pr *Processor) applyProcessFunc(op *merger.Operation, operationId string, 
 			progress := float32(*cursor) / float32(total)
 			if progress-lastProgress > 0.01 { // Send 1 per percent
 				log.Logger(pr.GlobalContext).Debug("Sending PG", zap.Float32("pg", progress))
-				op.Patch.Status(merger.ProcessStatus{
+				op.Status(merger.ProcessStatus{
 					StatusString: pr.logAsString(progressString, nil, fields...),
 					Progress:     progress,
 				})
@@ -213,7 +213,7 @@ func (pr *Processor) applyProcessFunc(op *merger.Operation, operationId string, 
 			pr.Logger().Error(errorString, fields...)
 		}
 	} else {
-		op.Processed = true
+		op.SetProcessed()
 		if !pr.Silent {
 			pr.Logger().Info(completeString, fields...)
 		}
@@ -228,7 +228,7 @@ func (pr *Processor) applyProcessFunc(op *merger.Operation, operationId string, 
 		}
 		end := float32(*cursor) / float32(total)
 		log.Logger(pr.GlobalContext).Debug("Sending PG END", zap.Float32("pg", end))
-		op.Patch.Status(merger.ProcessStatus{
+		op.Status(merger.ProcessStatus{
 			IsError:      isError,
 			StatusString: pr.logAsString(loggerString, err, fields...),
 			Progress:     end,

@@ -14,20 +14,20 @@ func (b *FlatPatch) filterCreateFiles(ctx context.Context) {
 	checksumProvider := b.Source().(model.ChecksumProvider)
 
 	for _, createEvent := range b.createFiles {
-		if model.Ignores(b.Target(), createEvent.Key) {
-			delete(b.createFiles, createEvent.Key)
+		if model.Ignores(b.Target(), createEvent.GetRefPath()) {
+			delete(b.createFiles, createEvent.GetRefPath())
 			continue
 		}
 		node, err := createEvent.NodeFromSource(ctx)
 		if err != nil {
-			delete(b.createFiles, createEvent.Key)
-			if _, exists := b.deletes[createEvent.Key]; exists {
-				delete(b.deletes, createEvent.Key)
+			delete(b.createFiles, createEvent.GetRefPath())
+			if _, exists := b.deletes[createEvent.GetRefPath()]; exists {
+				delete(b.deletes, createEvent.GetRefPath())
 			}
 			continue
 		}
 		if node.Uuid == "" && !model.IsFolderHiddenFile(node.Path) {
-			b.refreshFilesUuid[createEvent.Key] = createEvent
+			b.refreshFilesUuid[createEvent.GetRefPath()] = createEvent
 		}
 		if model.NodeRequiresChecksum(node) && checksumProvider != nil {
 			checksumProvider.ComputeChecksum(node)
@@ -35,8 +35,8 @@ func (b *FlatPatch) filterCreateFiles(ctx context.Context) {
 	}
 
 	for _, updateEvent := range b.updateFiles {
-		if model.Ignores(b.Target(), updateEvent.Key) {
-			delete(b.updateFiles, updateEvent.Key)
+		if model.Ignores(b.Target(), updateEvent.GetRefPath()) {
+			delete(b.updateFiles, updateEvent.GetRefPath())
 			continue
 		}
 	}
@@ -54,25 +54,26 @@ func (b *FlatPatch) filterCreateFolders(ctx context.Context) {
 		}
 	}
 
-	for _, createEvent := range b.createFolders {
-		if model.Ignores(b.Target(), createEvent.Key) {
-			delete(b.createFiles, createEvent.Key)
+	for _, createOp := range b.createFolders {
+		if model.Ignores(b.Target(), createOp.GetRefPath()) {
+			delete(b.createFiles, createOp.GetRefPath())
 			continue
 		}
-		if _, err := createEvent.NodeFromSource(ctx); err != nil {
-			delete(b.createFolders, createEvent.Key)
-			if _, exists := b.deletes[createEvent.Key]; exists {
-				delete(b.deletes, createEvent.Key)
+		if _, err := createOp.NodeFromSource(ctx); err != nil {
+			delete(b.createFolders, createOp.GetRefPath())
+			if _, exists := b.deletes[createOp.GetRefPath()]; exists {
+				delete(b.deletes, createOp.GetRefPath())
 			}
 			continue
 		}
 		if refresher != nil && existingFolders != nil {
-			if _, ok := existingFolders[createEvent.Node.Uuid]; ok {
+			n := createOp.GetNode()
+			if _, ok := existingFolders[n.Uuid]; ok {
 				// There is a duplicate - update Uuid
-				refreshNode := createEvent.Node.Clone()
+				refreshNode := n.Clone()
 				refreshNode.Uuid = uuid.New()
 				if newNode, err := refresher.UpdateFolderUuid(ctx, refreshNode); err == nil {
-					createEvent.Node = newNode
+					createOp.SetNode(newNode)
 				}
 			}
 		}

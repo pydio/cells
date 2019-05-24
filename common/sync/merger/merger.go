@@ -42,27 +42,6 @@ type Conflict struct {
 	NodeRight *tree.Node
 }
 
-type OperationType int
-
-const (
-	OpCreateFile OperationType = iota
-	OpUpdateFile
-	OpCreateFolder
-	OpMoveFolder
-	OpMoveFile
-	OpDelete
-	OpRefreshUuid
-)
-
-type Operation struct {
-	Key       string
-	Type      OperationType
-	Node      *tree.Node
-	EventInfo model.EventInfo
-	Patch     Patch
-	Processed bool
-}
-
 // NewDiff creates a new Diff implementation
 func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) Diff {
 	return newTreeDiff(ctx, left, right)
@@ -75,19 +54,11 @@ func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
 
 // ClonePatch creates a new patch with the same operations but different source/targets
 func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
-	f := newTreePatch(source, target)
+	patch := newTreePatch(source, target)
 	for _, op := range origin.OperationsByType([]OperationType{}) {
-		// Clone Op with new Patch reference
-		op1 := &Operation{
-			Patch:     f,
-			Key:       op.Key,
-			Node:      op.Node,
-			Type:      op.Type,
-			EventInfo: op.EventInfo,
-		}
-		f.Enqueue(op1)
+		patch.Enqueue(op.Clone()) // Will update patch reference
 	}
-	return f
+	return patch
 }
 
 // Patch represents a set of operations to be processed
@@ -180,79 +151,4 @@ func MostRecentNode(n1, n2 *tree.Node) *tree.Node {
 	} else {
 		return n2
 	}
-}
-
-func (e *Operation) Source() model.PathSyncSource {
-	return e.Patch.Source()
-}
-
-func (e *Operation) Target() model.PathSyncTarget {
-	return e.Patch.Target()
-}
-
-func (e *Operation) String() string {
-	switch e.Type {
-	case OpMoveFolder:
-		return "MoveFolder to " + e.Key
-	case OpMoveFile:
-		return "MoveFile to " + e.Key
-	case OpCreateFile:
-		return "CreateFile"
-	case OpCreateFolder:
-		return "CreateFolder"
-	case OpUpdateFile:
-		return "UpdateFile"
-	case OpDelete:
-		return "Delete"
-	case OpRefreshUuid:
-		return "RefreshUuid"
-	default:
-		return "UnknownType"
-	}
-}
-
-func (e *Operation) NodeFromSource(ctx context.Context) (node *tree.Node, err error) {
-	if e.EventInfo.ScanEvent && e.EventInfo.ScanSourceNode != nil {
-		node = e.EventInfo.ScanSourceNode
-	} else {
-		node, err = e.Source().LoadNode(e.EventInfo.CreateContext(ctx), e.EventInfo.Path)
-	}
-	if err == nil {
-		e.Node = node
-	}
-	return
-}
-
-func (e *Operation) NodeInTarget(ctx context.Context) (node *tree.Node, found bool) {
-	if e.Node != nil {
-		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
-		return e.Node, true
-	} else {
-		node, err := e.Target().LoadNode(e.EventInfo.CreateContext(ctx), e.EventInfo.Path)
-		if err != nil {
-			return nil, false
-		} else {
-			return node, true
-		}
-	}
-}
-
-func (t OperationType) String() string {
-	switch t {
-	case OpCreateFolder:
-		return "CreateFolder"
-	case OpCreateFile:
-		return "CreateFile"
-	case OpMoveFolder:
-		return "MoveFolder"
-	case OpMoveFile:
-		return "MoveFile"
-	case OpUpdateFile:
-		return "UpdateFile"
-	case OpDelete:
-		return "Delete"
-	case OpRefreshUuid:
-		return "RefreshUuid"
-	}
-	return ""
 }

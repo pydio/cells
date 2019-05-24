@@ -57,20 +57,21 @@ func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget) *Tre
 
 func (t *TreePatch) Enqueue(op *Operation, key ...string) {
 
-	if model.Ignores(t.target, op.Key) {
+	if model.Ignores(t.target, op.GetRefPath()) {
 		return
 	}
-	switch op.Type {
+	op.AttachToPatch(t)
+	switch op.Type() {
 	case OpMoveFolder, OpMoveFile, OpUpdateFile:
 		t.QueueOperation(op)
 	case OpCreateFile:
-		t.createFiles[op.Key] = op
+		t.createFiles[op.GetRefPath()] = op
 	case OpCreateFolder:
-		t.createFolders[op.Key] = op
+		t.createFolders[op.GetRefPath()] = op
 	case OpDelete:
-		t.deletes[op.Key] = op
+		t.deletes[op.GetRefPath()] = op
 	case OpRefreshUuid:
-		t.refreshUUIDs[op.Key] = op
+		t.refreshUUIDs[op.GetRefPath()] = op
 	}
 
 }
@@ -124,11 +125,11 @@ func (t *TreePatch) ProgressTotal() int64 {
 	if t.HasTransfers() {
 		var total int64
 		t.WalkOperations([]OperationType{}, func(operation *Operation) {
-			switch operation.Type {
+			switch operation.Type() {
 			case OpCreateFolder, OpMoveFolder, OpMoveFile, OpDelete:
 				total++
 			case OpCreateFile, OpUpdateFile:
-				total += operation.Node.Size
+				total += operation.GetNode().Size
 			}
 		})
 		return total
@@ -148,7 +149,7 @@ func (t *TreePatch) Stats() map[string]interface{} {
 		"Target": t.Target().GetEndpointInfo().URI,
 	}
 	t.WalkOperations([]OperationType{}, func(operation *Operation) {
-		opType := operation.Type.String()
+		opType := operation.Type().String()
 		if val, ok := s[opType]; ok {
 			count := val.(int)
 			s[opType] = count + 1

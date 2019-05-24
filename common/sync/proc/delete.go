@@ -27,12 +27,12 @@ import (
 func (pr *Processor) processDelete(operation *merger.Operation, operationId string, pg chan int64) error {
 
 	pg <- 1
-	deletePath := operation.Node.Path
+	deletePath := operation.GetRefPath()
 	if pr.Connector != nil {
 		pr.Connector.LockFile(operation, deletePath, operationId)
 		defer pr.Connector.UnlockFile(operation, deletePath)
 	}
-	ctx := operation.EventInfo.CreateContext(pr.GlobalContext)
+	ctx := operation.CreateContext(pr.GlobalContext)
 	err := operation.Target().DeleteNode(ctx, deletePath)
 
 	return err

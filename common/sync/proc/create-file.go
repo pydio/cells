@@ -48,7 +48,7 @@ func (pr *Processor) processCreateFile(operation *merger.Operation, operationId 
 	dataTarget, dtOk := model.AsDataSyncTarget(operation.Target())
 	dataSource, dsOk := model.AsDataSyncSource(operation.Source())
 
-	localPath := operation.EventInfo.Path
+	localPath := operation.GetRefPath()
 	if pr.Connector != nil {
 		defer pr.Connector.UnlockFile(operation, localPath)
 		pr.Connector.LockFile(operation, localPath, operationId)
@@ -61,7 +61,7 @@ func (pr *Processor) processCreateFile(operation *merger.Operation, operationId 
 			return rErr
 		}
 		defer reader.Close()
-		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(localPath, operation.Node.Size)
+		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(localPath, operation.GetNode().Size)
 		if wErr != nil {
 			pr.Logger().Error("Cannot get writer on target", zap.String("job", "create"), zap.String("path", localPath), zap.Error(wErr))
 			return wErr
@@ -91,10 +91,10 @@ func (pr *Processor) processCreateFile(operation *merger.Operation, operationId 
 
 		pg <- 1
 		update := false
-		if operation.Node.Uuid != "" {
+		if operation.GetNode().Uuid != "" {
 			update = true
 		}
-		return operation.Target().CreateNode(operation.EventInfo.CreateContext(pr.GlobalContext), operation.Node, update)
+		return operation.Target().CreateNode(operation.CreateContext(pr.GlobalContext), operation.GetNode(), update)
 	}
 
 }

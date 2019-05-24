@@ -27,8 +27,8 @@ import (
 func (pr *Processor) processMove(operation *merger.Operation, operationId string, pg chan int64) error {
 
 	pg <- 1
-	toPath := operation.EventInfo.Path
-	fromPath := operation.Node.Path
+	toPath := operation.GetRefPath()
+	fromPath := operation.GetMoveOriginPath()
 
 	if pr.Connector != nil {
 		pr.Connector.LockFile(operation, toPath, operationId)
@@ -37,6 +37,6 @@ func (pr *Processor) processMove(operation *merger.Operation, operationId string
 		defer pr.Connector.UnlockFile(operation, fromPath)
 	}
 
-	return operation.Target().MoveNode(operation.EventInfo.CreateContext(pr.GlobalContext), fromPath, toPath)
+	return operation.Target().MoveNode(operation.CreateContext(pr.GlobalContext), fromPath, toPath)
 
 }

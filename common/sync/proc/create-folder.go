@@ -33,8 +33,8 @@ import (
 func (pr *Processor) processCreateFolder(operation *merger.Operation, operationId string, pg chan int64) error {
 
 	pg <- 1
-	localPath := operation.EventInfo.Path
-	ctx := operation.EventInfo.CreateContext(pr.GlobalContext)
+	localPath := operation.GetRefPath()
+	ctx := operation.CreateContext(pr.GlobalContext)
 	dbNode, _ := operation.Target().LoadNode(ctx, localPath)
 	if dbNode == nil {
 		if pr.Connector != nil {
@@ -44,12 +44,12 @@ func (pr *Processor) processCreateFolder(operation *merger.Operation, operationI
 		provider, ok1 := operation.Target().(model.UuidProvider)
 		receiver, ok2 := operation.Source().(model.UuidReceiver)
 		if ok1 && ok2 {
-			if sameIdNode, e := provider.LoadNodeByUuid(ctx, operation.Node.Uuid); e == nil && sameIdNode != nil {
+			if sameIdNode, e := provider.LoadNodeByUuid(ctx, operation.GetNode().Uuid); e == nil && sameIdNode != nil {
 				// This is a duplicate! We have to refresh .pydio content now
 				newNode, er := receiver.UpdateNodeUuid(ctx, &tree.Node{Path: localPath})
 				if er == nil {
 					pr.Logger().Info("Refreshed folder on source as Uuid was a duplicate.")
-					operation.Node.Uuid = newNode.Uuid
+					operation.SetNode(newNode)
 				} else {
 					pr.Logger().Info("Error while trying to refresh folder Uuid on source", zap.Error(er))
 					return er
@@ -59,7 +59,7 @@ func (pr *Processor) processCreateFolder(operation *merger.Operation, operationI
 		folderNode := &tree.Node{
 			Path: localPath,
 			Type: tree.NodeType_COLLECTION,
-			Uuid: operation.Node.Uuid,
+			Uuid: operation.GetNode().Uuid,
 		}
 		pr.Logger().Debug("Should process CreateFolder", folderNode.Zap("newNode"))
 		err := operation.Target().CreateNode(ctx, folderNode, false)
@@ -68,9 +68,9 @@ func (pr *Processor) processCreateFolder(operation *merger.Operation, operationI
 			return err
 		}
 	} else {
-		pr.Logger().Debug("CreateFolder: already exists, ignoring!", zap.Any("e", operation.EventInfo))
+		pr.Logger().Debug("CreateFolder: already exists, ignoring!", zap.Any("e", operation.GetRefPath()))
 	}
-	if pr.Connector != nil && operation.Source().GetEndpointInfo().RequiresFoldersRescan && !operation.EventInfo.ScanEvent {
+	if pr.Connector != nil && operation.Source().GetEndpointInfo().RequiresFoldersRescan && !operation.IsScanEvent() {
 		pr.Logger().Info("Rescanning folder to be sure", zap.String("path", localPath))
 		// Rescan folder content, events below may not have been detected
 		var visit = func(path string, node *tree.Node, err error) {
@@ -85,7 +85,7 @@ func (pr *Processor) processCreateFolder(operation *merger.Operation, operationI
 			}
 			return
 		}
-		go operation.Source().Walk(visit, operation.EventInfo.Path, true)
+		go operation.Source().Walk(visit, operation.GetRefPath(), true)
 	}
 
 	return nil

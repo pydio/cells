@@ -152,33 +152,32 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo, asSession bool)
 
 	for _, event := range events {
 		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
-		key := event.Path
-		var bEvent = &merger.Operation{
-			Patch:     patch,
-			Key:       key,
-			EventInfo: event,
-		}
-		if event.Type == model.EventCreate || event.Type == model.EventRename {
-			if event.Folder {
-				bEvent.Type = merger.OpCreateFolder
-			} else {
-				bEvent.Type = merger.OpCreateFile
-			}
-			patch.Enqueue(bEvent)
 
-		} else if event.Type == model.EventSureMove {
-			event.Path = event.MoveTarget.Path
-			bEvent.Node = event.MoveSource
-			if event.MoveSource.IsLeaf() {
-				bEvent.Type = merger.OpMoveFile
+		var t merger.OperationType
+		switch event.Type {
+		case model.EventCreate, model.EventRename:
+			if event.Folder {
+				t = merger.OpCreateFolder
 			} else {
-				bEvent.Type = merger.OpMoveFolder
+				t = merger.OpCreateFile
 			}
-			patch.Enqueue(bEvent, event.Path)
-		} else {
-			bEvent.Type = merger.OpDelete
-			patch.Enqueue(bEvent)
+		case model.EventSureMove:
+			event.Path = event.MoveTarget.Path
+			if event.MoveSource.IsLeaf() {
+				t = merger.OpMoveFile
+			} else {
+				t = merger.OpMoveFolder
+			}
+		default:
+			t = merger.OpDelete
 		}
+
+		operation := merger.NewOpFromEvent(t, event)
+		if event.Type == model.EventSureMove {
+			operation.SetNode(event.MoveSource)
+		}
+		patch.Enqueue(operation)
+
 	}
 
 	patch.Filter(ev.globalContext)

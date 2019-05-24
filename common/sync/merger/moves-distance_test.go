@@ -3,7 +3,6 @@ package merger
 import (
 	"testing"
 
-	"github.com/pydio/cells/common/sync/endpoints/memory"
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/smartystreets/goconvey/convey"
 )
@@ -14,43 +13,35 @@ func TestSortClosestMove(t *testing.T) {
 
 		moves := sortClosestMoves([]*Move{
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/similar-file-moved"},
-					Key:       "/similar-file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/similar-file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/similar-file-moved"},
-					Key:       "/similar-file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/similar-file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/similar-file"},
-					Key:       "/similar-file",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/similar-file"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-moved"},
-					Key:       "/file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-moved"},
-					Key:       "/file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/similar-file"},
-					Key:       "/similar-file",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/similar-file"},
 				},
 			},
 		})
@@ -62,43 +53,35 @@ func TestSortClosestMove(t *testing.T) {
 
 		moves := sortClosestMoves([]*Move{
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
-					Key:       "/a/similar-file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
-					Key:       "/a/similar-file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file"},
-					Key:       "/a/similar-file",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/similar-file"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-moved"},
-					Key:       "/file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-moved"},
-					Key:       "/file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file"},
-					Key:       "/a/similar-file",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/similar-file"},
 				},
 			},
 		})
@@ -106,11 +89,11 @@ func TestSortClosestMove(t *testing.T) {
 		convey.So(moves, convey.ShouldHaveLength, 2)
 		var keys int
 		for _, m := range moves {
-			if m.deleteEvent.Key == "/a/similar-file" {
-				convey.So(m.createEvent.Key, convey.ShouldEqual, "/a/similar-file-moved")
+			if m.deleteOp.GetRefPath() == "/a/similar-file" {
+				convey.So(m.createOp.GetRefPath(), convey.ShouldEqual, "/a/similar-file-moved")
 				keys++
-			} else if m.deleteEvent.Key == "/file-to-move" {
-				convey.So(m.createEvent.Key, convey.ShouldEqual, "/file-moved")
+			} else if m.deleteOp.GetRefPath() == "/file-to-move" {
+				convey.So(m.createOp.GetRefPath(), convey.ShouldEqual, "/file-moved")
 				keys++
 			}
 		}
@@ -121,43 +104,35 @@ func TestSortClosestMove(t *testing.T) {
 
 		moves := sortClosestMoves([]*Move{
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-moved"},
-					Key:       "/file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
-					Key:       "/a/b/c/similar-file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-moved"},
-					Key:       "/file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file"},
-					Key:       "/a/similar-file",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/similar-file"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
-					Key:       "/a/b/c/similar-file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file"},
-					Key:       "/a/similar-file",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/similar-file"},
 				},
 			},
 		})
@@ -165,11 +140,11 @@ func TestSortClosestMove(t *testing.T) {
 		convey.So(moves, convey.ShouldHaveLength, 2)
 		var keys int
 		for _, m := range moves {
-			if m.deleteEvent.Key == "/a/similar-file" {
-				convey.So(m.createEvent.Key, convey.ShouldEqual, "/a/b/c/similar-file-moved")
+			if m.deleteOp.GetRefPath() == "/a/similar-file" {
+				convey.So(m.createOp.GetRefPath(), convey.ShouldEqual, "/a/b/c/similar-file-moved")
 				keys++
-			} else if m.deleteEvent.Key == "/file-to-move" {
-				convey.So(m.createEvent.Key, convey.ShouldEqual, "/file-moved")
+			} else if m.deleteOp.GetRefPath() == "/file-to-move" {
+				convey.So(m.createOp.GetRefPath(), convey.ShouldEqual, "/file-moved")
 				keys++
 			}
 		}
@@ -181,43 +156,35 @@ func TestSortClosestMove(t *testing.T) {
 
 		moves := sortClosestMoves([]*Move{
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
-					Key:       "/a/similar-file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/file-moved"},
-					Key:       "/a/file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/file-to-move"},
-					Key:       "/file-to-move",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
-					Key:       "/a/similar-file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/similar-file"},
-					Key:       "/similar-file",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/similar-file"},
 				},
 			},
 			{
-				createEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/a/file-moved"},
-					Key:       "/a/file-moved",
+				createOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/a/file-moved"},
 				},
-				deleteEvent: &Operation{
-					EventInfo: model.EventInfo{Path: "/similar-file"},
-					Key:       "/similar-file",
+				deleteOp: &Operation{
+					eventInfo: model.EventInfo{Path: "/similar-file"},
 				},
 			},
 		})
@@ -225,9 +192,9 @@ func TestSortClosestMove(t *testing.T) {
 		convey.So(moves, convey.ShouldHaveLength, 2)
 		var keys int
 		for _, m := range moves {
-			if m.deleteEvent.Key == "/similar-file" {
+			if m.deleteOp.GetRefPath() == "/similar-file" {
 				keys++
-			} else if m.deleteEvent.Key == "/file-to-move" {
+			} else if m.deleteOp.GetRefPath() == "/file-to-move" {
 				keys++
 			}
 		}
@@ -235,87 +202,86 @@ func TestSortClosestMove(t *testing.T) {
 	})
 
 	convey.Convey("Test SortClosestMoves same paths", t, func() {
-		patch := newTreePatch(memory.NewMemDB(), memory.NewMemDB())
 		moves := sortClosestMoves([]*Move{
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move1"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move1"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move2"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move1"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move3"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move1"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move4"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move1"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move1"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move2"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move2"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move2"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move3"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move2"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move4"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move2"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move1"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move3"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move2"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move3"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move3"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move3"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move4"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move3"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move1"}, Key: "/move1", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move1"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move4"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move2"}, Key: "/move2", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move2"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move4"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move3"}, Key: "/move3", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move3"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move4"}},
 			},
 			{
-				createEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
-				deleteEvent: &Operation{EventInfo: model.EventInfo{Path: "/move4"}, Key: "/move4", Patch: patch},
+				createOp: &Operation{eventInfo: model.EventInfo{Path: "/move4"}},
+				deleteOp: &Operation{eventInfo: model.EventInfo{Path: "/move4"}},
 			},
 		})
 		convey.So(moves, convey.ShouldHaveLength, 4)
 		var keys int
 		for _, m := range moves {
-			if m.deleteEvent.Key == "/move1" {
-				convey.So(m.createEvent.Key, convey.ShouldEqual, "/move1")
+			if m.deleteOp.GetRefPath() == "/move1" {
+				convey.So(m.createOp.GetRefPath(), convey.ShouldEqual, "/move1")
 				keys++
-			} else if m.deleteEvent.Key == "/move2" {
-				convey.So(m.createEvent.Key, convey.ShouldEqual, "/move2")
+			} else if m.deleteOp.GetRefPath() == "/move2" {
+				convey.So(m.createOp.GetRefPath(), convey.ShouldEqual, "/move2")
 				keys++
-			} else if m.deleteEvent.Key == "/move3" {
-				convey.So(m.createEvent.Key, convey.ShouldEqual, "/move3")
+			} else if m.deleteOp.GetRefPath() == "/move3" {
+				convey.So(m.createOp.GetRefPath(), convey.ShouldEqual, "/move3")
 				keys++
-			} else if m.deleteEvent.Key == "/move4" {
-				convey.So(m.createEvent.Key, convey.ShouldEqual, "/move4")
+			} else if m.deleteOp.GetRefPath() == "/move4" {
+				convey.So(m.createOp.GetRefPath(), convey.ShouldEqual, "/move4")
 				keys++
 			}
 		}

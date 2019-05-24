@@ -16,9 +16,9 @@ const (
 )
 
 type Move struct {
-	deleteEvent *Operation
-	createEvent *Operation
-	dbNode      *tree.Node
+	deleteOp *Operation
+	createOp *Operation
+	dbNode   *tree.Node
 }
 
 // ByAge implements sort.Interface based on the Age field.
@@ -26,7 +26,7 @@ type bySourceDeep []*Move
 
 func (a bySourceDeep) Len() int { return len(a) }
 func (a bySourceDeep) folderDepth(m *Move) int {
-	return len(strings.Split(strings.Trim(m.deleteEvent.Key, "/"), "/"))
+	return len(strings.Split(strings.Trim(m.deleteOp.GetRefPath(), "/"), "/"))
 }
 func (a bySourceDeep) Less(i, j int) bool {
 	return a.folderDepth(a[i]) > a.folderDepth(a[j])
@@ -39,23 +39,23 @@ func (m *Move) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	if m == nil {
 		return nil
 	}
-	encoder.AddString("From", m.deleteEvent.Key)
-	encoder.AddString("To", m.createEvent.Key)
+	encoder.AddString("From", m.deleteOp.GetRefPath())
+	encoder.AddString("To", m.createOp.GetRefPath())
 	encoder.AddObject("DbNode", m.dbNode)
 	return nil
 }
 
 func (m *Move) Distance() int {
 	sep := "/"
-	if m.deleteEvent.Key == m.createEvent.Key {
+	if m.deleteOp.GetRefPath() == m.createOp.GetRefPath() {
 		return maxInt
 	}
-	pref := mtree.CommonPrefix(sep[0], m.deleteEvent.Key, m.createEvent.Key)
+	pref := mtree.CommonPrefix(sep[0], m.deleteOp.GetRefPath(), m.createOp.GetRefPath())
 	return len(strings.Split(pref, sep))
 }
 
 func (m *Move) SameBase() bool {
-	return path.Base(m.deleteEvent.Key) == path.Base(m.createEvent.Key)
+	return path.Base(m.deleteOp.GetRefPath()) == path.Base(m.createOp.GetRefPath())
 }
 
 func sortClosestMoves(possibleMoves []*Move) (moves []*Move) {
@@ -65,11 +65,11 @@ func sortClosestMoves(possibleMoves []*Move) (moves []*Move) {
 	targets := make(map[string]bool)
 	sort.Sort(bySourceDeep(possibleMoves))
 	for _, m := range possibleMoves {
-		source := m.deleteEvent.Key
+		source := m.deleteOp.GetRefPath()
 		for _, m2 := range possibleMoves {
 			byT, ok := greatestSource[source]
-			source2 := m2.deleteEvent.Key
-			target2 := m2.createEvent.Key
+			source2 := m2.deleteOp.GetRefPath()
+			target2 := m2.createOp.GetRefPath()
 			if source2 != source {
 				continue
 			}
@@ -81,16 +81,16 @@ func sortClosestMoves(possibleMoves []*Move) (moves []*Move) {
 			}
 		}
 		if m, ok := greatestSource[source]; ok {
-			targets[m.createEvent.Key] = true
+			targets[m.createOp.GetRefPath()] = true
 		}
 	}
 
 	// Dedup by target
 	greatestTarget := make(map[string]*Move)
 	for _, m := range greatestSource {
-		byT, ok := greatestTarget[m.createEvent.Key]
+		byT, ok := greatestTarget[m.createOp.GetRefPath()]
 		if !ok || m.Distance() > byT.Distance() {
-			greatestTarget[m.createEvent.Key] = m
+			greatestTarget[m.createOp.GetRefPath()] = m
 		}
 	}
 
