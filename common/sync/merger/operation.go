@@ -40,7 +40,7 @@ func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) 
 	o := &patchOperation{
 		opType:    t,
 		eventInfo: e,
-		dir:       OperationDirRight,
+		dir:       OperationDirDefault,
 	}
 	if len(loadedNode) > 0 {
 		o.node = loadedNode[0]
@@ -96,7 +96,7 @@ func (o *patchOperation) GetRefPath() string {
 func (o *patchOperation) UpdateRefPath(p string) {
 	o.eventInfo.Path = p
 	// If not a move, update underlying node path as well (otherwise use UpdateMoveOriginPath)
-	if o.node != nil && o.IsTypeMove() {
+	if o.node != nil && !o.IsTypeMove() {
 		o.node.Path = p
 	}
 }
@@ -180,22 +180,28 @@ func (o *patchOperation) NodeInTarget(ctx context.Context) (node *tree.Node, fou
 }
 
 func (o *patchOperation) String() string {
+	dir := ""
+	if o.dir == OperationDirRight {
+		dir = " => "
+	} else if o.dir == OperationDirLeft {
+		dir = " <= "
+	}
 	switch o.opType {
 	case OpMoveFolder:
-		return "MoveFolder to " + o.GetRefPath()
+		return "MoveFolder to " + o.GetRefPath() + dir
 	case OpMoveFile:
-		return "MoveFile to " + o.GetRefPath()
+		return "MoveFile to " + o.GetRefPath() + dir
 	case OpCreateFile:
-		return "CreateFile"
+		return "CreateFile" + dir
 	case OpCreateFolder:
-		return "CreateFolder"
+		return "CreateFolder" + dir
 	case OpUpdateFile:
-		return "UpdateFile"
+		return "UpdateFile" + dir
 	case OpDelete:
-		return "Delete"
+		return "Delete" + dir
 	case OpRefreshUuid:
-		return "RefreshUuid"
+		return "RefreshUuid" + dir
 	default:
-		return "UnknownType"
+		return "UnknownType" + dir
 	}
 }
