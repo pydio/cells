@@ -39,24 +39,46 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+type RemoteConfig struct {
+	// Url stores domain name or IP & port to the server.
+	Url string `json:"url"`
+	// OIDC ClientKey / ClientSecret
+	ClientKey    string `json:"clientKey"`
+	ClientSecret string `json:"clientSecret"`
+	// Pydio User Authentication
+	User     string `json:"user"`
+	Password string `json:"password"`
+	// SkipVerify tells the transport to ignore expired or self-signed TLS certificates
+	SkipVerify bool `json:"skipVerify"`
+}
+
 // Remote connect to a remove Cells server using the GRPC gateway.
 type Remote struct {
 	abstract
 	config *sdk.SdkConfig
 }
 
-func NewRemote(config *sdk.SdkConfig, root string, options Options) *Remote {
+func NewRemote(config RemoteConfig, root string, options Options) *Remote {
+	sdkConfig := &sdk.SdkConfig{
+		Url:           config.Url,
+		ClientKey:     config.ClientKey,
+		ClientSecret:  config.ClientSecret,
+		User:          config.User,
+		Password:      config.Password,
+		SkipVerify:    config.SkipVerify,
+		UseTokenCache: true,
+	}
 	c := &Remote{
 		abstract: abstract{
 			root:       strings.TrimLeft(root, "/"),
 			options:    options,
 			clientUUID: uuid.New(),
 		},
-		config: config,
+		config: sdkConfig,
 	}
 	c.factory = &remoteClientFactory{
-		config:   config,
-		registry: NewDynamicRegistry(config),
+		config:   sdkConfig,
+		registry: NewDynamicRegistry(sdkConfig),
 	}
 	c.source = c
 	logCtx := context.Background()
