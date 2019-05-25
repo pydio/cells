@@ -25,17 +25,17 @@ import (
 	"fmt"
 	"strings"
 
-	servicecontext "github.com/pydio/cells/common/service/context"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	microgrpc "github.com/micro/go-plugins/client/grpc"
 	"github.com/pborman/uuid"
 
 	sdk "github.com/pydio/cells-sdk-go"
-	"github.com/pydio/cells-sdk-go/transport"
+	"github.com/pydio/cells-sdk-go/transport/mc"
+	"github.com/pydio/cells-sdk-go/transport/oidc"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -107,12 +107,12 @@ func (f *remoteClientFactory) GetNodeChangesStreamClient(ctx context.Context) (c
 }
 
 func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Context, objectsClient, error) {
-	return ctx, transport.NewS3Client(f.config), nil
+	return ctx, mc.NewS3Client(f.config), nil
 
 }
 
 func (f *remoteClientFactory) getClient(ctx context.Context) (context.Context, client.Client, error) {
-	jwt, err := transport.RetrieveToken(f.config)
+	jwt, err := oidc.RetrieveToken(f.config)
 	if err != nil {
 		return nil, nil, err
 	}
