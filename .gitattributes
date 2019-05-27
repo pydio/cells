@@ -1,2 +1,12 @@
+# Ignore vendored Third Party code
 vendor/* linguist-vendored
-frontend/front-srv/assets/* linguist-vendored
+
+# Ignore generated Code
+frontend/front-srv/assets/**/build/* linguist-generated
+frontend/front-srv/assets/**/gen/* linguist-generated
+discovery/install/assets/src/res/js/gen/* linguist-generated
+discovery/install/assets/src/res/build/* linguist-generated
+
+# Rather mark grunt file as makefile as they are used for the build
+**/Gruntfile.js linguist-language=Makefile
+
