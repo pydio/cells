@@ -9,7 +9,7 @@ import RoleServiceApi from "./gen/api/RoleServiceApi";
 import IdmRole from "./gen/model/IdmRole";
 import RestSearchRoleRequest from "./gen/model/RestSearchRoleRequest";
 import IdmRoleSingleQuery from "./gen/model/IdmRoleSingleQuery";
-import uuid from 'uuid4'
+import uuid4 from 'uuid4'
 import ServiceResourcePolicy from "./gen/model/ServiceResourcePolicy";
 import GraphServiceApi from "./gen/api/GraphServiceApi";
 
@@ -398,7 +398,7 @@ class IdmApi {
     createRole(roleLabel) {
         const api = new RoleServiceApi(this.client);
         const idmRole = new IdmRole();
-        idmRole.Uuid = uuid.sync();
+        idmRole.Uuid = uuid4();
         idmRole.Label = roleLabel;
         return api.setRole(idmRole.Uuid, idmRole)
     }
@@ -447,7 +447,7 @@ class IdmApi {
 
 
     /**
-     *
+     * Create a team from a list of user Ids
      * @param teamName string
      * @param userIds array
      * @param callback optional callback
@@ -458,7 +458,7 @@ class IdmApi {
         return this.policiesForUniqueUser(pydio.user).then(policies => {
             const roleApi = new RoleServiceApi(this.client);
             const role = new IdmRole();
-            role.Uuid = LangUtils.computeStringSlug(teamName) + "-" + uuid.sync().substr(0, 4);
+            role.Uuid = LangUtils.computeStringSlug(teamName) + "-" + uuid4().substr(0, 4);
             role.Label = teamName;
             role.IsTeam = true;
             role.Policies = policies;

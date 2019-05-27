@@ -7,7 +7,7 @@ message Export {
     int32 Date = 2;
 }
 
-message Import {    
+message Import {
     string By = 1;
     int32 Date = 3;
 }
@@ -31,14 +31,21 @@ message Key {
 // ==========================================================
 
 service UserKeyStore {
-    rpc AddKey (AddKeyRequest) returns (AddKeyResponse) {};
-    rpc GetKey (GetKeyRequest) returns (GetKeyResponse) {};
+    rpc AddKey (AddKeyRequest) returns (AddKeyResponse) {
+    };
+    rpc GetKey (GetKeyRequest) returns (GetKeyResponse) {
+    };
 
-    rpc AdminListKeys (AdminListKeysRequest) returns (AdminListKeysResponse) {};
-    rpc AdminCreateKey (AdminCreateKeyRequest) returns (AdminCreateKeyResponse) {};
-    rpc AdminDeleteKey (AdminDeleteKeyRequest) returns (AdminDeleteKeyResponse) {};
-    rpc AdminExportKey (AdminExportKeyRequest) returns (AdminExportKeyResponse) {};
-    rpc AdminImportKey (AdminImportKeyRequest) returns (AdminImportKeyResponse) {};
+    rpc AdminListKeys (AdminListKeysRequest) returns (AdminListKeysResponse) {
+    };
+    rpc AdminCreateKey (AdminCreateKeyRequest) returns (AdminCreateKeyResponse) {
+    };
+    rpc AdminDeleteKey (AdminDeleteKeyRequest) returns (AdminDeleteKeyResponse) {
+    };
+    rpc AdminExportKey (AdminExportKeyRequest) returns (AdminExportKeyResponse) {
+    };
+    rpc AdminImportKey (AdminImportKeyRequest) returns (AdminImportKeyResponse) {
+    };
 }
 
 message AddKeyRequest {
@@ -61,12 +68,11 @@ message GetKeyResponse {
 }
 
 
-
 message AdminListKeysRequest {
 }
 
 message AdminListKeysResponse {
-    repeated Key Keys = 1;      
+    repeated Key Keys = 1;
 }
 
 message AdminDeleteKeyRequest {
@@ -77,7 +83,7 @@ message AdminDeleteKeyResponse {
     bool Success = 1;
 }
 
-message AdminExportKeyRequest {    
+message AdminExportKeyRequest {
     string KeyID = 1;
     string StrPassword = 2;
 }
@@ -86,14 +92,14 @@ message AdminExportKeyResponse {
     Key Key = 1;
 }
 
-message AdminImportKeyRequest {    
+message AdminImportKeyRequest {
     Key Key = 1;
     string StrPassword = 2;
     bool Override = 3;
 }
 
 message AdminImportKeyResponse {
-    bool Success = 1;    
+    bool Success = 1;
 }
 
 message AdminCreateKeyRequest {
@@ -105,84 +111,116 @@ message AdminCreateKeyResponse {
     bool Success = 1;
 }
 
-
-
 // ==========================================================
 // * File Key Manager
 // ==========================================================
 
 service NodeKeyManager {
-    rpc DeleteNode (DeleteNodeRequest) returns (DeleteNodeResponse){};
-    rpc SetNodeParams (SetNodeParamsRequest) returns (SetNodeParamsResponse){};
-    rpc GetNodeKey (GetNodeKeyRequest) returns (GetNodeKeyResponse) {};
-    rpc SetNodeKey (SetNodeKeyRequest) returns (SetNodeKeyResponse) {};
-    rpc DeleteNodeKey (DeleteNodeKeyRequest) returns (DeleteNodeKeyResponse) {};
-    rpc DeleteNodeSharedKey (DeleteNodeSharedKeyRequest) returns (DeleteNodeSharedKeyResponse) {};
-}
+    rpc GetNodeInfo (GetNodeInfoRequest) returns (GetNodeInfoResponse);
+    rpc SetNodeInfo (stream SetNodeInfoRequest) returns (SetNodeInfoResponse);
+    rpc CopyNodeInfo (CopyNodeInfoRequest) returns (CopyNodeInfoResponse);
 
-message Params {
-    bytes Nonce = 1;
-    int32 BlockSize = 2;
+    rpc DeleteNode (DeleteNodeRequest) returns (DeleteNodeResponse);
+    rpc DeleteNodeKey (DeleteNodeKeyRequest) returns (DeleteNodeKeyResponse);
+    rpc DeleteNodeSharedKey (DeleteNodeSharedKeyRequest) returns (DeleteNodeSharedKeyResponse);
 }
 
 message NodeKey {
     string NodeId = 1;
     string UserId = 2;
     string OwnerId = 3;
-    bytes Nonce = 4;
-    int32 BlockSize = 5;
-    bytes Data = 6;
+    bytes KeyData = 6;
+}
+
+message Node {
+    string NodeId = 1;
+    bool Legacy = 2;
+}
+
+message NodeInfo {
+    Node Node = 1;
+    NodeKey NodeKey = 2;
+    Block Block = 3;
+}
+
+message Block {
+    string OwnerId = 1;
+    uint32 PartId = 2;
+    uint32 Position = 3;
+    uint32 HeaderSize = 4;
+    uint32 BlockSize = 5;
+    bytes Nonce = 6;
+}
+
+message RangedBlock {
+    string OwnerId = 1;
+    uint32 PartId = 2;
+    uint32 SeqStart = 3;
+    uint32 SeqEnd = 4;
+    uint32 HeaderSize = 5;
+    uint32 BlockSize = 6;
+}
+
+message GetNodeInfoRequest {
+    string UserId = 1;
+    string NodeId = 2;
+    bool WithRange = 3;
+    int64 PlainOffset = 4;
+    int64 PlainLength = 5;
+}
+
+message GetNodeInfoResponse {
+    NodeInfo NodeInfo = 1;
+    int64 HeadSKippedPlainBytesCount = 2;
+    bool WithRange = 3;
+    int64 EncryptedOffset = 4;
+    int64 EncryptedCount = 5;
+}
+
+message SetNodeInfoRequest {
+    string action = 1;
+    SetNodeKeyRequest SetNodeKey = 2;
+    SetNodeBlockRequest SetBlock = 3;
+}
+
+message SetNodeInfoResponse {
+    string ErrorText = 1;
+    SetNodeKeyResponse SetNodeKey = 2;
+    SetNodeBlockResponse SetBlock = 3;
 }
 
 message DeleteNodeRequest {
-    repeated string NodeIds = 1;
+    string NodeId = 1;
 }
-
 message DeleteNodeResponse {
-    bool AllDeleted = 1;
-    repeated string Deleted = 2;
-}
-
-message SetNodeParamsRequest {
-    string NodeId = 1;
-    Params Params = 2;
-}
-
-message SetNodeParamsResponse {
-
-}
-
-message GetNodeKeyRequest {
-    string NodeId = 1;
-    string UserId = 2;
-}
-
-message GetNodeKeyResponse {
-    string OwnerId = 1;
-    bytes EncryptedKey = 2;
-    bytes Nonce = 3;
-    int32 BlockSize = 4;
-}
-
-message SetNodeKeyRequest {
-    NodeKey Key = 1;
-}
-
-message SetNodeKeyResponse {
 }
 
 message DeleteNodeKeyRequest {
-    string NodeId = 1;
-    repeated string Users = 3;
+    string UserId = 1;
+    string NodeId = 2;
 }
-
-message DeleteNodeKeyResponse {
-}
+message DeleteNodeKeyResponse {}
 
 message DeleteNodeSharedKeyRequest {
-    string NodeId = 1;
+    string UserId = 1;
     string OwnerId = 2;
-    repeated string Users = 3;
+    string NodeId = 3;
 }
-
 message DeleteNodeSharedKeyResponse {}
+
+message SetNodeKeyRequest {
+    NodeKey NodeKey = 1;
+}
+message SetNodeKeyResponse {}
+
+message SetNodeBlockRequest {
+    string NodeUuid = 1;
+    Block Block = 2;
+}
+message SetNodeBlockResponse {}
+
+message CopyNodeInfoRequest {
+    string NodeUuid = 1;
+    string NodeCopyUuid = 2;
+}
+message CopyNodeInfoResponse {}
