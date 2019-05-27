@@ -29,7 +29,6 @@ import (
 	"testing"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/object"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -44,7 +43,7 @@ import (
 func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	handler := &EncryptionHandler{
-	// 		UserTools: &EncryptionClientMock{},
+		// 		UserTools: &EncryptionClientMock{},
 	}
 	mock := NewHandlerMock()
 	mock.Nodes["test"] = &tree.Node{Path: "test"}
@@ -118,7 +117,6 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 }
 
 func TestEncryptionHandler_Encrypted(t *testing.T) {
-
 	handler := &EncryptionHandler{
 		AbstractHandler: AbstractHandler{
 			next: NewHandlerMock(),
@@ -144,7 +142,7 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 	branchInfo.EncryptionMode = object.EncryptionMode_MASTER
 	ctx = WithBranchInfo(ctx, "in", branchInfo)
 
-	data := "blamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfdblamekhkds sdsfsdfdsfd"
+	data := "blamekhkds sdsfsdfdsfdblamekhkds sdsdzkjdqzkhgiàrjv=iu=éàioeruopée"
 
 	Convey("Test Put Object w. Enc", t, func() {
 		reqData := &PutRequestData{}
@@ -187,8 +185,6 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 }
 
 func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
-
-	crypto.AESGCMFileEncryptionBlockSize = 1024
 
 	mock := NewHandlerMock()
 	dataFolder := filepath.Join(os.TempDir(), "cells", "tests", "encryption")
@@ -268,8 +264,8 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 			node := tree.Node{Path: "encTest", Uuid: "encTest", Size: int64(fileSize)}
 			_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
 			reader, e := handler.GetObject(ctx, &node, reqData)
-			So(reader, ShouldNotBeNil)
 			So(e, ShouldBeNil)
+			So(reader, ShouldNotBeNil)
 
 			readData, err := ioutil.ReadAll(reader)
 			So(err == nil || err == io.EOF, ShouldBeTrue)
