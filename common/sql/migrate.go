@@ -206,7 +206,7 @@ func PlanMigration(db *sql.DB, dialect string, m migrate.MigrationSource, dir mi
 	for _, v := range toApply[0:toApplyCount] {
 		// Restore original ID
 		v.Id = originals[v.Id]
-		log.Logger(context.Background()).Info("Apply Migration " + v.Id + " for prefix " + prefix)
+		log.Logger(context.Background()).Debug("Apply Migration " + v.Id + " for prefix " + prefix)
 		if dir == migrate.Up {
 			result = append(result, &migrate.PlannedMigration{
 				Migration:          v,
