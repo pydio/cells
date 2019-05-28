@@ -9,27 +9,6 @@ all: clean build
 
 build: generate main
 
-front:
-	find assets/src/pydio -name composer.json -not -path "*vendor*" -execdir composer install \;
-	find assets/src/pydio -name package.json -not -path "*/node_modules/*" -execdir npm install \;
-	find assets/src/pydio -name Gruntfile.js -not -path "*/node_modules/*" -execdir grunt \;
-	# Removing everything that's used for building dependency but is not necessary for the frontend to run
-	find assets/src/pydio \
-		-type l -o \
-		-path "*/.git/*" -o \
-		-path "*/res/js/*" -o \
-		-path "*/js/react/*" -o \
-		-path "*/tests/*" -o \
-		-name .git -o \
-		-name .gitignore | xargs rm -rf
-
-	find assets/src/pydio \
-	    -maxdepth 3 \
-		-name node_modules -o \
-		-name package.json -o \
-		-name composer.json -o \
-		-name Gruntfile.js | xargs rm -rf
-
 generate:
 	# Removing existing packr files and running packr
 	find . -name *-packr.go | xargs rm -f
@@ -44,6 +23,16 @@ main:
 	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.ReleaseTag=${GITREV}"\
 	 -o cells\
 	 .
+
+xgo:
+	${GOPATH}/bin/xgo -go 1.12 \
+	--targets linux/amd64,windows/amd64,darwin/amd64 \
+	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}\
+	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.Version=${GITREV}\
+	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.ReleaseTag=${GITREV}"\
+	 ${GOPATH}/src/github.com/pydio/cells
 
 dev:
 	go build\
@@ -67,11 +56,6 @@ start:
 
 ds: dev start
 
-linux:
-	CC=x86_64-pc-linux-gcc GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -ldflags "-X main.version=0.2 -X main.buildStamp=`date -u +%Y-%m-%dT%H:%M:%S` -X main.buildRevision=`git rev-parse HEAD`" -o dist/linux/cells main.go
-
-cleanall: stop clean rm
-
 clean:
-	rm -f cells cells-ctl
+	rm -f cells cells-*
 	${GOPATH}/bin/packr clean
