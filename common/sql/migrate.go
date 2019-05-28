@@ -1,11 +1,16 @@
 package sql
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"regexp"
 	"sort"
+	"strings"
 	"time"
+
+	"github.com/pydio/cells/common/log"
 
 	"github.com/rubenv/sql-migrate"
 	"gopkg.in/gorp.v1"
@@ -125,6 +130,18 @@ func ExecMax(db *sql.DB, dialect string, m migrate.MigrationSource, dir migrate.
 	return applied, nil
 }
 
+func prefixedIdToNumber(id, prefix string) (numberId, newPrefix string, e error) {
+	numberPrefixRegex := regexp.MustCompile(`^(` + prefix + `_?)(\d*.?\d+).*$`)
+	res := numberPrefixRegex.FindStringSubmatch(id)
+	if len(res) > 0 {
+		newPrefix = res[1]
+		numberId = strings.Replace(res[2], ".", "", -1)
+	} else {
+		e = fmt.Errorf("unsupported format for migration file %s. prefix was %s", id, prefix)
+	}
+	return
+}
+
 // Plan a migration.
 func PlanMigration(db *sql.DB, dialect string, m migrate.MigrationSource, dir migrate.MigrationDirection, max int, prefix string) ([]*migrate.PlannedMigration, *gorp.DbMap, error) {
 	dbMap, err := getMigrationDbMap(db, dialect)
@@ -136,19 +153,33 @@ func PlanMigration(db *sql.DB, dialect string, m migrate.MigrationSource, dir mi
 	if err != nil {
 		return nil, nil, err
 	}
+	if len(migrations) == 0 {
+		return nil, nil, fmt.Errorf("missing migrations for prefix " + prefix + " - did you maybe compile without generate step?")
+	}
 
 	var migrationRecords []migrate.MigrationRecord
 	_, err = dbMap.Select(&migrationRecords, fmt.Sprintf("SELECT * FROM %s WHERE id LIKE '%s%%'", dbMap.Dialect.QuotedTableForQuery(schemaName, tableName), prefix))
 	if err != nil {
 		return nil, nil, err
 	}
-
+	originals := map[string]string{}
+	for _, m := range migrations {
+		var numberId string
+		if numberId, prefix, err = prefixedIdToNumber(m.Id, prefix); err != nil {
+			return nil, nil, err
+		} else {
+			originals[numberId] = m.Id
+			m.Id = numberId
+		}
+	}
 	// Sort migrations that have been run by Id.
 	var existingMigrations []*migrate.Migration
 	for _, migrationRecord := range migrationRecords {
-		existingMigrations = append(existingMigrations, &migrate.Migration{
-			Id: migrationRecord.Id,
-		})
+		if numberId, _, e := prefixedIdToNumber(migrationRecord.Id, prefix); e == nil {
+			existingMigrations = append(existingMigrations, &migrate.Migration{
+				Id: numberId,
+			})
+		}
 	}
 	sort.Sort(migrationById(existingMigrations))
 
@@ -173,7 +204,9 @@ func PlanMigration(db *sql.DB, dialect string, m migrate.MigrationSource, dir mi
 		toApplyCount = max
 	}
 	for _, v := range toApply[0:toApplyCount] {
-
+		// Restore original ID
+		v.Id = originals[v.Id]
+		log.Logger(context.Background()).Info("Apply Migration " + v.Id + " for prefix " + prefix)
 		if dir == migrate.Up {
 			result = append(result, &migrate.PlannedMigration{
 				Migration:          v,
