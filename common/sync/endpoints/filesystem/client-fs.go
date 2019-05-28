@@ -55,24 +55,22 @@ const (
 )
 
 // TODO MOVE IN A fs_windows FILE TO AVOID RUNTIME OS CHECK
-func CanonicalPath(path string) string {
+func CanonicalPath(path string) (string, error) {
 
 	if runtime.GOOS == "windows" {
 		// Remove any leading slash/backslash
 		path = strings.TrimLeft(path, "/\\")
 		p, e := filepath.EvalSymlinks(path)
 		if e != nil {
-			return path
-		} else if p != path {
-			// Make sure drive letter is lowerCase
-			volume := filepath.VolumeName(p)
-			if strings.HasSuffix(volume, ":") {
-				p = strings.ToLower(volume) + strings.TrimPrefix(p, volume)
-			}
-			return p
+			return path, e
+		} 
+		// Make sure drive letter is lowerCase
+		volume := filepath.VolumeName(p)
+		if strings.HasSuffix(volume, ":") {
+			path = strings.ToLower(volume) + strings.TrimPrefix(p, volume)
 		}
 	}
-	return path
+	return path, nil
 
 }
 
@@ -121,8 +119,8 @@ func (c *FSClient) normalize(path string) string {
 
 func (c *FSClient) denormalize(path string) string {
 	// Make sure it starts with a /
-	path = fmt.Sprintf("/%v", strings.TrimLeft(path, model.InternalPathSeparator))
 	if runtime.GOOS == "darwin" {
+		path = fmt.Sprintf("/%v", strings.TrimLeft(path, model.InternalPathSeparator))
 		return string(norm.NFD.Bytes([]byte(path)))
 	} else if runtime.GOOS == "windows" {
 		return strings.Replace(path, model.InternalPathSeparator, string(os.PathSeparator), -1)
@@ -140,21 +138,25 @@ type FSClient struct {
 	updateSnapshot model.PathSyncTarget
 	refHashStore   model.PathSyncSource
 	options        model.EndpointOptions
+	uriPath string
 }
 
 func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, error) {
 	c := &FSClient{
 		options: options,
+		uriPath: rootPath,
 	}
 	rootPath = c.denormalize(rootPath)
 	rootPath = strings.TrimRight(rootPath, model.InternalPathSeparator)
-	c.RootPath = CanonicalPath(rootPath)
+	var e error
+	if c.RootPath, e = CanonicalPath(rootPath); e != nil {
+		return nil, e
+	}
 	if options.BrowseOnly && c.RootPath == "" {
 		c.RootPath = "/"
 	}
 	c.FS = afero.NewBasePathFs(afero.NewOsFs(), c.RootPath)
-	_, e := c.FS.Stat("/")
-	if e != nil {
+	if _, e = c.FS.Stat("/"); e != nil {
 		return nil, errors.New("Cannot stat root folder " + c.RootPath + "!")
 	}
 	return c, nil
@@ -186,7 +188,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "fs://" + c.RootPath,
+		URI:                   "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
@@ -198,9 +200,7 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 // leaf bools are used to avoid doing an FS.stat if we already know a node to be
 // a leaf.  NOTE : is it useful?  Examine later.
 func (c *FSClient) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
-
 	return c.loadNode(ctx, path, nil)
-
 }
 
 func (c *FSClient) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
@@ -532,7 +532,6 @@ func (c *FSClient) getFileHash(path string) (hash string, e error) {
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
-
 }
 
 // loadNode takes an optional os.FileInfo if we are already walking folders (no need for a second stat call)
@@ -547,6 +546,7 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 			return nil, err
 		}
 	}
+
 	if stat.IsDir() {
 		if id, err := c.readOrCreateFolderId(dnPath); err != nil {
 			return nil, err

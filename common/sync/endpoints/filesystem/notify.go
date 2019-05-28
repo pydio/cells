@@ -181,7 +181,8 @@ func notifyEventToEventInfo(c *FSClient, event notify.EventInfo) (eventInfo mode
 
 	var i os.FileInfo
 	var empty model.EventInfo
-	eventPath := strings.TrimPrefix(CanonicalPath(event.Path()), c.RootPath)
+	canon, _ := CanonicalPath(event.Path())
+	eventPath := strings.TrimPrefix(canon, c.RootPath)
 	normalizedPath := c.normalize(eventPath)
 	if isEventType(EventTypeCreate, event.Event()) || isEventType(EventTypeWrite, event.Event()) {
 		var e error
