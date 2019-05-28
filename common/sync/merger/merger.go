@@ -42,52 +42,8 @@ type Conflict struct {
 	NodeRight *tree.Node
 }
 
-type OperationType int
-
-const (
-	OpCreateFile OperationType = iota
-	OpUpdateFile
-	OpCreateFolder
-	OpMoveFolder
-	OpMoveFile
-	OpDelete
-	OpRefreshUuid
-)
-
-type Operation struct {
-	Key       string
-	Type      OperationType
-	Node      *tree.Node
-	EventInfo model.EventInfo
-	Patch     Patch
-	Processed bool
-}
-
-// NewDiff creates a new Diff implementation
-func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) Diff {
-	return newTreeDiff(ctx, left, right)
-}
-
-// NewPatch creates a new Patch implementation
-func NewPatch(source model.PathSyncSource, target model.PathSyncTarget) Patch {
-	return newTreePatch(source, target)
-}
-
-// ClonePatch creates a new patch with the same operations but different source/targets
-func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
-	f := newTreePatch(source, target)
-	for _, op := range origin.OperationsByType([]OperationType{}) {
-		// Clone Op with new Patch reference
-		op1 := &Operation{
-			Patch:     f,
-			Key:       op.Key,
-			Node:      op.Node,
-			Type:      op.Type,
-			EventInfo: op.EventInfo,
-		}
-		f.Enqueue(op1)
-	}
-	return f
+type PatchOptions struct {
+	MoveDetection bool
 }
 
 // Patch represents a set of operations to be processed
@@ -102,9 +58,12 @@ type Patch interface {
 
 	// Enqueue stacks a Operation - By default, it is registered with the event.Key, but an optional key can be passed.
 	// TODO : check this key param is really necessary
-	Enqueue(event *Operation, key ...string)
+	Enqueue(event Operation, key ...string)
+	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
+	WalkOperations(opTypes []OperationType, callback func(Operation))
 	// EventsByTypes retrieves all events of a given type
-	OperationsByType(types []OperationType, sorted ...bool) (events []*Operation)
+	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
+
 	// Filter tries to detect unnecessary changes locally
 	Filter(ctx context.Context)
 	// FilterToTarget tries to compare changes to target and remove unnecessary ones
@@ -128,6 +87,76 @@ type Patch interface {
 	FinishSessionProvider(sessionUuid string) error
 }
 
+// OperationType describes the type of operation to be applied
+type OperationType int
+
+const (
+	OpCreateFile OperationType = iota
+	OpUpdateFile
+	OpCreateFolder
+	OpMoveFolder
+	OpMoveFile
+	OpDelete
+	OpRefreshUuid
+)
+
+// String gives a string representation of this integer type
+func (t OperationType) String() string {
+	switch t {
+	case OpCreateFolder:
+		return "CreateFolder"
+	case OpCreateFile:
+		return "CreateFile"
+	case OpMoveFolder:
+		return "MoveFolder"
+	case OpMoveFile:
+		return "MoveFile"
+	case OpUpdateFile:
+		return "UpdateFile"
+	case OpDelete:
+		return "Delete"
+	case OpRefreshUuid:
+		return "RefreshUuid"
+	}
+	return ""
+}
+
+type OperationDirection int
+
+const (
+	OperationDirDefault = iota
+	OperationDirLeft
+	OperationDirRight
+)
+
+// Operation describes an atomic operation to be passed to a processor and applied to an endpoint
+type Operation interface {
+	Clone(replaceType ...OperationType) Operation
+	IsTypeMove() bool
+	IsTypeData() bool
+	IsTypePath() bool
+	SetProcessed()
+	SetDirection(OperationDirection) Operation
+	IsProcessed() bool
+	Status(status ProcessStatus)
+	GetRefPath() string
+	UpdateRefPath(p string)
+	GetMoveOriginPath() string
+	UpdateMoveOriginPath(p string)
+	IsScanEvent() bool
+	SetNode(n *tree.Node)
+	GetNode() *tree.Node
+	Type() OperationType
+	UpdateType(t OperationType)
+	CreateContext(ctx context.Context) context.Context
+	Source() model.PathSyncSource
+	Target() model.PathSyncTarget
+	AttachToPatch(p Patch)
+	NodeFromSource(ctx context.Context) (node *tree.Node, err error)
+	NodeInTarget(ctx context.Context) (node *tree.Node, found bool)
+	String() string
+}
+
 // Diff represents basic differences between two sources
 // It can be then transformed to Patch, depending on the sync being
 // unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
@@ -140,7 +169,7 @@ type Diff interface {
 	// ToUnidirectionalPatch transforms current diff into a set of patch operations
 	ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error)
 	// ToBidirectionalPatch transforms current diff into a set of 2 batches of operations
-	ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error)
+	ToBidirectionalPatches(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (leftPatch Patch, rightPatch Patch)
 	// conflicts list discovered conflicts
 	Conflicts() []*Conflict
 }
@@ -162,6 +191,26 @@ type StatusProvider interface {
 	Done(info interface{})
 }
 
+// NewDiff creates a new Diff implementation
+func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) Diff {
+	return newTreeDiff(ctx, left, right)
+}
+
+// NewPatch creates a new Patch implementation
+func NewPatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) Patch {
+	return newTreePatch(source, target, options)
+}
+
+// ClonePatch creates a new patch with the same operations but different source/targets
+func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
+	patch := newTreePatch(source, target, PatchOptions{MoveDetection: false})
+	for _, op := range origin.OperationsByType([]OperationType{}) {
+		patch.Enqueue(op.Clone()) // Will update patch reference
+	}
+	return patch
+}
+
+// ConflictsByType filters a slice of conflicts for a given type
 func ConflictsByType(cc []*Conflict, conflictType ConflictType) (conflicts []*Conflict) {
 	for _, c := range cc {
 		if c.Type == conflictType {
@@ -171,65 +220,11 @@ func ConflictsByType(cc []*Conflict, conflictType ConflictType) (conflicts []*Co
 	return
 }
 
+// MostRecentNode compares two nodes Modification Time and returns the most recent one
 func MostRecentNode(n1, n2 *tree.Node) *tree.Node {
 	if n1.MTime > n2.MTime {
 		return n1
 	} else {
 		return n2
-	}
-}
-
-func (e *Operation) Source() model.PathSyncSource {
-	return e.Patch.Source()
-}
-
-func (e *Operation) Target() model.PathSyncTarget {
-	return e.Patch.Target()
-}
-
-func (e *Operation) String() string {
-	switch e.Type {
-	case OpMoveFolder:
-		return "MoveFolder to " + e.Key
-	case OpMoveFile:
-		return "MoveFile to " + e.Key
-	case OpCreateFile:
-		return "CreateFile"
-	case OpCreateFolder:
-		return "CreateFolder"
-	case OpUpdateFile:
-		return "UpdateFile"
-	case OpDelete:
-		return "Delete"
-	case OpRefreshUuid:
-		return "RefreshUuid"
-	default:
-		return "UnknownType"
-	}
-}
-
-func (e *Operation) NodeFromSource(ctx context.Context) (node *tree.Node, err error) {
-	if e.EventInfo.ScanEvent && e.EventInfo.ScanSourceNode != nil {
-		node = e.EventInfo.ScanSourceNode
-	} else {
-		node, err = e.Source().LoadNode(e.EventInfo.CreateContext(ctx), e.EventInfo.Path)
-	}
-	if err == nil {
-		e.Node = node
-	}
-	return
-}
-
-func (e *Operation) NodeInTarget(ctx context.Context) (node *tree.Node, found bool) {
-	if e.Node != nil {
-		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
-		return e.Node, true
-	} else {
-		node, err := e.Target().LoadNode(e.EventInfo.CreateContext(ctx), e.EventInfo.Path)
-		if err != nil {
-			return nil, false
-		} else {
-			return node, true
-		}
 	}
 }

@@ -2,6 +2,11 @@ package cells
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"net"
+	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -11,12 +16,62 @@ import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-plugins/registry/memory"
 	sdk "github.com/pydio/cells-sdk-go"
-	"github.com/pydio/cells-sdk-go/transport"
 )
 
 var (
 	RemoteCellsServiceName = "pydio.gateway.grpc"
+	detectedGrpcPorts      map[string]string
 )
+
+// detectGrpcPort contacts the discovery service to find the grpc port
+func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port string, err error) {
+
+	u, e := url.Parse(config.Url)
+	if e != nil {
+		err = e
+		return
+	}
+
+	if strings.Contains(u.Host, ":") {
+		host, _, err = net.SplitHostPort(u.Host)
+		if err != nil {
+			return "", "", err
+		}
+	} else {
+		host = u.Host
+	}
+	var ok bool
+	if detectedGrpcPorts == nil {
+		detectedGrpcPorts = make(map[string]string)
+	}
+	if port, ok = detectedGrpcPorts[host]; !ok || reload {
+		resp, e := http.DefaultClient.Get(fmt.Sprintf("%s/a/config/discovery", config.Url))
+		if e != nil {
+			err = e
+			return
+		}
+		var data map[string]interface{}
+		var found bool
+		decoder := json.NewDecoder(resp.Body)
+		if e := decoder.Decode(&data); e == nil {
+			if ep, ok := data["Endpoints"]; ok {
+				if endpoints, ok := ep.(map[string]interface{}); ok {
+					if p, ok := endpoints["grpc"]; ok {
+						port = strings.Split(p.(string), ",")[0]
+						detectedGrpcPorts[host] = port
+						found = true
+					}
+				}
+			}
+		}
+		if !found {
+			err = fmt.Errorf("no port declared for GRPC endpoint")
+			return
+		}
+	}
+	return
+
+}
 
 type DynamicRegistry struct {
 	config *sdk.SdkConfig
@@ -48,7 +103,7 @@ func (d *DynamicRegistry) Refresh() error {
 }
 
 func (d *DynamicRegistry) detectService(reload bool) (*registry.Service, error) {
-	host, port, err := transport.DetectGrpcPort(d.config, reload)
+	host, port, err := detectGrpcPort(d.config, reload)
 	if err != nil {
 		return nil, err
 	}

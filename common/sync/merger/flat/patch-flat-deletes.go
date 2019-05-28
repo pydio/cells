@@ -1,3 +1,5 @@
+// +build ignore
+
 /*
  * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -18,7 +20,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package merger
+package flat
 
 import (
 	"context"
@@ -27,43 +29,28 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-type BidirectionalPatch struct {
-	Left  Patch
-	Right Patch
-}
+func (b *FlatPatch) filterDeletes(ctx context.Context) {
 
-// Merge takes consider current batches are delta B(t-1) -> B(t) and merge them as proper instructions
-func (p *BidirectionalPatch) Merge(ctx context.Context) error {
-
-	// Naive Merge - Cross Targets
-	lt, _ := model.AsPathSyncTarget(p.Left.Source())
-	rt, _ := model.AsPathSyncTarget(p.Right.Source())
-
-	p.Left.Target(rt)
-	p.Right.Target(lt)
-
-	p.Left.FilterToTarget(ctx)
-	p.Right.FilterToTarget(ctx)
-
-	return nil
-}
-
-func (p *BidirectionalPatch) String() string {
-	var lines []string
-	l := p.Left.String()
-	if l != "" {
-		lines = append(lines, l)
+	// Prune Deletes: remove children if parent is already deleted
+	var deleteDelete []string
+	for _, folderDeleteOp := range b.deletes {
+		deletePath := folderDeleteOp.GetRefPath() + "/"
+		for deleteKey, delOp := range b.deletes {
+			from := delOp.GetRefPath()
+			if strings.HasPrefix(from, deletePath) {
+				deleteDelete = append(deleteDelete, deleteKey)
+			}
+		}
 	}
-	r := p.Right.String()
-	if r != "" {
-		lines = append(lines, r)
+	for _, del := range deleteDelete {
+		delete(b.deletes, del)
 	}
-	return strings.Join(lines, "\n")
-}
 
-func (p *BidirectionalPatch) Stats() map[string]interface{} {
-	return map[string]interface{}{
-		"Left":  p.Left.Stats(),
-		"Right": p.Right.Stats(),
+	for _, del := range b.deletes {
+		if model.Ignores(b.Target(), del.GetRefPath()) {
+			delete(b.deletes, del.GetRefPath())
+			continue
+		}
 	}
+
 }

@@ -41,74 +41,47 @@ type Sync struct {
 	eventsBatchers  []*filters.EventsBatcher
 	processor       *proc.ConnectedProcessor
 
-	paused    bool
-	doneChans []chan bool
-	watchConn chan *model.EndpointStatus
-	statuses  chan merger.ProcessStatus
-	runDone   chan interface{}
+	watchersChan []chan bool
+	watchConn    chan *model.EndpointStatus
+	statuses     chan merger.ProcessStatus
+	runDone      chan interface{}
 }
 
-func NewSync(ctx context.Context, left model.Endpoint, right model.Endpoint, direction model.DirectionType, roots ...string) *Sync {
-
-	s := &Sync{
+func NewSync(left model.Endpoint, right model.Endpoint, direction model.DirectionType, roots ...string) *Sync {
+	return &Sync{
 		Source:    left,
 		Target:    right,
 		Direction: direction,
 		Roots:     roots,
 	}
-
-	// Init processor
-	s.processor = proc.NewConnectedProcessor(ctx)
-
-	// Init EchoFilter
-	if direction == model.DirectionBi {
-		s.echoFilter = filters.NewEchoFilter()
-		s.processor.SetLocksChan(s.echoFilter.GetLocksChan())
-	}
-
-	return s
 }
 
 // Start makes a first sync and setup watchers
 func (s *Sync) Start(ctx context.Context) {
 
+	// Init processor
+	s.processor = proc.NewConnectedProcessor(ctx)
 	s.processor.Start()
-	if s.echoFilter != nil {
+
+	// Init EchoFilter
+	if s.Direction == model.DirectionBi {
+		s.echoFilter = filters.NewEchoFilter()
+		s.processor.SetLocksChan(s.echoFilter.GetLocksChan())
 		s.echoFilter.Start()
 	}
 
-	source, sOk := model.AsPathSyncSource(s.Source)
-	target, tOk := model.AsPathSyncTarget(s.Target)
-	if s.Direction != model.DirectionLeft && sOk && tOk {
-		s.SetupWatcher(ctx, source, target)
-	} else if s.watchConn != nil {
-		// No need to setup watcher, assume connected
-		s.watchConn <- &model.EndpointStatus{
-			WatchConnection: model.WatchConnected,
-			EndpointInfo:    source.GetEndpointInfo(),
-		}
-	}
-	source2, sOk2 := model.AsPathSyncSource(s.Target)
-	target2, tOk2 := model.AsPathSyncTarget(s.Source)
-	if s.Direction != model.DirectionRight && sOk2 && tOk2 {
-		s.SetupWatcher(ctx, source2, target2)
-	} else if s.watchConn != nil {
-		// No need to setup watcher, assume connected
-		s.watchConn <- &model.EndpointStatus{
-			WatchConnection: model.WatchConnected,
-			EndpointInfo:    source2.GetEndpointInfo(),
-		}
-	}
+	s.startWatchers(ctx)
+
 }
 
 // Pause should pause the sync
-func (s *Sync) Pause() {
-	s.paused = true
+func (s *Sync) Pause(ctx context.Context) {
+	s.stopWatchers()
 }
 
 // Resume should resume the sync
-func (s *Sync) Resume() {
-	s.paused = false
+func (s *Sync) Resume(ctx context.Context) {
+	s.startWatchers(ctx)
 }
 
 // Shutdown closes channels
@@ -117,9 +90,7 @@ func (s *Sync) Shutdown() {
 		// ignore 'close on closed channel'
 		recover()
 	}()
-	for _, channel := range s.doneChans {
-		close(channel)
-	}
+	s.stopWatchers()
 	if s.watchConn != nil {
 		close(s.watchConn)
 	}
@@ -131,9 +102,6 @@ func (s *Sync) Shutdown() {
 
 // Run runs the sync with panic recovery
 func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {
-	if s.paused {
-		return &merger.TreeDiff{}, nil
-	}
 	var err error
 	defer func() {
 		if e := recover(); e != nil {
@@ -171,9 +139,7 @@ func (s *Sync) SetSyncEventsChan(statusChan chan merger.ProcessStatus, batchDone
 					if !ok {
 						return
 					}
-					if !s.paused {
-						events <- e
-					}
+					events <- e
 				}
 			}
 		}()

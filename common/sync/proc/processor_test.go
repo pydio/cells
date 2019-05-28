@@ -47,133 +47,78 @@ func TestProcess(t *testing.T) {
 
 		source := memory.NewMemDB()
 		target := memory.NewMemDB()
-		patch := merger.NewPatch(source, target)
+		patch := merger.NewPatch(source, target, merger.PatchOptions{MoveDetection: true})
 
 		source.CreateNode(testCtx, &tree.Node{
-			Path: "/mkfile",
+			Path: "mkfile",
 			Type: tree.NodeType_LEAF,
 			Etag: "hash",
 		}, true)
 
 		source.CreateNode(testCtx, &tree.Node{
-			Path: "/mkdir",
+			Path: "mkdir",
 			Type: tree.NodeType_COLLECTION,
 			Uuid: "uuid",
 		}, true)
 		target.CreateNode(testCtx, &tree.Node{
-			Path: "/to-be-deleted",
+			Path: "to-be-deleted",
 			Type: tree.NodeType_LEAF,
 			Etag: "delhash",
 		}, true)
 		target.CreateNode(testCtx, &tree.Node{
-			Path: "/to-be-moved",
+			Path: "to-be-moved",
 			Type: tree.NodeType_LEAF,
 			Etag: "mvhash",
 		}, true)
 
 		target.CreateNode(testCtx, &tree.Node{
-			Path: "/folder-to-be-moved",
+			Path: "folder-to-be-moved",
 			Type: tree.NodeType_COLLECTION,
 			Uuid: "uuid",
 		}, true)
 		target.CreateNode(testCtx, &tree.Node{
-			Path: "/folder-to-be-moved/subfolder",
+			Path: "folder-to-be-moved/subfolder",
 			Type: tree.NodeType_COLLECTION,
 			Uuid: "uuid1",
 		}, true)
 		target.CreateNode(testCtx, &tree.Node{
-			Path: "/folder-to-be-moved/subfolder/subfile",
+			Path: "folder-to-be-moved/subfolder/subfile",
 			Type: tree.NodeType_LEAF,
 			Etag: "filehash",
 		}, true)
 
-		patch.Enqueue(&merger.Operation{
-			EventInfo: model.EventInfo{
-				Path: "/mkfile",
-			},
-			Key:  "/mkfile",
-			Type: merger.OpCreateFile,
-			Node: &tree.Node{
-				Path: "/mkfile",
-				Type: tree.NodeType_LEAF,
-				Etag: "hash",
-			},
-			Patch: patch,
-		})
-		patch.Enqueue(&merger.Operation{
-			EventInfo: model.EventInfo{
-				Path: "/to-be-deleted",
-			},
-			Key:  "/to-be-deleted",
-			Type: merger.OpDelete,
-			Node: &tree.Node{
-				Path: "/to-be-deleted",
-				Type: tree.NodeType_LEAF,
-				Etag: "delhash",
-			},
-			Patch: patch,
-		})
-		patch.Enqueue(&merger.Operation{
-			EventInfo: model.EventInfo{
-				Path: "/moved-file",
-			},
-			Key:  "/moved-file",
-			Type: merger.OpMoveFile,
-			Node: &tree.Node{
-				Path: "/to-be-moved",
-			},
-			Patch: patch,
-		}, "/to-be-moved")
-		patch.Enqueue(&merger.Operation{
-			EventInfo: model.EventInfo{
-				Path: "/moved-folder",
-			},
-			Type: merger.OpMoveFolder,
-			Key:  "/moved-folder",
-			Node: &tree.Node{
-				Path: "/folder-to-be-moved",
-			},
-			Patch: patch,
-		}, "/folder-to-be-moved")
-		patch.Enqueue(&merger.Operation{
-			EventInfo: model.EventInfo{
-				Path: "/mkdir",
-			},
-			Key:  "/mkdir",
-			Type: merger.OpCreateFolder,
-			Node: &tree.Node{
-				Path: "/mkdir",
-				Type: tree.NodeType_COLLECTION,
-				Uuid: "uuid",
-			},
-			Patch: patch,
-		})
+		patch.Enqueue(merger.NewOperation(merger.OpCreateFile, model.EventInfo{Path: "mkfile"}, &tree.Node{Path: "mkfile", Type: tree.NodeType_LEAF, Etag: "hash"}))
+		patch.Enqueue(merger.NewOperation(merger.OpCreateFolder, model.EventInfo{Path: "mkdir"}, &tree.Node{Path: "mkdir", Type: tree.NodeType_COLLECTION, Uuid: "uuid"}))
+		patch.Enqueue(merger.NewOperation(merger.OpDelete, model.EventInfo{Path: "to-be-deleted"}, &tree.Node{Path: "to-be-deleted", Type: tree.NodeType_LEAF, Etag: "delhash"}))
+		patch.Enqueue(merger.NewOperation(merger.OpMoveFile, model.EventInfo{Path: "moved-file"}, &tree.Node{Path: "to-be-moved", Type: tree.NodeType_LEAF}))
+		patch.Enqueue(merger.NewOperation(merger.OpMoveFolder, model.EventInfo{Path: "moved-folder"}, &tree.Node{Path: "folder-to-be-moved", Type: tree.NodeType_COLLECTION}))
 
+		patch.Filter(testCtx)
 		m.Process(patch)
 		time.Sleep(2 * time.Second)
 
-		newDir, derr := target.LoadNode(testCtx, "/mkdir")
+		newDir, derr := target.LoadNode(testCtx, "mkdir")
 		So(newDir, ShouldNotBeNil)
 		So(derr, ShouldBeNil)
 
-		newFile, ferr := target.LoadNode(testCtx, "/mkfile")
+		newFile, ferr := target.LoadNode(testCtx, "mkfile")
 		So(newFile, ShouldNotBeNil)
 		So(ferr, ShouldBeNil)
 
-		delFile, delErr := target.LoadNode(testCtx, "/to-be-deleted")
+		delFile, delErr := target.LoadNode(testCtx, "to-be-deleted")
 		So(delFile, ShouldBeNil)
 		So(delErr, ShouldNotBeNil)
 
-		mvFile, _ := target.LoadNode(testCtx, "/to-be-moved")
+		mvFile, _ := target.LoadNode(testCtx, "to-be-moved")
 		So(mvFile, ShouldBeNil)
 
-		mvFile1, _ := target.LoadNode(testCtx, "/moved-file")
+		mvFile1, _ := target.LoadNode(testCtx, "moved-file")
 		So(mvFile1, ShouldNotBeNil)
 
-		mvFolder, _ := target.LoadNode(testCtx, "/folder-to-be-moved/subfolder/subfile")
+		mvFolder, _ := target.LoadNode(testCtx, "folder-to-be-moved/subfolder/subfile")
 		So(mvFolder, ShouldBeNil)
 
-		mvFolderFile, _ := target.LoadNode(testCtx, "/moved-folder/subfolder/subfile")
+		mvFolderFile, _ := target.LoadNode(testCtx, "moved-folder/subfolder/subfile")
 		So(mvFolderFile, ShouldNotBeNil)
 		So(mvFolderFile.Etag, ShouldEqual, "filehash")
 

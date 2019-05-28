@@ -47,8 +47,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 		out := model.NewMultiStater()
 		for k, b := range bb {
 			out[k] = b
-			s.processor.PatchChan <- b.Left
-			s.processor.PatchChan <- b.Right
+			s.processor.PatchChan <- b
 		}
 		return out, e
 
@@ -155,16 +154,12 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*
 
 		log.Logger(ctx).Info("Computing patches from Snapshots")
 		for _, r := range roots {
-			leftPatches[r].Filter(ctx)
-			rightPatches[r].Filter(ctx)
-			b := &merger.BidirectionalPatch{
-				Left:  leftPatches[r],
-				Right: rightPatches[r],
+			if b, e := merger.ComputeBidirectionalPatch(ctx, leftPatches[r], rightPatches[r]); e == nil {
+				bb[r] = b
+			} else {
+				log.Logger(ctx).Error("Could not compute Bidirectionnal Patch! DO SOMETHING HERE!!")
+				return nil, e
 			}
-			if err := b.Merge(ctx); err != nil {
-				return nil, err
-			}
-			bb[r] = b
 		}
 
 	} else {
@@ -187,16 +182,13 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*
 			if ers := merger.SolveConflicts(ctx, diff.Conflicts(), sourceAsTarget, target); len(ers) > 0 {
 				log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
 			}
-			b, err := diff.ToBidirectionalPatch(sourceAsTarget, target)
-			if err != nil {
+			leftPatch, rightPatch := diff.ToBidirectionalPatches(sourceAsTarget, target)
+			if b, err := merger.ComputeBidirectionalPatch(context.Background(), leftPatch, rightPatch); err == nil {
+				bb[r] = b
+				log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", b.Stats()))
+			} else {
 				return nil, err
 			}
-
-			log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", b.Stats()))
-
-			b.Left.Filter(ctx)
-			b.Right.Filter(ctx)
-			bb[r] = b
 
 		}
 
@@ -209,17 +201,14 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*
 	}
 
 	// Wait all patches to be processed to send the doneChan info
-	patchCount := 2 * len(bb)
+	patchCount := len(bb)
 	dChan := make(chan interface{}, patchCount)
 	for _, b := range bb {
+		// TODO : HOW TO HANDLE SESSION PROVIDER FOR BI-DIRECTIONAL PATCH?
 		if provider, ok := model.AsSessionProvider(s.Target); ok {
-			b.Left.SetSessionProvider(ctx, provider)
+			b.SetSessionProvider(ctx, provider)
 		}
-		if provider, ok := model.AsSessionProvider(s.Source); ok {
-			b.Right.SetSessionProvider(ctx, provider)
-		}
-		b.Left.SetupChannels(s.statuses, dChan)
-		b.Right.SetupChannels(s.statuses, dChan)
+		b.SetupChannels(s.statuses, dChan)
 	}
 	go func() {
 		i := 0

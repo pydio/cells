@@ -159,7 +159,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	s.IndexClient = indexClientRead
 	s.SyncConfig = syncConfig
 	s.ObjectConfig = minioConfig
-	s.syncTask = task.NewSync(ctx, source, target, model.DirectionRight)
+	s.syncTask = task.NewSync(source, target, model.DirectionRight)
 
 	return nil
 

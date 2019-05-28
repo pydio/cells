@@ -24,16 +24,16 @@ import (
 	"github.com/pydio/cells/common/sync/merger"
 )
 
-func (pr *Processor) processDelete(event *merger.Operation, operationId string, pg chan int64) error {
+func (pr *Processor) processDelete(operation merger.Operation, operationId string, pg chan int64) error {
 
 	pg <- 1
-	deletePath := event.Node.Path
+	deletePath := operation.GetRefPath()
 	if pr.Connector != nil {
-		pr.Connector.LockFile(event, deletePath, operationId)
-		defer pr.Connector.UnlockFile(event, deletePath)
+		pr.Connector.LockFile(operation, deletePath, operationId)
+		defer pr.Connector.UnlockFile(operation, deletePath)
 	}
-	ctx := event.EventInfo.CreateContext(pr.GlobalContext)
-	err := event.Target().DeleteNode(ctx, deletePath)
+	ctx := operation.CreateContext(pr.GlobalContext)
+	err := operation.Target().DeleteNode(ctx, deletePath)
 
 	return err
 

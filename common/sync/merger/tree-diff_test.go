@@ -158,7 +158,7 @@ func TestTreeDiff(t *testing.T) {
 			right = memory.NewMemDB()
 			t1, _ := TreeNodeFromSource(left, "/")
 			// Trigger printout for test coverage
-			t1.PrintOut()
+			t.Log(t1.PrintTree())
 			diff := newTreeDiff(testCtx, left, right)
 			e := diff.Compute("/")
 			So(e, ShouldBeNil)
@@ -554,11 +554,12 @@ func TestTreeDiff(t *testing.T) {
 			So(diff.missingLeft, ShouldHaveLength, 101)
 			So(diff.missingRight, ShouldHaveLength, 101)
 			b, e := diff.ToUnidirectionalPatch(model.DirectionLeft)
-			s := b.(*FlatPatch)
 			So(e, ShouldBeNil)
-			So(s.deletes, ShouldHaveLength, 101)
-			So(s.createFiles, ShouldHaveLength, 100)
-			So(s.createFolders, ShouldHaveLength, 1)
+			if s, ok := b.(*TreePatch); ok {
+				So(s.deletes, ShouldHaveLength, 101)
+				So(s.createFiles, ShouldHaveLength, 100)
+				So(s.createFolders, ShouldHaveLength, 1)
+			}
 			So(diff.String(), ShouldNotBeEmpty)
 			So(diff.Stats(), ShouldNotBeEmpty)
 		})

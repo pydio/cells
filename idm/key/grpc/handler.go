@@ -220,7 +220,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	err = dao.SaveKey(req.Key)
 	if err != nil {
 		rsp.Success = false
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to save imported key", err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to save imported key %s", err)
 	}
 
 	log.Logger(ctx).Info("Returning response")
@@ -258,7 +258,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 	// We update the key
 	err = dao.SaveKey(rsp.Key)
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to update key info", err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to update key info %s", err)
 	}
 
 	err = openWithMasterKey(rsp.Key)
@@ -290,13 +290,13 @@ func createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
 
 	masterPasswordBytes, err := getMasterPassword()
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to get password. Make sure you have the system keyring installed", err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to get password. Make sure you have the system keyring installed (%s)", err)
 	}
 
 	masterKey := crypto.KeyFromPassword(masterPasswordBytes, 32)
 	encryptedKeyContentBytes, err := crypto.Seal(masterKey, keyContentBytes)
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to encrypt the default key", err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to encrypt the default key %s", err)
 	}
 	systemKey.Content = base64.StdEncoding.EncodeToString(encryptedKeyContentBytes)
 	log.Logger(context.Background()).Debug(fmt.Sprintf("Saving default key %s", systemKey.Content))
@@ -329,7 +329,7 @@ func seal(k *enc.Key, passwordBytes []byte) error {
 	encryptedKeyContentBytes, err := crypto.Seal(passwordKey, keyContentBytes)
 
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to encrypt the default key", err)
+		return errors.InternalServerError(common.SERVICE_ENC_KEY, "failed to encrypt the default key (%s)", err)
 	}
 	k.Content = base64.StdEncoding.EncodeToString(encryptedKeyContentBytes)
 	return nil

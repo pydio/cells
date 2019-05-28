@@ -1,3 +1,5 @@
+// +build ignore
+
 /*
  * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -18,7 +20,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package merger
+package flat
 
 import (
 	"context"
@@ -34,23 +36,23 @@ import (
 func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 
 	var possibleMoves []*Move
-	for _, deleteEvent := range b.deletes {
-		if dbNode, found := deleteEvent.NodeInTarget(ctx); found {
-			deleteEvent.Node = dbNode
+	for _, deleteOp := range b.deletes {
+		if dbNode, found := deleteOp.NodeInTarget(ctx); found {
+			deleteOp.SetNode(dbNode)
 			if dbNode.IsLeaf() {
 				var found bool
 				// Look by UUID first
-				for _, opCreate := range b.createFiles {
-					if opCreate.Node != nil && opCreate.Node.Uuid != "" && opCreate.Node.Uuid == dbNode.Uuid {
+				for _, createOp := range b.createFiles {
+					if createOp.GetNode() != nil && createOp.GetNode().Uuid != "" && createOp.GetNode().Uuid == dbNode.Uuid {
 						// Now remove from delete/create
-						delete(b.deletes, deleteEvent.Key)
-						delete(b.createFiles, opCreate.Key)
+						delete(b.deletes, deleteOp.GetRefPath())
+						delete(b.createFiles, createOp.GetRefPath())
 						// Enqueue in moves only if path differ
-						if opCreate.Node.Path != dbNode.Path {
-							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", opCreate.Node.ZapPath())
-							opCreate.Node = dbNode
-							opCreate.Type = OpMoveFile
-							b.fileMoves[opCreate.Key] = opCreate
+						if createOp.GetNode().Path != dbNode.Path {
+							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", createOp.GetNode().ZapPath())
+							createOp.SetNode(dbNode)
+							createOp.UpdateType(OpMoveFile)
+							b.fileMoves[createOp.GetRefPath()] = createOp
 						}
 						found = true
 						break
@@ -58,43 +60,37 @@ func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 				}
 				// Look by Etag
 				if !found {
-					for _, createEvent := range b.createFiles {
-						if createEvent.Node != nil && createEvent.Node.Etag == dbNode.Etag {
-							log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createEvent.Node.ZapPath())
+					for _, createOp := range b.createFiles {
+						if createOp.GetNode() != nil && createOp.GetNode().Etag == dbNode.Etag {
+							log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createOp.GetNode().ZapPath())
 							possibleMoves = append(possibleMoves, &Move{
-								deleteEvent: deleteEvent,
-								createEvent: createEvent,
-								dbNode:      dbNode,
+								deleteOp: deleteOp,
+								createOp: createOp,
+								dbNode:   dbNode,
 							})
 						}
 					}
 				}
 			}
 		} else {
-			_, createFileExists := b.createFiles[deleteEvent.Key]
-			_, createFolderExists := b.createFolders[deleteEvent.Key]
+			_, createFileExists := b.createFiles[deleteOp.GetRefPath()]
+			_, createFolderExists := b.createFolders[deleteOp.GetRefPath()]
 			if createFileExists || createFolderExists {
 				// There was a create & remove in the same patch, on a non indexed node.
 				// We are not sure of the order, Stat the file.
-				var testLeaf bool
-				if createFileExists {
-					testLeaf = true
-				} else {
-					testLeaf = false
-				}
-				existNode, _ := b.Source().LoadNode(deleteEvent.EventInfo.CreateContext(ctx), deleteEvent.EventInfo.Path, testLeaf)
+				existNode, _ := deleteOp.NodeFromSource(ctx) // b.Source().LoadNode(deleteOp.CreateContext(ctx), deleteOp.EventInfo.Path, testLeaf)
 				if existNode == nil {
 					// File does not exist finally, ignore totally
 					if createFileExists {
-						delete(b.createFiles, deleteEvent.Key)
+						delete(b.createFiles, deleteOp.GetRefPath())
 					}
 					if createFolderExists {
-						delete(b.createFolders, deleteEvent.Key)
+						delete(b.createFolders, deleteOp.GetRefPath())
 					}
 				}
 			}
 			// Remove from delete anyway : node is not in the index
-			delete(b.deletes, deleteEvent.Key)
+			delete(b.deletes, deleteOp.GetRefPath())
 		}
 	}
 
@@ -102,13 +98,13 @@ func (b *FlatPatch) detectFileMoves(ctx context.Context) {
 	for _, move := range moves {
 		log.Logger(ctx).Debug("Picked closest move", zap.Object("move", move))
 		// Remove from deletes/creates
-		delete(b.deletes, move.deleteEvent.Key)
-		delete(b.createFiles, move.createEvent.Key)
+		delete(b.deletes, move.deleteOp.GetRefPath())
+		delete(b.createFiles, move.createOp.GetRefPath())
 		// Enqueue in move if Paths differ
-		if move.createEvent.Node.Path != move.dbNode.Path {
-			move.createEvent.Node = move.dbNode
-			move.createEvent.Type = OpMoveFile
-			b.fileMoves[move.createEvent.Key] = move.createEvent
+		if move.createOp.GetNode().Path != move.dbNode.Path {
+			move.createOp.SetNode(move.dbNode)
+			move.createOp.UpdateType(OpMoveFile)
+			b.fileMoves[move.createOp.GetRefPath()] = move.createOp
 		}
 	}
 
@@ -124,14 +120,14 @@ func (b *FlatPatch) detectFolderMoves(ctx context.Context) {
 			// May have been deleted during the process
 			continue
 		}
-		localPath := deleteEvent.EventInfo.Path
+		localPath := deleteEvent.GetRefPath()
 		var dbNode *tree.Node
-		if deleteEvent.Node != nil {
+		if deleteEvent.GetNode() != nil {
 			// If deleteEvent has node, it is already loaded from a snapshot,
 			// no need to reload from target
-			dbNode = deleteEvent.Node
+			dbNode = deleteEvent.GetNode()
 		} else if ok {
-			dbNode, _ = target.LoadNode(deleteEvent.EventInfo.CreateContext(ctx), localPath)
+			dbNode, _ = target.LoadNode(deleteEvent.CreateContext(ctx), localPath)
 			log.Logger(ctx).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
 		}
 		if dbNode == nil || dbNode.IsLeaf() {
@@ -139,13 +135,13 @@ func (b *FlatPatch) detectFolderMoves(ctx context.Context) {
 		}
 
 		for _, opCreate := range b.createFolders {
-			log.Logger(ctx).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", opCreate.Node.Zap(), dbNode.Zap())
-			if opCreate.Node.Uuid == dbNode.Uuid {
+			log.Logger(ctx).Debug("Checking if DeleteFolder is inside CreateFolder by comparing Uuids: ", opCreate.GetNode().Zap(), dbNode.Zap())
+			if opCreate.GetNode().Uuid == dbNode.Uuid {
 				log.Logger(ctx).Debug("Existing folder with hash: this is a move", zap.String("etag", dbNode.Uuid), zap.String("path", dbNode.Path))
-				opCreate.Node = dbNode
-				opCreate.Type = OpMoveFolder
-				b.folderMoves[opCreate.Key] = opCreate
-				b.pruneMovesByPath(ctx, deleteEvent.Key, opCreate.Key)
+				opCreate.SetNode(dbNode)
+				opCreate.UpdateType(OpMoveFolder)
+				b.folderMoves[opCreate.GetRefPath()] = opCreate
+				b.pruneMovesByPath(ctx, deleteEvent.GetRefPath(), opCreate.GetRefPath())
 				break
 			}
 		}
@@ -161,29 +157,25 @@ func (b *FlatPatch) pruneMovesByPath(ctx context.Context, from, to string) {
 	delete(b.createFolders, to)
 	fromPrefix := from + "/"
 	// Now remove all children
-	for p, deleteEvent := range b.deletes {
+	for p, deleteOp := range b.deletes {
 		if !strings.HasPrefix(p, fromPrefix) {
 			continue
 		}
 		targetPath := path.Join(to, strings.TrimPrefix(p, fromPrefix))
-		if createEvent, ok := b.createFiles[targetPath]; ok {
-			if createEvent.Node != nil && deleteEvent.Node != nil && createEvent.Node.Etag != deleteEvent.Node.Etag {
-				n := MostRecentNode(createEvent.Node, deleteEvent.Node)
+		if createOp, ok := b.createFiles[targetPath]; ok {
+			if createOp.GetNode() != nil && deleteOp.GetNode() != nil && createOp.GetNode().Etag != deleteOp.GetNode().Etag {
+				n := MostRecentNode(createOp.GetNode(), deleteOp.GetNode())
 				n.Path = targetPath
+				fakeEvent := model.NodeToEventInfo(ctx, targetPath, n, model.EventCreate)
 				// Will require additional Transfer
-				b.updateFiles[targetPath] = &Operation{
-					Key:       targetPath,
-					Node:      n,
-					Patch:     b,
-					EventInfo: model.NodeToEventInfo(ctx, targetPath, n, model.EventCreate),
-				}
+				b.Enqueue(NewOperation(OpUpdateFile, fakeEvent, n))
 			}
 			delete(b.createFiles, targetPath)
 			delete(b.deletes, p)
 		} else if _, ok2 := b.createFolders[targetPath]; ok2 {
 			delete(b.createFolders, targetPath)
 			delete(b.deletes, p)
-		} else if moveEvent, ok3 := b.folderMoves[targetPath]; ok3 && strings.HasPrefix(moveEvent.Node.Path, fromPrefix) {
+		} else if moveEvent, ok3 := b.folderMoves[targetPath]; ok3 && strings.HasPrefix(moveEvent.GetNode().Path, fromPrefix) {
 			// An inner-folder was already detected as moved
 			delete(b.folderMoves, targetPath)
 		}
@@ -202,26 +194,24 @@ func (b *FlatPatch) rescanMoves() {
 
 	// Scan sub-moves
 	for _, to := range b.sortedKeys(b.folderMoves) {
-		from := b.folderMoves[to].Node.Path
+		from := b.folderMoves[to].GetNode().Path
 		// Look for other moves that where originating from the initial folder
 		for _, to2 := range b.sortedKeys(b.folderMoves) {
-			from2 := b.folderMoves[to2].Node.Path
+			from2 := b.folderMoves[to2].GetNode().Path
 			if testPath(from, from2) {
-				b.folderMoves[to2].Node.Path = replacePath(from, to, from2)
+				b.folderMoves[to2].GetNode().Path = replacePath(from, to, from2)
 			}
 		}
 	}
 
 	// Scan Deletes
 	for to, move := range b.folderMoves {
-		from := move.Node.Path
+		from := move.GetNode().Path
 		for delKey, delEv := range b.deletes {
 			if testPath(from, delKey) {
 				newKey := replacePath(from, to, delKey)
 				delete(b.deletes, delKey)
-				delEv.Key = newKey
-				delEv.Node.Path = newKey
-				delEv.EventInfo.Path = newKey
+				delEv.UpdateRefPath(newKey)
 				b.deletes[newKey] = delEv
 			}
 		}

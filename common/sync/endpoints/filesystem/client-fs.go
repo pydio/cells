@@ -176,6 +176,7 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 		return
 	}
 	newPatch := merger.ClonePatch(c, c.updateSnapshot, p)
+	newPatch.Filter(ctx)
 	pr := proc.NewProcessor(ctx)
 	pr.Silent = true
 	pr.Process(newPatch)
@@ -336,7 +337,7 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 			afero.WriteFile(c.FS, filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(node.Uuid), 0777)
 		}
 		if c.updateSnapshot != nil {
-			log.Logger(ctx).Debug("[FS] Update Snapshot - Create", node.ZapPath())
+			log.Logger(ctx).Info("[FS] Update Snapshot - Create", node.ZapPath())
 			c.updateSnapshot.CreateNode(ctx, node, updateIfExists)
 		}
 	}
@@ -353,7 +354,7 @@ func (c *FSClient) DeleteNode(ctx context.Context, path string) (err error) {
 		err = c.FS.RemoveAll(c.denormalize(path))
 	}
 	if err == nil && c.updateSnapshot != nil {
-		log.Logger(ctx).Debug("[FS] Update Snapshot - Delete " + path)
+		log.Logger(ctx).Info("[FS] Update Snapshot - Delete " + path)
 		c.updateSnapshot.DeleteNode(ctx, path)
 	}
 	return err

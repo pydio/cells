@@ -1,3 +1,5 @@
+// +build ignore
+
 /*
  * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -18,7 +20,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package merger
+package flat
 
 import (
 	"context"
@@ -31,13 +33,13 @@ import (
 type FlatPatch struct {
 	AbstractPatch
 
-	createFiles      map[string]*Operation
-	updateFiles      map[string]*Operation
-	createFolders    map[string]*Operation
-	deletes          map[string]*Operation
-	fileMoves        map[string]*Operation
-	folderMoves      map[string]*Operation
-	refreshFilesUuid map[string]*Operation
+	createFiles      map[string]Operation
+	updateFiles      map[string]Operation
+	createFolders    map[string]Operation
+	deletes          map[string]Operation
+	fileMoves        map[string]Operation
+	folderMoves      map[string]Operation
+	refreshFilesUuid map[string]Operation
 }
 
 func newFlatPatch(source model.PathSyncSource, target model.PathSyncTarget) (patch *FlatPatch) {
@@ -46,46 +48,54 @@ func newFlatPatch(source model.PathSyncSource, target model.PathSyncTarget) (pat
 			source: source,
 			target: target,
 		},
-		createFiles:      make(map[string]*Operation),
-		updateFiles:      make(map[string]*Operation),
-		createFolders:    make(map[string]*Operation),
-		deletes:          make(map[string]*Operation),
-		fileMoves:        make(map[string]*Operation),
-		folderMoves:      make(map[string]*Operation),
-		refreshFilesUuid: make(map[string]*Operation),
+		createFiles:      make(map[string]Operation),
+		updateFiles:      make(map[string]Operation),
+		createFolders:    make(map[string]Operation),
+		deletes:          make(map[string]Operation),
+		fileMoves:        make(map[string]Operation),
+		folderMoves:      make(map[string]Operation),
+		refreshFilesUuid: make(map[string]Operation),
 	}
 	return patch
 }
 
-func (b *FlatPatch) Enqueue(event *Operation, key ...string) {
-	k := event.Key
+func (b *FlatPatch) Enqueue(op Operation, key ...string) {
+	op.AttachToPatch(b)
+	k := op.GetRefPath()
 	if len(key) > 0 {
 		k = key[0]
 	}
-	switch event.Type {
+	switch op.Type() {
 	case OpCreateFile:
-		b.createFiles[k] = event
+		b.createFiles[k] = op
 	case OpUpdateFile:
-		b.updateFiles[k] = event
+		b.updateFiles[k] = op
 	case OpCreateFolder:
-		b.createFolders[k] = event
+		b.createFolders[k] = op
 	case OpDelete:
-		b.deletes[k] = event
+		b.deletes[k] = op
 	case OpMoveFile:
-		b.fileMoves[k] = event
+		b.fileMoves[k] = op
 	case OpMoveFolder:
-		b.folderMoves[k] = event
+		b.folderMoves[k] = op
 	case OpRefreshUuid:
-		b.refreshFilesUuid[k] = event
+		b.refreshFilesUuid[k] = op
+	}
+}
+
+// WalkOperations implements interface by calling OperationsByType under the hood
+func (b *FlatPatch) WalkOperations(opTypes []OperationType, callback func(Operation)) {
+	for _, o := range b.OperationsByType(opTypes, true) {
+		callback(o)
 	}
 }
 
 // OperationsByType returns operations, eventually filtered by one or more types.
 // If types is empty, all operations are returned. If sorted is true, operations are sorted by key.
-func (b *FlatPatch) OperationsByType(types []OperationType, sorted ...bool) (events []*Operation) {
+func (b *FlatPatch) OperationsByType(types []OperationType, sorted ...bool) (events []Operation) {
 	if len(types) == 0 {
 		// Return all types
-		for _, ops := range []map[string]*Operation{b.createFiles, b.updateFiles, b.createFolders, b.deletes, b.fileMoves, b.folderMoves, b.refreshFilesUuid} {
+		for _, ops := range []map[string]Operation{b.createFiles, b.updateFiles, b.createFolders, b.deletes, b.fileMoves, b.folderMoves, b.refreshFilesUuid} {
 			if len(sorted) > 0 && sorted[0] {
 				for _, key := range b.sortedKeys(ops) {
 					events = append(events, ops[key])
@@ -98,7 +108,7 @@ func (b *FlatPatch) OperationsByType(types []OperationType, sorted ...bool) (eve
 		}
 		return
 	}
-	var data map[string]*Operation
+	var data map[string]Operation
 	for _, t := range types {
 		switch t {
 		case OpCreateFile:
@@ -149,7 +159,7 @@ func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 
 	for p, e := range b.createFiles {
 		// Check it's not already on target
-		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.Node.Etag {
+		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.GetNode().Etag {
 			log.Logger(ctx).Debug("Skipping Create File", node.Zap())
 			delete(b.createFiles, p)
 		}
@@ -157,7 +167,7 @@ func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 
 	for p, e := range b.updateFiles {
 		// Check it's not already on target
-		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.Node.Etag {
+		if node, err := e.Target().LoadNode(ctx, p); err == nil && node.Etag == e.GetNode().Etag {
 			log.Logger(ctx).Debug("Skipping Update File", node.Zap())
 			delete(b.updateFiles, p)
 		}
@@ -189,7 +199,7 @@ func (b *FlatPatch) FilterToTarget(ctx context.Context) {
 	}
 	for p, e := range b.fileMoves {
 		// Check it's not already on target
-		if n, err := e.Target().LoadNode(ctx, p); err == nil && n.Etag == e.Node.Etag {
+		if n, err := e.Target().LoadNode(ctx, p); err == nil && n.Etag == e.GetNode().Etag {
 			log.Logger(ctx).Debug("Skipping File move for path " + p)
 			delete(b.fileMoves, p)
 		}
@@ -206,10 +216,10 @@ func (b *FlatPatch) ProgressTotal() int64 {
 	if b.HasTransfers() {
 		var total int64
 		for _, c := range b.createFiles {
-			total += c.Node.Size
+			total += c.GetNode().Size
 		}
 		for _, c := range b.updateFiles {
-			total += c.Node.Size
+			total += c.GetNode().Size
 		}
 		total += int64(len(b.createFolders) + len(b.folderMoves) + len(b.fileMoves) + len(b.deletes))
 		return total
@@ -220,14 +230,15 @@ func (b *FlatPatch) ProgressTotal() int64 {
 
 func (b *FlatPatch) Stats() map[string]interface{} {
 	return map[string]interface{}{
-		"Source":        b.Source().GetEndpointInfo().URI,
-		"Target":        b.Target().GetEndpointInfo().URI,
-		"createFiles":   len(b.createFiles),
-		"updateFiles":   len(b.updateFiles),
-		"createFolders": len(b.createFolders),
-		"moveFiles":     len(b.fileMoves),
-		"moveFolders":   len(b.folderMoves),
-		"deletes":       len(b.deletes),
+		"Source":                b.Source().GetEndpointInfo().URI,
+		"Target":                b.Target().GetEndpointInfo().URI,
+		OpCreateFile.String():   len(b.createFiles),
+		OpUpdateFile.String():   len(b.updateFiles),
+		OpCreateFolder.String(): len(b.createFolders),
+		OpMoveFile.String():     len(b.fileMoves),
+		OpMoveFolder.String():   len(b.folderMoves),
+		OpDelete.String():       len(b.deletes),
+		OpRefreshUuid.String():  len(b.refreshFilesUuid),
 	}
 }
 
@@ -249,15 +260,15 @@ func (b *FlatPatch) String() string {
 		output += " - Delete " + k + "\n"
 	}
 	for k, m := range b.fileMoves {
-		output += " = Move File " + m.Node.Path + " to " + k + "\n"
+		output += " = Move File " + m.GetMoveOriginPath() + " to " + k + "\n"
 	}
 	for k, m := range b.folderMoves {
-		output += " = Move Folder " + m.Node.Path + " to " + k + "\n"
+		output += " = Move Folder " + m.GetMoveOriginPath() + " to " + k + "\n"
 	}
 	return output
 }
 
-func (b *FlatPatch) sortedKeys(events map[string]*Operation) []string {
+func (b *FlatPatch) sortedKeys(events map[string]Operation) []string {
 	var keys []string
 	for k, _ := range events {
 		keys = append(keys, k)

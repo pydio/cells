@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package merger
 
 import (
@@ -27,8 +47,8 @@ type TreeNode struct {
 	parent       *TreeNode
 	sorted       []*TreeNode
 
-	PathOperation *Operation
-	DataOperation *Operation
+	PathOperation Operation
+	DataOperation Operation
 	OpMoveTarget  *TreeNode
 }
 
@@ -135,7 +155,7 @@ func (t *TreeNode) SortedChildren() []*TreeNode {
 }
 
 // PrintOut sends to fmt.Println a tree version of this node
-func (t *TreeNode) PrintOut() {
+func (t *TreeNode) PrintTree() string {
 	level := t.GetLevel()
 	op := ""
 	var ops []string
@@ -148,10 +168,11 @@ func (t *TreeNode) PrintOut() {
 	if len(ops) > 0 {
 		op = "\t\t ** " + strings.Join(ops, "|")
 	}
-	fmt.Println(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash() + op)
+	s := fmt.Sprintf(strings.Repeat("  ", level) + "- " + t.Label() + "\t\t" + t.GetHash() + op + "\n")
 	for _, c := range t.SortedChildren() {
-		c.PrintOut()
+		s += c.PrintTree()
 	}
+	return s
 }
 
 // AddChild appends a child to the children map (with lock)
@@ -205,62 +226,6 @@ func (t *TreeNode) GetHash() string {
 	return t.Etag
 }
 
-// OriginalPath rebuilds node Path climbing to the root
-func (t *TreeNode) OriginalPath() string {
-	if t.parent == nil {
-		return t.Path
-	}
-	return path.Join(t.parent.OriginalPath(), t.Label())
-}
-
-// ProcessedPath builds node Path to the root taking all moves into account
-func (t *TreeNode) ProcessedPath(first bool, asProcessed bool) string {
-	if t.parent == nil {
-		return t.Path
-	}
-	label := t.Label()
-	if !first && t.PathOperation != nil && (t.PathOperation.Type == OpMoveFolder || t.PathOperation.Type == OpMoveFile) && (asProcessed || t.PathOperation.Processed) {
-		// Compute target from t.Operation.Event.Path instead of Node Path
-		label = path.Base(strings.Trim(t.PathOperation.EventInfo.Path, "/"))
-	}
-	return path.Join(t.parent.ProcessedPath(false, asProcessed), label)
-}
-
-// QueueOperation registers an operation at a given path, by eventually building
-// traversing nodes without operations on them
-func (t *TreeNode) QueueOperation(op *Operation) {
-	crtParent := t
-	p := op.Node.Path
-	split := strings.Split(p, "/")
-	for i, _ := range split {
-		childPath := strings.Join(split[:i+1], "/")
-		if i == len(split)-1 {
-			var last *TreeNode
-			if c, o := crtParent.children[childPath]; o {
-				last = c
-			} else {
-				last = NewTreeNode(op.Node)
-				crtParent.AddChild(last)
-			}
-			switch op.Type {
-			case OpMoveFile, OpMoveFolder:
-				last.PathOperation = op
-				last.OpMoveTarget = t.getRoot().createNodeDeep(op.Key)
-			case OpCreateFolder, OpDelete:
-				last.PathOperation = op
-			case OpCreateFile, OpUpdateFile, OpRefreshUuid:
-				last.DataOperation = op
-			}
-		} else if c, o := crtParent.children[childPath]; o {
-			crtParent = c
-		} else {
-			n := NewTreeNode(&tree.Node{Path: childPath})
-			crtParent.AddChild(n)
-			crtParent = n
-		}
-	}
-}
-
 func (t *TreeNode) getRoot() *TreeNode {
 	if t.parent == nil {
 		return t
@@ -292,43 +257,6 @@ func (t *TreeNode) Walk(cb func(n *TreeNode) bool) {
 	}
 	for _, c := range t.SortedChildren() {
 		c.Walk(cb)
-	}
-}
-
-func (t *TreeNode) WalkOperations(opTypes []OperationType, callback func(*Operation)) {
-	filter := func(o *Operation) bool {
-		if o == nil {
-			return false
-		}
-		if len(opTypes) == 0 {
-			return true
-		}
-		for _, oT := range opTypes {
-			if o.Type == oT {
-				return true
-			}
-		}
-		return false
-	}
-	// TODO CLONE OPERATION?
-	recompute := func(t *TreeNode, o *Operation) {
-		o.Node.Path = t.ProcessedPath(true, false)
-		if t.OpMoveTarget != nil {
-			o.Key = t.OpMoveTarget.ProcessedPath(true, false)
-		} else {
-			o.Key = o.Node.Path
-		}
-	}
-	if filter(t.PathOperation) {
-		recompute(t, t.PathOperation)
-		callback(t.PathOperation)
-	}
-	if filter(t.DataOperation) {
-		recompute(t, t.DataOperation)
-		callback(t.DataOperation)
-	}
-	for _, c := range t.SortedChildren() {
-		c.WalkOperations(opTypes, callback)
 	}
 }
 
