@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"flag"
 	"fmt"
 	"regexp"
 	"sort"
@@ -131,7 +132,7 @@ func ExecMax(db *sql.DB, dialect string, m migrate.MigrationSource, dir migrate.
 }
 
 func prefixedIdToNumber(id, prefix string) (numberId, newPrefix string, e error) {
-	if strings.HasPrefix(id, "test_") {
+	if flag.Lookup("test.v") != nil {
 		return id, prefix, nil
 	}
 	numberPrefixRegex := regexp.MustCompile(`^(` + prefix + `_?)(\d*.?\d+).*$`)

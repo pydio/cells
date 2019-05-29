@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"testing"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/sql"
 )
@@ -35,7 +36,7 @@ var (
 func TestMain(m *testing.M) {
 	var options config.Map
 
-	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
+	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "")
 	if sqlDAO == nil {
 		fmt.Print("Could not start test")
 		return

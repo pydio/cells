@@ -1,3 +1,5 @@
+// +build ignore
+
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -29,6 +31,7 @@ import (
 	"github.com/micro/go-micro/errors"
 	. "github.com/smartystreets/goconvey/convey"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/event"
 	common "github.com/pydio/cells/common/proto/tree"
