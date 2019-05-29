@@ -63,7 +63,7 @@ func CanonicalPath(path string) (string, error) {
 		p, e := filepath.EvalSymlinks(path)
 		if e != nil {
 			return path, e
-		} 
+		}
 		// Make sure drive letter is lowerCase
 		volume := filepath.VolumeName(p)
 		if strings.HasSuffix(volume, ":") {
@@ -119,8 +119,10 @@ func (c *FSClient) normalize(path string) string {
 
 func (c *FSClient) denormalize(path string) string {
 	// Make sure it starts with a /
-	if runtime.GOOS == "darwin" {
+	if runtime.GOOS != "windows" {
 		path = fmt.Sprintf("/%v", strings.TrimLeft(path, model.InternalPathSeparator))
+	}
+	if runtime.GOOS == "darwin" {
 		return string(norm.NFD.Bytes([]byte(path)))
 	} else if runtime.GOOS == "windows" {
 		return strings.Replace(path, model.InternalPathSeparator, string(os.PathSeparator), -1)
@@ -138,7 +140,7 @@ type FSClient struct {
 	updateSnapshot model.PathSyncTarget
 	refHashStore   model.PathSyncSource
 	options        model.EndpointOptions
-	uriPath string
+	uriPath        string
 }
 
 func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, error) {
@@ -189,7 +191,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "fs://" + c.uriPath,
+		URI: "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
