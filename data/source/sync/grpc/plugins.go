@@ -41,7 +41,6 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	protoservice "github.com/pydio/cells/common/service/proto"
 	_ "github.com/pydio/cells/data/source/sync"
 )
 

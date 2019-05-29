@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	protoservice "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sync/endpoints/index"
 	"github.com/pydio/cells/common/sync/endpoints/s3"
 	"github.com/pydio/cells/common/sync/merger"
@@ -130,15 +131,15 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	go func() {
 		defer wg.Done()
 		service.Retry(func() error {
-			log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Index")
-			c := protoservice.NewService(registry.GetClient(common.SERVICE_DATA_INDEX_ + datasource))
+			log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
+			c := protoservice.NewService(registry.GetClient(common.SERVICE_DATA_INDEX_ + dataSource))
 			r, err := c.Status(context.Background(), &empty.Empty{})
 			if err != nil {
 				return err
 			}
 
 			if !r.GetOK() {
-				log.Logger(ctx).Info(common.SERVICE_DATA_INDEX_ + datasource + " not yet available")
+				log.Logger(ctx).Info(common.SERVICE_DATA_INDEX_ + dataSource + " not yet available")
 				return fmt.Errorf("index not reachable")
 			}
 			indexOK = true
@@ -149,7 +150,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	go func() {
 		defer wg.Done()
 		service.Retry(func() error {
-			log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Objects")
+			log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Objects")
 			cli := object.NewObjectsEndpointClient(registry.GetClient(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName))
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 			if err != nil {
