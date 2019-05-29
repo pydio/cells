@@ -25,8 +25,6 @@ import (
 	"fmt"
 
 	"github.com/coreos/dex/connector"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	gmerrors "github.com/micro/go-micro/errors"
 	"github.com/sirupsen/logrus"
@@ -36,7 +34,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
-	proto "github.com/pydio/cells/common/service/proto"
 )
 
 type ApiConfig struct {
@@ -73,48 +70,6 @@ var (
 	_ connector.RefreshConnector  = (*pydioAPIConnector)(nil)
 )
 
-func (p *pydioAPIConnector) loadUserInfo(ctx context.Context, identity *connector.Identity) error {
-
-	// if p.RoleServiceClient == nil {
-	// 	p.RoleServiceClient = idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, p.client)
-	// }
-	//p.RoleServiceClient.SearchRole(ctx, idm.SearchRoleRequest{
-	//	Query:
-	//})
-	roleQuery := &idm.RoleSingleQuery{
-		Uuid:       []string{identity.UserID},
-		IsUserRole: true,
-	}
-	query, e := ptypes.MarshalAny(roleQuery)
-	query.TypeUrl = "type.googleapis.com/idm.RoleSingleQuery"
-	var roles []string
-
-	p.logger.Debug(roleQuery, query, e)
-
-	stream, err := p.RoleServiceClient.SearchRole(context.Background(), &idm.SearchRoleRequest{
-		Query: &proto.Query{
-			SubQueries: []*any.Any{query},
-		},
-	})
-	if err != nil {
-		log.Logger(ctx).Error("loadUserInfo", zap.Error(err))
-		return err
-	}
-	defer stream.Close()
-
-	for {
-		response, err := stream.Recv()
-		if err != nil {
-			break
-		}
-		roles = append(roles, response.GetRole().GetUuid())
-	}
-
-	identity.Roles = roles
-
-	return nil
-}
-
 func (p *pydioAPIConnector) Login(ctx context.Context, s connector.Scopes, username, password string) (identity connector.Identity, validPassword bool, err error) {
 
 	c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
@@ -123,11 +78,9 @@ func (p *pydioAPIConnector) Login(ctx context.Context, s connector.Scopes, usern
 
 	if err != nil {
 		// Workaround issue triggered by the fact that the go-micro.Error object overrides the Error() method to return a JSON encoded object
-		// err2 := err
 		errMsg := err.Error()
 		if me, ok := err.(*gmerrors.Error); ok {
 			errMsg = fmt.Sprintf("%d (%s) %s error: %s", me.Code, me.Status, me.Id, me.Detail)
-			// err2 = fmt.Errorf(errMsg)
 		}
 		log.Logger(ctx).Error("cannot bind user "+username, zap.Error(err))
 		log.Auditer(ctx).Error(
@@ -147,8 +100,6 @@ func (p *pydioAPIConnector) Refresh(ctx context.Context, s connector.Scopes, ide
 
 	log.Logger(ctx).Info("Refresh request for User ID:" + ident.UserID)
 	ident.UserID = ident.UserID + "c"
-	// TODO: Refresh identity data from DB ?
-	// p.loadUserInfo(ctx, &ident)
 
 	return ident, nil
 }

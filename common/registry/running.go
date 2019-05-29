@@ -42,6 +42,7 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 	var services []Service
 
 	for _, p := range GetPeers() {
+
 		for _, rs := range p.GetServices() {
 			if s, ok := c.register[rs.Name]; ok {
 				services = append(services, s)
@@ -88,11 +89,28 @@ func (c *pydioregistry) SetServiceStopped(name string) error {
 // maintain a list of services currently running for easy discovery
 func (c *pydioregistry) maintainRunningServicesList() {
 
-	running, _ := defaults.Registry().ListServices()
-	for _, r := range running {
-		// Initially, nodes are not set on the service, so we fake it
-		c.GetInitialPeer().Add(r, r.Name)
-	}
+	// start := time.Now()
+	// initialServices, _ := defaults.Registry().ListServices()
+	// //for _, r := range initialServices {
+	// // Initially, we retrieve each service to ensure we have the correct list
+	// // services, _ := defaults.Registry().GetService(r.Name)
+	// // for _, s := range services {
+	// // 	for _, n := range s.Nodes {
+
+	// // 		// _, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
+	// // 		// if err != nil {
+	// // 		// 	continue
+	// // 		// }
+
+	// // 		c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
+	// // 		c.registerProcessFromNode(n, s.Name)
+	// // 	}
+	// // }
+	// //}
+	// elapsed := time.Since(start)
+	// fmt.Printf("Binomial took %s", elapsed)
+
+	// fmt.Println(initialServices)
 
 	go func() {
 
@@ -120,7 +138,6 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			case "create":
 				for _, n := range s.Nodes {
 					c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port))
-					c.GetInitialPeer().Delete(s, s.Name)
 					c.registerProcessFromNode(n, s.Name)
 				}
 			case "delete":

@@ -52,13 +52,9 @@ var withResolutionControls = function withResolutionControls(Component) {
 
         ResolutionControls.prototype.render = function render() {
             var _props = this.props;
-            var _props$tab = _props.tab;
-            var tab = _props$tab === undefined ? {} : _props$tab;
+            var resolution = _props.resolution;
 
-            var remaining = _objectWithoutProperties(_props, ['tab']);
-
-            var _tab$resolution = tab.resolution;
-            var resolution = _tab$resolution === undefined ? "hi" : _tab$resolution;
+            var remaining = _objectWithoutProperties(_props, ['resolution']);
 
             var fn = _utils2.handler("onToggleResolution", this.props);
 

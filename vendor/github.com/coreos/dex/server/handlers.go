@@ -401,18 +401,9 @@ func (s *Server) finalizeLogin(identity connector.Identity, authReq storage.Auth
 		Groups:        identity.Groups,
 	}
 
-	pClaims := storage.PydioClaims{
-		AuthSource:  identity.AuthSource,
-		DisplayName: identity.DisplayName,
-		Roles:       identity.Roles,
-		GroupPath:   identity.GroupPath,
-		Profile:     identity.Profile,
-	}
-
 	updater := func(a storage.AuthRequest) (storage.AuthRequest, error) {
 		a.LoggedIn = true
 		a.Claims = claims
-		a.PClaims = pClaims
 		a.ConnectorData = identity.ConnectorData
 		return a, nil
 	}
@@ -509,15 +500,12 @@ func (s *Server) sendCodeResponse(w http.ResponseWriter, r *http.Request, authRe
 		switch responseType {
 		case responseTypeCode:
 			code = storage.AuthCode{
-				ID:          storage.NewID(),
-				ClientID:    authReq.ClientID,
-				ConnectorID: authReq.ConnectorID,
-				Nonce:       authReq.Nonce,
-				Scopes:      authReq.Scopes,
-				Claims:      authReq.Claims,
-				//Pydio
-				PClaims: authReq.PClaims,
-				//=====
+				ID:            storage.NewID(),
+				ClientID:      authReq.ClientID,
+				ConnectorID:   authReq.ConnectorID,
+				Nonce:         authReq.Nonce,
+				Scopes:        authReq.Scopes,
+				Claims:        authReq.Claims,
 				Expiry:        s.now().Add(time.Minute * 30),
 				RedirectURI:   authReq.RedirectURI,
 				ConnectorData: authReq.ConnectorData,
@@ -672,7 +660,6 @@ func (s *Server) handleAuthCode(w http.ResponseWriter, r *http.Request, client s
 
 	// Pydio
 	claims := authCode.Claims
-	authCode.PClaims.SetToClaims(&claims)
 	accessToken := storage.NewID()
 	//idToken, expiry, err := s.newIDToken(client.ID, authCode.Claims, authCode.Scopes, authCode.Nonce, accessToken, authCode.ConnectorID)
 	idToken, expiry, err := s.newIDToken(client.ID, claims, authCode.Scopes, authCode.Nonce, accessToken, authCode.ConnectorID)
@@ -714,15 +701,12 @@ func (s *Server) handleAuthCode(w http.ResponseWriter, r *http.Request, client s
 	var refreshToken string
 	if reqRefresh {
 		refresh := storage.RefreshToken{
-			ID:          storage.NewID(),
-			Token:       storage.NewID(),
-			ClientID:    authCode.ClientID,
-			ConnectorID: authCode.ConnectorID,
-			Scopes:      authCode.Scopes,
-			Claims:      authCode.Claims,
-			//Pydio
-			PClaims: authCode.PClaims,
-			//====
+			ID:            storage.NewID(),
+			Token:         storage.NewID(),
+			ClientID:      authCode.ClientID,
+			ConnectorID:   authCode.ConnectorID,
+			Scopes:        authCode.Scopes,
+			Claims:        authCode.Claims,
 			Nonce:         authCode.Nonce,
 			ConnectorData: authCode.ConnectorData,
 			CreatedAt:     s.now(),
@@ -863,15 +847,6 @@ func (s *Server) handleCredentialGrant(w http.ResponseWriter, r *http.Request, c
 		Email:         identity.Email,
 		EmailVerified: identity.EmailVerified,
 		Groups:        []string{},
-	}
-
-	requestScopes := parseScopes(scopes)
-	if requestScopes.Pydio {
-		claims.AuthSource = identity.AuthSource
-		claims.DisplayName = identity.DisplayName
-		claims.Roles = identity.Roles
-		claims.GroupPath = identity.GroupPath
-		claims.Profile = identity.Profile
 	}
 
 	accessToken := storage.NewID()
@@ -1117,11 +1092,6 @@ func (s *Server) handleRefreshToken(w http.ResponseWriter, r *http.Request, clie
 		EmailVerified: refresh.Claims.EmailVerified,
 		Groups:        refresh.Claims.Groups,
 		ConnectorData: refresh.ConnectorData,
-		DisplayName:   refresh.Claims.DisplayName,
-		Roles:         refresh.Claims.Roles,
-		AuthSource:    refresh.Claims.AuthSource,
-		GroupPath:     refresh.Claims.GroupPath,
-		Profile:       refresh.Claims.Profile,
 	}
 
 	// Can the connector refresh the identity? If so, attempt to refresh the data
@@ -1145,11 +1115,6 @@ func (s *Server) handleRefreshToken(w http.ResponseWriter, r *http.Request, clie
 		Email:         ident.Email,
 		EmailVerified: ident.EmailVerified,
 		Groups:        ident.Groups,
-		AuthSource:    ident.AuthSource,
-		DisplayName:   ident.DisplayName,
-		Roles:         ident.Roles,
-		GroupPath:     ident.GroupPath,
-		Profile:       ident.Profile,
 	}
 
 	accessToken := storage.NewID()
@@ -1184,11 +1149,6 @@ func (s *Server) handleRefreshToken(w http.ResponseWriter, r *http.Request, clie
 		old.Claims.Email = ident.Email
 		old.Claims.EmailVerified = ident.EmailVerified
 		old.Claims.Groups = ident.Groups
-		old.Claims.AuthSource = ident.AuthSource
-		old.Claims.DisplayName = ident.DisplayName
-		old.Claims.Roles = ident.Roles
-		old.Claims.GroupPath = ident.GroupPath
-		old.Claims.Profile = ident.Profile
 		old.ConnectorData = ident.ConnectorData
 		old.LastUsed = lastUsed
 		return old, nil

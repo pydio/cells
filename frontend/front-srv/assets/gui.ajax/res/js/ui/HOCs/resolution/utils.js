@@ -18,15 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import { getActiveTab, getEditorResolution } from "../selectors";
+
 export const mapStateToProps = (state, props) => {
-    const {editor, tabs} = state
-
-    const tab = tabs.reduce((current, tab) => tab.id === editor.activeTabId ? tab : current, {})
-    const {resolution} = editor
-
     return {
         ...props,
-        resolution,
-        tab
+        tab: getActiveTab(state),
+        resolution: getEditorResolution(state),
     }
 }

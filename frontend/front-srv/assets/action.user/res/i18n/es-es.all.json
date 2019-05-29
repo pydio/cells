@@ -1,9 +1,9 @@
 {
   "1": {
-    "other": "Usuarios compartidos"
+    "other": "Libreta de Direcciones"
   },
   "10": {
-    "other": "Repositorios asociados"
+    "other": "Workspaces asociados"
   },
   "11": {
     "other": "¿Está seguro de que quiere borrar los elementos selecionados?"
@@ -12,7 +12,7 @@
     "other": "No tiene permiso para borrar este elemento."
   },
   "13": {
-    "other": "Se ha borrado el archivo público."
+    "other": "Se ha eliminado correctamente el archivo público."
   },
   "14": {
     "other": "Integridad"
@@ -21,7 +21,7 @@
     "other": "Ok"
   },
   "16": {
-    "other": "Roto"
+    "other": "Dañado"
   },
   "17": {
     "other": "Descargar URL"
@@ -30,10 +30,10 @@
     "other": "Copiar URL"
   },
   "19": {
-    "other": "Copiar URL para enviar email."
+    "other": "Copiar Url para enviar por email."
   },
   "2": {
-    "other": "Repositorios compartidos"
+    "other": "Carpetas compartidas"
   },
   "20": {
     "other": "Descargas"
@@ -48,28 +48,28 @@
     "other": "Se han borrado %s archivos."
   },
   "24": {
-    "other": "Nada para borrar."
+    "other": "Nada que borrar."
   },
   "25": {
     "other": "Limpiar caducados"
   },
   "26": {
-    "other": "Borra archivos caducados."
+    "other": "Borrar archivos caducados."
   },
   "27": {
-    "other": "Dueño"
+    "other": "Propietario"
   },
   "28": {
-    "other": "Archivos compartidos para descargas directas, con o sin contraseña."
+    "other": "Archivos compartidos para descarga directa, estén protegidos por una contraseña o no."
   },
   "29": {
-    "other": "Repositorios delegados creados por usuarios."
+    "other": "Delega workspaces creados por los usuarios."
   },
   "3": {
-    "other": "Archivos públicos"
+    "other": "Archivos compartidos"
   },
   "30": {
-    "other": "Usuarios creados para acceder a repositorios delegados."
+    "other": "Usuarios creados para acceder a workspaces delegados."
   },
   "31": {
     "other": "Descripción"
@@ -81,7 +81,7 @@
     "other": "Resetear el contador de descargas"
   },
   "34": {
-    "other": "Mis comparticiones"
+    "other": "Mis Elementos Compartidos"
   },
   "35": {
     "other": "Todos mis elementos compartidos (archivos y carpetas)"
@@ -96,16 +96,16 @@
     "other": "Notificaciones"
   },
   "39": {
-    "other": "Seleccione un repositorio."
+    "other": "Abajo hay una lista de workspaces a los que puede acceder. Pueden ser personales o compartidos con/por otros usuarios."
   },
   "4": {
-    "other": "Camino del archivo"
+    "other": "Ruta de archivo"
   },
   "40": {
     "other": "Bienvenido/a, %s!"
   },
   "41": {
-    "other": "Usar este repositorio por defecto"
+    "other": "Use este workspace por defecto"
   },
   "42": {
     "other": "Entrar"
@@ -147,7 +147,7 @@
     "other": "¿Está seguro que desea eliminar este equipo? Esta acción no eliminará ningún usuario."
   },
   "53": {
-    "other": "Volver a mis repositorios"
+    "other": "Volver a mis workspaces"
   },
   "54": {
     "other": "Actualizar miembros"
@@ -183,16 +183,16 @@
     "other": "Enviar correo cada Y horas"
   },
   "64": {
-    "other": "Elije la hora del día"
+    "other": "Elegir la hora del día"
   },
   "65": {
-    "other": "Elije la primera hora del día"
+    "other": "Elegir la primera hora del día"
   },
   "66": {
-    "other": "Elije la segunda hora del día"
+    "other": "Elegir la segunda hora del día"
   },
   "67": {
-    "other": "Escoge un día de la semana"
+    "other": "Escoger un día de la semana"
   },
   "68": {
     "other": "Lunes"
@@ -225,7 +225,7 @@
     "other": "Usuarios asociados"
   },
   "desc": {
-    "other": "Gestionar la configuración de mi cuenta, mi libreta de direcciones, intercambios, etc."
+    "other": "Gestionar la configuración de mi cuenta, mi libreta de direcciones, elementos compartidos, etc."
   },
   "title": {
     "other": "Mi Cuenta"

@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -49,6 +50,9 @@ type Handler struct{}
 // CreateRole adds a role and its policies in database
 func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, resp *idm.CreateRoleResponse) error {
 	dao := servicecontext.GetDAO(ctx).(role.DAO)
+	if req.Role.Uuid != "" && strings.Contains(req.Role.Uuid, ",") {
+		return errors.BadRequest("forbidden.characters", "commas are not allowed in role uuid")
+	}
 
 	r, update, err := dao.Add(req.Role)
 	if err != nil {

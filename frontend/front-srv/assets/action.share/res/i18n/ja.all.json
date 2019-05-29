@@ -898,5 +898,11 @@
   },
   "cells.create.title.fill.folders": {
     "other": "Share existing folder(s)"
+  },
+  "cell.visibility.advanced": {
+    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
+  },
+  "link.visibility.advanced": {
+    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
   }
 }

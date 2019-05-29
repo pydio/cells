@@ -2099,6 +2099,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/share/policies": {
+      "put": {
+        "summary": "Updates policies associated to the underlying workspace for a Cell or a ShareLink",
+        "operationId": "UpdateSharePolicies",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restUpdateSharePoliciesResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restUpdateSharePoliciesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ShareService"
+        ]
+      }
+    },
     "/share/resources": {
       "post": {
         "summary": "List Shared Resources for current user or all users",
@@ -5023,6 +5050,9 @@ var SwaggerJson = `{
           "items": {
             "type": "string"
           }
+        },
+        "Sender": {
+          "$ref": "#/definitions/mailerUser"
         }
       }
     },
@@ -6533,6 +6563,39 @@ var SwaggerJson = `{
         }
       },
       "title": "A template node is representing a file or a folder"
+    },
+    "restUpdateSharePoliciesRequest": {
+      "type": "object",
+      "properties": {
+        "Uuid": {
+          "type": "string"
+        },
+        "Policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy"
+          }
+        }
+      }
+    },
+    "restUpdateSharePoliciesResponse": {
+      "type": "object",
+      "properties": {
+        "Success": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "Policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy"
+          }
+        },
+        "PoliciesContextEditable": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
     },
     "restUserBookmarksRequest": {
       "type": "object"

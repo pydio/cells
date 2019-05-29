@@ -184,6 +184,8 @@ import RestShareLinkTargetUser from './model/RestShareLinkTargetUser';
 import RestSubscriptionsCollection from './model/RestSubscriptionsCollection';
 import RestTemplate from './model/RestTemplate';
 import RestTemplateNode from './model/RestTemplateNode';
+import RestUpdateSharePoliciesRequest from './model/RestUpdateSharePoliciesRequest';
+import RestUpdateSharePoliciesResponse from './model/RestUpdateSharePoliciesResponse';
 import RestUserBookmarksRequest from './model/RestUserBookmarksRequest';
 import RestUserJobRequest from './model/RestUserJobRequest';
 import RestUserJobResponse from './model/RestUserJobResponse';
@@ -1310,6 +1312,18 @@ export {
      * @property {module:model/RestTemplateNode}
      */
     RestTemplateNode,
+
+    /**
+     * The RestUpdateSharePoliciesRequest model constructor.
+     * @property {module:model/RestUpdateSharePoliciesRequest}
+     */
+    RestUpdateSharePoliciesRequest,
+
+    /**
+     * The RestUpdateSharePoliciesResponse model constructor.
+     * @property {module:model/RestUpdateSharePoliciesResponse}
+     */
+    RestUpdateSharePoliciesResponse,
 
     /**
      * The RestUserBookmarksRequest model constructor.

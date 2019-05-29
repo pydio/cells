@@ -18,7 +18,7 @@
     "other": "Configuración de la API - Redirecciona la URL para la Aplicación OAuth"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
+    "other": "Ruta absoluta a la carpeta pública donde se crearán enlaces temporales de descarga. Esto se utiliza para enlaces heredados, los enlaces recién creados ya no lo usan, sino que utilizan la URI Base."
   },
   "Admin Login": {
     "other": "Inicio de Administrador"
@@ -45,7 +45,7 @@
     "other": "Permitir a los usuarios escoger un usuario existente cuando se comparte una carpeta."
   },
   "Allow to group admins": {
-    "other": "Permitir al grupo de administradores"
+    "other": "Permitir a los administradores del grupo"
   },
   "Allow to user": {
     "other": "Permitir al usuario"
@@ -57,7 +57,7 @@
     "other": "Ascendente"
   },
   "Auth Driver Commons": {
-    "other": "Controladores de Autenticación"
+    "other": "Controladores de Autenticación Comunes"
   },
   "Auth URL": {
     "other": "URL de Autenticación"
@@ -96,31 +96,31 @@
     "other": "Lista de archivos a ocultar separados por comas"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "Lista de carpetas a ocultar separados por comas"
+    "other": "Lista de carpetas a ocultar separadas por comas"
   },
   "Command Line": {
     "other": "Línea de Comandos"
   },
   "Command-line Active": {
-    "other": "Línea de Comandos"
+    "other": "Línea de Comandos Activa"
   },
   "Command-line PHP": {
-    "other": "Línea de Comando PHP"
+    "other": "Línea de Comandos PHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
-    "other": "URI común para acceder a los intercambios. Por favor LEE LA DOCUMENTACIÓN para usar esta función de forma segura."
+    "other": "URI común para acceder a los elementos compartidos. Por favor LEA LA DOCUMENTACIÓN para usar esta función de forma segura."
   },
   "Compression Features": {
     "other": "Funciones de Compresión"
   },
   "Core Connexion": {
-    "other": "Core Connexion"
+    "other": "Conexión Central"
   },
   "DSN": {
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "Nombre del Origen de Datos"
+    "other": "Nombre del Data Source"
   },
   "Database": {
     "other": "Base de Datos"
@@ -138,7 +138,7 @@
     "other": "Etiqueta Predeterminada"
   },
   "Default Language": {
-    "other": "Lenguaje Predeterminado"
+    "other": "Idioma Predeterminado"
   },
   "Default Metasources": {
     "other": "Metasources Predeterminados"
@@ -150,16 +150,16 @@
     "other": "Campo predeterminado que se usa para ordenar"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "Lenguaje predeterminado cuando un usuario no ha configurado su lenguaje."
+    "other": "Idioma predeterminado cuando un usuario no lo ha configurado."
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
-    "other": "Ámbito de autenticación por defecto. Por favor LEE LA DOCUMENTACIÓN para usar esta función de forma segura."
+    "other": "Ámbito de autenticación por defecto. Por favor LEA LA DOCUMENTACIÓN para usar esta función de forma segura."
   },
   "Default sorting direction": {
     "other": "Dirección predeterminada de la ordenación"
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+    "other": "Delega las operaciones de descarga en un agente alternativo, ya sea servidor web o agente pydio. Cuidado, esto requiere que se instalen módulos externos. Al usar XSendFile/XaccelRedirect, tiene que añadir manualmente las carpetas donde los archivos se descargarán en la configuración del módulo"
   },
   "Descending": {
     "other": "Descendente"
@@ -168,7 +168,7 @@
     "other": "Descripción"
   },
   "Digest Realm": {
-    "other": "Digest Realm"
+    "other": "Dominio Digest"
   },
   "Disable WebDAV": {
     "other": "Desactivar WebDAV"
@@ -183,10 +183,10 @@
     "other": "Mostrar lista de archivos y carpetas cuando se accede desde el navegador."
   },
   "Download Delegation": {
-    "other": "Download Delegation"
+    "other": "Delegación de Descargas"
   },
   "Download Folder (Legacy)": {
-    "other": "Download Folder (Legacy)"
+    "other": "Carpeta de Descarga (Legacy)"
   },
   "Download URL": {
     "other": "URL de Descarga"
@@ -201,13 +201,13 @@
     "other": "Activar WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
-    "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
+    "other": "Habilitar WebDAV por defecto para todos los usuarios. Si se configura en \"false\", los usuarios tendrán que activar manualmente WebDAV a través del panel de preferencias."
   },
   "Enable for all users": {
-    "other": "Enable for all users"
+    "other": "Habilitar para todos los usuarios"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
-    "other": "Activar el soporte WebDAV. Por favor LEE LA DOCUMENTACIÓN para usar esta función de forma segura."
+    "other": "Activar el soporte WebDAV. Por favor LEA LA DOCUMENTACIÓN para usar esta función de forma segura."
   },
   "Existing users": {
     "other": "Usuarios existentes"
@@ -219,10 +219,10 @@
     "other": "Archivo"
   },
   "File Type": {
-    "other": "Tipo"
+    "other": "Tipo de archivo"
   },
   "File size": {
-    "other": "Tamaño"
+    "other": "Tamaño del archivo"
   },
   "Filename length": {
     "other": "Longitud de nombre de archivo"
@@ -231,7 +231,7 @@
     "other": "Sistemas de Archivos"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
-    "other": "Para algunos controladores de autenticación, la ID de usuario que tiene que ser considerado como administrador por defecto."
+    "other": "Para algunos controladores de autenticación, una ID de usuario que debe ser considerada como administrador por defecto."
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
     "other": "Para autenticación multiple, aplicar este rol a los usuarios autenticados mediante este controlador"
@@ -246,7 +246,7 @@
     "other": "Ruta de Grupo"
   },
   "Gzip Download": {
-    "other": "Descarga Gzip"
+    "other": "Descargar Gzip"
   },
   "Gzip Limit": {
     "other": "Límite Gzip"
@@ -270,37 +270,37 @@
     "other": "Host"
   },
   "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature.": {
-    "other": "El host usado en el protocolo WebDAV. Debería de ser detectado por defecto. Por favor LEE LA DOCUMENTACIÓN para usar esta función de forma segura."
+    "other": "El host usado en el protocolo WebDAV. Debería de ser detectado por defecto. Por favor LEA LA DOCUMENTACIÓN para usar esta función de forma segura."
   },
   "If activated, a default limit should be set above when files are no more compressed.": {
     "other": "Si está activado, se configura un límite por encima de cual no se comprimen los archivos."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+    "other": "Si no se infiere directamente de la URL actual de pydio más la URI de base pública, remplace la URL de acceso público aquí."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
     "other": "Si se configura una URL, el inicio de usuario no muestra la pantalla de inicio de sesión y se redirecciona a esta URL."
   },
   "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.": {
-    "other": "Si encuentras problemas con la creación de archivos zip online o con la descarga de multiples archivos, puedes desactivar esta función."
+    "other": "Si encuentra problemas con la creación de archivos zip online o con la descarga de multiples archivos, puede desactivar esta función."
   },
   "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings.": {
-    "other": "Si tienes muchos workspaces (lo que no es recomendable), los usuarios administradores pueden tardar mucho en iniciar la sesión mientras que se actualiza la información de acceso a los repositorios. Desactivar este paso, el administrador tendrá siempre acceso a las Configuraciones."
+    "other": "Si tiene muchos workspaces (lo que no es recomendable), los usuarios administradores pueden tardar mucho en iniciar la sesión mientras que se actualiza la información de acceso a los repositorios. Desactivar este paso, el administrador tendrá siempre acceso a las Configuraciones."
   },
   "If your server does not set correctly its charset, it can be good to specify it here manually.": {
-    "other": "Si tu servidor no configura correctamente la codificación, especificar aquí manualmente."
+    "other": "Si su servidor no configura correctamente la codificación, especificar aquí manualmente."
   },
   "Leave empty if you do not want to use a recycle bin.": {
-    "other": "Dejar vacío si no quieres usar papelera de reciclaje."
+    "other": "Dejar vacío si no quiere usar papelera de reciclaje."
   },
   "Login Redirect": {
-    "other": "Redirección de Inicio"
+    "other": "Redireccion de Login"
   },
   "Main": {
     "other": "Opciones Principales"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
-    "other": "Contenedor principal para la configuración del núcleo de Pydio (título de la aplicación, intercambio, configuración del servidor WebDAV, etc...)"
+    "other": "Contenedor principal para la configuración del núcleo de Pydio (título de la aplicación, uso compartido, configuración del servidor WebDAV, etc...)"
   },
   "Maximum characters length of new files or folders": {
     "other": "Número máximo de caracteres de archivos o carpetas nuevas"
@@ -318,28 +318,28 @@
     "other": "Nombre"
   },
   "OAuth Commons": {
-    "other": "OAuth Commons"
+    "other": "Parámetros Comunes OAuth"
   },
   "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line.": {
-    "other": "Corriendo IIS en Windows, configurar esta opción como true si la extensión COM está cargada, esto puede activar el uso de la línea de comandos php."
+    "other": "Ejecutando IIS en Windows, configurar esta opción como true si la extensión COM está cargada, esto puede activar el uso de la línea de comandos php."
   },
   "On specific hosts, you may have to use a specific path to access the php command line": {
-    "other": "En hosts específicos, puedes tener que configurar una ruta de acceso a la línea de comando de PHP"
+    "other": "En hosts específicos, puede tener que configurar una ruta de acceso a la línea de comando de Php"
   },
   "Once in pagination mode, number of items to display per page.": {
     "other": "Número de elementos por página en modo paginación."
   },
   "Pagination Threshold": {
-    "other": "Límite de Paginación"
+    "other": "Umbral de paginación"
   },
   "Password": {
     "other": "Contraseña"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Etiqueta pregenerada para el nuevo workspace, puedes usar PYDIO_USER en este campo."
+    "other": "Etiqueta predefinida para el nuevo workspace, puede usar el teclado PYDIO_USER en él."
   },
   "Public Base URI": {
-    "other": "Public Base URI"
+    "other": "URI de Base Pública"
   },
   "Pydio Main Options": {
     "other": "Opciones Principales de Pydio"
@@ -384,22 +384,22 @@
     "other": "Credenciales de la Sesión"
   },
   "Set this repository group owner : only users of this group will see it": {
-    "other": "Configura el grupo propietario del repositorio: sólo los usuarios de este grupo lo verán"
+    "other": "Configurar el grupo propietario del repositorio: sólo los usuarios de este grupo lo verán"
   },
   "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).": {
-    "other": "Configurar codificación específica (probar con IBM850 o CP437) para archivos para arreglar problemas con los caractéres en la creación del Zip. Esto puede crear archivos incompatibles con algunos OS (Win/Mac). Si sigue teniendo problemas, puede añadir //TRANSLIT después de la codificación para forzar la transliteración de caractéres desconocidos (por ejemplo CP437//TRANSLIT)."
+    "other": "Configurar codificación específica (probar con IBM850 o CP437) para archivos para solucionar problemas con los caracteres en la creación del Zip. Esto puede crear archivos incompatibles con algunos OS (Win/Mac). Si sigue teniendo problemas, puede añadir //TRANSLIT después de la codificación para forzar la transliteración de caracteres desconocidos (por ejemplo CP437//TRANSLIT)."
   },
   "Shares Host": {
-    "other": "Host de Intercambios"
+    "other": "Host de Elementos Compartidos"
   },
   "Shares URI": {
-    "other": "URI de Intercambios"
+    "other": "URI de elementos compartidos"
   },
   "Sharing": {
-    "other": "Intercambio"
+    "other": "Uso Compartido"
   },
   "Show files beginning with a .": {
-    "other": "Muestra archivos que comienzan con ."
+    "other": "Mostrar archivos que comienzan con ."
   },
   "Show hidden files": {
     "other": "Mostrar archivos ocultos"
@@ -429,13 +429,13 @@
     "other": "Token URL"
   },
   "Transmit Clear Pass": {
-    "other": "Transmite Contraseña sin Cifrar"
+    "other": "Transmitir Contraseña sin Cifrar"
   },
   "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!": {
-    "other": "Comprueba los credenciales del usuario para conectarse a Pydio. Atención, ¡la variable PYDIO_SESSION_SET_CREDENTIALS debe estar configurada como true!"
+    "other": "Compruebe los credenciales del usuario para conectarse a Pydio. Atención, ¡la variable PYDIO_SESSION_SET_CREDENTIALS debe estar configurada como true!"
   },
   "URI where to serve the public links": {
-    "other": "URI where to serve the public links"
+    "other": "URI donde servir los enlaces públicos"
   },
   "Use COM class": {
     "other": "Usar clase COM"
@@ -444,7 +444,7 @@
     "other": "Usar MySQLi"
   },
   "Use PHP MySQLi extension": {
-    "other": "Usar la extensio PHP MySQLi"
+    "other": "Usar la extensión PHP MySQLi"
   },
   "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions.": {
     "other": "Usar Pydio a través de la línea de comandos, permitiendo trabajos CRONTAB o acciones en segundo plano."
@@ -459,28 +459,28 @@
     "other": "Nombre del usuario"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
-    "other": "Nombre del usuario - Puede ser sustituido por el usuario (ver pestaña 'Datos Personales')"
+    "other": "Nombre del usuario - Puede ser sustituido en función del usuario (ver pestaña 'Datos Personales')"
   },
   "User password": {
     "other": "Contraseña del usuario"
   },
   "User password - Can be overriden on a per-user basis.": {
-    "other": "Contraseña del usuario - Puede ser sustituido por el usuario."
+    "other": "Contraseña del usuario - Puede ser sustituida en función del usuario."
   },
   "WebDAV Server": {
     "other": "Servidor WebDAV"
   },
   "When a folder will contain more items than this number, display will switch to pagination mode, for better performances.": {
-    "other": "Cuando una carpeta contiene más elementos que este límite, se cambia a modo paginación para un mejor rendimiento."
+    "other": "Cuando una carpeta supera este número de elementos, se cambia a modo paginación para lograr un mejor rendimiento."
   },
   "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems.": {
-    "other": "Si se configura como true, el usuario es creado automáticamente si la autenticación es satisfactoria. Usado por sistemas de autenticación remota."
+    "other": "Si se configura como true, se crea un usuario automáticamente, si la autenticación es correcta. Este mecanismo es utilizado por sistemas de autenticación remota."
   },
   "Whether the password will be transmitted clear or encoded between the client and the server": {
     "other": "Transmitir la contraseña de forma cifrada o sin cifrar entre el cliente y el servidor"
   },
   "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable.": {
-    "other": "Mostrar u ocultar la papelera de reciclaje. Sin depender de esta opción, la carpeta puede estar oculto pero permanece con permisos de escritura."
+    "other": "Mostrar u ocultar la papelera de reciclaje. Sin depender de esta opción, la carpeta puede estar oculta pero permanece con permisos de escritura."
   },
   "Write Only (upload)": {
     "other": "Sólo escritura (subidas)"

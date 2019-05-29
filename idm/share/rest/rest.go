@@ -29,6 +29,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/registry"
+
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -486,4 +488,64 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 		Success: true,
 	})
 
+}
+
+// UpdateSharePolicies updates policies associated to the underlying workspace
+func (h *SharesHandler) UpdateSharePolicies(req *restful.Request, rsp *restful.Response) {
+	var input rest.UpdateSharePoliciesRequest
+	if e := req.ReadEntity(&input); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	ctx := req.Request.Context()
+	cli := idm.NewWorkspaceServiceClient(registry.GetClient(common.SERVICE_WORKSPACE))
+	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+		Uuid: input.Uuid,
+	})
+	var ws *idm.Workspace
+	if client, err := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service2.Query{SubQueries: []*any.Any{q}}}); err == nil {
+		defer client.Close()
+		for {
+			resp, e := client.Recv()
+			if e != nil {
+				break
+			}
+			if resp == nil {
+				continue
+			}
+			ws = resp.Workspace
+			break
+		}
+	} else {
+		service.RestError500(req, rsp, err)
+		return
+	}
+	if ws == nil {
+		service.RestError500(req, rsp, errors.NotFound("share.not.found", "cannot find associated workspace"))
+		return
+	}
+	if ws.Scope != idm.WorkspaceScope_LINK && ws.Scope != idm.WorkspaceScope_ROOM {
+		service.RestError403(req, rsp, errors.NotFound("workspace.not.share", "you are not allowed to use this api to edit workspaces"))
+		return
+	}
+	if !h.MatchPolicies(ctx, ws.UUID, ws.Policies, service2.ResourcePolicyAction_WRITE) {
+		service.RestError403(req, rsp, errors.NotFound("share.not.editable", "you are not allowed to edit this share"))
+		return
+	}
+
+	ws.Policies = input.Policies
+	resp, e := cli.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: ws})
+	if e != nil {
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
+
+	log.Logger(ctx).Info("Updated policies for share", zap.Any("uuid", input.Uuid))
+	log.Auditer(ctx).Info("Updated policies for share", ws.ZapUuid())
+	response := &rest.UpdateSharePoliciesResponse{
+		Success:                 true,
+		Policies:                resp.Workspace.Policies,
+		PoliciesContextEditable: resp.Workspace.PoliciesContextEditable,
+	}
+	rsp.WriteEntity(response)
 }

@@ -76,6 +76,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
         }
         _React$Component.call(this, props);
         this.state = {
+            edit: false,
             loading: true,
             policies: [],
             diffPolicies: { add: {}, remove: {} }
@@ -418,6 +419,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
             }
         };
         var _state4 = this.state;
+        var edit = _state4.edit;
         var policies = _state4.policies;
         var dirtyPolicies = _state4.dirtyPolicies;
         var error = _state4.error;
@@ -434,8 +436,43 @@ var ResourcePoliciesPanel = (function (_React$Component) {
         var pydio = _props5.pydio;
         var userListExcludes = _props5.userListExcludes;
         var readonly = _props5.readonly;
+        var description = _props5.description;
 
         var blocks = [];
+        var mess = pydio.MessageHash;
+
+        if (!edit) {
+            return _react2['default'].createElement(
+                'div',
+                { style: style },
+                !skipTitle && _react2['default'].createElement(
+                    'div',
+                    { style: _extends({}, styles.title, { height: 48 }) },
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { flex: 1 } },
+                        mess['visibility.panel.title']
+                    )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 20, color: 'rgba(0,0,0,.43)', fontWeight: 500, textAlign: 'justify' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { paddingBottom: 20 } },
+                        description
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { textAlign: 'center' } },
+                        _react2['default'].createElement(_materialUi.RaisedButton, { label: mess['visibility.panel.edit'], primary: true, onTouchTap: function () {
+                                _this5.setState({ edit: true });
+                            } })
+                    )
+                )
+            );
+        }
+
         if (!loading && !error) {
             var _listUserRoles = this.listUserRoles(idmUser, dirtyPolicies ? dirtyPolicies : policies);
 
@@ -449,12 +486,12 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                 _react2['default'].createElement(
                     'span',
                     { style: styles.head },
-                    'View'
+                    mess['visibility.panel.right-read']
                 ),
                 _react2['default'].createElement(
                     'span',
                     { style: styles.head },
-                    'Edit'
+                    mess['visibility.panel.right-edit']
                 )
             );
             if (groupBlocks.length) {
@@ -464,7 +501,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1 } },
-                        'Users'
+                        mess['visibility.panel.list.users']
                     ),
                     heads
                 ));
@@ -478,7 +515,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1 } },
-                        'Your Teams'
+                        mess['visibility.panel.list.teams']
                     ),
                     heads
                 ));
@@ -489,13 +526,13 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                 blocks.push(_react2['default'].createElement(
                     'div',
                     { style: styles.subheader },
-                    'Set visible to...'
+                    mess['visibility.panel.setvisible']
                 ));
                 blocks.push(this.renderLine(pickedUser, pickedLabel, policies, false, true));
                 blocks.push(_react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right' } },
-                    _react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: mess[54], onTouchTap: function () {
                             _this5.setState({ pickedUser: null, pickedLabel: null });
                         } })
                 ));
@@ -513,14 +550,14 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                     blocks.push(_react2['default'].createElement(
                         'div',
                         { style: styles.subheader },
-                        'Set visible to ...'
+                        mess['visibility.panel.setvisible']
                     ));
                     blocks.push(_react2['default'].createElement(
                         'div',
                         { style: { margin: '-30px 10px 0' } },
                         _react2['default'].createElement(_usersUsersCompleter2['default'], {
                             className: 'share-form-users',
-                            fieldLabel: 'Select user',
+                            fieldLabel: mess['visibility.panel.pickuser'],
                             renderSuggestion: function (userObject) {
                                 return _react2['default'].createElement(
                                     'div',
@@ -553,16 +590,17 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                 _react2['default'].createElement(
                     'span',
                     { style: { flex: 1 } },
-                    skipTitle ? '' : 'Visibility'
+                    skipTitle ? '' : mess['visibility.panel.title']
                 ),
-                dirtyPolicies && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo-variant", tooltip: "Revert changes", onTouchTap: this.revert.bind(this), iconStyle: { color: appBar.textColor } }),
-                dirtyPolicies && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", tooltip: "Save changes", onTouchTap: this.save.bind(this), iconStyle: { color: appBar.textColor } }),
+                dirtyPolicies && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo-variant", tooltip: mess['visibility.panel.revert'], onTouchTap: this.revert.bind(this), iconStyle: { color: appBar.textColor } }),
+                dirtyPolicies && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", tooltip: mess['visibility.panel.save'], onTouchTap: this.save.bind(this), iconStyle: { color: appBar.textColor } }),
                 !dirtyPolicies && onDismiss && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onTouchTap: onDismiss, iconStyle: { color: appBar.textColor } })
             ),
             error && _react2['default'].createElement(
                 'div',
                 null,
-                'Error: ',
+                mess['visibility.panel.error'],
+                ': ',
                 error
             ),
             _react2['default'].createElement(
@@ -580,6 +618,7 @@ ResourcePoliciesPanel.PropTypes = {
     pydio: _react2['default'].PropTypes.instanceOf(_pydio3['default']),
     resourceType: _react2['default'].PropTypes.string.isRequired,
     resourceId: _react2['default'].PropTypes.string.isRequired,
+    description: _react2['default'].PropTypes.string.isRequired,
     onSavePolicies: _react2['default'].PropTypes.func,
     userListExcludes: _react2['default'].PropTypes.array,
     subjectsDisabled: _react2['default'].PropTypes.array,

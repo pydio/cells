@@ -109,6 +109,7 @@ var SharedUsers = _react2['default'].createClass({
         var cellAcls = _props2.cellAcls;
         var pydio = _props2.pydio;
 
+        var authConfigs = pydio.getPluginConfigs('core.auth');
         var index = 0;
         var userEntries = [];
         Object.keys(cellAcls).map(function (k) {
@@ -188,7 +189,8 @@ var SharedUsers = _react2['default'].createClass({
                 pydio: this.props.pydio,
                 showAddressBook: true,
                 usersFrom: 'local',
-                excludes: excludes
+                excludes: excludes,
+                existingOnly: !authConfigs.get('USER_CREATE_USERS')
             });
         }
 

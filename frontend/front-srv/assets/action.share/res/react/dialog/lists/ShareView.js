@@ -129,7 +129,7 @@ class ShareView extends React.Component {
                 {!loading && resources.length > 0 &&
                     <List style={{flex: 1, minHeight: 300, overflowY: 'auto', paddingTop: 0}}>
                         {resources.map(res => {
-                            const {appearsIn, basename} = this.getLongestPath(res.Node);
+                            let {appearsIn, basename} = this.getLongestPath(res.Node);
                             let icon;
                             if(basename.indexOf('.') === -1 ){
                                 icon = 'mdi mdi-folder'
@@ -141,6 +141,9 @@ class ShareView extends React.Component {
                                 } else {
                                     icon = 'mdi mdi-file';
                                 }
+                            }
+                            if(res.Link && res.Link.Label){
+                                basename = res.Link.Label + ' (' + basename + ')'
                             }
                             return <ListItem
                                 primaryText={basename}

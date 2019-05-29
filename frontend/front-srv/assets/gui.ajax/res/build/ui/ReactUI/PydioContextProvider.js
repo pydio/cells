@@ -44,11 +44,19 @@ var _redux = require('redux');
 
 var _reactRedux = require('react-redux');
 
+var _localStorage = require('./localStorage');
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var EditorReducers = _Pydio$requireLib.EditorReducers;
 
-var store = _redux.createStore(EditorReducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+var store = _redux.createStore(EditorReducers, _localStorage.loadState(), window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+
+store.subscribe(function () {
+    _localStorage.saveState({
+        editor: store.getState().editor
+    });
+});
 
 var MainProvider = _materialUi.MuiThemeProvider;
 var DND = undefined;
@@ -69,7 +77,6 @@ exports['default'] = function (PydioComponent, pydio) {
         }
 
         Wrapped.prototype.getChildContext = function getChildContext() {
-
             var messages = pydio.MessageHash;
             return {
                 pydio: pydio,

@@ -28,6 +28,8 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _uuid4 = require('uuid4');
 
+var _uuid42 = _interopRequireDefault(_uuid4);
+
 var Role = (function (_Observable) {
     _inherits(Role, _Observable);
 
@@ -52,7 +54,7 @@ var Role = (function (_Observable) {
             this.idmRole = idmRole;
         } else {
             this.idmRole = new _pydioHttpRestApi.IdmRole();
-            this.idmRole.Uuid = (0, _uuid4.sync)();
+            this.idmRole.Uuid = (0, _uuid42['default'])();
         }
         this.makeSnapshot();
     }

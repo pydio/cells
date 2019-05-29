@@ -15,13 +15,13 @@
     "other": "Descargar a %s"
   },
   "10d": {
-    "other": "Descarga (%s)"
+    "other": "Descarga AjXp (%s)"
   },
   "11": {
     "other": "Arrastre y suelte uno de los siguientes enlaces a su barra de marcadores: "
   },
   "12": {
-    "other": "Trigger remote file download"
+    "other": "Activar descarga remota de archivos"
   },
   "13": {
     "other": "Desde el ordenador"
@@ -33,7 +33,7 @@
     "other": "O cree un marcador manualmente y ese el código siguiente como la URL de enlace: "
   },
   "16": {
-    "other": "¡Arrástreme sobre su barra de marcadores!"
+    "other": "¡Arrástreme a su barra de marcadores!"
   },
   "17": {
     "other": "Descargar archivo"
@@ -48,7 +48,7 @@
     "other": "m"
   },
   "4": {
-    "other": "Introduzca al menos una URL apuntando a un archivo que quiera descargar directamente a esta carpeta. Esta acción se ejecutará en segundo plano y podrá seguir usando la aplicación durante la descarga."
+    "other": "Introduzca al menos una URL que apunte a un archivo que desee descargar directamente a la carpeta actual desde un servidor HTTP externo. Esta acción se ejecutará en segundo plano y podrá continuar usando APPLICATION_TITLE durante la descarga."
   },
   "5": {
     "other": "URL"

@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {Divider, IconButton, Checkbox, FlatButton} from 'material-ui'
+import {Divider, IconButton, Checkbox, FlatButton, RaisedButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Policies from 'pydio/http/policies'
 import {UsersApi} from 'pydio/http/users-api'
@@ -43,6 +43,7 @@ class ResourcePoliciesPanel extends React.Component{
         }
         super(props);
         this.state = {
+            edit: false,
             loading: true,
             policies: [],
             diffPolicies:{add:{},remove:{}}
@@ -334,27 +335,47 @@ class ResourcePoliciesPanel extends React.Component{
                 fontSize: 10
             }
         };
-        const {policies, dirtyPolicies, error, idmUser, userTeams, loading, pickedUser, pickedLabel} = this.state;
-        const {onDismiss, style, skipTitle, resourceId, pydio, userListExcludes, readonly} = this.props;
+        const {edit, policies, dirtyPolicies, error, idmUser, userTeams, loading, pickedUser, pickedLabel} = this.state;
+        const {onDismiss, style, skipTitle, resourceId, pydio, userListExcludes, readonly, description} = this.props;
         let blocks = [];
+        const mess = pydio.MessageHash;
+
+        if(!edit) {
+            return (
+                <div style={style}>
+                    {!skipTitle &&
+                        <div style={{...styles.title, height: 48}}><span style={{flex:1}}>{mess['visibility.panel.title']}</span></div>
+                    }
+                    <div style={{padding: 20, color:'rgba(0,0,0,.43)', fontWeight: 500, textAlign:'justify'}}>
+                        <div style={{paddingBottom: 20}}>
+                        {description}
+                        </div>
+                        <div style={{textAlign:'center'}}>
+                            <RaisedButton label={mess['visibility.panel.edit']} primary={true} onTouchTap={()=>{this.setState({edit: true})}}/>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         if(!loading && !error) {
             const {groupBlocks, hasWrite} = this.listUserRoles(idmUser, dirtyPolicies?dirtyPolicies:policies);
             const teamBlocks = this.listUserTeams(userTeams, dirtyPolicies?dirtyPolicies:policies, !hasWrite);
-            let heads = <div><span style={styles.head}>View</span><span style={styles.head}>Edit</span></div>;
+            let heads = <div><span style={styles.head}>{mess['visibility.panel.right-read']}</span><span style={styles.head}>{mess['visibility.panel.right-edit']}</span></div>;
             if (groupBlocks.length){
-                blocks.push(<div style={styles.subheader}><span style={{flex:1}}>Users</span>{heads}</div>);
+                blocks.push(<div style={styles.subheader}><span style={{flex:1}}>{mess['visibility.panel.list.users']}</span>{heads}</div>);
                 blocks.push(groupBlocks);
                 blocks.push(<Divider/>);
             }
             if (teamBlocks.length){
-                blocks.push(<div style={styles.subheader}><span style={{flex:1}}>Your Teams</span>{heads}</div>);
+                blocks.push(<div style={styles.subheader}><span style={{flex:1}}>{mess['visibility.panel.list.teams']}</span>{heads}</div>);
                 blocks.push(teamBlocks);
                 blocks.push(<Divider/>);
             }
             if(pickedUser) {
-                blocks.push(<div style={styles.subheader}>Set visible to...</div>);
+                blocks.push(<div style={styles.subheader}>{mess['visibility.panel.setvisible']}</div>);
                 blocks.push(this.renderLine(pickedUser, pickedLabel, policies, false, true));
-                blocks.push(<div style={{textAlign:'right'}}><FlatButton label={"Cancel"} onTouchTap={()=>{this.setState({pickedUser:null, pickedLabel: null});}}/></div>);
+                blocks.push(<div style={{textAlign:'right'}}><FlatButton label={mess[54]} onTouchTap={()=>{this.setState({pickedUser:null, pickedLabel: null});}}/></div>);
                 blocks.push(<Divider/>);
             } else if(!readonly) {
                 const crtUserSubject = 'user:' + idmUser.Login;
@@ -363,12 +384,12 @@ class ResourcePoliciesPanel extends React.Component{
                 Object.keys(userSubjects).map(k=>{exludes.push(userSubjects[k])});
 
                 // select an arbitrary resource
-                blocks.push(<div style={styles.subheader}>Set visible to ...</div>);
+                blocks.push(<div style={styles.subheader}>{mess['visibility.panel.setvisible']}</div>);
                 blocks.push(
                     <div style={{margin:'-30px 10px 0'}}>
                         <UsersCompleter
                             className="share-form-users"
-                            fieldLabel="Select user"
+                            fieldLabel={mess['visibility.panel.pickuser']}
                             renderSuggestion={userObject => <div style={{fontSize:13}}>{userObject.getExtendedLabel()}</div>}
                             onValueSelected={this.pickUser.bind(this)}
                             usersOnly={true}
@@ -390,19 +411,19 @@ class ResourcePoliciesPanel extends React.Component{
         return (
             <div style={style}>
                 <div style={styles.title}>
-                    <span style={{flex:1}}>{skipTitle? '' : 'Visibility'}</span>
+                    <span style={{flex:1}}>{skipTitle? '' : mess['visibility.panel.title']}</span>
                     {dirtyPolicies &&
-                        <IconButton iconClassName={"mdi mdi-undo-variant"} tooltip={"Revert changes"} onTouchTap={this.revert.bind(this)} iconStyle={{color:appBar.textColor}} />
+                        <IconButton iconClassName={"mdi mdi-undo-variant"} tooltip={mess['visibility.panel.revert']} onTouchTap={this.revert.bind(this)} iconStyle={{color:appBar.textColor}} />
                     }
                     {dirtyPolicies &&
-                        <IconButton iconClassName={"mdi mdi-content-save"} tooltip={"Save changes"} onTouchTap={this.save.bind(this)} iconStyle={{color:appBar.textColor}} />
+                        <IconButton iconClassName={"mdi mdi-content-save"} tooltip={mess['visibility.panel.save']} onTouchTap={this.save.bind(this)} iconStyle={{color:appBar.textColor}} />
                     }
                     {!dirtyPolicies && onDismiss &&
                         <IconButton iconClassName={"mdi mdi-close"} onTouchTap={onDismiss} iconStyle={{color:appBar.textColor}} />
                     }
                 </div>
                 {error &&
-                    <div>Error: {error}</div>
+                    <div>{mess['visibility.panel.error']}: {error}</div>
                 }
                 <div>{blocks}</div>
             </div>
@@ -415,6 +436,7 @@ ResourcePoliciesPanel.PropTypes = {
     pydio: React.PropTypes.instanceOf(Pydio),
     resourceType: React.PropTypes.string.isRequired,
     resourceId: React.PropTypes.string.isRequired,
+    description: React.PropTypes.string.isRequired,
     onSavePolicies: React.PropTypes.func,
     userListExcludes:React.PropTypes.array,
     subjectsDisabled:React.PropTypes.array,

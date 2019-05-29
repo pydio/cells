@@ -27,10 +27,14 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	sync2 "sync"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/metadata"
 	config2 "github.com/pydio/go-os/config"
+	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -116,21 +120,65 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	ctx := s.globalCtx
 	dataSource := s.dsName
 
+	// Making sure Object AND underlying S3 is started
 	var minioConfig *object.MinioConfig
-	service.Retry(func() error {
-		log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Objects")
-		cli := object.NewObjectsEndpointClient(registry.GetClient(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName))
-		resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
-		if err != nil {
-			log.Logger(ctx).Debug(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName + " not yet available")
-			return err
-		}
-		minioConfig = resp.MinioConfig
-		return nil
-	}, 3*time.Second, 50*time.Second)
+	var indexOK bool
+	wg := &sync2.WaitGroup{}
+	wg.Add(2)
 
+	// Making sure index is started
+	go func() {
+		defer wg.Done()
+		service.Retry(func() error {
+			log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Index")
+			c := protoservice.NewService(registry.GetClient(common.SERVICE_DATA_INDEX_ + datasource))
+			r, err := c.Status(context.Background(), &empty.Empty{})
+			if err != nil {
+				return err
+			}
+
+			if !r.GetOK() {
+				log.Logger(ctx).Info(common.SERVICE_DATA_INDEX_ + datasource + " not yet available")
+				return fmt.Errorf("index not reachable")
+			}
+			indexOK = true
+			return nil
+		}, 3*time.Second, 50*time.Second)
+	}()
+	// Making sure Objects is started
+	go func() {
+		defer wg.Done()
+		service.Retry(func() error {
+			log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Objects")
+			cli := object.NewObjectsEndpointClient(registry.GetClient(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName))
+			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
+			if err != nil {
+				log.Logger(ctx).Debug(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName + " not yet available")
+				return err
+			}
+			minioConfig = resp.MinioConfig
+			mc, e := minio.NewCore(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure)
+			if e != nil {
+				log.Logger(ctx).Error("Cannot create objects client", zap.Error(e))
+				return e
+			}
+			testCtx := metadata.NewContext(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+			_, err = mc.ListObjectsWithContext(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
+			if err != nil {
+				log.Logger(ctx).Error("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 4s", zap.Error(err))
+				return err
+			} else {
+				log.Logger(ctx).Debug("Could List Objects in Bucket!")
+				return nil
+			}
+		}, 4*time.Second, 50*time.Second)
+	}()
+
+	wg.Wait()
 	if minioConfig == nil {
 		return fmt.Errorf("objects not reachable")
+	} else if !indexOK {
+		return fmt.Errorf("index not reachable")
 	}
 
 	var source model.PathSyncTarget

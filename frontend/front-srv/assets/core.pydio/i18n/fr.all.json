@@ -2230,5 +2230,41 @@
   },
   "cells.quick-filter": {
     "other": "Filtrer les Cells"
+  },
+  "visibility.panel.title": {
+    "other": "Visibilité"
+  },
+  "visibility.panel.right-read": {
+    "other": "Voir"
+  },
+  "visibility.panel.right-edit": {
+    "other": "Editer"
+  },
+  "visibility.panel.list.users": {
+    "other": "Utilisateurs"
+  },
+  "visibility.panel.list.teams": {
+    "other": "Vos équipes"
+  },
+  "visibility.panel.edit": {
+    "other": "Modifier"
+  },
+  "visibility.panel.save": {
+    "other": "Sauver les changements"
+  },
+  "visibility.panel.revert": {
+    "other": "Revenir en arrière"
+  },
+  "visibility.panel.error": {
+    "other": "Une erreur est survenue"
+  },
+  "visibility.panel.pickuser": {
+    "other": "Choisir un utilisateur..."
+  },
+  "visibility.panel.setvisible": {
+    "other": "Rendre visible pour..."
+  },
+  "visibility.users.advanced": {
+    "other": "Cette fonctionnalité avancée vous permet de décider si un utilisateur que vous avez créé peut être visible ou modifiable par les autres utilisateurs. Par défaut, les utilisateurs de votre carnet d'adresse ne sont visibles que par vous."
   }
 }

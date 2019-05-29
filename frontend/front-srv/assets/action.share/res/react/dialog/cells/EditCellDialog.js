@@ -99,9 +99,10 @@ export default React.createClass({
                     Component:(
                         <ResourcePoliciesPanel
                             pydio={pydio}
-                            resourceType="workspace"
+                            resourceType="cell"
+                            description={m('cell.visibility.advanced')}
                             resourceId={model.getUuid()}
-                            style={{}}
+                            style={{margin:-10}}
                             skipTitle={true}
                             onSavePolicies={()=>{}}
                             readonly={false}

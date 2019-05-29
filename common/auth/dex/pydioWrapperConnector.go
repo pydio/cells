@@ -117,24 +117,9 @@ func (p *pydioWrapperConnector) Refresh(ctx context.Context, s connector.Scopes,
 
 func ConvertUserApiToIdentity(idmUser *idm.User, authSourceName string) (ident connector.Identity) {
 
-	var roles []string
-	for _, role := range idmUser.Roles {
-		roles = append(roles, role.Uuid)
-	}
-
 	email, ok := idmUser.Attributes["email"]
 	if !ok {
 		email = ""
-	}
-
-	displayName, ok := idmUser.Attributes["displayName"]
-	if !ok {
-		displayName = ""
-	}
-
-	profile, ok := idmUser.Attributes["profile"]
-	if !ok {
-		profile = "standard"
 	}
 
 	return connector.Identity{
@@ -143,11 +128,6 @@ func ConvertUserApiToIdentity(idmUser *idm.User, authSourceName string) (ident c
 		Email:         email,
 		EmailVerified: true,
 		Groups:        []string{},
-		AuthSource:    authSourceName,
-		DisplayName:   displayName,
-		Roles:         roles,
-		GroupPath:     idmUser.GetGroupPath(),
-		Profile:       profile,
 	}
 }
 
