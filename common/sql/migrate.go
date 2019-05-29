@@ -131,6 +131,9 @@ func ExecMax(db *sql.DB, dialect string, m migrate.MigrationSource, dir migrate.
 }
 
 func prefixedIdToNumber(id, prefix string) (numberId, newPrefix string, e error) {
+	if strings.HasPrefix(id, "test_") {
+		return id, prefix, nil
+	}
 	numberPrefixRegex := regexp.MustCompile(`^(` + prefix + `_?)(\d*.?\d+).*$`)
 	res := numberPrefixRegex.FindStringSubmatch(id)
 	if len(res) > 0 {
