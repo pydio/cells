@@ -23,8 +23,11 @@ package merger
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"path"
 	"strings"
+
+	"github.com/pydio/cells/common"
 
 	"go.uber.org/zap"
 
@@ -40,19 +43,21 @@ type Solver func(left, right *TreeNode)
 
 type BidirectionalPatch struct {
 	TreePatch
-	conflicts      []*Conflict
-	matrix         map[OperationType]map[OperationType]Solver
-	inputsModified bool
-	unexpected     []error
-	ctx            context.Context
+	conflicts           []*Conflict
+	matrix              map[OperationType]map[OperationType]Solver
+	inputsModified      bool
+	unexpected          []error
+	ctx                 context.Context
+	ignoreUUIDConflicts bool
 }
 
 func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*BidirectionalPatch, error) {
 	source := left.Source()
 	target, _ := model.AsPathSyncTarget(right.Source())
 	b := &BidirectionalPatch{
-		TreePatch: *newTreePatch(source, target, PatchOptions{MoveDetection: false}),
-		ctx:       ctx,
+		TreePatch:           *newTreePatch(source, target, PatchOptions{MoveDetection: false}),
+		ctx:                 ctx,
+		ignoreUUIDConflicts: ignoreUUIDConflictsForEndpoints(source, target),
 	}
 	b.initMatrix()
 	left.Filter(ctx)
@@ -79,6 +84,19 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 	}
 	b.FilterToTarget(ctx)
 	return b, e
+}
+
+func ignoreUUIDConflictsForEndpoints(left, right model.Endpoint) bool {
+	// If syncing on same server, do not trigger conflicts on .pydio
+	u1, _ := url.Parse(left.GetEndpointInfo().URI)
+	u2, _ := url.Parse(right.GetEndpointInfo().URI)
+	if u1.Scheme == "router" && u2.Scheme == "router" {
+		return true
+	}
+	if strings.HasPrefix(u1.Scheme, "http") && strings.HasPrefix(u2.Scheme, "http") && u1.Host == u2.Host {
+		return true
+	}
+	return false
 }
 
 func (p *BidirectionalPatch) mergeTrees(left, right *TreeNode) {
@@ -276,6 +294,10 @@ func (p *BidirectionalPatch) MergeDataOperations(left, right *TreeNode) {
 			return
 		}
 		log.Logger(p.ctx).Info("-- DataOperation detected on both sides, versions differ - keep both")
+		if path.Base(initialPath) == common.PYDIO_SYNC_HIDDEN_FILE_META && p.ignoreUUIDConflicts {
+			log.Logger(p.ctx).Info("-- Conflict found on .pydio but patch must ignore")
+			return
+		}
 
 		// TODO - FIND A CLEANER WAY
 		leftSource, _ := model.AsPathSyncTarget(left.DataOperation.Source())
