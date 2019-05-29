@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -42,7 +41,6 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	protoservice "github.com/pydio/cells/common/service/proto"
 	_ "github.com/pydio/cells/data/source/sync"
 )
 
@@ -89,22 +87,6 @@ func init() {
 						if datasource == "" {
 							return fmt.Errorf("could not find source key in service Metadata")
 						}
-
-						// Making sure index is started
-						service.Retry(func() error {
-							log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Index")
-							c := protoservice.NewService(registry.GetClient(common.SERVICE_DATA_INDEX_ + datasource))
-							r, err := c.Status(context.Background(), &empty.Empty{})
-							if err != nil {
-								return err
-							}
-
-							if !r.GetOK() {
-								log.Logger(ctx).Info(common.SERVICE_DATA_INDEX_ + datasource + " not yet available")
-								return fmt.Errorf("index not reachable")
-							}
-							return nil
-						}, 3*time.Second, 50*time.Second)
 
 						var e error
 						syncHandler, e = NewHandler(ctx, datasource)

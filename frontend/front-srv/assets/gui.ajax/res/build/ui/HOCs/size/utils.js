@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24,18 +25,15 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _selectors = require("../selectors");
+
 var mapStateToProps = function mapStateToProps(state, props) {
     var editor = state.editor;
-    var tabs = state.tabs;
-
-    var tab = tabs.reduce(function (current, tab) {
-        return tab.id === editor.activeTabId ? tab : current;
-    }, {});
     var size = editor.size;
     var scale = editor.scale;
 
     return _extends({}, props, {
-        tab: tab,
+        tab: _selectors.getActiveTab(state),
         size: size,
         scale: scale
     });

@@ -393,7 +393,9 @@ func TestCanonicalPath(t *testing.T) {
 
 	Convey("Testing lower case", t, func() {
 		p := "/test/path"
-		So(CanonicalPath(p), ShouldEqual, p)
+		pa, e := CanonicalPath(p)
+		So(e, ShouldBeNil)
+		So(pa, ShouldEqual, p)
 	})
 
 }

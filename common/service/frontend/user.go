@@ -60,7 +60,7 @@ func (u *User) Load(ctx context.Context) error {
 	// Check locks info
 	if l, ok := u.UserObject.Attributes["locks"]; ok {
 		var locks []string
-		log.Logger(context.Background()).Info("Checking Locks", zap.Any("l", l))
+		log.Logger(context.Background()).Debug("Checking Locks", zap.Any("l", l))
 		if e := json.Unmarshal([]byte(l), &locks); e == nil {
 			if len(locks) > 0 {
 				u.HasLocks = true

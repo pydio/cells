@@ -45,6 +45,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 // Config is the config format for the main application.
@@ -142,6 +143,31 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 		return ctx, claims, errors.New("cannot find name inside claims")
 	}
 
+	user, err := permissions.SearchUniqueUser(ctx, claims.Name, "")
+	if err != nil {
+		return ctx, claims, err
+	}
+
+	displayName, ok := user.Attributes["displayName"]
+	if !ok {
+		displayName = ""
+	}
+
+	profile, ok := user.Attributes["profile"]
+	if !ok {
+		profile = "standard"
+	}
+
+	var roles []string
+	for _, role := range user.Roles {
+		roles = append(roles, role.Uuid)
+	}
+
+	claims.DisplayName = displayName
+	claims.Profile = profile
+	claims.Roles = strings.Join(roles, ",")
+	claims.GroupPath = user.GroupPath
+
 	ctx = context.WithValue(ctx, claim.ContextKey, claims)
 	md := make(map[string]string)
 	if existing, ok := metadata.FromContext(ctx); ok {
@@ -155,7 +181,6 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 	ctx = metadata.NewContext(ctx, md)
 
 	return ctx, claims, nil
-
 }
 
 // PasswordCredentialsToken will perform a call to the OIDC service with grantType "password"

@@ -3,7 +3,7 @@
     "other": "Muestra la pantalla estándar de inicio de sesión usuario/contraseña"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "Activa/desactiva automáticamente en base al protocolo usado"
+    "other": "Activar/desactivar automáticamente en base al protocolo usado"
   },
   "Order": {
     "other": "Ordenar"
@@ -21,7 +21,7 @@
     "other": "Sesión o REST"
   },
   "Sessions Only": {
-    "other": "Sólo Sesiónes"
+    "other": "Sólo Sesiones"
   },
   "Standard login screen": {
     "other": "Pantalla de Inicio de Sesión"

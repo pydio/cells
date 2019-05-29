@@ -1,9 +1,8 @@
-export const mapStateToProps = (state, props) => {
-    const {editor, tabs} = state
-    const tab = tabs.reduce((current, tab) => tab.id === editor.activeTabId ? tab : current, {})
+import { getActiveTab } from "../selectors";
 
+export const mapStateToProps = (state, props) => {
     return {
         ...props,
-        tab,
+        tab: getActiveTab(state),
     }
 }

@@ -25,9 +25,21 @@ import { MuiThemeProvider } from 'material-ui';
 import { createStore } from 'redux';
 import { Provider, connect } from 'react-redux';
 
+import {saveState, loadState} from './localStorage';
+
 const { EditorReducers } = Pydio.requireLib('hoc');
 
-const store = createStore(EditorReducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+const store = createStore(
+    EditorReducers,
+    loadState(),
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
+
+store.subscribe(() => {
+    saveState({
+        editor: store.getState().editor
+    });
+});
 
 let MainProvider = MuiThemeProvider
 let DND;
@@ -42,7 +54,6 @@ export default function(PydioComponent, pydio){
     class Wrapped extends Component{
 
         getChildContext() {
-
             const messages = pydio.MessageHash;
             return {
                 pydio       : pydio,

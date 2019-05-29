@@ -189,6 +189,7 @@ class ActionsPanel extends React.Component{
                 >
                     <div style={{width: 256, height: 320}}>
                         <ResourcePoliciesPanel
+                            description={this.props.pydio.MessageHash['visibility.users.advanced']}
                             pydio={this.props.pydio}
                             resourceType={resourceType}
                             resourceId={resourceId}

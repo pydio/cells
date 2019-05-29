@@ -38,8 +38,13 @@ var _reactRedux = require('react-redux');
 
 var _materialUi = require('material-ui');
 
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
+var getActiveTab = _Pydio$requireLib.getActiveTab;
 var EditorActions = _Pydio$requireLib.EditorActions;
 
 var MenuItem = (function (_React$PureComponent) {
@@ -66,7 +71,9 @@ var MenuItem = (function (_React$PureComponent) {
         var style = _props.style;
         var tab = _props.tab;
 
-        if (!tab) return null;
+        if (_lodash2['default'].isEmpty(tab)) {
+            return null;
+        }
 
         var textStyle = {
             position: "absolute",
@@ -108,7 +115,8 @@ var MenuItem = (function (_React$PureComponent) {
 })(React.PureComponent);
 
 function mapStateToProps(state, ownProps) {
-    var tabs = state.tabs;
+    var _state$tabs = state.tabs;
+    var tabs = _state$tabs === undefined ? {} : _state$tabs;
 
     var current = tabs.filter(function (tab) {
         return tab.id === ownProps.id;

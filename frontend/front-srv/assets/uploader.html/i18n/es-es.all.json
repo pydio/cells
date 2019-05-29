@@ -27,37 +27,37 @@
     "other": "Mostrar archivos procesados"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "Si existe un archivo con el mismo nombre:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "Detener la subida y notificarme"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Renombrar carpetas y archivos"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Renombrar sólo archivos (fusionar carpetas)"
   },
   "2": {
     "other": "Subiendo %s archivos"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "Sobrescribir el archivo existente sin notificarlo"
   },
   "22": {
-    "other": "Options"
+    "other": "Opciones"
   },
   "23": {
-    "other": "Errors"
+    "other": "Errores"
   },
   "3": {
-    "other": "No tienes permisos para subir este archivo aquí"
+    "other": "No tiene permisos para subir este archivo aquí"
   },
   "4": {
-    "other": "Selecciona Archivo"
+    "other": "Seleccionar Archivo"
   },
   "5": {
-    "other": "Selecciona Carpeta"
+    "other": "Seleccionar Carpeta"
   },
   "6": {
     "other": "No se puede cancelar la creación de la carpeta"
@@ -66,15 +66,15 @@
     "other": "Subiendo archivos al servidor..."
   },
   "8": {
-    "other": "Parece que tu navegador no permite soltar carpetas"
+    "other": "Parece que su navegador no permite soltar carpetas"
   },
   "9": {
     "other": ""
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "Preparando archivos y carpetas para subir..."
   },
   "drophere": {
-    "other": "Drop Files Here"
+    "other": "Soltar archivos aquí"
   }
 }

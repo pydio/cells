@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"regexp"
 	"sync"
@@ -29,7 +30,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 )
 
@@ -72,7 +72,13 @@ Start whole plateform except the roles service
 $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 `,
-	PreRun: func(cmd *cobra.Command, args []string) {
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+
+		if !IsFork {
+			if err := checkFdlimit(); err != nil {
+				return err
+			}
+		}
 
 		// Removing install services
 		registry.Default.Filter(func(s registry.Service) bool {
@@ -130,22 +136,16 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 		// Re-building allServices list
 		if s, err := registry.Default.ListServices(); err != nil {
-			cmd.Print("Could not retrieve list of services")
-			os.Exit(0)
+			return fmt.Errorf("Could not retrieve list of services")
 		} else {
 			allServices = s
 		}
 
+		return nil
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		//var err errors
-
-		if !IsFork {
-			if e := checkFdlimit(); e != nil {
-				log.Fatal(e.Error())
-			}
-		}
 
 		// Start services that have not been deregistered via flags and filtering.
 		for _, service := range allServices {

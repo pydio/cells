@@ -102,6 +102,9 @@ export default class MailerMail {
             if (data.hasOwnProperty('sendErrors')) {
                 obj['sendErrors'] = ApiClient.convertToType(data['sendErrors'], ['String']);
             }
+            if (data.hasOwnProperty('Sender')) {
+                obj['Sender'] = MailerUser.constructFromObject(data['Sender']);
+            }
         }
         return obj;
     }
@@ -166,6 +169,10 @@ export default class MailerMail {
     * @member {Array.<String>} sendErrors
     */
     sendErrors = undefined;
+    /**
+    * @member {module:model/MailerUser} Sender
+    */
+    Sender = undefined;
 
 
 

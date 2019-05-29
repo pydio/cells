@@ -78,6 +78,9 @@ func init() {
 							if e := jsonpb.UnmarshalString(doc.Data, &vNode); e == nil {
 								if _, ok := vNode.MetaStore["onDelete"]; !ok {
 									log.Logger(m.Options().Context).Info("Upgrading my-files template path for onDelete policy")
+									vNode.MetaStore["onDelete"] = "rename-uuid"
+									m := &jsonpb.Marshaler{}
+									json, _ = m.MarshalToString(&vNode)
 									reStore = true
 								}
 							} else {

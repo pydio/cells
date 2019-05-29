@@ -300,7 +300,7 @@ func NewService(opts ...ServiceOption) Service {
 					}
 
 					return fmt.Errorf("dependency %s not found", d.Name)
-				}, 1*time.Second, 30*time.Minute)
+				}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
 
 				if err != nil {
 					return err
@@ -374,6 +374,9 @@ func (s *service) Start() {
 
 			if err := s.Options().Micro.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
+				if stopper, ok := s.Options().Micro.(Stopper); ok {
+					stopper.Stop()
+				}
 				cancel()
 			}
 		}()
@@ -389,10 +392,12 @@ func (s *service) Start() {
 			}
 			if err := s.Options().Web.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
+				if stopper, ok := s.Options().Micro.(Stopper); ok {
+					stopper.Stop()
+				}
 				cancel()
 			}
 		}()
-
 	}
 
 	for _, f := range s.Options().AfterStart {

@@ -66,7 +66,6 @@ var makeMinimise = function makeMinimise(Target) {
         var _class2 = _class;
         _class = makeMotion({ scale: 1 }, { scale: 0.5 }, {
             check: function check(props) {
-                console.log("checking ", props);
                 return props.minimise && !props.minimised;
             }
         })(_class) || _class;

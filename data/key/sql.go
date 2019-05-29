@@ -68,7 +68,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 		TablePrefix: s.Prefix(),
 	}
 
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "data_key_")
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, s.Prefix()+"_data-key.")
 	if err != nil {
 		return err
 	}

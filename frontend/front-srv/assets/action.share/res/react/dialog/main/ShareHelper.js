@@ -19,7 +19,9 @@
  */
 import XMLUtils from 'pydio/util/xml'
 import PydioApi from 'pydio/http/api'
+import Pydio from 'pydio'
 import {MailerServiceApi, MailerMail, MailerUser} from 'pydio/http/rest-api'
+const {moment} = Pydio.requireLib('boot');
 
 class ShareHelper {
 
@@ -186,17 +188,18 @@ class ShareHelper {
             const linkObject = linkModel.getLink();
             if(node.isLeaf()){
                 templateId = "PublicFile";
-                templateData["FileName"] = node.getLabel();
+                templateData["FileName"] = linkObject.Label || node.getLabel();
             } else {
                 templateId = "PublicFolder";
-                templateData["FolderName"] = node.getLabel();
+                templateData["FolderName"] = linkObject.Label || node.getLabel();
             }
             templateData["LinkPath"] = "/public/" + linkObject.LinkHash;
             if(linkObject.MaxDownloads){
                 templateData["MaxDownloads"] = linkObject.MaxDownloads + "";
             }
             if(linkObject.AccessEnd){
-                templateData["Expire"] = linkObject.AccessEnd;
+                const m = moment(new Date(linkObject.AccessEnd * 1000));
+                templateData["Expire"] = m.format('LL');
             }
         } else {
             templateId = "Cell";

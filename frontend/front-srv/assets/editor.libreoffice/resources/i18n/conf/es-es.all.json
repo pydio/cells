@@ -9,10 +9,10 @@
     "other": "URL a Libre Office Editor Iframe"
   },
   "Web Socket Connector Host": {
-    "other": "Web Socket Connector Host"
+    "other": "Host del conector Web Socket"
   },
   "Web Socket Connector Port": {
-    "other": "Web Socket Connector Port"
+    "other": "Puerto del conector Web Socket"
   },
   "Websocket Uses TLS": {
     "other": "Websocket Usa TLS"

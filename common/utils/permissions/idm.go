@@ -340,7 +340,6 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		return accessList, nil
 	}
 
-	//log.Logger(ctx).Debug("Roles inside Claims", zap.String("roles", claims.Roles))
 	roles := GetRoles(ctx, strings.Split(claims.Roles, ","))
 	accessList = NewAccessList(roles)
 	accessList.Append(GetACLsForRoles(ctx, roles, AclRead, AclDeny, AclWrite, AclLock, AclPolicy))

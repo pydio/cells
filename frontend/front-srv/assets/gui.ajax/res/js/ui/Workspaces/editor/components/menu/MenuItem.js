@@ -21,8 +21,9 @@
 import Pydio from 'pydio';
 import { connect } from 'react-redux';
 import { FloatingActionButton } from 'material-ui';
+import _ from 'lodash';
 
-const { EditorActions } = Pydio.requireLib('hoc');
+const { getActiveTab, EditorActions } = Pydio.requireLib('hoc');
 
 class MenuItem extends React.PureComponent {
 
@@ -40,7 +41,9 @@ class MenuItem extends React.PureComponent {
     render() {
         const {style, tab} = this.props
 
-        if (!tab) return null
+        if (_.isEmpty(tab)) {
+            return null
+        }
 
         const textStyle = {
             position: "absolute",
@@ -74,8 +77,8 @@ class MenuItem extends React.PureComponent {
 }
 
 function mapStateToProps(state, ownProps) {
-    const { tabs } = state
-
+    const {tabs = {}} = state
+    
     let current = tabs.filter(tab => tab.id === ownProps.id)[0]
 
     return  {

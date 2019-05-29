@@ -108,6 +108,12 @@ func TestRole(t *testing.T) {
 		So(resp.GetRole().GetUuid(), ShouldEqual, "role2")
 	})
 
+	Convey("Create Role with Comma", t, func() {
+		resp := new(idm.CreateRoleResponse)
+		err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "dn=toto,dn=zz", Label: "Role Fail"}}, resp)
+		So(err, ShouldNotBeNil)
+	})
+
 	Convey("Get Role", t, func() {
 		mock := &roleStreamMock{}
 		err := s.StreamRole(ctx, mock)

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,15 +19,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-export const mapStateToProps = (state, props) => {
-    const {editor, tabs} = state
+import { getActiveTab } from "../selectors";
 
-    const tab = tabs.reduce((current, tab) => tab.id === editor.activeTabId ? tab : current, {})
+export const mapStateToProps = (state, props) => {
+    const {editor} = state
     const {size, scale} = editor
 
     return {
         ...props,
-        tab,
+        tab: getActiveTab(state),
         size,
         scale
     }

@@ -1,6 +1,6 @@
 {
   "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
-    "other": "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path."
+    "other": "Ruta absoluta a la carpeta en el servidor. Puede usar PYDIO_DATA_PATH y PYDIO_INSTALL_PATH para apuntar a la ruta de datos por defecto de Pydio y ruta de instalación del directorio raíz."
   },
   "Create": {
     "other": "Crear"
@@ -15,25 +15,25 @@
     "other": "Delega todas las operaciones de descarga a nginx usando la cabecera X-Accel-Redirect. Atención, tiene que añadir la configuración a nginx, como X-Accel-Mapping"
   },
   "Delegates all download operations to the webserver using the X-SendFile header. Warning, this is an external module to install for Apache. Module is active by default in Lighttpd. Warning, you have to manually add the folders where files will be downloaded in the module configuration (XSendFilePath directive)": {
-    "other": "Delega todas las operaciones de descarga al servidor web usando la cabecera X-SendFile. Atención, esto es un módulo externo que se instala en Apache. El módulo está activado por defecto en Lighttpd. Atención, tienes que añadir manualmente los directorios donde se descargarán los archivos en el modulo de configuración (directiva XSendFilePath)"
+    "other": "Delega todas las operaciones de descarga al servidor web usando la cabecera X-SendFile. Atención, esto es un módulo externo que se instala en Apache. El módulo está activado por defecto en Lighttpd. Atención, hay que añadir manualmente los directorios donde se descargarán los archivos en el modulo de configuración (directiva XSendFilePath)"
   },
   "Directly write the zip file to an output stream which is connected to the user's browser.": {
-    "other": "Transmite directamente el archivo zip a la salida conectada al navegador del usuario."
+    "other": "Escribir directamente el archivo zip a un flujo de salida que esté conectado al navegador del usuario."
   },
   "File Creation Mask": {
-    "other": "Máscara de Archivos"
+    "other": "Máscara de creación de archivos"
   },
   "File System (Standard)": {
     "other": "Sistema de Archivos (Estándar)"
   },
   "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar documentos al transcurrir el número de dias seleccionado (incluso si están compartidos). Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
+    "other": "Opción para purgar documentos una vez transcurrido un número de dias seleccionado (incluso si están compartidos). Requiere que se configure una tarea CRON. Dejar en 0 para no activar esta función."
   },
   "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar documentos al transcurrir el número de dias seleccionado (excluye los compartidos). Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
+    "other": "Opción para purgar documentos una vez transcurrido un número de dias seleccionado (excluye los compartidos). Requiere que se configure una tarea CRON. Dejar en 0 para no activar esta función."
   },
   "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar documentos al transcurrir el número de dias seleccionado. Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
+    "other": "Opción para purgar documentos una vez transcurrido el número de dias seleccionado. Requiere que se configure una tarea CRON. Dejar en 0 para no activar esta función."
   },
   "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc.": {
     "other": "Aplicar opcionalmente una operación chmod. El valor debe ser numérico (p.e. 0777 0644, etc)."
@@ -54,10 +54,10 @@
     "other": "Purgar (Dias - Flexible)"
   },
   "Real Size Probing": {
-    "other": "Explorar Tamaño Real"
+    "other": "Comprobación a Tamaño Real"
   },
   "The most standard access to a filesystem located on the server.": {
-    "other": "El acceso estándar al sistema de archivos del servidor"
+    "other": "El acceso más estándar a un sistema de ficheros ubicado en el servidor."
   },
   "Use POSIX": {
     "other": "Usar POSIX"
@@ -69,12 +69,12 @@
     "other": "Usar la línea de comandos del sistema para obtener el tamaño de archivo en lugar de usar la función PHP (soluciona la limitación de 2G)"
   },
   "X-Accel-Redirect Active": {
-    "other": "Activar X-Accel-Redirect"
+    "other": "X-Accel-Redirect Activo"
   },
   "X-SendFile Active": {
-    "other": "Activar X-SendFile"
+    "other": "X-SendFile Activo"
   },
   "Zip downloading files on the fly": {
-    "other": "Comprimir archivos durante la descarga"
+    "other": "Comprimir archivos al mismo tiempo que se descargan"
   }
 }

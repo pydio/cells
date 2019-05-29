@@ -66,10 +66,12 @@ func (p PackrMigrationSource) FindMigrations() ([]*migrate.Migration, error) {
 	}
 
 	for _, item := range items {
-		if !strings.HasPrefix(item, prefix) {
+		// On windows, items can have \\ (not packed) or / (packed)
+		lookup := strings.Replace(item, "\\", "/", -1)
+		if !strings.HasPrefix(lookup, prefix) {
 			continue
 		}
-		name := strings.TrimPrefix(item, prefix)
+		name := strings.TrimPrefix(lookup, prefix)
 		if strings.Contains(name, "/") {
 			continue
 		}

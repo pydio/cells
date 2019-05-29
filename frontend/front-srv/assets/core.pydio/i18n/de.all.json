@@ -2230,5 +2230,41 @@
   },
   "cells.quick-filter": {
     "other": "Zellen filtern"
+  },
+  "visibility.panel.title": {
+    "other": "Sichtbarkeit"
+  },
+  "visibility.panel.right-read": {
+    "other": "Anzeigen"
+  },
+  "visibility.panel.right-edit": {
+    "other": "Bearbeiten"
+  },
+  "visibility.panel.list.users": {
+    "other": "Benutzer"
+  },
+  "visibility.panel.list.teams": {
+    "other": "Ihre Teams"
+  },
+  "visibility.panel.edit": {
+    "other": "Sichbarkeit ändern"
+  },
+  "visibility.panel.save": {
+    "other": "Änderungen speichern"
+  },
+  "visibility.panel.revert": {
+    "other": "Änderungen verwerfen"
+  },
+  "visibility.panel.error": {
+    "other": "Ein Fehler ist aufgetreten"
+  },
+  "visibility.panel.pickuser": {
+    "other": "Benutzer auswählen..."
+  },
+  "visibility.panel.setvisible": {
+    "other": "Sichtbar für..."
+  },
+  "visibility.users.advanced": {
+    "other": "Diese erweiterte Funktion erlaubt Ihnen, zu entscheiden, ob die Benutzer, die Sie in Ihrem Adressbuch erstellen, von anderen Benutzern gesehen und/oder bearbeitet werden können. Standardmäßig sind Ihre Benutzer nur für Sie sichtbar."
   }
 }

@@ -1,12 +1,12 @@
 {
   "39": {
-    "other": "Seleccione un repositorio."
+    "other": "Abajo hay una lista de espacios de trabajo a los que puede acceder. Pueden ser personales o compartidos con/por otros usuarios."
   },
   "40": {
     "other": "Bienvenido/a, %s!"
   },
   "41": {
-    "other": "Usar este repositorio por defecto"
+    "other": "Usar este workspace como predeterminado"
   },
   "42": {
     "other": "Entrar"
@@ -51,7 +51,7 @@
     "other": "Comience con APPLICATION_TITLE siguiendo estos videos How-to"
   },
   "55": {
-    "other": "¿Necesita ayuda para <a>empezar?</a>"
+    "other": "¿Utiliza por primera vez APPLICATION_TITLE? ¡<a>Consulte nuestros tutoriales</a>!"
   },
   "56": {
     "other": "¿Primeros pasos con APPLICATION_TITLE? ¡Aquí tiene algunos videos!"
@@ -63,7 +63,7 @@
     "other": "Android"
   },
   "59": {
-    "other": "iPhone/iPad"
+    "other": "iPhone / iPad"
   },
   "60": {
     "other": "Mac OS (Beta)"
@@ -105,10 +105,10 @@
     "other": "QRCode del Servidor"
   },
   "73": {
-    "other": "Conecta fácilmente a tu aplicación móvil"
+    "other": "Conecte fácilmente sus aplicaciones móviles"
   },
   "74": {
-    "other": "Escanéa este QRCode con tu aplicación móvil para configurar fácilmente la conexión"
+    "other": "Escanee este QRCode para configurar fácilmente su aplicación móvil"
   },
   "75": {
     "other": "Buscar todos los archivos..."
@@ -132,43 +132,43 @@
     "other": "<h2>Personaliza tus enlaces</h2>\n            Aprende como personalizar la URL de tus enlaces de intercambio para hacerlos más amigables\n            "
   },
   "82": {
-    "other": "<h2>Shared links custom rights</h2>\n            Este vídeo muestra como gestionar los permisos de tus archivos compartidos\n            <ul>\n                <li>Previsualizar</li>\n                <li>Descargar</li>\n                <li>Subir / Editar</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] personalizar los links compartidos</h2>\n            Este vídeo muestra cómo gestionar los permisos adjuntos a sus elementos compartidos\n            <ul>\n                <li>Vista previa</li>\n                <li>Descargar</li>\n                <li>Subir / Editar</li>\n            </ul>\n            \n             \n            "
   },
   "83": {
     "other": "<h2>Idioma</h2>\n            APPLICATION_TITLE está disponible en 28 idiomas. Este vídeo muestra como cambiar el idioma de APPLICATION_TITLE\n            "
   },
   "84": {
-    "other": "<h2>Alertas</h2>\n            Aprende como configurar alertas en un archivo para ver cuando se modifica o se consulta.\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] Alertas</h2>\n            Aprende como configurar alertas en un archivo para ver cuando se modifica o se consulta.\n          \n            "
   },
   "85": {
-    "other": "<h2>Edición Colaborativa</h2>\n            Este vídeo muestra como colaborar en documentos Office gracias a Collabora Online Office Suite\n            <ul>\n                <li>Trabaja con documentos de texto, presentaciónes y tablas</li>\n                <li>Edita documentos de forma colaborativa en tiempo real</li>\n                <li>Crear documentos nuevos desde tu navegador</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Edición Colaborativa</h2>\n            Este vídeo muestra como colaborar en documentos Office gracias a la suite ofimática on-line Collabora\n            <ul>\n                <li>Trabaja con documentos de texto, presentaciónes y tablas</li>\n                <li>Edita documentos de forma colaborativa en tiempo real</li>\n                <li>Crea documentos nuevos desde tu navegador</li>\n            </ul>\n            "
   },
   "86": {
     "other": "Reproducir vídeo"
   },
   "87": {
-    "other": "Historia Reciente"
+    "other": "Actividad Reciente"
   },
   "88": {
     "other": "Suelta un archivo aquí desde tu escritorio"
   },
   "89": {
-    "other": "Seleccionado archivo para subir"
+    "other": "Archivo seleccionado para subir"
   },
   "90": {
     "other": "Seleccionar workspace de destino"
   },
   "91": {
-    "other": "Archivos offline con Desktop Sync Client"
+    "other": "Mantenga sus archivos offline con Desktop Sync Client"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "Descarga de aplicaciones"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Subida Rápida"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Tutorial de vídeo"
   },
   "desc": {
     "other": "Página de bienvenida"

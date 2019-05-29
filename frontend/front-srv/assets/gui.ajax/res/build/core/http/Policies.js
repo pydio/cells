@@ -107,6 +107,26 @@ var Policies = (function () {
         });
     };
 
+    Policies.saveSharePolicies = function saveSharePolicies(shareId, policies) {
+        var _Policies$workspaceData3 = Policies.workspaceData(shareId);
+
+        var api = _Policies$workspaceData3.api;
+        var request = _Policies$workspaceData3.request;
+
+        return api.searchWorkspaces(request).then(function (result) {
+            if (result.Total === 0 || !result.Workspaces) {
+                throw new Error('Cannot find share!');
+            }
+            var shareApi = new _genIndex.ShareServiceApi(_PydioApi2['default'].getRestClient());
+            var shareRequest = new _genIndex.RestUpdateSharePoliciesRequest();
+            shareRequest.Uuid = shareId;
+            shareRequest.Policies = policies;
+            return shareApi.updateSharePolicies(shareRequest).then(function (response) {
+                return response.Policies;
+            });
+        });
+    };
+
     /**
      *
      * @param roleId
@@ -264,6 +284,8 @@ var Policies = (function () {
             case 'team':
                 return Policies.rolesPolicies(resourceId);
             case 'workspace':
+            case 'cell':
+            case 'link':
                 return Policies.workspacePolicies(resourceId);
             default:
                 return Promise.reject(new Error('Unsupported resource type ' + resourceType));
@@ -286,6 +308,9 @@ var Policies = (function () {
                 return Policies.saveRolesPolicies(resourceId, policies);
             case 'workspace':
                 return Policies.saveWorkspacesPolicies(resourceId, policies);
+            case 'cell':
+            case 'link':
+                return Policies.saveSharePolicies(resourceId, policies);
             default:
                 return Promise.reject(new Error('Unsupported resource type ' + resourceType));
         }

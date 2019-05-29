@@ -58,6 +58,7 @@ var MailerMail = (function () {
         this.TemplateData = undefined;
         this.Retries = undefined;
         this.sendErrors = undefined;
+        this.Sender = undefined;
     }
 
     /**
@@ -116,6 +117,9 @@ var MailerMail = (function () {
             }
             if (data.hasOwnProperty('sendErrors')) {
                 obj['sendErrors'] = _ApiClient2['default'].convertToType(data['sendErrors'], ['String']);
+            }
+            if (data.hasOwnProperty('Sender')) {
+                obj['Sender'] = _MailerUser2['default'].constructFromObject(data['Sender']);
             }
         }
         return obj;
@@ -184,4 +188,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Array.<String>} sendErrors
+*/
+
+/**
+* @member {module:model/MailerUser} Sender
 */

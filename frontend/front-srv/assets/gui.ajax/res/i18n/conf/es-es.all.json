@@ -3,19 +3,19 @@
     "other": "Framework JS adicional"
   },
   "Additional JS frameworks description": {
-    "other": "Lista separada por comas de rutas a archivos JS, los cuales serán cargados ANTES de que se cargue el framework de Pydio. Se prefiere el uso de plugins de declaración de recursos. La carga de archivos JS debe ser usado para casos concretos únicamente."
+    "other": "Lista separada por comas de rutas a archivos JS, los cuales serán cargados ANTES de que se cargue el framework de Pydio. Se prefiere el uso de plugins de declaración de recursos. La carga de archivos JS debe ser usada para casos concretos únicamente."
   },
   "An additionnal message displayed in the start up screen": {
     "other": "Mensaje adicional que se muestra en la pantalla de inicio"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "Dominio de Análisis"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "Eventos de análisis"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "ID de Análisis"
   },
   "Append a title to the image logo": {
     "other": "Añadir título al logo"
@@ -93,16 +93,16 @@
     "other": "Muestra la Herramienta de Estilo"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "Habilitar Tour de Bienvenida"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "Habilitar la activación del tour de bienvenida breve en primera visita"
   },
   "Fetch Window (no repeat)": {
-    "other": "No repetir"
+    "other": "Fetch Window (sin repetir)"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Repetir verticalmente"
+    "other": "Fetch Window (repetir en vertical)"
   },
   "Font sized used for the title in the start up screen": {
     "other": "Tamaño de la fuente usado para el título de la pantalla de inicio"
@@ -111,19 +111,19 @@
     "other": "Google Analytics"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "Dominio de análisis de Google Analytics"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "Eventos de análisis de Google Analytics"
   },
   "Google Analytics Analytics ID": {
-    "other": "Google Analytics Analytics ID"
+    "other": "ID de Análisis Google Analytics"
   },
   "Height of the custom icon (with the px mention)": {
     "other": "Altura del icono (en px)"
   },
   "Icon Height": {
-    "other": "Altura Icono"
+    "other": "Altura del icono"
   },
   "Icon Only": {
     "other": "Sólo Icono"
@@ -132,7 +132,7 @@
     "other": "Ruta de Icono (Antiguo)"
   },
   "Icon Width": {
-    "other": "Anchura Icono"
+    "other": "Ancho del icono"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
     "other": "ID de tu cuenta GA, algo como UE-XXXX-YY"
@@ -141,22 +141,22 @@
     "other": "Imagen de fondo"
   },
   "Login Screen": {
-    "other": "Página de Identificación"
+    "other": "Página de inicio de sesión"
   },
   "Logo": {
     "other": "Logo"
   },
   "Logo Height": {
-    "other": "Altura Logo"
+    "other": "Altura del Logo"
   },
   "Logo Left": {
-    "other": "Ajuste Izquierda Logo"
+    "other": "Ajuste del Logo (izquierda)"
   },
   "Logo Top": {
-    "other": "Ajuste Alto Logo"
+    "other": "Ajuste del Logo (arriba)"
   },
   "Logo Width": {
-    "other": "Anchura Logo"
+    "other": "Anchura del Logo"
   },
   "Low-Resolution Background": {
     "other": "Fondo Baja-Resolución"
@@ -165,61 +165,61 @@
     "other": "Opciones Principales"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
-    "other": "Asegurate de que la imagen de fondo tiene baja resolución para evitar carga lenta en móviles."
+    "other": "Asegurese de que la imagen de fondo tiene baja resolución para evitar carga lenta en móviles."
   },
   "Manually set a left offset": {
-    "other": "Ajusta la posición izquierda del logo"
+    "other": "Ajustar manualmente la posición del logo (izquierda)"
   },
   "Manually set a logo height": {
-    "other": "Configura la altura del logo"
+    "other": "Ajustar manualmente la altura del logo"
   },
   "Manually set a logo width": {
-    "other": "Configura el ancho del logo"
+    "other": "Ajustar manualmente la anchura del logo"
   },
   "Manually set a top offset": {
-    "other": "Ajusta la posición superior del logo"
+    "other": "Ajustar manualmente la posición del logo (arriba)"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Minisitio"
   },
   "Minisite Logo": {
     "other": "Logo de Minisitio"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "Número de MINUTOS antes de que la sesión expiré para avisar al usuario."
+    "other": "Número de MINUTOS antes de que la sesión expire para avisar al usuario"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
-    "other": "Sobreescribe los estilos y colores por defecto por los definidos en la herramienta de estilo. Recargar la interfaz después de activar esta opción."
+    "other": "Sobreescribir los estilos y colores por defecto por los definidos en la herramienta de estilo. Recargar la interfaz después de activar esta opción."
   },
   "Page Background Images": {
     "other": "Imagenes de Fondo de la Página"
   },
   "Replace the logo displayed in the welcome page": {
-    "other": "Reemplaza el logo de la página de bienvenida"
+    "other": "Reemplazar el logo de la página de bienvenida"
   },
   "Replace the top left logo in the top toolbar": {
-    "other": "Reemplaza el logo de la esquina superior izquierda"
+    "other": "Reemplazar el logotipo superior izquierdo en la barra de herramientas superior"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Configura el dominio para Analytics (no es necesario)"
+    "other": "Establecer el dominio para sus informes de análisis (¡no obligatorio!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Establecer el dominio para sus informes de análisis (¡no obligatorio!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Configura los parámetros de algunas aplicaciones. Si activas Emails, usa el botón Test para comprobar la configuración de PHP."
+    "other": "Configurar los parámetros de algunas aplicaciones. Si activa Emails, use el botón Test para comprobar la configuración de Php."
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
     "other": "Muestra la paleta para cambiar los colores de la interfaz y logos. Recargar la interfaz después de activar esta opción."
   },
   "Skip the title, only display an image": {
-    "other": "No muestra título, solo una imagen"
+    "other": "No mostrar título, solo una imagen"
   },
   "Start Up Screen": {
     "other": "Pantalla de Inicio"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "La duración de la sesión del cliente en SEGUNDOS. Por defecto, se copia la duración de sesión del servidor. En la mayoría de instalaciones PHP, es 1440 (24 minutos). Puedes configurarla como 0, esto hará la sesión del cliente infinita manteniendo la sesión PHP activa. Esto último no es recomendado por razones de seguridad."
+    "other": "La duración de la sesión del cliente en SEGUNDOS. Por defecto, se copia la duración de sesión del servidor. En la mayoría de instalaciones PHP, es 1440 (24 minutos). Puedes configurarla como 0, esto la sesión PHP del cliente siempre activa. Esto último no es recomendado por razones de seguridad."
   },
   "Theme": {
     "other": "Tema"
@@ -228,7 +228,7 @@
     "other": "Tema para mostrar"
   },
   "Tile (repeat both directions)": {
-    "other": "Mosaico"
+    "other": "Mosaico (repetir ambas direcciones)"
   },
   "Title": {
     "other": "Título"
@@ -240,7 +240,7 @@
     "other": "Barra Superior"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "El logo mostrado en el minisitio"
+    "other": "Logo superior derecha mostrado en la página del minisitio"
   },
   "URI to a custom image to be used as start up logo": {
     "other": "URI de la imagen personalizada usada como logo en el inicio"
@@ -255,13 +255,13 @@
     "other": "Logo Carpeta Personal"
   },
   "Warning Before": {
-    "other": "Aviso de expiración"
+    "other": "Advertencia antes de que expire de la sesión"
   },
   "Web Session": {
     "other": "Sesión Web"
   },
   "Welcome Message": {
-    "other": "Mensaje Bienvenida"
+    "other": "Mensaje de bienvenida"
   },
   "Welcome Page": {
     "other": "Página de Bienvenida"
@@ -270,9 +270,9 @@
     "other": "Anchura de la imagen personalizada (por defecto 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "Alerta al usuario de que la sesión web está a punto de expirar. Número de minutos antes de la expiración de la sesión"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "Advertencia antes de que expire de la sesión"
   }
 }
