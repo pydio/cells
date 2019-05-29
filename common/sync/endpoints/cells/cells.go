@@ -199,6 +199,10 @@ func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 
 	TimeFormatFS := "2006-01-02T15:04:05.000Z"
 	now := time.Now().UTC().Format(TimeFormatFS)
+	if c.updateSnapshot != nil && change.Type == tree.NodeChangeEvent_CREATE && path.Base(change.Target.Path) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+		// Special case for .pydio creations, to be updated in snapshot but ignored for event processed further
+		c.updateSnapshot.CreateNode(c.globalCtx, change.Target, true)
+	}
 	if !c.changeValidPath(change.Target) || !c.changeValidPath(change.Source) {
 		return
 	}
@@ -307,17 +311,6 @@ func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 		c.recentMkDirs = append(c.recentMkDirs, n)
 		c.Unlock()
 	}
-	return e
-}
-
-func (c *abstract) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	ctx, cli, err := c.factory.GetNodeReceiverClient(c.getContext(ctx))
-	if err != nil {
-		return err
-	}
-	n := node.Clone()
-	n.Path = c.rooted(n.Path)
-	_, e := cli.CreateNode(ctx, &tree.CreateNodeRequest{Node: n})
 	return e
 }
 

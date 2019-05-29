@@ -137,10 +137,6 @@ func (i *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 	return err
 }
 
-func (i *Client) UpdateNode(ctx context.Context, node *tree.Node) error {
-	return i.CreateNode(ctx, node, true)
-}
-
 func (i *Client) DeleteNode(ctx context.Context, path string) (err error) {
 
 	session := i.indexationSession()

@@ -91,10 +91,6 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 	})
 }
 
-func (s *BoltSnapshot) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	return s.CreateNode(ctx, node, true)
-}
-
 func (s *BoltSnapshot) DeleteNode(ctx context.Context, path string) (err error) {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)

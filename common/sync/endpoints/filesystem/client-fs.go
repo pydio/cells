@@ -182,6 +182,17 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	pr := proc.NewProcessor(ctx)
 	pr.Silent = true
 	pr.Process(newPatch)
+	// For Create Folders, updateSnapshot with associated .pydio's
+	newPatch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
+		folderUuid := operation.GetNode().Uuid
+		c.updateSnapshot.CreateNode(ctx, &tree.Node{
+			Uuid:  uuid.New(),
+			Path:  path.Join(operation.GetNode().Path, common.PYDIO_SYNC_HIDDEN_FILE_META),
+			Etag:  model.StringContentToETag(folderUuid),
+			Size:  int64(len(folderUuid)),
+			MTime: operation.GetNode().MTime,
+		}, true)
+	})
 }
 
 func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
@@ -329,7 +340,7 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 
 func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
-		return errors.New("This is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
+		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
 	fPath := c.denormalize(node.Path)
 	_, e := c.FS.Stat(fPath)
@@ -340,14 +351,19 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 		}
 		if c.updateSnapshot != nil {
 			log.Logger(ctx).Info("[FS] Update Snapshot - Create", node.ZapPath())
-			c.updateSnapshot.CreateNode(ctx, node, updateIfExists)
+			if err := c.updateSnapshot.CreateNode(ctx, node, updateIfExists); err == nil {
+				// Create associated .pydio in snapshot as well
+				c.updateSnapshot.CreateNode(ctx, &tree.Node{
+					Uuid:  uuid.New(),
+					Path:  path.Join(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META),
+					Etag:  model.StringContentToETag(node.Uuid),
+					Size:  int64(len(node.Uuid)),
+					MTime: node.MTime,
+				}, true)
+			}
 		}
 	}
 	return err
-}
-
-func (c *FSClient) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	return c.CreateNode(ctx, node, true)
 }
 
 func (c *FSClient) DeleteNode(ctx context.Context, path string) (err error) {

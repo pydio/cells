@@ -11,11 +11,13 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-
+	muerrors "github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-plugins/registry/memory"
+	"github.com/pkg/errors"
+
 	sdk "github.com/pydio/cells-sdk-go"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 var (
@@ -28,14 +30,14 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 
 	u, e := url.Parse(config.Url)
 	if e != nil {
-		err = e
+		err = errors.Wrap(model.NewConfigError(e), "cannot parse url")
 		return
 	}
 
 	if strings.Contains(u.Host, ":") {
 		host, _, err = net.SplitHostPort(u.Host)
 		if err != nil {
-			return "", "", err
+			return "", "", errors.Wrap(model.NewConfigError(err), "cannot split host/port")
 		}
 	} else {
 		host = u.Host
@@ -47,7 +49,7 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 	if port, ok = detectedGrpcPorts[host]; !ok || reload {
 		resp, e := http.DefaultClient.Get(fmt.Sprintf("%s/a/config/discovery", config.Url))
 		if e != nil {
-			err = e
+			err = errors.Wrap(e, "cannot connect to discovery endpoint")
 			return
 		}
 		var data map[string]interface{}
@@ -65,7 +67,7 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 			}
 		}
 		if !found {
-			err = fmt.Errorf("no port declared for GRPC endpoint")
+			err = model.NewConfigError(errors.New("no port declared for GRPC endpoint"))
 			return
 		}
 	}
@@ -161,7 +163,7 @@ func (r *RegistryRefreshClient) CallRemote(ctx context.Context, addr string, req
 func (r *RegistryRefreshClient) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Streamer, error) {
 	s, e := r.w.Stream(ctx, req, opts...)
 	if e != nil && req.Method() == "NodeChangesStreamer.StreamChanges" {
-		mE := errors.Parse(e.Error())
+		mE := muerrors.Parse(e.Error())
 		if strings.Contains(mE.Detail, "connect: connection refused") || (mE.Id == "go.micro.client" && mE.Detail == "not found") {
 			if er := r.r.Refresh(); er == nil {
 				// Retry call with refreshed registry

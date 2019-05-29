@@ -24,7 +24,6 @@ package s3
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
 	"errors"
 	"fmt"
 	"io"
@@ -35,8 +34,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
-	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
@@ -135,10 +134,6 @@ func (c *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
 	_, err = c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(node.Uuid), int64(len(node.Uuid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	return err
-}
-
-func (c *Client) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	return c.CreateNode(ctx, node, true)
 }
 
 func (c *Client) DeleteNode(ctx context.Context, path string) (err error) {
@@ -389,7 +384,7 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Nod
 	if node.Uuid != "" {
 		uid = node.Uuid
 	} else {
-		uid = fmt.Sprintf("%s", uuid.NewV4())
+		uid = uuid.New()
 		node.Uuid = uid
 	}
 
@@ -437,15 +432,13 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 	}
 	// Does not exists
 	// Create dir uuid now
-	uid = fmt.Sprintf("%s", uuid.NewV4())
-	h := md5.New()
-	io.Copy(h, strings.NewReader(uid))
-	Etag := fmt.Sprintf("%x", h.Sum(nil))
+	uid = uuid.New()
+	eTag := model.StringContentToETag(uid)
 
 	if c.options.BrowseOnly {
 		// Return fake file without actually creating it
 		return uid, minio.ObjectInfo{
-			ETag:         Etag,
+			ETag:         eTag,
 			Key:          hiddenPath,
 			LastModified: time.Now(),
 			Size:         36,
@@ -455,7 +448,7 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
 	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	created = minio.ObjectInfo{
-		ETag:         Etag,
+		ETag:         eTag,
 		Key:          hiddenPath,
 		LastModified: time.Now(),
 		Size:         size,
