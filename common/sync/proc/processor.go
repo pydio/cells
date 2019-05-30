@@ -70,10 +70,10 @@ func NewProcessor(ctx context.Context) *Processor {
 // Process calls all Operations to be performed on a Patch
 func (pr *Processor) Process(patch merger.Patch) {
 
-	s := patch.Size()
-	defer patch.Done(s)
+	// Send the patch itself on the doneChan
+	defer patch.Done(patch)
 
-	if s == 0 {
+	if patch.Size() == 0 {
 		return
 	}
 
@@ -166,11 +166,13 @@ func (pr *Processor) Process(patch merger.Patch) {
 		}
 		pr.applyProcessFunc(op, operationId, pr.processDelete, "Deleted "+nS, "Deleting "+nS, "Error while deleting "+nS, &cursor, total, zap.String("path", op.GetNode().Path))
 	}
-	var pg float32
-	if total > 0 {
-		pg = float32(cursor) / float32(total)
-	}
-	patch.Status(merger.ProcessStatus{StatusString: "Finished processing patch", Progress: pg})
+	/*
+		var pg float32
+		if total > 0 {
+			pg = float32(cursor) / float32(total)
+		}
+		patch.Status(merger.ProcessStatus{StatusString: "Finished processing patch", Progress: pg})
+	*/
 
 	if len(patch.OperationsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
 		go pr.refreshFilesUuid(patch)
@@ -219,21 +221,22 @@ func (pr *Processor) applyProcessFunc(op merger.Operation, operationId string, c
 		}
 	}
 
-	if total > 0 {
-		isError := false
-		loggerString := completeString
-		if err != nil {
-			isError = true
-			loggerString = errorString
-		}
-		end := float32(*cursor) / float32(total)
-		log.Logger(pr.GlobalContext).Debug("Sending PG END", zap.Float32("pg", end))
-		op.Status(merger.ProcessStatus{
-			IsError:      isError,
-			StatusString: pr.logAsString(loggerString, err, fields...),
-			Progress:     end,
-		})
+	isError := false
+	loggerString := completeString
+	if err != nil {
+		isError = true
+		loggerString = errorString
 	}
+	var end float32
+	if total > 0 {
+		end = float32(*cursor) / float32(total)
+	}
+	op.Status(merger.ProcessStatus{
+		IsError:      isError,
+		Error:        err,
+		StatusString: pr.logAsString(loggerString, err, fields...),
+		Progress:     end,
+	})
 
 	return err
 }

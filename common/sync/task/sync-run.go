@@ -26,12 +26,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pydio/cells/common/sync/endpoints/memory"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/endpoints/memory"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -44,12 +43,8 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 		if e != nil {
 			return nil, e
 		}
-		out := model.NewMultiStater()
-		for k, b := range bb {
-			out[k] = b
-			s.processor.PatchChan <- b
-		}
-		return out, e
+		s.processor.PatchChan <- bb
+		return bb, e
 
 	} else {
 		if len(s.Roots) == 0 {
@@ -118,7 +113,7 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 	return patch, nil
 }
 
-func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*merger.BidirectionalPatch, error) {
+func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (*merger.BidirectionalPatch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -135,7 +130,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*
 		roots = append(roots, "/")
 	}
 
-	bb := make(map[string]*merger.BidirectionalPatch, len(roots))
+	var bb *merger.BidirectionalPatch
 
 	if s.snapshotFactory != nil && !force {
 		var er1, er2 error
@@ -155,7 +150,11 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*
 		log.Logger(ctx).Info("Computing patches from Snapshots")
 		for _, r := range roots {
 			if b, e := merger.ComputeBidirectionalPatch(ctx, leftPatches[r], rightPatches[r]); e == nil {
-				bb[r] = b
+				if bb != nil {
+					bb.AppendBranch(ctx, b)
+				} else {
+					bb = b
+				}
 			} else {
 				log.Logger(ctx).Error("Could not compute Bidirectionnal Patch! DO SOMETHING HERE!!")
 				return nil, e
@@ -183,8 +182,12 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*
 				log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
 			}
 			leftPatch, rightPatch := diff.ToBidirectionalPatches(sourceAsTarget, target)
-			if b, err := merger.ComputeBidirectionalPatch(context.Background(), leftPatch, rightPatch); err == nil {
-				bb[r] = b
+			if b, err := merger.ComputeBidirectionalPatch(ctx, leftPatch, rightPatch); err == nil {
+				if bb != nil {
+					bb.AppendBranch(ctx, b)
+				} else {
+					bb = b
+				}
 				log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", b.Stats()))
 			} else {
 				return nil, err
@@ -201,32 +204,11 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (map[string]*
 	}
 
 	// Wait all patches to be processed to send the doneChan info
-	patchCount := len(bb)
-	dChan := make(chan interface{}, patchCount)
-	for _, b := range bb {
-		// TODO : HOW TO HANDLE SESSION PROVIDER FOR BI-DIRECTIONAL PATCH?
-		if provider, ok := model.AsSessionProvider(s.Target); ok {
-			b.SetSessionProvider(ctx, provider)
-		}
-		b.SetupChannels(s.statuses, dChan)
+	// TODO : HOW TO HANDLE SESSION PROVIDER FOR BI-DIRECTIONAL PATCH?
+	if provider, ok := model.AsSessionProvider(s.Target); ok {
+		bb.SetSessionProvider(ctx, provider)
 	}
-	go func() {
-		i := 0
-		totalSize := 0
-		for si := range dChan {
-			i++
-			if size, ok := si.(int); ok {
-				totalSize += size
-			}
-			if i == patchCount {
-				close(dChan)
-				if s.runDone != nil {
-					s.runDone <- totalSize
-				}
-			}
-		}
-	}()
-
+	bb.SetupChannels(s.statuses, s.runDone)
 	return bb, nil
 }
 

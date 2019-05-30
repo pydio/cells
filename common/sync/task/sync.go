@@ -120,6 +120,10 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 	return s.run(ctx, dryRun, force)
 }
 
+func (s *Sync) ReApplyPatch(ctx context.Context, patch merger.Patch) {
+	s.processor.PatchChan <- patch
+}
+
 // SetSnapshotFactory set up a factory for loading/saving snapshots
 func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
 	s.snapshotFactory = factory

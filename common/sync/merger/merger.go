@@ -139,6 +139,7 @@ type Operation interface {
 	SetDirection(OperationDirection) Operation
 	IsProcessed() bool
 	Status(status ProcessStatus)
+	GetStatus() ProcessStatus
 	GetRefPath() string
 	UpdateRefPath(p string)
 	GetMoveOriginPath() string
@@ -176,9 +177,10 @@ type Diff interface {
 
 // ProcessStatus informs about the status of an operation
 type ProcessStatus struct {
-	IsError      bool
-	StatusString string
 	Progress     float32
+	StatusString string
+	IsError      bool
+	Error        error
 }
 
 // StatusProvider can register channels to send status/done events during processing
@@ -187,7 +189,7 @@ type StatusProvider interface {
 	SetupChannels(status chan ProcessStatus, done chan interface{})
 	// Status notify of a new ProcessStatus
 	Status(s ProcessStatus)
-	// Done notify the patch is processed, operations is the number of processed operations
+	// Done notify the patch is processed, can send any useful info to the associated channel
 	Done(info interface{})
 }
 

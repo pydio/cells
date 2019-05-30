@@ -26,7 +26,6 @@ import (
 	"sort"
 
 	"github.com/pydio/cells/common/log"
-
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -156,20 +155,42 @@ func (t *TreePatch) String() string {
 }
 
 func (t *TreePatch) Stats() map[string]interface{} {
+	processed, pending, errors := make(map[string]int), make(map[string]int), make(map[string]int)
 	s := map[string]interface{}{
 		"Type":   "TreePatch",
 		"Source": t.Source().GetEndpointInfo().URI,
 		"Target": t.Target().GetEndpointInfo().URI,
 	}
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
-		opType := operation.Type().String()
-		if val, ok := s[opType]; ok {
-			count := val.(int)
-			s[opType] = count + 1
+		var target map[string]int
+		if operation.IsProcessed() {
+			target = processed
+		} else if operation.GetStatus().IsError {
+			target = errors
 		} else {
-			s[opType] = 1
+			target = pending
+		}
+		opType := operation.Type().String()
+		if count, ok := target[opType]; ok {
+			target[opType] = count + 1
+		} else {
+			target[opType] = 1
+		}
+		if total, ok := target["Total"]; ok {
+			target["Total"] = total + 1
+		} else {
+			target["Total"] = 1
 		}
 	})
+	if len(processed) > 0 {
+		s["Processed"] = processed
+	}
+	if len(errors) > 0 {
+		s["Errors"] = errors
+	}
+	if len(pending) > 0 {
+		s["Pending"] = pending
+	}
 	return s
 }
 

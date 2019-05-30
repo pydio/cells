@@ -31,9 +31,12 @@ type patchOperation struct {
 	opType    OperationType
 	node      *tree.Node
 	eventInfo model.EventInfo
-	processed bool
 	patch     Patch
 	dir       OperationDirection
+
+	internalStatus  ProcessStatus
+	processed       bool
+	processingError error
 }
 
 func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) Operation {
@@ -53,6 +56,7 @@ func (o *patchOperation) Clone(replaceType ...OperationType) Operation {
 		opType:    o.opType,
 		eventInfo: o.eventInfo,
 		node:      o.node,
+		dir:       o.dir,
 	}
 	if len(replaceType) > 0 {
 		op.opType = replaceType[0]
@@ -86,7 +90,12 @@ func (o *patchOperation) SetDirection(direction OperationDirection) Operation {
 }
 
 func (o *patchOperation) Status(status ProcessStatus) {
+	o.internalStatus = status
 	o.patch.Status(status)
+}
+
+func (o *patchOperation) GetStatus() ProcessStatus {
+	return o.internalStatus
 }
 
 func (o *patchOperation) GetRefPath() string {
