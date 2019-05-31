@@ -211,7 +211,7 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 	return e
 }
 
-func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		if b := tx.Bucket(bucketName); b != nil {
 			value := b.Get([]byte(path))

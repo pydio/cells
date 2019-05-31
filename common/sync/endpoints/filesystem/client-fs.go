@@ -36,6 +36,9 @@ import (
 	"strings"
 	"sync"
 
+	"go.uber.org/zap"
+
+	"github.com/karrick/godirwalk"
 	errors2 "github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"github.com/rjeczalik/notify"
@@ -213,14 +216,20 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 // LoadNode is the Read in CRUD.
 // leaf bools are used to avoid doing an FS.stat if we already know a node to be
 // a leaf.  NOTE : is it useful?  Examine later.
-func (c *FSClient) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
-	return c.loadNode(ctx, path, nil)
+func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+	n, e := c.loadNode(ctx, path, nil)
+	if len(extendedStats) > 0 && extendedStats[0] && e == nil {
+		if er := c.loadNodeExtendedStats(ctx, n); er != nil {
+			log.Logger(ctx).Error("Cannot load node extended stats", zap.Error(er))
+		}
+	}
+	return n, e
 }
 
-func (c *FSClient) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (c *FSClient) Walk(walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			walknFc("", nil, err)
+			walkFunc("", nil, err)
 			return nil
 		}
 		if len(path) == 0 || path == "/" || c.normalize(path) == strings.TrimLeft(root, "/") || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
@@ -229,9 +238,9 @@ func (c *FSClient) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 
 		path = c.normalize(path)
 		if node, e := c.loadNode(context.Background(), path, info); e != nil {
-			walknFc("", nil, e)
+			walkFunc("", nil, e)
 		} else {
-			walknFc(path, node, nil)
+			walkFunc(path, node, nil)
 		}
 
 		return nil
@@ -599,4 +608,36 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 	node.Size = stat.Size()
 	node.Mode = int32(stat.Mode())
 	return node, nil
+}
+
+func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) error {
+	if node.IsLeaf() {
+		return nil
+	}
+	var folders, files, totalSize int64
+	realPath := filepath.Join(c.RootPath, c.normalize(node.Path))
+	e := godirwalk.Walk(realPath, &godirwalk.Options{
+		Unsorted: true,
+		Callback: func(osPathname string, directoryEntry *godirwalk.Dirent) error {
+			if !directoryEntry.IsRegular() {
+				folders++
+			} else {
+				files++
+				if i, e := os.Stat(osPathname); e == nil {
+					totalSize += i.Size()
+				}
+			}
+			return nil
+		},
+	})
+	if e != nil {
+		return e
+	}
+	if totalSize > 0 {
+		node.Size = totalSize
+		node.SetMeta("RecursiveChildrenSize", totalSize)
+	}
+	node.SetMeta("RecursiveChildrenFiles", files)
+	node.SetMeta("RecursiveChildrenFolders", folders)
+	return nil
 }

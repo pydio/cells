@@ -79,7 +79,7 @@ type EndpointOptions struct {
 }
 
 type Endpoint interface {
-	LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error)
+	LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error)
 	GetEndpointInfo() EndpointInfo
 }
 

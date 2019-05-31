@@ -40,6 +40,14 @@ type MinioClientMock struct {
 	objects map[string]minio.ObjectInfo
 }
 
+func (c *MinioClientMock) ListBuckets() (bb []minio.BucketInfo, e error) {
+	return
+}
+
+func (c *MinioClientMock) BucketExists(string) (bool, error) {
+	return true, nil
+}
+
 func (c *MinioClientMock) StatObject(bucket string, path string, opts minio.StatObjectOptions) (minio.ObjectInfo, error) {
 	obj, ok := c.objects[path]
 	if ok {

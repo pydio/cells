@@ -34,6 +34,8 @@ import (
 	"strings"
 	"time"
 
+	errors2 "github.com/micro/go-micro/errors"
+
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
@@ -115,6 +117,21 @@ func (c *Client) getFullPath(path string) string {
 }
 
 func (c *Client) Stat(path string) (i os.FileInfo, err error) {
+	if path == "" || path == "/" {
+		buckets, err := c.Mc.ListBuckets()
+		if err != nil {
+			return nil, err
+		}
+		for _, b := range buckets {
+			if b.Name == c.Bucket {
+				return NewS3FolderInfo(minio.ObjectInfo{
+					Key:          "/",
+					LastModified: b.CreationDate,
+				}), nil
+			}
+		}
+		return nil, errors2.NotFound("bucket.not.found", "cannot find bucket %s", c.Bucket)
+	}
 	objectInfo, e := c.Mc.StatObject(c.Bucket, c.getFullPath(path), minio.StatObjectOptions{})
 	if e != nil {
 		// Try folder
@@ -214,7 +231,7 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	ctx := context.Background()
 	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
 		path = c.getLocalPath(path)
-		node, test := c.LoadNode(ctx, path, !info.IsDir())
+		node, test := c.loadNode(ctx, path, !info.IsDir())
 		if test != nil || node == nil {
 			// Ignoring node not found
 			return nil
@@ -334,9 +351,13 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 
 }
 
-func (c *Client) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
-	var hash, uid string = "", ""
-	var isLeaf bool = false
+func (c *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+	return c.loadNode(ctx, path)
+}
+
+func (c *Client) loadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+	var hash, uid string
+	var isLeaf bool
 	var metaSize int64
 	var stat os.FileInfo
 	var eStat error

@@ -34,4 +34,6 @@ type MockableMinio interface {
 	ListObjectsV2(bucketName, objectPrefix string, recursive bool, doneCh <-chan struct{}) <-chan minio.ObjectInfo
 	CopyObject(dest minio.DestinationInfo, source minio.SourceInfo) error
 	ListenBucketNotification(bucketName, prefix, suffix string, events []string, doneCh <-chan struct{}) <-chan minio.NotificationInfo
+	ListBuckets() ([]minio.BucketInfo, error)
+	BucketExists(string) (bool, error)
 }

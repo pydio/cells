@@ -89,13 +89,16 @@ func (i *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	return nil, errors.New("Watch Not Implemented")
 }
 
-func (i *Client) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (i *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByPath" + path)
+	var x bool
+	if len(extendedStats) > 0 && extendedStats[0] {
+		x = true
+	}
 	resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
-		Node: &tree.Node{
-			Path: path,
-		},
+		Node:              &tree.Node{Path: path},
+		WithExtendedStats: x,
 	})
 	if e != nil {
 		return nil, e

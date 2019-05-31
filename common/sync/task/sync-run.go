@@ -23,8 +23,12 @@ package task
 import (
 	"context"
 	"fmt"
+	"math"
 	"path/filepath"
 	"strings"
+	"sync"
+
+	"github.com/pkg/errors"
 
 	"go.uber.org/zap"
 
@@ -35,11 +39,43 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+type EndpointRootStat struct {
+	HasChildrenInfo bool
+	HasSizeInfo     bool
+
+	Size     int64
+	Children int64
+	Folders  int64
+	Files    int64
+
+	PgSize     int64
+	PgChildren int64
+	PgFolders  int64
+	PgFiles    int64
+
+	LastPg float64
+}
+
 func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {
+
+	// Check that both endpoints are available
+	sourceRoots, e := s.statRoots(ctx, s.Source)
+	if e != nil {
+		return nil, e
+	}
+	targetRoots, e := s.statRoots(ctx, s.Target)
+	if e != nil {
+		return nil, e
+	}
+	rootsInfo := map[string]*EndpointRootStat{
+		s.Source.GetEndpointInfo().URI: sourceRoots,
+		s.Target.GetEndpointInfo().URI: targetRoots,
+	}
+	log.Logger(ctx).Info("Got ExtendedStats for Root", zap.Any("infos", rootsInfo))
 
 	if s.Direction == model.DirectionBi {
 
-		bb, e := s.runBi(ctx, dryRun, force)
+		bb, e := s.runBi(ctx, dryRun, force, rootsInfo)
 		if e != nil {
 			return nil, e
 		}
@@ -48,24 +84,24 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 	} else {
 		if len(s.Roots) == 0 {
-			patch, e := s.runUni(ctx, "/", dryRun, force)
+			patch, e := s.runUni(ctx, "/", dryRun, force, rootsInfo)
 			if e == nil {
 				s.processor.PatchChan <- patch
 			}
 			return patch, e
 		} else {
 			multi := model.NewMultiStater()
-			var errors []string
+			var errs []string
 			for _, p := range s.Roots {
-				if patch, e := s.runUni(ctx, p, dryRun, force); e == nil {
+				if patch, e := s.runUni(ctx, p, dryRun, force, rootsInfo); e == nil {
 					s.processor.PatchChan <- patch
 					multi[p] = patch
 				} else {
-					errors = append(errors, e.Error())
+					errs = append(errs, e.Error())
 				}
 			}
-			if len(errors) > 0 {
-				return multi, fmt.Errorf(strings.Join(errors, "-"))
+			if len(errs) > 0 {
+				return multi, fmt.Errorf(strings.Join(errs, "-"))
 			}
 			return multi, nil
 		}
@@ -73,12 +109,12 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 }
 
-func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force bool) (merger.Patch, error) {
+func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) (merger.Patch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
 	diff := merger.NewDiff(ctx, source, targetAsSource)
-	diff.SetupChannels(s.statuses, nil)
+	s.monitorDiff(ctx, diff, rootsInfo)
 	e := diff.Compute(rootPath)
 	if e == nil && dryRun {
 		fmt.Println(diff.String())
@@ -113,7 +149,7 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 	return patch, nil
 }
 
-func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (*merger.BidirectionalPatch, error) {
+func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) (*merger.BidirectionalPatch, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -134,8 +170,17 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (*merger.Bidi
 
 	if s.snapshotFactory != nil && !force {
 		var er1, er2 error
-		leftSnap, leftPatches, er1 = s.patchesFromSnapshot(ctx, "left", source, roots)
-		rightSnap, rightPatches, er2 = s.patchesFromSnapshot(ctx, "right", targetAsSource, roots)
+		wg := &sync.WaitGroup{}
+		wg.Add(2)
+		go func() {
+			defer wg.Done()
+			leftSnap, leftPatches, er1 = s.patchesFromSnapshot(ctx, "left", source, roots, rootsInfo)
+		}()
+		go func() {
+			defer wg.Done()
+			rightSnap, rightPatches, er2 = s.patchesFromSnapshot(ctx, "right", targetAsSource, roots, rootsInfo)
+		}()
+		wg.Wait()
 		if er1 == nil && er2 == nil {
 			if leftSnap.IsEmpty() || rightSnap.IsEmpty() {
 				captureSnapshots = true
@@ -166,7 +211,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (*merger.Bidi
 		log.Logger(ctx).Info("Computing patches from Sources")
 		for _, r := range roots {
 			diff := merger.NewDiff(ctx, source, targetAsSource)
-			diff.SetupChannels(s.statuses, nil)
+			s.monitorDiff(ctx, diff, rootsInfo)
 			e := diff.Compute(r)
 			log.Logger(ctx).Info("### Got Diff for Root", zap.String("r", r), zap.Any("diff", diff))
 			if e != nil || dryRun {
@@ -212,7 +257,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool) (*merger.Bidi
 	return bb, nil
 }
 
-func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string) (model.Snapshoter, map[string]merger.Patch, error) {
+func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string, rootsInfo map[string]*EndpointRootStat) (model.Snapshoter, map[string]merger.Patch, error) {
 
 	snapUpdater, ok2 := source.(model.SnapshotUpdater)
 	hashStoreReader, ok3 := source.(model.HashStoreReader)
@@ -236,6 +281,7 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 	patches := make(map[string]merger.Patch, len(roots))
 	for _, r := range roots {
 		diff := merger.NewDiff(ctx, source, snap)
+		s.monitorDiff(ctx, diff, rootsInfo)
 		er = diff.Compute(r)
 		if er != nil {
 			return nil, nil, er
@@ -305,4 +351,119 @@ func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, json
 
 	return db.ToJSON(jsonFile)
 
+}
+
+func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *EndpointRootStat, e error) {
+	stat = &EndpointRootStat{}
+	var roots []string
+	for _, r := range s.Roots {
+		roots = append(roots, r)
+	}
+	if len(roots) == 0 {
+		roots = append(roots, "/")
+	}
+	for _, r := range roots {
+		node, err := source.LoadNode(ctx, r, true)
+		if err != nil {
+			return stat, errors.WithMessage(err, "Cannot Stat Root")
+		}
+		if node.HasMetaKey("RecursiveChildrenSize") {
+			stat.HasSizeInfo = true
+			var s int64
+			if e := node.GetMeta("RecursiveChildrenSize", &s); e == nil {
+				stat.Size += s
+			}
+		}
+		if node.HasMetaKey("RecursiveChildrenFolders") && node.HasMetaKey("RecursiveChildrenFiles") {
+			stat.HasChildrenInfo = true
+			var folders, files int64
+			if e := node.GetMeta("RecursiveChildrenFolders", &folders); e == nil {
+				stat.Folders += folders
+			}
+			if e := node.GetMeta("RecursiveChildrenFiles", &files); e == nil {
+				stat.Files += files
+			}
+		}
+	}
+	return
+}
+
+func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[string]*EndpointRootStat) {
+	indexStatus := make(chan merger.ProcessStatus)
+	done := make(chan interface{})
+	diff.SetupChannels(indexStatus, done)
+	go func() {
+		for {
+			select {
+			case status := <-indexStatus:
+				if root, ok := rootsInfo[status.EndpointURI]; ok {
+					if pgStatus, ok := s.computeIndexProgress(status, root); ok {
+						log.Logger(ctx).Info(pgStatus.StatusString)
+						if s.statuses != nil {
+							s.statuses <- pgStatus
+						}
+					}
+				}
+			case <-done:
+				var total int64
+				for _, root := range rootsInfo {
+					total += root.PgChildren
+				}
+				log.Logger(ctx).Info("Finished analyzing nodes", zap.Any("i", total))
+				if s.statuses != nil {
+					for u, _ := range rootsInfo {
+						s.statuses <- merger.ProcessStatus{EndpointURI: u, Progress: 0} // Hide progress bar
+					}
+					s.statuses <- merger.ProcessStatus{
+						IsError:      false,
+						Error:        nil,
+						StatusString: fmt.Sprintf("Analyzed %d nodes", total),
+					}
+				}
+				close(done)
+				close(indexStatus)
+				return
+			}
+		}
+	}()
+}
+
+func (s *Sync) computeIndexProgress(input merger.ProcessStatus, rootInfo *EndpointRootStat) (output merger.ProcessStatus, emit bool) {
+	if input.Node == nil {
+		rootInfo.PgChildren++
+	} else if input.Node.IsLeaf() {
+		rootInfo.PgChildren++
+		rootInfo.PgFiles++
+		rootInfo.PgSize += input.Node.Size
+	} else {
+		rootInfo.PgChildren++
+		rootInfo.PgFolders++
+		rootInfo.PgSize += 36
+	}
+	if !rootInfo.HasSizeInfo && !rootInfo.HasChildrenInfo {
+		// Publish every 50 nodes
+		if rootInfo.PgChildren%50 != 0 {
+			return // false
+		} else {
+			output.StatusString = fmt.Sprintf("[%s] Analyzed %d nodes", input.EndpointURI, rootInfo.PgChildren)
+			return output, true
+		}
+	}
+	var pg float64
+	if rootInfo.HasSizeInfo && rootInfo.Size > 0 {
+		// Compute progress based on SizeInfo
+		pg = float64(rootInfo.PgSize) / float64(rootInfo.Size)
+	} else {
+		// Compute progress based on ChildrenInfo
+		pg = float64(rootInfo.PgChildren) / float64(rootInfo.Children)
+	}
+	if pg-rootInfo.LastPg > 0.05 {
+		emit = true
+		rootInfo.LastPg = pg
+		output.Progress = float32(pg)
+		output.IsProgressAtomic = true
+		output.EndpointURI = input.EndpointURI
+		output.StatusString = fmt.Sprintf("[%s] Analyzed %d nodes (%d%%)", input.EndpointURI, rootInfo.PgChildren, int(math.Floor(pg*100)))
+	}
+	return
 }

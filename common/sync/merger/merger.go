@@ -177,10 +177,14 @@ type Diff interface {
 
 // ProcessStatus informs about the status of an operation
 type ProcessStatus struct {
-	Progress     float32
-	StatusString string
-	IsError      bool
-	Error        error
+	StatusString     string
+	IsError          bool
+	Error            error
+	Progress         float32
+	IsProgressAtomic bool
+
+	EndpointURI string
+	Node        *tree.Node
 }
 
 // StatusProvider can register channels to send status/done events during processing

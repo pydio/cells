@@ -88,17 +88,28 @@ func (c *abstract) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	// Do nothing - we assume Snapshot was updated directly during Watch when receiving events
 }
 
-func (c *abstract) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (c *abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 	ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return nil, err
 	}
-	resp, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: c.rooted(path)}})
+	var x bool
+	if len(extendedStats) > 0 {
+		x = extendedStats[0]
+	}
+	resp, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{
+		Node:              &tree.Node{Path: c.rooted(path)},
+		WithExtendedStats: x,
+	})
 	if e != nil {
 		return nil, e
 	}
 	out := resp.Node
 	out.Path = c.unrooted(resp.Node.Path)
+	if !resp.Node.IsLeaf() && resp.Node.Size > 0 {
+		// We know that index answers with total size of folder
+		resp.Node.SetMeta("RecursiveChildrenSize", resp.Node.Size)
+	}
 	return out, nil
 }
 
@@ -430,7 +441,7 @@ func (c *abstract) readNodeBlocking(n *tree.Node) {
 		if err != nil {
 			return err
 		}
-		_, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
+		_, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: n}, client.WithRequestTimeout(1*time.Second))
 		return e
 	}, 1*time.Second, 10*time.Second)
 }

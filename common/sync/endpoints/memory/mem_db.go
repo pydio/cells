@@ -82,7 +82,7 @@ func (db *MemDB) sendEvent(event DBEvent) {
 /*************************/
 /* Path Sync Target 	 */
 /*************************/
-func (db *MemDB) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 
 	for _, node := range db.Nodes {
 		if norm.NFC.String(node.Path) == norm.NFC.String(path) {
