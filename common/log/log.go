@@ -24,6 +24,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -41,12 +42,19 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+// Same as zapcore.WriteSyncer but without dependency
+type WriteSyncer interface {
+	io.Writer
+	Sync() error
+}
+
 var (
 	logger          *zap.Logger
 	AuditLogger     *zap.Logger
 	TasksLoggerImpl *zap.Logger
 	StdOut          *os.File
 
+	customSyncers []zapcore.WriteSyncer
 	// Parse log lines like below:
 	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
 	combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
@@ -54,6 +62,12 @@ var (
 
 func Init() {
 	initLogger()
+}
+
+// Register optional writers for logs
+func RegisterWriteSyncer(syncer WriteSyncer) {
+	customSyncers = append(customSyncers, syncer)
+	logger = nil // Will force reinit next time
 }
 
 func initLogger() *zap.Logger {
@@ -78,11 +92,9 @@ func initLogger() *zap.Logger {
 			MaxAge:     28, // days
 		})
 
-		w := zapcore.NewMultiWriteSyncer(
-			StdOut,
-			serverSync,
-			rotaterSync,
-		)
+		syncers := []zapcore.WriteSyncer{StdOut, serverSync, rotaterSync}
+		syncers = append(syncers, customSyncers...)
+		w := zapcore.NewMultiWriteSyncer(syncers...)
 
 		// lumberjack.Logger is already safe for concurrent use, so we don't need to lock it.
 		config := zap.NewProductionEncoderConfig()
@@ -99,9 +111,16 @@ func initLogger() *zap.Logger {
 		config := zap.NewDevelopmentEncoderConfig()
 		config.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
+		var syncer zapcore.WriteSyncer
+		syncer = StdOut
+		if len(customSyncers) > 0 {
+			syncers := []zapcore.WriteSyncer{StdOut}
+			syncers = append(syncers, customSyncers...)
+			syncer = zapcore.NewMultiWriteSyncer(syncers...)
+		}
 		core := zapcore.NewCore(
 			zapcore.NewConsoleEncoder(config),
-			StdOut,
+			syncer,
 			common.LogLevel,
 		)
 
