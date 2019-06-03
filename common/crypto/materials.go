@@ -672,7 +672,7 @@ func (m *AESGCMEncryptionMaterials) decryptRead(b []byte) (int, error) {
 			}
 		}
 
-		if count > 0 && !m.eof {
+		if count > 0 {
 			fmt.Println("opening sealed data")
 			data, err := Open(m.encryptionKey, b.Header.Nonce, b.Payload)
 			if err != nil {
@@ -883,8 +883,10 @@ func (m *legacyReadMaterials) decryptRead(b []byte) (int, error) {
 			nonce := make([]byte, AESGCMNonceSize)
 			nl, err := m.nonceBuffer.Read(nonce)
 			if err != nil || nl < AESGCMNonceSize {
-				fmt.Println("Error while reading nonce for decrypting data!", err.Error())
-				return 0, errors.New("Read nonce failed")
+				if err != nil {
+					fmt.Println("Error while reading nonce for decrypting data!", err.Error())
+				}
+				return 0, errors.New("read nonce failed")
 			}
 
 			encryptedBufferPart := encryptedBuffer[:encryptedBufferCursor]
