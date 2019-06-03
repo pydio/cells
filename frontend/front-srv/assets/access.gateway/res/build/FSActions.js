@@ -685,6 +685,8 @@ exports["default"] = function (pydio) {
             throw new Error('Cannot drop on virtual root');
         } else if (source.getMetadata().has("ws_root")) {
             throw new Error('Cannot move roots around');
+        } else if (target.hasMetadataInBranch('readonly') || target.getMetadata().has('workspaceEntry') && !target.getMetadata().get('workspaceEntry').allowCrossRepositoryCopy) {
+            throw new Error('Cannot drop on this branch (readonly)');
         }
     };
 
