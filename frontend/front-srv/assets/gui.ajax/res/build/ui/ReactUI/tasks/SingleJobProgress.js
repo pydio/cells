@@ -105,6 +105,7 @@ var SingleJobProgress = (function (_React$Component) {
         var _props2 = this.props;
         var style = _props2.style;
         var labelStyle = _props2.labelStyle;
+        var lineStyle = _props2.lineStyle;
         var progressStyle = _props2.progressStyle;
         var noProgress = _props2.noProgress;
         var noLabel = _props2.noLabel;
@@ -141,7 +142,7 @@ var SingleJobProgress = (function (_React$Component) {
                 task.StatusMessage.split("\n").map(function (s) {
                     return _react2['default'].createElement(
                         'div',
-                        null,
+                        { style: lineStyle },
                         s
                     );
                 })

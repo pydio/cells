@@ -2092,7 +2092,10 @@ var UpdaterDashboard = _react2['default'].createClass({
     getInitialState: function getInitialState() {
         var pydio = this.props.pydio;
 
-        return { check: -1, backend: pydio.Parameters.get("backend") };
+        return {
+            check: -1,
+            backend: pydio.Parameters.get("backend")
+        };
     },
 
     componentDidMount: function componentDidMount() {
@@ -2335,9 +2338,14 @@ var UpdaterDashboard = _react2['default'].createClass({
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        _react2['default'].createElement(SingleJobProgress, { jobID: watchJob, progressStyle: { paddingTop: 16 }, onEnd: function () {
+                        _react2['default'].createElement(SingleJobProgress, {
+                            jobID: watchJob,
+                            progressStyle: { paddingTop: 16 },
+                            lineStyle: { userSelect: 'text' },
+                            onEnd: function () {
                                 _this3.upgradeFinished();
-                            } })
+                            }
+                        })
                     )
                 ),
                 !watchJob && list && _react2['default'].createElement(

@@ -68,7 +68,7 @@ class SingleJobProgress extends React.Component {
 
     render(){
         const {task, jobLabel} = this.state;
-        const {style, labelStyle, progressStyle, noProgress, noLabel, circular, thickness, size} = this.props;
+        const {style, labelStyle, lineStyle, progressStyle, noProgress, noLabel, circular, thickness, size} = this.props;
         if(!task) {
             return <div>{jobLabel ? jobLabel : "..."}</div>
         }
@@ -87,7 +87,7 @@ class SingleJobProgress extends React.Component {
 
         return (
             <div style={style}>
-                {!noLabel && <div style={lStyle}>{task.StatusMessage.split("\n").map(s => <div>{s}</div>)}</div>}
+                {!noLabel && <div style={lStyle}>{task.StatusMessage.split("\n").map(s => <div style={lineStyle}>{s}</div>)}</div>}
                 {progress && <div style={progressStyle}>{progress}</div>}
             </div>
         );
