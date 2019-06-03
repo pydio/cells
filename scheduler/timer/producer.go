@@ -30,14 +30,15 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/utils/schedule"
 )
 
-// EventProducer gathers all ScheduleWaiters in a pool and provides a single entry point
+// EventProducer gathers all Tickers in a pool and provides a single entry point
 // to communicate with them, typically to stop them.
 type EventProducer struct {
 	Context context.Context
 
-	Waiters   map[string]*ScheduleWaiter
+	Waiters   map[string]*schedule.Ticker
 	EventChan chan *jobs.JobTriggerEvent
 	StopChan  chan bool
 }
@@ -45,7 +46,7 @@ type EventProducer struct {
 // NewEventProducer creates a pool of ScheduleWaiters that will send events based on pre-defined scheduling.
 func NewEventProducer(rootCtx context.Context) *EventProducer {
 	e := &EventProducer{
-		Waiters:   make(map[string]*ScheduleWaiter),
+		Waiters:   make(map[string]*schedule.Ticker),
 		StopChan:  make(chan bool, 1),
 		EventChan: make(chan *jobs.JobTriggerEvent),
 	}
@@ -121,8 +122,18 @@ func (e *EventProducer) StartOrUpdateJob(job *jobs.Job) {
 	jobId := job.ID
 	e.StopWaiter(jobId)
 
-	schedule := job.Schedule
-	waiter := NewScheduleWaiter(jobId, schedule, e.EventChan)
-	waiter.Start()
-	e.Waiters[jobId] = waiter
+	//schedule := job.Schedule
+	if s, err := schedule.NewTickerScheduleFromISO(job.Schedule.Iso8601Schedule); err == nil {
+		w := schedule.NewTicker(s, func() error {
+			e.EventChan <- &jobs.JobTriggerEvent{
+				JobID:    jobId,
+				Schedule: job.Schedule,
+			}
+			return nil
+		})
+		w.Start()
+		e.Waiters[jobId] = w
+	} else {
+		log.Logger(context.Background()).Error("Cannot register job", zap.Error(err))
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,14 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package timer
+package schedule
 
 import (
 	"testing"
-
 	"time"
 
-	"github.com/pydio/cells/common/proto/jobs"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -33,10 +31,11 @@ func TestComputeNextWait(t *testing.T) {
 
 	Convey("Compute Next Wait", t, func() {
 
-		ticker := make(chan *jobs.JobTriggerEvent)
-		waiter := NewScheduleWaiter("job", &jobs.Schedule{
-			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT5M",
-		}, ticker)
+		ticker, err := NewTickerScheduleFromISO("R/2012-06-04T19:25:16.828696-07:00/PT5M")
+		So(err, ShouldBeNil)
+		waiter := NewTicker(ticker, func() error {
+			return nil
+		})
 		wait := waiter.computeNextWait()
 		So(wait, ShouldBeGreaterThanOrEqualTo, 0)
 		So(wait, ShouldBeLessThanOrEqualTo, 5*time.Minute)

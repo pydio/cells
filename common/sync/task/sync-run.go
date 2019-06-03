@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -119,6 +120,9 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 	if e == nil && dryRun {
 		fmt.Println(diff.String())
 	}
+	// TMP TODO
+	<-time.After(3 * time.Second)
+
 	log.Logger(ctx).Debug("### GOT DIFF", zap.Any("diff", diff))
 	if e != nil || dryRun {
 		if s.runDone != nil {

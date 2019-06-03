@@ -35,6 +35,7 @@ type Sync struct {
 	Target    model.Endpoint
 	Direction model.DirectionType
 	Roots     []string
+	watch     bool
 
 	snapshotFactory model.SnapshotFactory
 	echoFilter      *filters.EchoFilter
@@ -57,7 +58,7 @@ func NewSync(left model.Endpoint, right model.Endpoint, direction model.Directio
 }
 
 // Start makes a first sync and setup watchers
-func (s *Sync) Start(ctx context.Context) {
+func (s *Sync) Start(ctx context.Context, withWatches bool) {
 
 	// Init processor
 	s.processor = proc.NewConnectedProcessor(ctx)
@@ -70,18 +71,35 @@ func (s *Sync) Start(ctx context.Context) {
 		s.echoFilter.Start()
 	}
 
-	s.startWatchers(ctx)
+	s.watch = withWatches
+	if withWatches {
+		s.startWatchers(ctx)
+	} else if s.watchConn != nil {
+
+		s.watchConn <- &model.EndpointStatus{
+			WatchConnection: model.WatchConnected,
+			EndpointInfo:    s.Source.GetEndpointInfo(),
+		}
+		s.watchConn <- &model.EndpointStatus{
+			WatchConnection: model.WatchConnected,
+			EndpointInfo:    s.Target.GetEndpointInfo(),
+		}
+	}
 
 }
 
 // Pause should pause the sync
 func (s *Sync) Pause(ctx context.Context) {
-	s.stopWatchers()
+	if s.watch {
+		s.stopWatchers()
+	}
 }
 
 // Resume should resume the sync
 func (s *Sync) Resume(ctx context.Context) {
-	s.startWatchers(ctx)
+	if s.watch {
+		s.startWatchers(ctx)
+	}
 }
 
 // Shutdown closes channels
@@ -90,7 +108,9 @@ func (s *Sync) Shutdown() {
 		// ignore 'close on closed channel'
 		recover()
 	}()
-	s.stopWatchers()
+	if s.watch {
+		s.stopWatchers()
+	}
 	if s.watchConn != nil {
 		close(s.watchConn)
 	}

@@ -91,7 +91,7 @@ func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 }
 
 func (s *Handler) Start() {
-	s.syncTask.Start(s.globalCtx)
+	s.syncTask.Start(s.globalCtx, true)
 	go s.watchConfigs()
 	go s.watchErrors()
 }
