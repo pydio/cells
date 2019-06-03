@@ -204,7 +204,9 @@ class WelcomeTour extends Component{
         const {user} = this.props.pydio;
         let guiPrefs = user.getPreference('gui_preferences', true);
         guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
-        if(finished) guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] = true;
+        if(finished) {
+            guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] = true;
+        }
         user.setPreference('gui_preferences', guiPrefs, true);
         user.savePreference('gui_preferences');
     }
@@ -246,29 +248,31 @@ class WelcomeTour extends Component{
             });
         }
 
-        tourguideSteps = tourguideSteps.concat([
-            {
+        if (document.getElementById('display-toolbar')){
+            tourguideSteps.push({
                 title:message('display-bar.title'),
                 text : <div><p>{message('display-bar')}</p><IconScheme icons={['view-list', 'view-grid', 'view-carousel', 'sort-ascending', 'sort-descending']}/></div>,
                 selector:'#display-toolbar',
                 position:'left'
-            },
-            {
+            });
+        }
+        if (document.getElementById('info_panel')){
+            tourguideSteps.push(            {
                 title:message('infopanel.title'),
                 text : <InfoPanelCard message={message}/>,
                 selector:'#info_panel',
                 position:'left'
-            },
-            {
-                title:message('uwidget.title'),
-                text : <UserWidgetCard message={message}/>,
-                selector:'.user-widget',
-                position:'right',
-                style:{width: 320}
-            }
-        ]);
+            })
+        }
+        tourguideSteps.push({
+            title:message('uwidget.title'),
+            text : <UserWidgetCard message={message}/>,
+            selector:'.user-widget',
+            position:'right',
+            style:{width: 320}
+        });
         const callback = (data) => {
-            if(data.type === 'step:after' && data.index === tourguideSteps.length - 1 ){
+            if( (data.type === 'step:after' && data.index === tourguideSteps.length - 1) || data.action === 'skip' ){
                 this.discard(true);
             }
         };
@@ -281,6 +285,7 @@ class WelcomeTour extends Component{
                 debug={false}
                 callback={callback}
                 type='continuous'
+                showSkipButton={true}
             />
         );
 
