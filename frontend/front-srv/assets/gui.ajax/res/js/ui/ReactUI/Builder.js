@@ -45,7 +45,11 @@ export default class Builder{
 
     pageTitleObserver(){
         const ctxNode = this._pydio.getContextNode();
-        document.title = this._pydio.Parameters.get('customWording').title + ' - ' + ctxNode.getLabel();
+        let title = this._pydio.Parameters.get('customWording').title;
+        if (ctxNode.getLabel()){
+            title += ' - ' + ctxNode.getLabel();
+        }
+        document.title = title;
     }
 
     initTemplates(){
@@ -67,7 +71,7 @@ export default class Builder{
             let namespace = tNodes[i].getAttribute("namespace");
             let component = tNodes[i].getAttribute("component");
 
-            if(themeSpecific && this._pydio.Parameters.get("theme") && this._pydio.Parameters.get("theme") != themeSpecific){
+            if(themeSpecific && this._pydio.Parameters.get("theme") && this._pydio.Parameters.get("theme") !== themeSpecific){
                 continue;
             }
             let targetObj = document.getElementById(target);
