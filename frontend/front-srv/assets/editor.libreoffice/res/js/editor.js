@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -17,27 +17,19 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import React, {Component} from 'react'
 import {compose} from 'redux'
 import {connect} from 'react-redux'
 
-const configs = Pydio.getInstance().getPluginConfigs("editor.libreoffice");
-const {withMenu, withLoader, withErrors, EditorActions} = Pydio.requireLib('hoc');
+const {EditorActions} = Pydio.requireLib('hoc');
 
-// const Viewer = compose(
-//     withMenu,
-//     withLoader,
-//     withErrors
-// )(({url, style}) => <iframe src={url} style={{...style, width: "100%", height: "100%", border: 0, flex: 1}}></iframe>)
 
 @connect(null, EditorActions)
 export default class Editor extends React.Component {
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {}
     }
@@ -54,6 +46,7 @@ export default class Editor extends React.Component {
         if (this.props.isActive) {
             editorModify({fixedToolbar: true})
         }
+        Pydio.getInstance().notify('longtask_starting');
 
         const iframeUrl = "/loleaflet/dist/loleaflet.html";
         const host = pydio.Parameters.get('FRONTEND_URL');
@@ -68,6 +61,10 @@ export default class Editor extends React.Component {
         PydioApi.getRestClient().getOrUpdateJwt().then((jwt) => {
             this.setState({url: `${iframeUrl}?host=${webSocketUrl}&WOPISrc=${fileSrcUrl}&access_token=${jwt}&permission=${permission}`});
         });
+    }
+
+    componentWillUnmount() {
+        Pydio.getInstance().notify('longtask_finished');
     }
 
     render() {

@@ -19,6 +19,7 @@
  */
 
 import ActionDialogMixin from './ActionDialogMixin'
+import moment from '../Moment'
 
 /**
  * Sample Dialog class used for reference only, ready to be
@@ -53,8 +54,10 @@ export default React.createClass({
     },
     render: function(){
         const {MessageHash} = this.props.pydio;
-        const {lastActiveSince, timerString} = this.state;
-        const sentence = MessageHash['375'].replace('__IDLE__', lastActiveSince).replace('__LOGOUT__', timerString);
+        const {lastActiveSeconds, timerSeconds} = this.state;
+        const since = moment.duration(lastActiveSeconds, 'seconds');
+        const warn = moment.duration(timerSeconds, 'seconds');
+        const sentence = MessageHash['375'].replace('__IDLE__', since.humanize()).replace('__LOGOUT__', warn.humanize());
         return (
             <div onTouchTap={() => {this.props.pydio.notify('user_activity');}}>
                 <div style={{display:'flex', alignItems:'center'}}>

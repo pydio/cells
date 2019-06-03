@@ -45,7 +45,7 @@ export default class ActivityMonitor extends Observable{
 
         this._lastActive        = 0;
         this._state             = 'active';
-        this._longTaskRunning   =  false;
+        this._longTaskRunning   = 0;
 
 
         if(!serverSessionTime) {
@@ -134,8 +134,18 @@ export default class ActivityMonitor extends Observable{
         this._activityObserver = this.activityObserver.bind(this);
         this._pydio.observe('user_activity', this._activityObserver);
         this._pydio.observe('server_answer', this._activityObserver);
-        this._pydio.observe('longtask_starting', ()=> {this._longTaskRunning = true});
-        this._pydio.observe('longtask_finished', ()=> {this._longTaskRunning = false});
+        this._ltsObserver = () => {
+            console.log('Long task starting...');
+            this._longTaskRunning ++;
+            this._activityObserver();
+        };
+        this._pydio.observe('longtask_starting', this._ltsObserver);
+        this._ltfObserver = () => {
+            console.log('Long task finished...');
+            this._longTaskRunning --;
+            this._activityObserver();
+        };
+        this._pydio.observe('longtask_finished', this._ltfObserver);
         this.startIdlePoller();
         this.startServerLongPoller();
     }
@@ -150,8 +160,8 @@ export default class ActivityMonitor extends Observable{
         this._state = 'inactive';
         this._pydio.stopObserving('user_activity', this._activityObserver);
         this._pydio.stopObserving('server_answer', this._activityObserver);
-        this._pydio.stopObserving('longtask_starting', ()=> {this._longTaskRunning = true});
-        this._pydio.stopObserving('longtask_finished', ()=> {this._longTaskRunning = false});
+        this._pydio.stopObserving('longtask_starting', this._ltsObserver);
+        this._pydio.stopObserving('longtask_finished', this._ltfObserver);
         this._activityObserver = null;
 
     }
@@ -202,7 +212,7 @@ export default class ActivityMonitor extends Observable{
         }
         if( this._warningTime && idleTime >= this._warningTime ){
             const timerString = this.getWarningTimer(this._logoutTime - idleTime);
-            this.setWarningState(timerString);
+            this.setWarningState(timerString, this._logoutTime - idleTime);
         }
     }
 
@@ -219,14 +229,16 @@ export default class ActivityMonitor extends Observable{
     /**
      * Put the window in "warning" state : overlay, shaking timer, chronometer.
      */
-    setWarningState(warningTimerString){
+    setWarningState(warningTimerString, timeSeconds){
         this._state = 'warning';
         this.startIdlePoller(1000);
 
         this._pydio.notify('activity_state_change', {
             activeState: 'warning',
             lastActiveSince:this._warningTime/60,
-            timerString: warningTimerString
+            timerString: warningTimerString,
+            lastActiveSeconds: this._warningTime,
+            timerSeconds: timeSeconds
         });
     }
 

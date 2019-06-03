@@ -151,16 +151,21 @@ class PydioApi{
             uploadUrl += (uploadUrl.indexOf('?') === -1 ? '?' : '&') + queryStringParams;
         }
 
-            // Warning, avoid double error
-            let errorSent = false;
-            let localError = (xhr) => {
-                if(!errorSent) {
-                    onError('Request failed with status :' + xhr.status);
-                }
-                errorSent = true;
-            };
-            let c = new Connexion();
-            return c.uploadFile(file, fileParameterName, uploadUrl, onComplete, localError, onProgress, xhrSettings);
+        this.getPydioObject().notify('longtask_starting');
+        const localComplete = (xhr) => {
+            this.getPydioObject().notify('longtask_finished');
+            onComplete(xhr);
+        };
+        // Avoid double error
+        let errorSent = false;
+        const localError = (xhr) => {
+            if(!errorSent) {
+                onError('Request failed with status :' + xhr.status);
+            }
+            errorSent = true;
+        };
+        let c = new Connexion();
+        return c.uploadFile(file, fileParameterName, uploadUrl, localComplete, localError, onProgress, xhrSettings);
 
 
     }
@@ -245,7 +250,15 @@ class PydioApi{
             Key: targetPath,
             ContentType: 'application/octet-stream'
         };
-
+        this.getPydioObject().notify('longtask_starting');
+        const onCompleteWrapped = (xhr) => {
+            this.getPydioObject().notify('longtask_finished');
+            onComplete(xhr);
+        };
+        const onErrorWrapped = (xhr) => {
+            this.getPydioObject().notify('longtask_finished');
+            onError(xhr);
+        };
         return new Promise(resolve => {
             PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
                 AWS.config.update({
@@ -258,7 +271,7 @@ class PydioApi{
                 });
                 const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
                 const signed = s3.getSignedUrl('putObject', params);
-                const xhr = this.uploadFile(file, '', '', onComplete, onError, onProgress, signed, {method: 'PUT', customHeaders: {'X-Pydio-Bearer': jwt, 'Content-Type': 'application/octet-stream'}});
+                const xhr = this.uploadFile(file, '', '', onCompleteWrapped, onErrorWrapped, onProgress, signed, {method: 'PUT', customHeaders: {'X-Pydio-Bearer': jwt, 'Content-Type': 'application/octet-stream'}});
                 resolve(xhr);
             });
         });
@@ -278,7 +291,7 @@ class PydioApi{
             Key: targetPath,
             ContentType: 'application/octet-stream'
         };
-
+        this.getPydioObject().notify('longtask_starting');
         return new Promise(resolve => {
             PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
                 AWS.config.update({
@@ -298,6 +311,7 @@ class PydioApi{
                 });
                 managed.on('httpUploadProgress', onProgress);
                 managed.send((e,d) => {
+                    this.getPydioObject().notify('longtask_finished');
                     if(e){
                         onError(e);
                     } else {
