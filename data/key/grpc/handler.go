@@ -197,6 +197,12 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 		switch req.Action {
 
 		case "key":
+			err = dao.DeleteNode(req.SetNodeKey.NodeKey.NodeId)
+			if err != nil {
+				rsp.ErrorText = err.Error()
+				log.Logger(ctx).Error("attempt to clear node old blocks failed", zap.Error(err))
+			}
+
 			log.Logger(ctx).Info("[DATA KEY SERVICE] Setting node key", zap.Any("KEY", req.SetNodeKey.NodeKey))
 			err = km.saveNodeKey(ctx, dao, req.SetNodeKey.NodeKey)
 			if err != nil {
