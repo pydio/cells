@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 import React from 'react'
 import {TextField, SelectField} from 'material-ui'
 
@@ -29,6 +28,15 @@ const styles = {
     textField:{
         inputStyle:{backgroundColor:'rgba(224, 224, 224, 0.33)',height: 34, borderRadius: 3, marginTop: 6, padding: 7},
         hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%'},
+        underlineStyle:{opacity:0},
+        underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
+    },
+    textareaField:{
+        rows: 4,
+        rowsMax: 4,
+        inputStyle:{backgroundColor:'rgba(224, 224, 224, 0.33)',height: 106, borderRadius: 3, marginTop: 6, padding: 7},
+        textareaStyle:{marginTop: 0, marginBottom: 0},
+        hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
         underlineStyle:{opacity:0},
         underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
     },
@@ -67,7 +75,12 @@ function withModernTheme(formComponent) {
         render() {
 
             if (formComponent === TextField) {
-                const styleProps = this.mergedProps({...styles.textField});
+                let styleProps;
+                if (this.props.multiLine){
+                    styleProps = this.mergedProps({...styles.textareaField});
+                } else {
+                    styleProps = this.mergedProps({...styles.textField});
+                }
                 return <TextField {...this.props} {...styleProps} ref={"component"} />
             } else if (formComponent === SelectField) {
                 const styleProps = this.mergedProps({...styles.selectField});

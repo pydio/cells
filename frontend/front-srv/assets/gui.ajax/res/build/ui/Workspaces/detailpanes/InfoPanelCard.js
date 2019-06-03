@@ -36,6 +36,8 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
+var _materialUiStyles = require('material-ui/styles');
+
 var styles = {
     card: {
         backgroundColor: 'white'
@@ -164,7 +166,7 @@ InfoPanelCard.PropTypes = {
     actions: _react2['default'].PropTypes.array
 };
 
-exports['default'] = InfoPanelCard = MaterialUI.Style.muiThemeable()(InfoPanelCard);
+exports['default'] = InfoPanelCard = _materialUiStyles.muiThemeable()(InfoPanelCard);
 
 exports['default'] = InfoPanelCard;
 module.exports = exports['default'];
