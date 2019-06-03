@@ -23,11 +23,11 @@ const propTypes = {
     registry: React.PropTypes.instanceOf(Registry).isRequired,
     editorData: React.PropTypes.object.isRequired,
     icon: React.PropTypes.bool,
-}
+};
 
 const defaultProps = {
     icon: false
-}
+};
 
 class ReactEditorOpener extends React.Component {
 
@@ -66,7 +66,7 @@ class ReactEditorOpener extends React.Component {
     }
 }
 
-ReactEditorOpener.propTypes = propTypes
-ReactEditorOpener.defaultProps = defaultProps
+ReactEditorOpener.propTypes = propTypes;
+ReactEditorOpener.defaultProps = defaultProps;
 
 export default ReactEditorOpener

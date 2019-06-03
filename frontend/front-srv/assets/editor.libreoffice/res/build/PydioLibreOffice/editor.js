@@ -8,7 +8,7 @@ exports.default = undefined;
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _dec, _class; /*
-                   * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+                   * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
                    * This file is part of Pydio.
                    *
                    * Pydio is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@ var _dec, _class; /*
                    *
                    * The latest code can be found at <https://pydio.com>.
                    */
+
 
 var _pydio = require('pydio');
 
@@ -51,19 +52,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var configs = _pydio2.default.getInstance().getPluginConfigs("editor.libreoffice");
-
 var _Pydio$requireLib = _pydio2.default.requireLib('hoc'),
-    withMenu = _Pydio$requireLib.withMenu,
-    withLoader = _Pydio$requireLib.withLoader,
-    withErrors = _Pydio$requireLib.withErrors,
     EditorActions = _Pydio$requireLib.EditorActions;
-
-// const Viewer = compose(
-//     withMenu,
-//     withLoader,
-//     withErrors
-// )(({url, style}) => <iframe src={url} style={{...style, width: "100%", height: "100%", border: 0, flex: 1}}></iframe>)
 
 var Editor = (_dec = (0, _reactRedux.connect)(null, EditorActions), _dec(_class = function (_React$Component) {
     _inherits(Editor, _React$Component);
@@ -96,6 +86,7 @@ var Editor = (_dec = (0, _reactRedux.connect)(null, EditorActions), _dec(_class 
             if (this.props.isActive) {
                 editorModify({ fixedToolbar: true });
             }
+            _pydio2.default.getInstance().notify('longtask_starting');
 
             var iframeUrl = "/loleaflet/dist/loleaflet.html";
             var host = pydio.Parameters.get('FRONTEND_URL');
@@ -110,6 +101,11 @@ var Editor = (_dec = (0, _reactRedux.connect)(null, EditorActions), _dec(_class 
             _api2.default.getRestClient().getOrUpdateJwt().then(function (jwt) {
                 _this2.setState({ url: iframeUrl + '?host=' + webSocketUrl + '&WOPISrc=' + fileSrcUrl + '&access_token=' + jwt + '&permission=' + permission });
             });
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            _pydio2.default.getInstance().notify('longtask_finished');
         }
     }, {
         key: 'render',
