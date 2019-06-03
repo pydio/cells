@@ -76,12 +76,16 @@ const PluginsList = React.createClass({
         const {filterType, filterString} = this.props;
 
         return XMLUtils.XPathSelectNodes(xmlPlugins, "/plugins/*")
-        .filter((xmlNode) => {
-            return !filterType || xmlNode.getAttribute("id").indexOf(filterType) === 0
-        })
-        .filter((xmlNode) => {
-            return !filterString || xmlNode.getAttribute("id").indexOf(filterString) !== -1
-        }).map(xmlNode => {
+            .filter((xmlNode) => {
+                return !filterType || xmlNode.getAttribute("id").indexOf(filterType) === 0
+            })
+            .filter((xmlNode) => {
+                return !filterString
+                    || xmlNode.getAttribute("id").toLowerCase().indexOf(filterString.toLowerCase()) !== -1
+                    || xmlNode.getAttribute("label").toLowerCase().indexOf(filterString.toLowerCase()) !== -1
+                    || xmlNode.getAttribute("description").toLowerCase().indexOf(filterString.toLowerCase()) !== -1;
+            })
+            .map(xmlNode => {
             return {
                 id:xmlNode.getAttribute("id"),
                 label:xmlNode.getAttribute("label"),
