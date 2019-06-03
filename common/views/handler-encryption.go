@@ -204,36 +204,25 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 		ctx:      ctx,
 	}
 
-	info, err := e.getNodeInfoForWrite(ctx, clone)
+	log.Logger(ctx).Info("[HANDLER ENCRYPT] > New node: creating node info")
+	info, err := e.createNodeInfo(ctx, clone)
 	if err != nil {
-		pe := errors.Parse(err.Error())
-		if pe.Code != 404 {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to get node info", zap.Error(err))
-			return 0, err
-		}
-
-		log.Logger(ctx).Info("[HANDLER ENCRYPT] > New node: creating node info")
-		info, err = e.createNodeInfo(ctx, clone)
-		if err != nil {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to create node info", zap.Error(err))
-			return 0, err
-		}
-
-		plainKeyData := info.NodeKey.KeyData
-		info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
-		if err != nil {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to encrypt node key", zap.Error(err))
-			return 0, err
-		}
-		err = streamer.SendKey(info.NodeKey)
-		if err != nil {
-			log.Logger(ctx).Error("failed to set nodeKey", zap.Error(err))
-			return 0, err
-		}
-		info.NodeKey.KeyData = plainKeyData
-	} else {
-		info.NodeKey.KeyData, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to create node info", zap.Error(err))
+		return 0, err
 	}
+
+	plainKeyData := info.NodeKey.KeyData
+	info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
+	if err != nil {
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Failed to encrypt node key", zap.Error(err))
+		return 0, err
+	}
+	err = streamer.SendKey(info.NodeKey)
+	if err != nil {
+		log.Logger(ctx).Error("failed to set nodeKey", zap.Error(err))
+		return 0, err
+	}
+	info.NodeKey.KeyData = plainKeyData
 
 	encryptionMaterials := crypto.NewAESGCMMaterials(info, streamer)
 	if err := encryptionMaterials.SetupEncryptMode(reader); err != nil {
@@ -379,30 +368,19 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 
 	var plainEncryptionKey []byte
 
-	info, err := e.getNodeInfoForWrite(ctx, clone)
+	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: New node: creating node info")
+	info, err := e.createNodeInfo(ctx, clone)
 	if err != nil {
-		pe := errors.Parse(err.Error())
-		if pe.Code != 404 {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to get Multi Part  node info", zap.Error(err))
-			return "", err
-		}
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to create Multi Part  node info", zap.Error(err))
+		return "", err
+	}
 
-		log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: New node: creating node info")
-		info, err = e.createNodeInfo(ctx, clone)
-		if err != nil {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to create Multi Part  node info", zap.Error(err))
-			return "", err
-		}
-
-		log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Protecting key")
-		plainEncryptionKey = info.NodeKey.KeyData
-		info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, plainEncryptionKey)
-		if err != nil {
-			log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to encrypt Multi Part  node key", zap.Error(err))
-			return "", err
-		}
-	} else {
-		return e.next.MultipartCreate(ctx, target, requestData)
+	log.Logger(ctx).Info("[HANDLER ENCRYPT] > Multipart Create: Protecting key")
+	plainEncryptionKey = info.NodeKey.KeyData
+	info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, plainEncryptionKey)
+	if err != nil {
+		log.Logger(ctx).Error("[HANDLER ENCRYPT] > Multipart Create: Failed to encrypt Multi Part  node key", zap.Error(err))
+		return "", err
 	}
 
 	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
