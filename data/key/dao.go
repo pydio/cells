@@ -30,13 +30,27 @@ import (
 type DAO interface {
 	dao.DAO
 
-	InsertNode(nodeUuid string, nonce []byte, blockSize int32) error
+	ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, error)
+	SaveEncryptedBlockInfo(nodeUuid string, b *RangedBlocks) error
+	GetEncryptedLegacyBlockInfo(nodeUuid string) (*RangedBlocks, error)
+	ClearNodeEncryptedPartBlockInfo(nodeUuid string, partId int) error
+	ClearNodeEncryptedBlockInfo(nodeUuid string) error
+
+	CopyNode(srcUuid, targetUuid string) error
+
+	SaveNode(node *encryption.Node) error
+	GetNode(nodeUuid string) (*encryption.Node, error)
 	DeleteNode(nodeUuid string) error
-	SetNodeKey(nodeUuid string, ownerId string, userId string, keyData []byte) error
+
+	SaveNodeKey(nodeKey *encryption.NodeKey) error
 	GetNodeKey(node string, user string) (*encryption.NodeKey, error)
-	DeleteNodeKey(node string, user string) error
-	DeleteNodeSharedKey(node string, ownerId string, userId string) error
-	DeleteNodeAllSharedKey(node string, ownerId string) error
+	DeleteNodeKey(nodeKey *encryption.NodeKey) error
+}
+
+type QueryResultCursor interface {
+	Close() error
+	HasNext() bool
+	Next() (interface{}, error)
 }
 
 func NewDAO(o dao.DAO) dao.DAO {
@@ -45,4 +59,14 @@ func NewDAO(o dao.DAO) dao.DAO {
 		return &sqlimpl{DAO: v}
 	}
 	return nil
+}
+
+type RangedBlocks struct {
+	OwnerId    string
+	PartId     uint32
+	SeqStart   uint32
+	SeqEnd     uint32
+	HeaderSize uint32
+	BlockSize  uint32
+	Nonce      []byte
 }
