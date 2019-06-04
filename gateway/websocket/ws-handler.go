@@ -197,11 +197,10 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		if event.refreshTarget && event.Target != nil {
 			claims, _ := session.Get(SessionClaimsKey)
 			uName, _ := session.Get(SessionUsernameKey)
-			c, _ := json.Marshal(claims)
 			metaCtx = metadata.NewContext(context.Background(), map[string]string{
-				claim.MetadataContextKey:      string(c),
 				common.PYDIO_CONTEXT_USER_KEY: uName.(string),
 			})
+			metaCtx = auth.ToMetadata(metaCtx, claims.(claim.Claims))
 			metaProviderClients, metaProvidersCloser, metaProviderNames = meta.InitMetaProviderClients(metaCtx, false)
 			defer metaProvidersCloser()
 			if respNode, err := w.EventRouter.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {

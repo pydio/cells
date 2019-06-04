@@ -22,12 +22,10 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strings"
 
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
 
 	"github.com/pydio/cells/common"
@@ -52,16 +50,9 @@ func newClaimsProvider(service micro.Service) error {
 func NewClaimsHandlerWrapper() server.HandlerWrapper {
 	return func(h server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-
-			if md, ok := metadata.FromContext(ctx); ok {
-				if jsonClaims, exists := md[claim.MetadataContextKey]; exists {
-					var claims claim.Claims
-					if e := json.Unmarshal([]byte(jsonClaims), &claims); e == nil {
-						ctx = context.WithValue(ctx, claim.ContextKey, claims)
-					}
-				}
+			if claims, exists := auth.FromMetadata(ctx); exists {
+				ctx = context.WithValue(ctx, claim.ContextKey, claims)
 			}
-
 			err := h(ctx, req, rsp)
 
 			return err

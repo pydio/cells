@@ -187,9 +187,8 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 		}
 	}
 	md[common.PYDIO_CONTEXT_USER_KEY] = claims.Name
-	jsonClaims, _ := json.Marshal(claims)
-	md[claim.MetadataContextKey] = string(jsonClaims)
 	ctx = metadata.NewContext(ctx, md)
+	ctx = ToMetadata(ctx, claims)
 
 	return ctx, claims, nil
 }
