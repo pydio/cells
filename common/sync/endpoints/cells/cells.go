@@ -88,17 +88,28 @@ func (c *abstract) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	// Do nothing - we assume Snapshot was updated directly during Watch when receiving events
 }
 
-func (c *abstract) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (c *abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 	ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return nil, err
 	}
-	resp, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: c.rooted(path)}})
+	var x bool
+	if len(extendedStats) > 0 {
+		x = extendedStats[0]
+	}
+	resp, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{
+		Node:              &tree.Node{Path: c.rooted(path)},
+		WithExtendedStats: x,
+	})
 	if e != nil {
 		return nil, e
 	}
 	out := resp.Node
 	out.Path = c.unrooted(resp.Node.Path)
+	if !resp.Node.IsLeaf() && resp.Node.Size > 0 {
+		// We know that index answers with total size of folder
+		resp.Node.SetMeta("RecursiveChildrenSize", resp.Node.Size)
+	}
 	return out, nil
 }
 
@@ -199,6 +210,10 @@ func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 
 	TimeFormatFS := "2006-01-02T15:04:05.000Z"
 	now := time.Now().UTC().Format(TimeFormatFS)
+	if c.updateSnapshot != nil && change.Type == tree.NodeChangeEvent_CREATE && path.Base(change.Target.Path) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+		// Special case for .pydio creations, to be updated in snapshot but ignored for event processed further
+		c.updateSnapshot.CreateNode(c.globalCtx, change.Target, true)
+	}
 	if !c.changeValidPath(change.Target) || !c.changeValidPath(change.Source) {
 		return
 	}
@@ -307,17 +322,6 @@ func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 		c.recentMkDirs = append(c.recentMkDirs, n)
 		c.Unlock()
 	}
-	return e
-}
-
-func (c *abstract) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	ctx, cli, err := c.factory.GetNodeReceiverClient(c.getContext(ctx))
-	if err != nil {
-		return err
-	}
-	n := node.Clone()
-	n.Path = c.rooted(n.Path)
-	_, e := cli.CreateNode(ctx, &tree.CreateNodeRequest{Node: n})
 	return e
 }
 
@@ -437,7 +441,7 @@ func (c *abstract) readNodeBlocking(n *tree.Node) {
 		if err != nil {
 			return err
 		}
-		_, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
+		_, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: n}, client.WithRequestTimeout(1*time.Second))
 		return e
 	}, 1*time.Second, 10*time.Second)
 }

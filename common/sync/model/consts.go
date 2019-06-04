@@ -21,6 +21,9 @@
 package model
 
 import (
+	"crypto/md5"
+	"fmt"
+	"io"
 	"strings"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -52,4 +55,10 @@ func DirWithInternalSeparator(filePath string) string {
 
 func NodeRequiresChecksum(node *tree.Node) bool {
 	return node.IsLeaf() && (node.Etag == "" || node.Etag == DefaultEtag || strings.Contains(node.Etag, "-"))
+}
+
+func StringContentToETag(uuid string) string {
+	h := md5.New()
+	io.Copy(h, strings.NewReader(uuid))
+	return fmt.Sprintf("%x", h.Sum(nil))
 }

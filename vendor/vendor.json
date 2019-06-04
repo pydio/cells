@@ -2163,6 +2163,12 @@
 			"revisionTime": "2018-01-09T21:29:12Z"
 		},
 		{
+			"checksumSHA1": "Thmrezy2+xEG9MhR6TPb3yKvBIQ=",
+			"path": "github.com/karrick/godirwalk",
+			"revision": "5e617d9cfec6f870e63b168e9a2fb7c490a1c108",
+			"revisionTime": "2019-05-10T20:35:04Z"
+		},
+		{
 			"checksumSHA1": "ZAwOhj3rRI9u1+XelsFJmYMSGpY=",
 			"path": "github.com/krolaw/zipstream",
 			"revision": "ec9ff1af7313ec2b2499dfc095a401e0a1e2f50e",

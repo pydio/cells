@@ -23,14 +23,15 @@ package merger
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"path"
 	"strings"
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/proto/tree"
-
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -40,19 +41,21 @@ type Solver func(left, right *TreeNode)
 
 type BidirectionalPatch struct {
 	TreePatch
-	conflicts      []*Conflict
-	matrix         map[OperationType]map[OperationType]Solver
-	inputsModified bool
-	unexpected     []error
-	ctx            context.Context
+	conflicts           []*Conflict
+	matrix              map[OperationType]map[OperationType]Solver
+	inputsModified      bool
+	unexpected          []error
+	ctx                 context.Context
+	ignoreUUIDConflicts bool
 }
 
 func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*BidirectionalPatch, error) {
 	source := left.Source()
 	target, _ := model.AsPathSyncTarget(right.Source())
 	b := &BidirectionalPatch{
-		TreePatch: *newTreePatch(source, target, PatchOptions{MoveDetection: false}),
-		ctx:       ctx,
+		TreePatch:           *newTreePatch(source, target, PatchOptions{MoveDetection: false}),
+		ctx:                 ctx,
+		ignoreUUIDConflicts: ignoreUUIDConflictsForEndpoints(source, target),
 	}
 	b.initMatrix()
 	left.Filter(ctx)
@@ -81,6 +84,23 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 	return b, e
 }
 
+func (p *BidirectionalPatch) AppendBranch(ctx context.Context, branch *BidirectionalPatch) {
+	p.enqueueOperations(&branch.TreeNode)
+}
+
+func ignoreUUIDConflictsForEndpoints(left, right model.Endpoint) bool {
+	// If syncing on same server, do not trigger conflicts on .pydio
+	u1, _ := url.Parse(left.GetEndpointInfo().URI)
+	u2, _ := url.Parse(right.GetEndpointInfo().URI)
+	if u1.Scheme == "router" && u2.Scheme == "router" {
+		return true
+	}
+	if strings.HasPrefix(u1.Scheme, "http") && strings.HasPrefix(u2.Scheme, "http") && u1.Host == u2.Host {
+		return true
+	}
+	return false
+}
+
 func (p *BidirectionalPatch) mergeTrees(left, right *TreeNode) {
 	cL := left.GetCursor()
 	cR := right.GetCursor()
@@ -97,20 +117,20 @@ func (p *BidirectionalPatch) mergeTrees(left, right *TreeNode) {
 				b = cR.Next()
 				continue
 			case 1:
-				p.EnqueueOperations(b, OperationDirLeft)
+				p.enqueueOperations(b, OperationDirLeft)
 				b = cR.Next()
 				continue
 			case -1:
-				p.EnqueueOperations(a, OperationDirRight)
+				p.enqueueOperations(a, OperationDirRight)
 				a = cL.Next()
 				continue
 			}
 		} else if a == nil && b != nil {
-			p.EnqueueOperations(b, OperationDirLeft)
+			p.enqueueOperations(b, OperationDirLeft)
 			b = cR.Next()
 			continue
 		} else if b == nil && a != nil {
-			p.EnqueueOperations(a, OperationDirRight)
+			p.enqueueOperations(a, OperationDirRight)
 			a = cL.Next()
 			continue
 		}
@@ -118,16 +138,20 @@ func (p *BidirectionalPatch) mergeTrees(left, right *TreeNode) {
 
 }
 
-func (p *BidirectionalPatch) EnqueueOperations(branch *TreeNode, direction OperationDirection) {
+func (p *BidirectionalPatch) enqueueOperations(branch *TreeNode, direction ...OperationDirection) {
 	branch.WalkOperations([]OperationType{}, func(operation Operation) {
-		p.Enqueue(operation.Clone().SetDirection(direction))
+		toEnqueue := operation.Clone()
+		if len(direction) > 0 {
+			toEnqueue.SetDirection(direction[0])
+		}
+		p.Enqueue(toEnqueue)
 	})
 }
 
 func (p *BidirectionalPatch) initMatrix() {
 	p.matrix = map[OperationType]map[OperationType]Solver{
-		OpNone:         {OpNone: p.Ignore, OpCreateFolder: p.EnqueueBoth, OpMoveFile: p.EnqueueBoth, OpMoveFolder: p.EnqueueBoth, OpDelete: p.EnqueueBoth},
-		OpCreateFolder: {OpNone: nil, OpCreateFolder: p.Ignore, OpMoveFile: p.Conflict, OpMoveFolder: p.Conflict, OpDelete: p.EnqueueLeft},
+		OpNone:         {OpNone: p.Ignore, OpCreateFolder: p.enqueueBoth, OpMoveFile: p.enqueueBoth, OpMoveFolder: p.enqueueBoth, OpDelete: p.enqueueBoth},
+		OpCreateFolder: {OpNone: nil, OpCreateFolder: p.Ignore, OpMoveFile: p.Conflict, OpMoveFolder: p.Conflict, OpDelete: p.enqueueLeft},
 		OpMoveFile:     {OpNone: nil, OpCreateFolder: nil, OpMoveFile: p.CompareMoveTargets, OpMoveFolder: p.Conflict, OpDelete: p.ReSyncTarget},
 		OpMoveFolder:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: p.CompareMoveTargets, OpDelete: p.ReSyncTarget},
 		OpDelete:       {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: p.Ignore},
@@ -159,17 +183,17 @@ func (p *BidirectionalPatch) Ignore(left, right *TreeNode) {
 	}
 }
 
-func (p *BidirectionalPatch) EnqueueBoth(left, right *TreeNode) {
-	p.EnqueueLeft(left, right)
-	p.EnqueueRight(left, right)
+func (p *BidirectionalPatch) enqueueBoth(left, right *TreeNode) {
+	p.enqueueLeft(left, right)
+	p.enqueueRight(left, right)
 }
 
-func (p *BidirectionalPatch) EnqueueLeft(left, right *TreeNode) {
-	p.EnqueueOperations(left, OperationDirRight)
+func (p *BidirectionalPatch) enqueueLeft(left, right *TreeNode) {
+	p.enqueueOperations(left, OperationDirRight)
 }
 
-func (p *BidirectionalPatch) EnqueueRight(left, right *TreeNode) {
-	p.EnqueueOperations(right, OperationDirLeft)
+func (p *BidirectionalPatch) enqueueRight(left, right *TreeNode) {
+	p.enqueueOperations(right, OperationDirLeft)
 }
 
 func (p *BidirectionalPatch) ReSyncTarget(left, right *TreeNode) {
@@ -276,6 +300,10 @@ func (p *BidirectionalPatch) MergeDataOperations(left, right *TreeNode) {
 			return
 		}
 		log.Logger(p.ctx).Info("-- DataOperation detected on both sides, versions differ - keep both")
+		if path.Base(initialPath) == common.PYDIO_SYNC_HIDDEN_FILE_META && p.ignoreUUIDConflicts {
+			log.Logger(p.ctx).Info("-- Conflict found on .pydio but patch must ignore")
+			return
+		}
 
 		// TODO - FIND A CLEANER WAY
 		leftSource, _ := model.AsPathSyncTarget(left.DataOperation.Source())

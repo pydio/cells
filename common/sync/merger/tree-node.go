@@ -56,7 +56,11 @@ type TreeNode struct {
 // When it comes accross a LEAF without Etag value, it asks the source to recompute it in a
 // parallel fashion with throttling (max 15 at the same time).  At the end of the operation,
 // the tree should be fully loaded with all LEAF etags (but not COLL etags).
-func TreeNodeFromSource(source model.PathSyncSource, root string) (*TreeNode, error) {
+func TreeNodeFromSource(source model.PathSyncSource, root string, status ...chan ProcessStatus) (*TreeNode, error) {
+	var statusChan chan ProcessStatus
+	if len(status) > 0 {
+		statusChan = status[0]
+	}
 	rootNode := NewTreeNode(&tree.Node{Path: "/", Etag: "-1"})
 	dirs := map[string]*TreeNode{".": rootNode}
 	crtRoot := rootNode
@@ -74,9 +78,26 @@ func TreeNodeFromSource(source model.PathSyncSource, root string) (*TreeNode, er
 	wg := &sync.WaitGroup{}
 	throttle := make(chan struct{}, 15)
 	checksumProvider := source.(model.ChecksumProvider)
+	uri := source.GetEndpointInfo().URI
 
-	err := source.Walk(func(path string, node *tree.Node, err error) {
-		if model.IsIgnoredFile(path) || len(path) == 0 || path == "/" {
+	err := source.Walk(func(p string, node *tree.Node, err error) {
+		if statusChan != nil {
+			defer func() {
+				s := ProcessStatus{
+					EndpointURI:      uri,
+					StatusString:     fmt.Sprintf("Indexing node %s", p),
+					Progress:         1,
+					IsProgressAtomic: true,
+					Node:             node,
+				}
+				if err != nil {
+					s.Error = err
+					s.IsError = true
+				}
+				statusChan <- s
+			}()
+		}
+		if model.IsIgnoredFile(p) || len(p) == 0 || p == "/" {
 			return
 		}
 		t := NewTreeNode(node)
@@ -93,8 +114,26 @@ func TreeNodeFromSource(source model.PathSyncSource, root string) (*TreeNode, er
 					<-throttle
 					wg.Done()
 				}()
+				if statusChan != nil {
+					statusChan <- ProcessStatus{
+						EndpointURI:      uri,
+						Node:             node,
+						StatusString:     fmt.Sprintf("Computing hash for %s", p),
+						IsProgressAtomic: true,
+					}
+				}
 				if e := checksumProvider.ComputeChecksum(node); e != nil {
-					log.Logger(context.Background()).Info("Cannot compute checksum for "+node.Path, zap.Error(e))
+					log.Logger(context.Background()).Error("Cannot compute checksum for "+node.Path, zap.Error(e))
+					if statusChan != nil {
+						statusChan <- ProcessStatus{
+							EndpointURI:      uri,
+							Node:             node,
+							StatusString:     fmt.Sprintf("Could not compute hash for %s", p),
+							IsProgressAtomic: true,
+							Error:            e,
+							IsError:          true,
+						}
+					}
 				}
 				parent.AddChild(NewTreeNode(node))
 			}()

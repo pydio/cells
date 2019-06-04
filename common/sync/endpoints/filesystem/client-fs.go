@@ -36,6 +36,9 @@ import (
 	"strings"
 	"sync"
 
+	"go.uber.org/zap"
+
+	"github.com/karrick/godirwalk"
 	errors2 "github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"github.com/rjeczalik/notify"
@@ -63,7 +66,7 @@ func CanonicalPath(path string) (string, error) {
 		p, e := filepath.EvalSymlinks(path)
 		if e != nil {
 			return path, e
-		} 
+		}
 		// Make sure drive letter is lowerCase
 		volume := filepath.VolumeName(p)
 		if strings.HasSuffix(volume, ":") {
@@ -119,8 +122,10 @@ func (c *FSClient) normalize(path string) string {
 
 func (c *FSClient) denormalize(path string) string {
 	// Make sure it starts with a /
-	if runtime.GOOS == "darwin" {
+	if runtime.GOOS != "windows" {
 		path = fmt.Sprintf("/%v", strings.TrimLeft(path, model.InternalPathSeparator))
+	}
+	if runtime.GOOS == "darwin" {
 		return string(norm.NFD.Bytes([]byte(path)))
 	} else if runtime.GOOS == "windows" {
 		return strings.Replace(path, model.InternalPathSeparator, string(os.PathSeparator), -1)
@@ -138,7 +143,7 @@ type FSClient struct {
 	updateSnapshot model.PathSyncTarget
 	refHashStore   model.PathSyncSource
 	options        model.EndpointOptions
-	uriPath string
+	uriPath        string
 }
 
 func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, error) {
@@ -180,6 +185,17 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	pr := proc.NewProcessor(ctx)
 	pr.Silent = true
 	pr.Process(newPatch)
+	// For Create Folders, updateSnapshot with associated .pydio's
+	newPatch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
+		folderUuid := operation.GetNode().Uuid
+		c.updateSnapshot.CreateNode(ctx, &tree.Node{
+			Uuid:  uuid.New(),
+			Path:  path.Join(operation.GetNode().Path, common.PYDIO_SYNC_HIDDEN_FILE_META),
+			Etag:  model.StringContentToETag(folderUuid),
+			Size:  int64(len(folderUuid)),
+			MTime: operation.GetNode().MTime,
+		}, true)
+	})
 }
 
 func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
@@ -189,7 +205,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "fs://" + c.uriPath,
+		URI: "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
@@ -200,14 +216,20 @@ func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 // LoadNode is the Read in CRUD.
 // leaf bools are used to avoid doing an FS.stat if we already know a node to be
 // a leaf.  NOTE : is it useful?  Examine later.
-func (c *FSClient) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
-	return c.loadNode(ctx, path, nil)
+func (c *FSClient) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+	n, e := c.loadNode(ctx, path, nil)
+	if len(extendedStats) > 0 && extendedStats[0] && e == nil {
+		if er := c.loadNodeExtendedStats(ctx, n); er != nil {
+			log.Logger(ctx).Error("Cannot load node extended stats", zap.Error(er))
+		}
+	}
+	return n, e
 }
 
-func (c *FSClient) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+func (c *FSClient) Walk(walkFunc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	wrappingFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			walknFc("", nil, err)
+			walkFunc("", nil, err)
 			return nil
 		}
 		if len(path) == 0 || path == "/" || c.normalize(path) == strings.TrimLeft(root, "/") || strings.HasPrefix(filepath.Base(path), SyncTmpPrefix) {
@@ -216,9 +238,9 @@ func (c *FSClient) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 
 		path = c.normalize(path)
 		if node, e := c.loadNode(context.Background(), path, info); e != nil {
-			walknFc("", nil, e)
+			walkFunc("", nil, e)
 		} else {
-			walknFc(path, node, nil)
+			walkFunc(path, node, nil)
 		}
 
 		return nil
@@ -327,7 +349,7 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 
 func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	if node.IsLeaf() {
-		return errors.New("This is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
+		return errors.New("this is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
 	fPath := c.denormalize(node.Path)
 	_, e := c.FS.Stat(fPath)
@@ -338,14 +360,19 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 		}
 		if c.updateSnapshot != nil {
 			log.Logger(ctx).Info("[FS] Update Snapshot - Create", node.ZapPath())
-			c.updateSnapshot.CreateNode(ctx, node, updateIfExists)
+			if err := c.updateSnapshot.CreateNode(ctx, node, updateIfExists); err == nil {
+				// Create associated .pydio in snapshot as well
+				c.updateSnapshot.CreateNode(ctx, &tree.Node{
+					Uuid:  uuid.New(),
+					Path:  path.Join(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META),
+					Etag:  model.StringContentToETag(node.Uuid),
+					Size:  int64(len(node.Uuid)),
+					MTime: node.MTime,
+				}, true)
+			}
 		}
 	}
 	return err
-}
-
-func (c *FSClient) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	return c.CreateNode(ctx, node, true)
 }
 
 func (c *FSClient) DeleteNode(ctx context.Context, path string) (err error) {
@@ -581,4 +608,36 @@ func (c *FSClient) loadNode(ctx context.Context, path string, stat os.FileInfo) 
 	node.Size = stat.Size()
 	node.Mode = int32(stat.Mode())
 	return node, nil
+}
+
+func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) error {
+	if node.IsLeaf() {
+		return nil
+	}
+	var folders, files, totalSize int64
+	realPath := filepath.Join(c.RootPath, c.normalize(node.Path))
+	e := godirwalk.Walk(realPath, &godirwalk.Options{
+		Unsorted: true,
+		Callback: func(osPathname string, directoryEntry *godirwalk.Dirent) error {
+			if !directoryEntry.IsRegular() {
+				folders++
+			} else {
+				files++
+				if i, e := os.Stat(osPathname); e == nil {
+					totalSize += i.Size()
+				}
+			}
+			return nil
+		},
+	})
+	if e != nil {
+		return e
+	}
+	if totalSize > 0 {
+		node.Size = totalSize
+		node.SetMeta("RecursiveChildrenSize", totalSize)
+	}
+	node.SetMeta("RecursiveChildrenFiles", files)
+	node.SetMeta("RecursiveChildrenFolders", folders)
+	return nil
 }

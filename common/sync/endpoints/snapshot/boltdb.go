@@ -91,10 +91,6 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 	})
 }
 
-func (s *BoltSnapshot) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	return s.CreateNode(ctx, node, true)
-}
-
 func (s *BoltSnapshot) DeleteNode(ctx context.Context, path string) (err error) {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
@@ -215,7 +211,7 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 	return e
 }
 
-func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		if b := tx.Bucket(bucketName); b != nil {
 			value := b.Get([]byte(path))

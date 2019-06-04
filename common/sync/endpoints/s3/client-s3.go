@@ -24,7 +24,6 @@ package s3
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
 	"errors"
 	"fmt"
 	"io"
@@ -35,8 +34,10 @@ import (
 	"strings"
 	"time"
 
+	errors2 "github.com/micro/go-micro/errors"
+
+	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
-	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
@@ -116,6 +117,21 @@ func (c *Client) getFullPath(path string) string {
 }
 
 func (c *Client) Stat(path string) (i os.FileInfo, err error) {
+	if path == "" || path == "/" {
+		buckets, err := c.Mc.ListBuckets()
+		if err != nil {
+			return nil, err
+		}
+		for _, b := range buckets {
+			if b.Name == c.Bucket {
+				return NewS3FolderInfo(minio.ObjectInfo{
+					Key:          "/",
+					LastModified: b.CreationDate,
+				}), nil
+			}
+		}
+		return nil, errors2.NotFound("bucket.not.found", "cannot find bucket %s", c.Bucket)
+	}
 	objectInfo, e := c.Mc.StatObject(c.Bucket, c.getFullPath(path), minio.StatObjectOptions{})
 	if e != nil {
 		// Try folder
@@ -135,10 +151,6 @@ func (c *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
 	_, err = c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(node.Uuid), int64(len(node.Uuid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	return err
-}
-
-func (c *Client) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	return c.CreateNode(ctx, node, true)
 }
 
 func (c *Client) DeleteNode(ctx context.Context, path string) (err error) {
@@ -219,7 +231,7 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	ctx := context.Background()
 	wrappingFunc := func(path string, info *S3FileInfo, err error) error {
 		path = c.getLocalPath(path)
-		node, test := c.LoadNode(ctx, path, !info.IsDir())
+		node, test := c.loadNode(ctx, path, !info.IsDir())
 		if test != nil || node == nil {
 			// Ignoring node not found
 			return nil
@@ -339,9 +351,13 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 
 }
 
-func (c *Client) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
-	var hash, uid string = "", ""
-	var isLeaf bool = false
+func (c *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+	return c.loadNode(ctx, path)
+}
+
+func (c *Client) loadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+	var hash, uid string
+	var isLeaf bool
 	var metaSize int64
 	var stat os.FileInfo
 	var eStat error
@@ -389,7 +405,7 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Nod
 	if node.Uuid != "" {
 		uid = node.Uuid
 	} else {
-		uid = fmt.Sprintf("%s", uuid.NewV4())
+		uid = uuid.New()
 		node.Uuid = uid
 	}
 
@@ -437,15 +453,13 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 	}
 	// Does not exists
 	// Create dir uuid now
-	uid = fmt.Sprintf("%s", uuid.NewV4())
-	h := md5.New()
-	io.Copy(h, strings.NewReader(uid))
-	Etag := fmt.Sprintf("%x", h.Sum(nil))
+	uid = uuid.New()
+	eTag := model.StringContentToETag(uid)
 
 	if c.options.BrowseOnly {
 		// Return fake file without actually creating it
 		return uid, minio.ObjectInfo{
-			ETag:         Etag,
+			ETag:         eTag,
 			Key:          hiddenPath,
 			LastModified: time.Now(),
 			Size:         36,
@@ -455,7 +469,7 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
 	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	created = minio.ObjectInfo{
-		ETag:         Etag,
+		ETag:         eTag,
 		Key:          hiddenPath,
 		LastModified: time.Now(),
 		Size:         size,

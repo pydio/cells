@@ -82,7 +82,7 @@ func (db *MemDB) sendEvent(event DBEvent) {
 /*************************/
 /* Path Sync Target 	 */
 /*************************/
-func (db *MemDB) LoadNode(ctx context.Context, path string, leaf ...bool) (node *tree.Node, err error) {
+func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 
 	for _, node := range db.Nodes {
 		if norm.NFC.String(node.Path) == norm.NFC.String(path) {
@@ -99,24 +99,6 @@ func (db *MemDB) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 		Type:   "Create",
 		Target: node.Path,
 	})
-	return nil
-}
-
-func (db *MemDB) UpdateNode(ctx context.Context, node *tree.Node) (err error) {
-	removed := db.removeNodeNoEvent(node.Path)
-	db.Nodes = append(db.Nodes, node)
-	if removed == nil {
-		db.sendEvent(DBEvent{
-			Type:   "Create",
-			Target: node.Path,
-		})
-	} else {
-		db.sendEvent(DBEvent{
-			Type:   "Update",
-			Source: node.Path,
-			Target: node.Path,
-		})
-	}
 	return nil
 }
 

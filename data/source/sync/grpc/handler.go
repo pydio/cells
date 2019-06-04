@@ -91,7 +91,7 @@ func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
 }
 
 func (s *Handler) Start() {
-	s.syncTask.Start(s.globalCtx)
+	s.syncTask.Start(s.globalCtx, true)
 	go s.watchConfigs()
 	go s.watchErrors()
 }
@@ -150,7 +150,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	go func() {
 		defer wg.Done()
 		service.Retry(func() error {
-			log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Objects")
+			log.Logger(ctx).Info("Sync " + dataSource + " - Try to contact Objects")
 			cli := object.NewObjectsEndpointClient(registry.GetClient(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName))
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 			if err != nil {
@@ -169,7 +169,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				log.Logger(ctx).Error("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 4s", zap.Error(err))
 				return err
 			} else {
-				log.Logger(ctx).Debug("Could List Objects in Bucket!")
+				log.Logger(ctx).Info("Could List Objects in Bucket!")
 				return nil
 			}
 		}, 4*time.Second, 50*time.Second)

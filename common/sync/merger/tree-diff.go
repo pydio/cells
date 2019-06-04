@@ -48,6 +48,7 @@ type TreeDiff struct {
 	ctx          context.Context
 
 	statusChan chan ProcessStatus
+	doneChan   chan interface{}
 }
 
 // newTreeDiff instanciate a new TreeDiff
@@ -61,6 +62,8 @@ func newTreeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 
 // Compute performs the actual diff between left and right
 func (diff *TreeDiff) Compute(root string) error {
+	defer diff.Done(true)
+
 	lTree := NewTree()
 	rTree := NewTree()
 	var errs []error
@@ -71,18 +74,25 @@ func (diff *TreeDiff) Compute(root string) error {
 		go func(logId string) {
 			start := time.Now()
 			h := ""
+			uri := diff.left.GetEndpointInfo().URI
+			if k == "right" {
+				uri = diff.right.GetEndpointInfo().URI
+			}
 			defer func() {
-				diff.Status(ProcessStatus{StatusString: fmt.Sprintf("[%s] Snapshot loaded in %v - Root Hash is %s", logId, time.Now().Sub(start), h)})
+				diff.Status(ProcessStatus{
+					EndpointURI:  uri,
+					StatusString: fmt.Sprintf("[%s] Snapshot loaded in %v - Root Hash is %s", logId, time.Now().Sub(start), h),
+				})
 				wg.Done()
 			}()
 			diff.Status(ProcessStatus{StatusString: fmt.Sprintf("[%s] Loading snapshot", logId)})
 			var err error
 			if logId == "left" {
-				if lTree, err = TreeNodeFromSource(diff.left, root); err == nil {
+				if lTree, err = TreeNodeFromSource(diff.left, root, diff.statusChan); err == nil {
 					h = lTree.GetHash()
 				}
 			} else if logId == "right" {
-				if rTree, err = TreeNodeFromSource(diff.right, root); err == nil {
+				if rTree, err = TreeNodeFromSource(diff.right, root, diff.statusChan); err == nil {
 					h = rTree.GetHash()
 				}
 			}
@@ -169,10 +179,13 @@ func (diff *TreeDiff) Status(status ProcessStatus) {
 // SetupChannels registers status chan internally. Done chan is ignored
 func (diff *TreeDiff) SetupChannels(c chan ProcessStatus, done chan interface{}) {
 	diff.statusChan = c
+	diff.doneChan = done
 }
 
 func (diff *TreeDiff) Done(info interface{}) {
-	//ignore
+	if diff.doneChan != nil {
+		diff.doneChan <- info
+	}
 }
 
 // String provides a string representation of this diff
