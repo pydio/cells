@@ -25,13 +25,11 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/pydio/cells/common"
-
-	"github.com/pydio/cells/common/utils/permissions"
-
 	"github.com/micro/go-micro/metadata"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 const (
