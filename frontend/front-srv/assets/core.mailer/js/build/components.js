@@ -247,7 +247,10 @@ var Email = (function () {
             Promise.all(proms).then(function () {
                 callback(true);
             })['catch'](function (e) {
-                callback(false);
+                if (e.response && e.response.body && e.response.body.Title) {
+                    e = new Error(e.response.body.Title);
+                }
+                callback(false, e);
             });
         }
     }]);
@@ -348,15 +351,17 @@ var Pane = (function (_React$Component3) {
             var templateId = _props2.templateId;
             var templateData = _props2.templateData;
 
-            var callback = function callback(res) {
+            var callback = function callback(res, err) {
                 _this2.setState({ posting: false });
                 if (res) {
+                    _this2.props.pydio.UI.displayMessage('SUCCESS', _this2.props.pydio.MessageHash["core.mailer.1"].replace('%s', Object.keys(users).length));
                     if (_this2.props.onDismiss) {
                         _this2.props.onDismiss();
                     } else {
-                        _this2.props.pydio.UI.displayMessage('SUCCESS', _this2.props.pydio.MessageHash["core.mailer.1"].replace('%s', Object.keys(users).length));
                         _this2.setState({ users: {}, subject: '', message: '' });
                     }
+                } else {
+                    _this2.props.pydio.UI.displayMessage('ERROR', _this2.props.pydio.MessageHash["core.mailer.sender.error"] + (err ? ' : ' + err.message : ''));
                 }
             };
             this.setState({ posting: true });

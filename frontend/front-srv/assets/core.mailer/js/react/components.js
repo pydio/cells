@@ -168,7 +168,10 @@ class Email {
         Promise.all(proms).then(() => {
             callback(true);
         }).catch(e => {
-            callback(false);
+            if (e.response && e.response.body && e.response.body.Title) {
+                e = new Error(e.response.body.Title);
+            }
+            callback(false, e);
         });
 
     }
@@ -241,15 +244,17 @@ class Pane extends React.Component {
             return;
         }
         const {link, templateId, templateData} = this.props;
-        const callback = (res) => {
+        const callback = (res, err) => {
             this.setState({posting: false});
             if(res) {
+                this.props.pydio.UI.displayMessage('SUCCESS', this.props.pydio.MessageHash["core.mailer.1"].replace('%s', Object.keys(users).length));
                 if(this.props.onDismiss){
                     this.props.onDismiss();
                 } else {
-                    this.props.pydio.UI.displayMessage('SUCCESS', this.props.pydio.MessageHash["core.mailer.1"].replace('%s', Object.keys(users).length));
                     this.setState({users: {}, subject:'', message:''});
                 }
+            } else {
+                this.props.pydio.UI.displayMessage('ERROR', this.props.pydio.MessageHash["core.mailer.sender.error"] + (err?' : ' + err.message : ''));
             }
         };
         this.setState({posting: true});

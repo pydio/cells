@@ -50,6 +50,10 @@ var _mainGenericEditor = require('../main/GenericEditor');
 
 var _mainGenericEditor2 = _interopRequireDefault(_mainGenericEditor);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _linksPanel = require('../links/Panel');
 
 var _linksPanel2 = _interopRequireDefault(_linksPanel);
@@ -88,17 +92,13 @@ var _linksLabelPanel2 = _interopRequireDefault(_linksLabelPanel);
 
 var _materialUi = require('material-ui');
 
-var _pydio = require('pydio');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
-var _pydio2 = _interopRequireDefault(_pydio);
+var PaletteModifier = _Pydio$requireLib.PaletteModifier;
 
-var _require$requireLib = require('pydio').requireLib('hoc');
+var _Pydio$requireLib2 = _pydio2['default'].requireLib("boot");
 
-var PaletteModifier = _require$requireLib.PaletteModifier;
-
-var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
-
-var Tooltip = _Pydio$requireLib.Tooltip;
+var Tooltip = _Pydio$requireLib2.Tooltip;
 
 var CompositeCard = (function (_React$Component) {
     _inherits(CompositeCard, _React$Component);
@@ -289,7 +289,7 @@ var CompositeCard = (function (_React$Component) {
                             pydio: pydio,
                             compositeModel: model,
                             linkModel: links[0],
-                            showMailer: this.linkInvitation.bind(this)
+                            showMailer: _mainShareHelper2['default'].mailerSupported(pydio) ? this.linkInvitation.bind(this) : null
                         })
                     });
                     if (publicLinkModel.getLinkUuid()) {

@@ -204,7 +204,7 @@ var SimpleLinkCard = (function (_React$Component) {
                         pydio: pydio,
                         compositeModel: model,
                         linkModel: links[0],
-                        showMailer: this.linkInvitation.bind(this)
+                        showMailer: _mainShareHelper2['default'].mailerSupported(pydio) ? this.linkInvitation.bind(this) : null
                     })
                 });
                 if (publicLinkModel.getLinkUuid()) {
