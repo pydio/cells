@@ -38,7 +38,7 @@ type SendGrid struct {
 }
 
 // Configure expects a valid sendgrid API key.
-func (s *SendGrid) Configure(config config.Map) error {
+func (s *SendGrid) Configure(ctx context.Context, config config.Map) error {
 
 	apiKey := config.Get("apiKey").(string)
 	if apiKey == "" {
@@ -46,8 +46,12 @@ func (s *SendGrid) Configure(config config.Map) error {
 	}
 	s.ApiKey = apiKey
 
-	log.Logger(context.Background()).Debug("SendGrid Configured")
+	log.Logger(ctx).Debug("SendGrid Configured")
 
+	return nil
+}
+
+func (s *SendGrid) Check(ctx context.Context) error {
 	return nil
 }
 

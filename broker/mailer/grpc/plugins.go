@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	wconfig "github.com/pydio/go-os/config"
 )
 
 var (
@@ -70,11 +71,39 @@ func init() {
 					return err
 				}
 				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
+				watcher, err := watchConfigChanges(ctx, handler)
+				if err != nil {
+					log.Logger(ctx).Error("Cannot start watcher - still starting service", zap.Error(err))
+				} else {
+					m.Init(micro.BeforeStop(func() error {
+						log.Logger(ctx).Info("Stopping configs watcher")
+						watcher.Stop()
+						return nil
+					}))
+				}
 				mailer.RegisterMailerServiceHandler(m.Options().Server, handler)
 				return nil
 			}),
 		)
 	})
+}
+
+func watchConfigChanges(ctx context.Context, handler *Handler) (wconfig.Watcher, error) {
+	watcher, err := config.Default().Watch("services", Name)
+	if err != nil {
+		return nil, err
+	}
+	go func() {
+		for {
+			_, err := watcher.Next()
+			if err != nil {
+				return
+			}
+			log.Logger(ctx).Info("Refreshing configs - Checking it's valid")
+			handler.checkConfigChange(ctx, true)
+		}
+	}()
+	return watcher, nil
 }
 
 // RegisterQueueJob adds a job to the scheduler to regularly flush the queue

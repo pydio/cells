@@ -21,9 +21,12 @@
 package mailer
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
+
+	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/mailer"
@@ -33,12 +36,22 @@ type Sendmail struct {
 	BinPath string
 }
 
-func (s *Sendmail) Configure(config config.Map) error {
+func (s *Sendmail) Configure(ctx context.Context, config config.Map) error {
 	s.BinPath = "/usr/bin/mail"
 	if str, ok := config.Get("executable").(string); ok && str != "" {
 		s.BinPath = str
 	}
 	return nil
+}
+
+func (s *Sendmail) Check(ctx context.Context) error {
+
+	// Check that executable path is correct
+	if _, err := os.Stat(s.BinPath); err != nil {
+		return errors.New("cannot find executable path")
+	}
+	return nil
+
 }
 
 func (d *Sendmail) Send(email *mailer.Mail) error {

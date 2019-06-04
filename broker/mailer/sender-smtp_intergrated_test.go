@@ -3,6 +3,7 @@
 package mailer
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -51,7 +52,7 @@ func TestSmtpIntergrated_Send(t *testing.T) {
 		buildFromWelcomeTemplate(email, email.To[0])
 
 		smtp := &Smtp{}
-		err := smtp.Configure(*conf)
+		err := smtp.Configure(context.Background(), *conf)
 		So(err, ShouldBeNil)
 
 		err = smtp.Send(email)

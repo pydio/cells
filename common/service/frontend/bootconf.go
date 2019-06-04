@@ -54,9 +54,9 @@ type BootConf struct {
 	AjxpVersion                  string                 `json:"ajxpVersion"`
 	AjxpVersionDate              string                 `json:"ajxpVersionDate"`
 	I18nMessages                 map[string]string      `json:"i18nMessages"`
-	Streaming_supported          bool                   `json:"streaming_supported"`
 	Theme                        string                 `json:"theme"`
 	AjxpImagesCommon             bool                   `json:"ajxpImagesCommon"`
+	ValidMailer                  bool                   `json:"validMailer"`
 	Backend                      BackendConf            `json:"backend"`
 	Other                        map[string]interface{} `json:"other,omitempty"`
 }
@@ -129,7 +129,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		Client_timeout_warning:       timeoutWarn,
 		AjxpVersion:                  vHash,
 		AjxpVersionDate:              vDate,
-		Streaming_supported:          true,
+		ValidMailer:                  config.Get("services", "pydio.grpc.mailer", "valid").Bool(false),
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
 		CustomWording: CustomWording{

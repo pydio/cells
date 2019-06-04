@@ -43,8 +43,9 @@ type Queue interface {
 }
 
 type Sender interface {
-	Configure(conf config.Map) error
+	Configure(ctx context.Context, conf config.Map) error
 	Send(email *mailer.Mail) error
+	Check(ctx context.Context) error
 }
 
 func GetQueue(ctx context.Context, t string, conf common.ConfigValues) Queue {
@@ -82,7 +83,7 @@ func GetSender(t string, conf config.Map) (Sender, error) {
 		return nil, errors.NotFound(common.SERVICE_MAILER, "cannot find sender for type %s", t)
 	}
 
-	err := sender.Configure(conf)
+	err := sender.Configure(nil, conf)
 	if err != nil {
 		return nil, errors.InternalServerError(common.SERVICE_MAILER, "cannot configure sender for type %s", t)
 	}

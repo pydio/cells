@@ -21,6 +21,7 @@
 package mailer
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -64,7 +65,7 @@ func TestSendmail_Send(t *testing.T) {
 		buildFromWelcomeTemplate(email, email.To[0])
 
 		sendmail := &Sendmail{}
-		err := sendmail.Configure(*conf)
+		err := sendmail.Configure(context.Background(), *conf)
 		So(err, ShouldBeNil)
 
 		err = sendmail.Send(email)
