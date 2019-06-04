@@ -24,12 +24,16 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/user"
 	"regexp"
 	"sync"
+
+	"github.com/manifoldco/promptui"
 
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/registry"
 )
 
@@ -145,7 +149,27 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
-		//var err errors
+
+		//Pre-check that pydio.json is properly configured
+		if a, _ := config.GetDefaultDatabase(); a == "" {
+			cmd.Println("****************************************************************************************")
+			cmd.Println("# ")
+			cmd.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for the database!")
+			cmd.Println("# ")
+			cmd.Println("# A - If it is the first time you start " + os.Args[0] + ", make sure to first run the install step:")
+			cmd.Println("#     $> " + os.Args[0] + " install")
+			cmd.Println("# ")
+			cmd.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
+			cmd.Println("#     Make sure you are launching the process as the correct OS user.")
+			if u, er := user.Current(); er == nil {
+				cmd.Println("#     Currently running as '" + u.Username + "'")
+			}
+			cmd.Println("# ")
+			cmd.Println("****************************************************************************************")
+			cmd.Println("")
+			cmd.Println("Exiting now...")
+			return
+		}
 
 		// Start services that have not been deregistered via flags and filtering.
 		for _, service := range allServices {
