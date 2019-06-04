@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "github.com/pydio/cells/common/service/proto/common.proto";
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 
 package idm;
 
@@ -218,9 +219,9 @@ enum WorkspaceScope{
 message Workspace {
 
     string UUID = 1;
-    string Label = 2;
-    string Description = 3;
-    string Slug = 4;
+    string Label = 2 [(validator.field) = {length_lt: 500}];
+    string Description = 3 [(validator.field) = {length_lt: 1000}];
+    string Slug = 4 [(validator.field) = {length_lt: 500}];
     WorkspaceScope Scope = 5;
     int32 LastUpdated = 6;
     repeated service.ResourcePolicy Policies = 7;

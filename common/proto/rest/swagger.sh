@@ -16,6 +16,7 @@ protoc -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleap
        -I$GOPATH/src/github.com/golang/protobuf \
        -I$BRANCH_PATH/src \
        -I. \
+       --govalidators_out=. \
        --go_out=plugins=micro:. *.proto
 
 go run cmd/main.go
