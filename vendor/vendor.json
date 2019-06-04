@@ -3104,46 +3104,36 @@
 			"revisionTime": "2018-08-30T15:04:11Z"
 		},
 		{
-			"checksumSHA1": "zvQr4zOz1/g/Fui6co0sctxrJ28=",
-			"path": "github.com/nats-io/go-nats",
-			"revision": "2d111d6f532d6f3521539e229bc93ec1863cb5f0",
-			"revisionTime": "2018-03-13T15:00:56Z"
-		},
-		{
-			"checksumSHA1": "V81BXk0EdoFc7MY5/JleBVIKCmk=",
-			"path": "github.com/nats-io/go-nats-streaming",
-			"revision": "2d111d6f532d6f3521539e229bc93ec1863cb5f0",
-			"revisionTime": "2018-03-13T15:00:56Z"
-		},
-		{
-			"checksumSHA1": "16sV1MZ45lYmv2tXfKHCz+ZLvyY=",
-			"path": "github.com/nats-io/go-nats-streaming/pb",
-			"revision": "2d111d6f532d6f3521539e229bc93ec1863cb5f0",
-			"revisionTime": "2018-03-13T15:00:56Z"
-		},
-		{
-			"checksumSHA1": "C/TsNyFOKX2bTW3U9O3m5mQhJo8=",
-			"path": "github.com/nats-io/go-nats/encoders/builtin",
-			"revision": "2485387d6ede89c1c8c3445cd1935fd41a2e9ee9",
-			"revisionTime": "2018-03-17T20:41:12Z"
-		},
-		{
-			"checksumSHA1": "mBZQa+wv/u+0qA1ceh6MrWBEgxs=",
-			"path": "github.com/nats-io/go-nats/util",
-			"revision": "2485387d6ede89c1c8c3445cd1935fd41a2e9ee9",
-			"revisionTime": "2018-03-17T20:41:12Z"
-		},
-		{
-			"checksumSHA1": "qN/yvBblRzygXw46iWZ66toXDQM=",
+			"checksumSHA1": "JfriV4PsYnnLZwl10HxoJKCCVaY=",
 			"path": "github.com/nats-io/nats",
-			"revision": "2485387d6ede89c1c8c3445cd1935fd41a2e9ee9",
-			"revisionTime": "2018-03-17T20:41:12Z"
+			"revision": "b7c46b03aab0b24e13b87f5081230f3da7dcc2ca",
+			"revisionTime": "2019-06-03T23:44:50Z",
+			"version": "v1.8.0",
+			"versionExact": "v1.8.0"
+		},
+		{
+			"checksumSHA1": "wTJ0MPVAQnb2a+vdzNWSSqxfiyM=",
+			"path": "github.com/nats-io/nats.go/encoders/builtin",
+			"revision": "b7c46b03aab0b24e13b87f5081230f3da7dcc2ca",
+			"revisionTime": "2019-06-03T23:44:50Z"
+		},
+		{
+			"checksumSHA1": "3m3PAW0haWNC6A3A30LKTdkg02s=",
+			"path": "github.com/nats-io/nats.go/util",
+			"revision": "b7c46b03aab0b24e13b87f5081230f3da7dcc2ca",
+			"revisionTime": "2019-06-03T23:44:50Z"
 		},
 		{
 			"checksumSHA1": "qAIuHdtQrDi2fFmpaP1dZLbgpGc=",
 			"path": "github.com/nats-io/nats/encoders/builtin",
 			"revision": "2d111d6f532d6f3521539e229bc93ec1863cb5f0",
 			"revisionTime": "2018-03-13T15:00:56Z"
+		},
+		{
+			"checksumSHA1": "6xwMpun2lAxptGPocW+HKJg1Xoc=",
+			"path": "github.com/nats-io/nkeys",
+			"revision": "1546a3320a8f195a5b5c84aef8309377c2e411d5",
+			"revisionTime": "2018-12-05T15:18:57Z"
 		},
 		{
 			"checksumSHA1": "xPMK9Y2UbdQclakznIrDWV1c64o=",
@@ -3956,10 +3946,10 @@
 			"revisionTime": "2018-03-19T02:42:43Z"
 		},
 		{
-			"checksumSHA1": "VqyzfAMKyP6SoLnPHcwhkrICBo0=",
+			"checksumSHA1": "2LpxYGSf068307b7bhAuVjvzLLc=",
 			"path": "golang.org/x/crypto/ed25519",
-			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
-			"revisionTime": "2018-04-06T17:35:14Z"
+			"revision": "20be4c3c3ed52bfccdb2d59a412ee1a936d175a7",
+			"revisionTime": "2019-04-16T00:04:41Z"
 		},
 		{
 			"checksumSHA1": "0JTAFXPkankmWcZGQJGScLDiaN8=",
