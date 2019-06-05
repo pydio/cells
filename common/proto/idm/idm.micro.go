@@ -74,6 +74,7 @@ import fmt "fmt"
 import math "math"
 import _ "github.com/pydio/cells/common/service/proto"
 import _ "github.com/pydio/cells/common/proto/tree"
+import _ "github.com/mwitkow/go-proto-validators"
 
 import (
 	client "github.com/micro/go-micro/client"

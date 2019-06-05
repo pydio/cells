@@ -308,6 +308,7 @@ var GenericLine = (function (_React$Component) {
             var iconClassName = _props.iconClassName;
             var legend = _props.legend;
             var data = _props.data;
+            var selectable = _props.selectable;
 
             var style = {
                 icon: {
@@ -323,7 +324,8 @@ var GenericLine = (function (_React$Component) {
                     fontSize: 15,
                     paddingRight: 6,
                     overflow: 'hidden',
-                    textOverflow: 'ellipsis'
+                    textOverflow: 'ellipsis',
+                    userSelect: 'text'
                 }
             };
             return _react2['default'].createElement(

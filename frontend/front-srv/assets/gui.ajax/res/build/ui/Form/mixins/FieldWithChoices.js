@@ -86,13 +86,25 @@ exports['default'] = function (PydioComponent) {
                 if (this.onChoicesLoaded) this.onChoicesLoaded(output);
             } else if (choices === "PYDIO_AVAILABLE_REPOSITORIES") {
                 if (pydio.user) {
-                    pydio.user.repositories.forEach(function (repository) {
-                        if (repository.getRepositoryType() !== "cell") {
-                            output.set(repository.getId(), repository.getLabel());
-                        }
-                    });
+                    (function () {
+                        var sorter = [];
+                        pydio.user.repositories.forEach(function (repository) {
+                            if (repository.getRepositoryType() !== "cell") {
+                                sorter.push({ id: repository.getId(), label: repository.getLabel() });
+                                //output.set(repository.getId(), repository.getLabel());
+                            }
+                        });
+                        sorter.sort(function (a, b) {
+                            return a.label > b.label ? 1 : -1;
+                        });
+                        sorter.forEach(function (d) {
+                            return output.set(d.id, d.label);
+                        });
+                    })();
                 }
-                if (this.onChoicesLoaded) this.onChoicesLoaded(output);
+                if (this.onChoicesLoaded) {
+                    this.onChoicesLoaded(output);
+                }
             } else {
                 // Parse string and return map
                 choices.split(",").map(function (choice) {

@@ -83,69 +83,24 @@ type JWTVerifier struct {
 	defaultClientSecret string
 }
 
-// Verify validates an existing JWT token against the OIDC service that issued it
-func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Context, claim.Claims, error) {
+func (j *JWTVerifier) loadClaims(ctx context.Context, token *oidc.IDToken) (claim.Claims, error) {
 
 	claims := claim.Claims{}
 
-	ctx = oidc.ClientContext(ctx, &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: config.GetTLSClientConfig("proxy"),
-		},
-	})
-	provider, err := oidc.NewProvider(ctx, j.IssuerUrl)
-	if err != nil {
-		log.Logger(ctx).Error("cannot init oidc provider", zap.Error(err))
-		return ctx, claims, err
-	}
-
-	var idToken *oidc.IDToken
-	var checkErr error
-	for _, clientId := range j.checkClientIds {
-		var verifier = provider.Verifier(&oidc.Config{ClientID: clientId, SkipNonceCheck: true})
-		// Parse and verify ID Token payload.
-		testToken, err := verifier.Verify(ctx, rawIDToken)
-		if err != nil {
-			log.Logger(ctx).Debug("jwt rawIdToken verify: failed", zap.Error(err))
-			checkErr = err
-		} else {
-			idToken = testToken
-			break
-		}
-	}
-	if idToken == nil {
-		return ctx, claims, checkErr
-	}
-
-	cli := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
-	rsp, err := cli.MatchInvalid(ctx, &auth.MatchInvalidTokenRequest{
-		Token: rawIDToken,
-	})
-
-	if err != nil {
-		log.Logger(ctx).Error("verify", zap.Error(err))
-		return ctx, claims, err
-	}
-
-	if rsp.State == auth.State_REVOKED {
-		log.Logger(ctx).Error("jwt is verified but it is revoked")
-		return ctx, claim.Claims{}, errors.New("jwt was Revoked")
-	}
-
 	// Extract custom claims
-	if err := idToken.Claims(&claims); err != nil {
+	if err := token.Claims(&claims); err != nil {
 		log.Logger(ctx).Error("cannot extract custom claims from idToken", zap.Error(err))
-		return ctx, claims, err
+		return claims, err
 	}
 
 	if claims.Name == "" {
 		log.Logger(ctx).Error("verify name")
-		return ctx, claims, errors.New("cannot find name inside claims")
+		return claims, errors.New("cannot find name inside claims")
 	}
 
 	user, err := permissions.SearchUniqueUser(ctx, claims.Name, "")
 	if err != nil {
-		return ctx, claims, err
+		return claims, err
 	}
 
 	displayName, ok := user.Attributes["displayName"]
@@ -168,6 +123,62 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 	claims.Roles = strings.Join(roles, ",")
 	claims.GroupPath = user.GroupPath
 
+	return claims, nil
+}
+
+// Verify validates an existing JWT token against the OIDC service that issued it
+func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Context, claim.Claims, error) {
+
+	ctx = oidc.ClientContext(ctx, &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: config.GetTLSClientConfig("proxy"),
+		},
+	})
+	provider, err := oidc.NewProvider(ctx, j.IssuerUrl)
+	if err != nil {
+		log.Logger(ctx).Error("cannot init oidc provider", zap.Error(err))
+		return ctx, claim.Claims{}, err
+	}
+
+	var idToken *oidc.IDToken
+	var checkErr error
+	for _, clientId := range j.checkClientIds {
+		var verifier = provider.Verifier(&oidc.Config{ClientID: clientId, SkipNonceCheck: true})
+		// Parse and verify ID Token payload.
+		testToken, err := verifier.Verify(ctx, rawIDToken)
+		if err != nil {
+			log.Logger(ctx).Debug("jwt rawIdToken verify: failed", zap.Error(err))
+			checkErr = err
+		} else {
+			idToken = testToken
+			break
+		}
+	}
+
+	if idToken == nil {
+		return ctx, claim.Claims{}, checkErr
+	}
+
+	cli := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
+	rsp, err := cli.MatchInvalid(ctx, &auth.MatchInvalidTokenRequest{
+		Token: rawIDToken,
+	})
+
+	if err != nil {
+		log.Logger(ctx).Error("verify", zap.Error(err))
+		return ctx, claim.Claims{}, err
+	}
+
+	if rsp.State == auth.State_REVOKED {
+		log.Logger(ctx).Error("jwt is verified but it is revoked")
+		return ctx, claim.Claims{}, errors.New("jwt was Revoked")
+	}
+
+	claims, err := j.loadClaims(ctx, idToken)
+	if err != nil {
+		return ctx, claims, err
+	}
+
 	ctx = context.WithValue(ctx, claim.ContextKey, claims)
 	md := make(map[string]string)
 	if existing, ok := metadata.FromContext(ctx); ok {
@@ -176,9 +187,8 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 		}
 	}
 	md[common.PYDIO_CONTEXT_USER_KEY] = claims.Name
-	jsonClaims, _ := json.Marshal(claims)
-	md[claim.MetadataContextKey] = string(jsonClaims)
 	ctx = metadata.NewContext(ctx, md)
+	ctx = ToMetadata(ctx, claims)
 
 	return ctx, claims, nil
 }
@@ -199,35 +209,28 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 		Scopes: []string{oidc.ScopeOpenID, "profile", "email", "pydio"},
 	}
 
-	claims := claim.Claims{}
-
 	if token, err := oauth2Config.PasswordCredentialsToken(ctx, userName, password); err == nil {
 		idToken, _ := provider.Verifier(&oidc.Config{SkipClientIDCheck: true, SkipNonceCheck: true}).Verify(ctx, token.Extra("id_token").(string))
 
-		if e := idToken.Claims(&claims); e == nil {
-
-			if claims.Name == "" {
-				return ctx, claims, errors.New("No name inside Claims")
-			}
-
-			ctx = context.WithValue(ctx, claim.ContextKey, claims)
-
-			md := make(map[string]string)
-			if existing, ok := metadata.FromContext(ctx); ok {
-				for k, v := range existing {
-					md[k] = v
-				}
-			}
-			md[common.PYDIO_CONTEXT_USER_KEY] = claims.Name
-			ctx = metadata.NewContext(ctx, md)
-
-			return ctx, claims, nil
-
-		} else {
-			return ctx, claims, e
+		claims, err := j.loadClaims(ctx, idToken)
+		if err != nil {
+			return ctx, claims, err
 		}
+
+		ctx = context.WithValue(ctx, claim.ContextKey, claims)
+
+		md := make(map[string]string)
+		if existing, ok := metadata.FromContext(ctx); ok {
+			for k, v := range existing {
+				md[k] = v
+			}
+		}
+		md[common.PYDIO_CONTEXT_USER_KEY] = claims.Name
+		ctx = metadata.NewContext(ctx, md)
+
+		return ctx, claims, nil
 	} else {
-		return ctx, claims, err
+		return ctx, claim.Claims{}, err
 	}
 
 }

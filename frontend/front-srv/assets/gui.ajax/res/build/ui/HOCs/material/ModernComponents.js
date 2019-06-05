@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
@@ -44,6 +43,15 @@ var styles = {
     textField: {
         inputStyle: { backgroundColor: 'rgba(224, 224, 224, 0.33)', height: 34, borderRadius: 3, marginTop: 6, padding: 7 },
         hintStyle: _extends({ paddingLeft: 7, color: 'rgba(0,0,0,0.5)' }, noWrap, { width: '100%' }),
+        underlineStyle: { opacity: 0 },
+        underlineFocusStyle: { opacity: 1, borderRadius: '0px 0px 3px 3px' }
+    },
+    textareaField: {
+        rows: 4,
+        rowsMax: 4,
+        inputStyle: { backgroundColor: 'rgba(224, 224, 224, 0.33)', height: 106, borderRadius: 3, marginTop: 6, padding: 7 },
+        textareaStyle: { marginTop: 0, marginBottom: 0 },
+        hintStyle: _extends({ paddingLeft: 7, color: 'rgba(0,0,0,0.5)' }, noWrap, { width: '100%', top: 12, bottom: 'inherit' }),
         underlineStyle: { opacity: 0 },
         underlineFocusStyle: { opacity: 1, borderRadius: '0px 0px 3px 3px' }
     },
@@ -88,7 +96,12 @@ function withModernTheme(formComponent) {
         ModernThemeComponent.prototype.render = function render() {
 
             if (formComponent === _materialUi.TextField) {
-                var styleProps = this.mergedProps(_extends({}, styles.textField));
+                var styleProps = undefined;
+                if (this.props.multiLine) {
+                    styleProps = this.mergedProps(_extends({}, styles.textareaField));
+                } else {
+                    styleProps = this.mergedProps(_extends({}, styles.textField));
+                }
                 return _react2['default'].createElement(_materialUi.TextField, _extends({}, this.props, styleProps, { ref: "component" }));
             } else if (formComponent === _materialUi.SelectField) {
                 var styleProps = this.mergedProps(_extends({}, styles.selectField));

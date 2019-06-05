@@ -22,7 +22,7 @@ import React from 'react'
 import {GenericCard, GenericLine} from '../main/GenericCard'
 import CompositeModel from '../composite/CompositeModel'
 import GenericEditor from '../main/GenericEditor'
-const {PaletteModifier} = require('pydio').requireLib('hoc');
+import Pydio from 'pydio'
 import Panel from '../links/Panel'
 import SecureOptions from '../links/SecureOptions'
 import ShareHelper from '../main/ShareHelper'
@@ -33,7 +33,8 @@ import PublicLinkTemplate from '../links/PublicLinkTemplate'
 import VisibilityPanel from '../links/VisibilityPanel'
 import LabelPanel from '../links/LabelPanel'
 import {Divider} from 'material-ui'
-import Pydio from 'pydio'
+
+const {PaletteModifier} = Pydio.requireLib('hoc');
 const {Tooltip} = Pydio.requireLib("boot");
 
 class CompositeCard extends React.Component {
@@ -182,7 +183,7 @@ class CompositeCard extends React.Component {
                         pydio={pydio}
                         compositeModel={model}
                         linkModel={links[0]}
-                        showMailer={this.linkInvitation.bind(this)}
+                        showMailer={ShareHelper.mailerSupported(pydio) ? this.linkInvitation.bind(this) : null}
                     />)
                 });
                 if(publicLinkModel.getLinkUuid()){

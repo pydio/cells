@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 
 import MetaClient from './MetaClient'
 import React from 'react'
@@ -186,7 +185,7 @@ let MetaFieldFormPanelMixin = {
             object['ajxp_meta_' + this.props.fieldname] = value;
             this.props.onChange(object, submit);
         }else if(this.props.onValueChange){
-            this.props.onValueChange(this.props.fieldname, value);
+            this.props.onValueChange(this.props.fieldname, value, submit);
         }
     }
 
@@ -233,7 +232,7 @@ let StarsFormPanel = React.createClass({
         let stars = [-1,0,1,2,3,4].map(function(v){
             const ic = 'star' + (v === -1 ? '-off' : (value > v ? '' : '-outline') );
             const style = (v === -1 ? {marginRight: 5, cursor:'pointer'} : {cursor: 'pointer'});
-            return <span key={"star-" + v} onClick={this.updateValue.bind(this, v+1)} className={"mdi mdi-" + ic} style={style}></span>;
+            return <span key={"star-" + v} onClick={() => this.updateValue(v+1, true)} className={"mdi mdi-" + ic} style={style}></span>;
         }.bind(this));
         return (
             <div className="advanced-search-stars" style={{...ModernStyles.div, ...starsStyle}}>
@@ -308,7 +307,7 @@ let MetaSelectorFormPanel = React.createClass({
     mixins:[MetaFieldFormPanelMixin],
 
     changeSelector(e, selectedIndex, payload){
-        this.updateValue(payload);
+        this.updateValue(payload, true);
     },
 
     componentDidMount(){
@@ -423,7 +422,7 @@ let TagsCloud = React.createClass({
         this.setState({
             tags: tags.toString()},
         () => {
-            this.updateValue(this.state.tags);
+            this.updateValue(this.state.tags, true);
         });
     },
 
@@ -432,6 +431,9 @@ let TagsCloud = React.createClass({
     },
 
     handleNewRequest() {
+        if (!this.state.searchText){
+            return
+        }
         let tags = [];
         if (this.state.tags) {
             tags = this.state.tags.split(',');
@@ -440,7 +442,7 @@ let TagsCloud = React.createClass({
         this.setState({
             tags: tags.toString()},
         () => {
-            this.updateValue(this.state.tags);
+            this.updateValue(this.state.tags, true);
         });
         this.setState({
             searchText: '',
@@ -482,6 +484,9 @@ let TagsCloud = React.createClass({
                 openOnFocus={true}
                 menuProps={{maxHeight: 200}}
                 style={{marginBottom: -8}}
+                onClose={() => {if(this.state.searchText) {
+                    this.handleNewRequest()
+                }}}
                 {...ModernStyles.textField}
             />
         } else {
@@ -513,13 +518,17 @@ let UserMetaDialog = React.createClass({
         PydioReactUI.SubmitButtonProviderMixin
     ],
 
-    submit(){
+    saveMeta(){
         let values = this.refs.panel.getUpdateData();
         let params = {};
         values.forEach(function(v, k){
             params[k] = v;
         });
-        Renderer.getClient().saveMeta(this.props.selection.getSelectedNodes(), values).then(() => {
+        return Renderer.getClient().saveMeta(this.props.selection.getSelectedNodes(), values);
+    },
+
+    submit(){
+        this.saveMeta().then(() => {
             this.dismiss();
         });
     },
@@ -556,17 +565,26 @@ class UserMetaPanel extends React.Component{
             this.setState({configs});
         })
     }
-    updateValue(name, value){
+    updateValue(name, value, submit = false){
         this.state.updateMeta.set(name, value);
         this.setState({
             updateMeta: this.state.updateMeta
         });
+        if(this.props.onChangeUpdateData){
+            this.props.onChangeUpdateData(this.state.updateMeta);
+        }
+        if(submit && this.props.autoSave){
+            this.props.autoSave();
+        }
     }
     deleteValue(name) {
         this.state.updateMeta.delete(name);
         this.setState({
             updateMeta: this.state.updateMeta
-        })
+        });
+        if(this.props.onChangeUpdateData){
+            this.props.onChangeUpdateData(this.state.updateMeta);
+        }
     }
     getUpdateData(){
         return this.state.updateMeta;
@@ -576,11 +594,14 @@ class UserMetaPanel extends React.Component{
         this.setState({
             updateMeta: new Map()
         });
+        if(this.props.onChangeUpdateData){
+            this.props.onChangeUpdateData(new Map());
+        }
     }
     onCheck(e, isInputChecked, value){
         let state = this.state;
         state['fields'][e.target.value] = isInputChecked;
-        if(isInputChecked == false){
+        if(isInputChecked === false){
             this.deleteValue(e.target.value);
         }
         this.setState(state);
@@ -594,7 +615,7 @@ class UserMetaPanel extends React.Component{
         let nonEmptyDataCount = 0;
         const isAdmin = pydio.user.isAdmin;
 
-        configs.forEach(function(meta, key){
+        configs.forEach((meta, key) => {
             let readonly = false, value;
             const {label, type, writeSubject, readSubject} = meta;
             if(readSubject === 'profile:admin' && !isAdmin) {
@@ -616,7 +637,7 @@ class UserMetaPanel extends React.Component{
                     fieldname: key,
                     label: label,
                     value: value,
-                    onValueChange: this.updateValue.bind(this)
+                    onValueChange: (name, value, submit) => this.updateValue(name, value, submit)
                 };
                 if(type === 'stars_rate'){
                     field = <StarsFormPanel {...baseProps}/>;
@@ -633,6 +654,7 @@ class UserMetaPanel extends React.Component{
                             fullWidth={true}
                             disabled={readonly}
                             hintText={label}
+                            multiLine={type === 'textarea'}
                             onChange={(event, value)=>{this.updateValue(key, value);}}
                         />
                     );
@@ -673,7 +695,7 @@ class UserMetaPanel extends React.Component{
                     </div>
                 );
             }
-        }.bind(this));
+        });
         const mess = this.props.pydio.MessageHash;
         if(!this.props.editMode && !nonEmptyDataCount){
             return <div><div style={{color: 'rgba(0,0,0,0.23)', paddingBottom:10}} onTouchTap={this.props.onRequestEditMode}>{mess['meta.user.11']}</div>{data}</div>
@@ -697,7 +719,8 @@ class InfoPanel extends React.Component{
             if(this.refs.panel){
                 this.refs.panel.resetUpdateData();
             }
-            this.setState({editMode: false}, ()=>{this.forceUpdate()});
+            this.forceUpdate();
+            //this.setState({editMode: false}, ()=>{this.forceUpdate()});
 
         };
         if(props.node){
@@ -730,48 +753,73 @@ class InfoPanel extends React.Component{
         }
     }
 
-    saveChanges(){
+    saveMeta(){
         let values = this.refs.panel.getUpdateData();
-        let params = {};
-        values.forEach(function(v, k){
-            params[k] = v;
-        });
-        Renderer.getClient().saveMeta(this.props.pydio.getContextHolder().getSelectedNodes(), values).then(() => {
+        return Renderer.getClient().saveMeta(this.props.pydio.getContextHolder().getSelectedNodes(), values);
+    }
+
+    saveAndClose(){
+        this.saveMeta().then(()=> {
             this.reset();
         });
+    }
+
+    onChangeUpdateData(updateData){
+        this.setState({updateData})
     }
 
     render(){
         let actions = [];
         const {MessageHash} = this.props.pydio;
+        const values = this.state.updateData || new Map();
 
         if(this.state.editMode){
             actions.push(
                 <FlatButton
                     key="cancel"
-                    label={MessageHash['54']}
+                    label={values.size ? MessageHash['54'] : MessageHash['86']}
                     onClick={()=>{this.reset()}}
                 />
             );
-        }
-        if(!this.props.node.getMetadata().has('node_readonly')){
+            if(!this.props.node.getMetadata().has('node_readonly') && values.size > 0){
+                actions.push(
+                    <FlatButton
+                        key="edit"
+                        label={this.state.editMode?MessageHash['meta.user.15']:MessageHash['meta.user.14']}
+                        onClick={()=>{this.saveAndClose()}}
+                    />
+                );
+            }
+        } else {
             actions.push(
                 <FlatButton
                     key="edit"
                     label={this.state.editMode?MessageHash['meta.user.15']:MessageHash['meta.user.14']}
-                    onClick={()=>{!this.state.editMode?this.openEditMode():this.saveChanges()}}
+                    onClick={()=>{this.openEditMode()}}
                 />
             );
         }
 
         return (
-            <PydioWorkspaces.InfoPanelCard identifier={"meta-user"} style={this.props.style} title={this.props.pydio.MessageHash['meta.user.1']} actions={actions.length ? actions : null} icon="tag-multiple" iconColor="#00ACC1">
+            <PydioWorkspaces.InfoPanelCard
+                identifier={"meta-user"}
+                style={this.props.style}
+                title={this.props.pydio.MessageHash['meta.user.1']}
+                actions={actions.length ? actions : null}
+                icon="tag-multiple" iconColor="#00ACC1"
+            >
                 <UserMetaPanel
                     ref="panel"
                     node={this.props.node}
                     editMode={this.state.editMode}
                     onRequestEditMode={this.openEditMode.bind(this)}
                     pydio={this.props.pydio}
+                    onChangeUpdateData={(d) => {this.onChangeUpdateData(d)}}
+                    autoSave={()=>{
+                        this.saveMeta().then(()=>{
+                            this.refs.panel.resetUpdateData();
+                        })
+                    }}
                 />
             </PydioWorkspaces.InfoPanelCard>
         );

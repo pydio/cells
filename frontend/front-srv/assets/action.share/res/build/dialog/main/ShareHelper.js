@@ -53,6 +53,11 @@ var ShareHelper = (function () {
     }
 
     _createClass(ShareHelper, null, [{
+        key: 'mailerSupported',
+        value: function mailerSupported(pydio) {
+            return pydio.Parameters.get('validMailer');
+        }
+    }, {
         key: 'getAuthorizations',
         value: function getAuthorizations(pydio) {
 

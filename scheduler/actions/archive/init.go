@@ -24,6 +24,7 @@ package archive
 import (
 	"context"
 	"fmt"
+	"path"
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
@@ -50,17 +51,35 @@ func computeTargetName(ctx context.Context, handler views.Handler, dirPath strin
 		ext = "." + extension[0]
 	}
 	index := 0
+	// List current siblings, do not use ReadNode as ReadNode(toto.zip) does exists
+	var children []string
+	if s, err := handler.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: dirPath}, Recursive: false}); err == nil {
+		defer s.Close()
+		for {
+			r, e := s.Recv()
+			if e != nil {
+				break
+			}
+			children = append(children, path.Base(r.Node.Path))
+		}
+	}
 	for {
 		suffix := ""
 		if index > 0 {
 			suffix = fmt.Sprintf("-%d", index)
 		}
-		testPath := dirPath + "/" + base + suffix + ext
-		if resp, err := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: testPath}}); err == nil && resp.Node != nil {
-			// node exists, try next one
-			index++
+		testPath := base + suffix + ext
+		var found = false
+		for _, c := range children {
+			if c == testPath {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return path.Join(dirPath, testPath)
 		} else {
-			return testPath
+			index++
 		}
 	}
 }

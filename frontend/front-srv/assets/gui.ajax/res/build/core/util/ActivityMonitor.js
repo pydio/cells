@@ -66,7 +66,7 @@ var ActivityMonitor = (function (_Observable) {
 
         this._lastActive = 0;
         this._state = 'active';
-        this._longTaskRunning = false;
+        this._longTaskRunning = 0;
 
         if (!serverSessionTime) {
             return;
@@ -154,19 +154,23 @@ var ActivityMonitor = (function (_Observable) {
         this._activityObserver = this.activityObserver.bind(this);
         this._pydio.observe('user_activity', this._activityObserver);
         this._pydio.observe('server_answer', this._activityObserver);
-        this._pydio.observe('longtask_starting', function () {
-            _this2._longTaskRunning = true;
-        });
-        this._pydio.observe('longtask_finished', function () {
-            _this2._longTaskRunning = false;
-        });
+        this._ltsObserver = function () {
+            console.log('Long task starting...');
+            _this2._longTaskRunning++;
+            _this2._activityObserver();
+        };
+        this._pydio.observe('longtask_starting', this._ltsObserver);
+        this._ltfObserver = function () {
+            console.log('Long task finished...');
+            _this2._longTaskRunning--;
+            _this2._activityObserver();
+        };
+        this._pydio.observe('longtask_finished', this._ltfObserver);
         this.startIdlePoller();
         this.startServerLongPoller();
     };
 
     ActivityMonitor.prototype.unregister = function unregister() {
-        var _this3 = this;
-
         if (this._activityObserver === null) {
             // Already inactive
             return;
@@ -176,12 +180,8 @@ var ActivityMonitor = (function (_Observable) {
         this._state = 'inactive';
         this._pydio.stopObserving('user_activity', this._activityObserver);
         this._pydio.stopObserving('server_answer', this._activityObserver);
-        this._pydio.stopObserving('longtask_starting', function () {
-            _this3._longTaskRunning = true;
-        });
-        this._pydio.stopObserving('longtask_finished', function () {
-            _this3._longTaskRunning = false;
-        });
+        this._pydio.stopObserving('longtask_starting', this._ltsObserver);
+        this._pydio.stopObserving('longtask_finished', this._ltfObserver);
         this._activityObserver = null;
     };
 
@@ -214,7 +214,7 @@ var ActivityMonitor = (function (_Observable) {
      */
 
     ActivityMonitor.prototype.idleObserver = function idleObserver() {
-        var _this4 = this;
+        var _this3 = this;
 
         var idleTime = this.getNow() - this._lastActive;
         if (this._state === 'inactive') return;
@@ -229,13 +229,13 @@ var ActivityMonitor = (function (_Observable) {
             this.stopIdlePoller();
             this.stopServerLongPoller();
             setTimeout(function () {
-                _this4._pydio.getController().fireDefaultAction("expire");
+                _this3._pydio.getController().fireDefaultAction("expire");
             }, 1000);
             return;
         }
         if (this._warningTime && idleTime >= this._warningTime) {
             var timerString = this.getWarningTimer(this._logoutTime - idleTime);
-            this.setWarningState(timerString);
+            this.setWarningState(timerString, this._logoutTime - idleTime);
         }
     };
 
@@ -254,14 +254,16 @@ var ActivityMonitor = (function (_Observable) {
      * Put the window in "warning" state : overlay, shaking timer, chronometer.
      */
 
-    ActivityMonitor.prototype.setWarningState = function setWarningState(warningTimerString) {
+    ActivityMonitor.prototype.setWarningState = function setWarningState(warningTimerString, timeSeconds) {
         this._state = 'warning';
         this.startIdlePoller(1000);
 
         this._pydio.notify('activity_state_change', {
             activeState: 'warning',
             lastActiveSince: this._warningTime / 60,
-            timerString: warningTimerString
+            timerString: warningTimerString,
+            lastActiveSeconds: this._warningTime,
+            timerSeconds: timeSeconds
         });
     };
 

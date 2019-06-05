@@ -30,6 +30,10 @@ var _ActionDialogMixin = require('./ActionDialogMixin');
 
 var _ActionDialogMixin2 = _interopRequireDefault(_ActionDialogMixin);
 
+var _Moment = require('../Moment');
+
+var _Moment2 = _interopRequireDefault(_Moment);
+
 /**
  * Sample Dialog class used for reference only, ready to be
  * copy/pasted :-)
@@ -67,10 +71,12 @@ exports['default'] = React.createClass({
 
         var MessageHash = this.props.pydio.MessageHash;
         var _state = this.state;
-        var lastActiveSince = _state.lastActiveSince;
-        var timerString = _state.timerString;
+        var lastActiveSeconds = _state.lastActiveSeconds;
+        var timerSeconds = _state.timerSeconds;
 
-        var sentence = MessageHash['375'].replace('__IDLE__', lastActiveSince).replace('__LOGOUT__', timerString);
+        var since = _Moment2['default'].duration(lastActiveSeconds, 'seconds');
+        var warn = _Moment2['default'].duration(timerSeconds, 'seconds');
+        var sentence = MessageHash['375'].replace('__IDLE__', since.humanize()).replace('__LOGOUT__', warn.humanize());
         return React.createElement(
             'div',
             { onTouchTap: function () {

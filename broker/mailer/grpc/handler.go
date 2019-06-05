@@ -51,7 +51,7 @@ type Handler struct {
 
 func NewHandler(serviceCtx context.Context, conf common.ConfigValues) (*Handler, error) {
 	h := new(Handler)
-	h.initFromConf(serviceCtx, conf)
+	h.initFromConf(serviceCtx, conf, true)
 	return h, nil
 }
 
@@ -70,7 +70,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 		log.Logger(ctx).Error("cannot process mail to send: empty body", zap.Any("Mail", mail), zap.Error(e))
 		return e
 	}
-	h.checkConfigChange(ctx)
+	h.checkConfigChange(ctx, false)
 
 	for _, to := range mail.To {
 		// Find language to be used
@@ -166,7 +166,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 // ConsumeQueue browses current queue for emails to be sent
 func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueRequest, rsp *proto.ConsumeQueueResponse) error {
 
-	h.checkConfigChange(ctx)
+	h.checkConfigChange(ctx, false)
 
 	counter := int64(0)
 	c := func(em *proto.Mail) error {
@@ -235,7 +235,16 @@ func (h *Handler) parseConf(conf common.ConfigValues) (queueName string, queueCo
 	return
 }
 
-func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues) error {
+func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues, check bool) (e error) {
+
+	defer func() {
+		if e != nil {
+			config.Default().Set(false, "services", servicecontext.GetServiceName(ctx), "valid")
+		} else {
+			config.Default().Set(true, "services", servicecontext.GetServiceName(ctx), "valid")
+		}
+		config.Save(common.PYDIO_SYSTEM_USERNAME, "Update mailer valid config")
+	}()
 
 	queueName, queueConfig, senderName, senderConfig := h.parseConf(conf)
 	if h.queue != nil {
@@ -251,20 +260,26 @@ func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues) er
 
 	sender, err := mailer.GetSender(senderName, senderConfig)
 	if err != nil {
-		return err
+		e = err
+		return
 	}
 	log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
 	h.sender = sender
-
 	h.queueName = queueName
 	h.queueConfig = queueConfig
 	h.senderName = senderName
 	h.senderConfig = senderConfig
 
+	if check {
+		if err := h.sender.Check(ctx); err != nil {
+			e = err
+		}
+	}
+
 	return nil
 }
 
-func (h *Handler) checkConfigChange(ctx context.Context) error {
+func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {
 
 	var cfg config.Map
 	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&cfg); e != nil {
@@ -275,7 +290,7 @@ func (h *Handler) checkConfigChange(ctx context.Context) error {
 	m2, _ := json.Marshal(h.senderConfig)
 	if queueName != h.queueName || senderName != h.senderName || string(m1) != string(m2) {
 		log.Logger(ctx).Info("Mailer configuration has changed. Refreshing sender and queue")
-		return h.initFromConf(ctx, cfg)
+		return h.initFromConf(ctx, cfg, check)
 	}
 	return nil
 }

@@ -111,7 +111,7 @@ var PluginsList = React.createClass({
         return _pydioUtilXml2['default'].XPathSelectNodes(xmlPlugins, "/plugins/*").filter(function (xmlNode) {
             return !filterType || xmlNode.getAttribute("id").indexOf(filterType) === 0;
         }).filter(function (xmlNode) {
-            return !filterString || xmlNode.getAttribute("id").indexOf(filterString) !== -1;
+            return !filterString || xmlNode.getAttribute("id").toLowerCase().indexOf(filterString.toLowerCase()) !== -1 || xmlNode.getAttribute("label").toLowerCase().indexOf(filterString.toLowerCase()) !== -1 || xmlNode.getAttribute("description").toLowerCase().indexOf(filterString.toLowerCase()) !== -1;
         }).map(function (xmlNode) {
             return {
                 id: xmlNode.getAttribute("id"),

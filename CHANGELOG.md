@@ -1,18 +1,53 @@
-# Changes between v1.5.0 and v1.5.2
+# Changes between v1.5.2 and v1.5.3
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v1.5.0...v1.5.2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v1.5.2...v1.5.3)
 
-- [#3598107](https://github.com/pydio/cells/commit/359810723b9a5b215c437e9175f16844c8b971f1): Change timings for checking dependency Fix log message when restarting gateway on Start message
-- [#5ad6537](https://github.com/pydio/cells/commit/5ad6537c67c255b8c31939834be1efbdf45a68da): Fixing retry and restart
-- [#0dedd52](https://github.com/pydio/cells/commit/0dedd52b00aeafb97430b67d4bde798fb32d5905): Sync service start sequence
-- [#1a75552](https://github.com/pydio/cells/commit/1a75552596ee57405d64e377d01554d82965aef7): Fix sync service start sequence - can lead to a cancelled context
-- [#c86c3f3](https://github.com/pydio/cells/commit/c86c3f3e30a242c257116495132e112e0a7717fb): Add check for commas in Role.Uuid at the handler level
-- [#03072f3](https://github.com/pydio/cells/commit/03072f3022f4df004491bd112b5cb9707d06cb56): fix comma in role id
-- [#7d04ff9](https://github.com/pydio/cells/commit/7d04ff9bf1c3aa0687e721f0b05865e2aee18a23): Fix typos in pre-start error messages.
-- [#17](https://github.com/pydio/cells/pull/17): Enable use of custom SSL certificate with non interractive install and docker
-- [#c342b88](https://github.com/pydio/cells/commit/c342b88891e4fdadd889889ef12d22fdbd69b6a3): Fix typo + switch layer order
-- [#0381f0c](https://github.com/pydio/cells/commit/0381f0cd609841b0719ed7561294730159b5d9af): Merge remote-tracking branch 'upstream/master' into add-custom-ssl
-- [#ee38907](https://github.com/pydio/cells/commit/ee38907c44a2134ec68b5e85275985d240d49441): Enable let'S Encrypt + document supported configurations
-- [#9ee53af](https://github.com/pydio/cells/commit/9ee53afd775e02fa18b44bae97bca343c4da8f8d): Fix merge glitches
-- [#566e1a6](https://github.com/pydio/cells/commit/566e1a6289303ac998d9170251bb99bde7949f5f): Fix conflicts after rebase
-- [#d8b7f23](https://github.com/pydio/cells/commit/d8b7f23084574c6fa68fec5f82d7223a19d40005): Add custom ssl certificate to environment.
+- [#577bdd9](https://github.com/pydio/cells/commit/577bdd9dff5e172f8765b86362d1b74bb3554b65): Last compile
+- [#6a216cc](https://github.com/pydio/cells/commit/6a216cc4092062b2471a2404c61a5e7302f37943): JS lib version conflicts
+- [#16a2604](https://github.com/pydio/cells/commit/16a26045d50ea499dae4f242866803cdf318d355): Apply config for existingOnly prop on UsersCompleter
+- [#00697c3](https://github.com/pydio/cells/commit/00697c3f3893130e54c5216c40971bdf998bc41e): Fixing initialization for public links in editor tabs
+- [#b6bb02a](https://github.com/pydio/cells/commit/b6bb02ad731db08d86f0be0599ae0803f86bd707): Few more ES fixes
+- [#a88432b](https://github.com/pydio/cells/commit/a88432bfc72244e72fe4d3dbd541e9134a4065c1): Few more ES fixes
+- [#a914a67](https://github.com/pydio/cells/commit/a914a67625ee061f7399558cf2c5c54e0972f3fd): Fix a few glitches in ES messages
+- [#4f12432](https://github.com/pydio/cells/commit/4f1243271cb59d12c6358994e76598aaf508a760): Fix a few glitches in ES messages
+- [#aeac05c](https://github.com/pydio/cells/commit/aeac05c75d905624d8d632c10930e2194f136f58): Revert change for safety
+- [#2fa7202](https://github.com/pydio/cells/commit/2fa7202425e27ece4e11ca3768cdcbd37b7f4ddb): Fix a few errors
+- [#f9b2df5](https://github.com/pydio/cells/commit/f9b2df521131e1022791667502654938b5c38138): Unused code
+- [#e42d7a8](https://github.com/pydio/cells/commit/e42d7a805ef6687b02efe2fe713b6a793e4a3df6): Removing unused library
+- [#13757fa](https://github.com/pydio/cells/commit/13757faf96872c72362b4df63851ded8434e1b75): Adding preferences to local storage for images controls
+- [#1a209f0](https://github.com/pydio/cells/commit/1a209f0da35093e681bce0286176752cf44a5f0e): Adding preferences to local storage for images controls
+- [#f7837fb](https://github.com/pydio/cells/commit/f7837fb23d348d4fb0459ca2e26c685838e992ed): FR / ES / DE strings for new messages
+- [#ce26ed4](https://github.com/pydio/cells/commit/ce26ed449b95f9d8a4351843f94ab0f03d3442f5): FR / ES / DE strings for new messages
+- [#c065200](https://github.com/pydio/cells/commit/c0652008bf8abad2b9bf906f8d4d630335a9981c): Change error message for wrong db
+- [#062f586](https://github.com/pydio/cells/commit/062f586a5872fbc0d19fe60f068dc4fdd463c6d9): When user fails dbprompt(wrong info) and does it again, he will have HOST, PORT, DBNAME and USERNAME already filled wit the previous values to make the process faster
+- [#b316fc2](https://github.com/pydio/cells/commit/b316fc2e4b32b588294311b2f1346373253098fb): Checks that external url is formatted with [SCHEME]://[HOST||IP], for dbprompt if failure ,use previous info to make the process faster
+- [#b049419](https://github.com/pydio/cells/commit/b0494192e07cb34190493c2107fbc4f9548d6d87): Fix #101 - Fix #109 - Close #110
+- [#898fbf4](https://github.com/pydio/cells/commit/898fbf4af96b936253504c6b99df5ef5df313d0c): Lower log level for "Checking Locks"
+- [#06009ee](https://github.com/pydio/cells/commit/06009ee218fbc44885fd664e17688322372fad20): Fix template paths migration for onDelete attribute
+- [#95260ee](https://github.com/pydio/cells/commit/95260eeb464492491d82b67eb0d01fee8fd26b6a): Full check of the ES strings + a few messages
+- [#9989240](https://github.com/pydio/cells/commit/99892405314d4e61d82c931c9f3021934991b2f7): Full check of the ES strings + a few messages
+- [#57ca262](https://github.com/pydio/cells/commit/57ca2626edd32ffc038360b0a1f0044c9818db73): Full check of the ES strings + a few messages
+- [#76ec46a](https://github.com/pydio/cells/commit/76ec46ae576168c3010502764b474312e53821b7): Send welcome email in background
+- [#dde19a9](https://github.com/pydio/cells/commit/dde19a9db2b8acbddaa53cbac49e199c69ffa8ec): Sync: at startup, add an additional step to ping actual s3 endpoint if it takes slightly more time than the objects service itself. Move Index ping inside the same function to perform them in concurrency.
+- [#a8e8968](https://github.com/pydio/cells/commit/a8e896853fea6be1bee0a1554821307568cd6020): Rework Visibility panels
+- [#3eb19ee](https://github.com/pydio/cells/commit/3eb19ee4afcb110ffd374b4a24f9b8faecc290c2): Lower log
+- [#1a6b9b5](https://github.com/pydio/cells/commit/1a6b9b50c6caafcdfc0167a69b46a76b16b2a342): Create new REST API for editing shares (cells/links) policies.
+- [#ffcb967](https://github.com/pydio/cells/commit/ffcb9679d1bc26a0c48777b85cf0985af9672541): Remove phantom file
+- [#12eb341](https://github.com/pydio/cells/commit/12eb341fe9536941845fc32bf2e7f5fd14656820): A few more fixes in Spanish
+- [#7f31ac5](https://github.com/pydio/cells/commit/7f31ac501f3796ec310183223272e542c4441589): Fix some Spanish messages after double-check
+- [#60ef87c](https://github.com/pydio/cells/commit/60ef87c01337b9b35e549515f3da844276cf75ac): Fix issues on Spanish translations
+- [#e7e2ccd](https://github.com/pydio/cells/commit/e7e2ccdef314b8497943b84dbca7e4c8919af235): Patch for creating recycle bin in personal space
+- [#dbbe18a](https://github.com/pydio/cells/commit/dbbe18a49d0bf817e05f41badc4cac1be20504a3): Fixing services list
+- [#48dfe04](https://github.com/pydio/cells/commit/48dfe04bddf2f68e4231643d7f48222bd60473ce): Checking port is bound to make sure the service is correctly running
+- [#8d57daa](https://github.com/pydio/cells/commit/8d57daae59da35d30419e8da55ba36f88ac5c435): First step to fixing services registry
+- [#de9ce04](https://github.com/pydio/cells/commit/de9ce0425f5c61728064c81de7c212afea0b260a): Install is now checking the ulimit + changing the display for the error
+- [#5829a1b](https://github.com/pydio/cells/commit/5829a1bd1d69709d8f240a2101aefd193b2f4603): More fixes on error messages.
+- [#2d461a8](https://github.com/pydio/cells/commit/2d461a8dfc884a3ba16407d6fae208096d827d36): Fix remaining issues with micro error creation
+- [#16a7de0](https://github.com/pydio/cells/commit/16a7de081074c4b6daf44c9955614019e8d5f788): Retrieving roles in claims
+- [#0c8c5e8](https://github.com/pydio/cells/commit/0c8c5e86b4e8d435e0ada66e41178a1670361299): Removing roles from jwt and adding roles retrieval at the other end
+- [#a2617bc](https://github.com/pydio/cells/commit/a2617bc933905c0967fa9777eb96f0846726a502): Fix send password by email
+- [#c6b95cf](https://github.com/pydio/cells/commit/c6b95cf79e1d4169c71679691e2f1ba59119793b): Reach 100% of Spanish translation
+- [#bb70fe5](https://github.com/pydio/cells/commit/bb70fe5729f4777501bdc16736968e3f5e8778f8): Almost done with Spanish thanks to rfonseca1923
+- [#3946da9](https://github.com/pydio/cells/commit/3946da9dfbbcbe30b15b9ddb820e81376fab9ecb): Fix a typo in user hint.
+- [#6afffd3](https://github.com/pydio/cells/commit/6afffd3b83c58f2405dfb736b9c80d5224b43f91): Some cleaning
+- [#403f238](https://github.com/pydio/cells/commit/403f2384670ef534bc8c7a461b15887e04f4aa11): Adapt hint for demo users and pwds.

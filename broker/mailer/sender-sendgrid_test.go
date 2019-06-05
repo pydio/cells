@@ -21,6 +21,7 @@
 package mailer
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -66,7 +67,7 @@ func TestSendgrid_Send(t *testing.T) {
 		buildFromWelcomeTemplate(email, email.To[0])
 
 		sendGrid := &SendGrid{}
-		err := sendGrid.Configure(*conf)
+		err := sendGrid.Configure(context.Background(), *conf)
 		So(err, ShouldBeNil)
 
 		err = sendGrid.Send(email)

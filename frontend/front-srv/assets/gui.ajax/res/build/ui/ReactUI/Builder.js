@@ -60,7 +60,11 @@ var Builder = (function () {
 
     Builder.prototype.pageTitleObserver = function pageTitleObserver() {
         var ctxNode = this._pydio.getContextNode();
-        document.title = this._pydio.Parameters.get('customWording').title + ' - ' + ctxNode.getLabel();
+        var title = this._pydio.Parameters.get('customWording').title;
+        if (ctxNode.getLabel()) {
+            title += ' - ' + ctxNode.getLabel();
+        }
+        document.title = title;
     };
 
     Builder.prototype.initTemplates = function initTemplates() {
@@ -84,7 +88,7 @@ var Builder = (function () {
             var namespace = tNodes[i].getAttribute("namespace");
             var component = tNodes[i].getAttribute("component");
 
-            if (themeSpecific && _this._pydio.Parameters.get("theme") && _this._pydio.Parameters.get("theme") != themeSpecific) {
+            if (themeSpecific && _this._pydio.Parameters.get("theme") && _this._pydio.Parameters.get("theme") !== themeSpecific) {
                 return 'continue';
             }
             var targetObj = document.getElementById(target);

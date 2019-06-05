@@ -5,6 +5,7 @@ package rest;
 import "github.com/pydio/cells/common/service/proto/common.proto";
 import "github.com/pydio/cells/common/proto/idm/idm.proto";
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 
 // Group collected acls by subjects
 message CellAcl {
@@ -19,8 +20,8 @@ message CellAcl {
 // Model for representing a shared room
 message Cell {
     string Uuid = 1;
-    string Label = 2;
-    string Description = 3;
+    string Label = 2 [(validator.field) = {length_lt: 500}];
+    string Description = 3 [(validator.field) = {length_lt: 1000}];
 
     repeated tree.Node RootNodes = 4;
     map <string,CellAcl> ACLs = 5;
@@ -47,8 +48,8 @@ message ShareLink {
     string LinkHash = 2;
     string LinkUrl = 3;
 
-    string Label = 4;
-    string Description = 5;
+    string Label = 4 [(validator.field) = {length_lt: 500}];
+    string Description = 5 [(validator.field) = {length_lt: 1000}];
 
     string UserUuid = 6;
     string UserLogin = 7;

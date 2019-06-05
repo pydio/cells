@@ -68,7 +68,8 @@ let UploadDialog = React.createClass({
         }
         return {
             uploaders,
-            current
+            current,
+            loaded: false,
         };
     },
 
@@ -76,7 +77,7 @@ let UploadDialog = React.createClass({
         let tabs = [];
         let component = <div style={{height: 360}}></div>;
         const dismiss = () => {this.dismiss()};
-        const {uploaders, current} = this.state;
+        const {uploaders, current, loaded} = this.state;
         uploaders.map((uploader) => {
             tabs.push(<Tab label={uploader.xmlNode.getAttribute('label')} key={uploader.id} onActive={()=>{this.setState({current:uploader})}}/>);
         });
@@ -88,6 +89,7 @@ let UploadDialog = React.createClass({
                     namespace={parts[0]}
                     componentName={parts[1]}
                     onDismiss={dismiss}
+                    onLoad={()=>{this.setState({loaded: true})}}
                     {...this.props.uploaderProps}
                 />
             );
@@ -97,6 +99,7 @@ let UploadDialog = React.createClass({
             <div style={{width: '100%'}}>
                 <TopBar tabs={tabs} dismiss={dismiss}/>
                 {component}
+                {!loaded && <div style={{padding: 40, textAlign:'center', color: 'rgba(0,0,0,.5)'}}>{this.props.pydio.MessageHash['466']}</div>}
             </div>
         );
     }
