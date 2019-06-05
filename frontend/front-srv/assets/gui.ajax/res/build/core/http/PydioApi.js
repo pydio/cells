@@ -490,7 +490,7 @@ var PydioApi = (function () {
         }
 
         var resolver = function resolver(jwt, cb) {
-            var cacheKey = node.getMetadata().get('uuid') + jwt + params.Key;
+            var cacheKey = node.getMetadata().get('uuid') + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
             if (cType) {
                 cacheKey += "#" + cType;
             }

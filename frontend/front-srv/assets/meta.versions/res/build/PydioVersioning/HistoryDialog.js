@@ -52,6 +52,9 @@ var HistoryBrowser = _react2['default'].createClass({
     },
 
     propsToState: function propsToState(node) {
+        if (this.state && this.state.api) {
+            this.state.api.stopObserving('selection_changed');
+        }
         var api = new _HistoryApi2['default'](node);
         this._selectionObserver = (function () {
             if (api.getDataModel().isEmpty()) {
@@ -70,9 +73,6 @@ var HistoryBrowser = _react2['default'].createClass({
 
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
         if (nextProps.node !== this.props.node) {
-            if (this._selectionObserver) {
-                this.state.api.getDataModel().stopObserving('selection_changed', this._selectionObserver);
-            }
             this.setState(this.propsToState(nextProps.node));
         }
     },
@@ -105,18 +105,16 @@ var HistoryBrowser = _react2['default'].createClass({
     render: function render() {
 
         var mess = window.pydio.MessageHash;
-        var index = 0;
         var tableKeys = {
-            index: { label: mess['meta.versions.9'], sortType: 'string', width: '5%', renderCell: function renderCell(data) {
-                    index++;
-                    return index + "";
+            index: { label: mess['meta.versions.9'], sortType: 'string', width: '10%', renderCell: function renderCell(data) {
+                    return "#" + data.getMetadata().get('versionId').substr(0, 6);
                 } },
-            Size: { label: mess['2'], sortType: 'number', width: '20%', renderCell: function renderCell(data) {
+            Size: { label: mess['2'], sortType: 'number', width: '10%', renderCell: function renderCell(data) {
                     var s = parseInt(data.getMetadata().get('bytesize'));
                     return _pydioUtilPath2['default'].roundFileSize(s);
                 } },
             ajxp_modiftime: { label: mess['meta.versions.10'], sortType: 'string', width: '25%' },
-            versionDescription: { label: mess['meta.versions.11'], sortType: 'string', width: '50%' }
+            versionDescription: { label: mess['meta.versions.11'], sortType: 'string', width: '55%' }
         };
 
         var disabled = !this.state.selectedNode;
