@@ -217,7 +217,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 			diff := merger.NewDiff(ctx, source, targetAsSource)
 			s.monitorDiff(ctx, diff, rootsInfo)
 			e := diff.Compute(r)
-			log.Logger(ctx).Info("### Got Diff for Root", zap.String("r", r), zap.Any("diff", diff))
+			log.Logger(ctx).Info("### Got Diff for Root", zap.String("r", r), zap.Any("stats", diff.Stats()))
 			if e != nil || dryRun {
 				if s.runDone != nil {
 					s.runDone <- 0
@@ -248,6 +248,17 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 			log.Logger(ctx).Info("Capturing first snapshots now")
 			leftSnap.Capture(ctx, source, roots...)
 			rightSnap.Capture(ctx, targetAsSource, roots...)
+			log.Logger(ctx).Info("Hooking Snapshots to clients")
+			if updater, ok := source.(model.SnapshotUpdater); ok {
+				if pst, ok2 := leftSnap.(model.PathSyncTarget); ok2 {
+					updater.SetUpdateSnapshot(pst)
+				}
+			}
+			if updater, ok := targetAsSource.(model.SnapshotUpdater); ok {
+				if pst, ok2 := rightSnap.(model.PathSyncTarget); ok2 {
+					updater.SetUpdateSnapshot(pst)
+				}
+			}
 		}
 
 	}

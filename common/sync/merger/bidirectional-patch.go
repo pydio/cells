@@ -71,7 +71,7 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 			b.mergeTrees(&l.TreeNode, &r.TreeNode)
 		}
 		log.Logger(ctx).Info("Merged Patch")
-		fmt.Println(b.String())
+		fmt.Println(b.Stats())
 	}
 	if len(b.unexpected) > 0 {
 		var ss []string

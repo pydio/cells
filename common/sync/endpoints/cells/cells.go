@@ -271,12 +271,16 @@ func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 func (c *abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeChangeEvent, finished chan error) {
 	ctx, cli, err := c.factory.GetNodeChangesStreamClient(c.getContext(ctx))
 	if err != nil {
-		finished <- err
+		if !c.watchCtxCancelled {
+			finished <- err
+		}
 		return
 	}
 	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.root}, client.WithRequestTimeout(10*time.Minute))
 	if e != nil {
-		finished <- e
+		if !c.watchCtxCancelled {
+			finished <- e
+		}
 		return
 	}
 	if c.watchConn != nil {
