@@ -2,7 +2,8 @@ language: go
 
 go:
 - "1.10.5"
-- "1.11.5"
+- "1.11.10"
+- "1.12.5"
 
 script:
 - go build main.go
