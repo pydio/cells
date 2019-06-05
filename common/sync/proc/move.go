@@ -30,11 +30,11 @@ func (pr *Processor) processMove(operation merger.Operation, operationId string,
 	toPath := operation.GetRefPath()
 	fromPath := operation.GetMoveOriginPath()
 
-	if pr.Connector != nil {
-		pr.Connector.LockFile(operation, toPath, operationId)
-		pr.Connector.LockFile(operation, fromPath, operationId)
-		defer pr.Connector.UnlockFile(operation, toPath)
-		defer pr.Connector.UnlockFile(operation, fromPath)
+	if pr.Locker != nil {
+		pr.Locker.LockFile(operation, toPath, operationId)
+		pr.Locker.LockFile(operation, fromPath, operationId)
+		defer pr.Locker.UnlockFile(operation, toPath)
+		defer pr.Locker.UnlockFile(operation, fromPath)
 	}
 
 	return operation.Target().MoveNode(operation.CreateContext(pr.GlobalContext), fromPath, toPath)

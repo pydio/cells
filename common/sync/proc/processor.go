@@ -40,10 +40,8 @@ import (
 // ProcessFunc is a generic function signature for applying an operation
 type ProcessFunc func(event merger.Operation, operationId string, progress chan int64) error
 
-// ProcessorConnector defines a set of event based functions that can be called during processing
-type ProcessorConnector interface {
-	// Requeue send a fake event to be requeued in original Event chan input
-	Requeue(source model.PathSyncSource, event model.EventInfo)
+// ProcessorLocker defines a set of event based functions that can be called during processing
+type ProcessorLocker interface {
 	// LockFile sends LockEvent for Echo Filtering
 	LockFile(operation merger.Operation, path string, operationId string)
 	// UnlockFile sends UnlockEvent for Echo Filtering
@@ -53,7 +51,7 @@ type ProcessorConnector interface {
 // Processor is a simple processor without external connections
 type Processor struct {
 	GlobalContext context.Context
-	Connector     ProcessorConnector
+	Locker        ProcessorLocker
 	QueueSize     int
 	Silent        bool
 }

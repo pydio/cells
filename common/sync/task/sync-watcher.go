@@ -69,12 +69,8 @@ func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	var inputClosed bool
 	input := make(chan model.EventInfo)
 	inputCloser := make(chan bool)
-	//s.doneChans = append(s.doneChans, inputCloser)
-
-	s.processor.AddRequeueChannel(source, input)
 
 	out := input
-
 	// If EchoFilter is registered, pipe
 	if s.echoFilter != nil {
 		out = s.echoFilter.Pipe(out)

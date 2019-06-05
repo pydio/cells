@@ -31,21 +31,17 @@ import (
 type ConnectedProcessor struct {
 	Processor
 
-	PatchChan       chan merger.Patch
-	JobsInterrupt   chan bool
-	LocksChan       chan model.LockEvent
-	RequeueChannels map[model.PathSyncSource]chan model.EventInfo
+	PatchChan chan merger.Patch
+	LocksChan chan model.LockEvent
 }
 
 // NewConnectedProcessor creates a new connected processor
 func NewConnectedProcessor(ctx context.Context) *ConnectedProcessor {
 	p := &ConnectedProcessor{
-		Processor:       *NewProcessor(ctx),
-		PatchChan:       make(chan merger.Patch, 1),
-		RequeueChannels: make(map[model.PathSyncSource]chan model.EventInfo),
-		JobsInterrupt:   make(chan bool),
+		Processor: *NewProcessor(ctx),
+		PatchChan: make(chan merger.Patch, 1),
 	}
-	p.Connector = p
+	p.Locker = p
 	return p
 }
 
@@ -62,12 +58,6 @@ func (pr *ConnectedProcessor) Start() {
 // Stop closes Patch Channel and Interrupt Channel
 func (pr *ConnectedProcessor) Stop() {
 	close(pr.PatchChan)
-	close(pr.JobsInterrupt)
-}
-
-// AddRequeueChannel registers a Requeue chan for a given source
-func (pr *ConnectedProcessor) AddRequeueChannel(source model.PathSyncSource, channel chan model.EventInfo) {
-	pr.RequeueChannels[source] = channel
 }
 
 // ProcessPatches listens to PatchChan for processing
@@ -84,16 +74,6 @@ func (pr *ConnectedProcessor) ProcessPatches() {
 		}
 	}
 
-}
-
-// Requeue implements Connector func
-func (pr *ConnectedProcessor) Requeue(source model.PathSyncSource, event model.EventInfo) {
-	if pr.RequeueChannels == nil {
-		return
-	}
-	if c, ok := pr.RequeueChannels[source]; ok {
-		c <- event
-	}
 }
 
 // LockFile implements Connector func

@@ -107,6 +107,8 @@ func (t *TreePatch) Filter(ctx context.Context) {
 
 	t.enqueueRemaining(ctx)
 
+	t.rescanFoldersIfRequired(ctx)
+
 	t.prune(ctx)
 
 	//fmt.Println("Source: " + t.source.GetEndpointInfo().URI)
