@@ -337,7 +337,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}()
 	}
 	s.syncTask.SetSyncEventsChan(statusChan, doneChan, nil)
-	result, e := s.syncTask.Run(context.Background(), req.DryRun, false)
+	result, e := s.syncTask.Run(context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME), req.DryRun, false)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task
