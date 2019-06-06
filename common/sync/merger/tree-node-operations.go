@@ -136,3 +136,37 @@ func (t *TreeNode) WalkOperations(opTypes []OperationType, callback func(Operati
 		c.WalkOperations(opTypes, callback)
 	}
 }
+
+// WalkToFirstOperations walks the tree (depth-first) and stops on a branch as soon as it finds a given operation Type
+func (t *TreeNode) WalkToFirstOperations(opType OperationType, callback func(Operation)) {
+	recompute := func(t *TreeNode, o Operation) {
+		if t.OpMoveTarget != nil {
+			o.UpdateRefPath(t.OpMoveTarget.ProcessedPath(false))
+			o.UpdateMoveOriginPath(t.ProcessedPath(false))
+		} else {
+			o.UpdateRefPath(t.ProcessedPath(false))
+		}
+	}
+	filter := func(o Operation) bool {
+		if o == nil {
+			return false
+		}
+		return o.Type() == opType
+	}
+	var found bool
+	if filter(t.PathOperation) {
+		found = true
+		recompute(t, t.PathOperation)
+		callback(t.PathOperation)
+	}
+	if filter(t.DataOperation) {
+		found = true
+		recompute(t, t.DataOperation)
+		callback(t.DataOperation)
+	}
+	if !found {
+		for _, c := range t.SortedChildren() {
+			c.WalkToFirstOperations(opType, callback)
+		}
+	}
+}

@@ -222,16 +222,16 @@ func (t *TreePatch) enqueueRemaining(ctx context.Context) {
 }
 
 func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context) {
-	if !t.Source().GetEndpointInfo().RequiresFoldersRescan {
+	if t.options.NoRescan || !t.Source().GetEndpointInfo().RequiresFoldersRescan {
 		return
 	}
 	var newFolders bool
 	var newFiles bool
-	for _, op := range t.OperationsByType([]OperationType{OpCreateFolder}) {
+	t.WalkToFirstOperations(OpCreateFolder, func(op Operation) {
 		if op.IsScanEvent() {
-			continue
+			return
 		}
-		log.Logger(ctx).Info("Rescanning folder to be sure", zap.String("path", op.GetRefPath()))
+		log.Logger(ctx).Info("Rescanning folder to be sure", zap.String("patch", t.Target().GetEndpointInfo().URI), zap.String("path", op.GetRefPath()))
 		// Rescan folder content, events below may not have been detected
 		var visit = func(path string, node *tree.Node, err error) {
 			if err != nil {
@@ -252,7 +252,7 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context) {
 			return
 		}
 		t.Source().Walk(visit, op.GetRefPath(), true)
-	}
+	})
 	// Re-perform filters on new resources
 	if newFolders {
 		t.filterCreateFolders(ctx)
