@@ -54,6 +54,8 @@ type clientProviderFactory interface {
 	GetNodeReceiverClient(context.Context) (context.Context, tree.NodeReceiverClient, error)
 	GetNodeChangesStreamClient(context.Context) (context.Context, tree.NodeChangesStreamerClient, error)
 	GetObjectsClient(context.Context) (context.Context, objectsClient, error)
+
+	GetNodeReceiverStreamClient(context.Context) (context.Context, tree.NodeReceiverStreamClient, error)
 }
 
 type Options struct {

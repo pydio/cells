@@ -128,6 +128,14 @@ func (f *remoteClientFactory) GetNodeChangesStreamClient(ctx context.Context) (c
 	return ctx, tree.NewNodeChangesStreamerClient(RemoteCellsServiceName, cli), nil
 }
 
+func (f *remoteClientFactory) GetNodeReceiverStreamClient(ctx context.Context) (context.Context, tree.NodeReceiverStreamClient, error) {
+	ctx, cli, e := f.getClient(ctx)
+	if e != nil {
+		return nil, nil, e
+	}
+	return ctx, tree.NewNodeReceiverStreamClient(RemoteCellsServiceName, cli), nil
+}
+
 func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Context, objectsClient, error) {
 	return ctx, mc.NewS3Client(f.config), nil
 

@@ -32,6 +32,8 @@ func init() {
 				tree.RegisterNodeProviderHandler(srv, h)
 				tree.RegisterNodeReceiverHandler(srv, h)
 				tree.RegisterNodeChangesStreamerHandler(srv, h)
+				tree.RegisterNodeProviderStreamerHandler(srv, h)
+				tree.RegisterNodeReceiverStreamHandler(srv, h)
 
 				return nil
 			}),

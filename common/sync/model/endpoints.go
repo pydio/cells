@@ -126,6 +126,10 @@ type UuidFoldersRefresher interface {
 	UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error)
 }
 
+type BulkOperationsProcessor interface {
+	ProcessOperations(ctx context.Context, opType int, operations []interface{}) (responses []interface{}, e error)
+}
+
 type Versioner interface {
 	Commit(node *tree.Node)
 	ListVersions(node *tree.Node) (versions map[int]string, lastVersion int)

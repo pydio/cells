@@ -2,6 +2,9 @@ package grpc
 
 import (
 	"context"
+	"io"
+
+	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
@@ -9,6 +12,44 @@ import (
 
 type TreeHandler struct {
 	router views.Handler
+}
+
+func (t *TreeHandler) ReadNodeStream(context.Context, tree.NodeProviderStreamer_ReadNodeStreamStream) error {
+	return errors.BadRequest("not.implemented", "ReadNodeStream not implemented yet")
+}
+
+func (t *TreeHandler) CreateNodeStream(ctx context.Context, s tree.NodeReceiverStream_CreateNodeStreamStream) error {
+	router := t.getRouter()
+	var err error
+	for {
+		r, e := s.Recv()
+		if e != nil {
+			if e != io.EOF {
+				s.SendMsg(e)
+				err = e
+			}
+			break
+		}
+		resp, err := router.CreateNode(ctx, r)
+		if err != nil {
+			s.SendMsg(err)
+			err = e
+			break
+		}
+		if err = s.Send(resp); err != nil {
+			break
+		}
+	}
+	s.Close()
+	return err //errors.BadRequest("not.implemented", "CreateNodeStream not implemented yet")
+}
+
+func (t *TreeHandler) UpdateNodeStream(context.Context, tree.NodeReceiverStream_UpdateNodeStreamStream) error {
+	return errors.BadRequest("not.implemented", "UpdateNodeStream not implemented yet")
+}
+
+func (t *TreeHandler) DeleteNodeStream(context.Context, tree.NodeReceiverStream_DeleteNodeStreamStream) error {
+	return errors.BadRequest("not.implemented", "DeleteNodeStream not implemented yet")
 }
 
 // ReadNode forwards to router
