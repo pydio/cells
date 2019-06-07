@@ -26,16 +26,15 @@ import (
 	"io"
 	"strings"
 
-	"github.com/pborman/uuid"
-
 	"github.com/micro/go-micro/errors"
+	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
@@ -57,7 +56,7 @@ func (e *EncryptionHandler) SetNodeKeyManagerClient(nodeKeyManagerClient encrypt
 	e.nodeKeyManagerClient = nodeKeyManagerClient
 }
 
-//GetObject enriches request metadata for GetObject with Encryption Materials, if required by datasource.
+//GetObject enriches request metadata for GetObject with Encryption Materials, if required by the datasource.
 func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
 	if strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
 		return e.next.GetObject(ctx, node, requestData)
@@ -236,7 +235,7 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 	return n, err
 }
 
-// CopyObject Enriches request metadata for CopyObject with Encryption Materials, if required by datasource
+// CopyObject enriches request metadata for CopyObject with Encryption Materials, if required by the datasource
 func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 	srcInfo, ok2 := GetBranchInfo(ctx, "from")
 	destInfo, ok := GetBranchInfo(ctx, "to")
@@ -312,7 +311,7 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 			cloneTo.Uuid = cloneFrom.Uuid
 		}
 		putReqData := &PutRequestData{
-			Size:     -1,
+			Size:     cloneFrom.Size,
 			Metadata: requestData.Metadata,
 		}
 		putReqData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", cloneFrom.Size)
@@ -566,7 +565,10 @@ func (e *EncryptionHandler) createNodeInfo(ctx context.Context, node *tree.Node)
 		OwnerId: user,
 	}
 
-	encKey, _ := crypto.RandomBytes(32)
+	encKey, err := crypto.RandomBytes(32)
+	if err != nil {
+		return info, err
+	}
 	info.NodeKey.KeyData = encKey
 
 	info.Node = new(encryption.Node)
@@ -612,7 +614,7 @@ func (streamer *setBlockStream) SendKey(key *encryption.NodeKey) error {
 		return streamer.err
 	}
 
-	//log.Logger(streamer.ctx).Info("[BLOCK STREAMER] > set key", zap.Any("key", key))
+	log.Logger(streamer.ctx).Debug("[BLOCK STREAMER] > set key", zap.Any("key", key))
 	key.NodeId = streamer.nodeUuid
 
 	streamer.err = streamer.client.SendMsg(&encryption.SetNodeInfoRequest{
@@ -654,7 +656,7 @@ func (streamer *setBlockStream) SendBlock(block *encryption.Block) error {
 			Block:    block,
 		},
 	}
-	//log.Logger(streamer.ctx).Info("[BLOCK STREAMER] > set block", zap.Any("block", block))
+	log.Logger(streamer.ctx).Debug("[BLOCK STREAMER] > set block", zap.Any("block", block))
 
 	streamer.err = streamer.client.SendMsg(setNodeInfoRequest)
 	if streamer.err != nil {
@@ -674,13 +676,19 @@ func (streamer *setBlockStream) SendBlock(block *encryption.Block) error {
 
 func (streamer *setBlockStream) Close() error {
 	// send empty node to notify the end of the exchange
-	//log.Logger(streamer.ctx).Info("[BLOCK STREAMER] > set block: closing streamer")
-	_ = streamer.client.Send(&encryption.SetNodeInfoRequest{
+	log.Logger(streamer.ctx).Debug("[BLOCK STREAMER] > set block: closing streamer")
+	err := streamer.client.Send(&encryption.SetNodeInfoRequest{
 		Action: "close",
 	})
+	if err != nil {
+		log.Logger(streamer.ctx).Warn("[BLOCK STREAMER] > set block: could not send close action")
+	}
 
 	var rsp encryption.SetNodeInfoResponse
-	_ = streamer.client.RecvMsg(&rsp)
+	err = streamer.client.RecvMsg(&rsp)
+	if err != nil {
+		log.Logger(streamer.ctx).Warn("[BLOCK STREAMER] > set block: could not receive close action response")
+	}
 
 	return streamer.client.Close()
 }
