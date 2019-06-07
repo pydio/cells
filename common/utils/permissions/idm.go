@@ -389,14 +389,12 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	if login != "" && len(queries) == 0 {
 		if u, ok := usersCache.Get(login); ok {
 			if us, o := u.(*idm.User); o {
-				fmt.Println("<= User from cache " + login)
 				return us, nil
 			}
 		}
 	} else if uuid != "" && len(queries) == 0 {
 		if u, ok := usersCache.Get(uuid); ok {
 			if us, o := u.(*idm.User); o {
-				fmt.Println("<= User from cache " + uuid)
 				return us, nil
 			}
 		}
@@ -441,7 +439,6 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	}
 	// Store to quick cache
 	if len(queries) == 0 {
-		fmt.Println("=> User to cache " + uuid + login)
 		usersCache.Set(login, user, cache.DefaultExpiration)
 		usersCache.Set(uuid, user, cache.DefaultExpiration)
 	}
