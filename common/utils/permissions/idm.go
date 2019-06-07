@@ -24,11 +24,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
+	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -39,6 +41,14 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
 )
+
+var (
+	usersCache *cache.Cache
+)
+
+func init() {
+	usersCache = cache.New(5*time.Second, 30*time.Second)
+}
 
 // Load roles for a given user
 func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []*idm.Role {
@@ -375,6 +385,21 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 
 // SearchUniqueUser provides a shortcurt to search user services for one specific user
 func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ...*idm.UserSingleQuery) (user *idm.User, err error) {
+
+	if login != "" && len(queries) == 0 {
+		if u, ok := usersCache.Get(login); ok {
+			if us, o := u.(*idm.User); o {
+				return us, nil
+			}
+		}
+	} else if uuid != "" && len(queries) == 0 {
+		if u, ok := usersCache.Get(uuid); ok {
+			if us, o := u.(*idm.User); o {
+				return us, nil
+			}
+		}
+	}
+
 	userCli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 	var searchRequests []*any.Any
 	if uuid != "" {
@@ -411,6 +436,11 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	}
 	if user == nil {
 		return nil, errors.NotFound(common.SERVICE_USER, "Cannot find user with this login or uuid")
+	}
+	// Store to quick cache
+	if len(queries) == 0 {
+		usersCache.Set(login, user, cache.DefaultExpiration)
+		usersCache.Set(uuid, user, cache.DefaultExpiration)
 	}
 	return
 }

@@ -81,6 +81,7 @@ type JWTVerifier struct {
 	checkClientIds      []string
 	defaultClientID     string
 	defaultClientSecret string
+	provider            *oidc.Provider
 }
 
 func (j *JWTVerifier) loadClaims(ctx context.Context, token *oidc.IDToken) (claim.Claims, error) {
@@ -126,37 +127,53 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token *oidc.IDToken) (clai
 	return claims, nil
 }
 
-// Verify validates an existing JWT token against the OIDC service that issued it
-func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Context, claim.Claims, error) {
-
-	ctx = oidc.ClientContext(ctx, &http.Client{
+func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken string, isRetry bool) (idToken *oidc.IDToken, e error) {
+	var fresh bool
+	reqCtx := oidc.ClientContext(ctx, &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: config.GetTLSClientConfig("proxy"),
 		},
 	})
-	provider, err := oidc.NewProvider(ctx, j.IssuerUrl)
-	if err != nil {
-		log.Logger(ctx).Error("cannot init oidc provider", zap.Error(err))
-		return ctx, claim.Claims{}, err
+	if j.provider == nil {
+		provider, err := oidc.NewProvider(reqCtx, j.IssuerUrl)
+		if err != nil {
+			log.Logger(ctx).Error("cannot init oidc provider", zap.Error(err))
+			e = err
+			return
+		}
+		fresh = true
+		j.provider = provider
 	}
 
-	var idToken *oidc.IDToken
-	var checkErr error
 	for _, clientId := range j.checkClientIds {
-		var verifier = provider.Verifier(&oidc.Config{ClientID: clientId, SkipNonceCheck: true})
 		// Parse and verify ID Token payload.
-		testToken, err := verifier.Verify(ctx, rawIDToken)
+		verifier := j.provider.Verifier(&oidc.Config{ClientID: clientId, SkipNonceCheck: true})
+		testToken, err := verifier.Verify(reqCtx, rawIDToken)
 		if err != nil {
 			log.Logger(ctx).Debug("jwt rawIdToken verify: failed", zap.Error(err))
-			checkErr = err
+			e = err
 		} else {
 			idToken = testToken
 			break
 		}
 	}
+	if (idToken == nil || e != nil) && !fresh && !isRetry {
+		// The keys have been rotated, retry once
+		j.provider = nil
+		return j.verifyTokenWithRetry(ctx, rawIDToken, true)
+	}
+	if e == nil && idToken == nil {
+		e = errors.New("empty idToken")
+	}
+	return
+}
 
-	if idToken == nil {
-		return ctx, claim.Claims{}, checkErr
+// Verify validates an existing JWT token against the OIDC service that issued it
+func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Context, claim.Claims, error) {
+
+	idToken, err := j.verifyTokenWithRetry(ctx, rawIDToken, false)
+	if err != nil {
+		return ctx, claim.Claims{}, err
 	}
 
 	cli := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())

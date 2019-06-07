@@ -28,11 +28,8 @@ import (
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/i18n"
@@ -70,7 +67,6 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 		mainUrl = "http://" + mainUrl
 	}
 	urlParsed, _ := url.Parse(mainUrl)
-	log.Logger(req.Request.Context()).Info("Parsed URL", zap.Any("url", urlParsed))
 
 	ssl := cfg.Get("cert", "proxy", "ssl").Bool(false)
 	if ssl {
