@@ -129,7 +129,7 @@ class SimpleLinkCard extends React.Component {
                     pydio={pydio}
                     compositeModel={model}
                     linkModel={links[0]}
-                    showMailer={this.linkInvitation.bind(this)}
+                    showMailer={ShareHelper.mailerSupported(pydio) ? this.linkInvitation.bind(this) : null}
                 />)
             });
             if(publicLinkModel.getLinkUuid()){

@@ -49,9 +49,9 @@ func (pr *Processor) processCreateFile(operation merger.Operation, operationId s
 	dataSource, dsOk := model.AsDataSyncSource(operation.Source())
 
 	localPath := operation.GetRefPath()
-	if pr.Connector != nil {
-		defer pr.Connector.UnlockFile(operation, localPath)
-		pr.Connector.LockFile(operation, localPath, operationId)
+	if pr.Locker != nil {
+		defer pr.Locker.UnlockFile(operation, localPath)
+		pr.Locker.LockFile(operation, localPath, operationId)
 	}
 	if dtOk && dsOk {
 

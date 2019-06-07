@@ -25,6 +25,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pkg/errors"
+
 	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/common"
@@ -113,6 +115,10 @@ func (f *localRouterFactory) GetNodeChangesStreamClient(ctx context.Context) (co
 
 func (f *localRouterFactory) GetObjectsClient(ctx context.Context) (context.Context, objectsClient, error) {
 	return f.userToContext(ctx), f.router, nil
+}
+
+func (f *localRouterFactory) GetNodeReceiverStreamClient(context.Context) (context.Context, tree.NodeReceiverStreamClient, error) {
+	return nil, nil, errors.New("Not Implemented")
 }
 
 func (f *localRouterFactory) userToContext(ctx context.Context) context.Context {

@@ -25,6 +25,9 @@ const {moment} = Pydio.requireLib('boot');
 
 class ShareHelper {
 
+    static mailerSupported(pydio) {
+        return pydio.Parameters.get('validMailer');
+    }
 
     static getAuthorizations(pydio){
 

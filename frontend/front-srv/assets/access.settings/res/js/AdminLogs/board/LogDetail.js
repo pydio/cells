@@ -8,7 +8,7 @@ const {UserAvatar} = Pydio.requireLib('components');
 
 class GenericLine extends React.Component{
     render(){
-        const {iconClassName, legend, data} = this.props;
+        const {iconClassName, legend, data, selectable} = this.props;
         const style = {
             icon: {
                 margin:'16px 20px 0',
@@ -23,7 +23,8 @@ class GenericLine extends React.Component{
                 fontSize: 15,
                 paddingRight: 6,
                 overflow:'hidden',
-                textOverflow:'ellipsis'
+                textOverflow:'ellipsis',
+                userSelect: 'text'
             }
         };
         return (

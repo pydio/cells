@@ -42,7 +42,7 @@ type Smtp struct {
 	InsecureSkipVerify bool
 }
 
-func (gm *Smtp) Configure(conf config.Map) error {
+func (gm *Smtp) Configure(ctx context.Context, conf config.Map) error {
 
 	val := conf.Get("user")
 	if val == nil {
@@ -84,9 +84,30 @@ func (gm *Smtp) Configure(conf config.Map) error {
 	if conf.Get("insecureSkipVerify") != nil {
 		gm.InsecureSkipVerify = conf.Get("insecureSkipVerify").(bool)
 	}
-	log.Logger(context.Background()).Debug("SMTP Configured", zap.String("u", gm.User), zap.String("h", gm.Host), zap.Int("p", gm.Port))
+	log.Logger(ctx).Debug("SMTP Configured", zap.String("u", gm.User), zap.String("h", gm.Host), zap.Int("p", gm.Port))
 
 	return nil
+}
+
+func (gm *Smtp) Check(ctx context.Context) error {
+
+	// Test Config - Unfortunately we cannot set the Timeout here - 10s by default
+	d := gomail.NewDialer(gm.Host, gm.Port, gm.User, gm.Password)
+	tlsConfig := tls.Config{
+		InsecureSkipVerify: gm.InsecureSkipVerify,
+		ServerName:         gm.Host,
+	}
+	// Check configuration
+	d.TLSConfig = &tlsConfig
+	if closer, err := d.Dial(); err != nil {
+		log.Logger(ctx).Error("Mailer check failed", zap.Error(err))
+		return err
+	} else {
+		log.Logger(ctx).Info("Mailer check passed")
+		closer.Close()
+	}
+	return nil
+
 }
 
 func (gm *Smtp) Send(email *mailer.Mail) error {

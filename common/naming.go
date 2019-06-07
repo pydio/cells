@@ -151,6 +151,7 @@ const (
 	X_AMZ_META_DIRECTIVE        = "X-Amz-Metadata-Directive"
 	XPydioClientUuid            = "X-Pydio-Client-Uuid"
 	XPydioSessionUuid           = "X-Pydio-Session"
+	XPydioIndexationSessionUuid = "X-Pydio-Indexation-Session"
 	XPydioMoveUuid              = "X-Pydio-Move"
 
 	PYDIO_PROFILE_ADMIN    = "admin"
@@ -172,6 +173,7 @@ var (
 	XSpecialPydioHeaders = []string{
 		XPydioClientUuid,
 		XPydioSessionUuid,
+		XPydioIndexationSessionUuid,
 		XPydioMoveUuid,
 	}
 )

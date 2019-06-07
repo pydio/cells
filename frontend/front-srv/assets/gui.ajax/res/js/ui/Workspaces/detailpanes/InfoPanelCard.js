@@ -20,6 +20,7 @@
 
 import React from 'react'
 import {IconButton, Paper} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 
 const styles = {
     card: {
@@ -119,6 +120,6 @@ InfoPanelCard.PropTypes = {
     actions:React.PropTypes.array
 };
 
-InfoPanelCard = MaterialUI.Style.muiThemeable()(InfoPanelCard);
+InfoPanelCard = muiThemeable()(InfoPanelCard);
 
 export {InfoPanelCard as default}

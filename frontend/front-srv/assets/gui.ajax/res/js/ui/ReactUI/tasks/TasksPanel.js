@@ -151,7 +151,7 @@ class TasksPanel extends React.Component{
         if (folded){
             styles.panel = {
                 ...styles.panel,
-                height: 33,
+                height: 40,
                 cursor: 'pointer',
             };
             styles.innerPane = {

@@ -123,7 +123,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 	if q.Login != "" {
 		if strings.Contains(q.Login, "*") && !q.Not {
 			// Special case for searching on "login LIKE" => use dedicated attribute instead
-			q.AttributeName = "pydio:labelLike"
+			q.AttributeName = idm.UserAttrLabelLike
 			q.AttributeValue = q.Login
 			attributeOrLogin = true
 		} else {

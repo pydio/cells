@@ -26,6 +26,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/common"
+
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -97,7 +99,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 				return
 			}
 			// Add to queue
-			if session := event.Metadata["X-Pydio-Session"]; session != "" {
+			if session := event.Metadata[common.XPydioSessionUuid]; session != "" {
 				if strings.HasPrefix(session, "close-") {
 					session = strings.TrimPrefix(session, "close-")
 

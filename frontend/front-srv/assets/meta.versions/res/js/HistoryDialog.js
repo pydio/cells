@@ -34,6 +34,9 @@ let HistoryBrowser = React.createClass({
     },
 
     propsToState: function(node){
+        if(this.state && this.state.api) {
+            this.state.api.stopObserving('selection_changed');
+        }
         const api = new HistoryApi(node);
         this._selectionObserver = function(){
             if(api.getDataModel().isEmpty()) {
@@ -52,9 +55,6 @@ let HistoryBrowser = React.createClass({
 
     componentWillReceiveProps: function(nextProps){
         if(nextProps.node !== this.props.node){
-            if(this._selectionObserver){
-                this.state.api.getDataModel().stopObserving('selection_changed', this._selectionObserver);
-            }
             this.setState(this.propsToState(nextProps.node));
         }
     },
@@ -84,18 +84,16 @@ let HistoryBrowser = React.createClass({
     render: function(){
 
         const mess = window.pydio.MessageHash;
-        let index = 0;
         const tableKeys = {
-            index: {label: mess['meta.versions.9'], sortType: 'string', width: '5%', renderCell:data=>{
-                    index ++;
-                    return index + "";
+            index: {label: mess['meta.versions.9'], sortType: 'string', width: '10%', renderCell:data=>{
+                    return "#" + data.getMetadata().get('versionId').substr(0, 6);
             }},
-            Size:{label: mess['2'], sortType: 'number', width: '20%', renderCell:data=>{
+            Size:{label: mess['2'], sortType: 'number', width: '10%', renderCell:data=>{
                     const s = parseInt(data.getMetadata().get('bytesize'));
                     return PathUtils.roundFileSize(s);
             }},
             ajxp_modiftime: {label: mess['meta.versions.10'], sortType: 'string', width: '25%'},
-            versionDescription: {label: mess['meta.versions.11'], sortType: 'string', width: '50%'},
+            versionDescription: {label: mess['meta.versions.11'], sortType: 'string', width: '55%'},
         };
 
         let disabled = !this.state.selectedNode;

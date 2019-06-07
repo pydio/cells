@@ -30,8 +30,7 @@ import (
 )
 
 const (
-	ContextKey         = "pydio-claims"
-	MetadataContextKey = "x-pydio-claims"
+	ContextKey = "pydio-claims"
 )
 
 type IDTokenSubject struct {

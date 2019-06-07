@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -263,7 +263,7 @@ var MetaFieldFormPanelMixin = {
             object['ajxp_meta_' + this.props.fieldname] = value;
             this.props.onChange(object, submit);
         } else if (this.props.onValueChange) {
-            this.props.onValueChange(this.props.fieldname, value);
+            this.props.onValueChange(this.props.fieldname, value, submit);
         }
     }
 
@@ -311,9 +311,13 @@ var StarsFormPanel = _react2['default'].createClass({
     render: function render() {
         var value = this.state.value;
         var stars = [-1, 0, 1, 2, 3, 4].map((function (v) {
+            var _this3 = this;
+
             var ic = 'star' + (v === -1 ? '-off' : value > v ? '' : '-outline');
             var style = v === -1 ? { marginRight: 5, cursor: 'pointer' } : { cursor: 'pointer' };
-            return _react2['default'].createElement('span', { key: "star-" + v, onClick: this.updateValue.bind(this, v + 1), className: "mdi mdi-" + ic, style: style });
+            return _react2['default'].createElement('span', { key: "star-" + v, onClick: function () {
+                    return _this3.updateValue(v + 1, true);
+                }, className: "mdi mdi-" + ic, style: style });
         }).bind(this));
         return _react2['default'].createElement(
             'div',
@@ -415,15 +419,15 @@ var MetaSelectorFormPanel = _react2['default'].createClass({
     mixins: [MetaFieldFormPanelMixin],
 
     changeSelector: function changeSelector(e, selectedIndex, payload) {
-        this.updateValue(payload);
+        this.updateValue(payload, true);
     },
 
     componentDidMount: function componentDidMount() {
-        var _this3 = this;
+        var _this4 = this;
 
         if (this.props.itemsLoader) {
             this.props.itemsLoader(function (items) {
-                _this3.setState({ menuItems: items });
+                _this4.setState({ menuItems: items });
             });
         }
     },
@@ -517,12 +521,12 @@ var TagsCloud = _react2['default'].createClass({
     },
 
     suggestionLoader: function suggestionLoader(callback) {
-        var _this4 = this;
+        var _this5 = this;
 
         this.setState({ loading: this.state.loading + 1 });
 
         Renderer.getClient().listTags(this.props.fieldname || this.props.column.name).then(function (tags) {
-            _this4.setState({ loading: _this4.state.loading - 1 });
+            _this5.setState({ loading: _this5.state.loading - 1 });
             callback(tags);
         });
     },
@@ -547,14 +551,14 @@ var TagsCloud = _react2['default'].createClass({
     },
 
     handleRequestDelete: function handleRequestDelete(tag) {
-        var _this5 = this;
+        var _this6 = this;
 
         var tags = this.state.tags.split(',');
         var index = tags.indexOf(tag);
         tags.splice(index, 1);
         this.setState({
             tags: tags.toString() }, function () {
-            _this5.updateValue(_this5.state.tags);
+            _this6.updateValue(_this6.state.tags, true);
         });
     },
 
@@ -563,8 +567,11 @@ var TagsCloud = _react2['default'].createClass({
     },
 
     handleNewRequest: function handleNewRequest() {
-        var _this6 = this;
+        var _this7 = this;
 
+        if (!this.state.searchText) {
+            return;
+        }
         var tags = [];
         if (this.state.tags) {
             tags = this.state.tags.split(',');
@@ -572,7 +579,7 @@ var TagsCloud = _react2['default'].createClass({
         tags.push(this.state.searchText);
         this.setState({
             tags: tags.toString() }, function () {
-            _this6.updateValue(_this6.state.tags);
+            _this7.updateValue(_this7.state.tags, true);
         });
         this.setState({
             searchText: ''
@@ -603,6 +610,8 @@ var TagsCloud = _react2['default'].createClass({
     },
 
     render: function render() {
+        var _this8 = this;
+
         var tags = undefined;
         if (this.state.tags) {
             tags = this.state.tags.split(",").map((function (tag) {
@@ -627,7 +636,12 @@ var TagsCloud = _react2['default'].createClass({
                 },
                 openOnFocus: true,
                 menuProps: { maxHeight: 200 },
-                style: { marginBottom: -8 }
+                style: { marginBottom: -8 },
+                onClose: function () {
+                    if (_this8.state.searchText) {
+                        _this8.handleNewRequest();
+                    }
+                }
             }, ModernStyles.textField));
         } else {
             autoCompleter = _react2['default'].createElement('div', null);
@@ -656,16 +670,20 @@ var UserMetaDialog = _react2['default'].createClass({
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
 
-    submit: function submit() {
-        var _this7 = this;
-
+    saveMeta: function saveMeta() {
         var values = this.refs.panel.getUpdateData();
         var params = {};
         values.forEach(function (v, k) {
             params[k] = v;
         });
-        Renderer.getClient().saveMeta(this.props.selection.getSelectedNodes(), values).then(function () {
-            _this7.dismiss();
+        return Renderer.getClient().saveMeta(this.props.selection.getSelectedNodes(), values);
+    },
+
+    submit: function submit() {
+        var _this9 = this;
+
+        this.saveMeta().then(function () {
+            _this9.dismiss();
         });
     },
     render: function render() {
@@ -700,19 +718,27 @@ var UserMetaPanel = (function (_React$Component) {
     _createClass(UserMetaPanel, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this8 = this;
+            var _this10 = this;
 
             Renderer.getMetadataConfigs().then(function (configs) {
-                _this8.setState({ configs: configs });
+                _this10.setState({ configs: configs });
             });
         }
     }, {
         key: 'updateValue',
         value: function updateValue(name, value) {
+            var submit = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
             this.state.updateMeta.set(name, value);
             this.setState({
                 updateMeta: this.state.updateMeta
             });
+            if (this.props.onChangeUpdateData) {
+                this.props.onChangeUpdateData(this.state.updateMeta);
+            }
+            if (submit && this.props.autoSave) {
+                this.props.autoSave();
+            }
         }
     }, {
         key: 'deleteValue',
@@ -721,6 +747,9 @@ var UserMetaPanel = (function (_React$Component) {
             this.setState({
                 updateMeta: this.state.updateMeta
             });
+            if (this.props.onChangeUpdateData) {
+                this.props.onChangeUpdateData(this.state.updateMeta);
+            }
         }
     }, {
         key: 'getUpdateData',
@@ -733,13 +762,16 @@ var UserMetaPanel = (function (_React$Component) {
             this.setState({
                 updateMeta: new Map()
             });
+            if (this.props.onChangeUpdateData) {
+                this.props.onChangeUpdateData(new Map());
+            }
         }
     }, {
         key: 'onCheck',
         value: function onCheck(e, isInputChecked, value) {
             var state = this.state;
             state['fields'][e.target.value] = isInputChecked;
-            if (isInputChecked == false) {
+            if (isInputChecked === false) {
                 this.deleteValue(e.target.value);
             }
             this.setState(state);
@@ -747,6 +779,8 @@ var UserMetaPanel = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this11 = this;
+
             var configs = this.state.configs;
 
             var data = [];
@@ -756,9 +790,7 @@ var UserMetaPanel = (function (_React$Component) {
             var nonEmptyDataCount = 0;
             var isAdmin = pydio.user.isAdmin;
 
-            configs.forEach((function (meta, key) {
-                var _this9 = this;
-
+            configs.forEach(function (meta, key) {
                 var readonly = false,
                     value = undefined;
                 var label = meta.label;
@@ -778,14 +810,16 @@ var UserMetaPanel = (function (_React$Component) {
                 }
                 var realValue = value;
 
-                if (this.props.editMode && !readonly) {
+                if (_this11.props.editMode && !readonly) {
                     var field = undefined;
                     var baseProps = {
-                        isChecked: this.state.isChecked,
+                        isChecked: _this11.state.isChecked,
                         fieldname: key,
                         label: label,
                         value: value,
-                        onValueChange: this.updateValue.bind(this)
+                        onValueChange: function onValueChange(name, value, submit) {
+                            return _this11.updateValue(name, value, submit);
+                        }
                     };
                     if (type === 'stars_rate') {
                         field = _react2['default'].createElement(StarsFormPanel, baseProps);
@@ -801,17 +835,18 @@ var UserMetaPanel = (function (_React$Component) {
                             fullWidth: true,
                             disabled: readonly,
                             hintText: label,
+                            multiLine: type === 'textarea',
                             onChange: function (event, value) {
-                                _this9.updateValue(key, value);
+                                _this11.updateValue(key, value);
                             }
                         });
                     }
-                    if (this.props.multiple) {
+                    if (_this11.props.multiple) {
                         data.push(_react2['default'].createElement(
                             'div',
                             { className: "infoPanelRow", key: key, style: { marginBottom: 20 } },
-                            _react2['default'].createElement(_materialUi.Checkbox, { value: key, label: label, onCheck: this.onCheck.bind(this) }),
-                            this.state['fields'][key] && _react2['default'].createElement(
+                            _react2['default'].createElement(_materialUi.Checkbox, { value: key, label: label, onCheck: _this11.onCheck.bind(_this11) }),
+                            _this11.state['fields'][key] && _react2['default'].createElement(
                                 'div',
                                 { className: 'infoPanelValue' },
                                 field
@@ -862,7 +897,7 @@ var UserMetaPanel = (function (_React$Component) {
                         )
                     ));
                 }
-            }).bind(this));
+            });
             var mess = this.props.pydio.MessageHash;
             if (!this.props.editMode && !nonEmptyDataCount) {
                 return _react2['default'].createElement(
@@ -907,19 +942,18 @@ var InfoPanel = (function (_React$Component2) {
     _inherits(InfoPanel, _React$Component2);
 
     function InfoPanel(props) {
-        var _this10 = this;
+        var _this12 = this;
 
         _classCallCheck(this, InfoPanel);
 
         _get(Object.getPrototypeOf(InfoPanel.prototype), 'constructor', this).call(this, props);
         this.state = { editMode: false };
         this._nodeObserver = function () {
-            if (_this10.refs.panel) {
-                _this10.refs.panel.resetUpdateData();
+            if (_this12.refs.panel) {
+                _this12.refs.panel.resetUpdateData();
             }
-            _this10.setState({ editMode: false }, function () {
-                _this10.forceUpdate();
-            });
+            _this12.forceUpdate();
+            //this.setState({editMode: false}, ()=>{this.forceUpdate()});
         };
         if (props.node) {
             props.node.observe('node_replaced', this._nodeObserver);
@@ -956,55 +990,85 @@ var InfoPanel = (function (_React$Component2) {
             }
         }
     }, {
-        key: 'saveChanges',
-        value: function saveChanges() {
-            var _this11 = this;
-
+        key: 'saveMeta',
+        value: function saveMeta() {
             var values = this.refs.panel.getUpdateData();
-            var params = {};
-            values.forEach(function (v, k) {
-                params[k] = v;
+            return Renderer.getClient().saveMeta(this.props.pydio.getContextHolder().getSelectedNodes(), values);
+        }
+    }, {
+        key: 'saveAndClose',
+        value: function saveAndClose() {
+            var _this13 = this;
+
+            this.saveMeta().then(function () {
+                _this13.reset();
             });
-            Renderer.getClient().saveMeta(this.props.pydio.getContextHolder().getSelectedNodes(), values).then(function () {
-                _this11.reset();
-            });
+        }
+    }, {
+        key: 'onChangeUpdateData',
+        value: function onChangeUpdateData(updateData) {
+            this.setState({ updateData: updateData });
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this12 = this;
+            var _this14 = this;
 
             var actions = [];
             var MessageHash = this.props.pydio.MessageHash;
 
+            var values = this.state.updateData || new Map();
+
             if (this.state.editMode) {
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, {
                     key: 'cancel',
-                    label: MessageHash['54'],
+                    label: values.size ? MessageHash['54'] : MessageHash['86'],
                     onClick: function () {
-                        _this12.reset();
+                        _this14.reset();
                     }
                 }));
-            }
-            if (!this.props.node.getMetadata().has('node_readonly')) {
+                if (!this.props.node.getMetadata().has('node_readonly') && values.size > 0) {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, {
+                        key: 'edit',
+                        label: this.state.editMode ? MessageHash['meta.user.15'] : MessageHash['meta.user.14'],
+                        onClick: function () {
+                            _this14.saveAndClose();
+                        }
+                    }));
+                }
+            } else {
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, {
                     key: 'edit',
                     label: this.state.editMode ? MessageHash['meta.user.15'] : MessageHash['meta.user.14'],
                     onClick: function () {
-                        !_this12.state.editMode ? _this12.openEditMode() : _this12.saveChanges();
+                        _this14.openEditMode();
                     }
                 }));
             }
 
             return _react2['default'].createElement(
                 PydioWorkspaces.InfoPanelCard,
-                { identifier: "meta-user", style: this.props.style, title: this.props.pydio.MessageHash['meta.user.1'], actions: actions.length ? actions : null, icon: 'tag-multiple', iconColor: '#00ACC1' },
+                {
+                    identifier: "meta-user",
+                    style: this.props.style,
+                    title: this.props.pydio.MessageHash['meta.user.1'],
+                    actions: actions.length ? actions : null,
+                    icon: 'tag-multiple', iconColor: '#00ACC1'
+                },
                 _react2['default'].createElement(UserMetaPanel, {
                     ref: 'panel',
                     node: this.props.node,
                     editMode: this.state.editMode,
                     onRequestEditMode: this.openEditMode.bind(this),
-                    pydio: this.props.pydio
+                    pydio: this.props.pydio,
+                    onChangeUpdateData: function (d) {
+                        _this14.onChangeUpdateData(d);
+                    },
+                    autoSave: function () {
+                        _this14.saveMeta().then(function () {
+                            _this14.refs.panel.resetUpdateData();
+                        });
+                    }
                 })
             );
         }

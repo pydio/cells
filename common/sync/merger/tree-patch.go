@@ -22,8 +22,9 @@ package merger
 
 import (
 	"context"
-	"fmt"
 	"sort"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/model"
@@ -108,16 +109,35 @@ func (t *TreePatch) Filter(ctx context.Context) {
 
 	t.enqueueRemaining(ctx)
 
+	t.rescanFoldersIfRequired(ctx)
+
 	t.prune(ctx)
 
-	fmt.Println("Source: " + t.source.GetEndpointInfo().URI)
-	fmt.Println("Target: " + t.target.GetEndpointInfo().URI)
-	fmt.Println(t.PrintTree())
+	//fmt.Println("Source: " + t.source.GetEndpointInfo().URI)
+	//fmt.Println("Target: " + t.target.GetEndpointInfo().URI)
+	//fmt.Println(t.PrintTree())
 
 }
 
 func (t *TreePatch) FilterToTarget(ctx context.Context) {
-	log.Logger(ctx).Error("FilterToTarget Not Implemented Yet")
+	t.Walk(func(n *TreeNode) bool {
+		if n.DataOperation != nil {
+			dataPath := n.ProcessedPath(false)
+			target := n.DataOperation.Target()
+			log.Logger(ctx).Info("[FilterToTarget] For Create/Update, should stat", zap.String("path", dataPath), zap.String("target", target.GetEndpointInfo().URI))
+		} else if n.PathOperation != nil {
+			if n.PathOperation.Type() == OpCreateFolder {
+				dataPath := n.ProcessedPath(false)
+				target := n.PathOperation.Target()
+				log.Logger(ctx).Info("[FilterToTarget] For Mkdir, should stat", zap.String("path", dataPath), zap.String("target", target.GetEndpointInfo().URI))
+			} else if n.PathOperation.Type() == OpDelete {
+				dataPath := n.ProcessedPath(false)
+				target := n.PathOperation.Target()
+				log.Logger(ctx).Info("[FilterToTarget] For Delete, should stat", zap.String("path", dataPath), zap.String("target", target.GetEndpointInfo().URI))
+			}
+		}
+		return false
+	})
 }
 
 func (t *TreePatch) HasTransfers() bool {
@@ -125,7 +145,9 @@ func (t *TreePatch) HasTransfers() bool {
 	t.WalkOperations([]OperationType{OpCreateFile, OpUpdateFile}, func(operation Operation) {
 		count++
 	})
-	return count > 0
+	_, o1 := t.Source().(model.DataSyncTarget)
+	_, o2 := t.Target().(model.DataSyncTarget)
+	return count > 0 && o1 && o2
 }
 
 func (t *TreePatch) Size() int {

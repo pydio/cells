@@ -37,9 +37,9 @@ func (pr *Processor) processCreateFolder(operation merger.Operation, operationId
 	ctx := operation.CreateContext(pr.GlobalContext)
 	dbNode, _ := operation.Target().LoadNode(ctx, localPath)
 	if dbNode == nil {
-		if pr.Connector != nil {
-			pr.Connector.LockFile(operation, localPath, operationId)
-			defer pr.Connector.UnlockFile(operation, localPath)
+		if pr.Locker != nil {
+			pr.Locker.LockFile(operation, localPath, operationId)
+			defer pr.Locker.UnlockFile(operation, localPath)
 		}
 		provider, ok1 := operation.Target().(model.UuidProvider)
 		receiver, ok2 := operation.Source().(model.UuidReceiver)
@@ -69,23 +69,6 @@ func (pr *Processor) processCreateFolder(operation merger.Operation, operationId
 		}
 	} else {
 		pr.Logger().Debug("CreateFolder: already exists, ignoring!", zap.Any("e", operation.GetRefPath()))
-	}
-	if pr.Connector != nil && operation.Source().GetEndpointInfo().RequiresFoldersRescan && !operation.IsScanEvent() {
-		pr.Logger().Info("Rescanning folder to be sure", zap.String("path", localPath))
-		// Rescan folder content, events below may not have been detected
-		var visit = func(path string, node *tree.Node, err error) {
-			if err != nil {
-				pr.Logger().Error("Error while rescanning folder ", zap.Error(err))
-				return
-			}
-			if !model.IsIgnoredFile(path) {
-				scanEvent := model.NodeToEventInfo(ctx, path, node, model.EventCreate)
-				scanEvent.OperationId = operationId
-				pr.Connector.Requeue(operation.Source(), scanEvent)
-			}
-			return
-		}
-		go operation.Source().Walk(visit, operation.GetRefPath(), true)
 	}
 
 	return nil

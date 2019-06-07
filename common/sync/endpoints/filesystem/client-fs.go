@@ -103,7 +103,7 @@ func (w *WrapperWriter) Close() error {
 		if e == nil && w.client.updateSnapshot != nil {
 			ctx := context.Background()
 			n, _ := w.client.LoadNode(ctx, w.snapshotPath)
-			log.Logger(ctx).Info("[FS] Update Snapshot", n.Zap())
+			log.Logger(ctx).Debug("[FS] Update Snapshot", n.Zap())
 			w.client.updateSnapshot.CreateNode(ctx, n, true)
 		}
 		return e
@@ -359,7 +359,7 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 			afero.WriteFile(c.FS, filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(node.Uuid), 0777)
 		}
 		if c.updateSnapshot != nil {
-			log.Logger(ctx).Info("[FS] Update Snapshot - Create", node.ZapPath())
+			log.Logger(ctx).Debug("[FS] Update Snapshot - Create", node.ZapPath())
 			if err := c.updateSnapshot.CreateNode(ctx, node, updateIfExists); err == nil {
 				// Create associated .pydio in snapshot as well
 				c.updateSnapshot.CreateNode(ctx, &tree.Node{
@@ -381,7 +381,7 @@ func (c *FSClient) DeleteNode(ctx context.Context, path string) (err error) {
 		err = c.FS.RemoveAll(c.denormalize(path))
 	}
 	if err == nil && c.updateSnapshot != nil {
-		log.Logger(ctx).Info("[FS] Update Snapshot - Delete " + path)
+		log.Logger(ctx).Debug("[FS] Update Snapshot - Delete " + path)
 		c.updateSnapshot.DeleteNode(ctx, path)
 	}
 	return err

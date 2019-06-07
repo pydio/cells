@@ -26,20 +26,27 @@ It has these top-level messages:
 	AdminImportKeyResponse
 	AdminCreateKeyRequest
 	AdminCreateKeyResponse
-	Params
 	NodeKey
+	Node
+	NodeInfo
+	Block
+	RangedBlock
+	GetNodeInfoRequest
+	GetNodeInfoResponse
+	SetNodeInfoRequest
+	SetNodeInfoResponse
 	DeleteNodeRequest
 	DeleteNodeResponse
-	SetNodeParamsRequest
-	SetNodeParamsResponse
-	GetNodeKeyRequest
-	GetNodeKeyResponse
-	SetNodeKeyRequest
-	SetNodeKeyResponse
 	DeleteNodeKeyRequest
 	DeleteNodeKeyResponse
 	DeleteNodeSharedKeyRequest
 	DeleteNodeSharedKeyResponse
+	SetNodeKeyRequest
+	SetNodeKeyResponse
+	SetNodeBlockRequest
+	SetNodeBlockResponse
+	CopyNodeInfoRequest
+	CopyNodeInfoResponse
 */
 package encryption
 
@@ -220,10 +227,10 @@ func (h *UserKeyStore) AdminImportKey(ctx context.Context, in *AdminImportKeyReq
 // Client API for NodeKeyManager service
 
 type NodeKeyManagerClient interface {
+	GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest, opts ...client.CallOption) (*GetNodeInfoResponse, error)
+	SetNodeInfo(ctx context.Context, opts ...client.CallOption) (NodeKeyManager_SetNodeInfoClient, error)
+	CopyNodeInfo(ctx context.Context, in *CopyNodeInfoRequest, opts ...client.CallOption) (*CopyNodeInfoResponse, error)
 	DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...client.CallOption) (*DeleteNodeResponse, error)
-	SetNodeParams(ctx context.Context, in *SetNodeParamsRequest, opts ...client.CallOption) (*SetNodeParamsResponse, error)
-	GetNodeKey(ctx context.Context, in *GetNodeKeyRequest, opts ...client.CallOption) (*GetNodeKeyResponse, error)
-	SetNodeKey(ctx context.Context, in *SetNodeKeyRequest, opts ...client.CallOption) (*SetNodeKeyResponse, error)
 	DeleteNodeKey(ctx context.Context, in *DeleteNodeKeyRequest, opts ...client.CallOption) (*DeleteNodeKeyResponse, error)
 	DeleteNodeSharedKey(ctx context.Context, in *DeleteNodeSharedKeyRequest, opts ...client.CallOption) (*DeleteNodeSharedKeyResponse, error)
 }
@@ -246,39 +253,65 @@ func NewNodeKeyManagerClient(serviceName string, c client.Client) NodeKeyManager
 	}
 }
 
+func (c *nodeKeyManagerClient) GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest, opts ...client.CallOption) (*GetNodeInfoResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.GetNodeInfo", in)
+	out := new(GetNodeInfoResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeKeyManagerClient) SetNodeInfo(ctx context.Context, opts ...client.CallOption) (NodeKeyManager_SetNodeInfoClient, error) {
+	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.SetNodeInfo", &SetNodeInfoRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &nodeKeyManagerSetNodeInfoClient{stream}, nil
+}
+
+type NodeKeyManager_SetNodeInfoClient interface {
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Send(*SetNodeInfoRequest) error
+}
+
+type nodeKeyManagerSetNodeInfoClient struct {
+	stream client.Streamer
+}
+
+func (x *nodeKeyManagerSetNodeInfoClient) Close() error {
+	return x.stream.Close()
+}
+
+func (x *nodeKeyManagerSetNodeInfoClient) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *nodeKeyManagerSetNodeInfoClient) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *nodeKeyManagerSetNodeInfoClient) Send(m *SetNodeInfoRequest) error {
+	return x.stream.Send(m)
+}
+
+func (c *nodeKeyManagerClient) CopyNodeInfo(ctx context.Context, in *CopyNodeInfoRequest, opts ...client.CallOption) (*CopyNodeInfoResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.CopyNodeInfo", in)
+	out := new(CopyNodeInfoResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *nodeKeyManagerClient) DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...client.CallOption) (*DeleteNodeResponse, error) {
 	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.DeleteNode", in)
 	out := new(DeleteNodeResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *nodeKeyManagerClient) SetNodeParams(ctx context.Context, in *SetNodeParamsRequest, opts ...client.CallOption) (*SetNodeParamsResponse, error) {
-	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.SetNodeParams", in)
-	out := new(SetNodeParamsResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *nodeKeyManagerClient) GetNodeKey(ctx context.Context, in *GetNodeKeyRequest, opts ...client.CallOption) (*GetNodeKeyResponse, error) {
-	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.GetNodeKey", in)
-	out := new(GetNodeKeyResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *nodeKeyManagerClient) SetNodeKey(ctx context.Context, in *SetNodeKeyRequest, opts ...client.CallOption) (*SetNodeKeyResponse, error) {
-	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.SetNodeKey", in)
-	out := new(SetNodeKeyResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -309,10 +342,10 @@ func (c *nodeKeyManagerClient) DeleteNodeSharedKey(ctx context.Context, in *Dele
 // Server API for NodeKeyManager service
 
 type NodeKeyManagerHandler interface {
+	GetNodeInfo(context.Context, *GetNodeInfoRequest, *GetNodeInfoResponse) error
+	SetNodeInfo(context.Context, NodeKeyManager_SetNodeInfoStream) error
+	CopyNodeInfo(context.Context, *CopyNodeInfoRequest, *CopyNodeInfoResponse) error
 	DeleteNode(context.Context, *DeleteNodeRequest, *DeleteNodeResponse) error
-	SetNodeParams(context.Context, *SetNodeParamsRequest, *SetNodeParamsResponse) error
-	GetNodeKey(context.Context, *GetNodeKeyRequest, *GetNodeKeyResponse) error
-	SetNodeKey(context.Context, *SetNodeKeyRequest, *SetNodeKeyResponse) error
 	DeleteNodeKey(context.Context, *DeleteNodeKeyRequest, *DeleteNodeKeyResponse) error
 	DeleteNodeSharedKey(context.Context, *DeleteNodeSharedKeyRequest, *DeleteNodeSharedKeyResponse) error
 }
@@ -325,20 +358,51 @@ type NodeKeyManager struct {
 	NodeKeyManagerHandler
 }
 
+func (h *NodeKeyManager) GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest, out *GetNodeInfoResponse) error {
+	return h.NodeKeyManagerHandler.GetNodeInfo(ctx, in, out)
+}
+
+func (h *NodeKeyManager) SetNodeInfo(ctx context.Context, stream server.Streamer) error {
+	return h.NodeKeyManagerHandler.SetNodeInfo(ctx, &nodeKeyManagerSetNodeInfoStream{stream})
+}
+
+type NodeKeyManager_SetNodeInfoStream interface {
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Recv() (*SetNodeInfoRequest, error)
+}
+
+type nodeKeyManagerSetNodeInfoStream struct {
+	stream server.Streamer
+}
+
+func (x *nodeKeyManagerSetNodeInfoStream) Close() error {
+	return x.stream.Close()
+}
+
+func (x *nodeKeyManagerSetNodeInfoStream) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *nodeKeyManagerSetNodeInfoStream) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *nodeKeyManagerSetNodeInfoStream) Recv() (*SetNodeInfoRequest, error) {
+	m := new(SetNodeInfoRequest)
+	if err := x.stream.Recv(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (h *NodeKeyManager) CopyNodeInfo(ctx context.Context, in *CopyNodeInfoRequest, out *CopyNodeInfoResponse) error {
+	return h.NodeKeyManagerHandler.CopyNodeInfo(ctx, in, out)
+}
+
 func (h *NodeKeyManager) DeleteNode(ctx context.Context, in *DeleteNodeRequest, out *DeleteNodeResponse) error {
 	return h.NodeKeyManagerHandler.DeleteNode(ctx, in, out)
-}
-
-func (h *NodeKeyManager) SetNodeParams(ctx context.Context, in *SetNodeParamsRequest, out *SetNodeParamsResponse) error {
-	return h.NodeKeyManagerHandler.SetNodeParams(ctx, in, out)
-}
-
-func (h *NodeKeyManager) GetNodeKey(ctx context.Context, in *GetNodeKeyRequest, out *GetNodeKeyResponse) error {
-	return h.NodeKeyManagerHandler.GetNodeKey(ctx, in, out)
-}
-
-func (h *NodeKeyManager) SetNodeKey(ctx context.Context, in *SetNodeKeyRequest, out *SetNodeKeyResponse) error {
-	return h.NodeKeyManagerHandler.SetNodeKey(ctx, in, out)
 }
 
 func (h *NodeKeyManager) DeleteNodeKey(ctx context.Context, in *DeleteNodeKeyRequest, out *DeleteNodeKeyResponse) error {

@@ -685,6 +685,8 @@ exports["default"] = function (pydio) {
             throw new Error('Cannot drop on virtual root');
         } else if (source.getMetadata().has("ws_root")) {
             throw new Error('Cannot move roots around');
+        } else if (target.hasMetadataInBranch('readonly') || target.getMetadata().has('workspaceEntry') && !target.getMetadata().get('workspaceEntry').allowCrossRepositoryCopy) {
+            throw new Error('Cannot drop on this branch (readonly)');
         }
     };
 
@@ -1817,7 +1819,8 @@ var UploadDialog = React.createClass({
         }
         return {
             uploaders: uploaders,
-            current: current
+            current: current,
+            loaded: false
         };
     },
 
@@ -1832,6 +1835,7 @@ var UploadDialog = React.createClass({
         var _state = this.state;
         var uploaders = _state.uploaders;
         var current = _state.current;
+        var loaded = _state.loaded;
 
         uploaders.map(function (uploader) {
             tabs.push(React.createElement(_materialUi.Tab, { label: uploader.xmlNode.getAttribute('label'), key: uploader.id, onActive: function () {
@@ -1844,7 +1848,10 @@ var UploadDialog = React.createClass({
                 pydio: this.props.pydio,
                 namespace: parts[0],
                 componentName: parts[1],
-                onDismiss: dismiss
+                onDismiss: dismiss,
+                onLoad: function () {
+                    _this.setState({ loaded: true });
+                }
             }, this.props.uploaderProps));
         }
 
@@ -1852,7 +1859,12 @@ var UploadDialog = React.createClass({
             'div',
             { style: { width: '100%' } },
             React.createElement(TopBar, { tabs: tabs, dismiss: dismiss }),
-            component
+            component,
+            !loaded && React.createElement(
+                'div',
+                { style: { padding: 40, textAlign: 'center', color: 'rgba(0,0,0,.5)' } },
+                this.props.pydio.MessageHash['466']
+            )
         );
     }
 

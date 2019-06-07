@@ -26,6 +26,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/pydio/cells/common/config"
+
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/registry"
@@ -405,6 +407,16 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				}
 			}
 		}
+	}
+
+	// Check specific frontend USER_CREATE_USERS permission
+	var isHidden bool
+	if h, o := inputUser.Attributes["hidden"]; o && h == "true" {
+		isHidden = true
+	}
+	if !config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Bool(true) && ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN && !isHidden {
+		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
+		return
 	}
 
 	if inputUser.IsGroup {

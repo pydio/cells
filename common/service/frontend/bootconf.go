@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/micro/go-config/reader"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -53,9 +54,9 @@ type BootConf struct {
 	AjxpVersion                  string                 `json:"ajxpVersion"`
 	AjxpVersionDate              string                 `json:"ajxpVersionDate"`
 	I18nMessages                 map[string]string      `json:"i18nMessages"`
-	Streaming_supported          bool                   `json:"streaming_supported"`
 	Theme                        string                 `json:"theme"`
 	AjxpImagesCommon             bool                   `json:"ajxpImagesCommon"`
+	ValidMailer                  bool                   `json:"validMailer"`
 	Backend                      BackendConf            `json:"backend"`
 	Other                        map[string]interface{} `json:"other,omitempty"`
 }
@@ -79,13 +80,27 @@ func VersionHash() string {
 	return versionHash
 }
 
+func numberFromIntOrString(value reader.Value, def int) int {
+	intVal := def
+	if value.Int(-1) != -1 {
+		intVal = value.Int(def)
+	} else if value.String("") != "" {
+		if parsed, e := strconv.ParseInt(value.String(""), 10, 32); e == nil {
+			intVal = int(parsed)
+		}
+	}
+	return intVal
+}
+
 func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
 	url := config.Get("defaults", "url").String("")
 	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
-	tWarn := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN")
+	clientSession := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT"), 24)
+	timeoutWarn := numberFromIntOrString(config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN"), 3)
+
 	vHash := VersionHash()
 	vDate := ""
 	vRev := ""
@@ -93,16 +108,6 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		vHash = common.Version().String()
 		vDate = common.BuildStamp
 		vRev = common.BuildRevision
-	}
-
-	// May be stored as int or string in json
-	timeoutWarn := 3
-	if tWarn.Int(-1) != -1 {
-		timeoutWarn = tWarn.Int(3)
-	} else if tWarn.String("") != "" {
-		if parsed, e := strconv.ParseInt(tWarn.String(""), 10, 32); e == nil {
-			timeoutWarn = int(parsed)
-		}
 	}
 
 	b := &BootConf{
@@ -120,11 +125,11 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 		LoggedUser:                   false,
 		CurrentLanguage:              lang,
 		Session_timeout:              SessionTimeoutMinutes * 60,
-		Client_timeout:               SessionTimeoutMinutes * 60,
+		Client_timeout:               clientSession * 60,
 		Client_timeout_warning:       timeoutWarn,
 		AjxpVersion:                  vHash,
 		AjxpVersionDate:              vDate,
-		Streaming_supported:          true,
+		ValidMailer:                  config.Get("services", "pydio.grpc.mailer", "valid").Bool(false),
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
 		CustomWording: CustomWording{

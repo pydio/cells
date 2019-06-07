@@ -2,22 +2,25 @@
 A [Go](http://golang.org) client for the [NATS messaging system](https://nats.io).
 
 [![License Apache 2](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Go Report Card](https://goreportcard.com/badge/github.com/nats-io/go-nats)](https://goreportcard.com/report/github.com/nats-io/go-nats) [![Build Status](https://travis-ci.org/nats-io/go-nats.svg?branch=master)](http://travis-ci.org/nats-io/go-nats) [![GoDoc](https://godoc.org/github.com/nats-io/go-nats?status.svg)](http://godoc.org/github.com/nats-io/go-nats) [![Coverage Status](https://coveralls.io/repos/nats-io/go-nats/badge.svg?branch=master)](https://coveralls.io/r/nats-io/go-nats?branch=master)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fnats-io%2Fgo-nats.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fnats-io%2Fgo-nats?ref=badge_shield)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nats-io/nats.go)](https://goreportcard.com/report/github.com/nats-io/nats.go) [![Build Status](https://travis-ci.org/nats-io/nats.go.svg?branch=master)](http://travis-ci.org/nats-io/nats.go) [![GoDoc](https://godoc.org/github.com/nats-io/nats.go?status.svg)](http://godoc.org/github.com/nats-io/nats.go) [![Coverage Status](https://coveralls.io/repos/nats-io/nats.go/badge.svg?branch=master)](https://coveralls.io/r/nats-io/nats.go?branch=master)
 
 ## Installation
 
 ```bash
 # Go client
-go get github.com/nats-io/go-nats
+go get github.com/nats-io/nats.go/
 
 # Server
-go get github.com/nats-io/gnatsd
+go get github.com/nats-io/nats-server
 ```
 
 ## Basic Usage
 
 ```go
+import nats "github.com/nats-io/nats.go"
 
+// Connect to a server
 nc, _ := nats.Connect(nats.DefaultURL)
 
 // Simple Publisher
@@ -26,6 +29,11 @@ nc.Publish("foo", []byte("Hello World"))
 // Simple Async Subscriber
 nc.Subscribe("foo", func(m *nats.Msg) {
     fmt.Printf("Received a message: %s\n", string(m.Data))
+})
+
+// Responding to a request message
+nc.Subscribe("request", func(m *nats.Msg) {
+    m.Respond([]byte("answer is 42")
 })
 
 // Simple Sync Subscriber
@@ -40,6 +48,9 @@ msg := <- ch
 // Unsubscribe
 sub.Unsubscribe()
 
+// Drain
+sub.Drain()
+
 // Requests
 msg, err := nc.Request("help", []byte("help me"), 10*time.Millisecond)
 
@@ -48,9 +59,12 @@ nc.Subscribe("help", func(m *Msg) {
     nc.Publish(m.Reply, []byte("I can help!"))
 })
 
+// Drain connection (Preferred for responders)
+// Close() not needed if this is called.
+nc.Drain()
+
 // Close connection
-nc, _ := nats.Connect("nats://localhost:4222")
-nc.Close();
+nc.Close()
 ```
 
 ## Encoded Connections
@@ -105,6 +119,48 @@ c.Subscribe("help", func(subj, reply string, msg string) {
 
 // Close connection
 c.Close();
+```
+
+## New Authentication (Nkeys and User Credentials)
+This requires server with version >= 2.0.0
+
+NATS servers have a new security and authentication mechanism to authenticate with user credentials and Nkeys.
+The simplest form is to use the helper method UserCredentials(credsFilepath).
+```go
+nc, err := nats.Connect(url, UserCredentials("user.creds"))
+```
+
+The helper methods creates two callback handlers to present the user JWT and sign the nonce challenge from the server.
+The core client library never has direct access to your private key and simply performs the callback for signing the server challenge.
+The helper will load and wipe and erase memory it uses for each connect or reconnect.
+
+The helper also can take two entries, one for the JWT and one for the NKey seed file.
+```go
+nc, err := nats.Connect(url, UserCredentials("user.jwt", "user.nk"))
+```
+
+You can also set the callback handlers directly and manage challenge signing directly.
+```go
+nc, err := nats.Connect(url, UserJWT(jwtCB, sigCB))
+```
+
+Bare Nkeys are also supported. The nkey seed should be in a read only file, e.g. seed.txt
+```bash
+> cat seed.txt
+# This is my seed nkey!
+SUAGMJH5XLGZKQQWAWKRZJIGMOU4HPFUYLXJMXOO5NLFEO2OOQJ5LPRDPM
+```
+
+This is a helper function which will load and decode and do the proper signing for the server nonce.
+It will clear memory in between invocations.
+You can choose to use the low level option and provide the public key and a signature callback on your own.
+
+```go
+opt, err := nats.NkeyOptionFromSeed("seed.txt")
+nc, err := nats.Connect(serverUrl, opt)
+
+// Direct
+nc, err := nats.Connect(serverUrl, Nkey(pubNkey, sigCB))
 ```
 
 ## TLS
@@ -260,10 +316,10 @@ nc, err = nats.Connect(servers, nats.DontRandomize())
 
 // Setup callbacks to be notified on disconnects, reconnects and connection closed.
 nc, err = nats.Connect(servers,
-	nats.DisconnectHandler(func(nc *nats.Conn) {
-		fmt.Printf("Got disconnected!\n")
+	nats.DisconnectErrHandler(func(nc *nats.Conn, err error) {
+		fmt.Printf("Got disconnected! Reason: %q\n", err)
 	}),
-	nats.ReconnectHandler(func(_ *nats.Conn) {
+	nats.ReconnectHandler(func(nc *nats.Conn) {
 		fmt.Printf("Got reconnected to %v!\n", nc.ConnectedUrl())
 	}),
 	nats.ClosedHandler(func(nc *nats.Conn) {
@@ -288,9 +344,9 @@ nc, err = nats.Connect("nats://localhost:4222",
     nats.Token("S3cretT0ken"))
 
 // Note that if credentials are specified in the initial URLs, they take
-// precedence on the credentials specfied through the options.
+// precedence on the credentials specified through the options.
 // For instance, in the connect call below, the client library will use
-// the user "my" and password "pwd" to connect to locahost:4222, however,
+// the user "my" and password "pwd" to connect to localhost:4222, however,
 // it will use username "foo" and password "bar" when (re)connecting to
 // a different server URL that it got as part of the auto-discovery.
 nc, err = nats.Connect("nats://my:pwd@localhost:4222", nats.UserInfo("foo", "bar"))
@@ -329,3 +385,5 @@ err := c.RequestWithContext(ctx, "foo", req, resp)
 
 Unless otherwise noted, the NATS source files are distributed
 under the Apache Version 2.0 license found in the LICENSE file.
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fnats-io%2Fgo-nats.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fnats-io%2Fgo-nats?ref=badge_large)

@@ -221,6 +221,50 @@ func (t *TreePatch) enqueueRemaining(ctx context.Context) {
 	}
 }
 
+func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context) {
+	if t.options.NoRescan || !t.Source().GetEndpointInfo().RequiresFoldersRescan {
+		return
+	}
+	var newFolders bool
+	var newFiles bool
+	t.WalkToFirstOperations(OpCreateFolder, func(op Operation) {
+		if op.IsScanEvent() {
+			return
+		}
+		log.Logger(ctx).Info("Rescanning folder to be sure", zap.String("patch", t.Target().GetEndpointInfo().URI), zap.String("path", op.GetRefPath()))
+		// Rescan folder content, events below may not have been detected
+		var visit = func(path string, node *tree.Node, err error) {
+			if err != nil {
+				log.Logger(ctx).Error("Error while rescanning folder ", zap.Error(err))
+				return
+			}
+			if !model.IsIgnoredFile(path) {
+				scanEvent := model.NodeToEventInfo(ctx, path, node, model.EventCreate)
+				opType := OpCreateFolder
+				if node.IsLeaf() {
+					newFiles = true
+					opType = OpCreateFile
+				} else {
+					newFolders = true
+				}
+				t.Enqueue(NewOperation(opType, scanEvent, node))
+			}
+			return
+		}
+		t.Source().Walk(visit, op.GetRefPath(), true)
+	})
+	// Re-perform filters on new resources
+	if newFolders {
+		t.filterCreateFolders(ctx)
+	}
+	if newFiles {
+		t.filterCreateFiles(ctx)
+	}
+	if newFolders || newFiles {
+		t.enqueueRemaining(ctx)
+	}
+}
+
 func (t *TreePatch) prune(ctx context.Context) {
 	t.Walk(func(n *TreeNode) (prune bool) {
 		if n.PruneIdentityPathOperation() {

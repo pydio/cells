@@ -351,7 +351,9 @@ var WelcomeTour = (function (_Component6) {
 
         var guiPrefs = user.getPreference('gui_preferences', true);
         guiPrefs['UserAccount.WelcomeModal.Shown'] = true;
-        if (finished) guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] = true;
+        if (finished) {
+            guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] = true;
+        }
         user.setPreference('gui_preferences', guiPrefs, true);
         user.savePreference('gui_preferences');
     };
@@ -403,34 +405,40 @@ var WelcomeTour = (function (_Component6) {
             });
         }
 
-        tourguideSteps = tourguideSteps.concat([{
-            title: message('display-bar.title'),
-            text: React.createElement(
-                'div',
-                null,
-                React.createElement(
-                    'p',
+        if (document.getElementById('display-toolbar')) {
+            tourguideSteps.push({
+                title: message('display-bar.title'),
+                text: React.createElement(
+                    'div',
                     null,
-                    message('display-bar')
+                    React.createElement(
+                        'p',
+                        null,
+                        message('display-bar')
+                    ),
+                    React.createElement(IconScheme, { icons: ['view-list', 'view-grid', 'view-carousel', 'sort-ascending', 'sort-descending'] })
                 ),
-                React.createElement(IconScheme, { icons: ['view-list', 'view-grid', 'view-carousel', 'sort-ascending', 'sort-descending'] })
-            ),
-            selector: '#display-toolbar',
-            position: 'left'
-        }, {
-            title: message('infopanel.title'),
-            text: React.createElement(InfoPanelCard, { message: message }),
-            selector: '#info_panel',
-            position: 'left'
-        }, {
+                selector: '#display-toolbar',
+                position: 'left'
+            });
+        }
+        if (document.getElementById('info_panel')) {
+            tourguideSteps.push({
+                title: message('infopanel.title'),
+                text: React.createElement(InfoPanelCard, { message: message }),
+                selector: '#info_panel',
+                position: 'left'
+            });
+        }
+        tourguideSteps.push({
             title: message('uwidget.title'),
             text: React.createElement(UserWidgetCard, { message: message }),
             selector: '.user-widget',
             position: 'right',
             style: { width: 320 }
-        }]);
+        });
         var callback = function callback(data) {
-            if (data.type === 'step:after' && data.index === tourguideSteps.length - 1) {
+            if (data.type === 'step:after' && data.index === tourguideSteps.length - 1 || data.action === 'skip') {
                 _this5.discard(true);
             }
         };
@@ -441,7 +449,8 @@ var WelcomeTour = (function (_Component6) {
             autoStart: true,
             debug: false,
             callback: callback,
-            type: 'continuous'
+            type: 'continuous',
+            showSkipButton: true
         });
     };
 

@@ -412,20 +412,23 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var PluginsManager = _react2['default'].createClass({
     displayName: 'PluginsManager',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
+
+    getInitialState: function getInitialState() {
+        return { filter: '' };
+    },
 
     reload: function reload() {
         this.refs.list.reload();
     },
 
     render: function render() {
+        var _this = this;
+
+        var filter = this.state.filter;
 
         return _react2['default'].createElement(
             'div',
@@ -433,12 +436,15 @@ var PluginsManager = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.Header, {
                 title: this.props.currentNode.getLabel(),
                 icon: this.props.currentNode.getMetadata().get('icon_class'),
-                reloadAction: this.reload
+                reloadAction: this.reload,
+                actions: [_react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-filter", style: { fontSize: 16, marginRight: 10, color: 'rgba(0,0,0,0.2)' } }), _react2['default'].createElement(_materialUi.TextField, { style: { width: 196 }, placeholder: this.props.pydio.MessageHash['87'], value: filter, onChange: function (e, v) {
+                        _this.setState({ filter: v });
+                    } })]
             }),
             _react2['default'].createElement(
                 _materialUi.Paper,
                 { zDepth: 1, style: { margin: 16 }, className: 'vertical-layout layout-fill' },
-                _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { hideToolbar: true, ref: 'list' }))
+                _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { hideToolbar: true, ref: 'list', filterString: filter }))
             )
         );
     }
@@ -448,7 +454,7 @@ var PluginsManager = _react2['default'].createClass({
 exports['default'] = PluginsManager;
 module.exports = exports['default'];
 
-},{"./PluginsList":8,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],7:[function(require,module,exports){
+},{"./PluginsList":8,"material-ui":"material-ui","react":"react"}],7:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -874,7 +880,7 @@ var PluginsList = React.createClass({
         return _pydioUtilXml2['default'].XPathSelectNodes(xmlPlugins, "/plugins/*").filter(function (xmlNode) {
             return !filterType || xmlNode.getAttribute("id").indexOf(filterType) === 0;
         }).filter(function (xmlNode) {
-            return !filterString || xmlNode.getAttribute("id").indexOf(filterString) !== -1;
+            return !filterString || xmlNode.getAttribute("id").toLowerCase().indexOf(filterString.toLowerCase()) !== -1 || xmlNode.getAttribute("label").toLowerCase().indexOf(filterString.toLowerCase()) !== -1 || xmlNode.getAttribute("description").toLowerCase().indexOf(filterString.toLowerCase()) !== -1;
         }).map(function (xmlNode) {
             return {
                 id: xmlNode.getAttribute("id"),
@@ -2092,7 +2098,10 @@ var UpdaterDashboard = _react2['default'].createClass({
     getInitialState: function getInitialState() {
         var pydio = this.props.pydio;
 
-        return { check: -1, backend: pydio.Parameters.get("backend") };
+        return {
+            check: -1,
+            backend: pydio.Parameters.get("backend")
+        };
     },
 
     componentDidMount: function componentDidMount() {
@@ -2335,9 +2344,14 @@ var UpdaterDashboard = _react2['default'].createClass({
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        _react2['default'].createElement(SingleJobProgress, { jobID: watchJob, progressStyle: { paddingTop: 16 }, onEnd: function () {
+                        _react2['default'].createElement(SingleJobProgress, {
+                            jobID: watchJob,
+                            progressStyle: { paddingTop: 16 },
+                            lineStyle: { userSelect: 'text' },
+                            onEnd: function () {
                                 _this3.upgradeFinished();
-                            } })
+                            }
+                        })
                     )
                 ),
                 !watchJob && list && _react2['default'].createElement(

@@ -28,9 +28,9 @@ func (pr *Processor) processDelete(operation merger.Operation, operationId strin
 
 	pg <- 1
 	deletePath := operation.GetRefPath()
-	if pr.Connector != nil {
-		pr.Connector.LockFile(operation, deletePath, operationId)
-		defer pr.Connector.UnlockFile(operation, deletePath)
+	if pr.Locker != nil {
+		pr.Locker.LockFile(operation, deletePath, operationId)
+		defer pr.Locker.UnlockFile(operation, deletePath)
 	}
 	ctx := operation.CreateContext(pr.GlobalContext)
 	err := operation.Target().DeleteNode(ctx, deletePath)

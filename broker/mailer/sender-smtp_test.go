@@ -21,6 +21,7 @@
 package mailer
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -66,7 +67,7 @@ func TestSmtp_Send(t *testing.T) {
 		buildFromWelcomeTemplate(email, email.To[0])
 
 		smtp := &Smtp{}
-		err := smtp.Configure(*conf)
+		err := smtp.Configure(context.Background(), *conf)
 		So(err, ShouldBeNil)
 
 		err = smtp.Send(email)

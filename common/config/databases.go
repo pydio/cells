@@ -47,9 +47,11 @@ func loadDatabases() {
 		}
 	}
 
-	// If no database is found, stop everything, there's a config issue!
+	// If no database is found, there's a config issue!
+	// But do not stop here, it should be checked at the cmd level (services-start.go),
+	// as we don't have a way to throw back the error (log.Fatal silently breaks)
 	if defaultDriver == "" {
-		log.Fatal("Cannot find default database! Please make sure that databases are correctly configured and started.")
+		log.Println("[FATAL] Could not find default database! Please make sure that databases are correctly configured and started.")
 	}
 }
 

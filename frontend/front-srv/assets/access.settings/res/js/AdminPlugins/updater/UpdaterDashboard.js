@@ -33,7 +33,10 @@ const UpdaterDashboard = React.createClass({
 
     getInitialState: function(){
         const {pydio} = this.props;
-        return {check: -1, backend:pydio.Parameters.get("backend")};
+        return {
+            check: -1,
+            backend:pydio.Parameters.get("backend")
+        };
     },
 
     componentDidMount:function(){
@@ -211,7 +214,12 @@ const UpdaterDashboard = React.createClass({
                         <Paper style={{margin:'0 16px', position:'relative'}} zDepth={1}>
                             <div style={subHeaderStyle}>{selectedPackage ? (selectedPackage.PackageName + ' ' + selectedPackage.Version) : ''}</div>
                             <div style={{padding:16}}>
-                                <SingleJobProgress jobID={watchJob} progressStyle={{paddingTop: 16}} onEnd={()=>{this.upgradeFinished()}}/>
+                                <SingleJobProgress
+                                    jobID={watchJob}
+                                    progressStyle={{paddingTop: 16}}
+                                    lineStyle={{userSelect:'text'}}
+                                    onEnd={()=>{this.upgradeFinished()}}
+                                />
                             </div>
                         </Paper>
                     }

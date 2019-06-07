@@ -20,18 +20,22 @@
 
 import PluginsList from './PluginsList'
 import React from 'react'
-import {RaisedButton, Paper} from 'material-ui'
-import PydioApi from 'pydio/http/api'
+import {RaisedButton, Paper, TextField, FontIcon} from 'material-ui'
 
 const PluginsManager = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
+
+    getInitialState(){
+        return {filter: ''}
+    },
 
     reload(){
         this.refs.list.reload();
     },
 
     render(){
+        const {filter} = this.state;
 
         return (
             <div style={{height:'100%'}} className="vertical-layout">
@@ -39,9 +43,13 @@ const PluginsManager = React.createClass({
                     title={this.props.currentNode.getLabel()}
                     icon={this.props.currentNode.getMetadata().get('icon_class')}
                     reloadAction={this.reload}
+                    actions={[
+                        <FontIcon className={"mdi mdi-filter"} style={{fontSize:16, marginRight: 10, color: 'rgba(0,0,0,0.2)'}}/>,
+                        <TextField style={{width:196}} placeholder={this.props.pydio.MessageHash['87']} value={filter} onChange={(e,v)=>{this.setState({filter: v})}}/>
+                    ]}
                 />
                 <Paper zDepth={1} style={{margin: 16}} className="vertical-layout layout-fill">
-                    <PluginsList {...this.props} hideToolbar={true} ref="list"/>
+                    <PluginsList {...this.props} hideToolbar={true} ref="list" filterString={filter}/>
                 </Paper>
             </div>
         );

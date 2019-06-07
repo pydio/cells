@@ -24,7 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"path/filepath"
+	"path"
 
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
@@ -85,9 +85,9 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	base := "Archive"
 	if len(nodes) == 1 {
-		base = filepath.Base(nodes[0].Path)
+		base = path.Base(nodes[0].Path)
 	}
-	targetFile := computeTargetName(ctx, c.Router, filepath.Dir(nodes[0].Path), base, c.Format)
+	targetFile := computeTargetName(ctx, c.Router, path.Dir(nodes[0].Path), base, c.Format)
 
 	reader, writer := io.Pipe()
 

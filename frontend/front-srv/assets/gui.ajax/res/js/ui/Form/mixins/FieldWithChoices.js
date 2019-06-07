@@ -69,13 +69,19 @@ export default function (PydioComponent){
                 if (this.onChoicesLoaded) this.onChoicesLoaded(output);
             } else if (choices === "PYDIO_AVAILABLE_REPOSITORIES") {
                 if (pydio.user) {
+                    const sorter = []
                     pydio.user.repositories.forEach(function (repository) {
                         if(repository.getRepositoryType() !== "cell"){
-                            output.set(repository.getId(), repository.getLabel());
+                            sorter.push({id:repository.getId(), label:repository.getLabel()});
+                            //output.set(repository.getId(), repository.getLabel());
                         }
                     });
+                    sorter.sort((a,b)=> a.label > b.label? 1 : -1);
+                    sorter.forEach(d => output.set(d.id, d.label));
                 }
-                if (this.onChoicesLoaded) this.onChoicesLoaded(output);
+                if (this.onChoicesLoaded) {
+                    this.onChoicesLoaded(output);
+                }
             } else {
                 // Parse string and return map
                 choices.split(",").map(function (choice) {

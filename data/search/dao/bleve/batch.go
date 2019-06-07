@@ -2,11 +2,12 @@ package bleve
 
 import (
 	"context"
-	"encoding/json"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/common/auth"
 
 	"github.com/blevesearch/bleve"
 	"github.com/sajari/docconv"
@@ -150,11 +151,11 @@ func (b *Batch) createBackgroundContext() context.Context {
 		Profile:   common.PYDIO_PROFILE_ADMIN,
 		GroupPath: "/",
 	}
-	md := make(map[string]string)
-	md[common.PYDIO_CONTEXT_USER_KEY] = bgClaim.Name
-	jsonClaims, _ := json.Marshal(bgClaim)
-	md[claim.MetadataContextKey] = string(jsonClaims)
+	md := map[string]string{
+		common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME,
+	}
 	ctx := context.WithValue(context.Background(), claim.ContextKey, bgClaim)
+	ctx = auth.ToMetadata(ctx, bgClaim)
 	ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, bgClaim.Name)
 	ctx = servicecontext.WithServiceName(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SEARCH)
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)

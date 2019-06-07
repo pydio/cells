@@ -192,7 +192,7 @@ var TasksPanel = (function (_React$Component) {
         var mainDepth = 3;
         if (folded) {
             styles.panel = _extends({}, styles.panel, {
-                height: 33,
+                height: 40,
                 cursor: 'pointer'
             });
             styles.innerPane = {

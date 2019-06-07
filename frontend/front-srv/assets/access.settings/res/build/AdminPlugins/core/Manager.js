@@ -38,20 +38,23 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var PluginsManager = _react2['default'].createClass({
     displayName: 'PluginsManager',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
+
+    getInitialState: function getInitialState() {
+        return { filter: '' };
+    },
 
     reload: function reload() {
         this.refs.list.reload();
     },
 
     render: function render() {
+        var _this = this;
+
+        var filter = this.state.filter;
 
         return _react2['default'].createElement(
             'div',
@@ -59,12 +62,15 @@ var PluginsManager = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.Header, {
                 title: this.props.currentNode.getLabel(),
                 icon: this.props.currentNode.getMetadata().get('icon_class'),
-                reloadAction: this.reload
+                reloadAction: this.reload,
+                actions: [_react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-filter", style: { fontSize: 16, marginRight: 10, color: 'rgba(0,0,0,0.2)' } }), _react2['default'].createElement(_materialUi.TextField, { style: { width: 196 }, placeholder: this.props.pydio.MessageHash['87'], value: filter, onChange: function (e, v) {
+                        _this.setState({ filter: v });
+                    } })]
             }),
             _react2['default'].createElement(
                 _materialUi.Paper,
                 { zDepth: 1, style: { margin: 16 }, className: 'vertical-layout layout-fill' },
-                _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { hideToolbar: true, ref: 'list' }))
+                _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { hideToolbar: true, ref: 'list', filterString: filter }))
             )
         );
     }

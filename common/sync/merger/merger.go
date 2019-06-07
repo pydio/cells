@@ -44,6 +44,7 @@ type Conflict struct {
 
 type PatchOptions struct {
 	MoveDetection bool
+	NoRescan      bool
 }
 
 // Patch represents a set of operations to be processed
@@ -209,7 +210,10 @@ func NewPatch(source model.PathSyncSource, target model.PathSyncTarget, options 
 
 // ClonePatch creates a new patch with the same operations but different source/targets
 func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin Patch) Patch {
-	patch := newTreePatch(source, target, PatchOptions{MoveDetection: false})
+	patch := newTreePatch(source, target, PatchOptions{
+		MoveDetection: false,
+		NoRescan:      true,
+	})
 	for _, op := range origin.OperationsByType([]OperationType{}) {
 		patch.Enqueue(op.Clone()) // Will update patch reference
 	}
