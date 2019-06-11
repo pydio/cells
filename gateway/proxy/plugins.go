@@ -206,9 +206,11 @@ func init() {
 					if err := insurePathIsWritable(ctx, caddyWDir); err != nil {
 
 						log.Logger(ctx).Error("*******************************************************************")
-						log.Logger(ctx).Error("   ERROR: you have chosen Let's Encrypt automatic management of ")
-						log.Logger(ctx).Error("          of TLS certificate, but you have to insure that the user ")
-						log.Logger(ctx).Error("          runing the App has write access to: " + caddyWDir)
+						log.Logger(ctx).Error("   ERROR: ")
+						log.Logger(ctx).Error("   You have chosen Let's Encrypt automatic management of TLS certificate,")
+						log.Logger(ctx).Error("   but it seems that you do not have sufficient permissions on Caddy's working directory: ")
+						log.Logger(ctx).Error("   " + caddyWDir)
+						log.Logger(ctx).Error("   (WRITE permission is required for the user that runs the App)")
 						log.Logger(ctx).Error("          ")
 						if u, er := user.Current(); er == nil {
 							log.Logger(ctx).Error("          Currently running as'" + u.Username + "'")
