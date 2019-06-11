@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package proxy loads a Caddy service to provide a unique access to all services and serve the PHP frontend
+// Package proxy loads a Caddy service to provide a unique access to all services and serve the Javascript frontend.
 package proxy
 
 import (
@@ -26,10 +26,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
+	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 
+	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-micro/broker"
@@ -162,7 +166,7 @@ var (
 		DAV          string
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
-		// Caddy compliant TLS string, either "self_signed" or paths to "cert key"
+		// Caddy compliant TLS string, either "self_signed", a valid email for Let's encrypt managed certificate or paths to "cert key"
 		TLS string
 		// If TLS is enabled, also enable auto-redirect from http to https
 		HTTPRedirectSource *url.URL
@@ -196,6 +200,24 @@ func init() {
 					caURL := config.Get("cert", "proxy", "caUrl").String("")
 					log.Logger(ctx).Debug(fmt.Sprintf("Configuring Let's Encrypt - SSL process, CA URL: %s", caURL))
 					caddytls.DefaultCAUrl = caURL
+
+					// Pre-check to insure path for automated generation of certificate is writable
+					caddyWDir := caddyutils.AssetsPath()
+					if err := insurePathIsWritable(ctx, caddyWDir); err != nil {
+
+						log.Logger(ctx).Error("*******************************************************************")
+						log.Logger(ctx).Error("   ERROR: you have chosen Let's Encrypt automatic management of ")
+						log.Logger(ctx).Error("          of TLS certificate, but you have to insure that the user ")
+						log.Logger(ctx).Error("          runing the App has write access to: " + caddyWDir)
+						log.Logger(ctx).Error("          ")
+						if u, er := user.Current(); er == nil {
+							log.Logger(ctx).Error("          Currently running as'" + u.Username + "'")
+							log.Logger(ctx).Error("          ")
+						}
+						log.Logger(ctx).Error("*******************************************************************")
+
+						return nil, nil, nil, err
+					}
 				}
 
 				caddy.Enable(caddyfile, play)
@@ -353,5 +375,31 @@ func LoadCaddyConf() error {
 		caddyconf.ExternalHost = uExt.Host
 	}
 
+	return nil
+}
+
+func insurePathIsWritable(ctx context.Context, parDir string) error {
+
+	// Try to create the default parent location.
+	err := os.MkdirAll(parDir, 0700)
+	if err != nil {
+		return err
+	}
+
+	// Perform a touch like test to be OS independant
+	fullPath := filepath.Join(parDir, "test-writable.txt")
+	file, err := os.Create(fullPath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		file.Close()
+		os.Remove(fullPath)
+	}()
+
+	_, err = io.WriteString(file, "Testing Caddy Working Dir is Writable")
+	if err != nil {
+		return err
+	}
 	return nil
 }
