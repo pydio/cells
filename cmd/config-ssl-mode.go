@@ -124,7 +124,7 @@ func promptSslMode() (enabled bool, certData map[string]interface{}, e error) {
 		proxyData["keyFile"] = keyFile
 
 	case 1:
-		mailPrompt := promptui.Prompt{Label: "Please enter the mail address for certificate generation", Default: certEmail}
+		mailPrompt := promptui.Prompt{Label: "Please enter the mail address for certificate generation", Validate: validateMailFormat, Default: certEmail}
 		acceptLeSa := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
 
 		if certEmail, e = mailPrompt.Run(); e != nil {
