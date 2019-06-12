@@ -281,16 +281,13 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 			}
 
 			objPart, ew := f.fs.Router.MultipartPutObjectPart(f.ctx, f.node, multipartID, i, bytes.NewBuffer(longBuf), &reqData)
-
-			written += objPart.Size
-
 			if ew != nil {
 				log.Logger(f.ctx).Error("MultipartPutObjectPart exception ", zap.Error(ew))
-				// we might want to retry ?
 				err = ew
 				break
 			}
 
+			written += objPart.Size
 			if int64(nr) != objPart.Size {
 				err = io.ErrShortWrite
 				break
