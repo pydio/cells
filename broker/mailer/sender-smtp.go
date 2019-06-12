@@ -26,6 +26,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/pkg/errors"
+
 	"go.uber.org/zap"
 	gomail "gopkg.in/gomail.v2"
 
@@ -91,6 +93,10 @@ func (gm *Smtp) Configure(ctx context.Context, conf config.Map) error {
 
 func (gm *Smtp) Check(ctx context.Context) error {
 
+	// Default value, unnecessary check
+	if gm.Host == "my.smtp.server" {
+		return errors.New("mailer not configured yet (my.smtp.server)")
+	}
 	// Test Config - Unfortunately we cannot set the Timeout here - 10s by default
 	d := gomail.NewDialer(gm.Host, gm.Port, gm.User, gm.Password)
 	tlsConfig := tls.Config{
@@ -100,7 +106,7 @@ func (gm *Smtp) Check(ctx context.Context) error {
 	// Check configuration
 	d.TLSConfig = &tlsConfig
 	if closer, err := d.Dial(); err != nil {
-		log.Logger(ctx).Error("Mailer check failed", zap.Error(err))
+		log.Logger(ctx).Warn("Mailer check failed", zap.Error(err))
 		return err
 	} else {
 		log.Logger(ctx).Info("Mailer check passed")
