@@ -190,7 +190,9 @@ func (km *NodeKeyManagerHandler) GetNodePlainSize(ctx context.Context, req *encr
 		next, _ := cursor.Next()
 		b := next.(*key.RangedBlocks)
 		plainBlockSize := int64(b.BlockSize) - aesGCMTagSize
-		rsp.Size += plainBlockSize
+		count := int(b.SeqEnd-b.SeqStart) + 1
+
+		rsp.Size += plainBlockSize * int64(count)
 	}
 	return nil
 }
