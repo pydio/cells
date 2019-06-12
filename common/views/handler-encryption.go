@@ -231,12 +231,14 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 	requestData.Md5Sum = nil
 	requestData.Sha256Sum = nil
 	// Update Size : set Plain as Meta and Encrypted as Size.
+	if requestData.Metadata == nil {
+		requestData.Metadata = make(map[string]string, 1)
+	}
 	if requestData.Size > -1 {
 		log.Logger(ctx).Debug("Adding special header to store clear size", zap.Any("s", requestData.Size))
-		if requestData.Metadata == nil {
-			requestData.Metadata = make(map[string]string, 1)
-		}
 		requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", requestData.Size)
+	} else {
+		requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = common.X_AMZ_META_CLEAR_SIZE_UNKOWN
 	}
 	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
 
@@ -353,8 +355,8 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 	}
 
 	if _, ok := requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE]; !ok {
-		log.Logger(ctx).Error("[Multipart Create] Missing special header to store clear size when uploading on encrypted data source")
-		return "", errors.InternalServerError("missing.meta", "For uploading as multipart on an encrypted datasource, please provide the target size via metadata")
+		log.Logger(ctx).Warn("[Multipart Create] Missing special header to store clear size when uploading on encrypted data source - Setting ClearSize as unknown")
+		requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = common.X_AMZ_META_CLEAR_SIZE_UNKOWN
 	}
 
 	clone := target.Clone()
