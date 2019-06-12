@@ -230,7 +230,13 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 
 	requestData.Md5Sum = nil
 	requestData.Sha256Sum = nil
+	// Update Size : set Plain as Meta and Encrypted as Size.
+	if requestData.Size > -1 {
+		log.Logger(ctx).Debug("Adding special header to store clear size", zap.Any("s", requestData.Size))
+		requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", requestData.Size)
+	}
 	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
+
 	n, err := e.next.PutObject(ctx, node, encryptionMaterials, requestData)
 	return n, err
 }
@@ -336,7 +342,16 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 	var err error
 	branchInfo, ok := GetBranchInfo(ctx, "in")
 	if !ok || branchInfo.EncryptionMode != object.EncryptionMode_MASTER {
+		if _, ok := requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE]; ok {
+			// Not necessary for non-encrypted data source
+			delete(requestData.Metadata, common.X_AMZ_META_CLEAR_SIZE)
+		}
 		return e.next.MultipartCreate(ctx, target, requestData)
+	}
+
+	if _, ok := requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE]; !ok {
+		log.Logger(ctx).Error("[Multipart Create] Missing special header to store clear size when uploading on encrypted data source")
+		return "", errors.InternalServerError("missing.meta", "For uploading as multipart on an encrypted datasource, please provide the target size via metadata")
 	}
 
 	clone := target.Clone()
@@ -357,7 +372,7 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 
 	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	if dsName == "" {
-		_ = clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, branchInfo.Name)
+		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, branchInfo.Name)
 	}
 
 	keyProtectionTool, err := e.getKeyProtectionTool(ctx)
@@ -478,12 +493,15 @@ func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *
 
 	requestData.Md5Sum = nil
 	requestData.Sha256Sum = nil
+	plainSize := requestData.Size
 	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
 
 	part, err := e.next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, encryptionMaterials, requestData)
 	if err != nil {
 		log.Logger(ctx).Error("failed to put multi part", zap.Error(err))
 	}
+	// Replace part Size with plain size value
+	part.Size = plainSize
 	return part, err
 }
 
