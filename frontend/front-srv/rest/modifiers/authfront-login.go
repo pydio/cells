@@ -160,6 +160,8 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 		if strings.Contains(err.Error(), "connect: connection timed out") {
 			log.Logger(ctx).Error("Connection timeout while trying to retrieve a JWT token, cause: " + err.Error())
 			log.Logger(ctx).Error("This usually happens with wrong network configuration. Please insure that the machine that runs your Cells instance can reach itself using your public FQDN.")
+		} else {
+			log.Logger(ctx).Error("Connection timeout while trying to retrieve a JWT token, cause: " + err.Error())
 		}
 		return nil, err
 	}
