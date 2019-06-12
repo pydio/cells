@@ -26,10 +26,11 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/common/proto/encryption"
 	"io"
 	"log"
 	"strings"
+
+	"github.com/pydio/cells/common/proto/encryption"
 )
 
 var defaultBlockSize = int64(10 * 1024 * 1024)
@@ -504,6 +505,9 @@ func (m *AESGCMEncryptionMaterials) SetPlainRange(offset, length int64) {
 }
 
 func (m *AESGCMEncryptionMaterials) CalculateOutputSize(plainSize int64, user string) int64 {
+	if plainSize == -1 {
+		return plainSize
+	}
 	var header EncryptedBlockHeader
 	header.Options = new(Options)
 	header.Options.UserId = user

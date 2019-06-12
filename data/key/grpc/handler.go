@@ -22,6 +22,8 @@ package grpc
 
 import (
 	"context"
+	"io"
+
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -30,7 +32,6 @@ import (
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/data/key"
 	"go.uber.org/zap"
-	"io"
 )
 
 const (
@@ -82,7 +83,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 
 	rsp.NodeInfo.NodeKey, err = dao.GetNodeKey(req.NodeId, req.UserId)
 	if err != nil {
-		log.Logger(ctx).Error("failed to get node key", zap.Error(err))
+		log.Logger(ctx).Error("failed to get node key for "+req.NodeId+" - "+req.UserId, zap.Error(err))
 		return err
 	}
 
@@ -156,6 +157,10 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 					plainOffsetCursor = nextPlainOffset
 				}
 			}
+		}
+
+		if !foundEncryptedOffset {
+			return errors.InternalServerError("offset.not.found", "Cannot find proper offset for range %d %d", req.PlainOffset, req.PlainLength)
 		}
 
 		if !foundEncryptedLimit {
