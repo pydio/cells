@@ -32,6 +32,10 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+var (
+	patchRecycleRoot string
+)
+
 // createCmd represents the create command
 var patchRecyclePersonalCmd = &cobra.Command{
 	Use:   "patch-recycle-personal",
@@ -42,7 +46,7 @@ var patchRecyclePersonalCmd = &cobra.Command{
 		ctx := context.Background()
 
 		treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
-		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "personal"}})
+		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: patchRecycleRoot}})
 		if e != nil {
 			return e
 		}
@@ -74,5 +78,6 @@ var patchRecyclePersonalCmd = &cobra.Command{
 }
 
 func init() {
+	patchRecyclePersonalCmd.Flags().StringVar(&patchRecycleRoot, "path", "personal", "Full path to browse. All existing children will be flagged with the recycle_root ACL.")
 	aclCmd.AddCommand(patchRecyclePersonalCmd)
 }
