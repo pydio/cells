@@ -233,6 +233,9 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 	// Update Size : set Plain as Meta and Encrypted as Size.
 	if requestData.Size > -1 {
 		log.Logger(ctx).Debug("Adding special header to store clear size", zap.Any("s", requestData.Size))
+		if requestData.Metadata == nil {
+			requestData.Metadata = make(map[string]string, 1)
+		}
 		requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", requestData.Size)
 	}
 	requestData.Size = encryptionMaterials.CalculateOutputSize(requestData.Size, info.NodeKey.OwnerId)
