@@ -33,6 +33,8 @@ It has these top-level messages:
 	RangedBlock
 	GetNodeInfoRequest
 	GetNodeInfoResponse
+	GetNodePlainSizeRequest
+	GetNodePlainSizeResponse
 	SetNodeInfoRequest
 	SetNodeInfoResponse
 	DeleteNodeRequest
@@ -55,9 +57,9 @@ import fmt "fmt"
 import math "math"
 
 import (
+	context "context"
 	client "github.com/micro/go-micro/client"
 	server "github.com/micro/go-micro/server"
-	context "context"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -228,6 +230,7 @@ func (h *UserKeyStore) AdminImportKey(ctx context.Context, in *AdminImportKeyReq
 
 type NodeKeyManagerClient interface {
 	GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest, opts ...client.CallOption) (*GetNodeInfoResponse, error)
+	GetNodePlainSize(ctx context.Context, in *GetNodePlainSizeRequest, opts ...client.CallOption) (*GetNodePlainSizeResponse, error)
 	SetNodeInfo(ctx context.Context, opts ...client.CallOption) (NodeKeyManager_SetNodeInfoClient, error)
 	CopyNodeInfo(ctx context.Context, in *CopyNodeInfoRequest, opts ...client.CallOption) (*CopyNodeInfoResponse, error)
 	DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...client.CallOption) (*DeleteNodeResponse, error)
@@ -256,6 +259,16 @@ func NewNodeKeyManagerClient(serviceName string, c client.Client) NodeKeyManager
 func (c *nodeKeyManagerClient) GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest, opts ...client.CallOption) (*GetNodeInfoResponse, error) {
 	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.GetNodeInfo", in)
 	out := new(GetNodeInfoResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeKeyManagerClient) GetNodePlainSize(ctx context.Context, in *GetNodePlainSizeRequest, opts ...client.CallOption) (*GetNodePlainSizeResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "NodeKeyManager.GetNodePlainSize", in)
+	out := new(GetNodePlainSizeResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -343,6 +356,7 @@ func (c *nodeKeyManagerClient) DeleteNodeSharedKey(ctx context.Context, in *Dele
 
 type NodeKeyManagerHandler interface {
 	GetNodeInfo(context.Context, *GetNodeInfoRequest, *GetNodeInfoResponse) error
+	GetNodePlainSize(context.Context, *GetNodePlainSizeRequest, *GetNodePlainSizeResponse) error
 	SetNodeInfo(context.Context, NodeKeyManager_SetNodeInfoStream) error
 	CopyNodeInfo(context.Context, *CopyNodeInfoRequest, *CopyNodeInfoResponse) error
 	DeleteNode(context.Context, *DeleteNodeRequest, *DeleteNodeResponse) error
@@ -360,6 +374,10 @@ type NodeKeyManager struct {
 
 func (h *NodeKeyManager) GetNodeInfo(ctx context.Context, in *GetNodeInfoRequest, out *GetNodeInfoResponse) error {
 	return h.NodeKeyManagerHandler.GetNodeInfo(ctx, in, out)
+}
+
+func (h *NodeKeyManager) GetNodePlainSize(ctx context.Context, in *GetNodePlainSizeRequest, out *GetNodePlainSizeResponse) error {
+	return h.NodeKeyManagerHandler.GetNodePlainSize(ctx, in, out)
 }
 
 func (h *NodeKeyManager) SetNodeInfo(ctx context.Context, stream server.Streamer) error {

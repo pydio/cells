@@ -171,6 +171,30 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 	return err
 }
 
+func (km *NodeKeyManagerHandler) GetNodePlainSize(ctx context.Context, req *encryption.GetNodePlainSizeRequest, rsp *encryption.GetNodePlainSizeResponse) error {
+
+	dao, err := getDAO(ctx)
+	if err != nil {
+		return err
+	}
+
+	cursor, err := dao.ListEncryptedBlockInfo(req.NodeId)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	rsp.Size = 0
+
+	for cursor.HasNext() {
+		next, _ := cursor.Next()
+		b := next.(*key.RangedBlocks)
+		plainBlockSize := int64(b.BlockSize) - aesGCMTagSize
+		rsp.Size += plainBlockSize
+	}
+	return nil
+}
+
 func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encryption.NodeKeyManager_SetNodeInfoStream) error {
 	dao, err := getDAO(ctx)
 	if err != nil {

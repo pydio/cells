@@ -117,6 +117,7 @@ message AdminCreateKeyResponse {
 
 service NodeKeyManager {
     rpc GetNodeInfo (GetNodeInfoRequest) returns (GetNodeInfoResponse);
+    rpc GetNodePlainSize (GetNodePlainSizeRequest) returns (GetNodePlainSizeResponse);
     rpc SetNodeInfo (stream SetNodeInfoRequest) returns (SetNodeInfoResponse);
     rpc CopyNodeInfo (CopyNodeInfoRequest) returns (CopyNodeInfoResponse);
 
@@ -168,7 +169,6 @@ message GetNodeInfoRequest {
     int64 PlainOffset = 4;
     int64 PlainLength = 5;
 }
-
 message GetNodeInfoResponse {
     NodeInfo NodeInfo = 1;
     int64 HeadSKippedPlainBytesCount = 2;
@@ -177,8 +177,16 @@ message GetNodeInfoResponse {
     int64 EncryptedCount = 5;
 }
 
+message GetNodePlainSizeRequest {
+    string UserId = 1;
+    string NodeId = 2;
+}
+message GetNodePlainSizeResponse {
+    int64 Size = 1;
+}
+
 message SetNodeInfoRequest {
-    string action = 1;
+    string Action = 1;
     SetNodeKeyRequest SetNodeKey = 2;
     SetNodeBlockRequest SetBlock = 3;
 }
