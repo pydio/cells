@@ -75,6 +75,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		service.RestError500(req, rsp, e)
 		return
 	}
+	fmt.Println("Login user active workspace ", req.QueryParameter("ws"))
 	user.LoadActiveWorkspace(req.QueryParameter("ws"))
 	lang := user.LoadActiveLanguage(req.QueryParameter("lang"))
 
@@ -134,7 +135,6 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	}
 	plugins := pool.AllPluginsManifests(req.Request.Context(), lang)
 	rsp.WriteAsXml(plugins)
-
 }
 
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
@@ -213,6 +213,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
 		log.Logger(ctx).Error("Error saving session", zap.Error(e))
 	}
+
 	rsp.WriteEntity(response)
 }
 

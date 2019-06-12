@@ -60,6 +60,10 @@ var _genModelRestFrontSessionResponse = require("./gen/model/RestFrontSessionRes
 
 var _genModelRestFrontSessionResponse2 = _interopRequireDefault(_genModelRestFrontSessionResponse);
 
+var _genModelRestFrontLoginCallbackRequest = require("./gen/model/RestFrontLoginCallbackRequest");
+
+var _genModelRestFrontLoginCallbackRequest2 = _interopRequireDefault(_genModelRestFrontLoginCallbackRequest);
+
 var _IdmApi = require('./IdmApi');
 
 var _IdmApi2 = _interopRequireDefault(_IdmApi);
@@ -132,10 +136,20 @@ var JwtApiClient = (function (_ApiClient) {
         var api = new _genApiFrontendServiceApi2['default'](this);
         var request = new _genModelRestFrontSessionRequest2['default']();
         request.Logout = true;
-        this.jwtEndpoint(request).then(function (response) {
+        return this.jwtEndpoint(request).then(function (response) {
             _PydioApi2['default'].JWT_DATA = null;
             _this.pydio.loadXmlRegistry();
         });
+    };
+
+    /**
+     * Create AuthInfo request with type "authorization_code"
+     * @param code string
+     * @return {Promise<any>}
+     */
+
+    JwtApiClient.prototype.jwtFromAuthorizationCode = function jwtFromAuthorizationCode(code) {
+        return this.jwtWithAuthInfo({ code: code, type: "authorization_code" }, true);
     };
 
     /**
@@ -162,6 +176,7 @@ var JwtApiClient = (function (_ApiClient) {
         return this.jwtEndpoint(request).then(function (response) {
             if (response.data && response.data.JWT) {
                 JwtApiClient.storeJwtLocally(response.data);
+
                 if (reloadRegistry) {
                     var targetRepository = null;
                     if (_this2.pydio.Parameters.has('START_REPOSITORY')) {

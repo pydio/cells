@@ -27,6 +27,7 @@ import RestUserJobRequest from "./gen/model/RestUserJobRequest";
 import FrontendServiceApi from "./gen/api/FrontendServiceApi";
 import RestFrontSessionRequest from "./gen/model/RestFrontSessionRequest";
 import RestFrontSessionResponse from "./gen/model/RestFrontSessionResponse";
+import RestFrontLoginCallbackRequest from "./gen/model/RestFrontLoginCallbackRequest";
 import IdmApi from './IdmApi'
 
 // Override parseDate method to support ISO8601 cross-browser
@@ -89,11 +90,21 @@ class JwtApiClient extends ApiClient{
         const api = new FrontendServiceApi(this);
         const request = new RestFrontSessionRequest();
         request.Logout = true;
-        this.jwtEndpoint(request).then(response => {
+        return this.jwtEndpoint(request).then(response => {
             PydioApi.JWT_DATA = null;
             this.pydio.loadXmlRegistry();
         });
     }
+
+    /**
+     * Create AuthInfo request with type "authorization_code"
+     * @param code string
+     * @return {Promise<any>}
+     */
+    jwtFromAuthorizationCode(code) {
+        return this.jwtWithAuthInfo({code, type:"authorization_code"}, true);
+    }
+
 
     /**
      * Create AuthInfo request with type "credentials"
@@ -112,6 +123,7 @@ class JwtApiClient extends ApiClient{
         return this.jwtEndpoint(request).then(response => {
             if(response.data && response.data.JWT) {
                 JwtApiClient.storeJwtLocally(response.data);
+
                 if (reloadRegistry) {
                     let targetRepository = null;
                     if (this.pydio.Parameters.has('START_REPOSITORY')) {

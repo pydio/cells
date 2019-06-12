@@ -626,6 +626,22 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/config/discovery/.well-known/openid-configuration": {
+      "get": {
+        "operationId": "OAuthConfiguration",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restOAuthConfigurationResponse"
+            }
+          }
+        },
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
     "/config/discovery/forms/{ServiceName}": {
       "get": {
         "summary": "Publish Forms definition for building screens in frontend",
@@ -1134,6 +1150,33 @@ var SwaggerJson = `{
             }
           }
         },
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
+    "/frontend/callback": {
+      "post": {
+        "summary": "Handle Login Callback",
+        "operationId": "FrontLoginCallback",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontSessionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restFrontLoginCallbackRequest"
+            }
+          }
+        ],
         "tags": [
           "FrontendService"
         ]
@@ -5186,7 +5229,7 @@ var SwaggerJson = `{
       "properties": {
         "type_url": {
           "type": "string",
-          "description": "A URL/resource name whose content describes the type of the\nserialized protocol buffer message.\n\nFor URLs which use the scheme http, https, or no scheme, the\nfollowing restrictions and interpretations apply:\n\n* If no scheme is provided, https is assumed.\n* The last segment of the URL's path must represent the fully\n  qualified name of the type (as in path/google.protobuf.Duration).\n  The name should be in a canonical form (e.g., leading \".\" is\n  not accepted).\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
         },
         "value": {
           "type": "string",
@@ -5618,6 +5661,14 @@ var SwaggerJson = `{
         }
       }
     },
+    "restFrontLoginCallbackRequest": {
+      "type": "object",
+      "properties": {
+        "Code": {
+          "type": "string"
+        }
+      }
+    },
     "restFrontMessagesResponse": {
       "type": "object",
       "properties": {
@@ -5899,6 +5950,59 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
+          }
+        }
+      }
+    },
+    "restOAuthConfigurationResponse": {
+      "type": "object",
+      "properties": {
+        "issuer": {
+          "type": "string"
+        },
+        "authorization_endpoint": {
+          "type": "string"
+        },
+        "token_endpoint": {
+          "type": "string"
+        },
+        "jwks_uri": {
+          "type": "string"
+        },
+        "response_types_supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subject_types_supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "id_token_signing_alg_values_supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scopes_supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "token_endpoint_auth_methods_supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "claims_supported": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       }

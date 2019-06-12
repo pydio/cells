@@ -200,6 +200,7 @@ var Pydio = (function (_Observable) {
         var _this2 = this;
 
         this.observe("registry_loaded", function () {
+            console.log(_this2.Registry.parseUser());
 
             _this2.Registry.refreshExtensionsRegistry();
             _this2.updateUser(_this2.Registry.parseUser(), false);
@@ -316,7 +317,7 @@ var Pydio = (function (_Observable) {
             var _repositoryObject = new _modelRepository2['default'](null);
             this.loadRepository(_repositoryObject);
             this.fire("repository_list_refreshed", { list: false, active: false });
-            this.Controller.fireAction("login");
+
             return;
         }
 

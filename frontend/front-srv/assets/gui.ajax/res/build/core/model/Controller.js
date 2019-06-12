@@ -380,6 +380,7 @@ var Controller = (function (_Observable) {
      */
 
     Controller.prototype.fireAction = function fireAction(actionName) {
+        console.log(actionName);
         var action = this.actions.get(actionName);
         if (action != null) {
             var args = Array.from(arguments).slice(1);

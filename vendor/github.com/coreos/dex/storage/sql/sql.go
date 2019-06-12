@@ -3,7 +3,9 @@ package sql
 
 import (
 	"database/sql"
+	"fmt"
 	"regexp"
+	"runtime/debug"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -104,7 +106,30 @@ var (
 			{regexp.MustCompile(`0001-01-01 00:00:00 UTC`), "1000-01-01 00:00:00"},
 		},
 
-		executeTx: nil,
+		executeTx: func(db *sql.DB, fn func(sqlTx *sql.Tx) error) error {
+
+			tx, err := db.Begin()
+			if err != nil {
+				return err
+			}
+
+			defer func() {
+				if p := recover(); p != nil {
+					// a panic occurred, rollback and repanic
+					tx.Rollback()
+					panic(p)
+				} else if err != nil {
+					// something went wrong, rollback
+					tx.Rollback()
+				} else {
+					// all good, commit
+					err = tx.Commit()
+				}
+			}()
+
+			err = fn(tx)
+			return err
+		},
 		supportsTimezones: true,
 	}
 
@@ -174,6 +199,12 @@ func (c *conn) ExecTx(fn func(tx *trans) error) error {
 			return fn(&trans{sqlTx, c})
 		})
 	}
+	fmt.Println("Executing transaction")
+	debug.PrintStack()
+	defer func() {
+		fmt.Println("Ending transaction")
+		debug.PrintStack()
+	}()
 
 	sqlTx, err := c.db.Begin()
 	if err != nil {

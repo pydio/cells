@@ -75,6 +75,7 @@ var LoginDialogMixin = {
             if (r.data && r.data.Trigger) {
                 return;
             }
+
             _this.dismiss();
         })['catch'](function (e) {
             if (e.response && e.response.body) {
@@ -386,12 +387,15 @@ var Callbacks = (function () {
     _createClass(Callbacks, null, [{
         key: 'sessionLogout',
         value: function sessionLogout() {
+            console.log("HERE WE ARE");
 
             if (Pydio.getInstance().Parameters.get("PRELOG_USER")) {
                 return;
             }
 
-            _pydioHttpApi2['default'].getRestClient().sessionLogout();
+            _pydioHttpApi2['default'].getRestClient().sessionLogout()['finally'](function (e) {
+                return window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout';
+            });
         }
     }, {
         key: 'loginPassword',

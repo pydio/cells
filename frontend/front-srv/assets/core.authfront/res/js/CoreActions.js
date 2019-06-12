@@ -50,6 +50,7 @@ let LoginDialogMixin = {
             if (r.data && r.data.Trigger){
                 return;
             }
+
             this.dismiss();
         }).catch(e => {
             if (e.response && e.response.body) {
@@ -299,12 +300,14 @@ class MultiAuthModifier extends PydioReactUI.AbstractDialogModifier{
 class Callbacks{
 
     static sessionLogout(){
+        console.log("HERE WE ARE")
 
         if(Pydio.getInstance().Parameters.get("PRELOG_USER")){
             return;
         }
 
-        PydioApi.getRestClient().sessionLogout();
+        PydioApi.getRestClient().sessionLogout()
+            .finally((e) => window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout');
 
     }
 

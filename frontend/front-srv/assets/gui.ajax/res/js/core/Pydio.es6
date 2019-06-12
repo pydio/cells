@@ -33,6 +33,7 @@ import ActivityMonitor from './util/ActivityMonitor'
 import PydioWebSocket from './http/PydioWebSocket'
 import EmptyNodeProvider from "./model/EmptyNodeProvider";
 
+
 /**
  * This is the main class for launching the whole framework,
  * with or without a UI.
@@ -132,6 +133,7 @@ class Pydio extends Observable{
      */
     init(){
         this.observe("registry_loaded", () => {
+            console.log(this.Registry.parseUser())
 
             this.Registry.refreshExtensionsRegistry();
             this.updateUser(this.Registry.parseUser(), false);
@@ -239,7 +241,7 @@ class Pydio extends Observable{
             const repositoryObject = new Repository(null);
             this.loadRepository(repositoryObject);
             this.fire("repository_list_refreshed", {list:false,active:false});
-            this.Controller.fireAction("login");
+            
             return;
         }
 

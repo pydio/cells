@@ -1127,6 +1127,7 @@ func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, erro
 	)
 
 	if err := row.Scan(&uuid, &level, &rat, &name, &leaf, &mtime, &etag, &size, &mode); err != nil {
+		fmt.Println("Error while scanning ", err)
 		return nil, err
 	}
 	nodeType := tree.NodeType_LEAF

@@ -18,19 +18,27 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
 var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
+
+var _userManager = require('./userManager');
+
+var _userManager2 = _interopRequireDefault(_userManager);
+
+var _reactRedux = require('react-redux');
+
+var _reactRedux2 = _interopRequireDefault(_reactRedux);
 
 var MainRouterWrapper = function MainRouterWrapper(pydio) {
     var MainRouter = (function (_React$PureComponent) {
@@ -68,12 +76,16 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
             var reserved = ['homepage', 'settings'];
             var prefix = repo && reserved.indexOf(repo.getAccessType()) === -1 ? "ws-" : "";
 
-            return "/" + prefix + slug + path;
+            return '/' + prefix + slug + path;
         };
 
         MainRouter.prototype.componentDidMount = function componentDidMount() {
             pydio.getContextHolder().observe("context_changed", this._ctxObs);
             pydio.getContextHolder().observe("repository_list_refreshed", this._ctxObs);
+
+            if (!pydio.user) {
+                _userManager2['default'].signinRedirect();
+            }
         };
 
         MainRouter.prototype.componentWillUnmount = function componentWillUnmount() {
@@ -87,14 +99,14 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
                 var uri = this.getURI(this.state);
 
                 if (uri !== "/" + this.props.location.pathname) {
-                    _reactRouterLibBrowserHistory2["default"].push(uri);
+                    _reactRouterLibBrowserHistory2['default'].push(uri);
                 }
             }
         };
 
         MainRouter.prototype.render = function render() {
             return React.createElement(
-                "div",
+                'div',
                 null,
                 this.props.children
             );
@@ -108,5 +120,5 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
     return MainRouter;
 };
 
-exports["default"] = MainRouterWrapper;
-module.exports = exports["default"];
+exports['default'] = MainRouterWrapper;
+module.exports = exports['default'];

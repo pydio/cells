@@ -142,6 +142,8 @@ export default class Registry{
         if(this._registry){
             userNode = XMLUtils.XPathSelectSingleNode(this._registry, "user");
         }
+
+        console.log("User node is ", userNode)
         if(userNode){
             const userId = userNode.getAttribute('id');
             const children = userNode.childNodes;

@@ -493,6 +493,10 @@ var _modelRestFrontEnrollAuthResponse = require('./model/RestFrontEnrollAuthResp
 
 var _modelRestFrontEnrollAuthResponse2 = _interopRequireDefault(_modelRestFrontEnrollAuthResponse);
 
+var _modelRestFrontLoginCallbackRequest = require('./model/RestFrontLoginCallbackRequest');
+
+var _modelRestFrontLoginCallbackRequest2 = _interopRequireDefault(_modelRestFrontLoginCallbackRequest);
+
 var _modelRestFrontMessagesResponse = require('./model/RestFrontMessagesResponse');
 
 var _modelRestFrontMessagesResponse2 = _interopRequireDefault(_modelRestFrontMessagesResponse);
@@ -572,6 +576,10 @@ var _modelRestMetadata2 = _interopRequireDefault(_modelRestMetadata);
 var _modelRestNodesCollection = require('./model/RestNodesCollection');
 
 var _modelRestNodesCollection2 = _interopRequireDefault(_modelRestNodesCollection);
+
+var _modelRestOAuthConfigurationResponse = require('./model/RestOAuthConfigurationResponse');
+
+var _modelRestOAuthConfigurationResponse2 = _interopRequireDefault(_modelRestOAuthConfigurationResponse);
 
 var _modelRestOpenApiResponse = require('./model/RestOpenApiResponse');
 
@@ -1823,6 +1831,13 @@ RestFrontEnrollAuthResponse = _modelRestFrontEnrollAuthResponse2['default'];
 exports.
 
 /**
+ * The RestFrontLoginCallbackRequest model constructor.
+ * @property {module:model/RestFrontLoginCallbackRequest}
+ */
+RestFrontLoginCallbackRequest = _modelRestFrontLoginCallbackRequest2['default'];
+exports.
+
+/**
  * The RestFrontMessagesResponse model constructor.
  * @property {module:model/RestFrontMessagesResponse}
  */
@@ -1960,6 +1975,13 @@ exports.
  * @property {module:model/RestNodesCollection}
  */
 RestNodesCollection = _modelRestNodesCollection2['default'];
+exports.
+
+/**
+ * The RestOAuthConfigurationResponse model constructor.
+ * @property {module:model/RestOAuthConfigurationResponse}
+ */
+RestOAuthConfigurationResponse = _modelRestOAuthConfigurationResponse2['default'];
 exports.
 
 /**

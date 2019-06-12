@@ -215,6 +215,13 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	wrapped = servicecontext.HttpSpanHandlerWrapper(wrapped)
 	wrapped = service.NewLogHttpHandlerWrapper(wrapped, servicecontext.GetServiceName(pydioSrvContext), servicecontext.GetServiceColor(pydioSrvContext))
 
+	if c.Web.HTTP != "" {
+		logger.Infof("listening (http) on %s", c.Web.HTTP)
+		go func() {
+			http.ListenAndServe(c.Web.HTTP, wrapped)
+		}()
+	}
+
 	return wrapped, nil
 
 	// errc := make(chan error, 3)

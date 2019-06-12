@@ -29,7 +29,6 @@ import (
 func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
-
 		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" { // Ignore this middleware
 			return middleware(req, rsp, in, out, session)
 		}
@@ -54,7 +53,6 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		return middleware(req, rsp, in, out, session)
 
 	}
-
 }
 
 func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string, expireTime int32, e error) {

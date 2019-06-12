@@ -35,6 +35,7 @@ import RestListPeersAddressesResponse from '../model/RestListPeersAddressesRespo
 import RestListProcessesRequest from '../model/RestListProcessesRequest';
 import RestListProcessesResponse from '../model/RestListProcessesResponse';
 import RestNodesCollection from '../model/RestNodesCollection';
+import RestOAuthConfigurationResponse from '../model/RestOAuthConfigurationResponse';
 import RestOpenApiResponse from '../model/RestOpenApiResponse';
 import RestServiceCollection from '../model/RestServiceCollection';
 import RestVersioningPolicyCollection from '../model/RestVersioningPolicyCollection';
@@ -1033,6 +1034,45 @@ export default class ConfigServiceApi {
      */
     listVirtualNodes() {
       return this.listVirtualNodesWithHttpInfo()
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOAuthConfigurationResponse} and HTTP response
+     */
+    oAuthConfigurationWithHttpInfo() {
+      let postBody = null;
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestOAuthConfigurationResponse;
+
+      return this.apiClient.callApi(
+        '/config/discovery/.well-known/openid-configuration', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOAuthConfigurationResponse}
+     */
+    oAuthConfiguration() {
+      return this.oAuthConfigurationWithHttpInfo()
         .then(function(response_and_data) {
           return response_and_data.data;
         });

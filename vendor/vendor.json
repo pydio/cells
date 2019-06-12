@@ -2181,6 +2181,30 @@
 			"revisionTime": "2017-08-20T00:43:49Z"
 		},
 		{
+			"checksumSHA1": "9YhGYIZd2Vt9DzrIXpyA7WtkT+c=",
+			"path": "github.com/lestrrat-go/jwx/internal/base64",
+			"revision": "32eeb2c5e6858d4225899310d3b99292f3d19f92",
+			"revisionTime": "2019-05-22T00:28:42Z"
+		},
+		{
+			"checksumSHA1": "/c8qjByF6Mw/iVW1dLlFchX/Tpw=",
+			"path": "github.com/lestrrat-go/jwx/internal/option",
+			"revision": "32eeb2c5e6858d4225899310d3b99292f3d19f92",
+			"revisionTime": "2019-05-22T00:28:42Z"
+		},
+		{
+			"checksumSHA1": "dAAJ+bdDwnDMisp/M0PFtusYohE=",
+			"path": "github.com/lestrrat-go/jwx/jwa",
+			"revision": "32eeb2c5e6858d4225899310d3b99292f3d19f92",
+			"revisionTime": "2019-05-22T00:28:42Z"
+		},
+		{
+			"checksumSHA1": "5xq4QvWdo90jr9u0ngojbZJaMa0=",
+			"path": "github.com/lestrrat-go/jwx/jwk",
+			"revision": "32eeb2c5e6858d4225899310d3b99292f3d19f92",
+			"revisionTime": "2019-05-22T00:28:42Z"
+		},
+		{
 			"checksumSHA1": "d7ne3HS358PpJaNXEcqbdZ0cFbI=",
 			"path": "github.com/levigross/exp-html",
 			"revision": "8df60c69a8f5b0fe4a72ff6ae3811d4b57154e39",
@@ -3185,6 +3209,60 @@
 			"revisionTime": "2018-01-30T16:27:43Z"
 		},
 		{
+			"checksumSHA1": "iNErqERBz8vWAwqXaZjZF3ZALw8=",
+			"path": "github.com/ory/fosite",
+			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
+			"revisionTime": "2019-05-23T10:11:27Z"
+		},
+		{
+			"checksumSHA1": "z6g7gnClq3cDWIs5OqWeNFF6qWA=",
+			"path": "github.com/ory/fosite/compose",
+			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
+			"revisionTime": "2019-05-23T10:11:27Z"
+		},
+		{
+			"checksumSHA1": "bD196eKaTvORWcTWnGR9abYxK0Y=",
+			"path": "github.com/ory/fosite/handler/oauth2",
+			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
+			"revisionTime": "2019-05-23T10:11:27Z"
+		},
+		{
+			"checksumSHA1": "aOx/3z0Z3x9erklSaktllrQ7ksY=",
+			"path": "github.com/ory/fosite/handler/openid",
+			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
+			"revisionTime": "2019-05-23T10:11:27Z"
+		},
+		{
+			"checksumSHA1": "2b/EC8l5qZ0WLuF39BK7l74QeFU=",
+			"path": "github.com/ory/fosite/handler/pkce",
+			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
+			"revisionTime": "2019-05-23T10:11:27Z"
+		},
+		{
+			"checksumSHA1": "bIclVQjc/iZvl2weJ8d3zkMbyXU=",
+			"path": "github.com/ory/fosite/storage",
+			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
+			"revisionTime": "2019-05-23T10:11:27Z"
+		},
+		{
+			"checksumSHA1": "6DsRSTLvLKQEKAX7lT++inIJVCg=",
+			"path": "github.com/ory/fosite/token/hmac",
+			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
+			"revisionTime": "2019-05-23T10:11:27Z"
+		},
+		{
+			"checksumSHA1": "fWbyndVfJ/6nVzt8X+qOzvBUq9o=",
+			"path": "github.com/ory/fosite/token/jwt",
+			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
+			"revisionTime": "2019-05-23T10:11:27Z"
+		},
+		{
+			"checksumSHA1": "CMV76SZ+g58sp/KC2bzNtaf2V5k=",
+			"path": "github.com/ory/hydra/jwk",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
+		},
+		{
 			"checksumSHA1": "7vZzYABrT1A1Vxev7TC9b4vEvnw=",
 			"path": "github.com/ory/ladon",
 			"revision": "d963cb9d282b4c5cf55e8da2d5ded91cb1a16eee",
@@ -3213,6 +3291,84 @@
 			"path": "github.com/ory/pagination",
 			"revision": "05947c3e39e20ec964d080560c15368e9a7b9618",
 			"revisionTime": "2018-02-27T11:00:02Z"
+		},
+		{
+			"checksumSHA1": "LemOxCzCddBAY5tk5bmx1MvXECc=",
+			"path": "github.com/ory/x/cmdx",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "ga9gStQYCOE68JuipV16TrWoccQ=",
+			"path": "github.com/ory/x/corsx",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "a2Ai91lNjW2u1hrrdR2Cdg+hmDE=",
+			"path": "github.com/ory/x/dbal",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "kZHoTKqR18LDWFKeflbV+HTZv9Y=",
+			"path": "github.com/ory/x/healthx",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "+PTaw8XlCAMuseNcr8247Hw21iA=",
+			"path": "github.com/ory/x/randx",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "t/ByNRivZiDRVvNgxtA2Ic6xbZY=",
+			"path": "github.com/ory/x/resilience",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "n7mJBy9/XkeRlknX1+GRXp0EZx4=",
+			"path": "github.com/ory/x/serverx",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "sQijJiPSO37nc1IILPCiGPPmads=",
+			"path": "github.com/ory/x/sqlcon",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "ZAiTYQGARhnd/8xLCyJodGxS6Lg=",
+			"path": "github.com/ory/x/stringslice",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "SUCjEvYNUEfnt00oSe2bbEAqrcE=",
+			"path": "github.com/ory/x/stringsx",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "Y5CwxItKzYzIlCO/h+1E2gWZvZo=",
+			"path": "github.com/ory/x/tracing",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "u8ZfMMjObiJA44mV6HAvC5ghGfc=",
+			"path": "github.com/ory/x/urlx",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
+		},
+		{
+			"checksumSHA1": "nBA4X9AVNSNGCEXynqQmmnzxR2o=",
+			"path": "github.com/ory/x/viperx",
+			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
+			"revisionTime": "2019-04-22T10:40:17Z"
 		},
 		{
 			"checksumSHA1": "JVGDxPn66bpe6xEiexs1r+y6jF0=",

@@ -179,6 +179,8 @@ var Registry = (function () {
         if (this._registry) {
             userNode = _utilXMLUtils2['default'].XPathSelectSingleNode(this._registry, "user");
         }
+
+        console.log("User node is ", userNode);
         if (userNode) {
             var userId = userNode.getAttribute('id');
             var children = userNode.childNodes;

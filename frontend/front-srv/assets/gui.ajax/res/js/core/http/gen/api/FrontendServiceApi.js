@@ -18,6 +18,7 @@ import RestFrontBinaryResponse from '../model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from '../model/RestFrontBootConfResponse';
 import RestFrontEnrollAuthRequest from '../model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from '../model/RestFrontEnrollAuthResponse';
+import RestFrontLoginCallbackRequest from '../model/RestFrontLoginCallbackRequest';
 import RestFrontMessagesResponse from '../model/RestFrontMessagesResponse';
 import RestFrontPluginsResponse from '../model/RestFrontPluginsResponse';
 import RestFrontSessionRequest from '../model/RestFrontSessionRequest';
@@ -128,6 +129,54 @@ export default class FrontendServiceApi {
      */
     frontEnrollAuth(body) {
       return this.frontEnrollAuthWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Handle Login Callback
+     * @param {module:model/RestFrontLoginCallbackRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response
+     */
+    frontLoginCallbackWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling frontLoginCallback");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestFrontSessionResponse;
+
+      return this.apiClient.callApi(
+        '/frontend/callback', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Handle Login Callback
+     * @param {module:model/RestFrontLoginCallbackRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}
+     */
+    frontLoginCallback(body) {
+      return this.frontLoginCallbackWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

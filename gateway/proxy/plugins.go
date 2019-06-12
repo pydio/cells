@@ -66,6 +66,12 @@ var (
 			header_upstream X-Real-IP {remote}
 			header_upstream X-Forwarded-Proto {scheme}
 		}
+		proxy /oauth2 {{.OAuth | urls}} {
+			insecure_skip_verify
+			header_upstream Host {host}
+			header_upstream X-Real-IP {remote}
+			header_upstream X-Forwarded-Proto {scheme}
+		}
 		proxy /io   {{.Gateway | serviceAddress}} {
 			header_upstream Host {{.ExternalHost}}
 			header_upstream X-Real-IP {remote}
@@ -129,6 +135,7 @@ var (
 		rewrite {
 			if {path} not_starts_with "/a/"
 			if {path} not_starts_with "/auth/"
+			if {path} not_starts_with "/oauth2/"
 			if {path} not_starts_with "/io"
 			if {path} not_starts_with "/data"
 			if {path} not_starts_with "/ws/"
@@ -160,6 +167,7 @@ var (
 		ExternalHost string
 		Micro        string
 		Dex          string
+		OAuth        string
 		Gateway      string
 		WebSocket    string
 		FrontPlugins string
@@ -177,6 +185,7 @@ var (
 	}{
 		Micro:        common.SERVICE_MICRO_API,
 		Dex:          common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
+		OAuth:        common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH,
 		Gateway:      common.SERVICE_GATEWAY_DATA,
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
 		FrontPlugins: common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
@@ -268,6 +277,7 @@ func init() {
 					sName := string(p.Message().Body)
 					if needsRestart(sName) {
 						log.Logger(s.Options().Context).Debug("Received Start Message - Will Restart Caddy - ", zap.Any("serviceName", sName))
+
 						return caddy.Restart()
 					}
 					return nil

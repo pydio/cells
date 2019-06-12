@@ -20,6 +20,7 @@
 
 require('whatwg-fetch');
 import XMLUtils from '../util/XMLUtils'
+import userManager from '../userManager.js'
 /**
  * Pydio encapsulation of XHR / Fetch
  */
@@ -208,7 +209,7 @@ class Connexion{
                 alert(message);
             }
 
-		}
+        }
 		if(parsedBody.responseXML && parsedBody.responseXML.documentElement){
 
 			const authNode = XMLUtils.XPathSelectSingleNode(parsedBody.responseXML.documentElement, "require_auth");
@@ -217,9 +218,10 @@ class Connexion{
 				if(root){
 					pydio.getContextHolder().setContextNode(root);
 					root.clear();
-				}
-				pydio.getController().fireAction('logout');
-				pydio.getController().fireAction('login');
+                }
+                
+                pydio.fire('login_required')
+                console.log("HERE")
 			}
 
 			const messageNode = XMLUtils.XPathSelectSingleNode(parsedBody.responseXML.documentElement, "message");

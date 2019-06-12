@@ -101,6 +101,5 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 			}
 		}
 		h.ServeHTTP(w, r)
-
 	})
 }
