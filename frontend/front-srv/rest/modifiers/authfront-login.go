@@ -157,7 +157,10 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 	}
 	res, err := client.Do(httpReq)
 	if err != nil {
-		fmt.Printf("#### could not perform request to retrieve token, cause: %s\n", err.Error())
+		if strings.Contains(err.Error(), "connect: connection timed out"){
+			log.Logger(ctx).Error("Connection timeout while trying to retrieve a JWT token, cause: "+err.Error()+)
+			log.Logger(ctx).Error("This usually happens with wrong network configuration. Please insure that the machine that runs your Cells instance can reach itself using your public FQDN.")
+		}
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -173,7 +176,6 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 		return nil, fmt.Errorf("could not unmarshall response with status %d: %s\nerror cause: %s", res.StatusCode, res.Status, err.Error())
 	}
 	if errMsg, exists := respMap["error"]; exists {
-		fmt.Printf("#### could not perform request, got a response with an error message: %s\n", errMsg)
 		if t := errors.Parse(respMap["error_description"].(string)); t != nil && t.Code > 0 {
 			return nil, t
 		}
