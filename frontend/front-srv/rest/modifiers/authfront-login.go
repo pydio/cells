@@ -157,6 +157,7 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 	}
 	res, err := client.Do(httpReq)
 	if err != nil {
+		fmt.Printf("#### could not perform request to retrieve token, cause: %s\n", err.Error())
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -172,6 +173,7 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 		return nil, fmt.Errorf("could not unmarshall response with status %d: %s\nerror cause: %s", res.StatusCode, res.Status, err.Error())
 	}
 	if errMsg, exists := respMap["error"]; exists {
+		fmt.Printf("#### could not perform request, got a response with an error message: %s\n", errMsg)
 		if t := errors.Parse(respMap["error_description"].(string)); t != nil && t.Code > 0 {
 			return nil, t
 		}
