@@ -519,8 +519,9 @@ class InstallForm extends React.Component {
                         }
                         {installError &&
                         <div>
-                            There was an error while performing installation ! Please check your configuration <br/>
-                            Error was : {installError}
+                            There was an error while performing installation! Please check your configuration. <br/>
+                            Error was: <br/>
+                            {installError}
                         </div>
                         }
                     </div>
