@@ -34,7 +34,6 @@ import (
 	"strings"
 
 	caddyutils "github.com/mholt/caddy"
-	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-micro/broker"
 	_ "github.com/micro/go-plugins/client/grpc"
