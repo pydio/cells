@@ -25,5 +25,8 @@
   },
   "9": {
     "other": "Résumé des notifications"
+  },
+  "sender.error": {
+    "other": "Impossible d'envoyer l'email !"
   }
 }

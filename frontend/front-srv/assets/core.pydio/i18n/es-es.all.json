@@ -2266,5 +2266,8 @@
   },
   "visibility.users.advanced": {
     "other": "Esta característica avanzada le permite decidir si los usuarios que cree en su libreta de direcciones pueden ser vistos y/o editados por otros usuarios. Por defecto, sus usuarios sólo son visibles para usted."
+  },
+  "user.unknown": {
+    "other": "Desconocido"
   }
 }

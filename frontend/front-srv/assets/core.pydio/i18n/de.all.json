@@ -2266,5 +2266,8 @@
   },
   "visibility.users.advanced": {
     "other": "Diese erweiterte Funktion erlaubt Ihnen, zu entscheiden, ob die Benutzer, die Sie in Ihrem Adressbuch erstellen, von anderen Benutzern gesehen und/oder bearbeitet werden können. Standardmäßig sind Ihre Benutzer nur für Sie sichtbar."
+  },
+  "user.unknown": {
+    "other": "Unbekannt"
   }
 }
