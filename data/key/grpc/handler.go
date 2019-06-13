@@ -22,15 +22,15 @@ package grpc
 
 import (
 	"context"
+	"io"
+
 	"github.com/micro/go-micro/errors"
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/data/key"
 	"go.uber.org/zap"
-	"io"
 )
 
 const (
@@ -46,13 +46,12 @@ type NodeKeyManagerHandler struct{}
 func getDAO(ctx context.Context) (key.DAO, error) {
 	dao := servicecontext.GetDAO(ctx)
 	if dao == nil {
-		log.Logger(ctx).Error("failed to get dao", zap.Error(errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")))
-		return nil, errors.InternalServerError(common.SERVICE_META, "no DAO found, wrong initialization")
+		return nil, errors.InternalServerError("data.key.handler", "no DAO found")
 	}
 
 	keyDao, ok := dao.(key.DAO)
 	if !ok {
-		return nil, errors.InternalServerError(common.SERVICE_META, "wrong DAO type found, wrong initialization")
+		return nil, errors.InternalServerError("data.key.handler", "wrong DAO type found, wrong initialization")
 	}
 	return keyDao, nil
 }
@@ -82,7 +81,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 
 	rsp.NodeInfo.NodeKey, err = dao.GetNodeKey(req.NodeId, req.UserId)
 	if err != nil {
-		log.Logger(ctx).Error("failed to get node key", zap.Error(err))
+		log.Logger(ctx).Error("data.key.handler: failed to get node key for "+req.NodeId+" - "+req.UserId, zap.Error(err))
 		return err
 	}
 
@@ -90,7 +89,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 
 		block, err := dao.GetEncryptedLegacyBlockInfo(req.NodeId)
 		if err != nil {
-			log.Logger(ctx).Error("failed to load legacy block info", zap.Error(err))
+			log.Logger(ctx).Error("data.key.handler: failed to load legacy block info", zap.Error(err))
 			return err
 		}
 		rsp.NodeInfo.Block = &encryption.Block{
@@ -101,12 +100,10 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 	} else if req.WithRange {
 		cursor, err := dao.ListEncryptedBlockInfo(req.NodeId)
 		if err != nil {
-			log.Logger(ctx).Info("failed to list node blocks", zap.String("id", rsp.NodeInfo.Node.NodeId))
+			log.Logger(ctx).Error("failed to list node blocks", zap.String("id", rsp.NodeInfo.Node.NodeId))
 			return err
 		}
 		defer cursor.Close()
-
-		log.Logger(ctx).Info("input range", zap.Int64("offset", req.PlainOffset), zap.Int64("limit", req.PlainOffset+req.PlainLength))
 
 		encryptedOffsetCursor := int64(0)
 		encryptedLimitCursor := int64(0)
@@ -158,6 +155,10 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 			}
 		}
 
+		if !foundEncryptedOffset {
+			return errors.InternalServerError("offset.not.found", "Cannot find proper offset for range %d %d", req.PlainOffset, req.PlainLength)
+		}
+
 		if !foundEncryptedLimit {
 			rsp.EncryptedCount = encryptedLimitCursor - rsp.EncryptedOffset
 		}
@@ -166,13 +167,37 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 	return err
 }
 
-func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encryption.NodeKeyManager_SetNodeInfoStream) error {
+func (km *NodeKeyManagerHandler) GetNodePlainSize(ctx context.Context, req *encryption.GetNodePlainSizeRequest, rsp *encryption.GetNodePlainSizeResponse) error {
+
 	dao, err := getDAO(ctx)
 	if err != nil {
 		return err
 	}
 
-	log.Logger(ctx).Info("[DATA KEY SERVICE] Starting SET-NODE-INFO session...")
+	cursor, err := dao.ListEncryptedBlockInfo(req.NodeId)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close()
+
+	rsp.Size = 0
+
+	for cursor.HasNext() {
+		next, _ := cursor.Next()
+		b := next.(*key.RangedBlocks)
+		plainBlockSize := int64(b.BlockSize) - aesGCMTagSize
+		count := int(b.SeqEnd-b.SeqStart) + 1
+
+		rsp.Size += plainBlockSize * int64(count)
+	}
+	return nil
+}
+
+func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encryption.NodeKeyManager_SetNodeInfoStream) error {
+	dao, err := getDAO(ctx)
+	if err != nil {
+		return err
+	}
 
 	sessionOpened := true
 
@@ -187,32 +212,28 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 		err = stream.RecvMsg(&req)
 		if err != nil {
 			if err != io.EOF {
-				log.Logger(ctx).Error("[DATA KEY SERVICE] failed to read SetInfoRequest", zap.Error(err))
+				log.Logger(ctx).Error("data.key.handler.SetNodeInfo: failed to read SetInfoRequest", zap.Error(err))
 			}
 			break
 		}
 
-		log.Logger(ctx).Info("[DATA KEY SERVICE] new info request")
-
 		switch req.Action {
 
 		case "key":
-			err = dao.DeleteNode(req.SetNodeKey.NodeKey.NodeId)
-			if err != nil {
-				rsp.ErrorText = err.Error()
-				log.Logger(ctx).Error("attempt to clear node old blocks failed", zap.Error(err))
-			}
-
-			log.Logger(ctx).Info("[DATA KEY SERVICE] Setting node key", zap.Any("KEY", req.SetNodeKey.NodeKey))
 			err = km.saveNodeKey(ctx, dao, req.SetNodeKey.NodeKey)
 			if err != nil {
 				rsp.ErrorText = err.Error()
 				log.Logger(ctx).Error("failed to save key", zap.Error(err))
 			}
 
-		case "block":
-			log.Logger(ctx).Info("[DATA KEY SERVICE] Setting node block", zap.Any("BLOCK", req.SetBlock.Block))
+		case "clearBlocks":
+			err := dao.ClearNodeEncryptedBlockInfo(req.SetBlock.NodeUuid)
+			if err != nil {
+				log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
+				return err
+			}
 
+		case "block":
 			if nodeUuid == "" {
 				nodeUuid = req.SetBlock.NodeUuid
 			}
@@ -228,11 +249,10 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 				rangedBlocks = tmpRangeBlock
 
 			} else if req.SetBlock.Block.BlockSize != rangedBlocks.BlockSize || req.SetBlock.Block.HeaderSize != rangedBlocks.HeaderSize {
-				log.Logger(ctx).Info("[DATA KEY SERVICE] Storing block in data", zap.Any("RANGED BLOCK", rangedBlocks))
 				err = dao.SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
 				if err != nil {
 					rsp.ErrorText = err.Error()
-					log.Logger(ctx).Error("failed to save block", zap.Error(err))
+					log.Logger(ctx).Error("data.key.handler.SetNodeInfo: failed to save block", zap.Error(err))
 				} else {
 					newEnd := rangedBlocks.SeqEnd + 1
 					tmpRangeBlock.SeqStart = newEnd
@@ -258,18 +278,15 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 		}
 	}
 
-	log.Logger(ctx).Info("[DATA KEY SERVICE] Closing SET-NODE-INFO session...")
 	if sce := stream.Close(); sce != nil {
-		log.Logger(ctx).Error("[DATA KEY SERVICE] stream close error", zap.Error(sce))
+		log.Logger(ctx).Error("data.key.handler.SetNodeInfo: failed to close micro.stream", zap.Error(sce))
 	}
 	return err
 }
 
 func (km *NodeKeyManagerHandler) CopyNodeInfo(ctx context.Context, req *encryption.CopyNodeInfoRequest, rsp *encryption.CopyNodeInfoResponse) error {
-	log.Logger(ctx).Info("Copying node ", zap.String("source", req.NodeUuid), zap.String("target", req.NodeCopyUuid))
 	dao, err := getDAO(ctx)
 	if err != nil {
-		log.Logger(ctx).Error("failed to copy node info", zap.Error(err))
 		return err
 	}
 	return dao.CopyNode(req.NodeUuid, req.NodeCopyUuid)
@@ -320,19 +337,5 @@ func (km *NodeKeyManagerHandler) saveNodeKey(ctx context.Context, dao key.DAO, n
 		log.Logger(ctx).Error("failed to save node key", zap.Error(err))
 		return err
 	}
-
-	err = dao.ClearNodeEncryptedBlockInfo(nodeKey.NodeId)
-	if err != nil {
-		log.Logger(ctx).Error("failed to clear old blocks", zap.Error(err))
-		return err
-	}
-	return nil
-}
-
-func (km *NodeKeyManagerHandler) saveBlock(ctx context.Context, dao key.DAO) error {
-	return nil
-}
-
-func (km *NodeKeyManagerHandler) createCopy(ctx context.Context, req *encryption.GetNodeInfoResponse, rsp *encryption.GetNodeInfoResponse) error {
 	return nil
 }

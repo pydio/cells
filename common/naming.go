@@ -147,6 +147,7 @@ const (
 	PYDIO_S3ANON_PROFILE        = "anon"
 	PYDIO_SYNC_HIDDEN_FILE_META = ".pydio"
 	X_AMZ_META_CLEAR_SIZE       = "X-Amz-Meta-Pydio-Clear-Size"
+	X_AMZ_META_CLEAR_SIZE_UNKOWN = "unknown"
 	X_AMZ_META_NODE_UUID        = "X-Amz-Meta-Pydio-Node-Uuid"
 	X_AMZ_META_DIRECTIVE        = "X-Amz-Metadata-Directive"
 	XPydioClientUuid            = "X-Pydio-Client-Uuid"

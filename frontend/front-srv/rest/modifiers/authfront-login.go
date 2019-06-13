@@ -1,6 +1,7 @@
 package modifiers
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -11,20 +12,18 @@ import (
 
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"
-	"github.com/pborman/uuid"
-
-	"context"
-
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
+	"github.com/pborman/uuid"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/idm/auth"
-	"go.uber.org/zap"
 )
 
 func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
@@ -158,6 +157,9 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 	}
 	res, err := client.Do(httpReq)
 	if err != nil {
+		if strings.Contains(err.Error(), "connect: connection timed out") {
+			log.Logger(ctx).Error("Connection timeout while trying to retrieve a JWT token.\nThis usually happens with wrong network configuration. Please insure that the machine that runs your Cells instance can reach itself using your public FQDN.")
+		}
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -175,9 +177,8 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 	if errMsg, exists := respMap["error"]; exists {
 		if t := errors.Parse(respMap["error_description"].(string)); t != nil && t.Code > 0 {
 			return nil, t
-		} else {
-			return nil, fmt.Errorf("could not retrieve token, %s: %s", errMsg, respMap["error_description"])
 		}
+		return nil, fmt.Errorf("could not retrieve token, %s: %s", errMsg, respMap["error_description"])
 	}
 
 	return respMap, nil

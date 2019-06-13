@@ -353,7 +353,8 @@ class UserAvatar extends React.Component{
         if(richCard){
             avatarComponent = <div style={{textAlign:'center'}}>{avatarComponent}</div>
         } else if(userNotFound){
-            labelStyle = {...labelStyle, textDecoration:'line-through'};
+            //labelStyle = {...labelStyle, textDecoration:'line-through'};
+            label = pydio.MessageHash['user.unknown'];
         }
         let labelChevron;
         if(displayLabel && displayLabelChevron){

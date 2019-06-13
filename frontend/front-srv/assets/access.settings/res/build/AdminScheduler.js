@@ -1275,7 +1275,6 @@ var TaskActivity = (function (_React$Component) {
 
             this.loadActivity(this.props);
             this._loadDebounced = (0, _lodashDebounce2["default"])(function (jobId) {
-                console.log(jobId, _this.props);
                 if (jobId && _this.props.task && _this.props.task.JobID === jobId) {
                     _this.loadActivity(_this.props);
                 }

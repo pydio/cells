@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -39,6 +40,17 @@ import (
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/lib"
 )
+
+var (
+	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+)
+
+func validateMailFormat(input string) error {
+	if !emailRegexp.MatchString(input) {
+		return fmt.Errorf("Please enter a valid e-mail address!")
+	}
+	return nil
+}
 
 func notEmpty(input string) error {
 	if len(input) > 0 {

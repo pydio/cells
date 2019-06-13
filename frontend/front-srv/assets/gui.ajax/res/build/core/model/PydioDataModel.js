@@ -623,7 +623,7 @@ var PydioDataModel = (function (_Observable) {
 		var test = false;
 		try {
 			this._selectedNodes.forEach(function (node) {
-				if (node.hasMetadataInBranch("node_readonly", "true")) {
+				if (node.getMetadata().get("node_readonly") === "true") {
 					test = true;
 					throw $break;
 				}

@@ -16,13 +16,13 @@ Pydio Cells is the nextgen file sharing platform for organizations. It is a full
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See "Deployment" for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for **development** and testing purposes. See the [Deployment section below](#deployment)  for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
 The following elements are required to compile and run pydio on your machine
 
-- Go language v1.10 or higher (tested with 1.10.5 and 1.11.5), with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
+- Go language v1.10 or higher (tested with 1.10.x, 1.11.x, 1.12.x), with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
 - MySQL database 5.6 or higher (or MariaDB equivalent). The new mysql 8 authentication method is supported starting at Cells 1.4.1.
 
 _Note: We have developped and tested Pydio Cells on MacOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
@@ -40,20 +40,22 @@ cd $GOPATH/src/github.com/pydio/cells
 make dev
 ```
 
-_Note: we had to fork a few libraries before integrating them as dependencies. If you need to modify this part of the code, you should first retrieve a local version by executing_:
-
-```sh
-./deps.sh
-```
-
 To have the environment running, you must also:
 
 - Create a database in your chosen DB server,
-- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [wiki](https://github.com/pydio/cells/wiki) for additional information.
+- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [official documentation](https://pydio.com/en/docs/cells/v1/install-pydio-cells) for additional information.
 
-```bash
+```sh
 ./cells install
 ```
+
+#### Note on the third party libraries
+
+We still currently manage third party dependencies via the [vendor mechanism](https://github.com/kardianos/govendor): shortly said, we pick up and maintain specific versions of the sources for each dependency we use by copying them in the `vendor/` subfolder. The binary is built using these codes.
+
+When you clone the `github.com/pydio/cells` repository, you then also have an embedded local copy of  all the sources for you to investigate. Yet, you should not try to directly modify code that have been _vendored_.
+
+Please also not that we had to fork a few libraries before integrating them as dependencies, most important being dex and minio. If you need to modify this part of the code, please get in touch with us.
 
 ## Running the tests
 
@@ -90,4 +92,4 @@ See the list of [contributors](https://github.com/pydio/cells/graphs/contributor
 
 ## License
 
-This project is licensed under the AGPLv3 License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the AGPLv3 License - see the [LICENSE](LICENSE) file for details.

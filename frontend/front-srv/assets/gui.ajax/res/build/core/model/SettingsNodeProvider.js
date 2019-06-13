@@ -110,7 +110,6 @@ var SettingsNodeProvider = (function () {
                 }
                 // Check if there is profile filter
                 var profile = '';
-                console.log(node);
                 if (node.getMetadata().has('userProfileFilter')) {
                     profile = node.getMetadata().get('userProfileFilter');
                 }

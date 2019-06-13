@@ -154,6 +154,12 @@ func (this *GetNodeInfoResponse) Validate() error {
 	}
 	return nil
 }
+func (this *GetNodePlainSizeRequest) Validate() error {
+	return nil
+}
+func (this *GetNodePlainSizeResponse) Validate() error {
+	return nil
+}
 func (this *SetNodeInfoRequest) Validate() error {
 	if this.SetNodeKey != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SetNodeKey); err != nil {

@@ -28,6 +28,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,7 +38,6 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -155,12 +155,8 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 	log.Logger(ctx).Debug("[HANDLER PUT] > Putting object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
 
-	var encrypted bool
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
-		if branchInfo.Binary {
-			return m.next.PutObject(ctx, node, reader, requestData)
-		}
-		encrypted = branchInfo.EncryptionMode != object.EncryptionMode_CLEAR
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+		return m.next.PutObject(ctx, node, reader, requestData)
 	}
 
 	if strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
@@ -201,10 +197,6 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 		}
 
 		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = newNode.Uuid
-		if encrypted {
-			log.Logger(ctx).Debug("Adding special header to store clear size", zap.Any("s", requestData.Size))
-			requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", requestData.Size)
-		}
 		node.Uuid = newNode.Uuid
 		size, err := m.next.PutObject(ctx, node, reader, requestData)
 		if err != nil && onErrorFunc != nil {
@@ -232,7 +224,11 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 	}
 	var createErroFunc onCreateErrorFunc
 	if node.Uuid == "" { // PreCreate a node in the tree.
-		newNode, nodeErr, onErrorFunc := m.GetOrCreatePutNode(ctx, node.Path, 0)
+		var size int64
+		if metaSize, ok := requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE]; ok {
+			size, _ = strconv.ParseInt(metaSize, 10, 64)
+		}
+		newNode, nodeErr, onErrorFunc := m.GetOrCreatePutNode(ctx, node.Path, size)
 		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			if onErrorFunc != nil {
