@@ -476,8 +476,14 @@ var InstallForm = function (_React$Component) {
                             !licCheckPassed && _react2.default.createElement(
                                 'div',
                                 null,
-                                'A valid license is required to run this installation.',
-                                _react2.default.createElement(_reduxForm.Field, { name: 'licenseString', component: renderTextField, floatingLabel: 'License String', label: 'Please copy/paste the license string provided to you.' })
+                                'A valid license is required to run this installation.  If you do not own one, please contact Pydio sales services at ',
+                                _react2.default.createElement(
+                                    'a',
+                                    { href: "mailto:services@pydio.com" },
+                                    'services@pydio.com'
+                                ),
+                                ' to receive your license key.',
+                                _react2.default.createElement(_reduxForm.Field, { name: 'licenseString', component: renderTextField, floatingLabel: 'License String', label: 'Please copy/paste the license key provided to you.' })
                             )
                         ),
                         _react2.default.createElement(
@@ -828,9 +834,10 @@ var InstallForm = function (_React$Component) {
                         installError && _react2.default.createElement(
                             'div',
                             null,
-                            'There was an error while performing installation ! Please check your configuration ',
+                            'There was an error while performing installation! Please check your configuration. ',
                             _react2.default.createElement('br', null),
-                            'Error was : ',
+                            'Error was: ',
+                            _react2.default.createElement('br', null),
                             installError
                         )
                     ),
