@@ -152,7 +152,7 @@ var UserInfo = (function (_React$Component) {
                     var role = user.getRole();
                     if (idmUser.Attributes['locks']) {
                         locks = JSON.parse(idmUser.Attributes['locks']) || [];
-                        if (typeof locks === 'object') {
+                        if (typeof locks === 'object' && locks.length === undefined) {
                             (function () {
                                 // Backward compat issue
                                 var arrL = [];

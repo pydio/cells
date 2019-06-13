@@ -50,8 +50,8 @@ export default React.createClass({
     },
 
     onNodesChange(nodeUuid, checkboxName, value){
-        const {role} = this.props;
-        role.updateAcl(null, nodeUuid, checkboxName);
+        const {role, workspace} = this.props;
+        role.updateAcl(null, nodeUuid, checkboxName, workspace);
     },
 
     getInitialState(){

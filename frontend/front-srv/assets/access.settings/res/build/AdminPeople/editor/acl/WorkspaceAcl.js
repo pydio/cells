@@ -73,9 +73,11 @@ exports['default'] = React.createClass({
     },
 
     onNodesChange: function onNodesChange(nodeUuid, checkboxName, value) {
-        var role = this.props.role;
+        var _props2 = this.props;
+        var role = _props2.role;
+        var workspace = _props2.workspace;
 
-        role.updateAcl(null, nodeUuid, checkboxName);
+        role.updateAcl(null, nodeUuid, checkboxName, workspace);
     },
 
     getInitialState: function getInitialState() {
@@ -87,10 +89,10 @@ exports['default'] = React.createClass({
     },
 
     render: function render() {
-        var _props2 = this.props;
-        var workspace = _props2.workspace;
-        var role = _props2.role;
-        var advancedAcl = _props2.advancedAcl;
+        var _props3 = this.props;
+        var workspace = _props3.workspace;
+        var role = _props3.role;
+        var advancedAcl = _props3.advancedAcl;
 
         var _role$getAclString = role.getAclString(workspace);
 

@@ -81,7 +81,6 @@ var WsAutoComplete = (function (_React$Component) {
                 });
 
                 if (validateOnLoad) {
-                    console.log("Checking value");
                     _this2.handleNewRequest(value);
                 }
             });
@@ -130,8 +129,6 @@ var WsAutoComplete = (function (_React$Component) {
                 key = value.key;
                 node = value.node;
             }
-
-            console.log("Node is ", node);
 
             if (!node) {
                 return onError();

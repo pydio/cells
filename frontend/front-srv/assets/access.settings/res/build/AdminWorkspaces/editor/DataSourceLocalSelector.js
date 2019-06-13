@@ -287,7 +287,6 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             } else if (_pydioUtilLang2['default'].computeStringSlug(base) !== base) {
                 invalid = m('selector.error.dnsname');
             }
-            console.log(invalid);
             return invalid;
         }
     }, {

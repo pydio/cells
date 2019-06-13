@@ -356,11 +356,14 @@ class Role extends Observable{
      * @param workspace {IdmWorkspace}
      * @param nodeUuid string
      * @param value string
+     * @param nodeWs {IdmWorkspace}
      */
-    updateAcl(workspace, nodeUuid, value){
+    updateAcl(workspace, nodeUuid, value, nodeWs = undefined){
         let nodeIds = [];
+        let isRoot = false;
         if(nodeUuid){
             nodeIds = [nodeUuid];
+            isRoot = nodeWs && Object.keys(nodeWs.RootNodes).indexOf(nodeUuid) > -1;
         } else {
             nodeIds = Object.keys(workspace.RootNodes);
         }
@@ -391,6 +394,8 @@ class Role extends Observable{
                     acl.NodeID = n;
                     if(workspace){
                         acl.WorkspaceID = workspace.UUID;
+                    } else if (isRoot) {
+                        acl.WorkspaceID = nodeWs.UUID;
                     }
                     acl.RoleID = this.idmRole.Uuid;
                     acl.Action = IdmACLAction.constructFromObject({Name:r, Value: "1"});
