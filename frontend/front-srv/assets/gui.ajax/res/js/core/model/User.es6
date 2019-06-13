@@ -30,6 +30,20 @@ import HasherUtils from "../util/HasherUtils";
  */
 export default class User{
 
+    id;
+    activeRepository;
+    read;
+    write;
+    crossRepositoryCopy;
+    preferences;
+    repositories;
+    crossRepositories;
+    isAdmin;
+    lock;
+
+    _pydioObject;
+    _parsedJSONCache;
+
 	/**
 	 * Constructor
 	 * @param id String The user unique id
@@ -50,14 +64,6 @@ export default class User{
          * @var String
          */
         this.activeRepository=undefined;
-        /**
-         * @var Boolean
-         */
-        this.read=false;
-        /**
-         * @var Boolean
-         */
-        this.write=false;
         /**
          * @var Boolean
          */
@@ -119,24 +125,32 @@ export default class User{
 	 * @returns Boolean
 	 */
 	canRead(){
+	    /*
 	    try{
             // TODO: get "read" property from root node metadata
     	    const metaRoot = this._pydioObject.getContextHolder().getRootNode().getMetadata();
         } catch(e){
 
         }
-	    return true;
-		//return this.read;
+        //return this.read;
+        */
+        return true;
 	}
 	
 	/**
 	 * Whether current repo is allowed to be written
+     * @param node {AjxpNode}
 	 * @returns Boolean
 	 */
-	canWrite(){
+	canWrite(node = undefined){
         try{
-            const metaRoot = this._pydioObject.getContextHolder().getRootNode().getMetadata();
-            return !metaRoot.has("node_readonly") || !metaRoot.get("node_readonly")
+            let meta;
+            if(node) {
+                meta = node.getMetadata();
+            } else{
+                meta = this._pydioObject.getContextHolder().getRootNode().getMetadata();
+            }
+            return !meta.has("node_readonly") || !meta.get("node_readonly")
         } catch(e){
             return false;
         }
@@ -157,7 +171,9 @@ export default class User{
 	getPreference(prefName, fromJSON){
         if(fromJSON){
             const test = this._parsedJSONCache.get(prefName);
-            if(test) return test;
+            if(test) {
+                return test;
+            }
         }
 	    const value = this.preferences.get(prefName);
 	    if(fromJSON){
@@ -243,11 +259,11 @@ export default class User{
 		this.repositories = repoHash;
 		// filter repositories once for all
 		this.crossRepositories = new Map();
-		this.repositories.forEach(function(value, key){
-			if(value.allowCrossRepositoryCopy && value.accessType != 'inbox'){
+		this.repositories.forEach((value, key) => {
+			if(value.allowCrossRepositoryCopy){
 				this.crossRepositories.set(key, value);
 			}
-		}.bind(this) );
+		});
 	}
 	/**
 	 * Whether there are any repositories allowing crossCopy

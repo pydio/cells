@@ -249,7 +249,8 @@ var Action = (function (_Observable) {
 			crtInZip = crtNode.hasAjxpMimeInBranch("ajxp_browsable_archive");
 			crtIsRoot = crtNode.isRoot();
 			crtAjxpMime = crtNode.getAjxpMime();
-			crtIsReadOnly = crtNode.hasMetadataInBranch("node_readonly", "true") || crtNode.getMetadata().has("level_readonly") && crtNode.getMetadata().get("level_readonly") === "true";
+			//crtIsReadOnly = crtNode.hasMetadataInBranch("node_readonly", "true") || (crtNode.getMetadata().has("level_readonly") && crtNode.getMetadata().get("level_readonly") === "true");
+			crtIsReadOnly = crtNode.getMetadata().has("level_readonly") && crtNode.getMetadata().get("level_readonly") === "true";
 		}
 
 		if (this.options.listeners["contextChange"]) {
@@ -280,10 +281,7 @@ var Action = (function (_Observable) {
 		if (rightsContext.read && crtUser != null && !crtUser.canRead()) {
 			return this.hideForContext();
 		}
-		if (rightsContext.write && crtUser != null && !crtUser.canWrite()) {
-			return this.hideForContext();
-		}
-		if (rightsContext.write && crtIsReadOnly) {
+		if (rightsContext.write && (crtUser != null && !crtUser.canWrite(crtNode) || crtIsReadOnly)) {
 			return this.hideForContext();
 		}
 		if (this.context.allowedMimes.length) {
@@ -351,12 +349,20 @@ var Action = (function (_Observable) {
 		}
 		var selectionContext = this.selectionContext;
 		if (selectionContext.allowedMimes.length) {
-			if (selectionContext.behaviour == 'hidden') this.hide();else this.disable();
+			if (selectionContext.behaviour === 'hidden') {
+				this.hide();
+			} else {
+				this.disable();
+			}
 		}
 		if (selectionContext.evalMetadata && userSelection && userSelection.isUnique()) {
 			var result = this._evalScripts(selectionContext.evalMetadata, userSelection.getUniqueNode().getMetadata());
 			if (!result) {
-				if (selectionContext.behaviour == 'hidden') this.hide();else this.disable();
+				if (selectionContext.behaviour === 'hidden') {
+					this.hide();
+				} else {
+					this.disable();
+				}
 				return;
 			}
 		}
@@ -381,20 +387,20 @@ var Action = (function (_Observable) {
 		if (this.rightsContext.write && userSelection.hasReadOnly()) {
 			return this.disable();
 		}
-		if (selectionContext.allowedMimes.length && userSelection && selectionContext.allowedMimes.indexOf('*') == -1 && !userSelection.hasMime(selectionContext.allowedMimes)) {
-			if (selectionContext.behaviour == 'hidden') return this.hide();else return this.disable();
+		if (selectionContext.allowedMimes.length && userSelection && selectionContext.allowedMimes.indexOf('*') === -1 && !userSelection.hasMime(selectionContext.allowedMimes)) {
+			if (selectionContext.behaviour === 'hidden') return this.hide();else return this.disable();
 		}
 		if (selectionContext.allowedMimes.length && userSelection && selectionContext.allowedMimes.indexOf("^") !== -1) {
 			var forbiddenValueFound = false;
 			selectionContext.allowedMimes.forEach(function (m) {
-				if (m.indexOf("^") == -1) return;
+				if (m.indexOf("^") === -1) return;
 				if (userSelection.hasMime([m.replace("^", "")])) {
 					forbiddenValueFound = true;
 					//throw $break;
 				}
 			});
 			if (forbiddenValueFound) {
-				if (selectionContext.behaviour == 'hidden') return this.hide();else return this.disable();
+				if (selectionContext.behaviour === 'hidden') return this.hide();else return this.disable();
 			}
 		}
 		this.show();
@@ -449,13 +455,13 @@ var Action = (function (_Observable) {
 			for (var key in defaultAttributes) {
 				if (!defaultAttributes.hasOwnProperty(key)) continue;
 				var value = defaultAttributes[key];
-				if (xmlNode.getAttribute(value) && xmlNode.getAttribute(value) == "true") {
+				if (xmlNode.getAttribute(value) && xmlNode.getAttribute(value) === "true") {
 					if (!this.defaults) this.defaults = {};
 					this.defaults[key] = true;
 				}
 			}
 			var j;
-			if (node.nodeName == "processing") {
+			if (node.nodeName === "processing") {
 				var clientFormData = {};
 				for (j = 0; j < node.childNodes.length; j++) {
 					var processNode = node.childNodes[j];
@@ -560,7 +566,7 @@ var Action = (function (_Observable) {
 			}
 		}
 		if (!this.options.hasAccessKey) return;
-		if (this.options.accessKey == '' || !this.manager.getMessage(this.options.accessKey) || this.options.text.indexOf(this.manager.getMessage(this.options.accessKey)) == -1) {
+		if (this.options.accessKey === '' || !this.manager.getMessage(this.options.accessKey) || this.options.text.indexOf(this.manager.getMessage(this.options.accessKey)) === -1) {
 			this.options.accessKey = this.options.text.charAt(0);
 		} else {
 			this.options.accessKey = this.manager.getMessage(this.options.accessKey);
@@ -576,7 +582,7 @@ var Action = (function (_Observable) {
 		if (this.subMenuItems.staticItems) {
 			this.subMenuItems.staticItems.forEach(function (item) {
 				var itemText = this.manager.getMessage(item.text);
-				if (item.hasAccessKey && (item.hasAccessKey == 'true' || item.hasAccessKey === true) && this.manager.getMessage(item.accessKey)) {
+				if (item.hasAccessKey && (item.hasAccessKey === 'true' || item.hasAccessKey === true) && this.manager.getMessage(item.accessKey)) {
 					itemText = this.getKeyedText(this.manager.getMessage(item.text), true, this.manager.getMessage(item.accessKey));
 					if (!this.subMenuItems.accessKeys) this.subMenuItems.accessKeys = [];
 					this.manager.registerKey(this.manager.getMessage(item.accessKey), this.options.name, item.command);
@@ -653,7 +659,6 @@ var Action = (function (_Observable) {
 
 	/**
   * Refresh icon image source
-  * @param newSrc String The image source. Can reference an image library
      * @param iconClass String Optional class to replace image
   */
 
@@ -819,8 +824,8 @@ var Action = (function (_Observable) {
 		for (var key in object) {
 			if (!object.hasOwnProperty(key) || !node.getAttribute(key)) continue;
 			var value = node.getAttribute(key);
-			if (value == 'true') value = true;else if (value == 'false') value = false;
-			if (key == 'allowedMimes') {
+			if (value === 'true') value = true;else if (value === 'false') value = false;
+			if (key === 'allowedMimes') {
 				if (value && value.split(',').length) {
 					value = value.split(',');
 				} else {
