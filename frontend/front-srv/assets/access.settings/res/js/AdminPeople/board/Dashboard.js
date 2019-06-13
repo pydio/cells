@@ -351,7 +351,7 @@ let Dashboard = React.createClass({
         if (searchResultData !== false){
             groupPanelStyle = {
                 flex:'none',
-                width: 0
+                opacity: 0.6
             };
         }
         let profileFilter = '';

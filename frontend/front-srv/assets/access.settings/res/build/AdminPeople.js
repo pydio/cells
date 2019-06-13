@@ -629,7 +629,7 @@ var Dashboard = _react2['default'].createClass({
         if (searchResultData !== false) {
             groupPanelStyle = {
                 flex: 'none',
-                width: 0
+                opacity: 0.6
             };
         }
         var profileFilter = '';
@@ -1481,6 +1481,7 @@ var UsersSearchBox = (function (_React$Component) {
         key: 'keyDown',
         value: function keyDown(event) {
             if (event.key === 'Enter') {
+                event.preventDefault();
                 this.triggerSearch();
             } else {
                 this.searchDebounced();
