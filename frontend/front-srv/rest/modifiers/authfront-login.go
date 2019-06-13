@@ -157,6 +157,9 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 	}
 	res, err := client.Do(httpReq)
 	if err != nil {
+		if strings.Contains(err.Error(), "connect: connection timed out") {
+			log.Logger(ctx).Error("Connection timeout while trying to retrieve a JWT token.\nThis usually happens with wrong network configuration. Please insure that the machine that runs your Cells instance can reach itself using your public FQDN.")
+		}
 		return nil, err
 	}
 	defer res.Body.Close()
