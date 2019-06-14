@@ -7,7 +7,6 @@ protoc -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleap
        -I$GOPATH/src \
        -I. \
        --go_out=. \
-       --go_out=plugins=grpc:$GOPATH/src/github.com/pydio/cells-client/grpc/proto/$1 \
        --micro_out=. \
        --govalidators_out=. \
        *.proto

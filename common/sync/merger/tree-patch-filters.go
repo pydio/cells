@@ -105,6 +105,7 @@ func (t *TreePatch) detectFileMoves(ctx context.Context) {
 						// Enqueue Update if Etag differ
 						if opCreate.GetNode().Etag != "" && opCreate.GetNode().Etag != dbNode.Etag {
 							updateOp := deleteOp.Clone(OpUpdateFile)
+							updateOp.AttachToPatch(t)
 							t.QueueOperation(updateOp)
 						}
 						// Enqueue in moves if path differ
@@ -112,6 +113,7 @@ func (t *TreePatch) detectFileMoves(ctx context.Context) {
 							log.Logger(ctx).Debug("Existing leaf node with uuid and different path: safe move to ", opCreate.GetNode().ZapPath())
 							opCreate.SetNode(dbNode)
 							opCreate.UpdateType(OpMoveFile)
+							opCreate.AttachToPatch(t)
 							t.QueueOperation(opCreate)
 						}
 						found = true

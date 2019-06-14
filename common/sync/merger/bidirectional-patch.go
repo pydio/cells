@@ -235,6 +235,7 @@ func (p *BidirectionalPatch) ReSyncTarget(left, right *TreeNode) {
 			}
 			childOp := NewOperation(oType, model.NodeToEventInfo(p.ctx, node.GetPath(), node, model.EventCreate))
 			childOp.SetNode(node)
+			childOp.AttachToPatch(p)
 			requeueNode.getRoot().QueueOperation(childOp)
 		}, targetPath, true)
 	}

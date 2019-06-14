@@ -82,20 +82,22 @@ func (pr *Processor) Process(patch merger.Patch) {
 
 	patch.Status(merger.ProcessStatus{StatusString: fmt.Sprintf("Start processing patch (total bytes %d)", total)})
 	stats := patch.Stats()
+	pending := make(map[string]int)
+	if pen, ok := stats["Pending"]; ok {
+		pending = pen.(map[string]int)
+	}
 
-	sessionFlush := func(stats map[string]interface{}, tt ...merger.OperationType) {}
+	flushSessionBefore := func(tt ...merger.OperationType) {}
 	session, err := patch.StartSessionProvider(&tree.Node{Path: "/"})
 	if err != nil {
 		pr.Logger().Error("Error while starting Indexation Session", zap.Error(err))
 	} else {
 		defer patch.FinishSessionProvider(session.Uuid)
-		sessionFlush = func(stats map[string]interface{}, tt ...merger.OperationType) {
+		flushSessionBefore = func(tt ...merger.OperationType) {
 			for _, t := range tt {
-				if val, ok := stats[t.String()]; ok {
-					if val.(int) > 0 {
-						patch.FlushSessionProvider(session.Uuid)
-						return
-					}
+				if val, ok := pending[t.String()]; ok && val > 0 {
+					patch.FlushSessionProvider(session.Uuid)
+					return
 				}
 			}
 		}
@@ -106,7 +108,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 		pr.applyProcessFunc(operation, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", operation.GetRefPath()))
 	})
 
-	sessionFlush(stats, merger.OpMoveFolder)
+	flushSessionBefore(merger.OpMoveFolder)
 	// Move folders
 	patch.WalkOperations([]merger.OperationType{merger.OpMoveFolder}, func(operation merger.Operation) {
 		toPath := operation.GetRefPath()
@@ -115,7 +117,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 	})
 
 	// Move files
-	sessionFlush(stats, merger.OpMoveFile)
+	flushSessionBefore(merger.OpMoveFile)
 	patch.WalkOperations([]merger.OperationType{merger.OpMoveFile}, func(operation merger.Operation) {
 		toPath := operation.GetRefPath()
 		fromPath := operation.GetMoveOriginPath()
@@ -124,7 +126,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 
 	// Create files
 	createFiles := patch.OperationsByType([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile})
-	sessionFlush(stats, merger.OpCreateFile, merger.OpUpdateFile)
+	flushSessionBefore(merger.OpCreateFile, merger.OpUpdateFile)
 	if patch.HasTransfers() {
 		// Process with a parallel Queue
 		wg := &sync.WaitGroup{}
@@ -153,7 +155,7 @@ func (pr *Processor) Process(patch merger.Patch) {
 
 	// Deletes
 	deletes := patch.OperationsByType([]merger.OperationType{merger.OpDelete})
-	sessionFlush(stats, merger.OpDelete)
+	flushSessionBefore(merger.OpDelete)
 	for _, op := range deletes {
 		if op.GetNode() == nil {
 			continue

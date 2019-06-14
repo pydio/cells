@@ -278,7 +278,7 @@ func (d *daocache) Flush(final bool) error {
 		// If this isn't the final flush, then we reopen a new cache
 		newCache := NewDAOCache(d.session, d.DAO).(*daocache)
 		*d = *newCache
-		d.resync()
+		//d.resync() // Not necessary, resync() is already called inside NewDAOCache
 	}
 
 	return err
@@ -595,7 +595,8 @@ func (d *daocache) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode
 
 	err := d.DAO.MoveNodeTree(nodeFrom, nodeTo)
 
-	d.resync()
+	//resync should not be necessary, as operations are all grouped by type and we call Flush between each group
+	//d.resync()
 
 	return err
 }

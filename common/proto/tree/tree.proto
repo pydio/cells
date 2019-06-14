@@ -115,6 +115,7 @@ message IndexationSession {
     Node RootNode = 3;
     int64 ExpectedOperationsCount = 4;
     int64 CurrentOperationCount = 5;
+    bool Silent = 6;
 }
 
 message IndexationOperation{

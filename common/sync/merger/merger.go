@@ -79,7 +79,7 @@ type Patch interface {
 	ProgressTotal() int64
 
 	// SetSessionProvider registers a target as supporting the SessionProvider interface
-	SetSessionProvider(providerContext context.Context, provider model.SessionProvider)
+	SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool)
 	// StartSessionProvider calls StartSession on the underlying provider if it is set
 	StartSessionProvider(rootNode *tree.Node) (*tree.IndexationSession, error)
 	// FlushSessionProvider calls FlushSession on the underlying provider if it is set

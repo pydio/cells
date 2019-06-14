@@ -25,6 +25,7 @@ import (
 	"context"
 
 	"go.uber.org/zap"
+	"golang.org/x/time/rate"
 	"gopkg.in/olahol/melody.v1"
 
 	"github.com/pydio/cells/common/auth/claim"
@@ -38,6 +39,10 @@ const SessionWorkspacesKey = "workspaces"
 const SessionUsernameKey = "user"
 const SessionProfileKey = "profile"
 const SessionClaimsKey = "profile"
+const SessionLimiterKey = "limiter"
+
+const LimiterRate = 30
+const LimiterBurst = 20
 
 func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool *views.ClientsPool) {
 
@@ -66,6 +71,7 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 		session.Set(SessionUsernameKey, claims.Name)
 		session.Set(SessionProfileKey, claims.Profile)
 		session.Set(SessionClaimsKey, claims)
+		session.Set(SessionLimiterKey, rate.NewLimiter(LimiterRate, LimiterBurst))
 	} else {
 		log.Logger(ctx).Error("Error while setting workspaces in session", zap.Error(err))
 		ClearSession(session)
@@ -80,5 +86,6 @@ func ClearSession(session *melody.Session) {
 	session.Set(SessionUsernameKey, nil)
 	session.Set(SessionProfileKey, nil)
 	session.Set(SessionClaimsKey, nil)
+	session.Set(SessionLimiterKey, nil)
 
 }

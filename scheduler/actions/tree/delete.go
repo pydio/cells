@@ -22,17 +22,21 @@ package tree
 
 import (
 	"context"
-	"path/filepath"
+	"path"
+	"strings"
 
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/scheduler/lang"
 )
 
 type DeleteAction struct {
@@ -67,6 +71,8 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		return input.WithIgnore(), nil // Ignore
 	}
 
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Default(), true))
+
 	sourceNode := input.Nodes[0]
 
 	readR, readE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
@@ -93,12 +99,16 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 			if e != nil {
 				break
 			}
-			if resp.Node.Path == filepath.Join(sourceNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) && c.deleteChildrenOnly {
+			if resp.Node.Path == path.Join(sourceNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) && c.deleteChildrenOnly {
 				// Do not delete first .pydio!
 				continue
 			}
 			log.Logger(ctx).Debug("Deleting node in background", resp.Node.ZapPath())
-			channels.StatusMsg <- "Deleting " + resp.Node.GetPath()
+			statusPath := strings.TrimPrefix(resp.Node.GetPath(), sourceNode.GetPath()+"/")
+			if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+				statusPath = path.Dir(statusPath)
+			}
+			channels.StatusMsg <- strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)
 			_, er := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node})
 			if er != nil {
 				return input.WithError(er), er

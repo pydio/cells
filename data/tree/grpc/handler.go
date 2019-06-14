@@ -455,7 +455,7 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 	for msg := range c {
 
 		event := msg.(*tree.NodeChangeEvent)
-		if event.Optimistic || event.Silent {
+		if event.Optimistic {
 			continue
 		}
 		newEvent := proto.Clone(event).(*tree.NodeChangeEvent)

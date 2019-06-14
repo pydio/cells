@@ -88,9 +88,7 @@ func init() {
 				brok.Subscribe(common.TOPIC_TREE_CHANGES, func(publication broker.Publication) error {
 					var event tree.NodeChangeEvent
 					if e := proto.Unmarshal(publication.Message().Body, &event); e == nil {
-						if !event.Silent {
-							return ws.HandleNodeChangeEvent(publicationContext(publication), &event)
-						}
+						return ws.HandleNodeChangeEvent(publicationContext(publication), &event)
 					}
 					return nil
 				})
@@ -98,9 +96,7 @@ func init() {
 				brok.Subscribe(common.TOPIC_META_CHANGES, func(publication broker.Publication) error {
 					var event tree.NodeChangeEvent
 					if e := proto.Unmarshal(publication.Message().Body, &event); e == nil {
-						if !event.Silent {
-							return ws.HandleNodeChangeEvent(publicationContext(publication), &event)
-						}
+						return ws.HandleNodeChangeEvent(publicationContext(publication), &event)
 					}
 					return nil
 				})

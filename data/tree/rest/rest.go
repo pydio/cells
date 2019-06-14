@@ -251,7 +251,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 		// Create recycle bins now, to make sure user is notified correctly
 		recycleNode := deleteJobs.RecyclesNodes[recyclePath]
 		if _, e := fullPathRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: recycleNode}); e != nil {
-			_, e := fullPathRouter.CreateNode(ctx, &tree.CreateNodeRequest{Node: recycleNode})
+			_, e := fullPathRouter.CreateNode(ctx, &tree.CreateNodeRequest{Node: recycleNode, IndexationSession: "close-create-recycle"})
 			if e != nil {
 				log.Logger(ctx).Error("Could not create recycle node, it will be created during the move but may not appear to the user")
 			} else {

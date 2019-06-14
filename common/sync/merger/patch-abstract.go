@@ -33,14 +33,17 @@ type AbstractPatch struct {
 
 	sessionProvider        model.SessionProvider
 	sessionProviderContext context.Context
+	sessionSilent          bool
 
 	statusChan chan ProcessStatus
 	doneChan   chan interface{}
+	closing    bool
 }
 
-func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, provider model.SessionProvider) {
+func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool) {
 	b.sessionProvider = provider
 	b.sessionProviderContext = providerContext
+	b.sessionSilent = silentSession
 }
 
 func (b *AbstractPatch) SetupChannels(status chan ProcessStatus, done chan interface{}) {
@@ -51,12 +54,15 @@ func (b *AbstractPatch) SetupChannels(status chan ProcessStatus, done chan inter
 func (b *AbstractPatch) Status(s ProcessStatus) {
 	if b.statusChan != nil {
 		go func() {
-			b.statusChan <- s
+			if !b.closing {
+				b.statusChan <- s
+			}
 		}()
 	}
 }
 
 func (b *AbstractPatch) Done(info interface{}) {
+	b.closing = true
 	if b.doneChan != nil {
 		b.doneChan <- info
 	}
@@ -78,7 +84,7 @@ func (b *AbstractPatch) Target(newTarget ...model.PathSyncTarget) model.PathSync
 
 func (b *AbstractPatch) StartSessionProvider(rootNode *tree.Node) (*tree.IndexationSession, error) {
 	if b.sessionProvider != nil {
-		return b.sessionProvider.StartSession(b.sessionProviderContext, rootNode)
+		return b.sessionProvider.StartSession(b.sessionProviderContext, rootNode, b.sessionSilent)
 	} else {
 		return &tree.IndexationSession{Uuid: "fake-session", Description: "Noop Session"}, nil
 	}
