@@ -129,7 +129,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				childPath := childNode.Path
 				relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
 				targetPath := prefixPathTarget + "/" + relativePath
-				statusChan <- "Copying " + childPath
+				statusChan <- "Copying " + relativePath
 
 				folderNode := childNode.Clone()
 				folderNode.Path = targetPath
@@ -163,7 +163,11 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			if childNode.IsLeaf() && (move || path.Base(childPath) != common.PYDIO_SYNC_HIDDEN_FILE_META) {
 
 				logger.Debug("Copy " + childNode.Path + " to " + targetPath)
-				statusChan <- "Copying " + childPath
+				var statusPath = relativePath
+				if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+					statusPath = path.Dir(statusPath)
+				}
+				statusChan <- "Copying " + statusPath
 
 				meta := make(map[string]string, 1)
 				if move {
