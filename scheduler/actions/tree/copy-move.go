@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"path"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -33,11 +32,14 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/scheduler/lang"
 )
 
 type CopyMoveAction struct {
@@ -106,12 +108,13 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return input.WithIgnore(), nil // Ignore
 	}
 	sourceNode := input.Nodes[0]
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Default(), true))
 
 	targetNode := &tree.Node{
 		Path: c.TargetPlaceholder,
 	}
 	if c.TargetIsParent {
-		targetNode.Path = filepath.Join(targetNode.Path, filepath.Base(sourceNode.Path))
+		targetNode.Path = path.Join(targetNode.Path, path.Base(sourceNode.Path))
 	}
 
 	log.Logger(ctx).Debug("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.TargetIsParent))
@@ -132,7 +135,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	sourceNode = readR.Node
 	output := input
 
-	e := views.CopyMoveNodes(ctx, c.Client, sourceNode, targetNode, c.Move, c.Recursive, true, channels.StatusMsg, channels.Progress)
+	e := views.CopyMoveNodes(ctx, c.Client, sourceNode, targetNode, c.Move, c.Recursive, true, channels.StatusMsg, channels.Progress, T)
 	if e != nil {
 		output = output.WithError(e)
 		return output, e

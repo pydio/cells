@@ -174,11 +174,12 @@ func (i *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 	return err
 }
 
-func (i *Client) StartSession(ctx context.Context, rootNode *tree.Node) (*tree.IndexationSession, error) {
+func (i *Client) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
 	sess := &tree.IndexationSession{
 		Uuid:        uuid.New(),
 		Description: "Indexation",
 		RootNode:    rootNode,
+		Silent:      silent,
 	}
 	resp, err := i.sessionClient.OpenSession(ctx, &tree.OpenSessionRequest{Session: sess})
 	if err != nil {

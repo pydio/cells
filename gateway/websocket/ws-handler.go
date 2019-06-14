@@ -30,6 +30,7 @@ import (
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/protobuf/jsonpb"
 	"go.uber.org/zap"
+	"golang.org/x/time/rate"
 	"gopkg.in/olahol/melody.v1"
 
 	"github.com/pydio/cells/common"
@@ -48,18 +49,20 @@ type WebsocketHandler struct {
 	Websocket   *melody.Melody
 	EventRouter *views.RouterEventFilter
 
-	batcherLock *sync.Mutex
-	batchers    map[string]*NodeEventsBatcher
-	dispatcher  chan *NodeChangeEventWithInfo
-	done        chan string
+	batcherLock   *sync.Mutex
+	batchers      map[string]*NodeEventsBatcher
+	dispatcher    chan *NodeChangeEventWithInfo
+	done          chan string
+	silentDropper *rate.Limiter
 }
 
 func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
 	w := &WebsocketHandler{
-		batchers:    make(map[string]*NodeEventsBatcher),
-		dispatcher:  make(chan *NodeChangeEventWithInfo),
-		done:        make(chan string),
-		batcherLock: &sync.Mutex{},
+		batchers:      make(map[string]*NodeEventsBatcher),
+		dispatcher:    make(chan *NodeChangeEventWithInfo),
+		done:          make(chan string),
+		batcherLock:   &sync.Mutex{},
+		silentDropper: rate.NewLimiter(20, 10),
 	}
 	w.InitHandlers(serviceCtx)
 	go func() {
@@ -145,7 +148,7 @@ func (w *WebsocketHandler) getBatcherForUuid(uuid string) *NodeEventsBatcher {
 	return batcher
 }
 
-// HandleNodeChangeEvent listens to NodeChangeEvents and either broadcase them directly, or use NodeEventsBatcher
+// HandleNodeChangeEvent listens to NodeChangeEvents and either broadcast them directly, or use NodeEventsBatcher
 // to buffer them and flatten them into one.
 func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
 
@@ -178,6 +181,11 @@ func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tre
 // the event or not.
 func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *NodeChangeEventWithInfo) error {
 
+	if event.Silent && !w.silentDropper.Allow() {
+		//log.Logger(ctx).Warn("Dropping Silent Event")
+		return nil
+	}
+
 	return w.Websocket.BroadcastFilter([]byte(`"dump"`), func(session *melody.Session) bool {
 
 		value, ok := session.Get(SessionWorkspacesKey)
@@ -185,9 +193,18 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			return false
 		}
 		workspaces := value.(map[string]*idm.Workspace)
-		var hasData bool
+
+		// Rate-limit events (let Optimistic events always go through)
+		if lim, ok := session.Get(SessionLimiterKey); ok && !event.Optimistic {
+			limiter := lim.(*rate.Limiter)
+			if err := limiter.Wait(ctx); err != nil {
+				log.Logger(ctx).Warn("WebSocket: some events were dropped (session rate limiter)")
+				return false
+			}
+		}
 
 		var (
+			hasData             bool
 			metaCtx             context.Context
 			metaProviderClients []tree.NodeProviderStreamer_ReadNodeStreamClient
 			metaProviderNames   []string

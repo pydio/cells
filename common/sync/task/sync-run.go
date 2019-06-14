@@ -147,7 +147,7 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 		asProvider = s.Source
 	}
 	if provider, ok := model.AsSessionProvider(asProvider); ok {
-		patch.SetSessionProvider(ctx, provider)
+		patch.SetSessionProvider(ctx, provider, true)
 	}
 
 	return patch, nil
@@ -266,7 +266,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 	// Wait all patches to be processed to send the doneChan info
 	// TODO : HOW TO HANDLE SESSION PROVIDER FOR BI-DIRECTIONAL PATCH?
 	if provider, ok := model.AsSessionProvider(s.Target); ok {
-		bb.SetSessionProvider(ctx, provider)
+		bb.SetSessionProvider(ctx, provider, false)
 	}
 	bb.SetupChannels(s.statuses, s.runDone)
 	return bb, nil

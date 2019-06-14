@@ -527,6 +527,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 			childrenEvents = append(childrenEvents, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_DELETE,
 				Source: child.Node,
+				Silent: true,
 			})
 		}
 	}
@@ -625,9 +626,11 @@ func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *ob
 func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, deltaSize int64, eventType tree.NodeChangeEvent_EventType, sourceNode *mtree.TreeNode, targetNode *mtree.TreeNode, sessionUuid string) error {
 
 	var batcher sessions.SessionBatcher
+	var session *tree.IndexationSession
 	if sessionUuid != "" {
 		sess, batch, err := s.sessionStore.ReadSession(sessionUuid)
 		if err == nil && sess != nil {
+			session = sess
 			batcher = batch
 		}
 	}
@@ -684,8 +687,8 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	}
 
 	// Publish either to batcher or to broker directly
-	if batcher != nil {
-		event.Silent = true
+	if batcher != nil && session != nil {
+		event.Silent = session.Silent
 		batcher.Notify(common.TOPIC_INDEX_CHANGES, event)
 	} else {
 		client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, event))

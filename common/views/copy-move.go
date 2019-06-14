@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
+	"github.com/nicksnyder/go-i18n/i18n"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -21,7 +22,7 @@ import (
 // CopyMoveNodes performs a recursive copy or move operation of a node to a new location. It can be inter- or intra-datasources.
 // It will eventually pass contextual metadata like X-Pydio-Session (to batch event inside the SYNC) or X-Pydio-Move (to
 // reconciliate creates and deletes when move is done between two differing datasources).
-func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, recursive bool, isTask bool, statusChan chan string, progressChan chan float32) (oErr error) {
+func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, recursive bool, isTask bool, statusChan chan string, progressChan chan float32, tFunc ...i18n.TranslateFunc) (oErr error) {
 
 	session := uuid.New()
 	defer func() {
@@ -129,7 +130,11 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				childPath := childNode.Path
 				relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
 				targetPath := prefixPathTarget + "/" + relativePath
-				statusChan <- "Copying " + relativePath
+				status := "Copying " + relativePath
+				if len(tFunc) > 0 {
+					status = strings.Replace(tFunc[0]("Jobs.User.CopyingItem"), "%s", relativePath, -1)
+				}
+				statusChan <- status
 
 				folderNode := childNode.Clone()
 				folderNode.Path = targetPath
@@ -167,7 +172,11 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
 					statusPath = path.Dir(statusPath)
 				}
-				statusChan <- "Copying " + statusPath
+				status := "Copying " + statusPath
+				if len(tFunc) > 0 {
+					status = strings.Replace(tFunc[0]("Jobs.User.CopyingItem"), "%s", statusPath, -1)
+				}
+				statusChan <- status
 
 				meta := make(map[string]string, 1)
 				if move {

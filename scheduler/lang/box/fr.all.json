@@ -58,5 +58,11 @@
   },
   "Jobs.User.Wget": {
     "other": "Téléchargement du fichier en tâche de fond..."
+  },
+  "Jobs.User.DeletingItem": {
+    "other": "Suppression de %s"
+  },
+  "Jobs.User.CopyingItem": {
+    "other": "Copie de %s"
   }
 }
