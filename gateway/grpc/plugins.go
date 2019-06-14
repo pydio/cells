@@ -44,9 +44,9 @@ func init() {
 
 func JWTWrapper(serviceCtx context.Context) func(handlerFunc server.HandlerFunc) server.HandlerFunc {
 
-	return func(handlerFunc server.HandlerFunc) server.HandlerFunc {
+	jwtVerifier := auth.DefaultJWTVerifier()
 
-		jwtVerifier := auth.DefaultJWTVerifier()
+	return func(handlerFunc server.HandlerFunc) server.HandlerFunc {
 
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
 

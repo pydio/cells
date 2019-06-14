@@ -36,6 +36,7 @@ type AbstractPatch struct {
 
 	statusChan chan ProcessStatus
 	doneChan   chan interface{}
+	closing    bool
 }
 
 func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, provider model.SessionProvider) {
@@ -51,12 +52,15 @@ func (b *AbstractPatch) SetupChannels(status chan ProcessStatus, done chan inter
 func (b *AbstractPatch) Status(s ProcessStatus) {
 	if b.statusChan != nil {
 		go func() {
-			b.statusChan <- s
+			if !b.closing {
+				b.statusChan <- s
+			}
 		}()
 	}
 }
 
 func (b *AbstractPatch) Done(info interface{}) {
+	b.closing = true
 	if b.doneChan != nil {
 		b.doneChan <- info
 	}
