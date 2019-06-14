@@ -461,7 +461,8 @@ var UserAvatar = (function (_React$Component) {
                 avatarComponent
             );
         } else if (userNotFound) {
-            labelStyle = _extends({}, labelStyle, { textDecoration: 'line-through' });
+            //labelStyle = {...labelStyle, textDecoration:'line-through'};
+            label = pydio.MessageHash['user.unknown'];
         }
         var labelChevron = undefined;
         if (displayLabel && displayLabelChevron) {

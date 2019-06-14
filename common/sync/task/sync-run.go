@@ -460,7 +460,7 @@ func (s *Sync) computeIndexProgress(input merger.ProcessStatus, rootInfo *Endpoi
 		if rootInfo.PgChildren%50 != 0 {
 			return // false
 		} else {
-			output.StatusString = fmt.Sprintf("[%s] Analyzed %d nodes", input.EndpointURI, rootInfo.PgChildren)
+			output.StatusString = fmt.Sprintf("Analyzed %d nodes", rootInfo.PgChildren)
 			return output, true
 		}
 	}
@@ -478,7 +478,7 @@ func (s *Sync) computeIndexProgress(input merger.ProcessStatus, rootInfo *Endpoi
 		output.Progress = float32(pg)
 		output.IsProgressAtomic = true
 		output.EndpointURI = input.EndpointURI
-		output.StatusString = fmt.Sprintf("[%s] Analyzed %d nodes (%d%%)", input.EndpointURI, rootInfo.PgChildren, int(math.Floor(pg*100)))
+		output.StatusString = fmt.Sprintf("Analyzed %d nodes (%d%%)", rootInfo.PgChildren, int(math.Floor(pg*100)))
 	}
 	return
 }

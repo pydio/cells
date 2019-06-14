@@ -271,12 +271,10 @@ func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues, ch
 	h.senderConfig = senderConfig
 
 	if check {
-		if err := h.sender.Check(ctx); err != nil {
-			e = err
-		}
+		e = h.sender.Check(ctx)
 	}
 
-	return nil
+	return
 }
 
 func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {

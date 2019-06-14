@@ -41,6 +41,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/object"
 	protosync "github.com/pydio/cells/common/proto/sync"
@@ -194,6 +195,21 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration["normalize"])
 		if normalizeS3 {
 			s3client.ServerRequiresNormalization = true
+		}
+		if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
+			keyClient := encryption.NewNodeKeyManagerClient(registry.GetClient(common.SERVICE_ENC_KEY))
+			s3client.SetPlainSizeComputer(func(nodeUUID string) (i int64, e error) {
+				if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
+					NodeId: nodeUUID,
+					UserId: "ds:" + syncConfig.Name,
+				}); e == nil {
+					log.Logger(ctx).Info("Loaded Plain Size from data-key service")
+					return resp.GetSize(), nil
+				} else {
+					log.Logger(ctx).Error("Cannot loaded plain size from data-key service", zap.Error(e))
+					return 0, e
+				}
+			})
 		}
 		source = s3client
 	}

@@ -374,7 +374,9 @@ var PydioApi = (function () {
         var params = {
             Bucket: 'io',
             Key: targetPath,
-            ContentType: 'application/octet-stream'
+            ContentType: 'application/octet-stream',
+            // This may be needed for encrypted datasource
+            Metadata: { 'pydio-clear-size': '' + file.size }
         };
         this.getPydioObject().notify('longtask_starting');
         return new Promise(function (resolve) {

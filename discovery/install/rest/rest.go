@@ -33,19 +33,20 @@ import (
 	"github.com/pydio/cells/discovery/install/lib"
 )
 
-// Handler to the REST requests
+// Handler to the REST requests.
 type Handler struct{}
 
-// SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
-func (a *Handler) SwaggerTags() []string {
+// SwaggerTags lists the names of the service tags declared in the swagger JSON implemented by this service.
+func (h *Handler) SwaggerTags() []string {
 	return []string{"InstallService"}
 }
 
-// Filter returns a function to filter the swagger path
-func (a *Handler) Filter() func(string) string {
+// Filter returns a function to filter the swagger path.
+func (h *Handler) Filter() func(string) string {
 	return nil
 }
 
+// PerformInstallCheck performs a few server side checks before launching the real install.
 func (h *Handler) PerformInstallCheck(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -60,13 +61,14 @@ func (h *Handler) PerformInstallCheck(req *restful.Request, rsp *restful.Respons
 
 }
 
+// GetAgreement returns current Licence text for user validation.
 func (h *Handler) GetAgreement(req *restful.Request, rsp *restful.Response) {
 
 	rsp.WriteEntity(&install.GetAgreementResponse{Text: AgplText})
 
 }
 
-// Post request handler
+// GetInstall retrieves default configuration parameters.
 func (h *Handler) GetInstall(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -77,7 +79,7 @@ func (h *Handler) GetInstall(req *restful.Request, rsp *restful.Response) {
 	rsp.WriteEntity(response)
 }
 
-// Post request handler
+// PostInstall updates pydio.json configuration file after having gathered modifiaction from the admin end user.
 func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()

@@ -111,7 +111,7 @@ var EditionPanel = (function (_React$Component) {
                 title: node.getLabel(),
                 url: node.getPath(),
                 metadata: node.getMetadata(),
-                readonly: node.hasMetadataInBranch("node_readonly", "true"),
+                readonly: node.getMetadata().get("node_readonly") === "true",
                 node: node,
                 editorData: editorData,
                 icon: PydioWorkspaces.FilePreview

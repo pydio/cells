@@ -136,7 +136,7 @@ const TreeDialog = React.createClass({
         };
 
         let user = this.props.pydio.user;
-        let wsSelector ;
+        let wsSelector = <div style={{height: 30}}/> ;
         if(user && user.canCrossRepositoryCopy() && user.hasCrossRepositories()){
             let items = [];
             if(user.canWrite()){

@@ -327,8 +327,9 @@ class InstallForm extends React.Component {
                             }
                             {!licCheckPassed &&
                                 <div>
-                                    A valid license is required to run this installation.
-                                    <Field name="licenseString" component={renderTextField} floatingLabel="License String" label="Please copy/paste the license string provided to you." />
+                                    A valid license is required to run this installation.  If you do not own one, please contact Pydio sales services
+                                    at <a href={"mailto:services@pydio.com"}>services@pydio.com</a> to receive your license key.
+                                    <Field name="licenseString" component={renderTextField} floatingLabel="License String" label="Please copy/paste the license key provided to you." />
                                 </div>
                             }
                         </div>
@@ -519,8 +520,9 @@ class InstallForm extends React.Component {
                         }
                         {installError &&
                         <div>
-                            There was an error while performing installation ! Please check your configuration <br/>
-                            Error was : {installError}
+                            There was an error while performing installation! Please check your configuration. <br/>
+                            Error was: <br/>
+                            {installError}
                         </div>
                         }
                     </div>

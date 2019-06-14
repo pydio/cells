@@ -224,6 +224,19 @@ func (m *mockNodeKeyManagerClient) GetNodeInfo(ctx context.Context, in *encrypti
 	return rsp, nil
 }
 
+func (m *mockNodeKeyManagerClient) GetNodePlainSize(ctx context.Context, in *encryption.GetNodePlainSizeRequest, opts ...client.CallOption) (*encryption.GetNodePlainSizeResponse, error) {
+	out := &encryption.GetNodePlainSizeResponse{}
+
+	blocks, foundBlocks := m.blocks[in.NodeId]
+	if foundBlocks {
+		for _, b := range blocks {
+			plainBlockSize := b.BlockSize - aesGCMTagSize
+			out.Size += int64(plainBlockSize)
+		}
+	}
+	return out, nil
+}
+
 func (m *mockNodeKeyManagerClient) SetNodeInfo(ctx context.Context, opts ...client.CallOption) (encryption.NodeKeyManager_SetNodeInfoClient, error) {
 	stream := newMockSendInfoStream(m.keys, m.blocks)
 	go stream.exchange()

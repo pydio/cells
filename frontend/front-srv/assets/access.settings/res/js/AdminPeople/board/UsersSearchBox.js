@@ -92,6 +92,7 @@ class UsersSearchBox extends React.Component{
 
     keyDown(event){
         if(event.key === 'Enter'){
+            event.preventDefault();
             this.triggerSearch();
         } else {
             this.searchDebounced();

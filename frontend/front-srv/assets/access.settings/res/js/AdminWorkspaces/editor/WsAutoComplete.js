@@ -38,7 +38,6 @@ export default class WsAutoComplete extends React.Component{
                 })
 
             if (validateOnLoad) {
-                console.log("Checking value")
                 this.handleNewRequest(value)
             }
         });
@@ -76,8 +75,6 @@ export default class WsAutoComplete extends React.Component{
             key = value.key
             node = value.node
         }
-
-        console.log("Node is ", node)
 
         if (!node) {
             return onError()

@@ -79,14 +79,6 @@ var User = (function () {
     /**
      * @var Boolean
      */
-    this.read = false;
-    /**
-     * @var Boolean
-     */
-    this.write = false;
-    /**
-     * @var Boolean
-     */
     this.crossRepositoryCopy = false;
     /**
      * @var Map()
@@ -150,23 +142,34 @@ var User = (function () {
    */
 
   User.prototype.canRead = function canRead() {
-    try {
-      // TODO: get "read" property from root node metadata
-      var metaRoot = this._pydioObject.getContextHolder().getRootNode().getMetadata();
-    } catch (e) {}
+    /*
+    try{
+           // TODO: get "read" property from root node metadata
+        const metaRoot = this._pydioObject.getContextHolder().getRootNode().getMetadata();
+       } catch(e){
+        }
+       //return this.read;
+       */
     return true;
-    //return this.read;
   };
 
   /**
    * Whether current repo is allowed to be written
+      * @param node {AjxpNode}
    * @returns Boolean
    */
 
   User.prototype.canWrite = function canWrite() {
+    var node = arguments.length <= 0 || arguments[0] === undefined ? undefined : arguments[0];
+
     try {
-      var metaRoot = this._pydioObject.getContextHolder().getRootNode().getMetadata();
-      return !metaRoot.has("node_readonly") || !metaRoot.get("node_readonly");
+      var meta = undefined;
+      if (node) {
+        meta = node.getMetadata();
+      } else {
+        meta = this._pydioObject.getContextHolder().getRootNode().getMetadata();
+      }
+      return !meta.has("node_readonly") || !meta.get("node_readonly");
     } catch (e) {
       return false;
     }
@@ -189,7 +192,9 @@ var User = (function () {
   User.prototype.getPreference = function getPreference(prefName, fromJSON) {
     if (fromJSON) {
       var test = this._parsedJSONCache.get(prefName);
-      if (test) return test;
+      if (test) {
+        return test;
+      }
     }
     var value = this.preferences.get(prefName);
     if (fromJSON) {
@@ -277,14 +282,16 @@ var User = (function () {
    */
 
   User.prototype.setRepositoriesList = function setRepositoriesList(repoHash) {
+    var _this = this;
+
     this.repositories = repoHash;
     // filter repositories once for all
     this.crossRepositories = new Map();
-    this.repositories.forEach((function (value, key) {
-      if (value.allowCrossRepositoryCopy && value.accessType != 'inbox') {
-        this.crossRepositories.set(key, value);
+    this.repositories.forEach(function (value, key) {
+      if (value.allowCrossRepositoryCopy) {
+        _this.crossRepositories.set(key, value);
       }
-    }).bind(this));
+    });
   };
 
   /**
@@ -320,7 +327,7 @@ var User = (function () {
    */
 
   User.prototype.savePreference = function savePreference() {
-    var _this = this;
+    var _this2 = this;
 
     if (!this.preferences.has('gui_preferences')) {
       return;
@@ -331,7 +338,7 @@ var User = (function () {
       idmUser.Attributes['preferences'] = JSON.stringify({ gui_preferences: stringPref });
       var api = new _httpGenIndex.UserServiceApi(_httpPydioApi2['default'].getRestClient());
       api.putUser(idmUser.Login, idmUser).then(function (ok) {
-        _this.idmUser = idmUser;
+        _this2.idmUser = idmUser;
       });
     });
   };
@@ -341,7 +348,7 @@ var User = (function () {
    */
 
   User.prototype.getIdmUser = function getIdmUser() {
-    var _this2 = this;
+    var _this3 = this;
 
     if (this.idmUser) {
 
@@ -352,7 +359,7 @@ var User = (function () {
         var api = new _httpGenIndex.UserServiceApi(_httpPydioApi2['default'].getRestClient());
         var request = new _httpGenIndex.RestSearchUserRequest();
         var query = new _httpGenIndex.IdmUserSingleQuery();
-        query.Login = _this2.id;
+        query.Login = _this3.id;
         request.Queries = [query];
         return {
           v: new Promise(function (resolve, reject) {
@@ -360,7 +367,7 @@ var User = (function () {
               if (result.Total === 0 || !result.Users) {
                 reject(new Error('Cannot find user'));
               }
-              _this2.idmUser = result.Users[0];
+              _this3.idmUser = result.Users[0];
               resolve(result.Users[0]);
             })['catch'](function (error) {
               reject(error);

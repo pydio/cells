@@ -62,6 +62,7 @@ type Client struct {
 	ServerRequiresNormalization bool
 	options                     model.EndpointOptions
 	globalContext               context.Context
+	plainSizeComputer           func(nodeUUID string) (int64, error)
 }
 
 func NewClient(ctx context.Context, url string, key string, secret string, bucket string, rootPath string, options model.EndpointOptions) (*Client, error) {
@@ -428,6 +429,10 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Nod
 
 }
 
+func (c *Client) SetPlainSizeComputer(computer func(nodeUUID string) (int64, error)) {
+	c.plainSizeComputer = computer
+}
+
 func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag string, metaSize int64, e error) {
 	if leaf {
 		return c.getFileHash(c.getFullPath(path))
@@ -487,7 +492,18 @@ func (c *Client) getFileHash(path string) (uid string, hash string, metaSize int
 	}
 	uid = objectInfo.Metadata.Get(servicescommon.X_AMZ_META_NODE_UUID)
 	if size := objectInfo.Metadata.Get(servicescommon.X_AMZ_META_CLEAR_SIZE); size != "" {
-		metaSize, _ = strconv.ParseInt(size, 10, 64)
+		if size == servicescommon.X_AMZ_META_CLEAR_SIZE_UNKOWN {
+			if c.plainSizeComputer != nil {
+				if plain, er := c.plainSizeComputer(uid); er == nil {
+					metaSize = plain
+					// TODO: Refresh metadata inside object now?
+				} else {
+					log.Logger(c.globalContext).Info("Cannot compute plain size", zap.Error(er))
+				}
+			}
+		} else {
+			metaSize, _ = strconv.ParseInt(size, 10, 64)
+		}
 	}
 	etag := strings.Trim(objectInfo.ETag, "\"")
 	/*

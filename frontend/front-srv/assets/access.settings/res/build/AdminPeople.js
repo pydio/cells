@@ -629,7 +629,7 @@ var Dashboard = _react2['default'].createClass({
         if (searchResultData !== false) {
             groupPanelStyle = {
                 flex: 'none',
-                width: 0
+                opacity: 0.6
             };
         }
         var profileFilter = '';
@@ -1481,6 +1481,7 @@ var UsersSearchBox = (function (_React$Component) {
         key: 'keyDown',
         value: function keyDown(event) {
             if (event.key === 'Enter') {
+                event.preventDefault();
                 this.triggerSearch();
             } else {
                 this.searchDebounced();
@@ -2941,9 +2942,11 @@ exports['default'] = React.createClass({
     },
 
     onNodesChange: function onNodesChange(nodeUuid, checkboxName, value) {
-        var role = this.props.role;
+        var _props2 = this.props;
+        var role = _props2.role;
+        var workspace = _props2.workspace;
 
-        role.updateAcl(null, nodeUuid, checkboxName);
+        role.updateAcl(null, nodeUuid, checkboxName, workspace);
     },
 
     getInitialState: function getInitialState() {
@@ -2955,10 +2958,10 @@ exports['default'] = React.createClass({
     },
 
     render: function render() {
-        var _props2 = this.props;
-        var workspace = _props2.workspace;
-        var role = _props2.role;
-        var advancedAcl = _props2.advancedAcl;
+        var _props3 = this.props;
+        var workspace = _props3.workspace;
+        var role = _props3.role;
+        var advancedAcl = _props3.advancedAcl;
 
         var _role$getAclString = role.getAclString(workspace);
 
@@ -3675,7 +3678,7 @@ var UserInfo = (function (_React$Component) {
                     var role = user.getRole();
                     if (idmUser.Attributes['locks']) {
                         locks = JSON.parse(idmUser.Attributes['locks']) || [];
-                        if (typeof locks === 'object') {
+                        if (typeof locks === 'object' && locks.length === undefined) {
                             (function () {
                                 // Backward compat issue
                                 var arrL = [];
@@ -3786,7 +3789,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -4194,15 +4197,20 @@ var Role = (function (_Observable) {
          * @param workspace {IdmWorkspace}
          * @param nodeUuid string
          * @param value string
+         * @param nodeWs {IdmWorkspace}
          */
     }, {
         key: 'updateAcl',
         value: function updateAcl(workspace, nodeUuid, value) {
             var _this9 = this;
 
+            var nodeWs = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
+
             var nodeIds = [];
+            var isRoot = false;
             if (nodeUuid) {
                 nodeIds = [nodeUuid];
+                isRoot = nodeWs && Object.keys(nodeWs.RootNodes).indexOf(nodeUuid) > -1;
             } else {
                 nodeIds = Object.keys(workspace.RootNodes);
             }
@@ -4224,6 +4232,8 @@ var Role = (function (_Observable) {
                         acl.NodeID = n;
                         if (workspace) {
                             acl.WorkspaceID = workspace.UUID;
+                        } else if (isRoot) {
+                            acl.WorkspaceID = nodeWs.UUID;
                         }
                         acl.RoleID = _this9.idmRole.Uuid;
                         acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
