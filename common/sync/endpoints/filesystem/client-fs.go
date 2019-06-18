@@ -205,7 +205,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "fs://" + c.uriPath,
+		URI:                   "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
@@ -398,7 +398,10 @@ func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string)
 
 	stat, e := c.FS.Stat(oldPath)
 	if !os.IsNotExist(e) {
-		if stat.IsDir() && reflect.TypeOf(c.FS) == reflect.TypeOf(afero.NewMemMapFs()) {
+		typeOfMem := reflect.TypeOf(afero.NewMemMapFs())
+		typeOfBasePathFs := reflect.TypeOf(&afero.BasePathFs{})
+		typeOfFs := reflect.TypeOf(c.FS)
+		if stat.IsDir() && (typeOfFs == typeOfMem || typeOfFs == typeOfBasePathFs) {
 			c.moveRecursively(oldPath, newPath)
 		} else {
 			err = c.FS.Rename(oldPath, newPath)

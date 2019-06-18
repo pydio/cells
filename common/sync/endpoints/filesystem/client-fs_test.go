@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -49,7 +50,6 @@ func EmptyMockedClient() *FSClient {
 		RootPath: "",
 		FS:       afero.NewMemMapFs(),
 	}
-
 }
 
 func FilledMockedClient() *FSClient {
@@ -65,9 +65,11 @@ func FilledMockedClient() *FSClient {
 	afero.WriteFile(fs, "/folder/subfolder2/file2.1.txt", []byte("my-content"), 0777)
 	afero.WriteFile(fs, "/folder/subfolder2/file2.2.txt", []byte("my-content"), 0777)
 
+	baseFs := afero.NewBasePathFs(fs, "/")
+
 	return &FSClient{
 		RootPath: "",
-		FS:       fs,
+		FS:       baseFs,
 	}
 
 }
@@ -380,7 +382,7 @@ func TestWalkWithRoot(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			c.Walk(walk, "/folder/subfolder1", true)
+			c.Walk(walk, "folder/subfolder1", true)
 		}()
 		wg.Wait()
 
@@ -394,8 +396,10 @@ func TestCanonicalPath(t *testing.T) {
 	Convey("Testing lower case", t, func() {
 		p := "/test/path"
 		pa, e := CanonicalPath(p)
-		So(e, ShouldBeNil)
-		So(pa, ShouldEqual, p)
+		if runtime.GOOS != "windows" {
+			So(e, ShouldBeNil)
+			So(pa, ShouldEqual, p)
+		}
 	})
 
 }

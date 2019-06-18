@@ -294,8 +294,8 @@ func handleTransport() {
 func handleSignals() {
 	c := make(chan os.Signal, 1)
 
-	// WARNING - SIGUSR1 DOES NOT COMPILE ON WINDOWS - CREATE A SPECIAL CASE
-	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.SIGUSR1, syscall.SIGTERM)
+	// SIGUSR1 does not compile on windows. Use direct value syscall.Signal instead
+	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.Signal(0xa), syscall.SIGTERM)
 
 	go func() {
 		for sig := range c {
@@ -316,7 +316,7 @@ func handleSignals() {
 				<-time.After(2 * time.Second)
 				os.Exit(0)
 
-			case syscall.SIGUSR1:
+			case syscall.Signal(0xa):
 				pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 
 				if !profiling {
