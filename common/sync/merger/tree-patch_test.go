@@ -326,7 +326,6 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 		b.Filter(context.Background())
 		So(b.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
 		So(b.OperationsByType([]OperationType{OpMoveFile}), ShouldHaveLength, 0)
-
 	})
 
 	Convey("SNAP - Content Edit", t, func() {
@@ -420,6 +419,29 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 
 	})
 
+}
+
+func TestRescanFolders(t *testing.T) {
+	Convey("Test untold events", t, func() {
+		source, target := memory.NewMemDB(), memory.NewMemDB()
+		_ = source.CreateNode(ctx, &tree.Node{Uuid: "u1", Path: "folder"}, false)
+		_ = source.CreateNode(ctx, &tree.Node{Uuid: "u2", Path: "folder/subfolder"}, false)
+		_ = source.CreateNode(ctx, &tree.Node{Uuid: "u3", Path: "folder/subfolder/sub"}, false)
+		_ = source.CreateNode(ctx, &tree.Node{Uuid: "u4", Path: "folder/subfolder/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}, false)
+		_ = source.CreateNode(ctx, &tree.Node{Uuid: "u5", Path: "folder/subfolder/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}, false)
+		patch := newTreePatch(source, target, PatchOptions{})
+
+		patch.Enqueue(&patchOperation{
+			opType: OpCreateFolder,
+			node:   &tree.Node{Uuid: "u1", Path: "folder"},
+			patch:  patch,
+			dir:    OperationDirRight,
+		}, "")
+		patch.rescanFoldersIfRequired(ctx)
+
+		So(patch.OperationsByType([]OperationType{OpCreateFolder}), ShouldHaveLength, 3)
+		So(patch.OperationsByType([]OperationType{OpCreateFile}), ShouldHaveLength, 2)
+	})
 }
 
 func diffFromSnaps(folder string) (*TreeDiff, error) {

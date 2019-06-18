@@ -85,7 +85,6 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 			}
 		}
 	}
-
 }
 
 func (t *TreePatch) detectFileMoves(ctx context.Context) {
@@ -169,7 +168,6 @@ func (t *TreePatch) detectFileMoves(ctx context.Context) {
 			t.QueueOperation(move.createOp)
 		}
 	}
-
 }
 
 func (t *TreePatch) detectFolderMoves(ctx context.Context) {

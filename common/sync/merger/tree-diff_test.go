@@ -37,7 +37,6 @@ var (
 )
 
 func TestComputeSourcesDiff(t *testing.T) {
-
 	Convey("Test various Diffs", t, func() {
 
 		var left, right *memory.MemDB
@@ -145,11 +144,9 @@ func TestComputeSourcesDiff(t *testing.T) {
 		})
 
 	})
-
 }
 
 func TestTreeDiff(t *testing.T) {
-
 	Convey("Test Tree Diffs", t, func() {
 
 		var left, right *memory.MemDB
@@ -478,7 +475,6 @@ func TestTreeDiff(t *testing.T) {
 			So(e4, ShouldBeNil)
 			So(diff4.missingLeft, ShouldHaveLength, 4)
 			So(diff4.missingRight, ShouldHaveLength, 0)
-
 		})
 
 		Convey("Test subfolders both", func() {
@@ -620,4 +616,83 @@ func TestTreeDiff(t *testing.T) {
 
 	})
 
+}
+
+func TestTreeDiffErrors(t *testing.T) {
+	var left, right *memory.MemDB
+
+	Convey("Test Tree Diffs", t, func() {
+		left = memory.NewMemDB()
+		right = memory.NewMemDB()
+
+		t1, _ := TreeNodeFromSource(left, "/")
+		// Trigger printout for test coverage
+		t.Log(t1.PrintTree())
+		diff := newTreeDiff(testCtx, left, right)
+		_, err := diff.ToUnidirectionalPatch(model.DirectionBi)
+		So(err, ShouldNotBeNil)
+	})
+}
+
+func TestTreeDiffDeepPatches(t *testing.T) {
+
+	var left, right *memory.MemDB
+	Convey("", t, func() {
+		left = memory.NewMemDB()
+		right = memory.NewMemDB()
+
+		diff := &TreeDiff{}
+
+		lp, rp := diff.ToBidirectionalPatches(left, right)
+		So(lp, ShouldNotBeNil)
+		So(rp, ShouldNotBeNil)
+	})
+}
+
+func TestTreeDiffConflictsAndStatus(t *testing.T) {
+
+	var left, right *memory.MemDB
+	Convey("", t, func() {
+		left = memory.NewMemDB()
+		right = memory.NewMemDB()
+
+		_ = right.CreateNode(testCtx, &tree.Node{
+			Path: "/aaa",
+			Type: tree.NodeType_COLLECTION,
+			Uuid: "uuid1",
+			Etag: "uuid1-hash",
+		}, true)
+		_ = left.CreateNode(testCtx, &tree.Node{
+			Path: "/aaa",
+			Type: tree.NodeType_COLLECTION,
+			Uuid: "uuid2",
+			Etag: "uuid2-hash",
+		}, true)
+
+		statusChan := make(chan ProcessStatus, 1)
+		doneChan := make(chan interface{}, 1)
+
+		diff := newTreeDiff(testCtx, left, right)
+		diff.SetupChannels(statusChan, doneChan)
+
+		// start a routine to read status
+		f := func() {
+			for {
+				select {
+				case <-doneChan:
+					return
+				case s := <-statusChan:
+					t.Log(s)
+				}
+			}
+		}
+
+		go f()
+		e := diff.Compute("/")
+		So(e, ShouldBeNil)
+
+		go f()
+		_, _ = diff.ToBidirectionalPatches(left, right)
+		So(diff.Conflicts(), ShouldHaveLength, 1)
+	})
 }

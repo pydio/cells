@@ -26,7 +26,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"golang.org/x/text/unicode/norm"
@@ -49,7 +48,7 @@ type MemDB struct {
 func NewMemDB() *MemDB {
 	db := &MemDB{}
 	db.CreateNode(context.Background(), &tree.Node{
-		Path: string(os.PathSeparator),
+		Path: "/",
 		Type: tree.NodeType_COLLECTION,
 		Uuid: "root",
 	}, true)
@@ -59,8 +58,8 @@ func NewMemDB() *MemDB {
 func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "memdb://",
-		RequiresFoldersRescan: false,
+		URI:                   "memdb://",
+		RequiresFoldersRescan: true,
 		RequiresNormalization: false,
 	}
 
@@ -116,7 +115,7 @@ func (db *MemDB) DeleteNode(ctx context.Context, path string) (err error) {
 func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 	moved := false
 	for _, node := range db.Nodes {
-		if strings.HasPrefix(node.Path, oldPath+string(os.PathSeparator)) || node.Path == oldPath {
+		if strings.HasPrefix(node.Path, oldPath+"/") || node.Path == oldPath {
 			node.Path = newPath + strings.TrimPrefix(node.Path, oldPath)
 			moved = true
 		}
@@ -161,7 +160,7 @@ func (db *MemDB) ComputeChecksum(node *tree.Node) error {
 func (db *MemDB) removeNodeNoEvent(path string) (removed *tree.Node) {
 	var newNodes []*tree.Node
 	for _, node := range db.Nodes {
-		if !strings.HasPrefix(node.Path, path+string(os.PathSeparator)) && node.Path != path {
+		if !strings.HasPrefix(node.Path, path+"/") && node.Path != path {
 			newNodes = append(newNodes, node)
 		} else {
 			removed = node
