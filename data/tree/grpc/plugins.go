@@ -51,7 +51,7 @@ func init() {
 					ConfigsMutex: &sync.Mutex{},
 					DataSources:  dataSources,
 					meta:         tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient()),
-					eventBus:     pubsub.New(0),
+					eventBus:     pubsub.New(1000),
 				}
 
 				eventSubscriber := &EventSubscriber{
