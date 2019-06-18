@@ -94,7 +94,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	var previousEtag string
 	eventType := tree.NodeChangeEvent_CREATE
 
-	inSession := (req.IndexationSession != "")
+	inSession := req.IndexationSession != ""
 
 	// Checking if we have a node with the same uuid
 	reqUUID := req.GetNode().GetUuid()
@@ -102,7 +102,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	log.Logger(ctx).Debug("CreateNode", zap.Any("request", req))
 
-	if !inSession && reqUUID != "" {
+	if /*!inSession &&*/ reqUUID != "" {
 		if node, err = dao.GetNodeByUUID(reqUUID); err != nil {
 			return errors.Forbidden(name, "Could not retrieve by uuid: %s", err.Error())
 		} else if node != nil && update {
@@ -144,7 +144,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		} else {
 			return errors.New(name, "Node path already in use", http.StatusConflict)
 		}
-	} else if len(created) > 1 && !update && req.IndexationSession == "" {
+	} else if len(created) > 1 && !update && !inSession {
 		// Special case : when not in indexation mode, if node creation
 		// has triggered creation of parents, send notifications for parents as well
 		for _, parent := range created[:len(created)-1] {
