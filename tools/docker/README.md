@@ -1,6 +1,11 @@
 # Docker and Docker Compose configuration
 
-In this folder you can find an example of a working docker compose file that will install and start a Pydio Cells instance with a self signed certificate on port 443.
+![Docker Pulls](https://img.shields.io/docker/pulls/pydio/cells.svg)
+![Docker Stars](https://img.shields.io/docker/stars/pydio/cells.svg)
+![](https://images.microbadger.com/badges/image/pydio/cells.svg)
+
+As a convenience, we also provide pre-built Docker images of Pydio Cells that are hosted on the [Docker hub](https://hub.docker.com/r/pydio/cells).  
+If you use Docker compose, [this](./docker-compose.yml) installs and starts a Pydio Cells instance with a self signed certificate on port 443.
 
 Thanks to the non-interractive installer, it is also possible to modify the configuration to also use:
 
