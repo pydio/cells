@@ -766,10 +766,10 @@
 			"revisionTime": "2018-09-03T10:08:24Z"
 		},
 		{
-			"checksumSHA1": "jB93qUxjIPC+oMxq7PGK0Z0kg2Y=",
+			"checksumSHA1": "PnmQO52I3zz6sib5WTUg/XJ8NbI=",
 			"path": "github.com/coreos/dex/server",
-			"revision": "b74f7426e984abdcec4e7a5622f09fb1b841b853",
-			"revisionTime": "2018-11-22T17:30:00Z"
+			"revision": "64b71201b11f059e9c87486241eab57282498deb",
+			"revisionTime": "2019-06-18T09:42:02Z"
 		},
 		{
 			"checksumSHA1": "zqifAxI1D9ALpAFGq6HDolxTa34=",

@@ -139,6 +139,7 @@ var UsersSearchBox = (function (_React$Component) {
         key: 'keyDown',
         value: function keyDown(event) {
             if (event.key === 'Enter') {
+                event.preventDefault();
                 this.triggerSearch();
             } else {
                 this.searchDebounced();

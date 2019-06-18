@@ -64,9 +64,9 @@ class EditionPanel extends React.Component {
     }
 
     _handleNodePushed(object) {
-        const {pydio, tabCreate, editorModify, editorSetActiveTab} = this.props
+        const {pydio, tabCreate, editorModify, editorSetActiveTab} = this.props;
 
-        const {node = {}, editorData} = object
+        const {node = {}, editorData} = object;
 
         pydio.Registry.loadEditorResources(
             editorData.resourcesManager,
@@ -76,13 +76,13 @@ class EditionPanel extends React.Component {
                     title: node.getLabel(),
                     url: node.getPath(),
                     metadata: node.getMetadata(),
-                    readonly: node.hasMetadataInBranch("node_readonly", "true"),
+                    readonly: node.getMetadata().get("node_readonly") === "true",
                     node,
                     editorData,
                     icon: PydioWorkspaces.FilePreview
-                }).id
+                }).id;
 
-                editorSetActiveTab(tabId)
+                editorSetActiveTab(tabId);
 
                 editorModify({
                     isMinimised: false,

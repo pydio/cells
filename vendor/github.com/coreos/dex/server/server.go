@@ -141,6 +141,11 @@ func NewServer(ctx context.Context, c Config) (*Server, error) {
 	))
 }
 
+// UpdateStorage forces updating storage for server restart
+func (s *Server) UpdateStorage(stor storage.Storage) {
+	s.storage = stor
+}
+
 func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy) (*Server, error) {
 	issuerURL, err := url.Parse(c.Issuer)
 	if err != nil {

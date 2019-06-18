@@ -75,7 +75,6 @@ export default class SettingsNodeProvider{
             }
             // Check if there is profile filter
             let profile = '';
-            console.log(node);
             if(node.getMetadata().has('userProfileFilter')){
                 profile = node.getMetadata().get('userProfileFilter');
             }

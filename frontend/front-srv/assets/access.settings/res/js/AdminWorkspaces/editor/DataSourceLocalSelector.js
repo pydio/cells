@@ -180,7 +180,6 @@ class DataSourceLocalSelector extends React.Component{
         } else if(LangUtils.computeStringSlug(base) !== base) {
             invalid = m('selector.error.dnsname');
         }
-        console.log(invalid);
         return invalid;
     }
 

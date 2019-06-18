@@ -167,7 +167,7 @@ var TreeDialog = _react2["default"].createClass({
         };
 
         var user = this.props.pydio.user;
-        var wsSelector = undefined;
+        var wsSelector = _react2["default"].createElement("div", { style: { height: 30 } });
         if (user && user.canCrossRepositoryCopy() && user.hasCrossRepositories()) {
             (function () {
                 var items = [];

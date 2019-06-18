@@ -38,7 +38,6 @@ class TaskActivity extends React.Component{
     componentDidMount(){
         this.loadActivity(this.props);
         this._loadDebounced = debounce((jobId) => {
-            console.log(jobId, this.props);
             if (jobId && this.props.task && this.props.task.JobID === jobId) {
                 this.loadActivity(this.props);
             }

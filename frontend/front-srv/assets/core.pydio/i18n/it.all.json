@@ -2266,5 +2266,8 @@
   },
   "visibility.users.advanced": {
     "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+  },
+  "user.unknown": {
+    "other": "Unknown"
   }
 }
