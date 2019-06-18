@@ -233,7 +233,7 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context) {
 		if op.IsScanEvent() {
 			return
 		}
-		log.Logger(ctx).Info("Rescanning folder to be sure", zap.String("patch", t.Target().GetEndpointInfo().URI), zap.String("path", op.GetRefPath()))
+		log.Logger(ctx).Info("Rescanning folder to be sure...", zap.String("patch", t.Target().GetEndpointInfo().URI), zap.String("path", op.GetRefPath()))
 		// Rescan folder content, events below may not have been detected
 		var visit = func(path string, node *tree.Node, err error) {
 			if err != nil {
@@ -254,6 +254,7 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context) {
 			return
 		}
 		t.Source().Walk(visit, op.GetRefPath(), true)
+		log.Logger(ctx).Info("Finished rescanning folder")
 	})
 	// Re-perform filters on new resources
 	if newFolders {

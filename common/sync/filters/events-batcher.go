@@ -26,10 +26,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common"
-
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
@@ -48,9 +47,12 @@ type EventsBatcher struct {
 
 	patches          chan merger.Patch
 	closeSessionChan chan string
-	statuses         chan merger.ProcessStatus
-	done             chan interface{}
 	debounce         time.Duration
+
+	// Will be passed along to new patches
+	statuses chan merger.ProcessStatus
+	done     chan interface{}
+	cmd      *model.Command
 }
 
 // NewEventsBatcher creates a new EventsBatcher
@@ -86,6 +88,10 @@ func (ev *EventsBatcher) Batch(in chan model.EventInfo, out chan merger.Patch) {
 // ForceCloseSession makes sure an in-memory session is always flushed
 func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
 	ev.closeSessionChan <- sessionUuid
+}
+
+func (ev *EventsBatcher) SetCmd(c *model.Command) {
+	ev.cmd = c
 }
 
 func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
@@ -144,9 +150,9 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo) {
 
 	log.Logger(ev.globalContext).Debug("Processing Events Now", zap.Int("count", len(events)))
 	patch := merger.NewPatch(ev.Source, ev.Target, merger.PatchOptions{MoveDetection: true})
-	patch.SetupChannels(ev.statuses, ev.done)
+	patch.SetupChannels(ev.statuses, ev.done, ev.cmd)
 
-	if p, o := model.AsSessionProvider(ev.Target); o && len(events) > 40 {
+	if p, o := model.AsSessionProvider(ev.Target); o && len(events) > 10 {
 		patch.SetSessionProvider(events[0].CreateContext(ev.globalContext), p, false)
 	}
 

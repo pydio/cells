@@ -46,6 +46,7 @@ type Sync struct {
 	watchConn    chan *model.EndpointStatus
 	statuses     chan merger.ProcessStatus
 	runDone      chan interface{}
+	cmd          *model.Command
 }
 
 func NewSync(left model.Endpoint, right model.Endpoint, direction model.DirectionType, roots ...string) *Sync {
@@ -61,7 +62,7 @@ func NewSync(left model.Endpoint, right model.Endpoint, direction model.Directio
 func (s *Sync) Start(ctx context.Context, withWatches bool) {
 
 	// Init processor
-	s.processor = proc.NewConnectedProcessor(ctx)
+	s.processor = proc.NewConnectedProcessor(ctx, s.cmd)
 	s.processor.Start()
 
 	// Init EchoFilter
@@ -149,8 +150,8 @@ func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
 	s.snapshotFactory = factory
 }
 
-// SetSyncEventsChan wires internal sync event to external status channels
-func (s *Sync) SetSyncEventsChan(statusChan chan merger.ProcessStatus, batchDone chan interface{}, events chan interface{}) {
+// SetupEventsChan wires internal sync event to external status channels
+func (s *Sync) SetupEventsChan(statusChan chan merger.ProcessStatus, batchDone chan interface{}, events chan interface{}) {
 	s.statuses = statusChan
 	s.runDone = batchDone
 	if events != nil {
@@ -168,6 +169,10 @@ func (s *Sync) SetSyncEventsChan(statusChan chan merger.ProcessStatus, batchDone
 			}
 		}()
 	}
+}
+
+func (s *Sync) SetupCmd(cmd *model.Command) {
+	s.cmd = cmd
 }
 
 // BroadcastCloseSession forwards session id to underlying batchers

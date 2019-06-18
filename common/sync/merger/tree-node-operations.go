@@ -99,22 +99,25 @@ func (t *TreeNode) QueueOperation(op Operation) {
 	}
 }
 
-// WalkOperations walks the tree looking for operation of a certain type
-func (t *TreeNode) WalkOperations(opTypes []OperationType, callback func(Operation)) {
-	filter := func(o Operation) bool {
-		if o == nil {
-			return false
-		}
-		if len(opTypes) == 0 {
-			return true
-		}
-		for _, oT := range opTypes {
-			if o.Type() == oT {
-				return true
-			}
-		}
+// filterByTypes checks if operation is not nul and is of a given type.
+// opTypes can be empty, and operation can be nil (will return false)
+func (t *TreeNode) filterByTypes(opTypes []OperationType, o Operation) bool {
+	if o == nil {
 		return false
 	}
+	if len(opTypes) == 0 {
+		return true
+	}
+	for _, oT := range opTypes {
+		if o.Type() == oT {
+			return true
+		}
+	}
+	return false
+}
+
+// WalkOperations walks the tree looking for operation of a certain type
+func (t *TreeNode) WalkOperations(opTypes []OperationType, callback OpWalker) {
 	// TODO CLONE OPERATION?
 	recompute := func(t *TreeNode, o Operation) {
 		if t.OpMoveTarget != nil {
@@ -124,11 +127,11 @@ func (t *TreeNode) WalkOperations(opTypes []OperationType, callback func(Operati
 			o.UpdateRefPath(t.ProcessedPath(false))
 		}
 	}
-	if filter(t.PathOperation) {
+	if t.filterByTypes(opTypes, t.PathOperation) {
 		recompute(t, t.PathOperation)
 		callback(t.PathOperation)
 	}
-	if filter(t.DataOperation) {
+	if t.filterByTypes(opTypes, t.DataOperation) {
 		recompute(t, t.DataOperation)
 		callback(t.DataOperation)
 	}

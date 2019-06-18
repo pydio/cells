@@ -47,6 +47,7 @@ type TreeDiff struct {
 	conflicts    []*Conflict
 	ctx          context.Context
 
+	cmd        *model.Command
 	statusChan chan ProcessStatus
 	doneChan   chan interface{}
 }
@@ -177,9 +178,10 @@ func (diff *TreeDiff) Status(status ProcessStatus) {
 }
 
 // SetupChannels registers status chan internally. Done chan is ignored
-func (diff *TreeDiff) SetupChannels(c chan ProcessStatus, done chan interface{}) {
-	diff.statusChan = c
+func (diff *TreeDiff) SetupChannels(status chan ProcessStatus, done chan interface{}, cmd *model.Command) {
+	diff.statusChan = status
 	diff.doneChan = done
+	diff.cmd = cmd
 }
 
 func (diff *TreeDiff) Done(info interface{}) {

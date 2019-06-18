@@ -254,7 +254,7 @@ func (s *Handler) watchErrors() {
 			if len(branch) > 0 {
 				log.Logger(context.Background()).Info(fmt.Sprintf("Got errors on datasource, should resync now branch: %s", branch))
 				branch = ""
-				s.syncTask.SetSyncEventsChan(nil, nil, nil)
+				s.syncTask.SetupEventsChan(nil, nil, nil)
 				s.syncTask.Run(context.Background(), false, false)
 			}
 		case <-s.stop:
@@ -352,7 +352,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			}
 		}()
 	}
-	s.syncTask.SetSyncEventsChan(statusChan, doneChan, nil)
+	s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
 	result, e := s.syncTask.Run(context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME), req.DryRun, false)
 	if e != nil {
 		if req.Task != nil {

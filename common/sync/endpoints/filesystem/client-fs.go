@@ -184,7 +184,7 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	newPatch.Filter(ctx)
 	pr := proc.NewProcessor(ctx)
 	pr.Silent = true
-	pr.Process(newPatch)
+	pr.Process(newPatch, nil)
 	// For Create Folders, updateSnapshot with associated .pydio's
 	newPatch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
 		folderUuid := operation.GetNode().Uuid

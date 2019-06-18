@@ -37,7 +37,9 @@ type AbstractPatch struct {
 
 	statusChan chan ProcessStatus
 	doneChan   chan interface{}
+	cmd        *model.Command
 	closing    bool
+	patchError error
 }
 
 func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool) {
@@ -46,12 +48,16 @@ func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, prov
 	b.sessionSilent = silentSession
 }
 
-func (b *AbstractPatch) SetupChannels(status chan ProcessStatus, done chan interface{}) {
+func (b *AbstractPatch) SetupChannels(status chan ProcessStatus, done chan interface{}, cmd *model.Command) {
 	b.statusChan = status
 	b.doneChan = done
+	b.cmd = cmd
 }
 
 func (b *AbstractPatch) Status(s ProcessStatus) {
+	if s.IsError {
+		b.patchError = s.Error
+	}
 	if b.statusChan != nil {
 		go func() {
 			if !b.closing {
@@ -66,6 +72,16 @@ func (b *AbstractPatch) Done(info interface{}) {
 	if b.doneChan != nil {
 		b.doneChan <- info
 	}
+}
+
+// Set a global error status on this patch
+func (b *AbstractPatch) SetError(e error) {
+	b.patchError = e
+}
+
+// Check if this patch has a global error status
+func (b *AbstractPatch) HasError() (error, bool) {
+	return b.patchError, b.patchError != nil
 }
 
 func (b *AbstractPatch) Source(newSource ...model.PathSyncSource) model.PathSyncSource {

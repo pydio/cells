@@ -33,13 +33,15 @@ type ConnectedProcessor struct {
 
 	PatchChan chan merger.Patch
 	LocksChan chan model.LockEvent
+	Cmd       *model.Command
 }
 
 // NewConnectedProcessor creates a new connected processor
-func NewConnectedProcessor(ctx context.Context) *ConnectedProcessor {
+func NewConnectedProcessor(ctx context.Context, cmd *model.Command) *ConnectedProcessor {
 	p := &ConnectedProcessor{
 		Processor: *NewProcessor(ctx),
 		PatchChan: make(chan merger.Patch, 1),
+		Cmd:       cmd,
 	}
 	p.Locker = p
 	return p
@@ -70,7 +72,7 @@ func (pr *ConnectedProcessor) ProcessPatches() {
 				pr.Logger().Info("Stop processing patches")
 				return
 			}
-			pr.Process(patch)
+			pr.Process(patch, pr.Cmd)
 		}
 	}
 

@@ -136,7 +136,7 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 		return nil, err
 	}
 	patch.Filter(ctx)
-	patch.SetupChannels(s.statuses, s.runDone)
+	patch.SetupChannels(s.statuses, s.runDone, s.cmd)
 
 	log.Logger(ctx).Debug("### SENDING TO MERGER", zap.Any("stats", patch.Stats()))
 
@@ -268,7 +268,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 	if provider, ok := model.AsSessionProvider(s.Target); ok {
 		bb.SetSessionProvider(ctx, provider, false)
 	}
-	bb.SetupChannels(s.statuses, s.runDone)
+	bb.SetupChannels(s.statuses, s.runDone, s.cmd)
 	return bb, nil
 }
 
@@ -406,7 +406,7 @@ func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *Endp
 func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[string]*EndpointRootStat) {
 	indexStatus := make(chan merger.ProcessStatus)
 	done := make(chan interface{})
-	diff.SetupChannels(indexStatus, done)
+	diff.SetupChannels(indexStatus, done, s.cmd)
 	go func() {
 		for {
 			select {

@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/pborman/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -66,19 +67,29 @@ func NewProcessor(ctx context.Context) *Processor {
 }
 
 // Process calls all Operations to be performed on a Patch
-func (pr *Processor) Process(patch merger.Patch) {
+func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
+
+	var interrupted bool
 
 	// Send the patch itself on the doneChan
-	defer patch.Done(patch)
+	defer func() {
+		if interrupted {
+			patch.Status(merger.ProcessStatus{
+				IsError:      true,
+				StatusString: "Patch interrupted by user",
+				Error:        errors.New("patch interrupted by user"),
+			})
+		}
+		patch.Done(patch)
+	}()
 
 	if patch.Size() == 0 {
 		return
 	}
 
-	operationId := uuid.New()
-
-	total := patch.ProgressTotal()
 	var cursor int64
+	processUUID := uuid.New()
+	total := patch.ProgressTotal()
 
 	patch.Status(merger.ProcessStatus{StatusString: fmt.Sprintf("Start processing patch (total bytes %d)", total)})
 	stats := patch.Stats()
@@ -87,13 +98,10 @@ func (pr *Processor) Process(patch merger.Patch) {
 		pending = pen.(map[string]int)
 	}
 
-	flushSessionBefore := func(tt ...merger.OperationType) {}
-	session, err := patch.StartSessionProvider(&tree.Node{Path: "/"})
-	if err != nil {
-		pr.Logger().Error("Error while starting Indexation Session", zap.Error(err))
-	} else {
+	flusher := func(tt ...merger.OperationType) {}
+	if session, err := patch.StartSessionProvider(&tree.Node{Path: "/"}); err == nil {
 		defer patch.FinishSessionProvider(session.Uuid)
-		flushSessionBefore = func(tt ...merger.OperationType) {
+		flusher = func(tt ...merger.OperationType) {
 			for _, t := range tt {
 				if val, ok := pending[t.String()]; ok && val > 0 {
 					patch.FlushSessionProvider(session.Uuid)
@@ -101,88 +109,114 @@ func (pr *Processor) Process(patch merger.Patch) {
 				}
 			}
 		}
+	} else {
+		pr.Logger().Error("Error while starting Indexation Session", zap.Error(err))
 	}
 
-	// Create Folders
-	patch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
-		pr.applyProcessFunc(operation, operationId, pr.processCreateFolder, "Created folder", "Creating folder", "Error while creating folder", &cursor, total, zap.String("path", operation.GetRefPath()))
-	})
-
-	flushSessionBefore(merger.OpMoveFolder)
-	// Move folders
-	patch.WalkOperations([]merger.OperationType{merger.OpMoveFolder}, func(operation merger.Operation) {
-		toPath := operation.GetRefPath()
-		fromPath := operation.GetMoveOriginPath()
-		pr.applyProcessFunc(operation, operationId, pr.processMove, "Moved folder", "Moving folder", "Error while moving folder", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
-	})
-
-	// Move files
-	flushSessionBefore(merger.OpMoveFile)
-	patch.WalkOperations([]merger.OperationType{merger.OpMoveFile}, func(operation merger.Operation) {
-		toPath := operation.GetRefPath()
-		fromPath := operation.GetMoveOriginPath()
-		pr.applyProcessFunc(operation, operationId, pr.processMove, "Moved file", "Moving file", "Error while moving file", &cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
-	})
-
-	// Create files
-	createFiles := patch.OperationsByType([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile})
-	flushSessionBefore(merger.OpCreateFile, merger.OpUpdateFile)
-	if patch.HasTransfers() {
-		// Process with a parallel Queue
+	serial := make(chan merger.Operation)
+	parallel := make(chan merger.Operation)
+	opsFinished := make(chan struct{})
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		// Listen to cmd Chan
+		var cmdChan chan model.SyncCmd
+		if cmd != nil {
+			var unsub chan bool
+			cmdChan, unsub = cmd.Subscribe()
+			defer close(unsub)
+		}
+		previousType := merger.OpUnknown
 		wg := &sync.WaitGroup{}
 		throttle := make(chan struct{}, pr.QueueSize)
-		for _, op := range createFiles {
-			wg.Add(1)
-			opCopy := op
-			throttle <- struct{}{}
-			go func() {
-				defer func() {
-					<-throttle
-					wg.Done()
+		for {
+			select {
+
+			case cmd := <-cmdChan:
+				fmt.Printf("Received command %d", cmd)
+				if cmd == model.Interrupt {
+					interrupted = true
+				}
+
+			case op := <-serial:
+				// Flush for next type if it's different
+				if previousType != merger.OpUnknown && op.Type() != previousType {
+					flusher(op.Type())
+				}
+				previousType = op.Type()
+				if interrupted || op.IsProcessed() {
+					break
+				}
+				// TODO TMP REMOVE THIS TEST LONG OPERATION INTERRUPTION
+				<-time.After(4 * time.Second)
+				pr.processOperation(patch, processUUID, op, &cursor, total)
+
+			case op := <-parallel:
+
+				// Flush for next type if it's different
+				if previousType != merger.OpCreateFile && previousType != merger.OpUpdateFile {
+					flusher(merger.OpCreateFile, merger.OpUpdateFile)
+				}
+				previousType = op.Type()
+				if interrupted || op.IsProcessed() {
+					break
+				}
+				wg.Add(1)
+				opCopy := op
+				throttle <- struct{}{}
+				go func() {
+					defer func() {
+						<-throttle
+						wg.Done()
+					}()
+					pr.processOperation(patch, processUUID, opCopy, &cursor, total, true)
 				}()
-				model.Retry(func() error {
-					return pr.applyProcessFunc(opCopy, operationId, pr.processCreateFile, "Transferred file", "Transferring file", "Error while transferring file", &cursor, total, zap.String("path", opCopy.GetRefPath()), zap.String("eTag", opCopy.GetNode().Etag))
-				}, 5*time.Second, 20*time.Second)
-			}()
+
+			case <-opsFinished:
+				wg.Wait()
+				return
+
+			}
 		}
-		wg.Wait()
+	}()
+
+	serialWalker := func(o merger.Operation) {
+		serial <- o
+	}
+
+	patch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, serialWalker)
+	patch.WalkOperations([]merger.OperationType{merger.OpMoveFolder}, serialWalker)
+	patch.WalkOperations([]merger.OperationType{merger.OpMoveFile}, serialWalker)
+	if patch.HasTransfers() {
+		patch.WalkOperations([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile}, func(o merger.Operation) {
+			parallel <- o
+		})
 	} else {
-		// Process Serialized
-		for _, event := range createFiles {
-			pr.applyProcessFunc(event, operationId, pr.processCreateFile, "Indexed file", "Indexing file", "Error while indexing file", &cursor, total, zap.String("path", event.GetRefPath()))
-		}
+		patch.WalkOperations([]merger.OperationType{merger.OpCreateFile, merger.OpUpdateFile}, serialWalker)
 	}
-
-	// Deletes
-	deletes := patch.OperationsByType([]merger.OperationType{merger.OpDelete})
-	flushSessionBefore(merger.OpDelete)
-	for _, op := range deletes {
-		if op.GetNode() == nil {
-			continue
+	patch.WalkOperations([]merger.OperationType{merger.OpDelete}, func(o merger.Operation) {
+		if o.GetNode() != nil {
+			serial <- o
 		}
-		nS := "folder"
-		if op.GetNode().IsLeaf() {
-			nS = "file"
-		}
-		pr.applyProcessFunc(op, operationId, pr.processDelete, "Deleted "+nS, "Deleting "+nS, "Error while deleting "+nS, &cursor, total, zap.String("path", op.GetNode().Path))
-	}
-	/*
-		var pg float32
-		if total > 0 {
-			pg = float32(cursor) / float32(total)
-		}
-		patch.Status(merger.ProcessStatus{StatusString: "Finished processing patch", Progress: pg})
-	*/
-
+	})
 	if len(patch.OperationsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
 		go pr.refreshFilesUuid(patch)
 	}
 
+	close(opsFinished)
+	// Wait that all is done
+	<-done
 }
 
-// Logger is a shortcut for log.Logger(pr.globalContext) function
-func (pr *Processor) Logger() *zap.Logger {
-	return log.Logger(pr.GlobalContext)
+func (pr *Processor) processOperation(p merger.Patch, processId string, op merger.Operation, cursor *int64, total int64, withRetries ...bool) {
+	cb, progress, complete, errorString, fields := pr.dataForOperation(p, op)
+	if len(withRetries) > 0 {
+		model.Retry(func() error {
+			return pr.applyProcessFunc(op, processId, cb, complete, progress, errorString, cursor, total, fields...)
+		}, 5*time.Second, 20*time.Second)
+	} else {
+		pr.applyProcessFunc(op, processId, cb, complete, progress, errorString, cursor, total, fields...)
+	}
 }
 
 // applyProcessFunc takes a ProcessFunc and handle progress, status messages, etc
@@ -247,4 +281,58 @@ func (pr *Processor) logAsString(msg string, err error, fields ...zapcore.Field)
 		msg += " - " + field.String
 	}
 	return msg
+}
+
+func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb ProcessFunc, progress string, complete string, error string, fields []zapcore.Field) {
+
+	switch op.Type() {
+	case merger.OpCreateFolder:
+		cb = pr.processCreateFolder
+		progress = "Creating folder"
+		complete = "Created folder"
+		error = "Error while creating folder"
+		fields = append(fields, zap.String("path", op.GetRefPath()))
+	case merger.OpCreateFile, merger.OpUpdateFile:
+		cb = pr.processCreateFile
+		if p.HasTransfers() {
+			progress = "Transferring file"
+			complete = "Transferred file"
+			error = "Error while transferring file"
+		} else {
+			progress = "Indexing file"
+			complete = "Indexed file"
+			error = "Error while indexing file"
+		}
+		fields = append(fields, zap.String("path", op.GetRefPath()))
+	case merger.OpMoveFolder:
+		cb = pr.processMove
+		progress = "Moving folder"
+		complete = "Moved folder"
+		error = "Error while moving folder"
+		fields = append(fields, zap.String("from", op.GetMoveOriginPath()))
+		fields = append(fields, zap.String("to", op.GetRefPath()))
+	case merger.OpMoveFile:
+		cb = pr.processMove
+		progress = "Moving file"
+		complete = "Moved file"
+		error = "Error while moving file"
+		fields = append(fields, zap.String("from", op.GetMoveOriginPath()))
+		fields = append(fields, zap.String("to", op.GetRefPath()))
+	case merger.OpDelete:
+		cb = pr.processDelete
+		nS := "folder"
+		if op.GetNode().IsLeaf() {
+			nS = "file"
+		}
+		progress = "Deleting " + nS
+		complete = "Deleted " + nS
+		error = "Error while deleting " + nS
+		fields = append(fields, zap.String("path", op.GetRefPath()))
+	}
+	return
+}
+
+// Logger is a shortcut for log.Logger(pr.globalContext) function
+func (pr *Processor) Logger() *zap.Logger {
+	return log.Logger(pr.GlobalContext)
 }

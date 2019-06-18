@@ -22,7 +22,9 @@ package merger
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -47,6 +49,8 @@ type PatchOptions struct {
 	NoRescan      bool
 }
 
+type OpWalker func(Operation)
+
 // Patch represents a set of operations to be processed
 type Patch interface {
 	model.Stater
@@ -61,7 +65,7 @@ type Patch interface {
 	// TODO : check this key param is really necessary
 	Enqueue(event Operation, key ...string)
 	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
-	WalkOperations(opTypes []OperationType, callback func(Operation))
+	WalkOperations(opTypes []OperationType, callback OpWalker)
 	// EventsByTypes retrieves all events of a given type
 	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
 
@@ -77,6 +81,11 @@ type Patch interface {
 	// ProgressTotal returns the total number of bytes to be processed, to be used for progress.
 	// Basically, file transfers operations returns the file size, but other operations return a 1 byte size.
 	ProgressTotal() int64
+
+	// Set a global error status on this patch
+	SetError(error)
+	// Check if this patch has a global error status
+	HasError() (error, bool)
 
 	// SetSessionProvider registers a target as supporting the SessionProvider interface
 	SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool)
@@ -99,6 +108,7 @@ const (
 	OpMoveFile
 	OpDelete
 	OpRefreshUuid
+	OpUnknown
 )
 
 // String gives a string representation of this integer type
@@ -125,38 +135,42 @@ func (t OperationType) String() string {
 type OperationDirection int
 
 const (
-	OperationDirDefault = iota
+	OperationDirDefault OperationDirection = iota
 	OperationDirLeft
 	OperationDirRight
 )
 
 // Operation describes an atomic operation to be passed to a processor and applied to an endpoint
 type Operation interface {
-	Clone(replaceType ...OperationType) Operation
+	fmt.Stringer
+
+	Type() OperationType
+	GetNode() *tree.Node
+	IsScanEvent() bool
 	IsTypeMove() bool
 	IsTypeData() bool
 	IsTypePath() bool
-	SetProcessed()
-	SetDirection(OperationDirection) Operation
 	IsProcessed() bool
 	Status(status ProcessStatus)
 	GetStatus() ProcessStatus
 	GetRefPath() string
-	UpdateRefPath(p string)
 	GetMoveOriginPath() string
-	UpdateMoveOriginPath(p string)
-	IsScanEvent() bool
+
+	SetProcessed()
+	SetDirection(OperationDirection) Operation
 	SetNode(n *tree.Node)
-	GetNode() *tree.Node
-	Type() OperationType
+	UpdateRefPath(p string)
+	UpdateMoveOriginPath(p string)
 	UpdateType(t OperationType)
-	CreateContext(ctx context.Context) context.Context
+
+	AttachToPatch(p Patch)
 	Source() model.PathSyncSource
 	Target() model.PathSyncTarget
-	AttachToPatch(p Patch)
 	NodeFromSource(ctx context.Context) (node *tree.Node, err error)
 	NodeInTarget(ctx context.Context) (node *tree.Node, found bool)
-	String() string
+
+	Clone(replaceType ...OperationType) Operation
+	CreateContext(ctx context.Context) context.Context
 }
 
 // Diff represents basic differences between two sources
@@ -191,7 +205,7 @@ type ProcessStatus struct {
 // StatusProvider can register channels to send status/done events during processing
 type StatusProvider interface {
 	// SetupChannels register channels for listening to status and done infos
-	SetupChannels(status chan ProcessStatus, done chan interface{})
+	SetupChannels(status chan ProcessStatus, done chan interface{}, cmd *model.Command)
 	// Status notify of a new ProcessStatus
 	Status(s ProcessStatus)
 	// Done notify the patch is processed, can send any useful info to the associated channel
@@ -232,7 +246,11 @@ func ConflictsByType(cc []*Conflict, conflictType ConflictType) (conflicts []*Co
 
 // MostRecentNode compares two nodes Modification Time and returns the most recent one
 func MostRecentNode(n1, n2 *tree.Node) *tree.Node {
-	if n1.MTime > n2.MTime {
+	if n1.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+		return n2
+	} else if n2.Etag == common.NODE_FLAG_ETAG_TEMPORARY {
+		return n1
+	} else if n1.MTime > n2.MTime {
 		return n1
 	} else {
 		return n2

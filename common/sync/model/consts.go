@@ -29,6 +29,8 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+type SyncCmd int
+
 type DirectionType int
 
 const (
@@ -40,6 +42,10 @@ const (
 	DirectionLeft  DirectionType = 1
 	DirectionRight DirectionType = 2
 	DirectionBi    DirectionType = 3
+
+	Interrupt SyncCmd = iota
+	Pause
+	Resume
 )
 
 func IsIgnoredFile(path string) (ignored bool) {
