@@ -673,7 +673,7 @@ func TestTreeDiffConflictsAndStatus(t *testing.T) {
 		doneChan := make(chan interface{}, 1)
 
 		diff := newTreeDiff(testCtx, left, right)
-		diff.SetupChannels(statusChan, doneChan)
+		diff.SetupChannels(statusChan, doneChan, nil)
 
 		// start a routine to read status
 		f := func() {
