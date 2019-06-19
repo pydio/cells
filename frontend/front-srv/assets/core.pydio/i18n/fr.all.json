@@ -2266,5 +2266,8 @@
   },
   "visibility.users.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de décider si un utilisateur que vous avez créé peut être visible ou modifiable par les autres utilisateurs. Par défaut, les utilisateurs de votre carnet d'adresse ne sont visibles que par vous."
+  },
+  "user.unknown": {
+    "other": "Inconnnu"
   }
 }

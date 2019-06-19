@@ -21,6 +21,7 @@
 package auth
 
 import (
+	"github.com/pborman/uuid"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -236,6 +237,7 @@ func ToStorageConnector(c Connector) (storage.Connector, error) {
 		ID:     c.ID,
 		Type:   c.Type,
 		Name:   c.Name,
+		ResourceVersion: uuid.New(),
 		Config: data,
 	}, nil
 }
