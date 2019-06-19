@@ -31,22 +31,25 @@ import (
 )
 
 type Sync struct {
-	Source    model.Endpoint
-	Target    model.Endpoint
-	Direction model.DirectionType
-	Roots     []string
-	watch     bool
+	Source             model.Endpoint
+	Target             model.Endpoint
+	Direction          model.DirectionType
+	Roots              []string
+	watch              bool
+	SkipFilterToTarget bool
 
 	snapshotFactory model.SnapshotFactory
 	echoFilter      *filters.EchoFilter
 	eventsBatchers  []*filters.EventsBatcher
 	processor       *proc.ConnectedProcessor
+	patchPiper      merger.PatchPiper
 
 	watchersChan []chan bool
 	watchConn    chan *model.EndpointStatus
 	statuses     chan merger.ProcessStatus
 	runDone      chan interface{}
 	cmd          *model.Command
+	patchChan    chan merger.Patch
 }
 
 func NewSync(left model.Endpoint, right model.Endpoint, direction model.DirectionType, roots ...string) *Sync {
@@ -58,11 +61,22 @@ func NewSync(left model.Endpoint, right model.Endpoint, direction model.Directio
 	}
 }
 
+func (s *Sync) SetPatchPiper(piper merger.PatchPiper) {
+	s.patchPiper = piper
+}
+
 // Start makes a first sync and setup watchers
 func (s *Sync) Start(ctx context.Context, withWatches bool) {
 
 	// Init processor
 	s.processor = proc.NewConnectedProcessor(ctx, s.cmd)
+	if s.SkipFilterToTarget {
+		s.processor.AlwaysSkipFilterToTarget = true
+	}
+	s.patchChan = s.processor.PatchChan
+	if s.patchPiper != nil {
+		s.patchChan = s.patchPiper.Pipe(s.patchChan)
+	}
 	s.processor.Start()
 
 	// Init EchoFilter
@@ -142,7 +156,8 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 }
 
 func (s *Sync) ReApplyPatch(ctx context.Context, patch merger.Patch) {
-	s.processor.PatchChan <- patch
+	patch.SkipFilterToTarget(false)
+	s.patchChan <- patch
 }
 
 // SetSnapshotFactory set up a factory for loading/saving snapshots

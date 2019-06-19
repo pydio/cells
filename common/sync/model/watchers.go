@@ -58,7 +58,7 @@ type EventInfo struct {
 	Etag           string
 	Folder         bool
 	Path           string
-	Source         PathSyncSource
+	Source         PathSyncSource `json:"-"`
 	Type           EventType
 	Host           string
 	Port           string

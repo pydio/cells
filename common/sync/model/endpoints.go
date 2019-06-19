@@ -205,7 +205,7 @@ type SnapshotUpdater interface {
 // SnapshotFactory provides dependency injection for creating snapshots using a specific persistence layer.
 type SnapshotFactory interface {
 	// Load creates the snapshot and return it
-	Load(name string) (Snapshoter, error)
+	Load(source PathSyncSource) (Snapshoter, error)
 }
 
 // HashStoreReader can maintain a reference to a snapshot to quickly find hashes for nodes directly from the snapshot if they

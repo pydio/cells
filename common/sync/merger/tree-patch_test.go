@@ -50,14 +50,14 @@ func TestTreePatch_Filter(t *testing.T) {
 		source, target := memory.NewMemDB(), memory.NewMemDB()
 		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFile,
-			eventInfo: model.EventInfo{
+			OpType: OpCreateFile,
+			EventInfo: model.EventInfo{
 				Path: "/ignored-file",
 			},
 		})
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFolder,
-			eventInfo: model.EventInfo{
+			OpType: OpCreateFolder,
+			EventInfo: model.EventInfo{
 				Path: "/ignored-folder",
 			},
 		})
@@ -79,8 +79,8 @@ func TestTreePatch_Filter(t *testing.T) {
 		}, true)
 
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFile,
-			eventInfo: model.EventInfo{
+			OpType: OpCreateFile,
+			EventInfo: model.EventInfo{
 				Path: "/ignored-file",
 			},
 		})
@@ -107,14 +107,14 @@ func TestTreePatch_Filter(t *testing.T) {
 		}, true)
 
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFile,
-			eventInfo: model.EventInfo{
+			OpType: OpCreateFile,
+			EventInfo: model.EventInfo{
 				Path: "/a/file-moved",
 			},
 		})
 		patch.Enqueue(&patchOperation{
-			opType: OpDelete,
-			eventInfo: model.EventInfo{
+			OpType: OpDelete,
+			EventInfo: model.EventInfo{
 				Path: "/file-to-move",
 			},
 		})
@@ -151,26 +151,26 @@ func TestTreePatch_Filter(t *testing.T) {
 		}, true)
 
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFile,
-			eventInfo: model.EventInfo{
+			OpType: OpCreateFile,
+			EventInfo: model.EventInfo{
 				Path: "/a/file-moved",
 			},
 		})
 		patch.Enqueue(&patchOperation{
-			opType: OpDelete,
-			eventInfo: model.EventInfo{
+			OpType: OpDelete,
+			EventInfo: model.EventInfo{
 				Path: "/file-to-move",
 			},
 		})
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFile,
-			eventInfo: model.EventInfo{
+			OpType: OpCreateFile,
+			EventInfo: model.EventInfo{
 				Path: "/a/similar-file-moved",
 			},
 		})
 		patch.Enqueue(&patchOperation{
-			opType: OpDelete,
-			eventInfo: model.EventInfo{
+			OpType: OpDelete,
+			EventInfo: model.EventInfo{
 				Path: "/similar-file",
 			},
 		})
@@ -188,14 +188,14 @@ func TestTreePatch_Filter(t *testing.T) {
 		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
 
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFile,
-			eventInfo: model.EventInfo{
+			OpType: OpCreateFile,
+			EventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
 		})
 		patch.Enqueue(&patchOperation{
-			opType: OpDelete,
-			eventInfo: model.EventInfo{
+			OpType: OpDelete,
+			EventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
 		})
@@ -217,14 +217,14 @@ func TestTreePatch_Filter(t *testing.T) {
 		}, true)
 
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFile,
-			eventInfo: model.EventInfo{
+			OpType: OpCreateFile,
+			EventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
 		})
 		patch.Enqueue(&patchOperation{
-			opType: OpDelete,
-			eventInfo: model.EventInfo{
+			OpType: OpDelete,
+			EventInfo: model.EventInfo{
 				Path: "/a/file-touched",
 			},
 		})
@@ -256,9 +256,9 @@ func TestTreePatch_Filter(t *testing.T) {
 		source.CreateNode(ctx, n1, true)
 		source.CreateNode(ctx, n2, true)
 		source.CreateNode(ctx, n3, true)
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: n1.Path}, node: n1})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: n2.Path}, node: n2})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: n3.Path}, node: n3})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: n1.Path}, Node: n1})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: n2.Path}, Node: n2})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: n3.Path}, Node: n3})
 
 		patch.Filter(ctx)
 		So(patch.OperationsByType([]OperationType{OpDelete}), ShouldHaveLength, 2)
@@ -276,14 +276,14 @@ func TestPrunedMove(t *testing.T) {
 		source.CreateNode(ctx, &tree.Node{Uuid: "u3", Path: "/subfolder/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}, false)
 		source.CreateNode(ctx, &tree.Node{Uuid: "u4", Path: "/subfolder/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}, false)
 		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
-		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/subfolder/target"}, node: &tree.Node{Uuid: "u1", Path: "/subfolder/target"}})
-		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/subfolder/target/sub"}, node: &tree.Node{Uuid: "u2", Path: "/subfolder/target/sub"}})
-		patch.Enqueue(&patchOperation{opType: OpCreateFile, eventInfo: model.EventInfo{Path: "/subfolder/target/sub/file1"}, node: &tree.Node{Uuid: "u3", Path: "/subfolder/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
-		patch.Enqueue(&patchOperation{opType: OpCreateFile, eventInfo: model.EventInfo{Path: "/subfolder/target/sub/file2"}, node: &tree.Node{Uuid: "u4", Path: "/subfolder/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source"}, node: &tree.Node{Uuid: "u1", Path: "/source"}})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub"}, node: &tree.Node{Uuid: "u2", Path: "/source/sub"}})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub/file1"}, node: &tree.Node{Uuid: "u3", Path: "/source/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub/file2"}, node: &tree.Node{Uuid: "u4", Path: "/source/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
+		patch.Enqueue(&patchOperation{OpType: OpCreateFolder, EventInfo: model.EventInfo{Path: "/subfolder/target"}, Node: &tree.Node{Uuid: "u1", Path: "/subfolder/target"}})
+		patch.Enqueue(&patchOperation{OpType: OpCreateFolder, EventInfo: model.EventInfo{Path: "/subfolder/target/sub"}, Node: &tree.Node{Uuid: "u2", Path: "/subfolder/target/sub"}})
+		patch.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/subfolder/target/sub/file1"}, Node: &tree.Node{Uuid: "u3", Path: "/subfolder/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
+		patch.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/subfolder/target/sub/file2"}, Node: &tree.Node{Uuid: "u4", Path: "/subfolder/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/source"}, Node: &tree.Node{Uuid: "u1", Path: "/source"}})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/source/sub"}, Node: &tree.Node{Uuid: "u2", Path: "/source/sub"}})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/source/sub/file1"}, Node: &tree.Node{Uuid: "u3", Path: "/source/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/source/sub/file2"}, Node: &tree.Node{Uuid: "u4", Path: "/source/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
 		patch.Filter(ctx)
 		So(patch.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
 		So(patch.OperationsByType([]OperationType{OpMoveFile}), ShouldHaveLength, 0)
@@ -296,14 +296,14 @@ func TestPrunedMove(t *testing.T) {
 		source.CreateNode(ctx, &tree.Node{Uuid: "u3", Path: "/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}, false)
 		source.CreateNode(ctx, &tree.Node{Uuid: "u4", Path: "/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}, false)
 		patch := newTreePatch(source, target, PatchOptions{MoveDetection: true})
-		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/target"}, node: &tree.Node{Uuid: "u1", Path: "/target"}})
-		patch.Enqueue(&patchOperation{opType: OpCreateFolder, eventInfo: model.EventInfo{Path: "/target/sub"}, node: &tree.Node{Uuid: "u2", Path: "/target/sub"}})
-		patch.Enqueue(&patchOperation{opType: OpCreateFile, eventInfo: model.EventInfo{Path: "/target/sub/file1"}, node: &tree.Node{Uuid: "u3", Path: "/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
-		patch.Enqueue(&patchOperation{opType: OpCreateFile, eventInfo: model.EventInfo{Path: "/target/sub/file2"}, node: &tree.Node{Uuid: "u4", Path: "/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source"}, node: &tree.Node{Uuid: "u1", Path: "/source"}})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub"}, node: &tree.Node{Uuid: "u2", Path: "/source/sub"}})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub/file1"}, node: &tree.Node{Uuid: "u3", Path: "/source/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
-		patch.Enqueue(&patchOperation{opType: OpDelete, eventInfo: model.EventInfo{Path: "/source/sub/file2"}, node: &tree.Node{Uuid: "u4", Path: "/source/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
+		patch.Enqueue(&patchOperation{OpType: OpCreateFolder, EventInfo: model.EventInfo{Path: "/target"}, Node: &tree.Node{Uuid: "u1", Path: "/target"}})
+		patch.Enqueue(&patchOperation{OpType: OpCreateFolder, EventInfo: model.EventInfo{Path: "/target/sub"}, Node: &tree.Node{Uuid: "u2", Path: "/target/sub"}})
+		patch.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/target/sub/file1"}, Node: &tree.Node{Uuid: "u3", Path: "/target/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
+		patch.Enqueue(&patchOperation{OpType: OpCreateFile, EventInfo: model.EventInfo{Path: "/target/sub/file2"}, Node: &tree.Node{Uuid: "u4", Path: "/target/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/source"}, Node: &tree.Node{Uuid: "u1", Path: "/source"}})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/source/sub"}, Node: &tree.Node{Uuid: "u2", Path: "/source/sub"}})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/source/sub/file1"}, Node: &tree.Node{Uuid: "u3", Path: "/source/sub/file1", Etag: "u3", Type: tree.NodeType_LEAF}})
+		patch.Enqueue(&patchOperation{OpType: OpDelete, EventInfo: model.EventInfo{Path: "/source/sub/file2"}, Node: &tree.Node{Uuid: "u4", Path: "/source/sub/file2", Etag: "u4", Type: tree.NodeType_LEAF}})
 		patch.Filter(ctx)
 		So(patch.OperationsByType([]OperationType{OpMoveFolder}), ShouldHaveLength, 1)
 		So(patch.OperationsByType([]OperationType{OpMoveFile}), ShouldHaveLength, 0)
@@ -386,13 +386,13 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 			var i int
 			p.WalkOperations([]OperationType{OpMoveFolder}, func(operation Operation) {
 				if i == 0 {
-					So(operation.(*patchOperation).node.Path, ShouldEqual, "A1")
+					So(operation.(*patchOperation).Node.Path, ShouldEqual, "A1")
 				} else if i == 1 {
-					So(operation.(*patchOperation).node.Path, ShouldEqual, "A2/B1")
+					So(operation.(*patchOperation).Node.Path, ShouldEqual, "A2/B1")
 				} else if i == 2 {
-					So(operation.(*patchOperation).node.Path, ShouldEqual, "A2/B2/C1")
+					So(operation.(*patchOperation).Node.Path, ShouldEqual, "A2/B2/C1")
 				} else if i == 3 {
-					So(operation.(*patchOperation).node.Path, ShouldEqual, "A2/B2/C2/D1")
+					So(operation.(*patchOperation).Node.Path, ShouldEqual, "A2/B2/C2/D1")
 				}
 				operation.SetProcessed()
 				i++
@@ -432,10 +432,10 @@ func TestRescanFolders(t *testing.T) {
 		patch := newTreePatch(source, target, PatchOptions{})
 
 		patch.Enqueue(&patchOperation{
-			opType: OpCreateFolder,
-			node:   &tree.Node{Uuid: "u1", Path: "folder"},
+			OpType: OpCreateFolder,
+			Node:   &tree.Node{Uuid: "u1", Path: "folder"},
 			patch:  patch,
-			dir:    OperationDirRight,
+			Dir:    OperationDirRight,
 		}, "")
 		patch.rescanFoldersIfRequired(ctx)
 

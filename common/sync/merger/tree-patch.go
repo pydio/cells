@@ -24,6 +24,7 @@ import (
 	"context"
 	"sort"
 
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -43,6 +44,7 @@ type TreePatch struct {
 func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) *TreePatch {
 	p := &TreePatch{
 		AbstractPatch: AbstractPatch{
+			uuid:    uuid.New(),
 			source:  source,
 			target:  target,
 			options: options,
@@ -119,21 +121,66 @@ func (t *TreePatch) Filter(ctx context.Context) {
 
 }
 
-func (t *TreePatch) FilterToTarget(ctx context.Context) {
+func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.SnapshotFactory) {
+	if t.skipFilterToTarget {
+		return
+	}
+	log.Logger(ctx).Info("Running patch.FilterToTarget")
+	// We will try to stat directly on snapshots instead of calling the source
+	// If returning nil, will ignore the operation
+	getTarget := func(target model.PathSyncTarget) model.PathSyncSource {
+		src, ok := model.AsPathSyncSource(target)
+		if !ok {
+			return nil
+		}
+		if snapshots != nil {
+			snapshot, err := snapshots.Load(src)
+			if err != nil {
+				return snapshot
+			} else {
+				log.Logger(ctx).Error("[FilterToTarget] Cannot load snapshot, using original target", zap.Error(err))
+				return src
+			}
+		} else {
+			return src
+		}
+	}
+	// Load the source to stat, then check if a node already exists, and optionally check its ETag value
+	exists := func(target model.PathSyncTarget, path string, n ...*TreeNode) bool {
+		src := getTarget(target)
+		if src == nil {
+			return false
+		}
+		node, err := src.LoadNode(ctx, path)
+		ex := node != nil && err == nil
+		if len(n) == 0 || node == nil {
+			return ex
+		}
+		// Check nodes have exists ETag
+		check := n[0]
+		return node.Etag == check.Etag
+	}
+	// Walk the tree to prune operations
 	t.Walk(func(n *TreeNode) bool {
 		if n.DataOperation != nil {
 			dataPath := n.ProcessedPath(false)
-			target := n.DataOperation.Target()
-			log.Logger(ctx).Info("[FilterToTarget] For Create/Update, should stat", zap.String("path", dataPath), zap.String("target", target.GetEndpointInfo().URI))
+			if exists(n.DataOperation.Target(), dataPath, n) {
+				log.Logger(ctx).Info("[FilterToTarget] Ignoring DataOperation (node exists with same ETag)", zap.String("path", dataPath))
+				n.DataOperation = nil
+			}
 		} else if n.PathOperation != nil {
 			if n.PathOperation.Type() == OpCreateFolder {
 				dataPath := n.ProcessedPath(false)
-				target := n.PathOperation.Target()
-				log.Logger(ctx).Info("[FilterToTarget] For Mkdir, should stat", zap.String("path", dataPath), zap.String("target", target.GetEndpointInfo().URI))
+				if exists(n.PathOperation.Target(), dataPath) {
+					log.Logger(ctx).Info("[FilterToTarget] Ignoring CreateFolder Operation (folder exists)", zap.String("path", dataPath))
+					n.PathOperation = nil
+				}
 			} else if n.PathOperation.Type() == OpDelete {
 				dataPath := n.ProcessedPath(false)
-				target := n.PathOperation.Target()
-				log.Logger(ctx).Info("[FilterToTarget] For Delete, should stat", zap.String("path", dataPath), zap.String("target", target.GetEndpointInfo().URI))
+				if !exists(n.PathOperation.Target(), dataPath) {
+					log.Logger(ctx).Info("[FilterToTarget] Ignoring Delete Operation (node is not there)", zap.String("path", dataPath))
+					n.PathOperation = nil
+				}
 			}
 		}
 		return false

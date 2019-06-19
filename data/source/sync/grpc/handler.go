@@ -225,6 +225,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	s.SyncConfig = syncConfig
 	s.ObjectConfig = minioConfig
 	s.syncTask = task.NewSync(source, target, model.DirectionRight)
+	s.syncTask.SkipFilterToTarget = true
 
 	return nil
 

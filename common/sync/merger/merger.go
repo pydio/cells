@@ -56,6 +56,9 @@ type Patch interface {
 	model.Stater
 	StatusProvider
 
+	// GetUUID provides a unique ID for this patch
+	GetUUID() string
+
 	// Source get or set the source of this patch
 	Source(newSource ...model.PathSyncSource) model.PathSyncSource
 	// Target get or set the target of this patch
@@ -72,7 +75,9 @@ type Patch interface {
 	// Filter tries to detect unnecessary changes locally
 	Filter(ctx context.Context)
 	// FilterToTarget tries to compare changes to target and remove unnecessary ones
-	FilterToTarget(ctx context.Context)
+	FilterToTarget(ctx context.Context, snapshots model.SnapshotFactory)
+	// SkipFilterToTarget set a flag to skip FilterToTarget
+	SkipFilterToTarget(bool)
 
 	// HasTransfers tels if the source and target will exchange actual data.
 	HasTransfers() bool
@@ -95,6 +100,10 @@ type Patch interface {
 	FlushSessionProvider(sessionUuid string) error
 	// FinishSessionProvider calls FinishSession on the underlying provider if it is set
 	FinishSessionProvider(sessionUuid string) error
+}
+
+type PatchPiper interface {
+	Pipe(in chan Patch) chan Patch
 }
 
 // OperationType describes the type of operation to be applied

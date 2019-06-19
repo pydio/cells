@@ -28,122 +28,127 @@ import (
 )
 
 type patchOperation struct {
-	opType    OperationType
-	node      *tree.Node
-	eventInfo model.EventInfo
-	patch     Patch
-	dir       OperationDirection
+	OpType    OperationType
+	Dir       OperationDirection
+	Node      *tree.Node
+	EventInfo model.EventInfo
 
-	internalStatus  ProcessStatus
-	processed       bool
-	processingError error
+	InternalStatus  ProcessStatus
+	Processed       bool
+	ProcessingError error
+
+	patch Patch
 }
 
 func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) Operation {
 	o := &patchOperation{
-		opType:    t,
-		eventInfo: e,
-		dir:       OperationDirDefault,
+		OpType:    t,
+		EventInfo: e,
+		Dir:       OperationDirDefault,
 	}
 	if len(loadedNode) > 0 {
-		o.node = loadedNode[0]
+		o.Node = loadedNode[0]
 	}
 	return o
 }
 
 func (o *patchOperation) Clone(replaceType ...OperationType) Operation {
 	op := &patchOperation{
-		opType:    o.opType,
-		eventInfo: o.eventInfo,
-		node:      o.node,
-		dir:       o.dir,
+		OpType:    o.OpType,
+		EventInfo: o.EventInfo,
+		Node:      o.Node,
+		Dir:       o.Dir,
 	}
 	if len(replaceType) > 0 {
-		op.opType = replaceType[0]
+		op.OpType = replaceType[0]
 	}
 	return op
 }
 
+func NewOpForUnmarshall() Operation {
+	return &patchOperation{}
+}
+
 func (o *patchOperation) IsTypeMove() bool {
-	return o.opType == OpMoveFolder || o.opType == OpMoveFile
+	return o.OpType == OpMoveFolder || o.OpType == OpMoveFile
 }
 
 func (o *patchOperation) IsTypeData() bool {
-	return o.opType == OpCreateFile || o.opType == OpUpdateFile
+	return o.OpType == OpCreateFile || o.OpType == OpUpdateFile
 }
 
 func (o *patchOperation) IsTypePath() bool {
-	return o.opType == OpCreateFolder || o.opType == OpDelete || o.IsTypeMove()
+	return o.OpType == OpCreateFolder || o.OpType == OpDelete || o.IsTypeMove()
 }
 
 func (o *patchOperation) SetProcessed() {
-	o.processed = true
+	o.Processed = true
 }
 
 func (o *patchOperation) IsProcessed() bool {
-	return o.processed
+	return o.Processed
 }
 
 func (o *patchOperation) SetDirection(direction OperationDirection) Operation {
-	o.dir = direction
+	o.Dir = direction
 	return o
 }
 
 func (o *patchOperation) Status(status ProcessStatus) {
-	o.internalStatus = status
+	o.InternalStatus = status
 	o.patch.Status(status)
 }
 
 func (o *patchOperation) GetStatus() ProcessStatus {
-	return o.internalStatus
+	return o.InternalStatus
 }
 
 func (o *patchOperation) GetRefPath() string {
-	return o.eventInfo.Path
+	return o.EventInfo.Path
 }
 
 func (o *patchOperation) UpdateRefPath(p string) {
-	o.eventInfo.Path = p
+	o.EventInfo.Path = p
 	// If not a move, update underlying node path as well (otherwise use UpdateMoveOriginPath)
-	if o.node != nil && !o.IsTypeMove() {
-		o.node.Path = p
+	if o.Node != nil && !o.IsTypeMove() {
+		o.Node.Path = p
 	}
 }
 
 func (o *patchOperation) GetMoveOriginPath() string {
-	return o.node.Path
+	return o.Node.Path
 }
 
 func (o *patchOperation) UpdateMoveOriginPath(p string) {
-	o.node.Path = p
+	o.Node.Path = p
 }
 
 func (o *patchOperation) IsScanEvent() bool {
-	return o.eventInfo.ScanEvent
+	return o.EventInfo.ScanEvent
 }
 
 func (o *patchOperation) SetNode(n *tree.Node) {
-	o.node = n
+	o.Node = n
 }
 
 func (o *patchOperation) GetNode() *tree.Node {
-	return o.node
+	return o.Node
 }
 
 func (o *patchOperation) Type() OperationType {
-	return o.opType
+	return o.OpType
 }
 
 func (o *patchOperation) UpdateType(t OperationType) {
-	o.opType = t
+	o.OpType = t
 }
 
 func (o *patchOperation) CreateContext(ctx context.Context) context.Context {
-	return o.eventInfo.CreateContext(ctx)
+	return o.EventInfo.CreateContext(ctx)
 }
 
 func (o *patchOperation) Source() model.PathSyncSource {
-	if o.dir == OperationDirDefault || o.dir == OperationDirRight {
+	if o.Dir == OperationDirDefault || o.Dir == OperationDirRight {
 		return o.patch.Source()
 	} else {
 		return o.patch.Target().(model.PathSyncSource)
@@ -151,7 +156,7 @@ func (o *patchOperation) Source() model.PathSyncSource {
 }
 
 func (o *patchOperation) Target() model.PathSyncTarget {
-	if o.dir == OperationDirDefault || o.dir == OperationDirRight {
+	if o.Dir == OperationDirDefault || o.Dir == OperationDirRight {
 		return o.patch.Target()
 	} else {
 		return o.patch.Source().(model.PathSyncTarget)
@@ -163,21 +168,21 @@ func (o *patchOperation) AttachToPatch(p Patch) {
 }
 
 func (o *patchOperation) NodeFromSource(ctx context.Context) (node *tree.Node, err error) {
-	if o.eventInfo.ScanEvent && o.eventInfo.ScanSourceNode != nil {
-		node = o.eventInfo.ScanSourceNode
+	if o.EventInfo.ScanEvent && o.EventInfo.ScanSourceNode != nil {
+		node = o.EventInfo.ScanSourceNode
 	} else {
 		node, err = o.Source().LoadNode(o.CreateContext(ctx), o.GetRefPath())
 	}
 	if err == nil {
-		o.node = node
+		o.Node = node
 	}
 	return
 }
 
 func (o *patchOperation) NodeInTarget(ctx context.Context) (node *tree.Node, found bool) {
-	if o.node != nil {
+	if o.Node != nil {
 		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
-		return o.node, true
+		return o.Node, true
 	} else {
 		node, err := o.Target().LoadNode(o.CreateContext(ctx), o.GetRefPath())
 		if err != nil {
@@ -190,12 +195,12 @@ func (o *patchOperation) NodeInTarget(ctx context.Context) (node *tree.Node, fou
 
 func (o *patchOperation) String() string {
 	dir := ""
-	if o.dir == OperationDirRight {
+	if o.Dir == OperationDirRight {
 		dir = " => "
-	} else if o.dir == OperationDirLeft {
+	} else if o.Dir == OperationDirLeft {
 		dir = " <= "
 	}
-	switch o.opType {
+	switch o.OpType {
 	case OpMoveFolder:
 		return "MoveFolder to " + o.GetRefPath() + dir
 	case OpMoveFile:

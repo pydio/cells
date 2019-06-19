@@ -34,25 +34,25 @@ func TestOpNodePaths(t *testing.T) {
 	Convey("Test OpNode paths", t, func() {
 		root := NewTreeNode(&tree.Node{Path: "/"})
 		root.QueueOperation(&patchOperation{
-			node:   &tree.Node{Path: "a/b", Type: tree.NodeType_COLLECTION},
-			opType: OpCreateFolder,
+			Node:   &tree.Node{Path: "a/b", Type: tree.NodeType_COLLECTION},
+			OpType: OpCreateFolder,
 		})
 		root.QueueOperation(&patchOperation{
-			node:   &tree.Node{Path: "a/b/c"},
-			opType: OpCreateFile,
+			Node:   &tree.Node{Path: "a/b/c"},
+			OpType: OpCreateFile,
 		})
 		root.QueueOperation(&patchOperation{
-			node:   &tree.Node{Path: "a/b/c"},
-			opType: OpDelete,
+			Node:   &tree.Node{Path: "a/b/c"},
+			OpType: OpDelete,
 		})
 		root.QueueOperation(&patchOperation{
-			node:   &tree.Node{Path: "a/b/d"},
-			opType: OpCreateFile,
+			Node:   &tree.Node{Path: "a/b/d"},
+			OpType: OpCreateFile,
 		})
 		root.QueueOperation(&patchOperation{
-			node:      &tree.Node{Path: "m/v/p"},
-			eventInfo: model.EventInfo{Path: "m/v/rename"},
-			opType:    OpMoveFile,
+			Node:      &tree.Node{Path: "m/v/p"},
+			EventInfo: model.EventInfo{Path: "m/v/rename"},
+			OpType:    OpMoveFile,
 		})
 		t.Log(root.PrintTree())
 	})

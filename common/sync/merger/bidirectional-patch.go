@@ -80,7 +80,6 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 		}
 		return nil, fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
 	}
-	b.FilterToTarget(ctx)
 	return b, e
 }
 
@@ -301,9 +300,14 @@ func (p *BidirectionalPatch) MergeDataOperations(left, right *TreeNode) {
 			return
 		}
 		log.Logger(p.ctx).Info("-- DataOperation detected on both sides, versions differ - keep both")
-		if path.Base(initialPath) == common.PYDIO_SYNC_HIDDEN_FILE_META && p.ignoreUUIDConflicts {
-			log.Logger(p.ctx).Info("-- Conflict found on .pydio but patch must ignore")
-			return
+		if path.Base(initialPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+			if p.ignoreUUIDConflicts {
+				log.Logger(p.ctx).Info("-- Conflict found on .pydio but patch must ignore")
+				return
+			} else {
+				log.Logger(p.ctx).Error("-- Conflict found on .pydio => One .pydio content should be refreshed!")
+				return
+			}
 		}
 
 		// TODO - FIND A CLEANER WAY

@@ -14,34 +14,34 @@ func TestSortClosestMove(t *testing.T) {
 		moves := sortClosestMoves([]*Move{
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/similar-file-moved"},
+					EventInfo: model.EventInfo{Path: "/similar-file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-to-move"},
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/similar-file-moved"},
+					EventInfo: model.EventInfo{Path: "/similar-file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/similar-file"},
+					EventInfo: model.EventInfo{Path: "/similar-file"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-moved"},
+					EventInfo: model.EventInfo{Path: "/file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-to-move"},
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-moved"},
+					EventInfo: model.EventInfo{Path: "/file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/similar-file"},
+					EventInfo: model.EventInfo{Path: "/similar-file"},
 				},
 			},
 		})
@@ -54,34 +54,34 @@ func TestSortClosestMove(t *testing.T) {
 		moves := sortClosestMoves([]*Move{
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
+					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-to-move"},
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
+					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/similar-file"},
+					EventInfo: model.EventInfo{Path: "/a/similar-file"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-moved"},
+					EventInfo: model.EventInfo{Path: "/file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-to-move"},
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-moved"},
+					EventInfo: model.EventInfo{Path: "/file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/similar-file"},
+					EventInfo: model.EventInfo{Path: "/a/similar-file"},
 				},
 			},
 		})
@@ -105,34 +105,34 @@ func TestSortClosestMove(t *testing.T) {
 		moves := sortClosestMoves([]*Move{
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-moved"},
+					EventInfo: model.EventInfo{Path: "/file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-to-move"},
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
+					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-to-move"},
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-moved"},
+					EventInfo: model.EventInfo{Path: "/file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/similar-file"},
+					EventInfo: model.EventInfo{Path: "/a/similar-file"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
+					EventInfo: model.EventInfo{Path: "/a/b/c/similar-file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/similar-file"},
+					EventInfo: model.EventInfo{Path: "/a/similar-file"},
 				},
 			},
 		})
@@ -157,34 +157,34 @@ func TestSortClosestMove(t *testing.T) {
 		moves := sortClosestMoves([]*Move{
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
+					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-to-move"},
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/file-moved"},
+					EventInfo: model.EventInfo{Path: "/a/file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/file-to-move"},
+					EventInfo: model.EventInfo{Path: "/file-to-move"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
+					EventInfo: model.EventInfo{Path: "/a/similar-file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/similar-file"},
+					EventInfo: model.EventInfo{Path: "/similar-file"},
 				},
 			},
 			{
 				createOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/a/file-moved"},
+					EventInfo: model.EventInfo{Path: "/a/file-moved"},
 				},
 				deleteOp: &patchOperation{
-					eventInfo: model.EventInfo{Path: "/similar-file"},
+					EventInfo: model.EventInfo{Path: "/similar-file"},
 				},
 			},
 		})
@@ -204,68 +204,68 @@ func TestSortClosestMove(t *testing.T) {
 	convey.Convey("Test SortClosestMoves same paths", t, func() {
 		moves := sortClosestMoves([]*Move{
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move1"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move1"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move1"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move1"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move2"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move1"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move2"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move1"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move3"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move1"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move3"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move1"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move4"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move1"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move4"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move1"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move1"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move2"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move1"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move2"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move2"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move2"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move2"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move2"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move3"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move2"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move3"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move2"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move4"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move2"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move4"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move2"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move1"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move3"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move1"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move3"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move2"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move3"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move2"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move3"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move3"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move3"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move3"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move3"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move4"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move3"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move4"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move3"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move1"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move4"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move1"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move4"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move2"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move4"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move2"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move4"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move3"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move4"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move3"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move4"}},
 			},
 			{
-				createOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move4"}},
-				deleteOp: &patchOperation{eventInfo: model.EventInfo{Path: "/move4"}},
+				createOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move4"}},
+				deleteOp: &patchOperation{EventInfo: model.EventInfo{Path: "/move4"}},
 			},
 		})
 		convey.So(moves, convey.ShouldHaveLength, 4)

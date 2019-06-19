@@ -22,7 +22,6 @@ package merger
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
@@ -272,7 +271,7 @@ func (t *TreePatch) prune(ctx context.Context) {
 			log.Logger(ctx).Debug("Pruning node operation as it will result to identiy", zap.Any("n", n))
 		}
 		if n.PathOperation != nil && n.PathOperation.Type() == OpDelete && !n.IsLeaf() {
-			fmt.Println("Delete folder found, remove all branch underneath!", n.Path)
+			log.Logger(ctx).Debug("Delete folder found, remove all branch underneath!", n.ZapPath())
 			prune = true
 		}
 		return

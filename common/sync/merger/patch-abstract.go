@@ -27,6 +27,7 @@ import (
 )
 
 type AbstractPatch struct {
+	uuid    string
 	options PatchOptions
 	source  model.PathSyncSource
 	target  model.PathSyncTarget
@@ -35,11 +36,17 @@ type AbstractPatch struct {
 	sessionProviderContext context.Context
 	sessionSilent          bool
 
+	skipFilterToTarget bool
+
 	statusChan chan ProcessStatus
 	doneChan   chan interface{}
 	cmd        *model.Command
 	closing    bool
 	patchError error
+}
+
+func (b *AbstractPatch) GetUUID() string {
+	return b.uuid
 }
 
 func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool) {
@@ -124,4 +131,8 @@ func (b *AbstractPatch) HasTransfers() bool {
 	_, ok1 := model.AsDataSyncSource(b.Source())
 	_, ok2 := model.AsDataSyncTarget(b.Target())
 	return ok1 && ok2
+}
+
+func (b *AbstractPatch) SkipFilterToTarget(skip bool) {
+	b.skipFilterToTarget = skip
 }

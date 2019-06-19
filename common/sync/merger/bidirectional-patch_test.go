@@ -20,13 +20,13 @@ func TestMergeWithConflicts(t *testing.T) {
 		left := newTreePatch(source, target, PatchOptions{MoveDetection: false})
 		right := newTreePatch(source, target, PatchOptions{MoveDetection: false})
 
-		left.Enqueue(&patchOperation{opType: OpCreateFolder, node: &tree.Node{Path: "/newdir"}})
-		left.Enqueue(&patchOperation{opType: OpCreateFolder, node: &tree.Node{Path: "/newdir/a"}})
-		left.Enqueue(&patchOperation{opType: OpDelete, node: &tree.Node{Path: "/op-none/deleted"}})
+		left.Enqueue(&patchOperation{OpType: OpCreateFolder, Node: &tree.Node{Path: "/newdir"}})
+		left.Enqueue(&patchOperation{OpType: OpCreateFolder, Node: &tree.Node{Path: "/newdir/a"}})
+		left.Enqueue(&patchOperation{OpType: OpDelete, Node: &tree.Node{Path: "/op-none/deleted"}})
 
-		right.Enqueue(&patchOperation{opType: OpCreateFolder, node: &tree.Node{Path: "/newdir"}})
-		right.Enqueue(&patchOperation{opType: OpCreateFolder, node: &tree.Node{Path: "/newdir/a"}})
-		right.Enqueue(&patchOperation{opType: OpDelete, node: &tree.Node{Path: "/op-none/deleted"}})
+		right.Enqueue(&patchOperation{OpType: OpCreateFolder, Node: &tree.Node{Path: "/newdir"}})
+		right.Enqueue(&patchOperation{OpType: OpCreateFolder, Node: &tree.Node{Path: "/newdir/a"}})
+		right.Enqueue(&patchOperation{OpType: OpDelete, Node: &tree.Node{Path: "/op-none/deleted"}})
 
 		bi, e := ComputeBidirectionalPatch(ctx, left, right)
 		So(e, ShouldBeNil)
@@ -47,14 +47,14 @@ func TestMergeWithConflicts(t *testing.T) {
 		left := newTreePatch(source, target, PatchOptions{MoveDetection: false})
 		right := newTreePatch(source, target, PatchOptions{MoveDetection: false})
 
-		left.Enqueue(&patchOperation{opType: OpMoveFolder, node: &tree.Node{Path: "/source-folder"}, eventInfo: model.EventInfo{Path: "/moved-folder-same"}})
-		right.Enqueue(&patchOperation{opType: OpMoveFolder, node: &tree.Node{Path: "/source-folder"}, eventInfo: model.EventInfo{Path: "/moved-folder-same"}})
+		left.Enqueue(&patchOperation{OpType: OpMoveFolder, Node: &tree.Node{Path: "/source-folder"}, EventInfo: model.EventInfo{Path: "/moved-folder-same"}})
+		right.Enqueue(&patchOperation{OpType: OpMoveFolder, Node: &tree.Node{Path: "/source-folder"}, EventInfo: model.EventInfo{Path: "/moved-folder-same"}})
 
-		left.Enqueue(&patchOperation{opType: OpMoveFolder, node: &tree.Node{Path: "/diverging-folder"}, eventInfo: model.EventInfo{Path: "/diverging-folder-A"}})
-		right.Enqueue(&patchOperation{opType: OpMoveFolder, node: &tree.Node{Path: "/diverging-folder"}, eventInfo: model.EventInfo{Path: "/diverging-folder-B"}})
+		left.Enqueue(&patchOperation{OpType: OpMoveFolder, Node: &tree.Node{Path: "/diverging-folder"}, EventInfo: model.EventInfo{Path: "/diverging-folder-A"}})
+		right.Enqueue(&patchOperation{OpType: OpMoveFolder, Node: &tree.Node{Path: "/diverging-folder"}, EventInfo: model.EventInfo{Path: "/diverging-folder-B"}})
 
-		left.Enqueue(&patchOperation{opType: OpMoveFile, node: &tree.Node{Path: "/diverging-file"}, eventInfo: model.EventInfo{Path: "/toto/diverging-file-A"}})
-		right.Enqueue(&patchOperation{opType: OpMoveFile, node: &tree.Node{Path: "/diverging-file"}, eventInfo: model.EventInfo{Path: "/toto2/other-location/diverging-file-B"}})
+		left.Enqueue(&patchOperation{OpType: OpMoveFile, Node: &tree.Node{Path: "/diverging-file"}, EventInfo: model.EventInfo{Path: "/toto/diverging-file-A"}})
+		right.Enqueue(&patchOperation{OpType: OpMoveFile, Node: &tree.Node{Path: "/diverging-file"}, EventInfo: model.EventInfo{Path: "/toto2/other-location/diverging-file-B"}})
 
 		bi, e := ComputeBidirectionalPatch(ctx, left, right)
 

@@ -80,14 +80,14 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 		if e != nil {
 			return nil, e
 		}
-		s.processor.PatchChan <- bb
+		s.patchChan <- bb
 		return bb, e
 
 	} else {
 		if len(s.Roots) == 0 {
 			patch, e := s.runUni(ctx, "/", dryRun, force, rootsInfo)
 			if e == nil {
-				s.processor.PatchChan <- patch
+				s.patchChan <- patch
 			}
 			return patch, e
 		} else {
@@ -95,7 +95,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 			var errs []string
 			for _, p := range s.Roots {
 				if patch, e := s.runUni(ctx, p, dryRun, force, rootsInfo); e == nil {
-					s.processor.PatchChan <- patch
+					s.patchChan <- patch
 					multi[p] = patch
 				} else {
 					errs = append(errs, e.Error())
@@ -136,6 +136,7 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 		return nil, err
 	}
 	patch.Filter(ctx)
+	patch.SkipFilterToTarget(true)
 	patch.SetupChannels(s.statuses, s.runDone, s.cmd)
 
 	log.Logger(ctx).Debug("### SENDING TO MERGER", zap.Any("stats", patch.Stats()))
@@ -237,6 +238,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 				} else {
 					bb = b
 				}
+				bb.SkipFilterToTarget(true)
 				log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", b.Stats()))
 			} else {
 				return nil, err
@@ -276,7 +278,7 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 
 	snapUpdater, ok2 := source.(model.SnapshotUpdater)
 	hashStoreReader, ok3 := source.(model.HashStoreReader)
-	snap, er := s.snapshotFactory.Load(name)
+	snap, er := s.snapshotFactory.Load(source)
 	if er != nil {
 		if ok2 {
 			snapUpdater.SetUpdateSnapshot(nil)
@@ -327,7 +329,7 @@ func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
 
 	if s.Direction == model.DirectionBi && s.snapshotFactory != nil {
 
-		leftSnap, err := s.snapshotFactory.Load("left")
+		leftSnap, err := s.snapshotFactory.Load(source)
 		if err != nil {
 			return err
 		}
@@ -335,7 +337,7 @@ func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
 			return e
 		}
 
-		rightSnap, err := s.snapshotFactory.Load("right")
+		rightSnap, err := s.snapshotFactory.Load(targetAsSource)
 		if err != nil {
 			return err
 		}

@@ -51,10 +51,11 @@ type ProcessorLocker interface {
 
 // Processor is a simple processor without external connections
 type Processor struct {
-	GlobalContext context.Context
-	Locker        ProcessorLocker
-	QueueSize     int
-	Silent        bool
+	GlobalContext            context.Context
+	Locker                   ProcessorLocker
+	QueueSize                int
+	Silent                   bool
+	AlwaysSkipFilterToTarget bool
 }
 
 // NewProcessor creates a new processor
@@ -68,6 +69,10 @@ func NewProcessor(ctx context.Context) *Processor {
 
 // Process calls all Operations to be performed on a Patch
 func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
+
+	if !pr.AlwaysSkipFilterToTarget {
+		patch.FilterToTarget(pr.GlobalContext, nil)
+	}
 
 	var interrupted bool
 
@@ -147,8 +152,6 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 				if interrupted || op.IsProcessed() {
 					break
 				}
-				// TODO TMP REMOVE THIS TEST LONG OPERATION INTERRUPTION
-				<-time.After(4 * time.Second)
 				pr.processOperation(patch, processUUID, op, &cursor, total)
 
 			case op := <-parallel:
