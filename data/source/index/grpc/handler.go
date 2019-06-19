@@ -77,6 +77,24 @@ func NewTreeServer(dsn string) *TreeServer {
 	}
 }
 
+// updateMeta simplifies the dao.SetNodeMeta call
+func (s *TreeServer) updateMeta(dao index.DAO, node *mtree.TreeNode, reqNode *tree.Node) (previousEtag string, contentChange bool, err error) {
+	if node.IsLeaf() {
+		previousEtag = node.Etag
+		if previousEtag != common.NODE_FLAG_ETAG_TEMPORARY {
+			contentChange = true
+		}
+	}
+	// Replace meta
+	node.Size = reqNode.Size
+	node.Etag = reqNode.Etag
+	node.Type = reqNode.Type
+	node.MTime = reqNode.MTime
+	node.Mode = reqNode.Mode
+	err = dao.SetNodeMeta(node)
+	return
+}
+
 // CreateNode implementation for the TreeServer.
 func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) (err error) {
 
@@ -96,55 +114,51 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	inSession := req.IndexationSession != ""
 
-	// Checking if we have a node with the same uuid
 	reqUUID := req.GetNode().GetUuid()
-	update := req.GetUpdateIfExists()
+	updateIfExists := req.GetUpdateIfExists()
 
-	log.Logger(ctx).Debug("CreateNode", zap.Any("request", req))
+	log.Logger(ctx).Info("CreateNode", zap.Any("request", req))
 
-	if /*!inSession &&*/ reqUUID != "" {
+	// Updating node based on UUID
+	if reqUUID != "" {
 		if node, err = dao.GetNodeByUUID(reqUUID); err != nil {
 			return errors.Forbidden(name, "Could not retrieve by uuid: %s", err.Error())
-		} else if node != nil && update {
-			eventType = tree.NodeChangeEvent_UPDATE_CONTENT
-			if node.IsLeaf() {
-				previousEtag = node.Etag
-			}
-			if err = dao.DelNode(node); err != nil {
+		} else if node != nil && updateIfExists {
+			if etag, content, err := s.updateMeta(dao, node, req.GetNode()); err != nil {
 				return errors.Forbidden(name, "Could not replace previous node: %s", err.Error())
+			} else {
+				previousEtag = etag
+				if content {
+					eventType = tree.NodeChangeEvent_UPDATE_CONTENT
+				}
 			}
 		} else if node != nil {
 			return errors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), http.StatusConflict)
 		}
 	}
 
-	// Checking if we have a node with the same path
 	reqPath := safePath(req.GetNode().GetPath())
 	path, created, err := dao.Path(reqPath, true, req.GetNode())
 	if err != nil {
 		return errors.InternalServerError(name, "Error while inserting node: %s", err.Error())
 	}
 
+	// Checking if we have a node with the same path
 	if len(created) == 0 {
-		if update {
-			eventType = tree.NodeChangeEvent_UPDATE_CONTENT
-			node = mtree.NewTreeNode()
-			node.SetMPath(path...)
-			if previousNode, e := dao.GetNode(path); e == nil && previousNode != nil {
-				previousEtag = previousNode.Etag
-			}
-			if err = dao.DelNode(node); err != nil {
+		if updateIfExists {
+			node, _ = dao.GetNode(path)
+			if etag, content, err := s.updateMeta(dao, node, req.GetNode()); err != nil {
 				return errors.Forbidden(name, "Could not replace previous node: %s", err.Error())
-			}
-
-			_, _, err = dao.Path(reqPath, true, req.GetNode())
-			if err != nil {
-				return errors.InternalServerError(name, "Error while inserting node: %s", err.Error())
+			} else {
+				previousEtag = etag
+				if content {
+					eventType = tree.NodeChangeEvent_UPDATE_CONTENT
+				}
 			}
 		} else {
 			return errors.New(name, "Node path already in use", http.StatusConflict)
 		}
-	} else if len(created) > 1 && !update && !inSession {
+	} else if len(created) > 1 && !updateIfExists && !inSession {
 		// Special case : when not in indexation mode, if node creation
 		// has triggered creation of parents, send notifications for parents as well
 		for _, parent := range created[:len(created)-1] {
@@ -156,23 +170,18 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		}
 	}
 
-	node, err = dao.GetNode(path)
-	if err != nil || node == nil {
-		return fmt.Errorf("could not retrieve node %s", reqPath)
-	}
-
-	if previousEtag == common.NODE_FLAG_ETAG_TEMPORARY {
-		eventType = tree.NodeChangeEvent_CREATE
+	if node == nil {
+		node, err = dao.GetNode(path)
+		if err != nil || node == nil {
+			return fmt.Errorf("could not retrieve node %s", reqPath)
+		}
 	}
 
 	// Updating Commits and Parent Nodes in Batch
-	// TODO - change that
-	if !inSession {
-		newEtag := req.GetNode().GetEtag()
-		if node.IsLeaf() && newEtag != common.NODE_FLAG_ETAG_TEMPORARY && (previousEtag == "" || newEtag != previousEtag) {
-			if err := dao.PushCommit(node); err != nil {
-				log.Logger(ctx).Error("Error while pushing commit for node", node.Zap(), zap.Error(err))
-			}
+	newEtag := req.GetNode().GetEtag()
+	if node.IsLeaf() && newEtag != common.NODE_FLAG_ETAG_TEMPORARY && (previousEtag == "" || newEtag != previousEtag) {
+		if err := dao.PushCommit(node); err != nil {
+			log.Logger(ctx).Error("Error while pushing commit for node", node.Zap(), zap.Error(err))
 		}
 	}
 

@@ -92,6 +92,24 @@ func TestMysql(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 
+	// Updating a file meta
+	Convey("Test updating a file meta", t, func() {
+
+		err := getDAO(ctxNoCache).AddNode(updateNode)
+		So(err, ShouldBeNil)
+
+		updateNode.Etag = "etag2"
+		updateNode.Size = 24
+
+		err = getDAO(ctxNoCache).SetNodeMeta(updateNode)
+		So(err, ShouldBeNil)
+
+		updated, err := getDAO(ctxNoCache).GetNode(updateNode.MPath)
+		So(err, ShouldBeNil)
+		So(updated.Etag, ShouldEqual, "etag2")
+		So(updated.Size, ShouldEqual, 24)
+	})
+
 	// Delete a file
 	// TODO - needs to be deleted by UUID
 	Convey("Test deleting a file - Success", t, func() {

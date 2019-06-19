@@ -106,6 +106,9 @@ func init() {
 		update %%PREFIX%%_idx_tree set level = ?, hash = ?, name = ?, leaf=?, mtime=?, etag=?, size=?, mode=?, mpath1 = ?, mpath2 = ?, mpath3 = ?, mpath4 = ?,  rat = ?
 		where uuid = ?`
 	}
+	queries["updateMeta"] = func(mpathes ...string) string {
+		return `UPDATE %%PREFIX%%_idx_tree set name = ?, leaf = ?, mtime = ?, etag=?, size=?, mode=? WHERE uuid = ?`
+	}
 	queries["updateEtag"] = func(mpathes ...string) string {
 		return `UPDATE %%PREFIX%%_idx_tree set etag = ? WHERE uuid = ?`
 	}
@@ -434,6 +437,30 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 		mpath3,
 		mpath4,
 		node.Bytes(),
+		node.Uuid,
+	)
+
+	return err
+}
+
+// SetNode in replacement of previous node
+func (dao *IndexSQL) SetNodeMeta(node *mtree.TreeNode) error {
+
+	dao.Lock()
+	defer dao.Unlock()
+
+	updateMeta := dao.GetStmt("updateMeta")
+	if updateMeta == nil {
+		return fmt.Errorf("empty statement")
+	}
+
+	_, err := updateMeta.Exec(
+		node.Name(),
+		node.IsLeafInt(),
+		node.MTime,
+		node.Etag,
+		node.Size,
+		node.Mode,
 		node.Uuid,
 	)
 

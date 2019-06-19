@@ -32,9 +32,13 @@ import (
 type DAO interface {
 	Path(strpath string, create bool, reqNode ...*tree.Node) (mtree.MPath, []*mtree.TreeNode, error)
 
-	// Simple Add / Set / Delete
+	// Add a node in the tree
 	AddNode(*mtree.TreeNode) error
+	// SetNode updates a node, including its tree position
 	SetNode(*mtree.TreeNode) error
+	// Update a node metadata, without touching its tree position
+	SetNodeMeta(*mtree.TreeNode) error
+	// Remove a node from the tree
 	DelNode(*mtree.TreeNode) error
 
 	// Simple Add / Set / Delete

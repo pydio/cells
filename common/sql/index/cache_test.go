@@ -105,6 +105,32 @@ func TestMysqlWithCache(t *testing.T) {
 		getDAO(ctxWithCache).Flush(true)
 	})
 
+	// Updating a file meta
+	Convey("Test updating a file meta", t, func() {
+		newSession()
+
+		err := getDAO(ctxWithCache).AddNode(updateNode)
+		So(err, ShouldBeNil)
+
+		getDAO(ctxWithCache).Flush(false)
+
+		updateNode.Etag = "etag2"
+		updateNode.Size = 24
+
+		err = getDAO(ctxWithCache).SetNodeMeta(updateNode)
+		So(err, ShouldBeNil)
+
+		getDAO(ctxWithCache).Flush(false)
+
+		updated, err := getDAO(ctxWithCache).GetNode(updateNode.MPath)
+		So(err, ShouldBeNil)
+		So(updated.Etag, ShouldEqual, "etag2")
+		So(updated.Size, ShouldEqual, 24)
+
+		getDAO(ctxWithCache).Flush(true)
+
+	})
+
 	// Delete a file
 	// TODO - needs to be deleted by UUID
 	Convey("Test deleting a file - Success", t, func() {

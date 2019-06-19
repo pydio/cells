@@ -333,6 +333,23 @@ func (d *daocache) SetNode(node *mtree.TreeNode) error {
 	return nil
 }
 
+func (d *daocache) SetNodeMeta(node *mtree.TreeNode) error {
+
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
+
+	fmt.Println("Should SetNodeMeta", node)
+	if err := d.DAO.SetNodeMeta(node); err != nil {
+		fmt.Println("ERr SetNodeMeta", err)
+		return err
+	}
+
+	d.cache[node.MPath.String()] = node
+
+	return nil
+
+}
+
 func (d *daocache) DelNode(node *mtree.TreeNode) error {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()

@@ -15,7 +15,8 @@ import (
 var (
 	options config.Map
 
-	mockNode *mtree.TreeNode
+	mockNode   *mtree.TreeNode
+	updateNode *mtree.TreeNode
 
 	mockLongNodeMPath       mtree.MPath
 	mockLongNodeChild1MPath mtree.MPath
@@ -35,6 +36,13 @@ func init() {
 		Uuid: "ROOT",
 		Type: tree.NodeType_LEAF,
 	}, []uint64{1}, []string{""})
+
+	updateNode = NewNode(&tree.Node{
+		Uuid: "Update",
+		Type: tree.NodeType_LEAF,
+		Etag: "etag1",
+		Size: 12,
+	}, []uint64{1, 2}, []string{""})
 
 	mockLongNode = NewNode(&tree.Node{
 		Uuid: "mockLongNode",

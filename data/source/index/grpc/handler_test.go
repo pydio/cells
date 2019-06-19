@@ -552,9 +552,9 @@ func TestIndex(t *testing.T) {
 	})
 
 	Convey("Update a Node if uuid already exists and flag given", t, func() {
-		n1 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test1"}
-		n2 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test2"}
-		n3 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test3"}
+		n1 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test1", Type: tree.NodeType_LEAF}
+		n2 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test2", Type: tree.NodeType_LEAF}
+		n3 := &tree.Node{Path: "/test-update-uuid-already-exists", Uuid: "test-update-if-exists", Etag: "test3", Type: tree.NodeType_LEAF}
 
 		send(s, "CreateNode", &tree.CreateNodeRequest{Node: n1})
 
@@ -566,9 +566,9 @@ func TestIndex(t *testing.T) {
 	})
 
 	Convey("Update a Node if path already exists and flag given", t, func() {
-		n1 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists1", Etag: "test1"}
-		n2 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists2", Etag: "test2"}
-		n3 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists3", Etag: "test3"}
+		n1 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists1", Etag: "test1", Type: tree.NodeType_LEAF}
+		n2 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists2", Etag: "test2", Type: tree.NodeType_LEAF}
+		n3 := &tree.Node{Path: "/test-update-path-already-exists", Uuid: "test-path-if-exists3", Etag: "test3", Type: tree.NodeType_LEAF}
 
 		send(s, "CreateNode", &tree.CreateNodeRequest{Node: n1})
 
