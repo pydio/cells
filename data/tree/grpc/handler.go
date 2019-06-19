@@ -27,15 +27,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/mocks"
-
-	"github.com/cskr/pubsub"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/mocks"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -49,7 +47,9 @@ type TreeServer struct {
 	DataSources  map[string]DataSource
 	meta         tree.NodeProviderClient
 	ConfigsMutex *sync.Mutex
-	eventBus     *pubsub.PubSub
+
+	changesSub      map[chan *tree.NodeChangeEvent]bool
+	changesSubLocks *sync.Mutex
 }
 
 func (s *TreeServer) treeNodeToDataSourcePath(node *tree.Node) (dataSourceName string, dataSourcePath string) {
@@ -445,16 +445,21 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesRequest, streamer tree.NodeChangesStreamer_StreamChangesStream) error {
 
-	c := s.eventBus.Sub(common.TOPIC_TREE_CHANGES)
+	c := make(chan *tree.NodeChangeEvent, 1000)
+	s.changesSubLocks.Lock()
+	s.changesSub[c] = true
+	s.changesSubLocks.Unlock()
 	defer func() {
-		s.eventBus.Unsub(c, common.TOPIC_TREE_CHANGES)
+		s.changesSubLocks.Lock()
+		delete(s.changesSub, c)
+		s.changesSubLocks.Unlock()
 		streamer.Close()
+		close(c)
 	}()
 	filterPath := strings.Trim(req.RootPath, "/") + "/"
 
-	for msg := range c {
+	for event := range c {
 
-		event := msg.(*tree.NodeChangeEvent)
 		if event.Optimistic {
 			continue
 		}

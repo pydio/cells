@@ -24,7 +24,6 @@ package grpc
 import (
 	"sync"
 
-	"github.com/cskr/pubsub"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
 
@@ -51,7 +50,9 @@ func init() {
 					ConfigsMutex: &sync.Mutex{},
 					DataSources:  dataSources,
 					meta:         tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient()),
-					eventBus:     pubsub.New(1000),
+
+					changesSub:      make(map[chan *tree.NodeChangeEvent]bool),
+					changesSubLocks: &sync.Mutex{},
 				}
 
 				eventSubscriber := &EventSubscriber{
