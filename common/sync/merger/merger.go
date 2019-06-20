@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
@@ -58,6 +59,10 @@ type Patch interface {
 
 	// GetUUID provides a unique ID for this patch
 	GetUUID() string
+	// GetStamp returns a last modified date
+	GetStamp() time.Time
+	// Stamp set the last modified date on this patch
+	Stamp(time.Time)
 
 	// Source get or set the source of this patch
 	Source(newSource ...model.PathSyncSource) model.PathSyncSource

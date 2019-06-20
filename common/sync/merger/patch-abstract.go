@@ -21,6 +21,7 @@ package merger
 
 import (
 	"context"
+	"time"
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
@@ -31,6 +32,7 @@ type AbstractPatch struct {
 	options PatchOptions
 	source  model.PathSyncSource
 	target  model.PathSyncTarget
+	mTime   time.Time
 
 	sessionProvider        model.SessionProvider
 	sessionProviderContext context.Context
@@ -49,6 +51,14 @@ func (b *AbstractPatch) GetUUID() string {
 	return b.uuid
 }
 
+func (b *AbstractPatch) GetStamp() time.Time {
+	return b.mTime
+}
+
+func (b *AbstractPatch) Stamp(t time.Time) {
+	b.mTime = t
+}
+
 func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool) {
 	b.sessionProvider = provider
 	b.sessionProviderContext = providerContext
@@ -62,6 +72,7 @@ func (b *AbstractPatch) SetupChannels(status chan ProcessStatus, done chan inter
 }
 
 func (b *AbstractPatch) Status(s ProcessStatus) {
+	b.mTime = time.Now()
 	if s.IsError {
 		b.patchError = s.Error
 	}
@@ -75,6 +86,7 @@ func (b *AbstractPatch) Status(s ProcessStatus) {
 }
 
 func (b *AbstractPatch) Done(info interface{}) {
+	b.mTime = time.Now()
 	b.closing = true
 	if b.doneChan != nil {
 		b.doneChan <- info

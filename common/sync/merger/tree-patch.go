@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"sort"
+	"time"
 
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
@@ -48,6 +49,7 @@ func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget, opti
 			source:  source,
 			target:  target,
 			options: options,
+			mTime:   time.Now(),
 		},
 		TreeNode:      *NewTree(),
 		createFiles:   make(map[string]Operation),
