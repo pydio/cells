@@ -76,27 +76,39 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 	if s.Direction == model.DirectionBi {
 
-		bb, e := s.runBi(ctx, dryRun, force, rootsInfo)
+		bb, dryStat, e := s.runBi(ctx, dryRun, force, rootsInfo)
 		if e != nil {
 			return nil, e
 		}
-		s.patchChan <- bb
+		if dryRun {
+			return dryStat, e
+		} else {
+			s.patchChan <- bb
+		}
 		return bb, e
 
 	} else {
 		if len(s.Roots) == 0 {
-			patch, e := s.runUni(ctx, "/", dryRun, force, rootsInfo)
-			if e == nil {
+			patch, dryStat, e := s.runUni(ctx, "/", dryRun, force, rootsInfo)
+			if e != nil {
+				return nil, e
+			} else if dryRun {
+				return dryStat, e
+			} else {
 				s.patchChan <- patch
+				return patch, e
 			}
-			return patch, e
 		} else {
 			multi := model.NewMultiStater()
 			var errs []string
 			for _, p := range s.Roots {
-				if patch, e := s.runUni(ctx, p, dryRun, force, rootsInfo); e == nil {
-					s.patchChan <- patch
-					multi[p] = patch
+				if patch, dryStat, e := s.runUni(ctx, p, dryRun, force, rootsInfo); e == nil {
+					if dryRun {
+						multi[p] = dryStat
+					} else {
+						s.patchChan <- patch
+						multi[p] = patch
+					}
 				} else {
 					errs = append(errs, e.Error())
 				}
@@ -110,7 +122,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 }
 
-func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) (merger.Patch, error) {
+func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) (merger.Patch, model.Stater, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -128,12 +140,16 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 		if s.runDone != nil {
 			s.runDone <- 0
 		}
-		return nil, e
+		if dryRun {
+			return nil, diff, e
+		} else {
+			return nil, nil, e
+		}
 	}
 
 	patch, err := diff.ToUnidirectionalPatch(s.Direction)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	patch.Filter(ctx)
 	patch.SkipFilterToTarget(true)
@@ -151,10 +167,10 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 		patch.SetSessionProvider(ctx, provider, true)
 	}
 
-	return patch, nil
+	return patch, nil, nil
 }
 
-func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) (*merger.BidirectionalPatch, error) {
+func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) (*merger.BidirectionalPatch, model.Stater, error) {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -207,7 +223,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 				}
 			} else {
 				log.Logger(ctx).Error("Could not compute Bidirectionnal Patch! DO SOMETHING HERE!!")
-				return nil, e
+				return nil, nil, e
 			}
 		}
 
@@ -223,7 +239,11 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 				if s.runDone != nil {
 					s.runDone <- 0
 				}
-				return nil, e
+				if dryRun {
+					return nil, diff, e
+				} else {
+					return nil, nil, e
+				}
 			}
 
 			sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
@@ -241,7 +261,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 				bb.SkipFilterToTarget(true)
 				log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", b.Stats()))
 			} else {
-				return nil, err
+				return nil, nil, err
 			}
 
 		}
@@ -271,7 +291,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 		bb.SetSessionProvider(ctx, provider, false)
 	}
 	bb.SetupChannels(s.statuses, s.runDone, s.cmd)
-	return bb, nil
+	return bb, nil, nil
 }
 
 func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string, rootsInfo map[string]*EndpointRootStat) (model.Snapshoter, map[string]merger.Patch, error) {
