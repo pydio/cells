@@ -1,6 +1,7 @@
 package merger
 
 import (
+	"math"
 	"path"
 	"sort"
 	"strings"
@@ -45,13 +46,33 @@ func (m *Move) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return nil
 }
 
-func (m *Move) Distance() int {
+func (m *Move) Closeness() int {
 	sep := "/"
-	if m.deleteOp.GetRefPath() == m.createOp.GetRefPath() {
+	left := m.deleteOp.GetRefPath()
+	right := m.createOp.GetRefPath()
+	if left == right {
 		return maxInt
 	}
-	pref := mtree.CommonPrefix(sep[0], m.deleteOp.GetRefPath(), m.createOp.GetRefPath())
-	return len(strings.Split(pref, sep))
+	pref := mtree.CommonPrefix(sep[0], left, right)
+	prefFactor := len(strings.Split(pref, sep))
+	// Overall path similarity
+	lParts := strings.Split(left, sep)
+	rParts := strings.Split(right, sep)
+	max := math.Max(float64(len(lParts)), float64(len(rParts)))
+	dist := 1
+	for i := 0; i < int(max); i++ {
+		pL, pR := "", ""
+		if i < len(lParts) {
+			pL = lParts[i]
+		}
+		if i < len(rParts) {
+			pR = rParts[i]
+		}
+		if pL == pR {
+			dist += 5
+		}
+	}
+	return dist * prefFactor
 }
 
 func (m *Move) SameBase() bool {
@@ -76,7 +97,7 @@ func sortClosestMoves(possibleMoves []*Move) (moves []*Move) {
 			if _, alreadyUsed := targets[target2]; alreadyUsed {
 				continue
 			}
-			if !ok || m2.Distance() > byT.Distance() || m2.SameBase() && !byT.SameBase() {
+			if !ok || m2.Closeness() > byT.Closeness() || m2.SameBase() && !byT.SameBase() {
 				greatestSource[source] = m2
 			}
 		}
@@ -89,7 +110,7 @@ func sortClosestMoves(possibleMoves []*Move) (moves []*Move) {
 	greatestTarget := make(map[string]*Move)
 	for _, m := range greatestSource {
 		byT, ok := greatestTarget[m.createOp.GetRefPath()]
-		if !ok || m.Distance() > byT.Distance() {
+		if !ok || m.Closeness() > byT.Closeness() {
 			greatestTarget[m.createOp.GetRefPath()] = m
 		}
 	}

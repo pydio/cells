@@ -89,6 +89,7 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 func (t *TreePatch) detectFileMoves(ctx context.Context) {
 
 	var possibleMoves []*Move
+	movesByEtag := make(map[string][]*Move)
 	for _, deleteOp := range t.deletes {
 		if dbNode, found := deleteOp.NodeInTarget(ctx); found {
 			deleteOp.SetNode(dbNode)
@@ -123,11 +124,13 @@ func (t *TreePatch) detectFileMoves(ctx context.Context) {
 					for _, createOp := range t.createFiles {
 						if createOp.GetNode() != nil && createOp.GetNode().Etag == dbNode.Etag {
 							log.Logger(ctx).Debug("Existing leaf node with same ETag: enqueuing possible move", createOp.GetNode().ZapPath())
-							possibleMoves = append(possibleMoves, &Move{
+							move := &Move{
 								deleteOp: deleteOp,
 								createOp: createOp,
 								dbNode:   dbNode,
-							})
+							}
+							possibleMoves = append(possibleMoves, move)
+							movesByEtag[dbNode.Etag] = append(movesByEtag[dbNode.Etag], move)
 						}
 					}
 				}
@@ -154,7 +157,15 @@ func (t *TreePatch) detectFileMoves(ctx context.Context) {
 		}
 	}
 
-	moves := sortClosestMoves(possibleMoves)
+	var moves []*Move
+	for _, etagMoves := range movesByEtag {
+		if len(etagMoves) > 1 {
+			moves = append(moves, sortClosestMoves(etagMoves)...)
+		} else {
+			moves = append(moves, etagMoves...)
+		}
+	}
+
 	for _, move := range moves {
 		log.Logger(ctx).Debug("Picked closest move", zap.Object("move", move))
 		// Remove from deletes/creates

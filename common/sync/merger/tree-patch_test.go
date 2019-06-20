@@ -421,6 +421,27 @@ func TestScenariosFromSnapshot2(t *testing.T) {
 
 }
 
+func TestManyDupsInMove(t *testing.T) {
+
+	Convey("SNAP - Delete Inside Moved Folder", t, func() {
+
+		diff, e := diffFromSnaps("many-dups")
+		So(e, ShouldBeNil)
+		b, e := diff.ToUnidirectionalPatch(model.DirectionRight)
+		So(e, ShouldBeNil)
+
+		b.Filter(context.Background())
+		moves := b.OperationsByType([]OperationType{OpMoveFolder})
+		So(moves, ShouldHaveLength, 1)
+		fMoves := b.OperationsByType([]OperationType{OpMoveFile})
+		So(fMoves, ShouldHaveLength, 0)
+		So(b.OperationsByType([]OperationType{OpDelete}), ShouldHaveLength, 0)
+		So(b.OperationsByType([]OperationType{OpCreateFolder}), ShouldHaveLength, 0)
+		So(b.OperationsByType([]OperationType{OpCreateFile}), ShouldHaveLength, 0)
+	})
+
+}
+
 func TestRescanFolders(t *testing.T) {
 	Convey("Test untold events", t, func() {
 		source, target := memory.NewMemDB(), memory.NewMemDB()
