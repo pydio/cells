@@ -60,9 +60,9 @@
     "other": "Descargando archivo en segundo plano..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "Borrando %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "Copiando %s"
   }
 }
