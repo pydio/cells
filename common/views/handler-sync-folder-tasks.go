@@ -43,8 +43,9 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 				continue
 			}
 			if !resp.Node.IsLeaf() {
-				resp.Node.Path = path.Join(resp.Node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META, "/")
-				resp.Node.Type = tree.NodeType_LEAF
+				//				resp.Node.Path = path.Join(resp.Node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
+				//				resp.Node.Type = tree.NodeType_LEAF
+				continue
 			}
 			if _, err := h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node}); err != nil {
 				log.Logger(ctx).Error("Error while deleting node child " + err.Error())

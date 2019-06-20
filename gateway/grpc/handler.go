@@ -14,8 +14,32 @@ type TreeHandler struct {
 	router views.Handler
 }
 
-func (t *TreeHandler) ReadNodeStream(context.Context, tree.NodeProviderStreamer_ReadNodeStreamStream) error {
-	return errors.BadRequest("not.implemented", "ReadNodeStream not implemented yet")
+func (t *TreeHandler) ReadNodeStream(ctx context.Context, s tree.NodeProviderStreamer_ReadNodeStreamStream) error {
+	router := t.getRouter()
+	var err error
+	for {
+		r, e := s.Recv()
+		if e != nil {
+			if e != io.EOF {
+				s.SendMsg(e)
+				err = e
+			}
+			break
+		}
+		resp, _ := router.ReadNode(ctx, r)
+		if resp == nil {
+			resp = &tree.ReadNodeResponse{Success: false}
+		} else {
+			resp.Success = true
+		}
+		sE := s.Send(resp)
+		if sE != nil {
+			// Error while sending
+			break
+		}
+	}
+	s.Close()
+	return err
 }
 
 func (t *TreeHandler) CreateNodeStream(ctx context.Context, s tree.NodeReceiverStream_CreateNodeStreamStream) error {

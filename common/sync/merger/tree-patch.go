@@ -25,6 +25,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/pydio/cells/common/proto/tree"
+
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -127,10 +129,9 @@ func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.Snapshot
 	if t.skipFilterToTarget {
 		return
 	}
-	log.Logger(ctx).Info("Running patch.FilterToTarget")
 	// We will try to stat directly on snapshots instead of calling the source
 	// If returning nil, will ignore the operation
-	getTarget := func(target model.PathSyncTarget) model.PathSyncSource {
+	getTarget := func(target model.Endpoint) model.PathSyncSource {
 		src, ok := model.AsPathSyncSource(target)
 		if !ok {
 			return nil
@@ -147,6 +148,29 @@ func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.Snapshot
 			return src
 		}
 	}
+	targets := map[model.Endpoint]model.PathSyncSource{
+		t.Source(): getTarget(t.Source()),
+		t.Target(): getTarget(t.Target()),
+	}
+	collects := make(map[model.Endpoint]map[string]*TreeNode)
+	if s, ok := targets[t.Source()]; ok {
+		if _, ok := s.(model.BulkLoader); ok {
+			collects[t.Source()] = make(map[string]*TreeNode)
+		}
+	}
+	if s, ok := targets[t.Target()]; ok {
+		if _, ok := s.(model.BulkLoader); ok {
+			collects[t.Target()] = make(map[string]*TreeNode)
+		}
+	}
+	log.Logger(ctx).Info("Running patch.FilterToTarget",
+		zap.String("patchSource", t.Source().GetEndpointInfo().URI),
+		zap.String("patchTarget", t.Target().GetEndpointInfo().URI),
+		zap.Any("targets", len(targets)),
+		zap.Any("collects", len(collects)),
+		zap.Bool("hasSnaps", snapshots != nil),
+	)
+
 	// Load the source to stat, then check if a node already exists, and optionally check its ETag value
 	exists := func(target model.PathSyncTarget, path string, n ...*TreeNode) bool {
 		src := getTarget(target)
@@ -162,24 +186,32 @@ func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.Snapshot
 		check := n[0]
 		return node.Etag == check.Etag
 	}
+
 	// Walk the tree to prune operations
 	t.Walk(func(n *TreeNode) bool {
 		if n.DataOperation != nil {
 			dataPath := n.ProcessedPath(false)
-			if exists(n.DataOperation.Target(), dataPath, n) {
+			target := n.DataOperation.Target()
+			if coll, ok := collects[target]; ok {
+				coll[dataPath] = n
+			} else if exists(n.DataOperation.Target(), dataPath, n) {
 				log.Logger(ctx).Info("[FilterToTarget] Ignoring DataOperation (node exists with same ETag)", zap.String("path", dataPath))
 				n.DataOperation = nil
 			}
 		} else if n.PathOperation != nil {
 			if n.PathOperation.Type() == OpCreateFolder {
 				dataPath := n.ProcessedPath(false)
-				if exists(n.PathOperation.Target(), dataPath) {
+				if coll, ok := collects[n.PathOperation.Target()]; ok {
+					coll[dataPath] = n
+				} else if exists(n.PathOperation.Target(), dataPath) {
 					log.Logger(ctx).Info("[FilterToTarget] Ignoring CreateFolder Operation (folder exists)", zap.String("path", dataPath))
 					n.PathOperation = nil
 				}
 			} else if n.PathOperation.Type() == OpDelete {
 				dataPath := n.ProcessedPath(false)
-				if !exists(n.PathOperation.Target(), dataPath) {
+				if coll, ok := collects[n.PathOperation.Target()]; ok {
+					coll[dataPath] = n
+				} else if !exists(n.PathOperation.Target(), dataPath) {
 					log.Logger(ctx).Info("[FilterToTarget] Ignoring Delete Operation (node is not there)", zap.String("path", dataPath))
 					n.PathOperation = nil
 				}
@@ -187,6 +219,46 @@ func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.Snapshot
 		}
 		return false
 	})
+
+	if len(collects) == 0 {
+		return
+	}
+	statExists := func(data interface{}, n ...*TreeNode) bool {
+		if node, ok := data.(*tree.Node); ok {
+			if len(n) > 0 {
+				return node.Etag == n[0].Etag
+			} else {
+				return true
+			}
+		} else {
+			return false
+		}
+	}
+	// If we have collected nodes, we stat them as bulk
+	for src, nodes := range collects {
+		log.Logger(ctx).Info("Collected nodes for Bulk", zap.Any("collects", len(nodes)))
+		loader := src.(model.BulkLoader)
+		stats := make(map[string]string)
+		for dataPath, _ := range nodes {
+			stats[dataPath] = dataPath
+		}
+		if results, err := loader.BulkLoadNodes(ctx, stats); err == nil {
+			log.Logger(ctx).Info("Got Results from BulkLoadNodes", zap.Any("results", results))
+			// Now recheck and remove unnecessary!
+			for dataPath, node := range nodes {
+				if node.DataOperation != nil && statExists(results[dataPath], node) {
+					log.Logger(ctx).Info("[FilterToTarget] Ignoring DataOperation (node exists with same ETag)", zap.String("path", dataPath))
+					node.DataOperation = nil
+				} else if node.PathOperation != nil && ((node.PathOperation.Type() == OpCreateFolder && statExists(results[dataPath])) || (node.PathOperation.Type() == OpDelete && !statExists(results[dataPath]))) {
+					log.Logger(ctx).Info("[FilterToTarget] Ignoring PathOperation (create&exists or delete&!exists)", zap.String("path", dataPath))
+					node.PathOperation = nil
+				}
+			}
+		} else {
+			log.Logger(ctx).Error("Got error during BulkLoadNodes", zap.Error(err))
+		}
+	}
+
 }
 
 func (t *TreePatch) HasTransfers() bool {

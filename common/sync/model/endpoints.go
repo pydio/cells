@@ -118,6 +118,10 @@ type ChecksumProvider interface {
 	ComputeChecksum(node *tree.Node) error
 }
 
+type BulkLoader interface {
+	BulkLoadNodes(ctx context.Context, nodes map[string]string) (map[string]interface{}, error)
+}
+
 // PathSyncTarget is a type of endpoint that can be used as a target for synchronization, typically an Index. It can be
 // updated with a tree of nodes, but cannot store actual data (see DataSyncTarget)
 type PathSyncTarget interface {
@@ -162,12 +166,6 @@ type UuidFoldersRefresher interface {
 	ExistingFolders(ctx context.Context) (map[string][]*tree.Node, error)
 	// UpdateFolderUuid refreshes a given folder UUID and return it.
 	UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree.Node, error)
-}
-
-// BulkOperationsProcessor provides a generic way to pass many operations at once. We talk interfaces here
-// to avoid dependency to the merger package.
-type BulkOperationsProcessor interface {
-	ProcessOperations(ctx context.Context, opType int, operations []interface{}) (responses []interface{}, e error)
 }
 
 type Versioner interface {

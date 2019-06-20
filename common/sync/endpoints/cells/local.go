@@ -121,6 +121,10 @@ func (f *localRouterFactory) GetNodeReceiverStreamClient(context.Context) (conte
 	return nil, nil, errors.New("Not Implemented")
 }
 
+func (f *localRouterFactory) GetNodeProviderStreamClient(context.Context) (context.Context, tree.NodeProviderStreamerClient, error) {
+	return nil, nil, errors.New("Not Implemented")
+}
+
 func (f *localRouterFactory) userToContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
 }

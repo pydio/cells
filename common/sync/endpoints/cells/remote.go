@@ -56,6 +56,9 @@ type RemoteConfig struct {
 type Remote struct {
 	abstract
 	config *sdk.SdkConfig
+
+	session         *tree.IndexationSession
+	sessionsCreates []*tree.CreateNodeRequest
 }
 
 func NewRemote(config RemoteConfig, root string, options Options) *Remote {
@@ -134,6 +137,14 @@ func (f *remoteClientFactory) GetNodeReceiverStreamClient(ctx context.Context) (
 		return nil, nil, e
 	}
 	return ctx, tree.NewNodeReceiverStreamClient(RemoteCellsServiceName, cli), nil
+}
+
+func (f *remoteClientFactory) GetNodeProviderStreamClient(ctx context.Context) (context.Context, tree.NodeProviderStreamerClient, error) {
+	ctx, cli, e := f.getClient(ctx)
+	if e != nil {
+		return nil, nil, e
+	}
+	return ctx, tree.NewNodeProviderStreamerClient(RemoteCellsServiceName, cli), nil
 }
 
 func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Context, objectsClient, error) {
