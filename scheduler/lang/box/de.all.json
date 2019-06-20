@@ -60,9 +60,9 @@
     "other": "Datei wird im Hintergrund heruntergeladen..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "Lösche %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "Kopie von %s"
   }
 }
