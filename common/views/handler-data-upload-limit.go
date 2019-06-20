@@ -24,7 +24,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"path/filepath"
+	"path"
 	"strconv"
 	"strings"
 
@@ -48,7 +48,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 	}
 	if len(exts) > 0 {
 		// Beware, Ext function includes the leading dot
-		nodeExt := filepath.Ext(node.GetPath())
+		nodeExt := path.Ext(node.GetPath())
 		allowed := false
 		for _, e := range exts {
 			if "."+strings.ToLower(e) == strings.ToLower(nodeExt) {
@@ -72,7 +72,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 		return minio.ObjectPart{}, errors.Forbidden(VIEWS_LIBRARY_NAME, fmt.Sprintf("Upload limit is %d", size))
 	}
 	if len(exts) > 0 {
-		nodeExt := filepath.Ext(target.GetPath())
+		nodeExt := path.Ext(target.GetPath())
 		allowed := false
 		for _, e := range exts {
 			if strings.ToLower(e) == strings.ToLower(nodeExt) {

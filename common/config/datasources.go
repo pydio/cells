@@ -23,7 +23,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"path/filepath"
+	"path"
 	"strings"
 	"time"
 
@@ -243,7 +243,7 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			}
 		}
 	} else {
-		base, bucket := filepath.Split(newSource.StorageConfiguration["folder"])
+		base, bucket := path.Split(newSource.StorageConfiguration["folder"])
 		peerAddress := newSource.PeerAddress
 		base = strings.TrimRight(base, "/")
 		if minioConfig := filterMiniosWithBaseFolder(existingConfigs, peerAddress, base); minioConfig != nil {

@@ -28,6 +28,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -227,9 +228,9 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 	}
 
 	for _, file := range reader.File {
-		path := filepath.Join(targetNode.GetPath(), strings.TrimSuffix(file.Name, "/"))
+		pa := path.Join(targetNode.GetPath(), strings.TrimSuffix(file.Name, "/"))
 		if file.FileInfo().IsDir() {
-			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: path, Type: tree.NodeType_COLLECTION}})
+			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: pa, Type: tree.NodeType_COLLECTION}})
 			if e != nil {
 				return e
 			}
@@ -243,7 +244,7 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 			}
 			defer fileReader.Close()
 
-			_, err = a.Router.PutObject(ctx, &tree.Node{Path: path}, fileReader, &PutRequestData{Size: -1})
+			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, fileReader, &PutRequestData{Size: -1})
 			if err != nil {
 				return err
 			}
@@ -450,9 +451,9 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 		if file == nil {
 			return err
 		}
-		path := filepath.Join(targetNode.GetPath(), strings.TrimSuffix(file.Name, "/"))
+		pa := path.Join(targetNode.GetPath(), strings.TrimSuffix(file.Name, "/"))
 		if file.FileInfo().IsDir() {
-			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: path, Type: tree.NodeType_COLLECTION}})
+			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: pa, Type: tree.NodeType_COLLECTION}})
 			if e != nil {
 				return e
 			}
@@ -460,7 +461,7 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 				logChannels[0] <- "Creating directory " + strings.TrimSuffix(file.Name, "/")
 			}
 		} else {
-			_, err = a.Router.PutObject(ctx, &tree.Node{Path: path}, tarReader, &PutRequestData{Size: -1})
+			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, tarReader, &PutRequestData{Size: -1})
 			if err != nil {
 				return err
 			}

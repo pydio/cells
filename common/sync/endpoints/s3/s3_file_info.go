@@ -22,7 +22,7 @@ package s3
 
 import (
 	"os"
-	"path/filepath"
+	"path"
 	"time"
 
 	"github.com/pydio/minio-go"
@@ -36,7 +36,7 @@ type S3FileInfo struct {
 // base name of the file
 func (s *S3FileInfo) Name() string {
 	if s.isDir {
-		return filepath.Base(s.Object.Key)
+		return path.Base(s.Object.Key)
 	} else {
 		return s.Object.Key
 	}

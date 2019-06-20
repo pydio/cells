@@ -22,7 +22,7 @@ package jobs
 
 import (
 	"context"
-	"path/filepath"
+	"path"
 	"strings"
 
 	"github.com/micro/go-micro/client"
@@ -175,7 +175,7 @@ func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool
 		// Basic search: can have wildcard on left, right, or none (exact search)
 		nodeName := node.GetStringMeta("name")
 		if len(nodeName) == 0 {
-			nodeName = filepath.Base(node.Path)
+			nodeName = path.Base(node.Path)
 		}
 		var left, right bool
 		if strings.HasPrefix(q.FileName, "*") {
@@ -210,9 +210,9 @@ func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool
 		exts := strings.Split(q.Extension, ",")
 		nodeName := node.GetStringMeta("name")
 		if len(nodeName) == 0 {
-			nodeName = filepath.Base(node.Path)
+			nodeName = path.Base(node.Path)
 		}
-		nodeExt := strings.TrimLeft(filepath.Ext(nodeName), ".")
+		nodeExt := strings.TrimLeft(path.Ext(nodeName), ".")
 		if !contains(exts, nodeExt, false, true) {
 			return false
 		}

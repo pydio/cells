@@ -25,7 +25,6 @@ import (
 	"encoding/json"
 	"io"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -143,7 +142,7 @@ func (a *ArchiveHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest,
 			if statNode.Size == 0 {
 				statNode.Size = -1
 			}
-			statNode.SetMeta(common.META_NAMESPACE_NODENAME, filepath.Base(statNode.Path))
+			statNode.SetMeta(common.META_NAMESPACE_NODENAME, path.Base(statNode.Path))
 		}
 		return &tree.ReadNodeResponse{Node: statNode}, err
 	}
@@ -271,7 +270,7 @@ func (a *ArchiveHandler) archiveFakeStat(ctx context.Context, nodePath string) (
 			n.Node.Type = tree.NodeType_LEAF
 			n.Node.Path = nodePath
 			n.Node.Size = -1 // This will avoid a Content-Length discrepancy
-			n.Node.SetMeta(common.META_NAMESPACE_NODENAME, filepath.Base(nodePath))
+			n.Node.SetMeta(common.META_NAMESPACE_NODENAME, path.Base(nodePath))
 			log.Logger(ctx).Debug("This is a zip, sending folder info instead", zap.Any("node", n.Node))
 			return n.Node, nil
 		}

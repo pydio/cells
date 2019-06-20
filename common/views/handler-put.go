@@ -27,7 +27,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"path/filepath"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -110,11 +110,11 @@ func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, si
 // Recursively create parents
 func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 	parentNode := node.Clone()
-	parentNode.Path = filepath.Dir(node.Path)
+	parentNode.Path = path.Dir(node.Path)
 	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
 		return nil
 	}
-	parentNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, filepath.Dir(parentNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)))
+	parentNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Dir(parentNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)))
 	parentNode.Type = tree.NodeType_COLLECTION
 	if _, e := m.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode}); e != nil {
 		if er := m.CreateParent(ctx, parentNode); er != nil {

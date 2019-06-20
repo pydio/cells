@@ -26,7 +26,7 @@ import (
 	"compress/gzip"
 	"context"
 	"io"
-	"path/filepath"
+	"path"
 	"strings"
 	"time"
 
@@ -93,7 +93,7 @@ func (w *ArchiveWriter) commonRoot(nodes []*tree.Node) string {
 	if len(nodes) == 1 && !nodes[0].IsLeaf() {
 		return nodes[0].Path
 	} else {
-		return filepath.Dir(nodes[0].Path)
+		return path.Dir(nodes[0].Path)
 	}
 
 }
