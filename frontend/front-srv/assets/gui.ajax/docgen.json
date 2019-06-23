@@ -4889,7 +4889,12 @@
             "name": "load",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "newDsName",
+                "type": null
+              }
+            ],
             "returns": null
           },
           {
@@ -5981,30 +5986,6 @@
             "returns": null
           }
         ]
-      }
-    ]
-  },
-  "action.demo_counter": {
-    "Counter.js": [
-      {
-        "description": "",
-        "displayName": "Counter",
-        "methods": [
-          {
-            "name": "tick",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "LoginDialogModifier.js": [
-      {
-        "description": "",
-        "displayName": "LoginMessage",
-        "methods": []
       }
     ]
   },
@@ -8672,7 +8653,7 @@
           },
           {
             "name": "saveSelectionAsTeam",
-            "docblock": "@param teamName string\n@param userIds array\n@param callback optional callback\n@return {Promise<T>}",
+            "docblock": "Create a team from a list of user Ids\n@param teamName string\n@param userIds array\n@param callback optional callback\n@return {Promise<T>}",
             "modifiers": [],
             "params": [
               {
@@ -8697,7 +8678,7 @@
                 "name": "Promise"
               }
             },
-            "description": null
+            "description": "Create a team from a list of user Ids"
           },
           {
             "name": "addUserToTeam",
@@ -9079,6 +9060,15 @@
           },
           {
             "name": "getMultipartPartQueueSize",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getMultipartUploadTimeout",
             "docblock": null,
             "modifiers": [
               "static"
@@ -14533,6 +14523,48 @@
               }
             },
             "description": "Put or Create a share room"
+          },
+          {
+            "name": "updateSharePoliciesWithHttpInfo",
+            "docblock": "Updates policies associated to the underlying workspace for a Cell or a ShareLink\n@param {module:model/RestUpdateSharePoliciesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestUpdateSharePoliciesResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestUpdateSharePoliciesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestUpdateSharePoliciesResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Updates policies associated to the underlying workspace for a Cell or a ShareLink"
+          },
+          {
+            "name": "updateSharePolicies",
+            "docblock": "Updates policies associated to the underlying workspace for a Cell or a ShareLink\n@param {module:model/RestUpdateSharePoliciesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestUpdateSharePoliciesResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestUpdateSharePoliciesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestUpdateSharePoliciesResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Updates policies associated to the underlying workspace for a Cell or a ShareLink"
           }
         ]
       }
@@ -23419,6 +23451,98 @@
         ]
       }
     ],
+    "core/http/gen/model/RestUpdateSharePoliciesRequest.js": [
+      {
+        "description": "The RestUpdateSharePoliciesRequest model module.\n@module model/RestUpdateSharePoliciesRequest\n@version 1.0",
+        "displayName": "RestUpdateSharePoliciesRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestUpdateSharePoliciesRequest</code>.\n@alias module:model/RestUpdateSharePoliciesRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestUpdateSharePoliciesRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestUpdateSharePoliciesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestUpdateSharePoliciesRequest} obj Optional instance to populate.\n@return {module:model/RestUpdateSharePoliciesRequest} The populated <code>RestUpdateSharePoliciesRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestUpdateSharePoliciesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestUpdateSharePoliciesRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestUpdateSharePoliciesRequest"
+              }
+            },
+            "description": "Constructs a <code>RestUpdateSharePoliciesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestUpdateSharePoliciesResponse.js": [
+      {
+        "description": "The RestUpdateSharePoliciesResponse model module.\n@module model/RestUpdateSharePoliciesResponse\n@version 1.0",
+        "displayName": "RestUpdateSharePoliciesResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestUpdateSharePoliciesResponse</code>.\n@alias module:model/RestUpdateSharePoliciesResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestUpdateSharePoliciesResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestUpdateSharePoliciesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestUpdateSharePoliciesResponse} obj Optional instance to populate.\n@return {module:model/RestUpdateSharePoliciesResponse} The populated <code>RestUpdateSharePoliciesResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestUpdateSharePoliciesResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestUpdateSharePoliciesResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestUpdateSharePoliciesResponse"
+              }
+            },
+            "description": "Constructs a <code>RestUpdateSharePoliciesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestUserBookmarksRequest.js": [
       {
         "description": "The RestUserBookmarksRequest model module.\n@module model/RestUserBookmarksRequest\n@version 1.0",
@@ -25298,7 +25422,7 @@
           },
           {
             "name": "setIconClassName",
-            "docblock": "Refresh icon image source\n@param newSrc String The image source. Can reference an image library\n@param iconClass String Optional class to replace image",
+            "docblock": "Refresh icon image source\n@param iconClass String Optional class to replace image",
             "modifiers": [],
             "params": [
               {
@@ -28795,9 +28919,15 @@
           },
           {
             "name": "canWrite",
-            "docblock": "Whether current repo is allowed to be written\n@returns Boolean",
+            "docblock": "Whether current repo is allowed to be written\n@param node {AjxpNode}\n@returns Boolean",
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "node",
+                "description": "{AjxpNode}",
+                "type": null
+              }
+            ],
             "returns": {
               "description": "Boolean",
               "type": null
@@ -29099,6 +29229,9 @@
             "params": [
               {
                 "name": "warningTimerString"
+              },
+              {
+                "name": "timeSeconds"
               }
             ],
             "returns": null,
