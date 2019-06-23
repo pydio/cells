@@ -58,5 +58,11 @@
   },
   "Jobs.User.Wget": {
     "other": "Descargando archivo en segundo plano..."
+  },
+  "Jobs.User.DeletingItem": {
+    "other": "Borrando %s"
+  },
+  "Jobs.User.CopyingItem": {
+    "other": "Copiando %s"
   }
 }
