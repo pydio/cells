@@ -30,6 +30,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pborman/uuid"
+
 	"github.com/etcd-io/bbolt"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
@@ -49,6 +51,8 @@ type BoltSnapshot struct {
 	name       string
 	empty      bool
 	folderPath string
+
+	createsSession []*tree.Node
 }
 
 func NewBoltSnapshot(name, syncUuid string) (*BoltSnapshot, error) {
@@ -70,25 +74,77 @@ func NewBoltSnapshot(name, syncUuid string) (*BoltSnapshot, error) {
 	return s, nil
 }
 
-func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
-	return s.db.Update(func(tx *bbolt.Tx) error {
+func (s *BoltSnapshot) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
+	s.createsSession = []*tree.Node{}
+	return &tree.IndexationSession{
+		Uuid: uuid.New(),
+	}, nil
+}
+
+func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) error {
+	if len(s.createsSession) == 0 {
+		return nil
+	}
+	e := s.db.Batch(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
 			return fmt.Errorf("cannot find root bucket")
 		}
-		// Create parents if necessary
-		dir := strings.Trim(path.Dir(node.Path), "/")
-		if dir != "" && dir != "." {
-			parts := strings.Split(strings.Trim(path.Dir(node.Path), "/"), "/")
-			for i := 0; i < len(parts); i++ {
-				pKey := strings.Join(parts[:i+1], "/")
-				if ex := b.Get([]byte(pKey)); ex == nil {
-					b.Put([]byte(pKey), s.marshal(&tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}))
+		for _, node := range s.createsSession {
+			b.Put([]byte(node.Path), s.marshal(node))
+		}
+		return nil
+	})
+	s.createsSession = nil
+	return e
+}
+
+func (s *BoltSnapshot) FinishSession(ctx context.Context, sessionUuid string) error {
+	s.FlushSession(ctx, sessionUuid)
+	return nil
+}
+
+func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+	if s.createsSession != nil {
+		return s.db.View(func(tx *bbolt.Tx) error {
+			b := tx.Bucket(bucketName)
+			if b == nil {
+				return fmt.Errorf("cannot find root bucket")
+			}
+			// Create parents if necessary
+			dir := strings.Trim(path.Dir(node.Path), "/")
+			if dir != "" && dir != "." {
+				parts := strings.Split(strings.Trim(path.Dir(node.Path), "/"), "/")
+				for i := 0; i < len(parts); i++ {
+					pKey := strings.Join(parts[:i+1], "/")
+					if ex := b.Get([]byte(pKey)); ex == nil {
+						s.createsSession = append(s.createsSession, &tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"})
+					}
 				}
 			}
-		}
-		return b.Put([]byte(node.Path), s.marshal(node))
-	})
+			s.createsSession = append(s.createsSession, node)
+			return nil
+		})
+	} else {
+		return s.db.Update(func(tx *bbolt.Tx) error {
+			b := tx.Bucket(bucketName)
+			if b == nil {
+				return fmt.Errorf("cannot find root bucket")
+			}
+			// Create parents if necessary
+			dir := strings.Trim(path.Dir(node.Path), "/")
+			if dir != "" && dir != "." {
+				parts := strings.Split(strings.Trim(path.Dir(node.Path), "/"), "/")
+				for i := 0; i < len(parts); i++ {
+					pKey := strings.Join(parts[:i+1], "/")
+					if ex := b.Get([]byte(pKey)); ex == nil {
+						b.Put([]byte(pKey), s.marshal(&tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}))
+					}
+				}
+			}
+			return b.Put([]byte(node.Path), s.marshal(node))
+		})
+	}
 }
 
 func (s *BoltSnapshot) DeleteNode(ctx context.Context, path string) (err error) {
