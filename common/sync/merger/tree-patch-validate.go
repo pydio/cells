@@ -60,27 +60,31 @@ func (t *TreePatch) validateWithPreLoad(ctx context.Context, firstOp Operation, 
 func (t *TreePatch) validateWalking(ctx context.Context, targetUri string, target model.Endpoint) error {
 
 	var errs []error
+	var valid int
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
 		if !operation.IsProcessed() || operation.Target().GetEndpointInfo().URI != targetUri {
 			return
 		}
 		if e := t.validateOperation(ctx, operation, target); e != nil {
-			log.Logger(ctx).Warn(
+			log.Logger(ctx).Debug(
 				"Operation not yet validated",
 				zap.String("type", operation.Type().String()),
 				zap.String("path", operation.GetRefPath()),
 				zap.String("error", e.Error()))
 			errs = append(errs, e)
 		} else {
-			log.Logger(ctx).Info(
+			valid++
+			log.Logger(ctx).Debug(
 				"Operation validated",
 				zap.String("type", operation.Type().String()),
 				zap.String("path", operation.GetRefPath()))
 		}
 	})
 	if len(errs) == 0 {
+		log.Logger(ctx).Info("All operations were validated", zap.Int("count", valid))
 		return nil
 	} else {
+		log.Logger(ctx).Info("There are still some operations not validated", zap.Int("count", len(errs)))
 		return errs[0]
 	}
 
