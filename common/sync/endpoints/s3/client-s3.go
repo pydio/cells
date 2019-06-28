@@ -263,7 +263,7 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 			log.Logger(c.globalContext).Error("Error while listing", zap.Error(objectInfo.Err))
 			return objectInfo.Err
 		}
-		folderKey := model.DirWithInternalSeparator(objectInfo.Key)
+		folderKey := path.Dir(objectInfo.Key)
 		if strings.HasSuffix(objectInfo.Key, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META) {
 			// Create Fake Folder
 			// log.Print("Folder Key is " , folderKey)
@@ -271,6 +271,9 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 				continue
 			}
 			if _, exists := createdDirs[folderKey]; exists {
+				// TODO
+				// THIS CREATES AN ISSUE IF A HIDDEN FILE ".aaa" IS APPEARING IN THE FOLDER
+				// BEFORE ARRIVING TO THE ".pydio" file
 				continue
 			}
 			folderObjectInfo := objectInfo
@@ -580,7 +583,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 				var additionalCreate string
 				if strings.HasSuffix(key, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META) {
 					additionalCreate = objectPath
-					objectPath = model.DirWithInternalSeparator(key)
+					objectPath = path.Dir(key)
 					folder = true
 				}
 				if c.isIgnoredFile(objectPath, record) {
@@ -702,8 +705,10 @@ func (c *Client) isIgnoredFile(path string, record ...minio.NotificationEvent) b
 	if len(record) > 0 && strings.Contains(record[0].Source.UserAgent, UserAgentAppName) {
 		return true
 	}
-	if model.IsIgnoredFile(path) {
-		return true
-	}
+	/*
+		if model.IsIgnoredFile(path) {
+			return true
+		}
+	*/
 	return false
 }
