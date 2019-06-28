@@ -1125,6 +1125,12 @@
 			"revisionTime": "2018-03-14T19:29:06Z"
 		},
 		{
+			"checksumSHA1": "ApSLjc10RxzqUffxOBlTMqJmiGk=",
+			"path": "github.com/gobwas/glob",
+			"revision": "e7a84e9525fe90abcda167b604e483cc959ad4aa",
+			"revisionTime": "2018-09-11T21:33:45Z"
+		},
+		{
 			"checksumSHA1": "Qbh78KcLmLVoURsCp+f5xVeA/fI=",
 			"path": "github.com/godbus/dbus",
 			"revision": "a389bdde4dd695d414e47b755e95e72b7826432c",
