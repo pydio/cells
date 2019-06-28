@@ -295,7 +295,7 @@ func handleSignals() {
 	c := make(chan os.Signal, 1)
 
 	// SIGUSR1 does not compile on windows. Use direct value syscall.Signal instead
-	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.Signal(0xa), syscall.SIGTERM)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.Signal(0x1e), syscall.SIGTERM)
 
 	go func() {
 		for sig := range c {
