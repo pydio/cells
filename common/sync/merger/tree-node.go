@@ -29,12 +29,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pydio/cells/common/sync/model"
-
+	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 // TreeNode builds a Merkle Tree but with N children and the ability
@@ -56,7 +56,7 @@ type TreeNode struct {
 // When it comes accross a LEAF without Etag value, it asks the source to recompute it in a
 // parallel fashion with throttling (max 15 at the same time).  At the end of the operation,
 // the tree should be fully loaded with all LEAF etags (but not COLL etags).
-func TreeNodeFromSource(source model.PathSyncSource, root string, status ...chan ProcessStatus) (*TreeNode, error) {
+func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob.Glob, status ...chan ProcessStatus) (*TreeNode, error) {
 	var statusChan chan ProcessStatus
 	if len(status) > 0 {
 		statusChan = status[0]
@@ -97,7 +97,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, status ...chan
 				statusChan <- s
 			}()
 		}
-		if model.IsIgnoredFile(p) || len(p) == 0 || p == "/" {
+		if model.IsIgnoredFile(p, ignores...) || len(p) == 0 || p == "/" {
 			return
 		}
 		t := NewTreeNode(node)

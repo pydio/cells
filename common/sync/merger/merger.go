@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gobwas/glob"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
@@ -81,8 +83,10 @@ type Patch interface {
 	Filter(ctx context.Context)
 	// FilterToTarget tries to compare changes to target and remove unnecessary ones
 	FilterToTarget(ctx context.Context, snapshots model.SnapshotFactory)
-	// SkipFilterToTarget set a flag to skip FilterToTarget
+	// SkipTargetChecks set a flag to skip FilterToTarget
 	SkipFilterToTarget(bool)
+	// Validate browses target to verify all changes are correctly reflected (and indexed)
+	Validate(ctx context.Context) error
 
 	// HasTransfers tels if the source and target will exchange actual data.
 	HasTransfers() bool
@@ -195,7 +199,7 @@ type Diff interface {
 	StatusProvider
 
 	// Compute performs the actual Diff operation
-	Compute(root string) error
+	Compute(root string, ignores ...glob.Glob) error
 	// ToUnidirectionalPatch transforms current diff into a set of patch operations
 	ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error)
 	// ToBidirectionalPatch transforms current diff into a set of 2 batches of operations

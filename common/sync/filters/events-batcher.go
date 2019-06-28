@@ -26,6 +26,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -41,6 +42,7 @@ type EventsBatcher struct {
 	Source        model.PathSyncSource
 	Target        model.PathSyncTarget
 	globalContext context.Context
+	ignores       []glob.Glob
 
 	batchCacheMutex *sync.Mutex
 	batchCache      map[string][]model.EventInfo
@@ -56,11 +58,12 @@ type EventsBatcher struct {
 }
 
 // NewEventsBatcher creates a new EventsBatcher
-func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, statuses chan merger.ProcessStatus, done chan interface{}, debounce ...time.Duration) *EventsBatcher {
+func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, ignores []glob.Glob, statuses chan merger.ProcessStatus, done chan interface{}, debounce ...time.Duration) *EventsBatcher {
 
 	b := &EventsBatcher{
 		Source:        source,
 		Target:        target,
+		ignores:       ignores,
 		globalContext: ctx,
 
 		batchCache:      make(map[string][]model.EventInfo),
@@ -103,6 +106,10 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 		case event, ok := <-in:
 			if !ok {
 				return
+			}
+			if model.IsIgnoredFile(event.Path, ev.ignores...) {
+				log.Logger(ev.globalContext).Info("Ignoring event for path " + event.Path)
+				break
 			}
 			// Add to queue
 			if session := event.Metadata[common.XPydioSessionUuid]; session != "" {

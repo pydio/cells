@@ -81,7 +81,7 @@ type EndpointInfo struct {
 	URI                   string
 	RequiresNormalization bool
 	RequiresFoldersRescan bool
-	SupportsTargetEcho    bool
+	IsAsynchronous        bool
 	EchoTime              time.Duration
 	Ignores               []string
 }
@@ -118,6 +118,13 @@ type ChecksumProvider interface {
 	ComputeChecksum(node *tree.Node) error
 }
 
+// A CachedBranchProvider can quickly load a full branch recursively in memory and expose it as a PathSyncSource
+type CachedBranchProvider interface {
+	Endpoint
+	GetCachedBranch(ctx context.Context, root string) PathSyncSource
+}
+
+// A BulkLoader can stream calls to ReadNode - Better use CachedBranchProvider
 type BulkLoader interface {
 	BulkLoadNodes(ctx context.Context, nodes map[string]string) (map[string]interface{}, error)
 }

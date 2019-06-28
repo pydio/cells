@@ -118,6 +118,7 @@ func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.No
 	}); e != nil {
 		return nil, e
 	} else {
+		resp.Node.Path = strings.TrimLeft(resp.Node.Path, "/")
 		return resp.Node, nil
 	}
 

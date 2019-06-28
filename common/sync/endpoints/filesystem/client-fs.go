@@ -184,6 +184,7 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	newPatch.Filter(ctx)
 	pr := proc.NewProcessor(ctx)
 	pr.Silent = true
+	pr.SkipTargetChecks = true
 	pr.Process(newPatch, nil)
 	// For Create Folders, updateSnapshot with associated .pydio's
 	newPatch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
@@ -205,7 +206,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "fs://" + c.uriPath,
+		URI: "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
@@ -304,7 +305,7 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 		writesMux := &sync.Mutex{}
 		for event := range out {
 
-			if model.IsIgnoredFile(event.Path()) || strings.HasPrefix(filepath.Base(event.Path()), SyncTmpPrefix) {
+			if /*model.IsIgnoredFile(event.Path()) ||*/ strings.HasPrefix(filepath.Base(event.Path()), SyncTmpPrefix) {
 				continue
 			}
 			eventInfo, eventError := notifyEventToEventInfo(c, event)

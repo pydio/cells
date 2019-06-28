@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gobwas/glob"
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -153,7 +154,7 @@ func TestTreeDiff(t *testing.T) {
 		Convey("Test empty source and target", func() {
 			left = memory.NewMemDB()
 			right = memory.NewMemDB()
-			t1, _ := TreeNodeFromSource(left, "/")
+			t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{})
 			// Trigger printout for test coverage
 			t.Log(t1.PrintTree())
 			diff := newTreeDiff(testCtx, left, right)
@@ -349,8 +350,8 @@ func TestTreeDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hasha",
 			}, true)
-			t2, _ := TreeNodeFromSource(right, "/")
-			t1, _ := TreeNodeFromSource(left, "/")
+			t2, _ := TreeNodeFromSource(right, "/", []glob.Glob{})
+			t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{})
 			h1 := t1.GetHash()
 			h2 := t2.GetHash()
 			So(h1, ShouldNotEqual, h2)
@@ -625,7 +626,7 @@ func TestTreeDiffErrors(t *testing.T) {
 		left = memory.NewMemDB()
 		right = memory.NewMemDB()
 
-		t1, _ := TreeNodeFromSource(left, "/")
+		t1, _ := TreeNodeFromSource(left, "/", []glob.Glob{})
 		// Trigger printout for test coverage
 		t.Log(t1.PrintTree())
 		diff := newTreeDiff(testCtx, left, right)
@@ -695,4 +696,27 @@ func TestTreeDiffConflictsAndStatus(t *testing.T) {
 		_, _ = diff.ToBidirectionalPatches(left, right)
 		So(diff.Conflicts(), ShouldHaveLength, 1)
 	})
+}
+
+func TestTreeNodeFromSourceWithGlob(t *testing.T) {
+
+	Convey("Test Glob", t, func() {
+
+		left := memory.NewMemDB()
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa", Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa/.pydio", Type: tree.NodeType_LEAF, Etag: "hashlla"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa/b", Type: tree.NodeType_LEAF, Etag: "hashme"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/aaa/d", Type: tree.NodeType_LEAF, Etag: "dhash"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/bbb", Type: tree.NodeType_COLLECTION, Etag: "-1"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/bbb/.pydio", Type: tree.NodeType_LEAF, Etag: "heeasha"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/bbb/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
+		left.CreateNode(testCtx, &tree.Node{Path: "/bbb/b", Type: tree.NodeType_LEAF, Etag: "hashme"}, true)
+
+		var ignores []glob.Glob
+		TreeNodeFromSource(left, "/", ignores)
+
+	})
+
 }

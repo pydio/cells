@@ -28,6 +28,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -62,7 +63,7 @@ func newTreeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 }
 
 // Compute performs the actual diff between left and right
-func (diff *TreeDiff) Compute(root string) error {
+func (diff *TreeDiff) Compute(root string, ignores ...glob.Glob) error {
 	defer diff.Done(true)
 
 	lTree := NewTree()
@@ -89,11 +90,11 @@ func (diff *TreeDiff) Compute(root string) error {
 			diff.Status(ProcessStatus{StatusString: fmt.Sprintf("[%s] Loading snapshot", logId)})
 			var err error
 			if logId == "left" {
-				if lTree, err = TreeNodeFromSource(diff.left, root, diff.statusChan); err == nil {
+				if lTree, err = TreeNodeFromSource(diff.left, root, ignores, diff.statusChan); err == nil {
 					h = lTree.GetHash()
 				}
 			} else if logId == "right" {
-				if rTree, err = TreeNodeFromSource(diff.right, root, diff.statusChan); err == nil {
+				if rTree, err = TreeNodeFromSource(diff.right, root, ignores, diff.statusChan); err == nil {
 					h = rTree.GetHash()
 				}
 			}

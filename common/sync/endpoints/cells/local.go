@@ -25,9 +25,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pkg/errors"
-
 	"github.com/pborman/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common"
 	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
@@ -92,7 +91,7 @@ func (l *Local) GetEndpointInfo() model.EndpointInfo {
 		URI: "router:///" + l.root,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
-		SupportsTargetEcho:    true,
+		IsAsynchronous:        true,
 		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
 	}
 }

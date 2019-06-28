@@ -91,7 +91,7 @@ func (pr *Processor) processCreateFile(operation merger.Operation, operationId s
 
 		pg <- 1
 		update := false
-		if operation.GetNode().Uuid != "" {
+		if operation.Type() == merger.OpUpdateFile || operation.GetNode().Uuid != "" {
 			update = true
 		}
 		return operation.Target().CreateNode(operation.CreateContext(pr.GlobalContext), operation.GetNode(), update)

@@ -24,6 +24,11 @@ package task
 import (
 	"context"
 
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
+
+	"github.com/gobwas/glob"
+
 	"github.com/pydio/cells/common/sync/filters"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
@@ -31,12 +36,12 @@ import (
 )
 
 type Sync struct {
-	Source             model.Endpoint
-	Target             model.Endpoint
-	Direction          model.DirectionType
-	Roots              []string
-	watch              bool
-	SkipFilterToTarget bool
+	Source           model.Endpoint
+	Target           model.Endpoint
+	Direction        model.DirectionType
+	Roots            []string
+	Ignores          []glob.Glob
+	SkipTargetChecks bool
 
 	snapshotFactory model.SnapshotFactory
 	echoFilter      *filters.EchoFilter
@@ -44,6 +49,7 @@ type Sync struct {
 	processor       *proc.ConnectedProcessor
 	patchPiper      merger.PatchPiper
 
+	watch        bool
 	watchersChan []chan bool
 	watchConn    chan *model.EndpointStatus
 	statuses     chan merger.ProcessStatus
@@ -52,15 +58,32 @@ type Sync struct {
 	patchChan    chan merger.Patch
 }
 
-func NewSync(left model.Endpoint, right model.Endpoint, direction model.DirectionType, roots ...string) *Sync {
+// NewSync creates a new sync task
+func NewSync(left model.Endpoint, right model.Endpoint, direction model.DirectionType) *Sync {
 	return &Sync{
 		Source:    left,
 		Target:    right,
 		Direction: direction,
-		Roots:     roots,
 	}
 }
 
+// SetFilters allows passing selective roots (includes) and ignores (excludes).
+// Ignores are a list of patterns conforming to the glob standard, with support for double star
+func (s *Sync) SetFilters(roots []string, excludes []string) {
+	if roots != nil {
+		s.Roots = roots
+	}
+	for _, i := range excludes {
+		if g, e := glob.Compile(i, '/'); e == nil {
+			s.Ignores = append(s.Ignores, g)
+		} else {
+			log.Logger(context.Background()).Error("Unsupported glob pattern format!", zap.Error(e))
+		}
+	}
+}
+
+// SetPatchPiper adds a filter on the Patch channel to do something with patches
+// before they are processed
 func (s *Sync) SetPatchPiper(piper merger.PatchPiper) {
 	s.patchPiper = piper
 }
@@ -70,8 +93,8 @@ func (s *Sync) Start(ctx context.Context, withWatches bool) {
 
 	// Init processor
 	s.processor = proc.NewConnectedProcessor(ctx, s.cmd)
-	if s.SkipFilterToTarget {
-		s.processor.AlwaysSkipFilterToTarget = true
+	if s.SkipTargetChecks {
+		s.processor.SkipTargetChecks = true
 	}
 	s.patchChan = s.processor.PatchChan
 	if s.patchPiper != nil {

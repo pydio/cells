@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/endpoints/memory"
 	"github.com/pydio/cells/common/sync/model"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/views"
@@ -146,6 +147,14 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 		walknFc(n.Path, n, nil)
 	}
 	return
+}
+
+func (c *abstract) GetCachedBranch(ctx context.Context, root string) model.PathSyncSource {
+	memDB := memory.NewMemDB()
+	c.Walk(func(path string, node *tree.Node, err error) {
+		memDB.CreateNode(ctx, node, false)
+	}, root, true)
+	return memDB
 }
 
 func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {

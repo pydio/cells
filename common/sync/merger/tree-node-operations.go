@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 // OriginalPath rebuilds node Path climbing to the root
@@ -141,7 +142,7 @@ func (t *TreeNode) WalkOperations(opTypes []OperationType, callback OpWalker) {
 }
 
 // WalkToFirstOperations walks the tree (depth-first) and stops on a branch as soon as it finds a given operation Type
-func (t *TreeNode) WalkToFirstOperations(opType OperationType, callback func(Operation)) {
+func (t *TreeNode) WalkToFirstOperations(opType OperationType, callback func(Operation), target ...model.Endpoint) {
 	recompute := func(t *TreeNode, o Operation) {
 		if t.OpMoveTarget != nil {
 			o.UpdateRefPath(t.OpMoveTarget.ProcessedPath(false))
@@ -152,6 +153,12 @@ func (t *TreeNode) WalkToFirstOperations(opType OperationType, callback func(Ope
 	}
 	filter := func(o Operation) bool {
 		if o == nil {
+			return false
+		}
+		if opType == OpUnknown {
+			return true
+		}
+		if len(target) > 0 && o.Target() != target[0] {
 			return false
 		}
 		return o.Type() == opType

@@ -51,11 +51,11 @@ type ProcessorLocker interface {
 
 // Processor is a simple processor without external connections
 type Processor struct {
-	GlobalContext            context.Context
-	Locker                   ProcessorLocker
-	QueueSize                int
-	Silent                   bool
-	AlwaysSkipFilterToTarget bool
+	GlobalContext    context.Context
+	Locker           ProcessorLocker
+	QueueSize        int
+	Silent           bool
+	SkipTargetChecks bool
 }
 
 // NewProcessor creates a new processor
@@ -69,10 +69,6 @@ func NewProcessor(ctx context.Context) *Processor {
 
 // Process calls all Operations to be performed on a Patch
 func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
-
-	if !pr.AlwaysSkipFilterToTarget {
-		patch.FilterToTarget(pr.GlobalContext, nil)
-	}
 
 	var interrupted bool
 
@@ -89,7 +85,16 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	}()
 
 	if patch.Size() == 0 {
+		log.Logger(pr.GlobalContext).Info("Empty Patch : nothing to do")
 		return
+	}
+
+	if !pr.SkipTargetChecks {
+		patch.FilterToTarget(pr.GlobalContext, nil)
+		if patch.Size() == 0 {
+			log.Logger(pr.GlobalContext).Info("Empty Patch after filtering")
+			return
+		}
 	}
 
 	var cursor int64
@@ -202,6 +207,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 			serial <- o
 		}
 	})
+
 	if len(patch.OperationsByType([]merger.OperationType{merger.OpRefreshUuid})) > 0 {
 		go pr.refreshFilesUuid(patch)
 	}
@@ -209,6 +215,12 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	close(opsFinished)
 	// Wait that all is done
 	<-done
+
+	if !pr.SkipTargetChecks {
+		if err := patch.Validate(pr.GlobalContext); err != nil {
+			log.Logger(pr.GlobalContext).Error("Could not validate patch", zap.Error(err))
+		}
+	}
 }
 
 func (pr *Processor) processOperation(p merger.Patch, processId string, op merger.Operation, cursor *int64, total int64, withRetries ...bool) {

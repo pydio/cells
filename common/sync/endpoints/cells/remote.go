@@ -96,7 +96,7 @@ func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 		URI: fmt.Sprintf("%s/%s", c.config.Url, c.root),
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
-		SupportsTargetEcho:    true,
+		IsAsynchronous:        true,
 		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
 	}
 

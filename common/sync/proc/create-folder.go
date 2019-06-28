@@ -45,9 +45,11 @@ func (pr *Processor) processCreateFolder(operation merger.Operation, operationId
 	receiver, ok2 := operation.Source().(model.UuidReceiver)
 	if ok1 && ok2 {
 		if sameIdNode, e := provider.LoadNodeByUuid(ctx, operation.GetNode().Uuid); e == nil && sameIdNode != nil {
+			pr.Logger().Info("Node found with same UUID", zap.String("local", localPath), sameIdNode.ZapPath())
 			if sameIdNode.Path == localPath {
 				// This is the same node, it already exists! Ignore operation
-				pr.Logger().Info("CreateFolder: already exists, ignoring!", zap.Any("e", operation.GetRefPath()))
+				pr.Logger().Info("CreateFolder: already exists with same UUID, ignoring!", zap.Any("e", operation.GetRefPath()))
+				return nil
 			}
 			// This is a duplicate! We have to refresh .pydio content now
 			newNode, er := receiver.UpdateNodeUuid(ctx, &tree.Node{Path: localPath})

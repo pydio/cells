@@ -81,7 +81,7 @@ func (pr *ConnectedProcessor) ProcessPatches() {
 // LockFile implements Connector func
 func (pr *ConnectedProcessor) LockFile(operation merger.Operation, path string, operationId string) {
 	if source, ok := model.AsPathSyncSource(operation.Target()); pr.LocksChan != nil && ok {
-		if source.GetEndpointInfo().SupportsTargetEcho {
+		if source.GetEndpointInfo().IsAsynchronous {
 			return // no lock needed, do nothing
 		}
 		pr.LocksChan <- model.LockEvent{
@@ -96,7 +96,7 @@ func (pr *ConnectedProcessor) LockFile(operation merger.Operation, path string, 
 // UnlockFile implements Connector func
 func (pr *ConnectedProcessor) UnlockFile(operation merger.Operation, path string) {
 	if source, castOk := model.AsPathSyncSource(operation.Target()); castOk && pr.LocksChan != nil {
-		if source.GetEndpointInfo().SupportsTargetEcho {
+		if source.GetEndpointInfo().IsAsynchronous {
 			return // no lock needed, do nothing
 		}
 		d := 2 * time.Second
