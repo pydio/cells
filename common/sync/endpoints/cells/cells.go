@@ -445,7 +445,7 @@ func (c *abstract) flushRecentMkDirs() {
 	if len(c.recentMkDirs) > 0 {
 		c.Lock()
 		c.readNodesBlocking(c.recentMkDirs)
-		c.recentMkDirs = []*tree.Node{}
+		c.recentMkDirs = nil
 		c.Unlock()
 	}
 }
@@ -466,13 +466,17 @@ func (c *abstract) readNodesBlocking(nodes []*tree.Node) {
 	if len(nodes) == 0 {
 		return
 	}
-	// fmt.Println("Checking recent readNodesBlockings", nodes)
 	// Check target nodes are found in remote index
 	wg := &sync.WaitGroup{}
 	wg.Add(len(nodes))
+	throttle := make(chan struct{}, 8)
 	for _, n := range nodes {
+		throttle <- struct{}{}
 		go func() {
-			defer wg.Done()
+			defer func() {
+				wg.Done()
+				<-throttle
+			}()
 			c.readNodeBlocking(n)
 		}()
 	}

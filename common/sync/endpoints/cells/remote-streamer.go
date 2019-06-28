@@ -70,11 +70,11 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	if len(c.sessionsCreates) == 0 {
 		return nil
 	}
-	ctx, cli, err := c.factory.GetNodeReceiverStreamClient(ctx)
+	ctx, cli, err := c.factory.GetNodeReceiverStreamClient(c.getContext(ctx))
 	if err != nil {
 		return err
 	}
-	streamer, err := cli.CreateNodeStream(ctx, client.WithRequestTimeout(5*time.Minute))
+	streamer, err := cli.CreateNodeStream(c.getContext(ctx), client.WithRequestTimeout(5*time.Minute))
 	if err != nil {
 		return err
 	}
@@ -88,6 +88,7 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 		}
 		if resp, e := streamer.Recv(); e == nil {
 			log.Logger(ctx).Debug("Got create node response in session", zap.Any("r", resp))
+			c.recentMkDirs = append(c.recentMkDirs, resp.Node)
 		} else {
 			return e
 		}
@@ -98,5 +99,8 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 func (c *Remote) FinishSession(ctx context.Context, sessionUuid string) error {
 	c.FlushSession(ctx, sessionUuid)
 	c.session = nil
+	c.Lock()
+	c.recentMkDirs = nil
+	c.Unlock()
 	return nil
 }
