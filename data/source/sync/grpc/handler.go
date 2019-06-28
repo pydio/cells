@@ -225,7 +225,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	s.SyncConfig = syncConfig
 	s.ObjectConfig = minioConfig
 	s.syncTask = task.NewSync(source, target, model.DirectionRight)
-	s.syncTask.SkipFilterToTarget = true
+	s.syncTask.SkipTargetChecks = true
 
 	return nil
 
@@ -323,8 +323,11 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		taskChan <- theTask
 
 		go func() {
-			defer close(statusChan)
-			defer close(doneChan)
+			defer func() {
+				close(doneChan)
+				<-time.After(2 * time.Second)
+				close(statusChan)
+			}()
 			for {
 				select {
 				case status := <-statusChan:

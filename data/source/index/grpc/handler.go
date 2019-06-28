@@ -115,9 +115,9 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	inSession := req.IndexationSession != ""
 
 	reqUUID := req.GetNode().GetUuid()
-	updateIfExists := req.GetUpdateIfExists()
+	updateIfExists := req.GetUpdateIfExists() || !req.GetNode().IsLeaf()
 
-	log.Logger(ctx).Debug("CreateNode", zap.Any("request", req))
+	log.Logger(ctx).Info("CreateNode", zap.Any("request", req))
 
 	// Updating node based on UUID
 	if reqUUID != "" {
@@ -138,9 +138,21 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	}
 
 	reqPath := safePath(req.GetNode().GetPath())
-	path, created, err := dao.Path(reqPath, true, req.GetNode())
-	if err != nil {
-		return errors.InternalServerError(name, "Error while inserting node: %s", err.Error())
+	var path mtree.MPath
+	var created []*mtree.TreeNode
+	var exists bool
+	if updateIfExists {
+		// First search node by path to avoid false created value
+		if existing, _, err := dao.Path(reqPath, false, req.GetNode()); err == nil && existing != nil {
+			path = existing
+			exists = true
+		}
+	}
+	if !exists {
+		path, created, err = dao.Path(reqPath, true, req.GetNode())
+		if err != nil {
+			return errors.InternalServerError(name, "Error while inserting node: %s", err.Error())
+		}
 	}
 
 	// Checking if we have a node with the same path
@@ -505,9 +517,9 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 	reqPath := safePath(req.GetNode().GetPath())
 
-	path, _, _ := dao.Path(reqPath, false)
-	if path == nil {
-		return errors.NotFound(name, "Could not retrieve node %s", reqPath)
+	path, _, pE := dao.Path(reqPath, false)
+	if pE != nil {
+		return errors.NotFound(name, "Could not compute path %s (%s)", reqPath, pE.Error())
 	}
 
 	node, err := dao.GetNode(path)
