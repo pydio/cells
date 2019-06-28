@@ -316,7 +316,7 @@ func handleSignals() {
 				<-time.After(2 * time.Second)
 				os.Exit(0)
 
-			case syscall.Signal(0xa):
+			case syscall.Signal(0x1e):
 				pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 
 				if !profiling {
