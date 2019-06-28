@@ -27,6 +27,7 @@ import (
 	"log"
 	"math/rand"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -835,4 +836,71 @@ func TestOtherArborescenceWithCache(t *testing.T) {
 
 		getDAO(ctxWithCache).Flush(true)
 	})
+}
+
+func TestGettingNodeByPathBeforeCreationWithCache(t *testing.T) {
+	Convey("Re-adding a file - Success", t, func() {
+		arborescence := []string{
+			"admin",
+			"admin/Playlist",
+			"admin/Playlist/vendor-folders",
+			"admin/Playlist/vendor-folders/github.com",
+			"admin/Playlist/vendor-folders/github.com/golang",
+			"admin/Playlist/vendor-folders/github.com/golang/protobuf",
+			"admin/Playlist/vendor-folders/github.com/golang/protobuf/proto",
+			"admin/Playlist/vendor-folders/github.com/micro",
+			"admin/Playlist/vendor-folders/github.com/micro/micro",
+			"admin/Playlist/vendor-folders/github.com/micro/micro/api",
+			"admin/Playlist/vendor-folders/github.com/micro/protobuf",
+			"admin/Playlist/vendor-folders/github.com/micro/protobuf/proto",
+			"admin/Playlist/vendor-folders/github.com/coreos",
+			"admin/Playlist/vendor-folders/github.com/coreos/dex",
+			"admin/Playlist/vendor-folders/github.com/coreos/dex/api",
+			"admin/Playlist/vendor-folders/google.golang.org",
+			"admin/Playlist/vendor-folders/google.golang.org/api",
+			"admin/Playlist/vendor-folders/google.golang.org/genproto",
+			"admin/Playlist/vendor-folders/google.golang.org/genproto/googleapis",
+			"admin/Playlist/vendor-folders/google.golang.org/genproto/googleapis/api",
+			"admin/Playlist/vendor-folders/github.com/nicolai86",
+			"admin/Playlist/vendor-folders/github.com/nicolai86/scaleway-sdk",
+			"admin/Playlist/vendor-folders/github.com/nicolai86/scaleway-sdk/api",
+			"admin/Playlist/vendor-folders/github.com/pydio",
+			"admin/Playlist/vendor-folders/github.com/pydio/minio-srv",
+			"admin/Playlist/vendor-folders/github.com/pydio/minio-srv/vendor",
+			"admin/Playlist/vendor-folders/github.com/pydio/minio-srv/vendor/go.etcd.io",
+			"admin/Playlist/vendor-folders/github.com/pydio/minio-srv/vendor/go.etcd.io/etcd",
+			"admin/Playlist/vendor-folders/github.com/pydio/minio-srv/vendor/go.etcd.io/etcd/etcdserver",
+			"admin/Playlist/vendor-folders/github.com/pydio/minio-srv/vendor/go.etcd.io/etcd/etcdserver/api",
+		}
+
+		newSession()
+		d := getDAO(ctxWithCache).(*daocache)
+
+		for _, path := range arborescence {
+			// Node should NEVER be found here!
+			test, e := d.GetNodeByPath(strings.Split(path, "/"))
+			So(test, ShouldBeNil)
+			So(e, ShouldNotBeNil)
+			_, _, e = d.Path(path, true)
+			So(e, ShouldBeNil)
+		}
+
+		// Nodes should be correctly found here!
+		n1, e := d.GetNodeByPath([]string{"admin", "Playlist", "vendor-folders", "github.com", "coreos", "dex", "api"})
+		So(e, ShouldBeNil)
+		So(n1, ShouldNotBeNil)
+		if n1 != nil {
+			So(n1.Path, ShouldEqual, "admin/Playlist/vendor-folders/github.com/coreos/dex/api")
+		}
+
+		n1, e = d.GetNodeByPath([]string{"admin", "Playlist", "vendor-folders", "github.com", "nicolai86", "scaleway-sdk", "api"})
+		So(e, ShouldBeNil)
+		So(n1, ShouldNotBeNil)
+		if n1 != nil {
+			So(n1.Path, ShouldEqual, "admin/Playlist/vendor-folders/github.com/nicolai86/scaleway-sdk/api")
+		}
+
+		getDAO(ctxWithCache).Flush(true)
+	})
+
 }
