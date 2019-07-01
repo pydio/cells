@@ -443,6 +443,15 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	return errors.Forbidden(common.SERVICE_TREE, "Unknown data source")
 }
 
+func (s *TreeServer) getChangesSub() (subs []chan *tree.NodeChangeEvent) {
+	s.changesSubLocks.Lock()
+	for c, _ := range s.changesSub {
+		subs = append(subs, c)
+	}
+	s.changesSubLocks.Unlock()
+	return
+}
+
 func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesRequest, streamer tree.NodeChangesStreamer_StreamChangesStream) error {
 
 	c := make(chan *tree.NodeChangeEvent, 1000)

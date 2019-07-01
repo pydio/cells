@@ -41,7 +41,7 @@ type EventSubscriber struct {
 
 func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {
 	s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TOPIC_TREE_CHANGES, msg))
-	for c, _ := range s.TreeServer.changesSub {
+	for _, c := range s.TreeServer.getChangesSub() {
 		c <- msg
 	}
 }
