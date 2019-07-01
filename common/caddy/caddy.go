@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"runtime"
 	"strings"
 	"time"
 
@@ -202,8 +203,19 @@ func restart() error {
 		log.Logger(gatewayCtx).Info("Restarting proxy", zap.ByteString("caddyfile", caddyfile.Body()))
 	}
 
-	// start caddy server
-	instance, err := mainCaddy.instance.Restart(caddyfile)
+	// restart caddy server
+	var instance *caddy.Instance
+	if runtime.GOOS == "windows" {
+		log.Logger(gatewayCtx).Info("Stopping Caddy Instance")
+		if e := mainCaddy.instance.Stop(); e != nil {
+			return e
+		}
+		mainCaddy.instance.ShutdownCallbacks()
+		log.Logger(gatewayCtx).Info("Starting new Caddy Instance")
+		instance, err = caddy.Start(caddyfile)
+	} else {
+		instance, err = mainCaddy.instance.Restart(caddyfile)
+	}
 	if err != nil {
 		return err
 	}
