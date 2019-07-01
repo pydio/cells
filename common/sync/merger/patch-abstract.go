@@ -51,6 +51,10 @@ func (b *AbstractPatch) GetUUID() string {
 	return b.uuid
 }
 
+func (b *AbstractPatch) SetUUID(u string) {
+	b.uuid = u
+}
+
 func (b *AbstractPatch) GetStamp() time.Time {
 	return b.mTime
 }

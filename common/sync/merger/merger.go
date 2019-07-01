@@ -61,6 +61,8 @@ type Patch interface {
 
 	// GetUUID provides a unique ID for this patch
 	GetUUID() string
+	// SetUUID set the uuid
+	SetUUID(string)
 	// GetStamp returns a last modified date
 	GetStamp() time.Time
 	// Stamp set the last modified date on this patch
