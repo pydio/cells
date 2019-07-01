@@ -226,12 +226,10 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 
 func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, excludes map[string]struct{}) {
 
-	log.Logger(c).Info("Reindexing folder - will throttle", node.ZapPath())
 	s.ReIndexThrottler <- struct{}{}
 	defer func() {
 		<-s.ReIndexThrottler
 	}()
-	log.Logger(c).Info("Reindexing folder - should throttle", node.ZapPath())
 	bg := context.Background()
 	dsStream, err := s.TreeClient.ListNodes(bg, &tree.ListNodesRequest{
 		Node:      node,
@@ -253,6 +251,6 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 			count++
 		}
 	}
-	log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d nodes", count))
+	log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d folders", count))
 
 }
