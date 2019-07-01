@@ -25,5 +25,8 @@
   },
   "9": {
     "other": "Riassunto delle Notifiche"
+  },
+  "sender.error": {
+    "other": "Could not send email correctly!"
   }
 }

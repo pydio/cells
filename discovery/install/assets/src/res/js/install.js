@@ -323,12 +323,12 @@ class InstallForm extends React.Component {
                                     </div>
                             }
                             {licCheckFailed &&
-                                <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>Error while trying to verify this license string. Please contact the support.</div>
+                                <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>Error while trying to verify this license key. Please contact the support.</div>
                             }
                             {!licCheckPassed &&
                                 <div>
-                                    A valid license is required to run this installation.  If you do not own one, please contact Pydio sales services
-                                    at <a href={"mailto:services@pydio.com"}>services@pydio.com</a> to receive your license key.
+                                    A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation,
+                                    please contact <a href={"mailto:services@pydio.com"}>services@pydio.com</a>.
                                     <Field name="licenseString" component={renderTextField} floatingLabel="License String" label="Please copy/paste the license key provided to you." />
                                 </div>
                             }

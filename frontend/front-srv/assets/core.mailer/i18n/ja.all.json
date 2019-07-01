@@ -25,5 +25,8 @@
   },
   "9": {
     "other": "Notifications Digest"
+  },
+  "sender.error": {
+    "other": "Could not send email correctly!"
   }
 }

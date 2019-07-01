@@ -30,7 +30,7 @@
     "other": "{{.Object}} è stato eliminato da {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "Condiviso in {{.Object}}"
   },
   "SharedWsWithYou": {
     "other": "{{.Actor}} has shared {{.Object}} with you"
