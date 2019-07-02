@@ -23,7 +23,7 @@ package objects
 import (
 	"encoding/json"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -38,8 +38,8 @@ func CreateMinioConfigFile(serviceId string, accessKey string, secretKey string)
 		return "", e
 	}
 
-	gatewayDir := path.Join(configDir, serviceId)
-	gatewayFile := path.Join(gatewayDir, "config.json")
+	gatewayDir := filepath.Join(configDir, serviceId)
+	gatewayFile := filepath.Join(gatewayDir, "config.json")
 
 	// Create path to folder
 	if _, err := os.Stat(gatewayFile); err != nil && os.IsNotExist(err) {
@@ -78,7 +78,7 @@ func DeleteMinioConfigDir(serviceId string) error {
 		return e
 	}
 
-	gatewayDir := path.Join(configDir, serviceId)
+	gatewayDir := filepath.Join(configDir, serviceId)
 	return os.RemoveAll(gatewayDir)
 
 }
