@@ -890,14 +890,14 @@ func TestGettingNodeByPathBeforeCreationWithCache(t *testing.T) {
 		So(e, ShouldBeNil)
 		So(n1, ShouldNotBeNil)
 		if n1 != nil {
-			So(n1.Path, ShouldEqual, "admin/Playlist/vendor-folders/github.com/coreos/dex/api")
+			So(strings.Replace(n1.Path, "\\", "/", -1), ShouldEqual, "admin/Playlist/vendor-folders/github.com/coreos/dex/api")
 		}
 
 		n1, e = d.GetNodeByPath([]string{"admin", "Playlist", "vendor-folders", "github.com", "nicolai86", "scaleway-sdk", "api"})
 		So(e, ShouldBeNil)
 		So(n1, ShouldNotBeNil)
 		if n1 != nil {
-			So(n1.Path, ShouldEqual, "admin/Playlist/vendor-folders/github.com/nicolai86/scaleway-sdk/api")
+			So(strings.Replace(n1.Path, "\\", "/", -1), ShouldEqual, "admin/Playlist/vendor-folders/github.com/nicolai86/scaleway-sdk/api")
 		}
 
 		getDAO(ctxWithCache).Flush(true)
