@@ -307,8 +307,7 @@ func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 		writes := make(map[string]*FSEventDebouncer)
 		writesMux := &sync.Mutex{}
 		for event := range out {
-
-			if /*model.IsIgnoredFile(event.Path()) ||*/ strings.HasPrefix(filepath.Base(event.Path()), SyncTmpPrefix) {
+			if strings.HasPrefix(filepath.Base(event.Path()), SyncTmpPrefix) {
 				continue
 			}
 			eventInfo, eventError := notifyEventToEventInfo(c, event)
