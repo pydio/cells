@@ -26,7 +26,7 @@ main:
 
 xgo:
 	${GOPATH}/bin/xgo -go 1.12 \
-	--targets linux/amd64,darwin/amd64 \
+	--targets linux/amd64,darwin/amd64,windows/amd64 \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}\
