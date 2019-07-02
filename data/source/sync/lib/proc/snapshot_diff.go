@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/data/source/sync/lib/filters"
 )
 
-// SourceDiff represent basic differences between two sources
+// SourceDiff represents basic differences between two sources.
 // It can be then transformed to Batch, depending on the sync being
 // unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
 type SourceDiff struct {
@@ -43,7 +43,7 @@ type SourceDiff struct {
 	Context      context.Context
 }
 
-// ComputeSourceDiff loads the diff by crawling the sources in parallel, filling up a Hash Tree and performing the merge
+// ComputeSourceDiff loads the diff by crawling the sources in parallel, filling up a Hash Tree and performing the merge.
 func ComputeSourcesDiff(ctx context.Context, left common.PathSyncSource, right common.PathSyncSource, strong bool, statusChan chan filters.BatchProcessStatus) (diff *SourceDiff, err error) {
 
 	lTree := NewTreeNode(&tree.Node{Path: "", Etag: "-1"})
