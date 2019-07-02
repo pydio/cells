@@ -211,6 +211,7 @@ type SnapshotUpdater interface {
 type SnapshotFactory interface {
 	// Load creates the snapshot and return it
 	Load(source PathSyncSource) (Snapshoter, error)
+	Reset(ctx context.Context) error
 }
 
 // HashStoreReader can maintain a reference to a snapshot to quickly find hashes for nodes directly from the snapshot if they

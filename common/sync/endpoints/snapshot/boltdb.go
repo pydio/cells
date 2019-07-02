@@ -36,7 +36,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -55,13 +54,11 @@ type BoltSnapshot struct {
 	createsSession []*tree.Node
 }
 
-func NewBoltSnapshot(name, syncUuid string) (*BoltSnapshot, error) {
+func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 	s := &BoltSnapshot{name: name}
 	options := bbolt.DefaultOptions
 	options.Timeout = 5 * time.Second
-	appDir := config.ApplicationDataDir()
-	s.folderPath = filepath.Join(appDir, "sync", syncUuid)
-	os.MkdirAll(s.folderPath, 0755)
+	s.folderPath = folderPath
 	p := filepath.Join(s.folderPath, "snapshot-"+name)
 	if _, err := os.Stat(p); err != nil {
 		s.empty = true
