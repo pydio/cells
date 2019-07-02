@@ -130,7 +130,7 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 	s.monitorDiff(ctx, diff, rootsInfo)
 	e := diff.Compute(rootPath, s.Ignores...)
 	if e == nil && dryRun {
-		fmt.Println(diff.String())
+		log.Logger(ctx).Info("Dry run result", zap.String("diff", diff.String()))
 	}
 	// TMP TODO
 	<-time.After(3 * time.Second)

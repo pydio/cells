@@ -26,6 +26,8 @@ package grpc
 import (
 	"path/filepath"
 
+	servicecontext "github.com/pydio/cells/common/service/context"
+
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -52,7 +54,7 @@ func init() {
 			service.WithMicro(func(m micro.Service) error {
 				var indexContent bool
 
-				var cfg config.Map //TODO
+				cfg := servicecontext.GetConfig(m.Options().Context)
 				if indexConf := cfg.Get("indexContent"); indexConf != nil {
 					indexContent = cfg.Get("indexContent").(bool)
 				}
@@ -63,8 +65,9 @@ func init() {
 					return err
 				}
 				server := &SearchServer{
-					Engine:     bleveEngine,
-					TreeClient: tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
+					Engine:           bleveEngine,
+					TreeClient:       tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
+					ReIndexThrottler: make(chan struct{}, 5),
 				}
 
 				tree.RegisterSearcherHandler(m.Options().Server, server)

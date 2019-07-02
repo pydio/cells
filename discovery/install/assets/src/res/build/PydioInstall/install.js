@@ -471,18 +471,18 @@ var InstallForm = function (_React$Component) {
                             licCheckFailed && _react2.default.createElement(
                                 'div',
                                 { style: { color: '#E53935', paddingTop: 10, fontWeight: 500 } },
-                                'Error while trying to verify this license string. Please contact the support.'
+                                'Error while trying to verify this license key. Please contact the support.'
                             ),
                             !licCheckPassed && _react2.default.createElement(
                                 'div',
                                 null,
-                                'A valid license is required to run this installation.  If you do not own one, please contact Pydio sales services at ',
+                                'A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact ',
                                 _react2.default.createElement(
                                     'a',
                                     { href: "mailto:services@pydio.com" },
                                     'services@pydio.com'
                                 ),
-                                ' to receive your license key.',
+                                '.',
                                 _react2.default.createElement(_reduxForm.Field, { name: 'licenseString', component: renderTextField, floatingLabel: 'License String', label: 'Please copy/paste the license key provided to you.' })
                             )
                         ),

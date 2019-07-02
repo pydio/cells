@@ -25,5 +25,8 @@
   },
   "9": {
     "other": "Resumen de Notificaciones"
+  },
+  "sender.error": {
+    "other": "¡No se pudo enviar el correo electrónico!"
   }
 }

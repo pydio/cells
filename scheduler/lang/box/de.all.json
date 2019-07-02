@@ -58,5 +58,11 @@
   },
   "Jobs.User.Wget": {
     "other": "Datei wird im Hintergrund heruntergeladen..."
+  },
+  "Jobs.User.DeletingItem": {
+    "other": "Lösche %s"
+  },
+  "Jobs.User.CopyingItem": {
+    "other": "Kopie von %s"
   }
 }

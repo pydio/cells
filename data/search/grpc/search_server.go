@@ -40,11 +40,13 @@ import (
 	"github.com/pydio/cells/data/search/dao"
 )
 
+// SearchServer implements GRPC server for index/search
 type SearchServer struct {
-	Engine        dao.SearchEngine
-	eventsChannel chan *event.EventWithContext
-	TreeClient    tree.NodeProviderClient
-	NsProvider    *meta.NamespacesProvider
+	Engine           dao.SearchEngine
+	eventsChannel    chan *event.EventWithContext
+	TreeClient       tree.NodeProviderClient
+	NsProvider       *meta.NamespacesProvider
+	ReIndexThrottler chan struct{}
 }
 
 // CreateNodeChangeSubscriber that will treat events for the meta server
@@ -224,6 +226,10 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 
 func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, excludes map[string]struct{}) {
 
+	s.ReIndexThrottler <- struct{}{}
+	defer func() {
+		<-s.ReIndexThrottler
+	}()
 	bg := context.Background()
 	dsStream, err := s.TreeClient.ListNodes(bg, &tree.ListNodesRequest{
 		Node:      node,
@@ -245,6 +251,6 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 			count++
 		}
 	}
-	log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d nodes", count))
+	log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d folders", count))
 
 }

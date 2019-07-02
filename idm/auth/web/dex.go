@@ -38,6 +38,10 @@ import (
 	"github.com/pydio/cells/idm/auth"
 )
 
+var (
+	dexServer *server.Server
+)
+
 func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logger) (http.Handler, error) {
 
 	logger, err := newLogger(c.Logger.Level, c.Logger.Format, pydioLogger)
@@ -197,12 +201,17 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		serverConfig.IDTokensValidFor = idTokens
 	}
 
-	serv, err := server.NewServer(context.Background(), serverConfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize server: %v", err)
+	if dexServer != nil {
+		dexServer.UpdateStorage(s)
+	} else{
+		serv, err := server.NewServer(context.Background(), serverConfig)
+		if err != nil {
+			return nil, fmt.Errorf("failed to initialize server: %v", err)
+		}
+		dexServer = serv
 	}
 
-	wrapped := servicecontext.HttpMetaExtractorWrapper(serv)
+	wrapped := servicecontext.HttpMetaExtractorWrapper(dexServer)
 	wrapped = servicecontext.HttpSpanHandlerWrapper(wrapped)
 	wrapped = service.NewLogHttpHandlerWrapper(wrapped, servicecontext.GetServiceName(pydioSrvContext), servicecontext.GetServiceColor(pydioSrvContext))
 

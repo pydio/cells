@@ -25,5 +25,8 @@
   },
   "9": {
     "other": "Ingestão de Notificações"
+  },
+  "sender.error": {
+    "other": "Could not send email correctly!"
   }
 }

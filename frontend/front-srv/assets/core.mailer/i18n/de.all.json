@@ -25,5 +25,8 @@
   },
   "9": {
     "other": "Benachrichtigungs-Digest"
+  },
+  "sender.error": {
+    "other": "E-Mail konnte nicht gesendet werden!"
   }
 }

@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"path"
 	"sort"
@@ -313,4 +314,22 @@ func (c *ChildrenCursor) Next() *TreeNode {
 	} else {
 		return c.children[c.crt]
 	}
+}
+
+// MarshalJSON serializes specific fields for output to JSON
+func (t *TreeNode) MarshalJSON() ([]byte, error) {
+	data := map[string]interface{}{
+		"Base": path.Base(t.Node.Path),
+		"Node": t.Node,
+	}
+	if len(t.children) > 0 {
+		data["Children"] = t.SortedChildren()
+	}
+	if t.PathOperation != nil {
+		data["PathOperation"] = t.PathOperation
+	}
+	if t.DataOperation != nil {
+		data["DataOperation"] = t.DataOperation
+	}
+	return json.Marshal(data)
 }

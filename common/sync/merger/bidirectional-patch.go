@@ -70,8 +70,7 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 			b.TreePatch = *newTreePatch(source, target, PatchOptions{MoveDetection: false})
 			b.mergeTrees(&l.TreeNode, &r.TreeNode)
 		}
-		log.Logger(ctx).Info("Merged Patch")
-		fmt.Println(b.Stats())
+		log.Logger(ctx).Info("Merged Patch", zap.Any("stats", b.Stats()))
 	}
 	if len(b.unexpected) > 0 {
 		var ss []string
@@ -208,7 +207,7 @@ func (p *BidirectionalPatch) ReSyncTarget(left, right *TreeNode) {
 	n, e := source.LoadNode(p.ctx, targetPath)
 	if e != nil {
 		// Cannot find move target, ignore
-		fmt.Println(e)
+		log.Logger(p.ctx).Debug("Cannot find move target, ignoring")
 		return
 	}
 	newOp := requeueNode.PathOperation.Clone()

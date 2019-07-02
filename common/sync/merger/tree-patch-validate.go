@@ -3,6 +3,7 @@ package merger
 import (
 	"context"
 	"path"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -13,13 +14,40 @@ import (
 )
 
 func (t *TreePatch) Validate(ctx context.Context) error {
-	if e := t.validateEndpoint(ctx, t.Target()); e != nil {
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+	var e1, e2 error
+	go func() {
+		e1 = t.validateEndpoint(ctx, t.Target())
+		wg.Done()
+	}()
+	go func() {
+		e2 = t.validateEndpoint(ctx, t.Source())
+		wg.Done()
+	}()
+	wg.Wait()
+	if e1 != nil || e2 != nil {
+		if e1 != nil {
+			log.Logger(ctx).Error("Could not validate changes on target", zap.Error(e1))
+		}
+		if e2 != nil {
+			log.Logger(ctx).Error("Could not validate changes on source", zap.Error(e2))
+		}
+		e := errors.New("errors detected while validating patch")
+		t.Status(ProcessStatus{
+			StatusString: "Errors detected while validating patch",
+			Error:        e,
+			IsError:      true,
+			Progress:     1,
+		})
 		return e
+	} else {
+		t.Status(ProcessStatus{
+			StatusString: "Modification correctly reported",
+			Progress:     1,
+		})
+		return nil
 	}
-	if e := t.validateEndpoint(ctx, t.Source()); e != nil {
-		return e
-	}
-	return nil
 }
 
 func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint) error {
@@ -34,14 +62,23 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 		if first == nil {
 			return nil
 		}
-
+		// If we are validating with a cache, it's probably a remote server, and it has probably a small delay
+		// => wait before first try
+		<-time.After(1 * time.Second)
+		t.Status(ProcessStatus{
+			StatusString: "Validating modifications have been correctly reported...",
+			Progress:     1,
+		})
 		return model.Retry(func() error {
-			log.Logger(ctx).Info("Validating patch...")
 			return t.validateWithPreLoad(ctx, first, syncSource)
-		}, 8*time.Second, 4*time.Minute)
+		}, 6*time.Second, 4*time.Minute)
 
 	} else {
 
+		t.Status(ProcessStatus{
+			StatusString: "Validating modifications have been correctly reported...",
+			Progress:     1,
+		})
 		return t.validateWalking(ctx, target.GetEndpointInfo().URI, target)
 
 	}

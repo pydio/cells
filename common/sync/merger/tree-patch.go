@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"encoding/json"
 	"sort"
 	"time"
 
@@ -194,8 +195,17 @@ func (t *TreePatch) Stats() map[string]interface{} {
 	if len(pending) > 0 {
 		s["Pending"] = pending
 	}
-	t.PrintTree()
+	//t.PrintTree()
 	return s
+}
+
+// MarshalJSON implements custom JSON marshalling
+func (t *TreePatch) MarshalJSON() ([]byte, error) {
+	data := map[string]interface{}{
+		"Root":  &t.TreeNode,
+		"Stats": t.Stats(),
+	}
+	return json.Marshal(data)
 }
 
 func (t *TreePatch) sortedKeys(events map[string]Operation) []string {
