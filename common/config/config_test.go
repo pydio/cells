@@ -21,6 +21,7 @@
 package config
 
 import (
+	"os"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -28,7 +29,7 @@ import (
 
 func TestTreeNode(t *testing.T) {
 
-	PydioConfigDir = "/tmp"
+	PydioConfigDir = os.TempDir()
 
 	// For the time being, we do not use env variable as option backend,
 	// so the below test would fail.
