@@ -464,7 +464,7 @@ type AESGCMEncryptionMaterials struct {
 	lastBlockRange        *encryption.Block
 }
 
-// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM
+// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM.
 func NewAESGCMMaterials(info *encryption.NodeInfo, blockHandler BlockHandler) *AESGCMEncryptionMaterials {
 	m := new(AESGCMEncryptionMaterials)
 	m.encInfo = info
@@ -803,7 +803,7 @@ func (m *legacyReadMaterials) calculateEncryptedSize(plainFileLength int64) int6
 	return encryptedFileSize
 }
 
-// SetupDecryptMode set underlying read function in decrypt mode
+// SetupDecryptMode sets the underlying read function in decrypt mode.
 func (m *legacyReadMaterials) SetupDecryptMode(workingKey []byte, stream io.Reader) error {
 	m.bufferedPlainBytes = bytes.NewBuffer([]byte{})
 	m.blockSizeFixed = true

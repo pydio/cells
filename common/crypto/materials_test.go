@@ -3,14 +3,15 @@ package crypto
 import (
 	"bytes"
 	"crypto/rand"
-	"github.com/pydio/cells/common/proto/encryption"
-	. "github.com/smartystreets/goconvey/convey"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/pydio/cells/common/proto/encryption"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestOption_Write_Read(t *testing.T) {
@@ -224,6 +225,7 @@ func Test_AESGCMEncryptionMaterials(t *testing.T) {
 	Convey("Encrypt file", t, func() {
 		input, err := os.Open(plainFilename)
 		So(err, ShouldBeNil)
+		defer input.Close()
 
 		materials := NewAESGCMMaterials(ni, nil)
 		err = materials.SetupEncryptMode(ni.NodeKey.KeyData, input)
@@ -234,13 +236,12 @@ func Test_AESGCMEncryptionMaterials(t *testing.T) {
 
 		err = ioutil.WriteFile(encryptedFilename, encryptedData, os.ModePerm)
 		So(err, ShouldBeNil)
-
-		_ = input.Close()
 	})
 
 	Convey("Decrypt", t, func() {
 		input, err := os.Open(encryptedFilename)
 		So(err, ShouldBeNil)
+		defer input.Close()
 
 		materials := NewAESGCMMaterials(ni, nil)
 		err = materials.SetupDecryptMode(ni.NodeKey.KeyData, input)
@@ -252,6 +253,5 @@ func Test_AESGCMEncryptionMaterials(t *testing.T) {
 		err = ioutil.WriteFile(decryptedFilename, decryptedData, os.ModePerm)
 		So(err, ShouldBeNil)
 
-		_ = input.Close()
 	})
 }

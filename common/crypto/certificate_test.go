@@ -29,7 +29,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/smartystreets/goconvey/convey"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAll(t *testing.T) {
@@ -52,62 +52,62 @@ func TestAll(t *testing.T) {
 	defer os.Remove(caKeyFilename)
 	defer os.Remove(serviceKeyFilename)
 
-	convey.Convey("Generate CA certificate", t, func() {
+	Convey("Generate CA certificate", t, func() {
 		CAKey, err = rsa.GenerateKey(rand.Reader, 1024)
 		CACert, err = GenerateCACertificate(&Template{
 			Expiry:           time.Minute,
 			SignerPrivateKey: CAKey,
 			PublicKey:        &CAKey.PublicKey,
 			IPs:              localIPs(),
-			Domains:          []string{"jabdeb.lab.py"},
+			Domains:          []string{"cert.example.com"},
 		})
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(CACert, convey.ShouldNotBeNil)
+		So(err, ShouldBeNil)
+		So(CACert, ShouldNotBeNil)
 	})
 
-	convey.Convey("Generate Service certificate signed by CA", t, func() {
+	Convey("Generate Service certificate signed by CA", t, func() {
 		serviceKey, err = rsa.GenerateKey(rand.Reader, 1024)
 		serviceCert, err = GenerateServiceCertificate(&Template{
 			Expiry:            time.Minute,
 			IPs:               localIPs(),
-			Domains:           []string{"jabdeb.lab.py"},
+			Domains:           []string{"cert.example.com"},
 			PublicKey:         &serviceKey.PublicKey,
 			SignerPrivateKey:  CAKey,
 			SignerCertificate: CACert,
 		})
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(serviceCert, convey.ShouldNotBeNil)
+		So(err, ShouldBeNil)
+		So(serviceCert, ShouldNotBeNil)
 	})
 
-	convey.Convey("Verify Service certificate", t, func() {
+	Convey("Verify Service certificate", t, func() {
 		roots := x509.NewCertPool()
 		roots.AddCert(CACert)
 		_, err = serviceCert.Verify(x509.VerifyOptions{
 			Roots: roots,
 		})
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 	})
 
-	convey.Convey("Store CA priviate key with password", t, func() {
+	Convey("Store CA private key with password", t, func() {
 		password := []byte("secret")
 		err = StorePrivateKey(CAKey, password, caKeyFilename)
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 	})
 
-	convey.Convey("Load CA priviate key with password", t, func() {
+	Convey("Load CA private key with password", t, func() {
 		password := []byte("secret")
 		_, err = LoadPrivateKey(password, caKeyFilename)
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 	})
 
-	convey.Convey("Store service certificate", t, func() {
+	Convey("Store service certificate", t, func() {
 		err = StoreCertificate(serviceCert, serviceCertFilename, os.ModePerm)
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 	})
 
-	convey.Convey("Load service certificate", t, func() {
+	Convey("Load service certificate", t, func() {
 		cert, err := LoadCertificate(serviceCertFilename)
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(cert, convey.ShouldNotBeNil)
+		So(err, ShouldBeNil)
+		So(cert, ShouldNotBeNil)
 	})
 }

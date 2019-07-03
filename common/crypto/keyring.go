@@ -23,12 +23,14 @@ package crypto
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 
 	"github.com/zalando/go-keyring"
 )
 
-// GetKeyringPassword retrieves password from keyring
-// If no key matches "service" and "user" a key is generated if "createIfNotExist" is true
+// GetKeyringPassword retrieves a password from the keyring.
+// If no key matches "service" and "user" and if createIfNotExist
+// flag is set, a new key is generated and returned.
 func GetKeyringPassword(service string, user string, createIfNotExist bool) ([]byte, error) {
 	password, err := keyring.Get(service, user)
 	if err != nil && err != keyring.ErrNotFound {
@@ -57,21 +59,21 @@ func GetKeyringPassword(service string, user string, createIfNotExist bool) ([]b
 	return k, nil
 }
 
-// SetKeyringPassword base64-encodes password and store it
+// SetKeyringPassword base64-encodes password and stores it.
 func SetKeyringPassword(service string, user string, password []byte) error {
 	strPass := base64.StdEncoding.EncodeToString(password)
 	err := keyring.Set(service, user, strPass)
 	if err != nil {
-		return errors.New("failed to write into keyring. Make sure you have the system keyring installed.")
+		return errors.New("failed to write into keyring, make sure you have the system keyring installed")
 	}
 	return nil
 }
 
-// DeleteKeyringPassword removes all key that matches "service" and "user"
+// DeleteKeyringPassword removes all key that matches "service" and "user".
 func DeleteKeyringPassword(service string, user string) error {
 	err := keyring.Delete(service, user)
 	if err != nil {
-		return errors.New("keyring error")
+		return fmt.Errorf("could not delete keyring for user %s and service %s", user, service)
 	}
 	return nil
 }
