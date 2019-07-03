@@ -28,7 +28,7 @@ import (
 type MappingRule struct {
 	RuleName string
 
-	// Left Attribute is attribute of external user (ldap, mysql, api ...)
+	// Left Attribute is attribute of external user (ldap, sql, api ...)
 	// For example: displayName, mail, memberOf
 	LeftAttribute string
 

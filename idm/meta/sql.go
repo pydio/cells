@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
 	"github.com/pydio/cells/idm/meta/namespace"
@@ -49,7 +49,7 @@ var (
 	}
 )
 
-// Impl of the Mysql interface
+// Impl of the SQL interface
 type sqlimpl struct {
 	*sql.Handler
 

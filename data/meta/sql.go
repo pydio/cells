@@ -44,7 +44,7 @@ var (
 	mu atomic.Value
 )
 
-// Impl of the Mysql interface
+// Impl of the SQL interface
 type sqlimpl struct {
 	sql.DAO
 }
