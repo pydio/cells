@@ -108,7 +108,7 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 				return
 			}
 			if model.IsIgnoredFile(event.Path, ev.ignores...) {
-				log.Logger(ev.globalContext).Info("Ignoring event for path " + event.Path)
+				log.Logger(ev.globalContext).Debug("Ignoring event for path " + event.Path)
 				break
 			}
 			// Add to queue
@@ -193,7 +193,7 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo) {
 
 	}
 
-	patch.Filter(ev.globalContext)
+	patch.Filter(ev.globalContext, ev.ignores...)
 	if patch.Size() > 0 {
 		log.Logger(ev.globalContext).Info("****** Sending Patch from Events", zap.Any("stats", patch.Stats()))
 	}

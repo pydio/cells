@@ -82,7 +82,7 @@ type Patch interface {
 	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
 
 	// Filter tries to detect unnecessary changes locally
-	Filter(ctx context.Context)
+	Filter(ctx context.Context, ignores ...glob.Glob)
 	// FilterToTarget tries to compare changes to target and remove unnecessary ones
 	FilterToTarget(ctx context.Context, snapshots model.SnapshotFactory)
 	// SkipTargetChecks set a flag to skip FilterToTarget

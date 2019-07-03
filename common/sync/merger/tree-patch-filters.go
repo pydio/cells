@@ -23,6 +23,8 @@ package merger
 import (
 	"context"
 
+	"github.com/gobwas/glob"
+
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 
@@ -231,7 +233,7 @@ func (t *TreePatch) enqueueRemaining(ctx context.Context) {
 	}
 }
 
-func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context) {
+func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context, ignores ...glob.Glob) {
 	if t.options.NoRescan || !t.Source().GetEndpointInfo().RequiresFoldersRescan {
 		return
 	}
@@ -248,7 +250,7 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context) {
 				log.Logger(ctx).Error("Error while rescanning folder ", zap.Error(err))
 				return
 			}
-			if !model.IsIgnoredFile(path) {
+			if !model.IsIgnoredFile(path, ignores...) {
 				scanEvent := model.NodeToEventInfo(ctx, path, node, model.EventCreate)
 				opType := OpCreateFolder
 				if node.IsLeaf() {

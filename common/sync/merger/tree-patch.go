@@ -26,6 +26,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/gobwas/glob"
+
 	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/common/sync/model"
@@ -100,7 +102,7 @@ func (t *TreePatch) OperationsByType(types []OperationType, sorted ...bool) (eve
 	return
 }
 
-func (t *TreePatch) Filter(ctx context.Context) {
+func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 
 	t.filterCreateFiles(ctx)
 
@@ -112,7 +114,7 @@ func (t *TreePatch) Filter(ctx context.Context) {
 
 	t.enqueueRemaining(ctx)
 
-	t.rescanFoldersIfRequired(ctx)
+	t.rescanFoldersIfRequired(ctx, ignores...)
 
 	t.prune(ctx)
 
