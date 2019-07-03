@@ -31,7 +31,7 @@ import (
 	"strings"
 )
 
-// CreateRsaKey generates a new private key
+// CreateRsaKey generates a new private key.
 func CreateRsaKey() (*rsa.PrivateKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -40,13 +40,13 @@ func CreateRsaKey() (*rsa.PrivateKey, error) {
 	return privateKey, nil
 }
 
-// Extract public key from private key
+// PublicKeyFromRsaKey extracts the public key.
 func PublicKeyFromRsaKey(privateKey *rsa.PrivateKey) rsa.PublicKey {
 	publicKey := privateKey.PublicKey
 	return publicKey
 }
 
-// RsaKeyToPEM encodes the private key in PEM format
+// RsaKeyToPEM encodes the private key in PEM format.
 func RsaKeyToPEM(key *rsa.PrivateKey, filename ...string) (string, error) {
 
 	var privateKey = &pem.Block{
@@ -63,23 +63,21 @@ func RsaKeyToPEM(key *rsa.PrivateKey, filename ...string) (string, error) {
 		defer outFile.Close()
 		if err := pem.Encode(outFile, privateKey); err != nil {
 			return "", err
-		} else {
-			return "written to " + filename[0], nil
 		}
+		return "written to " + filename[0], nil
 
 	} else {
 
 		builder := &strings.Builder{}
 		if err := pem.Encode(builder, privateKey); err != nil {
 			return "", err
-		} else {
-			return builder.String(), nil
 		}
+		return builder.String(), nil
 	}
 
 }
 
-// Parse a PEM string
+// RsaKeyFromPEM parses a PEM string.
 func RsaKeyFromPEM(pemString string) (*rsa.PrivateKey, error) {
 	block, _ := pem.Decode([]byte(pemString))
 	if privateKey, er := x509.ParsePKCS1PrivateKey(block.Bytes); er != nil {
@@ -89,7 +87,7 @@ func RsaKeyFromPEM(pemString string) (*rsa.PrivateKey, error) {
 	}
 }
 
-// Loads a PEM file and parse Private Key
+// RsaKeyFromPEMFile loads a PEM file and parses the private key.
 func RsaKeyFromPEMFile(filename string) (*rsa.PrivateKey, error) {
 	var data []byte
 	var e error
@@ -104,7 +102,7 @@ func RsaKeyFromPEMFile(filename string) (*rsa.PrivateKey, error) {
 	}
 }
 
-// RsaPublicKeyToPEM encodes the public key to PEM format
+// RsaPublicKeyToPEM encodes the public key to PEM format.
 func RsaPublicKeyToPEM(pubKey rsa.PublicKey, filename ...string) (string, error) {
 
 	asn1Bytes, err := asn1.Marshal(pubKey)
@@ -126,17 +124,15 @@ func RsaPublicKeyToPEM(pubKey rsa.PublicKey, filename ...string) (string, error)
 		defer outFile.Close()
 		if err := pem.Encode(outFile, pemkey); err != nil {
 			return "", err
-		} else {
-			return "written to " + filename[0], nil
 		}
+		return "written to " + filename[0], nil
 
 	} else {
 
 		builder := &strings.Builder{}
 		if err = pem.Encode(builder, pemkey); err != nil {
 			return "", err
-		} else {
-			return builder.String(), nil
 		}
+		return builder.String(), nil
 	}
 }
