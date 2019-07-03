@@ -22,14 +22,21 @@ package templates
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/matcornic/hermes"
-
-	"strings"
 
 	"github.com/pydio/cells/broker/mailer/lang"
 	"github.com/pydio/cells/common/config"
 )
+
+var templateFilters []FilterFunc
+
+type FilterFunc func(configs ApplicationConfigs) ApplicationConfigs
+
+func RegisterTemplateFilter(filterFunc FilterFunc) {
+	templateFilters = append(templateFilters, filterFunc)
+}
 
 type ApplicationConfigs struct {
 	Title        string
@@ -56,9 +63,9 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 
 	if fromName == "" {
 		fromName = "Pydio"
-        }
+	}
 
-	return ApplicationConfigs{
+	a := ApplicationConfigs{
 		Title:        "Pydio",
 		Url:          url,
 		From:         from,
@@ -72,4 +79,12 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 		Theme:        new(hermes.Flat),
 		ButtonsColor: "#22BC66",
 	}
+
+	if len(templateFilters) > 0 {
+		for _, f := range templateFilters {
+			a = f(a)
+		}
+	}
+
+	return a
 }
