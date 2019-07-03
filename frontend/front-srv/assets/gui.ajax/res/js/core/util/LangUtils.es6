@@ -156,10 +156,16 @@ export default class LangUtils{
         return LangUtils.trimLeft(LangUtils.trimRight(string, charlist), charlist);
     }
 
-    static arraySorter(key, isFunc = false){
+    static arraySorter(key, isFunc = false, toLower = false){
         if (isFunc) {
             return (a, b) => {
                 return a[key]() > b[key]() ? 1 : ( a[key]() < b[key]() ? -1 : 0);
+            };
+        }else if (toLower) {
+            return (a, b) => {
+                const aL = a[key] && a[key].toLowerCase ? a[key].toLowerCase() : a[key];
+                const bL = b[key] && b[key].toLowerCase ? b[key].toLowerCase() : b[key];
+                return aL > bL ? 1 : ( aL < bL ? -1 : 0);
             };
         }else {
             return (a, b) => {

@@ -1,5 +1,6 @@
 import React from 'react'
 import PydioApi from 'pydio/http/api'
+import LangUtils from 'pydio/util/lang'
 import {WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery} from 'pydio/http/rest-api';
 import WorkspaceAcl from './WorkspaceAcl'
 
@@ -14,7 +15,9 @@ class WorkspacesAcls extends React.Component{
             scope: 'ADMIN',
         })];
         api.searchWorkspaces(request).then(collection => {
-            this.setState({workspaces: collection.Workspaces || []});
+            const workspaces = collection.Workspaces || [];
+            workspaces.sort(LangUtils.arraySorter('Label', false, true));
+            this.setState({workspaces});
         });
     }
 

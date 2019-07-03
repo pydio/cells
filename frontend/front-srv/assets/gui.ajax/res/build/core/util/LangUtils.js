@@ -163,10 +163,17 @@ var LangUtils = (function () {
 
     LangUtils.arraySorter = function arraySorter(key) {
         var isFunc = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+        var toLower = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
         if (isFunc) {
             return function (a, b) {
                 return a[key]() > b[key]() ? 1 : a[key]() < b[key]() ? -1 : 0;
+            };
+        } else if (toLower) {
+            return function (a, b) {
+                var aL = a[key] && a[key].toLowerCase ? a[key].toLowerCase() : a[key];
+                var bL = b[key] && b[key].toLowerCase ? b[key].toLowerCase() : b[key];
+                return aL > bL ? 1 : aL < bL ? -1 : 0;
             };
         } else {
             return function (a, b) {

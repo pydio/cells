@@ -111,9 +111,7 @@ exports['default'] = _react2['default'].createClass({
                 summary: summary
             });
         });
-        data.sort(function (a, b) {
-            return a.label > b.label ? 1 : a.label < b.label ? -1 : 0;
-        });
+        data.sort(_pydioUtilLang2['default'].arraySorter('label', false, true));
         return data;
     },
 

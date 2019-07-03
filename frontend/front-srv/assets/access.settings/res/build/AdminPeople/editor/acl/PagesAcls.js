@@ -18,6 +18,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _WorkspaceAcl = require('./WorkspaceAcl');
@@ -52,6 +56,7 @@ var PagesAcls = (function (_React$Component) {
             settingsWorkspace.RootNodes = { "settings-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "settings-ROOT" }) };
             workspaces.push(settingsWorkspace);
         }
+        workspaces.sort(_pydioUtilLang2['default'].arraySorter('Label', false, true));
         this.state = { workspaces: workspaces };
     }
 
