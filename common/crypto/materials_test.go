@@ -226,7 +226,7 @@ func Test_AESGCMEncryptionMaterials(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		materials := NewAESGCMMaterials(ni, nil)
-		err = materials.SetupEncryptMode(input)
+		err = materials.SetupEncryptMode(ni.NodeKey.KeyData, input)
 		So(err, ShouldBeNil)
 
 		encryptedData, err := ioutil.ReadAll(materials)
@@ -243,7 +243,7 @@ func Test_AESGCMEncryptionMaterials(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		materials := NewAESGCMMaterials(ni, nil)
-		err = materials.SetupDecryptMode(input)
+		err = materials.SetupDecryptMode(ni.NodeKey.KeyData, input)
 		So(err, ShouldBeNil)
 
 		decryptedData, err := ioutil.ReadAll(materials)
