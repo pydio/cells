@@ -457,7 +457,7 @@ func TestRescanFolders(t *testing.T) {
 			Node:   &tree.Node{Uuid: "u1", Path: "folder"},
 			patch:  patch,
 			Dir:    OperationDirRight,
-		}, "")
+		})
 		patch.rescanFoldersIfRequired(ctx)
 
 		So(patch.OperationsByType([]OperationType{OpCreateFolder}), ShouldHaveLength, 3)

@@ -47,11 +47,13 @@ type Conflict struct {
 	NodeRight *tree.Node
 }
 
+// PatchOptions contains various options for initializing a patch
 type PatchOptions struct {
 	MoveDetection bool
 	NoRescan      bool
 }
 
+// OpWalker is a callback passed to the Walk functions of a patch
 type OpWalker func(Operation)
 
 // Patch represents a set of operations to be processed
@@ -74,8 +76,7 @@ type Patch interface {
 	Target(newTarget ...model.PathSyncTarget) model.PathSyncTarget
 
 	// Enqueue stacks a Operation - By default, it is registered with the event.Key, but an optional key can be passed.
-	// TODO : check this key param is really necessary
-	Enqueue(event Operation, key ...string)
+	Enqueue(event Operation)
 	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
 	WalkOperations(opTypes []OperationType, callback OpWalker)
 	// EventsByTypes retrieves all events of a given type
@@ -113,6 +114,7 @@ type Patch interface {
 	FinishSessionProvider(sessionUuid string) error
 }
 
+// PatchPiper provides a way to plug on the patches channel
 type PatchPiper interface {
 	Pipe(in chan Patch) chan Patch
 }
@@ -164,35 +166,66 @@ const (
 type Operation interface {
 	fmt.Stringer
 
+	// Type describes the operation type
 	Type() OperationType
+	// GetNode returns the attached node. For a create, it is the original node, for a delete or a move,
+	// it is the node that is to be deleted/moved inside the target.
 	GetNode() *tree.Node
+	// IsScanEvent tells whether this operation was triggered by a manual scan (true) or by a Watch event (false)
 	IsScanEvent() bool
+	// IsTypeMove is a shortcut for OpMoveFile / OpMoveFolder types
 	IsTypeMove() bool
+	// IsTypeData is a shortcut for OpCreateFile / OpUpdateFile types
 	IsTypeData() bool
+	// IsTypePath is a shortcut for non-data operations
 	IsTypePath() bool
+	// IsProcessed tells wether this operation has been succesfully processed or not.
 	IsProcessed() bool
+	// Error returns any error attached to this operation processing
 	Error() error
+	// ErrorString returns the error as a string
 	ErrorString() string
+	// CleanError removes current error - it is called before reprocessing an operation
 	CleanError()
+	// Status sets the last known status of this operation
 	Status(status ProcessStatus)
+	// GetStatus returns the last known status of this operation
 	GetStatus() ProcessStatus
+	// GetRefPath returns the reference path used to check a node being present or not. For a move, it is the target path.
+	// This path is dynamically computed based on the the parent operations being already processed or not.
 	GetRefPath() string
+	// GetMoveOriginPath returns the source path if operation is a move.
+	// This path is dynamically computed based on the the parent operations being already processed or not.
 	GetMoveOriginPath() string
 
+	// SetProcessed flags operation as succesfully processed
 	SetProcessed()
+	// SetDirection updates the operation direction. This is use for BiDirectionalPatches that can contain operations to be
+	// applied in both directions
 	SetDirection(OperationDirection) Operation
+	// SetNode updates the reference node
 	SetNode(n *tree.Node)
+	// UpdateRefPath updates the reference path
 	UpdateRefPath(p string)
+	// UpdateMoveOriginPath updates the origin path for a move
 	UpdateMoveOriginPath(p string)
+	// UpdateType changes the internal type
 	UpdateType(t OperationType)
 
+	// AttachToPath links this operation to a given patch
 	AttachToPatch(p Patch)
+	// Source returns the operation source from the attached Patch
 	Source() model.PathSyncSource
+	// Target returns the operation target from the attached Patch
 	Target() model.PathSyncTarget
+	// NodeFromSource tries to load the node from the attached Patch source
 	NodeFromSource(ctx context.Context) (node *tree.Node, err error)
+	// NodeInTarget tries to find the node in the attached Patch target
 	NodeInTarget(ctx context.Context) (node *tree.Node, found bool)
 
+	// Clone creates a clone of this operation, eventually replacing its type.
 	Clone(replaceType ...OperationType) Operation
+	// CreateContext creates an appropriate context to be used by a Processor to pass useful informations to endpoints
 	CreateContext(ctx context.Context) context.Context
 }
 

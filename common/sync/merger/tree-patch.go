@@ -61,7 +61,7 @@ func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget, opti
 	return p
 }
 
-func (t *TreePatch) Enqueue(op Operation, key ...string) {
+func (t *TreePatch) Enqueue(op Operation) {
 
 	if model.Ignores(t.target, op.GetRefPath()) {
 		return
