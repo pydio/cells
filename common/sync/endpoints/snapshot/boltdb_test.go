@@ -23,6 +23,8 @@ package snapshot
 import (
 	"context"
 	"fmt"
+	"os"
+	"path"
 	"sort"
 	"testing"
 	"time"
@@ -104,7 +106,9 @@ func TestSnapshot(t *testing.T) {
 	Convey("CaptureSnapshotFlat", t, func() {
 		taken := time.Now()
 		testId := uuid.New()
-		snapshot, e := NewBoltSnapshot("tests", "test-snap-tree-"+testId)
+		folderPath := path.Join(os.TempDir(), "test-snap-tree-"+testId)
+		os.MkdirAll(folderPath, 0755)
+		snapshot, e := NewBoltSnapshot(folderPath, "snapshot")
 		So(e, ShouldBeNil)
 		defer func() {
 			snapshot.Close(true)
