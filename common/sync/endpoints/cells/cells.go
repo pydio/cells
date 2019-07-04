@@ -149,11 +149,18 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 	return
 }
 
-func (c *abstract) GetCachedBranch(ctx context.Context, root string) model.PathSyncSource {
+func (c *abstract) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
 	memDB := memory.NewMemDB()
-	c.Walk(func(path string, node *tree.Node, err error) {
-		memDB.CreateNode(ctx, node, false)
-	}, root, true)
+	// Make sure to dedup roots
+	rts := make(map[string]string)
+	for _, root := range roots {
+		rts[root] = root
+	}
+	for _, root := range rts {
+		c.Walk(func(path string, node *tree.Node, err error) {
+			memDB.CreateNode(ctx, node, false)
+		}, root, true)
+	}
 	return memDB
 }
 

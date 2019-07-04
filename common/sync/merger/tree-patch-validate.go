@@ -55,11 +55,11 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 	if syncSource, ok := target.(model.CachedBranchProvider); ok {
 
 		// Find highest modified path
-		var first Operation
+		var branches []string
 		t.WalkToFirstOperations(OpUnknown, func(operation Operation) {
-			first = operation
+			branches = append(branches, path.Dir(operation.GetRefPath()))
 		}, target)
-		if first == nil {
+		if len(branches) == 0 {
 			return nil
 		}
 		// If we are validating with a cache, it's probably a remote server, and it has probably a small delay
@@ -70,7 +70,7 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 			Progress:     1,
 		})
 		return model.Retry(func() error {
-			return t.validateWithPreLoad(ctx, first, syncSource)
+			return t.validateWithPreLoad(ctx, branches, syncSource)
 		}, 6*time.Second, 4*time.Minute)
 
 	} else {
@@ -85,11 +85,10 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 
 }
 
-func (t *TreePatch) validateWithPreLoad(ctx context.Context, firstOp Operation, target model.CachedBranchProvider) error {
+func (t *TreePatch) validateWithPreLoad(ctx context.Context, branches []string, target model.CachedBranchProvider) error {
 
-	loadPath := path.Dir(firstOp.GetRefPath())
 	// Load remote tree in memory
-	memDB := target.GetCachedBranch(ctx, loadPath)
+	memDB := target.GetCachedBranches(ctx, branches...)
 	return t.validateWalking(ctx, target.GetEndpointInfo().URI, memDB)
 
 }

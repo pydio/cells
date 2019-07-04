@@ -56,17 +56,16 @@ func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.Snapshot
 }
 
 func (t *TreePatch) initSrc(ctx context.Context, endpoint model.Endpoint, sources map[model.Endpoint]model.PathSyncSource) {
-	// Find highest modified path
-	var first Operation
+	// Find highest modified paths
+	var branches []string
 	t.WalkToFirstOperations(OpUnknown, func(operation Operation) {
-		first = operation
+		branches = append(branches, path.Dir(operation.GetRefPath()))
 	}, endpoint)
-	if first == nil {
+	if len(branches) == 0 {
 		return
 	}
-	loadPath := path.Dir(first.GetRefPath())
 	if cacheProvider, ok := endpoint.(model.CachedBranchProvider); ok {
-		inMemory := cacheProvider.GetCachedBranch(ctx, loadPath)
+		inMemory := cacheProvider.GetCachedBranches(ctx, branches...)
 		sources[endpoint] = inMemory
 	} else if src, ok := model.AsPathSyncSource(endpoint); ok {
 		sources[endpoint] = src

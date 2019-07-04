@@ -121,7 +121,7 @@ type ChecksumProvider interface {
 // A CachedBranchProvider can quickly load a full branch recursively in memory and expose it as a PathSyncSource
 type CachedBranchProvider interface {
 	Endpoint
-	GetCachedBranch(ctx context.Context, root string) PathSyncSource
+	GetCachedBranches(ctx context.Context, roots ...string) PathSyncSource
 }
 
 // A BulkLoader can stream calls to ReadNode - Better use CachedBranchProvider
