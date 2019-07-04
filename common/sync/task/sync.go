@@ -52,7 +52,7 @@ type Sync struct {
 	watch        bool
 	watchersChan []chan bool
 	watchConn    chan *model.EndpointStatus
-	statuses     chan merger.ProcessStatus
+	statuses     chan model.ProcessStatus
 	runDone      chan interface{}
 	cmd          *model.Command
 	patchChan    chan merger.Patch
@@ -166,7 +166,7 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 			if er, ok := e.(error); ok {
 				err = er
 				if s.statuses != nil {
-					s.statuses <- merger.ProcessStatus{
+					s.statuses <- model.ProcessStatus{
 						IsError:      true,
 						StatusString: err.Error(),
 						Progress:     1,
@@ -177,7 +177,7 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 	}()
 	stater, err := s.run(ctx, dryRun, force)
 	if err != nil && s.statuses != nil {
-		s.statuses <- merger.ProcessStatus{
+		s.statuses <- model.ProcessStatus{
 			IsError:      true,
 			StatusString: err.Error(),
 			Progress:     1,
@@ -199,7 +199,7 @@ func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
 }
 
 // SetupEventsChan wires internal sync event to external status channels
-func (s *Sync) SetupEventsChan(statusChan chan merger.ProcessStatus, batchDone chan interface{}, events chan interface{}) {
+func (s *Sync) SetupEventsChan(statusChan chan model.ProcessStatus, batchDone chan interface{}, events chan interface{}) {
 	s.statuses = statusChan
 	s.runDone = batchDone
 	if events != nil {

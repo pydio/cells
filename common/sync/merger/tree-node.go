@@ -57,8 +57,8 @@ type TreeNode struct {
 // When it comes accross a LEAF without Etag value, it asks the source to recompute it in a
 // parallel fashion with throttling (max 15 at the same time).  At the end of the operation,
 // the tree should be fully loaded with all LEAF etags (but not COLL etags).
-func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob.Glob, status ...chan ProcessStatus) (*TreeNode, error) {
-	var statusChan chan ProcessStatus
+func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob.Glob, status ...chan model.ProcessStatus) (*TreeNode, error) {
+	var statusChan chan model.ProcessStatus
 	if len(status) > 0 {
 		statusChan = status[0]
 	}
@@ -84,7 +84,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 	err := source.Walk(func(p string, node *tree.Node, err error) {
 		if statusChan != nil {
 			defer func() {
-				s := ProcessStatus{
+				s := model.ProcessStatus{
 					EndpointURI:      uri,
 					StatusString:     fmt.Sprintf("Indexing node %s", p),
 					Progress:         1,
@@ -116,7 +116,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 					wg.Done()
 				}()
 				if statusChan != nil {
-					statusChan <- ProcessStatus{
+					statusChan <- model.ProcessStatus{
 						EndpointURI:      uri,
 						Node:             node,
 						StatusString:     fmt.Sprintf("Computing hash for %s", p),
@@ -126,7 +126,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 				if e := checksumProvider.ComputeChecksum(node); e != nil {
 					log.Logger(context.Background()).Error("Cannot compute checksum for "+node.Path, zap.Error(e))
 					if statusChan != nil {
-						statusChan <- ProcessStatus{
+						statusChan <- model.ProcessStatus{
 							EndpointURI:      uri,
 							Node:             node,
 							StatusString:     fmt.Sprintf("Could not compute hash for %s", p),

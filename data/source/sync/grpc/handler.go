@@ -52,7 +52,6 @@ import (
 	protoservice "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sync/endpoints/index"
 	"github.com/pydio/cells/common/sync/endpoints/s3"
-	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/pydio/cells/common/sync/task"
 	context2 "github.com/pydio/cells/common/utils/context"
@@ -297,14 +296,14 @@ func (s *Handler) watchConfigs() {
 // TriggerResync sets 2 servers in sync
 func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest, resp *protosync.ResyncResponse) error {
 
-	var statusChan chan merger.ProcessStatus
+	var statusChan chan model.ProcessStatus
 	var doneChan chan interface{}
 	fullLog := &jobs.ActionLog{
 		OutputMessage: &jobs.ActionMessage{},
 	}
 
 	if req.Task != nil {
-		statusChan = make(chan merger.ProcessStatus)
+		statusChan = make(chan model.ProcessStatus)
 		doneChan = make(chan interface{})
 
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)

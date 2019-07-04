@@ -49,7 +49,7 @@ type TreeDiff struct {
 	ctx          context.Context
 
 	cmd        *model.Command
-	statusChan chan ProcessStatus
+	statusChan chan model.ProcessStatus
 	doneChan   chan interface{}
 }
 
@@ -81,13 +81,13 @@ func (diff *TreeDiff) Compute(root string, ignores ...glob.Glob) error {
 				uri = diff.right.GetEndpointInfo().URI
 			}
 			defer func() {
-				diff.Status(ProcessStatus{
+				diff.Status(model.ProcessStatus{
 					EndpointURI:  uri,
 					StatusString: fmt.Sprintf("[%s] Snapshot loaded in %v - Root Hash is %s", logId, time.Now().Sub(start), h),
 				})
 				wg.Done()
 			}()
-			diff.Status(ProcessStatus{StatusString: fmt.Sprintf("[%s] Loading snapshot", logId)})
+			diff.Status(model.ProcessStatus{StatusString: fmt.Sprintf("[%s] Loading snapshot", logId)})
 			var err error
 			if logId == "left" {
 				if lTree, err = TreeNodeFromSource(diff.left, root, ignores, diff.statusChan); err == nil {
@@ -108,14 +108,14 @@ func (diff *TreeDiff) Compute(root string, ignores ...glob.Glob) error {
 		return errs[0]
 	}
 
-	diff.Status(ProcessStatus{StatusString: "Now computing diff between snapshots"})
+	diff.Status(model.ProcessStatus{StatusString: "Now computing diff between snapshots"})
 
 	//lTree.PrintOut()
 	//rTree.PrintOut()
 	diff.mergeNodes(lTree, rTree)
 	log.Logger(diff.ctx).Info("Diff Stats", zap.Any("s", diff.Stats()))
 
-	diff.Status(ProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(diff.missingLeft), len(diff.missingRight))})
+	diff.Status(model.ProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(diff.missingLeft), len(diff.missingRight))})
 	return nil
 
 }
@@ -172,14 +172,14 @@ func (diff *TreeDiff) Conflicts() []*Conflict {
 }
 
 // Status sends status to internal channel
-func (diff *TreeDiff) Status(status ProcessStatus) {
+func (diff *TreeDiff) Status(status model.ProcessStatus) {
 	if diff.statusChan != nil {
 		diff.statusChan <- status
 	}
 }
 
 // SetupChannels registers status chan internally. Done chan is ignored
-func (diff *TreeDiff) SetupChannels(status chan ProcessStatus, done chan interface{}, cmd *model.Command) {
+func (diff *TreeDiff) SetupChannels(status chan model.ProcessStatus, done chan interface{}, cmd *model.Command) {
 	diff.statusChan = status
 	diff.doneChan = done
 	diff.cmd = cmd

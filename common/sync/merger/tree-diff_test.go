@@ -594,7 +594,7 @@ func TestTreeDiff(t *testing.T) {
 					left.CreateNode(testCtx, &tree.Node{Path: fmt.Sprintf("/tmp%d/tmp%d", i, j), Type: tree.NodeType_LEAF, Etag: ""}, true)
 				}
 			}
-			statusChan := make(chan ProcessStatus)
+			statusChan := make(chan model.ProcessStatus)
 			doneChan := make(chan bool, 1)
 			go func() {
 				for {
@@ -670,7 +670,7 @@ func TestTreeDiffConflictsAndStatus(t *testing.T) {
 			Etag: "uuid2-hash",
 		}, true)
 
-		statusChan := make(chan ProcessStatus, 1)
+		statusChan := make(chan model.ProcessStatus, 1)
 		doneChan := make(chan interface{}, 1)
 
 		diff := newTreeDiff(testCtx, left, right)

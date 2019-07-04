@@ -34,7 +34,7 @@ func (t *TreePatch) Validate(ctx context.Context) error {
 			log.Logger(ctx).Error("Could not validate changes on source", zap.Error(e2))
 		}
 		e := errors.New("errors detected while validating patch")
-		t.Status(ProcessStatus{
+		t.Status(model.ProcessStatus{
 			StatusString: "Errors detected while validating patch",
 			Error:        e,
 			IsError:      true,
@@ -42,7 +42,7 @@ func (t *TreePatch) Validate(ctx context.Context) error {
 		})
 		return e
 	} else {
-		t.Status(ProcessStatus{
+		t.Status(model.ProcessStatus{
 			StatusString: "Modification correctly reported",
 			Progress:     1,
 		})
@@ -65,7 +65,7 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 		// If we are validating with a cache, it's probably a remote server, and it has probably a small delay
 		// => wait before first try
 		<-time.After(1 * time.Second)
-		t.Status(ProcessStatus{
+		t.Status(model.ProcessStatus{
 			StatusString: "Validating modifications have been correctly reported...",
 			Progress:     1,
 		})
@@ -75,7 +75,7 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 
 	} else {
 
-		t.Status(ProcessStatus{
+		t.Status(model.ProcessStatus{
 			StatusString: "Validating modifications have been correctly reported...",
 			Progress:     1,
 		})

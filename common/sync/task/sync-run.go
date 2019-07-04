@@ -425,7 +425,7 @@ func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *Endp
 }
 
 func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[string]*EndpointRootStat) {
-	indexStatus := make(chan merger.ProcessStatus)
+	indexStatus := make(chan model.ProcessStatus)
 	done := make(chan interface{})
 	diff.SetupChannels(indexStatus, done, s.cmd)
 	go func() {
@@ -448,9 +448,9 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 				log.Logger(ctx).Info("Finished analyzing nodes", zap.Any("i", total))
 				if s.statuses != nil {
 					for u, _ := range rootsInfo {
-						s.statuses <- merger.ProcessStatus{EndpointURI: u, Progress: 0} // Hide progress bar
+						s.statuses <- model.ProcessStatus{EndpointURI: u, Progress: 0} // Hide progress bar
 					}
-					s.statuses <- merger.ProcessStatus{
+					s.statuses <- model.ProcessStatus{
 						StatusString: fmt.Sprintf("Analyzed %d nodes", total),
 					}
 				}
@@ -462,7 +462,7 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 	}()
 }
 
-func (s *Sync) computeIndexProgress(input merger.ProcessStatus, rootInfo *EndpointRootStat) (output merger.ProcessStatus, emit bool) {
+func (s *Sync) computeIndexProgress(input model.ProcessStatus, rootInfo *EndpointRootStat) (output model.ProcessStatus, emit bool) {
 	if input.Node == nil {
 		rootInfo.PgChildren++
 	} else if input.Node.IsLeaf() {

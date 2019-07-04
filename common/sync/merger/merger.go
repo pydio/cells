@@ -188,9 +188,9 @@ type Operation interface {
 	// CleanError removes current error - it is called before reprocessing an operation
 	CleanError()
 	// Status sets the last known status of this operation
-	Status(status ProcessStatus)
+	Status(status model.ProcessStatus)
 	// GetStatus returns the last known status of this operation
-	GetStatus() ProcessStatus
+	GetStatus() model.ProcessStatus
 	// GetRefPath returns the reference path used to check a node being present or not. For a move, it is the target path.
 	// This path is dynamically computed based on the the parent operations being already processed or not.
 	GetRefPath() string
@@ -248,24 +248,12 @@ type Diff interface {
 	SolveConflicts(ctx context.Context) (remaining []*Conflict, e error)
 }
 
-// ProcessStatus informs about the status of an operation
-type ProcessStatus struct {
-	StatusString     string
-	IsError          bool
-	Error            error `json:"-"` // ignore for marshalling
-	Progress         float32
-	IsProgressAtomic bool
-
-	EndpointURI string
-	Node        *tree.Node
-}
-
 // StatusProvider can register channels to send status/done events during processing
 type StatusProvider interface {
 	// SetupChannels register channels for listening to status and done infos
-	SetupChannels(status chan ProcessStatus, done chan interface{}, cmd *model.Command)
+	SetupChannels(status chan model.ProcessStatus, done chan interface{}, cmd *model.Command)
 	// Status notify of a new ProcessStatus
-	Status(s ProcessStatus)
+	Status(s model.ProcessStatus)
 	// Done notify the patch is processed, can send any useful info to the associated channel
 	Done(info interface{})
 }

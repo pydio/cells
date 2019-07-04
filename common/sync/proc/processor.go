@@ -75,7 +75,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// Send the patch itself on the doneChan
 	defer func() {
 		if interrupted {
-			patch.Status(merger.ProcessStatus{
+			patch.Status(model.ProcessStatus{
 				IsError:      true,
 				StatusString: "Patch interrupted by user",
 				Error:        errors.New("patch interrupted by user"),
@@ -101,7 +101,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	processUUID := uuid.New()
 	total := patch.ProgressTotal()
 
-	patch.Status(merger.ProcessStatus{StatusString: fmt.Sprintf("Start processing patch (total bytes %d)", total)})
+	patch.Status(model.ProcessStatus{StatusString: fmt.Sprintf("Start processing patch (total bytes %d)", total)})
 	stats := patch.Stats()
 	pending := make(map[string]int)
 	if pen, ok := stats["Pending"]; ok {
@@ -253,7 +253,7 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 			progress := float32(*cursor) / float32(total)
 			if pg < 0 || progress-lastProgress > 0.01 { // Send percent per percent, or if it's negative (error reverted pg value)
 				log.Logger(pr.GlobalContext).Debug("Sending PG", zap.Float32("pg", progress))
-				op.Status(merger.ProcessStatus{
+				op.Status(model.ProcessStatus{
 					StatusString: pr.logAsString(progressString, nil, fields...),
 					Progress:     progress,
 				})
@@ -267,7 +267,7 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 			e := callback(ctx, op, operationId, pgs)
 			if e != nil {
 				pr.Logger().Error(errorString, fields...)
-				op.Status(merger.ProcessStatus{
+				op.Status(model.ProcessStatus{
 					StatusString: fmt.Sprintf("%s (%s) - retrying...", errorString, e.Error()),
 					Error:        e,
 					IsError:      true,
@@ -300,7 +300,7 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 	if total > 0 {
 		end = float32(*cursor) / float32(total)
 	}
-	op.Status(merger.ProcessStatus{
+	op.Status(model.ProcessStatus{
 		IsError:      isError,
 		Error:        err,
 		StatusString: pr.logAsString(loggerString, err, fields...),
