@@ -175,11 +175,21 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 			}
 		}
 	}()
-	return s.run(ctx, dryRun, force)
+	stater, err := s.run(ctx, dryRun, force)
+	if err != nil && s.statuses != nil {
+		s.statuses <- merger.ProcessStatus{
+			IsError:      true,
+			StatusString: err.Error(),
+			Progress:     1,
+		}
+	}
+	return stater, err
 }
 
 func (s *Sync) ReApplyPatch(ctx context.Context, patch merger.Patch) {
 	patch.SkipFilterToTarget(false)
+	patch.CleanErrors()
+	patch.SetupChannels(s.statuses, s.runDone, s.cmd)
 	s.patchChan <- patch
 }
 

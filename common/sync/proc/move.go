@@ -21,10 +21,12 @@
 package proc
 
 import (
+	"context"
+
 	"github.com/pydio/cells/common/sync/merger"
 )
 
-func (pr *Processor) processMove(operation merger.Operation, operationId string, pg chan int64) error {
+func (pr *Processor) processMove(ctx context.Context, operation merger.Operation, operationId string, pg chan int64) error {
 
 	pg <- 1
 	toPath := operation.GetRefPath()

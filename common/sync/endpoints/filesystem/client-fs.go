@@ -91,22 +91,29 @@ type WrapperWriter struct {
 	targetPath   string
 	client       *FSClient
 	snapshotPath string
+	cancellable  context.Context
 }
 
 func (w *WrapperWriter) Close() error {
-	err := w.WriteCloser.Close()
-	if err != nil {
+	select {
+	case <-w.cancellable.Done():
 		w.client.FS.Remove(w.tmpPath)
-		return err
-	} else {
-		e := w.client.FS.Rename(w.tmpPath, w.targetPath)
-		if e == nil && w.client.updateSnapshot != nil {
-			ctx := context.Background()
-			n, _ := w.client.LoadNode(ctx, w.snapshotPath)
-			log.Logger(ctx).Debug("[FS] Update Snapshot", n.Zap())
-			w.client.updateSnapshot.CreateNode(ctx, n, true)
+		return w.cancellable.Err()
+	default:
+		err := w.WriteCloser.Close()
+		if err != nil {
+			w.client.FS.Remove(w.tmpPath)
+			return err
+		} else {
+			e := w.client.FS.Rename(w.tmpPath, w.targetPath)
+			if e == nil && w.client.updateSnapshot != nil {
+				ctx := context.Background()
+				n, _ := w.client.LoadNode(ctx, w.snapshotPath)
+				log.Logger(ctx).Debug("[FS] Update Snapshot", n.Zap())
+				w.client.updateSnapshot.CreateNode(ctx, n, true)
+			}
+			return e
 		}
-		return e
 	}
 }
 
@@ -454,7 +461,7 @@ func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree
 	return node, err
 }
 
-func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *FSClient) GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 
 	// Ignore .pydio except for root folder .pydio
 	if filepath.Base(path) == common.PYDIO_SYNC_HIDDEN_FILE_META && strings.Trim(path, "/") != common.PYDIO_SYNC_HIDDEN_FILE_META {
@@ -470,6 +477,7 @@ func (c *FSClient) GetWriterOn(path string, targetSize int64) (out io.WriteClose
 	}
 	wrapper := &WrapperWriter{
 		WriteCloser:  file,
+		cancellable:  cancel,
 		client:       c,
 		tmpPath:      tmpPath,
 		targetPath:   path,

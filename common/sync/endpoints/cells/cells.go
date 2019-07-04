@@ -389,7 +389,7 @@ func (c *abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 	}
 }
 
-func (c *abstract) GetWriterOn(p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	if targetSize == 0 {
 		return nil, writeDone, writeErr, fmt.Errorf("cannot create empty files")
 	}

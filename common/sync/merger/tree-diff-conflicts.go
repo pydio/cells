@@ -22,12 +22,17 @@ package merger
 
 import (
 	"context"
+	"errors"
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func SolveConflicts(ctx context.Context, conflicts []*Conflict, left model.Endpoint, right model.Endpoint) (errs []error) {
+// SolveConflicts tries to fix existing conflicts and return remaining ones
+func (t *TreeDiff) SolveConflicts(ctx context.Context) (remaining []*Conflict, e error) {
+
+	right := t.right
+	left := t.left
 
 	// Try to refresh UUIDs on target
 	var refresher model.UuidFoldersRefresher
@@ -37,7 +42,9 @@ func SolveConflicts(ctx context.Context, conflicts []*Conflict, left model.Endpo
 	} else if refresher, canRefresh = left.(model.UuidFoldersRefresher); canRefresh {
 		refresherLeft = true
 	}
-	for _, c := range conflicts {
+	for _, c := range t.conflicts {
+		var solved bool
+
 		if c.Type == ConflictFolderUUID && canRefresh {
 			var srcUuid *tree.Node
 			if refresherRight {
@@ -45,11 +52,21 @@ func SolveConflicts(ctx context.Context, conflicts []*Conflict, left model.Endpo
 			} else if refresherLeft {
 				srcUuid = c.NodeRight
 			}
-			if _, e := refresher.UpdateFolderUuid(ctx, srcUuid); e != nil {
-				errs = append(errs, e)
+			if _, e := refresher.UpdateFolderUuid(ctx, srcUuid); e == nil {
+				solved = true
 			}
+		} else if c.Type == ConflictFileContent {
+			// What can we do?
+		}
+
+		if !solved {
+			remaining = append(remaining, c)
 		}
 	}
 
+	t.conflicts = remaining
+	if len(remaining) > 0 {
+		e = errors.New("there are some conflicts in this diff")
+	}
 	return
 }

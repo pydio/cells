@@ -21,10 +21,12 @@
 package model
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
 
+// Retry tries to apply an operation as many time as required
 func Retry(f func() error, seconds ...time.Duration) error {
 
 	if e := f(); e == nil {
@@ -51,6 +53,46 @@ func Retry(f func() error, seconds ...time.Duration) error {
 				return lastErr
 			} else {
 				return fmt.Errorf("timeout")
+			}
+		}
+	}
+}
+
+// RetryWithCtx does like Retry with an additionnal cancellable context
+func RetryWithCtx(ctx context.Context, f func(retry int) error, seconds ...time.Duration) error {
+
+	i := 0
+	if e := f(i); e == nil {
+		return nil
+	}
+	tick := time.Tick(1 * time.Second)
+	timeout := time.After(30 * time.Second)
+	if len(seconds) == 2 {
+		tick = time.Tick(seconds[0])
+		timeout = time.After(seconds[1])
+	} else if len(seconds) == 1 {
+		tick = time.Tick(seconds[0])
+	}
+
+	var lastErr error
+	for {
+		select {
+		case <-tick:
+			if lastErr = f(i); lastErr == nil {
+				return nil
+			}
+			i++
+		case <-timeout:
+			if lastErr != nil {
+				return lastErr
+			} else {
+				return fmt.Errorf("timeout")
+			}
+		case <-ctx.Done():
+			if lastErr != nil {
+				return lastErr
+			} else {
+				return ctx.Err()
 			}
 		}
 	}

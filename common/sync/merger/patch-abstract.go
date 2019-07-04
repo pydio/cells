@@ -73,6 +73,8 @@ func (b *AbstractPatch) SetupChannels(status chan ProcessStatus, done chan inter
 	b.statusChan = status
 	b.doneChan = done
 	b.cmd = cmd
+	// This may be a second processing
+	b.closing = false
 }
 
 func (b *AbstractPatch) Status(s ProcessStatus) {
@@ -100,11 +102,6 @@ func (b *AbstractPatch) Done(info interface{}) {
 // Set a global error status on this patch
 func (b *AbstractPatch) SetError(e error) {
 	b.patchError = e
-}
-
-// Check if this patch has a global error status
-func (b *AbstractPatch) HasError() (error, bool) {
-	return b.patchError, b.patchError != nil
 }
 
 func (b *AbstractPatch) Source(newSource ...model.PathSyncSource) model.PathSyncSource {

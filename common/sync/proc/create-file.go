@@ -21,6 +21,7 @@
 package proc
 
 import (
+	"context"
 	"io"
 
 	"go.uber.org/zap"
@@ -29,21 +30,31 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-type ProgressReader struct {
+// cancellableReaderWithProgress wraps calls to io.Reader sending a progress of total bytes read
+// and provides a way to cancel copy through a context
+type cancellableReaderWithProgress struct {
 	io.Reader
+	canceler  context.Context
 	cursor    int64
 	pg        chan int64
 	totalRead int64
 }
 
-func (pr *ProgressReader) Read(p []byte) (n int, e error) {
-	n, e = pr.Reader.Read(p)
-	pr.pg <- int64(n)
-	pr.totalRead += int64(n)
-	return n, e
+// Read implements the io.Reader basic function
+func (pr *cancellableReaderWithProgress) Read(p []byte) (n int, e error) {
+	select {
+	case <-pr.canceler.Done():
+		return 0, pr.canceler.Err()
+	default:
+		//return 0, fmt.Errorf("fake.read.error.on.copy")
+		n, e = pr.Reader.Read(p)
+		pr.pg <- int64(n)
+		pr.totalRead += int64(n)
+		return n, e
+	}
 }
 
-func (pr *Processor) processCreateFile(operation merger.Operation, operationId string, pg chan int64) error {
+func (pr *Processor) processCreateFile(ctx context.Context, operation merger.Operation, operationId string, pg chan int64) error {
 
 	dataTarget, dtOk := model.AsDataSyncTarget(operation.Target())
 	dataSource, dsOk := model.AsDataSyncSource(operation.Source())
@@ -61,16 +72,24 @@ func (pr *Processor) processCreateFile(operation merger.Operation, operationId s
 			return rErr
 		}
 		defer reader.Close()
-		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(localPath, operation.GetNode().Size)
+		wCtx, cancel := context.WithCancel(ctx)
+		writer, writeDone, writeErr, wErr := dataTarget.GetWriterOn(wCtx, localPath, operation.GetNode().Size)
 		if wErr != nil {
 			pr.Logger().Error("Cannot get writer on target", zap.String("job", "create"), zap.String("path", localPath), zap.Error(wErr))
 			return wErr
 		}
-		progressReader := &ProgressReader{Reader: reader, pg: pg}
+		progressReader := &cancellableReaderWithProgress{
+			Reader:   reader,
+			pg:       pg,
+			canceler: ctx,
+		}
 		_, err := io.Copy(writer, progressReader)
-		if err != nil && progressReader.totalRead > 0 {
-			// Revert progress count to 0 for this operation
-			pg <- -progressReader.totalRead
+		if err != nil {
+			cancel() // There was an error during copy, properly cancel the Writer
+			if progressReader.totalRead > 0 {
+				// Revert progress count to 0 for this operation
+				pg <- -progressReader.totalRead
+			}
 		}
 		writer.Close()
 		if err == nil && writeDone != nil {

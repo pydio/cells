@@ -20,7 +20,9 @@
 
 package model
 
-import "sync"
+import (
+	"sync"
+)
 
 // Command is a pub/sub for dispatching SyncCmd
 type Command struct {
@@ -34,7 +36,7 @@ type Command struct {
 // NewCommand creates a new command
 func NewCommand() *Command {
 	c := &Command{
-		input:     make(chan SyncCmd),
+		input:     make(chan SyncCmd, 1),
 		done:      make(chan bool),
 		listeners: make(map[chan SyncCmd]bool),
 	}
@@ -65,24 +67,26 @@ func (c *Command) Subscribe() (chan SyncCmd, chan bool) {
 // Stop closes internal channels
 func (c *Command) Stop() {
 	close(c.done)
+	c.Lock()
 	for ch, _ := range c.listeners {
 		close(ch)
 	}
+	c.Unlock()
 }
 
 // start listens for Input and dispatch to listeners
 func (c *Command) start() {
-	go func() {
-		defer close(c.input)
-		for {
-			select {
-			case cmd := <-c.input:
-				for sub, _ := range c.listeners {
-					sub <- cmd
-				}
-			case <-c.done:
-				return
+	defer close(c.input)
+	for {
+		select {
+		case cmd := <-c.input:
+			c.Lock()
+			for sub, _ := range c.listeners {
+				sub <- cmd
 			}
+			c.Unlock()
+		case <-c.done:
+			return
 		}
-	}()
+	}
 }

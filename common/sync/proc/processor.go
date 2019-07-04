@@ -39,7 +39,7 @@ import (
 )
 
 // ProcessFunc is a generic function signature for applying an operation
-type ProcessFunc func(event merger.Operation, operationId string, progress chan int64) error
+type ProcessFunc func(canceler context.Context, event merger.Operation, operationId string, progress chan int64) error
 
 // ProcessorLocker defines a set of event based functions that can be called during processing
 type ProcessorLocker interface {
@@ -123,31 +123,42 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 		pr.Logger().Error("Error while starting Indexation Session", zap.Error(err))
 	}
 
+	// Listen to cmd Chan
+	ctx, cancel := context.WithCancel(context.Background())
+	var cmdChan chan model.SyncCmd
+	if cmd != nil {
+		var unsub chan bool
+		cmdChan, unsub = cmd.Subscribe()
+		cmdDone := make(chan bool)
+		defer close(cmdDone)
+		go func() {
+			defer close(unsub)
+			for {
+				select {
+				case cmd := <-cmdChan:
+					if cmd == model.Interrupt {
+						interrupted = true
+						cancel()
+						return
+					}
+				case <-cmdDone:
+					return
+				}
+			}
+		}()
+	}
+
 	serial := make(chan merger.Operation)
 	parallel := make(chan merger.Operation)
 	opsFinished := make(chan struct{})
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
-		// Listen to cmd Chan
-		var cmdChan chan model.SyncCmd
-		if cmd != nil {
-			var unsub chan bool
-			cmdChan, unsub = cmd.Subscribe()
-			defer close(unsub)
-		}
 		previousType := merger.OpUnknown
 		wg := &sync.WaitGroup{}
 		throttle := make(chan struct{}, pr.QueueSize)
 		for {
 			select {
-
-			case cmd := <-cmdChan:
-				fmt.Printf("Received command %d", cmd)
-				if cmd == model.Interrupt {
-					interrupted = true
-				}
-
 			case op := <-serial:
 				// Flush for next type if it's different
 				if previousType != merger.OpUnknown && op.Type() != previousType {
@@ -157,7 +168,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 				if interrupted || op.IsProcessed() {
 					break
 				}
-				pr.processOperation(patch, processUUID, op, &cursor, total)
+				pr.applyProcessFunc(ctx, patch, op, processUUID, &cursor, total, false)
 
 			case op := <-parallel:
 
@@ -177,7 +188,10 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 						<-throttle
 						wg.Done()
 					}()
-					pr.processOperation(patch, processUUID, opCopy, &cursor, total, true)
+					if interrupted {
+						return
+					}
+					pr.applyProcessFunc(ctx, patch, opCopy, processUUID, &cursor, total, true)
 				}()
 
 			case <-opsFinished:
@@ -216,28 +230,19 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// Wait that all is done
 	<-done
 
-	if !pr.SkipTargetChecks {
+	if pE, h := patch.HasErrors(); !h && !pr.SkipTargetChecks {
 		if err := patch.Validate(pr.GlobalContext); err != nil {
 			log.Logger(pr.GlobalContext).Error("Could not validate patch", zap.Error(err))
 		}
-	}
-}
-
-func (pr *Processor) processOperation(p merger.Patch, processId string, op merger.Operation, cursor *int64, total int64, withRetries ...bool) {
-	cb, progress, complete, errorString, fields := pr.dataForOperation(p, op)
-	if len(withRetries) > 0 {
-		model.Retry(func() error {
-			return pr.applyProcessFunc(op, processId, cb, complete, progress, errorString, cursor, total, fields...)
-		}, 5*time.Second, 20*time.Second)
-	} else {
-		pr.applyProcessFunc(op, processId, cb, complete, progress, errorString, cursor, total, fields...)
+	} else if h {
+		log.Logger(pr.GlobalContext).Error("Patch ended with errors", zap.Int("count", len(pE)))
 	}
 }
 
 // applyProcessFunc takes a ProcessFunc and handle progress, status messages, etc
-func (pr *Processor) applyProcessFunc(op merger.Operation, operationId string, callback ProcessFunc, completeString string, progressString string, errorString string, cursor *int64, total int64, fields ...zapcore.Field) error {
+func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op merger.Operation, operationId string, cursor *int64, total int64, retry bool) error {
 
-	fields = append(fields, zap.String("target", op.Target().GetEndpointInfo().URI))
+	callback, progressString, completeString, errorString, fields := pr.dataForOperation(p, op)
 
 	pgs := make(chan int64)
 	var lastProgress float32
@@ -246,7 +251,7 @@ func (pr *Processor) applyProcessFunc(op merger.Operation, operationId string, c
 		for pg := range pgs {
 			*cursor += pg
 			progress := float32(*cursor) / float32(total)
-			if progress-lastProgress > 0.01 { // Send 1 per percent
+			if pg < 0 || progress-lastProgress > 0.01 { // Send percent per percent, or if it's negative (error reverted pg value)
 				log.Logger(pr.GlobalContext).Debug("Sending PG", zap.Float32("pg", progress))
 				op.Status(merger.ProcessStatus{
 					StatusString: pr.logAsString(progressString, nil, fields...),
@@ -256,8 +261,23 @@ func (pr *Processor) applyProcessFunc(op merger.Operation, operationId string, c
 			}
 		}
 	}()
-
-	err := callback(op, operationId, pgs)
+	var err error
+	if retry {
+		err = model.RetryWithCtx(ctx, func(retry int) error {
+			e := callback(ctx, op, operationId, pgs)
+			if e != nil {
+				pr.Logger().Error(errorString, fields...)
+				op.Status(merger.ProcessStatus{
+					StatusString: fmt.Sprintf("%s (%s) - retrying...", errorString, e.Error()),
+					Error:        e,
+					IsError:      true,
+				})
+			}
+			return e
+		}, 5*time.Second, 20*time.Second)
+	} else {
+		err = callback(ctx, op, operationId, pgs)
+	}
 	if err != nil {
 		fields = append(fields, zap.Error(err))
 		if !pr.Silent {
@@ -344,6 +364,7 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 		error = "Error while deleting " + nS
 		fields = append(fields, zap.String("path", op.GetRefPath()))
 	}
+	fields = append(fields, zap.String("target", op.Target().GetEndpointInfo().URI))
 	return
 }
 

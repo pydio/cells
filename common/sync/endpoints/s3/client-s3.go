@@ -190,7 +190,7 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 
 }
 
-func (c *Client) GetWriterOn(path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *Client) GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 
 	writeErr = make(chan error, 1)
 	writeDone = make(chan bool, 1)

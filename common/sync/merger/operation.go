@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
@@ -33,9 +34,11 @@ type patchOperation struct {
 	Node      *tree.Node
 	EventInfo model.EventInfo
 
-	InternalStatus  ProcessStatus
-	Processed       bool
-	ProcessingError error
+	InternalStatus ProcessStatus
+	Processed      bool
+
+	processingError       error
+	ProcessingErrorString string // for marshalling/unmarshalling
 
 	patch Patch
 }
@@ -89,6 +92,23 @@ func (o *patchOperation) IsProcessed() bool {
 	return o.Processed
 }
 
+func (o *patchOperation) CleanError() {
+	o.processingError = nil
+	o.ProcessingErrorString = ""
+}
+
+func (o *patchOperation) Error() error {
+	// May have been unmarshalled from string
+	if o.processingError == nil && o.ProcessingErrorString != "" {
+		o.processingError = fmt.Errorf(o.ProcessingErrorString)
+	}
+	return o.processingError
+}
+
+func (o *patchOperation) ErrorString() string {
+	return o.ProcessingErrorString
+}
+
 func (o *patchOperation) SetDirection(direction OperationDirection) Operation {
 	o.Dir = direction
 	return o
@@ -96,6 +116,10 @@ func (o *patchOperation) SetDirection(direction OperationDirection) Operation {
 
 func (o *patchOperation) Status(status ProcessStatus) {
 	o.InternalStatus = status
+	if status.IsError {
+		o.processingError = status.Error
+		o.ProcessingErrorString = status.Error.Error()
+	}
 	o.patch.Status(status)
 }
 

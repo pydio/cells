@@ -124,16 +124,38 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 
 }
 
+// HasTransfers looks for create/update files between DataSyncTargets
 func (t *TreePatch) HasTransfers() bool {
 	var count int
 	t.WalkOperations([]OperationType{OpCreateFile, OpUpdateFile}, func(operation Operation) {
 		count++
 	})
-	_, o1 := t.Source().(model.DataSyncTarget)
+	_, o1 := t.Source().(model.DataSyncSource)
 	_, o2 := t.Target().(model.DataSyncTarget)
 	return count > 0 && o1 && o2
 }
 
+// HasErrors checks if this patch has a global error status or any operation in Error state
+func (t *TreePatch) HasErrors() (errs []error, has bool) {
+	if t.patchError != nil {
+		errs = append(errs, t.patchError)
+	}
+	t.WalkOperations([]OperationType{}, func(operation Operation) {
+		if e := operation.Error(); e != nil {
+			errs = append(errs, e)
+		}
+	})
+	return errs, len(errs) > 0
+}
+
+func (t *TreePatch) CleanErrors() {
+	t.patchError = nil
+	t.WalkOperations([]OperationType{}, func(operation Operation) {
+		operation.CleanError()
+	})
+}
+
+// Size returns the size of all operations
 func (t *TreePatch) Size() int {
 	all := t.OperationsByType([]OperationType{})
 	return len(all)

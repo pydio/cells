@@ -248,8 +248,8 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 
 			sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
 			target, _ := model.AsPathSyncTarget(s.Target)
-			if ers := merger.SolveConflicts(ctx, diff.Conflicts(), sourceAsTarget, target); len(ers) > 0 {
-				log.Logger(ctx).Error("Errors while refreshing folderUUIDs")
+			if _, ers := diff.SolveConflicts(ctx); ers != nil {
+				return nil, nil, ers
 			}
 			leftPatch, rightPatch := diff.ToBidirectionalPatches(sourceAsTarget, target)
 			if b, err := merger.ComputeBidirectionalPatch(ctx, leftPatch, rightPatch); err == nil {
@@ -451,8 +451,6 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 						s.statuses <- merger.ProcessStatus{EndpointURI: u, Progress: 0} // Hide progress bar
 					}
 					s.statuses <- merger.ProcessStatus{
-						IsError:      false,
-						Error:        nil,
 						StatusString: fmt.Sprintf("Analyzed %d nodes", total),
 					}
 				}

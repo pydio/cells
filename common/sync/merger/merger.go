@@ -98,10 +98,10 @@ type Patch interface {
 	// Basically, file transfers operations returns the file size, but other operations return a 1 byte size.
 	ProgressTotal() int64
 
-	// Set a global error status on this patch
-	SetError(error)
-	// Check if this patch has a global error status
-	HasError() (error, bool)
+	// HasErrors checks if this patch has a global error status
+	HasErrors() ([]error, bool)
+	// CleanErrors cleans errors from patch before trying to reapply it
+	CleanErrors()
 
 	// SetSessionProvider registers a target as supporting the SessionProvider interface
 	SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool)
@@ -171,6 +171,9 @@ type Operation interface {
 	IsTypeData() bool
 	IsTypePath() bool
 	IsProcessed() bool
+	Error() error
+	ErrorString() string
+	CleanError()
 	Status(status ProcessStatus)
 	GetStatus() ProcessStatus
 	GetRefPath() string
@@ -206,15 +209,17 @@ type Diff interface {
 	ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error)
 	// ToBidirectionalPatch transforms current diff into a set of 2 batches of operations
 	ToBidirectionalPatches(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (leftPatch Patch, rightPatch Patch)
-	// conflicts list discovered conflicts
+	// Conflicts list discovered conflicts
 	Conflicts() []*Conflict
+	// SolveConflicts tries to fix existing conflicts and return remaining ones
+	SolveConflicts(ctx context.Context) (remaining []*Conflict, e error)
 }
 
 // ProcessStatus informs about the status of an operation
 type ProcessStatus struct {
 	StatusString     string
 	IsError          bool
-	Error            error
+	Error            error `json:"-"` // ignore for marshalling
 	Progress         float32
 	IsProgressAtomic bool
 

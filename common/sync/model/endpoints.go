@@ -145,7 +145,7 @@ type PathSyncTarget interface {
 type DataSyncTarget interface {
 	PathSyncTarget
 	// GetWriterOn provides a writeCloser for writing content to a given path.
-	GetWriterOn(path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error)
+	GetWriterOn(cancel context.Context, path string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error)
 }
 
 // DataSyncSource provides a way to read the actual content of the nodes
