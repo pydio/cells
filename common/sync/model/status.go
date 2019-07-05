@@ -24,6 +24,7 @@ const (
 	TaskStatusError
 	TaskStatusRestarting
 	TaskStatusStopping
+	TaskStatusRemoved
 )
 const (
 	SyncErrorUnknown ErrorType = iota
