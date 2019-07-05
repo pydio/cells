@@ -142,6 +142,5 @@ func (p *ProcessingStatus) MarshalJSON() ([]byte, error) {
 	if p.node != nil {
 		m["Node"] = p.node
 	}
-	fmt.Println(m)
 	return json.Marshal(m)
 }
