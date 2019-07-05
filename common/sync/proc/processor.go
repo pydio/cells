@@ -75,11 +75,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// Send the patch itself on the doneChan
 	defer func() {
 		if interrupted {
-			patch.Status(model.ProcessStatus{
-				IsError:      true,
-				StatusString: "Patch interrupted by user",
-				Error:        errors.New("patch interrupted by user"),
-			})
+			patch.Status(model.NewProcessingStatus("Patch interrupted by user").SetError(errors.New("patch interrupted by user")))
 		}
 		patch.Done(patch)
 	}()
@@ -101,7 +97,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	processUUID := uuid.New()
 	total := patch.ProgressTotal()
 
-	patch.Status(model.ProcessStatus{StatusString: fmt.Sprintf("Start processing patch (total bytes %d)", total)})
+	patch.Status(model.NewProcessingStatus(fmt.Sprintf("Start processing patch (total bytes %d)", total)))
 	stats := patch.Stats()
 	pending := make(map[string]int)
 	if pen, ok := stats["Pending"]; ok {
@@ -253,10 +249,7 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 			progress := float32(*cursor) / float32(total)
 			if pg < 0 || progress-lastProgress > 0.01 { // Send percent per percent, or if it's negative (error reverted pg value)
 				log.Logger(pr.GlobalContext).Debug("Sending PG", zap.Float32("pg", progress))
-				op.Status(model.ProcessStatus{
-					StatusString: pr.logAsString(progressString, nil, fields...),
-					Progress:     progress,
-				})
+				op.Status(model.NewProcessingStatus(pr.logAsString(progressString, nil, fields...)).SetProgress(progress))
 				lastProgress = progress
 			}
 		}
@@ -267,11 +260,7 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 			e := callback(ctx, op, operationId, pgs)
 			if e != nil {
 				pr.Logger().Error(errorString, fields...)
-				op.Status(model.ProcessStatus{
-					StatusString: fmt.Sprintf("%s (%s) - retrying...", errorString, e.Error()),
-					Error:        e,
-					IsError:      true,
-				})
+				op.Status(model.NewProcessingStatus(fmt.Sprintf("%s (%s) - retrying...", errorString, e.Error())).SetError(e))
 			}
 			return e
 		}, 5*time.Second, 20*time.Second)
@@ -290,22 +279,15 @@ func (pr *Processor) applyProcessFunc(ctx context.Context, p merger.Patch, op me
 		}
 	}
 
-	isError := false
 	loggerString := completeString
 	if err != nil {
-		isError = true
 		loggerString = errorString
 	}
 	var end float32
 	if total > 0 {
 		end = float32(*cursor) / float32(total)
 	}
-	op.Status(model.ProcessStatus{
-		IsError:      isError,
-		Error:        err,
-		StatusString: pr.logAsString(loggerString, err, fields...),
-		Progress:     end,
-	})
+	op.Status(model.NewProcessingStatus(pr.logAsString(loggerString, err, fields...)).SetError(err).SetProgress(end))
 
 	return err
 }

@@ -425,16 +425,16 @@ func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *Endp
 }
 
 func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[string]*EndpointRootStat) {
-	indexStatus := make(chan model.ProcessStatus)
+	indexStatus := make(chan model.Status)
 	done := make(chan interface{})
 	diff.SetupChannels(indexStatus, done, s.cmd)
 	go func() {
 		for {
 			select {
 			case status := <-indexStatus:
-				if root, ok := rootsInfo[status.EndpointURI]; ok {
-					if pgStatus, ok := s.computeIndexProgress(status, root); ok {
-						log.Logger(ctx).Info(pgStatus.StatusString)
+				if root, ok := rootsInfo[status.EndpointURI()]; ok {
+					if pgStatus, ok := s.computeIndexProgress(status, root); ok && pgStatus != nil {
+						log.Logger(ctx).Info(pgStatus.String())
 						if s.statuses != nil {
 							s.statuses <- pgStatus
 						}
@@ -448,11 +448,9 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 				log.Logger(ctx).Info("Finished analyzing nodes", zap.Any("i", total))
 				if s.statuses != nil {
 					for u, _ := range rootsInfo {
-						s.statuses <- model.ProcessStatus{EndpointURI: u, Progress: 0} // Hide progress bar
+						s.statuses <- model.NewProcessingStatus("").SetEndpoint(u).SetProgress(0)
 					}
-					s.statuses <- model.ProcessStatus{
-						StatusString: fmt.Sprintf("Analyzed %d nodes", total),
-					}
+					s.statuses <- model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes", total))
 				}
 				close(done)
 				close(indexStatus)
@@ -462,13 +460,13 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 	}()
 }
 
-func (s *Sync) computeIndexProgress(input model.ProcessStatus, rootInfo *EndpointRootStat) (output model.ProcessStatus, emit bool) {
-	if input.Node == nil {
+func (s *Sync) computeIndexProgress(input model.Status, rootInfo *EndpointRootStat) (output model.Status, emit bool) {
+	if input.Node() == nil {
 		rootInfo.PgChildren++
-	} else if input.Node.IsLeaf() {
+	} else if input.Node().IsLeaf() {
 		rootInfo.PgChildren++
 		rootInfo.PgFiles++
-		rootInfo.PgSize += input.Node.Size
+		rootInfo.PgSize += input.Node().Size
 	} else {
 		rootInfo.PgChildren++
 		rootInfo.PgFolders++
@@ -479,8 +477,7 @@ func (s *Sync) computeIndexProgress(input model.ProcessStatus, rootInfo *Endpoin
 		if rootInfo.PgChildren%50 != 0 {
 			return // false
 		} else {
-			output.StatusString = fmt.Sprintf("Analyzed %d nodes", rootInfo.PgChildren)
-			return output, true
+			return model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes", rootInfo.PgChildren)).SetEndpoint(input.EndpointURI()), true
 		}
 	}
 	var pg float64
@@ -494,10 +491,10 @@ func (s *Sync) computeIndexProgress(input model.ProcessStatus, rootInfo *Endpoin
 	if pg-rootInfo.LastPg > 0.05 {
 		emit = true
 		rootInfo.LastPg = pg
-		output.Progress = float32(pg)
-		output.IsProgressAtomic = true
-		output.EndpointURI = input.EndpointURI
-		output.StatusString = fmt.Sprintf("Analyzed %d nodes (%d%%)", rootInfo.PgChildren, int(math.Floor(pg*100)))
+		output := model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes (%d%%)", rootInfo.PgChildren, int(math.Floor(pg*100))))
+		output.SetProgress(float32(pg), true)
+		output.SetEndpoint(input.EndpointURI())
+		return output, true
 	}
 	return
 }

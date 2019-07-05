@@ -23,6 +23,8 @@ package task
 
 import (
 	"context"
+	"fmt"
+	"runtime/debug"
 
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
@@ -52,7 +54,7 @@ type Sync struct {
 	watch        bool
 	watchersChan []chan bool
 	watchConn    chan *model.EndpointStatus
-	statuses     chan model.ProcessStatus
+	statuses     chan model.Status
 	runDone      chan interface{}
 	cmd          *model.Command
 	patchChan    chan merger.Patch
@@ -163,25 +165,18 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 	var err error
 	defer func() {
 		if e := recover(); e != nil {
+			fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
 			if er, ok := e.(error); ok {
 				err = er
 				if s.statuses != nil {
-					s.statuses <- model.ProcessStatus{
-						IsError:      true,
-						StatusString: err.Error(),
-						Progress:     1,
-					}
+					s.statuses <- model.NewProcessingStatus(err.Error()).SetError(err).SetProgress(1)
 				}
 			}
 		}
 	}()
 	stater, err := s.run(ctx, dryRun, force)
 	if err != nil && s.statuses != nil {
-		s.statuses <- model.ProcessStatus{
-			IsError:      true,
-			StatusString: err.Error(),
-			Progress:     1,
-		}
+		s.statuses <- model.NewProcessingStatus(err.Error()).SetError(err).SetProgress(1)
 	}
 	return stater, err
 }
@@ -199,7 +194,7 @@ func (s *Sync) SetSnapshotFactory(factory model.SnapshotFactory) {
 }
 
 // SetupEventsChan wires internal sync event to external status channels
-func (s *Sync) SetupEventsChan(statusChan chan model.ProcessStatus, batchDone chan interface{}, events chan interface{}) {
+func (s *Sync) SetupEventsChan(statusChan chan model.Status, batchDone chan interface{}, events chan interface{}) {
 	s.statuses = statusChan
 	s.runDone = batchDone
 	if events != nil {

@@ -296,14 +296,14 @@ func (s *Handler) watchConfigs() {
 // TriggerResync sets 2 servers in sync
 func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest, resp *protosync.ResyncResponse) error {
 
-	var statusChan chan model.ProcessStatus
+	var statusChan chan model.Status
 	var doneChan chan interface{}
 	fullLog := &jobs.ActionLog{
 		OutputMessage: &jobs.ActionMessage{},
 	}
 
 	if req.Task != nil {
-		statusChan = make(chan model.ProcessStatus)
+		statusChan = make(chan model.Status)
 		doneChan = make(chan interface{})
 
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
@@ -330,14 +330,14 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			for {
 				select {
 				case status := <-statusChan:
-					theTask.StatusMessage = status.StatusString
+					theTask.StatusMessage = status.String()
 					theTask.HasProgress = true
-					theTask.Progress = status.Progress
+					theTask.Progress = status.Progress()
 					theTask.Status = jobs.TaskStatus_Running
-					if status.IsError {
-						log.TasksLogger(c).Error(status.StatusString)
+					if status.IsError() {
+						log.TasksLogger(c).Error(status.String(), zap.Error(status.Error()))
 					} else {
-						log.TasksLogger(c).Info(status.StatusString)
+						log.TasksLogger(c).Info(status.String())
 					}
 					taskChan <- theTask
 				case <-doneChan:

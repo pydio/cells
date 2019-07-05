@@ -193,7 +193,7 @@ func (t *TreePatch) Stats() map[string]interface{} {
 		var target map[string]int
 		if operation.IsProcessed() {
 			target = processed
-		} else if operation.GetStatus().IsError {
+		} else if operation.GetStatus() != nil && operation.GetStatus().IsError() {
 			target = errors
 		} else {
 			target = pending

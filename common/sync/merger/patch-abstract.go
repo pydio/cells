@@ -40,7 +40,7 @@ type AbstractPatch struct {
 
 	skipFilterToTarget bool
 
-	statusChan chan model.ProcessStatus
+	statusChan chan model.Status
 	doneChan   chan interface{}
 	cmd        *model.Command
 	closing    bool
@@ -69,7 +69,7 @@ func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, prov
 	b.sessionSilent = silentSession
 }
 
-func (b *AbstractPatch) SetupChannels(status chan model.ProcessStatus, done chan interface{}, cmd *model.Command) {
+func (b *AbstractPatch) SetupChannels(status chan model.Status, done chan interface{}, cmd *model.Command) {
 	b.statusChan = status
 	b.doneChan = done
 	b.cmd = cmd
@@ -77,10 +77,10 @@ func (b *AbstractPatch) SetupChannels(status chan model.ProcessStatus, done chan
 	b.closing = false
 }
 
-func (b *AbstractPatch) Status(s model.ProcessStatus) {
+func (b *AbstractPatch) Status(s model.Status) {
 	b.mTime = time.Now()
-	if s.IsError {
-		b.patchError = s.Error
+	if s.IsError() {
+		b.patchError = s.Error()
 	}
 	if b.statusChan != nil {
 		go func() {

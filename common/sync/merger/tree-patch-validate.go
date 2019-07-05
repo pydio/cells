@@ -34,18 +34,10 @@ func (t *TreePatch) Validate(ctx context.Context) error {
 			log.Logger(ctx).Error("Could not validate changes on source", zap.Error(e2))
 		}
 		e := errors.New("errors detected while validating patch")
-		t.Status(model.ProcessStatus{
-			StatusString: "Errors detected while validating patch",
-			Error:        e,
-			IsError:      true,
-			Progress:     1,
-		})
+		t.Status(model.NewProcessingStatus("Errors detected while validating patch").SetError(e).SetProgress(1))
 		return e
 	} else {
-		t.Status(model.ProcessStatus{
-			StatusString: "Modification correctly reported",
-			Progress:     1,
-		})
+		t.Status(model.NewProcessingStatus("Modification correctly reported").SetProgress(1))
 		return nil
 	}
 }
@@ -65,20 +57,14 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 		// If we are validating with a cache, it's probably a remote server, and it has probably a small delay
 		// => wait before first try
 		<-time.After(1 * time.Second)
-		t.Status(model.ProcessStatus{
-			StatusString: "Validating modifications have been correctly reported...",
-			Progress:     1,
-		})
+		t.Status(model.NewProcessingStatus("Validating modifications have been correctly reported...").SetProgress(1))
 		return model.Retry(func() error {
 			return t.validateWithPreLoad(ctx, branches, syncSource)
 		}, 6*time.Second, 4*time.Minute)
 
 	} else {
 
-		t.Status(model.ProcessStatus{
-			StatusString: "Validating modifications have been correctly reported...",
-			Progress:     1,
-		})
+		t.Status(model.NewProcessingStatus("Validating modifications have been correctly reported...").SetProgress(1))
 		return t.validateWalking(ctx, target.GetEndpointInfo().URI, target)
 
 	}

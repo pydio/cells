@@ -52,13 +52,13 @@ type EventsBatcher struct {
 	debounce         time.Duration
 
 	// Will be passed along to new patches
-	statuses chan model.ProcessStatus
+	statuses chan model.Status
 	done     chan interface{}
 	cmd      *model.Command
 }
 
 // NewEventsBatcher creates a new EventsBatcher
-func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, ignores []glob.Glob, statuses chan model.ProcessStatus, done chan interface{}, debounce ...time.Duration) *EventsBatcher {
+func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, ignores []glob.Glob, statuses chan model.Status, done chan interface{}, debounce ...time.Duration) *EventsBatcher {
 
 	b := &EventsBatcher{
 		Source:        source,
