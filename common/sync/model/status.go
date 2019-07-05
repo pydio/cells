@@ -128,6 +128,7 @@ func (p *ProcessingStatus) Node() *tree.Node {
 	return p.node
 }
 
+// MarshalJSON implements custom JSON marshalling
 func (p *ProcessingStatus) MarshalJSON() ([]byte, error) {
 	m := map[string]interface{}{
 		"StatusString": p.s,
@@ -143,4 +144,26 @@ func (p *ProcessingStatus) MarshalJSON() ([]byte, error) {
 		m["Node"] = p.node
 	}
 	return json.Marshal(m)
+}
+
+// UnmarshalJSON implements custom JSON unmarshalling
+func (p *ProcessingStatus) UnmarshalJSON(data []byte) error {
+	var m map[string]interface{}
+	if e := json.Unmarshal(data, &m); e != nil {
+		return e
+	} else {
+		if s, ok := m["StatusString"]; ok {
+			p.s = s.(string)
+		}
+		if ie, ok := m["IsError"]; ok && ie.(bool) {
+			p.e = fmt.Errorf(p.s)
+		}
+		if u, ok := m["EndpointURI"]; ok {
+			p.uri = u.(string)
+		}
+		if n, ok := m["Node"]; ok {
+			p.node = n.(*tree.Node)
+		}
+	}
+	return nil
 }

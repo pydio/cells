@@ -34,7 +34,7 @@ type patchOperation struct {
 	Node      *tree.Node
 	EventInfo model.EventInfo
 
-	InternalStatus model.Status
+	InternalStatus *model.ProcessingStatus
 	Processed      bool
 
 	processingError       error
@@ -115,7 +115,10 @@ func (o *patchOperation) SetDirection(direction OperationDirection) Operation {
 }
 
 func (o *patchOperation) Status(status model.Status) {
-	o.InternalStatus = status
+	// Transform status to ProcessingStatus
+	if p, ok := status.(*model.ProcessingStatus); ok {
+		o.InternalStatus = p
+	}
 	if status.IsError() {
 		o.processingError = status.Error()
 		o.ProcessingErrorString = status.Error().Error()
@@ -124,6 +127,11 @@ func (o *patchOperation) Status(status model.Status) {
 }
 
 func (o *patchOperation) GetStatus() model.Status {
+	// This is super important!
+	// nil struct model.ProcessingStatus is NOT nil interface model.Status
+	if o.InternalStatus == nil {
+		return nil
+	}
 	return o.InternalStatus
 }
 
