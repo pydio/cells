@@ -15,7 +15,8 @@ type StatusScope int
 const (
 	StatusScopeTask = iota
 	StatusScopeProcessing
-
+)
+const (
 	TaskStatusIdle TaskStatus = iota
 	TaskStatusPaused
 	TaskStatusDisabled
@@ -23,7 +24,8 @@ const (
 	TaskStatusError
 	TaskStatusRestarting
 	TaskStatusStopping
-
+)
+const (
 	SyncErrorUnknown ErrorType = iota
 	SyncErrorNetworking
 	SyncErrorAuthentication
