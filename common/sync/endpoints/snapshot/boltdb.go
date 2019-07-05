@@ -30,6 +30,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
+
 	"github.com/pborman/uuid"
 
 	"github.com/etcd-io/bbolt"
@@ -226,6 +229,10 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 		} else {
 			for _, p := range paths {
 				e := source.Walk(func(path string, node *tree.Node, err error) {
+					if err != nil {
+						log.Logger(ctx).Error("BoltDB:Capture: ignoring path, error is not nil", zap.String("path", path), zap.Error(err))
+						return
+					}
 					capture.Put([]byte(path), s.marshal(node))
 				}, p, true)
 				if e != nil {
