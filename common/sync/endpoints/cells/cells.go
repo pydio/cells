@@ -169,6 +169,8 @@ func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 	c.watchConn = make(chan model.WatchConnectionInfo)
 	changes := make(chan *tree.NodeChangeEvent)
 	finished := make(chan error)
+	// Reset watchCtxCancelled if it's a Resume after a Pause
+	c.watchCtxCancelled = false
 	ctx, cancel := context.WithCancel(c.globalCtx)
 
 	obj := &model.WatchObject{
