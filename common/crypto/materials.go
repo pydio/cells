@@ -1,5 +1,3 @@
-package crypto
-
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -19,6 +17,9 @@ package crypto
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+package crypto
+
 import (
 	"bytes"
 	"crypto/rand"
