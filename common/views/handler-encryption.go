@@ -28,7 +28,6 @@ import (
 
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
-	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -39,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/idm/key"
+	"github.com/pydio/minio-go"
 )
 
 //EncryptionHandler encryption node middleware
