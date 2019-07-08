@@ -116,11 +116,14 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		return nil, err
 	}
 
-	fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == node.Size)
+	fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == clone.Size)
+	if requestData.Length <= 0 {
+		requestData.Length = clone.Size
+	}
 
 	if info.Node.Legacy {
-		eMat := crypto.NewRangeAESGCMMaterials(info)
-		rangeRequestData := &GetRequestData{VersionId: requestData.VersionId, Length: -1}
+		eMat := crypto.NewLegacyAESGCMMaterials(info)
+		rangeRequestData := &GetRequestData{VersionId: requestData.VersionId, StartOffset: 0, Length: -1}
 		if !fullRead {
 			err = eMat.SetPlainRange(requestData.StartOffset, requestData.Length)
 			if err != nil {
