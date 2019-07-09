@@ -42,7 +42,7 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 		log.Logger(ctx).Info("Finished filtering patch", zap.Duration("time", time.Now().Sub(n)))
 	}()
 	track := func(s string, t time.Time) time.Time {
-		log.Logger(ctx).Info(s, zap.Duration("time", time.Now().Sub(t)))
+		log.Logger(ctx).Debug(s, zap.Duration("time", time.Now().Sub(t)))
 		return time.Now()
 	}
 
