@@ -114,17 +114,29 @@ func (t *TreePatch) OperationsByType(types []OperationType, sorted ...bool) (eve
 	return
 }
 
-// CachedBranchFromEndpoint will walk to the first operations to find the branches containing some modifications
-func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model.Endpoint) (model.PathSyncSource, bool) {
-	// Find highest modified paths
-	var branches []string
+// BranchesWithOperations finds highest modified paths. It walks the tree to find the first nodes
+// having operations, and returns their parent folder.
+func (t *TreePatch) BranchesWithOperations(endpoint model.Endpoint) (branches []string) {
+
+	unique := map[string]string{}
 	t.WalkToFirstOperations(OpUnknown, func(operation Operation) {
 		d := path.Dir(operation.GetRefPath())
 		if d == "." {
 			d = ""
 		}
-		branches = append(branches, d)
+		unique[d] = d
 	}, endpoint)
+	for _, d := range unique {
+		branches = append(branches, d)
+	}
+	return
+
+}
+
+// CachedBranchFromEndpoint will walk to the first operations to find the branches containing some modifications
+func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model.Endpoint) (model.PathSyncSource, bool) {
+
+	branches := t.BranchesWithOperations(endpoint)
 	if len(branches) == 0 {
 		return nil, false
 	}

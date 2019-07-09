@@ -2,7 +2,6 @@ package merger
 
 import (
 	"context"
-	"path"
 	"sync"
 	"time"
 
@@ -48,10 +47,7 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 	if syncSource, ok := target.(model.CachedBranchProvider); ok {
 
 		// Find highest modified path
-		var branches []string
-		t.WalkToFirstOperations(OpUnknown, func(operation Operation) {
-			branches = append(branches, path.Dir(operation.GetRefPath()))
-		}, target)
+		branches := t.BranchesWithOperations(target)
 		if len(branches) == 0 {
 			return nil
 		}

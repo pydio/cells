@@ -22,6 +22,8 @@ package merger
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -462,6 +464,52 @@ func TestRescanFolders(t *testing.T) {
 
 		So(patch.OperationsByType([]OperationType{OpCreateFolder}), ShouldHaveLength, 3)
 		So(patch.OperationsByType([]OperationType{OpCreateFile}), ShouldHaveLength, 2)
+	})
+}
+
+func TestMisc(t *testing.T) {
+	Convey("Test utils tools (errors, marshall, ignores)", t, func() {
+		source, target := memory.NewMemDB(), memory.NewMemDB()
+		target.AddIgnore(".ignored-file")
+		patch := newTreePatch(source, target, PatchOptions{})
+		patch.Enqueue(&patchOperation{
+			OpType:          OpCreateFolder,
+			Node:            &tree.Node{Uuid: "u1", Path: "folder"},
+			patch:           patch,
+			Dir:             OperationDirRight,
+			processingError: fmt.Errorf("fake.error"),
+		})
+
+		// Test enqueue is properly ignored
+		patch.Enqueue(&patchOperation{
+			OpType:    OpCreateFile,
+			EventInfo: model.EventInfo{Path: "/path/to/.ignored-file"},
+			Node:      &tree.Node{Uuid: "u2", Path: "/path/to/.ignored-file"},
+			patch:     patch,
+			Dir:       OperationDirRight,
+		})
+		So(patch.Size(), ShouldEqual, 1)
+
+		e, o := patch.HasErrors()
+		So(o, ShouldBeTrue)
+		So(e, ShouldHaveLength, 1)
+		patch.CleanErrors()
+		e, o = patch.HasErrors()
+		So(o, ShouldBeFalse)
+		So(e, ShouldHaveLength, 0)
+
+		data, er := json.Marshal(patch)
+		So(er, ShouldBeNil)
+		So(len(data), ShouldBeGreaterThan, 0)
+		var parsed map[string]interface{}
+		er = json.Unmarshal(data, &parsed)
+		So(parsed, ShouldContainKey, "Stats")
+		So(parsed, ShouldContainKey, "Root")
+
+		patch.SetError(fmt.Errorf("fake.patch.error"))
+		e, o = patch.HasErrors()
+		So(o, ShouldBeTrue)
+		So(e, ShouldHaveLength, 1)
 	})
 }
 

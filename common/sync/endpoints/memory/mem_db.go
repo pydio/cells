@@ -43,6 +43,9 @@ type DBEvent struct {
 type MemDB struct {
 	Nodes         []*tree.Node
 	eventChannels []chan DBEvent
+	// Used for testing
+	ignores     []string
+	testPathURI string
 }
 
 func NewMemDB() *MemDB {
@@ -58,11 +61,21 @@ func NewMemDB() *MemDB {
 func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "memdb://",
+		URI: "memdb://" + c.testPathURI,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: false,
+		Ignores:               c.ignores,
 	}
 
+}
+
+// AddIgnore register a filename to be ignored (for tests only)
+func (c *MemDB) AddIgnore(s string) {
+	c.ignores = append(c.ignores, s)
+}
+
+func (c *MemDB) SetTestPathURI(s string) {
+	c.testPathURI = s
 }
 
 /*************************/
@@ -225,4 +238,34 @@ func (db *MemDB) FromJSON(name string) error {
 		return err
 	}
 	return json.Unmarshal(data, &db.Nodes)
+}
+
+// MemDBWithCacheTest provides a structure for testing CachedBranchProvider related functions
+type MemDBWithCacheTest struct {
+	MemDB
+}
+
+// NewMemDBWithCacheTest creates a new MemDB implementing CachedBranchProvider interface
+func NewMemDBWithCacheTest() *MemDBWithCacheTest {
+	return &MemDBWithCacheTest{
+		MemDB: *NewMemDB(),
+	}
+}
+
+// GetCachedBranches loads branch in memory
+func (m *MemDBWithCacheTest) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
+	memDB := NewMemDB()
+	// Make sure to dedup roots
+	rts := make(map[string]string)
+	for _, root := range roots {
+		rts[root] = root
+	}
+	for _, root := range rts {
+		m.Walk(func(path string, node *tree.Node, err error) {
+			if err == nil {
+				memDB.CreateNode(ctx, node, false)
+			}
+		}, root, true)
+	}
+	return memDB
 }
