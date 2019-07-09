@@ -116,6 +116,13 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		return nil, err
 	}
 
+	boundariesOk := requestData.StartOffset >= 0 && requestData.StartOffset <= clone.Size
+	boundariesOk = boundariesOk && (requestData.Length == -1 || requestData.Length > 0 && requestData.StartOffset+requestData.Length <= clone.Size)
+
+	if !boundariesOk {
+		return nil, errors.New("views.handler.encryption.GetObject", "wrong range", 400)
+	}
+
 	fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == clone.Size)
 	if requestData.Length <= 0 {
 		requestData.Length = clone.Size
