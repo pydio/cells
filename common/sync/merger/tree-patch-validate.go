@@ -13,6 +13,7 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+// Validate tries to match the status of the target to verify that all operations are correctly applied.
 func (t *TreePatch) Validate(ctx context.Context) error {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)

@@ -23,18 +23,25 @@ package merger
 import (
 	"context"
 	"encoding/json"
+	"path"
 	"sort"
 	"time"
 
-	"github.com/gobwas/glob"
-	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common/sync/model"
 )
 
+// TreePatch is an implement of the Patch interface representing a sequence of operations as a tree structure.
+// It is based on a TreeNode: each node can eventually contain a PathOperation or a DataOperation,
+// or no operation at all if they are just for traversing.
+//
+// MOVES operation will add two nodes (and their traversing parents if required) to the tree, for both the Origin and the Target.
+//
+// Operations paths are computed dynamically based on the state of the parents (whether they have been processed or not).
+// That way, if a move is applied at any level, the operations of the children always return the correct origin/target paths.
 type TreePatch struct {
 	AbstractPatch
 	TreeNode
@@ -45,6 +52,7 @@ type TreePatch struct {
 	refreshUUIDs  map[string]Operation
 }
 
+// newTreePatch creates and initializes a TreePatch
 func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) *TreePatch {
 	p := &TreePatch{
 		AbstractPatch: AbstractPatch{
@@ -63,6 +71,7 @@ func newTreePatch(source model.PathSyncSource, target model.PathSyncTarget, opti
 	return p
 }
 
+// Enqueue adds an operation to this patch
 func (t *TreePatch) Enqueue(op Operation) {
 
 	if model.Ignores(t.target, op.GetRefPath()) {
@@ -96,6 +105,7 @@ func (t *TreePatch) Enqueue(op Operation) {
 
 }
 
+// OperationsByType collects operations for a given type and return them in a slice
 func (t *TreePatch) OperationsByType(types []OperationType, sorted ...bool) (events []Operation) {
 	// walk tree to collect operations
 	t.WalkOperations(types, func(operation Operation) {
@@ -104,65 +114,26 @@ func (t *TreePatch) OperationsByType(types []OperationType, sorted ...bool) (eve
 	return
 }
 
-func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
-
-	n := time.Now()
-	defer func() {
-		log.Logger(ctx).Info("Finished filtering patch", zap.Duration("time", time.Now().Sub(n)))
-	}()
-	track := func(s string, t time.Time) time.Time {
-		log.Logger(ctx).Info(s, zap.Duration("time", time.Now().Sub(t)))
-		return time.Now()
+// CachedBranchFromEndpoint will walk to the first operations to find the branches containing some modifications
+func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model.Endpoint) (model.PathSyncSource, bool) {
+	// Find highest modified paths
+	var branches []string
+	t.WalkToFirstOperations(OpUnknown, func(operation Operation) {
+		d := path.Dir(operation.GetRefPath())
+		if d == "." {
+			d = ""
+		}
+		branches = append(branches, d)
+	}, endpoint)
+	if len(branches) == 0 {
+		return nil, false
 	}
-
-	// FILTER CREATES : tries to detect fast create/delete operations and remove unnecessary creates
-	t.filterCreateFiles(ctx)
-	n = track("filter:CreateFiles", n)
-
-	t.filterCreateFolders(ctx)
-	n = track("filter:CreateFolders", n)
-
-	// FILTER MOVES : tries to match Creates / Deletes operation that are in fact Moves
-	var cachedTarget model.PathSyncSource
-	if len(t.deletes) > 20 {
-		// Build a fake patch from the deletes to easily detect top level modified branches
-		temp := &TreePatch{
-			AbstractPatch: AbstractPatch{uuid: uuid.New(), source: t.Source(), target: t.Target()},
-			TreeNode:      *NewTree(),
-		}
-		for _, d := range t.deletes {
-			c := d.Clone()
-			if c.GetNode() == nil {
-				c.SetNode(&tree.Node{Path: c.GetRefPath()})
-			}
-			temp.QueueOperation(c)
-		}
-		// if Target implements CachedBranchProvider, try to load these branches from the target at once
-		// to avoid multiple calls to LoadNode()
-		if cache, ok := temp.CachedBranchFromEndpoint(ctx, t.Target()); ok {
-			cachedTarget = cache
-			n = track("filter:loaded branch from target in memory", n)
-		}
+	if cacheProvider, ok := endpoint.(model.CachedBranchProvider); ok {
+		log.Logger(ctx).Info("Loading branches in cache", zap.Any("b", branches))
+		inMemory := cacheProvider.GetCachedBranches(ctx, branches...)
+		return inMemory, true
 	}
-
-	t.detectFolderMoves(ctx, cachedTarget)
-	n = track("filter:DetectFolderMoves", n)
-
-	t.detectFileMoves(ctx, cachedTarget)
-	n = track("filter:DetectFileMoves", n)
-
-	// ENQUEUE REMAINING operations to patch
-	t.enqueueRemaining(ctx)
-	n = track("filter:EnqueueRemaining", n)
-
-	// RESCAN CREATED FOLDERS if the Endpoint declares this as necessary
-	t.rescanFoldersIfRequired(ctx, ignores...)
-	n = track("filter:RescanFoldersIfRequired", n)
-
-	// FINALLY PRUNE unecessary operations (like all deleted elements that are below a deleted folder)
-	t.prune(ctx)
-	track("filter:Prune", n)
-
+	return nil, false
 }
 
 // HasTransfers looks for create/update files between DataSyncTargets

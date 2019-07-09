@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"time"
 
 	"github.com/gobwas/glob"
 
@@ -33,6 +34,67 @@ import (
 
 	"github.com/pydio/cells/common/sync/model"
 )
+
+func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
+
+	n := time.Now()
+	defer func() {
+		log.Logger(ctx).Info("Finished filtering patch", zap.Duration("time", time.Now().Sub(n)))
+	}()
+	track := func(s string, t time.Time) time.Time {
+		log.Logger(ctx).Info(s, zap.Duration("time", time.Now().Sub(t)))
+		return time.Now()
+	}
+
+	// FILTER CREATES : tries to detect fast create/delete operations and remove unnecessary creates
+	t.filterCreateFiles(ctx)
+	n = track("filter:CreateFiles", n)
+
+	t.filterCreateFolders(ctx)
+	n = track("filter:CreateFolders", n)
+
+	// FILTER MOVES : tries to match Creates / Deletes operation that are in fact Moves
+	var cachedTarget model.PathSyncSource
+	if len(t.deletes) > 20 {
+		// Build a fake patch from the deletes to easily detect top level modified branches
+		temp := &TreePatch{
+			AbstractPatch: AbstractPatch{uuid: uuid.New(), source: t.Source(), target: t.Target()},
+			TreeNode:      *NewTree(),
+		}
+		for _, d := range t.deletes {
+			c := d.Clone()
+			if c.GetNode() == nil {
+				c.SetNode(&tree.Node{Path: c.GetRefPath()})
+			}
+			temp.QueueOperation(c)
+		}
+		// if Target implements CachedBranchProvider, try to load these branches from the target at once
+		// to avoid multiple calls to LoadNode()
+		if cache, ok := temp.CachedBranchFromEndpoint(ctx, t.Target()); ok {
+			cachedTarget = cache
+			n = track("filter:loaded branch from target in memory", n)
+		}
+	}
+
+	t.detectFolderMoves(ctx, cachedTarget)
+	n = track("filter:DetectFolderMoves", n)
+
+	t.detectFileMoves(ctx, cachedTarget)
+	n = track("filter:DetectFileMoves", n)
+
+	// ENQUEUE REMAINING operations to patch
+	t.enqueueRemaining(ctx)
+	n = track("filter:EnqueueRemaining", n)
+
+	// RESCAN CREATED FOLDERS if the Endpoint declares this as necessary
+	t.rescanFoldersIfRequired(ctx, ignores...)
+	n = track("filter:RescanFoldersIfRequired", n)
+
+	// FINALLY PRUNE unecessary operations (like all deleted elements that are below a deleted folder)
+	t.prune(ctx)
+	track("filter:Prune", n)
+
+}
 
 func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 

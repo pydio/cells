@@ -86,7 +86,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	}
 
 	if !pr.SkipTargetChecks {
-		patch.FilterToTarget(pr.GlobalContext, nil)
+		patch.FilterToTarget(pr.GlobalContext)
 		if patch.Size() == 0 {
 			log.Logger(pr.GlobalContext).Info("Empty Patch after filtering")
 			return

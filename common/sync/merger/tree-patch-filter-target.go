@@ -2,7 +2,6 @@ package merger
 
 import (
 	"context"
-	"path"
 
 	"go.uber.org/zap"
 
@@ -10,7 +9,10 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.SnapshotFactory) {
+// FilterToTarget tries to detect unnecessary operations based on the target status.
+// If the target implements the CachedBranchProvider interface, instead of stat'ing the nodes
+// one by one, the target will be fully loaded in memory at once to be used as a comparision.
+func (t *TreePatch) FilterToTarget(ctx context.Context) {
 
 	sources := make(map[model.Endpoint]model.PathSyncSource, 2)
 	if cache, ok := t.CachedBranchFromEndpoint(ctx, t.Source()); ok {
@@ -61,26 +63,4 @@ func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.Snapshot
 		return false
 	})
 
-}
-
-// CachedBranchFromEndpoint will walk to the first operations to find the branches containing some modifications
-func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model.Endpoint) (model.PathSyncSource, bool) {
-	// Find highest modified paths
-	var branches []string
-	t.WalkToFirstOperations(OpUnknown, func(operation Operation) {
-		d := path.Dir(operation.GetRefPath())
-		if d == "." {
-			d = ""
-		}
-		branches = append(branches, d)
-	}, endpoint)
-	if len(branches) == 0 {
-		return nil, false
-	}
-	if cacheProvider, ok := endpoint.(model.CachedBranchProvider); ok {
-		log.Logger(ctx).Info("Loading branches in cache", zap.Any("b", branches))
-		inMemory := cacheProvider.GetCachedBranches(ctx, branches...)
-		return inMemory, true
-	}
-	return nil, false
 }
