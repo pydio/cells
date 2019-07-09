@@ -144,6 +144,17 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 		if !n.IsLeaf() {
 			n.Etag = "-1" // Force recomputing Etags for Folders
 		}
+		if c.options.BrowseOnly {
+			var s string
+			if e := n.GetMeta(common.META_FLAG_WORKSPACE_SCOPE, &s); e == nil && s != "" {
+				// This is a workspace or a cell. Check it has the syncable flag
+				var canSync bool
+				if e2 := n.GetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, &canSync); e2 != nil || !canSync {
+					log.Logger(ctx).Info("Skipping workspace as it is not flagged as syncable", n.ZapPath())
+					continue
+				}
+			}
+		}
 		walknFc(n.Path, n, nil)
 	}
 	return

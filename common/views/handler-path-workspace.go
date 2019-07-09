@@ -22,8 +22,11 @@ package views
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/pydio/cells/common"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -134,6 +137,15 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 						Type: tree.NodeType_COLLECTION,
 						Uuid: ws.RootUUIDs[0],
 						Path: ws.Slug,
+					}
+					node.SetMeta(common.META_FLAG_WORKSPACE_SCOPE, ws.Scope.String())
+					if ws.Attributes != "" && ws.Attributes != "{}" {
+						var aa map[string]interface{}
+						if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
+							if canSync, ok := aa["ALLOW_SYNC"]; ok && canSync.(bool) {
+								node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, canSync)
+							}
+						}
 					}
 					streamer.Send(&tree.ListNodesResponse{Node: node})
 				}

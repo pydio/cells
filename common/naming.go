@@ -160,14 +160,16 @@ const (
 	PYDIO_PROFILE_SHARED   = "shared"
 	PYDIO_PROFILE_ANON     = "anon"
 
-	KEYRING_MASTER_KEY       = "keyring.master"
-	META_FLAG_READONLY       = "node_readonly"
-	META_FLAG_LEVEL_READONLY = "level_readonly"
-	META_FLAG_ENCRYPTED      = "datasource_encrypted"
-	META_FLAG_VERSIONING     = "datasource_versioning"
-	META_FLAG_WORKSPACE_ROOT = "ws_root"
-	META_FLAG_VIRTUAL_ROOT   = "virtual_root"
-	NODE_FLAG_ETAG_TEMPORARY = "temporary"
+	KEYRING_MASTER_KEY           = "keyring.master"
+	META_FLAG_READONLY           = "node_readonly"
+	META_FLAG_LEVEL_READONLY     = "level_readonly"
+	META_FLAG_ENCRYPTED          = "datasource_encrypted"
+	META_FLAG_VERSIONING         = "datasource_versioning"
+	META_FLAG_WORKSPACE_ROOT     = "ws_root"
+	META_FLAG_WORKSPACE_SCOPE    = "ws_scope"
+	META_FLAG_WORKSPACE_SYNCABLE = "ws_syncable"
+	META_FLAG_VIRTUAL_ROOT       = "virtual_root"
+	NODE_FLAG_ETAG_TEMPORARY     = "temporary"
 )
 
 var (
