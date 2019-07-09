@@ -802,8 +802,6 @@ func (m *legacyReadMaterials) SetupDecryptMode(workingKey []byte, stream io.Read
 	m.eof = false
 	m.blockCount = 0
 	m.totalEncryptedRead = 0
-
-	fmt.Printf("\n\nswitched to decrypt mode with params: limit=%d and offset=%d\n\n", m.plainRangeLimit, m.plainRangeOffset)
 	return nil
 }
 
