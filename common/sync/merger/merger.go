@@ -221,7 +221,7 @@ type Operation interface {
 	// NodeFromSource tries to load the node from the attached Patch source
 	NodeFromSource(ctx context.Context) (node *tree.Node, err error)
 	// NodeInTarget tries to find the node in the attached Patch target
-	NodeInTarget(ctx context.Context) (node *tree.Node, found bool)
+	NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node *tree.Node, found bool)
 
 	// Clone creates a clone of this operation, eventually replacing its type.
 	Clone(replaceType ...OperationType) Operation

@@ -211,12 +211,17 @@ func (o *patchOperation) NodeFromSource(ctx context.Context) (node *tree.Node, e
 	return
 }
 
-func (o *patchOperation) NodeInTarget(ctx context.Context) (node *tree.Node, found bool) {
+func (o *patchOperation) NodeInTarget(ctx context.Context, cache ...model.PathSyncSource) (node *tree.Node, found bool) {
 	if o.Node != nil {
 		// If deleteEvent has node, it is already loaded from a snapshot, no need to reload from target
 		return o.Node, true
 	} else {
-		node, err := o.Target().LoadNode(o.CreateContext(ctx), o.GetRefPath())
+		// Eventually load from a cached version of the target if it was loaded
+		tgt, _ := model.AsPathSyncSource(o.Target())
+		if len(cache) > 0 && cache[0] != nil {
+			tgt = cache[0]
+		}
+		node, err := tgt.LoadNode(o.CreateContext(ctx), o.GetRefPath())
 		if err != nil {
 			return nil, false
 		} else {

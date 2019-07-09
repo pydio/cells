@@ -149,6 +149,7 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 	return
 }
 
+// GetCachedBranches implements CachedBranchProvider by loading branches in a MemDB
 func (c *abstract) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
 	memDB := memory.NewMemDB()
 	// Make sure to dedup roots
@@ -158,7 +159,9 @@ func (c *abstract) GetCachedBranches(ctx context.Context, roots ...string) model
 	}
 	for _, root := range rts {
 		c.Walk(func(path string, node *tree.Node, err error) {
-			memDB.CreateNode(ctx, node, false)
+			if err == nil {
+				memDB.CreateNode(ctx, node, false)
+			}
 		}, root, true)
 	}
 	return memDB

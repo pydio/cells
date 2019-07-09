@@ -13,8 +13,16 @@ import (
 func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.SnapshotFactory) {
 
 	sources := make(map[model.Endpoint]model.PathSyncSource, 2)
-	t.initSrc(ctx, t.Source(), sources)
-	t.initSrc(ctx, t.Target(), sources)
+	if cache, ok := t.CachedBranchFromEndpoint(ctx, t.Source()); ok {
+		sources[t.Source()] = cache
+	} else {
+		sources[t.Source()] = t.Source()
+	}
+	if cache, ok := t.CachedBranchFromEndpoint(ctx, t.Target()); ok {
+		sources[t.Target()] = cache
+	} else if tgt, ok := model.AsPathSyncSource(t.Target()); ok {
+		sources[t.Target()] = tgt
+	}
 
 	// Load the source to stat, then check if a node already exists, and optionally check its ETag value
 	exists := func(target model.PathSyncTarget, path string, n ...*TreeNode) bool {
@@ -55,19 +63,24 @@ func (t *TreePatch) FilterToTarget(ctx context.Context, snapshots model.Snapshot
 
 }
 
-func (t *TreePatch) initSrc(ctx context.Context, endpoint model.Endpoint, sources map[model.Endpoint]model.PathSyncSource) {
+// CachedBranchFromEndpoint will walk to the first operations to find the branches containing some modifications
+func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model.Endpoint) (model.PathSyncSource, bool) {
 	// Find highest modified paths
 	var branches []string
 	t.WalkToFirstOperations(OpUnknown, func(operation Operation) {
-		branches = append(branches, path.Dir(operation.GetRefPath()))
+		d := path.Dir(operation.GetRefPath())
+		if d == "." {
+			d = ""
+		}
+		branches = append(branches, d)
 	}, endpoint)
 	if len(branches) == 0 {
-		return
+		return nil, false
 	}
 	if cacheProvider, ok := endpoint.(model.CachedBranchProvider); ok {
+		log.Logger(ctx).Info("Loading branches in cache", zap.Any("b", branches))
 		inMemory := cacheProvider.GetCachedBranches(ctx, branches...)
-		sources[endpoint] = inMemory
-	} else if src, ok := model.AsPathSyncSource(endpoint); ok {
-		sources[endpoint] = src
+		return inMemory, true
 	}
+	return nil, false
 }

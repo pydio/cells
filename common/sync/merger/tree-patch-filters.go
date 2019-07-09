@@ -88,12 +88,12 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 	}
 }
 
-func (t *TreePatch) detectFileMoves(ctx context.Context) {
+func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.PathSyncSource) {
 
 	var possibleMoves []*Move
 	movesByEtag := make(map[string][]*Move)
 	for _, deleteOp := range t.deletes {
-		if dbNode, found := deleteOp.NodeInTarget(ctx); found {
+		if dbNode, found := deleteOp.NodeInTarget(ctx, cachedTarget); found {
 			deleteOp.SetNode(dbNode)
 			if dbNode.IsLeaf() {
 				var found bool
@@ -182,9 +182,9 @@ func (t *TreePatch) detectFileMoves(ctx context.Context) {
 	}
 }
 
-func (t *TreePatch) detectFolderMoves(ctx context.Context) {
+func (t *TreePatch) detectFolderMoves(ctx context.Context, cachedTarget model.PathSyncSource) {
 	sorted := t.sortedKeys(t.deletes)
-	target, ok := model.AsPathSyncTarget(t.Target())
+	//target, ok := model.AsPathSyncTarget(t.Target())
 
 	for _, k := range sorted {
 		deleteOp, still := t.deletes[k]
@@ -192,17 +192,20 @@ func (t *TreePatch) detectFolderMoves(ctx context.Context) {
 			// May have been deleted during the process
 			continue
 		}
-		localPath := deleteOp.GetRefPath()
-		var dbNode *tree.Node
-		if deleteOp.GetNode() != nil {
-			// If deleteEvent has node, it is already loaded from a snapshot,
-			// no need to reload from target
-			dbNode = deleteOp.GetNode()
-		} else if ok {
-			dbNode, _ = target.LoadNode(deleteOp.CreateContext(ctx), localPath)
-			log.Logger(ctx).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
-		}
-		if dbNode == nil || dbNode.IsLeaf() {
+		//localPath := deleteOp.GetRefPath()
+		dbNode, found := deleteOp.NodeInTarget(ctx, cachedTarget)
+
+		/*
+			if deleteOp.GetNode() != nil {
+				// If deleteEvent has node, it is already loaded from a snapshot,
+				// no need to reload from target
+				dbNode = deleteOp.GetNode()
+			} else if ok {
+				dbNode, _ = target.LoadNode(deleteOp.CreateContext(ctx), localPath)
+				log.Logger(ctx).Debug("Looking for node in index", zap.Any("path", localPath), zap.Any("dbNode", dbNode))
+			}
+		*/
+		if !found || dbNode.IsLeaf() {
 			continue
 		}
 

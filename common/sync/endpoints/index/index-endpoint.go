@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/endpoints/memory"
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -200,6 +201,25 @@ func (i *Client) FinishSession(ctx context.Context, sessionUuid string) error {
 	_, err := i.sessionClient.CloseSession(ctx, &tree.CloseSessionRequest{Session: &tree.IndexationSession{Uuid: sessionUuid}})
 	i.internalSession = nil
 	return err
+}
+
+// GetCachedBranches implements CachedBranchProvider by loading branches in a MemDB
+func (i *Client) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
+	memDB := memory.NewMemDB()
+	// Make sure to dedup roots
+	rts := make(map[string]string)
+	for _, root := range roots {
+		rts[root] = root
+	}
+	for _, root := range rts {
+		i.Walk(func(path string, node *tree.Node, err error) {
+			if err == nil {
+				memDB.CreateNode(ctx, node, false)
+			}
+		}, root, true)
+	}
+	return memDB
+
 }
 
 func (i *Client) indexationSession() string {
