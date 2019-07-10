@@ -89,6 +89,8 @@ func (t *TreeNode) QueueOperation(op Operation) {
 				last.PathOperation = op
 			case OpCreateFile, OpUpdateFile, OpRefreshUuid:
 				last.DataOperation = op
+			case OpConflict:
+				last.Conflict = op
 			}
 		} else if c, o := crtParent.children[childPath]; o {
 			crtParent = c
@@ -136,6 +138,9 @@ func (t *TreeNode) WalkOperations(opTypes []OperationType, callback OpWalker) {
 		recompute(t, t.DataOperation)
 		callback(t.DataOperation)
 	}
+	if t.filterByTypes(opTypes, t.Conflict) {
+		callback(t.Conflict)
+	}
 	for _, c := range t.SortedChildren() {
 		c.WalkOperations(opTypes, callback)
 	}
@@ -173,6 +178,10 @@ func (t *TreeNode) WalkToFirstOperations(opType OperationType, callback func(Ope
 		found = true
 		recompute(t, t.DataOperation)
 		callback(t.DataOperation)
+	}
+	if filter(t.Conflict) {
+		found = true
+		callback(t.Conflict)
 	}
 	if !found {
 		for _, c := range t.SortedChildren() {

@@ -23,6 +23,7 @@ package merger
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"path"
 	"sort"
 	"time"
@@ -79,7 +80,7 @@ func (t *TreePatch) Enqueue(op Operation) {
 	}
 	op.AttachToPatch(t)
 	switch op.Type() {
-	case OpMoveFolder, OpMoveFile, OpUpdateFile:
+	case OpMoveFolder, OpMoveFile, OpUpdateFile, OpConflict:
 		t.QueueOperation(op)
 	case OpCreateFile:
 		if t.options.MoveDetection {
@@ -167,6 +168,8 @@ func (t *TreePatch) HasErrors() (errs []error, has bool) {
 	t.WalkOperations([]OperationType{}, func(operation Operation) {
 		if e := operation.Error(); e != nil {
 			errs = append(errs, e)
+		} else if operation.Type() == OpConflict {
+			errs = append(errs, fmt.Errorf("conflict on path %s", operation.GetRefPath()))
 		}
 	})
 	return errs, len(errs) > 0
@@ -217,7 +220,7 @@ func (t *TreePatch) Stats() map[string]interface{} {
 		var target map[string]int
 		if operation.IsProcessed() {
 			target = processed
-		} else if operation.GetStatus() != nil && operation.GetStatus().IsError() {
+		} else if (operation.GetStatus() != nil && operation.GetStatus().IsError()) || operation.Type() == OpConflict {
 			target = errors
 		} else {
 			target = pending

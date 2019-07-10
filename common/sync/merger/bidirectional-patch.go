@@ -41,7 +41,6 @@ type Solver func(left, right *TreeNode)
 
 type BidirectionalPatch struct {
 	TreePatch
-	conflicts           []*Conflict
 	matrix              map[OperationType]map[OperationType]Solver
 	inputsModified      bool
 	unexpected          []error
@@ -77,7 +76,8 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 		for _, e := range b.unexpected {
 			ss = append(ss, e.Error())
 		}
-		return nil, fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
+		b.patchError = fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
+		return b, fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
 	}
 	return b, e
 }
@@ -148,22 +148,28 @@ func (p *BidirectionalPatch) enqueueOperations(branch *TreeNode, direction ...Op
 
 func (p *BidirectionalPatch) initMatrix() {
 	p.matrix = map[OperationType]map[OperationType]Solver{
-		OpNone:         {OpNone: p.Ignore, OpCreateFolder: p.enqueueBoth, OpMoveFile: p.enqueueBoth, OpMoveFolder: p.enqueueBoth, OpDelete: p.enqueueBoth},
-		OpCreateFolder: {OpNone: nil, OpCreateFolder: p.Ignore, OpMoveFile: p.Conflict, OpMoveFolder: p.Conflict, OpDelete: p.enqueueLeft},
-		OpMoveFile:     {OpNone: nil, OpCreateFolder: nil, OpMoveFile: p.CompareMoveTargets, OpMoveFolder: p.Conflict, OpDelete: p.ReSyncTarget},
-		OpMoveFolder:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: p.CompareMoveTargets, OpDelete: p.ReSyncTarget},
-		OpDelete:       {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: p.Ignore},
+		OpNone:         {OpNone: p.Ignore, OpCreateFolder: p.enqueueBoth, OpMoveFile: p.enqueueBoth, OpMoveFolder: p.enqueueBoth, OpDelete: p.enqueueBoth, OpCreateFile: p.enqueueBoth, OpUpdateFile: p.enqueueBoth},
+		OpCreateFolder: {OpNone: nil, OpCreateFolder: p.Ignore, OpMoveFile: p.Conflict, OpMoveFolder: p.Conflict, OpDelete: p.enqueueLeft, OpCreateFile: p.Conflict, OpUpdateFile: p.Conflict},
+		OpMoveFile:     {OpNone: nil, OpCreateFolder: nil, OpMoveFile: p.CompareMoveTargets, OpMoveFolder: p.Conflict, OpDelete: p.ReSyncTarget, OpCreateFile: p.Conflict, OpUpdateFile: p.Conflict},
+		OpMoveFolder:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: p.CompareMoveTargets, OpDelete: p.ReSyncTarget, OpCreateFile: p.Conflict, OpUpdateFile: p.Conflict},
+		OpDelete:       {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: p.Ignore, OpCreateFile: p.enqueueRight, OpUpdateFile: p.enqueueRight},
+		OpCreateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: p.MergeDataOperations, OpUpdateFile: p.MergeDataOperations},
+		OpUpdateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: p.MergeDataOperations},
 	}
 }
 
 func (p *BidirectionalPatch) merge(left, right *TreeNode) {
-	// Merge PATH Ops
+	// Merge PATH or Data Ops
 	opLeft, opRight := OpNone, OpNone
 	if left.PathOperation != nil {
 		opLeft = left.PathOperation.Type()
+	} else if left.DataOperation != nil {
+		opLeft = left.DataOperation.Type()
 	}
 	if right.PathOperation != nil {
 		opRight = right.PathOperation.Type()
+	} else if right.DataOperation != nil {
+		opRight = right.DataOperation.Type()
 	}
 	solver := p.matrix[opLeft][opRight]
 	if solver == nil {
@@ -172,7 +178,7 @@ func (p *BidirectionalPatch) merge(left, right *TreeNode) {
 	solver(left, right)
 
 	// Merge DATA Ops
-	p.MergeDataOperations(left, right)
+	// p.MergeDataOperations(left, right)
 }
 
 func (p *BidirectionalPatch) Ignore(left, right *TreeNode) {
@@ -284,6 +290,20 @@ func (p *BidirectionalPatch) CompareMoveTargets(left, right *TreeNode) {
 
 func (p *BidirectionalPatch) Conflict(left, right *TreeNode) {
 	log.Logger(p.ctx).Error("-- Unsolvable conflict!", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
+	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.Path))
+	var leftOp, rightOp Operation
+	if left.PathOperation != nil {
+		leftOp = left.PathOperation
+	} else if left.DataOperation != nil {
+		leftOp = left.DataOperation
+	}
+	if right.PathOperation != nil {
+		rightOp = right.PathOperation
+	} else if right.DataOperation != nil {
+		rightOp = right.DataOperation
+	}
+	op := NewConflictOperation(&left.Node, ConflictNodeType, leftOp, rightOp)
+	p.QueueOperation(op)
 }
 
 func (p *BidirectionalPatch) MergeDataOperations(left, right *TreeNode) {

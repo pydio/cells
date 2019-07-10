@@ -25,11 +25,11 @@ import (
 	"context"
 	"fmt"
 	"runtime/debug"
-
-	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
+	"time"
 
 	"github.com/gobwas/glob"
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/sync/filters"
 	"github.com/pydio/cells/common/sync/merger"
@@ -115,15 +115,17 @@ func (s *Sync) Start(ctx context.Context, withWatches bool) {
 	if withWatches {
 		s.startWatchers(ctx)
 	} else if s.watchConn != nil {
-
-		s.watchConn <- &model.EndpointStatus{
-			WatchConnection: model.WatchConnected,
-			EndpointInfo:    s.Source.GetEndpointInfo(),
-		}
-		s.watchConn <- &model.EndpointStatus{
-			WatchConnection: model.WatchConnected,
-			EndpointInfo:    s.Target.GetEndpointInfo(),
-		}
+		go func() {
+			<-time.After(2 * time.Second)
+			s.watchConn <- &model.EndpointStatus{
+				WatchConnection: model.WatchConnected,
+				EndpointInfo:    s.Source.GetEndpointInfo(),
+			}
+			s.watchConn <- &model.EndpointStatus{
+				WatchConnection: model.WatchConnected,
+				EndpointInfo:    s.Target.GetEndpointInfo(),
+			}
+		}()
 	}
 
 }
@@ -171,12 +173,22 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 				if s.statuses != nil {
 					s.statuses <- model.NewProcessingStatus(err.Error()).SetError(err).SetProgress(1)
 				}
+				if s.runDone != nil {
+					s.runDone <- 0
+				}
 			}
 		}
 	}()
 	stater, err := s.run(ctx, dryRun, force)
 	if err != nil && s.statuses != nil {
 		s.statuses <- model.NewProcessingStatus(err.Error()).SetError(err).SetProgress(1)
+		if s.runDone != nil {
+			if stater != nil {
+				s.runDone <- stater
+			} else {
+				s.runDone <- 0
+			}
+		}
 	}
 	return stater, err
 }

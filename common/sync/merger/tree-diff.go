@@ -36,6 +36,13 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+// Conflict represent a conflict between two nodes at the same path
+type DiffConflict struct {
+	Type      ConflictType
+	NodeLeft  *tree.Node
+	NodeRight *tree.Node
+}
+
 // Diff represent basic differences between two sources
 // It can be then transformed to Patch, depending on the sync being
 // unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
@@ -45,7 +52,7 @@ type TreeDiff struct {
 
 	missingLeft  []*tree.Node
 	missingRight []*tree.Node
-	conflicts    []*Conflict
+	conflicts    []*DiffConflict
 	ctx          context.Context
 
 	cmd        *model.Command
@@ -138,17 +145,50 @@ func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType) (patc
 	} else {
 		return nil, errors.New("error while extracting unidirectional patch. either left or right is not a sync target")
 	}
-	for _, c := range ConflictsByType(diff.conflicts, ConflictFileContent) {
+	for _, c := range diff.conflictsByType(ConflictFileContent) {
 		n := MostRecentNode(c.NodeLeft, c.NodeRight)
 		patch.Enqueue(NewOperation(OpUpdateFile, model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate), n))
 	}
-	log.Logger(diff.ctx).Info("Sending Unidirectionnal patch", zap.Any("patch", patch.Stats()))
+	log.Logger(diff.ctx).Info("Sending unidirectional patch", zap.Any("patch", patch.Stats()))
 	//fmt.Println(patch)
 	return
 }
 
-// ToBidirectionalPatch transforms this diff to a patch
-func (diff *TreeDiff) ToBidirectionalPatches(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (leftPatch Patch, rightPatch Patch) {
+// ToBidirectionalPatch computes a bidirectional patch from this diff using the given targets
+func (diff *TreeDiff) ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error) {
+
+	diff.solveConflicts(diff.ctx)
+
+	leftPatch, rightPatch := diff.leftAndRightPatches(leftTarget, rightTarget)
+	patch, err = ComputeBidirectionalPatch(diff.ctx, leftPatch, rightPatch)
+	if err != nil {
+		return
+	}
+
+	// Re-enqueue Diff conflicts to Patch conflicts
+	for _, c := range diff.conflicts {
+		var leftOp, rightOp Operation
+		if c.NodeLeft.IsLeaf() {
+			leftOp = NewOperation(OpCreateFile, model.EventInfo{Path: c.NodeLeft.Path}, c.NodeLeft)
+		} else {
+			leftOp = NewOperation(OpCreateFolder, model.EventInfo{Path: c.NodeLeft.Path}, c.NodeLeft)
+		}
+		if c.NodeRight.IsLeaf() {
+			rightOp = NewOperation(OpCreateFile, model.EventInfo{Path: c.NodeRight.Path}, c.NodeRight)
+		} else {
+			rightOp = NewOperation(OpCreateFolder, model.EventInfo{Path: c.NodeRight.Path}, c.NodeRight)
+		}
+		patch.Enqueue(NewConflictOperation(c.NodeLeft, c.Type, leftOp, rightOp))
+	}
+	if _, ok := patch.HasErrors(); ok {
+		err = fmt.Errorf("diff has conflicts")
+	}
+
+	return
+}
+
+// leftAndRightPatches provides two patches from this diff, to be used as input for a BidirPatch computation
+func (diff *TreeDiff) leftAndRightPatches(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (leftPatch Patch, rightPatch Patch) {
 
 	leftPatch = NewPatch(leftTarget.(model.PathSyncSource), rightTarget, PatchOptions{MoveDetection: true})
 	if rightTarget != nil {
@@ -163,11 +203,6 @@ func (diff *TreeDiff) ToBidirectionalPatches(leftTarget model.PathSyncTarget, ri
 	}
 	return
 
-}
-
-// conflicts list discovered conflicts
-func (diff *TreeDiff) Conflicts() []*Conflict {
-	return diff.conflicts
 }
 
 // Status sends status to internal channel
@@ -232,21 +267,21 @@ func (diff *TreeDiff) mergeNodes(left *TreeNode, right *TreeNode) {
 	}
 	if left.Type != right.Type {
 		// Node changed of type - Register conflict and keep browsing
-		diff.conflicts = append(diff.conflicts, &Conflict{
+		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictNodeType,
 			NodeLeft:  &left.Node,
 			NodeRight: &right.Node,
 		})
 	} else if !left.IsLeaf() && left.Uuid != right.Uuid {
 		// Folder has different UUID - Register conflict and keep browsing
-		diff.conflicts = append(diff.conflicts, &Conflict{
+		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictFolderUUID,
 			NodeLeft:  &left.Node,
 			NodeRight: &right.Node,
 		})
 	} else if left.IsLeaf() {
 		// Files differ - Register conflict and return (no children)
-		diff.conflicts = append(diff.conflicts, &Conflict{
+		diff.conflicts = append(diff.conflicts, &DiffConflict{
 			Type:      ConflictFileContent,
 			NodeLeft:  &left.Node,
 			NodeRight: &right.Node,
@@ -310,4 +345,55 @@ func (diff *TreeDiff) toMissing(patch Patch, in []*tree.Node, folders bool, remo
 		}
 	}
 
+}
+
+// solveConflicts tries to fix existing conflicts and return remaining ones
+func (diff *TreeDiff) solveConflicts(ctx context.Context) {
+
+	right := diff.right
+	left := diff.left
+	var remaining []*DiffConflict
+
+	// Try to refresh UUIDs on target
+	var refresher model.UuidFoldersRefresher
+	var canRefresh, refresherRight, refresherLeft bool
+	if refresher, canRefresh = right.(model.UuidFoldersRefresher); canRefresh {
+		refresherRight = true
+	} else if refresher, canRefresh = left.(model.UuidFoldersRefresher); canRefresh {
+		refresherLeft = true
+	}
+	for _, c := range diff.conflicts {
+		var solved bool
+
+		if c.Type == ConflictFolderUUID && canRefresh {
+			var srcUuid *tree.Node
+			if refresherRight {
+				srcUuid = c.NodeLeft
+			} else if refresherLeft {
+				srcUuid = c.NodeRight
+			}
+			if _, e := refresher.UpdateFolderUuid(ctx, srcUuid); e == nil {
+				solved = true
+			}
+		} else if c.Type == ConflictFileContent {
+			// What can we do?
+		}
+
+		if !solved {
+			remaining = append(remaining, c)
+		}
+	}
+
+	diff.conflicts = remaining
+	return
+}
+
+// conflictsByType filters a slice of conflicts for a given type
+func (diff *TreeDiff) conflictsByType(conflictType ConflictType) (conflicts []*DiffConflict) {
+	for _, c := range diff.conflicts {
+		if c.Type == conflictType {
+			conflicts = append(conflicts, c)
+		}
+	}
+	return
 }

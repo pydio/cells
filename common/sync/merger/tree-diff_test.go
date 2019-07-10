@@ -644,7 +644,7 @@ func TestTreeDiffDeepPatches(t *testing.T) {
 
 		diff := &TreeDiff{}
 
-		lp, rp := diff.ToBidirectionalPatches(left, right)
+		lp, rp := diff.leftAndRightPatches(left, right)
 		So(lp, ShouldNotBeNil)
 		So(rp, ShouldNotBeNil)
 	})
@@ -693,8 +693,8 @@ func TestTreeDiffConflictsAndStatus(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		go f()
-		_, _ = diff.ToBidirectionalPatches(left, right)
-		So(diff.Conflicts(), ShouldHaveLength, 1)
+		_, _ = diff.leftAndRightPatches(left, right)
+		So(diff.conflicts, ShouldHaveLength, 1)
 	})
 }
 

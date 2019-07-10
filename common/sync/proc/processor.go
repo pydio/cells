@@ -120,7 +120,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	}
 
 	// Listen to cmd Chan
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(pr.GlobalContext)
 	var cmdChan chan model.SyncCmd
 	if cmd != nil {
 		var unsub chan bool
@@ -227,7 +227,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	<-done
 
 	if pE, h := patch.HasErrors(); !h && !pr.SkipTargetChecks {
-		if err := patch.Validate(pr.GlobalContext); err != nil {
+		if err := patch.Validate(ctx); err != nil {
 			log.Logger(pr.GlobalContext).Error("Could not validate patch", zap.Error(err))
 		}
 	} else if h {

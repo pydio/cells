@@ -43,6 +43,13 @@ type patchOperation struct {
 	patch Patch
 }
 
+type conflictOperation struct {
+	patchOperation
+	ConflictType ConflictType
+	LeftOp       Operation
+	RightOp      Operation
+}
+
 func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) Operation {
 	o := &patchOperation{
 		OpType:    t,
@@ -53,6 +60,23 @@ func NewOperation(t OperationType, e model.EventInfo, loadedNode ...*tree.Node) 
 		o.Node = loadedNode[0]
 	}
 	return o
+}
+
+func NewConflictOperation(node *tree.Node, t ConflictType, left, right Operation) Operation {
+	return &conflictOperation{
+		patchOperation: patchOperation{
+			OpType: OpConflict,
+			Node:   node,
+			Dir:    OperationDirDefault,
+		},
+		ConflictType: t,
+		LeftOp:       left,
+		RightOp:      right,
+	}
+}
+
+func (c *conflictOperation) ConflictInfo() (t ConflictType, left Operation, right Operation) {
+	return c.ConflictType, c.LeftOp, c.RightOp
 }
 
 func (o *patchOperation) Clone(replaceType ...OperationType) Operation {

@@ -40,84 +40,13 @@ const (
 	ConflictNodeType
 )
 
-// Conflict represent a conflict between two nodes at the same path
-type Conflict struct {
-	Type      ConflictType
-	NodeLeft  *tree.Node
-	NodeRight *tree.Node
-}
+type OperationDirection int
 
-// PatchOptions contains various options for initializing a patch
-type PatchOptions struct {
-	MoveDetection bool
-	NoRescan      bool
-}
-
-// OpWalker is a callback passed to the Walk functions of a patch
-type OpWalker func(Operation)
-
-// Patch represents a set of operations to be processed
-type Patch interface {
-	model.Stater
-	model.StatusProvider
-
-	// GetUUID provides a unique ID for this patch
-	GetUUID() string
-	// SetUUID set the uuid
-	SetUUID(string)
-	// GetStamp returns a last modified date
-	GetStamp() time.Time
-	// Stamp set the last modified date on this patch
-	Stamp(time.Time)
-
-	// Source get or set the source of this patch
-	Source(newSource ...model.PathSyncSource) model.PathSyncSource
-	// Target get or set the target of this patch
-	Target(newTarget ...model.PathSyncTarget) model.PathSyncTarget
-
-	// Enqueue stacks a Operation - By default, it is registered with the event.Key, but an optional key can be passed.
-	Enqueue(event Operation)
-	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
-	WalkOperations(opTypes []OperationType, callback OpWalker)
-	// EventsByTypes retrieves all events of a given type
-	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
-
-	// Filter tries to detect unnecessary changes locally
-	Filter(ctx context.Context, ignores ...glob.Glob)
-	// FilterToTarget tries to compare changes to target and remove unnecessary ones
-	FilterToTarget(ctx context.Context)
-	// SkipTargetChecks set a flag to skip FilterToTarget
-	SkipFilterToTarget(bool)
-	// Validate browses target to verify all changes are correctly reflected (and indexed)
-	Validate(ctx context.Context) error
-
-	// HasTransfers tels if the source and target will exchange actual data.
-	HasTransfers() bool
-	// Size returns the total number of operations
-	Size() int
-	// ProgressTotal returns the total number of bytes to be processed, to be used for progress.
-	// Basically, file transfers operations returns the file size, but other operations return a 1 byte size.
-	ProgressTotal() int64
-
-	// HasErrors checks if this patch has a global error status
-	HasErrors() ([]error, bool)
-	// CleanErrors cleans errors from patch before trying to reapply it
-	CleanErrors()
-
-	// SetSessionProvider registers a target as supporting the SessionProvider interface
-	SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool)
-	// StartSessionProvider calls StartSession on the underlying provider if it is set
-	StartSessionProvider(rootNode *tree.Node) (*tree.IndexationSession, error)
-	// FlushSessionProvider calls FlushSession on the underlying provider if it is set
-	FlushSessionProvider(sessionUuid string) error
-	// FinishSessionProvider calls FinishSession on the underlying provider if it is set
-	FinishSessionProvider(sessionUuid string) error
-}
-
-// PatchPiper provides a way to plug on the patches channel
-type PatchPiper interface {
-	Pipe(in chan Patch) chan Patch
-}
+const (
+	OperationDirDefault OperationDirection = iota
+	OperationDirLeft
+	OperationDirRight
+)
 
 // OperationType describes the type of operation to be applied
 type OperationType int
@@ -130,6 +59,7 @@ const (
 	OpMoveFile
 	OpDelete
 	OpRefreshUuid
+	OpConflict
 	OpUnknown
 )
 
@@ -154,13 +84,15 @@ func (t OperationType) String() string {
 	return ""
 }
 
-type OperationDirection int
+// NewDiff creates a new Diff implementation
+func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) Diff {
+	return newTreeDiff(ctx, left, right)
+}
 
-const (
-	OperationDirDefault OperationDirection = iota
-	OperationDirLeft
-	OperationDirRight
-)
+// NewPatch creates a new Patch implementation
+func NewPatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) Patch {
+	return newTreePatch(source, target, options)
+}
 
 // Operation describes an atomic operation to be passed to a processor and applied to an endpoint
 type Operation interface {
@@ -229,6 +161,13 @@ type Operation interface {
 	CreateContext(ctx context.Context) context.Context
 }
 
+type ConflictOperation interface {
+	ConflictInfo() (t ConflictType, left Operation, right Operation)
+}
+
+// OpWalker is a callback passed to the Walk functions of a patch
+type OpWalker func(Operation)
+
 // Diff represents basic differences between two sources
 // It can be then transformed to Patch, depending on the sync being
 // unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
@@ -240,22 +179,77 @@ type Diff interface {
 	Compute(root string, ignores ...glob.Glob) error
 	// ToUnidirectionalPatch transforms current diff into a set of patch operations
 	ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error)
-	// ToBidirectionalPatch transforms current diff into a set of 2 batches of operations
-	ToBidirectionalPatches(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (leftPatch Patch, rightPatch Patch)
-	// Conflicts list discovered conflicts
-	Conflicts() []*Conflict
-	// SolveConflicts tries to fix existing conflicts and return remaining ones
-	SolveConflicts(ctx context.Context) (remaining []*Conflict, e error)
+	// ToBidirectionalPatch transforms current diff into a bidirectional patch of operations
+	ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error)
 }
 
-// NewDiff creates a new Diff implementation
-func NewDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) Diff {
-	return newTreeDiff(ctx, left, right)
+// PatchOptions contains various options for initializing a patch
+type PatchOptions struct {
+	MoveDetection bool
+	NoRescan      bool
 }
 
-// NewPatch creates a new Patch implementation
-func NewPatch(source model.PathSyncSource, target model.PathSyncTarget, options PatchOptions) Patch {
-	return newTreePatch(source, target, options)
+// Patch represents a set of operations to be processed
+type Patch interface {
+	model.Stater
+	model.StatusProvider
+
+	// GetUUID provides a unique ID for this patch
+	GetUUID() string
+	// SetUUID set the uuid
+	SetUUID(string)
+	// GetStamp returns a last modified date
+	GetStamp() time.Time
+	// Stamp set the last modified date on this patch
+	Stamp(time.Time)
+
+	// Source get or set the source of this patch
+	Source(newSource ...model.PathSyncSource) model.PathSyncSource
+	// Target get or set the target of this patch
+	Target(newTarget ...model.PathSyncTarget) model.PathSyncTarget
+
+	// Enqueue stacks a Operation - By default, it is registered with the event.Key, but an optional key can be passed.
+	Enqueue(event Operation)
+	// WalkOperations crawls operations in correct order, with an optional filter (no filter = all operations)
+	WalkOperations(opTypes []OperationType, callback OpWalker)
+	// EventsByTypes retrieves all events of a given type
+	OperationsByType(types []OperationType, sorted ...bool) (events []Operation)
+
+	// Filter tries to detect unnecessary changes locally
+	Filter(ctx context.Context, ignores ...glob.Glob)
+	// FilterToTarget tries to compare changes to target and remove unnecessary ones
+	FilterToTarget(ctx context.Context)
+	// SkipTargetChecks set a flag to skip FilterToTarget
+	SkipFilterToTarget(bool)
+	// Validate browses target to verify all changes are correctly reflected (and indexed)
+	Validate(ctx context.Context) error
+
+	// HasTransfers tels if the source and target will exchange actual data.
+	HasTransfers() bool
+	// Size returns the total number of operations
+	Size() int
+	// ProgressTotal returns the total number of bytes to be processed, to be used for progress.
+	// Basically, file transfers operations returns the file size, but other operations return a 1 byte size.
+	ProgressTotal() int64
+
+	// HasErrors checks if this patch has a global error status
+	HasErrors() ([]error, bool)
+	// CleanErrors cleans errors from patch before trying to reapply it
+	CleanErrors()
+
+	// SetSessionProvider registers a target as supporting the SessionProvider interface
+	SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool)
+	// StartSessionProvider calls StartSession on the underlying provider if it is set
+	StartSessionProvider(rootNode *tree.Node) (*tree.IndexationSession, error)
+	// FlushSessionProvider calls FlushSession on the underlying provider if it is set
+	FlushSessionProvider(sessionUuid string) error
+	// FinishSessionProvider calls FinishSession on the underlying provider if it is set
+	FinishSessionProvider(sessionUuid string) error
+}
+
+// PatchPiper provides a way to plug on the patches channel
+type PatchPiper interface {
+	Pipe(in chan Patch) chan Patch
 }
 
 // ClonePatch creates a new patch with the same operations but different source/targets
@@ -268,16 +262,6 @@ func ClonePatch(source model.PathSyncSource, target model.PathSyncTarget, origin
 		patch.Enqueue(op.Clone()) // Will update patch reference
 	}
 	return patch
-}
-
-// ConflictsByType filters a slice of conflicts for a given type
-func ConflictsByType(cc []*Conflict, conflictType ConflictType) (conflicts []*Conflict) {
-	for _, c := range cc {
-		if c.Type == conflictType {
-			conflicts = append(conflicts, c)
-		}
-	}
-	return
 }
 
 // MostRecentNode compares two nodes Modification Time and returns the most recent one

@@ -55,7 +55,7 @@ func (t *TreePatch) validateEndpoint(ctx context.Context, target model.Endpoint)
 		// => wait before first try
 		<-time.After(1 * time.Second)
 		t.Status(model.NewProcessingStatus("Validating modifications have been correctly reported...").SetProgress(1))
-		return model.Retry(func() error {
+		return model.RetryWithCtx(ctx, func(retry int) error {
 			return t.validateWithPreLoad(ctx, branches, syncSource)
 		}, 6*time.Second, 4*time.Minute)
 

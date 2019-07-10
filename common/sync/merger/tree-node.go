@@ -50,6 +50,7 @@ type TreeNode struct {
 
 	PathOperation Operation
 	DataOperation Operation
+	Conflict      Operation
 	OpMoveTarget  *TreeNode
 }
 
@@ -311,6 +312,9 @@ func (t *TreeNode) MarshalJSON() ([]byte, error) {
 	}
 	if t.DataOperation != nil {
 		data["DataOperation"] = t.DataOperation
+	}
+	if t.Conflict != nil {
+		data["Conflict"] = t.Conflict
 	}
 	return json.Marshal(data)
 }

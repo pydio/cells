@@ -27,10 +27,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/pkg/errors"
-
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
@@ -78,7 +76,11 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 		bb, dryStat, e := s.runBi(ctx, dryRun, force, rootsInfo)
 		if e != nil {
-			return nil, e
+			if bb != nil {
+				return bb, e
+			} else {
+				return nil, e
+			}
 		}
 		if dryRun {
 			return dryStat, e
@@ -89,35 +91,26 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 	} else {
 		if len(s.Roots) == 0 {
-			patch, dryStat, e := s.runUni(ctx, "/", dryRun, force, rootsInfo)
-			if e != nil {
-				return nil, e
-			} else if dryRun {
-				return dryStat, e
-			} else {
-				s.patchChan <- patch
-				return patch, e
-			}
-		} else {
-			multi := model.NewMultiStater()
-			var errs []string
-			for _, p := range s.Roots {
-				if patch, dryStat, e := s.runUni(ctx, p, dryRun, force, rootsInfo); e == nil {
-					if dryRun {
-						multi[p] = dryStat
-					} else {
-						s.patchChan <- patch
-						multi[p] = patch
-					}
-				} else {
-					errs = append(errs, e.Error())
-				}
-			}
-			if len(errs) > 0 {
-				return multi, fmt.Errorf(strings.Join(errs, "-"))
-			}
-			return multi, nil
+			s.Roots = append(s.Roots, "/")
 		}
+		multi := model.NewMultiStater()
+		var errs []string
+		for _, p := range s.Roots {
+			if patch, dryStat, e := s.runUni(ctx, p, dryRun, force, rootsInfo); e == nil {
+				if dryRun {
+					multi[p] = dryStat
+				} else {
+					s.patchChan <- patch
+					multi[p] = patch
+				}
+			} else {
+				errs = append(errs, e.Error())
+			}
+		}
+		if len(errs) > 0 {
+			return multi, fmt.Errorf(strings.Join(errs, "-"))
+		}
+		return multi, nil
 	}
 
 }
@@ -132,8 +125,6 @@ func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force b
 	if e == nil && dryRun {
 		log.Logger(ctx).Info("Dry run result", zap.String("diff", diff.String()))
 	}
-	// TMP TODO
-	<-time.After(3 * time.Second)
 
 	log.Logger(ctx).Debug("### GOT DIFF", zap.Any("diff", diff))
 	if e != nil || dryRun {
@@ -223,7 +214,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 				}
 			} else {
 				log.Logger(ctx).Error("Could not compute Bidirectionnal Patch! DO SOMETHING HERE!!")
-				return nil, nil, e
+				return b, nil, e
 			}
 		}
 
@@ -248,11 +239,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 
 			sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
 			target, _ := model.AsPathSyncTarget(s.Target)
-			if _, ers := diff.SolveConflicts(ctx); ers != nil {
-				return nil, nil, ers
-			}
-			leftPatch, rightPatch := diff.ToBidirectionalPatches(sourceAsTarget, target)
-			if b, err := merger.ComputeBidirectionalPatch(ctx, leftPatch, rightPatch); err == nil {
+			if b, err := diff.ToBidirectionalPatch(sourceAsTarget, target); err == nil {
 				if bb != nil {
 					bb.AppendBranch(ctx, b)
 				} else {
@@ -261,7 +248,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 				bb.SkipFilterToTarget(true)
 				log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", b.Stats()))
 			} else {
-				return nil, nil, err
+				return b, nil, err
 			}
 
 		}
