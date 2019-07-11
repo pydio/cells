@@ -48,10 +48,16 @@ type TreeNode struct {
 	parent       *TreeNode
 	sorted       []*TreeNode
 
+	// PathOperation defines an operation on path, like mkdir, move, delete...
 	PathOperation Operation
+	// DataOperation defines an operation on data transfer
 	DataOperation Operation
-	Conflict      Operation
-	OpMoveTarget  *TreeNode
+	// Conflict encapsulates two conflicting operations on the same node
+	Conflict Operation
+	// OpMoveTarget is a reference to the target node for move operations
+	OpMoveTarget *TreeNode
+	// MoveSourcePath is a reference to the source node path if there is a move operation (necessary for detecting conflicts)
+	MoveSourcePath string
 }
 
 // TreeNodeFromSource populates a hash tree with leafs and folders by walking a source.
@@ -309,12 +315,18 @@ func (t *TreeNode) MarshalJSON() ([]byte, error) {
 	}
 	if t.PathOperation != nil {
 		data["PathOperation"] = t.PathOperation
+		if t.OpMoveTarget != nil {
+			data["MoveTargetPath"] = t.PathOperation.GetRefPath()
+		}
 	}
 	if t.DataOperation != nil {
 		data["DataOperation"] = t.DataOperation
 	}
 	if t.Conflict != nil {
 		data["Conflict"] = t.Conflict
+	}
+	if t.MoveSourcePath != "" {
+		data["MoveSourcePath"] = t.MoveSourcePath
 	}
 	return json.Marshal(data)
 }

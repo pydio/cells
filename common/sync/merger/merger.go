@@ -38,6 +38,9 @@ const (
 	ConflictFolderUUID ConflictType = iota
 	ConflictFileContent
 	ConflictNodeType
+	ConflictPathOperation
+	ConflictMoveSameSource
+	ConflictMoveSameTarget
 )
 
 type OperationDirection int

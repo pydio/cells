@@ -36,9 +36,12 @@ import (
 )
 
 const OpNone OperationType = 100
+const OpMoveTarget OperationType = 101
 
 type Solver func(left, right *TreeNode)
 
+// BidirectionalPatch is a Patch that can handle operations going both left and right side.
+// It handles conflicts detection and tries to solve them automatically if possible
 type BidirectionalPatch struct {
 	TreePatch
 	matrix              map[OperationType]map[OperationType]Solver
@@ -48,15 +51,26 @@ type BidirectionalPatch struct {
 	ignoreUUIDConflicts bool
 }
 
+// ComputeBidirectionalPatch merges two unidirectional Patch into one BidirectionalPatch
 func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*BidirectionalPatch, error) {
 	source := left.Source()
 	target, _ := model.AsPathSyncTarget(right.Source())
 	b := &BidirectionalPatch{
-		TreePatch:           *newTreePatch(source, target, PatchOptions{MoveDetection: false}),
-		ctx:                 ctx,
-		ignoreUUIDConflicts: ignoreUUIDConflictsForEndpoints(source, target),
+		TreePatch: *newTreePatch(source, target, PatchOptions{MoveDetection: false}),
+		ctx:       ctx,
+	}
+
+	// If syncing on same server, do not trigger conflicts on .pydio
+	u1, _ := url.Parse(source.GetEndpointInfo().URI)
+	u2, _ := url.Parse(target.GetEndpointInfo().URI)
+	if u1.Scheme == "router" && u2.Scheme == "router" {
+		b.ignoreUUIDConflicts = true
+	}
+	if strings.HasPrefix(u1.Scheme, "http") && strings.HasPrefix(u2.Scheme, "http") && u1.Host == u2.Host {
+		b.ignoreUUIDConflicts = true
 	}
 	b.initMatrix()
+
 	left.Filter(ctx)
 	right.Filter(ctx)
 	l, ok1 := left.(*TreePatch)
@@ -82,23 +96,37 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 	return b, e
 }
 
+// AppendBranch merges another bidir patch into this existing patch
 func (p *BidirectionalPatch) AppendBranch(ctx context.Context, branch *BidirectionalPatch) {
 	p.enqueueOperations(&branch.TreeNode)
 }
 
-func ignoreUUIDConflictsForEndpoints(left, right model.Endpoint) bool {
-	// If syncing on same server, do not trigger conflicts on .pydio
-	u1, _ := url.Parse(left.GetEndpointInfo().URI)
-	u2, _ := url.Parse(right.GetEndpointInfo().URI)
-	if u1.Scheme == "router" && u2.Scheme == "router" {
-		return true
+// initMatrix builds a matrix of left/right operations with Solver functions
+func (p *BidirectionalPatch) initMatrix() {
+	// Use three chars symbols for nice display of the matrix
+	ign := p.ignore
+	eqb := p.enqueueBoth
+	eql := p.enqueueLeft
+	eqr := p.enqueueRight
+	rst := p.reSyncTarget
+	cmt := p.compareMoveTargets
+	cms := p.compareMoveSources
+	mrg := p.mergeDataOperations
+	cnT := func(left, right *TreeNode) { p.enqueConflict(left, right, ConflictNodeType) }
+	cnP := func(left, right *TreeNode) { p.enqueConflict(left, right, ConflictPathOperation) }
+	p.matrix = map[OperationType]map[OperationType]Solver{
+		OpNone:         {OpNone: ign, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: eqb},
+		OpCreateFolder: {OpNone: nil, OpCreateFolder: ign, OpMoveFile: cnP, OpMoveFolder: cnP, OpDelete: eql, OpCreateFile: cnP, OpUpdateFile: cnP, OpMoveTarget: eqb},
+		OpMoveFile:     {OpNone: nil, OpCreateFolder: nil, OpMoveFile: cmt, OpMoveFolder: cnT, OpDelete: rst, OpCreateFile: cnP, OpUpdateFile: eqb, OpMoveTarget: eqb},
+		OpMoveFolder:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: cmt, OpDelete: rst, OpCreateFile: cnT, OpUpdateFile: cnT, OpMoveTarget: eqb},
+		OpDelete:       {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: ign, OpCreateFile: eqr, OpUpdateFile: eqr, OpMoveTarget: eqb},
+		OpCreateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: mrg, OpUpdateFile: mrg, OpMoveTarget: eqb},
+		OpUpdateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: mrg, OpMoveTarget: eqb},
+		OpMoveTarget:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: nil, OpMoveTarget: cms},
 	}
-	if strings.HasPrefix(u1.Scheme, "http") && strings.HasPrefix(u2.Scheme, "http") && u1.Host == u2.Host {
-		return true
-	}
-	return false
 }
 
+// mergeTrees performs the walk of left and right to enqueue operations to the current Patch
 func (p *BidirectionalPatch) mergeTrees(left, right *TreeNode) {
 	cL := left.GetCursor()
 	cR := right.GetCursor()
@@ -136,6 +164,7 @@ func (p *BidirectionalPatch) mergeTrees(left, right *TreeNode) {
 
 }
 
+// enqueueOperation adds an operation to the patch, with an optional operation direction
 func (p *BidirectionalPatch) enqueueOperations(branch *TreeNode, direction ...OperationDirection) {
 	branch.WalkOperations([]OperationType{}, func(operation Operation) {
 		toEnqueue := operation.Clone()
@@ -146,18 +175,7 @@ func (p *BidirectionalPatch) enqueueOperations(branch *TreeNode, direction ...Op
 	})
 }
 
-func (p *BidirectionalPatch) initMatrix() {
-	p.matrix = map[OperationType]map[OperationType]Solver{
-		OpNone:         {OpNone: p.Ignore, OpCreateFolder: p.enqueueBoth, OpMoveFile: p.enqueueBoth, OpMoveFolder: p.enqueueBoth, OpDelete: p.enqueueBoth, OpCreateFile: p.enqueueBoth, OpUpdateFile: p.enqueueBoth},
-		OpCreateFolder: {OpNone: nil, OpCreateFolder: p.Ignore, OpMoveFile: p.Conflict, OpMoveFolder: p.Conflict, OpDelete: p.enqueueLeft, OpCreateFile: p.Conflict, OpUpdateFile: p.Conflict},
-		OpMoveFile:     {OpNone: nil, OpCreateFolder: nil, OpMoveFile: p.CompareMoveTargets, OpMoveFolder: p.Conflict, OpDelete: p.ReSyncTarget, OpCreateFile: p.Conflict, OpUpdateFile: p.Conflict},
-		OpMoveFolder:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: p.CompareMoveTargets, OpDelete: p.ReSyncTarget, OpCreateFile: p.Conflict, OpUpdateFile: p.Conflict},
-		OpDelete:       {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: p.Ignore, OpCreateFile: p.enqueueRight, OpUpdateFile: p.enqueueRight},
-		OpCreateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: p.MergeDataOperations, OpUpdateFile: p.MergeDataOperations},
-		OpUpdateFile:   {OpNone: nil, OpCreateFolder: nil, OpMoveFile: nil, OpMoveFolder: nil, OpDelete: nil, OpCreateFile: nil, OpUpdateFile: p.MergeDataOperations},
-	}
-}
-
+// merge finds the correct solver for two similar nodes
 func (p *BidirectionalPatch) merge(left, right *TreeNode) {
 	// Merge PATH or Data Ops
 	opLeft, opRight := OpNone, OpNone
@@ -165,42 +183,67 @@ func (p *BidirectionalPatch) merge(left, right *TreeNode) {
 		opLeft = left.PathOperation.Type()
 	} else if left.DataOperation != nil {
 		opLeft = left.DataOperation.Type()
+	} else if left.MoveSourcePath != "" {
+		opLeft = OpMoveTarget
 	}
 	if right.PathOperation != nil {
 		opRight = right.PathOperation.Type()
 	} else if right.DataOperation != nil {
 		opRight = right.DataOperation.Type()
+	} else if right.MoveSourcePath != "" {
+		opRight = OpMoveTarget
 	}
 	solver := p.matrix[opLeft][opRight]
 	if solver == nil {
 		solver = p.matrix[opRight][opLeft]
 	}
 	solver(left, right)
-
-	// Merge DATA Ops
-	// p.MergeDataOperations(left, right)
 }
 
-func (p *BidirectionalPatch) Ignore(left, right *TreeNode) {
+// ignore does not enqueue anything to patch
+func (p *BidirectionalPatch) ignore(left, right *TreeNode) {
 	if left.PathOperation != nil || right.PathOperation != nil {
 		log.Logger(p.ctx).Debug("Ignoring Change", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
 	}
 }
 
+// enqueueBoth enqueue both operations to the patch
 func (p *BidirectionalPatch) enqueueBoth(left, right *TreeNode) {
 	p.enqueueLeft(left, right)
 	p.enqueueRight(left, right)
 }
 
+// enqueueLeft only enqueues the Left operation with DirRight
 func (p *BidirectionalPatch) enqueueLeft(left, right *TreeNode) {
 	p.enqueueOperations(left, OperationDirRight)
 }
 
+// enqueueRight only enqueues the Right operation with DirLeft
 func (p *BidirectionalPatch) enqueueRight(left, right *TreeNode) {
 	p.enqueueOperations(right, OperationDirLeft)
 }
 
-func (p *BidirectionalPatch) ReSyncTarget(left, right *TreeNode) {
+// enqueueConflict sets a Conflict flag on the the given path in side the patch. The Conflict has references to left and right operations
+func (p *BidirectionalPatch) enqueConflict(left, right *TreeNode, t ConflictType) {
+	log.Logger(p.ctx).Error("-- Unsolvable conflict!", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
+	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.Path))
+	var leftOp, rightOp Operation
+	if left.PathOperation != nil {
+		leftOp = left.PathOperation
+	} else if left.DataOperation != nil {
+		leftOp = left.DataOperation
+	}
+	if right.PathOperation != nil {
+		rightOp = right.PathOperation
+	} else if right.DataOperation != nil {
+		rightOp = right.DataOperation
+	}
+	op := NewConflictOperation(&left.Node, t, leftOp, rightOp)
+	p.QueueOperation(op)
+}
+
+// reSyncTarget tries to fix a Deleted resource that has been recreated on the other target by recreating it recursively
+func (p *BidirectionalPatch) reSyncTarget(left, right *TreeNode) {
 	var requeueNode *TreeNode
 	if left.PathOperation.Type() == OpDelete {
 		requeueNode = right
@@ -246,7 +289,20 @@ func (p *BidirectionalPatch) ReSyncTarget(left, right *TreeNode) {
 	p.inputsModified = true
 }
 
-func (p *BidirectionalPatch) CompareMoveTargets(left, right *TreeNode) {
+// compareMoveSources finds conflicts on "MoveTarget" nodes that don't have operation but that may have been moved
+// from two different sources. No auto-solving there
+func (p *BidirectionalPatch) compareMoveSources(left, right *TreeNode) {
+	if left.MoveSourcePath == right.MoveSourcePath {
+		log.Logger(p.ctx).Debug("-- Moved from the same source, do not trigger conflict")
+	} else {
+		log.Logger(p.ctx).Info("-- Different sources pointing to same target, trigger a conflict")
+		p.enqueConflict(left, right, ConflictMoveSameSource)
+	}
+}
+
+// compareMoveTargets finds conflicts on Move operations where a source node would have been moved to two different targets.
+// Auto-solving is performed by detecting the most recent operation.
+func (p *BidirectionalPatch) compareMoveTargets(left, right *TreeNode) {
 	if left.OpMoveTarget.Path == right.OpMoveTarget.Path {
 		log.Logger(p.ctx).Debug("-- Moved toward the same path, ignore!")
 	} else {
@@ -288,25 +344,9 @@ func (p *BidirectionalPatch) CompareMoveTargets(left, right *TreeNode) {
 	}
 }
 
-func (p *BidirectionalPatch) Conflict(left, right *TreeNode) {
-	log.Logger(p.ctx).Error("-- Unsolvable conflict!", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
-	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.Path))
-	var leftOp, rightOp Operation
-	if left.PathOperation != nil {
-		leftOp = left.PathOperation
-	} else if left.DataOperation != nil {
-		leftOp = left.DataOperation
-	}
-	if right.PathOperation != nil {
-		rightOp = right.PathOperation
-	} else if right.DataOperation != nil {
-		rightOp = right.DataOperation
-	}
-	op := NewConflictOperation(&left.Node, ConflictNodeType, leftOp, rightOp)
-	p.QueueOperation(op)
-}
-
-func (p *BidirectionalPatch) MergeDataOperations(left, right *TreeNode) {
+// mergeDataOperations handles DataOperations (CreateFile, UpdateFile) by checking the nodes ETag. If they differ, auto-solving
+// is done by creating a -left and -right version on both side, so that users can fix them manually afterward.
+func (p *BidirectionalPatch) mergeDataOperations(left, right *TreeNode) {
 	if left.DataOperation != nil && right.DataOperation != nil {
 		lOp := left.DataOperation
 		rOp := right.DataOperation

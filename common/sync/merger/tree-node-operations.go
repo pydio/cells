@@ -84,7 +84,9 @@ func (t *TreeNode) QueueOperation(op Operation) {
 			switch op.Type() {
 			case OpMoveFile, OpMoveFolder:
 				last.PathOperation = op
-				last.OpMoveTarget = t.getRoot().createNodeDeep(op.GetRefPath())
+				moveTarget := t.getRoot().createNodeDeep(op.GetRefPath())
+				moveTarget.MoveSourcePath = op.GetMoveOriginPath()
+				last.OpMoveTarget = moveTarget
 			case OpCreateFolder, OpDelete:
 				last.PathOperation = op
 			case OpCreateFile, OpUpdateFile, OpRefreshUuid:
@@ -125,7 +127,9 @@ func (t *TreeNode) WalkOperations(opTypes []OperationType, callback OpWalker) {
 	recompute := func(t *TreeNode, o Operation) {
 		if t.OpMoveTarget != nil {
 			o.UpdateRefPath(t.OpMoveTarget.ProcessedPath(false))
-			o.UpdateMoveOriginPath(t.ProcessedPath(false))
+			updatedSource := t.ProcessedPath(false)
+			t.OpMoveTarget.MoveSourcePath = updatedSource
+			o.UpdateMoveOriginPath(updatedSource)
 		} else {
 			o.UpdateRefPath(t.ProcessedPath(false))
 		}
@@ -151,7 +155,9 @@ func (t *TreeNode) WalkToFirstOperations(opType OperationType, callback func(Ope
 	recompute := func(t *TreeNode, o Operation) {
 		if t.OpMoveTarget != nil {
 			o.UpdateRefPath(t.OpMoveTarget.ProcessedPath(false))
-			o.UpdateMoveOriginPath(t.ProcessedPath(false))
+			updatedSource := t.ProcessedPath(false)
+			t.OpMoveTarget.MoveSourcePath = updatedSource
+			o.UpdateMoveOriginPath(updatedSource)
 		} else {
 			o.UpdateRefPath(t.ProcessedPath(false))
 		}
