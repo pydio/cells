@@ -79,6 +79,10 @@ func (c *conflictOperation) ConflictInfo() (t ConflictType, left Operation, righ
 	return c.ConflictType, c.LeftOp, c.RightOp
 }
 
+func (c *conflictOperation) Clone(replaceType ...OperationType) Operation {
+	return NewConflictOperation(c.Node, c.ConflictType, c.LeftOp, c.RightOp)
+}
+
 func (o *patchOperation) Clone(replaceType ...OperationType) Operation {
 	op := &patchOperation{
 		OpType:    o.OpType,

@@ -70,8 +70,14 @@ func newTreeDiff(ctx context.Context, left model.PathSyncSource, right model.Pat
 }
 
 // Compute performs the actual diff between left and right
-func (diff *TreeDiff) Compute(root string, ignores ...glob.Glob) error {
-	defer diff.Done(true)
+func (diff *TreeDiff) Compute(root string, lock chan bool, ignores ...glob.Glob) error {
+	defer func() {
+		diff.Done(true)
+		// Wait that monitor has finished its messaging before returning function
+		if lock != nil {
+			<-lock
+		}
+	}()
 
 	lTree := NewTree()
 	rTree := NewTree()
@@ -127,40 +133,44 @@ func (diff *TreeDiff) Compute(root string, ignores ...glob.Glob) error {
 }
 
 // ToUnidirectionalPatch transforms this diff to a patch
-func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error) {
+func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType, patch Patch) (err error) {
 
-	rightTarget, rightOk := diff.right.(model.PathSyncTarget)
-	leftTarget, leftOk := diff.left.(model.PathSyncTarget)
+	_, rightOk := diff.right.(model.PathSyncTarget)
+	_, leftOk := diff.left.(model.PathSyncTarget)
 
 	if direction == model.DirectionRight && rightOk {
-		patch = NewPatch(diff.left, rightTarget, PatchOptions{MoveDetection: true})
 		diff.toMissing(patch, diff.missingRight, true, false)
 		diff.toMissing(patch, diff.missingRight, false, false)
 		diff.toMissing(patch, diff.missingLeft, false, true)
 	} else if direction == model.DirectionLeft && leftOk {
-		patch = NewPatch(diff.right, leftTarget, PatchOptions{MoveDetection: true})
 		diff.toMissing(patch, diff.missingLeft, true, false)
 		diff.toMissing(patch, diff.missingLeft, false, false)
 		diff.toMissing(patch, diff.missingRight, false, true)
 	} else {
-		return nil, errors.New("error while extracting unidirectional patch. either left or right is not a sync target")
+		return errors.New("error while extracting unidirectional patch. either left or right is not a sync target")
 	}
 	for _, c := range diff.conflictsByType(ConflictFileContent) {
 		n := MostRecentNode(c.NodeLeft, c.NodeRight)
 		patch.Enqueue(NewOperation(OpUpdateFile, model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate), n))
 	}
 	log.Logger(diff.ctx).Info("Sending unidirectional patch", zap.Any("patch", patch.Stats()))
-	//fmt.Println(patch)
 	return
 }
 
 // ToBidirectionalPatch computes a bidirectional patch from this diff using the given targets
-func (diff *TreeDiff) ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error) {
+func (diff *TreeDiff) ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget, patch *BidirectionalPatch) (err error) {
+
+	var b *BidirectionalPatch
+	defer func() {
+		if b != nil {
+			patch.AppendBranch(diff.ctx, b)
+		}
+	}()
 
 	diff.solveConflicts(diff.ctx)
 
 	leftPatch, rightPatch := diff.leftAndRightPatches(leftTarget, rightTarget)
-	patch, err = ComputeBidirectionalPatch(diff.ctx, leftPatch, rightPatch)
+	b, err = ComputeBidirectionalPatch(diff.ctx, leftPatch, rightPatch)
 	if err != nil {
 		return
 	}
@@ -178,12 +188,11 @@ func (diff *TreeDiff) ToBidirectionalPatch(leftTarget model.PathSyncTarget, righ
 		} else {
 			rightOp = NewOperation(OpCreateFolder, model.EventInfo{Path: c.NodeRight.Path}, c.NodeRight)
 		}
-		patch.Enqueue(NewConflictOperation(c.NodeLeft, c.Type, leftOp, rightOp))
+		b.Enqueue(NewConflictOperation(c.NodeLeft, c.Type, leftOp, rightOp))
 	}
-	if _, ok := patch.HasErrors(); ok {
+	if _, ok := b.HasErrors(); ok {
 		err = fmt.Errorf("diff has conflicts")
 	}
-
 	return
 }
 

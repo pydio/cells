@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"math"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -74,94 +73,85 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 	if s.Direction == model.DirectionBi {
 
-		bb, dryStat, e := s.runBi(ctx, dryRun, force, rootsInfo)
-		if e != nil {
-			if bb != nil {
-				return bb, e
-			} else {
-				return nil, e
-			}
+		// INIT BI PATCH
+		bb := merger.NewBidirectionalPatch(ctx, s.Source, s.Target)
+		// TODO : BI-DIRECTIONAL PATCH SHOULD HANDLE SESSION PROVIDER PER TARGET
+		if provider, ok := model.AsSessionProvider(s.Target); ok {
+			bb.SetSessionProvider(ctx, provider, false)
 		}
-		if dryRun {
-			return dryStat, e
+		bb.SetupChannels(s.statuses, s.runDone, s.cmd)
+
+		if e := s.runBi(ctx, bb, dryRun, force, rootsInfo); e != nil || dryRun {
+			bb.Done(bb)
+			return bb, e
 		} else {
 			s.patchChan <- bb
 		}
 		return bb, e
 
 	} else {
+
+		// INIT UNIDIRECTIONAL PATCH
+		var patch merger.Patch
+		var asProvider model.Endpoint
+		if s.Direction == model.DirectionRight {
+			patch = merger.NewPatch(s.Source.(model.PathSyncSource), s.Target.(model.PathSyncTarget), merger.PatchOptions{MoveDetection: true})
+			asProvider = s.Target
+		} else {
+			patch = merger.NewPatch(s.Target.(model.PathSyncSource), s.Source.(model.PathSyncTarget), merger.PatchOptions{MoveDetection: true})
+			asProvider = s.Source
+		}
+		patch.SkipFilterToTarget(true)
+		patch.SetupChannels(s.statuses, s.runDone, s.cmd)
+		if provider, ok := model.AsSessionProvider(asProvider); ok {
+			patch.SetSessionProvider(ctx, provider, true)
+		}
+
+		// RUN SYNC ON SELECTED ROOTS
 		if len(s.Roots) == 0 {
 			s.Roots = append(s.Roots, "/")
 		}
-		multi := model.NewMultiStater()
-		var errs []string
 		for _, p := range s.Roots {
-			if patch, dryStat, e := s.runUni(ctx, p, dryRun, force, rootsInfo); e == nil {
-				if dryRun {
-					multi[p] = dryStat
-				} else {
-					s.patchChan <- patch
-					multi[p] = patch
-				}
-			} else {
-				errs = append(errs, e.Error())
-			}
+			s.runUni(ctx, patch, p, force, rootsInfo)
 		}
-		if len(errs) > 0 {
-			return multi, fmt.Errorf(strings.Join(errs, "-"))
+		if errs, ok := patch.HasErrors(); ok {
+			patch.Done(patch)
+			return patch, errs[0]
+		} else if dryRun {
+			patch.Done(patch)
+			return patch, nil
+		} else {
+			s.patchChan <- patch
 		}
-		return multi, nil
+		return patch, nil
 	}
 
 }
 
-func (s *Sync) runUni(ctx context.Context, rootPath string, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) (merger.Patch, model.Stater, error) {
+func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, force bool, rootsInfo map[string]*EndpointRootStat) error {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
+
+	// Compute Diff
 	diff := merger.NewDiff(ctx, source, targetAsSource)
-	s.monitorDiff(ctx, diff, rootsInfo)
-	e := diff.Compute(rootPath, s.Ignores...)
-	if e == nil && dryRun {
-		log.Logger(ctx).Info("Dry run result", zap.String("diff", diff.String()))
+	lock := s.monitorDiff(ctx, diff, rootsInfo)
+	if e := diff.Compute(rootPath, lock, s.Ignores...); e != nil {
+		return patch.SetPatchError(e)
 	}
 
-	log.Logger(ctx).Debug("### GOT DIFF", zap.Any("diff", diff))
-	if e != nil || dryRun {
-		if s.runDone != nil {
-			s.runDone <- 0
-		}
-		if dryRun {
-			return nil, diff, e
-		} else {
-			return nil, nil, e
-		}
-	}
+	fmt.Println("FINISHED DIFFING")
 
-	patch, err := diff.ToUnidirectionalPatch(s.Direction)
+	// Feed Patch from Diff
+	err := diff.ToUnidirectionalPatch(s.Direction, patch)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 	patch.Filter(ctx)
-	patch.SkipFilterToTarget(true)
-	patch.SetupChannels(s.statuses, s.runDone, s.cmd)
-
-	log.Logger(ctx).Debug("### SENDING TO MERGER", zap.Any("stats", patch.Stats()))
-
-	var asProvider model.Endpoint
-	if s.Direction == model.DirectionRight {
-		asProvider = s.Target
-	} else {
-		asProvider = s.Source
-	}
-	if provider, ok := model.AsSessionProvider(asProvider); ok {
-		patch.SetSessionProvider(ctx, provider, true)
-	}
-
-	return patch, nil, nil
+	return nil
 }
 
-func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) (*merger.BidirectionalPatch, model.Stater, error) {
+func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) error {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -177,8 +167,6 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 	if len(roots) == 0 {
 		roots = append(roots, "/")
 	}
-
-	var bb *merger.BidirectionalPatch
 
 	if s.snapshotFactory != nil && !force {
 		var er1, er2 error
@@ -206,49 +194,33 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 
 		log.Logger(ctx).Info("Computing patches from Snapshots")
 		for _, r := range roots {
-			if b, e := merger.ComputeBidirectionalPatch(ctx, leftPatches[r], rightPatches[r]); e == nil {
-				if bb != nil {
-					bb.AppendBranch(ctx, b)
-				} else {
-					bb = b
-				}
-			} else {
-				log.Logger(ctx).Error("Could not compute Bidirectionnal Patch! DO SOMETHING HERE!!")
-				return b, nil, e
+			b, e := merger.ComputeBidirectionalPatch(ctx, leftPatches[r], rightPatches[r])
+			if b != nil {
+				bb.AppendBranch(ctx, b)
+			}
+			if e != nil {
+				return bb.SetPatchError(e)
 			}
 		}
 
 	} else {
 
+		bb.SkipFilterToTarget(true)
+
 		log.Logger(ctx).Info("Computing patches from Sources")
 		for _, r := range roots {
 			diff := merger.NewDiff(ctx, source, targetAsSource)
-			s.monitorDiff(ctx, diff, rootsInfo)
-			e := diff.Compute(r, s.Ignores...)
-			log.Logger(ctx).Info("### Got Diff for Root", zap.String("r", r), zap.Any("stats", diff.Stats()))
-			if e != nil || dryRun {
-				if s.runDone != nil {
-					s.runDone <- 0
-				}
-				if dryRun {
-					return nil, diff, e
-				} else {
-					return nil, nil, e
-				}
+			if e := diff.Compute(r, s.monitorDiff(ctx, diff, rootsInfo), s.Ignores...); e != nil {
+				return bb.SetPatchError(e)
+			}
+			if dryRun {
+				return nil
 			}
 
 			sourceAsTarget, _ := model.AsPathSyncTarget(s.Source)
 			target, _ := model.AsPathSyncTarget(s.Target)
-			if b, err := diff.ToBidirectionalPatch(sourceAsTarget, target); err == nil {
-				if bb != nil {
-					bb.AppendBranch(ctx, b)
-				} else {
-					bb = b
-				}
-				bb.SkipFilterToTarget(true)
-				log.Logger(ctx).Debug("BB-From diff.ToBiDirectionalBatch", zap.Any("stats", b.Stats()))
-			} else {
-				return b, nil, err
+			if err := diff.ToBidirectionalPatch(sourceAsTarget, target, bb); err != nil {
+				return bb.SetPatchError(err)
 			}
 
 		}
@@ -272,12 +244,7 @@ func (s *Sync) runBi(ctx context.Context, dryRun bool, force bool, rootsInfo map
 
 	}
 
-	// TODO : HOW TO HANDLE SESSION PROVIDER FOR BI-DIRECTIONAL PATCH?
-	if provider, ok := model.AsSessionProvider(s.Target); ok {
-		bb.SetSessionProvider(ctx, provider, false)
-	}
-	bb.SetupChannels(s.statuses, s.runDone, s.cmd)
-	return bb, nil, nil
+	return nil
 }
 
 func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string, rootsInfo map[string]*EndpointRootStat) (model.Snapshoter, map[string]merger.Patch, error) {
@@ -304,13 +271,13 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 	patches := make(map[string]merger.Patch, len(roots))
 	for _, r := range roots {
 		diff := merger.NewDiff(ctx, source, snap)
-		s.monitorDiff(ctx, diff, rootsInfo)
-		er = diff.Compute(r, s.Ignores...)
+		er = diff.Compute(r, s.monitorDiff(ctx, diff, rootsInfo), s.Ignores...)
 		if er != nil {
 			return nil, nil, er
 		}
 		// We want to apply changes from source onto snapshot
-		patch, er := diff.ToUnidirectionalPatch(model.DirectionRight)
+		patch := merger.NewPatch(source, snap.(model.PathSyncTarget), merger.PatchOptions{MoveDetection: true})
+		er := diff.ToUnidirectionalPatch(model.DirectionRight, patch)
 		if er != nil {
 			return nil, nil, er
 		}
@@ -411,11 +378,13 @@ func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *Endp
 	return
 }
 
-func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[string]*EndpointRootStat) {
+func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[string]*EndpointRootStat) chan bool {
 	indexStatus := make(chan model.Status)
 	done := make(chan interface{})
+	finished := make(chan bool, 1)
 	diff.SetupChannels(indexStatus, done, s.cmd)
 	go func() {
+		defer close(finished)
 		for {
 			select {
 			case status := <-indexStatus:
@@ -445,6 +414,7 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 			}
 		}
 	}()
+	return finished
 }
 
 func (s *Sync) computeIndexProgress(input model.Status, rootInfo *EndpointRootStat) (output model.Status, emit bool) {

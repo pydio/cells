@@ -47,7 +47,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 			left = memory.NewMemDB()
 			right = memory.NewMemDB()
 			diff = newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff, ShouldNotBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
@@ -63,7 +63,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Etag: "hash",
 			}, true)
 			diff = newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 1)
@@ -78,7 +78,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Etag: "hash",
 			}, true)
 			diff = newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 1)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -98,7 +98,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Etag: "hash",
 			}, true)
 			diff = newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -138,7 +138,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Etag: "hash",
 			}, true)
 			diff = newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -158,7 +158,7 @@ func TestTreeDiff(t *testing.T) {
 			// Trigger printout for test coverage
 			t.Log(t1.PrintTree())
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -174,7 +174,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "hash",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 1)
@@ -189,7 +189,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "hash",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 1)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -209,7 +209,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "hash",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -231,7 +231,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "uuid2-hash",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -254,7 +254,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "uuid2-hash",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -277,7 +277,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "hash2",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -320,7 +320,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "hash",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -356,7 +356,7 @@ func TestTreeDiff(t *testing.T) {
 			h2 := t2.GetHash()
 			So(h1, ShouldNotEqual, h2)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 1)
 			So(diff.missingRight, ShouldHaveLength, 1)
@@ -387,7 +387,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "hashme",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 2)
@@ -418,7 +418,7 @@ func TestTreeDiff(t *testing.T) {
 				Etag: "hashme",
 			}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 1)
 			So(diff.missingRight, ShouldHaveLength, 3)
@@ -437,14 +437,14 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 2)
 
 			// Test reverse
 			diff = newTreeDiff(testCtx, right, left)
-			e = diff.Compute("/")
+			e = diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 2)
 			So(diff.missingRight, ShouldHaveLength, 0)
@@ -465,14 +465,14 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/a", Type: tree.NodeType_LEAF, Etag: "hasha"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 4)
 
 			// Test reverse
 			diff4 := newTreeDiff(testCtx, right, left)
-			e4 := diff4.Compute("/")
+			e4 := diff4.Compute("/", nil)
 			So(e4, ShouldBeNil)
 			So(diff4.missingLeft, ShouldHaveLength, 4)
 			So(diff4.missingRight, ShouldHaveLength, 0)
@@ -492,14 +492,14 @@ func TestTreeDiff(t *testing.T) {
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/eq", Type: tree.NodeType_LEAF, Etag: "eq"}, true)
 			right.CreateNode(testCtx, &tree.Node{Path: "/aaa/c", Type: tree.NodeType_LEAF, Etag: "chash"}, true)
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 1)
 			So(diff.missingRight, ShouldHaveLength, 2)
 
 			// Test reverse
 			diff4 := newTreeDiff(testCtx, right, left)
-			e4 := diff4.Compute("/")
+			e4 := diff4.Compute("/", nil)
 			So(e4, ShouldBeNil)
 			So(diff4.missingLeft, ShouldHaveLength, 2)
 			So(diff4.missingRight, ShouldHaveLength, 1)
@@ -517,14 +517,14 @@ func TestTreeDiff(t *testing.T) {
 			}
 
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 10100)
 
 			// Test reverse
 			diff4 := newTreeDiff(testCtx, right, left)
-			e4 := diff4.Compute("/")
+			e4 := diff4.Compute("/", nil)
 			So(e4, ShouldBeNil)
 			So(diff4.missingLeft, ShouldHaveLength, 10100)
 			So(diff4.missingRight, ShouldHaveLength, 0)
@@ -546,17 +546,16 @@ func TestTreeDiff(t *testing.T) {
 			}
 
 			diff = newTreeDiff(testCtx, left, right)
-			e = diff.Compute("/")
+			e = diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 101)
 			So(diff.missingRight, ShouldHaveLength, 101)
-			b, e := diff.ToUnidirectionalPatch(model.DirectionLeft)
+			patch := newTreePatch(left, right, PatchOptions{MoveDetection: true})
+			e = diff.ToUnidirectionalPatch(model.DirectionLeft, patch)
 			So(e, ShouldBeNil)
-			if s, ok := b.(*TreePatch); ok {
-				So(s.deletes, ShouldHaveLength, 101)
-				So(s.createFiles, ShouldHaveLength, 100)
-				So(s.createFolders, ShouldHaveLength, 1)
-			}
+			So(patch.deletes, ShouldHaveLength, 101)
+			So(patch.createFiles, ShouldHaveLength, 100)
+			So(patch.createFolders, ShouldHaveLength, 1)
 			So(diff.String(), ShouldNotBeEmpty)
 			So(diff.Stats(), ShouldNotBeEmpty)
 		})
@@ -572,14 +571,14 @@ func TestTreeDiff(t *testing.T) {
 			}
 
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			So(diff.missingLeft, ShouldHaveLength, 0)
 			So(diff.missingRight, ShouldHaveLength, 10100)
 
 			// Test reverse
 			diff4 := newTreeDiff(testCtx, right, left)
-			diff4.Compute("/")
+			diff4.Compute("/", nil)
 			So(diff4.missingLeft, ShouldHaveLength, 10100)
 			So(diff4.missingRight, ShouldHaveLength, 0)
 
@@ -607,7 +606,7 @@ func TestTreeDiff(t *testing.T) {
 				}
 			}()
 			diff := newTreeDiff(testCtx, left, right)
-			e := diff.Compute("/")
+			e := diff.Compute("/", nil)
 			So(e, ShouldBeNil)
 			doneChan <- true
 			So(diff.missingLeft, ShouldHaveLength, 0)
@@ -630,7 +629,8 @@ func TestTreeDiffErrors(t *testing.T) {
 		// Trigger printout for test coverage
 		t.Log(t1.PrintTree())
 		diff := newTreeDiff(testCtx, left, right)
-		_, err := diff.ToUnidirectionalPatch(model.DirectionBi)
+		patch := newTreePatch(left, right, PatchOptions{MoveDetection: true})
+		err := diff.ToUnidirectionalPatch(model.DirectionBi, patch)
 		So(err, ShouldNotBeNil)
 	})
 }
@@ -689,7 +689,7 @@ func TestTreeDiffConflictsAndStatus(t *testing.T) {
 		}
 
 		go f()
-		e := diff.Compute("/")
+		e := diff.Compute("/", nil)
 		So(e, ShouldBeNil)
 
 		go f()

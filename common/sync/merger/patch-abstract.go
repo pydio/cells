@@ -77,6 +77,11 @@ func (b *AbstractPatch) SetupChannels(status chan model.Status, done chan interf
 	b.closing = false
 }
 
+func (b *AbstractPatch) SetPatchError(e error) error {
+	b.Status(model.NewProcessingStatus(e.Error()).SetError(e))
+	return e
+}
+
 func (b *AbstractPatch) Status(s model.Status) {
 	b.mTime = time.Now()
 	if s.IsError() {

@@ -51,6 +51,24 @@ type BidirectionalPatch struct {
 	ignoreUUIDConflicts bool
 }
 
+func NewBidirectionalPatch(ctx context.Context, source, target model.Endpoint) *BidirectionalPatch {
+	b := &BidirectionalPatch{
+		TreePatch: *newTreePatch(source.(model.PathSyncSource), target.(model.PathSyncTarget), PatchOptions{MoveDetection: false}),
+		ctx:       ctx,
+	}
+	// If syncing on same server, do not trigger conflicts on .pydio
+	u1, _ := url.Parse(source.GetEndpointInfo().URI)
+	u2, _ := url.Parse(target.GetEndpointInfo().URI)
+	if u1.Scheme == "router" && u2.Scheme == "router" {
+		b.ignoreUUIDConflicts = true
+	}
+	if strings.HasPrefix(u1.Scheme, "http") && strings.HasPrefix(u2.Scheme, "http") && u1.Host == u2.Host {
+		b.ignoreUUIDConflicts = true
+	}
+	b.initMatrix()
+	return b
+}
+
 // ComputeBidirectionalPatch merges two unidirectional Patch into one BidirectionalPatch
 func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*BidirectionalPatch, error) {
 	source := left.Source()
@@ -79,6 +97,7 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 	if ok1 && ok2 {
 		b.mergeTrees(&l.TreeNode, &r.TreeNode)
 		if b.inputsModified {
+			// SECOND PASS WILL RESET PATCH TOTALLY
 			log.Logger(ctx).Info("Input trees modified, running a second pass")
 			b.TreePatch = *newTreePatch(source, target, PatchOptions{MoveDetection: false})
 			b.mergeTrees(&l.TreeNode, &r.TreeNode)

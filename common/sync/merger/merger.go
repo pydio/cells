@@ -179,11 +179,11 @@ type Diff interface {
 	model.StatusProvider
 
 	// Compute performs the actual Diff operation
-	Compute(root string, ignores ...glob.Glob) error
+	Compute(root string, lock chan bool, ignores ...glob.Glob) error
 	// ToUnidirectionalPatch transforms current diff into a set of patch operations
-	ToUnidirectionalPatch(direction model.DirectionType) (patch Patch, err error)
+	ToUnidirectionalPatch(direction model.DirectionType, patch Patch) (err error)
 	// ToBidirectionalPatch transforms current diff into a bidirectional patch of operations
-	ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget) (patch *BidirectionalPatch, err error)
+	ToBidirectionalPatch(leftTarget model.PathSyncTarget, rightTarget model.PathSyncTarget, patch *BidirectionalPatch) (err error)
 }
 
 // PatchOptions contains various options for initializing a patch
@@ -235,6 +235,8 @@ type Patch interface {
 	// Basically, file transfers operations returns the file size, but other operations return a 1 byte size.
 	ProgressTotal() int64
 
+	// SetPatchError sets a global error on this patch
+	SetPatchError(e error) error
 	// HasErrors checks if this patch has a global error status
 	HasErrors() ([]error, bool)
 	// CleanErrors cleans errors from patch before trying to reapply it
