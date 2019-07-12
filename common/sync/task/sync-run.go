@@ -140,8 +140,6 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 		return patch.SetPatchError(e)
 	}
 
-	fmt.Println("FINISHED DIFFING")
-
 	// Feed Patch from Diff
 	err := diff.ToUnidirectionalPatch(s.Direction, patch)
 	if err != nil {
