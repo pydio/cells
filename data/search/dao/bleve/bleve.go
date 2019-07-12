@@ -54,6 +54,7 @@ type BleveServer struct {
 	inserts chan *IndexableNode
 	deletes chan string
 	done    chan bool
+	closed  chan bool
 }
 
 func NewBleveEngine(indexContent bool) (*BleveServer, error) {
@@ -195,6 +196,8 @@ func (s *BleveServer) DeleteNode(c context.Context, n *tree.Node) error {
 
 func (s *BleveServer) ClearIndex(ctx context.Context) error {
 	s.done <- true
+	// Make sure it's properly closed...
+	<-time.After(1 * time.Second)
 	if e := os.RemoveAll(BleveIndexPath); e != nil {
 		return e
 	}

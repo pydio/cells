@@ -23,6 +23,8 @@ package rest
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
@@ -33,13 +35,14 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	service2 "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/filesystem"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -66,7 +69,6 @@ func (s *Handler) GetDataSource(req *restful.Request, resp *restful.Response) {
 	}
 
 	resp.WriteEntity(res)
-
 }
 
 func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
@@ -76,13 +78,21 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
+
 	ctx := req.Request.Context()
 
+	// Handle / and \ for OS
 	if ds.StorageType == object.StorageType_LOCAL {
 		if err := s.ValidateLocalDSFolderOnPeer(ctx, &ds); err != nil {
 			service.RestError500(req, resp, err)
 			return
 		}
+		osFolder := filesystem.ToFilePath(ds.StorageConfiguration["folder"])
+		rootPrefix := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String("")
+		if rootPrefix != "" && !strings.HasPrefix(osFolder, rootPrefix) {
+			osFolder = filepath.Join(rootPrefix, osFolder)
+		}
+		ds.StorageConfiguration["folder"] = osFolder
 	}
 
 	currentSources := config.ListSourcesFromConfig()
@@ -120,17 +130,26 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	if u == "" {
 		u = "rest"
 	}
+
 	if err := config.Save(u, "Create DataSource"); err == nil {
 		eventType := object.DataSourceEvent_CREATE
 		if update {
 			eventType = object.DataSourceEvent_UPDATE
 		}
-		client.Publish(ctx, client.NewPublication(common.TOPIC_DATASOURCE_EVENT, &object.DataSourceEvent{
+
+		if err = client.Publish(ctx, client.NewPublication(common.TOPIC_DATASOURCE_EVENT, &object.DataSourceEvent{
 			Name:   dsName,
 			Type:   eventType,
 			Config: &ds,
-		}))
-		resp.WriteEntity(&ds)
+		})); err != nil {
+			log.Logger(ctx).Warn("could not notify the new data source creation", zap.Error(err))
+		}
+
+		err = resp.WriteEntity(&ds)
+		if err != nil {
+			log.Logger(ctx).Warn("could not write response", zap.Error(err))
+		}
+
 	} else {
 		service.RestError500(req, resp, err)
 	}
@@ -192,20 +211,19 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 	resp.WriteEntity(&rest.DeleteDataSourceResponse{
 		Success: true,
 	})
-
 }
 
 func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) {
 
 	if sources, err := s.getDataSources(req.Request.Context()); err != nil {
 		service.RestError500(req, resp, err)
+
 	} else {
 		resp.WriteEntity(&rest.DataSourceCollection{
 			DataSources: sources,
 			Total:       int32(len(sources)),
 		})
 	}
-
 }
 
 func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, error) {
@@ -217,7 +235,7 @@ func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, err
 			dataSources = append(dataSources, ds)
 		}
 	}
-
+	log.Logger(context.Background()).Info("== source", zap.Any("", dataSources))
 	return dataSources, nil
 }
 
@@ -234,6 +252,14 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 		log.Logger(ctx).Debug(fmt.Sprintf("No datasource found for name [%s]", dsName))
 		return nil, nil
 	}
+
+	folder := ds.StorageConfiguration["folder"]
+	rootPrefix := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String("")
+	if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
+		folder = strings.TrimPrefix(folder, rootPrefix)
+	}
+	// For the API Output, we want to always expose "/" paths, whatever the OS
+	ds.StorageConfiguration["folder"] = filesystem.ToNodePath(folder)
 
 	log.Logger(ctx).Debug(fmt.Sprintf("Retrieved datasource [%s]", dsName), zap.Any("datasource", ds))
 	return ds, nil

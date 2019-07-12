@@ -35,7 +35,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"testing"
 	"time"
 
@@ -123,15 +122,11 @@ func TestMain(m *testing.M) {
 			log.Fatal(err)
 		}
 
-		sendCPUProfileSignal()
-		defer sendCPUProfileSignal()
+		sendCPUProfileSignal(process)
+		defer sendCPUProfileSignal(process)
 	}
 
 	m.Run()
-}
-
-func sendCPUProfileSignal() {
-	process.Signal(syscall.SIGUSR1)
 }
 
 func clearRandoms() {

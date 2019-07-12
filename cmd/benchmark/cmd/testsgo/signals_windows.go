@@ -1,3 +1,5 @@
+package tests
+
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -18,26 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package index
-
 import (
 	"os"
-	"strings"
-
-	"github.com/pydio/cells/common/utils/mtree"
-
-	"github.com/pydio/cells/common/proto/tree"
 )
 
-// NewNode utils
-func NewNode(treeNode *tree.Node, path mtree.MPath, filenames []string) *mtree.TreeNode {
-	node := mtree.NewTreeNode()
-	node.Node = treeNode
-
-	node.SetMPath(path...)
-	node.SetName(filenames[len(filenames)-1])
-
-	node.Path = strings.Join(filenames, string(os.PathSeparator))
-
-	return node
-}
+func sendCPUProfileSignal(process *os.Process) {}
