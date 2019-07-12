@@ -460,10 +460,10 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 	s.changesSubLocks.Unlock()
 	defer func() {
 		s.changesSubLocks.Lock()
+		close(c)
 		delete(s.changesSub, c)
 		s.changesSubLocks.Unlock()
 		streamer.Close()
-		close(c)
 	}()
 	filterPath := strings.Trim(req.RootPath, "/") + "/"
 
