@@ -108,8 +108,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 			if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
 				statusPath = path.Dir(statusPath)
 			}
-			status := "[" + sourceNode.GetUuid() + "]" + strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)
-			channels.StatusMsg <- status
+			channels.StatusMsg <- strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)
 			_, er := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node})
 			if er != nil {
 				return input.WithError(er), er

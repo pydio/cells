@@ -134,10 +134,6 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				if len(tFunc) > 0 {
 					status = strings.Replace(tFunc[0]("Jobs.User.CopyingItem"), "%s", relativePath, -1)
 				}
-				if isTask {
-					// Append root node Uuid to attach to correct node in interface
-					status = "[" + sourceNode.GetUuid() + "]" + status
-				}
 				statusChan <- status
 
 				folderNode := childNode.Clone()
@@ -179,10 +175,6 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				status := "Copying " + statusPath
 				if len(tFunc) > 0 {
 					status = strings.Replace(tFunc[0]("Jobs.User.CopyingItem"), "%s", statusPath, -1)
-				}
-				if isTask {
-					// Append root node Uuid to attach to correct node in interface
-					status = "[" + sourceNode.GetUuid() + "]" + status
 				}
 				statusChan <- status
 
