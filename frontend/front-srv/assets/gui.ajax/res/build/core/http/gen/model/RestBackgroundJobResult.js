@@ -41,6 +41,7 @@ var RestBackgroundJobResult = (function () {
 
         this.Uuid = undefined;
         this.Label = undefined;
+        this.NodeUuid = undefined;
     }
 
     /**
@@ -61,6 +62,9 @@ var RestBackgroundJobResult = (function () {
             if (data.hasOwnProperty('Label')) {
                 obj['Label'] = _ApiClient2['default'].convertToType(data['Label'], 'String');
             }
+            if (data.hasOwnProperty('NodeUuid')) {
+                obj['NodeUuid'] = _ApiClient2['default'].convertToType(data['NodeUuid'], 'String');
+            }
         }
         return obj;
     };
@@ -76,4 +80,8 @@ module.exports = exports['default'];
 
 /**
 * @member {String} Label
+*/
+
+/**
+* @member {String} NodeUuid
 */

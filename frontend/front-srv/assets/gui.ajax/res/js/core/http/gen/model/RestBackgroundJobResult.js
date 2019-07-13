@@ -62,6 +62,9 @@ export default class RestBackgroundJobResult {
             if (data.hasOwnProperty('Label')) {
                 obj['Label'] = ApiClient.convertToType(data['Label'], 'String');
             }
+            if (data.hasOwnProperty('NodeUuid')) {
+                obj['NodeUuid'] = ApiClient.convertToType(data['NodeUuid'], 'String');
+            }
         }
         return obj;
     }
@@ -74,6 +77,10 @@ export default class RestBackgroundJobResult {
     * @member {String} Label
     */
     Label = undefined;
+    /**
+    * @member {String} NodeUuid
+    */
+    NodeUuid = undefined;
 
 
 

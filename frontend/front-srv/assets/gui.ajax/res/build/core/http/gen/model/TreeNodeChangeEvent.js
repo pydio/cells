@@ -50,6 +50,7 @@ var TreeNodeChangeEvent = (function () {
         this.Type = undefined;
         this.Source = undefined;
         this.Target = undefined;
+        this.Metadata = undefined;
         this.Silent = undefined;
         this.Optimistic = undefined;
     }
@@ -74,6 +75,9 @@ var TreeNodeChangeEvent = (function () {
             }
             if (data.hasOwnProperty('Target')) {
                 obj['Target'] = _TreeNode2['default'].constructFromObject(data['Target']);
+            }
+            if (data.hasOwnProperty('Metadata')) {
+                obj['Metadata'] = _ApiClient2['default'].convertToType(data['Metadata'], { 'String': 'String' });
             }
             if (data.hasOwnProperty('Silent')) {
                 obj['Silent'] = _ApiClient2['default'].convertToType(data['Silent'], 'Boolean');
@@ -100,6 +104,10 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/TreeNode} Target
+*/
+
+/**
+* @member {Object.<String, String>} Metadata
 */
 
 /**

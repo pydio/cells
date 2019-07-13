@@ -966,9 +966,13 @@ exports['default'] = function (pydio) {
         api.restoreNodes(restoreRequest).then(function (r) {
             if (r.RestoreJobs && r.RestoreJobs.length) {
                 nodes.forEach(function (n) {
-                    n.getMetadata().set('pending_operation', r.RestoreJobs[0].Label);
-                    n.getMetadata().set('pending_operation_uuid', r.RestoreJobs[0].Uuid);
-                    n.notify('meta_replaced', n);
+                    r.RestoreJobs.forEach(function (j) {
+                        if (j.NodeUuid === n.getMetadata().get('uuid')) {
+                            n.getMetadata().set('pending_operation', j.Label);
+                            n.getMetadata().set('pending_operation_uuid', j.Uuid);
+                            n.notify('meta_replaced', n);
+                        }
+                    });
                 });
             }
             pydio.getContextHolder().setSelectedNodes([]);

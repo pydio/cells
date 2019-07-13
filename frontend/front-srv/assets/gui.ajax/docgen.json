@@ -37000,6 +37000,18 @@
         "displayName": "SingleJobProgress",
         "methods": [
           {
+            "name": "filterTasks",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "tasks",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "reloadTask",
             "docblock": null,
             "modifiers": [],
