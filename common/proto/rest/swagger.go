@@ -5220,6 +5220,9 @@ var SwaggerJson = `{
         },
         "Label": {
           "type": "string"
+        },
+        "NodeUuid": {
+          "type": "string"
         }
       }
     },
@@ -6989,6 +6992,12 @@ var SwaggerJson = `{
         },
         "Target": {
           "$ref": "#/definitions/treeNode"
+        },
+        "Metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         },
         "Silent": {
           "type": "boolean",

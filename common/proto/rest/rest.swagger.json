@@ -5219,6 +5219,9 @@
         },
         "Label": {
           "type": "string"
+        },
+        "NodeUuid": {
+          "type": "string"
         }
       }
     },
@@ -6988,6 +6991,12 @@
         },
         "Target": {
           "$ref": "#/definitions/treeNode"
+        },
+        "Metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         },
         "Silent": {
           "type": "boolean",

@@ -448,8 +448,9 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 				return er
 			} else {
 				output.RestoreJobs = append(output.RestoreJobs, &rest.BackgroundJobResult{
-					Uuid:  jobUuid,
-					Label: moveLabel,
+					Uuid:     jobUuid,
+					Label:    moveLabel,
+					NodeUuid: r.GetNode().Uuid,
 				})
 			}
 		}

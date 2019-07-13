@@ -96,6 +96,7 @@ message DeleteNodesRequest {
 message BackgroundJobResult {
     string Uuid = 1;
     string Label = 2;
+    string NodeUuid = 3;
 }
 
 message DeleteNodesResponse {
