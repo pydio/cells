@@ -419,9 +419,9 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 				return errors.Forbidden("node.not.writeable", "Original location is not writable")
 			}
 			log.Logger(ctx).Info("Should restore node", zap.String("from", currentFullPath), zap.String("to", originalFullPath))
-			jobUuid := uuid.New()
+			jobUuid := "copy-move-" + uuid.New()
 			job := &jobs.Job{
-				ID:             "copy-move-" + jobUuid,
+				ID:             jobUuid,
 				Owner:          username,
 				Label:          moveLabel,
 				Inactive:       false,
