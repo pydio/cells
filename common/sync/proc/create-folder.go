@@ -36,8 +36,6 @@ func (pr *Processor) processCreateFolder(cancelCtx context.Context, operation me
 	pg <- 1
 	localPath := operation.GetRefPath()
 	ctx := operation.CreateContext(pr.GlobalContext)
-	//dbNode, _ := operation.Target().LoadNode(ctx, localPath)
-	//if dbNode == nil {
 	if pr.Locker != nil {
 		pr.Locker.LockFile(operation, localPath, operationId)
 		defer pr.Locker.UnlockFile(operation, localPath)
@@ -63,20 +61,11 @@ func (pr *Processor) processCreateFolder(cancelCtx context.Context, operation me
 			}
 		}
 	}
-	folderNode := &tree.Node{
-		Path: localPath,
-		Type: tree.NodeType_COLLECTION,
-		Uuid: operation.GetNode().Uuid,
-	}
-	pr.Logger().Debug("Should process CreateFolder", folderNode.Zap("newNode"))
-	err := operation.Target().CreateNode(ctx, folderNode, false)
+	err := operation.Target().CreateNode(ctx, operation.GetNode(), false)
 	if err != nil && strings.Contains(string(err.Error()), "Duplicate entry") {
 		pr.Logger().Error("Duplicate UUID found, we should have refreshed uuids on source?", zap.Error(err))
 		return err
 	}
-	//} else {
-	//	pr.Logger().Debug("CreateFolder: already exists, ignoring!", zap.Any("e", operation.GetRefPath()))
-	//}
 
 	return nil
 }

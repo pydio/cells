@@ -448,6 +448,7 @@ func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag str
 func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created minio.ObjectInfo, e error) {
 
 	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+	hiddenPath = strings.TrimLeft(hiddenPath, "/")
 	object, err := c.Mc.GetObject(c.Bucket, hiddenPath, minio.GetObjectOptions{})
 	if err == nil {
 		defer object.Close()

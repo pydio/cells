@@ -109,11 +109,11 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	if folderName != "" {
 		params = append(params, folderName)
+		log.Logger(ctx).Info("Starting local objects service " + minioServiceName + " on " + folderName)
 	} else if customEndpoint != "" {
 		params = append(params, customEndpoint)
+		log.Logger(ctx).Info("Starting gateway objects service " + minioServiceName + " to " + customEndpoint)
 	}
-
-	log.Logger(ctx).Info("Starting objects service " + minioServiceName)
 
 	os.Setenv("MINIO_ACCESS_KEY", accessKey)
 	os.Setenv("MINIO_SECRET_KEY", secretKey)
