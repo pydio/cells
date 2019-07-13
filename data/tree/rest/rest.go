@@ -385,6 +385,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 
 	router := h.GetRouter()
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	restoreTargets := make(map[string]struct{}, len(input.Nodes))
 
 	e := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		for _, n := range input.Nodes {
@@ -399,6 +400,10 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 			if originalFullPath == "" {
 				return fmt.Errorf("cannot find restore location for selected node")
 			}
+			if _, already := restoreTargets[originalFullPath]; already {
+				return fmt.Errorf("trying to restore to nodes on the same location")
+			}
+			restoreTargets[originalFullPath] = struct{}{}
 			if r.GetNode().IsLeaf() {
 				moveLabel = T("Jobs.User.FileMove")
 			} else {
