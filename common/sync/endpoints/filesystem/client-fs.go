@@ -27,6 +27,7 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"io"
 	"os"
 	"path"
@@ -35,8 +36,6 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-
-	"go.uber.org/zap"
 
 	"github.com/karrick/godirwalk"
 	errors2 "github.com/micro/go-micro/errors"
@@ -188,15 +187,22 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 		return
 	}
 	newPatch := merger.ClonePatch(c, c.updateSnapshot, p)
-	if provider, ok := c.updateSnapshot.(model.SessionProvider); ok {
-		newPatch.SetSessionProvider(ctx, provider, true)
+	var sessionProvider model.SessionProvider
+	var indexationSession *tree.IndexationSession
+	if sessionProvider, ok = c.updateSnapshot.(model.SessionProvider); ok {
+		newPatch.SetSessionProvider(ctx, sessionProvider, true)
 	}
 	newPatch.Filter(ctx)
 	pr := proc.NewProcessor(ctx)
 	pr.Silent = true
 	pr.SkipTargetChecks = true
 	pr.Process(newPatch, nil)
+
 	// For Create Folders, updateSnapshot with associated .pydio's
+	// Use a session to batch inserts if possible
+	if sessionProvider != nil {
+		indexationSession, _ = sessionProvider.StartSession(ctx, &tree.Node{}, true)
+	}
 	newPatch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
 		folderUuid := operation.GetNode().Uuid
 		c.updateSnapshot.CreateNode(ctx, &tree.Node{
@@ -207,6 +213,9 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 			MTime: operation.GetNode().MTime,
 		}, true)
 	})
+	if indexationSession != nil {
+		sessionProvider.FinishSession(ctx, indexationSession.Uuid)
+	}
 }
 
 func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
@@ -216,7 +225,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "fs://" + c.uriPath,
+		URI:                   "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
@@ -365,10 +374,13 @@ func (c *FSClient) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 	_, e := c.FS.Stat(fPath)
 	if os.IsNotExist(e) {
 		err = c.FS.MkdirAll(fPath, 0777)
-		if node.Uuid != "" && !c.options.BrowseOnly {
-			afero.WriteFile(c.FS, filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(node.Uuid), 0777)
+		if node.Uuid != "" && !c.options.BrowseOnly && err == nil {
+			err = afero.WriteFile(c.FS, filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(node.Uuid), 0777)
+			if err == nil {
+				_ = c.SetHidden(filepath.Join(fPath, common.PYDIO_SYNC_HIDDEN_FILE_META), true)
+			}
 		}
-		if c.updateSnapshot != nil {
+		if c.updateSnapshot != nil && err == nil {
 			log.Logger(ctx).Debug("[FS] Update Snapshot - Create", node.ZapPath())
 			if err := c.updateSnapshot.CreateNode(ctx, node, updateIfExists); err == nil {
 				// Create associated .pydio in snapshot as well
@@ -457,6 +469,9 @@ func (c *FSClient) UpdateFolderUuid(ctx context.Context, node *tree.Node) (*tree
 	if err = c.FS.Remove(pFile); err == nil {
 		log.Logger(ctx).Info("Refreshing folder Uuid for", node.ZapPath())
 		err = afero.WriteFile(c.FS, pFile, []byte(node.Uuid), 0666)
+		if err == nil {
+			c.SetHidden(pFile, true)
+		}
 	}
 	return node, err
 }
@@ -540,16 +555,20 @@ func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
 	if c.options.BrowseOnly {
 		return uuid.New(), nil
 	}
-	uidFile, uidErr := c.FS.OpenFile(filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), os.O_RDONLY, 0777)
+	hiddenFilePath := filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META)
+	uidFile, uidErr := c.FS.OpenFile(hiddenFilePath, os.O_RDONLY, 0777)
 	if uidErr != nil && os.IsNotExist(uidErr) {
 		uid = uuid.New()
-		we := afero.WriteFile(c.FS, filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META), []byte(uid), 0666)
+		we := afero.WriteFile(c.FS, hiddenFilePath, []byte(uid), 0666)
 		if we != nil {
 			return "", we
 		}
+		if err := c.SetHidden(hiddenFilePath, true); err != nil {
+			log.Logger(context.Background()).Error("Cannot set file as hidden", zap.Error(err))
+		}
 	} else {
 		uidFile.Close()
-		content, re := afero.ReadFile(c.FS, filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META))
+		content, re := afero.ReadFile(c.FS, hiddenFilePath)
 		if re != nil {
 			return "", re
 		}
