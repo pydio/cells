@@ -28,6 +28,10 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+func SetHidden(osPath string, hidden bool) error {
+	return nil
+}
+
 func BrowseVolumes(ctx context.Context) []*tree.Node {
 	return nil
 }

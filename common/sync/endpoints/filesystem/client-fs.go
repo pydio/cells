@@ -27,7 +27,6 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"go.uber.org/zap"
 	"io"
 	"os"
 	"path"
@@ -42,6 +41,7 @@ import (
 	"github.com/pborman/uuid"
 	"github.com/rjeczalik/notify"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/common"
@@ -50,6 +50,7 @@ import (
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/pydio/cells/common/sync/proc"
+	"github.com/pydio/cells/common/utils/filesystem"
 )
 
 const (
@@ -673,4 +674,9 @@ func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) e
 	node.SetMeta("RecursiveChildrenFiles", files)
 	node.SetMeta("RecursiveChildrenFolders", folders)
 	return nil
+}
+
+func (c *FSClient) SetHidden(relativePath string, hidden bool) error {
+	osPath := filepath.Join(c.RootPath, relativePath)
+	return filesystem.SetHidden(osPath, hidden)
 }

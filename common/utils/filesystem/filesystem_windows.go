@@ -33,6 +33,23 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+func SetHidden(osPath string, hidden bool) error {
+	p, err := syscall.UTF16PtrFromString(osPath)
+	if err != nil {
+		return err
+	}
+	attrs, err := syscall.GetFileAttributes(p)
+	if err != nil {
+		return err
+	}
+	if hidden {
+		attrs |= syscall.FILE_ATTRIBUTE_HIDDEN
+	} else {
+		attrs &^= syscall.FILE_ATTRIBUTE_HIDDEN
+	}
+	return syscall.SetFileAttributes(p, attrs)
+}
+
 func BrowseVolumes(ctx context.Context) (volumes []*tree.Node) {
 	h := syscall.MustLoadDLL("kernel32.dll")
 	doneChan := make(chan string, 1)

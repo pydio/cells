@@ -13,15 +13,14 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/config-srv/proto/config"
-	"github.com/pydio/go-os/config/proto"
+	go_micro_os_config "github.com/pydio/go-os/config/proto"
 )
 
 var (
 	notImplemented = errors.New("notimplemented", "service not implemented", 501)
 )
 
-type Handler struct {
-}
+type Handler struct{}
 
 // Create just forwards to Update
 func (h *Handler) Create(ctx context.Context, request *proto.CreateRequest, response *proto.CreateResponse) error {
