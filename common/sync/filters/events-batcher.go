@@ -55,10 +55,16 @@ type EventsBatcher struct {
 	statuses chan model.Status
 	done     chan interface{}
 	cmd      *model.Command
+
+	// Monitor batcher activity (receiving events)
+	active       bool
+	activeChan   chan bool
+	activeDone   chan bool
+	epStatusChan chan *model.EndpointStatus
 }
 
 // NewEventsBatcher creates a new EventsBatcher
-func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, ignores []glob.Glob, statuses chan model.Status, done chan interface{}, debounce ...time.Duration) *EventsBatcher {
+func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target model.PathSyncTarget, ignores []glob.Glob, debounce ...time.Duration) *EventsBatcher {
 
 	b := &EventsBatcher{
 		Source:        source,
@@ -69,9 +75,9 @@ func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target m
 		batchCache:      make(map[string][]model.EventInfo),
 		batchCacheMutex: &sync.Mutex{},
 
+		activeChan:       make(chan bool),
+		activeDone:       make(chan bool),
 		closeSessionChan: make(chan string, 1),
-		statuses:         statuses,
-		done:             done,
 	}
 	if len(debounce) > 0 {
 		b.debounce = debounce[0]
@@ -85,7 +91,49 @@ func NewEventsBatcher(ctx context.Context, source model.PathSyncSource, target m
 // Batch starts processing incoming events and turn them into Patch
 func (ev *EventsBatcher) Batch(in chan model.EventInfo, out chan merger.Patch) {
 	ev.patches = out
+	go ev.MonitorActivity()
 	go ev.batchEvents(in)
+}
+
+func (ev *EventsBatcher) MonitorActivity() {
+	defer func() {
+		close(ev.activeChan)
+	}()
+	for {
+		select {
+		case <-ev.activeChan:
+			ev.setActivity(true)
+		case <-time.After(500 * time.Millisecond):
+			ev.setActivity(false)
+		case <-ev.activeDone:
+			return
+		}
+	}
+}
+
+func (ev *EventsBatcher) notifyActive() {
+	ev.activeChan <- true
+}
+
+func (ev *EventsBatcher) setActivity(active bool) {
+	if ev.active == active {
+		return
+	}
+	log.Logger(ev.globalContext).Info("Updating watcher activity", zap.Bool("active", active))
+	ev.active = active
+	if ev.epStatusChan != nil {
+		if active {
+			ev.epStatusChan <- &model.EndpointStatus{
+				EndpointInfo:    ev.Source.GetEndpointInfo(),
+				WatchConnection: model.WatchActive,
+			}
+		} else {
+			ev.epStatusChan <- &model.EndpointStatus{
+				EndpointInfo:    ev.Source.GetEndpointInfo(),
+				WatchConnection: model.WatchIdle,
+			}
+		}
+	}
 }
 
 // ForceCloseSession makes sure an in-memory session is always flushed
@@ -93,12 +141,12 @@ func (ev *EventsBatcher) ForceCloseSession(sessionUuid string) {
 	ev.closeSessionChan <- sessionUuid
 }
 
-func (ev *EventsBatcher) SetCmd(c *model.Command) {
-	ev.cmd = c
-}
-
 func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 
+	defer func() {
+		// on close, also close activity monitoring
+		close(ev.activeDone)
+	}()
 	var batch []model.EventInfo
 
 	for {
@@ -128,9 +176,11 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					ev.batchCacheMutex.Unlock()
 				}
+				ev.notifyActive()
 			} else if event.ScanEvent || event.OperationId == "" {
 				log.Logger(ev.globalContext).Debug("[batcher] Batching Event without session ", zap.Any("e", event))
 				batch = append(batch, event)
+				ev.notifyActive()
 			}
 		case session := <-ev.closeSessionChan:
 			ev.batchCacheMutex.Lock()
@@ -203,4 +253,22 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo) {
 
 	ev.patches <- patch
 
+}
+
+func (ev *EventsBatcher) SetupChannels(status chan model.Status, done chan interface{}, cmd *model.Command) {
+	ev.statuses = status
+	ev.done = done
+	ev.cmd = cmd
+}
+
+func (ev *EventsBatcher) SetEndpointStatusChan(c chan *model.EndpointStatus) {
+	ev.epStatusChan = c
+}
+
+func (ev *EventsBatcher) Status(s model.Status) {
+	// do nothing
+}
+
+func (ev *EventsBatcher) Done(info interface{}) {
+	// do nothing
 }

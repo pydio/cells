@@ -272,21 +272,40 @@ func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource,
 }
 
 func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
-	err = s.db.View(func(tx *bbolt.Tx) error {
-		if b := tx.Bucket(bucketName); b != nil {
-			value := b.Get([]byte(path))
-			if value != nil {
-				if node, err = s.unmarshal(value); err != nil {
-					return err
+	if path == "/" {
+		// Return fake Root
+		node = &tree.Node{Path: "/"}
+	} else {
+		err = s.db.View(func(tx *bbolt.Tx) error {
+			if b := tx.Bucket(bucketName); b != nil {
+				value := b.Get([]byte(path))
+				if value != nil {
+					if node, err = s.unmarshal(value); err != nil {
+						return err
+					}
 				}
 			}
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		} else if node == nil {
+			err = errors.NotFound("not.found", "node not found in snapshot %s", path)
 		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	} else if node == nil {
-		err = errors.NotFound("not.found", "node not found in snapshot %s", path)
+	}
+	if len(extendedStats) > 0 && extendedStats[0] {
+		var size, folders, files int64
+		s.Walk(func(path string, node *tree.Node, err error) {
+			if node.IsLeaf() {
+				size += node.Size
+				files += 1
+			} else {
+				folders += 1
+			}
+		}, path, true)
+		node.SetMeta("RecursiveChildrenSize", size)
+		node.SetMeta("RecursiveChildrenFiles", files)
+		node.SetMeta("RecursiveChildrenFolders", folders)
 	}
 	return
 }

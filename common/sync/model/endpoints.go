@@ -91,6 +91,24 @@ type EndpointOptions struct {
 	BrowseOnly bool
 }
 
+// EndpointRootStat gives information about the size/files/folders of an endpoint
+type EndpointRootStat struct {
+	HasChildrenInfo bool
+	HasSizeInfo     bool
+
+	Size     int64
+	Children int64
+	Folders  int64
+	Files    int64
+
+	PgSize     int64 `json:"-"`
+	PgChildren int64 `json:"-"`
+	PgFolders  int64 `json:"-"`
+	PgFiles    int64 `json:"-"`
+
+	LastPg float64 `json:"-"`
+}
+
 // Endpoint is the most basic interface for representing an endpoint for synchronization. It is just able to
 // return some info and to load a node
 type Endpoint interface {

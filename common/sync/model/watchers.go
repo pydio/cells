@@ -87,11 +87,15 @@ type WatchConnectionInfo int
 const (
 	WatchConnected WatchConnectionInfo = iota
 	WatchDisconnected
+	WatchActive
+	WatchIdle
+	WatchStats
 )
 
 type EndpointStatus struct {
 	EndpointInfo
 	WatchConnection WatchConnectionInfo
+	Stats           *EndpointRootStat
 }
 
 type WatchObject struct {

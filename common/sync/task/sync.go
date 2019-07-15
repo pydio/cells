@@ -24,8 +24,14 @@ package task
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"runtime/debug"
+	"sync"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/endpoints/memory"
 
 	"github.com/gobwas/glob"
 	"github.com/pydio/cells/common/log"
@@ -235,4 +241,140 @@ func (s *Sync) BroadcastCloseSession(sessionUuid string) {
 	for _, b := range s.eventsBatchers {
 		b.ForceCloseSession(sessionUuid)
 	}
+}
+
+func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
+
+	source, _ := model.AsPathSyncSource(s.Source)
+	targetAsSource, _ := model.AsPathSyncSource(s.Target)
+
+	if s.Direction == model.DirectionBi && s.snapshotFactory != nil {
+
+		leftSnap, err := s.snapshotFactory.Load(source)
+		if err != nil {
+			return err
+		}
+		if e := s.walkToJSON(ctx, leftSnap, filepath.Join(targetFolder, "snap-source.json")); e != nil {
+			return e
+		}
+
+		rightSnap, err := s.snapshotFactory.Load(targetAsSource)
+		if err != nil {
+			return err
+		}
+		if e := s.walkToJSON(ctx, rightSnap, filepath.Join(targetFolder, "snap-target.json")); e != nil {
+			return e
+		}
+
+	}
+
+	if e := s.walkToJSON(ctx, source, filepath.Join(targetFolder, "source.json")); e != nil {
+		return e
+	}
+
+	if e := s.walkToJSON(ctx, targetAsSource, filepath.Join(targetFolder, "target.json")); e != nil {
+		return e
+	}
+
+	return nil
+
+}
+
+func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*model.EndpointRootStat, error) {
+
+	endpoints := map[string]model.Endpoint{
+		s.Source.GetEndpointInfo().URI: s.Source,
+		s.Target.GetEndpointInfo().URI: s.Target,
+	}
+	if useSnapshots && s.Direction == model.DirectionBi && s.snapshotFactory != nil {
+		source, _ := model.AsPathSyncSource(s.Source)
+		targetAsSource, _ := model.AsPathSyncSource(s.Target)
+		if leftSnap, err := s.snapshotFactory.Load(source); err == nil {
+			endpoints[source.GetEndpointInfo().URI] = leftSnap
+		}
+		if rightSnap, err := s.snapshotFactory.Load(targetAsSource); err == nil {
+			endpoints[s.Target.GetEndpointInfo().URI] = rightSnap
+		}
+	}
+	lock := sync.Mutex{}
+	result := make(map[string]*model.EndpointRootStat, len(endpoints))
+
+	wg := &sync.WaitGroup{}
+	wg.Add(len(endpoints))
+	var errs []error
+	for key, ep := range endpoints {
+		epCopy := ep
+		go func() {
+			defer wg.Done()
+			if sourceRoots, e := s.statRoots(ctx, epCopy); e == nil {
+				lock.Lock()
+				log.Logger(ctx).Info("Got Stats for "+key, zap.Any("stats", sourceRoots))
+				result[key] = sourceRoots
+				lock.Unlock()
+				if !useSnapshots && s.watchConn != nil {
+					go func() {
+						s.watchConn <- &model.EndpointStatus{
+							WatchConnection: model.WatchStats,
+							EndpointInfo:    epCopy.GetEndpointInfo(),
+							Stats:           sourceRoots,
+						}
+					}()
+				}
+			} else {
+				errs = append(errs, e)
+			}
+		}()
+	}
+	wg.Wait()
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	return result, nil
+
+}
+
+func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, jsonFile string) error {
+
+	db := memory.NewMemDB()
+	source.Walk(func(path string, node *tree.Node, err error) {
+		db.CreateNode(ctx, node, false)
+	}, "/", true)
+
+	return db.ToJSON(jsonFile)
+
+}
+
+func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *model.EndpointRootStat, e error) {
+	stat = &model.EndpointRootStat{}
+	var roots []string
+	for _, r := range s.Roots {
+		roots = append(roots, r)
+	}
+	if len(roots) == 0 {
+		roots = append(roots, "/")
+	}
+	for _, r := range roots {
+		node, err := source.LoadNode(ctx, r, true)
+		if err != nil {
+			return stat, errors.WithMessage(err, "Cannot Stat Root")
+		}
+		if node.HasMetaKey("RecursiveChildrenSize") {
+			stat.HasSizeInfo = true
+			var s int64
+			if e := node.GetMeta("RecursiveChildrenSize", &s); e == nil {
+				stat.Size += s
+			}
+		}
+		if node.HasMetaKey("RecursiveChildrenFolders") && node.HasMetaKey("RecursiveChildrenFiles") {
+			stat.HasChildrenInfo = true
+			var folders, files int64
+			if e := node.GetMeta("RecursiveChildrenFolders", &folders); e == nil {
+				stat.Folders += folders
+			}
+			if e := node.GetMeta("RecursiveChildrenFiles", &files); e == nil {
+				stat.Files += files
+			}
+		}
+	}
+	return
 }

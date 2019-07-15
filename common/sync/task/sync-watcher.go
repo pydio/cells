@@ -83,8 +83,11 @@ func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, ta
 	}
 
 	// Finally Batch filtered events and register batcher for force-close session broadcast
-	batcher := filters.NewEventsBatcher(ctx, source, target, s.Ignores, s.statuses, s.runDone)
-	batcher.SetCmd(s.cmd)
+	batcher := filters.NewEventsBatcher(ctx, source, target, s.Ignores)
+	batcher.SetupChannels(s.statuses, s.runDone, s.cmd)
+	if s.watchConn != nil {
+		batcher.SetEndpointStatusChan(s.watchConn)
+	}
 	batcher.Batch(out, s.patchChan)
 	s.eventsBatchers = append(s.eventsBatchers, batcher)
 

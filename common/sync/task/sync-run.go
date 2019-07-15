@@ -24,52 +24,22 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"path/filepath"
 	"sync"
 
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/endpoints/memory"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 )
 
-type EndpointRootStat struct {
-	HasChildrenInfo bool
-	HasSizeInfo     bool
-
-	Size     int64
-	Children int64
-	Folders  int64
-	Files    int64
-
-	PgSize     int64
-	PgChildren int64
-	PgFolders  int64
-	PgFiles    int64
-
-	LastPg float64
-}
-
 func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {
 
-	// Check that both endpoints are available
-	sourceRoots, e := s.statRoots(ctx, s.Source)
+	// Check that both endpoints are available and get total stats to be used for progress
+	rootsInfo, e := s.RootStats(ctx, false)
 	if e != nil {
 		return nil, e
 	}
-	targetRoots, e := s.statRoots(ctx, s.Target)
-	if e != nil {
-		return nil, e
-	}
-	rootsInfo := map[string]*EndpointRootStat{
-		s.Source.GetEndpointInfo().URI: sourceRoots,
-		s.Target.GetEndpointInfo().URI: targetRoots,
-	}
-	log.Logger(ctx).Info("Got ExtendedStats for Root", zap.Any("infos", rootsInfo))
 
 	if s.Direction == model.DirectionBi {
 
@@ -128,7 +98,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 }
 
-func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, force bool, rootsInfo map[string]*EndpointRootStat) error {
+func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, force bool, rootsInfo map[string]*model.EndpointRootStat) error {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -149,7 +119,7 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	return nil
 }
 
-func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun bool, force bool, rootsInfo map[string]*EndpointRootStat) error {
+func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun bool, force bool, rootsInfo map[string]*model.EndpointRootStat) error {
 
 	source, _ := model.AsPathSyncSource(s.Source)
 	targetAsSource, _ := model.AsPathSyncSource(s.Target)
@@ -245,7 +215,7 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 	return nil
 }
 
-func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string, rootsInfo map[string]*EndpointRootStat) (model.Snapshoter, map[string]merger.Patch, error) {
+func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source model.PathSyncSource, roots []string, rootsInfo map[string]*model.EndpointRootStat) (model.Snapshoter, map[string]merger.Patch, error) {
 
 	snapUpdater, ok2 := source.(model.SnapshotUpdater)
 	hashStoreReader, ok3 := source.(model.HashStoreReader)
@@ -293,90 +263,7 @@ func (s *Sync) patchesFromSnapshot(ctx context.Context, name string, source mode
 
 }
 
-func (s *Sync) Capture(ctx context.Context, targetFolder string) error {
-
-	source, _ := model.AsPathSyncSource(s.Source)
-	targetAsSource, _ := model.AsPathSyncSource(s.Target)
-
-	if s.Direction == model.DirectionBi && s.snapshotFactory != nil {
-
-		leftSnap, err := s.snapshotFactory.Load(source)
-		if err != nil {
-			return err
-		}
-		if e := s.walkToJSON(ctx, leftSnap, filepath.Join(targetFolder, "snap-source.json")); e != nil {
-			return e
-		}
-
-		rightSnap, err := s.snapshotFactory.Load(targetAsSource)
-		if err != nil {
-			return err
-		}
-		if e := s.walkToJSON(ctx, rightSnap, filepath.Join(targetFolder, "snap-target.json")); e != nil {
-			return e
-		}
-
-	}
-
-	if e := s.walkToJSON(ctx, source, filepath.Join(targetFolder, "source.json")); e != nil {
-		return e
-	}
-
-	if e := s.walkToJSON(ctx, targetAsSource, filepath.Join(targetFolder, "target.json")); e != nil {
-		return e
-	}
-
-	return nil
-
-}
-
-func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, jsonFile string) error {
-
-	db := memory.NewMemDB()
-	source.Walk(func(path string, node *tree.Node, err error) {
-		db.CreateNode(ctx, node, false)
-	}, "/", true)
-
-	return db.ToJSON(jsonFile)
-
-}
-
-func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *EndpointRootStat, e error) {
-	stat = &EndpointRootStat{}
-	var roots []string
-	for _, r := range s.Roots {
-		roots = append(roots, r)
-	}
-	if len(roots) == 0 {
-		roots = append(roots, "/")
-	}
-	for _, r := range roots {
-		node, err := source.LoadNode(ctx, r, true)
-		if err != nil {
-			return stat, errors.WithMessage(err, "Cannot Stat Root")
-		}
-		if node.HasMetaKey("RecursiveChildrenSize") {
-			stat.HasSizeInfo = true
-			var s int64
-			if e := node.GetMeta("RecursiveChildrenSize", &s); e == nil {
-				stat.Size += s
-			}
-		}
-		if node.HasMetaKey("RecursiveChildrenFolders") && node.HasMetaKey("RecursiveChildrenFiles") {
-			stat.HasChildrenInfo = true
-			var folders, files int64
-			if e := node.GetMeta("RecursiveChildrenFolders", &folders); e == nil {
-				stat.Folders += folders
-			}
-			if e := node.GetMeta("RecursiveChildrenFiles", &files); e == nil {
-				stat.Files += files
-			}
-		}
-	}
-	return
-}
-
-func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[string]*EndpointRootStat) chan bool {
+func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[string]*model.EndpointRootStat) chan bool {
 	indexStatus := make(chan model.Status)
 	done := make(chan interface{})
 	finished := make(chan bool, 1)
@@ -415,7 +302,7 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 	return finished
 }
 
-func (s *Sync) computeIndexProgress(input model.Status, rootInfo *EndpointRootStat) (output model.Status, emit bool) {
+func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.EndpointRootStat) (output model.Status, emit bool) {
 	if input.Node() == nil {
 		rootInfo.PgChildren++
 	} else if input.Node().IsLeaf() {
