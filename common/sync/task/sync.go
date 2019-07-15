@@ -322,6 +322,14 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 				}
 			} else {
 				errs = append(errs, e)
+				if !useSnapshots && s.watchConn != nil {
+					go func() {
+						s.watchConn <- &model.EndpointStatus{
+							WatchConnection: model.WatchDisconnected,
+							EndpointInfo:    epCopy.GetEndpointInfo(),
+						}
+					}()
+				}
 			}
 		}()
 	}
