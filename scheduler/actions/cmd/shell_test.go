@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"runtime"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -47,7 +48,6 @@ func TestShellAction_GetName(t *testing.T) {
 func TestShellAction_Init(t *testing.T) {
 
 	Convey("", t, func() {
-
 		action := &ShellAction{}
 		job := &jobs.Job{}
 		// Missing Parameters
@@ -73,12 +73,24 @@ func TestShellAction_Run(t *testing.T) {
 
 	Convey("", t, func() {
 
+		var command, params, newLineChar string
+
+		if runtime.GOOS == "windows" {
+			command = "cmd"
+			params = "/C echo HelloWorld"
+			newLineChar = "\r\n"
+		} else {
+			command = "echo"
+			params = "HelloWorld"
+			newLineChar = "\n"
+		}
+
 		action := &ShellAction{}
 		job := &jobs.Job{}
 		action.Init(job, nil, &jobs.Action{
 			Parameters: map[string]string{
-				"cmd":        "echo",
-				"parameters": "HelloWorld",
+				"cmd":        command,
+				"parameters": params,
 			},
 		})
 
@@ -96,7 +108,7 @@ func TestShellAction_Run(t *testing.T) {
 		So(err, ShouldBeNil)
 		output := outputMessage.GetLastOutput()
 		So(output.Success, ShouldBeTrue)
-		So(output.StringBody, ShouldEqual, "HelloWorld\n")
+		So(output.StringBody, ShouldEqual, "HelloWorld"+newLineChar)
 
 	})
 }

@@ -23,7 +23,6 @@ package rest
 import (
 	"context"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/emicklei/go-restful"
@@ -204,7 +203,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	wCl := tree.NewNodeReceiverClient(srvName, defClient)
 
 	// Check it's two level deep
-	parentName := filepath.Dir(folder)
+	parentName := path.Dir(folder)
 	if strings.Trim(parentName, "/") == "" {
 		return errors.BadRequest("ds.folder.invalid", "please use at least a two-levels deep folder")
 	}

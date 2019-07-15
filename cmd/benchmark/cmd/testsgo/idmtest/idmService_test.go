@@ -34,7 +34,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"testing"
 
 	"github.com/pydio/cells/common/utils/std"
@@ -275,15 +274,11 @@ func TestMain(m *testing.M) {
 			log.Fatal(err)
 		}
 
-		sendCPUProfileSignal()
-		defer sendCPUProfileSignal()
+		sendCPUProfileSignal(process)
+		defer sendCPUProfileSignal(process)
 	}
 
 	m.Run()
-}
-
-func sendCPUProfileSignal() {
-	process.Signal(syscall.SIGUSR1)
 }
 
 func benchService(b *testing.B, grpcServiceId, methodName, randomStr string, queryTemplate *template.Template) error {
