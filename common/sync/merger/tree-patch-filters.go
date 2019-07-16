@@ -37,6 +37,8 @@ import (
 
 func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 
+	log.Logger(ctx).Info("Start filtering patch")
+
 	n := time.Now()
 	defer func() {
 		log.Logger(ctx).Info("Finished filtering patch", zap.Duration("time", time.Now().Sub(n)))

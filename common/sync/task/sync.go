@@ -304,12 +304,13 @@ func (s *Sync) RootStats(ctx context.Context, useSnapshots bool) (map[string]*mo
 	var errs []error
 	for key, ep := range endpoints {
 		epCopy := ep
+		keyCopy := key
 		go func() {
 			defer wg.Done()
 			if sourceRoots, e := s.statRoots(ctx, epCopy); e == nil {
 				lock.Lock()
-				log.Logger(ctx).Info("Got Stats for "+key, zap.Any("stats", sourceRoots))
-				result[key] = sourceRoots
+				log.Logger(ctx).Info("Got Stats for "+keyCopy, zap.Any("stats", sourceRoots))
+				result[keyCopy] = sourceRoots
 				lock.Unlock()
 				if !useSnapshots && s.watchConn != nil {
 					go func() {
