@@ -27,6 +27,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -57,6 +58,10 @@ type BoltSnapshot struct {
 
 	createsSession     map[string]*tree.Node
 	createsSessionLock *sync.Mutex
+
+	autoBatchChan  chan *tree.Node
+	autoBatchClose chan struct{}
+	autoBatchFlush chan struct{}
 }
 
 func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
@@ -73,7 +78,76 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 		return nil, err
 	}
 	s.db = db
+
+	s.autoBatchChan = make(chan *tree.Node)
+	s.autoBatchFlush = make(chan struct{}, 1)
+	s.autoBatchClose = make(chan struct{}, 1)
+
+	go s.startAutoBatching()
+
 	return s, nil
+}
+
+func (s *BoltSnapshot) sortByKey(data map[string]*tree.Node) (output []*tree.Node) {
+	var kk []string
+	for k, _ := range data {
+		kk = append(kk, k)
+	}
+	sort.Strings(kk)
+	for _, k := range kk {
+		output = append(output, data[k])
+	}
+	return
+}
+
+func (s *BoltSnapshot) startAutoBatching() {
+	var closeOnFlush bool
+	defer func() {
+		close(s.autoBatchChan)
+		close(s.autoBatchFlush)
+	}()
+	creates := make(map[string]*tree.Node, 250)
+	for {
+		select {
+		case node := <-s.autoBatchChan:
+			if queued, ok := creates[node.GetPath()]; ok {
+				if node.GetMTime() > queued.MTime {
+					creates[node.GetPath()] = node
+				}
+			} else {
+				creates[node.GetPath()] = node
+			}
+			if len(creates) == 250 {
+				// Autoflush when map is full
+				s.autoBatchFlush <- struct{}{}
+			}
+		case <-time.After(500 * time.Millisecond):
+			// Autoflush after 500ms idle
+			s.autoBatchFlush <- struct{}{}
+		case <-s.autoBatchFlush:
+			if len(creates) == 0 {
+				break
+			}
+			log.Logger(context.Background()).Info("Flushing AutoBatch", zap.Int("count", len(creates)))
+			s.db.Batch(func(tx *bbolt.Tx) error {
+				b := tx.Bucket(bucketName)
+				if b == nil {
+					return fmt.Errorf("cannot find root bucket")
+				}
+				for _, node := range s.sortByKey(creates) {
+					b.Put([]byte(node.Path), s.marshal(node))
+				}
+				return nil
+			})
+			creates = make(map[string]*tree.Node, 250)
+			if closeOnFlush {
+				log.Logger(context.Background()).Info("Closing AutoBatcher")
+				return
+			}
+		case <-s.autoBatchClose:
+			closeOnFlush = true
+		}
+	}
 }
 
 func (s *BoltSnapshot) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
@@ -85,8 +159,6 @@ func (s *BoltSnapshot) StartSession(ctx context.Context, rootNode *tree.Node, si
 }
 
 func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) error {
-	s.createsSessionLock.Lock()
-	defer s.createsSessionLock.Unlock()
 	if len(s.createsSession) == 0 {
 		return nil
 	}
@@ -96,9 +168,11 @@ func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) err
 		if b == nil {
 			return fmt.Errorf("cannot find root bucket")
 		}
-		for _, node := range s.createsSession {
+		s.createsSessionLock.Lock()
+		for _, node := range s.sortByKey(s.createsSession) {
 			b.Put([]byte(node.Path), s.marshal(node))
 		}
+		s.createsSessionLock.Unlock()
 		return nil
 	})
 	s.createsSession = make(map[string]*tree.Node)
@@ -138,7 +212,7 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 			return nil
 		})
 	} else {
-		return s.db.Update(func(tx *bbolt.Tx) error {
+		return s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
 				return fmt.Errorf("cannot find root bucket")
@@ -150,12 +224,36 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 				for i := 0; i < len(parts); i++ {
 					pKey := strings.Join(parts[:i+1], "/")
 					if ex := b.Get([]byte(pKey)); ex == nil {
-						b.Put([]byte(pKey), s.marshal(&tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}))
+						//b.Put([]byte(pKey), s.marshal(&tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}))
+						s.autoBatchChan <- &tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}
 					}
 				}
 			}
-			return b.Put([]byte(node.Path), s.marshal(node))
+			s.autoBatchChan <- node
+			return nil
+			//return b.Put([]byte(node.Path), s.marshal(node))
 		})
+
+		/*
+			return s.db.Update(func(tx *bbolt.Tx) error {
+				b := tx.Bucket(bucketName)
+				if b == nil {
+					return fmt.Errorf("cannot find root bucket")
+				}
+				// Create parents if necessary
+				dir := strings.Trim(path.Dir(node.Path), "/")
+				if dir != "" && dir != "." {
+					parts := strings.Split(strings.Trim(path.Dir(node.Path), "/"), "/")
+					for i := 0; i < len(parts); i++ {
+						pKey := strings.Join(parts[:i+1], "/")
+						if ex := b.Get([]byte(pKey)); ex == nil {
+							b.Put([]byte(pKey), s.marshal(&tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}))
+						}
+					}
+				}
+				return b.Put([]byte(node.Path), s.marshal(node))
+			})
+		*/
 	}
 }
 
@@ -219,6 +317,7 @@ func (s *BoltSnapshot) Close(delete ...bool) {
 	if len(delete) > 0 && delete[0] && s.folderPath != "" {
 		os.RemoveAll(s.folderPath)
 	}
+	close(s.autoBatchClose)
 }
 
 func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource, paths ...string) error {

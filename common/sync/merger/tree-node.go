@@ -175,6 +175,8 @@ func (t *TreeNode) SortedChildren() []*TreeNode {
 	if t.sorted != nil {
 		return t.sorted
 	}
+	t.Lock()
+	defer t.Unlock()
 	sort.Strings(t.childrenKeys)
 	for _, k := range t.childrenKeys {
 		t.sorted = append(t.sorted, t.children[k])
