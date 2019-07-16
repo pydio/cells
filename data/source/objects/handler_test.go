@@ -26,11 +26,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/pydio/cells/common/proto/tree"
-
+	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/afero"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/pydio/cells/common/proto/tree"
 )
 
 var (
@@ -86,7 +85,7 @@ func TestHandler(t *testing.T) {
 		resp := &tree.CreateNodeResponse{}
 		err := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 			Type: tree.NodeType_COLLECTION,
-			Path: "/folder1/subfolder",
+			Path: "folder1/subfolder",
 			Uuid: "hfuuid1",
 		}}, resp)
 		So(err, ShouldBeNil)
@@ -107,10 +106,10 @@ func TestHandler(t *testing.T) {
 		resp := &tree.UpdateNodeResponse{}
 		err := handler.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{
-				Path: "/folder/subfolder/file1",
+				Path: "folder/subfolder/file1",
 			},
 			To: &tree.Node{
-				Path: "/folder/file4",
+				Path: "folder/file4",
 			},
 		}, resp)
 		So(err, ShouldNotBeNil)
@@ -120,7 +119,7 @@ func TestHandler(t *testing.T) {
 		resp := &tree.DeleteNodeResponse{}
 		err := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{
 			Node: &tree.Node{
-				Path: "/folder",
+				Path: "folder",
 			},
 		}, resp)
 		So(err, ShouldBeNil)
@@ -128,7 +127,7 @@ func TestHandler(t *testing.T) {
 		readResp := &tree.ReadNodeResponse{}
 		err = handler.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
-				Path: "/folder",
+				Path: "folder",
 			},
 		}, readResp)
 		So(err, ShouldNotBeNil)
