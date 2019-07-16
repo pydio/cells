@@ -28,6 +28,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pydio/cells/common/log"
@@ -54,7 +55,8 @@ type BoltSnapshot struct {
 	empty      bool
 	folderPath string
 
-	createsSession []*tree.Node
+	createsSession     map[string]*tree.Node
+	createsSessionLock *sync.Mutex
 }
 
 func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
@@ -75,16 +77,20 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 }
 
 func (s *BoltSnapshot) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
-	s.createsSession = []*tree.Node{}
+	s.createsSession = make(map[string]*tree.Node)
+	s.createsSessionLock = &sync.Mutex{}
 	return &tree.IndexationSession{
 		Uuid: uuid.New(),
 	}, nil
 }
 
 func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) error {
+	s.createsSessionLock.Lock()
+	defer s.createsSessionLock.Unlock()
 	if len(s.createsSession) == 0 {
 		return nil
 	}
+	log.Logger(ctx).Info("Flushing BoltDB creates", zap.Int("creates", len(s.createsSession)))
 	e := s.db.Batch(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
@@ -95,7 +101,7 @@ func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) err
 		}
 		return nil
 	})
-	s.createsSession = nil
+	s.createsSession = make(map[string]*tree.Node)
 	return e
 }
 
@@ -111,18 +117,24 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 			if b == nil {
 				return fmt.Errorf("cannot find root bucket")
 			}
+			s.createsSessionLock.Lock()
+			defer s.createsSessionLock.Unlock()
 			// Create parents if necessary
 			dir := strings.Trim(path.Dir(node.Path), "/")
 			if dir != "" && dir != "." {
 				parts := strings.Split(strings.Trim(path.Dir(node.Path), "/"), "/")
 				for i := 0; i < len(parts); i++ {
 					pKey := strings.Join(parts[:i+1], "/")
-					if ex := b.Get([]byte(pKey)); ex == nil {
-						s.createsSession = append(s.createsSession, &tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"})
+					if _, ok := s.createsSession[pKey]; ok {
+						continue
 					}
+					if ex := b.Get([]byte(pKey)); ex != nil {
+						continue
+					}
+					s.createsSession[pKey] = &tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}
 				}
 			}
-			s.createsSession = append(s.createsSession, node)
+			s.createsSession[node.Path] = node
 			return nil
 		})
 	} else {

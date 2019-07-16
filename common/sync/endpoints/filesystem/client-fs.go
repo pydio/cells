@@ -153,6 +153,38 @@ type FSClient struct {
 	uriPath        string
 }
 
+// StartSession forwards session management to underlying snapshot
+func (c *FSClient) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
+	if c.updateSnapshot != nil {
+		if sessionProvider, ok := c.updateSnapshot.(model.SessionProvider); ok {
+			return sessionProvider.StartSession(ctx, rootNode, silent)
+		}
+	}
+	return &tree.IndexationSession{Uuid: uuid.New()}, nil
+}
+
+// FlushSession forwards session management to underlying snapshot
+func (c *FSClient) FlushSession(ctx context.Context, sessionUuid string) error {
+	if c.updateSnapshot != nil {
+		if sessionProvider, ok := c.updateSnapshot.(model.SessionProvider); ok {
+			return sessionProvider.FlushSession(ctx, sessionUuid)
+		}
+	}
+	return nil
+}
+
+// FinishSession forwards session management to underlying snapshot
+func (c *FSClient) FinishSession(ctx context.Context, sessionUuid string) error {
+	if c.updateSnapshot != nil {
+		if sessionProvider, ok := c.updateSnapshot.(model.SessionProvider); ok {
+			return sessionProvider.FinishSession(ctx, sessionUuid)
+		}
+	}
+	return nil
+}
+
+// NewFSClient initiate a FileSystem client and stats the provided root.
+// It returns an error if the folder is not reachable
 func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, error) {
 	c := &FSClient{
 		options: options,
@@ -174,10 +206,13 @@ func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, err
 	return c, nil
 }
 
+// SetUpdateSnapshot attaches a snapshot to this client, that will be updated at the same
+// time that the client processes operations on the filesystem
 func (c *FSClient) SetUpdateSnapshot(target model.PathSyncTarget) {
 	c.updateSnapshot = target
 }
 
+// PatchUpdateSnapshot applies a patch of Operations on the underlying snapshot, if there is one.
 func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	// Reapply event-based patch to snapshot
 	if c.updateSnapshot == nil {
@@ -226,7 +261,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "fs://" + c.uriPath,
+		URI: "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
