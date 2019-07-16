@@ -104,13 +104,16 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 		pending = pen.(map[string]int)
 	}
 
+	// Setup Session : patch will start/flush/finish session on underlying Source() and Target()
+	// if necessary. Flush is triggered between each operation type by checking if next type has
+	// some Pending operations.
 	flusher := func(tt ...merger.OperationType) {}
-	if session, err := patch.StartSessionProvider(&tree.Node{Path: "/"}); err == nil {
-		defer patch.FinishSessionProvider(session.Uuid)
+	if session, err := patch.StartSession(&tree.Node{Path: "/"}); err == nil {
+		defer patch.FinishSession(session.Uuid)
 		flusher = func(tt ...merger.OperationType) {
 			for _, t := range tt {
 				if val, ok := pending[t.String()]; ok && val > 0 {
-					patch.FlushSessionProvider(session.Uuid)
+					patch.FlushSession(session.Uuid)
 					return
 				}
 			}

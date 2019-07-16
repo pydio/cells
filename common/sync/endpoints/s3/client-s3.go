@@ -52,9 +52,7 @@ var (
 	UserAgentVersion = "1.0"
 )
 
-// TODO
-// For Minio, add an initialization for detecting empty
-// folders and creating PYDIO_SYNC_HIDDEN_FILE_META
+// Client wraps a Minio Client to speak with an S3-compatible backend
 type Client struct {
 	Mc                          MockableMinio
 	Bucket                      string

@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"path"
@@ -113,6 +114,85 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 		return b, fmt.Errorf("error during merge: %s", strings.Join(ss, "|"))
 	}
 	return b, e
+}
+
+// StartSession overrides AbstractPatch method to handle source and/or target as session provider
+func (p *BidirectionalPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSession, error) {
+	ids := make(map[string]*tree.IndexationSession)
+	if sessionProvider, ok := p.Source().(model.SessionProvider); ok {
+		if sourceSession, er := sessionProvider.StartSession(p.sessionProviderContext, rootNode, p.sessionSilent); er != nil {
+			return nil, er
+		} else {
+			ids["source"] = sourceSession
+		}
+	}
+	if sessionProvider, ok := p.Target().(model.SessionProvider); ok {
+		if targetSession, er := sessionProvider.StartSession(p.sessionProviderContext, rootNode, p.sessionSilent); er != nil {
+			return nil, er
+		} else {
+			ids["target"] = targetSession
+		}
+	}
+	session := &tree.IndexationSession{}
+	if len(ids) > 0 {
+		data, _ := json.Marshal(ids)
+		session.Uuid = string(data)
+	}
+	return session, nil
+}
+
+// FlushSession overrides AbstractPatch method to handle source and/or target as session provider
+func (p *BidirectionalPatch) FlushSession(sessionUuid string) error {
+	if len(sessionUuid) == 0 {
+		return nil
+	}
+	var ids map[string]*tree.IndexationSession
+	if e := json.Unmarshal([]byte(sessionUuid), &ids); e != nil {
+		return nil
+	}
+	targetSession, o1 := ids["target"]
+	var e1, e2 error
+	if sessionProvider, ok := p.Target().(model.SessionProvider); ok && o1 {
+		e1 = sessionProvider.FlushSession(p.sessionProviderContext, targetSession.Uuid)
+	}
+	sourceSession, o2 := ids["source"]
+	if sessionProvider, ok := p.Source().(model.SessionProvider); ok && o2 {
+		e2 = sessionProvider.FlushSession(p.sessionProviderContext, sourceSession.Uuid)
+	}
+	if e1 != nil {
+		return e1
+	}
+	if e2 != nil {
+		return e2
+	}
+	return nil
+}
+
+// FinishSession overrides AbstractPatch method to handle source and/or target as session provider
+func (p *BidirectionalPatch) FinishSession(sessionUuid string) error {
+	if len(sessionUuid) == 0 {
+		return nil
+	}
+	var ids map[string]*tree.IndexationSession
+	if e := json.Unmarshal([]byte(sessionUuid), &ids); e != nil {
+		return nil
+	}
+	targetSession, o1 := ids["target"]
+	var e1, e2 error
+	if sessionProvider, ok := p.Target().(model.SessionProvider); ok && o1 {
+		e1 = sessionProvider.FinishSession(p.sessionProviderContext, targetSession.Uuid)
+	}
+	sourceSession, o2 := ids["source"]
+	if sessionProvider, ok := p.Source().(model.SessionProvider); ok && o2 {
+		e2 = sessionProvider.FinishSession(p.sessionProviderContext, sourceSession.Uuid)
+	}
+	if e1 != nil {
+		return e1
+	}
+	if e2 != nil {
+		return e2
+	}
+	return nil
 }
 
 // AppendBranch merges another bidir patch into this existing patch

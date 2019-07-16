@@ -26,9 +26,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/sync/model"
-
 	"github.com/rjeczalik/notify"
+
+	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/common/utils/filesystem"
 )
 
 var (
@@ -188,7 +189,7 @@ func notifyEventToEventInfo(c *FSClient, event notify.EventInfo) (eventInfo mode
 
 	var i os.FileInfo
 	var empty model.EventInfo
-	canon, _ := CanonicalPath(event.Path())
+	canon, _ := filesystem.CanonicalPath(event.Path())
 	eventPath := strings.TrimPrefix(canon, c.RootPath)
 	normalizedPath := c.normalize(eventPath)
 	if isEventType(EventTypeCreate, event.Event()) || isEventType(EventTypeWrite, event.Event()) {

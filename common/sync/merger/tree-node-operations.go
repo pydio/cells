@@ -123,7 +123,7 @@ func (t *TreeNode) filterByTypes(opTypes []OperationType, o Operation) bool {
 
 // WalkOperations walks the tree looking for operation of a certain type
 func (t *TreeNode) WalkOperations(opTypes []OperationType, callback OpWalker) {
-	// TODO CLONE OPERATION?
+	// Shall we clone operation here?
 	recompute := func(t *TreeNode, o Operation) {
 		if t.OpMoveTarget != nil {
 			o.UpdateRefPath(t.OpMoveTarget.ProcessedPath(false))

@@ -242,14 +242,15 @@ type Patch interface {
 	// CleanErrors cleans errors from patch before trying to reapply it
 	CleanErrors()
 
-	// SetSessionProvider registers a target as supporting the SessionProvider interface
-	SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool)
-	// StartSessionProvider calls StartSession on the underlying provider if it is set
-	StartSessionProvider(rootNode *tree.Node) (*tree.IndexationSession, error)
-	// FlushSessionProvider calls FlushSession on the underlying provider if it is set
-	FlushSessionProvider(sessionUuid string) error
-	// FinishSessionProvider calls FinishSession on the underlying provider if it is set
-	FinishSessionProvider(sessionUuid string) error
+	// SetSessionData sets some internal information to be used if Source or Target
+	// implement the SessionProvider interface
+	SetSessionData(providerContext context.Context, silentSession bool)
+	// StartSession calls StartSession on the underlying provider if it is set
+	StartSession(rootNode *tree.Node) (*tree.IndexationSession, error)
+	// FlushSession calls FlushSession on the underlying provider if it is set
+	FlushSession(sessionUuid string) error
+	// FinishSession calls FinishSession on the underlying provider if it is set
+	FinishSession(sessionUuid string) error
 }
 
 // PatchPiper provides a way to plug on the patches channel

@@ -27,21 +27,18 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"runtime"
 	"strings"
 	"sync"
 	"testing"
 
 	"github.com/micro/go-micro/errors"
-
-	"github.com/pydio/cells/common/sync/model"
-
 	"github.com/rjeczalik/notify"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/afero"
 
 	servicescommon "github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 func EmptyMockedClient() *FSClient {
@@ -389,17 +386,4 @@ func TestWalkWithRoot(t *testing.T) {
 		// Will include the root and the PYDIO_SYNC_HIDDEN_FILE_META files
 		So(objects, ShouldHaveLength, 2)
 	})
-}
-
-func TestCanonicalPath(t *testing.T) {
-
-	Convey("Testing lower case", t, func() {
-		p := "/test/path"
-		pa, e := CanonicalPath(p)
-		if runtime.GOOS != "windows" {
-			So(e, ShouldBeNil)
-			So(pa, ShouldEqual, p)
-		}
-	})
-
 }

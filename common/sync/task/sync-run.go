@@ -45,10 +45,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 		// INIT BI PATCH
 		bb := merger.NewBidirectionalPatch(ctx, s.Source, s.Target)
-		// TODO : BI-DIRECTIONAL PATCH SHOULD HANDLE SESSION PROVIDER PER TARGET
-		if provider, ok := model.AsSessionProvider(s.Target); ok {
-			bb.SetSessionProvider(ctx, provider, false)
-		}
+		bb.SetSessionData(ctx, false)
 		bb.SetupChannels(s.statuses, s.runDone, s.cmd)
 
 		if e := s.runBi(ctx, bb, dryRun, force, rootsInfo); e != nil || dryRun {
@@ -63,19 +60,14 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 		// INIT UNIDIRECTIONAL PATCH
 		var patch merger.Patch
-		var asProvider model.Endpoint
 		if s.Direction == model.DirectionRight {
 			patch = merger.NewPatch(s.Source.(model.PathSyncSource), s.Target.(model.PathSyncTarget), merger.PatchOptions{MoveDetection: true})
-			asProvider = s.Target
 		} else {
 			patch = merger.NewPatch(s.Target.(model.PathSyncSource), s.Source.(model.PathSyncTarget), merger.PatchOptions{MoveDetection: true})
-			asProvider = s.Source
 		}
 		patch.SkipFilterToTarget(true)
 		patch.SetupChannels(s.statuses, s.runDone, s.cmd)
-		if provider, ok := model.AsSessionProvider(asProvider); ok {
-			patch.SetSessionProvider(ctx, provider, true)
-		}
+		patch.SetSessionData(ctx, true)
 
 		// RUN SYNC ON SELECTED ROOTS
 		if len(s.Roots) == 0 {

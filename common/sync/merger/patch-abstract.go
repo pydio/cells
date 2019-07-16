@@ -34,7 +34,6 @@ type AbstractPatch struct {
 	target  model.PathSyncTarget
 	mTime   time.Time
 
-	sessionProvider        model.SessionProvider
 	sessionProviderContext context.Context
 	sessionSilent          bool
 
@@ -61,12 +60,6 @@ func (b *AbstractPatch) GetStamp() time.Time {
 
 func (b *AbstractPatch) Stamp(t time.Time) {
 	b.mTime = t
-}
-
-func (b *AbstractPatch) SetSessionProvider(providerContext context.Context, provider model.SessionProvider, silentSession bool) {
-	b.sessionProvider = provider
-	b.sessionProviderContext = providerContext
-	b.sessionSilent = silentSession
 }
 
 func (b *AbstractPatch) SetupChannels(status chan model.Status, done chan interface{}, cmd *model.Command) {
@@ -123,24 +116,29 @@ func (b *AbstractPatch) Target(newTarget ...model.PathSyncTarget) model.PathSync
 	return b.target
 }
 
-func (b *AbstractPatch) StartSessionProvider(rootNode *tree.Node) (*tree.IndexationSession, error) {
-	if b.sessionProvider != nil {
-		return b.sessionProvider.StartSession(b.sessionProviderContext, rootNode, b.sessionSilent)
+func (b *AbstractPatch) SetSessionData(providerContext context.Context, silentSession bool) {
+	b.sessionProviderContext = providerContext
+	b.sessionSilent = silentSession
+}
+
+func (b *AbstractPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSession, error) {
+	if sessionProvider, ok := b.Target().(model.SessionProvider); ok {
+		return sessionProvider.StartSession(b.sessionProviderContext, rootNode, b.sessionSilent)
 	} else {
 		return &tree.IndexationSession{Uuid: "fake-session", Description: "Noop Session"}, nil
 	}
 }
 
-func (b *AbstractPatch) FlushSessionProvider(sessionUuid string) error {
-	if b.sessionProvider != nil {
-		return b.sessionProvider.FlushSession(b.sessionProviderContext, sessionUuid)
+func (b *AbstractPatch) FlushSession(sessionUuid string) error {
+	if sessionProvider, ok := b.Target().(model.SessionProvider); ok {
+		return sessionProvider.FlushSession(b.sessionProviderContext, sessionUuid)
 	}
 	return nil
 }
 
-func (b *AbstractPatch) FinishSessionProvider(sessionUuid string) error {
-	if b.sessionProvider != nil {
-		return b.sessionProvider.FinishSession(b.sessionProviderContext, sessionUuid)
+func (b *AbstractPatch) FinishSession(sessionUuid string) error {
+	if sessionProvider, ok := b.Target().(model.SessionProvider); ok {
+		return sessionProvider.FinishSession(b.sessionProviderContext, sessionUuid)
 	}
 	return nil
 }

@@ -61,7 +61,6 @@ type BoltSnapshot struct {
 
 	autoBatchChan  chan *tree.Node
 	autoBatchClose chan struct{}
-	autoBatchFlush chan struct{}
 }
 
 func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
@@ -80,7 +79,6 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 	s.db = db
 
 	s.autoBatchChan = make(chan *tree.Node)
-	s.autoBatchFlush = make(chan struct{}, 1)
 	s.autoBatchClose = make(chan struct{}, 1)
 
 	go s.startAutoBatching()
@@ -101,12 +99,28 @@ func (s *BoltSnapshot) sortByKey(data map[string]*tree.Node) (output []*tree.Nod
 }
 
 func (s *BoltSnapshot) startAutoBatching() {
-	var closeOnFlush bool
 	defer func() {
 		close(s.autoBatchChan)
-		close(s.autoBatchFlush)
 	}()
 	creates := make(map[string]*tree.Node, 500)
+	nextTime := 1 * time.Hour
+	flush := func() {
+		if len(creates) == 0 {
+			return
+		}
+		log.Logger(context.Background()).Info("Flushing AutoBatcher")
+		s.db.Update(func(tx *bbolt.Tx) error {
+			b := tx.Bucket(bucketName)
+			if b == nil {
+				return fmt.Errorf("cannot find root bucket")
+			}
+			for _, node := range s.sortByKey(creates) {
+				b.Put([]byte(node.Path), s.marshal(node))
+			}
+			return nil
+		})
+		creates = make(map[string]*tree.Node, 500)
+	}
 	for {
 		select {
 		case node := <-s.autoBatchChan:
@@ -117,35 +131,18 @@ func (s *BoltSnapshot) startAutoBatching() {
 			} else {
 				creates[node.GetPath()] = node
 			}
+			nextTime = 300 * time.Second
 			if len(creates) == 500 {
-				// Autoflush when map is full
-				s.autoBatchFlush <- struct{}{}
+				flush()
 			}
-		case <-time.After(300 * time.Millisecond):
+		case <-time.After(nextTime):
 			// Autoflush after 300ms idle
-			s.autoBatchFlush <- struct{}{}
-		case <-s.autoBatchFlush:
-			if len(creates) == 0 {
-				break
-			}
-			log.Logger(context.Background()).Info("Flushing AutoBatch", zap.Int("count", len(creates)))
-			s.db.Update(func(tx *bbolt.Tx) error {
-				b := tx.Bucket(bucketName)
-				if b == nil {
-					return fmt.Errorf("cannot find root bucket")
-				}
-				for _, node := range s.sortByKey(creates) {
-					b.Put([]byte(node.Path), s.marshal(node))
-				}
-				return nil
-			})
-			creates = make(map[string]*tree.Node, 500)
-			if closeOnFlush {
-				log.Logger(context.Background()).Info("Closing AutoBatcher")
-				return
-			}
+			flush()
+			nextTime = 1 * time.Hour
 		case <-s.autoBatchClose:
-			closeOnFlush = true
+			flush()
+			log.Logger(context.Background()).Info("Closing AutoBatcher")
+			return
 		}
 	}
 }

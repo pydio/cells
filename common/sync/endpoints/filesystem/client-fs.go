@@ -57,26 +57,6 @@ const (
 	SyncTmpPrefix = ".tmp.write."
 )
 
-// TODO MOVE IN A fs_windows FILE TO AVOID RUNTIME OS CHECK
-func CanonicalPath(path string) (string, error) {
-
-	if runtime.GOOS == "windows" {
-		// Remove any leading slash/backslash
-		path = strings.TrimLeft(path, "/\\")
-		p, e := filepath.EvalSymlinks(path)
-		if e != nil {
-			return path, e
-		}
-		// Make sure drive letter is lowerCase
-		volume := filepath.VolumeName(p)
-		if strings.HasSuffix(volume, ":") {
-			path = strings.ToLower(volume) + strings.TrimPrefix(p, volume)
-		}
-	}
-	return path, nil
-
-}
-
 type Discarder struct {
 	bytes.Buffer
 }
@@ -193,7 +173,7 @@ func NewFSClient(rootPath string, options model.EndpointOptions) (*FSClient, err
 	rootPath = c.denormalize(rootPath)
 	rootPath = strings.TrimRight(rootPath, model.InternalPathSeparator)
 	var e error
-	if c.RootPath, e = CanonicalPath(rootPath); e != nil {
+	if c.RootPath, e = filesystem.CanonicalPath(rootPath); e != nil {
 		return nil, e
 	}
 	if options.BrowseOnly && c.RootPath == "" {
@@ -223,11 +203,8 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 		return
 	}
 	newPatch := merger.ClonePatch(c, c.updateSnapshot, p)
-	var sessionProvider model.SessionProvider
-	var indexationSession *tree.IndexationSession
-	if sessionProvider, ok = c.updateSnapshot.(model.SessionProvider); ok {
-		newPatch.SetSessionProvider(ctx, sessionProvider, true)
-	}
+	newPatch.SetSessionData(ctx, true)
+
 	newPatch.Filter(ctx)
 	pr := proc.NewProcessor(ctx)
 	pr.Silent = true
@@ -236,9 +213,7 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 
 	// For Create Folders, updateSnapshot with associated .pydio's
 	// Use a session to batch inserts if possible
-	if sessionProvider != nil {
-		indexationSession, _ = sessionProvider.StartSession(ctx, &tree.Node{}, true)
-	}
+	indexationSession, _ := newPatch.StartSession(&tree.Node{})
 	newPatch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, func(operation merger.Operation) {
 		folderUuid := operation.GetNode().Uuid
 		c.updateSnapshot.CreateNode(ctx, &tree.Node{
@@ -249,9 +224,7 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 			MTime: operation.GetNode().MTime,
 		}, true)
 	})
-	if indexationSession != nil {
-		sessionProvider.FinishSession(ctx, indexationSession.Uuid)
-	}
+	newPatch.FinishSession(indexationSession.Uuid)
 }
 
 func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {

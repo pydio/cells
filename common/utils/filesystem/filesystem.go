@@ -28,6 +28,10 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+func CanonicalPath(path string) (string, error) {
+	return path, nil
+}
+
 func SetHidden(osPath string, hidden bool) error {
 	return nil
 }

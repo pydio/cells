@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -32,6 +33,22 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
+
+func CanonicalPath(path string) (string, error) {
+	// Remove any leading slash/backslash
+	path = strings.TrimLeft(path, "/\\")
+	p, e := filepath.EvalSymlinks(path)
+	if e != nil {
+		return path, e
+	}
+	// Make sure drive letter is lowerCase
+	volume := filepath.VolumeName(p)
+	if strings.HasSuffix(volume, ":") {
+		path = strings.ToLower(volume) + strings.TrimPrefix(p, volume)
+	}
+
+	return path, nil
+}
 
 func SetHidden(osPath string, hidden bool) error {
 	p, err := syscall.UTF16PtrFromString(osPath)
