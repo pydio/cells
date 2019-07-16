@@ -51,6 +51,12 @@ type TreePatch struct {
 	createFolders map[string]Operation
 	deletes       map[string]Operation
 	refreshUUIDs  map[string]Operation
+
+	// This will keep an internal value for Transfers detection
+	// 0 = not detected
+	// 1 = true
+	// 2 = false
+	hasTransfers int
 }
 
 // newTreePatch creates and initializes a TreePatch
@@ -150,14 +156,34 @@ func (t *TreePatch) CachedBranchFromEndpoint(ctx context.Context, endpoint model
 }
 
 // HasTransfers looks for create/update files between DataSyncTargets
+// It keeps an internal state to avoid re-walking the tree unnecessarily each time it is called on a patch
 func (t *TreePatch) HasTransfers() bool {
-	var count int
-	t.WalkOperations([]OperationType{OpCreateFile, OpUpdateFile}, func(operation Operation) {
-		count++
-	})
+	if t.hasTransfers > 0 {
+		if t.hasTransfers == 1 {
+			return true
+		} else {
+			return false
+		}
+	}
 	_, o1 := t.Source().(model.DataSyncSource)
 	_, o2 := t.Target().(model.DataSyncTarget)
-	return count > 0 && o1 && o2
+	if !o1 || !o2 {
+		t.hasTransfers = 2
+		return false
+	}
+	ht := false
+	t.WalkToFirstOperations(OpCreateFile, func(operation Operation) {
+		ht = true
+	})
+	t.WalkToFirstOperations(OpUpdateFile, func(operation Operation) {
+		ht = true
+	})
+	if ht {
+		t.hasTransfers = 1
+	} else {
+		t.hasTransfers = 2
+	}
+	return ht
 }
 
 // HasErrors checks if this patch has a global error status or any operation in Error state
