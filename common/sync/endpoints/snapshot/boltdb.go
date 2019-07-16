@@ -108,7 +108,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 		if len(creates) == 0 {
 			return
 		}
-		log.Logger(context.Background()).Info("Flushing AutoBatcher")
+		log.Logger(context.Background()).Debug("Flushing AutoBatcher")
 		s.db.Update(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
@@ -131,7 +131,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 			} else {
 				creates[node.GetPath()] = node
 			}
-			nextTime = 300 * time.Second
+			nextTime = 300 * time.Millisecond
 			if len(creates) == 500 {
 				flush()
 			}
@@ -141,7 +141,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 			nextTime = 1 * time.Hour
 		case <-s.autoBatchClose:
 			flush()
-			log.Logger(context.Background()).Info("Closing AutoBatcher")
+			log.Logger(context.Background()).Debug("Closing AutoBatcher")
 			return
 		}
 	}
