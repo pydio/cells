@@ -106,7 +106,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 		close(s.autoBatchChan)
 		close(s.autoBatchFlush)
 	}()
-	creates := make(map[string]*tree.Node, 250)
+	creates := make(map[string]*tree.Node, 500)
 	for {
 		select {
 		case node := <-s.autoBatchChan:
@@ -117,19 +117,19 @@ func (s *BoltSnapshot) startAutoBatching() {
 			} else {
 				creates[node.GetPath()] = node
 			}
-			if len(creates) == 250 {
+			if len(creates) == 500 {
 				// Autoflush when map is full
 				s.autoBatchFlush <- struct{}{}
 			}
-		case <-time.After(500 * time.Millisecond):
-			// Autoflush after 500ms idle
+		case <-time.After(300 * time.Millisecond):
+			// Autoflush after 300ms idle
 			s.autoBatchFlush <- struct{}{}
 		case <-s.autoBatchFlush:
 			if len(creates) == 0 {
 				break
 			}
 			log.Logger(context.Background()).Info("Flushing AutoBatch", zap.Int("count", len(creates)))
-			s.db.Batch(func(tx *bbolt.Tx) error {
+			s.db.Update(func(tx *bbolt.Tx) error {
 				b := tx.Bucket(bucketName)
 				if b == nil {
 					return fmt.Errorf("cannot find root bucket")
@@ -139,7 +139,7 @@ func (s *BoltSnapshot) startAutoBatching() {
 				}
 				return nil
 			})
-			creates = make(map[string]*tree.Node, 250)
+			creates = make(map[string]*tree.Node, 500)
 			if closeOnFlush {
 				log.Logger(context.Background()).Info("Closing AutoBatcher")
 				return
@@ -163,7 +163,7 @@ func (s *BoltSnapshot) FlushSession(ctx context.Context, sessionUuid string) err
 		return nil
 	}
 	log.Logger(ctx).Info("Flushing BoltDB creates", zap.Int("creates", len(s.createsSession)))
-	e := s.db.Batch(func(tx *bbolt.Tx) error {
+	e := s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
 			return fmt.Errorf("cannot find root bucket")

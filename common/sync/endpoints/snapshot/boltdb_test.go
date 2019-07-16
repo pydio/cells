@@ -137,6 +137,7 @@ func TestSnapshot(t *testing.T) {
 
 		source.CreateNode(ctx, &tree.Node{Path: "c/new", Type: tree.NodeType_LEAF}, true)
 		snapshot.CreateNode(ctx, &tree.Node{Path: "c/new", Type: tree.NodeType_LEAF}, true)
+		<-time.After(500 * time.Millisecond)
 		e = basicDiff(source, snapshot)
 		So(e, ShouldBeNil)
 
@@ -171,6 +172,7 @@ func TestSnapshot(t *testing.T) {
 		So(er, ShouldBeNil)
 
 		snapshot.CreateNode(ctx, &tree.Node{Path: "noparent/file"}, true)
+		<-time.After(500 * time.Millisecond)
 		_, er = snapshot.LoadNode(ctx, "noparent")
 		So(er, ShouldBeNil)
 	})
