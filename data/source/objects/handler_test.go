@@ -95,7 +95,7 @@ func TestHandler(t *testing.T) {
 		resp := &tree.ReadNodeResponse{}
 		err := handler.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
-				Path: "/folder/subfolder/file1",
+				Path: "folder/subfolder/file1",
 			},
 		}, resp)
 		So(err, ShouldBeNil)
