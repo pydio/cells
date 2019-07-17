@@ -118,6 +118,9 @@ func ComputeBidirectionalPatch(ctx context.Context, left, right Patch) (*Bidirec
 
 // StartSession overrides AbstractPatch method to handle source and/or target as session provider
 func (p *BidirectionalPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSession, error) {
+	if p.sessionProviderContext == nil {
+		return &tree.IndexationSession{Uuid: "", Description: "no-op"}, nil
+	}
 	ids := make(map[string]*tree.IndexationSession)
 	if sessionProvider, ok := p.Source().(model.SessionProvider); ok {
 		if sourceSession, er := sessionProvider.StartSession(p.sessionProviderContext, rootNode, p.sessionSilent); er != nil {

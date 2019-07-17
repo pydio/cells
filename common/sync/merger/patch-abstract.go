@@ -122,7 +122,7 @@ func (b *AbstractPatch) SetSessionData(providerContext context.Context, silentSe
 }
 
 func (b *AbstractPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSession, error) {
-	if sessionProvider, ok := b.Target().(model.SessionProvider); ok {
+	if sessionProvider, ok := b.Target().(model.SessionProvider); ok && b.sessionProviderContext != nil {
 		return sessionProvider.StartSession(b.sessionProviderContext, rootNode, b.sessionSilent)
 	} else {
 		return &tree.IndexationSession{Uuid: "fake-session", Description: "Noop Session"}, nil
@@ -130,14 +130,14 @@ func (b *AbstractPatch) StartSession(rootNode *tree.Node) (*tree.IndexationSessi
 }
 
 func (b *AbstractPatch) FlushSession(sessionUuid string) error {
-	if sessionProvider, ok := b.Target().(model.SessionProvider); ok {
+	if sessionProvider, ok := b.Target().(model.SessionProvider); ok && b.sessionProviderContext != nil {
 		return sessionProvider.FlushSession(b.sessionProviderContext, sessionUuid)
 	}
 	return nil
 }
 
 func (b *AbstractPatch) FinishSession(sessionUuid string) error {
-	if sessionProvider, ok := b.Target().(model.SessionProvider); ok {
+	if sessionProvider, ok := b.Target().(model.SessionProvider); ok && b.sessionProviderContext != nil {
 		return sessionProvider.FinishSession(b.sessionProviderContext, sessionUuid)
 	}
 	return nil
