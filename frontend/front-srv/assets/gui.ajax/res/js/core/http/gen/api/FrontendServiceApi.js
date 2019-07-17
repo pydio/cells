@@ -164,7 +164,7 @@ export default class FrontendServiceApi {
       let returnType = RestFrontSessionResponse;
 
       return this.apiClient.callApi(
-        '/frontend/callback', 'POST',
+        '/frontend/session/callback', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType
       );

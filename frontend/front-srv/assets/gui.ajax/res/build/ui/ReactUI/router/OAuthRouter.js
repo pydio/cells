@@ -30,20 +30,16 @@ var _queryString2 = _interopRequireDefault(_queryString);
 
 var OAuthRouterWrapper = function OAuthRouterWrapper(pydio) {
     var OAuthRouter = function OAuthRouter(props) {
-<<<<<<< HEAD
-        var loggedIn = function loggedIn(u) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", '/oauth2/auth' + window.location.search, true);
-=======
-        _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+        PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
             if (!jwt) {
                 pydio.getController().fireAction('login');
                 return;
             }
 
+            console.log("HERE ", jwt);
+
             var xhr = new XMLHttpRequest();
             xhr.open("POST", '/oauth2/auth' + window.location.search + '&access_token=' + jwt, true);
->>>>>>> fa745976... Latest changes
 
             //Send the proper header information along with the request
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -55,41 +51,6 @@ var OAuthRouterWrapper = function OAuthRouterWrapper(pydio) {
                 }
             };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-            xhr.send("scopes=openid&scopes=profile&scopes=email&scopes=offline_access&username=test");
-=======
-                xhr.onreadystatechange = function () {
-                    var _this = this;
-
-                    // Call a function when the state changes.
-
-                    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-
-                        setTimeout(function () {
-                            return window.location.href = _this.responseURL;
-                        }, 5000);
-                    }
-                };
-
-                xhr.send("scopes=openid&scopes=profile&scopes=email&scopes=offline_access");
-            });
->>>>>>> 90badad4... Latest
-        };
-
-        // We're already logged in
-        if (pydio.user) {
-            loggedIn(pydio.user);
-        } else {
-            pydio.observe('user_logged', function (u) {
-                return loggedIn(u);
-            });
-
-            pydio.getController().fireAction('login');
-        }
-
-        return React.createElement('div', null);
-=======
             xhr.send("scopes=openid&scopes=profile&scopes=email&scopes=offline_access");
         });
 
@@ -98,7 +59,6 @@ var OAuthRouterWrapper = function OAuthRouterWrapper(pydio) {
             null,
             props.children
         );
->>>>>>> fa745976... Latest changes
     };
 
     return OAuthRouter;

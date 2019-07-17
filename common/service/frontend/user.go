@@ -41,8 +41,6 @@ func (u *User) Load(ctx context.Context) error {
 
 	u.Workspaces = make(map[string]*Workspace)
 
-	fmt.Println("Loading user ", u)
-
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok {
 		// No user logged
@@ -53,7 +51,6 @@ func (u *User) Load(ctx context.Context) error {
 
 	// Load user object
 	userName, _ := permissions.FindUserNameInContext(ctx)
-	fmt.Println("User name is ", userName)
 	if user, err := permissions.SearchUniqueUser(ctx, userName, ""); err != nil {
 		return err
 	} else {

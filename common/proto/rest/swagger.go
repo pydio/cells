@@ -1155,33 +1155,6 @@ var SwaggerJson = `{
         ]
       }
     },
-    "/frontend/callback": {
-      "post": {
-        "summary": "Handle Login Callback",
-        "operationId": "FrontLoginCallback",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restFrontSessionResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restFrontLoginCallbackRequest"
-            }
-          }
-        ],
-        "tags": [
-          "FrontendService"
-        ]
-      }
-    },
     "/frontend/enroll": {
       "post": {
         "summary": "Generic endpoint that can be implemented by 2FA systems for enrollment",
@@ -1278,6 +1251,33 @@ var SwaggerJson = `{
             "required": true,
             "schema": {
               "$ref": "#/definitions/restFrontSessionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
+    "/frontend/session/callback": {
+      "post": {
+        "summary": "Handle Login Callback",
+        "operationId": "FrontLoginCallback",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontSessionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restFrontLoginCallbackRequest"
             }
           }
         ],

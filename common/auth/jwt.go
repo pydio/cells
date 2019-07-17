@@ -24,10 +24,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 
-	"github.com/coreos/dex/storage"
 	"github.com/coreos/go-oidc"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -48,24 +49,29 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
-<<<<<<< HEAD
-// Config is the config format for the main application.
-type simpleConfig struct {
-	Issuer string `json:"issuer"`
-	// StaticClients cause the server to use this list of clients rather than
-	// querying the storage. Write operations, like creating a client, will fail.
-	StaticClients []storage.Client `json:"staticClients"`
-=======
-type JWTVerifier interface {
-	Exchange(ctx context.Context, code string) (token *oauth2.Token, err error)
-	Verify(ctx context.Context, rawIDToken string) (context.Context, claim.Claims, error)
-	PasswordCredentialsToken(ctx context.Context, userName string, password string) (context.Context, claim.Claims, error)
->>>>>>> 7797d4e2... Cleanup
+// type JWTVerifier interface {
+// 	Exchange(ctx context.Context, code string) (token *oauth2.Token, err error)
+// 	Verify(ctx context.Context, rawIDToken string) (context.Context, claim.Claims, error)
+// 	PasswordCredentialsToken(ctx context.Context, userName string, password string) (context.Context, claim.Claims, error)
+// }
+
+type client struct {
+	ID           string   `json:"id"`
+	Secret       string   `json:"secret"`
+	RedirectURIs []string `json:"redirectURIs"`
+}
+
+type JWTVerifier struct {
+	Issuer  string   `json:"issuer"`
+	Clients []client `json:"staticClients"`
+
+	once     sync.Once
+	provider *oidc.Provider
 }
 
 func DefaultJWTVerifier() *JWTVerifier {
+	var dex *JWTVerifier
 
-	var dex simpleConfig
 	configDex := config.Get("services", "pydio.grpc.auth", "dex")
 	remarshall, _ := json.Marshal(configDex)
 	json.Unmarshal(remarshall, &dex)
@@ -73,7 +79,7 @@ func DefaultJWTVerifier() *JWTVerifier {
 	return dex
 }
 
-func (j *jwtVerifier) getProvider() *oidc.Provider {
+func (j *JWTVerifier) getProvider() *oidc.Provider {
 	j.once.Do(func() {
 		ctx := oidc.ClientContext(context.Background(), &http.Client{
 			Transport: &http.Transport{
@@ -93,7 +99,7 @@ func (j *jwtVerifier) getProvider() *oidc.Provider {
 	return j.provider
 }
 
-func (j *jwtVerifier) getVerifiers() []*oidc.IDTokenVerifier {
+func (j *JWTVerifier) getVerifiers() []*oidc.IDTokenVerifier {
 	var verifiers []*oidc.IDTokenVerifier
 
 	provider := j.getProvider()
@@ -105,7 +111,7 @@ func (j *jwtVerifier) getVerifiers() []*oidc.IDTokenVerifier {
 	return verifiers
 }
 
-func (j *jwtVerifier) getOAuthConfigs() []oauth2.Config {
+func (j *JWTVerifier) getOAuthConfigs() []oauth2.Config {
 	var configs []oauth2.Config
 
 	provider := j.getProvider()
@@ -121,23 +127,20 @@ func (j *jwtVerifier) getOAuthConfigs() []oauth2.Config {
 			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 		})
 	}
+
+	return configs
 }
 
-type JWTVerifier struct {
-	IssuerUrl           string
-	checkClientIds      []string
-	defaultClientID     string
-	defaultClientSecret string
-	provider            *oidc.Provider
+func (j *JWTVerifier) getDefaultOAuthConfig() (oauth2.Config, error) {
+	configs := j.getOAuthConfigs()
+	if len(configs) > 0 {
+		return configs[0], nil
+	}
+
+	return oauth2.Config{}, fmt.Errorf("Not found")
 }
 
-<<<<<<< HEAD
-func (j *JWTVerifier) loadClaims(ctx context.Context, token *oidc.IDToken) (claim.Claims, error) {
-
-	claims := claim.Claims{}
-=======
-func (j *jwtVerifier) loadClaims(ctx context.Context, token *oidc.IDToken, claims *claim.Claims) error {
->>>>>>> c1ae2a41... New version
+func (j *JWTVerifier) loadClaims(ctx context.Context, token *oidc.IDToken, claims *claim.Claims) error {
 
 	// Extract custom claims
 	if err := token.Claims(claims); err != nil {
@@ -178,7 +181,7 @@ func (j *jwtVerifier) loadClaims(ctx context.Context, token *oidc.IDToken, claim
 	return nil
 }
 
-func (j *jwtVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken string, isRetry bool) (idToken *oidc.IDToken, e error) {
+func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken string, isRetry bool) (idToken *oidc.IDToken, e error) {
 	for _, verifier := range j.getVerifiers() {
 		testToken, err := verifier.Verify(ctx, rawIDToken)
 
@@ -203,7 +206,7 @@ func (j *jwtVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 }
 
 // Verify validates an existing JWT token against the OIDC service that issued it
-func (j *jwtVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
+func (j *JWTVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 	oauth2Config, err := j.getDefaultOAuthConfig()
 	if err != nil {
 		return nil, err
@@ -219,7 +222,7 @@ func (j *jwtVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token,
 }
 
 // Verify validates an existing JWT token against the OIDC service that issued it
-func (j *jwtVerifier) Verify(ctx context.Context, rawIDToken string) (context.Context, claim.Claims, error) {
+func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Context, claim.Claims, error) {
 
 	idToken, err := j.verifyTokenWithRetry(ctx, rawIDToken, false)
 	if err != nil {
@@ -263,17 +266,10 @@ func (j *jwtVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 // PasswordCredentialsToken will perform a call to the OIDC service with grantType "password"
 // to get a valid token from a given user/pass credentials
 func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName string, password string) (context.Context, claim.Claims, error) {
-
-	// Get JWT From Dex
-	provider, _ := oidc.NewProvider(ctx, j.IssuerUrl)
-	// Configure an OpenID Connect aware OAuth2 client.
-	oauth2Config := oauth2.Config{
-		ClientID:     j.defaultClientID,
-		ClientSecret: j.defaultClientSecret,
-		// Discovery returns the OAuth2 endpoints.
-		Endpoint: provider.Endpoint(),
-		// "openid" is a required scope for OpenID Connect flows.
-		Scopes: []string{oidc.ScopeOpenID, "profile", "email", "pydio"},
+	provider := j.getProvider()
+	oauth2Config, err := j.getDefaultOAuthConfig()
+	if err != nil {
+		return ctx, claim.Claims{}, err
 	}
 
 	if token, err := oauth2Config.PasswordCredentialsToken(ctx, userName, password); err == nil {

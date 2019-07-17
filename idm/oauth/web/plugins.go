@@ -23,13 +23,9 @@ package web
 
 import (
 	"context"
-	"fmt"
 
-	oidc "github.com/coreos/go-oidc"
 	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
 	"github.com/pydio/cells/common/plugins"
-	"golang.org/x/oauth2"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
@@ -53,32 +49,6 @@ func init() {
 						return nil
 					}), nil
 			}, func(s service.Service) (micro.Option, error) {
-
-				broker.Subscribe(common.TOPIC_PROXY_RESTART, func(p broker.Publication) error {
-					//<-time.After(10 * time.Second)
-					var err error
-					provider, err = oidc.NewProvider(context.Background(), "http://mypydio.com:8080/auth/dex")
-					if err != nil {
-						fmt.Println("We have an error here ", err)
-						return err
-					}
-
-					oauth2Config = oauth2.Config{
-						ClientID:     "cells-front",
-						ClientSecret: "jK3arAfePHk6csIbKj4ilfD5",
-						RedirectURL:  "http://mypydio.com:8080/oauth2/callback",
-
-						// Discovery returns the OAuth2 endpoints.
-						Endpoint: provider.Endpoint(),
-
-						// "openid" is a required scope for OpenID Connect flows.
-						Scopes: []string{oidc.ScopeOpenID, "profile", "email"},
-					}
-
-					verifier = provider.Verifier(&oidc.Config{ClientID: "cells-front"})
-
-					return nil
-				})
 
 				srv := defaults.NewHTTPServer()
 

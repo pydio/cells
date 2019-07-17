@@ -25,77 +25,10 @@ import (
 
 const oidcid = "pydiooidc"
 
-<<<<<<< HEAD
-// Configure an OpenID Connect aware OAuth2 client.
-var oauth2Config oauth2.Config
-
-func auth(inner http.HandlerFunc) http.HandlerFunc {
-
-	jwtVerifier := commonauth.DefaultJWTVerifier()
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		ctx := r.Context()
-
-		fmt.Println(r.Header)
-		if bearer := r.URL.Query().Get("access_token"); len(bearer) > 0 {
-			var err error
-			var claims claim.Claims
-			ctx, claims, err = jwtVerifier.Verify(ctx, bearer)
-			if err == nil && claims.Name != "" {
-				r = r.WithContext(ctx)
-				inner.ServeHTTP(w, r)
-				return
-			}
-
-		}
-
-		http.Redirect(w, r, "/authorize?"+r.URL.RawQuery, 301)
-	})
-}
-
-// A session is passed from the `/auth` to the `/token` endpoint. You probably want to store data like: "Who made the request",
-// "What organization does that person belong to" and so on.
-// For our use case, the session will meet the requirements imposed by JWT access tokens, HMAC access tokens and OpenID Connect
-// ID Tokens plus a custom field
-
-// newSession is a helper function for creating a new session. This may look like a lot of code but since we are
-// setting up multiple strategies it is a bit longer.
-// Usually, you could do:
-//
-//  session = new(fosite.DefaultSession)
-func newSession(user string) *openid.DefaultSession {
-	return &openid.DefaultSession{
-		Claims: &jwt.IDTokenClaims{
-			Issuer:      "http://192.168.1.92:8080/a/config/discovery",
-			Subject:     user,
-			Audience:    []string{"https://my-client.my-application.com"},
-			ExpiresAt:   time.Now().Add(time.Hour * 6),
-			IssuedAt:    time.Now(),
-			RequestedAt: time.Now(),
-			AuthTime:    time.Now(),
-		},
-		Headers: &jwt.Headers{
-			Extra: map[string]interface{}{
-				"kid": jwk.Ider("public", "test"),
-			},
-		},
-	}
-}
-
-func mustRSAKey() *rsa.PrivateKey {
-	key, err := rsa.GenerateKey(rand.Reader, 1024)
-	if err != nil {
-		panic(err)
-	}
-	return key
-}
-=======
 var (
 	jwks           *jose.JSONWebKeySet
 	oauth2Provider fosite.OAuth2Provider
 )
->>>>>>> 7797d4e2... Cleanup
 
 func init() {
 	var err error
@@ -176,15 +109,6 @@ func authorizeHandlerFunc(rw http.ResponseWriter, req *http.Request) {
 	var requestedScopes string
 	for _, this := range ar.GetRequestedScopes() {
 		requestedScopes += fmt.Sprintf(`<li><input type="checkbox" name="scopes" value="%s">%s</li>`, this, this)
-	}
-
-	// Normally, this would be the place where you would check if the user is logged in and gives his consent.
-	// We're simplifying things and just checking if the request includes a valid username and password
-	req.ParseForm()
-	if req.PostForm.Get("username") == "" {
-		http.Redirect(rw, req, "/authorize?"+req.URL.RawQuery, 301)
-
-		return
 	}
 
 	// let's see what scopes the user gave consent to
