@@ -147,28 +147,16 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 		}()
 	}
 
-	serial := make(chan merger.Operation)
 	parallel := make(chan merger.Operation)
 	opsFinished := make(chan struct{})
 	done := make(chan struct{})
+	previousType := merger.OpUnknown
 	go func() {
 		defer close(done)
-		previousType := merger.OpUnknown
 		wg := &sync.WaitGroup{}
 		throttle := make(chan struct{}, pr.QueueSize)
 		for {
 			select {
-			case op := <-serial:
-				// Flush for next type if it's different
-				if previousType != merger.OpUnknown && op.Type() != previousType {
-					flusher(op.Type())
-				}
-				previousType = op.Type()
-				if interrupted || op.IsProcessed() {
-					break
-				}
-				pr.applyProcessFunc(ctx, patch, op, processUUID, &cursor, total, false)
-
 			case op := <-parallel:
 
 				// Flush for next type if it's different
@@ -201,8 +189,16 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 		}
 	}()
 
-	serialWalker := func(o merger.Operation) {
-		serial <- o
+	serialWalker := func(op merger.Operation) {
+		// Flush for next type if it's different
+		if previousType != merger.OpUnknown && op.Type() != previousType {
+			flusher(op.Type())
+		}
+		previousType = op.Type()
+		if interrupted || op.IsProcessed() {
+			return
+		}
+		pr.applyProcessFunc(ctx, patch, op, processUUID, &cursor, total, false)
 	}
 
 	patch.WalkOperations([]merger.OperationType{merger.OpCreateFolder}, serialWalker)
@@ -217,7 +213,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	}
 	patch.WalkOperations([]merger.OperationType{merger.OpDelete}, func(o merger.Operation) {
 		if o.GetNode() != nil {
-			serial <- o
+			serialWalker(o)
 		}
 	})
 
