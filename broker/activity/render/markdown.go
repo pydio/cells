@@ -22,6 +22,7 @@ package render
 
 import (
 	"fmt"
+	"html"
 	"net/url"
 	"path"
 	"strings"
@@ -105,12 +106,12 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 			wsLang = T("Cell")
 		}
 		if len(object.Items) > 0 {
-			workspaceString = "\n\n## " + wsLang + " " + wsIdentifier
+			workspaceString = "\n\n## " + wsLang + " " + html.EscapeString(wsIdentifier)
 			for _, item := range object.Items {
 				workspaceString += "\n - " + Markdown(item, pointOfView, language, links...)
 			}
 		} else {
-			workspaceString = strings.ToLower(wsLang) + " " + wsIdentifier
+			workspaceString = strings.ToLower(wsLang) + " " + html.EscapeString(wsIdentifier)
 		}
 		return workspaceString
 
@@ -176,10 +177,11 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 	case activity.ObjectType_Folder:
 
 		var docIdentifier string
+		sBase := html.EscapeString(path.Base(object.Name))
 		if link := sLinks.objectURL(ServerUrlTypeDocs, object.Id); link != "" {
-			docIdentifier = makeMarkdownLink(link, path.Base(object.Name))
+			docIdentifier = makeMarkdownLink(link, sBase)
 		} else {
-			docIdentifier = path.Base(object.Name)
+			docIdentifier = sBase
 		}
 		prefix := T("Folder") + " "
 		if pointOfView == activity.SummaryPointOfView_ACTOR {
@@ -190,10 +192,11 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 	case activity.ObjectType_Document:
 
 		var docIdentifier string
+		sBase := html.EscapeString(path.Base(object.Name))
 		if link := sLinks.objectURL(ServerUrlTypeDocs, object.Id); link != "" {
-			docIdentifier = makeMarkdownLink(link, path.Base(object.Name))
+			docIdentifier = makeMarkdownLink(link, sBase)
 		} else {
-			docIdentifier = path.Base(object.Name)
+			docIdentifier = sBase
 		}
 		prefix := T("Document") + " "
 		if pointOfView == activity.SummaryPointOfView_ACTOR {
@@ -204,10 +207,11 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 	case activity.ObjectType_Person:
 
 		var userIdentifier string
+		uName := html.EscapeString(object.Name)
 		if link := sLinks.objectURL(ServerUrlTypeUsers, object.Id); link != "" {
-			userIdentifier = makeMarkdownLink(link, object.Name)
+			userIdentifier = makeMarkdownLink(link, uName)
 		} else {
-			userIdentifier = path.Base(object.Name)
+			userIdentifier = path.Base(uName)
 		}
 		return userIdentifier
 
