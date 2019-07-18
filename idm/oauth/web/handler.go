@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"crypto/rsa"
 	"encoding/json"
 	"fmt"
@@ -15,8 +16,9 @@ import (
 	"github.com/ory/fosite/token/jwt"
 	"github.com/ory/hydra/jwk"
 	"go.uber.org/zap"
-	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2"
 
+	"github.com/pydio/cells/common"
 	commonauth "github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
@@ -30,7 +32,7 @@ var (
 	oauth2Provider fosite.OAuth2Provider
 )
 
-func init() {
+func initOIDCClient() {
 	var err error
 
 	generator := jwk.RS256Generator{KeyLength: 32}
@@ -40,20 +42,29 @@ func init() {
 		log.Fatal("Unable to generate signature", zap.Error(err))
 	}
 
+	secret := "tmpsecret"
 	externalURL := config.Get("defaults", "url").String("")
+	connectors := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "connectors")
+	connectorConfig, err := config.ReadOIDCConnectorConfig(connectors.Bytes())
+	if err == nil {
+		secret = connectorConfig.ClientSecret
+	}
+	fmt.Println("--- Using Secret for OIDC Client", secret)
+	hasher := &fosite.BCrypt{WorkFactor: fosite.DefaultBCryptWorkFactor}
+	hashedSecret, _ := hasher.Hash(context.Background(), []byte(secret))
 
 	// This is an exemplary storage instance. We will add a client and a user to it so we can use these later on.
 	store := storage.NewMemoryStore()
 	store.Clients[oidcid] = &fosite.DefaultClient{
 		ID:            oidcid,
-		Secret:        []byte(`$2a$10$IxMdI6d.LIRZPpSfEwNoeu4rY3FhDREsxFJXikcgdRRAStxUlsuEO`),
+		Secret:        hashedSecret,
 		RedirectURIs:  []string{externalURL + "/auth/dex/callback"},
 		ResponseTypes: []string{"id_token", "code", "token"},
 		GrantTypes:    []string{"implicit", "refresh_token", "authorization_code", "password", "client_credentials"},
 		Scopes:        []string{"openid", "profile", "email"},
 	}
 
-	config := &compose.Config{
+	composeConfig := &compose.Config{
 		AccessTokenLifespan: time.Minute * 30,
 		IDTokenLifespan:     time.Minute * 30,
 		IDTokenIssuer:       oidcid,
@@ -65,12 +76,12 @@ func init() {
 	// Because we are using oauth2 and open connect id, we use this little helper to combine the two in one
 	// variable.
 	strat := compose.CommonStrategy{
-		CoreStrategy:               compose.NewOAuth2HMACStrategy(config, []byte("some-super-cool-secret-that-nobody-knows"), nil),
-		OpenIDConnectTokenStrategy: compose.NewOpenIDConnectStrategy(config, jwks.Key(jwk.Ider("private", oidcid))[0].Key.(*rsa.PrivateKey)),
+		CoreStrategy:               compose.NewOAuth2HMACStrategy(composeConfig, []byte("some-super-cool-secret-that-nobody-knows"), nil),
+		OpenIDConnectTokenStrategy: compose.NewOpenIDConnectStrategy(composeConfig, jwks.Key(jwk.Ider("private", oidcid))[0].Key.(*rsa.PrivateKey)),
 	}
 
 	oauth2Provider = compose.Compose(
-		config,
+		composeConfig,
 		store,
 		strat,
 		nil,

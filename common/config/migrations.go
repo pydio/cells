@@ -90,9 +90,11 @@ func setDefaultConfig(config *Config) (bool, error) {
 
 func forceDefaultConfig(config *Config) (bool, error) {
 	var save bool
-
+	authSrv := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH
+	srvUrl := config.Get("defaults", "url").String("")
 	configKeys := map[string]interface{}{
-		"services/pydio.grpc.auth/dex/issuer": config.Get("defaults", "url").String("") + "/auth/dex",
+		"services/" + authSrv + "/dex/issuer":   srvUrl + "/auth/dex",
+		"services/" + authSrv + "/dex/web/http": srvUrl + "/auth/dex",
 	}
 
 	for path, def := range configKeys {
@@ -104,6 +106,16 @@ func forceDefaultConfig(config *Config) (bool, error) {
 			config.Set(def, paths...)
 			save = true
 		}
+	}
+
+	if connectors, s, err := UpdateOIDCConnectorsConfig(config.Get("services", authSrv, "dex", "connectors").Bytes(), false, srvUrl); err == nil && s {
+		config.Set(connectors, "services", authSrv, "dex", "connectors")
+		save = true
+	}
+
+	if clients, s, err := UpdateOIDCClients(config.Get("services", authSrv, "dex", "staticClients").Bytes(), srvUrl); err == nil && s {
+		config.Set(clients, "services", authSrv, "dex", "staticClients")
+		save = true
 	}
 
 	return save, nil

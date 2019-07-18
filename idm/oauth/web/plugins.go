@@ -50,6 +50,8 @@ func init() {
 					}), nil
 			}, func(s service.Service) (micro.Option, error) {
 
+				initOIDCClient()
+
 				srv := defaults.NewHTTPServer()
 
 				router := NewRouter()

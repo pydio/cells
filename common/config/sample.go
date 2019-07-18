@@ -90,7 +90,8 @@ var SampleConfig = `{
 					"idTokens": "10m"
 				},
                 "oauth2" : {
-                    "responseTypes": ["code", "token", "id_token"]
+                    "responseTypes": ["code", "token", "id_token"],
+					"skipApprovalScreen": true
                 },
                 "staticClients" : [
                     {
