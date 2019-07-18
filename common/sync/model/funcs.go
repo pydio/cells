@@ -6,6 +6,9 @@ import (
 	"io"
 	"strings"
 
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/gobwas/glob"
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -40,4 +43,8 @@ func StringContentToETag(uuid string) string {
 	h := md5.New()
 	io.Copy(h, strings.NewReader(uuid))
 	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+func ZapEndpoint(key string, e Endpoint) zapcore.Field {
+	return zap.String(key, e.GetEndpointInfo().URI)
 }

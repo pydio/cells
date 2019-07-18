@@ -41,7 +41,7 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 
 	n := time.Now()
 	defer func() {
-		log.Logger(ctx).Info("Finished filtering patch", zap.Duration("time", time.Now().Sub(n)))
+		log.Logger(ctx).Info("Patch filtering took", zap.Duration("time", time.Now().Sub(n)), t.zapSource(), t.zapTarget())
 	}()
 	track := func(s string, t time.Time) time.Time {
 		log.Logger(ctx).Debug(s, zap.Duration("time", time.Now().Sub(t)))

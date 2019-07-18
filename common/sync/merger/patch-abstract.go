@@ -23,6 +23,8 @@ import (
 	"context"
 	"time"
 
+	"go.uber.org/zap/zapcore"
+
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -151,4 +153,12 @@ func (b *AbstractPatch) HasTransfers() bool {
 
 func (b *AbstractPatch) SkipFilterToTarget(skip bool) {
 	b.skipFilterToTarget = skip
+}
+
+func (b *AbstractPatch) zapSource() zapcore.Field {
+	return model.ZapEndpoint("source", b.Source())
+}
+
+func (b *AbstractPatch) zapTarget() zapcore.Field {
+	return model.ZapEndpoint("target", b.Target())
 }

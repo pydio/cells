@@ -119,7 +119,7 @@ func (ev *EventsBatcher) setActivity(active bool) {
 	if ev.active == active {
 		return
 	}
-	log.Logger(ev.globalContext).Info("Updating watcher activity", zap.Bool("active", active))
+	log.Logger(ev.globalContext).Debug("Updating watcher activity", zap.Bool("active", active))
 	ev.active = active
 	if ev.epStatusChan != nil {
 		if active {
@@ -247,9 +247,9 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo) {
 		log.Logger(ev.globalContext).Info("[batcher] Sending Patch from Events", zap.Any("stats", patch.Stats()))
 	}
 	if updater, ok := patch.Source().(model.SnapshotUpdater); ok {
-		log.Logger(ev.globalContext).Info("[batcher] PatchUpdating Snapshot")
+		log.Logger(ev.globalContext).Debug("[batcher] PatchUpdating Snapshot")
 		updater.PatchUpdateSnapshot(ev.globalContext, patch)
-		log.Logger(ev.globalContext).Info("[batcher] PatchUpdating Snapshot - Done")
+		log.Logger(ev.globalContext).Debug("[batcher] PatchUpdating Snapshot - Done")
 	}
 
 	ev.patches <- patch

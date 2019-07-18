@@ -100,10 +100,12 @@ func (t *TreePatch) validateWalking(ctx context.Context, targetUri string, targe
 		}
 	})
 	if len(errs) == 0 {
-		log.Logger(ctx).Info("All operations were validated", zap.Int("count", valid))
+		if valid > 0 {
+			log.Logger(ctx).Info("All operations were validated", zap.Int("count", valid))
+		}
 		return nil
 	} else {
-		log.Logger(ctx).Info("There are still some operations not validated", zap.Int("count", len(errs)))
+		log.Logger(ctx).Info("There are still some operations not validated", zap.Int("count", len(errs)), zap.String("first error", errs[0].Error()))
 		return errs[0]
 	}
 
