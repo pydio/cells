@@ -4111,6 +4111,12 @@
 			"revisionTime": "2019-04-23T03:57:12Z"
 		},
 		{
+			"checksumSHA1": "fRR2p+JAp7paApf32YuQuWU7yzY=",
+			"path": "github.com/uber/jaeger-client-go/thrift-gen/baggage",
+			"revision": "896f2abd37e099bae3eae942250d1a37e4bdce0b",
+			"revisionTime": "2019-04-23T03:57:12Z"
+		},
+		{
 			"checksumSHA1": "JZkMEOmiOFFEuGCsDOVLK5RzvMM=",
 			"path": "github.com/uber/jaeger-client-go/thrift-gen/jaeger",
 			"revision": "896f2abd37e099bae3eae942250d1a37e4bdce0b",
