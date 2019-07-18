@@ -2163,6 +2163,12 @@
 			"revisionTime": "2018-01-09T21:29:12Z"
 		},
 		{
+			"checksumSHA1": "z/DzcKNumSHzzxg9Widbi9KgwNw=",
+			"path": "github.com/julienschmidt/httprouter",
+			"revision": "26a05976f9bf5c3aa992cc20e8588c359418ee58",
+			"revisionTime": "2018-10-21T22:38:31Z"
+		},
+		{
 			"checksumSHA1": "ZAwOhj3rRI9u1+XelsFJmYMSGpY=",
 			"path": "github.com/krolaw/zipstream",
 			"revision": "ec9ff1af7313ec2b2499dfc095a401e0a1e2f50e",
@@ -2325,6 +2331,18 @@
 			"path": "github.com/lucas-clemente/quic-go/qerr",
 			"revision": "f1eaae9b0d4a6e37882ba2cd38cc842513c502cf",
 			"revisionTime": "2018-03-19T02:42:43Z"
+		},
+		{
+			"checksumSHA1": "uuZt7TgdK8bfCaoO4edKF1+IEMk=",
+			"path": "github.com/luna-duclos/instrumentedsql",
+			"revision": "ecad98b20aecc3b06d17c86f154726ebbf269650",
+			"revisionTime": "2019-03-16T07:43:04Z"
+		},
+		{
+			"checksumSHA1": "NVdQtotBuIPQYDDI/MEzvx2SezM=",
+			"path": "github.com/luna-duclos/instrumentedsql/opentracing",
+			"revision": "ecad98b20aecc3b06d17c86f154726ebbf269650",
+			"revisionTime": "2019-03-16T07:43:04Z"
 		},
 		{
 			"checksumSHA1": "boiz5lfmrm21vVo/vsaeVqhwqE4=",
@@ -3065,6 +3083,12 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
+			"checksumSHA1": "2jsbDTvwxafPp7FJjJ8IIFlTLjs=",
+			"path": "github.com/mohae/deepcopy",
+			"revision": "c48cc78d482608239f6c4c92a4abd87eb8761c90",
+			"revisionTime": "2017-09-29T03:49:55Z"
+		},
+		{
 			"checksumSHA1": "Byaa390AhImHSUlSXz14tOCRBHo=",
 			"path": "github.com/mssola/user_agent",
 			"revision": "d7bd3b07ee86d981b0fb75b59ea68e09c51fa1b6",
@@ -3257,8 +3281,38 @@
 			"revisionTime": "2019-05-23T10:11:27Z"
 		},
 		{
+			"checksumSHA1": "tITn2T0LFHVq3GOE5noKeqSIU6o=",
+			"path": "github.com/ory/go-convenience/stringslice",
+			"revision": "ab120a447a7fe88a9c3b7cbfca477340b0e88ef3",
+			"revisionTime": "2018-10-08T11:33:10Z"
+		},
+		{
+			"checksumSHA1": "bs2oLxem1GlFZpA3SHd0KTpI3fg=",
+			"path": "github.com/ory/go-convenience/stringsx",
+			"revision": "ab120a447a7fe88a9c3b7cbfca477340b0e88ef3",
+			"revisionTime": "2018-10-08T11:33:10Z"
+		},
+		{
+			"checksumSHA1": "Rhi165esp5rWXDiLLc07IZGUpcQ=",
+			"path": "github.com/ory/herodot",
+			"revision": "1057cbdae4c368ed588c16435046bd629b09957a",
+			"revisionTime": "2019-03-07T13:28:02Z"
+		},
+		{
+			"checksumSHA1": "/ZScbeWAlioPfvPlGnz2cqLAQsE=",
+			"path": "github.com/ory/hydra/driver/configuration",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
+		},
+		{
 			"checksumSHA1": "CMV76SZ+g58sp/KC2bzNtaf2V5k=",
 			"path": "github.com/ory/hydra/jwk",
+			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
+			"revisionTime": "2019-04-20T10:22:21Z"
+		},
+		{
+			"checksumSHA1": "SjP+FWdn/4OieK94TrEbxN30Bco=",
+			"path": "github.com/ory/hydra/x",
 			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
 			"revisionTime": "2019-04-20T10:22:21Z"
 		},
