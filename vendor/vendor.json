@@ -1149,6 +1149,12 @@
 			"revisionTime": "2018-03-13T15:00:56Z"
 		},
 		{
+			"checksumSHA1": "ilvpzjS3PVTXkneMM55LYqKSHKY=",
+			"path": "github.com/golang/gddo/httputil",
+			"revision": "af0f2af80721261f4d211b2c9563f7b46b2aab06",
+			"revisionTime": "2019-04-01T09:22:36Z"
+		},
+		{
 			"checksumSHA1": "fnfP/j9KGqVN0xmZsIxTie3XUwI=",
 			"path": "github.com/golang/gddo/httputil/header",
 			"revision": "a475e0307621ec6832db210443de8f9ff6ff3148",
@@ -3233,6 +3239,24 @@
 			"revisionTime": "2018-01-30T16:27:43Z"
 		},
 		{
+			"checksumSHA1": "6EIQaeaWECn3zlechdGkqmIKld4=",
+			"path": "github.com/opentracing/opentracing-go",
+			"revision": "659c90643e714681897ec2521c60567dd21da733",
+			"revisionTime": "2019-03-23T20:25:03Z"
+		},
+		{
+			"checksumSHA1": "hZnCURJIhg56jbKk0UFRfZkcQ+c=",
+			"path": "github.com/opentracing/opentracing-go/ext",
+			"revision": "659c90643e714681897ec2521c60567dd21da733",
+			"revisionTime": "2019-03-23T20:25:03Z"
+		},
+		{
+			"checksumSHA1": "tnkdNJbJxNKuPZMWapP1xhKIIGw=",
+			"path": "github.com/opentracing/opentracing-go/log",
+			"revision": "659c90643e714681897ec2521c60567dd21da733",
+			"revisionTime": "2019-03-23T20:25:03Z"
+		},
+		{
 			"checksumSHA1": "iNErqERBz8vWAwqXaZjZF3ZALw8=",
 			"path": "github.com/ory/fosite",
 			"revision": "01cd955efe9a00c014a5ef7488774c3913e7218d",
@@ -3664,6 +3688,12 @@
 			"revisionTime": "2018-03-05T04:20:45Z"
 		},
 		{
+			"checksumSHA1": "hev23KrSfQ4KfosxH+gJKziFVtA=",
+			"path": "github.com/rs/cors",
+			"revision": "76f58f330d76a55c5badc74f6212e8a15e742c77",
+			"revisionTime": "2019-01-16T17:59:10Z"
+		},
+		{
 			"checksumSHA1": "Qd1RoqlGyk3YQ8yGdKZiDDPY8NU=",
 			"path": "github.com/rs/xid",
 			"revision": "705291fb22314c68b7f5d8c0674cb19954ca8f81",
@@ -4015,10 +4045,22 @@
 			"revisionTime": "2019-01-10T10:05:00Z"
 		},
 		{
+			"checksumSHA1": "/PA9bYu1glNCL5ucsKj8s+NkkHc=",
+			"path": "github.com/uber/jaeger-client-go/config",
+			"revision": "896f2abd37e099bae3eae942250d1a37e4bdce0b",
+			"revisionTime": "2019-04-23T03:57:12Z"
+		},
+		{
 			"checksumSHA1": "0FCBLTqGOxgifAKfS0360iLTZR4=",
 			"path": "github.com/ugorji/go/codec",
 			"revision": "8c0409fcbb70099c748d71f714529204975f6c3f",
 			"revisionTime": "2017-08-26T15:59:43Z"
+		},
+		{
+			"checksumSHA1": "gPCZ95WGIe+cjePArmS6i7CJ34g=",
+			"path": "github.com/urfave/negroni",
+			"revision": "0ce192d0bd24e9ec58b05bc72b3eac5bcc4f6517",
+			"revisionTime": "2019-04-08T19:14:22Z"
 		},
 		{
 			"checksumSHA1": "h+WCj/JTSzXelxXj0vK+lfcJn4w=",
