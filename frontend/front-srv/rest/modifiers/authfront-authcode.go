@@ -73,18 +73,33 @@ func jwtFromAuthCode(code string) (map[string]interface{}, error) {
 	}
 
 	// Parse and verify ID Token payload.
-	if _, claims, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {
+	if _, c, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {
+
 		e := errors.Parse(err.Error())
 		if e.Code == http.StatusNotFound {
+
+			// First let's create a group to store the user in
+			sub, err := c.DecodeSubject()
+			if err != nil {
+				return nil, err
+			}
+
+			// Ensuring profile is respected
+			profile := common.PYDIO_PROFILE_STANDARD
+			if c.Profile == "admin" {
+				profile = common.PYDIO_PROFILE_ADMIN
+			}
+
 			// This means that we didn't find the user, so let's create one
 			user := &idm.User{
-				Login: claims.Name,
+				Login:     c.Name,
+				GroupPath: sub.ConnId,
 				Policies: []*serviceproto.ResourcePolicy{
 					{Subject: "profile:standard", Action: serviceproto.ResourcePolicyAction_READ, Effect: serviceproto.ResourcePolicy_allow},
-					{Subject: "user:" + claims.Name, Action: serviceproto.ResourcePolicyAction_WRITE, Effect: serviceproto.ResourcePolicy_allow},
+					{Subject: "user:" + c.Name, Action: serviceproto.ResourcePolicyAction_WRITE, Effect: serviceproto.ResourcePolicy_allow},
 					{Subject: "profile:admin", Action: serviceproto.ResourcePolicyAction_WRITE, Effect: serviceproto.ResourcePolicy_allow},
 				},
-				Attributes: map[string]string{"profile": common.PYDIO_PROFILE_STANDARD},
+				Attributes: map[string]string{"profile": profile},
 			}
 
 			if err := createNewUser(user); err != nil {

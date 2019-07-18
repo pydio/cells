@@ -60,17 +60,27 @@ type Claims struct {
 
 // Decode Subject field of the claims
 func (c *Claims) DecodeUserUuid() (string, error) {
-	sub := c.Subject
-	data, err := base64.RawURLEncoding.DecodeString(sub)
+	sub, err := c.DecodeSubject()
 	if err != nil {
 		return "", err
 	}
 
+	return sub.UserId, nil
+}
+
+// Decode Subject field of the claims
+func (c *Claims) DecodeSubject() (*IDTokenSubject, error) {
+	sub := c.Subject
+	data, err := base64.RawURLEncoding.DecodeString(sub)
+	if err != nil {
+		return nil, err
+	}
+
 	var subject IDTokenSubject
 	if err := proto.Unmarshal(data, &subject); err != nil {
-		return "", err
+		return nil, err
 	} else {
-		return subject.UserId, nil
+		return &subject, nil
 	}
 }
 

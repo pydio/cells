@@ -3,9 +3,7 @@ package sql
 
 import (
 	"database/sql"
-	"fmt"
 	"regexp"
-	"runtime/debug"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -199,12 +197,6 @@ func (c *conn) ExecTx(fn func(tx *trans) error) error {
 			return fn(&trans{sqlTx, c})
 		})
 	}
-	fmt.Println("Executing transaction")
-	debug.PrintStack()
-	defer func() {
-		fmt.Println("Ending transaction")
-		debug.PrintStack()
-	}()
 
 	sqlTx, err := c.db.Begin()
 	if err != nil {

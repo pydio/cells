@@ -75,7 +75,6 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		service.RestError500(req, rsp, e)
 		return
 	}
-	fmt.Println("Login user active workspace ", req.QueryParameter("ws"))
 	user.LoadActiveWorkspace(req.QueryParameter("ws"))
 	lang := user.LoadActiveLanguage(req.QueryParameter("lang"))
 

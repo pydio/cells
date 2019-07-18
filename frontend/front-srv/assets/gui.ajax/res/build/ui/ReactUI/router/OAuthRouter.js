@@ -36,8 +36,6 @@ var OAuthRouterWrapper = function OAuthRouterWrapper(pydio) {
                 return;
             }
 
-            console.log("HERE ", jwt);
-
             var xhr = new XMLHttpRequest();
             xhr.open("POST", '/oauth2/auth' + window.location.search + '&access_token=' + jwt, true);
 

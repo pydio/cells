@@ -125,9 +125,7 @@ func send(s *TreeServer, req string, args interface{}) (interface{}, error) {
 	switch req {
 	case "CreateNode":
 		resp := &tree.CreateNodeResponse{}
-		fmt.Println("CreateNode")
 		err := s.CreateNode(ctx, args.(*tree.CreateNodeRequest), resp)
-		fmt.Println(resp, err)
 
 		return resp, err
 	case "GetNode":
@@ -141,9 +139,7 @@ func send(s *TreeServer, req string, args interface{}) (interface{}, error) {
 	case "UpdateNode":
 		resp := &tree.UpdateNodeResponse{}
 
-		fmt.Println("UpdateNode")
 		err := s.UpdateNode(ctx, args.(*tree.UpdateNodeRequest), resp)
-		fmt.Println(resp, " - ", err)
 
 		return resp, err
 	case "ListNodes":
