@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pydio/cells/common"
+
 	"github.com/coreos/dex/storage"
 
 	"github.com/coreos/dex/connector/oidc"
@@ -114,4 +116,20 @@ func UpdateOIDCClients(configValue []byte, serverUrl string) (interface{}, bool,
 		}
 	}
 	return clients, save, nil
+}
+
+func OIDCConnectorsLabels() map[string]string {
+	confValues := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "connectors").Bytes()
+	labels := make(map[string]string)
+	var connectors []map[string]interface{}
+	if err := json.Unmarshal(confValues, &connectors); err != nil {
+		return labels
+	}
+	for _, c := range connectors {
+		id := c["id"].(string)
+		if label, ok := c["name"]; ok {
+			labels[id] = label.(string)
+		}
+	}
+	return labels
 }

@@ -6,6 +6,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/pydio/cells/common/utils/permissions"
+
+	"github.com/pydio/cells/common/config"
+
+	"go.uber.org/zap"
+
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"
 	"github.com/micro/go-micro/errors"
@@ -76,13 +82,14 @@ func jwtFromAuthCode(code string) (map[string]interface{}, error) {
 	if _, c, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {
 
 		e := errors.Parse(err.Error())
-		if e.Code == http.StatusNotFound {
+		if e.Code == http.StatusNotFound && c.Name != "" {
 
 			// First let's create a group to store the user in
 			sub, err := c.DecodeSubject()
 			if err != nil {
 				return nil, err
 			}
+			log.Logger(ctx).Info("Should create a user with Subject", zap.Any("c", c), zap.Any("sub", sub))
 
 			// Ensuring profile is respected
 			profile := common.PYDIO_PROFILE_STANDARD
@@ -126,6 +133,32 @@ func createNewUser(inputUser *idm.User) error {
 	ctx := context.Background()
 
 	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+
+	if inputUser.GroupPath != "" {
+		id := inputUser.GroupPath
+		labels := config.OIDCConnectorsLabels()
+		if label, ok := labels[id]; ok {
+			// Pre-create group with label as displayName
+			if _, e := permissions.SearchUniqueUser(ctx, "", "", &idm.UserSingleQuery{
+				NodeType: idm.NodeType_GROUP,
+				FullPath: "/" + id,
+			}); e != nil {
+				log.Logger(ctx).Info("Creating group with label for connector", zap.String("l", label))
+				_, e := cli.CreateUser(ctx, &idm.CreateUserRequest{
+					User: &idm.User{
+						Uuid:       uuid.New(),
+						IsGroup:    true,
+						GroupPath:  "/" + id,
+						GroupLabel: id,
+						Attributes: map[string]string{"displayName": label},
+					},
+				})
+				if e != nil {
+					log.Logger(ctx).Error("Cannot create group with label for connector", zap.Error(e))
+				}
+			}
+		}
+	}
 
 	response, err := cli.CreateUser(ctx, &idm.CreateUserRequest{
 		User: inputUser,
