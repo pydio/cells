@@ -49,7 +49,7 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		return nil, fmt.Errorf("invalid config: %v", err)
 	}
 	if c.Logger.Level != "" {
-		logger.Infof("config using log level: %s", c.Logger.Level)
+		//logger.Infof("config using log level: %s", c.Logger.Level)
 	}
 
 	// Fast checks. Perform these first for a more responsive CLI.
@@ -75,7 +75,7 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		}
 	}
 
-	logger.Infof("config issuer: %s", c.Issuer)
+	//logger.Infof("config issuer: %s", c.Issuer)
 
 	// var grpcOptions []grpc.ServerOption
 	// if c.GRPC.TLSCert != "" {
@@ -115,12 +115,14 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize storage: %v", err)
 	}
-	logger.Infof("config storage: %s", c.Storage.Type)
+	//logger.Infof("config storage: %s", c.Storage.Type)
 
 	if len(c.StaticClients) > 0 {
-		for _, client := range c.StaticClients {
-			logger.Infof("config static client: %s", client.ID)
-		}
+		/*
+			for _, client := range c.StaticClients {
+				logger.Infof("config static client: %s", client.ID)
+			}
+		*/
 		s = storage.WithStaticClients(s, c.StaticClients)
 	}
 	if len(c.StaticPasswords) > 0 {
@@ -139,7 +141,7 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		if c.Config == nil {
 			return nil, fmt.Errorf("invalid config: no config field for connector %q", c.ID)
 		}
-		logger.Infof("config connector: %s", c.ID)
+		//logger.Infof("config connector: %s", c.ID)
 
 		// convert to a storage connector object
 		conn, err := auth.ToStorageConnector(c)
@@ -156,19 +158,19 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 			Name: "Email",
 			Type: server.LocalConnector,
 		})
-		logger.Infof("config connector: local passwords enabled")
+		//logger.Infof("config connector: local passwords enabled")
 	}
 
 	s = storage.WithStaticConnectors(s, storageConnectors)
 
 	if len(c.OAuth2.ResponseTypes) > 0 {
-		logger.Infof("config response types accepted: %s", c.OAuth2.ResponseTypes)
+		//logger.Infof("config response types accepted: %s", c.OAuth2.ResponseTypes)
 	}
 	if c.OAuth2.SkipApprovalScreen {
-		logger.Infof("config skipping approval screen")
+		//logger.Infof("config skipping approval screen")
 	}
 	if len(c.Web.AllowedOrigins) > 0 {
-		logger.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
+		//logger.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
 	}
 
 	// explicitly convert to UTC.
@@ -189,7 +191,7 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		if err != nil {
 			return nil, fmt.Errorf("invalid config value %q for signing keys expiry: %v", c.Expiry.SigningKeys, err)
 		}
-		logger.Infof("config signing keys expire after: %v", signingKeys)
+		//logger.Infof("config signing keys expire after: %v", signingKeys)
 		serverConfig.RotateKeysAfter = signingKeys
 	}
 	if c.Expiry.IDTokens != "" {
@@ -197,16 +199,19 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		if err != nil {
 			return nil, fmt.Errorf("invalid config value %q for id token expiry: %v", c.Expiry.IDTokens, err)
 		}
-		logger.Infof("config id tokens valid for: %v", idTokens)
+		//logger.Infof("config id tokens valid for: %v", idTokens)
 		serverConfig.IDTokensValidFor = idTokens
 	}
 
 	if dexServer != nil {
 		dexServer.UpdateStorage(s)
-	} else{
+	} else {
 		serv, err := server.NewServer(context.Background(), serverConfig)
 		if err != nil {
-			return nil, fmt.Errorf("failed to initialize server: %v", err)
+			if strings.Contains(err.Error(), "502") {
+				return nil, fmt.Errorf("Cannot to initialize OIDC server: gateway is probably not ready yet...")
+			}
+			return nil, fmt.Errorf("Failed to initialize OIDC server: %v", err)
 		}
 		dexServer = serv
 	}
@@ -216,7 +221,7 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	wrapped = service.NewLogHttpHandlerWrapper(wrapped, servicecontext.GetServiceName(pydioSrvContext), servicecontext.GetServiceColor(pydioSrvContext))
 
 	if c.Web.HTTP != "" {
-		logger.Infof("listening (http) on %s", c.Web.HTTP)
+		logger.Infof("Listening (http) on %s", c.Web.HTTP)
 		go func() {
 			http.ListenAndServe(c.Web.HTTP, wrapped)
 		}()

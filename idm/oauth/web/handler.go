@@ -49,7 +49,7 @@ func initOIDCClient() {
 	if err == nil {
 		secret = connectorConfig.ClientSecret
 	}
-	fmt.Println("--- Using Secret for OIDC Client", secret)
+
 	hasher := &fosite.BCrypt{WorkFactor: fosite.DefaultBCryptWorkFactor}
 	hashedSecret, _ := hasher.Hash(context.Background(), []byte(secret))
 
