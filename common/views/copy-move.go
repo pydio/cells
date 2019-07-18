@@ -242,7 +242,9 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 	// Now Copy/Move initial node
 	if sourceNode.IsLeaf() {
-		meta := make(map[string]string, 1)
+		meta := map[string]string{
+			common.XPydioSessionUuid: session,
+		}
 		if move {
 			meta["X-Amz-Metadata-Directive"] = "COPY"
 			if crossDs {
@@ -260,7 +262,14 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		// Remove Source Node
 		if move {
 			if crossDs {
-				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: sourceNode.Uuid})
+				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
+					common.XPydioMoveUuid:    sourceNode.Uuid,
+					common.XPydioSessionUuid: "close-" + session,
+				})
+			} else {
+				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
+					common.XPydioSessionUuid: "close-" + session,
+				})
 			}
 			_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
 			if moveErr != nil {
