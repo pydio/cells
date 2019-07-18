@@ -25,6 +25,10 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/pydio/cells/idm/auth/web/resources"
+
+	"github.com/pydio/cells/discovery/install/assets"
+
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -68,6 +72,11 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		OfflineSessionsSliding: true,
 	}
 	config.Set([]*DexClient{dexStaticClient}, "services", authGrpc, "dex", "staticClients")
+
+	// Deploy Dex Assets to specific dir
+	assetsTarget := filepath.Join(config.ApplicationDataDir(), "static", "dex")
+	assets.RestoreAssets(assetsTarget, resources.WebAuthResources, nil)
+	config.Set(assetsTarget, "services", authGrpc, "dex", "frontend", "Dir")
 
 	// Adding the config for activities and chat
 	// TODO - make it better

@@ -317,7 +317,6 @@ func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleConnectorCallback(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Handling callback")
 	var authID string
 	switch r.Method {
 	case "GET": // OAuth2 callback
