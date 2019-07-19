@@ -82,35 +82,46 @@ func jwtFromAuthCode(code string) (map[string]interface{}, error) {
 	if _, c, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {
 
 		e := errors.Parse(err.Error())
-		if e.Code == http.StatusNotFound && c.Name != "" {
+		if e.Code == http.StatusNotFound {
 
-			// First let's create a group to store the user in
+			login := c.Email
+			attributes := map[string]string{
+				idm.UserAttrProfile: common.PYDIO_PROFILE_STANDARD,
+				idm.UserAttrEmail:   c.Email,
+			}
+
+			// Mapping Group
 			sub, err := c.DecodeSubject()
 			if err != nil {
 				return nil, err
 			}
-			log.Logger(ctx).Info("Should create a user with Subject", zap.Any("c", c), zap.Any("sub", sub))
 
-			// Ensuring profile is respected
-			profile := common.PYDIO_PROFILE_STANDARD
+			// Mapping admin profile
 			if c.Profile == "admin" {
-				profile = common.PYDIO_PROFILE_ADMIN
+				attributes[idm.UserAttrProfile] = common.PYDIO_PROFILE_ADMIN
+			}
+
+			// Mapping Display Name
+			if c.DisplayName != "" {
+				attributes[idm.UserAttrDisplayName] = c.DisplayName
+			} else if c.Name != "" {
+				attributes[idm.UserAttrDisplayName] = c.Name
 			}
 
 			// This means that we didn't find the user, so let's create one
 			user := &idm.User{
-				Login:     c.Name,
+				Login:     login,
 				GroupPath: sub.ConnId,
 				Policies: []*serviceproto.ResourcePolicy{
 					{Subject: "profile:standard", Action: serviceproto.ResourcePolicyAction_READ, Effect: serviceproto.ResourcePolicy_allow},
-					{Subject: "user:" + c.Name, Action: serviceproto.ResourcePolicyAction_WRITE, Effect: serviceproto.ResourcePolicy_allow},
+					{Subject: "user:" + login, Action: serviceproto.ResourcePolicyAction_WRITE, Effect: serviceproto.ResourcePolicy_allow},
 					{Subject: "profile:admin", Action: serviceproto.ResourcePolicyAction_WRITE, Effect: serviceproto.ResourcePolicy_allow},
 				},
-				Attributes: map[string]string{"profile": profile},
+				Attributes: attributes,
 			}
 
 			if err := createNewUser(user); err != nil {
-				return nil, fmt.Errorf("Could not create new user")
+				return nil, errors.InternalServerError("cannot.create.user", err.Error())
 			}
 
 			if _, _, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {
@@ -159,6 +170,8 @@ func createNewUser(inputUser *idm.User) error {
 			}
 		}
 	}
+
+	log.Logger(ctx).Info("Creating the following user automatically", inputUser.Zap())
 
 	response, err := cli.CreateUser(ctx, &idm.CreateUserRequest{
 		User: inputUser,

@@ -27,7 +27,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 
 	"github.com/coreos/go-oidc"
 	"github.com/golang/protobuf/ptypes"
@@ -65,7 +64,6 @@ type JWTVerifier struct {
 	Issuer  string   `json:"issuer"`
 	Clients []client `json:"staticClients"`
 
-	once     sync.Once
 	provider *oidc.Provider
 }
 
@@ -79,33 +77,31 @@ func DefaultJWTVerifier() *JWTVerifier {
 	return dex
 }
 
-func (j *JWTVerifier) getProvider() *oidc.Provider {
-	j.once.Do(func() {
+func (j *JWTVerifier) getProvider() (*oidc.Provider, error) {
+	if j.provider == nil {
 		ctx := oidc.ClientContext(context.Background(), &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: config.GetTLSClientConfig("proxy"),
 			},
 		})
-
 		provider, err := oidc.NewProvider(ctx, j.Issuer)
 		if err != nil {
 			log.Logger(ctx).Error("cannot init oidc provider", zap.Error(err))
-			return
+			return nil, err
 		}
 
 		j.provider = provider
-	})
-
-	return j.provider
+	}
+	return j.provider, nil
 }
 
 func (j *JWTVerifier) getVerifiers() []*oidc.IDTokenVerifier {
 	var verifiers []*oidc.IDTokenVerifier
 
-	provider := j.getProvider()
-
-	for _, client := range j.Clients {
-		verifiers = append(verifiers, provider.Verifier(&oidc.Config{ClientID: client.ID, SkipNonceCheck: true}))
+	if provider, err := j.getProvider(); err == nil {
+		for _, client := range j.Clients {
+			verifiers = append(verifiers, provider.Verifier(&oidc.Config{ClientID: client.ID, SkipNonceCheck: true}))
+		}
 	}
 
 	return verifiers
@@ -114,18 +110,20 @@ func (j *JWTVerifier) getVerifiers() []*oidc.IDTokenVerifier {
 func (j *JWTVerifier) getOAuthConfigs() []oauth2.Config {
 	var configs []oauth2.Config
 
-	provider := j.getProvider()
+	if provider, err := j.getProvider(); err == nil {
 
-	externalURL := config.Get("defaults", "url").String("")
+		externalURL := config.Get("defaults", "url").String("")
 
-	for _, client := range j.Clients {
-		configs = append(configs, oauth2.Config{
-			ClientID:     client.ID,
-			ClientSecret: client.Secret,
-			Endpoint:     provider.Endpoint(),
-			RedirectURL:  externalURL + "/login/callback",
-			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
-		})
+		for _, client := range j.Clients {
+			configs = append(configs, oauth2.Config{
+				ClientID:     client.ID,
+				ClientSecret: client.Secret,
+				Endpoint:     provider.Endpoint(),
+				RedirectURL:  externalURL + "/login/callback",
+				Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+			})
+		}
+
 	}
 
 	return configs
@@ -148,14 +146,29 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token *oidc.IDToken, claim
 		return err
 	}
 
-	if claims.Name == "" {
-		log.Logger(ctx).Error("verify name")
-		return errors.New("cannot find name inside claims")
+	// Search by name or by email
+	var user *idm.User
+	var uE error
+	if claims.Name != "" {
+		if u, err := permissions.SearchUniqueUser(ctx, claims.Name, ""); err == nil {
+			user = u
+		}
 	}
-
-	user, err := permissions.SearchUniqueUser(ctx, claims.Name, "")
-	if err != nil {
-		return err
+	if user == nil {
+		if u, err := permissions.SearchUniqueUser(ctx, claims.Email, ""); err == nil {
+			user = u
+			// Now replace claims.Name
+			claims.Name = claims.Email
+		} else {
+			uE = err
+		}
+	}
+	if user == nil {
+		if uE != nil {
+			return uE
+		} else {
+			return errors2.NotFound("user.not.found", "user not found neither by name or email")
+		}
 	}
 
 	displayName, ok := user.Attributes["displayName"]
@@ -266,7 +279,11 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 // PasswordCredentialsToken will perform a call to the OIDC service with grantType "password"
 // to get a valid token from a given user/pass credentials
 func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName string, password string) (context.Context, claim.Claims, error) {
-	provider := j.getProvider()
+	provider, err := j.getProvider()
+	if err != nil {
+		return ctx, claim.Claims{}, err
+	}
+
 	oauth2Config, err := j.getDefaultOAuthConfig()
 	if err != nil {
 		return ctx, claim.Claims{}, err
