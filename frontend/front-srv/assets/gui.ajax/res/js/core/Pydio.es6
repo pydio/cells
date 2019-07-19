@@ -133,7 +133,6 @@ class Pydio extends Observable{
      */
     init(){
         this.observe("registry_loaded", () => {
-
             this.Registry.refreshExtensionsRegistry();
             this.updateUser(this.Registry.parseUser(), false);
             if(this.user){

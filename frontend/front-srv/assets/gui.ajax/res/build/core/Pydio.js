@@ -200,7 +200,6 @@ var Pydio = (function (_Observable) {
         var _this2 = this;
 
         this.observe("registry_loaded", function () {
-
             _this2.Registry.refreshExtensionsRegistry();
             _this2.updateUser(_this2.Registry.parseUser(), false);
             if (_this2.user) {

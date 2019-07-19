@@ -55,19 +55,21 @@ function getRoutes(pydio){
     return routes;
 }
 
-const PydioRouter = ({pydio}) => {
-    pydio.observe("login_required", () => {
-        browserHistory.push("/login")
-    });
+class PydioRouter extends React.PureComponent {
+    constructor(props) {
+        super(props)
 
-    pydio.observe("logout_required", () => {
-        browserHistory.push('/logout')
-    })
+        this.state = {
+            renderOnce: true
+        }
+    }
 
-    return (
-        // Routes are defined as a constant to avoid warning about hot reloading
-        <Router history={browserHistory} routes={getRoutes(pydio)} />
-    )
+    render() {
+        return (
+            // Routes are defined as a constant to avoid warning about hot reloading
+            <Router history={browserHistory} routes={getRoutes(this.props.pydio)} />
+        )
+    }
 }
 
 export default PydioRouter;

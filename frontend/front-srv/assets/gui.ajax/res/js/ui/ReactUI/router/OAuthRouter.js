@@ -18,36 +18,64 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import qs from 'query-string';
-
 const OAuthRouterWrapper = (pydio) => {
-    const OAuthRouter = (props) => {
-        PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-            if (!jwt) {
-                pydio.getController().fireAction('login');
-                return
+    class OAuthRouter extends React.PureComponent {
+        
+        constructor(props) {
+            super(props)
+
+            this.state = {
+                jwt: "INITIAL"
             }
 
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", '/oauth2/auth' + window.location.search + '&access_token=' + jwt, true);
-    
-            //Send the proper header information along with the request
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    
-            xhr.onreadystatechange = function() { // Call a function when the state changes.
-                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                    window.location.href = this.responseURL
+            this._handleAuthorizeChange = this.handleAuthorizeChange.bind(this)
+        }
+
+        componentDidMount(props) {
+            this.handleAuthorizeChange()
+
+            pydio.observe('user_logged', this._handleAuthorizeChange)
+        }
+
+        componentWillUnmount(props) {
+            pydio.stopObserving('user_logged', this._handleAuthorizeChange)
+        }
+
+        handleAuthorizeChange() {
+            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => this.setState({
+                jwt: jwt
+            }))
+        }
+
+        render() {
+            const {jwt} = this.state;
+
+            if (jwt === "INITIAL") {
+            } else if (jwt === "") {
+                 pydio.getController().fireAction('login');
+            } else {
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", '/oauth2/auth' + window.location.search + '&access_token=' + jwt, true);
+        
+                //Send the proper header information along with the request
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        
+                xhr.onreadystatechange = function() { // Call a function when the state changes.
+                    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                        window.location.href = this.responseURL
+                    }
                 }
+        
+                xhr.send("scopes=openid&scopes=profile&scopes=email&scopes=offline_access");
             }
-    
-            xhr.send("scopes=openid&scopes=profile&scopes=email&scopes=offline_access");
-        })
 
-        return (
-            <div>
-                {props.children}
-            </div>
-        )
+            return (
+                <div>
+                    {this.props.children}
+                </div>
+            )
+            
+        }
     }
 
     return OAuthRouter;

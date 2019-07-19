@@ -22,42 +22,77 @@
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _queryString = require('query-string');
-
-var _queryString2 = _interopRequireDefault(_queryString);
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var OAuthRouterWrapper = function OAuthRouterWrapper(pydio) {
-    var OAuthRouter = function OAuthRouter(props) {
-        PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-            if (!jwt) {
-                pydio.getController().fireAction('login');
-                return;
-            }
+    var OAuthRouter = (function (_React$PureComponent) {
+        _inherits(OAuthRouter, _React$PureComponent);
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", '/oauth2/auth' + window.location.search + '&access_token=' + jwt, true);
+        function OAuthRouter(props) {
+            _classCallCheck(this, OAuthRouter);
 
-            //Send the proper header information along with the request
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            _React$PureComponent.call(this, props);
 
-            xhr.onreadystatechange = function () {
-                // Call a function when the state changes.
-                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                    window.location.href = this.responseURL;
-                }
+            this.state = {
+                jwt: "INITIAL"
             };
 
-            xhr.send("scopes=openid&scopes=profile&scopes=email&scopes=offline_access");
-        });
+            this._handleAuthorizeChange = this.handleAuthorizeChange.bind(this);
+        }
 
-        return React.createElement(
-            'div',
-            null,
-            props.children
-        );
-    };
+        OAuthRouter.prototype.componentDidMount = function componentDidMount(props) {
+            this.handleAuthorizeChange();
+
+            pydio.observe('user_logged', this._handleAuthorizeChange);
+        };
+
+        OAuthRouter.prototype.componentWillUnmount = function componentWillUnmount(props) {
+            pydio.stopObserving('user_logged', this._handleAuthorizeChange);
+        };
+
+        OAuthRouter.prototype.handleAuthorizeChange = function handleAuthorizeChange() {
+            var _this = this;
+
+            PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
+                return _this.setState({
+                    jwt: jwt
+                });
+            });
+        };
+
+        OAuthRouter.prototype.render = function render() {
+            var jwt = this.state.jwt;
+
+            if (jwt === "INITIAL") {} else if (jwt === "") {
+                pydio.getController().fireAction('login');
+            } else {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", '/oauth2/auth' + window.location.search + '&access_token=' + jwt, true);
+
+                //Send the proper header information along with the request
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                xhr.onreadystatechange = function () {
+                    // Call a function when the state changes.
+                    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                        window.location.href = this.responseURL;
+                    }
+                };
+
+                xhr.send("scopes=openid&scopes=profile&scopes=email&scopes=offline_access");
+            }
+
+            return React.createElement(
+                'div',
+                null,
+                this.props.children
+            );
+        };
+
+        return OAuthRouter;
+    })(React.PureComponent);
 
     return OAuthRouter;
 };

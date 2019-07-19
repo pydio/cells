@@ -300,7 +300,6 @@ class MultiAuthModifier extends PydioReactUI.AbstractDialogModifier{
 class Callbacks{
 
     static sessionLogout(){
-        console.log("HERE WE ARE")
 
         if(Pydio.getInstance().Parameters.get("PRELOG_USER")){
             return;

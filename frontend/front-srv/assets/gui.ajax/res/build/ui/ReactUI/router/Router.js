@@ -24,6 +24,10 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _reactRouterDom = require('react-router-dom');
 
 var _reactRouterLibRouter = require('react-router/lib/Router');
@@ -104,22 +108,28 @@ function getRoutes(pydio) {
     return routes;
 }
 
-var PydioRouter = function PydioRouter(_ref) {
-    var pydio = _ref.pydio;
+var PydioRouter = (function (_React$PureComponent) {
+    _inherits(PydioRouter, _React$PureComponent);
 
-    pydio.observe("login_required", function () {
-        _reactRouterLibBrowserHistory2['default'].push("/login");
-    });
+    function PydioRouter(props) {
+        _classCallCheck(this, PydioRouter);
 
-    pydio.observe("logout_required", function () {
-        _reactRouterLibBrowserHistory2['default'].push('/logout');
-    });
+        _React$PureComponent.call(this, props);
 
-    return(
-        // Routes are defined as a constant to avoid warning about hot reloading
-        React.createElement(_reactRouterLibRouter2['default'], { history: _reactRouterLibBrowserHistory2['default'], routes: getRoutes(pydio) })
-    );
-};
+        this.state = {
+            renderOnce: true
+        };
+    }
+
+    PydioRouter.prototype.render = function render() {
+        return(
+            // Routes are defined as a constant to avoid warning about hot reloading
+            React.createElement(_reactRouterLibRouter2['default'], { history: _reactRouterLibBrowserHistory2['default'], routes: getRoutes(this.props.pydio) })
+        );
+    };
+
+    return PydioRouter;
+})(React.PureComponent);
 
 exports['default'] = PydioRouter;
 module.exports = exports['default'];
