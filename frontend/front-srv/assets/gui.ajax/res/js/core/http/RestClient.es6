@@ -27,7 +27,6 @@ import RestUserJobRequest from "./gen/model/RestUserJobRequest";
 import FrontendServiceApi from "./gen/api/FrontendServiceApi";
 import RestFrontSessionRequest from "./gen/model/RestFrontSessionRequest";
 import RestFrontSessionResponse from "./gen/model/RestFrontSessionResponse";
-import RestFrontLoginCallbackRequest from "./gen/model/RestFrontLoginCallbackRequest";
 import IdmApi from './IdmApi'
 
 // Override parseDate method to support ISO8601 cross-browser

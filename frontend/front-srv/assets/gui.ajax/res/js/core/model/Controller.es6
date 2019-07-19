@@ -353,7 +353,6 @@ export default class Controller extends Observable{
 	 * @param actionName String The name of the action
 	 */
 	fireAction (actionName)	{
-        console.log(actionName)
 		const action = this.actions.get(actionName);
 		if(action != null) {
 			const args = Array.from(arguments).slice(1);

@@ -188,7 +188,7 @@ var FrontendServiceApi = (function () {
     var accepts = ['application/json'];
     var returnType = _modelRestFrontSessionResponse2['default'];
 
-    return this.apiClient.callApi('/frontend/callback', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+    return this.apiClient.callApi('/frontend/session/callback', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
   };
 
   /**

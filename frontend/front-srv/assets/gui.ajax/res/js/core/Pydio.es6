@@ -133,7 +133,6 @@ class Pydio extends Observable{
      */
     init(){
         this.observe("registry_loaded", () => {
-            console.log(this.Registry.parseUser())
 
             this.Registry.refreshExtensionsRegistry();
             this.updateUser(this.Registry.parseUser(), false);
@@ -241,7 +240,11 @@ class Pydio extends Observable{
             const repositoryObject = new Repository(null);
             this.loadRepository(repositoryObject);
             this.fire("repository_list_refreshed", {list:false,active:false});
-            
+            if(this.Parameters.has('MINISITE')) {
+                this.Controller.fireAction("login");
+            } else {
+                this.fire("login_required");
+            }
             return;
         }
 

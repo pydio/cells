@@ -30,10 +30,6 @@ var _utilXMLUtils = require('../util/XMLUtils');
 
 var _utilXMLUtils2 = _interopRequireDefault(_utilXMLUtils);
 
-var _userManagerJs = require('../userManager.js');
-
-var _userManagerJs2 = _interopRequireDefault(_userManagerJs);
-
 /**
  * Pydio encapsulation of XHR / Fetch
  */
@@ -234,7 +230,6 @@ var Connexion = (function () {
                 }
 
                 pydio.fire('login_required');
-                console.log("HERE");
             }
 
             var messageNode = _utilXMLUtils2['default'].XPathSelectSingleNode(parsedBody.responseXML.documentElement, "message");

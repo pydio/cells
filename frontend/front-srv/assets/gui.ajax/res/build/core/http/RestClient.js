@@ -60,10 +60,6 @@ var _genModelRestFrontSessionResponse = require("./gen/model/RestFrontSessionRes
 
 var _genModelRestFrontSessionResponse2 = _interopRequireDefault(_genModelRestFrontSessionResponse);
 
-var _genModelRestFrontLoginCallbackRequest = require("./gen/model/RestFrontLoginCallbackRequest");
-
-var _genModelRestFrontLoginCallbackRequest2 = _interopRequireDefault(_genModelRestFrontLoginCallbackRequest);
-
 var _IdmApi = require('./IdmApi');
 
 var _IdmApi2 = _interopRequireDefault(_IdmApi);

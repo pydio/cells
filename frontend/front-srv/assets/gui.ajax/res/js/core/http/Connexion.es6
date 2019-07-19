@@ -20,7 +20,6 @@
 
 require('whatwg-fetch');
 import XMLUtils from '../util/XMLUtils'
-import userManager from '../userManager.js'
 /**
  * Pydio encapsulation of XHR / Fetch
  */
@@ -221,7 +220,6 @@ class Connexion{
                 }
                 
                 pydio.fire('login_required')
-                console.log("HERE")
 			}
 
 			const messageNode = XMLUtils.XPathSelectSingleNode(parsedBody.responseXML.documentElement, "message");
