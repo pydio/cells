@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/config"
+
 	"github.com/coreos/dex/server"
 	"github.com/coreos/dex/storage"
 	"github.com/sirupsen/logrus"
@@ -175,6 +177,9 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 
 	// explicitly convert to UTC.
 	now := func() time.Time { return time.Now().UTC() }
+
+	c.Frontend.Theme = "cells"
+	c.Frontend.Issuer = config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Pydio Cells")
 
 	serverConfig := server.Config{
 		SupportedResponseTypes: c.OAuth2.ResponseTypes,
