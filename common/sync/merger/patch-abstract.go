@@ -40,6 +40,7 @@ type AbstractPatch struct {
 	sessionSilent          bool
 
 	skipFilterToTarget bool
+	postFilter         func()
 
 	statusChan chan model.Status
 	doneChan   chan interface{}
@@ -153,6 +154,14 @@ func (b *AbstractPatch) HasTransfers() bool {
 
 func (b *AbstractPatch) SkipFilterToTarget(skip bool) {
 	b.skipFilterToTarget = skip
+}
+
+// PostFilter gets or sets a callback to be triggered after filtering
+func (b *AbstractPatch) PostFilter(f ...func()) func() {
+	if len(f) > 0 {
+		b.postFilter = f[0]
+	}
+	return b.postFilter
 }
 
 func (b *AbstractPatch) zapSource() zapcore.Field {

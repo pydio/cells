@@ -242,15 +242,13 @@ func (ev *EventsBatcher) processEvents(events []model.EventInfo) {
 
 	}
 
-	patch.Filter(ev.globalContext, ev.ignores...)
-	if patch.Size() > 0 {
-		log.Logger(ev.globalContext).Info("[batcher] Sending Patch from Events", zap.Any("stats", patch.Stats()))
-	}
-	if updater, ok := patch.Source().(model.SnapshotUpdater); ok {
-		log.Logger(ev.globalContext).Debug("[batcher] PatchUpdating Snapshot")
-		updater.PatchUpdateSnapshot(ev.globalContext, patch)
-		log.Logger(ev.globalContext).Debug("[batcher] PatchUpdating Snapshot - Done")
-	}
+	patch.PostFilter(func() {
+		if updater, ok := patch.Source().(model.SnapshotUpdater); ok && patch.Size() > 0 {
+			log.Logger(ev.globalContext).Debug("[batcher] PatchUpdating Snapshot")
+			updater.PatchUpdateSnapshot(ev.globalContext, patch)
+			log.Logger(ev.globalContext).Info("[batcher] PatchUpdating Snapshot - Done")
+		}
+	})
 
 	ev.patches <- patch
 

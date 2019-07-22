@@ -28,6 +28,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -196,6 +197,12 @@ func (p *BidirectionalPatch) FinishSession(sessionUuid string) error {
 		return e2
 	}
 	return nil
+}
+
+// Filter override TreePatch.Filter and does nothing. Left and right patches are
+// filtered at BidirectionalPatch creation time.
+func (p *BidirectionalPatch) Filter(ctx context.Context, ignores ...glob.Glob) {
+	return
 }
 
 // AppendBranch merges another bidir patch into this existing patch

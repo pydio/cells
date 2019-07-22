@@ -108,6 +108,7 @@ func (s *Sync) Start(ctx context.Context, withWatches bool) {
 	if s.patchPiper != nil {
 		s.patchChan = s.patchPiper.Pipe(s.patchChan)
 	}
+	s.processor.Ignores = s.Ignores
 	s.processor.Start()
 
 	// Init EchoFilter

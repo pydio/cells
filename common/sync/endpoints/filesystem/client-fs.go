@@ -205,7 +205,6 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	newPatch := merger.ClonePatch(c, c.updateSnapshot, p)
 	newPatch.SetSessionData(ctx, true)
 
-	newPatch.Filter(ctx)
 	pr := proc.NewProcessor(ctx)
 	pr.Silent = true
 	pr.SkipTargetChecks = true

@@ -27,6 +27,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gobwas/glob"
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -56,6 +57,7 @@ type Processor struct {
 	QueueSize        int
 	Silent           bool
 	SkipTargetChecks bool
+	Ignores          []glob.Glob
 }
 
 // NewProcessor creates a new processor
@@ -79,6 +81,18 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 		}
 		patch.Done(patch)
 	}()
+
+	patch.Filter(pr.GlobalContext, pr.Ignores...)
+	if errs, b := patch.HasErrors(); b {
+		for _, e := range errs {
+			log.Logger(pr.GlobalContext).Error("Errors after filtering patch", zap.Error(e))
+		}
+		return // Errors while filtering, stop now
+	}
+
+	if f := patch.PostFilter(); f != nil {
+		f()
+	}
 
 	if patch.Size() == 0 {
 		log.Logger(pr.GlobalContext).Info("Empty Patch : nothing to do")
@@ -231,6 +245,10 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 		}
 	} else if h {
 		log.Logger(pr.GlobalContext).Error("Patch ended with errors", zap.Int("count", len(pE)))
+		for _, e := range pE {
+			log.Logger(pr.GlobalContext).Error("--- Error", zap.Error(e), zap.String("target", patch.Target().GetEndpointInfo().URI))
+		}
+
 	}
 }
 

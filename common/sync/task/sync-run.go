@@ -107,7 +107,7 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 	if err != nil {
 		return err
 	}
-	patch.Filter(ctx)
+
 	return nil
 }
 

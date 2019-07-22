@@ -93,7 +93,6 @@ func TestProcess(t *testing.T) {
 		patch.Enqueue(merger.NewOperation(merger.OpMoveFile, model.EventInfo{Path: "moved-file"}, &tree.Node{Path: "to-be-moved", Type: tree.NodeType_LEAF}))
 		patch.Enqueue(merger.NewOperation(merger.OpMoveFolder, model.EventInfo{Path: "moved-folder"}, &tree.Node{Path: "folder-to-be-moved", Type: tree.NodeType_COLLECTION}))
 
-		patch.Filter(testCtx)
 		m.Process(patch, nil)
 		time.Sleep(2 * time.Second)
 
