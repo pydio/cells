@@ -27,6 +27,7 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/common/sync/profiling"
 	"io"
 	"os"
 	"path"
@@ -206,7 +207,8 @@ func (c *FSClient) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	newPatch.SetSessionData(ctx, true)
 
 	newPatch.Filter(ctx)
-	pr := proc.NewProcessor(ctx)
+
+	pr := proc.NewProcessor(profiling.Context(ctx, profiling.ProcessFunction))
 	pr.Silent = true
 	pr.SkipTargetChecks = true
 	pr.Process(newPatch, nil)
@@ -234,7 +236,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "fs://" + c.uriPath,
+		URI:                   "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},

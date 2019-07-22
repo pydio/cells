@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/common/sync/profiling"
 )
 
 // ProcessFunc is a generic function signature for applying an operation
@@ -69,6 +70,8 @@ func NewProcessor(ctx context.Context) *Processor {
 
 // Process calls all Operations to be performed on a Patch
 func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
+	stopFunction := profiling.Start(pr.GlobalContext, profiling.ProcessFunction)
+	defer stopFunction()
 
 	var interrupted bool
 

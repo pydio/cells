@@ -32,15 +32,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
-
-	"github.com/pborman/uuid"
-
 	"github.com/etcd-io/bbolt"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/errors"
+	"github.com/pborman/uuid"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/model"
 )
@@ -182,6 +180,9 @@ func (s *BoltSnapshot) FinishSession(ctx context.Context, sessionUuid string) er
 }
 
 func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+	if node == nil {
+		return
+	}
 	if s.createsSession != nil {
 		return s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
@@ -420,7 +421,7 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 
 func (s *BoltSnapshot) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: "snapshot://" + s.name,
+		URI:                   "snapshot://" + s.name,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 	}
