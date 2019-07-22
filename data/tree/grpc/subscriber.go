@@ -41,9 +41,7 @@ type EventSubscriber struct {
 
 func (s *EventSubscriber) publish(ctx context.Context, msg *tree.NodeChangeEvent) {
 	s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TOPIC_TREE_CHANGES, msg))
-	for _, c := range s.TreeServer.getChangesSub() {
-		c <- msg
-	}
+	s.TreeServer.PublishChange(msg)
 }
 
 func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, event *tree.NodeChangeEvent) {

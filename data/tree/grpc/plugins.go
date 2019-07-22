@@ -50,9 +50,6 @@ func init() {
 					ConfigsMutex: &sync.Mutex{},
 					DataSources:  dataSources,
 					meta:         tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient()),
-
-					changesSub:      make(map[chan *tree.NodeChangeEvent]bool),
-					changesSubLocks: &sync.Mutex{},
 				}
 
 				eventSubscriber := &EventSubscriber{

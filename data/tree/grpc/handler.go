@@ -37,6 +37,38 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// changesListener is an autoclosing pipe used for fanning out events
+type changesListener struct {
+	in   chan *tree.NodeChangeEvent
+	out  chan *tree.NodeChangeEvent
+	done chan struct{}
+}
+
+func newListener() *changesListener {
+	l := &changesListener{
+		in:   make(chan *tree.NodeChangeEvent),
+		out:  make(chan *tree.NodeChangeEvent, 1000),
+		done: make(chan struct{}, 1),
+	}
+	go func() {
+		defer close(l.in)
+		defer close(l.out)
+		for {
+			select {
+			case i := <-l.in:
+				l.out <- i
+			case <-l.done:
+				return
+			}
+		}
+	}()
+	return l
+}
+
+func (l *changesListener) stop() {
+	close(l.done)
+}
+
 type DataSource struct {
 	Name   string
 	writer tree.NodeReceiverClient
@@ -45,11 +77,9 @@ type DataSource struct {
 
 type TreeServer struct {
 	DataSources  map[string]DataSource
-	meta         tree.NodeProviderClient
 	ConfigsMutex *sync.Mutex
-
-	changesSub      map[chan *tree.NodeChangeEvent]bool
-	changesSubLocks *sync.Mutex
+	meta         tree.NodeProviderClient
+	listeners    []*changesListener
 }
 
 func (s *TreeServer) treeNodeToDataSourcePath(node *tree.Node) (dataSourceName string, dataSourcePath string) {
@@ -82,6 +112,10 @@ func (s *TreeServer) updateDataSourceNode(node *tree.Node, dataSourceName string
 	}
 }
 
+/* =============================================================================
+ *  Server public Methods
+ * ============================================================================ */
+
 func (s *TreeServer) enrichNodeWithMeta(ctx context.Context, node *tree.Node) {
 
 	metaResponse, metaErr := s.meta.ReadNode(ctx, &tree.ReadNodeRequest{
@@ -93,10 +127,6 @@ func (s *TreeServer) enrichNodeWithMeta(ctx context.Context, node *tree.Node) {
 	}
 
 }
-
-/* =============================================================================
- *  Server public Methods
- * ============================================================================ */
 
 // CreateNode implementation for the TreeServer
 func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) error {
@@ -443,31 +473,32 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	return errors.Forbidden(common.SERVICE_TREE, "Unknown data source")
 }
 
-func (s *TreeServer) getChangesSub() (subs []chan *tree.NodeChangeEvent) {
-	s.changesSubLocks.Lock()
-	for c, _ := range s.changesSub {
-		subs = append(subs, c)
+func (s *TreeServer) PublishChange(change *tree.NodeChangeEvent) {
+	for _, l := range s.listeners {
+		l.in <- change
 	}
-	s.changesSubLocks.Unlock()
-	return
 }
 
 func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesRequest, streamer tree.NodeChangesStreamer_StreamChangesStream) error {
 
-	c := make(chan *tree.NodeChangeEvent, 1000)
-	s.changesSubLocks.Lock()
-	s.changesSub[c] = true
-	s.changesSubLocks.Unlock()
+	li := newListener()
+	s.listeners = append(s.listeners, li)
 	defer func() {
-		s.changesSubLocks.Lock()
-		close(c)
-		delete(s.changesSub, c)
-		s.changesSubLocks.Unlock()
 		streamer.Close()
+		var cleared []*changesListener
+		for _, l := range s.listeners {
+			if l == li {
+				l.stop()
+			} else {
+				cleared = append(cleared, l)
+			}
+		}
+		s.listeners = cleared
 	}()
+
 	filterPath := strings.Trim(req.RootPath, "/") + "/"
 
-	for event := range c {
+	for event := range li.out {
 
 		if event.Optimistic {
 			continue
