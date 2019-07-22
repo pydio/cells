@@ -27,7 +27,6 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"github.com/pydio/cells/common/sync/profiling"
 	"io"
 	"os"
 	"path"
@@ -51,6 +50,7 @@ import (
 	"github.com/pydio/cells/common/sync/merger"
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/pydio/cells/common/sync/proc"
+	"github.com/pydio/cells/common/sync/profiling"
 	"github.com/pydio/cells/common/utils/filesystem"
 )
 
