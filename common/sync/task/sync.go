@@ -55,7 +55,7 @@ type Sync struct {
 	echoFilter      *filters.EchoFilter
 	eventsBatchers  []*filters.EventsBatcher
 	processor       *proc.ConnectedProcessor
-	patchPiper      merger.PatchPiper
+	patchListener   merger.PatchListener
 
 	watch        bool
 	watchersChan []chan bool
@@ -90,10 +90,10 @@ func (s *Sync) SetFilters(roots []string, excludes []string) {
 	}
 }
 
-// SetPatchPiper adds a filter on the Patch channel to do something with patches
+// SetPatchListener adds a listener on the Patch channel to do something with patches
 // before they are processed
-func (s *Sync) SetPatchPiper(piper merger.PatchPiper) {
-	s.patchPiper = piper
+func (s *Sync) SetPatchListener(listener merger.PatchListener) {
+	s.patchListener = listener
 }
 
 // Start makes a first sync and setup watchers
@@ -105,8 +105,8 @@ func (s *Sync) Start(ctx context.Context, withWatches bool) {
 		s.processor.SkipTargetChecks = true
 	}
 	s.patchChan = s.processor.PatchChan
-	if s.patchPiper != nil {
-		s.patchChan = s.patchPiper.Pipe(s.patchChan)
+	if s.patchListener != nil {
+		s.processor.PatchListener = s.patchListener
 	}
 	s.processor.Ignores = s.Ignores
 	s.processor.Start()

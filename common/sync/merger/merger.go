@@ -255,9 +255,9 @@ type Patch interface {
 	FinishSession(sessionUuid string) error
 }
 
-// PatchPiper provides a way to plug on the patches channel
-type PatchPiper interface {
-	Pipe(in chan Patch) chan Patch
+// PatchListener has a PublishPatch method
+type PatchListener interface {
+	PublishPatch(patch Patch)
 }
 
 // ClonePatch creates a new patch with the same operations but different source/targets

@@ -58,6 +58,7 @@ type Processor struct {
 	Silent           bool
 	SkipTargetChecks bool
 	Ignores          []glob.Glob
+	PatchListener    merger.PatchListener
 }
 
 // NewProcessor creates a new processor
@@ -97,6 +98,11 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	if patch.Size() == 0 {
 		log.Logger(pr.GlobalContext).Info("Empty Patch : nothing to do")
 		return
+	}
+
+	// This is a bit hacky - We should have a more generic patch chan (not just Done) for publishing patches
+	if pr.PatchListener != nil {
+		pr.PatchListener.PublishPatch(patch)
 	}
 
 	if !pr.SkipTargetChecks {
