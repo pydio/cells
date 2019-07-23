@@ -28,11 +28,12 @@ import (
 	"sort"
 	"time"
 
-	"github.com/pydio/cells/common/log"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/common/utils/mtree"
 )
 
 // TreePatch is an implement of the Patch interface representing a sequence of operations as a tree structure.
@@ -127,6 +128,9 @@ func (t *TreePatch) BranchesWithOperations(endpoint model.Endpoint) (branches []
 
 	unique := map[string]string{}
 	t.WalkToFirstOperations(OpUnknown, func(operation Operation) {
+		if operation.IsProcessed() {
+			return // Skip Processed Operations
+		}
 		d := path.Dir(operation.GetRefPath())
 		if d == "." {
 			d = ""
@@ -135,6 +139,13 @@ func (t *TreePatch) BranchesWithOperations(endpoint model.Endpoint) (branches []
 	}, endpoint)
 	for _, d := range unique {
 		branches = append(branches, d)
+	}
+	if len(branches) > 5 {
+		c := mtree.CommonPrefix('/', branches...)
+		if c != "" && c != "." {
+			fmt.Println("Loading common prefix", c)
+			branches = []string{c}
+		}
 	}
 	return
 

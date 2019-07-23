@@ -42,12 +42,12 @@ func (t *TreePatch) FilterToTarget(ctx context.Context) {
 		return node.Etag == check.Etag
 	}
 
-	// Walk the tree to prune operations
+	// Walk the tree to prune operations - only check non-processed operations!
 	t.Walk(func(n *TreeNode) bool {
-		if n.DataOperation != nil && exists(n.DataOperation.Target(), n.ProcessedPath(false), n) {
+		if n.DataOperation != nil && !n.DataOperation.IsProcessed() && exists(n.DataOperation.Target(), n.ProcessedPath(false), n) {
 			log.Logger(ctx).Info("[FilterToTarget] Ignoring DataOperation (target node exists with same ETag)", zap.String("path", n.ProcessedPath(false)))
 			n.DataOperation = nil
-		} else if n.PathOperation != nil {
+		} else if n.PathOperation != nil && !n.PathOperation.IsProcessed() {
 			if n.PathOperation.Type() == OpCreateFolder {
 				if exists(n.PathOperation.Target(), n.ProcessedPath(false)) {
 					log.Logger(ctx).Info("[FilterToTarget] Ignoring CreateFolder Operation (target folder exists)", zap.String("path", n.ProcessedPath(false)))

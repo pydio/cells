@@ -65,7 +65,7 @@ type Processor struct {
 func NewProcessor(ctx context.Context) *Processor {
 	return &Processor{
 		GlobalContext: ctx,
-		QueueSize:     4,
+		QueueSize:     5,
 		Silent:        false,
 	}
 }
