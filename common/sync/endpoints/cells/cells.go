@@ -414,7 +414,8 @@ func (c *abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 
 func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	if targetSize == 0 {
-		return nil, writeDone, writeErr, fmt.Errorf("cannot create empty files")
+		//It is working indeed!
+		//return nil, writeDone, writeErr, fmt.Errorf("cannot create empty files")
 	}
 	writeDone = make(chan bool, 1)
 	writeErr = make(chan error, 1)
@@ -466,10 +467,12 @@ func (c *abstract) GetReaderOn(p string) (out io.ReadCloser, err error) {
 
 func (c *abstract) flushRecentMkDirs() {
 	if len(c.recentMkDirs) > 0 {
+		log.Logger(context.Background()).Info("Cells Endpoint: checking that recently created folders are ready...")
 		c.Lock()
 		c.readNodesBlocking(c.recentMkDirs)
 		c.recentMkDirs = nil
 		c.Unlock()
+		log.Logger(context.Background()).Info("Cells Endpoint: checking that recently created folders are ready - OK")
 	}
 }
 
