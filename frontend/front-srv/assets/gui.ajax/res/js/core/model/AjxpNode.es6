@@ -115,6 +115,7 @@ export default class AjxpNode extends Observable{
             this.notify("loaded");
             return;
         }
+        console.log("Loading node")
         iAjxpNodeProvider.loadNode(this, function(node){
             this._isLoaded = true;
             this._isLoading = false;

@@ -49,6 +49,7 @@ export default class Registry{
     loadXML(documentElement){
         if(this._fileExtensions) this._fileExtensions = null;
         this._registry = documentElement;
+        console.log("Registry loading XML")
         this._pydioObject.fire("registry_loaded", this._registry);
     }
 
@@ -62,6 +63,7 @@ export default class Registry{
         if(this._globalLoading) {
             return;
         }
+        console.log("Registry loading")
         this._globalLoading = true;
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             const {user, Parameters} = this._pydioObject;

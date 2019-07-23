@@ -18,7 +18,6 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import browserHistory from 'react-router/lib/browserHistory';
 import _ from 'lodash';
 
 const PathRouterWrapper = (pydio) => {

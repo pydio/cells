@@ -441,6 +441,8 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.goTo = function goTo(nodeOrPath) {
+
+        console.log("Going to ", nodeOrPath);
         var gotoNode = undefined;
         var path = undefined;
         if (typeof nodeOrPath === "string") {

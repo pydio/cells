@@ -36,10 +36,6 @@ var _userManager = require('./userManager');
 
 var _userManager2 = _interopRequireDefault(_userManager);
 
-var _reactRedux = require('react-redux');
-
-var _reactRedux2 = _interopRequireDefault(_reactRedux);
-
 var MainRouterWrapper = function MainRouterWrapper(pydio) {
     var MainRouter = (function (_React$PureComponent) {
         _inherits(MainRouter, _React$PureComponent);

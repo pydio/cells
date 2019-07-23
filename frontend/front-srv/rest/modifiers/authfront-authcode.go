@@ -36,8 +36,6 @@ func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMidd
 			return middleware(req, rsp, in, out, session)
 		}
 
-		nonce := uuid.New()
-
 		respMap, err := jwtFromAuthCode(in.AuthInfo["code"])
 
 		if err != nil {
@@ -48,7 +46,7 @@ func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMidd
 		expiry := respMap["expires_in"].(float64)
 		refreshToken := respMap["refresh_token"].(string)
 
-		session.Values["nonce"] = nonce
+		session.Values["nonce"] = ""
 		session.Values["jwt"] = token
 		session.Values["refresh_token"] = refreshToken
 		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
@@ -77,6 +75,9 @@ func jwtFromAuthCode(code string) (map[string]interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("Could not get id_token")
 	}
+
+	fmt.Println(token.Extra("nonce"))
+	fmt.Println(rawIDToken)
 
 	// Parse and verify ID Token payload.
 	if _, c, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {

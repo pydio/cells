@@ -359,6 +359,8 @@ class Pydio extends Observable{
      * @param nodeOrPath AjxpNode|String A node or a path
      */
     goTo(nodeOrPath){
+
+        console.log("Going to ", nodeOrPath)
         let gotoNode;
         let path;
         if(typeof(nodeOrPath) === "string"){

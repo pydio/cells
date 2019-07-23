@@ -20,7 +20,6 @@
 
 import browserHistory from 'react-router/lib/browserHistory';
 import userManager from './userManager';
-import connect from 'react-redux';
 
 const MainRouterWrapper = (pydio) => {
 
