@@ -50,12 +50,13 @@ func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, eve
 		s.movesMux = &sync.Mutex{}
 	}
 	s.movesMux.Lock()
-	defer s.movesMux.Unlock()
 	if c, ok := s.moves[moveUuid]; ok {
 		c <- event
+		s.movesMux.Unlock()
 	} else {
 		newB := make(chan *tree.NodeChangeEvent)
 		s.moves[moveUuid] = newB
+		s.movesMux.Unlock()
 		go func() {
 			var del, create *tree.NodeChangeEvent
 			defer func() {
@@ -68,10 +69,10 @@ func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, eve
 					})
 				}
 				// Remove
-				s.movesMux.Lock()
-				defer s.movesMux.Unlock()
 				close(newB)
+				s.movesMux.Lock()
 				delete(s.moves, moveUuid)
+				s.movesMux.Unlock()
 			}()
 			for {
 				select {
