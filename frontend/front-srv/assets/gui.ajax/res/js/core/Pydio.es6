@@ -341,7 +341,6 @@ class Pydio extends Observable{
         }
 
         const initLoadRep = (this._initLoadRep && this._initLoadRep !== '/') ? this._initLoadRep.valueOf() : null;
-        console.log("Load Rep ", repository)
         let firstLoadObs = () => {};
         if(initLoadRep){
             firstLoadObs = () => {
@@ -366,7 +365,6 @@ class Pydio extends Observable{
      */
     goTo(nodeOrPath){
 
-        console.log("Going to ", nodeOrPath)
         let gotoNode;
         let path;
         if(typeof(nodeOrPath) === "string"){

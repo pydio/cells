@@ -421,7 +421,6 @@ var Pydio = (function (_Observable) {
         }
 
         var initLoadRep = this._initLoadRep && this._initLoadRep !== '/' ? this._initLoadRep.valueOf() : null;
-        console.log("Load Rep ", repository);
         var firstLoadObs = function firstLoadObs() {};
         if (initLoadRep) {
             firstLoadObs = function () {
@@ -447,7 +446,6 @@ var Pydio = (function (_Observable) {
 
     Pydio.prototype.goTo = function goTo(nodeOrPath) {
 
-        console.log("Going to ", nodeOrPath);
         var gotoNode = undefined;
         var path = undefined;
         if (typeof nodeOrPath === "string") {
