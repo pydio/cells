@@ -101,7 +101,7 @@ class JwtApiClient extends ApiClient{
      * @return {Promise<any>}
      */
     jwtFromAuthorizationCode(code) {
-        return this.jwtWithAuthInfo({code, type:"authorization_code"}, true);
+        return this.jwtWithAuthInfo({code, type:"authorization_code"}, false);
     }
 
 

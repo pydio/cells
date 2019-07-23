@@ -349,7 +349,11 @@ var Pydio = (function (_Observable) {
             this.user.setPreference("pending_folder", "-1");
             this.user.savePreference("pending_folder");
         } else if (this.user && this.Parameters.has('START_FOLDER')) {
-            this._initLoadRep = this.Parameters.get('START_FOLDER');
+            // Checking the start repository is actually the one we are in
+            if (this.Parameters.get('START_REPOSITORY') == repId) {
+                this._initLoadRep = this.Parameters.get('START_FOLDER');
+            }
+            this.Parameters['delete']('START_REPOSITORY');
             this.Parameters['delete']('START_FOLDER');
         }
 
@@ -417,6 +421,7 @@ var Pydio = (function (_Observable) {
         }
 
         var initLoadRep = this._initLoadRep && this._initLoadRep !== '/' ? this._initLoadRep.valueOf() : null;
+        console.log("Load Rep ", repository);
         var firstLoadObs = function firstLoadObs() {};
         if (initLoadRep) {
             firstLoadObs = function () {

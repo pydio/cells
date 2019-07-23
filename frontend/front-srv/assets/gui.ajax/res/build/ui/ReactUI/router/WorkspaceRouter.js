@@ -39,7 +39,6 @@ var WorkspaceRouterWrapper = function WorkspaceRouterWrapper(pydio) {
         WorkspaceRouter.prototype._handle = function _handle(_ref) {
             var params = _ref.params;
 
-            console.log("HERE ");
             // Making sure we redirect to the right workspace based on initial url
             var slug = params.workspaceId.replace("ws-", "");
             var splat = params.splat || "";
@@ -48,8 +47,6 @@ var WorkspaceRouterWrapper = function WorkspaceRouterWrapper(pydio) {
 
             repositories.forEach(function (repository) {
                 if (repository.slug === slug && active !== repository.getId()) {
-
-                    console.log("/" + splat);
                     pydio._initLoadRep = "/" + splat;
                     pydio.triggerRepositoryChange(repository.getId());
                 }

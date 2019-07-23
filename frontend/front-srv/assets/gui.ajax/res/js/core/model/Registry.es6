@@ -63,7 +63,6 @@ export default class Registry{
         if(this._globalLoading) {
             return;
         }
-        console.log("Registry loading")
         this._globalLoading = true;
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             const {user, Parameters} = this._pydioObject;

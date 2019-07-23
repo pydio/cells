@@ -33,9 +33,12 @@ var queryString = require('query-string');
 
 var LoginCallbackRouterWrapper = function LoginCallbackRouterWrapper(pydio) {
     var LoginCallbackRouter = function LoginCallbackRouter(props) {
+        console.log("Routing called");
         var params = queryString.parse(props.location.search);
 
-        PydioApi.getRestClient().jwtFromAuthorizationCode(params.code)['catch'](function (e) {
+        PydioApi.getRestClient().jwtFromAuthorizationCode(params.code).then(function () {
+            return _reactRouterLibBrowserHistory2['default'].push("/");
+        })['catch'](function (e) {
             return _reactRouterLibBrowserHistory2['default'].push("/login");
         });
 

@@ -272,9 +272,14 @@ class Pydio extends Observable{
             this.user.savePreference("pending_folder");
 
         } else if(this.user && this.Parameters.has('START_FOLDER')) {
-            this._initLoadRep = this.Parameters.get('START_FOLDER');
+            // Checking the start repository is actually the one we are in
+            if (this.Parameters.get('START_REPOSITORY') == repId) {
+                this._initLoadRep = this.Parameters.get('START_FOLDER');
+            }
+            this.Parameters.delete('START_REPOSITORY')
             this.Parameters.delete('START_FOLDER');
         }
+
 
         this.loadRepository(repositoryObject);
         this.fire("repository_list_refreshed", {list:repList,active:repId});
@@ -336,6 +341,7 @@ class Pydio extends Observable{
         }
 
         const initLoadRep = (this._initLoadRep && this._initLoadRep !== '/') ? this._initLoadRep.valueOf() : null;
+        console.log("Load Rep ", repository)
         let firstLoadObs = () => {};
         if(initLoadRep){
             firstLoadObs = () => {

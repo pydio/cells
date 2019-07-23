@@ -25,9 +25,11 @@ const queryString = require('query-string');
 
 const LoginCallbackRouterWrapper = (pydio) => {
     const LoginCallbackRouter = (props) => {
+        console.log("Routing called")
         const params = queryString.parse(props.location.search);
 
         PydioApi.getRestClient().jwtFromAuthorizationCode(params.code)
+            .then(() => browserHistory.push("/"))
             .catch(e => browserHistory.push("/login"))
 
         pydio.observe("user_logged", (user) => user && browserHistory.push("/"))

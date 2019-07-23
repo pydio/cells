@@ -96,7 +96,6 @@ var Registry = (function () {
         if (this._globalLoading) {
             return;
         }
-        console.log("Registry loading");
         this._globalLoading = true;
         _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
             var _pydioObject = _this._pydioObject;
