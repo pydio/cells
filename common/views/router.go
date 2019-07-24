@@ -72,9 +72,6 @@ func NewStandardRouter(options RouterOptions) *Router {
 	if options.SynchronousCache {
 		handlers = append(handlers, NewSynchronousCacheHandler())
 	}
-	if options.SynchronousTasks {
-		handlers = append(handlers, &SyncFolderTasksHandler{})
-	}
 	if options.AuditEvent {
 		handlers = append(handlers, &HandlerAuditEvent{})
 	}
@@ -89,6 +86,9 @@ func NewStandardRouter(options RouterOptions) *Router {
 		handlers = append(handlers, &UploadLimitFilter{})
 		handlers = append(handlers, &AclLockFilter{})
 		handlers = append(handlers, &AclQuotaFilter{})
+	}
+	if options.SynchronousTasks {
+		handlers = append(handlers, &SyncFolderTasksHandler{})
 	}
 	handlers = append(handlers, &EncryptionHandler{})
 	handlers = append(handlers, &VersionHandler{})

@@ -64,6 +64,9 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
 	}
 	response, err := a.next.ReadNode(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
 	if accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {
 		n := response.Node.Clone()
 		n.SetMeta(common.META_FLAG_READONLY, "true")

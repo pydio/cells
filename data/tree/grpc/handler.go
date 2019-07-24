@@ -39,9 +39,10 @@ import (
 
 // changesListener is an autoclosing pipe used for fanning out events
 type changesListener struct {
-	in   chan *tree.NodeChangeEvent
-	out  chan *tree.NodeChangeEvent
-	done chan struct{}
+	in      chan *tree.NodeChangeEvent
+	out     chan *tree.NodeChangeEvent
+	done    chan struct{}
+	closing bool
 }
 
 func newListener() *changesListener {
@@ -66,6 +67,7 @@ func newListener() *changesListener {
 }
 
 func (l *changesListener) stop() {
+	l.closing = true
 	close(l.done)
 }
 
@@ -475,7 +477,9 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 func (s *TreeServer) PublishChange(change *tree.NodeChangeEvent) {
 	for _, l := range s.listeners {
-		l.in <- change
+		if !l.closing {
+			l.in <- change
+		}
 	}
 }
 

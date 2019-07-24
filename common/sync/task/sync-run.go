@@ -307,8 +307,8 @@ func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.Endpoint
 		rootInfo.PgSize += 36
 	}
 	if !rootInfo.HasSizeInfo && !rootInfo.HasChildrenInfo {
-		// Publish every 50 nodes
-		if rootInfo.PgChildren%50 != 0 {
+		// Publish every 100 nodes
+		if rootInfo.PgChildren%100 != 0 {
 			return // false
 		} else {
 			return model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes", rootInfo.PgChildren)).SetEndpoint(input.EndpointURI()), true

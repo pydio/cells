@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/micro/go-micro/client"
@@ -31,7 +32,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			log.Logger(ctx).Error("Error during copy/move", zap.Error(p.(error)))
 			oErr = p.(error)
 			go func() {
-				<-time.After(2 * time.Second)
+				<-time.After(10 * time.Second)
 				log.Logger(ctx).Debug("Force close session now:" + session)
 				client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
 					SessionForceClose: session,
@@ -153,86 +154,59 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			}
 		}
 
+		wg := &sync.WaitGroup{}
+		queue := make(chan struct{}, 4)
+		var translate i18n.TranslateFunc
+		if len(tFunc) > 0 {
+			translate = tFunc[0]
+		}
+
+		t := time.Now()
+		var lastNode *tree.Node
+		var errors []error
 		for idx, childNode := range children {
 
-			childPath := childNode.Path
-			relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
-			targetPath := prefixPathTarget + "/" + relativePath
-			targetNode := &tree.Node{Path: targetPath}
-			if targetDsPath != "" {
-				targetNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Join(targetDsPath, relativePath))
+			if idx == len(children)-1 {
+				lastNode = childNode
+				continue
 			}
-			var justCopied *tree.Node
-			justCopied = nil
-			// Copy files - For "Copy" operation, do NOT copy .pydio files
-			if childNode.IsLeaf() && (move || path.Base(childPath) != common.PYDIO_SYNC_HIDDEN_FILE_META) {
+			// copy for inner function
+			childNode := childNode
 
-				logger.Debug("Copy " + childNode.Path + " to " + targetPath)
-				var statusPath = relativePath
-				if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
-					statusPath = path.Dir(statusPath)
-				}
-				status := "Copying " + statusPath
-				if len(tFunc) > 0 {
-					status = strings.Replace(tFunc[0]("Jobs.User.CopyingItem"), "%s", statusPath, -1)
-				}
-				statusChan <- status
-
-				meta := make(map[string]string, 1)
-				if move {
-					meta[common.X_AMZ_META_DIRECTIVE] = "COPY"
-				} else {
-					meta[common.X_AMZ_META_DIRECTIVE] = "REPLACE"
-				}
-				meta[common.XPydioSessionUuid] = session
-				if crossDs {
-					if idx == len(children)-1 {
-						meta[common.XPydioSessionUuid] = "close-" + session
-					}
-					if move {
-						meta[common.XPydioMoveUuid] = childNode.Uuid
-					}
-				}
-				_, e := router.CopyObject(ctx, childNode, targetNode, &CopyRequestData{Metadata: meta})
+			wg.Add(1)
+			queue <- struct{}{}
+			go func() {
+				defer func() {
+					<-queue
+					defer wg.Done()
+				}()
+				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, translate)
 				if e != nil {
-					logger.Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
-					publishError(sourceDs, childNode.Path)
-					publishError(targetDs, targetPath)
-					panic(e)
+					errors = append(errors, e)
+				} else {
+					childrenMoved++
+					progressChan <- float32(childrenMoved) / float32(total)
+					taskLogger.Info("-- Copy/Move Success for " + childNode.Path)
 				}
-				justCopied = targetNode
-				logger.Debug("-- Copy Success: ", zap.String("to", targetPath), childNode.Zap())
-				taskLogger.Info("-- Copied file to: " + targetPath)
+			}()
 
+		}
+		wg.Wait()
+		if len(errors) > 0 {
+			panic(errors[0])
+		}
+		if lastNode != nil {
+			// Now process very last node
+			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, translate)
+			if e != nil {
+				panic(e)
 			}
-
-			// Remove original for move case
-			if move {
-				// If we're sending the last Delete here - then we close the session at the same time
-				if idx == len(children)-1 {
-					session = "close-" + session
-				}
-				delCtx := ctx
-				if crossDs {
-					delCtx = context2.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: childNode.Uuid})
-				}
-				_, moveErr := router.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
-				if moveErr != nil {
-					log.Logger(ctx).Error("-- Delete Error / Reverting Copy", zap.Error(moveErr), childNode.Zap())
-					if justCopied != nil {
-						router.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: justCopied})
-					}
-					publishError(sourceDs, childNode.Path)
-					panic(moveErr)
-				}
-				logger.Debug("-- Delete Success " + childNode.Path)
-				taskLogger.Info("-- Delete Success for " + childNode.Path)
-			}
-
 			childrenMoved++
 			progressChan <- float32(childrenMoved) / float32(total)
 
+			taskLogger.Info("-- Copy/Move Success for " + lastNode.Path)
 		}
+		log.Logger(ctx).Info("Recursive copy operation timing", zap.Duration("duration", time.Now().Sub(t)))
 
 	}
 
@@ -306,4 +280,86 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	}
 
 	return
+}
+
+func processCopyMove(ctx context.Context, handler Handler, session string, move bool, crossDs bool, sourceDs, targetDs string, closeSession bool, childNode *tree.Node, prefixPathSrc, prefixPathTarget, targetDsPath string, logger *zap.Logger, publishError func(string, string), statusChan chan string, tFunc i18n.TranslateFunc) error {
+
+	childPath := childNode.Path
+	relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
+	targetPath := prefixPathTarget + "/" + relativePath
+	targetNode := &tree.Node{Path: targetPath}
+	if targetDsPath != "" {
+		targetNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Join(targetDsPath, relativePath))
+	}
+	var justCopied *tree.Node
+	justCopied = nil
+	// Copy files - For "Copy" operation, do NOT copy .pydio files
+	if childNode.IsLeaf() && (move || path.Base(childPath) != common.PYDIO_SYNC_HIDDEN_FILE_META) {
+
+		logger.Debug("Copy " + childNode.Path + " to " + targetPath)
+		var statusPath = relativePath
+		if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+			statusPath = path.Dir(statusPath)
+		}
+		status := "Copying " + statusPath
+		if tFunc != nil {
+			status = strings.Replace(tFunc("Jobs.User.CopyingItem"), "%s", statusPath, -1)
+		}
+		statusChan <- status
+
+		meta := make(map[string]string, 1)
+		if move {
+			meta[common.X_AMZ_META_DIRECTIVE] = "COPY"
+		} else {
+			meta[common.X_AMZ_META_DIRECTIVE] = "REPLACE"
+		}
+		meta[common.XPydioSessionUuid] = session
+		if crossDs {
+			/*
+				if idx == len(children)-1 {
+					meta[common.XPydioSessionUuid] = "close-" + session
+				}
+			*/
+			if closeSession {
+				meta[common.XPydioSessionUuid] = "close-" + session
+			}
+			if move {
+				meta[common.XPydioMoveUuid] = childNode.Uuid
+			}
+		}
+		_, e := handler.CopyObject(ctx, childNode, targetNode, &CopyRequestData{Metadata: meta})
+		if e != nil {
+			logger.Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+			publishError(sourceDs, childNode.Path)
+			publishError(targetDs, targetPath)
+			return e
+		}
+		justCopied = targetNode
+		logger.Debug("-- Copy Success: ", zap.String("to", targetPath), childNode.Zap())
+
+	}
+
+	// Remove original for move case
+	if move {
+		// If we're sending the last Delete here - then we close the session at the same time
+		if closeSession {
+			session = "close-" + session
+		}
+		delCtx := ctx
+		if crossDs {
+			delCtx = context2.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: childNode.Uuid})
+		}
+		_, moveErr := handler.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
+		if moveErr != nil {
+			log.Logger(ctx).Error("-- Delete Error / Reverting Copy", zap.Error(moveErr), childNode.Zap())
+			if justCopied != nil {
+				handler.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: justCopied})
+			}
+			publishError(sourceDs, childNode.Path)
+			return moveErr
+		}
+		logger.Debug("-- Delete Success " + childNode.Path)
+	}
+
+	return nil
 }
