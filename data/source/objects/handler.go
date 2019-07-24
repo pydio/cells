@@ -132,7 +132,6 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 		if fileInfos, e := afero.ReadDir(t.FS, p); e == nil {
 			for _, info := range fileInfos {
 				fullPath := path.Join(p, info.Name())
-				log.Logger(ctx).Info("- : " + fullPath)
 				if isSymLink, _, _ := t.SymlinkInfo(fullPath, info); !isSymLink && (strings.HasPrefix(info.Name(), ".") || !info.IsDir()) {
 					continue
 				}

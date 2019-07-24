@@ -235,7 +235,6 @@ func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, err
 			dataSources = append(dataSources, ds)
 		}
 	}
-	log.Logger(context.Background()).Info("== source", zap.Any("", dataSources))
 	return dataSources, nil
 }
 
