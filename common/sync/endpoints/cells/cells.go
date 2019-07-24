@@ -84,14 +84,17 @@ type abstract struct {
 	globalCtx         context.Context
 }
 
+// SetUpdateSnapshot registers a snapshot to be updated when events are received from server
 func (c *abstract) SetUpdateSnapshot(target model.PathSyncTarget) {
 	c.updateSnapshot = target
 }
 
+// PatchUpdateSnapshot does nothing
 func (c *abstract) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	// Do nothing - we assume Snapshot was updated directly during Watch when receiving events
 }
 
+// LoadNode forwards call to cli.ReadNode
 func (c *abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 	ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
@@ -117,6 +120,9 @@ func (c *abstract) LoadNode(ctx context.Context, path string, extendedStats ...b
 	return out, nil
 }
 
+// Walk uses cli.ListNodes() to browse nodes starting from a root (recursively or not).
+// Temporary nodes are ignored.
+// Workspaces nodes are ignored if they don't have the WorkspaceSyncable flag in their Metadata
 func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	log.Logger(c.globalCtx).Debug("Walking Router on " + c.rooted(root))
 	ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext())
@@ -178,6 +184,8 @@ func (c *abstract) GetCachedBranches(ctx context.Context, roots ...string) model
 	return memDB
 }
 
+// Watch uses a GRPC connection to listen to events from the Grpc Gateway (wired to the
+// the Tree Service via a Router).
 func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	c.watchConn = make(chan model.WatchConnectionInfo)
@@ -225,6 +233,7 @@ func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 	return obj, nil
 }
 
+// changeValidPath checks if a change event received is to be processed or ignored
 func (c *abstract) changeValidPath(n *tree.Node) bool {
 	if n == nil {
 		return true
@@ -241,6 +250,7 @@ func (c *abstract) changeValidPath(n *tree.Node) bool {
 	return true
 }
 
+// changeToEventInfo transforms a *tree.NodeChangeEvent to the sync model EventInfo.
 func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.EventInfo, send bool) {
 
 	TimeFormatFS := "2006-01-02T15:04:05.000Z"
@@ -303,6 +313,7 @@ func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 	return
 }
 
+// receiveEvents starts a streamer to the GRPC gateway
 func (c *abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeChangeEvent, finished chan error) {
 	ctx, cli, err := c.factory.GetNodeChangesStreamClient(c.getContext(ctx))
 	if err != nil {
@@ -341,10 +352,12 @@ func (c *abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 	}
 }
 
+// ComputeChecksum is not implemented
 func (c *abstract) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
+// CreateNode is used for creating folders only
 func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	ctx, cli, err := c.factory.GetNodeReceiverClient(c.getContext(ctx))
 	if err != nil {
@@ -364,6 +377,8 @@ func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 	return e
 }
 
+// DeleteNode forwards call to the grpc gateway. For folders, the recursive deletion
+// will happen on the gateway side. It may take some time, thus a request timeout of 5 minutes.
 func (c *abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	// Ignore .pydio files !
 	if path.Base(name) == common.PYDIO_SYNC_HIDDEN_FILE_META {
@@ -412,6 +427,7 @@ func (c *abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 	}
 }
 
+// GetWriteOn retrieves a WriteCloser wired to the S3 gateway to PUT a file.
 func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	if targetSize == 0 {
 		//It is working indeed!
@@ -455,6 +471,7 @@ func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 
 }
 
+// GetReaderOn retrieves an io.ReadCloser from the S3 Get operation
 func (c *abstract) GetReaderOn(p string) (out io.ReadCloser, err error) {
 	n := &tree.Node{Path: c.rooted(p)}
 	ctx, cli, err := c.factory.GetObjectsClient(c.getContext())
@@ -465,6 +482,8 @@ func (c *abstract) GetReaderOn(p string) (out io.ReadCloser, err error) {
 	return o, e
 }
 
+// flushRecentMkDirs makes sure all CreateNode request that have been sent are indeed
+// reflected in the server index.
 func (c *abstract) flushRecentMkDirs() {
 	if len(c.recentMkDirs) > 0 {
 		log.Logger(context.Background()).Info("Cells Endpoint: checking that recently created folders are ready...")
@@ -476,6 +495,7 @@ func (c *abstract) flushRecentMkDirs() {
 	}
 }
 
+// readNodeBlocking retries to read a node until it is available (it may habe just been indexed).
 func (c *abstract) readNodeBlocking(n *tree.Node) {
 	// Block until move is correctly indexed
 	model.Retry(func() error {
@@ -488,6 +508,7 @@ func (c *abstract) readNodeBlocking(n *tree.Node) {
 	}, 1*time.Second, 10*time.Second)
 }
 
+// readNodesBlocking wraps many parallel calls to readNodeBlocking.
 func (c *abstract) readNodesBlocking(nodes []*tree.Node) {
 	if len(nodes) == 0 {
 		return
@@ -509,14 +530,18 @@ func (c *abstract) readNodesBlocking(nodes []*tree.Node) {
 	wg.Wait()
 }
 
+// rooted returns the path with the root prefix
 func (c *abstract) rooted(p string) string {
 	return path.Join(c.root, p)
 }
 
+// unrooted returns the path without the root prefix
 func (c *abstract) unrooted(p string) string {
 	return strings.TrimLeft(strings.TrimPrefix(p, c.root), "/")
 }
 
+// getContext prepares a context (either from Background() or from the passed parent
+// context that includes the XPydioClientUuid header.
 func (c *abstract) getContext(ctx ...context.Context) context.Context {
 	var ct context.Context
 	if len(ctx) > 0 {
@@ -530,6 +555,7 @@ func (c *abstract) getContext(ctx ...context.Context) context.Context {
 	return ct
 }
 
+// NoopWriter is a simple writer for ignoring contents
 type NoopWriter struct{}
 
 func (nw *NoopWriter) Write(p []byte) (n int, err error) {

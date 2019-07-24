@@ -15,6 +15,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// BulkLoadNodes streams ReadNode requests from server
 func (c *Remote) BulkLoadNodes(ctx context.Context, nodes map[string]string) (map[string]interface{}, error) {
 	newCtx, cli, err := c.factory.GetNodeProviderStreamClient(ctx)
 	if err != nil {
@@ -44,6 +45,8 @@ func (c *Remote) BulkLoadNodes(ctx context.Context, nodes map[string]string) (ma
 	return results, nil
 }
 
+// CreateNode creates folder, eventually resetting their UUID if the options RenewFolderUuids is set.
+// If an indexation session is started, it stacks all Creates in memory and perform them only at Flush.
 func (c *Remote) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	if c.session != nil {
 		n := node.Clone()
@@ -61,11 +64,13 @@ func (c *Remote) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 	}
 }
 
+// StartSession starts an indexation session.
 func (c *Remote) StartSession(ctx context.Context, rootNode *tree.Node, silent bool) (*tree.IndexationSession, error) {
 	c.session = &tree.IndexationSession{Uuid: uuid.New()}
 	return c.session, nil
 }
 
+// FlushSession sends all creates as a stream to the target server
 func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	if len(c.sessionsCreates) == 0 {
 		return nil
@@ -96,6 +101,7 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	return nil
 }
 
+// FinishSession flushes the session and closes it.
 func (c *Remote) FinishSession(ctx context.Context, sessionUuid string) error {
 	c.FlushSession(ctx, sessionUuid)
 	c.session = nil

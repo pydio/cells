@@ -75,11 +75,14 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 
 }
 
+// DynamicRegistry is an implementation of a Micro Registry that automatically
+// detect the target GRPC port from the discovery endpoint of the target server.
 type DynamicRegistry struct {
 	config *sdk.SdkConfig
 	Micro  registry.Registry
 }
 
+// NewDynamicRegistry creates a new DynamicRegistry from a standard SdkConfig
 func NewDynamicRegistry(config *sdk.SdkConfig) *DynamicRegistry {
 	d := &DynamicRegistry{
 		config: config,
@@ -91,6 +94,7 @@ func NewDynamicRegistry(config *sdk.SdkConfig) *DynamicRegistry {
 	return d
 }
 
+// Refresh deregisters all services and tries to detect service
 func (d *DynamicRegistry) Refresh() error {
 	ss, _ := d.Micro.ListServices()
 	for _, s := range ss {
@@ -104,6 +108,8 @@ func (d *DynamicRegistry) Refresh() error {
 	return nil
 }
 
+// detectService detects target GRPC port and register a fake service to the registry, that
+// will then be used by micro clients.
 func (d *DynamicRegistry) detectService(reload bool) (*registry.Service, error) {
 	host, port, err := detectGrpcPort(d.config, reload)
 	if err != nil {
@@ -123,6 +129,8 @@ func (d *DynamicRegistry) detectService(reload bool) (*registry.Service, error) 
 	}, nil
 }
 
+// RegistryRefreshClient is an implementation of a Micro Client that tries to refresh the registry if a streamer
+// connection is broken (GRPC port may change accross server restart).
 type RegistryRefreshClient struct {
 	w client.Client
 	r *DynamicRegistry

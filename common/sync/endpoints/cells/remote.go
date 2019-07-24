@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
+// RemoteConfig is a dependency-free struct similar to SdkConfig
 type RemoteConfig struct {
 	// Url stores domain name or IP & port to the server.
 	Url string `json:"url"`
@@ -61,6 +62,7 @@ type Remote struct {
 	sessionsCreates []*tree.CreateNodeRequest
 }
 
+// NewRemote creates a new Remote Endpoint
 func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	sdkConfig := &sdk.SdkConfig{
 		Url:           config.Url,
@@ -91,6 +93,7 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	return c
 }
 
+// GetEndpointInfo returns Endpoint information in standard format.
 func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
 		URI: fmt.Sprintf("%s/%s", c.config.Url, c.root),
@@ -102,6 +105,7 @@ func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 
 }
 
+// remoteClientFactory implements the clientProviderFactory interface
 type remoteClientFactory struct {
 	config   *sdk.SdkConfig
 	registry *DynamicRegistry

@@ -96,30 +96,37 @@ func (l *Local) GetEndpointInfo() model.EndpointInfo {
 	}
 }
 
+// localRouterFactory implements the clientProviderFactory interface
 type localRouterFactory struct {
 	router views.Handler
 }
 
+// GetNodeProviderClient returns a usable context and the internal Router
 func (f *localRouterFactory) GetNodeProviderClient(ctx context.Context) (context.Context, tree.NodeProviderClient, error) {
 	return f.userToContext(ctx), f.router, nil
 }
 
+// GetNodeReceiverClient returns the internal Router
 func (f *localRouterFactory) GetNodeReceiverClient(ctx context.Context) (context.Context, tree.NodeReceiverClient, error) {
 	return f.userToContext(ctx), f.router, nil
 }
 
+// GetNodeChangesStreamClient returns the internal Router
 func (f *localRouterFactory) GetNodeChangesStreamClient(ctx context.Context) (context.Context, tree.NodeChangesStreamerClient, error) {
 	return f.userToContext(ctx), f.router, nil
 }
 
+// GetObjectsClient returns the internal Router
 func (f *localRouterFactory) GetObjectsClient(ctx context.Context) (context.Context, objectsClient, error) {
 	return f.userToContext(ctx), f.router, nil
 }
 
+// GetNodeReceiverStreamClient is not yet implemented
 func (f *localRouterFactory) GetNodeReceiverStreamClient(context.Context) (context.Context, tree.NodeReceiverStreamClient, error) {
 	return nil, nil, errors.New("Not Implemented")
 }
 
+// GetNodeProviderStreamClient is not yet implemented
 func (f *localRouterFactory) GetNodeProviderStreamClient(context.Context) (context.Context, tree.NodeProviderStreamerClient, error) {
 	return nil, nil, errors.New("Not Implemented")
 }
