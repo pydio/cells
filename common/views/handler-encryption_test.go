@@ -28,11 +28,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/object"
-
 	. "github.com/smartystreets/goconvey/convey"
 
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -152,8 +151,8 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 		So(e, ShouldBeNil)
 	})
 
-	Convey("Test Get Object wo. Enc", t, func() {
-		reqData := &GetRequestData{}
+	Convey("Test Get Object w. encryption", t, func() {
+		reqData := &GetRequestData{StartOffset: 0, Length: -1}
 		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
 		_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
 		reader, e := handler.GetObject(ctx, &node, reqData)
@@ -165,7 +164,25 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 		So(string(readData), ShouldEqual, data)
 	})
 
-	Convey("Test Get Object wo. Enc", t, func() {
+	Convey("Test Get with supported range 1", t, func() {
+		rangeOffset := 7
+		length := -1
+		reqData := &GetRequestData{
+			Length:      int64(length),
+			StartOffset: int64(rangeOffset),
+		}
+		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+		_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+		reader, e := handler.GetObject(ctx, &node, reqData)
+		So(reader, ShouldNotBeNil)
+		So(e, ShouldBeNil)
+
+		readData, err := ioutil.ReadAll(reader)
+		So(err, ShouldBeNil)
+		So(string(readData), ShouldEqual, data[rangeOffset:])
+	})
+
+	Convey("Test Get Object with supported range 2", t, func() {
 		rangeOffset := 15
 		length := 30
 		reqData := &GetRequestData{
@@ -181,6 +198,38 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 		readData, err := ioutil.ReadAll(reader)
 		So(err, ShouldBeNil)
 		So(string(readData), ShouldEqual, data[rangeOffset:rangeOffset+length])
+	})
+
+	Convey("Test Get Object with supported range 3", t, func() {
+		rangeOffset := 0
+		length := -1
+		reqData := &GetRequestData{
+			Length:      int64(length),
+			StartOffset: int64(rangeOffset),
+		}
+		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+		_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+		reader, e := handler.GetObject(ctx, &node, reqData)
+		So(reader, ShouldNotBeNil)
+		So(e, ShouldBeNil)
+
+		readData, err := ioutil.ReadAll(reader)
+		So(err, ShouldBeNil)
+		So(string(readData), ShouldEqual, data)
+	})
+
+	Convey("Test Get with not supported range", t, func() {
+		rangeOffset := -1
+		length := 0
+		reqData := &GetRequestData{
+			Length:      int64(length),
+			StartOffset: int64(rangeOffset),
+		}
+		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
+		_ = node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, "test")
+		reader, e := handler.GetObject(ctx, &node, reqData)
+		So(e, ShouldNotBeNil)
+		So(reader, ShouldBeNil)
 	})
 }
 

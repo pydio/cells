@@ -1,5 +1,3 @@
-package crypto
-
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -19,6 +17,9 @@ package crypto
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+package crypto
+
 import (
 	"bytes"
 	"crypto/rand"
@@ -464,19 +465,6 @@ type AESGCMEncryptionMaterials struct {
 	lastBlockRange        *encryption.Block
 }
 
-// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM.
-func NewAESGCMMaterials(info *encryption.NodeInfo, blockHandler BlockHandler) *AESGCMEncryptionMaterials {
-	m := new(AESGCMEncryptionMaterials)
-	m.encInfo = info
-	m.encryptedBlockHandler = blockHandler
-	m.reachedRangeLimit = false
-	if info.Node.Legacy {
-		m.plainBlockSize = int32(info.Block.BlockSize)
-		m.nonceBuffer = bytes.NewBuffer(info.Block.Nonce)
-	}
-	return m
-}
-
 func (m *AESGCMEncryptionMaterials) Close() error {
 	if closer, ok := m.stream.(io.Closer); ok {
 		_ = closer.Close()
@@ -560,12 +548,10 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 			totalRead += n
 			m.totalProcessedServed += int64(n)
 			if totalRead == l {
-				log.Println("done encrypt-reading")
 				return totalRead, nil
 			}
 
 		} else if m.eof {
-			log.Println("done encrypt-reading. reached EOF")
 			return totalRead, io.EOF
 		}
 
@@ -573,7 +559,6 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 		buff := make([]byte, defaultBlockSize)
 		count, err := readMax(m.stream, buff)
 		if err != nil {
-			log.Println("read max with error=", err)
 			m.eof = err == io.EOF
 			if !m.eof {
 				return 0, err
@@ -704,11 +689,23 @@ func readMax(reader io.Reader, buff []byte) (int, error) {
 	return totalRead, nil
 }
 
+// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM.
+func NewAESGCMMaterials(info *encryption.NodeInfo, blockHandler BlockHandler) *AESGCMEncryptionMaterials {
+	m := new(AESGCMEncryptionMaterials)
+	m.encInfo = info
+	m.encryptedBlockHandler = blockHandler
+	m.reachedRangeLimit = false
+	if info.Node.Legacy {
+		m.plainBlockSize = int32(info.Block.BlockSize)
+		m.nonceBuffer = bytes.NewBuffer(info.Block.Nonce)
+	}
+	return m
+}
+
 type legacyReadMaterials struct {
-	encryptedReader    io.Reader
-	eof                bool
-	bufferedPlainBytes *bytes.Buffer
-	//bufferedUnread   *bytes.Buffer
+	encryptedReader        io.Reader
+	eof, withRange         bool
+	bufferedPlainBytes     *bytes.Buffer
 	encryptionKey          []byte
 	encryptedBlockSize     int32
 	plainBlockSize         int32
@@ -727,17 +724,6 @@ type legacyReadMaterials struct {
 	plainDataStreamCursor  int64
 	rangeSet               bool
 	reachedRangeLimit      bool
-}
-
-// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM
-func NewRangeAESGCMMaterials(info *encryption.NodeInfo) *legacyReadMaterials {
-	m := new(legacyReadMaterials)
-	m.rangeSet = false
-	m.reachedRangeLimit = false
-	m.plainBlockSize = int32(info.Block.BlockSize)
-	m.nonceBuffer = bytes.NewBuffer(info.Block.Nonce)
-	m.nonceBytes = info.Block.Nonce
-	return m
 }
 
 // Close closes the underlying stream
@@ -764,6 +750,8 @@ func (m *legacyReadMaterials) SetPlainRange(offset, length int64) error {
 	if m.plainRangeLimit < 0 {
 		return errors.New("negative range length value")
 	}
+
+	m.withRange = true
 	return nil
 }
 
@@ -818,15 +806,18 @@ func (m *legacyReadMaterials) SetupDecryptMode(workingKey []byte, stream io.Read
 }
 
 func (m *legacyReadMaterials) decryptRead(b []byte) (int, error) {
-	leftToRead := m.plainRangeLimit - m.plainRangeOffset - m.totalPlainBytesRead
-	if leftToRead == 0 {
-		return 0, io.EOF
+	leftToRead := int64(0)
+	if m.withRange {
+		leftToRead := m.plainRangeLimit - m.plainRangeOffset - m.totalPlainBytesRead
+		if leftToRead == 0 {
+			return 0, io.EOF
+		}
 	}
 
 	var totalPlainBytesRead = 0
 	l := len(b)
 
-	if leftToRead > int64(l) {
+	if leftToRead == 0 || leftToRead > int64(l) {
 		leftToRead = int64(l)
 	}
 
@@ -840,7 +831,8 @@ func (m *legacyReadMaterials) decryptRead(b []byte) (int, error) {
 			totalPlainBytesRead += n
 			m.totalPlainBytesRead += int64(n)
 
-			m.reachedRangeLimit = m.plainRangeLimit == m.plainRangeOffset+int64(m.totalPlainBytesRead)
+			m.reachedRangeLimit = m.withRange && m.plainRangeLimit == m.plainRangeOffset+int64(m.totalPlainBytesRead)
+
 			if totalPlainBytesRead == l || m.reachedRangeLimit {
 				return totalPlainBytesRead, nil
 			}
@@ -849,7 +841,7 @@ func (m *legacyReadMaterials) decryptRead(b []byte) (int, error) {
 			//we leave if we reached the limit or the end of original stream
 			return totalPlainBytesRead, io.EOF
 
-		} else if m.plainDataStreamCursor == m.plainRangeLimit {
+		} else if m.plainRangeLimit > 0 && m.plainDataStreamCursor == m.plainRangeLimit {
 			m.reachedRangeLimit = true
 			return totalPlainBytesRead, io.EOF
 		}
@@ -881,21 +873,34 @@ func (m *legacyReadMaterials) decryptRead(b []byte) (int, error) {
 			}
 			encryptedBufferCursor = 0
 
-			// We skip out of range data
-			if m.plainDataStreamCursor < m.plainRangeOffset {
-				bytesToConsumeSize := int(m.plainRangeOffset - m.plainDataStreamCursor)
-				if bytesToConsumeSize > len(opened) {
-					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(len(opened))
-					opened = opened[0:0]
-				} else {
-					m.plainDataStreamCursor = m.plainDataStreamCursor + int64(bytesToConsumeSize)
-					opened = opened[bytesToConsumeSize:]
+			if m.withRange {
+				// We skip out of range data
+				if m.plainDataStreamCursor < m.plainRangeOffset {
+					bytesToConsumeSize := int(m.plainRangeOffset - m.plainDataStreamCursor)
+					if bytesToConsumeSize > len(opened) {
+						m.plainDataStreamCursor = m.plainDataStreamCursor + int64(len(opened))
+						opened = opened[0:0]
+					} else {
+						m.plainDataStreamCursor = m.plainDataStreamCursor + int64(bytesToConsumeSize)
+						opened = opened[bytesToConsumeSize:]
+					}
 				}
 			}
-
 			// feed plain data buffer
 			m.bufferedPlainBytes.Write(opened)
 		}
 	}
 	return totalPlainBytesRead, nil
+}
+
+// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM
+func NewLegacyAESGCMMaterials(info *encryption.NodeInfo) *legacyReadMaterials {
+	m := new(legacyReadMaterials)
+	m.rangeSet = false
+	m.reachedRangeLimit = false
+	m.plainBlockSize = int32(info.Block.BlockSize)
+	m.nonceBuffer = bytes.NewBuffer(info.Block.Nonce)
+	m.nonceBytes = info.Block.Nonce
+	m.withRange = false
+	return m
 }

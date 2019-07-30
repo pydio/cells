@@ -28,7 +28,6 @@ import (
 
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
-	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -39,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/idm/key"
+	"github.com/pydio/minio-go"
 )
 
 //EncryptionHandler encryption node middleware
@@ -116,11 +116,21 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		return nil, err
 	}
 
-	fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == node.Size)
+	boundariesOk := requestData.StartOffset >= 0 && requestData.StartOffset <= clone.Size
+	boundariesOk = boundariesOk && (requestData.Length == -1 || requestData.Length > 0 && requestData.StartOffset+requestData.Length <= clone.Size)
+
+	if !boundariesOk {
+		return nil, errors.New("views.handler.encryption.GetObject", "wrong range", 400)
+	}
+
+	fullRead := requestData.StartOffset == 0 && (requestData.Length <= 0 || requestData.Length == clone.Size)
+	if requestData.Length <= 0 {
+		requestData.Length = clone.Size
+	}
 
 	if info.Node.Legacy {
-		eMat := crypto.NewRangeAESGCMMaterials(info)
-		rangeRequestData := &GetRequestData{VersionId: requestData.VersionId, Length: -1}
+		eMat := crypto.NewLegacyAESGCMMaterials(info)
+		rangeRequestData := &GetRequestData{VersionId: requestData.VersionId, StartOffset: 0, Length: -1}
 		if !fullRead {
 			err = eMat.SetPlainRange(requestData.StartOffset, requestData.Length)
 			if err != nil {
