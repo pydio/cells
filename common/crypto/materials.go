@@ -33,7 +33,8 @@ import (
 	"github.com/pydio/cells/common/proto/encryption"
 )
 
-var defaultBlockSize = int64(10 * 1024 * 1024)
+// defaultBlockSize minimal size of block files are chunk into
+var defaultBlockSize = int64(10485760) // 10Mb
 
 const (
 	AESGCMAuthTagSize = 16
@@ -463,10 +464,9 @@ type AESGCMEncryptionMaterials struct {
 	lastBlockRange        *encryption.Block
 }
 
-// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM
+// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM.
 func NewAESGCMMaterials(info *encryption.NodeInfo, blockHandler BlockHandler) *AESGCMEncryptionMaterials {
 	m := new(AESGCMEncryptionMaterials)
-	m.encryptionKey = info.NodeKey.KeyData
 	m.encInfo = info
 	m.encryptedBlockHandler = blockHandler
 	m.reachedRangeLimit = false
@@ -510,7 +510,6 @@ func (m *AESGCMEncryptionMaterials) CalculateOutputSize(plainSize int64, user st
 	var header EncryptedBlockHeader
 	header.Options = new(Options)
 	header.Options.UserId = user
-	header.Options.Key = make([]byte, 32)
 	header.Nonce = make([]byte, 12)
 
 	buffer := bytes.NewBuffer([]byte{})
@@ -525,18 +524,20 @@ func (m *AESGCMEncryptionMaterials) CalculateOutputSize(plainSize int64, user st
 	return encryptedBlockSize
 }
 
-func (m *AESGCMEncryptionMaterials) SetupEncryptMode(stream io.Reader) error {
+func (m *AESGCMEncryptionMaterials) SetupEncryptMode(workingKey []byte, stream io.Reader) error {
 	m.mode = 1
 	m.stream = stream
+	m.encryptionKey = workingKey
 	m.totalProcessedServed = 0
 	m.eof = false
 	m.bufferedProcessed = bytes.NewBuffer([]byte{})
 	return nil
 }
 
-func (m *AESGCMEncryptionMaterials) SetupDecryptMode(stream io.Reader) error {
+func (m *AESGCMEncryptionMaterials) SetupDecryptMode(workingKey []byte, stream io.Reader) error {
 	m.mode = 2
 	m.stream = stream
+	m.encryptionKey = workingKey
 	m.totalProcessedServed = 0
 	m.eof = false
 	m.bufferedProcessed = bytes.NewBuffer([]byte{})
@@ -591,7 +592,6 @@ func (m *AESGCMEncryptionMaterials) encryptRead(b []byte) (int, error) {
 			h := new(EncryptedBlockHeader)
 			h.Nonce = nonce
 			h.Options = new(Options)
-			h.Options.Key = m.encInfo.NodeKey.KeyData
 			h.Options.UserId = m.encInfo.NodeKey.OwnerId
 
 			b := &EncryptedBlock{}
@@ -704,9 +704,6 @@ func readMax(reader io.Reader, buff []byte) (int, error) {
 	return totalRead, nil
 }
 
-//*************************************************
-//		RANGE ENCRYPTION MATERIAL READER
-//*************************************************
 type legacyReadMaterials struct {
 	encryptedReader    io.Reader
 	eof                bool
@@ -735,7 +732,6 @@ type legacyReadMaterials struct {
 // NewRangeAESGCMMaterials creates an encryption materials that use AES GCM
 func NewRangeAESGCMMaterials(info *encryption.NodeInfo) *legacyReadMaterials {
 	m := new(legacyReadMaterials)
-	m.encryptionKey = info.NodeKey.KeyData
 	m.rangeSet = false
 	m.reachedRangeLimit = false
 	m.plainBlockSize = int32(info.Block.BlockSize)
@@ -807,13 +803,14 @@ func (m *legacyReadMaterials) calculateEncryptedSize(plainFileLength int64) int6
 	return encryptedFileSize
 }
 
-// SetupDecryptMode set underlying read function in decrypt mode
-func (m *legacyReadMaterials) SetupDecryptMode(stream io.Reader) error {
+// SetupDecryptMode sets the underlying read function in decrypt mode.
+func (m *legacyReadMaterials) SetupDecryptMode(workingKey []byte, stream io.Reader) error {
 	m.bufferedPlainBytes = bytes.NewBuffer([]byte{})
 	m.blockSizeFixed = true
 	m.encryptedBlockSize = m.plainBlockSize + AESGCMAuthTagSize
 	m.nonceBuffer = bytes.NewBuffer(m.nonceBytes[m.skippedPlainBlockCount*AESGCMNonceSize:])
 	m.encryptedReader = stream
+	m.encryptionKey = workingKey
 	m.eof = false
 	m.blockCount = 0
 	m.totalEncryptedRead = 0

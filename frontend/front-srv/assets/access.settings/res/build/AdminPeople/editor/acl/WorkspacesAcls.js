@@ -22,6 +22,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _WorkspaceAcl = require('./WorkspaceAcl');
@@ -44,7 +48,9 @@ var WorkspacesAcls = (function (_React$Component) {
             scope: 'ADMIN'
         })];
         api.searchWorkspaces(request).then(function (collection) {
-            _this.setState({ workspaces: collection.Workspaces || [] });
+            var workspaces = collection.Workspaces || [];
+            workspaces.sort(_pydioUtilLang2['default'].arraySorter('Label', false, true));
+            _this.setState({ workspaces: workspaces });
         });
     }
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import LangUtils from 'pydio/util/lang'
 import {IdmWorkspace, TreeNode} from 'pydio/http/rest-api';
 import WorkspaceAcl from './WorkspaceAcl'
 
@@ -25,6 +26,7 @@ class PagesAcls extends React.Component{
             settingsWorkspace.RootNodes = {"settings-ROOT": TreeNode.constructFromObject({Uuid:"settings-ROOT"})};
             workspaces.push(settingsWorkspace);
         }
+        workspaces.sort(LangUtils.arraySorter('Label', false, true));
         this.state = {workspaces};
     }
 

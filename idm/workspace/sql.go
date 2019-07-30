@@ -28,12 +28,12 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
 )
@@ -47,7 +47,7 @@ var (
 	}
 )
 
-// Impl of the Mysql interface
+// Impl of the SQL interface
 type sqlimpl struct {
 	*sql.Handler
 
@@ -87,7 +87,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
-// Add to the mysql DB
+// Add to the SQL DB.
 func (s *sqlimpl) Add(in interface{}) (bool, error) {
 
 	workspace, ok := in.(*idm.Workspace)
@@ -130,7 +130,7 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 	return update, nil
 }
 
-// slugExists check in the DB if the slug already exists
+// slugExists check in the DB if the slug already exists.
 func (s *sqlimpl) slugExists(slug string) bool {
 	if slug == common.PYDIO_DOCSTORE_BINARIES_NAMESPACE || slug == common.PYDIO_THUMBSTORE_NAMESPACE || slug == common.PYDIO_VERSIONS_NAMESPACE {
 		return true
@@ -181,7 +181,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 	return nil
 }
 
-// Del from the mysql DB
+// Del from the SQL DB
 func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	//whereString := sql.NewDAOQuery(query, new(queryConverter)).String()

@@ -24,7 +24,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/packr"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/common"
 	service "github.com/pydio/cells/common/service/proto"
@@ -42,14 +42,14 @@ var (
 	}
 )
 
-// Impl of the Mysql interface
+// Implementation of the SQL interface.
 type ResourcesSQL struct {
 	*sql.Handler
 
 	LeftIdentifier string
 }
 
-// Add to the mysql DB
+// Init performs necessary up migration.
 func (s *ResourcesSQL) Init(options common.ConfigValues) error {
 
 	migrations := &sql.PackrMigrationSource{

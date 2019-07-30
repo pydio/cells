@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	config2 "github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -166,7 +166,7 @@ func initLogger() *zap.Logger {
 	return logger
 }
 
-// Logger returns a zap logger with as much context as possible
+// Logger returns a zap logger with as much context as possible.
 func Logger(ctx context.Context) *zap.Logger {
 	newLogger := initLogger()
 	if ctx != nil {
@@ -208,7 +208,7 @@ func Auditer(ctx context.Context) *zap.Logger {
 	return newLogger
 }
 
-// Auditer returns a zap logger with as much context as possible
+// TasksLogger returns a zap logger with as much context as possible.
 func TasksLogger(ctx context.Context) *zap.Logger {
 	if TasksLoggerImpl == nil {
 		return zap.New(nil)
@@ -225,7 +225,7 @@ func TasksLogger(ctx context.Context) *zap.Logger {
 	return newLogger
 }
 
-// GetAuditId simply returns a zap field that contains this message id to ease audit log analysis
+// GetAuditId simply returns a zap field that contains this message id to ease audit log analysis.
 func GetAuditId(msgId string) zapcore.Field {
 	return zap.String(common.KEY_MSG_ID, msgId)
 }

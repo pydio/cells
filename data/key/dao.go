@@ -39,6 +39,7 @@ type DAO interface {
 	CopyNode(srcUuid, targetUuid string) error
 
 	SaveNode(node *encryption.Node) error
+	UpgradeNodeVersion(nodeUuid string) error
 	GetNode(nodeUuid string) (*encryption.Node, error)
 	DeleteNode(nodeUuid string) error
 

@@ -110,7 +110,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		return nil, err
 	}
 
-	info.NodeKey.KeyData, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
+	plainKey, err := keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.GetObject: failed to decrypt materials key", zap.String("user", dsName), zap.Error(err))
 		return nil, err
@@ -133,7 +133,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		if err != nil {
 			return nil, err
 		}
-		return eMat, eMat.SetupDecryptMode(reader)
+		return eMat, eMat.SetupDecryptMode(plainKey, reader)
 
 	} else {
 		eMat := crypto.NewAESGCMMaterials(info, nil)
@@ -149,7 +149,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		if err != nil {
 			return nil, err
 		}
-		return eMat, eMat.SetupDecryptMode(reader)
+		return eMat, eMat.SetupDecryptMode(plainKey, reader)
 	}
 }
 
@@ -203,6 +203,8 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 		ctx:      ctx,
 	}
 
+	var encryptionKeyPlainBytes []byte
+
 	info, err := e.getNodeInfoForWrite(ctx, clone)
 	if err != nil {
 		if errors.Parse(err.Error()).Code != 404 {
@@ -215,7 +217,7 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 			return 0, err
 		}
 
-		plainKeyData := info.NodeKey.KeyData
+		encryptionKeyPlainBytes = info.NodeKey.KeyData
 		info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to encrypt node key", zap.Error(err))
@@ -227,10 +229,9 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to set nodeKey", zap.Error(err))
 			return 0, err
 		}
-		info.NodeKey.KeyData = plainKeyData
 
 	} else {
-		info.NodeKey.KeyData, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
+		encryptionKeyPlainBytes, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to decrypt key", zap.Error(err))
 			return 0, err
@@ -245,7 +246,7 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 	}
 
 	encryptionMaterials := crypto.NewAESGCMMaterials(info, streamer)
-	if err := encryptionMaterials.SetupEncryptMode(reader); err != nil {
+	if err := encryptionMaterials.SetupEncryptMode(encryptionKeyPlainBytes, reader); err != nil {
 		return 0, err
 	}
 
@@ -398,7 +399,7 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 
 	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	if dsName == "" {
-		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, branchInfo.Name)
+		_ = clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, branchInfo.Name)
 	}
 
 	keyProtectionTool, err := e.getKeyProtectionTool(ctx)
@@ -431,8 +432,8 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 			return "", err
 		}
 
-		plainEncryptionKey := info.NodeKey.KeyData
-		info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, plainEncryptionKey)
+		encryptionKeyPlainBytes := info.NodeKey.KeyData
+		info.NodeKey.KeyData, err = keyProtectionTool.GetEncrypted(ctx, branchInfo.EncryptionKey, encryptionKeyPlainBytes)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to encrypt node key", zap.Error(err))
 			return "", err
@@ -510,14 +511,15 @@ func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *
 		return minio.ObjectPart{}, err
 	}
 
-	info.NodeKey.KeyData, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
+	var encryptionKeyPlainBytes []byte
+	encryptionKeyPlainBytes, err = keyProtectionTool.GetDecrypted(ctx, branchInfo.EncryptionKey, info.NodeKey.KeyData)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.MultiPartPutObject: failed to unseal key", zap.Error(err))
 		return minio.ObjectPart{}, err
 	}
 
 	encryptionMaterials := crypto.NewAESGCMMaterials(info, nodeBlocksStreamer)
-	if err := encryptionMaterials.SetupEncryptMode(reader); err != nil {
+	if err := encryptionMaterials.SetupEncryptMode(encryptionKeyPlainBytes, reader); err != nil {
 		return minio.ObjectPart{}, err
 	}
 

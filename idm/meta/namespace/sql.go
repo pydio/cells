@@ -26,7 +26,7 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
 	migrate "github.com/rubenv/sql-migrate"
@@ -40,7 +40,7 @@ var (
 	}
 )
 
-// Impl of the Mysql interface
+// Impl of the SQL interface
 type sqlimpl struct {
 	*sql.Handler
 

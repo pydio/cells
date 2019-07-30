@@ -82,9 +82,7 @@ export default React.createClass({
                 summary: summary
             });
         });
-        data.sort((a,b) => {
-            return a.label > b.label ? 1 : ( a.label < b.label ? -1 : 0);
-        });
+        data.sort(LangUtils.arraySorter('label', false, true));
         return data;
     },
 

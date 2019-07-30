@@ -39,7 +39,7 @@ import (
 	"time"
 )
 
-//Template specs for generating a certificate
+// Template specs for generating a certificate.
 type Template struct {
 	Name              string
 	Domains           []string
@@ -84,7 +84,7 @@ func serviceKeyUsage() x509.KeyUsage {
 	return x509.KeyUsageKeyEncipherment | x509.KeyUsageDataEncipherment
 }
 
-//GenerateCACertificate generates a certificate for a CA
+// GenerateCACertificate generates a certificate for a CA.
 func GenerateCACertificate(t *Template) (*x509.Certificate, error) {
 
 	notBefore := time.Now()
@@ -120,12 +120,12 @@ func GenerateCACertificate(t *Template) (*x509.Certificate, error) {
 
 	certBytes, err := x509.CreateCertificate(rand.Reader, template, template, t.PublicKey, t.SignerPrivateKey)
 	if err != nil {
-		return nil, errors.New("Failed to create CA certificate: " + err.Error())
+		return nil, errors.New("could not create CA certificate: " + err.Error())
 	}
 	return x509.ParseCertificate(certBytes)
 }
 
-//GenerateServiceCertificate generates a certificate for a service
+// GenerateServiceCertificate generates a certificate for a service.
 func GenerateServiceCertificate(t *Template) (*x509.Certificate, error) {
 
 	notBefore := time.Now()
@@ -165,7 +165,7 @@ func GenerateServiceCertificate(t *Template) (*x509.Certificate, error) {
 	return x509.ParseCertificate(bytes)
 }
 
-//LoadPrivateKey load encrypted private key from "file" and decrypts it
+// LoadPrivateKey loads the encrypted private key from the passed file and decrypts it.
 func LoadPrivateKey(password []byte, file string) (crypto.PrivateKey, error) {
 	keyBytes, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -174,16 +174,16 @@ func LoadPrivateKey(password []byte, file string) (crypto.PrivateKey, error) {
 
 	block, _ := pem.Decode(keyBytes)
 	if block == nil {
-		return nil, errors.New("Failed to decode the private key: " + err.Error())
+		return nil, errors.New("could not decode the private key: " + err.Error())
 	}
 
 	if block.Type != "RSA PRIVATE KEY" && block.Type != "ECDSA PRIVATE KEY" {
-		return nil, errors.New("Not supported key")
+		return nil, errors.New("unsupported key type: " + block.Type)
 	}
 
 	keyBytes, err = x509.DecryptPEMBlock(block, password)
 	if err != nil {
-		return nil, errors.New("Failed to decrypt CA key: " + err.Error())
+		return nil, errors.New("could decrypt CA key: " + err.Error())
 	}
 
 	if block.Type == "RSA PRIVATE KEY" {
@@ -193,7 +193,7 @@ func LoadPrivateKey(password []byte, file string) (crypto.PrivateKey, error) {
 	return x509.ParseECPrivateKey(keyBytes)
 }
 
-//StorePrivateKey encrypts the private key and save it in "file"
+// StorePrivateKey encrypts the private key and stores it in the returned file.
 func StorePrivateKey(key crypto.PrivateKey, password []byte, file string) error {
 	var block *pem.Block
 	var err error
@@ -209,7 +209,7 @@ func StorePrivateKey(key crypto.PrivateKey, password []byte, file string) error 
 		block = &pem.Block{Type: "ECDSA PRIVATE KEY", Bytes: bytes}
 
 	} else {
-		return errors.New("Not supported")
+		return errors.New("unsupported key type")
 	}
 
 	block, err = x509.EncryptPEMBlock(rand.Reader, block.Type, block.Bytes, password, x509.PEMCipherAES256)
@@ -219,7 +219,7 @@ func StorePrivateKey(key crypto.PrivateKey, password []byte, file string) error 
 	return ioutil.WriteFile(file, pem.EncodeToMemory(block), 0600)
 }
 
-//LoadCertificate load file contenant and decode it into a x509.Certificate
+// LoadCertificate loads file contenant and decodes it into a x509.Certificate.
 func LoadCertificate(file string) (*x509.Certificate, error) {
 	certBytes, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -228,7 +228,7 @@ func LoadCertificate(file string) (*x509.Certificate, error) {
 	return x509.ParseCertificate(certBytes)
 }
 
-//StoreCertificate encode certificate and store the result in "file"
+// StoreCertificate encodes certificate and stores the result in file.
 func StoreCertificate(cert *x509.Certificate, file string, perm os.FileMode) error {
 	return ioutil.WriteFile(file, cert.Raw, perm)
 }

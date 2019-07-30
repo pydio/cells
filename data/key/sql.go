@@ -239,6 +239,15 @@ func (h *sqlimpl) SaveNode(node *encryption.Node) error {
 	return err
 }
 
+func (h *sqlimpl) UpgradeNodeVersion(nodeUuid string) error {
+	stmt := h.GetStmt("node_update")
+	if stmt == nil {
+		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_update")
+	}
+	_, err := stmt.Exec(0, nodeUuid)
+	return err
+}
+
 func (h *sqlimpl) GetNode(nodeUuid string) (*encryption.Node, error) {
 	stmt := h.GetStmt("node_select")
 	if stmt == nil {

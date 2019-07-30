@@ -32,8 +32,9 @@ package crypto
 import (
 	"testing"
 
-	"github.com/smartystreets/goconvey/convey"
 	"github.com/zalando/go-keyring"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestKeyring(t *testing.T) {
@@ -44,19 +45,19 @@ func TestKeyring(t *testing.T) {
 		serviceName = "pydio.tests"
 	)
 
-	convey.Convey("Save password in keyring", t, func() {
+	Convey("Save password in keyring", t, func() {
 		err := SetKeyringPassword(serviceName, user, []byte(password))
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 	})
 
-	convey.Convey("Get password as Bytes", t, func() {
+	Convey("Get password as Bytes", t, func() {
 		bytes, err := GetKeyringPassword(serviceName, user, false)
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(string(bytes), convey.ShouldEqual, password)
+		So(err, ShouldBeNil)
+		So(string(bytes), ShouldEqual, password)
 	})
 
-	convey.Convey("Delete password from keyring", t, func() {
+	Convey("Delete password from keyring", t, func() {
 		err := keyring.Delete(serviceName, user)
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 	})
 }

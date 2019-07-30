@@ -233,6 +233,12 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 				return err
 			}
 
+			err = dao.UpgradeNodeVersion(req.SetBlock.NodeUuid)
+			if err != nil {
+				log.Logger(ctx).Error("failed to upgrade node version", zap.Error(err))
+				return err
+			}
+
 		case "block":
 			if nodeUuid == "" {
 				nodeUuid = req.SetBlock.NodeUuid

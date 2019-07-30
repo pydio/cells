@@ -38,7 +38,7 @@ import (
 
 	"github.com/gobuffalo/packr"
 	"github.com/pborman/uuid"
-	"github.com/rubenv/sql-migrate"
+	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -285,7 +285,7 @@ func (dao *IndexSQL) CleanResourcesOnDeletion() (error, string) {
 	return nil, "Removed tables for index"
 }
 
-// AddNode to the mysql database
+// AddNode to the underlying SQL DB.
 func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 
 	dao.Lock()
@@ -332,7 +332,7 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 	return nil
 }
 
-// AddNodeStream creates a channel to write to the database to the mysql database
+// AddNodeStream creates a channel to write to the SQL database
 func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 
 	c := make(chan *mtree.TreeNode)
@@ -670,7 +670,7 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 
 }
 
-// SetNodes returns a channel and waits for arriving nodes before updating them in batch
+// SetNodes returns a channel and waits for arriving nodes before updating them in batch.
 func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 
 	b := NewBatchSend()

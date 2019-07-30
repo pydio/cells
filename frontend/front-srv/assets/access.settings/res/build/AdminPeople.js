@@ -2193,6 +2193,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _WorkspaceAcl = require('./WorkspaceAcl');
@@ -2227,6 +2231,7 @@ var PagesAcls = (function (_React$Component) {
             settingsWorkspace.RootNodes = { "settings-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "settings-ROOT" }) };
             workspaces.push(settingsWorkspace);
         }
+        workspaces.sort(_pydioUtilLang2['default'].arraySorter('Label', false, true));
         this.state = { workspaces: workspaces };
     }
 
@@ -2259,7 +2264,7 @@ var PagesAcls = (function (_React$Component) {
 exports['default'] = PagesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":14,"pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],11:[function(require,module,exports){
+},{"./WorkspaceAcl":14,"pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3052,6 +3057,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _WorkspaceAcl = require('./WorkspaceAcl');
@@ -3074,7 +3083,9 @@ var WorkspacesAcls = (function (_React$Component) {
             scope: 'ADMIN'
         })];
         api.searchWorkspaces(request).then(function (collection) {
-            _this.setState({ workspaces: collection.Workspaces || [] });
+            var workspaces = collection.Workspaces || [];
+            workspaces.sort(_pydioUtilLang2['default'].arraySorter('Label', false, true));
+            _this.setState({ workspaces: workspaces });
         });
     }
 
@@ -3109,7 +3120,7 @@ var WorkspacesAcls = (function (_React$Component) {
 exports['default'] = WorkspacesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":14,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],16:[function(require,module,exports){
+},{"./WorkspaceAcl":14,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

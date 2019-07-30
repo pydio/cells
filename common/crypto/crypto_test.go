@@ -25,7 +25,7 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/smartystreets/goconvey/convey"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -38,23 +38,23 @@ var (
 
 func Test(t *testing.T) {
 
-	convey.Convey("Derive password", t, func() {
+	Convey("Derive password", t, func() {
 		key = KeyFromPassword([]byte(password), keySize)
-		convey.So(key, convey.ShouldNotBeNil)
-		convey.So(len(key), convey.ShouldEqual, keySize)
+		So(key, ShouldNotBeNil)
+		So(len(key), ShouldEqual, keySize)
 
 		plain = make([]byte, 64)
 		_, err := rand.Read(plain)
-		convey.So(err, convey.ShouldBeNil)
+		So(err, ShouldBeNil)
 
 		ciphered, err = Seal(key, plain)
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(ciphered, convey.ShouldNotBeNil)
+		So(err, ShouldBeNil)
+		So(ciphered, ShouldNotBeNil)
 
 		deciphered, err := Open(key, ciphered[:12], ciphered[12:])
-		convey.So(err, convey.ShouldBeNil)
-		convey.So(deciphered, convey.ShouldNotBeNil)
-		convey.So(base64.StdEncoding.EncodeToString(deciphered), convey.ShouldEqual, base64.StdEncoding.EncodeToString(plain))
+		So(err, ShouldBeNil)
+		So(deciphered, ShouldNotBeNil)
+		So(base64.StdEncoding.EncodeToString(deciphered), ShouldEqual, base64.StdEncoding.EncodeToString(plain))
 	})
 
 }

@@ -20,7 +20,7 @@
 
 // Package user implements basic user and group persistence layer.
 //
-// It is currently backed by a MySQL db.
+// It is currently backed by a SQL db.
 package user
 
 import (
