@@ -30258,6 +30258,10 @@
               {
                 "name": "isFunc",
                 "type": null
+              },
+              {
+                "name": "toLower",
+                "type": null
               }
             ],
             "returns": null
@@ -36999,18 +37003,6 @@
         "description": "",
         "displayName": "SingleJobProgress",
         "methods": [
-          {
-            "name": "filterTasks",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "tasks",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
           {
             "name": "reloadTask",
             "docblock": null,
