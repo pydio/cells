@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 // Package i18n wraps go-i18n lib for manipulating bundles
 package i18n
 

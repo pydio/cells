@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package model gathers the main structs and interfaces used in sync library.
 package model
 
 type SyncCmd int

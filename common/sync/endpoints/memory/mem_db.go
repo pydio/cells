@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 // Package memory provides an in-memory basic implementation of an Endpoint, with nodes stored in a map.
 package memory
 
