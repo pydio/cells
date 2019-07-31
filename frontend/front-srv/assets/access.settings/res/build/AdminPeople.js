@@ -2968,6 +2968,19 @@ exports['default'] = React.createClass({
         var role = _props3.role;
         var advancedAcl = _props3.advancedAcl;
 
+        console.log(workspace);
+        if (!workspace.RootNodes || !Object.keys(workspace.RootNodes).length) {
+            // This is not normal, a workspace should always have a root node!
+            return React.createElement(PydioComponents.ListEntry, {
+                className: "workspace-acl-entry",
+                firstLine: React.createElement(
+                    'span',
+                    { style: { textDecoration: 'line-through', color: '#ef9a9a' } },
+                    workspace.Label + ' (' + this.context.getPydioRoleMessage('workspace.roots.invalid') + ')'
+                )
+            });
+        }
+
         var _role$getAclString = role.getAclString(workspace);
 
         var aclString = _role$getAclString.aclString;
@@ -7153,13 +7166,25 @@ var Conditions = (function (_React$Component) {
     _createClass(Conditions, [{
         key: 'onConditionAdd',
         value: function onConditionAdd(event, fieldName) {
-            var rule = this.props.rule;
+            var _props = this.props;
+            var rule = _props.rule;
+            var pydio = _props.pydio;
 
-            if (!rule.conditions || !rule.conditions[fieldName]) {
+            var fName = fieldName;
+            if (fieldName === 'NodeMeta...') {
+                var metaName = prompt('Please provide a metadata name. The condition will apply on the metadata value');
+                if (metaName) {
+                    fName = 'NodeMeta:' + metaName;
+                } else {
+                    pydio.UI.displayMessage('ERROR', 'Cannot add a NodeMeta condition without a metadata name');
+                    return;
+                }
+            }
+            if (!rule.conditions || !rule.conditions[fName]) {
                 var conds = rule.conditions || {};
                 var newConds = _extends({}, conds);
-                newConds[fieldName] = { type: "", options: {}, jsonOptions: "{}" };
-                this.setState(_defineProperty({}, fieldName + 'JsonInvalid', 'please provide a condition type'));
+                newConds[fName] = { type: "", options: {}, jsonOptions: "{}" };
+                this.setState(_defineProperty({}, fName + 'JsonInvalid', 'please provide a condition type'));
                 this.props.onChange(_extends({}, rule, { conditions: newConds }));
             }
         }
@@ -7201,9 +7226,9 @@ var Conditions = (function (_React$Component) {
         value: function render() {
             var _this = this;
 
-            var _props = this.props;
-            var rule = _props.rule;
-            var containerStyle = _props.containerStyle;
+            var _props2 = this.props;
+            var rule = _props2.rule;
+            var containerStyle = _props2.containerStyle;
 
             var conditions = [];
             if (rule.conditions) {
@@ -7249,8 +7274,9 @@ var Conditions = (function (_React$Component) {
                 })();
             }
 
-            var fields = ["HEADER:Query Context", "RemoteAddress", "RequestMethod", "RequestURI", "HttpProtocol", "UserAgent", "ContentType", "CookiesString", "RemoteAddress", "DIVIDER", "HEADER:Node Filters", "NodeMetaName", "NodeMetaPath", "NodeMetaExtension", "NodeMetaMimeType", "NodeMetaSize", "NodeMetaMTime", "NodeMeta"];
+            var fields = ["HEADER:Query Context", "RemoteAddress", "RequestMethod", "RequestURI", "HttpProtocol", "UserAgent", "ContentType", "CookiesString", "RemoteAddress", "ClientTime", "DIVIDER", "HEADER:Node Filters", "NodeMetaName", "NodeMetaPath", "NodeMetaExtension", /*"NodeMetaMimeType",*/"NodeMetaSize", "NodeMetaMTime"];
 
+            /*"NodeMeta..."*/
             return _react2['default'].createElement(
                 'div',
                 { style: _extends({}, containerStyle, { margin: '6px 16px' }) },

@@ -29,12 +29,22 @@ class Conditions extends React.Component{
     }
 
     onConditionAdd(event, fieldName){
-        const {rule} = this.props;
-        if(!rule.conditions || !rule.conditions[fieldName]) {
+        const {rule, pydio} = this.props;
+        let fName = fieldName;
+        if (fieldName === 'NodeMeta...'){
+            const metaName = prompt('Please provide a metadata name. The condition will apply on the metadata value');
+            if(metaName){
+                fName = 'NodeMeta:' + metaName;
+            } else {
+                pydio.UI.displayMessage('ERROR', 'Cannot add a NodeMeta condition without a metadata name');
+                return;
+            }
+        }
+        if(!rule.conditions || !rule.conditions[fName]) {
             const conds = rule.conditions || {};
             const newConds = {...conds};
-            newConds[fieldName] = {type:"", options:{}, jsonOptions:"{}"};
-            this.setState({[fieldName + 'JsonInvalid']:'please provide a condition type'});
+            newConds[fName] = {type:"", options:{}, jsonOptions:"{}"};
+            this.setState({[fName + 'JsonInvalid']:'please provide a condition type'});
             this.props.onChange({...rule, conditions: newConds});
         }
     }
@@ -105,10 +115,10 @@ class Conditions extends React.Component{
 
         const fields = [
             "HEADER:Query Context",
-            "RemoteAddress", "RequestMethod", "RequestURI", "HttpProtocol", "UserAgent", "ContentType", "CookiesString", "RemoteAddress",
+            "RemoteAddress", "RequestMethod", "RequestURI", "HttpProtocol", "UserAgent", "ContentType", "CookiesString", "RemoteAddress", "ClientTime",
             "DIVIDER",
             "HEADER:Node Filters",
-            "NodeMetaName", "NodeMetaPath", "NodeMetaExtension", "NodeMetaMimeType", "NodeMetaSize", "NodeMetaMTime", "NodeMeta"
+            "NodeMetaName", "NodeMetaPath", "NodeMetaExtension", /*"NodeMetaMimeType",*/ "NodeMetaSize", "NodeMetaMTime", /*"NodeMeta..."*/
         ];
 
         return (

@@ -94,6 +94,19 @@ exports['default'] = React.createClass({
         var role = _props3.role;
         var advancedAcl = _props3.advancedAcl;
 
+        console.log(workspace);
+        if (!workspace.RootNodes || !Object.keys(workspace.RootNodes).length) {
+            // This is not normal, a workspace should always have a root node!
+            return React.createElement(PydioComponents.ListEntry, {
+                className: "workspace-acl-entry",
+                firstLine: React.createElement(
+                    'span',
+                    { style: { textDecoration: 'line-through', color: '#ef9a9a' } },
+                    workspace.Label + ' (' + this.context.getPydioRoleMessage('workspace.roots.invalid') + ')'
+                )
+            });
+        }
+
         var _role$getAclString = role.getAclString(workspace);
 
         var aclString = _role$getAclString.aclString;
