@@ -66,7 +66,6 @@ export default React.createClass({
 
         const {workspace, role, advancedAcl} = this.props;
 
-        console.log(workspace);
         if (!workspace.RootNodes || !Object.keys(workspace.RootNodes).length ){
             // This is not normal, a workspace should always have a root node!
             return (
