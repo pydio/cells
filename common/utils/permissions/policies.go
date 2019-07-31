@@ -22,6 +22,7 @@ package permissions
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/micro/go-micro/metadata"
@@ -36,10 +37,10 @@ const (
 	PolicyNodeMetaName      = "NodeMetaName"
 	PolicyNodeMetaPath      = "NodeMetaPath"
 	PolicyNodeMetaExtension = "NodeMetaExtension"
-	PolicyNodeMetaMimeType  = "NodeMetaMimeType"
 	PolicyNodeMetaSize      = "NodeMetaSize"
 	PolicyNodeMetaMTime     = "NodeMetaMTime"
-	PolicyNodeMeta_         = "NodeMeta:"
+	// Todo - Problem, usermeta are not loaded at this point
+	PolicyNodeMeta_ = "NodeMeta:"
 )
 
 // PolicyRequestSubjectsFromUser builds an array of string subjects from the passed User.
@@ -95,9 +96,11 @@ func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Cont
 
 // PolicyContextFromNode extracts metadata from the Node and enriches the passed policyContext.
 func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
-	// TODO: add file extension
 	policyContext[PolicyNodeMetaName] = node.GetStringMeta("name")
 	policyContext[PolicyNodeMetaPath] = node.Path
 	policyContext[PolicyNodeMetaMTime] = string(node.MTime)
 	policyContext[PolicyNodeMetaSize] = string(node.Size)
+	if node.IsLeaf() {
+		policyContext[PolicyNodeMetaExtension] = strings.TrimLeft(path.Ext(node.Path), ".")
+	}
 }
