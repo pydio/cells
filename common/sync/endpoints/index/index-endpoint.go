@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package index provides a GRPC client for storing information into any tree.NodeProviderClient/tree.NodeReceiverClient
+// service. Typically the index service associated to each datasource.
 package index
 
 import (

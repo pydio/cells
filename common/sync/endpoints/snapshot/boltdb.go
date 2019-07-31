@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package snapshot provides fast in-memory or on-file implementations of endpoint
+// for storing snapshots
 package snapshot
 
 import (
