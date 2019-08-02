@@ -18,7 +18,6 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/square/go-jose.v2"
 
-	"github.com/pydio/cells/common"
 	commonauth "github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
@@ -32,7 +31,7 @@ var (
 	oauth2Provider fosite.OAuth2Provider
 )
 
-func initOIDCClient() {
+func initOIDCClient(conf *config.OidcConfig) {
 	var err error
 
 	generator := jwk.RS256Generator{KeyLength: 32}
@@ -42,32 +41,24 @@ func initOIDCClient() {
 		log.Fatal("Unable to generate signature", zap.Error(err))
 	}
 
-	secret := "tmpsecret"
-	externalURL := config.Get("defaults", "url").String("")
-	connectors := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "connectors")
-	connectorConfig, err := config.ReadOIDCConnectorConfig(connectors.Bytes())
-	if err == nil {
-		secret = connectorConfig.ClientSecret
-	}
-
 	hasher := &fosite.BCrypt{WorkFactor: fosite.DefaultBCryptWorkFactor}
-	hashedSecret, _ := hasher.Hash(context.Background(), []byte(secret))
+	hashedSecret, _ := hasher.Hash(context.Background(), []byte(conf.ClientSecret))
 
 	// This is an exemplary storage instance. We will add a client and a user to it so we can use these later on.
 	store := storage.NewMemoryStore()
 	store.Clients[oidcid] = &fosite.DefaultClient{
-		ID:            oidcid,
+		ID:            conf.ClientID,
 		Secret:        hashedSecret,
-		RedirectURIs:  []string{externalURL + "/auth/dex/callback"},
-		ResponseTypes: []string{"id_token", "code", "token"},
-		GrantTypes:    []string{"implicit", "refresh_token", "authorization_code", "password", "client_credentials"},
-		Scopes:        []string{"openid", "profile", "email"},
+		RedirectURIs:  conf.RedirectURIs,
+		ResponseTypes: conf.ResponseTypes,
+		GrantTypes:    conf.GrantTypes,
+		Scopes:        conf.Scopes,
 	}
 
 	composeConfig := &compose.Config{
 		AccessTokenLifespan: time.Minute * 30,
 		IDTokenLifespan:     time.Minute * 30,
-		IDTokenIssuer:       oidcid,
+		IDTokenIssuer:       conf.ClientID,
 		RedirectSecureChecker: func(*url.URL) bool {
 			return true
 		},

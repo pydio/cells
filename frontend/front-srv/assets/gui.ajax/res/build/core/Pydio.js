@@ -134,7 +134,9 @@ var Pydio = (function (_Observable) {
             this.WebSocketClient.open();
         }
         if (!this.Parameters.has('START_REPOSITORY')) {
-            var loadUriParts = _utilLangUtils2['default'].trim(window.location.href.replace(parameters.get('FRONTEND_URL'), ''), '/').split('/');
+            var uri = window.location.href.replace(parameters.get('FRONTEND_URL'), '').replace(window.location.search, '');
+
+            var loadUriParts = _utilLangUtils2['default'].trim(uri, '/').split('/');
             if (loadUriParts.length) {
                 var loadWs = loadUriParts[0];
                 var other = loadUriParts.slice(1);
@@ -315,11 +317,7 @@ var Pydio = (function (_Observable) {
             var _repositoryObject = new _modelRepository2['default'](null);
             this.loadRepository(_repositoryObject);
             this.fire("repository_list_refreshed", { list: false, active: false });
-            if (this.Parameters.has('MINISITE')) {
-                this.Controller.fireAction("login");
-            } else {
-                this.fire("login_required");
-            }
+            this.Controller.fireAction("login");
             return;
         }
 
@@ -349,11 +347,7 @@ var Pydio = (function (_Observable) {
             this.user.setPreference("pending_folder", "-1");
             this.user.savePreference("pending_folder");
         } else if (this.user && this.Parameters.has('START_FOLDER')) {
-            // Checking the start repository is actually the one we are in
-            if (this.Parameters.get('START_REPOSITORY') == repId) {
-                this._initLoadRep = this.Parameters.get('START_FOLDER');
-            }
-            this.Parameters['delete']('START_REPOSITORY');
+            this._initLoadRep = this.Parameters.get('START_FOLDER');
             this.Parameters['delete']('START_FOLDER');
         }
 
@@ -445,7 +439,6 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.goTo = function goTo(nodeOrPath) {
-
         var gotoNode = undefined;
         var path = undefined;
         if (typeof nodeOrPath === "string") {

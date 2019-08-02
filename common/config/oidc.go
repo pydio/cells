@@ -20,6 +20,15 @@ type OidcConnector struct {
 	Config *oidc.Config `json:"config"`
 }
 
+type OidcConfig struct {
+	ClientID      string   `json:"clientID"`
+	ClientSecret  string   `json:"clientSecret"`
+	RedirectURIs  []string `json:"redirectURIs"`
+	ResponseTypes []string `json:"responseTypes"`
+	GrantTypes    []string `json:"grantTypes"`
+	Scopes        []string `json:"scopes"`
+}
+
 // UpdateOIDCConnectorsConfig updates or inserts the pydio-oidc connector config to make sure URLs are
 // synced with the server external URL.
 func UpdateOIDCConnectorsConfig(configValue []byte, insert bool, serverUrl string) (interface{}, bool, error) {

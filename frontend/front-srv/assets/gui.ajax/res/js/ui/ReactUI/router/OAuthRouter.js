@@ -47,6 +47,36 @@ const OAuthRouterWrapper = (pydio) => {
             }))
         }
 
+        /**
+         * sends a request to the specified url from a form. this will change the window location.
+         * @param {string} path the path to send the post request to
+         * @param {object} params the paramiters to add to the url
+         * @param {string} [method=post] the method to use on the form
+         */
+
+        post(path, params, method='post') {
+
+            // The rest of this code assumes you are not using a library.
+            // It can be made less wordy if you use one.
+            const form = document.createElement('form');
+            form.method = method;
+            form.action = path;
+        
+            for (const key in params) {
+            if (params.hasOwnProperty(key)) {
+                const hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = key;
+                hiddenField.value = params[key];
+        
+                form.appendChild(hiddenField);
+            }
+            }
+        
+            document.body.appendChild(form);
+            form.submit();
+        }
+
         render() {
             const {jwt} = this.state;
 
@@ -54,19 +84,9 @@ const OAuthRouterWrapper = (pydio) => {
             } else if (jwt === "") {
                  pydio.getController().fireAction('login');
             } else {
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", '/oauth2/auth' + window.location.search + '&access_token=' + jwt, true);
-        
-                //Send the proper header information along with the request
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        
-                xhr.onreadystatechange = function() { // Call a function when the state changes.
-                    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                        window.location.href = this.responseURL
-                    }
-                }
-        
-                xhr.send("scopes=openid&scopes=profile&scopes=email&scopes=offline_access");
+                this.post('/oauth2/auth' + window.location.search + '&access_token=' + jwt, {
+                    "scopes": ["openid", "profile", "email", "offline_access"]
+                })
             }
 
             return (

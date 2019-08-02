@@ -12,6 +12,7 @@ type ConfigValues interface {
 	StringMap(key string) map[string]string
 	StringArray(key string) []string
 	Map(key string) map[string]interface{}
+	Scan(val interface{}) error
 
 	Database(k string) (string, string)
 }

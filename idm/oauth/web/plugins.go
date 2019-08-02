@@ -25,11 +25,13 @@ import (
 	"context"
 
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 func init() {
@@ -50,7 +52,13 @@ func init() {
 					}), nil
 			}, func(s service.Service) (micro.Option, error) {
 
-				initOIDCClient()
+				oidc := new(config.OidcConfig)
+				err := servicecontext.GetConfig(s.Options().Context).Scan(oidc)
+				if err != nil {
+					return nil, err
+				}
+
+				initOIDCClient(oidc)
 
 				srv := defaults.NewHTTPServer()
 

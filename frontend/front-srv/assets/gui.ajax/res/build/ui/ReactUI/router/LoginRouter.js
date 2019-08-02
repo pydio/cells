@@ -32,10 +32,6 @@ var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
 var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
 
-var _userManager = require('./userManager');
-
-var _userManager2 = _interopRequireDefault(_userManager);
-
 var LoginRouterWrapper = function LoginRouterWrapper(pydio) {
     var LoginRouter = (function (_React$PureComponent) {
         _inherits(LoginRouter, _React$PureComponent);
@@ -61,9 +57,7 @@ var LoginRouterWrapper = function LoginRouterWrapper(pydio) {
         LoginRouter.prototype.render = function render() {
             var user = this.state.user;
 
-            if (!user) {
-                _userManager2['default']('cells-front', pydio.Parameters.get('FRONTEND_URL')).signinRedirect();
-            } else {
+            if (user) {
                 _reactRouterLibBrowserHistory2['default'].push('/');
             }
 

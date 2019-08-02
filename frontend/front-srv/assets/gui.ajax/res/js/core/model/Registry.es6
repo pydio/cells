@@ -49,7 +49,6 @@ export default class Registry{
     loadXML(documentElement){
         if(this._fileExtensions) this._fileExtensions = null;
         this._registry = documentElement;
-        console.log("Registry loading XML")
         this._pydioObject.fire("registry_loaded", this._registry);
     }
 

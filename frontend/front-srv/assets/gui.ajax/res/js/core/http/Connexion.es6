@@ -208,7 +208,7 @@ class Connexion{
                 alert(message);
             }
 
-        }
+		}
 		if(parsedBody.responseXML && parsedBody.responseXML.documentElement){
 
 			const authNode = XMLUtils.XPathSelectSingleNode(parsedBody.responseXML.documentElement, "require_auth");
@@ -217,9 +217,9 @@ class Connexion{
 				if(root){
 					pydio.getContextHolder().setContextNode(root);
 					root.clear();
-                }
-                
-                pydio.fire('login_required')
+				}
+				pydio.getController().fireAction('logout');
+				pydio.getController().fireAction('login');
 			}
 
 			const messageNode = XMLUtils.XPathSelectSingleNode(parsedBody.responseXML.documentElement, "message");

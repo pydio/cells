@@ -33,7 +33,6 @@ import ActivityMonitor from './util/ActivityMonitor'
 import PydioWebSocket from './http/PydioWebSocket'
 import EmptyNodeProvider from "./model/EmptyNodeProvider";
 
-
 /**
  * This is the main class for launching the whole framework,
  * with or without a UI.
@@ -79,7 +78,11 @@ class Pydio extends Observable{
             this.WebSocketClient.open();
         }
         if(!this.Parameters.has('START_REPOSITORY')){
-            const loadUriParts = LangUtils.trim(window.location.href.replace(parameters.get('FRONTEND_URL'), ''), '/').split('/');
+            const uri = window.location.href.
+                replace(parameters.get('FRONTEND_URL'), '').
+                replace(window.location.search, '')
+
+            const loadUriParts = LangUtils.trim(uri, '/').split('/');
             if(loadUriParts.length){
                 let [loadWs, ...other] = loadUriParts;
                 if(loadWs.indexOf('ws-') === 0){
@@ -239,11 +242,7 @@ class Pydio extends Observable{
             const repositoryObject = new Repository(null);
             this.loadRepository(repositoryObject);
             this.fire("repository_list_refreshed", {list:false,active:false});
-            if(this.Parameters.has('MINISITE')) {
-                this.Controller.fireAction("login");
-            } else {
-                this.fire("login_required");
-            }
+            this.Controller.fireAction("login");
             return;
         }
 
@@ -272,14 +271,9 @@ class Pydio extends Observable{
             this.user.savePreference("pending_folder");
 
         } else if(this.user && this.Parameters.has('START_FOLDER')) {
-            // Checking the start repository is actually the one we are in
-            if (this.Parameters.get('START_REPOSITORY') == repId) {
-                this._initLoadRep = this.Parameters.get('START_FOLDER');
-            }
-            this.Parameters.delete('START_REPOSITORY')
+            this._initLoadRep = this.Parameters.get('START_FOLDER');
             this.Parameters.delete('START_FOLDER');
         }
-
 
         this.loadRepository(repositoryObject);
         this.fire("repository_list_refreshed", {list:repList,active:repId});
@@ -364,7 +358,6 @@ class Pydio extends Observable{
      * @param nodeOrPath AjxpNode|String A node or a path
      */
     goTo(nodeOrPath){
-
         let gotoNode;
         let path;
         if(typeof(nodeOrPath) === "string"){

@@ -222,6 +222,16 @@ func (c Map) Int64(key string, defaultValue ...int64) int64 {
 	return int64(0)
 }
 
+func (c Map) Scan(val interface{}) error {
+	if jsonStr, err := json.Marshal(c); err != nil {
+		return err
+	} else if err := json.Unmarshal(jsonStr, val); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Set sets the key to value. It replaces any existing
 // values.
 func (c Map) Set(key string, value interface{}) error {

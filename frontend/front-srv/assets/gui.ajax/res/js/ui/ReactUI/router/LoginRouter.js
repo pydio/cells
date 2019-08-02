@@ -20,7 +20,6 @@
 
 
 import browserHistory from 'react-router/lib/browserHistory'
-import userManager from './userManager';
 
 const LoginRouterWrapper = (pydio) => {
     class LoginRouter extends React.PureComponent {
@@ -39,9 +38,7 @@ const LoginRouterWrapper = (pydio) => {
         render() {
             const {user} = this.state;
 
-            if (!user) {
-                userManager('cells-front', pydio.Parameters.get('FRONTEND_URL')).signinRedirect()
-            } else {
+            if (user) {
                 browserHistory.push('/')
             }
 

@@ -228,8 +228,8 @@ var Connexion = (function () {
                     pydio.getContextHolder().setContextNode(root);
                     root.clear();
                 }
-
-                pydio.fire('login_required');
+                pydio.getController().fireAction('logout');
+                pydio.getController().fireAction('login');
             }
 
             var messageNode = _utilXMLUtils2['default'].XPathSelectSingleNode(parsedBody.responseXML.documentElement, "message");

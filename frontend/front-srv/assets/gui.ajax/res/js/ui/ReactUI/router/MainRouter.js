@@ -19,7 +19,6 @@
  */
 
 import browserHistory from 'react-router/lib/browserHistory';
-import userManager from './userManager';
 
 const MainRouterWrapper = (pydio) => {
 
@@ -55,10 +54,6 @@ const MainRouterWrapper = (pydio) => {
         componentDidMount() {
             pydio.getContextHolder().observe("context_changed", this._ctxObs);
             pydio.getContextHolder().observe("repository_list_refreshed", this._ctxObs);
-            
-            if (!pydio.user) {
-                userManager.signinRedirect()
-            }
         }
 
         componentWillUnmount() {

@@ -25,6 +25,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 type route struct {
@@ -42,6 +43,7 @@ func NewRouter() *mux.Router {
 	for _, route := range myRoutes {
 		var handler http.Handler
 		handler = route.handlerFunc
+		handler = cors.Default().Handler(handler)
 
 		router.
 			Methods(route.method).

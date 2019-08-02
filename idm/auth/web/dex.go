@@ -172,7 +172,7 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		//logger.Infof("config skipping approval screen")
 	}
 	if len(c.Web.AllowedOrigins) > 0 {
-		//logger.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
+		logger.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
 	}
 
 	// explicitly convert to UTC.

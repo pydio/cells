@@ -26,6 +26,18 @@ import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
 let pydio = window.pydio;
 
+const LanguagePicker = () => {
+    return (
+        <IconMenu
+            iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline-variant" iconStyle={{fontSize:20,color:'rgba(255,255,255,.67)'}}/>}
+            onItemTouchTap={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
+            desktop={true}
+        >
+            {pydio.listLanguagesWithCallback((key, label, current) => <MenuItem primaryText={label} value={key} rightIcon={current?<FontIcon className="mdi mdi-check"/>:null}/>)}
+        </IconMenu>
+    );
+}
+
 let LoginDialogMixin = {
 
     getInitialState(){
@@ -169,24 +181,12 @@ let LoginPasswordDialog = React.createClass({
             height: 120
         };
 
-        let languages = [];
-        pydio.listLanguagesWithCallback((key, label, current) => {
-            languages.push(<MenuItem primaryText={label} value={key} rightIcon={current?<FontIcon className="mdi mdi-check"/>:null}/>);
-        });
-        const languageMenu = (
-            <IconMenu
-                iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline-variant" iconStyle={{fontSize:20,color:'rgba(255,255,255,.67)'}}/>}
-                onItemTouchTap={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
-                desktop={true}
-            >{languages}</IconMenu>
-        );
-
         return (
             <DarkThemeContainer>
                 {logoUrl && <div style={logoStyle}></div>}
                 <div className="dialogLegend" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
                     {pydio.MessageHash[passwordOnly ? 552 : 180]}
-                    {languageMenu}
+                    <LanguagePicker />
                 </div>
                 {errorMessage}
                 {additionalComponentsTop}
