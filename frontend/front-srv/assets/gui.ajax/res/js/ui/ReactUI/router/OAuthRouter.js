@@ -61,16 +61,28 @@ const OAuthRouterWrapper = (pydio) => {
             const form = document.createElement('form');
             form.method = method;
             form.action = path;
-        
-            for (const key in params) {
-            if (params.hasOwnProperty(key)) {
+
+            const createInput = (key, val) => {
                 const hiddenField = document.createElement('input');
                 hiddenField.type = 'hidden';
                 hiddenField.name = key;
-                hiddenField.value = params[key];
+                hiddenField.value = val;
+
+                console.log(key, val)
         
                 form.appendChild(hiddenField);
             }
+        
+            for (const key in params) {
+                if (params.hasOwnProperty(key)) {
+                    if (params[key] instanceof Array) {
+                        for (const idx in params[key]) {
+                            createInput(key, params[key][idx])
+                        }
+                    } else {
+                        createInput(key, params[key])
+                    }
+                }
             }
         
             document.body.appendChild(form);
@@ -85,7 +97,7 @@ const OAuthRouterWrapper = (pydio) => {
                  pydio.getController().fireAction('login');
             } else {
                 this.post('/oauth2/auth' + window.location.search + '&access_token=' + jwt, {
-                    "scopes": ["openid", "profile", "email", "offline_access"]
+                    "scopes": ["openid", "profile", "email", "offline_access"],
                 })
             }
 
