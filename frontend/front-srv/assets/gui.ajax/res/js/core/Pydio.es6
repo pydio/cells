@@ -88,6 +88,9 @@ class Pydio extends Observable{
                 if(loadWs.indexOf('ws-') === 0){
                     loadWs = loadWs.substr(3);
                 }
+                if (loadWs === "login") {
+                    return
+                }
                 this.Parameters.set('START_REPOSITORY', loadWs);
                 if (other.length){
                     this.Parameters.set('START_FOLDER', '/' + other.join('/'));
