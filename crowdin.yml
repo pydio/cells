@@ -9,6 +9,7 @@ files:
         es-ES: es-es
         it: it
         ja: ja
+        lv: lv
   - source: '*/i18n/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -19,6 +20,7 @@ files:
         es-ES: es-es
         it: it
         ja: ja
+        lv: lv
   - source: '*/i18n/*/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -29,6 +31,7 @@ files:
         es-ES: es-es
         it: it
         ja: ja
+        lv: lv
   - source: '*/i18n/*/conf/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
@@ -39,3 +42,4 @@ files:
         es-ES: es-es
         it: it
         ja: ja
+        lv: lv
