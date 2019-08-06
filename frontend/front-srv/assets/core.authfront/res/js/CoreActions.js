@@ -500,4 +500,4 @@ const ResetPasswordDialog = React.createClass({
 
 });
 
-export {Callbacks, LoginPasswordDialog, ResetPasswordRequire, ResetPasswordDialog, MultiAuthModifier}
+export {Callbacks, LoginPasswordDialog, ResetPasswordRequire, ResetPasswordDialog, MultiAuthModifier, LanguagePicker}

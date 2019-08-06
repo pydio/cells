@@ -50,6 +50,22 @@ var _pydioHttpRestApi = require("pydio/http/rest-api");
 
 var pydio = window.pydio;
 
+var LanguagePicker = function LanguagePicker() {
+    return React.createElement(
+        _materialUi.IconMenu,
+        {
+            iconButtonElement: React.createElement(_materialUi.IconButton, { tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-flag-outline-variant', iconStyle: { fontSize: 20, color: 'rgba(255,255,255,.67)' } }),
+            onItemTouchTap: function (e, o) {
+                pydio.loadI18NMessages(o.props.value);
+            },
+            desktop: true
+        },
+        pydio.listLanguagesWithCallback(function (key, label, current) {
+            return React.createElement(_materialUi.MenuItem, { primaryText: label, value: key, rightIcon: current ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null });
+        })
+    );
+};
+
 var LoginDialogMixin = {
 
     getInitialState: function getInitialState() {
@@ -221,22 +237,6 @@ var LoginPasswordDialog = React.createClass({
             height: 120
         };
 
-        var languages = [];
-        pydio.listLanguagesWithCallback(function (key, label, current) {
-            languages.push(React.createElement(_materialUi.MenuItem, { primaryText: label, value: key, rightIcon: current ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null }));
-        });
-        var languageMenu = React.createElement(
-            _materialUi.IconMenu,
-            {
-                iconButtonElement: React.createElement(_materialUi.IconButton, { tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-flag-outline-variant', iconStyle: { fontSize: 20, color: 'rgba(255,255,255,.67)' } }),
-                onItemTouchTap: function (e, o) {
-                    pydio.loadI18NMessages(o.props.value);
-                },
-                desktop: true
-            },
-            languages
-        );
-
         return React.createElement(
             DarkThemeContainer,
             null,
@@ -245,7 +245,7 @@ var LoginPasswordDialog = React.createClass({
                 'div',
                 { className: 'dialogLegend', style: { fontSize: 22, paddingBottom: 12, lineHeight: '28px' } },
                 pydio.MessageHash[passwordOnly ? 552 : 180],
-                languageMenu
+                React.createElement(LanguagePicker, null)
             ),
             errorMessage,
             additionalComponentsTop,
@@ -387,7 +387,6 @@ var Callbacks = (function () {
     _createClass(Callbacks, null, [{
         key: 'sessionLogout',
         value: function sessionLogout() {
-            console.log("HERE WE ARE");
 
             if (Pydio.getInstance().Parameters.get("PRELOG_USER")) {
                 return;
@@ -606,3 +605,4 @@ exports.LoginPasswordDialog = LoginPasswordDialog;
 exports.ResetPasswordRequire = ResetPasswordRequire;
 exports.ResetPasswordDialog = ResetPasswordDialog;
 exports.MultiAuthModifier = MultiAuthModifier;
+exports.LanguagePicker = LanguagePicker;
