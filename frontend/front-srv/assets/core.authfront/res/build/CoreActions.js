@@ -51,6 +51,16 @@ var _pydioHttpRestApi = require("pydio/http/rest-api");
 var pydio = window.pydio;
 
 var LanguagePicker = function LanguagePicker() {
+    var items = [];
+
+    pydio.listLanguagesWithCallback(function (key, label, current) {
+        return items.push(React.createElement(_materialUi.MenuItem, {
+            primaryText: label,
+            value: key,
+            rightIcon: current ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null
+        }));
+    });
+
     return React.createElement(
         _materialUi.IconMenu,
         {
@@ -60,9 +70,7 @@ var LanguagePicker = function LanguagePicker() {
             },
             desktop: true
         },
-        pydio.listLanguagesWithCallback(function (key, label, current) {
-            return React.createElement(_materialUi.MenuItem, { primaryText: label, value: key, rightIcon: current ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null });
-        })
+        items
     );
 };
 

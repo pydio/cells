@@ -27,13 +27,23 @@ import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 let pydio = window.pydio;
 
 const LanguagePicker = () => {
+    const items = []
+    
+    pydio.listLanguagesWithCallback((key, label, current) => items.push(
+        <MenuItem
+            primaryText={label}
+            value={key}
+            rightIcon={current ? <FontIcon className="mdi mdi-check"/> : null}
+        />
+    ))
+    
     return (
         <IconMenu
             iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline-variant" iconStyle={{fontSize:20,color:'rgba(255,255,255,.67)'}}/>}
             onItemTouchTap={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
             desktop={true}
         >
-            {pydio.listLanguagesWithCallback((key, label, current) => <MenuItem primaryText={label} value={key} rightIcon={current?<FontIcon className="mdi mdi-check"/>:null}/>)}
+            {items}
         </IconMenu>
     );
 }
