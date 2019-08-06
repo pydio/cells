@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// Package merger implements all logic to compare trees and create set of operations to be applied
 package merger
 
 import (

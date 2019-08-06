@@ -116,6 +116,10 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 				return nil
 			}
 			internalPath := strings.TrimPrefix(n.Path, parentRoot)
+			internalPath = strings.TrimLeft(internalPath, "/")
+			if internalPath == "" {
+				return nil
+			}
 			log.Logger(ctx).Debug("Adding file to archive: ", zap.String("path", internalPath), zap.Any("node", n))
 			header := &zip.FileHeader{
 				Name:               internalPath,

@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 // Package docs provides tools for generating user docs from Cobra commands in various formats
 package docs
 

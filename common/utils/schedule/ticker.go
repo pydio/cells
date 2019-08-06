@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 // Package schedule provides a fixed ticker based on a start time
 // iso8601 interval periods are supported
 package schedule
