@@ -68,8 +68,6 @@ const OAuthRouterWrapper = (pydio) => {
                 hiddenField.name = key;
                 hiddenField.value = val;
 
-                console.log(key, val)
-        
                 form.appendChild(hiddenField);
             }
         

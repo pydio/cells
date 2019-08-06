@@ -78,14 +78,24 @@ var OAuthRouterWrapper = function OAuthRouterWrapper(pydio) {
             form.method = method;
             form.action = path;
 
+            var createInput = function createInput(key, val) {
+                var hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = key;
+                hiddenField.value = val;
+
+                form.appendChild(hiddenField);
+            };
+
             for (var key in params) {
                 if (params.hasOwnProperty(key)) {
-                    var hiddenField = document.createElement('input');
-                    hiddenField.type = 'hidden';
-                    hiddenField.name = key;
-                    hiddenField.value = params[key];
-
-                    form.appendChild(hiddenField);
+                    if (params[key] instanceof Array) {
+                        for (var idx in params[key]) {
+                            createInput(key, params[key][idx]);
+                        }
+                    } else {
+                        createInput(key, params[key]);
+                    }
                 }
             }
 
