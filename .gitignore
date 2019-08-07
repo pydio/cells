@@ -20,3 +20,7 @@ package-lock.json
 vendor/github.com/pydio/minio-srv/vendor/golang.org/x/net/trace
 broker/log/blevetest/test/pydio.log
 discovery/metrics
+
+# builds
+/cells-*
+/ctl-*

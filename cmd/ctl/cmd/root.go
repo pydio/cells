@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package cmd implements all commands for pydio control client
+// Package cmd implements all commands for Cells Control client.
 package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -30,12 +31,9 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
-	// commonlog "github.com/pydio/cells/common/log"
 
 	// All registries
 	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
-
-	"log"
 )
 
 var (
@@ -45,10 +43,10 @@ var (
 // RootCmd represents the base command when called without any subcommands.
 var RootCmd = &cobra.Command{
 	Use:   "cells-ctl",
-	Short: "Pydio Cells Client application",
+	Short: "Pydio Cells Control",
 	Long: `
-Pydio Cells client allows you to interact with the micro services directly. 
-Most actions shall better be performed using the web frontend, but it can be handy to CRUD some specific data directly for automation or testing purposes.
+Pydio Cells Control allows you to interact with the micro services directly with a simple CLI. 
+Most actions shall better be manually performed using the web frontend or scripted using the Cells Client.
 `,
 
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {

@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package cli is the pydio control client for performing grpc requests on running services
+// Package ctl provides the Pydio Cells Control client for performing grpc requests on running services.
 package main
 
 import (
@@ -30,6 +30,6 @@ import (
 
 func main() {
 	common.PackageType = "cli"
-	common.PackageLabel = "Command Line"
+	common.PackageLabel = "Pydio Cells Control"
 	cmd.Execute()
 }
