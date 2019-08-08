@@ -144,8 +144,6 @@ func authorizeHandlerFunc(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println("Authorize response")
-
 	// Last but not least, send the response!
 	oauth2Provider.WriteAuthorizeResponse(rw, ar, response)
 }

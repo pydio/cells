@@ -14,7 +14,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -33,8 +32,10 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return middleware(req, rsp, in, out, session)
 		}
 
-		nonce := uuid.New()
-		respMap, err := GrantTypeAccess(req.Request.Context(), nonce, "", in.AuthInfo["login"], in.AuthInfo["password"], false)
+		// Nonce is being set somewhere else
+		nonce, _ := session.Values["nonce"]
+
+		respMap, err := GrantTypeAccess(req.Request.Context(), nonce.(string), "", in.AuthInfo["login"], in.AuthInfo["password"], false)
 		if err != nil {
 			return err
 		}
@@ -42,7 +43,6 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		expiry := respMap["expires_in"].(float64)
 		refreshToken := respMap["refresh_token"].(string)
 
-		session.Values["nonce"] = nonce
 		session.Values["jwt"] = token
 		session.Values["refresh_token"] = refreshToken
 		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()

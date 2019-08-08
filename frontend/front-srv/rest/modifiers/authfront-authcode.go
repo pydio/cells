@@ -75,9 +75,6 @@ func jwtFromAuthCode(code string) (map[string]interface{}, error) {
 		return nil, fmt.Errorf("Could not get id_token")
 	}
 
-	fmt.Println(token.Extra("nonce"))
-	fmt.Println(rawIDToken)
-
 	// Parse and verify ID Token payload.
 	if _, c, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {
 
