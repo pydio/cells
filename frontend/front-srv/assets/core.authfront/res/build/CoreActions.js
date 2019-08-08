@@ -406,20 +406,22 @@ var Callbacks = (function () {
         }
     }, {
         key: 'loginPassword',
-        value: function loginPassword() {
-            var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+        value: function loginPassword(manager) {
+            var args = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
 
             if (Pydio.getInstance().Parameters.get("PRELOG_USER")) {
                 return;
             }
 
-            var _props$createAuthRequest = props.createAuthRequest;
-            var createAuthRequest = _props$createAuthRequest === undefined ? true : _props$createAuthRequest;
+            var _ref = args[0] || {};
 
-            var newProps = _objectWithoutProperties(props, ['createAuthRequest']);
+            var _ref$createAuthRequest = _ref.createAuthRequest;
+            var createAuthRequest = _ref$createAuthRequest === undefined ? true : _ref$createAuthRequest;
+
+            var props = _objectWithoutProperties(_ref, ['createAuthRequest']);
 
             var fn = function fn() {
-                return pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, newProps, { blur: true }));
+                return pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, props, { blur: true }));
             };
 
             if (createAuthRequest) {

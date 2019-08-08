@@ -320,15 +320,15 @@ class Callbacks{
 
     }
 
-    static loginPassword(props = {}) {
+    static loginPassword(manager, args = []) {
 
         if(Pydio.getInstance().Parameters.get("PRELOG_USER")){
             return;
         }
 
-        const {createAuthRequest = true, ...newProps} = props
+        const {createAuthRequest = true, ...props} = args[0] || {};
 
-        const fn = () => pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', {...newProps, blur: true});
+        const fn = () => pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', {...props, blur: true});
         
         if (createAuthRequest) {
             PydioApi.getRestClient().jwtWithAuthInfo({type: "create_auth_request"}).then(fn) 
