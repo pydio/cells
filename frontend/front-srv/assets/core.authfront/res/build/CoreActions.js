@@ -413,9 +413,20 @@ var Callbacks = (function () {
                 return;
             }
 
-            _pydioHttpApi2['default'].getRestClient().jwtWithAuthInfo({ type: "create_auth_request" }).then(function () {
-                pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, props, { blur: true }));
-            });
+            var _props$createAuthRequest = props.createAuthRequest;
+            var createAuthRequest = _props$createAuthRequest === undefined ? true : _props$createAuthRequest;
+
+            var newProps = _objectWithoutProperties(props, ['createAuthRequest']);
+
+            var fn = function fn() {
+                return pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, newProps, { blur: true }));
+            };
+
+            if (createAuthRequest) {
+                _pydioHttpApi2['default'].getRestClient().jwtWithAuthInfo({ type: "create_auth_request" }).then(fn);
+            } else {
+                fn();
+            }
         }
     }]);
 

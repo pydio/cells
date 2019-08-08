@@ -326,10 +326,15 @@ class Callbacks{
             return;
         }
 
-        PydioApi.getRestClient().jwtWithAuthInfo({type: "create_auth_request"}).then(() => {
-            pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', {...props, blur: true});
-        })
+        const {createAuthRequest = true, ...newProps} = props
 
+        const fn = () => pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', {...newProps, blur: true});
+        
+        if (createAuthRequest) {
+            PydioApi.getRestClient().jwtWithAuthInfo({type: "create_auth_request"}).then(fn) 
+        } else {
+            fn()
+        }
     }
 
 }
