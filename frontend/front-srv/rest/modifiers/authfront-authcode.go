@@ -20,7 +20,7 @@ import (
 	"github.com/pydio/cells/common"
 	commonauth "github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/frontend"
@@ -46,7 +46,6 @@ func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMidd
 		expiry := respMap["expires_in"].(float64)
 		refreshToken := respMap["refresh_token"].(string)
 
-		session.Values["nonce"] = ""
 		session.Values["jwt"] = token
 		session.Values["refresh_token"] = refreshToken
 		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
