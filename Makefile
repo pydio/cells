@@ -28,7 +28,8 @@ main:
 
 xgo:
 	${GOPATH}/bin/xgo -go 1.12 \
-	--targets linux/amd64,darwin/amd64,windows/amd64,linux/arm64 \
+	 --image pydio/xgo:latest \
+	 --targets linux/amd64,darwin/amd64,windows/amd64,linux/arm64 \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}\
@@ -55,7 +56,8 @@ ctl:
 
 xgo-ctl:
 	${GOPATH}/bin/xgo -go 1.12 \
-	--targets linux/amd64,darwin/amd64,windows/amd64,linux/arm64 \
+	 --image pydio/xgo:latest \
+	 --targets linux/amd64,darwin/amd64,windows/amd64,linux/arm64 \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}"\
