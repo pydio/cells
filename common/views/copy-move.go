@@ -216,18 +216,29 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 	// Now Copy/Move initial node
 	if sourceNode.IsLeaf() {
-		meta := map[string]string{
-			common.XPydioSessionUuid: session,
-		}
+
+		// Prepare Meta for Copy/Delete operations. If Move accross DS or Copy, we send directly the close- session
+		// as this will be a one shot operation on each datasource.
+		copyMeta := make(map[string]string)
+		deleteMeta := make(map[string]string)
+		closeSession := common.SyncSessionClose_ + session
 		if move {
-			meta["X-Amz-Metadata-Directive"] = "COPY"
+			copyMeta[common.X_AMZ_META_DIRECTIVE] = "COPY"
+			deleteMeta[common.XPydioSessionUuid] = closeSession
 			if crossDs {
-				meta[common.XPydioMoveUuid] = sourceNode.Uuid
+				copyMeta[common.XPydioSessionUuid] = closeSession
+				// Identify copy/delete across 2 datasources
+				copyMeta[common.XPydioMoveUuid] = sourceNode.Uuid
+				deleteMeta[common.XPydioMoveUuid] = sourceNode.Uuid
+			} else {
+				copyMeta[common.XPydioSessionUuid] = session
 			}
 		} else {
-			meta["X-Amz-Metadata-Directive"] = "REPLACE"
+			copyMeta[common.X_AMZ_META_DIRECTIVE] = "REPLACE"
+			copyMeta[common.XPydioSessionUuid] = closeSession
 		}
-		_, e := router.CopyObject(ctx, sourceNode, targetNode, &CopyRequestData{Metadata: meta})
+
+		_, e := router.CopyObject(ctx, sourceNode, targetNode, &CopyRequestData{Metadata: copyMeta})
 		if e != nil {
 			publishError(sourceDs, sourceNode.Path)
 			publishError(targetDs, targetNode.Path)
@@ -235,16 +246,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		// Remove Source Node
 		if move {
-			if crossDs {
-				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
-					common.XPydioMoveUuid:    sourceNode.Uuid,
-					common.XPydioSessionUuid: "close-" + session,
-				})
-			} else {
-				ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
-					common.XPydioSessionUuid: "close-" + session,
-				})
-			}
+			ctx = context2.WithAdditionalMetadata(ctx, deleteMeta)
 			_, moveErr := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
 			if moveErr != nil {
 				logger.Error("-- Delete Source Error / Reverting Copy", zap.Error(moveErr), sourceNode.Zap())
@@ -255,7 +257,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 
 	} else if !move {
-		session = "close-" + session
+		session = common.SyncSessionClose_ + session
 		logger.Debug("-- Copying sourceNode with empty Uuid - Close Session")
 		targetNode.Type = tree.NodeType_COLLECTION
 		_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode, IndexationSession: session, UpdateIfExists: true})
@@ -321,7 +323,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move 
 				}
 			*/
 			if closeSession {
-				meta[common.XPydioSessionUuid] = "close-" + session
+				meta[common.XPydioSessionUuid] = common.SyncSessionClose_ + session
 			}
 			if move {
 				meta[common.XPydioMoveUuid] = childNode.Uuid
@@ -343,7 +345,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move 
 	if move {
 		// If we're sending the last Delete here - then we close the session at the same time
 		if closeSession {
-			session = "close-" + session
+			session = common.SyncSessionClose_ + session
 		}
 		delCtx := ctx
 		if crossDs {

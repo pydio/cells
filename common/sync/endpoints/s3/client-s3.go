@@ -691,8 +691,8 @@ func stripCloseParameters(do bool, params map[string]string) map[string]string {
 	}
 	newParams := make(map[string]string, len(params))
 	for k, v := range params {
-		if k == servicescommon.XPydioSessionUuid && strings.HasPrefix(v, "close-") {
-			newParams[k] = strings.TrimPrefix(v, "close-")
+		if k == servicescommon.XPydioSessionUuid && strings.HasPrefix(v, servicescommon.SyncSessionClose_) {
+			newParams[k] = strings.TrimPrefix(v, servicescommon.SyncSessionClose_)
 		} else {
 			newParams[k] = v
 		}

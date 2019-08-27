@@ -161,9 +161,8 @@ func (ev *EventsBatcher) batchEvents(in chan model.EventInfo) {
 			}
 			// Add to queue
 			if session := event.Metadata[common.XPydioSessionUuid]; session != "" {
-				if strings.HasPrefix(session, "close-") {
-					session = strings.TrimPrefix(session, "close-")
-
+				if strings.HasPrefix(session, common.SyncSessionClose_) {
+					session = strings.TrimPrefix(session, common.SyncSessionClose_)
 					ev.batchCacheMutex.Lock()
 					ev.batchCache[session] = append(ev.batchCache[session], event)
 					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
