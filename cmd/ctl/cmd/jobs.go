@@ -25,7 +25,7 @@ import (
 )
 
 // dataCmd represents the data command
-var jobsCmd = &cobra.Command{
+var JobsCmd = &cobra.Command{
 	Use:   "jobs",
 	Short: "Manage scheduler Jobs",
 	Long: `Manage scheduler Jobs
@@ -41,5 +41,5 @@ Timer is used to trigger jobs at a given schedule (like a crontab).
 }
 
 func init() {
-	RootCmd.AddCommand(jobsCmd)
+	RootCmd.AddCommand(JobsCmd)
 }
