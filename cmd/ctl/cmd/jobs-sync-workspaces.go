@@ -27,7 +27,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 )
 
@@ -64,5 +64,5 @@ func newJobSyncWorkspace(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	jobsCmd.AddCommand(jobsSyncWorkspacesCmd)
+	JobsCmd.AddCommand(jobsSyncWorkspacesCmd)
 }

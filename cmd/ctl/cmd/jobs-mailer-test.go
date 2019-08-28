@@ -24,7 +24,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/spf13/cobra"
 )
@@ -82,5 +82,5 @@ func init() {
 	jobsMailerTestCmd.PersistentFlags().StringVar(&mtToName, "to-name", "", "Recipient name")
 	jobsMailerTestCmd.PersistentFlags().StringVar(&mtSubject, "subject", "", "Mail subject")
 
-	jobsCmd.AddCommand(jobsMailerTestCmd)
+	JobsCmd.AddCommand(jobsMailerTestCmd)
 }
