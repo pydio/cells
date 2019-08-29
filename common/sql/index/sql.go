@@ -1125,14 +1125,20 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 
 	var nodes []*mtree.TreeNode
 
+	t1 := time.Now()
+	ctx := context.Background()
+
 	for node := range dao.GetNodeTree(pathFrom) {
 		nodes = append(nodes, node)
 	}
 
+	log.Logger(ctx).Info("[MoveNodeTree] Load Tree", zap.Duration("Duration", time.Now().Sub(t1)))
+	t1 = time.Now()
 	for _, node := range nodes {
 		update(node)
 	}
 
+	log.Logger(ctx).Info("[MoveNodeTree] Finished moving", zap.Int("nodes", len(nodes)+1), zap.Duration("duration", time.Now().Sub(t1)))
 	if len(updateErrors) > 0 {
 		return updateErrors[0]
 	}
