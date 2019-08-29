@@ -169,7 +169,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				log.Logger(ctx).Error("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 4s", zap.Error(err))
 				return err
 			} else {
-				log.Logger(ctx).Info("Could List Objects in Bucket!")
+				log.Logger(ctx).Info("Successfully listed objects from bucket " + syncConfig.ObjectsBucket)
 				return nil
 			}
 		}, 4*time.Second, 50*time.Second)
@@ -202,7 +202,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 					NodeId: nodeUUID,
 					UserId: "ds:" + syncConfig.Name,
 				}); e == nil {
-					log.Logger(ctx).Info("Loaded Plain Size from data-key service")
+					log.Logger(ctx).Info("Loaded plain size from data-key service")
 					return resp.GetSize(), nil
 				} else {
 					log.Logger(ctx).Error("Cannot loaded plain size from data-key service", zap.Error(e))
