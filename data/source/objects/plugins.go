@@ -47,19 +47,19 @@ func init() {
 			service.Description("Starter for different sources objects"),
 			service.WithMicro(func(m micro.Service) error {
 				runner := service.NewChildrenRunner(m, Name, ChildPrefix)
-				ctx := m.Options().Context
-				conf := servicecontext.GetConfig(ctx)
-				treeServer := NewTreeHandler(conf)
 				m.Init(
 					micro.AfterStart(func() error {
+						ctx := m.Options().Context
+						conf := servicecontext.GetConfig(ctx)
+						treeServer := NewTreeHandler(conf)
 						runner.StartFromInitialConf(ctx, conf)
 						tree.RegisterNodeProviderHandler(m.Server(), treeServer)
+						tree.RegisterNodeReceiverHandler(m.Server(), treeServer)
 						runner.OnDeleteConfig(onDeleteObjectsConfig)
 						return nil
 					}))
 
-				tree.RegisterNodeProviderHandler(m.Server(), treeServer)
-				tree.RegisterNodeReceiverHandler(m.Server(), treeServer)
+				//tree.RegisterNodeProviderHandler(m.Server(), treeServer)
 
 				return runner.Watch(m.Options().Context)
 			}),
