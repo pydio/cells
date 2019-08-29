@@ -3,6 +3,7 @@ package views
 import (
 	"context"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/micro/go-micro/client"
@@ -13,10 +14,12 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
+// SyncFolderTasksHandler is a handler implementing synchronous operations for moving or deleting folders
 type SyncFolderTasksHandler struct {
 	AbstractHandler
 }
 
+// DeleteNode synchronously and recursively delete a node
 func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
 
 	node := in.Node
@@ -66,6 +69,7 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 
 }
 
+// UpdateNode synchronously and recursively performs a Move operation of a node
 func (h *SyncFolderTasksHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...client.CallOption) (*tree.UpdateNodeResponse, error) {
 
 	source := in.From
@@ -88,7 +92,11 @@ func (h *SyncFolderTasksHandler) UpdateNode(ctx context.Context, in *tree.Update
 			case <-done:
 				return
 			case s := <-status:
-				log.Logger(ctx).Info(s)
+				if !strings.HasPrefix(s, "Copying ") {
+					log.Logger(ctx).Info(s)
+				} else {
+					log.Logger(ctx).Debug(s)
+				}
 			case pg := <-progress:
 				log.Logger(ctx).Debug("progress", zap.Float32("pg", pg))
 			}
