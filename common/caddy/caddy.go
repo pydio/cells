@@ -172,9 +172,11 @@ func Restart() error {
 	return nil
 }
 
-func StartWithFastRestart() error {
+func StartWithFastRestart() (chan bool, error) {
+	c := make(chan bool, 1)
 	e := Start()
 	go func() {
+		defer close(c)
 		<-time.After(2 * time.Second)
 
 		log.Logger(context.Background()).Debug("Restarting Proxy Now (fast restart)")
@@ -182,7 +184,7 @@ func StartWithFastRestart() error {
 		restart()
 		restartRequired = false
 	}()
-	return e
+	return c, e
 }
 
 func restart() error {
