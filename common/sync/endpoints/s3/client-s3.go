@@ -269,9 +269,12 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 				continue
 			}
 			if _, exists := createdDirs[folderKey]; exists {
-				// TODO
-				// THIS CREATES AN ISSUE IF A HIDDEN FILE ".aaa" IS APPEARING IN THE FOLDER
-				// BEFORE ARRIVING TO THE ".pydio" file
+				if !c.isIgnoredFile(objectInfo.Key) {
+					// Walk the .pydio before continuing, otherwise this creates an issue if another hidden file like ".aaa"
+					// is appearing in the folder before arriving to the ".pydio" file
+					s3FileInfo := NewS3FileInfo(objectInfo)
+					walknFc(c.normalize(objectInfo.Key), s3FileInfo, nil)
+				}
 				continue
 			}
 			folderObjectInfo := objectInfo
