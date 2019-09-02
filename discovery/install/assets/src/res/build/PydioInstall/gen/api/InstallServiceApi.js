@@ -76,7 +76,7 @@ var InstallServiceApi = function () {
   }
 
   /**
-   * Perform a check during install (like DB connection, php-fpm detection, etc)
+   * Perform a check during install (like DB connection)
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallGetAgreementResponse} and HTTP response
    */
 
@@ -97,7 +97,7 @@ var InstallServiceApi = function () {
   };
 
   /**
-   * Perform a check during install (like DB connection, php-fpm detection, etc)
+   * Perform a check during install (like DB connection)
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallGetAgreementResponse}
    */
 
@@ -140,7 +140,7 @@ var InstallServiceApi = function () {
   };
 
   /**
-   * Perform a check during install (like DB connection, php-fpm detection, etc)
+   * Perform a check during install (like DB connection)
    * @param {module:model/InstallPerformCheckRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallPerformCheckResponse} and HTTP response
    */
@@ -167,7 +167,7 @@ var InstallServiceApi = function () {
   };
 
   /**
-   * Perform a check during install (like DB connection, php-fpm detection, etc)
+   * Perform a check during install (like DB connection)
    * @param {module:model/InstallPerformCheckRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallPerformCheckResponse}
    */
