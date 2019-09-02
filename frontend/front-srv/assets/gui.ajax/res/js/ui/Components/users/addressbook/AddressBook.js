@@ -602,7 +602,7 @@ let AddressBook = React.createClass({
 
         let style = this.props.style || {};
         return (
-            <div style={{display:'flex', height: mode === 'selector' ? 420 : 450 , ...style}}>
+            <div style={{display:'flex', height: mode === 'selector' ? 320 : 450 , ...style}}>
                 {leftPanel}
                 {centerComponent}
                 {rightPanel}

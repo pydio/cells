@@ -679,7 +679,7 @@ var AddressBook = _react2['default'].createClass({
         var style = this.props.style || {};
         return _react2['default'].createElement(
             'div',
-            { style: _extends({ display: 'flex', height: mode === 'selector' ? 420 : 450 }, style) },
+            { style: _extends({ display: 'flex', height: mode === 'selector' ? 320 : 450 }, style) },
             leftPanel,
             centerComponent,
             rightPanel,

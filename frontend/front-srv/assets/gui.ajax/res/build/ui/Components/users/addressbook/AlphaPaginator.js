@@ -34,19 +34,19 @@ var _react = require('react');
 
 var _materialUiStyles = require('material-ui/styles');
 
+var _materialUi = require('material-ui');
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _materialUi = require('material-ui');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+
+var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 
 /**
  * Alphabet and pages generator to give a first-letter-based pagination
  */
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
-
-var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 
 var AlphaPaginator = (function (_Component) {
     _inherits(AlphaPaginator, _Component);
@@ -82,13 +82,24 @@ var AlphaPaginator = (function (_Component) {
                 for (var i = 0; i < total_pages; i++) {
                     pages.push(i);
                 }paginator = React.createElement(
-                    _materialUi.SelectField,
-                    { floatingLabelText: getMessage(331), style: { width: 60 }, fullWidth: true, value: current, onChange: function (e, i, v) {
-                            paginatorCallback(v * interval + '-' + (v + 1) * interval);
-                        } },
-                    pages.map(function (p) {
-                        return React.createElement(_materialUi.MenuItem, { value: p, key: p, primaryText: p + 1 });
-                    })
+                    _materialUi.MuiThemeProvider,
+                    { muiTheme: _materialUiStyles.getMuiTheme({ zIndex: { layer: 3000, popover: 3001 } }) },
+                    React.createElement(
+                        _materialUi.SelectField,
+                        {
+                            floatingLabelText: getMessage(331),
+                            style: { width: 60 },
+                            dropDownMenuProps: { anchorOrigin: { vertical: 'center', horizontal: 'right' } },
+                            fullWidth: true,
+                            value: current,
+                            onChange: function (e, i, v) {
+                                paginatorCallback(v * interval + '-' + (v + 1) * interval);
+                            }
+                        },
+                        pages.map(function (p) {
+                            return React.createElement(_materialUi.MenuItem, { value: p, key: p, primaryText: p + 1 });
+                        })
+                    )
                 );
             })();
         }
@@ -105,13 +116,24 @@ var AlphaPaginator = (function (_Component) {
             ),
             paginator,
             React.createElement(
-                _materialUi.SelectField,
-                { floatingLabelText: getMessage(625), style: { width: 60, marginLeft: 20 }, fullWidth: true, value: currentPage, onChange: function (e, i, v) {
-                        paginatorCallback(v);
-                    } },
-                letters.map(function (l) {
-                    return React.createElement(_materialUi.MenuItem, { value: l, key: l, primaryText: l === -1 ? getMessage(597, '') : l });
-                })
+                _materialUi.MuiThemeProvider,
+                { muiTheme: _materialUiStyles.getMuiTheme({ zIndex: { layer: 3000, popover: 3001 } }) },
+                React.createElement(
+                    _materialUi.SelectField,
+                    {
+                        floatingLabelText: getMessage(625),
+                        style: { width: 60, marginLeft: 20 },
+                        dropDownMenuProps: { anchorOrigin: { vertical: 'center', horizontal: 'right' } },
+                        fullWidth: true,
+                        value: currentPage,
+                        onChange: function (e, i, v) {
+                            paginatorCallback(v);
+                        }
+                    },
+                    letters.map(function (l) {
+                        return React.createElement(_materialUi.MenuItem, { value: l, key: l, primaryText: l === -1 ? getMessage(597, '') : l });
+                    })
+                )
             )
         );
     };

@@ -102,6 +102,15 @@ class UsersList extends React.Component{
             stylesProps.button.border = '0';
             stylesProps.icon.color = muiTheme.palette.primary1Color;
         }
+        let searchProps = {
+            style:{flex:1, minWidth: 110},
+        };
+        if (mode === 'selector'){
+            searchProps.inputStyle={color:'white'};
+            searchProps.hintStyle={color:'rgba(255,255,255,.5)'};
+            searchProps.underlineStyle={borderColor:'rgba(255,255,255,.5)'};
+            searchProps.underlineFocusStyle={borderColor:'white'};
+        }
 
         let label = item.label;
         if(this.props.onEditLabel && !this.state.select){
@@ -125,16 +134,21 @@ class UsersList extends React.Component{
         if(item.actions && item.actions.type === 'teams'){
             createIcon = 'mdi mdi-account-multiple-plus';
         }
+        const ellipsis = {
+            whiteSpace:'nowrap',
+            textOverflow:'ellipsis',
+            overflow:'hidden'
+        };
         const toolbar = (
             <div style={{padding: stylesProps.titlePadding, height:stylesProps.toolbarHeight, backgroundColor:stylesProps.toolbarBgColor, borderRadius: '2px 2px 0 0', display:'flex', alignItems:'center', transition:DOMUtils.getBeziersTransition()}}>
                 {mode === "selector" && item._parent && <IconButton style={{marginLeft: -10}} iconClassName="mdi mdi-chevron-left" onTouchTap={() => {this.props.onFolderClicked(item._parent)}}/>}
                 {mode === 'book' && total > 0 && item.actions && item.actions.multiple && <Checkbox style={{width:'initial', marginLeft: this.state.select?7:14}} checked={this.state.select} onCheck={toggleSelect}/>}
-                <div style={{flex:2, fontSize:stylesProps.titleFontsize, color:stylesProps.titleColor, fontWeight:stylesProps.titleFontWeight}}>{label}</div>
+                <div style={{flex:2, fontSize:stylesProps.titleFontsize, color:stylesProps.titleColor, fontWeight:stylesProps.titleFontWeight, ...ellipsis}}>{label}</div>
                 {(mode === 'book' || (mode === 'selector' && bookColumn)) && item.actions && item.actions.create && !this.state.select && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={createIcon} tooltipPosition={"bottom-left"} tooltip={getMessage(item.actions.create)} onTouchTap={createAction}/>}
                 {bookColumn && !item._parent && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-window-restore"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['411']} onTouchTap={()=>{pydio.Controller.fireAction('open_address_book')}}/>}
                 {mode === 'book' && item.actions && item.actions.remove && this.state.select && <RaisedButton secondary={true} label={getMessage(item.actions.remove)} disabled={!this.state.selection.length} onTouchTap={deleteAction}/>}
                 {!this.state.select && actionsPanel}
-                {enableSearch && !bookColumn && <SearchForm searchLabel={this.props.searchLabel} onSearch={this.props.onSearch} style={{flex:1, minWidth: 110}}/>}
+                {enableSearch && !bookColumn && <SearchForm searchLabel={this.props.searchLabel} onSearch={this.props.onSearch} {...searchProps}/>}
                 {reloadAction && (mode === 'book' || (mode === 'selector' && bookColumn)) && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-refresh"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['149']} onTouchTap={reloadAction} disabled={loading}/>}
             </div>
         );
@@ -220,7 +234,7 @@ class UsersList extends React.Component{
             };
             elements.push(<ListItem
                 key={item.id}
-                primaryText={item.label}
+                primaryText={<div style={{overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{item.label}</div>}
                 onTouchTap={touchTap}
                 disabled={mode === 'inner'}
                 leftAvatar={!this.state.select && fontIcon}
@@ -251,7 +265,7 @@ class UsersList extends React.Component{
         }
 
         return (
-            <div style={{flex:1, flexDirection:'column', display:'flex'}} onTouchTap={this.props.onTouchTap}>
+            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%'}} onTouchTap={this.props.onTouchTap}>
                 {mode !== 'inner' && !this.props.noToolbar && toolbar}
                 {!emptyState && !loading &&
                     <List style={{flex: 1, overflowY: mode !== 'inner' ? 'auto' : 'initial'}}>

@@ -67,6 +67,10 @@ var SearchForm = (function (_Component) {
         var underlineShow = _props.underlineShow;
         var searchLabel = _props.searchLabel;
         var style = _props.style;
+        var inputStyle = _props.inputStyle;
+        var underlineStyle = _props.underlineStyle;
+        var underlineFocusStyle = _props.underlineFocusStyle;
+        var hintStyle = _props.hintStyle;
         var value = this.state.value;
 
         return React.createElement(
@@ -77,6 +81,10 @@ var SearchForm = (function (_Component) {
                 value: value,
                 onChange: this.onChange.bind(this),
                 hintText: searchLabel,
+                inputStyle: inputStyle,
+                hintStyle: hintStyle,
+                underlineStyle: underlineStyle,
+                underlineFocusStyle: underlineFocusStyle,
                 underlineShow: underlineShow === undefined ? true : underlineShow
             })
         );

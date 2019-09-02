@@ -45,7 +45,7 @@ class SearchForm extends Component{
 
     render(){
 
-        const {underlineShow, searchLabel, style} = this.props;
+        const {underlineShow, searchLabel, style, inputStyle, underlineStyle, underlineFocusStyle, hintStyle} = this.props;
         const {value} = this.state;
 
         return (
@@ -55,6 +55,10 @@ class SearchForm extends Component{
                     value={value}
                     onChange={this.onChange.bind(this)}
                     hintText={searchLabel}
+                    inputStyle={inputStyle}
+                    hintStyle={hintStyle}
+                    underlineStyle={underlineStyle}
+                    underlineFocusStyle={underlineFocusStyle}
                     underlineShow={underlineShow === undefined ? true : underlineShow}
                 />
             </div>

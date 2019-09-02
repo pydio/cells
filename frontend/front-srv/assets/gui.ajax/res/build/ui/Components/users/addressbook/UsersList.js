@@ -162,6 +162,15 @@ var UsersList = (function (_React$Component) {
             stylesProps.button.border = '0';
             stylesProps.icon.color = muiTheme.palette.primary1Color;
         }
+        var searchProps = {
+            style: { flex: 1, minWidth: 110 }
+        };
+        if (mode === 'selector') {
+            searchProps.inputStyle = { color: 'white' };
+            searchProps.hintStyle = { color: 'rgba(255,255,255,.5)' };
+            searchProps.underlineStyle = { borderColor: 'rgba(255,255,255,.5)' };
+            searchProps.underlineFocusStyle = { borderColor: 'white' };
+        }
 
         var label = item.label;
         if (this.props.onEditLabel && !this.state.select) {
@@ -189,6 +198,11 @@ var UsersList = (function (_React$Component) {
         if (item.actions && item.actions.type === 'teams') {
             createIcon = 'mdi mdi-account-multiple-plus';
         }
+        var ellipsis = {
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden'
+        };
         var toolbar = _react2['default'].createElement(
             'div',
             { style: { padding: stylesProps.titlePadding, height: stylesProps.toolbarHeight, backgroundColor: stylesProps.toolbarBgColor, borderRadius: '2px 2px 0 0', display: 'flex', alignItems: 'center', transition: _pydioUtilDom2['default'].getBeziersTransition() } },
@@ -198,7 +212,7 @@ var UsersList = (function (_React$Component) {
             mode === 'book' && total > 0 && item.actions && item.actions.multiple && _react2['default'].createElement(_materialUi.Checkbox, { style: { width: 'initial', marginLeft: this.state.select ? 7 : 14 }, checked: this.state.select, onCheck: toggleSelect }),
             _react2['default'].createElement(
                 'div',
-                { style: { flex: 2, fontSize: stylesProps.titleFontsize, color: stylesProps.titleColor, fontWeight: stylesProps.titleFontWeight } },
+                { style: _extends({ flex: 2, fontSize: stylesProps.titleFontsize, color: stylesProps.titleColor, fontWeight: stylesProps.titleFontWeight }, ellipsis) },
                 label
             ),
             (mode === 'book' || mode === 'selector' && bookColumn) && item.actions && item.actions.create && !this.state.select && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: createIcon, tooltipPosition: "bottom-left", tooltip: getMessage(item.actions.create), onTouchTap: createAction }),
@@ -207,7 +221,7 @@ var UsersList = (function (_React$Component) {
                 } }),
             mode === 'book' && item.actions && item.actions.remove && this.state.select && _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: getMessage(item.actions.remove), disabled: !this.state.selection.length, onTouchTap: deleteAction }),
             !this.state.select && actionsPanel,
-            enableSearch && !bookColumn && _react2['default'].createElement(_SearchForm2['default'], { searchLabel: this.props.searchLabel, onSearch: this.props.onSearch, style: { flex: 1, minWidth: 110 } }),
+            enableSearch && !bookColumn && _react2['default'].createElement(_SearchForm2['default'], _extends({ searchLabel: this.props.searchLabel, onSearch: this.props.onSearch }, searchProps)),
             reloadAction && (mode === 'book' || mode === 'selector' && bookColumn) && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: "mdi mdi-refresh", tooltipPosition: "bottom-left", tooltip: pydio.MessageHash['149'], onTouchTap: reloadAction, disabled: loading })
         );
         // PARENT NODE
@@ -302,7 +316,11 @@ var UsersList = (function (_React$Component) {
             };
             elements.push(_react2['default'].createElement(_materialUi.ListItem, {
                 key: item.id,
-                primaryText: item.label,
+                primaryText: _react2['default'].createElement(
+                    'div',
+                    { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+                    item.label
+                ),
                 onTouchTap: touchTap,
                 disabled: mode === 'inner',
                 leftAvatar: !this.state.select && fontIcon,
@@ -333,7 +351,7 @@ var UsersList = (function (_React$Component) {
 
         return _react2['default'].createElement(
             'div',
-            { style: { flex: 1, flexDirection: 'column', display: 'flex' }, onTouchTap: this.props.onTouchTap },
+            { style: { flex: 1, flexDirection: 'column', display: 'flex', width: '100%' }, onTouchTap: this.props.onTouchTap },
             mode !== 'inner' && !this.props.noToolbar && toolbar,
             !emptyState && !loading && _react2['default'].createElement(
                 _materialUi.List,

@@ -20,9 +20,10 @@
 
 
 import {Component, PropTypes} from 'react'
-import {muiThemeable} from 'material-ui/styles'
+import {muiThemeable, getMuiTheme} from 'material-ui/styles'
+import {MuiThemeProvider} from 'material-ui'
 import Pydio from 'pydio'
-const {PydioContextConsumer} = Pydio.requireLib('boot')
+const {PydioContextConsumer} = Pydio.requireLib('boot');
 
 import {SelectField, MenuItem} from 'material-ui';
 
@@ -48,11 +49,20 @@ class AlphaPaginator extends Component{
             for(let i=0; i<total_pages;i++) pages.push(i);
 
             paginator = (
-                <SelectField floatingLabelText={getMessage(331)} style={{width: 60}} fullWidth={true} value={current} onChange={(e,i,v) => { paginatorCallback((v*interval) + '-' + (v+1)*interval) }}>
-                    {pages.map((p) => {
-                        return <MenuItem value={p} key={p} primaryText={p+1}/>
-                    })}
-                </SelectField>
+                <MuiThemeProvider muiTheme={getMuiTheme({zIndex:{layer: 3000, popover:3001}})}>
+                    <SelectField
+                        floatingLabelText={getMessage(331)}
+                        style={{width: 60}}
+                        dropDownMenuProps={{anchorOrigin:{vertical:'center', horizontal:'right'}}}
+                        fullWidth={true}
+                        value={current}
+                        onChange={(e,i,v) => { paginatorCallback((v*interval) + '-' + (v+1)*interval) }}
+                    >
+                        {pages.map((p) => {
+                            return <MenuItem value={p} key={p} primaryText={p+1}/>
+                        })}
+                    </SelectField>
+                </MuiThemeProvider>
             );
 
         }
@@ -63,11 +73,20 @@ class AlphaPaginator extends Component{
             <div style={{...style, display:'flex', paddingRight: 8, alignItems:'center'}}>
                 <div style={{flex:1}}>{getMessage(249, '')}</div>
                 {paginator}
-                <SelectField floatingLabelText={getMessage(625)} style={{width: 60, marginLeft: 20}} fullWidth={true} value={currentPage} onChange={(e,i,v) => { paginatorCallback(v) }}>
-                    {letters.map((l) => {
-                        return <MenuItem value={l} key={l} primaryText={l === -1 ? getMessage(597, '') : l}/>
-                    })}
-                </SelectField>
+                <MuiThemeProvider muiTheme={getMuiTheme({zIndex:{layer: 3000, popover:3001}})}>
+                    <SelectField
+                        floatingLabelText={getMessage(625)}
+                        style={{width: 60, marginLeft: 20}}
+                        dropDownMenuProps={{anchorOrigin:{vertical:'center', horizontal:'right'}}}
+                        fullWidth={true}
+                        value={currentPage}
+                        onChange={(e,i,v) => { paginatorCallback(v) }}
+                    >
+                        {letters.map((l) => {
+                            return <MenuItem value={l} key={l} primaryText={l === -1 ? getMessage(597, '') : l}/>
+                        })}
+                    </SelectField>
+                </MuiThemeProvider>
             </div>
         );
     }
