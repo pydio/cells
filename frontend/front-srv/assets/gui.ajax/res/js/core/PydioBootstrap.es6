@@ -112,7 +112,7 @@ export default class PydioBootstrap{
 
     refreshContextVariablesAndInit(connexion){
 
-        Connexion.updateServerAccess(this.parameters);
+        //Connexion.updateServerAccess(this.parameters);
 
         let cssRes = this.parameters.get("cssResources");
         if(cssRes) {

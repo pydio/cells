@@ -41,7 +41,7 @@ export default class InstallServiceApi {
 
 
     /**
-     * Perform a check during install (like DB connection, php-fpm detection, etc)
+     * Load a textual agreement for using the software
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallGetAgreementResponse} and HTTP response
      */
     getAgreementWithHttpInfo() {
@@ -70,7 +70,7 @@ export default class InstallServiceApi {
     }
 
     /**
-     * Perform a check during install (like DB connection, php-fpm detection, etc)
+     * Load a textual agreement for using the software
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallGetAgreementResponse}
      */
     getAgreement() {
@@ -123,7 +123,7 @@ export default class InstallServiceApi {
 
 
     /**
-     * Perform a check during install (like DB connection, php-fpm detection, etc)
+     * Perform a check during install (like a valid DB connection)
      * @param {module:model/InstallPerformCheckRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallPerformCheckResponse} and HTTP response
      */
@@ -158,7 +158,7 @@ export default class InstallServiceApi {
     }
 
     /**
-     * Perform a check during install (like DB connection, php-fpm detection, etc)
+     * Perform a check during install (like a valid DB connection)
      * @param {module:model/InstallPerformCheckRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallPerformCheckResponse}
      */

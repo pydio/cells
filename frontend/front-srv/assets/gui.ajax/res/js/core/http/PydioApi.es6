@@ -144,9 +144,6 @@ class PydioApi{
      */
     uploadFile(file, fileParameterName, queryStringParams='', onComplete=function(){}, onError=function(){}, onProgress=function(){}, uploadUrl='', xhrSettings={}){
 
-        if(!uploadUrl){
-            uploadUrl = pydio.Parameters.get('ajxpServerAccess');
-        }
         if(queryStringParams){
             uploadUrl += (uploadUrl.indexOf('?') === -1 ? '?' : '&') + queryStringParams;
         }

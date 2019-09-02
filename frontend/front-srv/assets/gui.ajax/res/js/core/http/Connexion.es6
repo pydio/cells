@@ -39,42 +39,6 @@ class Connexion{
         this.discrete = false;
     }
 
-    static updateServerAccess(parameters){
-
-        if(parameters.get('SECURE_TOKEN')){
-            Connexion.SECURE_TOKEN = parameters.get('SECURE_TOKEN');
-        }
-        let serverAccessPath = parameters.get('ajxpServerAccess').split('?').shift();
-        if(parameters.get('SERVER_PREFIX_URI')){
-            parameters.set('ajxpResourcesFolder', parameters.get('SERVER_PREFIX_URI') + parameters.get('ajxpResourcesFolder'));
-            serverAccessPath = parameters.get('SERVER_PREFIX_URI') + serverAccessPath + '?' + (Connexion.SECURE_TOKEN? 'secure_token='+Connexion.SECURE_TOKEN:'');
-        }else{
-            serverAccessPath = serverAccessPath + '?' + (Connexion.SECURE_TOKEN? 'secure_token='+Connexion.SECURE_TOKEN:'');
-        }
-        if(parameters.get('SERVER_PERMANENT_PARAMS')){
-            const permParams = parameters.get('SERVER_PERMANENT_PARAMS');
-            let permStrings = [];
-            for(let permanent in permParams){
-                if(permParams.hasOwnProperty(permanent)){
-                    permStrings.push(permanent + '=' + permParams[permanent]);
-                }
-            }
-            permStrings = permStrings.join('&');
-            if(permStrings) {
-                serverAccessPath += '&' + permStrings;
-            }
-        }
-
-        parameters.set('ajxpServerAccess', serverAccessPath);
-        // BACKWARD COMPAT
-        window.ajxpServerAccessPath = serverAccessPath;
-        if(window.pydioBootstrap && window.pydioBootstrap.parameters){
-            pydioBootstrap.parameters.set("ajxpServerAccess", serverAccessPath);
-            pydioBootstrap.parameters.set("SECURE_TOKEN", Connexion.SECURE_TOKEN);
-        }
-
-    }
-
     static log(action, syncStatus){
         if(!Connexion.PydioLogs){
             Connexion.PydioLogs = [];

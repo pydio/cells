@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -37,102 +37,35 @@ var _react2 = _interopRequireDefault(_react);
 var HiddenDownloadForm = (function (_React$Component) {
     _inherits(HiddenDownloadForm, _React$Component);
 
-    function HiddenDownloadForm(props) {
-        var _this = this;
-
+    function HiddenDownloadForm() {
         _classCallCheck(this, HiddenDownloadForm);
 
-        _React$Component.call(this, props);
-
-        this.state = {};
-
-        this.configs = pydio.getPluginConfigs('mq');
-
-        this.validateDownload = function () {
-            try {
-                var iframe = _this.iframe.contentDocument || _this.iframe.contentWindow.document;
-            } catch (e) {
-                // Setting the BOOSTER DOWNLOAD to off
-                _this.configs.set("DOWNLOAD_ACTIVE", false);
-                _this.forceUpdate();
-            }
-        };
+        _React$Component.apply(this, arguments);
     }
 
     HiddenDownloadForm.prototype.componentDidMount = function componentDidMount() {
-        pydio.UI.registerHiddenDownloadForm(this);
-
-        this.iframe.addEventListener("load", this.validateDownload, true);
+        this.props.pydio.UI.registerHiddenDownloadForm(this);
     };
 
     HiddenDownloadForm.prototype.componentWillUnmount = function componentWillUnmount() {
-        pydio.UI.unRegisterHiddenDownloadForm(this);
-
-        this.iframe.removeEventListener("load", this.validateDownload);
+        this.props.pydio.UI.unRegisterHiddenDownloadForm(this);
     };
 
     HiddenDownloadForm.prototype.triggerDownload = function triggerDownload(userSelection, parameters) {
-        var _this2 = this;
-
         if (parameters['presignedUrl']) {
             this.iframe.src = parameters['presignedUrl'];
             return;
         }
-        this.setState({
-            nodes: userSelection ? userSelection.getSelectedNodes() : null,
-            parameters: parameters
-        }, function () {
-            _this2.refs.form.submit();
-            _this2.timeout = setTimeout(function () {
-                return _this2.validateDownload();
-            }, 1000);
-        });
     };
 
     HiddenDownloadForm.prototype.render = function render() {
-        var _this3 = this;
-
-        var _state = this.state;
-        var nodes = _state.nodes;
-        var parameters = _state.parameters;
-
-        // Variables to fill
-        var url = undefined;
-
-        if (nodes && nodes.length === 1 && nodes[0].isLeaf() && this.configs.get("DOWNLOAD_ACTIVE")) {
-            var secure = this.configs.get("BOOSTER_MAIN_SECURE");
-            if (this.configs.get("BOOSTER_DOWNLOAD_ADVANCED") && this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['booster_download_advanced'] === 'custom' && this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['DOWNLOAD_SECURE']) {
-                secure = this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['DOWNLOAD_SECURE'];
-            }
-            var host = this.configs.get("BOOSTER_MAIN_HOST");
-            if (this.configs.get("BOOSTER_DOWNLOAD_ADVANCED") && this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['booster_download_advanced'] === 'custom' && this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['DOWNLOAD_HOST']) {
-                host = this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['DOWNLOAD_HOST'];
-            }
-            var port = this.configs.get("BOOSTER_MAIN_PORT");
-            if (this.configs.get("BOOSTER_DOWNLOAD_ADVANCED") && this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['booster_download_advanced'] === 'custom' && this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['DOWNLOAD_PORT']) {
-                port = this.configs.get("BOOSTER_DOWNLOAD_ADVANCED")['DOWNLOAD_PORT'];
-            }
-
-            url = 'http' + (secure ? "s" : "") + '://' + host + ':' + port + '/' + this.configs.get("DOWNLOAD_PATH") + '/' + pydio.user.activeRepository + '/';
-        } else {
-            url = pydio.Parameters.get('ajxpServerAccess');
-        }
+        var _this = this;
 
         return _react2['default'].createElement(
             'div',
             { style: { visibility: 'hidden', position: 'absolute', left: -10000 } },
-            _react2['default'].createElement(
-                'form',
-                { ref: 'form', action: url, target: 'dl_form_iframe' },
-                parameters && Object.keys(parameters).map(function (key) {
-                    return _react2['default'].createElement('input', { type: 'hidden', name: key, key: key, value: parameters[key] });
-                }),
-                nodes && nodes.map(function (node) {
-                    return _react2['default'].createElement('input', { type: 'hidden', name: 'nodes[]', key: node.getPath(), value: node.getPath() });
-                })
-            ),
             _react2['default'].createElement('iframe', { ref: function (iframe) {
-                    return _this3.iframe = iframe;
+                    return _this.iframe = iframe;
                 }, name: 'dl_form_iframe' })
         );
     };

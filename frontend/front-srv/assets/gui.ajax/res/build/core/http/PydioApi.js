@@ -211,9 +211,6 @@ var PydioApi = (function () {
         var uploadUrl = arguments.length <= 6 || arguments[6] === undefined ? '' : arguments[6];
         var xhrSettings = arguments.length <= 7 || arguments[7] === undefined ? {} : arguments[7];
 
-        if (!uploadUrl) {
-            uploadUrl = pydio.Parameters.get('ajxpServerAccess');
-        }
         if (queryStringParams) {
             uploadUrl += (uploadUrl.indexOf('?') === -1 ? '?' : '&') + queryStringParams;
         }

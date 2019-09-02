@@ -126,7 +126,7 @@ var PydioBootstrap = (function () {
 
     PydioBootstrap.prototype.refreshContextVariablesAndInit = function refreshContextVariablesAndInit(connexion) {
 
-        Connexion.updateServerAccess(this.parameters);
+        //Connexion.updateServerAccess(this.parameters);
 
         var cssRes = this.parameters.get("cssResources");
         if (cssRes) {

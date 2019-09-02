@@ -7994,20 +7994,6 @@
             "description": "Constructor"
           },
           {
-            "name": "updateServerAccess",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "parameters",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
             "name": "log",
             "docblock": null,
             "modifiers": [
@@ -13106,7 +13092,7 @@
           },
           {
             "name": "getAgreementWithHttpInfo",
-            "docblock": "Perform a check during install (like DB connection, php-fpm detection, etc)\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallGetAgreementResponse} and HTTP response",
+            "docblock": "Load a textual agreement for using the software\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallGetAgreementResponse} and HTTP response",
             "modifiers": [],
             "params": [],
             "returns": {
@@ -13115,11 +13101,11 @@
                 "name": "Promise"
               }
             },
-            "description": "Perform a check during install (like DB connection, php-fpm detection, etc)"
+            "description": "Load a textual agreement for using the software"
           },
           {
             "name": "getAgreement",
-            "docblock": "Perform a check during install (like DB connection, php-fpm detection, etc)\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallGetAgreementResponse}",
+            "docblock": "Load a textual agreement for using the software\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallGetAgreementResponse}",
             "modifiers": [],
             "params": [],
             "returns": {
@@ -13128,7 +13114,7 @@
                 "name": "Promise"
               }
             },
-            "description": "Perform a check during install (like DB connection, php-fpm detection, etc)"
+            "description": "Load a textual agreement for using the software"
           },
           {
             "name": "getInstallWithHttpInfo",
@@ -13158,7 +13144,7 @@
           },
           {
             "name": "performInstallCheckWithHttpInfo",
-            "docblock": "Perform a check during install (like DB connection, php-fpm detection, etc)\n@param {module:model/InstallPerformCheckRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallPerformCheckResponse} and HTTP response",
+            "docblock": "Perform a check during install (like a valid DB connection)\n@param {module:model/InstallPerformCheckRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/InstallPerformCheckResponse} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -13175,11 +13161,11 @@
                 "name": "Promise"
               }
             },
-            "description": "Perform a check during install (like DB connection, php-fpm detection, etc)"
+            "description": "Perform a check during install (like a valid DB connection)"
           },
           {
             "name": "performInstallCheck",
-            "docblock": "Perform a check during install (like DB connection, php-fpm detection, etc)\n@param {module:model/InstallPerformCheckRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallPerformCheckResponse}",
+            "docblock": "Perform a check during install (like a valid DB connection)\n@param {module:model/InstallPerformCheckRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/InstallPerformCheckResponse}",
             "modifiers": [],
             "params": [
               {
@@ -13196,7 +13182,7 @@
                 "name": "Promise"
               }
             },
-            "description": "Perform a check during install (like DB connection, php-fpm detection, etc)"
+            "description": "Perform a check during install (like a valid DB connection)"
           },
           {
             "name": "postInstallWithHttpInfo",
