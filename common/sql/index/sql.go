@@ -298,12 +298,7 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 		mTime = time.Now().Unix()
 	}
 
-	mpath := make([]byte, indexLen*4)
-	copy(mpath, []byte(node.MPath.String()))
-	mpath1 := string(bytes.Trim(mpath[(indexLen*0):(indexLen*1-1)], "\x00"))
-	mpath2 := string(bytes.Trim(mpath[(indexLen*1):(indexLen*2-1)], "\x00"))
-	mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
-	mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
+	mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
 
 	if stmt := dao.GetStmt("insertTree"); stmt != nil {
 
@@ -367,12 +362,7 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 				mTime = time.Now().Unix()
 			}
 
-			mpath := make([]byte, indexLen*4)
-			copy(mpath, []byte(node.MPath.String()))
-			mpath1 := string(bytes.Trim(mpath[(indexLen*0):(indexLen*1-1)], "\x00"))
-			mpath2 := string(bytes.Trim(mpath[(indexLen*1):(indexLen*2-1)], "\x00"))
-			mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
-			mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
+			mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
 
 			valsInsertTree = append(valsInsertTree, node.Uuid, node.Level, node.MPath.Hash(), node.Name(), node.IsLeafInt(), mTime, node.GetEtag(), node.GetSize(), node.GetMode(), mpath1, mpath2, mpath3, mpath4, node.Bytes())
 
@@ -411,12 +401,7 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 	dao.Lock()
 	defer dao.Unlock()
 
-	mpath := make([]byte, indexLen*4)
-	copy(mpath, []byte(node.MPath.String()))
-	mpath1 := string(bytes.Trim(mpath[(indexLen*0):(indexLen*1-1)], "\x00"))
-	mpath2 := string(bytes.Trim(mpath[(indexLen*1):(indexLen*2-1)], "\x00"))
-	mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
-	mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
+	mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
 
 	updateTree := dao.GetStmt("updateTree")
 	if updateTree == nil {
@@ -1060,7 +1045,7 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 }
 
 // MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
-func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
+func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) (e error) {
 
 	var err error
 	var pathFrom, pathTo mtree.MPath
@@ -1098,52 +1083,100 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 	p1 := mtree.NewMatrix(pf1.Num(), psf1.Num(), pf1.Denom(), psf1.Denom())
 	toPath := nodeTo.Path
 
-	var updateErrors []error
+	updateTree := dao.GetStmt("updateTree")
+	if updateTree == nil {
+		return fmt.Errorf("empty statement")
+	}
 
-	update := func(node *mtree.TreeNode) {
+	// Update Node MPath/Rat
+	updateRat := func(node *mtree.TreeNode) {
 		M0 := mtree.NewMatrix(node.NV(), node.SNV(), node.DV(), node.SDV())
 		M1 := mtree.MoveSubtree(p0, m, p1, n, M0)
 		rat := mtree.NewRat()
 		rat.SetFrac(M1.GetA11(), M1.GetA12())
 		node.SetRat(rat)
 
-		filenames := strings.Split(toPath, "/")
-
-		// We only update the node name for the root node
+		// Update the node name for the root node
 		// Checking the level vs the filenames is one way to check we're at the root
+		filenames := strings.Split(toPath, "/")
 		if node.Level <= len(filenames) {
 			node.SetName(filenames[node.Level-1])
 		}
-
-		if e := dao.SetNode(node); e != nil {
-			updateErrors = append(updateErrors, e)
-		}
 	}
 
-	// Updating the original node
-	update(nodeFrom)
+	// Single-call DB Update
+	update := func(node *mtree.TreeNode) error {
+		updateRat(node)
+		return dao.SetNode(node)
+	}
 
-	var nodes []*mtree.TreeNode
+	// Transaction-based DB Update
+	updateTx := func(tx *databasesql.Tx, node *mtree.TreeNode) error {
+
+		updateRat(node)
+		mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
+		stmt := tx.Stmt(updateTree)
+		if stmt == nil {
+			return fmt.Errorf("empty TX statement")
+		}
+		_, err := stmt.Exec(
+			node.Level,
+			node.MPath.Hash(),
+			node.Name(),
+			node.IsLeafInt(),
+			node.MTime,
+			node.Etag,
+			node.Size,
+			node.Mode,
+			mpath1,
+			mpath2,
+			mpath3,
+			mpath4,
+			node.Bytes(),
+			node.Uuid,
+		)
+		return err
+	}
+
+	// Start by updating the original node
+	if e = update(nodeFrom); e != nil {
+		return
+	}
 
 	t1 := time.Now()
 	ctx := context.Background()
+	tx, errTx := dao.DB().Begin()
+	if errTx != nil {
+		return errTx
+	}
+	defer func() {
+		if errTx == nil {
+			tx.Commit()
+			log.Logger(ctx).Info("[MoveNodeTree] Finished committing transaction", zap.Duration("duration", time.Now().Sub(t1)))
+		} else {
+			tx.Rollback()
+			log.Logger(ctx).Error("[MoveNodeTree] Rollback transaction", zap.Duration("duration", time.Now().Sub(t1)))
+			e = errTx
+		}
+	}()
 
+	// Load all children
+	var nodes []*mtree.TreeNode
 	for node := range dao.GetNodeTree(pathFrom) {
 		nodes = append(nodes, node)
 	}
-
 	log.Logger(ctx).Info("[MoveNodeTree] Load Tree", zap.Duration("Duration", time.Now().Sub(t1)))
 	t1 = time.Now()
+
+	// Update all children in transaction
 	for _, node := range nodes {
-		update(node)
+		if errTx = updateTx(tx, node); errTx != nil {
+			break
+		}
 	}
 
 	log.Logger(ctx).Info("[MoveNodeTree] Finished moving", zap.Int("nodes", len(nodes)+1), zap.Duration("duration", time.Now().Sub(t1)))
-	if len(updateErrors) > 0 {
-		return updateErrors[0]
-	}
-
-	return nil
+	return
 }
 
 func (dao *IndexSQL) scanDbRowToTreeNode(row sql.Scanner) (*mtree.TreeNode, error) {
@@ -1358,6 +1391,17 @@ func (b *BatchSend) Close() error {
 	err := <-b.out
 
 	return err
+}
+
+// Split node.MPath into 4 strings for storing in DB
+func prepareMPathParts(node *mtree.TreeNode) (string, string, string, string) {
+	mPath := make([]byte, indexLen*4)
+	copy(mPath, []byte(node.MPath.String()))
+	mPath1 := string(bytes.Trim(mPath[(indexLen*0):(indexLen*1-1)], "\x00"))
+	mPath2 := string(bytes.Trim(mPath[(indexLen*1):(indexLen*2-1)], "\x00"))
+	mPath3 := string(bytes.Trim(mPath[(indexLen*2):(indexLen*3-1)], "\x00"))
+	mPath4 := string(bytes.Trim(mPath[(indexLen*3):(indexLen*4-1)], "\x00"))
+	return mPath1, mPath2, mPath3, mPath4
 }
 
 // where t.mpath = ?
