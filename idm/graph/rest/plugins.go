@@ -20,9 +20,7 @@
 
 // Package rest exposes a REST API to aggregate data from various services.
 //
-// This package is the result of the migration from php of the full backend code base
-// and might elvove in a near future.
-// It is mainly used to provide info about a given user to another authenticated user.
+// This package is used to provide info about a given user to another authenticated user.
 package rest
 
 import (

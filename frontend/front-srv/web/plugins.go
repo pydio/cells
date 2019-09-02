@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package web is a service for providing additional plugins to PHP frontend
+// Package web is serving the main entry points for the JS frontend
 package web
 
 import (

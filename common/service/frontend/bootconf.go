@@ -34,7 +34,6 @@ type CustomWording struct {
 
 type BootConf struct {
 	AjxpResourcesFolder          string `json:"ajxpResourcesFolder"`
-	AjxpServerAccess             string `json:"ajxpServerAccess"`
 	ENDPOINT_REST_API            string
 	ENDPOINT_S3_GATEWAY          string
 	ENDPOINT_WEBSOCKET           string
@@ -112,7 +111,6 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) *BootConf {
 
 	b := &BootConf{
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
-		AjxpServerAccess:             "index.php",
 		ENDPOINT_REST_API:            url + "/a",
 		ENDPOINT_S3_GATEWAY:          url + "/io",
 		ENDPOINT_WEBSOCKET:           wsUrl + "/ws/event",

@@ -1371,7 +1371,7 @@ var SwaggerJson = `{
     },
     "/install/agreement": {
       "get": {
-        "summary": "Perform a check during install (like DB connection, php-fpm detection, etc)",
+        "summary": "Load a textual agreement for using the software",
         "operationId": "GetAgreement",
         "responses": {
           "200": {
@@ -1388,7 +1388,7 @@ var SwaggerJson = `{
     },
     "/install/check": {
       "post": {
-        "summary": "Perform a check during install (like DB connection, php-fpm detection, etc)",
+        "summary": "Perform a check during install (like a valid DB connection)",
         "operationId": "PerformInstallCheck",
         "responses": {
           "200": {

@@ -20,9 +20,7 @@
 
 // Docstore provides an indexed JSON document store.
 //
-// It is used by various services to store their data instead of implementing yet-another persistence layer. It is also
-// used directly by the php frontend to store and retrieve some specific data.
-//
+// It is used by various services to store their data instead of implementing yet-another persistence layer.
 // It uses a combination of Bolt for storage and Bleve for indexation.
 package docstore
 

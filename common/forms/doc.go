@@ -21,5 +21,4 @@
 // Package forms provides utility methods to generate XML that is interpreted by the Front End to build forms.
 //
 // Some plugins publish configurations using this: resulting forms are used in Admin GUI to adjust plugin settings.
-// This will later be used by more plugins as the EndUser interface gets rid of the PHP parts.
 package forms

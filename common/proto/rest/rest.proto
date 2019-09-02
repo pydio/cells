@@ -717,14 +717,14 @@ service InstallService {
             body: "*"
         };
     }
-    // Perform a check during install (like DB connection, php-fpm detection, etc)
+    // Perform a check during install (like a valid DB connection)
     rpc PerformInstallCheck(install.PerformCheckRequest) returns (install.PerformCheckResponse) {
         option(google.api.http) = {
             post: "/install/check"
             body: "*"
         };
     }
-    // Perform a check during install (like DB connection, php-fpm detection, etc)
+    // Load a textual agreement for using the software
     rpc GetAgreement(install.GetAgreementRequest) returns (install.GetAgreementResponse) {
         option(google.api.http) = {
             get: "/install/agreement"
