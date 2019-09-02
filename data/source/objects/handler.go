@@ -41,9 +41,9 @@ import (
 func NewTreeHandler(conf common.ConfigValues) *TreeHandler {
 	t := &TreeHandler{}
 	t.FS = afero.NewOsFs()
-	restrict := conf.Get("allowedLocalDsFolder")
-	if t.hasRootRef = restrict != nil; t.hasRootRef {
-		f := restrict.(string)
+	restrict := conf.String("allowedLocalDsFolder")
+	if t.hasRootRef = restrict != ""; t.hasRootRef {
+		f := restrict
 		t.FS = afero.NewBasePathFs(t.FS, f)
 	}
 	return t
@@ -112,6 +112,7 @@ func (t *TreeHandler) ReadNode(ctx context.Context, request *tree.ReadNodeReques
 func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequest, stream tree.NodeProvider_ListNodesStream) error {
 
 	defer stream.Close()
+
 	if !t.hasRootRef && runtime.GOOS == "windows" && (request.Node.Path == "" || request.Node.Path == "/") {
 		request.Node.Path = "/"
 		volumes := filesystem.BrowseVolumes(ctx)
@@ -129,6 +130,10 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 
 	} else {
 		p := filesystem.ToFilePath(request.Node.Path)
+		if p == "" {
+			p = "/"
+		}
+		log.Logger(ctx).Info("ListNodes on file path", zap.String("p", p))
 		if fileInfos, e := afero.ReadDir(t.FS, p); e == nil {
 			for _, info := range fileInfos {
 				fullPath := path.Join(p, info.Name())
