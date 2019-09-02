@@ -53,6 +53,12 @@ class AutocompleteTree extends React.Component{
         this.loadValues(value);
     }
 
+    componentWillReceiveProps(newProps){
+        if(newProps.value && newProps.value !== this.state.value){
+            this.setState({value:newProps.value, exist: true});
+        }
+    }
+
     loadValues(value = "") {
         const {peerAddress} = this.props;
         const {searchText} = this.state;

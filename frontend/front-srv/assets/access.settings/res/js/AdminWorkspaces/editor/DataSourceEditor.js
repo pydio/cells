@@ -32,7 +32,15 @@ class DataSourceEditor extends React.Component{
 
     componentWillReceiveProps(newProps){
         if(newProps.dataSource && this.state.model.Name !== newProps.dataSource.Name){
-            this.setState({model: new DataSource(newProps.dataSource).getModel()});
+            if(this.state.dirty){
+                alert(this.props.pydio.MessageHash['role_editor.19']);
+            } else {
+                const observable = new DataSource(newProps.dataSource);
+                this.setState({
+                    observable,
+                    model: observable.getModel()
+                });
+            }
         }
         if(newProps.create && this.state.create !== newProps.create) {
             this.setState({create: newProps.create});

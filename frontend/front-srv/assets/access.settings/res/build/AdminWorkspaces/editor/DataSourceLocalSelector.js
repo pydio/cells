@@ -93,6 +93,13 @@ var AutocompleteTree = (function (_React$Component) {
             this.loadValues(value);
         }
     }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            if (newProps.value && newProps.value !== this.state.value) {
+                this.setState({ value: newProps.value, exist: true });
+            }
+        }
+    }, {
         key: 'loadValues',
         value: function loadValues() {
             var _this = this;

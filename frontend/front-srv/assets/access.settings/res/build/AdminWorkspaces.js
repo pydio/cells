@@ -1690,7 +1690,15 @@ var DataSourceEditor = (function (_React$Component) {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(newProps) {
             if (newProps.dataSource && this.state.model.Name !== newProps.dataSource.Name) {
-                this.setState({ model: new _modelDataSource2['default'](newProps.dataSource).getModel() });
+                if (this.state.dirty) {
+                    alert(this.props.pydio.MessageHash['role_editor.19']);
+                } else {
+                    var observable = new _modelDataSource2['default'](newProps.dataSource);
+                    this.setState({
+                        observable: observable,
+                        model: observable.getModel()
+                    });
+                }
             }
             if (newProps.create && this.state.create !== newProps.create) {
                 this.setState({ create: newProps.create });
@@ -2248,6 +2256,13 @@ var AutocompleteTree = (function (_React$Component) {
                 value = this.props.value;
             }
             this.loadValues(value);
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            if (newProps.value && newProps.value !== this.state.value) {
+                this.setState({ value: newProps.value, exist: true });
+            }
         }
     }, {
         key: 'loadValues',
