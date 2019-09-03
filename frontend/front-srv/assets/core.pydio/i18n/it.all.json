@@ -2229,45 +2229,45 @@
     "other": "Rinominando %1 in %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Filtra celle"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Visibilità"
   },
   "visibility.panel.right-read": {
-    "other": "View"
+    "other": "Visualizza"
   },
   "visibility.panel.right-edit": {
-    "other": "Edit"
+    "other": "Modifica"
   },
   "visibility.panel.list.users": {
-    "other": "Users"
+    "other": "Utenti"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "I tuoi Team"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Modifica visibilità"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Salva modifiche"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Annulla modifiche"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Si è verificato un errore"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Scegli un utente..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Imposta la visibilità a..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Questa funzionalità avanzata permette di decidere se gli utenti creati nella tua rubrica possono essere visti e/o modificati da altri utenti. Di default, i tuoi utenti sono visibili solo a te."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Sconosciuto/a"
   }
 }

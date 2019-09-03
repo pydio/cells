@@ -42,7 +42,7 @@
     "other": "User-meta impedisce l'eliminazione dei tag"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Standard users cannot create/delete workspaces"
+    "other": "Gli utenti standard non possono creare/eliminare workspace"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "Operazioni OpenIdConnect"
