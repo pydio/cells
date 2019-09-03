@@ -12,16 +12,16 @@
     "other": "Are you sure that you want to perform the update?"
   },
   "packages.available": {
-    "other": "Following packages are available for upgrade"
+    "other": "Following packages are available for update"
   },
   "checking": {
-    "other": "Checking for available upgrades..."
+    "other": "Checking for available updates..."
   },
   "noupdates": {
-    "other": "No necessary upgrade detected: click to perform a new check."
+    "other": "No necessary update detected: click to perform a new check."
   },
   "check.legend": {
-    "other": "Click to check for new upgrade"
+    "other": "Click to check for new update"
   },
   "check.button": {
     "other": "Check now"
