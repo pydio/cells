@@ -45,8 +45,13 @@ func (h *Handler) Filter() func(string) string {
 
 func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) {
 
+	var updateRequest update.UpdateRequest
+	if e := req.ReadEntity(&updateRequest); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
 	cli := update.NewUpdateServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, defaults.NewClient())
-	response, err := cli.UpdateRequired(req.Request.Context(), &update.UpdateRequest{})
+	response, err := cli.UpdateRequired(req.Request.Context(), &updateRequest)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
@@ -57,16 +62,18 @@ func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) {
 
 func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) {
 
-	targetVersion := req.PathParameter("TargetVersion")
-	if targetVersion == "" {
+	var applyRequest update.ApplyUpdateRequest
+	if e := req.ReadEntity(&applyRequest); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	if applyRequest.TargetVersion == "" {
 		service.RestError500(req, rsp, fmt.Errorf("please prove a target version"))
 		return
 	}
 
 	cli := update.NewUpdateServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, defaults.NewClient())
-	response, err := cli.ApplyUpdate(req.Request.Context(), &update.ApplyUpdateRequest{
-		TargetVersion: targetVersion,
-	})
+	response, err := cli.ApplyUpdate(req.Request.Context(), &applyRequest)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 	} else {

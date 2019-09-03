@@ -737,13 +737,15 @@ service UpdateService {
     // Check the remote server to see if there are available binaries
     rpc UpdateRequired(update.UpdateRequest) returns (update.UpdateResponse) {
         option(google.api.http) = {
-            get: "/update"
+            post: "/update"
+            body:"*"
         };
     }
     // Apply an update to a given version
     rpc ApplyUpdate(update.ApplyUpdateRequest) returns (update.ApplyUpdateResponse) {
         option(google.api.http) = {
-            get: "/update/{TargetVersion}"
+            patch: "/update/{TargetVersion}"
+            body:"*"
         };
     }
 }

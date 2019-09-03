@@ -30,6 +30,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -46,14 +47,15 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/update"
+	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/net"
 )
 
 // LoadUpdates will post a Json query to the update server to detect if there are any
 // updates available
-func LoadUpdates(ctx context.Context, config common.ConfigValues) ([]*update.Package, error) {
+func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.UpdateRequest) ([]*update.Package, error) {
 
-	urlConf := config.String("updateUrl")
+	urlConf := conf.String("updateUrl")
 	if urlConf == "" {
 		return nil, errors.BadRequest(common.SERVICE_UPDATE, "cannot find update url")
 	}
@@ -64,18 +66,29 @@ func LoadUpdates(ctx context.Context, config common.ConfigValues) ([]*update.Pac
 	if strings.Trim(parsed.Path, "/") == "" {
 		parsed.Path = "/a/update-server"
 	}
-	channel := config.String("channel")
+	channel := conf.String("channel")
 	if channel == "" {
 		channel = "stable"
 	}
 
-	request := &update.UpdateRequest{
-		PackageName:    common.PackageType,
-		Channel:        channel,
-		CurrentVersion: common.Version().String(),
-		GOOS:           runtime.GOOS,
-		GOARCH:         runtime.GOARCH,
+	// Set default values
+	if request.PackageName == "" {
+		request.PackageName = common.PackageType
 	}
+	request.Channel = channel
+	if request.PackageName != common.PackageType {
+		// This is an "upgrade" (from one package to another)
+		// compute a version lower than current to get the current in the results set
+		segments := common.Version().Segments()
+		lower := service.ValidVersion(fmt.Sprintf("%v.%v.%v", math.Max(float64(segments[0]-1), 0), math.Max(float64(segments[1]-1), 0), 0))
+		log.Logger(ctx).Info("Sending a lower version", zap.String("v", lower.String()))
+		request.CurrentVersion = lower.String()
+	} else {
+		// This is an "update" : send current version to get the more recent ones
+		request.CurrentVersion = common.Version().String()
+	}
+	request.GOOS = runtime.GOOS
+	request.GOARCH = runtime.GOARCH
 
 	log.Logger(ctx).Info("Posting Request for update", zap.Any("request", request))
 
@@ -92,6 +105,32 @@ func LoadUpdates(ctx context.Context, config common.ConfigValues) ([]*update.Pac
 	var updateResponse update.UpdateResponse
 	if e := jsonpb.Unmarshal(response.Body, &updateResponse); e != nil {
 		return nil, e
+	}
+
+	if request.LicenseInfo != nil {
+		lic, ok := request.LicenseInfo["Key"]
+		save, sOk := request.LicenseInfo["Save"]
+		if ok && sOk && save == "true" {
+			// Save license now : the check for update including license key passed without error,
+			// this license must thus be valid
+			log.Logger(ctx).Info("Saving LicenseKey to file now", zap.String("lic", lic))
+			filePath := filepath.Join(config.ApplicationDataDir(), "pydio-license")
+			if err := ioutil.WriteFile(filePath, []byte(lic), 0755); err != nil {
+				return nil, fmt.Errorf("could not save license file to %s (%s), aborting upgrade", filePath, err.Error())
+			}
+		}
+	}
+
+	// When upgrading, filter out versions lesser than current
+	if request.PackageName != common.PackageType {
+		var bins []*update.Package
+		for _, b := range updateResponse.AvailableBinaries {
+			if service.ValidVersion(b.GetVersion()).LessThan(common.Version()) {
+				continue
+			}
+			bins = append(bins, b)
+		}
+		updateResponse.AvailableBinaries = bins
 	}
 
 	return updateResponse.AvailableBinaries, nil

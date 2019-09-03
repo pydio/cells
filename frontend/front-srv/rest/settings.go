@@ -119,8 +119,8 @@ var settingsNode = &rest.SettingsMenuResponse{
 				},
 				{
 					Key:         "update",
-					Label:       "updater.1",
-					Description: "updater.2",
+					Label:       "updater.title",
+					Description: "updater.legend",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-update",
 						Component: "AdminPlugins.UpdaterDashboard",

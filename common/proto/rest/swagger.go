@@ -2385,7 +2385,7 @@ var SwaggerJson = `{
       }
     },
     "/update": {
-      "get": {
+      "post": {
         "summary": "Check the remote server to see if there are available binaries",
         "operationId": "UpdateRequired",
         "responses": {
@@ -2398,46 +2398,12 @@ var SwaggerJson = `{
         },
         "parameters": [
           {
-            "name": "Channel",
-            "description": "Channel name.",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "PackageName",
-            "description": "Name of the currently running application.",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "CurrentVersion",
-            "description": "Current version of the application.",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "GOOS",
-            "description": "Current GOOS.",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "GOARCH",
-            "description": "Current GOARCH.",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "ServiceName",
-            "description": "Not Used : specific service to get updates for.",
-            "in": "query",
-            "required": false,
-            "type": "string"
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/updateUpdateRequest"
+            }
           }
         ],
         "tags": [
@@ -2446,7 +2412,7 @@ var SwaggerJson = `{
       }
     },
     "/update/{TargetVersion}": {
-      "get": {
+      "patch": {
         "summary": "Apply an update to a given version",
         "operationId": "ApplyUpdate",
         "responses": {
@@ -2463,6 +2429,14 @@ var SwaggerJson = `{
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/updateApplyUpdateRequest"
+            }
           }
         ],
         "tags": [
@@ -7264,6 +7238,19 @@ var SwaggerJson = `{
       },
       "title": "Used in AppearsIn to signal a node is\nappearing in multiple workspaces in the current context"
     },
+    "updateApplyUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "TargetVersion": {
+          "type": "string",
+          "title": "Version of the target binary"
+        },
+        "PackageName": {
+          "type": "string",
+          "title": "Name of the package if it's not the same as the current binary"
+        }
+      }
+    },
     "updateApplyUpdateResponse": {
       "type": "object",
       "properties": {
@@ -7352,6 +7339,42 @@ var SwaggerJson = `{
         },
         "Status": {
           "$ref": "#/definitions/PackagePackageStatus"
+        }
+      }
+    },
+    "updateUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "Channel": {
+          "type": "string",
+          "title": "Channel name"
+        },
+        "PackageName": {
+          "type": "string",
+          "title": "Name of the currently running application"
+        },
+        "CurrentVersion": {
+          "type": "string",
+          "title": "Current version of the application"
+        },
+        "GOOS": {
+          "type": "string",
+          "title": "Current GOOS"
+        },
+        "GOARCH": {
+          "type": "string",
+          "title": "Current GOARCH"
+        },
+        "ServiceName": {
+          "type": "string",
+          "title": "Not Used : specific service to get updates for"
+        },
+        "LicenseInfo": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "For enterprise version, info about the current license"
         }
       }
     },

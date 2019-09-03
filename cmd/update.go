@@ -59,7 +59,7 @@ To apply the actual update, re-run the command with a --version parameter.
 		configs.Set("channel", channel)
 		configs.Set("publicKey", pKey)
 
-		binaries, e := update2.LoadUpdates(context.Background(), configs)
+		binaries, e := update2.LoadUpdates(context.Background(), configs, &update.UpdateRequest{})
 		if e != nil {
 			log.Fatal("Cannot retrieve available updates", zap.Error(e))
 		}

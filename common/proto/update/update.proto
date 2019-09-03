@@ -52,7 +52,10 @@ message Package {
 }
 
 message ApplyUpdateRequest {
+    // Version of the target binary
     string TargetVersion = 1;
+    // Name of the package if it's not the same as the current binary
+    string PackageName = 2;
 }
 
 message ApplyUpdateResponse {

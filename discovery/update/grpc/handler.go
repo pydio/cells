@@ -54,7 +54,7 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 		log.Logger(ctx).Error("Cannot load last configs for update service, using context configs", zap.Error(e))
 		configs = servicecontext.GetConfig(ctx)
 	}
-	binaries, e := update2.LoadUpdates(ctx, configs)
+	binaries, e := update2.LoadUpdates(ctx, configs, request)
 	if e != nil {
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))
 		return e
@@ -75,7 +75,9 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		log.Logger(ctx).Error("Cannot load last configs for update service, using context configs", zap.Error(e))
 		configs = servicecontext.GetConfig(ctx)
 	}
-	binaries, e := update2.LoadUpdates(ctx, configs)
+	binaries, e := update2.LoadUpdates(ctx, configs, &update.UpdateRequest{
+		PackageName: request.PackageName,
+	})
 	if e != nil {
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))
 		return e
