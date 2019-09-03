@@ -24,6 +24,7 @@ import (
 	"context"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
@@ -89,6 +90,9 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		}
 	} else {
 
+		var delErr error
+		wg := &sync.WaitGroup{}
+		throttle := make(chan struct{}, 4)
 		list, e := c.Client.ListNodes(ctx, &tree.ListNodesRequest{Node: sourceNode, Recursive: true})
 		if e != nil {
 			return input.WithError(e), e
@@ -103,18 +107,30 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 				// Do not delete first .pydio!
 				continue
 			}
-			log.Logger(ctx).Debug("Deleting node in background", resp.Node.ZapPath())
-			statusPath := strings.TrimPrefix(resp.Node.GetPath(), sourceNode.GetPath()+"/")
-			if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
-				statusPath = path.Dir(statusPath)
-			}
-			channels.StatusMsg <- strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)
-			_, er := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node})
-			if er != nil {
-				return input.WithError(er), er
-			}
+			n := resp.Node
+			wg.Add(1)
+			throttle <- struct{}{}
+			go func() {
+				defer func() {
+					<-throttle
+					wg.Done()
+				}()
+				log.Logger(ctx).Debug("Deleting node in background", n.ZapPath())
+				statusPath := strings.TrimPrefix(n.GetPath(), sourceNode.GetPath()+"/")
+				if path.Base(statusPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+					statusPath = path.Dir(statusPath)
+				}
+				channels.StatusMsg <- strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)
+				_, er := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n})
+				if er != nil {
+					delErr = er
+				}
+			}()
 		}
-
+		wg.Wait()
+		if delErr != nil {
+			return input.WithError(delErr), delErr
+		}
 	}
 
 	output := input.WithNode(nil)
