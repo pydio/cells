@@ -23,6 +23,7 @@ package images
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"image"
 	"io"
@@ -36,12 +37,10 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
+	"github.com/pkg/errors"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
-
-	"encoding/json"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -154,29 +153,32 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	displayMemStat(ctx, "START RESIZE")
 	// Open the test image.
 	if !node.HasSource() {
-		return errors.InternalServerError(common.SERVICE_JOBS, "Node does not have enough metadata for Resize (missing Source data)")
+		return fmt.Errorf("node does not have enough metadata for Resize (missing Source data)")
 	}
 
 	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Getting object content", zap.String("Path", node.Path), zap.Int64("Size", node.Size))
 	var reader io.ReadCloser
 	var err error
+	var errPath string
 
 	if localPath := getNodeLocalPath(node); len(localPath) > 0 {
 		reader, err = os.Open(localPath)
+		errPath = localPath
 	} else {
 		// TODO : tmp security until Router is transmitting nodes immutably
 		routerNode := proto.Clone(node).(*tree.Node)
 		reader, err = getRouter().GetObject(ctx, routerNode, &views.GetRequestData{Length: -1})
+		errPath = routerNode.Path
 	}
 	if err != nil {
-		return err
+		return errors.Wrap(err, errPath)
 	}
 	defer reader.Close()
 
 	displayMemStat(ctx, "BEFORE DECODE")
 	src, err := imaging.Decode(reader)
 	if err != nil {
-		return errors.InternalServerError(common.SERVICE_JOBS, "Cannot decode image to create thumb: %s", err.Error())
+		return errors.Wrap(err, errPath)
 	}
 	displayMemStat(ctx, "AFTER DECODE")
 
@@ -201,7 +203,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, errPath)
 	}
 
 	log.Logger(ctx).Debug("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
@@ -217,7 +219,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		displayMemStat(ctx, "BEFORE WRITE SIZE FROM SRC")
 		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
 		if err != nil {
-			return err
+			return errors.Wrap(err, errPath)
 		}
 		displayMemStat(ctx, "AFTER WRITE SIZE FROM SRC")
 		if updateMeta {
@@ -240,8 +242,11 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		node.SetMeta(METADATA_THUMBNAILS, nil)
 	}
 
-	log.Logger(ctx).Info("Updating Meta After Thumbs Generation", zap.Any("meta", meta))
+	log.Logger(ctx).Info("Thumbs Generated for", zap.String("path", errPath), zap.Any("meta", meta))
 	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
+	if err != nil {
+		err = errors.Wrap(err, errPath)
+	}
 
 	return err
 }
@@ -290,15 +295,28 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	}
 
 	logger.Debug("WriteSizeFromSrc", zap.String("nodeUuid", node.Uuid))
-	// Resize the cropped image to width = 256px preserving the aspect ratio.
-	dst := imaging.Resize(img, targetSize, 0, imaging.Lanczos)
+	var dst *image.NRGBA
+	if img.Bounds().Max.X >= img.Bounds().Max.Y {
+		// Resize the cropped image to width = 256px preserving the aspect ratio.
+		dst = imaging.Resize(img, targetSize, 0, imaging.Lanczos)
+	} else {
+		// Resize the cropped image to height = 256px preserving the aspect ratio.
+		dst = imaging.Resize(img, 0, targetSize, imaging.Lanczos)
+	}
 	ol := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy(), colornames.Lightgrey)
 	ol = imaging.Overlay(ol, dst, image.Pt(0, 0), 1.0)
+	dst = nil
+	runtime.GC()
 
 	displayMemStat(ctx, "BEFORE ENCODE")
 	var thumbBytes []byte
 	buf := bytes.NewBuffer(thumbBytes)
 	err := imaging.Encode(buf, ol, imaging.JPEG)
+	ol = nil
+	runtime.GC()
+	if err != nil {
+		return false, err
+	}
 
 	displayMemStat(ctx, "AFTER ENCODE")
 
