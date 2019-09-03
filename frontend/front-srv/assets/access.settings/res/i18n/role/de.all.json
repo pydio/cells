@@ -63,7 +63,7 @@
     "other": "Standard-Arbeitsumgebung"
   },
   "24": {
-    "other": "Rollen (drücke Ctrl\/Cmd um mehrere zu markieren)"
+    "other": "Rollen (drücke Ctrl/Cmd um mehrere zu markieren)"
   },
   "25": {
     "other": "Passwort ändern"
@@ -114,7 +114,7 @@
     "other": "Vererbt"
   },
   "workspace.roots.invalid": {
-    "other": "invalid roots"
+    "other": "ungültige Wurzeln"
   },
   "39": {
     "other": "Ausschalten"

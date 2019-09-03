@@ -63,7 +63,7 @@
     "other": "Workspace par défaut"
   },
   "24": {
-    "other": "Rôles (utiliser les touches Ctrl\/Cmd pour en sélectionner plusieurs)"
+    "other": "Rôles (utiliser les touches Ctrl/Cmd pour en sélectionner plusieurs)"
   },
   "25": {
     "other": "Changer de mot de passe"
@@ -114,7 +114,7 @@
     "other": "hérité"
   },
   "workspace.roots.invalid": {
-    "other": "invalid roots"
+    "other": "noeuds racines non-valides"
   },
   "39": {
     "other": "Désactiver"

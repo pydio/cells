@@ -210,24 +210,24 @@
     "other": "Altro percorso (impostato manualmente nel file di configurazione pydio.json)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "Nome predefinito dei mittenti"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "Nome da utilizzare come predefinito per l'invio di email."
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "Indirizzo e nome mittente da utilizzare"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "Definisci quale indirizzo/nome mittente usare. Se non è configurato nessun indirizzo email verrà sempre utilizzato l'indirizzo e il nome di default."
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "Invia email dall'utente"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "Invia email A NOME DELL'utente"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "Invia sempre dall'indirizzo/nome di default"
   }
 }
