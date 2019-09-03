@@ -18,7 +18,7 @@
     "other": "Buscando actualizaciones..."
   },
   "noupdates": {
-    "other": "No se ha detectado ninguna actualización necesaria: haga clic para realizar una nueva comprobación."
+    "other": "No se ha detectado ninguna actualización necesaria: pulsa para comprobar de nuevo."
   },
   "check.legend": {
     "other": "Haga click para buscar nuevas actualizaciones"

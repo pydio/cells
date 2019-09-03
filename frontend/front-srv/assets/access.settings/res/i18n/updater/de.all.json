@@ -15,13 +15,13 @@
     "other": "Folgende Pakete sind für die Aktualisierung verfügbar"
   },
   "checking": {
-    "other": "Prüfe auf Aktualisierungen..."
+    "other": "Suche nach verfügbaren Updates..."
   },
   "noupdates": {
     "other": "Keine Aktualisierungen gefunden. Klicken, um erneut zu prüfen."
   },
   "check.legend": {
-    "other": "Klicken um auf Aktualisierungen zu prüfen"
+    "other": "Klicken um auf Aktualisierungen zu suchen"
   },
   "check.button": {
     "other": "Jetzt prüfen"
