@@ -113,6 +113,9 @@
   "38": {
     "other": "hérité"
   },
+  "workspace.roots.invalid": {
+    "other": "invalid roots"
+  },
   "39": {
     "other": "Désactiver"
   },

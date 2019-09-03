@@ -1,0 +1,20 @@
+{
+  "30 days max": {
+    "other": "30 days max"
+  },
+  "Remove versions after 30 days": {
+    "other": "Remove versions after 30 days"
+  },
+  "Keep All": {
+    "other": "Keep All"
+  },
+  "Keep all versions forever": {
+    "other": "Keep all versions forever"
+  },
+  "Regular Pruning": {
+    "other": "Regular Pruning"
+  },
+  "Prune versions regularly at various intervals": {
+    "other": "Prune versions regularly at various intervals"
+  }
+}
