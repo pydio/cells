@@ -1,68 +1,29 @@
 {
-  "1": {
-    "other": "Upgrade"
+  "title": {
+    "other": "Software Updates"
   },
-  "10": {
-    "other": "This is a 'dry-run'. Please review the logs of all actions that will be performed, and if it's ok for you press 'Run real import now'"
+  "legend": {
+    "other": "In-app binary updates"
   },
-  "11": {
-    "other": "Migrate meta.serial"
+  "current.version": {
+    "other": "Current Version"
   },
-  "12": {
-    "other": "Old meta.serial plugin was removed and split into metastore.serial and meta.user"
+  "confirm.update": {
+    "other": "Are you sure that you want to perform the update?"
   },
-  "13": {
-    "other": "Simulate migration"
-  },
-  "14": {
-    "other": "Run migration now"
-  },
-  "15": {
-    "other": "Are you sure that you want to perform the upgrade?"
-  },
-  "16": {
+  "packages.available": {
     "other": "Following packages are available for upgrade"
   },
-  "17": {
+  "checking": {
     "other": "Checking for available upgrades..."
   },
-  "18": {
+  "noupdates": {
     "other": "No necessary upgrade detected: click to perform a new check."
   },
-  "19": {
+  "check.legend": {
     "other": "Click to check for new upgrade"
   },
-  "2": {
-    "other": "Automatic Software Upgrade"
-  },
-  "20": {
+  "check.button": {
     "other": "Check now"
-  },
-  "21": {
-    "other": "Currently in development mode."
-  },
-  "22": {
-    "other": "Current version is %1 (%2)."
-  },
-  "3": {
-    "other": "Click on the button to start upgrading. Please make sure that the software folder is installed before starting. If you have a 'Linux Package' warning, it means that update cannot be performed in-app but that you must use your server yum/apt-get command."
-  },
-  "4": {
-    "other": "Start update"
-  },
-  "5": {
-    "other": "From 3.2.4"
-  },
-  "6": {
-    "other": "Import configuration data from 3.2.4"
-  },
-  "7": {
-    "other": "Simulate the data import"
-  },
-  "8": {
-    "other": "Enter full path (from server root) to the previous location, then run the simulation"
-  },
-  "9": {
-    "other": "Run real import now"
   }
 }

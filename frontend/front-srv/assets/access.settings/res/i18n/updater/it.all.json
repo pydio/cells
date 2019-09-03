@@ -1,68 +1,29 @@
 {
-  "1": {
-    "other": "Aggiornamento"
+  "title": {
+    "other": "Software Updates"
   },
-  "10": {
-    "other": "Questa è una procedura di test. Controlla i log di tutte le azioni eseguite, e se tutto va a buon fine premi 'Avvia importazione reale'"
+  "legend": {
+    "other": "In-app binary updates"
   },
-  "11": {
-    "other": "Eseguire la migrazione di meta.serial"
+  "current.version": {
+    "other": "Current Version"
   },
-  "12": {
-    "other": "I vecchi plugin meta.serial sono stati rimossi e divisi in metastore.serial e meta.user"
+  "confirm.update": {
+    "other": "Are you sure that you want to perform the update?"
   },
-  "13": {
-    "other": "Simulazione della migrazione"
+  "packages.available": {
+    "other": "Following packages are available for upgrade"
   },
-  "14": {
-    "other": "Eseguire la migrazione ora"
+  "checking": {
+    "other": "Checking for available upgrades..."
   },
-  "15": {
-    "other": "Sei sicuro di voler eseguire l'aggiornamento?"
+  "noupdates": {
+    "other": "No necessary upgrade detected: click to perform a new check."
   },
-  "16": {
-    "other": "I seguenti pacchetti sono disponibili per l'aggiornamento"
+  "check.legend": {
+    "other": "Click to check for new upgrade"
   },
-  "17": {
-    "other": "Verifica degli aggiornamenti disponibili..."
-  },
-  "18": {
-    "other": "Non c'è nessun aggiornamento necessario: clicca per eseguire una nuova verifica."
-  },
-  "19": {
-    "other": "Clicca per verificare la presenza di un nuovo aggiornamento"
-  },
-  "2": {
-    "other": "Aggiornamento automatico del software"
-  },
-  "20": {
-    "other": "Verifica adesso"
-  },
-  "21": {
-    "other": "Attualmente in modalità sviluppo."
-  },
-  "22": {
-    "other": "La versione corrente è %1 (%2)."
-  },
-  "3": {
-    "other": "Clicca sul pulsante per avviare la procedura di aggiornamento automatico. Assicurati che la cartella del software sia installata prima di iniziare. Nel caso di un avviso 'Linux Package', l'aggiornamento non può essere eseguito in-app, ma è necessario utilizzare il comando yum/apt-get del vostro server."
-  },
-  "4": {
-    "other": "Avvia Aggiornamento"
-  },
-  "5": {
-    "other": "Da 3.2.4"
-  },
-  "6": {
-    "other": "Importa le configurazioni da 3.2.4"
-  },
-  "7": {
-    "other": "Simula l'importazione del dati"
-  },
-  "8": {
-    "other": "Inserisci il percorso assoluto (dalla root del server) della precedente locazione, quindi avvia la simulazione"
-  },
-  "9": {
-    "other": "Avvia importazione reale"
+  "check.button": {
+    "other": "Check now"
   }
 }

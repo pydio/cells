@@ -1,68 +1,29 @@
 {
-  "1": {
-    "other": "Actualizar"
+  "title": {
+    "other": "Software Updates"
   },
-  "10": {
-    "other": "Esto es una prueba. Por favor revise los registros de todas las acciones que se realicen y si todo está bien pulse 'Ejecutar la importación real'"
+  "legend": {
+    "other": "In-app binary updates"
   },
-  "11": {
-    "other": "Migrar meta.serial"
+  "current.version": {
+    "other": "Current Version"
   },
-  "12": {
-    "other": "El antiguo plugin meta.serial fue eliminado y separado en metastore.serial y meta.user"
+  "confirm.update": {
+    "other": "Are you sure that you want to perform the update?"
   },
-  "13": {
-    "other": "Simular migración"
+  "packages.available": {
+    "other": "Following packages are available for upgrade"
   },
-  "14": {
-    "other": "Ejecutar la migración"
+  "checking": {
+    "other": "Checking for available upgrades..."
   },
-  "15": {
-    "other": "¿Estás seguro que quiere realizar la actualización?"
+  "noupdates": {
+    "other": "No necessary upgrade detected: click to perform a new check."
   },
-  "16": {
-    "other": "Los siguientes paquetes serán descargados y actualizados."
+  "check.legend": {
+    "other": "Click to check for new upgrade"
   },
-  "17": {
-    "other": "Comprobando actualizaciones disponibles..."
-  },
-  "18": {
-    "other": "No se han encontrado actualizaciones: pulsa para comprobar de nuevo."
-  },
-  "19": {
-    "other": "Haga click para buscar las actualizaciones"
-  },
-  "2": {
-    "other": "Actualización Automática de Software"
-  },
-  "20": {
-    "other": "Comprobar"
-  },
-  "21": {
-    "other": "Actualmente en modo de desarrollo."
-  },
-  "22": {
-    "other": "La versión actual es %1 (%2)."
-  },
-  "3": {
-    "other": "Pulse en el botón para comenzar la actualización. Por favor asegurese de que la carpeta de software esta instalada antes de comenzar. Si tiene un aviso 'Linux Package', significa que no puede realizar la actualización desde la aplicación, tiene que usar el gestor de paquetes de su servidor."
-  },
-  "4": {
-    "other": "Comenzar actualización"
-  },
-  "5": {
-    "other": "Desde 3.2.4"
-  },
-  "6": {
-    "other": "Importe los datos de configuración desde 3.2.4"
-  },
-  "7": {
-    "other": "Simular la importación de datos"
-  },
-  "8": {
-    "other": "Introducir ruta completa (desde la raíz del servidor) a la localización anterior y comenzar la simulación."
-  },
-  "9": {
-    "other": "Ejecutar la importación real"
+  "check.button": {
+    "other": "Check now"
   }
 }
