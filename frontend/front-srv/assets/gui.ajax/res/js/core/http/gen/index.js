@@ -219,8 +219,10 @@ import TreeSyncChangeType from './model/TreeSyncChangeType';
 import TreeVersioningKeepPeriod from './model/TreeVersioningKeepPeriod';
 import TreeVersioningPolicy from './model/TreeVersioningPolicy';
 import TreeWorkspaceRelativePath from './model/TreeWorkspaceRelativePath';
+import UpdateApplyUpdateRequest from './model/UpdateApplyUpdateRequest';
 import UpdateApplyUpdateResponse from './model/UpdateApplyUpdateResponse';
 import UpdatePackage from './model/UpdatePackage';
+import UpdateUpdateRequest from './model/UpdateUpdateRequest';
 import UpdateUpdateResponse from './model/UpdateUpdateResponse';
 import UpdateUserMetaNamespaceRequestUserMetaNsOp from './model/UpdateUserMetaNamespaceRequestUserMetaNsOp';
 import UpdateUserMetaRequestUserMetaOp from './model/UpdateUserMetaRequestUserMetaOp';
@@ -1524,6 +1526,12 @@ export {
     TreeWorkspaceRelativePath,
 
     /**
+     * The UpdateApplyUpdateRequest model constructor.
+     * @property {module:model/UpdateApplyUpdateRequest}
+     */
+    UpdateApplyUpdateRequest,
+
+    /**
      * The UpdateApplyUpdateResponse model constructor.
      * @property {module:model/UpdateApplyUpdateResponse}
      */
@@ -1534,6 +1542,12 @@ export {
      * @property {module:model/UpdatePackage}
      */
     UpdatePackage,
+
+    /**
+     * The UpdateUpdateRequest model constructor.
+     * @property {module:model/UpdateUpdateRequest}
+     */
+    UpdateUpdateRequest,
 
     /**
      * The UpdateUpdateResponse model constructor.

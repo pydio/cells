@@ -20,13 +20,15 @@
 
 import React from 'react'
 import {Paper, List, ListItem, RaisedButton, Checkbox, Divider, Subheader} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import PydioApi from 'pydio/http/api'
-import {UpdateServiceApi} from 'pydio/http/rest-api'
+import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'pydio/http/rest-api'
 import Pydio from 'pydio'
+import UpgraderWizard from './UpgraderWizard'
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import ServiceExposedConfigs from '../core/ServiceExposedConfigs'
 
-const UpdaterDashboard = React.createClass({
+let UpdaterDashboard = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
@@ -61,7 +63,7 @@ const UpdaterDashboard = React.createClass({
 
         const api = new UpdateServiceApi(PydioApi.getRestClient());
         Pydio.startLoading();
-        api.updateRequired().then(res => {
+        api.updateRequired(new UpdateUpdateRequest()).then(res => {
             Pydio.endLoading();
             let hasBinary = 0;
             if (res.AvailableBinaries) {
@@ -98,18 +100,20 @@ const UpdaterDashboard = React.createClass({
             return;
         }
 
-        if(confirm(this.context.getMessage('15', 'updater'))){
+        if(confirm(this.context.getMessage('confirm.update', 'updater'))){
 
             const toApply = packages[check];
             const version = toApply.Version;
             const api = new UpdateServiceApi(PydioApi.getRestClient());
-            api.applyUpdate(version).then(res => {
+            const req = new UpdateApplyUpdateRequest();
+            req.TargetVersion = version;
+            api.applyUpdate(version, req).then(res => {
                 if (res.Success) {
                     this.setState({watchJob: res.Message});
                 } else {
                     pydio.UI.displayMessage('ERROR', res.Message);
                 }
-            }).finally(()=>{
+            }).catch(()=>{
 
             });
 
@@ -138,11 +142,11 @@ const UpdaterDashboard = React.createClass({
             lineHeight: '48px',
             padding: '0 16px'
         };
-
+        const {accent2Color} = this.props.muiTheme.palette;
 
         let buttons = [];
         if(packages){
-            buttons.push(<RaisedButton disabled={check < 0 || updateApplied} secondary={true} label={this.context.getMessage('4', 'updater')} onTouchTap={this.performUpgrade}/>);
+            buttons.push(<RaisedButton disabled={check < 0 || updateApplied} secondary={true} label={this.context.getMessage('start.update', 'updater')} onTouchTap={this.performUpgrade}/>);
             let items = [];
             for (let index=packages.length - 1; index >= 0; index--) {
                 const p = packages[index];
@@ -156,7 +160,7 @@ const UpdaterDashboard = React.createClass({
             items.pop();
             list = (
                 <div>
-                    <div style={subHeaderStyle}>{this.context.getMessage('16', 'updater')}</div>
+                    <div style={subHeaderStyle}>{this.context.getMessage('packages.available', 'updater')}</div>
                     <List>
                         {items}
                     </List>
@@ -165,19 +169,19 @@ const UpdaterDashboard = React.createClass({
         }else if(loading){
             list = (
                 <div>
-                    <div style={subHeaderStyle}>{this.context.getMessage('16', 'updater')}</div>
-                    <div style={{padding: 16}}>{this.context.getMessage('17', 'updater')}</div>
+                    <div style={subHeaderStyle}>{this.context.getMessage('packages.available', 'updater')}</div>
+                    <div style={{padding: 16}}>{this.context.getMessage('checking', 'updater')}</div>
                 </div>
             );
         }else{
             list = (
                 <div style={{minHeight: 36}}>
-                    <div style={subHeaderStyle}>{this.context.getMessage('20', 'updater')}</div>
+                    <div style={subHeaderStyle}>{this.context.getMessage('check.button', 'updater')}</div>
                     <div style={{padding: '16px 16px 32px'}}>
                         <span style={{float:'right'}}>
-                            <RaisedButton secondary={true} label={this.context.getMessage('20', 'updater')} onTouchTap={this.checkForUpgrade}/>
+                            <RaisedButton secondary={true} label={this.context.getMessage('check.button', 'updater')} onTouchTap={this.checkForUpgrade}/>
                         </span>
-                        { (this.state && this.state.no_upgrade) ? this.context.getMessage('18', 'updater') : this.context.getMessage('19', 'updater') }
+                        { (this.state && this.state.no_upgrade) ? this.context.getMessage('noupdates', 'updater') : this.context.getMessage('check.legend', 'updater') }
                     </div>
                 </div>
             );
@@ -191,27 +195,34 @@ const UpdaterDashboard = React.createClass({
             }}/>)
         }
 
+        let versionLabel = backend.PackageLabel + ' ' + backend.Version;
+        let upgradeWizard;
+        if(backend.PackageType === "PydioHome" && backend.Version){
+            upgradeWizard = <UpgraderWizard open={this.state.upgradeDialog} onDismiss={() => this.setState({upgradeDialog:false})} currentVersion={backend.Version}/>;
+            versionLabel = <span>{versionLabel} <a style={{color:accent2Color, cursor:'pointer'}} onClick={() => this.setState({upgradeDialog:true})}>&gt; Upgrade to Cells Enterprise...</a></span>
+        }
         return (
             <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
                 <AdminComponents.Header
-                    title={this.context.getMessage('2', 'updater')}
+                    title={this.context.getMessage('title', 'updater')}
                     icon="mdi mdi-update"
                     actions={buttons}
                     reloadAction={()=>{this.checkForUpgrade()}}
                     loading={loading}
                 />
+                {upgradeWizard}
                 <div style={{flex: 1, overflow: 'auto'}}>
-                    <Paper style={{margin:16}} zDepth={1}>
-                        <div style={subHeaderStyle}>Current Version</div>
+                    <Paper style={{margin:20}} zDepth={1}>
+                        <div style={subHeaderStyle}>{this.context.getMessage('current.version', 'updater')}</div>
                         <List style={{padding: '0 16px'}}>
-                            <ListItem primaryText={backend.PackageLabel + ' ' + backend.Version} disabled={true} secondaryTextLines={2} secondaryText={<span>
+                            <ListItem primaryText={versionLabel} disabled={true} secondaryTextLines={2} secondaryText={<span>
                                 {"Released : " + backend.BuildStamp}<br/>
                                 {"Revision : " + backend.BuildRevision}
                             </span>}/>
                         </List>
                     </Paper>
                     {watchJob &&
-                        <Paper style={{margin:'0 16px', position:'relative'}} zDepth={1}>
+                        <Paper style={{margin:'0 20px', position:'relative'}} zDepth={1}>
                             <div style={subHeaderStyle}>{selectedPackage ? (selectedPackage.PackageName + ' ' + selectedPackage.Version) : ''}</div>
                             <div style={{padding:16}}>
                                 <SingleJobProgress
@@ -224,7 +235,7 @@ const UpdaterDashboard = React.createClass({
                         </Paper>
                     }
                     {!watchJob && list &&
-                        <Paper style={{margin:'0 16px', position:'relative'}} zDepth={1}>{list}</Paper>
+                        <Paper style={{margin:'0 20px', position:'relative'}} zDepth={1}>{list}</Paper>
                     }
                     {!watchJob &&
                         <ServiceExposedConfigs
@@ -241,5 +252,7 @@ const UpdaterDashboard = React.createClass({
     }
 
 });
+
+UpdaterDashboard = muiThemeable()(UpdaterDashboard);
 
 export {UpdaterDashboard as default}

@@ -4373,6 +4373,40 @@
         ]
       }
     ],
+    "AdminPlugins/updater/UpgraderWizard.js": [
+      {
+        "description": "",
+        "displayName": "UpgraderWizard",
+        "methods": [
+          {
+            "name": "dismiss",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "next",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "step",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "findVersion",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminScheduler/board/Dashboard.js": [
       {
         "description": "",
@@ -15054,7 +15088,7 @@
           },
           {
             "name": "applyUpdateWithHttpInfo",
-            "docblock": "Apply an update to a given version\n@param {String} targetVersion \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/UpdateApplyUpdateResponse} and HTTP response",
+            "docblock": "Apply an update to a given version\n@param {String} targetVersion \n@param {module:model/UpdateApplyUpdateRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/UpdateApplyUpdateResponse} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -15062,6 +15096,13 @@
                 "description": null,
                 "type": {
                   "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/UpdateApplyUpdateRequest"
                 }
               }
             ],
@@ -15075,7 +15116,7 @@
           },
           {
             "name": "applyUpdate",
-            "docblock": "Apply an update to a given version\n@param {String} targetVersion \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/UpdateApplyUpdateResponse}",
+            "docblock": "Apply an update to a given version\n@param {String} targetVersion \n@param {module:model/UpdateApplyUpdateRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/UpdateApplyUpdateResponse}",
             "modifiers": [],
             "params": [
               {
@@ -15083,6 +15124,13 @@
                 "description": null,
                 "type": {
                   "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/UpdateApplyUpdateRequest"
                 }
               }
             ],
@@ -15096,14 +15144,14 @@
           },
           {
             "name": "updateRequiredWithHttpInfo",
-            "docblock": "Check the remote server to see if there are available binaries\n@param {Object} opts Optional parameters\n@param {String} opts.channel Channel name.\n@param {String} opts.packageName Name of the currently running application.\n@param {String} opts.currentVersion Current version of the application.\n@param {String} opts.GOOS Current GOOS.\n@param {String} opts.GOARCH Current GOARCH.\n@param {String} opts.serviceName Not Used : specific service to get updates for.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/UpdateUpdateResponse} and HTTP response",
+            "docblock": "Check the remote server to see if there are available binaries\n@param {module:model/UpdateUpdateRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/UpdateUpdateResponse} and HTTP response",
             "modifiers": [],
             "params": [
               {
-                "name": "opts",
-                "description": "Optional parameters",
+                "name": "body",
+                "description": null,
                 "type": {
-                  "name": "Object"
+                  "name": "module:model/UpdateUpdateRequest"
                 }
               }
             ],
@@ -15117,14 +15165,14 @@
           },
           {
             "name": "updateRequired",
-            "docblock": "Check the remote server to see if there are available binaries\n@param {Object} opts Optional parameters\n@param {String} opts.channel Channel name.\n@param {String} opts.packageName Name of the currently running application.\n@param {String} opts.currentVersion Current version of the application.\n@param {String} opts.GOOS Current GOOS.\n@param {String} opts.GOARCH Current GOARCH.\n@param {String} opts.serviceName Not Used : specific service to get updates for.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/UpdateUpdateResponse}",
+            "docblock": "Check the remote server to see if there are available binaries\n@param {module:model/UpdateUpdateRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/UpdateUpdateResponse}",
             "modifiers": [],
             "params": [
               {
-                "name": "opts",
-                "description": "Optional parameters",
+                "name": "body",
+                "description": null,
                 "type": {
-                  "name": "Object"
+                  "name": "module:model/UpdateUpdateRequest"
                 }
               }
             ],
@@ -24952,6 +25000,52 @@
         ]
       }
     ],
+    "core/http/gen/model/UpdateApplyUpdateRequest.js": [
+      {
+        "description": "The UpdateApplyUpdateRequest model module.\n@module model/UpdateApplyUpdateRequest\n@version 1.0",
+        "displayName": "UpdateApplyUpdateRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>UpdateApplyUpdateRequest</code>.\n@alias module:model/UpdateApplyUpdateRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>UpdateApplyUpdateRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>UpdateApplyUpdateRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/UpdateApplyUpdateRequest} obj Optional instance to populate.\n@return {module:model/UpdateApplyUpdateRequest} The populated <code>UpdateApplyUpdateRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/UpdateApplyUpdateRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>UpdateApplyUpdateRequest</code> instance.",
+              "type": {
+                "name": "module:model/UpdateApplyUpdateRequest"
+              }
+            },
+            "description": "Constructs a <code>UpdateApplyUpdateRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/UpdateApplyUpdateResponse.js": [
       {
         "description": "The UpdateApplyUpdateResponse model module.\n@module model/UpdateApplyUpdateResponse\n@version 1.0",
@@ -25040,6 +25134,52 @@
               }
             },
             "description": "Constructs a <code>UpdatePackage</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/UpdateUpdateRequest.js": [
+      {
+        "description": "The UpdateUpdateRequest model module.\n@module model/UpdateUpdateRequest\n@version 1.0",
+        "displayName": "UpdateUpdateRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>UpdateUpdateRequest</code>.\n@alias module:model/UpdateUpdateRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>UpdateUpdateRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>UpdateUpdateRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/UpdateUpdateRequest} obj Optional instance to populate.\n@return {module:model/UpdateUpdateRequest} The populated <code>UpdateUpdateRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/UpdateUpdateRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>UpdateUpdateRequest</code> instance.",
+              "type": {
+                "name": "module:model/UpdateUpdateRequest"
+              }
+            },
+            "description": "Constructs a <code>UpdateUpdateRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

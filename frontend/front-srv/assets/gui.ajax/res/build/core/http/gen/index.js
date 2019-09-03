@@ -845,6 +845,10 @@ var _modelTreeWorkspaceRelativePath = require('./model/TreeWorkspaceRelativePath
 
 var _modelTreeWorkspaceRelativePath2 = _interopRequireDefault(_modelTreeWorkspaceRelativePath);
 
+var _modelUpdateApplyUpdateRequest = require('./model/UpdateApplyUpdateRequest');
+
+var _modelUpdateApplyUpdateRequest2 = _interopRequireDefault(_modelUpdateApplyUpdateRequest);
+
 var _modelUpdateApplyUpdateResponse = require('./model/UpdateApplyUpdateResponse');
 
 var _modelUpdateApplyUpdateResponse2 = _interopRequireDefault(_modelUpdateApplyUpdateResponse);
@@ -852,6 +856,10 @@ var _modelUpdateApplyUpdateResponse2 = _interopRequireDefault(_modelUpdateApplyU
 var _modelUpdatePackage = require('./model/UpdatePackage');
 
 var _modelUpdatePackage2 = _interopRequireDefault(_modelUpdatePackage);
+
+var _modelUpdateUpdateRequest = require('./model/UpdateUpdateRequest');
+
+var _modelUpdateUpdateRequest2 = _interopRequireDefault(_modelUpdateUpdateRequest);
 
 var _modelUpdateUpdateResponse = require('./model/UpdateUpdateResponse');
 
@@ -2439,6 +2447,13 @@ TreeWorkspaceRelativePath = _modelTreeWorkspaceRelativePath2['default'];
 exports.
 
 /**
+ * The UpdateApplyUpdateRequest model constructor.
+ * @property {module:model/UpdateApplyUpdateRequest}
+ */
+UpdateApplyUpdateRequest = _modelUpdateApplyUpdateRequest2['default'];
+exports.
+
+/**
  * The UpdateApplyUpdateResponse model constructor.
  * @property {module:model/UpdateApplyUpdateResponse}
  */
@@ -2450,6 +2465,13 @@ exports.
  * @property {module:model/UpdatePackage}
  */
 UpdatePackage = _modelUpdatePackage2['default'];
+exports.
+
+/**
+ * The UpdateUpdateRequest model constructor.
+ * @property {module:model/UpdateUpdateRequest}
+ */
+UpdateUpdateRequest = _modelUpdateUpdateRequest2['default'];
 exports.
 
 /**

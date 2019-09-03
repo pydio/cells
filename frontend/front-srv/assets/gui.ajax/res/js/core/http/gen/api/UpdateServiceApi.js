@@ -13,7 +13,9 @@
 
 
 import ApiClient from "../ApiClient";
+import UpdateApplyUpdateRequest from '../model/UpdateApplyUpdateRequest';
 import UpdateApplyUpdateResponse from '../model/UpdateApplyUpdateResponse';
+import UpdateUpdateRequest from '../model/UpdateUpdateRequest';
 import UpdateUpdateResponse from '../model/UpdateUpdateResponse';
 
 /**
@@ -39,14 +41,20 @@ export default class UpdateServiceApi {
     /**
      * Apply an update to a given version
      * @param {String} targetVersion 
+     * @param {module:model/UpdateApplyUpdateRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/UpdateApplyUpdateResponse} and HTTP response
      */
-    applyUpdateWithHttpInfo(targetVersion) {
-      let postBody = null;
+    applyUpdateWithHttpInfo(targetVersion, body) {
+      let postBody = body;
 
       // verify the required parameter 'targetVersion' is set
       if (targetVersion === undefined || targetVersion === null) {
         throw new Error("Missing the required parameter 'targetVersion' when calling applyUpdate");
+      }
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling applyUpdate");
       }
 
 
@@ -66,7 +74,7 @@ export default class UpdateServiceApi {
       let returnType = UpdateApplyUpdateResponse;
 
       return this.apiClient.callApi(
-        '/update/{TargetVersion}', 'GET',
+        '/update/{TargetVersion}', 'PATCH',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType
       );
@@ -75,10 +83,11 @@ export default class UpdateServiceApi {
     /**
      * Apply an update to a given version
      * @param {String} targetVersion 
+     * @param {module:model/UpdateApplyUpdateRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/UpdateApplyUpdateResponse}
      */
-    applyUpdate(targetVersion) {
-      return this.applyUpdateWithHttpInfo(targetVersion)
+    applyUpdate(targetVersion, body) {
+      return this.applyUpdateWithHttpInfo(targetVersion, body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });
@@ -87,29 +96,21 @@ export default class UpdateServiceApi {
 
     /**
      * Check the remote server to see if there are available binaries
-     * @param {Object} opts Optional parameters
-     * @param {String} opts.channel Channel name.
-     * @param {String} opts.packageName Name of the currently running application.
-     * @param {String} opts.currentVersion Current version of the application.
-     * @param {String} opts.GOOS Current GOOS.
-     * @param {String} opts.GOARCH Current GOARCH.
-     * @param {String} opts.serviceName Not Used : specific service to get updates for.
+     * @param {module:model/UpdateUpdateRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/UpdateUpdateResponse} and HTTP response
      */
-    updateRequiredWithHttpInfo(opts) {
-      opts = opts || {};
-      let postBody = null;
+    updateRequiredWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling updateRequired");
+      }
 
 
       let pathParams = {
       };
       let queryParams = {
-        'Channel': opts['channel'],
-        'PackageName': opts['packageName'],
-        'CurrentVersion': opts['currentVersion'],
-        'GOOS': opts['GOOS'],
-        'GOARCH': opts['GOARCH'],
-        'ServiceName': opts['serviceName']
       };
       let headerParams = {
       };
@@ -122,7 +123,7 @@ export default class UpdateServiceApi {
       let returnType = UpdateUpdateResponse;
 
       return this.apiClient.callApi(
-        '/update', 'GET',
+        '/update', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,
         authNames, contentTypes, accepts, returnType
       );
@@ -130,17 +131,11 @@ export default class UpdateServiceApi {
 
     /**
      * Check the remote server to see if there are available binaries
-     * @param {Object} opts Optional parameters
-     * @param {String} opts.channel Channel name.
-     * @param {String} opts.packageName Name of the currently running application.
-     * @param {String} opts.currentVersion Current version of the application.
-     * @param {String} opts.GOOS Current GOOS.
-     * @param {String} opts.GOARCH Current GOARCH.
-     * @param {String} opts.serviceName Not Used : specific service to get updates for.
+     * @param {module:model/UpdateUpdateRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/UpdateUpdateResponse}
      */
-    updateRequired(opts) {
-      return this.updateRequiredWithHttpInfo(opts)
+    updateRequired(body) {
+      return this.updateRequiredWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

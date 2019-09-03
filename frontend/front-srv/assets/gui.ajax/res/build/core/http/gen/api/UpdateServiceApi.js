@@ -23,9 +23,17 @@ var _ApiClient = require("../ApiClient");
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _modelUpdateApplyUpdateRequest = require('../model/UpdateApplyUpdateRequest');
+
+var _modelUpdateApplyUpdateRequest2 = _interopRequireDefault(_modelUpdateApplyUpdateRequest);
+
 var _modelUpdateApplyUpdateResponse = require('../model/UpdateApplyUpdateResponse');
 
 var _modelUpdateApplyUpdateResponse2 = _interopRequireDefault(_modelUpdateApplyUpdateResponse);
+
+var _modelUpdateUpdateRequest = require('../model/UpdateUpdateRequest');
+
+var _modelUpdateUpdateRequest2 = _interopRequireDefault(_modelUpdateUpdateRequest);
 
 var _modelUpdateUpdateResponse = require('../model/UpdateUpdateResponse');
 
@@ -56,15 +64,21 @@ var UpdateServiceApi = (function () {
   /**
    * Apply an update to a given version
    * @param {String} targetVersion 
+   * @param {module:model/UpdateApplyUpdateRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/UpdateApplyUpdateResponse} and HTTP response
    */
 
-  UpdateServiceApi.prototype.applyUpdateWithHttpInfo = function applyUpdateWithHttpInfo(targetVersion) {
-    var postBody = null;
+  UpdateServiceApi.prototype.applyUpdateWithHttpInfo = function applyUpdateWithHttpInfo(targetVersion, body) {
+    var postBody = body;
 
     // verify the required parameter 'targetVersion' is set
     if (targetVersion === undefined || targetVersion === null) {
       throw new Error("Missing the required parameter 'targetVersion' when calling applyUpdate");
+    }
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling applyUpdate");
     }
 
     var pathParams = {
@@ -79,46 +93,38 @@ var UpdateServiceApi = (function () {
     var accepts = ['application/json'];
     var returnType = _modelUpdateApplyUpdateResponse2['default'];
 
-    return this.apiClient.callApi('/update/{TargetVersion}', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+    return this.apiClient.callApi('/update/{TargetVersion}', 'PATCH', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
   };
 
   /**
    * Apply an update to a given version
    * @param {String} targetVersion 
+   * @param {module:model/UpdateApplyUpdateRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/UpdateApplyUpdateResponse}
    */
 
-  UpdateServiceApi.prototype.applyUpdate = function applyUpdate(targetVersion) {
-    return this.applyUpdateWithHttpInfo(targetVersion).then(function (response_and_data) {
+  UpdateServiceApi.prototype.applyUpdate = function applyUpdate(targetVersion, body) {
+    return this.applyUpdateWithHttpInfo(targetVersion, body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };
 
   /**
    * Check the remote server to see if there are available binaries
-   * @param {Object} opts Optional parameters
-   * @param {String} opts.channel Channel name.
-   * @param {String} opts.packageName Name of the currently running application.
-   * @param {String} opts.currentVersion Current version of the application.
-   * @param {String} opts.GOOS Current GOOS.
-   * @param {String} opts.GOARCH Current GOARCH.
-   * @param {String} opts.serviceName Not Used : specific service to get updates for.
+   * @param {module:model/UpdateUpdateRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/UpdateUpdateResponse} and HTTP response
    */
 
-  UpdateServiceApi.prototype.updateRequiredWithHttpInfo = function updateRequiredWithHttpInfo(opts) {
-    opts = opts || {};
-    var postBody = null;
+  UpdateServiceApi.prototype.updateRequiredWithHttpInfo = function updateRequiredWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling updateRequired");
+    }
 
     var pathParams = {};
-    var queryParams = {
-      'Channel': opts['channel'],
-      'PackageName': opts['packageName'],
-      'CurrentVersion': opts['currentVersion'],
-      'GOOS': opts['GOOS'],
-      'GOARCH': opts['GOARCH'],
-      'ServiceName': opts['serviceName']
-    };
+    var queryParams = {};
     var headerParams = {};
     var formParams = {};
 
@@ -127,23 +133,17 @@ var UpdateServiceApi = (function () {
     var accepts = ['application/json'];
     var returnType = _modelUpdateUpdateResponse2['default'];
 
-    return this.apiClient.callApi('/update', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+    return this.apiClient.callApi('/update', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
   };
 
   /**
    * Check the remote server to see if there are available binaries
-   * @param {Object} opts Optional parameters
-   * @param {String} opts.channel Channel name.
-   * @param {String} opts.packageName Name of the currently running application.
-   * @param {String} opts.currentVersion Current version of the application.
-   * @param {String} opts.GOOS Current GOOS.
-   * @param {String} opts.GOARCH Current GOARCH.
-   * @param {String} opts.serviceName Not Used : specific service to get updates for.
+   * @param {module:model/UpdateUpdateRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/UpdateUpdateResponse}
    */
 
-  UpdateServiceApi.prototype.updateRequired = function updateRequired(opts) {
-    return this.updateRequiredWithHttpInfo(opts).then(function (response_and_data) {
+  UpdateServiceApi.prototype.updateRequired = function updateRequired(body) {
+    return this.updateRequiredWithHttpInfo(body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

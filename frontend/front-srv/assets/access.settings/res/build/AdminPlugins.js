@@ -2071,6 +2071,8 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
+var _materialUiStyles = require('material-ui/styles');
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -2080,6 +2082,10 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
+
+var _UpgraderWizard = require('./UpgraderWizard');
+
+var _UpgraderWizard2 = _interopRequireDefault(_UpgraderWizard);
 
 var _coreServiceExposedConfigs = require('../core/ServiceExposedConfigs');
 
@@ -2129,7 +2135,7 @@ var UpdaterDashboard = _react2['default'].createClass({
 
         var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
         _pydio2['default'].startLoading();
-        api.updateRequired().then(function (res) {
+        api.updateRequired(new _pydioHttpRestApi.UpdateUpdateRequest()).then(function (res) {
             _pydio2['default'].endLoading();
             var hasBinary = 0;
             if (res.AvailableBinaries) {
@@ -2170,18 +2176,20 @@ var UpdaterDashboard = _react2['default'].createClass({
             return;
         }
 
-        if (confirm(this.context.getMessage('15', 'updater'))) {
+        if (confirm(this.context.getMessage('confirm.update', 'updater'))) {
 
             var toApply = packages[check];
             var version = toApply.Version;
             var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.applyUpdate(version).then(function (res) {
+            var req = new _pydioHttpRestApi.UpdateApplyUpdateRequest();
+            req.TargetVersion = version;
+            api.applyUpdate(version, req).then(function (res) {
                 if (res.Success) {
                     _this2.setState({ watchJob: res.Message });
                 } else {
                     pydio.UI.displayMessage('ERROR', res.Message);
                 }
-            })['finally'](function () {});
+            })['catch'](function () {});
         }
     },
 
@@ -2217,10 +2225,11 @@ var UpdaterDashboard = _react2['default'].createClass({
             lineHeight: '48px',
             padding: '0 16px'
         };
+        var accent2Color = this.props.muiTheme.palette.accent2Color;
 
         var buttons = [];
         if (packages) {
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { disabled: check < 0 || updateApplied, secondary: true, label: this.context.getMessage('4', 'updater'), onTouchTap: this.performUpgrade }));
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { disabled: check < 0 || updateApplied, secondary: true, label: this.context.getMessage('start.update', 'updater'), onTouchTap: this.performUpgrade }));
             var items = [];
 
             var _loop = function (index) {
@@ -2245,7 +2254,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: subHeaderStyle },
-                    this.context.getMessage('16', 'updater')
+                    this.context.getMessage('packages.available', 'updater')
                 ),
                 _react2['default'].createElement(
                     _materialUi.List,
@@ -2260,12 +2269,12 @@ var UpdaterDashboard = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: subHeaderStyle },
-                    this.context.getMessage('16', 'updater')
+                    this.context.getMessage('packages.available', 'updater')
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 16 } },
-                    this.context.getMessage('17', 'updater')
+                    this.context.getMessage('checking', 'updater')
                 )
             );
         } else {
@@ -2275,7 +2284,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: subHeaderStyle },
-                    this.context.getMessage('20', 'updater')
+                    this.context.getMessage('check.button', 'updater')
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -2283,9 +2292,9 @@ var UpdaterDashboard = _react2['default'].createClass({
                     _react2['default'].createElement(
                         'span',
                         { style: { float: 'right' } },
-                        _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: this.context.getMessage('20', 'updater'), onTouchTap: this.checkForUpgrade })
+                        _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: this.context.getMessage('check.button', 'updater'), onTouchTap: this.checkForUpgrade })
                     ),
-                    this.state && this.state.no_upgrade ? this.context.getMessage('18', 'updater') : this.context.getMessage('19', 'updater')
+                    this.state && this.state.no_upgrade ? this.context.getMessage('noupdates', 'updater') : this.context.getMessage('check.legend', 'updater')
                 )
             );
         }
@@ -2298,11 +2307,31 @@ var UpdaterDashboard = _react2['default'].createClass({
                 } }));
         }
 
+        var versionLabel = backend.PackageLabel + ' ' + backend.Version;
+        var upgradeWizard = undefined;
+        if (backend.PackageType === "PydioHome" && backend.Version) {
+            upgradeWizard = _react2['default'].createElement(_UpgraderWizard2['default'], { open: this.state.upgradeDialog, onDismiss: function () {
+                    return _this3.setState({ upgradeDialog: false });
+                }, currentVersion: backend.Version });
+            versionLabel = _react2['default'].createElement(
+                'span',
+                null,
+                versionLabel,
+                ' ',
+                _react2['default'].createElement(
+                    'a',
+                    { style: { color: accent2Color, cursor: 'pointer' }, onClick: function () {
+                            return _this3.setState({ upgradeDialog: true });
+                        } },
+                    '> Upgrade to Cells Enterprise...'
+                )
+            );
+        }
         return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
             _react2['default'].createElement(AdminComponents.Header, {
-                title: this.context.getMessage('2', 'updater'),
+                title: this.context.getMessage('title', 'updater'),
                 icon: 'mdi mdi-update',
                 actions: buttons,
                 reloadAction: function () {
@@ -2310,21 +2339,22 @@ var UpdaterDashboard = _react2['default'].createClass({
                 },
                 loading: loading
             }),
+            upgradeWizard,
             _react2['default'].createElement(
                 'div',
                 { style: { flex: 1, overflow: 'auto' } },
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: 16 }, zDepth: 1 },
+                    { style: { margin: 20 }, zDepth: 1 },
                     _react2['default'].createElement(
                         'div',
                         { style: subHeaderStyle },
-                        'Current Version'
+                        this.context.getMessage('current.version', 'updater')
                     ),
                     _react2['default'].createElement(
                         _materialUi.List,
                         { style: { padding: '0 16px' } },
-                        _react2['default'].createElement(_materialUi.ListItem, { primaryText: backend.PackageLabel + ' ' + backend.Version, disabled: true, secondaryTextLines: 2, secondaryText: _react2['default'].createElement(
+                        _react2['default'].createElement(_materialUi.ListItem, { primaryText: versionLabel, disabled: true, secondaryTextLines: 2, secondaryText: _react2['default'].createElement(
                                 'span',
                                 null,
                                 "Released : " + backend.BuildStamp,
@@ -2335,7 +2365,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ),
                 watchJob && _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: '0 16px', position: 'relative' }, zDepth: 1 },
+                    { style: { margin: '0 20px', position: 'relative' }, zDepth: 1 },
                     _react2['default'].createElement(
                         'div',
                         { style: subHeaderStyle },
@@ -2356,7 +2386,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ),
                 !watchJob && list && _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: '0 16px', position: 'relative' }, zDepth: 1 },
+                    { style: { margin: '0 20px', position: 'relative' }, zDepth: 1 },
                     list
                 ),
                 !watchJob && _react2['default'].createElement(_coreServiceExposedConfigs2['default'], {
@@ -2373,7 +2403,499 @@ var UpdaterDashboard = _react2['default'].createClass({
 
 });
 
+exports['default'] = UpdaterDashboard = (0, _materialUiStyles.muiThemeable)()(UpdaterDashboard);
+
 exports['default'] = UpdaterDashboard;
 module.exports = exports['default'];
 
-},{"../core/ServiceExposedConfigs":10,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}]},{},[14]);
+},{"../core/ServiceExposedConfigs":10,"./UpgraderWizard":17,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],16:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var EnterpriseDistEULA = "\nPLEASE READ THIS SOFTWARE LICENSE AGREEMENT CAREFULLY BEFORE DOWNLOADING OR USING THE SOFTWARE.\nBY CLICKING ON THE \"ACCEPT\" BUTTON, OPENING THE PACKAGE, DOWNLOADING THE PRODUCT, AND/OR USING THE EQUIPMENT THAT CONTAINS THIS PRODUCT, YOU ARE CONSENTING TO BE BOUND BY THIS LICENSE AGREEMENT. IF YOU DO NOT AGREE TO ALL OF THE TERMS OF THIS AGREEMENT, CLICK THE \"DO NOT ACCEPT\" BUTTON AND THE INSTALLATION PROCESS WILL NOT CONTINUE, OR DO NOT DOWNLOAD THE PRODUCT.\n\n\nPYDIO CELLS ENTERPRISE DISTRIBUTION EULA\n(Pydio is a trademark of Abstrium SAS)\n\n1. Scope of the agreement\n\nThis License agreement set forth the terms and conditions under which Abstrium SAS, will provide its Software to its Clients. Definitions of underlined terms are defined in Appendix 1.\nDefinitions outlined in this appendix 1 shall apply to the entire agreement, and no other alternate definition should be considered valid for this agreement\n\n2. License and Ownership\n\nLicense Grant to Software.\nUnless Client is obtaining an Evaluation License, Abstrium grants to Client during the subscription period, a non-exclusive, non-transferable, non-sublicensable, License to use, copy, test and modify the Software solely for Client's own internal use and limited to the number of Users for one unique Instance designated in the Order Form unless as otherwise expressly authorized by Abstrium in writing.\n\nModifications to Software.\nDuring the term of the License, Client shall have the right to modify Software. Modifications to the Software may, however, corrupt the Software. At Client's election, any modifications to the Software shall either: (i) be owned by Client, in which case Abstrium shall have no obligations of any nature with respect to the support and maintenance of such modified Software; or (ii) Client shall cause its employees and agents to contribute such modified Software to the project, in which case Abstrium can, in its sole discretion, elect to support and maintain such modifications as part of a future version of Software. Please contact cla@pydio.com for a Contributor Agreement (CLA).\n\nRestrictions on Software Licenses.\nClient shall not analyze, decompile, or reverse engineer or cause a third party to analyze, decompile or reverse engineer any source code of the Software for any purpose. Client shall not distribute, sell, assign, sublicense, or otherwise transfer any right in the Software, unless such activity is expressly permitted or required by law or has been expressly authorized by Abstrium in writing.\n\n3. Intellectual Property\n\nIntellectual Property Rights.\n\nThe  Software and each of its components are owned by Abstrium and, in some cases, by other licensors and are protected under European copyright law and under other laws as applicable.\n\nMarks.  \n\"Pydio\" is a trademark of Abstrium in Europe, the U.S. and other countries. This License does not permit Client to distribute the Software or its components using Abstrium s trademarks, regardless of whether the copy has been modified.\n\nEquitable Relief.  \nClient acknowledges and agrees that, in the event that Client takes any action that is inconsistent with Abstrium's ownership rights contained herein, monetary damages may not be an adequate remedy. Accordingly, Client agrees that Abstrium shall be entitled to obtain, injunctive relief against Client, including but not limited to a temporary restraining order, a temporary or preliminary injunction or a permanent injunction, to enforce the provisions of this Agreement, as well as an equitable accounting of and constructive trust for all profits or other benefits arising out of or related to any such violation, all of which shall constitute rights and remedies to which Abstrium may be entitled.\n\n4. Warranty, Limitation of Liability and Disclaimer of Damages\n\nLimited Warranty.  \nAbstrium represents and warrants to Client that (i) the Software shall perform in all material respects with the functional specifications set forth in the Documentation, and that (ii) the software does not contain any malicious or hidden mechanisms or code for the purpose of damaging or corrupting Software. If Abstrium is unable to correct any non-conformance within thirty (30) days after notification, Client may terminate this License and receive a refund of license fees paid for remaining time of License. The foregoing sets forth Client s exclusive remedy and Abstrium's entire liability for a breach of the warranty set forth in clause (i) above.\nAbstrium provides no warranty, express or implied, of any kind during the Evaluation License Period. During the Evaluation License Period, Abstrium provides the Software \"AS IS\", AND THE LIMITED WARRANTY (AS DESCRIBED IN SECTION 4 BELOW) SHALL NOT APPLY, AND SHALL BE VOID AND OF NO FORCE AND EFFECT.\n\nLimitation of Liability.  \nIN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. FOR ALL EVENTS AND CIRCUMSTANCES, ABSTRIUM'S AGGREGATE AND CUMULATIVE LIABILITY ARISING OUT OF OR RELATING TO THIS LICENSE, INCLUDING WITHOUT LIMITATION ON ACCOUNT OF PERFORMANCE OR NON-PERFORMANCE OF OBLIGATIONS, REGARDLESS OF THE FORM OF THE CAUSE OF ACTION, WHETHER IN CONTRACT, TORT (INCLUDING, WITHOUT LIMITATION, NEGLIGENCE), STATUTE OR OTHERWISE WILL BE LIMITED TO DIRECT DAMAGES AND WILL NOT EXCEED THE AMOUNTS RECEIVED BY ABSTRIUM FROM CLIENT DURING THE TWELVE (12) MONTHS IMMEDIATELY PRECEDING THE FIRST EVENT GIVING RISE TO LIABILITY.\n\nDisclaimer of Damages.  \nNOTWITHSTANDING ANYTHING TO THE CONTRARY CONTAINED IN THIS AGREEMENT OR AN ORDER FORM, IN NO EVENT WILL ABSTRIUM BE LIABLE TO CLIENT AND ITS USERS FOR DAMAGES OTHER THAN DIRECT DAMAGES, INCLUDING, WITHOUT LIMITATION: ANY INCIDENTAL, CONSEQUENTIAL, SPECIAL, INDIRECT, EXEMPLARY OR PUNITIVE DAMAGES, WHETHER ARISING IN TORT, CONTRACT, OR OTHERWISE OR ANY DAMAGES ARISING OUT OF OR IN CONNECTION WITH ANY MALFUNCTIONS, REGULATORY NON-COMPLIANCE, DELAYS, LOSS OF DATA, LOST PROFITS, LOST SAVINGS, INTERRUPTION OF SERVICE, LOSS OF BUSINESS OR ANTICIPATORY PROFITS, EVEN IF ABSTRIUM HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. LIABILITY FOR THESE DAMAGES WILL BE LIMITED AND EXCLUDED EVEN IF ANY EXCLUSIVE REMEDY PROVIDED FOR IN THIS LICENSE FAILS OF ITS ESSENTIAL PURPOSE.\n\n\nDisclaimer of Warranty.  \nEXCEPT AS EXPRESSELY PROVIDED IN \"Limited Warranty\" THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH CLIENT. SHOULD THE PROGRAM PROVE DEFECTIVE, CLIENT ASSUMES THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.\nTHE SOFTWARE IS NOT INTENDED FOR USE IN WHICH THE FAILURE OF THE SOFTWARE COULD LEAD TO DEATH, PERSONAL INJURY, OR SEVERE PHYSICAL OR ENVIRONMENTAL DAMAGE.\nNEITHER THE SOFTWARE NOR THE UPDATES ARE SPECIFICALLY DESIGNED, MANUFACTURED OR INTENDED FOR USE IN THE PLANNING, CONSTRUCTION, MAINTENANCE, CONTROL, OR DIRECT OPERATION OF NUCLEAR FACILITES, AIRCRAFT NAVIGATION, CONTROL OR COMMUNICATION SYSTEMS, WEAPONS SYSTEMS, OR DIRECT LIFE SUPPORT SYSTEMS.\n\n6. Term, Termination, and Fees\n\nTerm and Termination.  \nThe license of the Software hereunder shall become effective upon delivery of the license key to the Client.\nUnless otherwise stated on an Order, the License Term is of 365 days from purchase. Thereafter, the Software shall automatically renew for successive, 365-day term. Either party may elect not to renew a Subscription by providing written notice to the other party at least ninety (90) days prior to the end of the then-current term. Notwithstanding the foregoing, Abstrium may terminate the License immediately without notice upon any failure by Client to pay in full the applicable License fees as provided in the Order Form.\n\nEffect of Termination.  \nThis License is effective until terminated. Client rights under this License will terminate automatically without notice from Abstrium if Client fails to comply with any term(s) of this License. Upon the termination of this License, Client shall cease all use of the Abstrium Software and destroy all copies, full or partial, of the Pydio Software.\n\nIn addition, any rights relating to modifying the Software shall cease, unless the specific licensing terms of any open source software incorporated into the  Software expressly permit such modifications and any such modifications shall be subject to the terms and conditions of such open source license, including, without limitation, the Affero General Public License version 3. Any obligations of Abstrium to Client relating to support, maintenance, updates or upgrades of the Software shall also terminate.\n\nFees.  \nClient will pay Abstrium fees as per the Order for usage of the Software for the right number or USERS (subscriptions). Fees are stated in Euros, or in United States Dollars (for US Clients), and are exclusive of all form of taxes. If Client fails to pay fees, Abstrium may suspend fulfilling its obligations under this Agreement until such payment is received by Abstrium.\n\nUNLESS OTHERWISE AGREED TO BY ABSTRIUM, ANY AND ALL FEES PAID TO ABSTRIUM ARE NON-REFUNDABLE.\n\nAny other provisions that by their nature are reasonably intended to survive termination or expiration shall survive.\n\n7. General\n\nNotices.  \nNotices under this Agreement must be in writing and delivered to the receiving party?s Chief Financial Officer, at the receiving party's Address. Notices will be deemed received when (1) delivered personally; or (2) upon confirmed delivery by a commercial express carrier.\n\nUpgrades, Updates and Fixes.  \nAbstrium may provide Client, from time to time, with Upgrades, Updates or Fixes, according to its sole discretion. Client hereby warrants to keep the Software up-to-date and install all relevant updates and fixes, and may, at its sole discretion, purchase upgrades, according to the rates set by Abstrium. Abstrium shall provide any update or fix free of charge; however, nothing in this Agreement shall require Abstrium to provide updates or fixes.\n\nCompliance with Applicable Laws.  \nEach party will comply with all applicable laws, including applicable export-control restrictions. In order for Abstrium to provide services to Client, it may be necessary for Abstrium to share information with third parties, which may be located worldwide. In such event, Abstrium will comply with applicable data privacy laws governing the transfer of that information.\n\nEntire Agreement.  \nEach Order Form is deemed to incorporate this Agreement and all appendices, unless otherwise expressly provided in that Order Form; (b) constitutes the exclusive terms and conditions with respect to the subject matter of that Order Form, notwithstanding any different or additional terms that may be contained in the form of purchase order or other document used by Company to place orders or otherwise effect transactions under this Agreement; and (c) represents the final, complete and exclusive statement of the agreement between the parties regarding that Order Form, and supersedes any prior or contemporaneous agreements (verbal or written) with respect to the subject matter of the Order Form. In the event of any conflict between this Agreement, any appendix, and any Order Form, this Agreement will take precedence unless otherwise expressly provided in the appendix or Order Form. The original and binding text of this Agreement is in English and the translation is for reference purposes only. In the event of any conflict between the English original and the translation, the English version shall control.\n\nForce Majeure.  \nForce majeure events shall excuse the affected party (the \"Non-Performing Party\") from its obligations under this Agreement so long as the event and its effects continue. Force majeure events include, without limitation, Acts of God, natural disasters, war, riot, network attacks, acts of terrorism, fire, explosion, accident, sabotage, strikes, inability to obtain power, fuel, material or labor, or acts of any government. As soon as feasible, the non-performing party shall notify the other party of (a) its best reasonable assessment of the nature and duration of the force majeure event, and (b) the steps it is taking to mitigate its effects. If the force majeure event prevents performance for more than sixty(60) consecutive days, and the parties have not agreed upon a revised basis for performance, then either party may immediately terminate the Agreement upon written notice.\n\nSeverability.  \nIf any provision of this Agreement is ruled invalid or unenforceable, the provision shall be severable from this Agreement so that the remaining provisions are unaffected.\n\nWaiver.  \nNo waiver of any rights under this Agreement will constitute a subsequent waiver unless otherwise stated in writing.\n\nDispute Resolution.  \nFrench law shall govern all aspects of this Agreement. Any dispute, claim or controversy arising from this Agreement shall be subject to the exclusive jurisdiction of courts located in Paris, without regard to their conflict-of-law principles or the United Nations Convention on Contracts for the International Sale of Goods.\n\nHeadings.  \nAll headings contained in this Agreement are inserted for identification and convenience and will not be deemed part of this Agreement for purposes of interpretation.\n\nAmendment.  \nNeither this Agreement nor any Order Form may be amended or modified except in a writing signed by the parties, which writing makes specific reference to this Agreement or the applicable Order Form.\n\n\n\n\n\nAppendix 1 Definitions\n\nClient is defined for the purposes of this agreement as a person or entity who (i) is granted an Evaluation License (as defined in Section 2.4), or (ii) purchases a License (as defined in Section 2.1) of the Software.\n\nSoftware is defined for the purposes of this agreement as either Pydio server and, or the Pydio Enterprise plugins (called Pydio Cells Enterprise Distribution). It includes all or any partial components of the code of server Software, web interface and any of the mobile applications, any of the Desktop Sync applications when available, AS WELL AS OTHER THIRD PARTY SOFTWARE, INCLUDING OPEN SOURCE SOFTWARE. THE LICENSE AGREEMENT FOR OPEN SOURCE SOFTWARE IS LOCATED IN THE SOFTWARE APPLICATION OR COMPONENT'S SOURCE CODE AND PERMITS YOU TO RUN, COPY, MODIFY, AND REDISTRIBUTE THE SOFTWARE COMPONENT (SUBJECT TO CERTAIN OBLIGATIONS IN SOME CASES), BOTH IN SOURCE CODE AND BINARY CODE FORMS. THIS STATEMENT OF LICENSE RIGHTS DOES NOT LIMIT YOUR RIGHTS UNDER, OR GRANT YOU RIGHTS THAT SUPERSEDE, THE LICENSE TERMS OF ANY PARTICULAR APPLICATION OR COMPONENT.\n\n\nEvaluation License is defined for the purposes of this agreement as a limited, temporary, non-exclusive, non-transferable license to use the Software, including the Documentation, for evaluation purposes for Client's internal business use only for a limited specific number of days beginning from the date of delivery to Client of the Software (the \"Evaluation License Period\"). Abstrium grants to Client a non exclusive, revocable and non transferable right to use the Pydio Product solely for the purpose of internally evaluating the suitability of the Pydio Product for Client's internal business purposes. If Client wishes to use the Software after expiration of the Evaluation License Period, then Client must purchase the subscription and pay the applicable subscription fee. Upon Abstrium receiving payment of the applicable subscription fee, the Client will receive a subscription key for the duration and the number of users purchased. No other action, nor any other element of this Agreement, other than the purchase of the subscription shall be considered as an extension of the duration or terms of the Evaluation License. The Evaluation License terms and duration shall only be amended by the exclusive written agreement of Abstrium.\n\n\nOrder Form is defined for the purposes of this agreement as an electronic or paper document with the conditions of purchase of a Pydio EULA subscription including fees, number of maximum Users, duration, and description of the included elements for purchase, or any invoice issued by Abstrium or an authorized reseller of Abstrium to Client. If no duration is defined, it is by default a 365-day term. The number of maximum users is defined in the Order Form and Pydio will not allow the creation of Users exceeding such. Any number of Users exceeding the number as defined on the Order Form will be subject to a new agreement.\n\nUser is defined for the purposes of this agreement as any individual who is authorized by the Client to access the Software and who has been given a unique user name or identifier (regardless of whether the user has used those credentials to access the Software). No more than one individual may use an issued user name or identifier, and the sharing of such credentials is expressly prohibited.\n\nInstance is defined for the purposes of this Agreement as any installation on a server, cluster of up to 3 servers, and /or virtual machine based on a shared configuration backend, namely the same relational database that Abstrium grants permission to be distributed and/or replicated. This includes sharing any or all of the plugins configurations, the directory of users and the access to the same workspaces.  A duplicate back up for security or recovery purposes of this system is considered the same Instance.\n\nCommunity version is defined for the purposes of this agreement as  the free, unsupported, open source software licensed under the Affero General Public License version 3  that Abstrium makes available for download on its Pydio web site, Github and sourceforge.\n\nAddress is defined for the purposes of this agreement as Abstrium/Pydio, 160 bis rue du Temple, 75003 Paris, France\n\nDocumentation is defined for the purposes of this agreement as any document whether electronic or printed that serves as instructional, informational, classification, annotative, descriptive, marketing, and/or any element providing evidence serving as a record distributed and or published by Abstrium for the purposes of accompanying the Client with their use of Pydio.\n";
+
+exports.EnterpriseDistEULA = EnterpriseDistEULA;
+
+},{}],17:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _materialUi = require('material-ui');
+
+var _reactMarkdown = require('react-markdown');
+
+var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
+
+var _UpgraderResources = require("./UpgraderResources");
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+
+var moment = _Pydio$requireLib.moment;
+var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
+
+var Styles = {
+    body: {
+        padding: 20,
+        color: '#424242',
+        fontSize: 13,
+        minHeight: 240
+    }
+};
+
+var UpgraderWizard = (function (_React$Component) {
+    _inherits(UpgraderWizard, _React$Component);
+
+    function UpgraderWizard(props) {
+        _classCallCheck(this, UpgraderWizard);
+
+        _get(Object.getPrototypeOf(UpgraderWizard.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            step: 'ad',
+            acceptEula: false,
+            licenseKey: null,
+            versionLoading: false,
+            versionAvailable: false,
+            versionsNoMatch: [],
+            versionError: null,
+            watchJob: null,
+            upgradePerformed: false
+        };
+        // TODO REMOVE THIS IS FOR DEBUGGING
+        this.state = {
+            step: 'ad',
+            acceptEula: true,
+            licenseKey: "A LICENSE KEY HERE",
+            versionAvailable: false,
+            upgradePerformed: false
+        };
+    }
+
+    _createClass(UpgraderWizard, [{
+        key: 'dismiss',
+        value: function dismiss() {
+            this.props.onDismiss();
+            this.setState({
+                step: 'ad',
+                acceptEula: false,
+                licenseKey: null,
+                versionLoading: false,
+                versionAvailable: false,
+                versionError: null,
+                watchJob: null,
+                upgradePerformed: false
+            });
+        }
+    }, {
+        key: 'next',
+        value: function next(step) {
+            this.setState({ step: step });
+            if (step === "check") {
+                var licenseKey = this.state.licenseKey;
+
+                this.findVersion(licenseKey);
+            } else if (step === "perform") {
+                var versionAvailable = this.state.versionAvailable;
+
+                this.applyUpgrade(versionAvailable.Version);
+            }
+        }
+    }, {
+        key: 'findVersion',
+        value: function findVersion(licenseKey) {
+            var _this = this;
+
+            var currentVersion = this.props.currentVersion;
+
+            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _pydioHttpRestApi.UpdateUpdateRequest();
+            request.PackageName = "PydioEnterprise";
+            request.LicenseInfo = { Key: licenseKey, Save: "true" };
+            _pydio2['default'].startLoading();
+            this.setState({ versionLoading: true });
+            api.updateRequired(request).then(function (res) {
+                _pydio2['default'].endLoading();
+                if (res.AvailableBinaries) {
+                    (function () {
+                        var noMatches = [];
+                        res.AvailableBinaries.forEach(function (bin) {
+                            if (currentVersion === bin.Version) {
+                                _this.setState({ versionAvailable: bin });
+                            } else {
+                                noMatches.push(bin);
+                            }
+                        });
+                        _this.setState({ versionsNoMatch: noMatches });
+                    })();
+                }
+                _this.setState({ versionLoading: false });
+            })['catch'](function (e) {
+                _pydio2['default'].endLoading();
+                _this.setState({ versionLoading: false, versionError: e.message });
+            });
+        }
+    }, {
+        key: 'applyUpgrade',
+        value: function applyUpgrade(version) {
+            var _this2 = this;
+
+            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _pydioHttpRestApi.UpdateApplyUpdateRequest();
+            req.PackageName = "PydioEnterprise";
+            req.TargetVersion = version;
+            api.applyUpdate(version, req).then(function (res) {
+                if (res.Success) {
+                    _this2.setState({ watchJob: res.Message });
+                } else {
+                    pydio.UI.displayMessage('ERROR', res.Message);
+                }
+            })['catch'](function () {});
+        }
+    }, {
+        key: 'upgradeFinished',
+        value: function upgradeFinished() {}
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this3 = this;
+
+            var _state = this.state;
+            var step = _state.step;
+            var upgradePerformed = _state.upgradePerformed;
+            var open = this.props.open;
+
+            var cardMessage = function cardMessage(id) {
+                return pydio.MessageHash['admin_dashboard.' + id];
+            };
+            var accent2Color = this.props.muiTheme.palette.accent2Color;
+
+            var content = undefined,
+                actions = undefined;
+            var title = "Upgrade to Cells Enterprise";
+            switch (step) {
+                case "ad":
+
+                    title = undefined;
+                    content = _react2['default'].createElement(
+                        _materialUi.Card,
+                        { style: { width: '100%' }, zDepth: 0 },
+                        _react2['default'].createElement(
+                            _materialUi.CardMedia,
+                            {
+                                overlay: _react2['default'].createElement(_materialUi.CardTitle, { title: cardMessage('ent.title'), subtitle: cardMessage('ent.subtitle') })
+                            },
+                            _react2['default'].createElement('div', { style: { height: 230, backgroundImage: 'url(plug/access.settings/res/images/dashboard.png)', backgroundSize: 'cover', borderRadius: 0 } })
+                        ),
+                        _react2['default'].createElement(
+                            _materialUi.List,
+                            null,
+                            _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-certificate' }), primaryText: cardMessage('ent.features'), secondaryText: cardMessage('ent.features.legend') }),
+                            _react2['default'].createElement(_materialUi.Divider, null),
+                            _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-chart-areaspline' }), primaryText: cardMessage('ent.advanced'), secondaryText: cardMessage('ent.advanced.legend') }),
+                            _react2['default'].createElement(_materialUi.Divider, null),
+                            _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-message-alert' }), primaryText: cardMessage('ent.support'), secondaryText: cardMessage('ent.support.legend') })
+                        )
+                    );
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.more'), onTouchTap: function () {
+                            window.open('https://pydio.com/en/features/pydio-cells-overview');
+                        } }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            return _this3.dismiss();
+                        }, label: "Cancel", primary: false }), _react2['default'].createElement(_materialUi.RaisedButton, { onTouchTap: function () {
+                            _this3.next('eula');
+                        }, label: "Start", primary: true })];
+                    break;
+
+                case "eula":
+                    var acceptEula = this.state.acceptEula;
+
+                    content = _react2['default'].createElement(
+                        'div',
+                        { style: Styles.body },
+                        _react2['default'].createElement(
+                            'h5',
+                            null,
+                            '1. Please Accept End-User License Agreement'
+                        ),
+                        _react2['default'].createElement(_reactMarkdown2['default'], { source: _UpgraderResources.EnterpriseDistEULA }),
+                        _react2['default'].createElement(_materialUi.Checkbox, { label: "I thereby accept this EULA", checked: acceptEula, onCheck: function (e, v) {
+                                _this3.setState({ acceptEula: v });
+                            } })
+                    );
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            return _this3.dismiss();
+                        }, label: "Cancel", primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this3.next('license');
+                        }, label: "Next", primary: true, disabled: !acceptEula })];
+                    break;
+
+                case "license":
+                    var licenseKey = this.state.licenseKey;
+
+                    content = _react2['default'].createElement(
+                        'div',
+                        { style: Styles.body },
+                        _react2['default'].createElement(
+                            'h5',
+                            null,
+                            '2. Enter a valid license key (provided by a Pydio sales representative).'
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            null,
+                            'If you do not own one, you can receive a trial key by contacting sales using the button below or directly via ',
+                            _react2['default'].createElement(
+                                'a',
+                                { href: "mailto:services@pydio.com" },
+                                'services@pydio.com'
+                            )
+                        ),
+                        _react2['default'].createElement(_materialUi.TextField, {
+                            value: licenseKey,
+                            onChange: function (e, v) {
+                                _this3.setState({ licenseKey: v });
+                            },
+                            floatingLabelText: "Paste key here...",
+                            floatingLabelFixed: true,
+                            multiLine: true,
+                            rowsMax: 16,
+                            rows: 10,
+                            fullWidth: true
+                        })
+                    );
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.contact'), onTouchTap: function () {
+                            window.open('https://pydio.com/en/pricing/contact');
+                        }, secondary: true }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            return _this3.dismiss();
+                        }, label: "Cancel", primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this3.next('check');
+                        }, label: "Next", primary: true, disabled: !licenseKey })];
+                    break;
+
+                case "check":
+                    var _state2 = this.state,
+                        versionLoading = _state2.versionLoading,
+                        versionAvailable = _state2.versionAvailable,
+                        versionsNoMatch = _state2.versionsNoMatch,
+                        versionError = _state2.versionError;
+
+                    content = _react2['default'].createElement(
+                        'div',
+                        { style: Styles.body },
+                        versionLoading && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(
+                                'h5',
+                                null,
+                                '3. Looking for the closest Cells Enterprise version'
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { display: 'flex', width: '100%', height: 320, alignItems: 'center', justifyContent: 'center' } },
+                                _react2['default'].createElement(_materialUi.CircularProgress, null)
+                            )
+                        ),
+                        versionError && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(
+                                'h5',
+                                null,
+                                '3. Cannot load available versions for Cells Enterprise!'
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                null,
+                                'Error was: ',
+                                versionError
+                            )
+                        ),
+                        versionAvailable && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(
+                                'h5',
+                                null,
+                                '3. Ready to install ',
+                                versionAvailable.Label,
+                                '!'
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { backgroundColor: '#ECEFF1', padding: 16, borderRadius: 2, marginBottom: 20 } },
+                                _react2['default'].createElement(
+                                    'u',
+                                    null,
+                                    'Released'
+                                ),
+                                ': ',
+                                new Date(versionAvailable.ReleaseDate * 1000).toISOString(),
+                                _react2['default'].createElement('br', null),
+                                _react2['default'].createElement(
+                                    'u',
+                                    null,
+                                    'Architecture'
+                                ),
+                                ': ',
+                                versionAvailable.BinaryOS,
+                                ' - ',
+                                versionAvailable.BinaryArch,
+                                _react2['default'].createElement('br', null),
+                                _react2['default'].createElement(
+                                    'u',
+                                    null,
+                                    'Description'
+                                ),
+                                ': ',
+                                versionAvailable.Description,
+                                _react2['default'].createElement('br', null)
+                            ),
+                            _react2['default'].createElement(
+                                'p',
+                                null,
+                                'Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under CELLS_CONFIG/services/pydio.grpc.update), if you need to recover it.'
+                            )
+                        ),
+                        !versionAvailable && versionsNoMatch && versionsNoMatch.length > 0 && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(
+                                'h5',
+                                null,
+                                '3. Could not find a similar version for Cells Enterprise!'
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                null,
+                                'To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version.',
+                                _react2['default'].createElement('br', null),
+                                'Please first update your current version to one of the following, then retry upgrading to Cells Enterprise.',
+                                _react2['default'].createElement(
+                                    'ul',
+                                    null,
+                                    versionsNoMatch.map(function (bin) {
+                                        return _react2['default'].createElement(
+                                            'li',
+                                            null,
+                                            '> ',
+                                            bin.Version
+                                        );
+                                    })
+                                )
+                            )
+                        )
+                    );
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            return _this3.dismiss();
+                        }, label: "Cancel", primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this3.next('perform');
+                        }, label: "Next", primary: true, disabled: !versionAvailable })];
+                    break;
+
+                case "perform":
+                    var watchJob = this.state.watchJob;
+
+                    if (watchJob) {
+                        content = _react2['default'].createElement(
+                            'div',
+                            { style: Styles.body },
+                            _react2['default'].createElement(SingleJobProgress, {
+                                jobID: watchJob,
+                                progressStyle: { paddingTop: 16 },
+                                lineStyle: { userSelect: 'text' },
+                                onEnd: function () {
+                                    _this3.upgradeFinished();
+                                }
+                            })
+                        );
+                    } else {
+                        content = _react2['default'].createElement(
+                            'div',
+                            { style: Styles.body },
+                            'Launching upgrade please wait...'
+                        );
+                    }
+
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            return _this3.dismiss();
+                        }, label: "Close", primary: true })];
+                    break;
+
+                default:
+                    break;
+            }
+
+            return _react2['default'].createElement(
+                _materialUi.Dialog,
+                {
+                    title: title,
+                    bodyStyle: { padding: 0 },
+                    autoScrollBodyContent: true,
+                    modal: true,
+                    open: open,
+                    actions: actions
+                },
+                content
+            );
+        }
+    }]);
+
+    return UpgraderWizard;
+})(_react2['default'].Component);
+
+exports['default'] = UpgraderWizard = (0, _materialUiStyles.muiThemeable)()(UpgraderWizard);
+exports['default'] = UpgraderWizard;
+module.exports = exports['default'];
+
+},{"./UpgraderResources":16,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-markdown":"react-markdown"}]},{},[14]);
