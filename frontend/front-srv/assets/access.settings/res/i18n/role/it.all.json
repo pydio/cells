@@ -113,6 +113,9 @@
   "38": {
     "other": "ereditato"
   },
+  "workspace.roots.invalid": {
+    "other": "root non valide"
+  },
   "39": {
     "other": "Disabilita"
   },

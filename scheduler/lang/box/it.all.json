@@ -60,9 +60,9 @@
     "other": "Download del file in background..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "Eliminazione di %s"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "Copia di %s"
   }
 }

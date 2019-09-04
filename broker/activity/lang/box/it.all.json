@@ -33,7 +33,7 @@
     "other": "Condiviso in {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} ha condiviso {{.Object}} con te"
   },
   "DigestTitle": {
     "other": "Questo è il tuo Pydio Daily Digest"

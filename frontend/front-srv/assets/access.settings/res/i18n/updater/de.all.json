@@ -1,68 +1,29 @@
 {
-  "1": {
-    "other": "Upgrade"
+  "title": {
+    "other": "Software-Updates"
   },
-  "10": {
-    "other": "Dies ist eine Simulation. Bitte die Protokolle prüfen und falls alles Ok ist auf 'Import nun starten' klicken."
+  "legend": {
+    "other": "In-App Binärupdates"
   },
-  "11": {
-    "other": "Migriere meta.serial"
+  "current.version": {
+    "other": "Aktuelle Version"
   },
-  "12": {
-    "other": "Die alte meta.serial-Erweiterung wurde aufgeteilt in metastore.serial und meta.user"
-  },
-  "13": {
-    "other": "Migration simulieren"
-  },
-  "14": {
-    "other": "Migration nun starten"
-  },
-  "15": {
+  "confirm.update": {
     "other": "Sind sie sicher, dass die Aktualisierung durchgeführt werden soll?"
   },
-  "16": {
-    "other": "Folgende Pakete werden heruntergeladen und installiert."
+  "packages.available": {
+    "other": "Folgende Pakete sind für die Aktualisierung verfügbar"
   },
-  "17": {
-    "other": "Prüfe auf Aktualisierungen..."
+  "checking": {
+    "other": "Suche nach verfügbaren Updates..."
   },
-  "18": {
+  "noupdates": {
     "other": "Keine Aktualisierungen gefunden. Klicken, um erneut zu prüfen."
   },
-  "19": {
-    "other": "Klicken um auf Aktualisierungen zu prüfen"
+  "check.legend": {
+    "other": "Klicken um auf Aktualisierungen zu suchen"
   },
-  "2": {
-    "other": "Automatische Versionsaktualisierung"
-  },
-  "20": {
-    "other": "Nun prüfen"
-  },
-  "21": {
-    "other": "Aktuell im Entwickler-Modus."
-  },
-  "22": {
-    "other": "Die aktuelle Version ist %1 (%2)."
-  },
-  "3": {
-    "other": "Klicken Sie auf die Schaltfläche um die Aktualisierung zu starten. Der Installations-Ordner darf nicht schreibgeschützt sein."
-  },
-  "4": {
-    "other": "Starte Aktualisierung"
-  },
-  "5": {
-    "other": "Von 3.2.4"
-  },
-  "6": {
-    "other": "Konfiguration von 3.2.4 importieren"
-  },
-  "7": {
-    "other": "Datenimport simulieren"
-  },
-  "8": {
-    "other": "Absoluten Pfad zur vorherigen Installation angeben, dann die Simulation starten"
-  },
-  "9": {
-    "other": "Import nun starten"
+  "check.button": {
+    "other": "Jetzt prüfen"
   }
 }

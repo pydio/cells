@@ -276,7 +276,7 @@
     "other": "Tutti i servizi in esecuzione"
   },
   "ds.status.starting": {
-    "other": "Starting datasource..."
+    "other": "Avvio datasource..."
   },
   "ds.status.sync": {
     "other": "Sincronizzazione giù"
@@ -1620,22 +1620,22 @@
     "other": "Elimina il Nodo"
   },
   "scheduler.trigger.create.user": {
-    "other": "Create User"
+    "other": "Crea utente"
   },
   "scheduler.trigger.read.user": {
-    "other": "Read User"
+    "other": "Leggi utente"
   },
   "scheduler.trigger.update.user": {
-    "other": "Update User"
+    "other": "Aggiorna utente"
   },
   "scheduler.trigger.delete.user": {
-    "other": "Delete User"
+    "other": "Elimina utente"
   },
   "scheduler.trigger.bind.user": {
-    "other": "User Bind"
+    "other": "Associazione utente"
   },
   "scheduler.trigger.logout.user": {
-    "other": "User Logout"
+    "other": "Logout utente"
   },
   "scheduler.trigger.events": {
     "other": "Eventi"
