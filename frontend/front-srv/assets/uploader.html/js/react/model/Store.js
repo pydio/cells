@@ -29,6 +29,10 @@ import FolderItem from './FolderItem'
 import Session from './Session'
 import {debounce} from 'lodash'
 
+import PydioApi from 'pydio/http/api'
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
+
+
 class Store extends Observable{
 
     constructor(){
@@ -101,10 +105,45 @@ class Store extends Observable{
     }
 
     processNext(){
+        // Start with folders: this will block until all folders are properly created AND indexed.
+        const folders = this.getFolders();
+        if (folders.length && !this._pauseRequired) {
+            this._running = true;
+            const api = new TreeServiceApi(PydioApi.getRestClient());
+            const request = new RestCreateNodesRequest();
+            request.Nodes = [];
+            folders.forEach(folderItem => {
+                const node = new TreeNode();
+                node.Path = folderItem.getFullPath();
+                node.Type = TreeNodeType.constructFromObject('COLLECTION');
+                request.Nodes.push(node);
+                this._processing.push(folderItem);
+                folderItem.setStatus('processing');
+            });
+            api.createNodes(request).then(() => {
+                folders.forEach(folderItem => {
+                    folderItem.setStatus('loaded');
+                    folderItem.children.pg[folderItem.getId()] = 100;
+                    folderItem.recomputeProgress();
+                    this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(folderItem));
+                    if(folderItem.getStatus() === 'error') {
+                        this._errors.push(folderItem)
+                    } else {
+                        this._processed.push(folderItem);
+                    }
+                });
+                this.processNext();
+                this.notify("update");
+            }).catch(e => {
+                this.processNext();
+                this.notify("update");
+            });
+            return
+        }
         let processables = this.getNexts();
         if(processables.length && !this._pauseRequired){
             this._running = true;
-            processables.map(processable => {
+            processables.forEach(processable => {
                 this._processing.push(processable);
                 processable.process(()=>{
                     this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(processable));
@@ -127,6 +166,20 @@ class Store extends Observable{
                 this.notify("auto_close");
             }
         }
+    }
+
+    getFolders(max = 60){
+        let folders = [];
+        this._sessions.forEach(session => {
+            session.walk((item)=>{
+                folders.push(item);
+            }, (item)=>{
+                return item.getStatus() === 'new'
+            }, 'folder', () => {
+                return folders.length >= max;
+            });
+        });
+        return folders;
     }
 
     getNexts(max = 3){
