@@ -604,7 +604,11 @@ func (s *TreeServer) FlushSession(ctx context.Context, req *tree.FlushSessionReq
 		log.Logger(ctx).Info("Flushing Indexation Session " + req.GetSession().GetUuid())
 
 		dao := getDAO(ctx, session.GetUuid())
-		dao.Flush(false)
+		err := dao.Flush(false)
+		if err != nil {
+			log.Logger(ctx).Error("Error while flushing indexation Session "+req.GetSession().GetUuid(), zap.Error(err))
+			return err
+		}
 	}
 
 	resp.Session = req.GetSession()
@@ -620,10 +624,14 @@ func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionReq
 
 		dao := getDAO(ctx, session.GetUuid())
 
-		dao.Flush(true)
+		err := dao.Flush(true)
 		batcher.Flush(ctx, dao)
 
 		s.sessionStore.DeleteSession(req.GetSession())
+		if err != nil {
+			log.Logger(ctx).Error("Error while closing (flush) indexation Session "+req.GetSession().GetUuid(), zap.Error(err))
+			return err
+		}
 	}
 	resp.Session = req.GetSession()
 	return nil
