@@ -357,6 +357,8 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 		var count int
 		for node := range c {
 
+			//log.Logger(context.Background()).Info("SQL:AddNodeStream", node.ZapUuid(), node.ZapPath(), zap.String("MPath", node.MPath.String()))
+
 			mTime := node.GetMTime()
 			if mTime == 0 {
 				mTime = time.Now().Unix()

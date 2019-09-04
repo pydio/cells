@@ -26,6 +26,11 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
+
+	"github.com/micro/go-micro/client"
+
+	"github.com/pydio/cells/common/utils/mtree"
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
@@ -115,16 +120,33 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 	ctx := req.Request.Context()
 	output := &rest.NodesCollection{}
 
-	log.Logger(ctx).Info("Got CreateNodes Request", zap.Any("request", input))
+	log.Logger(ctx).Debug("Got CreateNodes Request", zap.Any("request", input))
 	router := h.GetRouter()
-	for _, n := range input.Nodes {
+	var session string
+	var folderPaths []string
+	folderChecks := make(map[string]string)
+	if len(input.Nodes) > 1 {
+		session = uuid.New()
+	}
+	for i, n := range input.Nodes {
 		if !n.IsLeaf() {
-			r, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: n})
+			folderPaths = append(folderPaths, n.Path)
+			folderChecks[n.Path] = n.Path
+			if session != "" && i == len(input.Nodes)-1 {
+				session = common.SyncSessionClose_ + session
+			}
+			r, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: n, IndexationSession: session})
 			if e != nil {
 				service.RestError500(req, resp, e)
+				if session != "" {
+					// Make sure to close the session
+					client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_EVENT, &tree.IndexEvent{
+						SessionForceClose: session,
+					}))
+				}
 				return
 			}
-			output.Children = append(output.Children, r.Node)
+			output.Children = append(output.Children, r.Node.WithoutReservedMetas())
 		} else {
 			var reader io.Reader
 			var length int64
@@ -159,6 +181,45 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 		}
 	}
 
+	if session != "" && len(folderPaths) > 0 {
+		log.Logger(ctx).Debug("Blocking request before all folders were created (checking .pydio)", zap.Any("remaining", folderChecks))
+		pref := mtree.CommonPrefix('/', folderPaths...)
+		if _, ok := folderChecks[pref]; ok {
+			// Check root folder
+			service.Retry(func() error {
+				_, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: pref}})
+				if e != nil {
+					return e
+				}
+				delete(folderChecks, pref)
+				return nil
+			})
+		}
+		e := service.Retry(func() error {
+			s, e := router.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: pref}, Recursive: true})
+			if e != nil {
+				return e
+			}
+			defer s.Close()
+			for {
+				r, er := s.Recv()
+				if er != nil {
+					break
+				}
+				if strings.HasSuffix(r.Node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
+					delete(folderChecks, strings.TrimRight(strings.TrimSuffix(r.Node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META), "/"))
+				}
+			}
+			if len(folderChecks) > 0 {
+				log.Logger(ctx).Debug("Checking that all folders were created", zap.Any("remaining", folderChecks))
+				return fmt.Errorf("not all folders detected, retry")
+			}
+			return nil
+		}, 3*time.Second, 50*time.Second)
+		if e == nil {
+			log.Logger(ctx).Info("Rest CreateNodes successfully passed folders creation checks", zap.Int("created number", len(folderPaths)))
+		}
+	}
 	resp.WriteEntity(output)
 
 }

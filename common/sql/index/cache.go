@@ -415,63 +415,65 @@ func (d *daocache) GetNodeByPath(path []string) (*mtree.TreeNode, error) {
 	defer d.mutex.RUnlock()
 
 	name := path[len(path)-1]
+	logPath := "[" + strings.Join(path, ",") + "]"
 
 	// we retrieve a list of potential nodes
-	if nodes, ok := d.nameCache[name]; !ok {
-		return nil, fmt.Errorf("node missing")
-	} else {
-		if len(nodes) == 1 && len(path) < 2 {
-			node := nodes[0]
-			if len(node.MPath) != len(path)+1 {
-				return nil, fmt.Errorf("node missing at this level")
-			}
-			return node, nil
+	nodes, ok := d.nameCache[name]
+	if !ok {
+		return nil, fmt.Errorf("Cache:GetNodeByPath: Path: " + logPath + " last part not in nameCache")
+	}
+
+	if len(nodes) == 1 && len(path) < 2 {
+		node := nodes[0]
+		if len(node.MPath) != len(path)+1 {
+			return nil, fmt.Errorf("node missing at this level")
 		}
+		return node, nil
+	}
 
-		potentialNodes := []*mtree.TreeNode{}
+	potentialNodes := []*mtree.TreeNode{}
 
-		// Keeping only nodes on right level
-		for _, node := range nodes {
-			if len(node.MPath) == len(path)+1 { // We're adding 1 to take into account the root
-				potentialNodes = append(potentialNodes, node)
-			}
-		}
-
-		if len(potentialNodes) == 1 && len(path) < 2 {
-			return potentialNodes[0], nil
-		}
-
-		// Resetting potentialNodes
-		newPotentialNodes := []*mtree.TreeNode{}
-
-		// Removing nodes with wrong parent
-		for i := len(path) - 2; i >= 0; i-- {
-			for _, node := range potentialNodes {
-
-				mpath := mtree.NewMPath(node.MPath[0 : i+2]...)
-
-				if pnode, ok := d.cache[mpath.String()]; !ok {
-					// We can't find the node in the cache - this could be a problem
-					continue
-				} else if pnode.Name() != path[i] {
-					// The parent node name doesn't match what we are looking for
-					continue
-				}
-
-				newPotentialNodes = append(newPotentialNodes, node)
-			}
-
-			if len(newPotentialNodes) == 1 && i == 0 {
-				return newPotentialNodes[0], nil
-			}
-
-			// Resetting potentialNodes
-			potentialNodes = newPotentialNodes
-			newPotentialNodes = []*mtree.TreeNode{}
+	// Keeping only nodes on right level
+	for _, node := range nodes {
+		if len(node.MPath) == len(path)+1 { // We're adding 1 to take into account the root
+			potentialNodes = append(potentialNodes, node)
 		}
 	}
 
-	return nil, fmt.Errorf("node presumably missing")
+	if len(potentialNodes) == 1 && len(path) < 2 {
+		return potentialNodes[0], nil
+	}
+
+	// Resetting potentialNodes
+	newPotentialNodes := []*mtree.TreeNode{}
+
+	// Removing nodes with wrong parent
+	for i := len(path) - 2; i >= 0; i-- {
+		for _, node := range potentialNodes {
+
+			mpath := mtree.NewMPath(node.MPath[0 : i+2]...)
+
+			if pnode, ok := d.cache[mpath.String()]; !ok {
+				// We can't find the node in the cache - this could be a problem
+				continue
+			} else if pnode.Name() != path[i] {
+				// The parent node name doesn't match what we are looking for
+				continue
+			}
+
+			newPotentialNodes = append(newPotentialNodes, node)
+		}
+
+		if len(newPotentialNodes) == 1 && i == 0 {
+			return newPotentialNodes[0], nil
+		}
+
+		// Resetting potentialNodes
+		potentialNodes = newPotentialNodes
+		newPotentialNodes = []*mtree.TreeNode{}
+	}
+
+	return nil, fmt.Errorf("Cache:GetNodeByPath "+logPath+" : potentialNodes not reduced to 1 value (potential:%d, newPotential:%d", len(potentialNodes), len(newPotentialNodes))
 }
 
 func (d *daocache) GetNodeChild(path mtree.MPath, name string) (*mtree.TreeNode, error) {

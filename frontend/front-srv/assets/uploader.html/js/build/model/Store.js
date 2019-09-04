@@ -45,6 +45,12 @@ var _Session2 = _interopRequireDefault(_Session);
 
 var _lodash = require('lodash');
 
+var _api = require('pydio/http/api');
+
+var _api2 = _interopRequireDefault(_api);
+
+var _restApi = require('pydio/http/rest-api');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -140,10 +146,44 @@ var Store = function (_Observable) {
         value: function processNext() {
             var _this3 = this;
 
+            var folders = this.getFolders();
+            if (folders.length && !this._pauseRequired) {
+                this._running = true;
+                var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
+                var request = new _restApi.RestCreateNodesRequest();
+                request.Nodes = [];
+                folders.forEach(function (folderItem) {
+                    var node = new _restApi.TreeNode();
+                    node.Path = folderItem.getFullPath();
+                    node.Type = _restApi.TreeNodeType.constructFromObject('COLLECTION');
+                    request.Nodes.push(node);
+                    _this3._processing.push(folderItem);
+                    folderItem.setStatus('processing');
+                });
+                api.createNodes(request).then(function () {
+                    folders.forEach(function (folderItem) {
+                        folderItem.setStatus('loaded');
+                        folderItem.children.pg[folderItem.getId()] = 100;
+                        folderItem.recomputeProgress();
+                        _this3._processing = _lang2.default.arrayWithout(_this3._processing, _this3._processing.indexOf(folderItem));
+                        if (folderItem.getStatus() === 'error') {
+                            _this3._errors.push(folderItem);
+                        } else {
+                            _this3._processed.push(folderItem);
+                        }
+                    });
+                    _this3.processNext();
+                    _this3.notify("update");
+                }).catch(function (e) {
+                    _this3.processNext();
+                    _this3.notify("update");
+                });
+                return;
+            }
             var processables = this.getNexts();
             if (processables.length && !this._pauseRequired) {
                 this._running = true;
-                processables.map(function (processable) {
+                processables.forEach(function (processable) {
                     _this3._processing.push(processable);
                     processable.process(function () {
                         _this3._processing = _lang2.default.arrayWithout(_this3._processing, _this3._processing.indexOf(processable));
@@ -166,6 +206,23 @@ var Store = function (_Observable) {
                     this.notify("auto_close");
                 }
             }
+        }
+    }, {
+        key: 'getFolders',
+        value: function getFolders() {
+            var max = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 60;
+
+            var folders = [];
+            this._sessions.forEach(function (session) {
+                session.walk(function (item) {
+                    folders.push(item);
+                }, function (item) {
+                    return item.getStatus() === 'new';
+                }, 'folder', function () {
+                    return folders.length >= max;
+                });
+            });
+            return folders;
         }
     }, {
         key: 'getNexts',
