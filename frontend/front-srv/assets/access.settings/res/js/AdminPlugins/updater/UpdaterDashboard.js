@@ -96,7 +96,7 @@ let UpdaterDashboard = React.createClass({
         const {check, packages} = this.state;
 
         if(check < 0 || !packages[check]){
-            alert('Please select at least one package!');
+            alert(this.context.getMessage('alert.noselect', 'updater'));
             return;
         }
 
@@ -188,7 +188,7 @@ let UpdaterDashboard = React.createClass({
         }
 
         if (dirty){
-            buttons.push(<RaisedButton style={{marginLeft: 10}} secondary={true} label={"Save Configs"} onTouchTap={()=>{
+            buttons.push(<RaisedButton style={{marginLeft: 10}} secondary={true} label={this.context.getMessage('configs.save', 'updater')} onTouchTap={()=>{
                 this.refs.serviceConfigs.save().then((res) => {
                     this.setState({dirty: false});
                 });
@@ -198,8 +198,8 @@ let UpdaterDashboard = React.createClass({
         let versionLabel = backend.PackageLabel + ' ' + backend.Version;
         let upgradeWizard;
         if(backend.PackageType === "PydioHome" && backend.Version){
-            upgradeWizard = <UpgraderWizard open={this.state.upgradeDialog} onDismiss={() => this.setState({upgradeDialog:false})} currentVersion={backend.Version}/>;
-            versionLabel = <span>{versionLabel} <a style={{color:accent2Color, cursor:'pointer'}} onClick={() => this.setState({upgradeDialog:true})}>&gt; Upgrade to Cells Enterprise...</a></span>
+            upgradeWizard = <UpgraderWizard open={this.state.upgradeDialog} onDismiss={() => this.setState({upgradeDialog:false})} currentVersion={backend.Version} pydio={this.props.pydio}/>;
+            versionLabel = <span>{versionLabel} <a style={{color:accent2Color, cursor:'pointer'}} onClick={() => this.setState({upgradeDialog:true})}>&gt; {this.context.getMessage('upgrade.ed.title', 'updater')}...</a></span>
         }
         return (
             <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
@@ -216,8 +216,8 @@ let UpdaterDashboard = React.createClass({
                         <div style={subHeaderStyle}>{this.context.getMessage('current.version', 'updater')}</div>
                         <List style={{padding: '0 16px'}}>
                             <ListItem primaryText={versionLabel} disabled={true} secondaryTextLines={2} secondaryText={<span>
-                                {"Released : " + backend.BuildStamp}<br/>
-                                {"Revision : " + backend.BuildRevision}
+                                {this.context.getMessage('package.released', 'updater') + " : " + backend.BuildStamp}<br/>
+                                {this.context.getMessage('package.revision', 'updater') + " : " + backend.BuildRevision}
                             </span>}/>
                         </List>
                     </Paper>

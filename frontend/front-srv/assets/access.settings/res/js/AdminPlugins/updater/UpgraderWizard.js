@@ -22,11 +22,13 @@ import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'pydio/http/rest-api'
+
 import {muiThemeable} from 'material-ui/styles'
 import {Dialog, FlatButton, RaisedButton, FontIcon, Card, CardHeader, CardMedia, CardTitle, List, ListItem, Divider,
     CardActions, Checkbox, TextField, CircularProgress} from 'material-ui'
 import Markdown from 'react-markdown'
-const {moment, SingleJobProgress} = Pydio.requireLib('boot');
+
+const {SingleJobProgress} = Pydio.requireLib('boot');
 import {EnterpriseDistEULA} from "./UpgraderResources";
 
 const Styles = {
@@ -53,14 +55,6 @@ class UpgraderWizard extends React.Component{
             watchJob: null,
             upgradePerformed: false
         };
-        // TODO REMOVE THIS IS FOR DEBUGGING
-        this.state = {
-            step:'ad',
-            acceptEula: true,
-            licenseKey: "A LICENSE KEY HERE",
-            versionAvailable: false,
-            upgradePerformed: false
-        }
     }
 
     dismiss(){
@@ -137,13 +131,14 @@ class UpgraderWizard extends React.Component{
     }
 
     render(){
-        const {step, upgradePerformed} = this.state;
-        const {open} = this.props;
+        const {step} = this.state;
+        const {open, pydio, muiTheme} = this.props;
         const cardMessage = (id) => {return pydio.MessageHash['admin_dashboard.' + id]};
-        const {accent2Color} = this.props.muiTheme.palette;
+        const {accent2Color} = muiTheme.palette;
+        const m = (id) => {return pydio.MessageHash['updater.upgrade.ed.' + id] || id };
 
         let content, actions;
-        let title = "Upgrade to Cells Enterprise";
+        let title = m('title');
         switch (step) {
             case "ad":
 
@@ -166,8 +161,8 @@ class UpgraderWizard extends React.Component{
                 );
                 actions = [
                     <FlatButton style={{float:'left'}} label={cardMessage('ent.btn.more')} onTouchTap={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} />,
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={"Cancel"} primary={false}/>,
-                    <RaisedButton onTouchTap={()=>{this.next('eula')}} label={"Start"} primary={true}/>
+                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
+                    <RaisedButton onTouchTap={()=>{this.next('eula')}} label={m('button.start')} primary={true}/>
                 ];
                 break;
 
@@ -176,14 +171,14 @@ class UpgraderWizard extends React.Component{
                 const {acceptEula} = this.state;
                 content = (
                     <div style={Styles.body}>
-                        <h5>1. Please Accept End-User License Agreement</h5>
+                        <h5>1. {m('eula.title')}</h5>
                         <Markdown source={EnterpriseDistEULA}/>
-                        <Checkbox label={"I thereby accept this EULA"} checked={acceptEula} onCheck={(e,v)=>{this.setState({acceptEula: v})}}/>
+                        <Checkbox label={m('eula.check')} checked={acceptEula} onCheck={(e,v)=>{this.setState({acceptEula: v})}}/>
                     </div>
                 );
                 actions = [
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={"Cancel"} primary={false}/>,
-                    <FlatButton onTouchTap={()=>{this.next('license')}} label={"Next"} primary={true} disabled={!acceptEula}/>
+                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
+                    <FlatButton onTouchTap={()=>{this.next('license')}} label={m('button.next')} primary={true} disabled={!acceptEula}/>
                 ];
                 break;
 
@@ -192,14 +187,13 @@ class UpgraderWizard extends React.Component{
                 const {licenseKey} = this.state;
                 content = (
                     <div style={Styles.body}>
-                        <h5>2. Enter a valid license key (provided by a Pydio sales representative).</h5>
-                        <div>If you do not own one, you can receive a trial key by contacting sales using the
-                            button below or directly via <a href={"mailto:services@pydio.com"}>services@pydio.com</a>
+                        <h5>2. {m('key.title')}</h5>
+                        <div>{m('key.legend')} <a href={"mailto:services@pydio.com"}>services@pydio.com</a>
                         </div>
                         <TextField
                             value={licenseKey}
                             onChange={(e,v)=>{this.setState({licenseKey: v})}}
-                            floatingLabelText={"Paste key here..."}
+                            floatingLabelText={m('key.hint')}
                             floatingLabelFixed={true}
                             multiLine={true}
                             rowsMax={16}
@@ -210,8 +204,8 @@ class UpgraderWizard extends React.Component{
                 );
                 actions = [
                     <FlatButton style={{float:'left'}} label={cardMessage('ent.btn.contact')} onTouchTap={()=>{window.open('https://pydio.com/en/pricing/contact')}} secondary={true}/>,
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={"Cancel"} primary={false}/>,
-                    <FlatButton onTouchTap={()=>{this.next('check')}} label={"Next"} primary={true} disabled={!licenseKey}/>
+                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
+                    <FlatButton onTouchTap={()=>{this.next('check')}} label={m('button.next')} primary={true} disabled={!licenseKey}/>
                 ];
                 break;
 
@@ -222,38 +216,36 @@ class UpgraderWizard extends React.Component{
                     <div style={Styles.body}>
                         {versionLoading &&
                             <div>
-                                <h5>3. Looking for the closest Cells Enterprise version</h5>
+                                <h5>3. {m('version.loading')}</h5>
                                 <div style={{display:'flex', width: '100%', height: 320, alignItems:'center', justifyContent:'center'}}><CircularProgress/></div>
                             </div>
                         }
                         {versionError &&
                             <div>
-                                <h5>3. Cannot load available versions for Cells Enterprise!</h5>
-                                <div>Error was: {versionError}</div>
+                                <h5>3. {m('version.error')}</h5>
+                                <div>{m('version.error.string')} : {versionError}</div>
                             </div>
                         }
                         {versionAvailable &&
                             <div>
-                                <h5>3. Ready to install {versionAvailable.Label}!</h5>
+                                <h5>3. {m('version.available').replace('%s', versionAvailable.Label)}</h5>
                                 <div style={{backgroundColor: '#ECEFF1', padding: 16, borderRadius: 2, marginBottom: 20}}>
-                                    <u>Released</u>: {new Date(versionAvailable.ReleaseDate * 1000).toISOString()}<br/>
-                                    <u>Architecture</u>: {versionAvailable.BinaryOS} - {versionAvailable.BinaryArch}<br/>
-                                    <u>Description</u>: {versionAvailable.Description}<br/>
+                                    <u>{m('version.released')}</u>: {new Date(versionAvailable.ReleaseDate * 1000).toISOString()}<br/>
+                                    <u>{m('version.arch')}</u>: {versionAvailable.BinaryOS} - {versionAvailable.BinaryArch}<br/>
+                                    <u>{m('version.description')}</u>: {versionAvailable.Description}<br/>
                                 </div>
                                 <p>
-                                    Hitting Next will now download this new version and replace your current Cells binary.
-                                    A backup of the original executable will be made inside your cells config folder
-                                    (under CELLS_CONFIG/services/pydio.grpc.update), if you need to recover it.
+                                    {m('version.legend').replace('%s', 'CELLS_CONFIG/services/pydio.grpc.update')}
                                 </p>
                             </div>
                         }
                         {!versionAvailable && versionsNoMatch && versionsNoMatch.length > 0 &&
                             <div>
-                                <h5>3. Could not find a similar version for Cells Enterprise!</h5>
+                                <h5>3. {m('version.nomatch')}</h5>
                                 <div>
-                                    To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version.
+                                    {m('version.nomatch.legend1')}
                                     <br/>
-                                    Please first update your current version to one of the following, then retry upgrading to Cells Enterprise.
+                                    {m('version.nomatch.legend2')}
                                     <ul>
                                     {versionsNoMatch.map(bin => {
                                         return <li>&gt; {bin.Version}</li>
@@ -265,8 +257,8 @@ class UpgraderWizard extends React.Component{
                     </div>
                 );
                 actions = [
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={"Cancel"} primary={false}/>,
-                    <FlatButton onTouchTap={()=>{this.next('perform')}} label={"Next"} primary={true} disabled={!versionAvailable}/>
+                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
+                    <FlatButton onTouchTap={()=>{this.next('perform')}} label={m('button.install')} primary={true} disabled={!versionAvailable}/>
                 ];
                 break;
 
@@ -286,12 +278,12 @@ class UpgraderWizard extends React.Component{
                     );
                 } else {
                     content = (
-                        <div style={Styles.body}>Launching upgrade please wait...</div>
+                        <div style={Styles.body}>{m('installing')}</div>
                     )
                 }
 
                 actions = [
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={"Close"} primary={true}/>,
+                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.close')} primary={true}/>,
                 ];
                 break;
 
