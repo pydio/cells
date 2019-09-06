@@ -39,6 +39,9 @@ func (u *UsersSelector) MultipleSelection() bool {
 // ENRICH UsersSelector METHODS
 func (u *UsersSelector) Select(client client.Client, ctx context.Context, objects chan interface{}, done chan bool) error {
 
+	defer func() {
+		done <- true
+	}()
 	// Push Claims in Context to impersonate this user
 	var query *service.Query
 	if len(u.Users) > 0 {
@@ -78,7 +81,6 @@ func (u *UsersSelector) Select(client client.Client, ctx context.Context, object
 		objects <- resp.User
 	}
 
-	done <- true
 	return nil
 }
 

@@ -104,7 +104,6 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, objects ch
 		}
 		log.Logger(ctx).Debug("Finished Search Request with query", zap.Any("q", q))
 	}
-	done <- true
 	return nil
 }
 
