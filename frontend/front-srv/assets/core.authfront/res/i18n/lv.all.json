@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "Password Reset"
+    "other": "Paroles maiņa"
   },
   "2": {
-    "other": "Set your new password"
+    "other": "Iestatīt jaunu paroli"
   },
   "3": {
-    "other": "Please enter your login or email address, a reset password will be sent to you by email."
+    "other": "Ievadiet savu lietotājvārdu vai e-pasta adresi, maiņas paroli tiks nosūtīta uz Jūsu e-pastu."
   },
   "4": {
-    "other": "Your login or email"
+    "other": "Jūsu lietotājvārds vai parole"
   },
   "5": {
-    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
+    "other": "Paroles maiņas pieprasījums tiks nosūtīts uz lietotāja konta reģistrēto e-pasta adresi. Nospiediet uz saites e-pastā lai atjaunotu paroli."
   },
   "6": {
-    "other": "Thank you, please reload now to log in!"
+    "other": "Paldies, pārlādējiet lapu lai pieslēgtos!"
   },
   "7": {
-    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
+    "other": "Tika veikts paroles maiņas pieprasījums kontam kurš ir reģistrēts ar šo e-pasta adresi. Ja Jūs neesat veicis šo pieprasījumu, ignorējiet šo e-pastu. Ja to izdarījāt Jūs nospiediet uz saites lai mainītu paroli:"
   },
   "8": {
-    "other": "Use the form below to reset your password. Please enter your login and the new password twice."
+    "other": "Lietojiet formu lai mainītu paroli. Ievadiet savu lietotājvārdu jauno paroli divas reizes."
   }
 }

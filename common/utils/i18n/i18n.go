@@ -36,13 +36,16 @@ import (
 )
 
 var (
+	// AvailableLanguages stores a manually maintained maps with all languages
+	// that are currently supported by Cells front-end and can be chosen via the interface.
 	AvailableLanguages = map[string]string{
 		"en-us": "English",
 		"fr":    "Français",
 		"de":    "Deutsch",
 		"es-es": "Español",
 		"it":    "Italiano",
-		"pt-br": "Portuguese",
+		"pt-br": "Português",
+		"lv":    "Latv",
 	}
 
 	LanguagesLegacyNames = map[string]string{

@@ -1,29 +1,29 @@
 {
   "Display a standard user/password login screen": {
-    "other": "Display a standard user/password login screen"
+    "other": "Rādīt standarta lietotāja/paroles pieslēgšanās logu"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "Enable/disable automatically based on the protocol used"
+    "other": "Ieslēgt/izslēgt automātiski atkarībā no lietotā protokola"
   },
   "Order": {
-    "other": "Order"
+    "other": "Šķirot"
   },
   "Order this plugin with other auth frontends": {
-    "other": "Order this plugin with other auth frontends"
+    "other": "Škirot šo spraudni ar pārējiem auth interfeisiem"
   },
   "Protocol Type": {
-    "other": "Protocol Type"
+    "other": "Protokola veids"
   },
   "REST Only": {
-    "other": "REST Only"
+    "other": "Tikai REST"
   },
   "Session-based or Rest": {
-    "other": "Session-based or Rest"
+    "other": "Sesija balstīta uz Rest"
   },
   "Sessions Only": {
-    "other": "Sessions Only"
+    "other": "Tikai sesijas"
   },
   "Standard login screen": {
-    "other": "Standard login screen"
+    "other": "Standarta pieslēgšanās logs"
   }
 }

@@ -1,65 +1,65 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "Versijas"
   },
   "10": {
-    "other": "Date"
+    "other": "Datums"
   },
   "11": {
-    "other": "Author"
+    "other": "Autors"
   },
   "12": {
-    "other": "Modification"
+    "other": "Modifikācija"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "Vai vēlaties to darīt? Atgriežoties pie vecākas versijas tiks izveidota jauna versija dokumentam ar esošo versiju."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Nav iepriekšējo versiju"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Versijas tiek izveidots kad tiek mainīts faila saturs"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Iepriekšējās versijas priekš '%s'"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "Dokumenta iepriekšējās versijas"
   },
   "3": {
-    "other": "Download"
+    "other": "Lejuplādēt"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "Lejupielādēt datorā Jūsu izvēlēto versiju"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "Priekšskats (pārlūkā)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "Atvērt izvēlēto versiju interneta pārlūka logā"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "Atgriezties uz..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "Atgriezt failu serverī uz izvēlēto versiju"
   },
   "9": {
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "Fails izveidots"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "Fails dzēsts"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "Saturs modificēts"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "Fails pārvietots"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "Fails pārsaukts"
   }
 }

@@ -1,110 +1,110 @@
 {
   "Activate Queue": {
-    "other": "Activate Queue"
+    "other": "Aktivizēt Rindu"
   },
   "Active notifications by email": {
-    "other": "Active notifications by email"
+    "other": "Aktīvie paziņojumi pa e-pastu"
   },
   "Adress of the sender": {
-    "other": "Adress of the sender"
+    "other": "Sūtītāja adrese"
   },
   "Body Layout": {
-    "other": "Body Layout"
+    "other": "Satura izkārtojums"
   },
   "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)": {
-    "other": "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)"
+    "other": "Izvēlieties sūtīšanas biežumu (piemēram 9:00 vai 9:00,14:00, vai Trešdien)"
   },
   "Content": {
-    "other": "Content"
+    "other": "Saturs"
   },
   "Core configs for sending emails": {
-    "other": "Core configs for sending emails"
+    "other": "E-pasta sūtīšanas pamata konfigurācija"
   },
   "Detail your frequency here": {
-    "other": "Detail your frequency here"
+    "other": "Informācija par biežumu"
   },
   "Emails frequency": {
-    "other": "Emails frequency"
+    "other": "E-pastu biežums"
   },
   "Every X hour": {
-    "other": "Every X hour"
+    "other": "Katras X stundas"
   },
   "Every X min": {
-    "other": "Every X min"
+    "other": "Katras X minūtes"
   },
   "Every day at ": {
-    "other": "Every day at "
+    "other": "Katru dienu noteiktā laikā "
   },
   "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
-    "other": "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file."
+    "other": "Izvilkt pamata šablonu no lokalizēta faila. prevalēs no iepriekšējā parametra, pārliecinieties ka šablona failā ir PYDIO_MAIL_BODY atslēgas vārds."
   },
   "Force all mails to be sent by this Sender email, instead of users adresses": {
-    "other": "Force all mails to be sent by this Sender email, instead of users adresses"
+    "other": "Sūtīt visus e-pastus no šī sūtītāja e-pasta adreses, nevis no lietotāju e-pastiem"
   },
   "Get the email in HTML": {
-    "other": "Get the email in HTML"
+    "other": "Saņemt ziņu HTML formātā"
   },
   "Layout Folder": {
-    "other": "Layout Folder"
+    "other": "Izkārtojumu direktorija"
   },
   "Mailer Plugin": {
-    "other": "Mailer Plugin"
+    "other": "Sūtītāju spraudņi"
   },
   "Mailers": {
-    "other": "Mailers"
+    "other": "Sūtītāji"
   },
   "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
-    "other": "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content."
+    "other": "E-pasta satura galvenais šablons, lietojiet HTML lai sūtītu noformātus e-pastus un lietojiet PYDIO_MAIL_BODY atslēgas vārdu īstajam saturam."
   },
   "Name of the sender": {
-    "other": "Name of the sender"
+    "other": "Sūtītāja vārds"
   },
   "Once a Week": {
-    "other": "Once a Week"
+    "other": "Reizi nedēļā"
   },
   "Receive Notifcations by email": {
-    "other": "Receive Notifcations by email"
+    "other": "Saņemt paziņojumus e-pastā"
   },
   "Select the plugin to activate for concretely sending emails": {
-    "other": "Select the plugin to activate for concretely sending emails"
+    "other": "Izvēlēties spraudni lai aktivizētu konkrētu e-pastu sūtīšanu"
   },
   "Send as HTML": {
-    "other": "Send as HTML"
+    "other": "Sūtīt kā HTML"
   },
   "Send email to...": {
-    "other": "Send email to..."
+    "other": "Sūtīt e-pastu uz..."
   },
   "Sender": {
-    "other": "Sender"
+    "other": "Sūtītājs"
   },
   "Sender email": {
-    "other": "Sender email"
+    "other": "Sūtītāja e-pasts"
   },
   "Sender name": {
-    "other": "Sender name"
+    "other": "Sūtītāja vārds"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
-    "other": "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option."
+    "other": "Saglabāt e-pastus rindā un apstrādāt reizē. Lietotāji var izvēlēties sūtīšanas biežumu. Pārliecinieties ka ir izveidots CRON uzdevums consume_mail_queue darbībai ja tiek lietota šī opcija."
   },
   "String automatically added at the beginning of the mail subject": {
-    "other": "String automatically added at the beginning of the mail subject"
+    "other": "Automātiskā saite kuru pievieno e-pasta nosaukuma sākumā"
   },
   "String automatically added at the end of the mail subject": {
-    "other": "String automatically added at the end of the mail subject"
+    "other": "Automātiskā saite kuru pievieno e-pasta nosaukuma beigās"
   },
   "Subject Append": {
-    "other": "Subject Append"
+    "other": "Temats beigās"
   },
   "Subject Prepend": {
-    "other": "Subject Prepend"
+    "other": "Temats sākumā"
   },
   "Twice a day (every day at and)": {
-    "other": "Twice a day (every day at and)"
+    "other": "Divreiz dienā (katru dienu noteiktā laikā un)"
   },
   "Unique Sender": {
-    "other": "Unique Sender"
+    "other": "Unikāls sūtītājs"
   },
   "You can add many email separated by commas": {
-    "other": "You can add many email separated by commas"
+    "other": "Var pievienot vairākus e-pastus atdalītus ar komatu"
   }
 }

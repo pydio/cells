@@ -1,233 +1,233 @@
 {
   "1": {
-    "other": "Address Book"
+    "other": "Adresu grāmata"
   },
   "10": {
-    "other": "Associated workspaces"
+    "other": "Asociētās dabvirsmas"
   },
   "11": {
-    "other": "Are you sure that you want to delete the selected element(s)?"
+    "other": "Vai vēlaties nodzēst izvēlētos elementus?"
   },
   "12": {
-    "other": "You don't have the permission to delete this element."
+    "other": "Jums nav tiesību dzēst šo elementu."
   },
   "13": {
-    "other": "Successfully deleted public file."
+    "other": "Publiskais fails veiksmīgi nodzēsts."
   },
   "14": {
-    "other": "Integrity"
+    "other": "Integritāte"
   },
   "15": {
-    "other": "Ok"
+    "other": "Labi"
   },
   "16": {
-    "other": "Broken"
+    "other": "Bojāts"
   },
   "17": {
-    "other": "Download URL"
+    "other": "Lejupielādes saite"
   },
   "18": {
-    "other": "Copy URL"
+    "other": "Nokopēt saiti"
   },
   "19": {
-    "other": "Copy url to send by email."
+    "other": "Kopēt saiti lai sūtītu e-pastā."
   },
   "2": {
-    "other": "Shared folders"
+    "other": "Koplietotās direktorijas"
   },
   "20": {
-    "other": "Downloads"
+    "other": "Lejupielādes"
   },
   "21": {
-    "other": "Yes"
+    "other": "Jā"
   },
   "22": {
-    "other": "No"
+    "other": "Nē"
   },
   "23": {
-    "other": "Successfully deleted %s files."
+    "other": "Veiksmīgi nodzēsti %s faili."
   },
   "24": {
-    "other": "Nothing to delete."
+    "other": "Nav ko nodzēst."
   },
   "25": {
-    "other": "Clear Expired"
+    "other": "Iztīrīt beigušos"
   },
   "26": {
-    "other": "Delete expired shared files."
+    "other": "Dzēst koplietojamos failus kuri ir beigušies."
   },
   "27": {
-    "other": "Owner"
+    "other": "Īpašnieks"
   },
   "28": {
-    "other": "Files shared for direct download, either protected by a password or not."
+    "other": "Faili kuri ir koplietoti tiešai lejupielādei, ar vai bez paroles."
   },
   "29": {
-    "other": "Delegates workspaces created by users."
+    "other": "Deleģē lietotāju izveidotas darbvirsmas."
   },
   "3": {
-    "other": "Shared files"
+    "other": "Koplietotie faili"
   },
   "30": {
-    "other": "Users created to access the delegated workspaces."
+    "other": "Izveidotie lietotāji ar piekļuvi deleģētajām darbvirsmām."
   },
   "31": {
-    "other": "Description"
+    "other": "Apraksts"
   },
   "32": {
-    "other": "Reset"
+    "other": "Atiestatīt"
   },
   "33": {
-    "other": "Reset download counter"
+    "other": "Atiestatīt lejupielāžu skaitu"
   },
   "34": {
-    "other": "My Shares"
+    "other": "Manas koplietošanas"
   },
   "35": {
-    "other": "All my shared items (files and folders)"
+    "other": "Visi mani koplietotie dati (faili un direktorijas)"
   },
   "36": {
-    "other": "Parameters"
+    "other": "Parametri"
   },
   "37": {
-    "other": "My profile and application settings"
+    "other": "Mani profila un aplikāciju iestatījumi"
   },
   "38": {
-    "other": "Notifications"
+    "other": "Paziņojumi"
   },
   "39": {
-    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
+    "other": "Šīs ir darbvirsmas kurām Jums ir piekļuve. Tās var būt personīgās vai koplietotas ar/no citiem lietotājiem."
   },
   "4": {
-    "other": "File Path"
+    "other": "Faila ceļš"
   },
   "40": {
-    "other": "Welcome, %s! "
+    "other": "Sveicināts, %s! "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "Lietot šo kā noklusēto darbvirsmu"
   },
   "42": {
-    "other": "Enter"
+    "other": "Ienākt"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Mans Profils"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "Mani personīgie dati"
   },
   "44": {
-    "other": "My Account"
+    "other": "Mans konts"
   },
   "45": {
-    "other": "Personal data"
+    "other": "Personīgie dati"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Adresu grāmata"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "Jūsu izveidotie lietotāji un komandas"
   },
   "48": {
-    "other": "My Users"
+    "other": "Mani lietotāji"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "Jūsu izveidotie ārējie lietotāji"
   },
   "5": {
-    "other": "Repository"
+    "other": "Repozitorijs"
   },
   "50": {
-    "other": "My Teams"
+    "other": "Manas komandas"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "Lietotāju komandas, lieto kā saīsnes koplietošanai"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "Vai vēlaties dzēst šo komandu? Lietotāji netiks dzēsti."
   },
   "53": {
-    "other": "Back to my workspaces"
+    "other": "Atpakaļ uz manām darbvirsmām"
   },
   "54": {
-    "other": "Update Members"
+    "other": "Atjaunot dalībniekus"
   },
   "55": {
-    "other": "Add/Remove users from this team"
+    "other": "Pievienot/noņemt lietotājus no šīs komandas"
   },
   "56": {
-    "other": "Add one user per line, type in the textarea to see the auto-completion list appear."
+    "other": "Viens lietotājs rindā, rakstiet laukā lai sāktu darboties automātiskā aizpildīšana."
   },
   "57": {
-    "other": "Create a Team"
+    "other": "Izveidot komandu"
   },
   "58": {
-    "other": "Teams are used as a shortcut to quickly share a folder with a predefined set of users"
+    "other": "Komands tiek izmantotas kā saīsnes lai ātri koplietotu direktoriju ar iepriekš definētiem lietotājiem"
   },
   "59": {
-    "other": "Team Label"
+    "other": "Komandas nosaukums"
   },
   "6": {
-    "other": "Password"
+    "other": "Parole"
   },
   "60": {
-    "other": "Team Users"
+    "other": "Komandas lietotāji"
   },
   "61": {
-    "other": "Email Preferences"
+    "other": "E-pasta iestatījumi"
   },
   "62": {
-    "other": "Send emails every X minutes"
+    "other": "Sūtīt e-pastus katras X minūtes"
   },
   "63": {
-    "other": "Send emails every Y hours"
+    "other": "Sūtīt e-pastus katru Y stundu"
   },
   "64": {
-    "other": "Choose the hour of the day"
+    "other": "Izvēlieties dienas stundu"
   },
   "65": {
-    "other": "Choose the first hour of the day"
+    "other": "Izvēlieties dienas pirmo stundu"
   },
   "66": {
-    "other": "Choose the second hour of the day"
+    "other": "Izvēlieties dienas otro stundu"
   },
   "67": {
-    "other": "Pick a day of the week"
+    "other": "Izvēlieties dienu"
   },
   "68": {
-    "other": "Monday"
+    "other": "Pirmdiena"
   },
   "69": {
-    "other": "Tuesday"
+    "other": "Otrdiena"
   },
   "7": {
-    "other": "Expiration"
+    "other": "Derīgums"
   },
   "70": {
-    "other": "Wednesday"
+    "other": "Trešdiena"
   },
   "71": {
-    "other": "Thursday"
+    "other": "Ceturtdiena"
   },
   "72": {
-    "other": "Friday"
+    "other": "Piektdiena"
   },
   "73": {
-    "other": "Saturday"
+    "other": "Sestdiena"
   },
   "74": {
-    "other": "Sunday"
+    "other": "Svētdiena"
   },
   "8": {
-    "other": "Elements"
+    "other": "Elementi"
   },
   "9": {
-    "other": "Associated users"
+    "other": "Asociētie lietotāji"
   },
   "desc": {
-    "other": "Manage my account preferences, my address book, shared elements, etc."
+    "other": "Pārvaldīt konta iestatījumus, manu adresu grāmatu, koplietotos elementus, u.t.t."
   },
   "title": {
-    "other": "My Account"
+    "other": "Mans konts"
   }
 }

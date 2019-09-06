@@ -37,10 +37,10 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 )
 
 var (
@@ -51,7 +51,7 @@ func init() {
 	usersCache = cache.New(5*time.Second, 30*time.Second)
 }
 
-// Load roles for a given user
+// GetRolesForUser loads the roles of a given user.
 func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []*idm.Role {
 
 	var roles []*idm.Role
@@ -131,7 +131,7 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []
 	return roles
 }
 
-// GetRoles Objects from a list of role names
+// GetRoles Objects from a list of role names.
 func GetRoles(ctx context.Context, names []string) []*idm.Role {
 
 	var roles []*idm.Role
@@ -174,7 +174,7 @@ func GetRoles(ctx context.Context, names []string) []*idm.Role {
 	return sorted
 }
 
-// GetACLsForRoles compiles ALCs for a list of roles
+// GetACLsForRoles compiles ALCs for a list of roles.
 func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACLAction) []*idm.ACL {
 
 	var acls []*idm.ACL
@@ -233,7 +233,7 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 	return acls
 }
 
-// GetACLsForWorkspace compiles ACLs list attached to a given workspace
+// GetACLsForWorkspace compiles ACLs list attached to a given workspace.
 func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...*idm.ACLAction) (acls []*idm.ACL, err error) {
 
 	var subQueries []*any.Any
@@ -268,7 +268,7 @@ func GetACLsForWorkspace(ctx context.Context, workspaceIds []string, actions ...
 
 }
 
-// Compute a list of accessible workspaces, given a set of Read and Deny ACLs.
+// GetWorkspacesForACLs computes a list of accessible workspaces, given a set of Read and Deny ACLs.
 func GetWorkspacesForACLs(ctx context.Context, list *AccessList) []*idm.Workspace {
 
 	var workspaces []*idm.Workspace
@@ -314,8 +314,6 @@ func GetWorkspacesForACLs(ctx context.Context, list *AccessList) []*idm.Workspac
 		workspaces = append(workspaces, ws)
 	}
 
-	//log.Logger(ctx).Debug("GetWorkspacesForACLs", zap.Any("workspaces", workspaces))
-
 	return workspaces
 }
 
@@ -341,7 +339,7 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 
 }
 
-// Use package function to compile ACL and Workspaces for a given user ( = list of roles inside the Claims)
+// AccessListFromContextClaims uses package function to compile ACL and Workspaces for a given user ( = list of roles inside the Claims)
 func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, err error) {
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
@@ -384,7 +382,7 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 	return
 }
 
-// SearchUniqueUser provides a shortcurt to search user services for one specific user
+// SearchUniqueUser provides a shortcurt to search user services for one specific user.
 func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ...*idm.UserSingleQuery) (user *idm.User, err error) {
 
 	if login != "" && len(queries) == 0 {
@@ -415,7 +413,7 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 		searchRequests = append(searchRequests, searchRequest)
 	}
 	if len(searchRequests) == 0 {
-		return nil, fmt.Errorf("please provide at one of login, uuid or queries")
+		return nil, fmt.Errorf("please provide at least one of login, uuid or queries")
 	}
 	streamer, err := userCli.SearchUser(ctx, &idm.SearchUserRequest{
 		Query: &service.Query{SubQueries: searchRequests, Operation: service.OperationType_AND},
@@ -465,7 +463,7 @@ func IsUserLocked(user *idm.User) bool {
 	return hasLock
 }
 
-// AccessListFromRoles loads the Acls and flatten them, eventually loading the discovered workspaces
+// AccessListFromRoles loads the Acls and flatten them, eventually loading the discovered workspaces.
 func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies bool, loadWorkspaces bool) (accessList *AccessList, err error) {
 
 	accessList = NewAccessList(roles)

@@ -1,32 +1,32 @@
 {
   "1": {
-    "other": "OpenLayers Map"
+    "other": "OpenLayers Karte"
   },
   "10": {
-    "other": "Clear"
+    "other": "Notīrīt"
   },
   "2": {
-    "other": "Filter"
+    "other": "Filtrēt"
   },
   "3": {
-    "other": "Position"
+    "other": "Pozīcija"
   },
   "4": {
-    "other": "Layers"
+    "other": "Slāņi"
   },
   "5": {
     "other": "Antialias"
   },
   "6": {
-    "other": "Format"
+    "other": "Formāts"
   },
   "7": {
-    "other": "Styles"
+    "other": "Stili"
   },
   "8": {
-    "other": "Filter"
+    "other": "Filtrēt"
   },
   "9": {
-    "other": "Search"
+    "other": "Meklēt"
   }
 }

@@ -1,56 +1,56 @@
 {
   "Android App URL": {
-    "other": "URL to Android App"
+    "other": "Saite Android aplikāciju"
   },
   "Display Server QRCode": {
-    "other": "Display Server QRCode"
+    "other": "Parādīt servera QRCode"
   },
   "Enable Getting Started": {
-    "other": "Enable Getting Started"
+    "other": "Ieslēgt sākuma ievada tūri"
   },
   "Enable Global Search": {
-    "other": "Enable Global Search"
+    "other": "Ieslēgt Globālo meklēšanu"
   },
   "Enable addition tabulation to access getting started videos": {
-    "other": "Enable addition tabulation to access getting started videos"
+    "other": "Ieslēgt papildu tabulāciju lai piekļūtu iesāktiem video"
   },
   "Enable cross-workspaces search form on home page": {
-    "other": "Enable cross-workspaces search form on home page"
+    "other": "Ieslēgt meklēšanu pa darbvirsmām sākuma lapā"
   },
   "Let users connect easily to the latest mobile applications by displaying a QRCode": {
-    "other": "Let users connect easily to the latest mobile applications by displaying a QRCode"
+    "other": "Ļaut pieslēgties lietotājiem pēdējām mobilajām aplikācijām parādot QRCode"
   },
   "Mac PydioSync URL": {
     "other": "Mac PydioSync URL"
   },
   "Open workspace by simple click": {
-    "other": "Open workspace by simple click"
+    "other": "Atvērt darbvirsmu ar klikšķi"
   },
   "Open workspace by simple click instead of double click.": {
-    "other": "Open workspace by simple click instead of double click."
+    "other": "Atvērt darbvirsmu ar vienkāršu klikšķi nevis dubultklikšķi."
   },
   "URL of the Android application": {
-    "other": "URL to Android App (leave empty if you want to hide the block)"
+    "other": "Saite uz Android App (atstāt tukšu ja vēlaties slēpt bloku)"
   },
   "URL of the iOS application": {
-    "other": "URL to iOS App (leave empty if you want to hide the block)"
+    "other": "Saite uz iOS App (atstāt tukšu ja vēlaties slēpt bloku)"
   },
   "URL of the mac sync application": {
-    "other": "URL to Mac sync application (leave empty if you want to hide the block)"
+    "other": "Saite uz Mac sinhronizācijas aplikāciju (atstāt tukšu ja vēlaties slēpt bloku)"
   },
   "URL of the windows sync application": {
-    "other": "URL to Windows sync application (leave empty if you want to hide the block)"
+    "other": "Saite uz Windows sinhronizācijas aplikāciju (atstāt tukšu ja vēlaties slēpt bloku)"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Sākuma lapa"
   },
   "Welcome Page displaying a list of workspaces": {
-    "other": "Welcome Page displaying a list of workspaces"
+    "other": "Sākuma lpā parāda darbvirsmu sarakstu"
   },
   "Windows PydioSync URL": {
     "other": "Windows PydioSync URL"
   },
   "iOS App URL": {
-    "other": "URL to iOS App"
+    "other": "Saite uz iOS App"
   }
 }

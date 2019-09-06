@@ -26,30 +26,28 @@ import (
 	"io"
 	"strings"
 
-	"github.com/pydio/cells/common/config"
-
-	"github.com/pborman/uuid"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/idm/user/grpc"
-
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/idm/user/grpc"
 )
 
 var profilesLevel = map[string]int{
@@ -71,19 +69,19 @@ func NewUserHandler() *UserHandler {
 	return h
 }
 
-// SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
+// SwaggerTags list the names of the service tags declared in the swagger json implemented by this service.
 func (s *UserHandler) SwaggerTags() []string {
 	return []string{"UserService"}
 }
 
-// Filter returns a function to filter the swagger path
+// Filter returns a function to filter the swagger path.
 func (s *UserHandler) Filter() func(string) string {
 	return func(s string) string {
 		return strings.Replace(s, "{Login}", "{Login:*}", 1)
 	}
 }
 
-// GetUser finds a user by its login, answering to rest endpoint GET:/a/user/{Login}
+// GetUser finds a user by her login, answering to rest endpoint GET:/a/user/{Login}.
 func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -134,6 +132,7 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 }
 
 // SearchUsers performs a paginated query to the user repository.
+// Warning: in the returned result, users and groups are stored in two distinct arrays.
 func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 
@@ -765,7 +764,7 @@ func (s *UserHandler) diffRoles(as []*idm.Role, bs []*idm.Role) (diff []*idm.Rol
 	return
 }
 
-// Loads an existing user by his Uuid.
+// Loads an existing user by her UUID.
 func (s *UserHandler) userById(ctx context.Context, userId string, cli idm.UserServiceClient) (user *idm.User, exists bool) {
 
 	subQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
@@ -799,7 +798,7 @@ func (s *UserHandler) userById(ctx context.Context, userId string, cli idm.UserS
 
 }
 
-// paramsAclsToAttributes adds some acl-based parameters inside user attributes
+// paramsAclsToAttributes adds some acl-based parameters inside user attributes.
 func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 	var roles []*idm.Role
 	for _, user := range users {

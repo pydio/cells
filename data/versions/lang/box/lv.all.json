@@ -1,88 +1,88 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "Uz Pieprasījuma Bāzes Veidots Darbs datu replicēšanai priekš versiju veidošanas"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "Izveidoja versiju {{.Uuid}} versiju iekš bucket "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "Izveidoja versijas meta datus priekš {{.Uuid}}"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "Nodzēsa {{.Count}} versiju",
+    "other": "Nodzēsa {{.Count}} versijas"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "Tīra versiju failus nodzēstajiem objektiem"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "Veiksmīgi nodzēsta {{.Count}} versija",
+    "other": "Veiksmīgi nodzēstas {{.Count}} versijas."
   },
   "Config.GroupPolicy.Title": {
-    "other": "Policy"
+    "other": "Noteikums"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "Nosaukums"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "Noteikuma nosaukums"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "Apraksts"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "Noteikuma apraksts"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other": "Store"
+    "other": "Vieta"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "Vieta kur tika glabātas vesijas"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
     "other": "Bucket"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "Bucket kurš tika lietots šiem datiem"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "Apjoma ierobežojumi"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "Kopējais apjoms visām versijā kuras tika glabātas šajā bucket"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Limitēt kopējo aizņemto vietu. Ja ir sasniegts limits tiks dzēstas vecākās versijas. Lietojiet -1 lai atceltu limitu"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "Viena faila versiju akumulētais apjoms"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Limitēt kopējo apjomu visām viena faila versijām. Ja ir sasniegts limits, vecākās versijas tiks nodzēstas. Lietojiet -1 lai limits tiktu atslēgts"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "Ignorēt lielākus filus par..."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "NEVEIDOT versijas failiem kuri ir lielāki par šo apjomu. Lietot -1 lai atslēgtu limitus"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "Saglabāšnas periods"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "Versiju skaits cik uzturēt noteiktā periodā"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "Perioda sākums"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "Kalkulācijas periodam izmantotais sākuma punkts. 0 ir laiks no pēdējās versijas, lietojiet citu Periodu lai iestatītu limitu"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "Maksimālais versiju skaits"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "Maksimālais glabājamais versiju skaits šajā periodā. Lietojiet -1 lai saglabātu visas versijas, 0 lai dzēstu visas."
   }
 }

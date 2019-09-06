@@ -1,203 +1,203 @@
 {
   "1": {
-    "other": "No Parameters"
+    "other": "Nav parametru"
   },
   "10": {
-    "other": "Write Only"
+    "other": "Tikai rakstīt"
   },
   "11": {
-    "other": "Denied"
+    "other": "Aizliegts"
   },
   "12": {
-    "other": "No Access"
+    "other": "Nav piekļuves"
   },
   "13": {
-    "other": "Search Parameters or Actions"
+    "other": "Meklēšanas parametri vai darbības"
   },
   "14": {
-    "other": "Pick parameter or action"
+    "other": "Paņemt parametru vai darbību"
   },
   "15": {
-    "other": "Pick one parameter or action, then click Add. You can quickly search through the parameters using the text field below."
+    "other": "Paņemt vienu parametru vai darbību un nospiest Pievienot. Jūs varat ātri pārmeklēt parametrus izmantojot teksta meklēšanas lauku."
   },
   "16": {
-    "other": "Show/Hide Inherited"
+    "other": "Rādīt/slēpt mantotos"
   },
   "17": {
-    "other": "Add Parameter or Action"
+    "other": "Pievienot parametru vai darbību"
   },
   "18": {
-    "other": "Plugins Settings"
+    "other": "Spraudņu iestatījumi"
   },
   "19": {
-    "other": "always overrides"
+    "other": "vienmēr ignorē"
   },
   "2": {
-    "other": "Enabled"
+    "other": "Ieslēgts"
   },
   "20": {
-    "other": "+ add role"
+    "other": "+ pievienot lomu"
   },
   "21": {
-    "other": "reloading..."
+    "other": "pārlādē..."
   },
   "22": {
-    "other": "Loading actions cache, please wait, this will be done only once..."
+    "other": "Ielādē darbību kešu, uzgaidiet, tas tiks veikts tikai vienu reizi..."
   },
   "23": {
-    "other": "Loading parameters cache, please wait, this will be done only once..."
+    "other": "Ielādē perametru kešu, uzgaidiet, tas tiks darīts tikai vienu reizi..."
   },
   "24": {
-    "other": "User Information"
+    "other": "Lietotāja informācija"
   },
   "25": {
-    "other": "Access Restrictions"
+    "other": "Piekļuves liegumi"
   },
   "26": {
-    "other": "Group Information"
+    "other": "Grupas informācija"
   },
   "27": {
-    "other": "Group Info"
+    "other": "Grupas info"
   },
   "28": {
-    "other": "Role Information"
+    "other": "Lomas informācija"
   },
   "29": {
-    "other": "Role Info"
+    "other": "Lomas Info"
   },
   "3": {
-    "other": "Disabled"
+    "other": "Izslēgts"
   },
   "30": {
-    "other": "Profile & Roles"
+    "other": "Profils un Lomas"
   },
   "31": {
-    "other": "User unique Identifier. You cannot modify this value."
+    "other": "Lietotāja unikāls identifikators. Šo vērtību nevar mainīt."
   },
   "32": {
-    "other": "Specific profile. May imply some roles automatically applied."
+    "other": "Specifisks profils. Var iekļaut atsevišķas automātiskas lomas."
   },
   "33": {
-    "other": "Close"
+    "other": "Aizvērt"
   },
   "34": {
-    "other": "Access Controls"
+    "other": "Piekļuves Kontrole"
   },
   "35": {
-    "other": "Workspaces Accesses"
+    "other": "Darbvirsmu piekļuve"
   },
   "36": {
-    "other": "Application Pages"
+    "other": "Aplikāciju lapas"
   },
   "37": {
-    "other": "Customize Parameters"
+    "other": "Pielāgot parametrus"
   },
   "38": {
-    "other": "Application Parameters"
+    "other": "Aplikāciju parametri"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "Visu darbvirsmu parametri"
   },
   "4": {
-    "other": "Clear value"
+    "other": "Notīrīt vērtību"
   },
   "40": {
-    "other": "Per-workspaces parameters"
+    "other": "Parametri katrai darbvirsmai"
   },
   "41": {
-    "other": "Additional Parameters"
+    "other": "Papildu parametri"
   },
   "42": {
-    "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
+    "other": "Sašauriniet aplikāciju parametru vērtības un selektīvi izslēdziet spraudņu darbības attiecīgajai lomai. Parametri aplikācijai ir globāli (autentifikācija, konfigurācija, u. t. t.). Skatīt Darbvirsmu tabu priekšdarbvirsmai specifiskiem parametriem/darbībām."
   },
   "43": {
-    "other": "Grant access to workspaces for the current role/user/group"
+    "other": "Ļaut piekļuvi darbvirsmām šai lomai/lietotājam/grupai"
   },
   "44": {
-    "other": "Main Application Pages"
+    "other": "Galvenās aplikāciju lapas"
   },
   "45": {
-    "other": "Access to main application pages (like My Account, welcome page, etc.)"
+    "other": "Piekļuve galvenajām aplikāciju lapām (tādām kā Mans Konts, sākuma lapa, u.t.t.)"
   },
   "46": {
-    "other": "Parameters and actions"
+    "other": "Parametri un darbības"
   },
   "47": {
-    "other": "Refine workspaces parameters values and actions for specific workspaces"
+    "other": "Precizēt darbvirsmu parametru vērtības un darbības noteiktām darbvirsmām"
   },
   "49": {
-    "other": "Shares"
+    "other": "Koplietotie dati"
   },
   "5": {
-    "other": "Override value"
+    "other": "Ignorēt vērtību"
   },
   "50": {
-    "other": "Shared Files & Folders"
+    "other": "Koplietotie faili un Direktorijas"
   },
   "51": {
-    "other": "With this user"
+    "other": "Ar šo lietotāju"
   },
   "52": {
-    "other": "Cells and public links created by this user"
+    "other": "Šī lietotāja izveidotās šūnas un publiskās saites"
   },
   "53": {
-    "other": "Shared by %1 from within workspace %2"
+    "other": "Koplietojis %1 no darbvirsmas %2"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "Lietotāja pamata informācija. Lietojiet pogu labajā pusē lai redzētu vairāk darbību."
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "Pārslēgt profilu un lomas automātiski piešķirot atļaujas šim lietotājam."
   },
   "6": {
-    "other": "Save value"
+    "other": "Saglabāt vērtību"
   },
   "7": {
-    "other": "Action %s"
+    "other": "Darbības %s"
   },
   "8": {
-    "other": "Read & Write"
+    "other": "Lasīt un Rakstīt"
   },
   "9": {
-    "other": "Read Only"
+    "other": "Tikai lasīt"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "Pārvaldīt lietotāju lomas"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "Pievienot priekš ..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Visas darbvirsmas"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "Tikai koplietotās šūnas"
   },
   "parameters.scope.workspace": {
-    "other": "Workspace %s"
+    "other": "Darbvirsma %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "Pievienot pielāgotu parametru vai darbību"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "Nav parametru vai darbību"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "Sākumlapa"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "Sākuma lapa kuru parāda pēc pieslēgšanās"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "Administratora konsole"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Pydio Cells administratora panelis"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "Tiesības piešķirtas manuāli"
   },
   "acls.rights.advanced.root": {
-    "other": "Whole workspace"
+    "other": "Visa darbvirsma"
   }
 }
