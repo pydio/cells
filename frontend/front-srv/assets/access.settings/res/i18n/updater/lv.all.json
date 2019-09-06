@@ -12,102 +12,102 @@
     "other": "Vai vēlaties veikt atjaunināšanu?"
   },
   "packages.available": {
-    "other": "Following packages are available for update"
+    "other": "Atjaunināšanai pieejamas sekojošas pakotnes"
   },
   "checking": {
-    "other": "Checking for available updates..."
+    "other": "Pārbauda pieejamos atjauninājumus..."
   },
   "noupdates": {
-    "other": "No necessary update detected: click to perform a new check."
+    "other": "Nav atrasti nepieciešami atjauninājumi: pārbaudīt vēlreiz."
   },
   "alert.noselect": {
-    "other": "Please select at least one package!"
+    "other": "Izvēlieties vismaz vienu pakotni!"
   },
   "package.released": {
-    "other": "Released"
+    "other": "Izlaists"
   },
   "package.revision": {
-    "other": "Revision"
+    "other": "Revīzija"
   },
   "check.legend": {
-    "other": "Click to check for new update"
+    "other": "Nospiest lai pārbaudītu atjauninājumus"
   },
   "check.button": {
     "other": "Pārbaudīt"
   },
   "start.update": {
-    "other": "Start Upgrade"
+    "other": "Sākt atjaunināšanu"
   },
   "configs.save": {
-    "other": "Save configs"
+    "other": "Saglabāt Konfigurāciju"
   },
   "upgrade.ed.title": {
-    "other": "Upgrade to Cells Enterprise"
+    "other": "Pārslēgties uz Cells Enterprise versiju"
   },
   "upgrade.ed.button.next": {
-    "other": "Next"
+    "other": "Tālāk"
   },
   "upgrade.ed.button.start": {
-    "other": "Start"
+    "other": "Sākt"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "Atcelt"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "Instalēt tagad"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "Aizvērt"
   },
   "upgrade.ed.eula.title": {
-    "other": "Please Accept End-User License Agreement"
+    "other": "Lūdzu apstipriniet Lietošanas Noteikumus"
   },
   "upgrade.ed.eula.check": {
-    "other": "I thereby accept this EULA"
+    "other": "Es apstiprinu EULA Noteikumus"
   },
   "upgrade.ed.key.title": {
-    "other": "Enter a valid license key (provided by a Pydio sales representative)"
+    "other": "Ievadiet derīgu licences atslēgu (to Jums piešķirs Pydio pārstāvis)"
   },
   "upgrade.ed.key.legend": {
-    "other": "If you do not own one, you can receive a trial key by contacting sales using the button below or directly via "
+    "other": "Ja Jums nav atslēgas, Jūs to varat saņemt sazinoties ar pārdošanas nodaļu lietojot zemākesošo pogu va pa tiešo ar "
   },
   "upgrade.ed.key.hint": {
-    "other": "Paste provided key here..."
+    "other": "Iekopējiet atslēgu..."
   },
   "upgrade.ed.version.loading": {
-    "other": "Looking for the closest Cells Enterprise version"
+    "other": "Meklējam atbilstošāko Cells Enterprise versiju"
   },
   "upgrade.ed.version.error": {
-    "other": "Cannot load available versions for Cells Enterprise!"
+    "other": "Nevar ielādēt pieejamās Cells Enterprise versijas!"
   },
   "upgrade.ed.version.error.string": {
-    "other": "Error was"
+    "other": "Kļūda"
   },
   "upgrade.ed.version.available": {
-    "other": "Ready to install %s"
+    "other": "Gatavs instalācijai %s"
   },
   "upgrade.ed.version.released": {
-    "other": "Released"
+    "other": "Izlaists"
   },
   "upgrade.ed.version.arch": {
-    "other": "Architecture"
+    "other": "Arhitektūra"
   },
   "upgrade.ed.version.description": {
-    "other": "Description"
+    "other": "Apraksts"
   },
   "upgrade.ed.version.legend": {
-    "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."
+    "other": "Nospiežot Tālāk tiks lejupielādēta jaunā versija un ar to tiks pārrakstīts esošais Cells fails. Oriģināla rezerves kopija tiks izveidota Jūsu šūnu konfigurācijas direktorijā (zem %s), ja nepieciešams to atjaunot."
   },
   "upgrade.ed.version.nomatch": {
-    "other": "Could not find a similar version for Cells Enterprise"
+    "other": "Nevar atrast līdzīgu Cells Enterprise versiju"
   },
   "upgrade.ed.version.nomatch.legend1": {
-    "other": "To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version."
+    "other": "Lai izvairītos no pamata atjauninājumu un kļūdu labojumu jaukšanas iesakām atjaunināt Cells Home uz tādu pašu Enterprise versiju."
   },
   "upgrade.ed.version.nomatch.legend2": {
-    "other": "Please first update your current version to one of the following, then retry upgrading to Cells Enterprise."
+    "other": "Vispirms atjaunojiet esošo versiju un tad mēģiniet veikt pārslēgšanos uz Cells Enterprise."
   },
   "upgrade.ed.installing": {
-    "other": "Installing upgrade, please wait..."
+    "other": "Instalējam jauninājumus, lūdzu uzgaidiet..."
   }
 }
