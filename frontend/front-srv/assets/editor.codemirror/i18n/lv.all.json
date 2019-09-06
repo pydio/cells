@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Source Editor"
+    "other": "Koda redaktors"
   },
   "10": {
-    "other": "Indent size"
+    "other": "Atkāpes lielums"
   },
   "2": {
-    "other": "CodeMirror Syntax Highlighter"
+    "other": "CodeMirror Sintakses Iezīmētājs"
   },
   "3": {
-    "other": "Wrapping"
+    "other": "Iekļaušana"
   },
   "3b": {
-    "other": "Toggle lines wrapping"
+    "other": "Pārslēgt rindu iekļaušanu"
   },
   "4": {
-    "other": "Numbers"
+    "other": "Numuri"
   },
   "5": {
-    "other": "Toggle lines numbers"
+    "other": "Ieslēgt/izslēgt rindu numurus"
   },
   "6": {
-    "other": "Jump to line"
+    "other": "Pārlekt uz rindu"
   },
   "7": {
-    "other": "Undo"
+    "other": "Atsaukt"
   },
   "8": {
-    "other": "Redo"
+    "other": "Atcelt atsaukšanu"
   },
   "9": {
-    "other": "Text Search"
+    "other": "Teksta meklēšana"
   }
 }

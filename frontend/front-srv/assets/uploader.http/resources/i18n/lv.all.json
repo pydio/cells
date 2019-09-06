@@ -1,68 +1,68 @@
 {
   "1": {
-    "other": "Remote DL"
+    "other": "Attālināts DL"
   },
   "10": {
-    "other": "Download to APPLICATION_TITLE"
+    "other": "Lejupielādēt uz APPLICATION_TITLE"
   },
   "10a": {
-    "other": "Download to %s"
+    "other": "Lejupielādēt uz %s"
   },
   "10b": {
-    "other": "DL to %s"
+    "other": "DL uz %s"
   },
   "10c": {
-    "other": "DL to %s"
+    "other": "DL uz %s"
   },
   "10d": {
-    "other": "AjXp Download (%s)"
+    "other": "AjXp Lejupielāde (%s)"
   },
   "11": {
-    "other": "Drag one of the following link to your bookmark bar : "
+    "other": "Ievilkt saiti grāmatzīmju joslā : "
   },
   "12": {
-    "other": "Trigger remote file download"
+    "other": "Sākt attālināta faila lejupielādi"
   },
   "13": {
-    "other": "From computer"
+    "other": "No datora"
   },
   "14": {
-    "other": "From remote server"
+    "other": "No attālināta servera"
   },
   "15": {
-    "other": "Or create a bookmark manually and use the code below as the link url : "
+    "other": "Vai izveidojiet grāmatžimi manuāli un lietojiet zemākesošo kodu kā saiti : "
   },
   "16": {
-    "other": "Drag me to your bookmark bar!"
+    "other": "Ievilkt grāmatzīmju joslā!"
   },
   "17": {
-    "other": "Download file"
+    "other": "Lejupielādēt failu"
   },
   "18": {
-    "other": "Partial file"
+    "other": "Daļējs fails"
   },
   "2": {
-    "other": "Download file(s) from remote server"
+    "other": "Lejupielādēt failu(s) no attālināta servera"
   },
   "3": {
     "other": "m"
   },
   "4": {
-    "other": "Enter at least one URL pointing to a file that you want to download directly from an external HTTP server to the current folder. This action will be sent to the background and you will be able to continue using APPLICATION_TITLE during the download."
+    "other": "Ievadiet vismaz vienu URL kas norāda uz failu kuru vēlaties lejupielādēt pa tiešo no ārējā HTTP servera uz esošo direktoriju. Šī darbība tiks izpildīta fonā un Jums būs iespēja lietot APPLICATION_TITLE šīs lejupielādes laikā."
   },
   "5": {
     "other": "URL"
   },
   "6": {
-    "other": "Downloading"
+    "other": "Lejpielādē"
   },
   "7": {
-    "other": "to server"
+    "other": "uz serveri"
   },
   "8": {
-    "other": "File downloaded, reloading the client!"
+    "other": "Fails lejupielādēts, pārlādē klientu!"
   },
   "9": {
-    "other": "Generate Bookmarklet"
+    "other": "Ģenerēt Grāmatzīmi"
   }
 }

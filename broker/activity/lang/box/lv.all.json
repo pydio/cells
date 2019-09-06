@@ -1,68 +1,68 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Piekļuva {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "Piekļūts {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Object}} piekļuva {{.Actor}}"
   },
   "Cell": {
-    "other": "Cell"
+    "other": "Šūna"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Izveidoja {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "Izveidots {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} izveidoja {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Nodzēsa {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "Nodzēsts {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} nodzēsa {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "Koplietots {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} koplietoja ar Tevi {{.Object}}"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "Šī ir Pydio ikdienas atskaite"
   },
   "Document": {
-    "other": "Document"
+    "other": "Dokuments"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Direktorija"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Laboja {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "Labots {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} laboja {{.Actor}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "Pārvietoja {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "Pārvietots {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} pārvietoja {{.Actor}}"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "Darbvirsma"
   }
 }

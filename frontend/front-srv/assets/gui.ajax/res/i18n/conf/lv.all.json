@@ -1,278 +1,278 @@
 {
   "Additional JS frameworks": {
-    "other": "Additional JS frameworks"
+    "other": "Papildu JS framework"
   },
   "Additional JS frameworks description": {
-    "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
+    "other": "Ar komatu atdalītu JS failu ceļus saraksts kuru jāielādē PIRMS tiek ielādēts Pydio framework. Ieteicamais veids būtu lietot spraudņu resursu deklarācijas. Ielādējot JS failus pašā lapas sākumāvar būt kā atsevišķa bet ne pamata opcija."
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "An additional message displayed in the start up screen"
+    "other": "Papildu paziņojums sākuma lapā"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "Analītikas Domēns"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "Analītikas Notikumi"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "Analītikas ID"
   },
   "Append a title to the image logo": {
-    "other": "Append a title to the image logo"
+    "other": "Pievienot nosaukumu logo attēlam"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "Aplikācijas nosaukums"
   },
   "Attributes of the image used as a background": {
-    "other": "Attributes of the image used as a background"
+    "other": "Atribūti attēlam kuru izmanto kā fonu"
   },
   "Background Attributes (1)": {
-    "other": "Background attributes (1)"
+    "other": "Fona atribūti (1)"
   },
   "Background Attributes (2)": {
-    "other": "Background attributes (2)"
+    "other": "Fona atribūti (2)"
   },
   "Background Attributes (3)": {
-    "other": "Background attributes (3)"
+    "other": "Fona atribūti (3)"
   },
   "Background Attributes (4)": {
-    "other": "Background attributes (4)"
+    "other": "Fona atribūti (4)"
   },
   "Background Attributes (5)": {
-    "other": "Background attributes (5)"
+    "other": "Fona atribūti (5)"
   },
   "Background Attributes (6)": {
-    "other": "Background attributes (6)"
+    "other": "Fona atribūti (6)"
   },
   "Background Attributes (Low Resolution)": {
-    "other": "Background Attributes (Low Resolution)"
+    "other": "Fona atribūti (zemas izšķirtspējas)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
+    "other": "Pārlūka interfeiss. Satur konfigurāciju tēmām, pielāgotiem sveiciena paziņojumiem, u.t.t."
   },
   "Center in Page (no-repeat)": {
-    "other": "Center in Page (no-repeat)"
+    "other": "Centrēt lapā (no-repeat)"
   },
   "Client Plugin": {
-    "other": "Client Plugin"
+    "other": "Klienta spraudnis"
   },
   "Client Session Config": {
-    "other": "Client Session Config"
+    "other": "Klienta sesijas konfigurācija"
   },
   "Client Timeout": {
-    "other": "Client Timeout"
+    "other": "Klienta atslēgšanas laiks"
   },
   "Custom Background (1)": {
-    "other": "Custom background (1)"
+    "other": "Pielāgots fons (1)"
   },
   "Custom Background (2)": {
-    "other": "Custom background (2)"
+    "other": "Pielāgots fons (2)"
   },
   "Custom Background (3)": {
-    "other": "Custom background (3)"
+    "other": "Pielāgots fons (3)"
   },
   "Custom Background (4)": {
-    "other": "Custom background (4)"
+    "other": "Pielāgots fons (4)"
   },
   "Custom Background (5)": {
-    "other": "Custom background (5)"
+    "other": "Pielāgots fons (5)"
   },
   "Custom Background (6)": {
-    "other": "Custom background (6)"
+    "other": "Pielāgots fons (6)"
   },
   "Custom Icon": {
-    "other": "Custom Icon"
+    "other": "Pielāgota ikona"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "Noteiktā kodēšana"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "Noteikt servera ceļu"
   },
   "Display Branding Tool": {
-    "other": "Display Branding Tool"
+    "other": "Rādīt Zīmola rīku"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "Ieslēgt Iepazīšanās tūri"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "Ieslēgt mazu iepazīšanās tūri pirmajā apmeklējumā"
   },
   "Fetch Window (no repeat)": {
-    "other": "Fetch Window (no repeat)"
+    "other": "Izstiept pa ekrānu (neatkārtot)"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Fetch Window (repeat vertically)"
+    "other": "Izstiept pa ekrānu (atkārtot vertikāli)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Font sized used for the title in the start up screen"
+    "other": "Fonta izmērs sākuma lapas nosaukumam"
   },
   "Google Analytics": {
     "other": "Google Analytics"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "Google Analytics analītikas domēns"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "Google Analytics analītikas notikumi"
   },
   "Google Analytics Analytics ID": {
     "other": "Google Analytics Analytics ID"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "Height of the custom icon (with the px mention)"
+    "other": "Pielāgotas ikonas augstums (jālieto ar px)"
   },
   "Icon Height": {
-    "other": "Icon Height"
+    "other": "Ikonas augstums"
   },
   "Icon Only": {
-    "other": "Icon Only"
+    "other": "Tikai ikona"
   },
   "Icon Path (Legacy)": {
-    "other": "Icon Path (Legacy)"
+    "other": "Ikonas ceļš (Mantots)"
   },
   "Icon Width": {
-    "other": "Icon Width"
+    "other": "Ikonas platums"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
-    "other": "Id of your GA account, something like UE-XXXX-YY"
+    "other": "GA konta ID, kaut kas līdzīgs UE-XXXX-YY"
   },
   "Image used as a background": {
-    "other": "Image used as a background"
+    "other": "Attēls kā fons"
   },
   "Login Screen": {
-    "other": "Login Page"
+    "other": "Pieslēgšanās lapa"
   },
   "Logo": {
     "other": "Logo"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "Logo augstums"
   },
   "Logo Left": {
-    "other": "Logo Left"
+    "other": "Logo pa kreisi"
   },
   "Logo Top": {
-    "other": "Logo Top"
+    "other": "Logo augšā"
   },
   "Logo Width": {
-    "other": "Logo Width"
+    "other": "Logo platums"
   },
   "Low-Resolution Background": {
-    "other": "Low-Resolution Background"
+    "other": "Zemas izšķirtspējas fons"
   },
   "Main Options": {
-    "other": "Main Options"
+    "other": "Pamata opcijas"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
-    "other": "Make sure to use a smaller resolution image, otherwise mobile loading is very slow."
+    "other": "Lietojiet mazas izšķirtspējas attēlu lai samazinātu ielādes laiku uz mobilajām ierīcēm."
   },
   "Manually set a left offset": {
-    "other": "Manually set a left offset"
+    "other": "Manuāli iestatīt kreiso atkāpi"
   },
   "Manually set a logo height": {
-    "other": "Manually set a logo height"
+    "other": "Manuāli iestatīt logo augstumu"
   },
   "Manually set a logo width": {
-    "other": "Manually set a logo width"
+    "other": "Manuāli iestatīt logo platumu"
   },
   "Manually set a top offset": {
-    "other": "Manually set a top offset"
+    "other": "Manuāli iestatīt augšējo atkāpi"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Minilapa"
   },
   "Minisite Logo": {
-    "other": "Minisite Logo"
+    "other": "Minilapas logo"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "Number of MINUTES before the session expiration for issuing an alert to the user"
+    "other": "Minūšu skaits pirms sesijas beigām kad lietotājam tiek parādīts brīdinājuma logs"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
-    "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."
+    "other": "Mainiet noklusētos stilus un krāsas izmantojot opcijas zīmola rīkā. Pārlādējiet interfeisu ja ir ieslēgta šī opcija."
   },
   "Page Background Images": {
-    "other": "Page Background Images"
+    "other": "Lapas fona attēli"
   },
   "Replace the logo displayed in the welcome page": {
-    "other": "Replace the logo displayed in the welcome page"
+    "other": "Mainīt logo kurš ir redzams sākuma lapā"
   },
   "Replace the top left logo in the top toolbar": {
-    "other": "Replace the top left logo in the top toolbar"
+    "other": "Mainīt augšējo kreiso logo augšējā rīkjoslā"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Iestatiet domēnu priekš analītikas atskaitēm (nav obligāti!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Iestatiet domēnu priekš analītikas atskaitēm (nav obligāti!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
+    "other": "Iestatiet aplikācijas parametrus. Ja ieslēdzat e-pastus, lietojiet Testa pogu lai pārbaudītu vai php ir pareizi nokonfigurēts."
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
-    "other": "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option."
+    "other": "Rādīt krāsu paleti uz interfeisa lai mainītu krāsas un logo. Pārlādējiet interfeisu ja ir ieslēgta šī opcija."
   },
   "Skip the title, only display an image": {
-    "other": "Skip the title, only display an image"
+    "other": "Izlaist nosaukumu, rādīt tikai attēlu"
   },
   "Start Up Screen": {
-    "other": "Start Up Screen"
+    "other": "Sākuma skats"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
+    "other": "Klienta sesijas ilgums SEKUNDĒS. Tiks lietots noklusētais servera sesijas ilgums. Vairumā PHP instalācijusesijas ilgums ir 1440 sekundes (24 minūtes). To var iestatīt uz 0. Šajā gadījumā klienta sesijas ilgums būs 'bezgalīgs' ja serveris tiks pingots. Tas uzturēs PHP sesiju bezgalīgi. Drošības dēļ šis iestatījums nav ieteicams."
   },
   "Theme": {
-    "other": "Theme"
+    "other": "Tēma"
   },
   "Theme used for display": {
-    "other": "Theme used for display"
+    "other": "Tēma ekrānam"
   },
   "Tile (repeat both directions)": {
-    "other": "Tile (repeat both directions)"
+    "other": "Fona izklājums (atkārtojas abos virzienos)"
   },
   "Title": {
-    "other": "Title"
+    "other": "Nosaukums"
   },
   "Title Font Size": {
-    "other": "Title Font Size"
+    "other": "Nosaukuma fonta izmērs"
   },
   "Top Toolbar": {
-    "other": "Top Toolbar"
+    "other": "Augšas rīkjosla"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "Top-right logo displayed on minisite page"
+    "other": "Logo kuru attēlo minilapas augšas labajā pusē"
   },
   "URI to a custom image to be used as start up logo": {
-    "other": "URI to a custom image to be used as start up logo"
+    "other": "URI attēlam kurš tiks lietots kā sākuma alogo"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
-    "other": "Use Events Logging, experimental only implemented on download action in Pydio"
+    "other": "Lietojiet Notikumu Žurnālu, ieslēgts tikai eksperimentāli lejupielādes darbībai Pydio"
   },
   "Use configured branding": {
-    "other": "Use configured branding"
+    "other": "Lietot konfigurēto zīmolu"
   },
   "User Home Logo": {
-    "other": "User Home Logo"
+    "other": "Lietotāja Sākumlapas logo"
   },
   "Warning Before": {
-    "other": "Warning before session expires"
+    "other": "Brīdinājums pirms beidzās sesija"
   },
   "Web Session": {
-    "other": "Web Session"
+    "other": "Web sesija"
   },
   "Welcome Message": {
-    "other": "Welcome Message"
+    "other": "Sveiciena paziņojums"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Sākuma lapa"
   },
   "Width of the custom image (by default 35px)": {
-    "other": "Width of the custom image (Default 35px)"
+    "other": "Pielāgotā attēla platums (noklusētais 35 px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "Brīdināt lietotāju par drīzu web sesijas beigšanos. Minūtes pirms sesijas beigām"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "Brīdinājums pirms beidzās sesija"
   }
 }

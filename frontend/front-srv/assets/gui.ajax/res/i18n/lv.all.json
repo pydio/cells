@@ -1,107 +1,107 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "Sākt pievienot failus vai direktorijas esošajai darbvirsmai."
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "Pievienot failus"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "Rīkjosla ļauj mainīt izskatu: pārslēgites uz priekšskatu vai detalizētas informācijas skatu atkarībā no pielietojuma un ļauj šķirot failus pēc nosaukuma, datuma, u.t.t. ..."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "Attēlošanas iestatījumi"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "Lietojiet šo meklēšanas formu lai atrastu failus vai direktorijas visās darbvirsmās un šūnās. Attēloti tiek tikai pirmie 5 rezultāti. Lai iegūtu vairāk rezultātus un meklēšanas opciju ieejiet darbvirsmā."
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "Ja nav uzsākta meklēšana, tiks attēloti pēdējās direktorijas un faili kuri tika atvērti."
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "Globāla meklēšana"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "Šeit tiek attēlota informācija par esošo statusu: failu informācija, koplietošanas statuss, lietotāju veidotie meta dati, u.t.t. ..."
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "Paneli var aizvērt lietojot info pogu rīkjoslā"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "Fails"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "Direktorija"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Meklēt"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "Info Panelis"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Atpakaļ"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Aizvērt"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "Pabeigt"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Tālāk"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Izlaist"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "Pirmo reizi pieslēdzoties darbību vēsture netiks parādīta. Ejiet uz darbvirsmu vai šūnu lai pievienotu failus."
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "Atvērt darbvirsmā"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "Visu lietotāju direktorija kuri piekļūst platformai. Izveidojiet savus lietotājus un veidojiet komandas kuras var lietot resursu koplietošanai"
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "Brīdinājumu panelis informē lietotāju ja kāds ir piekļuvis Jūsu koplietotajiem resursiem. Tos var sūtīt pa tiešo uz e-pastu."
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "Iet atpakaļ uz sākuma paneli ar šīs pogas palīdzību"
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "Piekļūt citām opcijām : pārvaldīt profilu un drošības iestatījumus, pārskatīt koplietotos resursus, atslēgties no sistēmas."
   },
   "tour.uwidget.title": {
-    "other": "User Cartouche"
+    "other": "Lietotāja Rotājums"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Izlaist"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "Sākt apskati"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "Ievietojiet savu labāko bildi priekš profila! Šī īsā instrukcija Jūs iepazīstinās ar aplikācijas interfeisu."
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "Laipni lūgti APPLICATION_TITLE"
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "Šeit Jūs varat pievienot vai noņemt Logrīkus. Tos var pārkārto vienkārši pārvelkot."
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "Logrīki"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "Darbvirsmas ir augstākā līmeņa direktorijas kuras palīdz organizēt Jūsu datus. Tām varat piekļūt tikai Jūs, vai arī koplietot ar citiem cilvēkiem."
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "Šūnas ir sadarbības vietnes kuras varat koplietot ar citiem lietotājiem. Izveidojiet savas šūnas par pamatu ņemot direktorijas, komandu, lietotājus vai atbilstošu tematu."
   },
   "tour.workspaces.title": {
-    "other": "Workspaces & Cells"
+    "other": "Darbvirsmas un Šūnas"
   },
   "background.jobs.title": {
-    "other": "Jobs running"
+    "other": "Notiekošās darbības"
   }
 }

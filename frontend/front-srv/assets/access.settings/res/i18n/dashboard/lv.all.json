@@ -1,6 +1,6 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "Sekot mums"
   },
   "cont.btn.github": {
     "other": "Github Star"
@@ -9,96 +9,96 @@
     "other": "Twitter"
   },
   "cont.intro": {
-    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+    "other": "Kods ir publiski pieejams Github. Vēlaties labot kļūdu, palīdzēt citiem forumā vai pievienot jaunu funkciju? Iesaisties!\n                            Vai arī atbalsti mūs sociālajos tīklos!"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells is free open source software. Contribute back!"
+    "other": "Pydio Cells ir atvērtā koda programmatūra. Palīdzi ar ieguldījumu!"
   },
   "cont.title": {
-    "other": "Pay it forward!"
+    "other": "Palīdzi ar ieguldījumu!"
   },
   "cont.topic.pr": {
-    "other": "I implemented a new feature: github Pull Requests"
+    "other": "Es implementēju jaunu iespēju: github Pull Requests"
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "Es atradu kļūdu! Paziņot forumā."
   },
   "cont.topic.report.2": {
-    "other": "My bug is qualified: open a github issue."
+    "other": "Kļūda ir atzīta: atvērt github notikumu."
   },
   "cont.topic.translate": {
-    "other": "How-to create or complete a language translation ?"
+    "other": "Kā izveidot vai iztulkot papildu valodu?"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "Paplašināts administrācijas panelis"
   },
   "ent.advanced.legend": {
-    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+    "other": "Unikāls administrācija spenelis ar iespēju monitorēt platformu reālā laikā."
   },
   "ent.btn.contact": {
-    "other": "Contact Sales"
+    "other": "Sazināties ar pārdošanas daļu"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "Uzziniet vairāk"
   },
   "ent.features": {
-    "other": "Enterprise-oriented features"
+    "other": "Iespējas lieliem uzņēmumiem"
   },
   "ent.features.legend": {
-    "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
+    "other": "Iespējas lieliem uzņēmumiem: AD/LDAP pieslēgumi, Auditējami log faili atbilstībām, Easy Transfer..."
   },
   "ent.subtitle": {
-    "other": "MORE FEATURES - GDPR COMPLIANCE - EXTENDED BRANDING"
+    "other": "VAIRĀK IESPĒJAS - GDPR ATBILSTĪBA - PAPLAŠINĀTA ZĪMOLOŠANA"
   },
   "ent.support": {
-    "other": "Support and Maintenance"
+    "other": "Atbalsts un Uzturēšana"
   },
   "ent.support.legend": {
-    "other": "Get help with your installation directly from the core team"
+    "other": "Saņemiet palīdzību no izstrādātāju komandas"
   },
   "ent.title": {
-    "other": "Discover Pydio Cells Enterprise"
+    "other": "Uzziniet par Pydio Cells Enterprise"
   },
   "kb.btn.alldocs": {
-    "other": "All documentation"
+    "other": "Visa dokumentācija"
   },
   "kb.btn.forum": {
-    "other": "Go to Forum"
+    "other": "Uz forumu"
   },
   "kb.intro": {
-    "other": "Beside the forum, our website provides plenty of docs to help you. Make sure to look throught them before posting your questions ;-)"
+    "other": "Papildus formuma lapā ir pieejama plaša informācija. Parbaudiet vai risinājums ir jau minēts pirms nosūtat jautājumu ;-)"
   },
   "kb.subtitle": {
-    "other": "Our most common F.A.Q and tutorial, a.k.a RTFM"
+    "other": "B.U.J. un instrukcija, zināms arī kā RTFM"
   },
   "kb.title": {
-    "other": "Get yourself some help"
+    "other": "Saņemiet palīdzību"
   },
   "welc.btn.advanced": {
-    "other": "Advanced Topics"
+    "other": "Paplašināti temati"
   },
   "welc.btn.parameters": {
-    "other": "About Parameters"
+    "other": "Par parametriem"
   },
   "welc.btn.start": {
-    "other": "Getting Started"
+    "other": "Sākt"
   },
   "welc.btn.users": {
-    "other": "About Users Management"
+    "other": "Par lietotāju pārvaldību"
   },
   "welc.btn.ws": {
-    "other": "About Workspaces"
+    "other": "Par darbvirsmām"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read:"
+    "other": "Ja nezinat ar ko sākt, iesakām izlasīt Administratora instrukciju:"
   },
   "welc.intro": {
-    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "Šis ir Pydio pārvaldības panelis. Kreisās puses izvēlnē var izveidot <a class=\"doc-link\" data-path=\"/data/workspaces\">darbvirsmas</a> un <a class=\"doc-link\" data-path=\"/idm/users\">lietotājus</a>,\n                            pārbaudīt <a class=\"doc-link\" data-path=\"/admin/logs\">notikumus</a> uz servera, unpārvaldīt <a class=\"doc-link\" data-path=\"/parameters/core\">konfigurācijas</a> un <a class=\"doc-link\" data-path=\"/plugins/manager\">spraudņus</a>."
   },
   "welc.subtitle": {
-    "other": "The place to administrate and monitor the activity of your platform"
+    "other": "Vieta kurā administrēt un monitorēt platformu"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells Dashboard"
+    "other": "Laipni lūgti Pydio Cells darbvirsmā"
   }
 }
