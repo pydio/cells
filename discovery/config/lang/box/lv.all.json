@@ -1,20 +1,20 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "Maks. 30 dienas"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "Nodzēst visas versijas pēc 30 dienām"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "Paturēt visas"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "Vienmēr paturēt visas versijas"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "Regulāra tīrīšana"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "Regulāri tīrīt versijas noteiktos intervālos"
   }
 }

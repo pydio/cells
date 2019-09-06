@@ -1,62 +1,62 @@
 {
   "1": {
-    "other": "Notifications"
+    "other": "Paziņojumi"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "Direktoriju aktivitāte"
   },
   "11": {
-    "other": "File Activity"
+    "other": "Failu aktivitāte"
   },
   "12": {
-    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+    "other": "Atkarībā no interneta pārlūka tik pieprasītas papildu atļaujas. Lai to izslēgtu, pārbaudiet pārlūka iestatījumus un atļaujas. Ja šī opcija ir jau ieslēgta, iespējams nekādas izmaiņas nenotiks."
   },
   "13": {
-    "other": "Your browser does not seem to support Desktop Notifications yet."
+    "other": "Jūsu interneta pārlūks neatbalsta Darbvirsmas Paziņojumus."
   },
   "14": {
-    "other": "No alerts"
+    "other": "Nav brīdinājumu"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "Šeit parāda paziņojumus par monitorētajiem failiem"
   },
   "16": {
-    "other": "Inside"
+    "other": "Iekšā"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "Ielādē aktivitātes..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "Nav nesenas aktivitātes"
   },
   "19": {
-    "other": "More"
+    "other": "Vairāk"
   },
   "2": {
-    "other": "Notifications feed"
+    "other": "Paziņojumu barotne"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "Ielādē paziņojumus..."
   },
   "3": {
-    "other": "Alerts"
+    "other": "Brīdinājumi"
   },
   "4": {
-    "other": "Notifications"
+    "other": "Paziņojumi"
   },
   "5": {
-    "other": "All Events"
+    "other": "Visi notikumi"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "Iet uz ..."
   },
   "7": {
-    "other": "Dismiss"
+    "other": "Atcelt"
   },
   "8": {
-    "other": "No alerts"
+    "other": "Nav brīdinājumu"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "Darbvirsmas aktivitāte"
   }
 }

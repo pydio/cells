@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "Watch for..."
+    "other": "Monitorēt..."
   },
   "10": {
-    "other": "Anyone is opening the file"
+    "other": "Kāds ir atvēris failu"
   },
   "10b": {
-    "other": "Anyone is exploring the folder"
+    "other": "Kāds pārlūko direktoriju"
   },
   "11": {
-    "other": "Modification"
+    "other": "Modifikācija"
   },
   "12": {
-    "other": "Anyone is modifying the file"
+    "other": "Kāds apstrādā failu"
   },
   "12b": {
-    "other": "Anyone is modifying a file inside this folder"
+    "other": "Kāds apstrādā failu šajā direktorijā"
   },
   "13": {
-    "other": "Both"
+    "other": "Abi"
   },
   "14": {
-    "other": "Anyone opening or writing into the file"
+    "other": "Kāds ir atvēris failu vai maina tā saturu"
   },
   "14b": {
-    "other": "Anyone exploring or modifying the folder content"
+    "other": "Kāds pārlūko vai modificē direktorijas saturu"
   },
   "2": {
-    "other": "Be notified when this folder is accessed"
+    "other": "Paziņot ja kāds piekļūst šai direktorijai"
   },
   "3": {
-    "other": "Stop watching"
+    "other": "Pārtraukt monitorēšanu"
   },
   "4": {
-    "other": "Stop watching this folder for accesses"
+    "other": "Pārtraukt monitorēt piekļuvi šai direktorijai"
   },
   "5": {
-    "other": "Watch for..."
+    "other": "Monitorēt..."
   },
   "6": {
-    "other": "Watch this file for changes"
+    "other": "Monitorēt izmaiņas šim failam"
   },
   "7": {
-    "other": "Stop watching"
+    "other": "Pārtraukt monitorēšanu"
   },
   "8": {
-    "other": "Stop watching this file for changes"
+    "other": "Pārtraukt monitorēt šī faila izmaiņas"
   },
   "9": {
-    "other": "Consultation"
+    "other": "Konsultācija"
   }
 }

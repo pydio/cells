@@ -1,14 +1,14 @@
 {
   "Comment limit": {
-    "other": "Comment limit"
+    "other": "Komentāru limits"
   },
   "Comments Feed": {
-    "other": "Comments Feed"
+    "other": "Komentāru barotne"
   },
   "Display a chat-like feed on all nodes": {
-    "other": "Display a chat-like feed on all nodes"
+    "other": "Rādīt čata veida barotni visiem objektiem"
   },
   "Maximum number of characters for each comment": {
-    "other": "Maximum number of characters for each comment"
+    "other": "Maksimālais simbolu skaits katram komentāram"
   }
 }

@@ -1,113 +1,113 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "Publisk piekļuve"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Public access to discovery endpoints"
+    "other": "Publiska piekļuve atklāšanas galapunktiem"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "Anonymous access to discovery (GET)"
+    "other": "Anonīma piekļuve atklāšanai (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
+    "other": "Anonīma piekļuve lai mainītu paroli galapunktos (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "Anonīma piekļuve lai ielādētu lapas priekšpuses sstatusu (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "Anonīma piekļuve lai iniciētu lapas priekšpuses sesiju (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Installation Endpoints (first run)"
+    "other": "Instalācijas galapunkti (pirmreizēja palaišana)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Installation endpoints require public access at first run"
+    "other": "Instalācijas galapunktiem nepieciešmaa publiska piekļuve pirmreizējā palaišanā"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Anonymous access to install endpoints (GET, POST)"
+    "other": "Anonīmās piekļuves instalācijas galapunktiem (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "Pieslēgušos lietotāju un Admin lietotāju piekļuves"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
+    "other": "Izlemiet kā standarta lietotāji/koplietotie lietotāji/admin lietotāji var piekļūt rest API"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "Pilnās REST piekļuves Admin profilam"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "Noklusētās REST piekļuves lietotājiem kuri ir pieslēgušies"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "User-meta prevent deleting tags"
+    "other": "Lietotāju meta nepieļauj dzēst tagus"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Standard users cannot create/delete workspaces"
+    "other": "Standarta lietotāji nevar izveidot/dzēst darbvirsmas"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "OpenIdConnect Operations"
+    "other": "OpenIdConnect Darbības"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Ieslēgt/Izslēgt autentifikācijas OpenID Connect Serverī"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "Noklusētās piekļuves pieslēgšanās darbībai visiem lietotājiem"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Complex ACL Policy"
+    "other": "[Example] Kompleksa ACL Politika"
   },
   "PolicyGroup.ACLSample1.Description": {
-    "other": "Sample Complex Policy for managing ACLs dynamically"
+    "other": "Paraugs sarežģītai politikai lai dinamiski pārvaldītu ACL"
   },
   "PolicyGroup.ACLSample1.Rule1": {
-    "other": "Default allowing read/write"
+    "other": "Noklusētā atļauja lasīšanai/rakstīšanai"
   },
   "PolicyGroup.ACLSample1.Rule2": {
-    "other": "Preventing modification based on IP and file metadata conditions"
+    "other": "Neatļaut modifikācijas atkarībā no IP un failu meta datu noteikumiem"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out any file with a PNG extension if request does not come from localhost"
+    "other": "Atfiltrēt fisus failus ar PNG paplašinājumu ja pieprasījums nav no localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Limited Period"
+    "other": "[Example] Limitēts Periods"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
-    "other": "Enables access to a workspace only for a given period"
+    "other": "Ļauj piekļuvi darbvirsmai tikai noteiktu laiku"
   },
   "PolicyGroup.ACLSamplePeriod.Rule1": {
-    "other": "ACL Rule example, allowing access only in Feb. and March 2018"
+    "other": "ACL noteikumu paraugs, atļaut pieeju tikai Februārī un Martā 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] No access after a given date"
+    "other": "[Example] Nav piekļuves pēc noteiktā datuma"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
-    "other": "Disable access to a workspace after a given date"
+    "other": "Atslēgt piekļuvi darbvirsmai pēc noteikta datuma"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule1": {
-    "other": "Global read/write"
+    "other": "Globālā lasīšana/rakstīšana"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule2": {
-    "other": "Deny read/write if date is after 2018-02-28"
+    "other": "Aizliegt lasīt/rakstīt pēc 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Access allowed only during business hours"
+    "other": "[Example] Piekļuve atļauta tikai darba laikā"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
-    "other": "Enable access to a workspace only certain days within pre-defined hours"
+    "other": "Ieslēgt piekļuvi darbvirsmai tikai noteiktās dienās ar iepriekš norādītiem darba laikiem"
   },
   "PolicyGroup.ACLSampleBusinessHours.Rule1": {
-    "other": "Office hours rule example, allowing read/write"
+    "other": "Darba laika noteikumu paraugs, ļauj lasīt/rakstīt"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Disable access based on IP"
+    "other": "[Example] Aizliegt piekļuvi no noteiktas IP adreses"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
-    "other": "Disable access to IPs outside of LAN"
+    "other": "Aizliegt piekļuvi IP adresēm kuras ir ārpus LAN tīkla"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule1": {
-    "other": "Global read/write"
+    "other": "Globālā lasīšana/rakstīšana"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule2": {
-    "other": "Denying IP if it's not localhost, 127.0.0.1 or ::1"
+    "other": "Aizliedz IP ja tā nav lokālā adrese, 127.0.0.1 vai ::1"
   }
 }

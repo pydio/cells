@@ -1,74 +1,74 @@
 {
   "Additional info": {
-    "other": "Additional info"
+    "other": "Papildu info"
   },
   "Color labels": {
-    "other": "Color labels"
+    "other": "Krāsu etiķetes"
   },
   "Column visibility": {
-    "other": "Column visibility"
+    "other": "Redzamās kolonnas"
   },
   "Created by...": {
-    "other": "Created by..."
+    "other": "Izveidoja..."
   },
   "Depending on the field type. Currently used for selection only": {
-    "other": "Depending on the field type. Currently used for selection only"
+    "other": "Atkarīgs no lauka veida. Pašlaik izmantojams tikai izvēlei"
   },
   "Field ID": {
-    "other": "Field ID"
+    "other": "Lauka ID"
   },
   "Field Type": {
-    "other": "Field Type"
+    "other": "Lauka veids"
   },
   "Hidden": {
-    "other": "Hidden"
+    "other": "Slēpts"
   },
   "Hidden file used inside folders to save meta data": {
-    "other": "Hidden file used inside folders to save meta data"
+    "other": "Slēptie faili direktorijās lai saglabātu meta datus"
   },
   "Id of fiels, use standard characters here.": {
-    "other": "Id of fields, use standard characters here."
+    "other": "Lauku Id, lietojiet standarta rakstu zīmes."
   },
   "Label": {
-    "other": "Label"
+    "other": "Nosaukums"
   },
   "Label of the field, human friendly": {
-    "other": "Label of the field, human friendly"
+    "other": "Lauka nosaukums, draudzīgs lietotājam"
   },
   "Last updated by...": {
-    "other": "Last updated by..."
+    "other": "Pēdējo reizi atjaunojis..."
   },
   "Long text": {
-    "other": "Long text"
+    "other": "Garš teksts"
   },
   "Meta File": {
-    "other": "Meta File"
+    "other": "Meta fails"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "Selection (set choices in Additional Info)"
+    "other": "Izvēle (iestatījumi Papildu Informācijā)"
   },
   "Set default visibility.": {
-    "other": "Set default visibility."
+    "other": "Iestatīt noklusēto redzamību."
   },
   "Short text": {
-    "other": "Short text"
+    "other": "Īss teksts"
   },
   "Simple metadata implementation stored in a hidden file.": {
-    "other": "Simple metadata implementation stored in a hidden file."
+    "other": "Vienkāršota meta datu implementācija kas tiek glabāta slēptā teksta failā."
   },
   "Stars Rating": {
-    "other": "Stars Rating"
+    "other": "Novērtējums ar zvaigznēm"
   },
   "Tags (extensible sets of values)": {
-    "other": "Tags (extensible sets of values)"
+    "other": "Tagi (paplašinātas atlases vērtības)"
   },
   "Text Metadata": {
-    "other": "Text Metadata"
+    "other": "Meta datu teksts"
   },
   "Type of field": {
-    "other": "Type of field"
+    "other": "Lauka veids"
   },
   "Visible": {
-    "other": "Visible"
+    "other": "Redzams"
   }
 }

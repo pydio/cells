@@ -1,20 +1,20 @@
 {
   "Associated list of labels, be sure to define as many as fields!": {
-    "other": "Associated list of labels, be sure to define as many as fields!"
+    "other": "Asociēto nosaukumu saraksts, nodefinējiet tikpat daudz cik ir lauki!"
   },
   "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
-    "other": "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'."
+    "other": "Ar komatu atdalītu lauku saraksts, lieto sintaksi 'EXIF_SECTION.ExifName'."
   },
   "Exif Metadata": {
-    "other": "Exif Metadata"
+    "other": "Exif Metadati"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
-    "other": "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif"
+    "other": "Attēlo JPG attēla EXIF meta datus. Lieto izmantojot editor.exif"
   },
   "Info Panel Fields": {
-    "other": "Info Panel Fields"
+    "other": "Info Paneļa Lauki"
   },
   "Info Panel Labels": {
-    "other": "Info Panel Labels"
+    "other": "Info Paneļa Nosaukumi"
   }
 }

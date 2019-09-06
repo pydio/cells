@@ -1,80 +1,80 @@
 {
   "1": {
-    "other": "%s files queued for upload"
+    "other": "Augšupielādes rindā %s faili"
   },
   "10": {
     "other": ""
   },
   "11": {
-    "other": "Start"
+    "other": "Sākt"
   },
   "12": {
-    "other": "Clear list"
+    "other": "Notīrīt sarakstu"
   },
   "13": {
-    "other": "Folder created"
+    "other": "Direktorija izveidota"
   },
   "14": {
-    "other": "Processing"
+    "other": "Apstrādā"
   },
   "15": {
-    "other": "Pending"
+    "other": "Gaida"
   },
   "16": {
-    "other": "Processed"
+    "other": "Apstrādāts"
   },
   "17": {
-    "other": "Show/hide processed files"
+    "other": "Rādīt/slēpt apstrādātos failus"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "Ja eksistē fails ar tādu pašu nosaukumu:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "Apstādināt augšupielādi un rādīt brīdinājumu"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Pārsaukt vispirms direktorijas un pēc tam failus"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Pārsaukt tikai failus (apvienot direktorijas)"
   },
   "2": {
-    "other": "Uploading %s files"
+    "other": "Augšupielādē %s failus"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "Pārrakstīt esošo failus bez brīdinājuma"
   },
   "22": {
-    "other": "Options"
+    "other": "Opcijas"
   },
   "23": {
-    "other": "Errors"
+    "other": "Kļūdas"
   },
   "3": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Jums nav tiesību šeit augšupielādēt šo failu"
   },
   "4": {
-    "other": "Pick File"
+    "other": "Izvēlieties failu"
   },
   "5": {
-    "other": "Pick Folder"
+    "other": "Izvēlieties direktoriju"
   },
   "6": {
-    "other": "Cannot abort folder creation"
+    "other": "Nevar pārtraukt direktorijas izveidošanu"
   },
   "7": {
-    "other": "Uploading files to server..."
+    "other": "Augšupielādē filus uz servera..."
   },
   "8": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Izskatās ka pārlūks neatbalsta direktoriju ievilkšanu logā"
   },
   "9": {
     "other": ""
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "Sagatavo failus un direktorijas augšupielādei..."
   },
   "drophere": {
-    "other": "Drop Files Here"
+    "other": "Ievilkt failus"
   }
 }

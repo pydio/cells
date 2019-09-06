@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Lock"
+    "other": "Bloķēt"
   },
   "2": {
-    "other": "Lock selected item"
+    "other": "Bloķēt izvēlēto datni"
   },
   "3": {
-    "other": "Unlock"
+    "other": "Atbloķēt"
   },
   "4": {
-    "other": "Remove lock"
+    "other": "Noņemt bloķēšanu"
   },
   "5": {
-    "other": "This file is locked by another user, it is probably currently being edited, you are not allowed to modify it."
+    "other": "Šo failu ir bloķējis cits lietotājs, iespējams tas šobrīd tiek rediģēts, Jums nav tiesību to modificēt."
   }
 }
