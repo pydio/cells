@@ -469,12 +469,17 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		return errors.NotFound(name, "Could not retrieve node %s", req.From.Path)
 	}
 
+	// To Avoid Duplicate error when using a Cache DAO - Flush now and after delete.
+	dao.Flush(false)
+
 	// First of all, we delete the existing node
 	if nodeTo != nil {
 		if err = dao.DelNode(nodeTo); err != nil {
 			return errors.InternalServerError(name, "Could not delete former to node at %s", req.To.Path)
 		}
 	}
+
+	dao.Flush(false)
 
 	nodeFrom.Path = reqFromPath
 	nodeTo.Path = reqToPath

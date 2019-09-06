@@ -1,6 +1,6 @@
 {
   "Connexion": {
-    "other": "Connection"
+    "other": "Pieslēgums"
   },
   "DB Auth Storage": {
     "other": "DB Auth Storage"
@@ -9,15 +9,15 @@
     "other": "DB Storage"
   },
   "Install SQL Tables": {
-    "other": "Install SQL Tables"
+    "other": "Instalēt SQL tabulas"
   },
   "SQL Tables": {
-    "other": "SQL Tables"
+    "other": "SQL Tabulas"
   },
   "Stores the Authentication data in an SQL database.": {
-    "other": "Stores the Authentication data in an SQL database."
+    "other": "Glabā Autentifikācijas datus SQL datu bāzē."
   },
   "The Database Connexion": {
-    "other": "The Database Connection"
+    "other": "Datu bāzes pieslēgums"
   }
 }

@@ -1,176 +1,176 @@
 {
   "1": {
-    "other": "Role Editor"
+    "other": "Lomu redaktors"
   },
   "10": {
-    "other": "Use the selectors below to select the actions you want to disabled for the users of this role. You can choose to disable the action for all repositories, or for a given workspace only."
+    "other": "Lietojiet zemāk esošo izvēlni lai atlasītu darbības kuras vēlaties izslēgt šo lietotāju lomai. Varat izvēlēties izslēgt darbību visiem repozitorijiem vai tikai noteiktai darbvirsmai."
   },
   "11": {
-    "other": "Plugin Identifier"
+    "other": "Spraudņa identifikators"
   },
   "12": {
-    "other": "Select a plugin..."
+    "other": "Izvēlieties spraudni..."
   },
   "12a": {
-    "other": "Select an action..."
+    "other": "Izvēlieties darbību..."
   },
   "12b": {
-    "other": "Select a parameter..."
+    "other": "Izvēlieties parametru..."
   },
   "12c": {
-    "other": "Pick one or all workspaces..."
+    "other": "Paņemiet vienu vai vairākas darbvirsmas..."
   },
   "12d": {
-    "other": "All Workspaces"
+    "other": "Visas darbvirsmas"
   },
   "12e": {
-    "other": "Shared Workspaces"
+    "other": "Koplietotās darbvirsmas"
   },
   "13": {
-    "other": "Action name"
+    "other": "Darbības nosaukums"
   },
   "14": {
-    "other": "Repository Scope"
+    "other": "Repozitoriju darbības joma"
   },
   "15": {
-    "other": "Add Action"
+    "other": "Pievienot darbību"
   },
   "16": {
-    "other": "Use the selectors below to select the parameters you want to refine for the users of this role. Can be applied to all or one given workspace only, although this may depend on the plugin context."
+    "other": "Lietojiet zemāk esošo izvēlni lai iestatītu parametrus kurus vēlaties šai lietotāja lomai. Var pielietot visām vai tikai vienai darbvirsmai, tas varbūt arī atkarīgs no spraudņa konteksta."
   },
   "17": {
-    "other": "Parameter name"
+    "other": "Parametra nosaukums"
   },
   "18": {
-    "other": "Add parameter"
+    "other": "Pievienot parametru"
   },
   "19": {
-    "other": "There are unsaved changes, are you sure you want to close?"
+    "other": "Nav saglabātas visas izmaiņas, vai vēlaties aizvērt?"
   },
   "2": {
-    "other": "Role editor"
+    "other": "Lomu redaktors"
   },
   "20": {
-    "other": "Role updated successfully"
+    "other": "Loma veiksmīgi atjaunota"
   },
   "21": {
-    "other": "User ID"
+    "other": "Lietotāja ID"
   },
   "22": {
-    "other": "Special Profile"
+    "other": "Speciāls profils"
   },
   "23": {
-    "other": "Default Workspace"
+    "other": "Noklusētā darbvirsma"
   },
   "24": {
-    "other": "User Roles"
+    "other": "Lietotāja lomas"
   },
   "25": {
-    "other": "Change Password"
+    "other": "Mainīt paroli"
   },
   "26": {
-    "other": "Lock out user"
+    "other": "Bloķēt lietotāju"
   },
   "27": {
-    "other": "Reactivate user"
+    "other": "Atbloķēt lietotāju"
   },
   "28": {
-    "other": "Force password change"
+    "other": "Piespiedu paroles maiņa"
   },
   "28b": {
-    "other": "Cancel password change"
+    "other": "Atcelt paroles maiņu"
   },
   "29": {
-    "other": "Enter new password for this user"
+    "other": "Ievadīt lietotājam jaunu paroli"
   },
   "3": {
-    "other": "Account Info"
+    "other": "Konta informācija"
   },
   "30": {
-    "other": "Confirm"
+    "other": "Apstiprināt"
   },
   "31": {
-    "other": "Role ID"
+    "other": "Lomas ID"
   },
   "32": {
-    "other": "Role Label"
+    "other": "Lomas nosaukums"
   },
   "33": {
-    "other": "Apply automatically to users with profile..."
+    "other": "Pielietot automātiski priekš lietotājiem ar profilu..."
   },
   "34": {
-    "other": "Group ID"
+    "other": "Grupas ID"
   },
   "35": {
-    "other": "Group Label"
+    "other": "Grupas nosaukums"
   },
   "36": {
-    "other": "locked"
+    "other": "slēgts"
   },
   "37": {
-    "other": "Deny"
+    "other": "Aizliegts"
   },
   "38": {
-    "other": "inherited"
+    "other": "mantots"
   },
   "workspace.roots.invalid": {
-    "other": "invalid roots"
+    "other": "nepareizi pamati"
   },
   "39": {
-    "other": "Disable"
+    "other": "Izslēgts"
   },
   "4": {
     "other": "ACL"
   },
   "40": {
-    "other": "Enable"
+    "other": "Ieslēgt"
   },
   "41": {
-    "other": "Remove"
+    "other": "Dzēst"
   },
   "42": {
-    "other": "Role custom data"
+    "other": "Lomas papildu dati"
   },
   "43": {
-    "other": "Select one or more"
+    "other": "Izvēlieties vienu vai vairākus"
   },
   "44": {
-    "other": "Plugins Parameters Fine-tuning"
+    "other": "Spraudņu parametru papildus pielāgošana"
   },
   "45": {
-    "other": "Access Control List"
+    "other": "Piekļuves Kontroles Saraksti ACL"
   },
   "46": {
-    "other": "Disabled Actions"
+    "other": "Izslēgtas darbības"
   },
   "47": {
-    "other": "Search Roles"
+    "other": "Meklēšanas lomas"
   },
   "5": {
-    "other": "Actions"
+    "other": "Darbības"
   },
   "6": {
-    "other": "Parameters"
+    "other": "Parametri"
   },
   "7": {
-    "other": "Internal Data"
+    "other": "Iekšējie dati"
   },
   "8": {
-    "other": "Personal information"
+    "other": "Personīgā informācija"
   },
   "9": {
-    "other": "Select the workspaces to which the use with this role will have access. Use the 'Deny' value to either override a value set by a previous role, or definitely deny the access to this workspace even to inherited roles."
+    "other": "Izvēlieties kurām darbvirsmām lietotājam ar šo lomu būs piekļuve. Lietojiet 'Aizliegt' lai mainītu iepriekšējo vērtību kura ir no iepriekšējās lomas vai aizliedziet piekļuvi šai darbvirsmai pat ja ir mantotas piekļuves vērtības."
   },
   "dashboard.description": {
-    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+    "other": "Lomas ir konteineri Piekļuves Sarakstiem lai ļautu piekļuvi visām darbvirsmām vai pielāgotu parametrus un darbības. Tās var manuāli piešķirt jebkuram lietotājam."
   },
   "dashboard.technical.hide": {
-    "other": "Hide technical roles"
+    "other": "Slēpt tehniskās lomas"
   },
   "dashboard.technical.show": {
-    "other": "Show technical roles"
+    "other": "Rādīt tehniskās lomas"
   },
   "last_update": {
-    "other": "Last updated"
+    "other": "Pēdējo reizi atjaunots"
   }
 }

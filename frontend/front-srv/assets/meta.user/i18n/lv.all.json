@@ -1,47 +1,47 @@
 {
   "1": {
-    "other": "Meta Data"
+    "other": "Meta dati"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "Eksistējošs vai jauns tags"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "Nav iestatīti meta dati, pievienojiet kādu"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "Izvēlēties vairākus:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "pārbaudiet laukus kurus vēlaties atjaunot, vērtība tiks pielietota visiem izvēlētajiem failiem"
   },
   "14": {
-    "other": "Edit meta"
+    "other": "Labot meta"
   },
   "15": {
-    "other": "Save meta"
+    "other": "Saglabāt meta"
   },
   "2": {
-    "other": "No Label"
+    "other": "Nav nosaukuma"
   },
   "3": {
-    "other": "Remove Rating"
+    "other": "Noņemt vērtējumu"
   },
   "4": {
-    "other": "Low"
+    "other": "Zems"
   },
   "5": {
-    "other": "Todo"
+    "other": "Uzdevumi"
   },
   "6": {
-    "other": "Personal"
+    "other": "Personīgs"
   },
   "7": {
-    "other": "Work"
+    "other": "Darbs"
   },
   "8": {
-    "other": "Important"
+    "other": "Svarīgs"
   },
   "9": {
-    "other": "No Value"
+    "other": "Nav vērtības"
   }
 }

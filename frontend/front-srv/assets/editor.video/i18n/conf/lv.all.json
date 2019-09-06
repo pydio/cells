@@ -1,8 +1,8 @@
 {
   "Inserts a video player in the info panel, either HTML5 or Flash depending on the format.": {
-    "other": "Inserts a video player in the info panel, either HTML5 or Flash depending on the format."
+    "other": "Ievieto video atskaņotāju info panelī. HTML5 vai Flash atkarībā no faila formāta."
   },
   "Video Player": {
-    "other": "Video Player"
+    "other": "Video atskaņotājs"
   }
 }

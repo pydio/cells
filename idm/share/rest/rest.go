@@ -471,8 +471,19 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 		return
 	}
 
-	// Now delete associated Document in Docstore
+	storedLink := &rest.ShareLink{Uuid: id}
+	if err := share.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{}); err != nil {
+		service.RestError500(req, rsp, err)
+		return
+	}
+	// Delete associated Document from Docstore
 	if err := share.DeleteHashDocument(ctx, id); err != nil {
+		service.RestError500(req, rsp, err)
+		return
+	}
+
+	// Delete associated Hidden user
+	if err := share.DeleteHiddenUser(ctx, storedLink); err != nil {
 		service.RestError500(req, rsp, err)
 		return
 	}

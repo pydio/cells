@@ -1,44 +1,44 @@
 {
   "1": {
-    "other": "Choose other..."
+    "other": "Izvēlieties citu..."
   },
   "2": {
-    "other": "Choose another editor"
+    "other": "Izvēlieties citu redaktoru"
   },
   "3": {
-    "other": "Select another editor to open this file"
+    "other": "Izvēlieties citu redaktoru lai atvērtu šo failu"
   },
   "4": {
-    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
+    "other": "Uzmanību, šie radaktori neatbalsta šo faila veidu, to uzvedība nav prognozējama!"
   },
   "5": {
-    "other": "Clear associations"
+    "other": "Notīrīt asociācijas"
   },
   "drop.cell.picker": {
-    "other": "Pick action for %s..."
+    "other": "Izvēlieties darbību priekš %s..."
   },
   "drop.cell.share.legend": {
-    "other": "Add new item to this cell"
+    "other": "Pievienot jaunus objektus šajā šūnā"
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "Iekš %s"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "Koplietot failu"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "Koplietot direktoriju"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "Pārvietot failu"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "Pārvietot direktoriju"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "Kopēt failu"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "Kopēt direktoriju"
   }
 }

@@ -1,176 +1,176 @@
 {
   "Allow users to generate public links on files": {
-    "other": "Allow users to generate public links on files"
+    "other": "Ļaut lietotājiem ģenerēt failu publiskās saites"
   },
   "Allow users to generate public links on folders": {
-    "other": "Allow users to generate public links on folders"
+    "other": "Ļaut lietotājiem ģenerēt direktoriju publiskās saites"
   },
   "Allow users to manually choose a hash for the generated links": {
-    "other": "Allow users to manually choose a hash for the generated links"
+    "other": "Ļaut lietotājiem izvēlēties kontrolsummu ģenerētajām saitēm"
   },
   "Authorizations": {
-    "other": "Authorizations"
+    "other": "Autorizācijas"
   },
   "Avoid labels duplication": {
-    "other": "Avoid labels duplication"
+    "other": "Izvairīties no dubultiem nosaukumiem"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "Fona krāsa"
   },
   "Create QRCode": {
-    "other": "Create QRCode"
+    "other": "Izveidot QR Kodu"
   },
   "Create and display QRCode for shared link": {
-    "other": "Create and display QRCode for shared link"
+    "other": "Izveidot un parādīt QR kodu koplietotai saitei"
   },
   "Disable Folder Sharing": {
-    "other": "Disable Folder Sharing"
+    "other": "Izslēgt direktoriju koplietošanu"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Disallow users to create shared folders if a workspace already exists with the same label"
+    "other": "Aizliegt lietotājiem veidot koplietojamas direktorijas ja eksistē darbvirsma ar tādu pašu nosaukumu"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
-    "other": "Do not allow users to create public links, only private links (password-protected)"
+    "other": "Aizliegt lietotājiem veidot publiskas saites, tikai privātas (aizsargātas ar paroli)"
   },
   "Download Button": {
-    "other": "Download Button"
+    "other": "Lejupielādes poga"
   },
   "Download text": {
-    "other": "Download text"
+    "other": "Lejupielādes teksts"
   },
   "Download text w/ Pass": {
-    "other": "Download text w/ Pass"
+    "other": "Lejupielādes teksts ar Paroli"
   },
   "Enable folder sharing": {
-    "other": "Enable folder sharing"
+    "other": "Ieslēgt direktoriju koplietošanu"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Enable folder sharing (workspace and minisite)"
+    "other": "Ieslēgt failu koplietošanu (darbvirsma un minilapa)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+    "other": "Ieslēgt iekšējo failu koplietošanu (koplietot ar esošiem vai pagaidu lietotājiem)"
   },
   "Enable internal folder sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+    "other": "Ieslēgt iekšējo direktoriju koplietošanu (koplietot ar esošiem vai pagaidu lietotājiem)"
   },
   "Enable public link generation for files": {
-    "other": "Enable public link generation for files"
+    "other": "Ieslēgt publisku saišu ģenerēšanu failiem"
   },
   "Enable public links for files": {
-    "other": "Enable public links for files"
+    "other": "Ieslēgt publiskas saites failiem"
   },
   "Files: enable internal sharing": {
-    "other": "Files: enable internal sharing"
+    "other": "Faili: ieslēgt iekšējo koplietošanu"
   },
   "Files: enable public links": {
-    "other": "Files: enable public links"
+    "other": "Faili: ieslēgt publiskās saites"
   },
   "Folder Sharing": {
-    "other": "Folder Sharing"
+    "other": "Direktoriju koplietošana"
   },
   "Folders: enable internal sharing": {
-    "other": "Folders: enable internal sharing"
+    "other": "Direktorijas: ieslēgt iekšējo koplietošanu"
   },
   "Folders: enable public links": {
-    "other": "Folders: enable public links"
+    "other": "Direktorijas: ieslēgt publiskās saites"
   },
   "Force External Mailer": {
-    "other": "Force External Mailer"
+    "other": "Piespiedu ārējā pasta sūtīšana"
   },
   "Fork Events Forwarding": {
-    "other": "Fork Events Forwarding"
+    "other": "Sazarota notikumu pārsūtīšana"
   },
   "Hash minimum length": {
-    "other": "Hash minimum length"
+    "other": "Kontrolsummas minimālais garums"
   },
   "Hash user-editable": {
-    "other": "Hash user-editable"
+    "other": "Lietotājs var maniīt kontrolsummu"
   },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
-    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+    "other": "Ja novērojat ātrdarbības samazināšanos modificējot failus dziļi iekšā hierarhijā, mēģiniet aktivizēt šo funkciju. Pārliecinieties ka zināt ko darat, jo tas iesaista ļoti daudz php procesus uz servera."
   },
   "Image used as a button for downloading the file": {
-    "other": "Image used as a button for downloading the file"
+    "other": "Attēls tiek lietots kā poga faila lejupielādei"
   },
   "Internal Sharing": {
-    "other": "Internal Sharing"
+    "other": "Iekšējā koplietošana"
   },
   "Link Generation": {
-    "other": "Link Generation"
+    "other": "Saišu ģenerēšana"
   },
   "Mandatory prefix for users created temporary users login": {
-    "other": "Mandatory prefix for users created temporary users login"
+    "other": "Obligāts prefikss pagaidu lietotājiem"
   },
   "Maximum download limit for file, 0 = unlimited": {
-    "other": "Maximum download limit for file, 0 = unlimited"
+    "other": "Maksimālais faila lejupielāžu skaits, 0 = bezlimita"
   },
   "Maximum file download limit": {
-    "other": "Maximum file download limit"
+    "other": "Maksimālais faila lejupielāžu skaits"
   },
   "Maximum file expiration limit": {
-    "other": "Maximum file expiration limit"
+    "other": "Maksimālais faila piekļuves laiks"
   },
   "Maximum share expiration limit for file, 0 = unlimited": {
-    "other": "Maximum share expiration limit for file, 0 = unlimited"
+    "other": "Maksimālais koplietošanas laika ilgums failam, 0 = bezlimita"
   },
   "Minimum length of the generated hash": {
-    "other": "Minimum length of the generated hash"
+    "other": "Minimālais ģenerētais kontrolsummas garums"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Minilapa"
   },
   "Minisites and Workspaces": {
-    "other": "Minisites and Workspaces"
+    "other": "Minilapas un Darbvirsmas"
   },
   "Minisites only": {
-    "other": "Minisites only"
+    "other": "Tikai minilapas"
   },
   "Page Title": {
-    "other": "Page Title"
+    "other": "Lapas nosaukums"
   },
   "Set password mandatory": {
-    "other": "Set password mandatory"
+    "other": "Paroles iestatīšana obligāta"
   },
   "Share Center actions and hooks": {
-    "other": "Share Center actions and hooks"
+    "other": "Koplietošanas Centra darbības un enkuri"
   },
   "Share page background color.": {
-    "other": "Share page background color."
+    "other": "Koplietot lapas fona krāsu."
   },
   "Share page text color.": {
-    "other": "Share page text color."
+    "other": "Koplietot lapas teksta krāsu."
   },
   "Share page text shadow color.": {
-    "other": "Share page text shadow color."
+    "other": "Koplietot lapas teksta ēnas krāsu."
   },
   "Shared users configurations": {
-    "other": "Shared users configurations"
+    "other": "Koplietoto lietotāju konfigurācijas"
   },
   "Sharing Features": {
-    "other": "Sharing Features"
+    "other": "Koplietošanas iespējas"
   },
   "Text Color": {
-    "other": "Text Color"
+    "other": "Teksta krāsa"
   },
   "Text Shadow": {
-    "other": "Text Shadow"
+    "other": "Teksta ēna"
   },
   "Tmp users prefix": {
-    "other": "Tmp users prefix"
+    "other": "Tmp lietotāju prefikss"
   },
   "Use Rewrite Rule": {
-    "other": "Use Rewrite Rule"
+    "other": "Lietot Rewrite noteikumu"
   },
   "Use external mailer for invitations": {
-    "other": "Use external mailer for invitations"
+    "other": "Lietot ārējo e-pastu sūtīšanu priekš ielūgumiem"
   },
   "Use web server RewriteEngine mechanism to generate prettier URLs": {
-    "other": "Use web server RewriteEngine mechanism to generate prettier URLs"
+    "other": "Lietot servera RewriteEngine mehānismu lai veidotu lasāmākas saites"
   },
   "Weblink Page": {
-    "other": "Weblink Page"
+    "other": "Web saišu lapa"
   },
   "Workspaces only": {
-    "other": "Workspaces only"
+    "other": "Tikai darbvirsmas"
   }
 }

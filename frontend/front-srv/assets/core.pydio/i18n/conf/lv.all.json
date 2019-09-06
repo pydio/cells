@@ -1,60 +1,60 @@
 {
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#Vienības lapā"
   },
   "16X16 Icon for representing the template": {
-    "other": "16X16 Icon for representing the template"
+    "other": "16X16 šablona ikona"
   },
   "A user-defined description of the content of this workspace": {
-    "other": "A user-defined description of the content of this workspace"
+    "other": "Lietotājam lasāms satura apraksts šai darbvirsmai"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
-    "other": "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app"
+    "other": "API galapunkts - Lieto lai palaistu logu kurš ļauj lietotājam autentificēties un piekrist aplikācijas noteikumiem"
   },
   "API endpoint - Used to refresh or validate the token retrieved in the authentication part": {
-    "other": "API endpoint - Used to refresh or validate the token retrieved in the authentication part"
+    "other": "API galapunkts - Lieto lai atjaunotu vai validētu kodu autentificējoties"
   },
   "API setting - Redirect URL for the OAuth Application": {
-    "other": "API setting - Redirect URL for the OAuth Application"
+    "other": "API iestatījums - Pārvirzīt saiti OAuth aplikācijai"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
+    "other": "Absolūtais ceļš publiski direktorijai kur tiek veidotas pagaidu lejupielādes saites. Lieto tikai no iepriekšējām versijām veidotām saitēm. Jaunām veidotām saitēm tas nav nepieciešams, jo tiek lietota Pamata saite (Base URI)."
   },
   "Admin Login": {
-    "other": "Admin Login"
+    "other": "Administratora pieslēgšanās"
   },
   "Admin email": {
-    "other": "Admin email"
+    "other": "Administratora e-pasts"
   },
   "Administrator email, not used for the moment": {
-    "other": "Administrator email, not used for the moment"
+    "other": "Administratora e-pasts, šobrīd netiek lietots"
   },
   "Alias": {
     "other": "Alias"
   },
   "Alias for replacing the generated unique id of the repository": {
-    "other": "Alias for replacing the generated unique id of the workspace"
+    "other": "Alias kuru lieto la aizvietotu automātiski ģenerēto darbvirsmas id"
   },
   "Allow group administrators to create a repository from this template.": {
-    "other": "Allow group administrators to create a repository from this template."
+    "other": "Ļauj grupu administratoriem izveidot repozitoriju no šī šablona."
   },
   "Allow non-admin users to create a repository from this template.": {
-    "other": "Allow non-admin users to create a workspace from this template."
+    "other": "Ļauj lietotājiem kuri nav administratori izveidot darbvirsmu no šī šablona."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "Ļaut lietotājiem izvēlēties lietotāju kad koplieto direktoriju"
   },
   "Allow to group admins": {
-    "other": "Allow to group admins"
+    "other": "Atļaut grupas administratoriem"
   },
   "Allow to user": {
-    "other": "Allow to user"
+    "other": "Atļaut lietotājam"
   },
   "App Title": {
-    "other": "Application Title"
+    "other": "Aplikācijas nosaukums"
   },
   "Ascending": {
-    "other": "Ascending"
+    "other": "Augoši"
   },
   "Auth Driver Commons": {
     "other": "Auth Driver Commons"
@@ -63,435 +63,435 @@
     "other": "Auth URL"
   },
   "Auto Create User": {
-    "other": "Auto Create User"
+    "other": "Automātiski izveidot lietotāju"
   },
   "Auto apply role": {
-    "other": "Auto apply role"
+    "other": "Automātiski apstiprināt lomu"
   },
   "Big Icon": {
-    "other": "Big Icon"
+    "other": "Liela ikona"
   },
   "Big Icon for representing the template": {
-    "other": "Big Icon for representing the template"
+    "other": "Šablona liela ikona"
   },
   "Browser Access": {
-    "other": "Browser Access"
+    "other": "Pārlūka piekļuve"
   },
   "Character Encoding": {
-    "other": "Character Encoding"
+    "other": "Simbolu kodējums"
   },
   "Client ID": {
-    "other": "Client ID"
+    "other": "Klienta ID"
   },
   "Client SECRET": {
-    "other": "Client SECRET"
+    "other": "Klienta PAROLE"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Comma separated list of metastore and meta plugins, that will be automatically applied to all workspaces created with this driver"
+    "other": "Ar komatu atdalītu metastore un meta spraudņu saraksts kurš tiks pielietots ar šo diznēju izveidotajām darbvirsmām"
   },
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
-    "other": "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden."
+    "other": "Ar komatu atdalītu paplašinājumu saraksts kurus ir jāslēpj. Paplašinājumi, faili un direktorijas kuri tiek slēpti parasti ir ar liegtu piekļuvi."
   },
   "Comma-separated list of specific files to hide": {
-    "other": "Comma-separated list of specific files to hide"
+    "other": "Ar komatu atdalītu failu saraksts kurus ir jāslēpj"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "Comma-separated list of specific folders to hide"
+    "other": "Ar komatu atdalītu direktoriju saraksts kuras ir jāslēpj"
   },
   "Command Line": {
-    "other": "Command Line"
+    "other": "Komandrinda"
   },
   "Command-line Active": {
-    "other": "Command-line Active"
+    "other": "Komandrinda aktīva"
   },
   "Command-line PHP": {
-    "other": "Command-line PHP"
+    "other": "PHP komandrinda"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
-    "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
+    "other": "Kopējā saite lai piekļūtu koplietojamajiem datiem. Lasiet dokumentāciju lai droši izmantotu šo iespēju."
   },
   "Compression Features": {
-    "other": "Compression Features"
+    "other": "Kopresijas iespējas"
   },
   "Core Connexion": {
-    "other": "Core Connexion"
+    "other": "Pamata konekcija"
   },
   "DSN": {
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "Data Source Name"
+    "other": "Datu avota nosaukums"
   },
   "Database": {
-    "other": "Database"
+    "other": "Datu bāze"
   },
   "Database file": {
-    "other": "Database file"
+    "other": "Datu bāzes fails"
   },
   "Database name": {
-    "other": "Database name"
+    "other": "Datu bāzes nosaukums"
   },
   "Database server": {
-    "other": "Database server"
+    "other": "Datu bāzes serveris"
   },
   "Default Label": {
-    "other": "Default Label"
+    "other": "Noklusētais nosaukums"
   },
   "Default Language": {
-    "other": "Default Language"
+    "other": "Noklusējuma valoda"
   },
   "Default Metasources": {
-    "other": "Default Metasources"
+    "other": "Noklusētie meta avoti"
   },
   "Default Rights": {
-    "other": "Default Rights"
+    "other": "Noklusētās tiesības"
   },
   "Default field to sort on": {
-    "other": "Default field to sort on"
+    "other": "Noklusētais lauks pēc kura notiek šķirošana"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "Default language when a user does not have set his/her own."
+    "other": "Noklusētā valoda ja lietotājs nav iestatījis savējo."
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
-    "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
+    "other": "Noklusētais autentifikācijas lauks. Izlasiet dokumentāciju lai droši lietotu šo iespēju."
   },
   "Default sorting direction": {
-    "other": "Default sorting direction"
+    "other": "Noklusētais šķirošanas virziens"
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+    "other": "Deleģē lejupielādes darbību alternatīvam aģentam, vai nu web serverim vai pydio aplikācijai. Uzmanību, šai funkcijai vajag instalēt ārējus moduļus. Lietojot XSendFile/XaccelRedirect nepieciešams manuāli pievienot direktorijas kurās faili tiks lejupielādēti moduļa konfigurācijā"
   },
   "Descending": {
-    "other": "Descending"
+    "other": "Dilstoši"
   },
   "Description": {
-    "other": "Description"
+    "other": "Apraksts"
   },
   "Digest Realm": {
-    "other": "Digest Realm"
+    "other": "Autentifikācija"
   },
   "Disable WebDAV": {
-    "other": "Disable WebDAV"
+    "other": "Izslēgt WebDAV"
   },
   "Disable Zip browsing": {
-    "other": "Disable Zip browsing"
+    "other": "Izslēgt Zip pārlūkošanu"
   },
   "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.": {
-    "other": "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance."
+    "other": "Izslēgt Zip failu pārlūkošanu iekšpusē. Tas nepiecišams ja veidojat lielus zip arhīvus: tas var iespaidot ātrdarbību."
   },
   "Display the list of files and folder when accessing through the browser": {
-    "other": "Display the list of files and folder when accessing through the browser"
+    "other": "Rādīt pārlūkā failu un direktoriju sarakstu"
   },
   "Download Delegation": {
-    "other": "Download Delegation"
+    "other": "Lejupielādes deleģēšana"
   },
   "Download Folder (Legacy)": {
-    "other": "Download Folder (Legacy)"
+    "other": "Lejupielādes direktorija (Mantots)"
   },
   "Download URL": {
-    "other": "Download URL"
+    "other": "Lejupielādes saite"
   },
   "Driver": {
-    "other": "Driver"
+    "other": "Dzinējs"
   },
   "Driver type (do not touch)": {
-    "other": "Driver type (do not touch)"
+    "other": "Dzinēja veids (neaiztikt)"
   },
   "Enable WebDAV": {
-    "other": "Enable WebDAV"
+    "other": "Ieslēgt WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
-    "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
+    "other": "Ieslēgt WebDAV visiem lietotājiem pēc noklusējuma. Ja nav iestatīts, lietotājiem pašiem ir manuāli jāieslēdz WebDAV kontroles panelī."
   },
   "Enable for all users": {
-    "other": "Enable for all users"
+    "other": "Ieslēgt visiem lietotājiem"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
-    "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
+    "other": "Ieslēgt WebDAV atbalstu. Izlasiet dokumentāciju lai droši lietotu šo funkciju."
   },
   "Existing users": {
-    "other": "Existing users"
+    "other": "Esošie lietotāji"
   },
   "Explicitly disable WebDAV access for this repository.": {
-    "other": "Explicitly disable WebDAV access for this repository."
+    "other": "Izslēgt WebDAV piekļuvi šim repozitorijam."
   },
   "File": {
-    "other": "File"
+    "other": "Fails"
   },
   "File Type": {
-    "other": "File Type"
+    "other": "Faila veids"
   },
   "File size": {
-    "other": "File size"
+    "other": "Faila izmērs"
   },
   "Filename length": {
-    "other": "Filename length"
+    "other": "Faila nosaukuma garums"
   },
   "Filesystem Commons": {
-    "other": "Filesystem Commons"
+    "other": "Failu sistēmas kopīgie parametri"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
-    "other": "For exotic auth drivers, an user ID that must be considered as admin by default."
+    "other": "Eksotiskiem autentifikācijas dzinējiem lietotāja ID pēc noklusējuma tiek uztverts kā administrators."
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
-    "other": "For multiple authentication, apply this role to users authenticated via this driver"
+    "other": "Esot vairākām autentifikācijām, lietotājiem kuri ir autentificējušies izmantojiet šo dzinēju"
   },
   "Force Basic Auth": {
-    "other": "Force Basic Auth"
+    "other": "Lietot Basic Auth"
   },
   "Force remote sorting when in paginated mode. Warning, this can impact the performances.": {
-    "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
+    "other": "Piespiedu attālināta šķirošana ja ieslēgts vairāku lappušu režīms. Uzmanību, tas var iespaidot ātrdarbību."
   },
   "Group Path": {
-    "other": "Group Path"
+    "other": "Grupas ceļš"
   },
   "Gzip Download": {
-    "other": "Gzip Download"
+    "other": "Gzip lejupielāde"
   },
   "Gzip Limit": {
-    "other": "Gzip Limit"
+    "other": "Gzip limits"
   },
   "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.": {
-    "other": "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download."
+    "other": "Arhivēt failus pirms lejupielādes. Pēc noklusējuma izslēgts, jo tas ir noderīgi tikai maza izmēra failiem un samazina ātrdarbību lieliem failiem. Tam nav sakara ar Zip failu veidošanas iespēju, bet tikai ar ātro arhivēšanu pirms faila lejupielādes."
   },
   "Hide extensions": {
-    "other": "Hide extensions"
+    "other": "Slēpt paplašinājumus"
   },
   "Hide files": {
-    "other": "Hide files"
+    "other": "Slēpt failus"
   },
   "Hide folders": {
-    "other": "Hide folders"
+    "other": "Slēpt direktorijas"
   },
   "Hide recycle bin": {
-    "other": "Hide recycle bin"
+    "other": "Slēpt miskasti"
   },
   "Host": {
-    "other": "Host"
+    "other": "Serveris"
   },
   "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature.": {
-    "other": "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature."
+    "other": "Serveris kuru lieto WebDAV protokolam. Parasti tiek noteikts automātiski. Izlasiet dokumentāciju lai droši lietotu šo funkciju."
   },
   "If activated, a default limit should be set above when files are no more compressed.": {
-    "other": "If activated, a default limit should be set above when files are no more compressed."
+    "other": "Ja ieslēgts, noklusētais limits tiks iestatīts augstāks ja faili netiek vairāk kompresēti."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+    "other": "Ja nav pārņemts tieši no Pydio saites un publiskās pamata saites šiet var nomainīt publisko piekļuves saiti."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
-    "other": "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL."
+    "other": "Ja ir iestatīta saite, pieslēgšanās darbība nepārslēgs pieslēgšanās ekrānu, bet pārvirzīs uz šo saiti."
   },
   "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.": {
-    "other": "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature."
+    "other": "Ja ir problēmas ar zip failu veidošanu lejupielādējot vairākus failus, šo opciju iespējams atslēgt."
   },
   "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings.": {
-    "other": "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings."
+    "other": "Ja ir liels darbvirsmu skaits (nav ieteicams), pieslēgšnās administrācijas panelim var aizņemt ilgu laiku, jo tiek atjaunotas piekļuves tiesības visiem repozitorijiem. Lietojiet šo funkciju lai atslēgtu šo soli. Administratoram būs vienmēr piekļuve uzreiz Sistēmas iestatījumiem."
   },
   "If your server does not set correctly its charset, it can be good to specify it here manually.": {
-    "other": "If your server does not set correctly its charset, it can be good to specify it here manually."
+    "other": "Ja serveris nepareizi iestata kodējumu to var norādīt manuāli."
   },
   "Leave empty if you do not want to use a recycle bin.": {
-    "other": "Leave empty if you do not want to use a recycle bin."
+    "other": "Atstājiet tukšu ja nevēlaties lietot miskasti."
   },
   "Login Redirect": {
-    "other": "Login Redirect"
+    "other": "Pieslēgšanās pārvirzīšana"
   },
   "Main": {
-    "other": "Main Options"
+    "other": "Pamata opcijas"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
-    "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
+    "other": "Galveinais Pydio iestatījumu konteiners (aplikācijas nosaukums, koplietošana, webdav servera konfigurācija, u.t.t.)"
   },
   "Maximum characters length of new files or folders": {
-    "other": "Maximum characters length of new files or folders"
+    "other": "Maksimālais simbolu skaits jaunu failul un direktoriju nosaukumos"
   },
   "Metadata and indexation": {
-    "other": "Metadata and indexation"
+    "other": "Meta dati un indeksācija"
   },
   "Miscellaneous": {
-    "other": "Miscellaneous"
+    "other": "Dažādi"
   },
   "Modification date": {
-    "other": "Modification date"
+    "other": "Modificēšanas datums"
   },
   "Name": {
-    "other": "Name"
+    "other": "Nosaukums"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
   },
   "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line.": {
-    "other": "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line."
+    "other": "Uz Windows ISS servera šo funkciju iestatiet kā true ja ir ielādēts COM paplašinājums, ar to var ieslēgt php komandrindu."
   },
   "On specific hosts, you may have to use a specific path to access the php command line": {
-    "other": "On specific hosts, you may have to use a specific path to access the php command line"
+    "other": "Uz specifiskiem serveriem jālieto specifisks ceļs lai piekļūtu php komandrindai"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "Ja ir ieslēgts lapu dalīšanas režīms uzrādiet cik objektus uzrādīt vienā lapā."
   },
   "Pagination Threshold": {
-    "other": "Pagination Threshold"
+    "other": "Lapu dalīšanas slieksnis"
   },
   "Password": {
-    "other": "Password"
+    "other": "Parole"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
+    "other": "Jau aizpildīts nosaukums jaunām darbvirsmām, tajā var lietot PYDIO_USER atslēgas vārdu."
   },
   "Public Base URI": {
-    "other": "Public Base URI"
+    "other": "Publiskā pamata saite"
   },
   "Pydio Main Options": {
-    "other": "Pydio Main Options"
+    "other": "Pydio pamata opcijas"
   },
   "Read Only": {
-    "other": "Read Only"
+    "other": "Tikai lasīt"
   },
   "Read and Write": {
-    "other": "Read and Write"
+    "other": "Lasīt un Rakstīt"
   },
   "Recycle Bin Folder": {
-    "other": "Recycle Bin Folder"
+    "other": "Miskastes direktorija"
   },
   "Redirect URL": {
-    "other": "Redirect URL"
+    "other": "Novirzīšanas URL"
   },
   "Remote Sorting": {
-    "other": "Remote Sorting"
+    "other": "Attālināta šķirošana"
   },
   "Remote Sorting Default Direction": {
-    "other": "Remote Sorting Default Direction"
+    "other": "Attālinātas šķirošanas noklusētais virziens"
   },
   "Remote Sorting Default Field": {
-    "other": "Remote Sorting Default Field"
+    "other": "Attālinātas šķirošanas noklusētais lauks"
   },
   "Repository Commons": {
-    "other": "Repository Commons"
+    "other": "Repozitoriju kopējās opcijas"
   },
   "Repository Slug": {
-    "other": "Repository Slug"
+    "other": "Repozitoriju darbības joma"
   },
   "Scope": {
-    "other": "Scope"
+    "other": "Darbības lauks"
   },
   "Server URL": {
-    "other": "Server URL"
+    "other": "Servera URL"
   },
   "Server URL used to build share links and notifications. It will be detected if empty.": {
-    "other": "Server URL used to build share links and notifications. It will be detected if empty."
+    "other": "Servera saite kuru lieto lai veidotu koplietošanas saites un paziņojumus. Tiks noteikta ja ir tukša."
   },
   "Session credentials": {
-    "other": "Session credentials"
+    "other": "Sesijas akreditācijas dati"
   },
   "Set this repository group owner : only users of this group will see it": {
-    "other": "Set this repository group owner : only users of this group will see it"
+    "other": "Iestatīts repozitorija grupas īpašnieku : redzēs tikai grupas lietotāji"
   },
   "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).": {
-    "other": "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac). If you still have issue, you can add //TRANSLIT after the encoding string to force transliteration of unknown characters in your target encoding (example CP437//TRANSLIT)."
+    "other": "Iestatīt kodējumu (mēģiniet IBM850 vai CP437) failu nosaukumiem lai labot nosaukumus Zip failu veidošanas laikā. Tas var izveidot ar sistēmām nesavienojamus arhīvus (Win/Mac). Ja tiek novērotas problēmas pēc kodēšanas saites var pievienot //TRANSLIT lai izmantotu piespiedu transliterāciju nezināmiem simboliem (piemēram CP437//TRANSLIT)."
   },
   "Shares Host": {
-    "other": "Shares Host"
+    "other": "Koplietošanas serveris"
   },
   "Shares URI": {
-    "other": "Shares URI"
+    "other": "Koplieotšanas saites"
   },
   "Sharing": {
-    "other": "Sharing"
+    "other": "Koplietošana"
   },
   "Show files beginning with a .": {
-    "other": "Show files beginning with a ."
+    "other": "Rādīt failus kuri sākas ar a ."
   },
   "Show hidden files": {
-    "other": "Show hidden files"
+    "other": "Rādīt slēptos failus"
   },
   "Skip auto-update admin rights": {
-    "other": "Skip auto-update admin rights"
+    "other": "Izlaist automātisku administratoru atļauju atjaunošanu"
   },
   "Small Icon": {
-    "other": "Small Icon"
+    "other": "Maza ikona"
   },
   "Template Options": {
-    "other": "Template Options"
+    "other": "Šablona opcijas"
   },
   "Temporary Folder": {
-    "other": "Temporary Folder"
+    "other": "Pagaidu failu direktorija"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
-    "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
+    "other": "Šis autentifikācijas veids ir mazāk drošs, bet nepieprasīs lietotājiem ievadīt paroli vairākas reizes."
   },
   "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder": {
-    "other": "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder"
+    "other": "Nepieciešams tikai ja ir kļūdas tmp direktorijas piekļuvē vai rakstīšanā : vizdrīzāk PHP SAFE MODE (nav jābūt php6 versijā) vai OPEN_BASEDIR ierobežojumi. Šajā gadījumā izveidojiet iestatiet lai ir ierakstāma tmp direktorija pamata datu direktorijā uz serbera (bet ja iespējams virs web/ vai www/ vai http/ direktorijas!!!) un ievadiet pilnu ceļu uz šo direktoriju"
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "This right pattern (empty, r, or rw) will be applied at user creation for this workspace."
+    "other": "Izmantos šo pieraksta veidu (empty, r vai rw) veidojot lietotāju šai darbvirsmai."
   },
   "Token URL": {
-    "other": "Token URL"
+    "other": "Koda saite"
   },
   "Transmit Clear Pass": {
-    "other": "Transmit Clear Pass"
+    "other": "Sūtīt nešifrētu paroli"
   },
   "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!": {
-    "other": "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!"
+    "other": "Mēģiniet izmantot esošos Pydio pieslēgšanās datus. Uzmanību, PYDIO_SESSION_SET_CREDENTIALS konfigurācijai jābūt iestatītai kā true!"
   },
   "URI where to serve the public links": {
-    "other": "URI where to serve the public links"
+    "other": "Saite uz kuras ir publiskās saites"
   },
   "Use COM class": {
-    "other": "Use COM class"
+    "other": "Lietot COM klasi"
   },
   "Use MySQLi": {
-    "other": "Use MySQLi"
+    "other": "Lietot MySQLi"
   },
   "Use PHP MySQLi extension": {
-    "other": "Use PHP MySQLi extension"
+    "other": "Lietot PHP MySQLi paplašinājumu"
   },
   "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions.": {
-    "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
+    "other": "Lietot Pydio ar komandrindu ļaujot CRONTAB uzdevumus vai fona darbības."
   },
   "User": {
-    "other": "User"
+    "other": "Lietotājs"
   },
   "User Credentials": {
-    "other": "User Credentials"
+    "other": "Lietot akreditācijas datus"
   },
   "User name": {
-    "other": "User name"
+    "other": "Lietotājvārds"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
-    "other": "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)"
+    "other": "Lietotājvārds - Var mainīt pēc nepieciešamības katram lietotājam (skatīt 'Personīgie dati' tabu)"
   },
   "User password": {
-    "other": "User password"
+    "other": "Lietotāja parole"
   },
   "User password - Can be overriden on a per-user basis.": {
-    "other": "User password - Can be overriden on a per-user basis."
+    "other": "Lietotāja parole - Var pielāgot katram lietotājam."
   },
   "WebDAV Server": {
-    "other": "WebDAV Server"
+    "other": "WebDAV Serveris"
   },
   "When a folder will contain more items than this number, display will switch to pagination mode, for better performances.": {
-    "other": "When a folder will contain more items than this number, display will switch to pagination mode, for better performances."
+    "other": "Ja direktorijā ir vairāk failu par noteikto skaitu, tiks ieslēgts vairāku lapu režīms lai paaugstinātu ātrdarbību."
   },
   "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems.": {
-    "other": "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems."
+    "other": "Ja ir ieslēgts, lietotāja objekti tiks izveidoti automātiski ja ir veiksmīga autentifikācija. Lieto autentifikācijai attālinātās sistēmās."
   },
   "Whether the password will be transmitted clear or encoded between the client and the server": {
-    "other": "Whether the password will be transmitted clear or encoded between the client and the server"
+    "other": "Vai parole tiks nosūtīta lasāmā tekstā vai šifrēta starp klientu un serveri"
   },
   "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable.": {
-    "other": "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable."
+    "other": "Vai parādīt miskastes direktoriju. Direktorija būs slēpta un ierakstāma."
   },
   "Write Only (upload)": {
-    "other": "Write Only (upload)"
+    "other": "Tikai ierakstīt (augšupielāde)"
   },
   "Your application title": {
-    "other": "This title will appear as the window title, in the splash screen."
+    "other": "Nosaukums tiks parādīts loga nosaukumā, uzlecošajā logā."
   },
   "Zip Creation": {
-    "other": "Zip Creation"
+    "other": "Zip izveidošana"
   },
   "Zip Encoding": {
-    "other": "Zip Encoding"
+    "other": "Zip šifrēšana"
   }
 }

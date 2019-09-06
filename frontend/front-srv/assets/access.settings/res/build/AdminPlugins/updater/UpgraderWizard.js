@@ -60,7 +60,6 @@ var _UpgraderResources = require("./UpgraderResources");
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
-var moment = _Pydio$requireLib.moment;
 var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
 
 var Styles = {
@@ -88,14 +87,6 @@ var UpgraderWizard = (function (_React$Component) {
             versionsNoMatch: [],
             versionError: null,
             watchJob: null,
-            upgradePerformed: false
-        };
-        // TODO REMOVE THIS IS FOR DEBUGGING
-        this.state = {
-            step: 'ad',
-            acceptEula: true,
-            licenseKey: "A LICENSE KEY HERE",
-            versionAvailable: false,
             upgradePerformed: false
         };
     }
@@ -188,19 +179,24 @@ var UpgraderWizard = (function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
-            var _state = this.state;
-            var step = _state.step;
-            var upgradePerformed = _state.upgradePerformed;
-            var open = this.props.open;
+            var step = this.state.step;
+            var _props = this.props;
+            var open = _props.open;
+            var pydio = _props.pydio;
+            var muiTheme = _props.muiTheme;
 
             var cardMessage = function cardMessage(id) {
                 return pydio.MessageHash['admin_dashboard.' + id];
             };
-            var accent2Color = this.props.muiTheme.palette.accent2Color;
+            var accent2Color = muiTheme.palette.accent2Color;
+
+            var m = function m(id) {
+                return pydio.MessageHash['updater.upgrade.ed.' + id] || id;
+            };
 
             var content = undefined,
                 actions = undefined;
-            var title = "Upgrade to Cells Enterprise";
+            var title = m('title');
             switch (step) {
                 case "ad":
 
@@ -229,9 +225,9 @@ var UpgraderWizard = (function (_React$Component) {
                             window.open('https://pydio.com/en/features/pydio-cells-overview');
                         } }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             return _this3.dismiss();
-                        }, label: "Cancel", primary: false }), _react2['default'].createElement(_materialUi.RaisedButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.RaisedButton, { onTouchTap: function () {
                             _this3.next('eula');
-                        }, label: "Start", primary: true })];
+                        }, label: m('button.start'), primary: true })];
                     break;
 
                 case "eula":
@@ -243,18 +239,19 @@ var UpgraderWizard = (function (_React$Component) {
                         _react2['default'].createElement(
                             'h5',
                             null,
-                            '1. Please Accept End-User License Agreement'
+                            '1. ',
+                            m('eula.title')
                         ),
                         _react2['default'].createElement(_reactMarkdown2['default'], { source: _UpgraderResources.EnterpriseDistEULA }),
-                        _react2['default'].createElement(_materialUi.Checkbox, { label: "I thereby accept this EULA", checked: acceptEula, onCheck: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Checkbox, { label: m('eula.check'), checked: acceptEula, onCheck: function (e, v) {
                                 _this3.setState({ acceptEula: v });
                             } })
                     );
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             return _this3.dismiss();
-                        }, label: "Cancel", primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this3.next('license');
-                        }, label: "Next", primary: true, disabled: !acceptEula })];
+                        }, label: m('button.next'), primary: true, disabled: !acceptEula })];
                     break;
 
                 case "license":
@@ -266,12 +263,14 @@ var UpgraderWizard = (function (_React$Component) {
                         _react2['default'].createElement(
                             'h5',
                             null,
-                            '2. Enter a valid license key (provided by a Pydio sales representative).'
+                            '2. ',
+                            m('key.title')
                         ),
                         _react2['default'].createElement(
                             'div',
                             null,
-                            'If you do not own one, you can receive a trial key by contacting sales using the button below or directly via ',
+                            m('key.legend'),
+                            ' ',
                             _react2['default'].createElement(
                                 'a',
                                 { href: "mailto:services@pydio.com" },
@@ -283,7 +282,7 @@ var UpgraderWizard = (function (_React$Component) {
                             onChange: function (e, v) {
                                 _this3.setState({ licenseKey: v });
                             },
-                            floatingLabelText: "Paste key here...",
+                            floatingLabelText: m('key.hint'),
                             floatingLabelFixed: true,
                             multiLine: true,
                             rowsMax: 16,
@@ -295,17 +294,17 @@ var UpgraderWizard = (function (_React$Component) {
                             window.open('https://pydio.com/en/pricing/contact');
                         }, secondary: true }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             return _this3.dismiss();
-                        }, label: "Cancel", primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this3.next('check');
-                        }, label: "Next", primary: true, disabled: !licenseKey })];
+                        }, label: m('button.next'), primary: true, disabled: !licenseKey })];
                     break;
 
                 case "check":
-                    var _state2 = this.state,
-                        versionLoading = _state2.versionLoading,
-                        versionAvailable = _state2.versionAvailable,
-                        versionsNoMatch = _state2.versionsNoMatch,
-                        versionError = _state2.versionError;
+                    var _state = this.state,
+                        versionLoading = _state.versionLoading,
+                        versionAvailable = _state.versionAvailable,
+                        versionsNoMatch = _state.versionsNoMatch,
+                        versionError = _state.versionError;
 
                     content = _react2['default'].createElement(
                         'div',
@@ -316,7 +315,8 @@ var UpgraderWizard = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'h5',
                                 null,
-                                '3. Looking for the closest Cells Enterprise version'
+                                '3. ',
+                                m('version.loading')
                             ),
                             _react2['default'].createElement(
                                 'div',
@@ -330,12 +330,14 @@ var UpgraderWizard = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'h5',
                                 null,
-                                '3. Cannot load available versions for Cells Enterprise!'
+                                '3. ',
+                                m('version.error')
                             ),
                             _react2['default'].createElement(
                                 'div',
                                 null,
-                                'Error was: ',
+                                m('version.error.string'),
+                                ' : ',
                                 versionError
                             )
                         ),
@@ -345,9 +347,8 @@ var UpgraderWizard = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'h5',
                                 null,
-                                '3. Ready to install ',
-                                versionAvailable.Label,
-                                '!'
+                                '3. ',
+                                m('version.available').replace('%s', versionAvailable.Label)
                             ),
                             _react2['default'].createElement(
                                 'div',
@@ -355,7 +356,7 @@ var UpgraderWizard = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'u',
                                     null,
-                                    'Released'
+                                    m('version.released')
                                 ),
                                 ': ',
                                 new Date(versionAvailable.ReleaseDate * 1000).toISOString(),
@@ -363,7 +364,7 @@ var UpgraderWizard = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'u',
                                     null,
-                                    'Architecture'
+                                    m('version.arch')
                                 ),
                                 ': ',
                                 versionAvailable.BinaryOS,
@@ -373,7 +374,7 @@ var UpgraderWizard = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'u',
                                     null,
-                                    'Description'
+                                    m('version.description')
                                 ),
                                 ': ',
                                 versionAvailable.Description,
@@ -382,7 +383,7 @@ var UpgraderWizard = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'p',
                                 null,
-                                'Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under CELLS_CONFIG/services/pydio.grpc.update), if you need to recover it.'
+                                m('version.legend').replace('%s', 'CELLS_CONFIG/services/pydio.grpc.update')
                             )
                         ),
                         !versionAvailable && versionsNoMatch && versionsNoMatch.length > 0 && _react2['default'].createElement(
@@ -391,14 +392,15 @@ var UpgraderWizard = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'h5',
                                 null,
-                                '3. Could not find a similar version for Cells Enterprise!'
+                                '3. ',
+                                m('version.nomatch')
                             ),
                             _react2['default'].createElement(
                                 'div',
                                 null,
-                                'To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version.',
+                                m('version.nomatch.legend1'),
                                 _react2['default'].createElement('br', null),
-                                'Please first update your current version to one of the following, then retry upgrading to Cells Enterprise.',
+                                m('version.nomatch.legend2'),
                                 _react2['default'].createElement(
                                     'ul',
                                     null,
@@ -416,9 +418,9 @@ var UpgraderWizard = (function (_React$Component) {
                     );
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             return _this3.dismiss();
-                        }, label: "Cancel", primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this3.next('perform');
-                        }, label: "Next", primary: true, disabled: !versionAvailable })];
+                        }, label: m('button.install'), primary: true, disabled: !versionAvailable })];
                     break;
 
                 case "perform":
@@ -441,13 +443,13 @@ var UpgraderWizard = (function (_React$Component) {
                         content = _react2['default'].createElement(
                             'div',
                             { style: Styles.body },
-                            'Launching upgrade please wait...'
+                            m('installing')
                         );
                     }
 
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             return _this3.dismiss();
-                        }, label: "Close", primary: true })];
+                        }, label: m('button.close'), primary: true })];
                     break;
 
                 default:

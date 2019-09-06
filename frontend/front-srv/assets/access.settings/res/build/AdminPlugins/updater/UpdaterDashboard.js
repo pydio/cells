@@ -133,7 +133,7 @@ var UpdaterDashboard = _react2['default'].createClass({
         var packages = _state.packages;
 
         if (check < 0 || !packages[check]) {
-            alert('Please select at least one package!');
+            alert(this.context.getMessage('alert.noselect', 'updater'));
             return;
         }
 
@@ -261,7 +261,7 @@ var UpdaterDashboard = _react2['default'].createClass({
         }
 
         if (dirty) {
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: { marginLeft: 10 }, secondary: true, label: "Save Configs", onTouchTap: function () {
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: { marginLeft: 10 }, secondary: true, label: this.context.getMessage('configs.save', 'updater'), onTouchTap: function () {
                     _this3.refs.serviceConfigs.save().then(function (res) {
                         _this3.setState({ dirty: false });
                     });
@@ -273,7 +273,7 @@ var UpdaterDashboard = _react2['default'].createClass({
         if (backend.PackageType === "PydioHome" && backend.Version) {
             upgradeWizard = _react2['default'].createElement(_UpgraderWizard2['default'], { open: this.state.upgradeDialog, onDismiss: function () {
                     return _this3.setState({ upgradeDialog: false });
-                }, currentVersion: backend.Version });
+                }, currentVersion: backend.Version, pydio: this.props.pydio });
             versionLabel = _react2['default'].createElement(
                 'span',
                 null,
@@ -284,7 +284,9 @@ var UpdaterDashboard = _react2['default'].createClass({
                     { style: { color: accent2Color, cursor: 'pointer' }, onClick: function () {
                             return _this3.setState({ upgradeDialog: true });
                         } },
-                    '> Upgrade to Cells Enterprise...'
+                    '> ',
+                    this.context.getMessage('upgrade.ed.title', 'updater'),
+                    '...'
                 )
             );
         }
@@ -318,9 +320,9 @@ var UpdaterDashboard = _react2['default'].createClass({
                         _react2['default'].createElement(_materialUi.ListItem, { primaryText: versionLabel, disabled: true, secondaryTextLines: 2, secondaryText: _react2['default'].createElement(
                                 'span',
                                 null,
-                                "Released : " + backend.BuildStamp,
+                                this.context.getMessage('package.released', 'updater') + " : " + backend.BuildStamp,
                                 _react2['default'].createElement('br', null),
-                                "Revision : " + backend.BuildRevision
+                                this.context.getMessage('package.revision', 'updater') + " : " + backend.BuildRevision
                             ) })
                     )
                 ),

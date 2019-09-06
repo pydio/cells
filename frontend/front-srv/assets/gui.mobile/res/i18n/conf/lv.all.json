@@ -1,32 +1,32 @@
 {
   "1.android": {
-    "other": "There is a native APPLICATION_TITLE client available for accessing %s on Android OS."
+    "other": "Ir pieejama APPLICATION_TITLE klienta aplikācija lai piekļūtu %s uz Android OS sistēmas."
   },
   "1.ios": {
-    "other": "There is a native application available for accessing %s through iPhone/iPad!"
+    "other": "Ir pieejama klienta aplikācija lai piekļūtu %s ar iPhone/iPad!"
   },
   "2.android": {
-    "other": "I have it already, open it and add this server to my preconfigured remote servers"
+    "other": "Man jau tā ir, atvērt to un pievienot šo serveri jau pie esošajiem saglabātajiem serveriem"
   },
   "2.ios": {
-    "other": "I have it already, open it and add this server to my remote servers"
+    "other": "Man jau tā ir, atvērt to un pievienot šo serveri jau pie esošajiem saglabātajiem serveriem"
   },
   "3.android": {
-    "other": "I don't have it, send me to the Play Store now!"
+    "other": "Man tās nav, pāriet uz Play Store veikalu!"
   },
   "3.ios": {
-    "other": "I don't have it, send me to the App Store now!"
+    "other": "Man tās nav, pāriet uz App Store veikalu!"
   },
   "4.android": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "Turpināt izmantot %s web versiju."
   },
   "4.ios": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "Turpināt izmantot %s web versiju."
   },
   "Mobile": {
-    "other": "Mobile"
+    "other": "Mobilais"
   },
   "Template extending gui.ajax for small screen terminals.": {
-    "other": "Template extending gui.ajax for small screen terminals."
+    "other": "Šablona paplašinājums gui.ajax priekš maza ekrāna izmēra termināliem."
   }
 }

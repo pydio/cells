@@ -22,9 +22,12 @@
 package rest
 
 import (
+	"context"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/idm/share"
 )
 
 func init() {
@@ -40,6 +43,14 @@ func init() {
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, []string{}),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.ValidVersion("1.6.2"),
+					Up: func(ctx context.Context) error {
+						return share.ClearLostHiddenUsers(ctx)
+					},
+				},
+			}),
 			service.WithWeb(func() service.WebHandler {
 				return NewSharesHandler()
 			}),

@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
@@ -26,8 +30,8 @@ func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.
 	uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 	roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
 	if link.UserLogin == "" {
-		newUuid := strings.Replace(uuid.NewUUID().String(), "-", "", -1)
-		login := newUuid[0:16]
+		newUuid := uuid.New()
+		login := strings.Replace(newUuid, "-", "", -1)[0:16]
 		password := login + PasswordComplexitySuffix
 		if passwordEnabled {
 			if len(updatePassword) == 0 {
@@ -165,5 +169,55 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 		}
 	}
 
+	return nil
+}
+
+// DeleteHiddenUser removes hidden user associated with this link
+func DeleteHiddenUser(ctx context.Context, link *rest.ShareLink) error {
+	if link.UserLogin == "" {
+		return nil
+	}
+	uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: link.UserLogin})
+	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
+	_, e := uClient.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{
+		SubQueries: []*any.Any{q1, q2},
+		Operation:  service.OperationType_AND,
+	}})
+	return e
+}
+
+// ClearLostHiddenUsers makes sure that hidden users that are not linked to any existing link
+// are removed. This is used during a migration to fix the missing users deletion prior to v2.0.0
+func ClearLostHiddenUsers(ctx context.Context) error {
+
+	log.Logger(ctx).Info("Migration: looking for hidden users unlinked from any public link")
+
+	// List hidden users and check for their associated links
+	uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
+	stream, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
+	if e != nil {
+		return e
+	}
+	defer stream.Close()
+	for {
+		resp, er := stream.Recv()
+		if er != nil {
+			break
+		}
+		if doc, er := SearchHashDocumentForUser(ctx, resp.User.Login); er == nil && doc != nil {
+			log.Logger(ctx).Debug("Found Link for user", resp.User.ZapLogin(), zap.Any("doc", doc))
+		} else if er == nil && doc == nil {
+			deleteQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: resp.User.Uuid})
+			if _, e := uClient.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*any.Any{deleteQ}}}); e != nil {
+				log.Logger(ctx).Error("Error while trying to delete lost hidden user", resp.User.ZapLogin(), zap.Error(e))
+			} else {
+				log.Logger(ctx).Info("Found and deleted hidden User without any link attached!", resp.User.ZapLogin())
+			}
+		} else if er != nil {
+			log.Logger(ctx).Error("Cannot load docs for user", resp.User.ZapLogin(), zap.Error(er))
+		}
+	}
 	return nil
 }

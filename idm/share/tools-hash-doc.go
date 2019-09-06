@@ -55,7 +55,7 @@ func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.Shar
 	} else {
 		hashDoc.PreLogUser = link.UserLogin
 	}
-	hashDoc.PreUserUuid = link.Uuid
+	hashDoc.PreUserUuid = link.UserUuid
 
 	if link.TargetUsers != nil && len(link.TargetUsers) > 0 {
 		hashDoc.TargetUsers = make(map[string]*docstore.TargetUserEntry)
@@ -179,4 +179,59 @@ func DeleteHashDocument(ctx context.Context, shareId string) error {
 	}
 	return nil
 
+}
+
+// SearchHashDocumentForUser searches the DocStore to find documents that have either PRELOG_USER or PRESET_LOGIN with
+// the passed userLogin value.
+func SearchHashDocumentForUser(ctx context.Context, userLogin string) (*docstore.ShareDocument, error) {
+
+	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+
+	// SEARCH PUBLIC
+	streamer, err := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DOCSTORE_ID_SHARES, Query: &docstore.DocumentQuery{
+		MetaQuery: "+PRELOG_USER:\"" + userLogin + "\" +SHARE_TYPE:minisite",
+	}})
+	if err != nil {
+		return nil, err
+	}
+	var linkData *docstore.ShareDocument
+	defer streamer.Close()
+	for {
+		resp, e := streamer.Recv()
+		if e != nil {
+			break
+		}
+		if resp.Document != nil {
+			if err := json.Unmarshal([]byte(resp.Document.Data), &linkData); err != nil {
+				return nil, err
+			}
+			break
+		}
+	}
+	if linkData != nil {
+		return linkData, nil
+	}
+
+	// SEARCH PASSWORD PROTECTED
+	streamer1, err := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DOCSTORE_ID_SHARES, Query: &docstore.DocumentQuery{
+		MetaQuery: "+PRESET_LOGIN:\"" + userLogin + "\" +SHARE_TYPE:minisite",
+	}})
+	if err != nil {
+		return nil, err
+	}
+	defer streamer1.Close()
+	for {
+		resp, e := streamer1.Recv()
+		if e != nil {
+			break
+		}
+		if resp.Document != nil {
+			if err := json.Unmarshal([]byte(resp.Document.Data), &linkData); err != nil {
+				return nil, err
+			}
+			break
+		}
+	}
+
+	return linkData, nil
 }

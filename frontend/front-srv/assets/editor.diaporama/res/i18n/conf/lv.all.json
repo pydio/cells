@@ -1,44 +1,44 @@
 {
   "Exif Rotation": {
-    "other": "Exif Rotation"
+    "other": "Exif rotācija"
   },
   "Generate thumbnails or not": {
-    "other": "Generate thumbnails or not"
+    "other": "Ģenerēt vai neģenerēt priekšskats attēlus"
   },
   "Image viewer": {
-    "other": "Image viewer"
+    "other": "Attēlu pārlūks"
   },
   "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
-    "other": "Image viewer, used for previewing images and browsing them in a diaporama. Generates a thumbnail version of the images."
+    "other": "Attēlu pārlūks, lieto lai apskatītu un pārlūkotu attēlus lietojot diaporama. Ģenerē attēlu priekšskata bildes."
   },
   "Low-res Sizes": {
-    "other": "Low-res Sizes"
+    "other": "Mazas rezolūcijas izmēri"
   },
   "Quality": {
-    "other": "Quality"
+    "other": "Kvalitāte"
   },
   "Remote Wrappers": {
     "other": "Remote Wrappers"
   },
   "Rotate image using exif rotation": {
-    "other": "Rotate image using exif rotation"
+    "other": "Pagriezt attēlu izmantojot exif informāciju"
   },
   "Size Threshold": {
-    "other": "Size Threshold"
+    "other": "Apjoma slieksnis"
   },
   "Threshold": {
-    "other": "Threshold"
+    "other": "Slieksnis"
   },
   "Threshold for low-res versions of images": {
-    "other": "Threshold for low-res versions of images"
+    "other": "Mazas izšķirtspējas attēlu izmēra slieksnis"
   },
   "Thumbnails": {
-    "other": "Thumbnails"
+    "other": "Sīktēli"
   },
   "Thumbs quality": {
-    "other": "Thumbs quality"
+    "other": "Sīktēlu kvalitāte"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."
+    "other": "Kad pieslēdzas attālinātam serverim, exif datu iegūšana var paildzināt attēlu saraksta izveidošanu, jo vispirms ir jāpārkopē katrs fails lokāli. Spraudņiem lietojot definētus iepakojumus and failus kuru izmērs ir lielāks par ši ierobežojumu, attēla veids un izmēri tiks izlaisti."
   }
 }
