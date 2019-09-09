@@ -449,6 +449,28 @@ func TestManyDupsInMove(t *testing.T) {
 
 }
 
+func TestFailingMove1(t *testing.T) {
+
+	Convey("SNAP - Pydio Core folder moved inside folder", t, func() {
+
+		diff, e := diffFromSnaps("move-pycore")
+		So(e, ShouldBeNil)
+		patch := newTreePatch(diff.left, diff.right.(model.PathSyncTarget), PatchOptions{MoveDetection: true})
+		e = diff.ToUnidirectionalPatch(model.DirectionRight, patch)
+		So(e, ShouldBeNil)
+
+		patch.Filter(context.Background())
+		moves := patch.OperationsByType([]OperationType{OpMoveFolder})
+		So(moves, ShouldHaveLength, 1)
+		fMoves := patch.OperationsByType([]OperationType{OpMoveFile})
+		So(fMoves, ShouldHaveLength, 0)
+		So(patch.OperationsByType([]OperationType{OpDelete}), ShouldHaveLength, 0)
+		So(patch.OperationsByType([]OperationType{OpCreateFolder}), ShouldHaveLength, 0)
+		So(patch.OperationsByType([]OperationType{OpCreateFile}), ShouldHaveLength, 0)
+	})
+
+}
+
 func TestRescanFolders(t *testing.T) {
 	Convey("Test untold events", t, func() {
 		source, target := memory.NewMemDB(), memory.NewMemDB()

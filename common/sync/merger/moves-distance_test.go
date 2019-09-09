@@ -21,6 +21,7 @@
 package merger
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/pydio/cells/common/sync/model"
@@ -306,6 +307,151 @@ func TestSortClosestMove(t *testing.T) {
 			}
 		}
 		convey.So(keys, convey.ShouldEqual, 4)
+	})
+
+}
+
+func TestSortClosestMove2(t *testing.T) {
+
+	convey.Convey("Test SortClosestMoves2", t, func() {
+
+		moves := sortClosestMoves([]*Move{
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/pydio-moved/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png"},
+				},
+			},
+		})
+
+		convey.So(moves, convey.ShouldHaveLength, 2)
+		for _, m := range moves {
+			if strings.Contains(m.deleteOp.GetRefPath(), "16") {
+				convey.So(strings.Contains(m.createOp.GetRefPath(), "16"), convey.ShouldBeTrue)
+			} else if strings.Contains(m.deleteOp.GetRefPath(), "64") {
+				convey.So(strings.Contains(m.createOp.GetRefPath(), "64"), convey.ShouldBeTrue)
+			}
+		}
+	})
+
+	convey.Convey("Test SortClosestMoves2 - high level", t, func() {
+
+		moves := sortClosestMoves([]*Move{
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/moved/16/word.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/moved/16/word.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/moved/64/word.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/moved/64/word.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png"},
+				},
+			},
+		})
+
+		convey.So(moves, convey.ShouldHaveLength, 2)
+		for _, m := range moves {
+			if strings.Contains(m.deleteOp.GetRefPath(), "16") {
+				convey.So(strings.Contains(m.createOp.GetRefPath(), "16"), convey.ShouldBeTrue)
+			} else if strings.Contains(m.deleteOp.GetRefPath(), "64") {
+				convey.So(strings.Contains(m.createOp.GetRefPath(), "64"), convey.ShouldBeTrue)
+			}
+		}
+	})
+
+	convey.Convey("Test SortClosestMoves2 - name", t, func() {
+
+		moves := sortClosestMoves([]*Move{
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/16/wording.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/16/wording.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/64/wording.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/16/word.png"},
+				},
+			},
+			{
+				createOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/64/wording.png"},
+				},
+				deleteOp: &patchOperation{
+					EventInfo: model.EventInfo{Path: "/plugins/gui.ajax/res/themes/common/images/mimes/64/word.png"},
+				},
+			},
+		})
+
+		convey.So(moves, convey.ShouldHaveLength, 2)
+		for _, m := range moves {
+			if strings.Contains(m.deleteOp.GetRefPath(), "16") {
+				convey.So(strings.Contains(m.createOp.GetRefPath(), "16"), convey.ShouldBeTrue)
+			} else if strings.Contains(m.deleteOp.GetRefPath(), "64") {
+				convey.So(strings.Contains(m.createOp.GetRefPath(), "64"), convey.ShouldBeTrue)
+			}
+		}
 	})
 
 }

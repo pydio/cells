@@ -78,6 +78,9 @@ func (m *Move) Closeness() int {
 	// Overall path similarity
 	lParts := strings.Split(left, sep)
 	rParts := strings.Split(right, sep)
+	reverseStringSlice(lParts)
+	reverseStringSlice(rParts)
+
 	max := math.Max(float64(len(lParts)), float64(len(rParts)))
 	dist := 1
 	for i := 0; i < int(max); i++ {
@@ -140,4 +143,11 @@ func sortClosestMoves(possibleMoves []*Move) (moves []*Move) {
 	}
 
 	return
+}
+
+func reverseStringSlice(ss []string) {
+	last := len(ss) - 1
+	for i := 0; i < len(ss)/2; i++ {
+		ss[i], ss[last-i] = ss[last-i], ss[i]
+	}
 }
