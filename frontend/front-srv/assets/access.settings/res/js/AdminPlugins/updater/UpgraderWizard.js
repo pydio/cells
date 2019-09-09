@@ -51,7 +51,7 @@ class UpgraderWizard extends React.Component{
             versionLoading: false,
             versionAvailable: false,
             versionsNoMatch:[],
-            versionError: null,
+            versionError: undefined,
             watchJob: null,
             upgradePerformed: false
         };
@@ -65,7 +65,7 @@ class UpgraderWizard extends React.Component{
             licenseKey: null,
             versionLoading: false,
             versionAvailable: false,
-            versionError: null,
+            versionError: undefined,
             watchJob: null,
             upgradePerformed: false,
         });
@@ -75,7 +75,10 @@ class UpgraderWizard extends React.Component{
         this.setState({step: step});
         if(step === "check"){
             const {licenseKey} = this.state;
-            this.findVersion(licenseKey);
+            this.findVersion(licenseKey).catch(e => {
+                // Revert to previous step.
+                this.setState({step: 'license'})
+            });
         } else if(step === "perform"){
             const {versionAvailable} = this.state;
             this.applyUpgrade(versionAvailable.Version);
@@ -90,7 +93,7 @@ class UpgraderWizard extends React.Component{
         request.LicenseInfo = {Key:licenseKey, Save:"true"};
         Pydio.startLoading();
         this.setState({versionLoading: true});
-        api.updateRequired(request).then(res => {
+        return api.updateRequired(request).then(res => {
             Pydio.endLoading();
             if (res.AvailableBinaries) {
                 const noMatches = [];
@@ -107,6 +110,7 @@ class UpgraderWizard extends React.Component{
         }).catch((e) => {
             Pydio.endLoading();
             this.setState({versionLoading: false, versionError: e.message});
+            throw e;
         });
     }
 
@@ -184,7 +188,11 @@ class UpgraderWizard extends React.Component{
 
             case "license":
 
-                const {licenseKey} = this.state;
+                const {licenseKey, versionError} = this.state;
+                let errorText;
+                if(versionError){
+                    errorText = m('version.error') +  ' : ' + versionError;
+                }
                 content = (
                     <div style={Styles.body}>
                         <h5>2. {m('key.title')}</h5>
@@ -192,13 +200,14 @@ class UpgraderWizard extends React.Component{
                         </div>
                         <TextField
                             value={licenseKey}
-                            onChange={(e,v)=>{this.setState({licenseKey: v})}}
+                            onChange={(e,v)=>{this.setState({licenseKey: v, versionError: undefined})}}
                             floatingLabelText={m('key.hint')}
                             floatingLabelFixed={true}
                             multiLine={true}
                             rowsMax={16}
                             rows={10}
                             fullWidth={true}
+                            errorText={errorText}
                         />
                     </div>
                 );
@@ -211,19 +220,13 @@ class UpgraderWizard extends React.Component{
 
             case "check":
 
-                const {versionLoading, versionAvailable, versionsNoMatch, versionError} = this.state;
+                const {versionLoading, versionAvailable, versionsNoMatch} = this.state;
                 content = (
                     <div style={Styles.body}>
                         {versionLoading &&
                             <div>
                                 <h5>3. {m('version.loading')}</h5>
                                 <div style={{display:'flex', width: '100%', height: 320, alignItems:'center', justifyContent:'center'}}><CircularProgress/></div>
-                            </div>
-                        }
-                        {versionError &&
-                            <div>
-                                <h5>3. {m('version.error')}</h5>
-                                <div>{m('version.error.string')} : {versionError}</div>
                             </div>
                         }
                         {versionAvailable &&

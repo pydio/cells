@@ -2509,7 +2509,7 @@ var UpgraderWizard = (function (_React$Component) {
             versionLoading: false,
             versionAvailable: false,
             versionsNoMatch: [],
-            versionError: null,
+            versionError: undefined,
             watchJob: null,
             upgradePerformed: false
         };
@@ -2525,7 +2525,7 @@ var UpgraderWizard = (function (_React$Component) {
                 licenseKey: null,
                 versionLoading: false,
                 versionAvailable: false,
-                versionError: null,
+                versionError: undefined,
                 watchJob: null,
                 upgradePerformed: false
             });
@@ -2533,11 +2533,16 @@ var UpgraderWizard = (function (_React$Component) {
     }, {
         key: 'next',
         value: function next(step) {
+            var _this = this;
+
             this.setState({ step: step });
             if (step === "check") {
                 var licenseKey = this.state.licenseKey;
 
-                this.findVersion(licenseKey);
+                this.findVersion(licenseKey)['catch'](function (e) {
+                    // Revert to previous step.
+                    _this.setState({ step: 'license' });
+                });
             } else if (step === "perform") {
                 var versionAvailable = this.state.versionAvailable;
 
@@ -2547,7 +2552,7 @@ var UpgraderWizard = (function (_React$Component) {
     }, {
         key: 'findVersion',
         value: function findVersion(licenseKey) {
-            var _this = this;
+            var _this2 = this;
 
             var currentVersion = this.props.currentVersion;
 
@@ -2557,31 +2562,32 @@ var UpgraderWizard = (function (_React$Component) {
             request.LicenseInfo = { Key: licenseKey, Save: "true" };
             _pydio2['default'].startLoading();
             this.setState({ versionLoading: true });
-            api.updateRequired(request).then(function (res) {
+            return api.updateRequired(request).then(function (res) {
                 _pydio2['default'].endLoading();
                 if (res.AvailableBinaries) {
                     (function () {
                         var noMatches = [];
                         res.AvailableBinaries.forEach(function (bin) {
                             if (currentVersion === bin.Version) {
-                                _this.setState({ versionAvailable: bin });
+                                _this2.setState({ versionAvailable: bin });
                             } else {
                                 noMatches.push(bin);
                             }
                         });
-                        _this.setState({ versionsNoMatch: noMatches });
+                        _this2.setState({ versionsNoMatch: noMatches });
                     })();
                 }
-                _this.setState({ versionLoading: false });
+                _this2.setState({ versionLoading: false });
             })['catch'](function (e) {
                 _pydio2['default'].endLoading();
-                _this.setState({ versionLoading: false, versionError: e.message });
+                _this2.setState({ versionLoading: false, versionError: e.message });
+                throw e;
             });
         }
     }, {
         key: 'applyUpgrade',
         value: function applyUpgrade(version) {
-            var _this2 = this;
+            var _this3 = this;
 
             var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
             var req = new _pydioHttpRestApi.UpdateApplyUpdateRequest();
@@ -2589,7 +2595,7 @@ var UpgraderWizard = (function (_React$Component) {
             req.TargetVersion = version;
             api.applyUpdate(version, req).then(function (res) {
                 if (res.Success) {
-                    _this2.setState({ watchJob: res.Message });
+                    _this3.setState({ watchJob: res.Message });
                 } else {
                     pydio.UI.displayMessage('ERROR', res.Message);
                 }
@@ -2601,7 +2607,7 @@ var UpgraderWizard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var step = this.state.step;
             var _props = this.props;
@@ -2648,9 +2654,9 @@ var UpgraderWizard = (function (_React$Component) {
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.more'), onTouchTap: function () {
                             window.open('https://pydio.com/en/features/pydio-cells-overview');
                         } }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            return _this3.dismiss();
+                            return _this4.dismiss();
                         }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.RaisedButton, { onTouchTap: function () {
-                            _this3.next('eula');
+                            _this4.next('eula');
                         }, label: m('button.start'), primary: true })];
                     break;
 
@@ -2668,19 +2674,25 @@ var UpgraderWizard = (function (_React$Component) {
                         ),
                         _react2['default'].createElement(_reactMarkdown2['default'], { source: _UpgraderResources.EnterpriseDistEULA }),
                         _react2['default'].createElement(_materialUi.Checkbox, { label: m('eula.check'), checked: acceptEula, onCheck: function (e, v) {
-                                _this3.setState({ acceptEula: v });
+                                _this4.setState({ acceptEula: v });
                             } })
                     );
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            return _this3.dismiss();
+                            return _this4.dismiss();
                         }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this3.next('license');
+                            _this4.next('license');
                         }, label: m('button.next'), primary: true, disabled: !acceptEula })];
                     break;
 
                 case "license":
-                    var licenseKey = this.state.licenseKey;
+                    var _state = this.state,
+                        licenseKey = _state.licenseKey,
+                        versionError = _state.versionError;
 
+                    var errorText = undefined;
+                    if (versionError) {
+                        errorText = m('version.error') + ' : ' + versionError;
+                    }
                     content = _react2['default'].createElement(
                         'div',
                         { style: Styles.body },
@@ -2704,31 +2716,31 @@ var UpgraderWizard = (function (_React$Component) {
                         _react2['default'].createElement(_materialUi.TextField, {
                             value: licenseKey,
                             onChange: function (e, v) {
-                                _this3.setState({ licenseKey: v });
+                                _this4.setState({ licenseKey: v, versionError: undefined });
                             },
                             floatingLabelText: m('key.hint'),
                             floatingLabelFixed: true,
                             multiLine: true,
                             rowsMax: 16,
                             rows: 10,
-                            fullWidth: true
+                            fullWidth: true,
+                            errorText: errorText
                         })
                     );
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.contact'), onTouchTap: function () {
                             window.open('https://pydio.com/en/pricing/contact');
                         }, secondary: true }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            return _this3.dismiss();
+                            return _this4.dismiss();
                         }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this3.next('check');
+                            _this4.next('check');
                         }, label: m('button.next'), primary: true, disabled: !licenseKey })];
                     break;
 
                 case "check":
-                    var _state = this.state,
-                        versionLoading = _state.versionLoading,
-                        versionAvailable = _state.versionAvailable,
-                        versionsNoMatch = _state.versionsNoMatch,
-                        versionError = _state.versionError;
+                    var _state2 = this.state,
+                        versionLoading = _state2.versionLoading,
+                        versionAvailable = _state2.versionAvailable,
+                        versionsNoMatch = _state2.versionsNoMatch;
 
                     content = _react2['default'].createElement(
                         'div',
@@ -2746,23 +2758,6 @@ var UpgraderWizard = (function (_React$Component) {
                                 'div',
                                 { style: { display: 'flex', width: '100%', height: 320, alignItems: 'center', justifyContent: 'center' } },
                                 _react2['default'].createElement(_materialUi.CircularProgress, null)
-                            )
-                        ),
-                        versionError && _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(
-                                'h5',
-                                null,
-                                '3. ',
-                                m('version.error')
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                null,
-                                m('version.error.string'),
-                                ' : ',
-                                versionError
                             )
                         ),
                         versionAvailable && _react2['default'].createElement(
@@ -2841,9 +2836,9 @@ var UpgraderWizard = (function (_React$Component) {
                         )
                     );
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            return _this3.dismiss();
+                            return _this4.dismiss();
                         }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this3.next('perform');
+                            _this4.next('perform');
                         }, label: m('button.install'), primary: true, disabled: !versionAvailable })];
                     break;
 
@@ -2859,7 +2854,7 @@ var UpgraderWizard = (function (_React$Component) {
                                 progressStyle: { paddingTop: 16 },
                                 lineStyle: { userSelect: 'text' },
                                 onEnd: function () {
-                                    _this3.upgradeFinished();
+                                    _this4.upgradeFinished();
                                 }
                             })
                         );
@@ -2872,7 +2867,7 @@ var UpgraderWizard = (function (_React$Component) {
                     }
 
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            return _this3.dismiss();
+                            return _this4.dismiss();
                         }, label: m('button.close'), primary: true })];
                     break;
 
