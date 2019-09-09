@@ -27,6 +27,7 @@ import (
 	"crypto/rsa"
 	"encoding/asn1"
 	"encoding/base64"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
@@ -100,7 +101,18 @@ func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.
 		return nil, err
 	}
 	if response.StatusCode != 200 {
-		return nil, fmt.Errorf("could not connect to the update server, error code was %d", response.StatusCode)
+		rErr := fmt.Errorf("could not connect to the update server, error code was %d", response.StatusCode)
+		if response.StatusCode == 500 {
+			var jsonErr struct {
+				Title  string
+				Detail string
+			}
+			data, _ := ioutil.ReadAll(response.Body)
+			if e := json.Unmarshal(data, &jsonErr); e == nil {
+				rErr = fmt.Errorf("failed connecting to the update server (%s), error code %d", jsonErr.Title, response.StatusCode)
+			}
+		}
+		return nil, rErr
 	}
 	var updateResponse update.UpdateResponse
 	if e := jsonpb.Unmarshal(response.Body, &updateResponse); e != nil {
@@ -143,7 +155,7 @@ func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.
 func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValues, dryRun bool, pgChan chan float64, doneChan chan bool, errorChan chan error) {
 
 	defer func() {
-		doneChan <- true
+		close(doneChan)
 	}()
 
 	if resp, err := http.Get(p.BinaryURL); err != nil {

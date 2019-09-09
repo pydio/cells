@@ -126,7 +126,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 	go func() {
 		defer close(pgChan)
 		defer close(errorChan)
-		defer close(doneChan)
+		//defer close(doneChan)
 		for {
 			select {
 			case pg := <-pgChan:
