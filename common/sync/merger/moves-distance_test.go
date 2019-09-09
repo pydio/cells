@@ -21,6 +21,7 @@
 package merger
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -452,6 +453,30 @@ func TestSortClosestMove2(t *testing.T) {
 				convey.So(strings.Contains(m.createOp.GetRefPath(), "64"), convey.ShouldBeTrue)
 			}
 		}
+	})
+
+}
+
+func TestSortClosestMovePerfs(t *testing.T) {
+
+	convey.Convey("Test func performances - TODO", t, func() {
+		var max = 10
+		var closes []*Move
+		for i := 0; i < max; i++ {
+			for j := 0; j < max; j++ {
+				closes = append(closes, &Move{
+					createOp: &patchOperation{
+						EventInfo: model.EventInfo{Path: fmt.Sprintf("/source/file-%d.png", i)},
+					},
+					deleteOp: &patchOperation{
+						EventInfo: model.EventInfo{Path: fmt.Sprintf("/target/file-%d.png", j)},
+					},
+				})
+			}
+		}
+
+		moves := sortClosestMoves(closes)
+		convey.So(moves, convey.ShouldHaveLength, max)
 	})
 
 }
