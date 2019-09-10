@@ -152,7 +152,6 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 
 func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.PathSyncSource) {
 
-	var possibleMoves []*Move
 	movesByEtag := make(map[string][]*Move)
 	for _, deleteOp := range t.deletes {
 		if dbNode, found := deleteOp.NodeInTarget(ctx, cachedTarget); found {
@@ -193,7 +192,6 @@ func (t *TreePatch) detectFileMoves(ctx context.Context, cachedTarget model.Path
 								createOp: createOp,
 								dbNode:   dbNode,
 							}
-							possibleMoves = append(possibleMoves, move)
 							movesByEtag[dbNode.Etag] = append(movesByEtag[dbNode.Etag], move)
 						}
 					}
