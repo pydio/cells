@@ -97,11 +97,11 @@ func NewDAOHandlerWrapper(val dao.DAO) server.HandlerWrapper {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
 			ctx = servicecontext.WithDAO(ctx, val)
 			e := h(ctx, req, rsp)
-			e, filtered := dao.FilterDAOErrors(e)
+			e2, filtered := dao.FilterDAOErrors(e)
 			if filtered {
 				log.Logger(ctx).Error("Filtered Error", zap.Error(e))
 			}
-			return e
+			return e2
 		}
 	}
 }
