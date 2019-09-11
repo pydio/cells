@@ -101,6 +101,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 		if model.IsIgnoredFile(p, ignores...) || len(p) == 0 || p == "/" {
 			return
 		}
+		//log.Logger(context.Background()).Info("Walking Node", node.Zap(), zap.String("endpoint", source.GetEndpointInfo().URI))
 		t := NewTreeNode(node)
 		parent, ok := dirs[t.ParentPath()]
 		if !ok {

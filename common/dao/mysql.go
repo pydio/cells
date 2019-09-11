@@ -100,11 +100,13 @@ func (m *mysql) SetMaxConnectionsForWeight(num int) {
 
 // FilterDAOErrors hides sensitive information about the underlying table
 // when we receive MySQLError.
-func FilterDAOErrors(err error) error {
+func FilterDAOErrors(err error) (error, bool) {
+	filtered := false
 	if err != nil {
 		if _, ok := err.(*mysqltools.MySQLError); ok {
 			err = errors.InternalServerError("dao.error", "DAO error received")
+			filtered = true
 		}
 	}
-	return err
+	return err, filtered
 }

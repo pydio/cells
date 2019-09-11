@@ -122,8 +122,8 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, ignores ...glob.Glob)
 
 	diff.Status(model.NewProcessingStatus("Computing diff between snapshots"))
 
-	//lTree.PrintOut()
-	//rTree.PrintOut()
+	//fmt.Println(lTree.PrintTree())
+	//fmt.Println(rTree.PrintTree())
 	diff.mergeNodes(lTree, rTree)
 	log.Logger(diff.ctx).Info("Diff Stats", zap.Any("s", diff.Stats()))
 
