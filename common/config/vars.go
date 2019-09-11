@@ -45,7 +45,7 @@ import (
 )
 
 var (
-	PydioConfigDir  = ApplicationDataDir()
+	PydioConfigDir  = ApplicationWorkingDir()
 	PydioConfigFile = "pydio.json"
 
 	VersionsStore    file2.VersionsStore

@@ -35,7 +35,7 @@ func Vault() config.Config {
 			return
 		}
 
-		// appDir := ApplicationDataDir()
+		// appDir := ApplicationWorkingDir()
 		// Rather use same application directory as the one defined in vars.go to enable overriding of default location
 		appDir := PydioConfigDir
 		storePath := filepath.Join(appDir, "pydio-vault.json")

@@ -1,7 +1,6 @@
 package jobs
 
 import (
-	"os"
 	"path/filepath"
 
 	"go.uber.org/zap"
@@ -25,12 +24,11 @@ func initTasksLogger() *zap.Logger {
 	// Logger that forwards the messages to a bleve DB via gRPC
 	serverSync := zapcore.AddSync(log.NewLogSyncer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_JOBS))
 
-	pydioDir := config2.ApplicationDataDir()
-	os.MkdirAll(filepath.Join(pydioDir, "logs"), 0755)
+	logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
 
 	// Additional Logger: stores messages in local file
 	rotaterSync := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   filepath.Join(pydioDir, "logs", "tasks.log"),
+		Filename:   filepath.Join(logDir, "tasks.log"),
 		MaxSize:    500, // megabytes
 		MaxBackups: 3,
 		MaxAge:     28, // days

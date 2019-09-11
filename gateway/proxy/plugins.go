@@ -330,7 +330,7 @@ func play() (*bytes.Buffer, error) {
 // to be executed by template.
 func LoadCaddyConf() error {
 
-	caddyconf.Logs = filepath.Join(config.ApplicationDataDir(), "logs")
+	caddyconf.Logs = config.ApplicationWorkingDir(config.ApplicationDirLogs)
 
 	u, err := url.Parse(config.Get("defaults", "urlInternal").String(""))
 	if err != nil {

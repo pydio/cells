@@ -111,7 +111,7 @@ func forceDefaultConfig(config *Config) (bool, error) {
 
 // dsnRemoveAllowNativePassword removes this part from default DSN
 func dsnRemoveAllowNativePassword(config *Config) (bool, error) {
-	testFile := filepath.Join(ApplicationDataDir(), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, "version")
+	testFile := filepath.Join(ApplicationWorkingDir(ApplicationDirServices), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, "version")
 	if data, e := ioutil.ReadFile(testFile); e == nil && len(data) > 0 {
 		ref, _ := version.NewVersion("1.4.1")
 		if v, e2 := version.NewVersion(strings.TrimSpace(string(data))); e2 == nil && v.LessThan(ref) {

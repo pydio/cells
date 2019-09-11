@@ -152,6 +152,10 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 		//Pre-check that pydio.json is properly configured
 		if a, _ := config.GetDefaultDatabase(); a == "" {
+			var crtUser string
+			if u, er := user.Current(); er == nil {
+				crtUser = "(currently running as '" + u.Username + "')"
+			}
 			cmd.Println("****************************************************************************************")
 			cmd.Println("# ")
 			cmd.Println("# " + promptui.IconBad + " Oops, cannot find a valid configuration for the database!")
@@ -160,10 +164,9 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			cmd.Println("#     $> " + os.Args[0] + " install")
 			cmd.Println("# ")
 			cmd.Println("# B - If you have already installed, maybe the configuration file is not accessible.")
-			cmd.Println("#     Make sure you are launching the process as the correct OS user.")
-			if u, er := user.Current(); er == nil {
-				cmd.Println("#     Currently running as '" + u.Username + "'")
-			}
+			cmd.Println("#     Working Directory is " + config.ApplicationWorkingDir())
+			cmd.Println("#     If you did not set the CELLS_WORKING_DIR environment variable, make sure you are ")
+			cmd.Println("#     launching the process as the correct OS user " + crtUser + ".")
 			cmd.Println("# ")
 			cmd.Println("****************************************************************************************")
 			cmd.Println("")

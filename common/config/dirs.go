@@ -24,27 +24,58 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
 	"runtime"
 
 	"github.com/shibukawa/configdir"
 )
 
-// ApplicationDataDir creates a local file to store pydio system data
-func ApplicationDataDir() string {
+type ApplicationDirType int
 
-	vendor := "Pydio"
-	if runtime.GOOS == "linux" {
-		vendor = "pydio"
+const (
+	ApplicationDirData ApplicationDirType = iota
+	ApplicationDirLogs
+	ApplicationDirServices
+)
+
+// ApplicationWorkingDir creates a local file to store pydio system data
+func ApplicationWorkingDir(dirType ...ApplicationDirType) string {
+
+	var f string
+	var d ApplicationDirType
+	if len(dirType) > 0 {
+		d = dirType[0]
 	}
-	appName := "cells"
-	configDirs := configdir.New(vendor, appName)
-	folders := configDirs.QueryFolders(configdir.Global)
-	if len(folders) == 0 {
-		folders = configDirs.QueryFolders(configdir.Local)
+	if len(dirType) == 0 && os.Getenv("CELLS_WORKING_DIR") != "" {
+		f = os.Getenv("CELLS_WORKING_DIR")
+	} else if d == ApplicationDirData && os.Getenv("CELLS_DATA_DIR") != "" {
+		f = os.Getenv("CELLS_DATA_DIR")
+	} else if d == ApplicationDirLogs && os.Getenv("CELLS_LOG_DIR") != "" {
+		f = os.Getenv("CELLS_LOG_DIR")
+	} else if d == ApplicationDirServices && os.Getenv("CELLS_SERVICES_DIR") != "" {
+		f = os.Getenv("CELLS_SERVICES_DIR")
+	} else {
+		vendor := "Pydio"
+		if runtime.GOOS == "linux" {
+			vendor = "pydio"
+		}
+		appName := "cells"
+		configDirs := configdir.New(vendor, appName)
+		folders := configDirs.QueryFolders(configdir.Global)
+		if len(folders) == 0 {
+			folders = configDirs.QueryFolders(configdir.Local)
+		}
+		f = folders[0].Path
+		switch d {
+		case ApplicationDirData:
+			f = filepath.Join(f, "data")
+		case ApplicationDirLogs:
+			f = filepath.Join(f, "logs")
+		case ApplicationDirServices:
+			f = filepath.Join(f, "services")
+		}
 	}
-	f := folders[0].Path
-	if err := os.MkdirAll(f, 0777); err != nil {
+
+	if err := os.MkdirAll(f, 0755); err != nil {
 		log.Fatal("Could not create local data dir - please check that you have the correct permissions for the folder -", f)
 	}
 
@@ -54,6 +85,6 @@ func ApplicationDataDir() string {
 // ServiceDataDir returns the applicationdir/services/serviceName and creates it if
 // it does not exists
 func ServiceDataDir(serviceName string) (string, error) {
-	dir := filepath.Join(ApplicationDataDir(), "services", serviceName)
+	dir := filepath.Join(ApplicationWorkingDir(ApplicationDirServices), serviceName)
 	return dir, os.MkdirAll(dir, 0755)
 }

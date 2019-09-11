@@ -24,8 +24,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"math"
-	"os"
-	"path/filepath"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
@@ -86,8 +84,6 @@ func actionFrontendsAdd(c *install.InstallConfig) error {
 	config.Save("cli", "Set default admin user and frontend configs")
 
 	// Creating log dir
-	logsFolder := filepath.Join(config.ApplicationDataDir(), "logs")
-	e := os.MkdirAll(logsFolder, 0755)
-
-	return e
+	config.ApplicationWorkingDir(config.ApplicationDirLogs)
+	return nil
 }

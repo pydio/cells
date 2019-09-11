@@ -58,7 +58,7 @@ func (c *SnapshotAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 	if target, ok := action.Parameters["target_file"]; ok {
 		c.Target = target
 	} else {
-		tmpDir := config.ApplicationDataDir()
+		tmpDir := config.ApplicationWorkingDir()
 		c.Target = filepath.Join(tmpDir, "snapshot.json")
 	}
 

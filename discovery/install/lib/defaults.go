@@ -22,7 +22,6 @@ package lib
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/pydio/cells/common/utils/std"
 
@@ -48,7 +47,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.DbManualDSN = "root@tcp(localhost=3306)/cells"
 	c.DsName = "pydiods1"
 	c.DsPort = fmt.Sprintf("%d", net.GetAvailablePort())
-	c.DsFolder = filepath.Join(config.ApplicationDataDir(), "data")
+	c.DsFolder = config.ApplicationWorkingDir(config.ApplicationDirData)
 	c.ExternalMicro = fmt.Sprintf("%d", config.Get("ports", common.SERVICE_MICRO_API).Int(0)) // Micro is already set !!
 	c.ExternalGateway = fmt.Sprintf("%d", net.GetAvailablePort())
 	c.ExternalWebsocket = fmt.Sprintf("%d", net.GetAvailablePort())
