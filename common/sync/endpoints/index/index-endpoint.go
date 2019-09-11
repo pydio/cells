@@ -83,6 +83,9 @@ func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 			break
 		}
 		response.Node.Path = strings.TrimLeft(response.Node.Path, "/")
+		if !response.Node.IsLeaf() {
+			response.Node.Etag = "-1"
+		}
 		walknFc(response.Node.Path, response.Node, nil)
 	}
 	return nil
