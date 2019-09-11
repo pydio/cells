@@ -45,10 +45,13 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio").String("Pydio Cells"),
 		Rebase:           url,
 		ResourcesFolder:  "plug/gui.ajax/res",
+		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          common.Version().String(),
 		Debug:            config.Get("frontend", "debug").Bool(false),
 	}
+
+	tplConf = FilterTplConf(tplConf)
 
 	statusCode = 200
 	// Load link data

@@ -69,15 +69,18 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tplConf := &TplConf{
-		ApplicationTitle: "Pydio",
+		ApplicationTitle: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Cells"),
 		Rebase:           url,
 		ResourcesFolder:  "plug/gui.ajax/res",
+		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          frontend.VersionHash(),
 		Debug:            config.Get("frontend", "debug").Bool(false),
 		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
 		StartParameters:  startParameters,
 	}
+
+	tplConf = FilterTplConf(tplConf)
 
 	vars := mux.Vars(r)
 	if reset, ok := vars["resetPasswordKey"]; ok {

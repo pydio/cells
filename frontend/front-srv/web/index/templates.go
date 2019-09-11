@@ -1,7 +1,29 @@
 package index
 
+// TplConfFilterFunc takes a TplConf and modifies it
+type TplConfFilterFunc func(in *TplConf) *TplConf
+
+var (
+	tplConfFilters []TplConfFilterFunc
+)
+
+// RegisterTplConfFilter registers a filter for modifying main Template Conf
+func RegisterTplConfFilter(f TplConfFilterFunc) {
+	tplConfFilters = append(tplConfFilters, f)
+}
+
+// FilterTplConf applies registered filters on TplConf object
+func FilterTplConf(i *TplConf) *TplConf {
+	for _, f := range tplConfFilters {
+		i = f(i)
+	}
+	return i
+}
+
+// Data struct for main index page template
 type TplConf struct {
 	ApplicationTitle string
+	Favicon          string
 	Rebase           string
 	ResourcesFolder  string
 	Theme            string
@@ -12,6 +34,7 @@ type TplConf struct {
 	StartParameters  map[string]interface{}
 }
 
+// GetLoadingString sends an i18n string for "Loading..."
 func GetLoadingString(lang string) string {
 	loadingStrings := map[string]string{
 		"en-us": "Loading...",
@@ -79,7 +102,7 @@ var page = `<!DOCTYPE html>
 {{else}}
 		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/pydio.boot.min.js?v={{.Version}}"></script>
 {{end}}
-		<link rel="icon" type="image/x-png" href="{{.ResourcesFolder}}/themes/common/images/favicon.png">
+		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
 	</head>
 	<body style="overflow: hidden;background-color: #424242;" class="react-mui-context">
 		<script type="text/javascript">
@@ -108,7 +131,7 @@ var public = `<!DOCTYPE html>
 {{else}}
 		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/pydio.boot.min.js?v={{.Version}}"></script>
 {{end}}
-		<link rel="icon" type="image/x-png" href="{{.ResourcesFolder}}/themes/common/images/favicon.png">
+		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
 	</head>
 	<body style="overflow: hidden;background-color: #424242;" class="react-mui-context">
 		<script type="text/javascript">
@@ -129,7 +152,7 @@ var errorTpl = `<!DOCTYPE html>
 		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-		<link rel="icon" type="image/x-png" href="{{.ResourcesFolder}}/themes/common/images/favicon.png">
+		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
 	</head>
 	<body style="position: absolute;display:flex;top: 0;bottom: 0;left: 0;right: 0;align-items: center;justify-content: center;" class="react-mui-context">
 		<div>{{.ErrorMessage}}</div>
