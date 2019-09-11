@@ -126,53 +126,72 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	steps := float32(f.number)
 	step := float32(0)
 	rand.Seed(time.Now().Unix())
+	type Value struct {
+		Login  string
+		Label  string
+		Region string
+	}
+	var values []Value
 
-	for i := int64(0); i < f.number; i++ {
-		s := uniuri.NewLen(4)
-		login := fmt.Sprintf("%s-%s-%d", f.prefix, s, i+1)
-		label := login
-		region := "France"
-		if response, err := http.Get("https://uinames.com/api/?region=france"); err == nil {
-			if contents, err := ioutil.ReadAll(response.Body); err == nil {
-				type Response struct {
-					Name    string `json:"name"`
-					Surname string `json:"surname"`
-					Region  string `json:"region"`
-					Gender  string `json:"gender"`
-				}
-				var data Response
-				if e := json.Unmarshal(contents, &data); e == nil {
-					label = fmt.Sprintf("%s %s", data.Name, data.Surname)
-					login = slug.Make(label)
-					region = data.Region
+	if response, err := http.Get(fmt.Sprintf("https://uinames.com/api/?region=france&amount=%d", f.number)); err == nil {
+		if contents, err := ioutil.ReadAll(response.Body); err == nil {
+			type Response struct {
+				Name    string `json:"name"`
+				Surname string `json:"surname"`
+				Region  string `json:"region"`
+				Gender  string `json:"gender"`
+			}
+			var data []*Response
+			if e := json.Unmarshal(contents, &data); e == nil {
+				for _, d := range data {
+					label := fmt.Sprintf("%s %s", d.Name, d.Surname)
+					values = append(values, Value{
+						Label:  label,
+						Login:  slug.Make(label),
+						Region: d.Region,
+					})
 				}
 			}
-			response.Body.Close()
 		}
+		response.Body.Close()
+	}
+	if len(values) == 0 {
+		for i := int64(0); i < f.number; i++ {
+			s := uniuri.NewLen(4)
+			login := fmt.Sprintf("%s-%s-%d", f.prefix, s, i+1)
+			values = append(values, Value{
+				Login:  login,
+				Label:  login,
+				Region: "France",
+			})
+		}
+	}
+
+	for i, v := range values {
 		groupPath := groupPaths[rand.Intn(len(groupPaths))]
 		if response, err := userServiceClient.CreateUser(ctx, &idm.CreateUserRequest{
 			User: &idm.User{
-				Login:     login,
+				Login:     v.Login,
 				Password:  "azeazeaze",
 				GroupPath: groupPath,
 				Attributes: map[string]string{
-					"displayName": label,
-					"country":     region,
+					"displayName": v.Label,
+					"country":     v.Region,
 					"profile":     "standard",
 				},
-				Policies: builder.Reset().WithStandardUserPolicies(login).Policies(),
+				Policies: builder.Reset().WithStandardUserPolicies(v.Login).Policies(),
 			},
 		}); err != nil {
 			output := input.WithError(err)
 			return output, err
 		} else {
-			log.TasksLogger(ctx).Info("Created user " + label)
+			log.TasksLogger(ctx).Info("Created user " + v.Label)
 			_, e := rolesServiceClient.CreateRole(ctx, &idm.CreateRoleRequest{
 				Role: &idm.Role{
 					Uuid:     response.User.Uuid,
-					Label:    slug.Make(label),
+					Label:    slug.Make(v.Label),
 					UserRole: true,
-					Policies: builder.Reset().WithStandardUserPolicies(login).Policies(),
+					Policies: builder.Reset().WithStandardUserPolicies(v.Login).Policies(),
 				},
 			})
 			if e != nil {
@@ -181,8 +200,8 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		}
 		step = float32(i)
 		channels.Progress <- step / steps
-		channels.StatusMsg <- "Created user " + label
-		<-time.After(100 * time.Millisecond)
+		channels.StatusMsg <- "Created user " + v.Label
+		<-time.After(50 * time.Millisecond)
 	}
 
 	return outputMessage, nil
