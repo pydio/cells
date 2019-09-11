@@ -65,13 +65,15 @@ func ApplicationWorkingDir(dirType ...ApplicationDirType) string {
 			folders = configDirs.QueryFolders(configdir.Local)
 		}
 		f = folders[0].Path
-		switch d {
-		case ApplicationDirData:
-			f = filepath.Join(f, "data")
-		case ApplicationDirLogs:
-			f = filepath.Join(f, "logs")
-		case ApplicationDirServices:
-			f = filepath.Join(f, "services")
+		if len(dirType) > 0 {
+			switch d {
+			case ApplicationDirData:
+				f = filepath.Join(f, "data")
+			case ApplicationDirLogs:
+				f = filepath.Join(f, "logs")
+			case ApplicationDirServices:
+				f = filepath.Join(f, "services")
+			}
 		}
 	}
 
