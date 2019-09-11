@@ -355,7 +355,9 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move 
 		if moveErr != nil {
 			log.Logger(ctx).Error("-- Delete Error / Reverting Copy", zap.Error(moveErr), childNode.Zap())
 			if justCopied != nil {
-				handler.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: justCopied})
+				if _, revertErr := handler.DeleteNode(delCtx, &tree.DeleteNodeRequest{Node: justCopied}); revertErr != nil {
+					log.Logger(ctx).Error("---- Could not Revert", zap.Error(revertErr), justCopied.Zap())
+				}
 			}
 			publishError(sourceDs, childNode.Path)
 			return moveErr
