@@ -66,7 +66,7 @@ var (
 			header_upstream X-Real-IP {remote}
 			header_upstream X-Forwarded-Proto {scheme}
 		}
-		proxy /oauth2 {{.OAuth | urls}} {
+		proxy /oidc {{.OAuth | urls}} {
 			insecure_skip_verify
 			header_upstream Host {host}
 			header_upstream X-Real-IP {remote}
@@ -135,7 +135,7 @@ var (
 		rewrite {
 			if {path} not_starts_with "/a/"
 			if {path} not_starts_with "/auth/"
-			if {path} not_starts_with "/oauth2/"
+			if {path} not_starts_with "/oidc/"
 			if {path} not_starts_with "/io"
 			if {path} not_starts_with "/data"
 			if {path} not_starts_with "/ws/"

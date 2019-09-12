@@ -26,7 +26,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
-	"fmt"
 
 	"github.com/ory/fosite"
 )
@@ -71,8 +70,6 @@ func (i *IDTokenHandleHelper) IssueExplicitIDToken(ctx context.Context, ar fosit
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("Creating token ", token)
 
 	resp.SetExtra("id_token", token)
 	return nil

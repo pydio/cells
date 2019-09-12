@@ -126,6 +126,8 @@ import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
 import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
 import RestError from './model/RestError';
+import RestFrontAuthRequest from './model/RestFrontAuthRequest';
+import RestFrontAuthResponse from './model/RestFrontAuthResponse';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
@@ -966,6 +968,18 @@ export {
      * @property {module:model/RestError}
      */
     RestError,
+
+    /**
+     * The RestFrontAuthRequest model constructor.
+     * @property {module:model/RestFrontAuthRequest}
+     */
+    RestFrontAuthRequest,
+
+    /**
+     * The RestFrontAuthResponse model constructor.
+     * @property {module:model/RestFrontAuthResponse}
+     */
+    RestFrontAuthResponse,
 
     /**
      * The RestFrontBinaryRequest model constructor.

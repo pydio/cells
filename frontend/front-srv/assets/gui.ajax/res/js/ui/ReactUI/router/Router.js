@@ -27,11 +27,11 @@ import browserHistory from 'react-router/lib/browserHistory';
 import MainRouter from './MainRouter';
 import WorkspaceRouter from './WorkspaceRouter';
 import PathRouter from './PathRouter';
-import HomeRouter from './HomeRouter';
-import OAuthRouter from './OAuthRouter';
+import {OAuthLoginRouter, OAuthConsentRouter} from './OAuthRouter';
 import LoginRouter from './LoginRouter';
 import LoginCallbackRouter from './LoginCallbackRouter';
 import LogoutRouter from './LogoutRouter';
+import TestRouter from './TestRouter';
 
 function getRoutes(pydio){
     const routes = (
@@ -40,9 +40,11 @@ function getRoutes(pydio){
                 <IndexRoute component={LoginRouter(pydio)}/>
                 <Route path="callback" component={LoginCallbackRouter(pydio)} />
             </Route>
+            <Route path="test" component={TestRouter(pydio)} />
             <Route path="logout" component={LogoutRouter(pydio)} />
-            <Route path="authorize">
-                <IndexRoute component={OAuthRouter(pydio)} />
+            <Route path="oauth2">
+                <Route path="login" component={OAuthLoginRouter(pydio)} />
+                <Route path="consent" component={OAuthConsentRouter(pydio)} />
             </Route> 
             <Route path="/" component={MainRouter(pydio)}>
                 <Route path=":workspaceId" component={WorkspaceRouter(pydio)}>

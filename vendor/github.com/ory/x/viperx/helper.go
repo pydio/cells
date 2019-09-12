@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+
+	"github.com/ory/viper"
 
 	"github.com/ory/x/stringslice"
 	"github.com/ory/x/stringsx"
@@ -100,7 +101,19 @@ func GetString(l logrus.FieldLogger, key string, fallback string, deprecated ...
 }
 
 // GetBool returns a bool from viper config or false.
-func GetBool(l logrus.FieldLogger, key string, deprecated ...string) bool {
+func GetBool(l logrus.FieldLogger, key string, fallback bool, deprecated ...string) bool {
+	var found bool
+	for _, k := range append(deprecated, key) {
+		if viper.IsSet(k) {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return fallback
+	}
+
 	v := viper.GetBool(key)
 	for _, dk := range deprecated {
 		if v {

@@ -2,10 +2,10 @@ import { createUserManager } from 'redux-oidc';
 
 const userManagerConfig = (clientID, url) => ({
   client_id: clientID,
-  redirect_uri: url + '/login/callback',
+  redirect_uri: url + '/auth/dex/callback',
   response_type: 'code',
-  scope: 'openid email groups profile pydio offline_access',
-  authority: url + '/auth/dex',
+  scope: 'openid email profile pydio offline_access',
+  authority: url + '/a/config/discovery',
   loadUserInfo: false,
 });
 

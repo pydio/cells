@@ -30,7 +30,7 @@ It is recommended to run this command close to the SQL instance (e.g. same subne
 This decreases risk of failure and decreases time required.
 
 We strongly advise to create a back up before running this command against an existing database. The migration command
-may lock MySQL databases, depending on table sizes. This is not the case for PostgreSQL databases.
+may lock MySQL databases, depending on table sizes. This is not the case for PostgreSQL and CockroachDB databases.
 
 Examples:
 
@@ -57,8 +57,8 @@ Examples:
 				logger.WithError(err).WithField("dsn", db).Fatal(`Unable to parse configuration item "dsn", make sure it has the right format`)
 			}
 
-			if dbu.Scheme != "postgres" && dbu.Scheme != "mysql" {
-				logger.WithField("dsn", dbu.Scheme+"://*:*@"+dbu.Host+dbu.Path+"?"+dbu.RawQuery).Fatal("Migrations can only be run against PostgreSQL or MySQL databases")
+			if dbu.Scheme != "postgres" && dbu.Scheme != "mysql" && dbu.Scheme != "cockroach" {
+				logger.WithField("dsn", dbu.Scheme+"://*:*@"+dbu.Host+dbu.Path+"?"+dbu.RawQuery).Fatal("Migrations can only be run against PostgreSQL, MySQL or CockroachDB databases")
 			}
 
 			sdb, err := NewSQLConnection(db, logger)

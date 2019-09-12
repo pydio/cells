@@ -3323,22 +3323,52 @@
 			"revisionTime": "2019-03-07T13:28:02Z"
 		},
 		{
-			"checksumSHA1": "/ZScbeWAlioPfvPlGnz2cqLAQsE=",
+			"checksumSHA1": "fyYggZCg1a3AgKlYnqP43P6TNoA=",
+			"path": "github.com/ory/hydra/client",
+			"revision": "937cb2e473c525d4e546bf34c5be1dd8ffcade28",
+			"revisionTime": "2019-09-04T09:11:38Z"
+		},
+		{
+			"checksumSHA1": "OtUAUOtgi1lATZiebw7Qwq4LTIk=",
+			"path": "github.com/ory/hydra/consent",
+			"revision": "937cb2e473c525d4e546bf34c5be1dd8ffcade28",
+			"revisionTime": "2019-09-04T09:11:38Z"
+		},
+		{
+			"checksumSHA1": "S1MDlDf67UEf0ROQpWvLrseTnmc=",
+			"path": "github.com/ory/hydra/driver",
+			"revision": "937cb2e473c525d4e546bf34c5be1dd8ffcade28",
+			"revisionTime": "2019-09-04T09:11:38Z"
+		},
+		{
+			"checksumSHA1": "VJBrvJmGzcbN9jd3OyNA3NRBq6w=",
 			"path": "github.com/ory/hydra/driver/configuration",
-			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
-			"revisionTime": "2019-04-20T10:22:21Z"
+			"revision": "937cb2e473c525d4e546bf34c5be1dd8ffcade28",
+			"revisionTime": "2019-09-04T09:11:38Z"
 		},
 		{
-			"checksumSHA1": "CMV76SZ+g58sp/KC2bzNtaf2V5k=",
+			"checksumSHA1": "kCN9J03VIuF3vfnuDBZZfiVF89o=",
 			"path": "github.com/ory/hydra/jwk",
-			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
-			"revisionTime": "2019-04-20T10:22:21Z"
+			"revision": "937cb2e473c525d4e546bf34c5be1dd8ffcade28",
+			"revisionTime": "2019-09-04T09:11:38Z"
 		},
 		{
-			"checksumSHA1": "SjP+FWdn/4OieK94TrEbxN30Bco=",
+			"checksumSHA1": "c6jYk+13BYEZgHY0QKAnP2J4XOA=",
+			"path": "github.com/ory/hydra/metrics/prometheus",
+			"revision": "937cb2e473c525d4e546bf34c5be1dd8ffcade28",
+			"revisionTime": "2019-09-04T09:11:38Z"
+		},
+		{
+			"checksumSHA1": "Rw0714fHRLUJhk6waeKmmqAWHcA=",
+			"path": "github.com/ory/hydra/oauth2",
+			"revision": "937cb2e473c525d4e546bf34c5be1dd8ffcade28",
+			"revisionTime": "2019-09-04T09:11:38Z"
+		},
+		{
+			"checksumSHA1": "w+oO3rBsHq7MdzPYUARa4PZwwR8=",
 			"path": "github.com/ory/hydra/x",
-			"revision": "067e4983792e5527a9f024bda5255913fb2e4713",
-			"revisionTime": "2019-04-20T10:22:21Z"
+			"revision": "937cb2e473c525d4e546bf34c5be1dd8ffcade28",
+			"revisionTime": "2019-09-04T09:11:38Z"
 		},
 		{
 			"checksumSHA1": "7vZzYABrT1A1Vxev7TC9b4vEvnw=",
@@ -3371,82 +3401,112 @@
 			"revisionTime": "2018-02-27T11:00:02Z"
 		},
 		{
+			"checksumSHA1": "Piv3A5YKZJO5xSBZjvrqzX6EXfM=",
+			"path": "github.com/ory/viper",
+			"revision": "b403c1bd9049428604c8dcfde8f2152eef2e6ea1",
+			"revisionTime": "2019-07-17T13:16:22Z"
+		},
+		{
 			"checksumSHA1": "LemOxCzCddBAY5tk5bmx1MvXECc=",
 			"path": "github.com/ory/x/cmdx",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
-			"checksumSHA1": "ga9gStQYCOE68JuipV16TrWoccQ=",
+			"checksumSHA1": "Cyk7XGpTRjrHesx2o380sMQW6W8=",
 			"path": "github.com/ory/x/corsx",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
-			"checksumSHA1": "a2Ai91lNjW2u1hrrdR2Cdg+hmDE=",
+			"checksumSHA1": "lGWArKZq/u+FspBw9UzHfMHsK0g=",
 			"path": "github.com/ory/x/dbal",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
 			"checksumSHA1": "kZHoTKqR18LDWFKeflbV+HTZv9Y=",
 			"path": "github.com/ory/x/healthx",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
+		},
+		{
+			"checksumSHA1": "4289VtsjxYHsjriVjxPxYqghcV0=",
+			"path": "github.com/ory/x/httpx",
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
+		},
+		{
+			"checksumSHA1": "CBBVLMwEnXrkEnlGacS5KVtfyNM=",
+			"path": "github.com/ory/x/logrusx",
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
+		},
+		{
+			"checksumSHA1": "sUQWAU0DnLpn5I7NgRSilq5pNZ4=",
+			"path": "github.com/ory/x/mapx",
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
+		},
+		{
+			"checksumSHA1": "RBzrg+AlMYm5+eAcSztoxUM3ync=",
+			"path": "github.com/ory/x/pagination",
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
 			"checksumSHA1": "+PTaw8XlCAMuseNcr8247Hw21iA=",
 			"path": "github.com/ory/x/randx",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
 			"checksumSHA1": "t/ByNRivZiDRVvNgxtA2Ic6xbZY=",
 			"path": "github.com/ory/x/resilience",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
 			"checksumSHA1": "n7mJBy9/XkeRlknX1+GRXp0EZx4=",
 			"path": "github.com/ory/x/serverx",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
-			"checksumSHA1": "sQijJiPSO37nc1IILPCiGPPmads=",
+			"checksumSHA1": "aJGlupLTycqjXl/345ABZShNr1c=",
 			"path": "github.com/ory/x/sqlcon",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
 			"checksumSHA1": "ZAiTYQGARhnd/8xLCyJodGxS6Lg=",
 			"path": "github.com/ory/x/stringslice",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
 			"checksumSHA1": "SUCjEvYNUEfnt00oSe2bbEAqrcE=",
 			"path": "github.com/ory/x/stringsx",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
-			"checksumSHA1": "Y5CwxItKzYzIlCO/h+1E2gWZvZo=",
+			"checksumSHA1": "pR08bJ1c4X4fnmSweDA0FxUOwJo=",
 			"path": "github.com/ory/x/tracing",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
-			"checksumSHA1": "u8ZfMMjObiJA44mV6HAvC5ghGfc=",
+			"checksumSHA1": "dLw2W7wv90HmhCy3/w4zPwZpoxw=",
 			"path": "github.com/ory/x/urlx",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
-			"checksumSHA1": "nBA4X9AVNSNGCEXynqQmmnzxR2o=",
+			"checksumSHA1": "zuWrjTQOc0wqXhqeXoo0Wxf8xM8=",
 			"path": "github.com/ory/x/viperx",
-			"revision": "9c6ee9e8517564d800ac0ae79aa0adef238d8834",
-			"revisionTime": "2019-04-22T10:40:17Z"
+			"revision": "64adca2172b8c5aeadd0ca9777017e4a19764d85",
+			"revisionTime": "2019-08-20T09:00:42Z"
 		},
 		{
 			"checksumSHA1": "JVGDxPn66bpe6xEiexs1r+y6jF0=",
@@ -4145,6 +4205,12 @@
 			"path": "github.com/uber/jaeger-client-go/utils",
 			"revision": "896f2abd37e099bae3eae942250d1a37e4bdce0b",
 			"revisionTime": "2019-04-23T03:57:12Z"
+		},
+		{
+			"checksumSHA1": "sy/AvLK1jUz2qBRY8cYWTu0OTpc=",
+			"path": "github.com/uber/jaeger-client-go/zipkin",
+			"revision": "c927455062c8f9570c6109ff1dc283c89dcbebc6",
+			"revisionTime": "2019-09-06T18:52:50Z"
 		},
 		{
 			"checksumSHA1": "gF1WPb3/R8RoZw/wqEQmkwntrQc=",

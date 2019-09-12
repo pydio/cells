@@ -16,7 +16,7 @@ func Connect(db string, logger logrus.FieldLogger, memf func() error, sqlf func(
 	if db == "memory" {
 		return memf()
 	} else if db == "" {
-		return errors.New("No database URL provided")
+		return errors.New("No database DSN provided")
 	}
 
 	u, err := url.Parse(db)
@@ -26,6 +26,8 @@ func Connect(db string, logger logrus.FieldLogger, memf func() error, sqlf func(
 
 	switch u.Scheme {
 	case "postgres":
+		fallthrough
+	case "cockroach":
 		fallthrough
 	case "mysql":
 		c, err := sqlcon.NewSQLConnection(db, logger)
@@ -41,5 +43,5 @@ func Connect(db string, logger logrus.FieldLogger, memf func() error, sqlf func(
 		return sqlf(cdb)
 	}
 
-	return errors.Errorf("The provided database URL %s can not be handled", db)
+	return errors.Errorf("The provided database DSN %s can not be handled", db)
 }

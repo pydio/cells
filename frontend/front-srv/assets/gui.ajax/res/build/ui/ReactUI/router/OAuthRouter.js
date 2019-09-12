@@ -22,97 +22,67 @@
 
 exports.__esModule = true;
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var OAuthRouterWrapper = function OAuthRouterWrapper(pydio) {
-    var OAuthRouter = (function (_React$PureComponent) {
-        _inherits(OAuthRouter, _React$PureComponent);
+var _pydioHttpApi = require('pydio/http/api');
 
-        function OAuthRouter(props) {
-            _classCallCheck(this, OAuthRouter);
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
+var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
+    return (function (_React$PureComponent) {
+        _inherits(_class, _React$PureComponent);
+
+        function _class(props) {
+            _classCallCheck(this, _class);
 
             _React$PureComponent.call(this, props);
 
-            this.state = {
-                jwt: "INITIAL"
-            };
+            var parsed = _queryString2['default'].parse(location.search);
 
-            this._handleAuthorizeChange = this.handleAuthorizeChange.bind(this);
+            this.loginChallenge = parsed.login_challenge;
         }
 
-        OAuthRouter.prototype.componentDidMount = function componentDidMount(props) {
-            this.handleAuthorizeChange();
+        _class.prototype.authorize = function authorize() {
 
-            pydio.observe('user_logged', this._handleAuthorizeChange);
-        };
+            var loginChallenge = this.loginChallenge;
 
-        OAuthRouter.prototype.componentWillUnmount = function componentWillUnmount(props) {
-            pydio.stopObserving('user_logged', this._handleAuthorizeChange);
-        };
+            _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+                var body = {
+                    subject: pydio.user.id
+                };
 
-        OAuthRouter.prototype.handleAuthorizeChange = function handleAuthorizeChange() {
-            var _this = this;
-
-            PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-                return _this.setState({
-                    jwt: jwt
+                fetch('/oidc/admin/oauth2/auth/requests/login/accept?' + _queryString2['default'].stringify({ login_challenge: loginChallenge }), {
+                    method: 'PUT',
+                    body: JSON.stringify(body),
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (response) {
+                    // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                    window.location.replace(response.redirect_to);
                 });
             });
         };
 
-        /**
-         * sends a request to the specified url from a form. this will change the window location.
-         * @param {string} path the path to send the post request to
-         * @param {object} params the paramiters to add to the url
-         * @param {string} [method=post] the method to use on the form
-         */
+        _class.prototype.render = function render() {
+            var _this = this;
 
-        OAuthRouter.prototype.post = function post(path, params) {
-            var method = arguments.length <= 2 || arguments[2] === undefined ? 'post' : arguments[2];
-
-            // The rest of this code assumes you are not using a library.
-            // It can be made less wordy if you use one.
-            var form = document.createElement('form');
-            form.method = method;
-            form.action = path;
-
-            var createInput = function createInput(key, val) {
-                var hiddenField = document.createElement('input');
-                hiddenField.type = 'hidden';
-                hiddenField.name = key;
-                hiddenField.value = val;
-
-                form.appendChild(hiddenField);
-            };
-
-            for (var key in params) {
-                if (params.hasOwnProperty(key)) {
-                    if (params[key] instanceof Array) {
-                        for (var idx in params[key]) {
-                            createInput(key, params[key][idx]);
-                        }
-                    } else {
-                        createInput(key, params[key]);
-                    }
-                }
+            if (pydio.user) {
+                this.authorize();
+                return null;
             }
 
-            document.body.appendChild(form);
-            form.submit();
-        };
-
-        OAuthRouter.prototype.render = function render() {
-            var jwt = this.state.jwt;
-
-            if (jwt === "INITIAL") {} else if (jwt === "") {
-                pydio.getController().fireAction('login');
-            } else {
-                this.post('/oauth2/auth' + window.location.search + '&access_token=' + jwt, {
-                    "scopes": ["openid", "profile", "email", "offline_access"]
-                });
-            }
+            pydio.observe('user_logged', function (u) {
+                return u && _this.authorize();
+            });
 
             return React.createElement(
                 'div',
@@ -121,11 +91,87 @@ var OAuthRouterWrapper = function OAuthRouterWrapper(pydio) {
             );
         };
 
-        return OAuthRouter;
+        return _class;
     })(React.PureComponent);
-
-    return OAuthRouter;
 };
 
-exports['default'] = OAuthRouterWrapper;
-module.exports = exports['default'];
+exports.OAuthLoginRouter = OAuthLoginRouter;
+var OAuthConsentRouter = function OAuthConsentRouter(pydio) {
+    return (function (_React$PureComponent2) {
+        _inherits(_class2, _React$PureComponent2);
+
+        function _class2(props) {
+            _classCallCheck(this, _class2);
+
+            _React$PureComponent2.call(this, props);
+
+            var parsed = _queryString2['default'].parse(location.search);
+
+            this.consentChallenge = parsed.consent_challenge;
+        }
+
+        _class2.prototype.authorize = function authorize() {
+
+            var consentChallenge = this.consentChallenge;
+
+            _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+                var body = {
+                    // A list of permissions the user granted to the OAuth 2.0 Client. This can be fewer permissions that initially requested, but are rarely more or other permissions than requested.
+                    grant_scope: ["openid", "profile", "email", "pydio", "offline"],
+
+                    // Sets the audience the user authorized the client to use. Should be a subset of `requested_access_token_audience`.
+                    // grant_access_token_audience: ["cells-front"],
+
+                    // The session allows you to set additional data in the access and ID tokens.
+                    session: {
+                        // Sets session data for the access and refresh token, as well as any future tokens issued by the
+                        // refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection.
+                        // If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties
+                        // can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care!
+                        access_token: {},
+
+                        // Sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable
+                        // by anyone that has access to the ID Challenge. Use with care! Any information added here will be mirrored at
+                        // the `/userinfo` endpoint.
+                        id_token: {
+                            name: pydio.user.id
+                        }
+                    }
+                };
+
+                fetch('/oidc/admin/oauth2/auth/requests/consent/accept?' + _queryString2['default'].stringify({ consent_challenge: consentChallenge }), {
+                    method: 'PUT',
+                    body: JSON.stringify(body),
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (response) {
+                    // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                    window.location.replace(response.redirect_to);
+                });
+            });
+        };
+
+        _class2.prototype.render = function render() {
+            var _this2 = this;
+
+            if (pydio.user) {
+                this.authorize();
+                return null;
+            }
+
+            pydio.observe('user_logged', function (u) {
+                return u && _this2.authorize();
+            });
+
+            return React.createElement(
+                'div',
+                null,
+                this.props.children
+            );
+        };
+
+        return _class2;
+    })(React.PureComponent);
+};
+exports.OAuthConsentRouter = OAuthConsentRouter;

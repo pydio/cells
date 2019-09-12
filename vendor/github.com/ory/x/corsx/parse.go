@@ -23,20 +23,20 @@ func ParseOptions(l logrus.FieldLogger, prefix string) cors.Options {
 	prefix = p(prefix)
 	return cors.Options{
 		AllowedOrigins:     viperx.GetStringSlice(l, prefix+"cors.allowed_origins", []string{}, "CORS_ALLOWED_ORIGINS"),
-		AllowedMethods:     viperx.GetStringSlice(l, prefix+"cors.allowed_methods", []string{}, "CORS_ALLOWED_METHODS"),
-		AllowedHeaders:     viperx.GetStringSlice(l, prefix+"cors.allowed_headers", []string{}, "CORS_ALLOWED_HEADERS"),
-		ExposedHeaders:     viperx.GetStringSlice(l, prefix+"cors.exposed_headers", []string{}, "CORS_EXPOSED_HEADERS"),
-		AllowCredentials:   viperx.GetBool(l, prefix+"cors.allow_credentials", "CORS_ALLOWED_CREDENTIALS"),
-		OptionsPassthrough: viperx.GetBool(l, prefix+"cors.options_passthrough"),
+		AllowedMethods:     viperx.GetStringSlice(l, prefix+"cors.allowed_methods", []string{"GET", "POST", "PUT", "PATCH", "DELETE"}, "CORS_ALLOWED_METHODS"),
+		AllowedHeaders:     viperx.GetStringSlice(l, prefix+"cors.allowed_headers", []string{"Authorization", "Content-Type"}, "CORS_ALLOWED_HEADERS"),
+		ExposedHeaders:     viperx.GetStringSlice(l, prefix+"cors.exposed_headers", []string{"Content-Type"}, "CORS_EXPOSED_HEADERS"),
+		AllowCredentials:   viperx.GetBool(l, prefix+"cors.allow_credentials", true, "CORS_ALLOWED_CREDENTIALS"),
+		OptionsPassthrough: viperx.GetBool(l, prefix+"cors.options_passthrough", false),
 		MaxAge:             viperx.GetInt(l, prefix+"cors.max_age", 0, "CORS_MAX_AGE"),
-		Debug:              viperx.GetBool(l, prefix+"cors.allow_credentials", "CORS_DEBUG"),
+		Debug:              viperx.GetBool(l, prefix+"cors.debug", false, "CORS_DEBUG"),
 	}
 }
 
 // IsEnabled returns true when CORS is enabled.
 func IsEnabled(l logrus.FieldLogger, prefix string) bool {
 	prefix = p(prefix)
-	return viperx.GetBool(l, prefix+"cors.enabled", "CORS_ENABLED")
+	return viperx.GetBool(l, prefix+"cors.enabled", false, "CORS_ENABLED")
 }
 
 // Initialize starts the CORS middleware for a http.Handler when cors is enabled.

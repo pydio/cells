@@ -58,13 +58,7 @@ var _PathRouter = require('./PathRouter');
 
 var _PathRouter2 = _interopRequireDefault(_PathRouter);
 
-var _HomeRouter = require('./HomeRouter');
-
-var _HomeRouter2 = _interopRequireDefault(_HomeRouter);
-
 var _OAuthRouter = require('./OAuthRouter');
-
-var _OAuthRouter2 = _interopRequireDefault(_OAuthRouter);
 
 var _LoginRouter = require('./LoginRouter');
 
@@ -78,6 +72,10 @@ var _LogoutRouter = require('./LogoutRouter');
 
 var _LogoutRouter2 = _interopRequireDefault(_LogoutRouter);
 
+var _TestRouter = require('./TestRouter');
+
+var _TestRouter2 = _interopRequireDefault(_TestRouter);
+
 function getRoutes(pydio) {
     var routes = React.createElement(
         _reactRouterDom.Switch,
@@ -88,11 +86,13 @@ function getRoutes(pydio) {
             React.createElement(_reactRouterLibIndexRoute2['default'], { component: _LoginRouter2['default'](pydio) }),
             React.createElement(_reactRouterLibRoute2['default'], { path: 'callback', component: _LoginCallbackRouter2['default'](pydio) })
         ),
+        React.createElement(_reactRouterLibRoute2['default'], { path: 'test', component: _TestRouter2['default'](pydio) }),
         React.createElement(_reactRouterLibRoute2['default'], { path: 'logout', component: _LogoutRouter2['default'](pydio) }),
         React.createElement(
             _reactRouterLibRoute2['default'],
-            { path: 'authorize' },
-            React.createElement(_reactRouterLibIndexRoute2['default'], { component: _OAuthRouter2['default'](pydio) })
+            { path: 'oauth2' },
+            React.createElement(_reactRouterLibRoute2['default'], { path: 'login', component: _OAuthRouter.OAuthLoginRouter(pydio) }),
+            React.createElement(_reactRouterLibRoute2['default'], { path: 'consent', component: _OAuthRouter.OAuthConsentRouter(pydio) })
         ),
         React.createElement(
             _reactRouterLibRoute2['default'],

@@ -23,6 +23,14 @@ var _ApiClient = require("../ApiClient");
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _modelRestFrontAuthRequest = require('../model/RestFrontAuthRequest');
+
+var _modelRestFrontAuthRequest2 = _interopRequireDefault(_modelRestFrontAuthRequest);
+
+var _modelRestFrontAuthResponse = require('../model/RestFrontAuthResponse');
+
+var _modelRestFrontAuthResponse2 = _interopRequireDefault(_modelRestFrontAuthResponse);
+
 var _modelRestFrontBinaryRequest = require('../model/RestFrontBinaryRequest');
 
 var _modelRestFrontBinaryRequest2 = _interopRequireDefault(_modelRestFrontBinaryRequest);
@@ -92,6 +100,45 @@ var FrontendServiceApi = (function () {
 
     this.apiClient = apiClient || _ApiClient2['default'].instance;
   }
+
+  /**
+   * Handle Auth callback
+   * @param {module:model/RestFrontAuthRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontAuthResponse} and HTTP response
+   */
+
+  FrontendServiceApi.prototype.frontAuthWithHttpInfo = function frontAuthWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling frontAuth");
+    }
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestFrontAuthResponse2['default'];
+
+    return this.apiClient.callApi('/frontend/session/auth', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Handle Auth callback
+   * @param {module:model/RestFrontAuthRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontAuthResponse}
+   */
+
+  FrontendServiceApi.prototype.frontAuth = function frontAuth(body) {
+    return this.frontAuthWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
 
   /**
    * Add some data to the initial set of parameters loaded by the frontend

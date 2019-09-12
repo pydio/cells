@@ -87,6 +87,12 @@ func (this *FrontSessionResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *FrontAuthRequest) Validate() error {
+	return nil
+}
+func (this *FrontAuthResponse) Validate() error {
+	return nil
+}
 func (this *FrontEnrollAuthRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

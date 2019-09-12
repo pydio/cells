@@ -796,6 +796,13 @@ service FrontendService {
             body: "*"
         };
     }
+    // Handle Auth callback
+    rpc FrontAuth(FrontAuthRequest) returns (FrontAuthResponse) {
+        option (google.api.http) = {
+            post: "/frontend/session/auth"
+            body: "*"
+        };
+    }
     // Generic endpoint that can be implemented by 2FA systems for enrollment
     rpc FrontEnrollAuth(FrontEnrollAuthRequest) returns (FrontEnrollAuthResponse){
         option (google.api.http) = {

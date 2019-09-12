@@ -473,6 +473,14 @@ var _modelRestError = require('./model/RestError');
 
 var _modelRestError2 = _interopRequireDefault(_modelRestError);
 
+var _modelRestFrontAuthRequest = require('./model/RestFrontAuthRequest');
+
+var _modelRestFrontAuthRequest2 = _interopRequireDefault(_modelRestFrontAuthRequest);
+
+var _modelRestFrontAuthResponse = require('./model/RestFrontAuthResponse');
+
+var _modelRestFrontAuthResponse2 = _interopRequireDefault(_modelRestFrontAuthResponse);
+
 var _modelRestFrontBinaryRequest = require('./model/RestFrontBinaryRequest');
 
 var _modelRestFrontBinaryRequest2 = _interopRequireDefault(_modelRestFrontBinaryRequest);
@@ -1793,6 +1801,20 @@ exports.
  * @property {module:model/RestError}
  */
 RestError = _modelRestError2['default'];
+exports.
+
+/**
+ * The RestFrontAuthRequest model constructor.
+ * @property {module:model/RestFrontAuthRequest}
+ */
+RestFrontAuthRequest = _modelRestFrontAuthRequest2['default'];
+exports.
+
+/**
+ * The RestFrontAuthResponse model constructor.
+ * @property {module:model/RestFrontAuthResponse}
+ */
+RestFrontAuthResponse = _modelRestFrontAuthResponse2['default'];
 exports.
 
 /**

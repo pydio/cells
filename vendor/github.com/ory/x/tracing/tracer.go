@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	jeagerConf "github.com/uber/jaeger-client-go/config"
+	"github.com/uber/jaeger-client-go/zipkin"
 )
 
 // Tracer encapsulates tracing abilities.
@@ -28,25 +29,50 @@ type JaegerConfig struct {
 	SamplerType        string
 	SamplerValue       float64
 	SamplerServerURL   string
+	Propagation        string
 }
 
 // Setup sets up the tracer. Currently supports jaeger.
 func (t *Tracer) Setup() error {
 	switch strings.ToLower(t.Provider) {
 	case "jaeger":
-		jc := jeagerConf.Configuration{
-			Sampler: &jeagerConf.SamplerConfig{
-				SamplingServerURL: t.JaegerConfig.SamplerServerURL,
-				Type:              t.JaegerConfig.SamplerType,
-				Param:             t.JaegerConfig.SamplerValue,
-			},
-			Reporter: &jeagerConf.ReporterConfig{
-				LocalAgentHostPort: t.JaegerConfig.LocalAgentHostPort,
-			},
+		jc, err := jeagerConf.FromEnv()
+
+		if err != nil {
+			return err
+		}
+
+		if t.JaegerConfig.SamplerServerURL != "" {
+			jc.Sampler.SamplingServerURL = t.JaegerConfig.SamplerServerURL
+		}
+
+		if t.JaegerConfig.SamplerType != "" {
+			jc.Sampler.Type = t.JaegerConfig.SamplerType
+		}
+
+		if t.JaegerConfig.SamplerValue != 0 {
+			jc.Sampler.Param = t.JaegerConfig.SamplerValue
+		}
+
+		if t.JaegerConfig.LocalAgentHostPort != "" {
+			jc.Reporter.LocalAgentHostPort = t.JaegerConfig.LocalAgentHostPort
+		}
+
+		var configs []jeagerConf.Option
+
+		// This works in other jaeger clients, but is not part of jaeger-client-go
+		if t.JaegerConfig.Propagation == "b3" {
+			zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
+			configs = append(
+				configs,
+				jeagerConf.Injector(opentracing.HTTPHeaders, zipkinPropagator),
+				jeagerConf.Extractor(opentracing.HTTPHeaders, zipkinPropagator),
+			)
 		}
 
 		closer, err := jc.InitGlobalTracer(
 			t.ServiceName,
+			configs...,
 		)
 
 		if err != nil {
@@ -113,6 +139,10 @@ func HelpMessage(defaultName string) string {
 - TRACING_PROVIDER_JAEGER_LOCAL_AGENT_ADDRESS: The address of the jaeger-agent where spans should be sent to
 
 	Example: TRACING_PROVIDER_JAEGER_LOCAL_AGENT_ADDRESS=127.0.0.1:6831
+
+- TRACING_PROVIDER_JAEGER_PROPAGATION: The tracing header propagation format. Defaults to jaeger.
+
+	Example: TRACING_PROVIDER_JAEGER_PROPAGATION=b3
 
 - TRACING_SERVICE_NAME: Specifies the service name to use on the tracer.
 	Default: ORY Hydra

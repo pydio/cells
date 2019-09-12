@@ -29,7 +29,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/utils/permissions"
 )
@@ -53,7 +53,7 @@ func PolicyHttpWrapper(h http.Handler) http.Handler {
 		if cValue := c.Value(claim.ContextKey); cValue != nil {
 			if claims, ok := cValue.(claim.Claims); ok {
 				log.Logger(c).Debug("Got Claims", zap.Any("claims", claims))
-				policyRequestContext[HttpMetaJwtClientApp] = claims.ClientApp
+				policyRequestContext[HttpMetaJwtClientApp] = claims.GetClientApp()
 				policyRequestContext[HttpMetaJwtIssuer] = claims.Issuer
 				subjects = permissions.PolicyRequestSubjectsFromClaims(claims)
 			}

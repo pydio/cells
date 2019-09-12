@@ -49,6 +49,21 @@ func (p PackrMigrationSource) FindMigrations() ([]*migrate.Migration, error) {
 	return migrations, err
 }
 
+// FindMatchingTestMigrations finds the matching test migrations from a migration map
+func FindMatchingTestMigrations(folder string, migrations map[string]*PackrMigrationSource, assetNames []string, asset func(string) ([]byte, error)) map[string]*PackrMigrationSource {
+	var testMigrations = map[string]*PackrMigrationSource{}
+	for name, migration := range migrations {
+		var filter []string
+		for _, file := range migration.PackrMigrationSource.Box.List() {
+			f := folder + strings.Replace(filepath.Base(file), ".sql", "_test.sql", 1)
+			filter = append(filter, f)
+		}
+		testMigrations[name] = NewMustPackerMigrationSource(logrus.New(), assetNames, asset, filter, true)
+	}
+
+	return testMigrations
+}
+
 // NewMustPackerMigrationSource create a new packr-based migration source or fatals.
 func NewMustPackerMigrationSource(l logrus.FieldLogger, folder []string, loader func(string) ([]byte, error), filters []string, omitExtension bool) *PackrMigrationSource {
 	m, err := NewPackerMigrationSource(l, folder, loader, filters, omitExtension)
@@ -76,10 +91,11 @@ func NewPackerMigrationSource(l logrus.FieldLogger, sources []string, loader fun
 		}
 
 		if !found {
+			l.WithField("file", source).WithField("filters", fmt.Sprintf("%v", filters)).Debug("Ignoring file because path does not match filters")
 			continue
 		}
 
-		l.WithField("file", source).Debugf("Processing sql migration file")
+		l.WithField("file", source).Debug("Processing sql migration file")
 
 		body, err := loader(source)
 		if err != nil {

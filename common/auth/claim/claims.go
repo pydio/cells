@@ -23,6 +23,7 @@ package claim
 
 import (
 	"encoding/base64"
+	"strings"
 	"time"
 
 	"github.com/coreos/go-oidc/jose"
@@ -43,19 +44,19 @@ func (m *IDTokenSubject) String() string { return proto.CompactTextString(m) }
 func (*IDTokenSubject) ProtoMessage()    {}
 
 type Claims struct {
-	ClientApp   string    `json:"aud"`
-	Issuer      string    `json:"iss"`
-	Subject     string    `json:"sub"`
-	Nonce       string    `json:"nonce"`
-	Name        string    `json:"name"`
-	Email       string    `json:"email"`
-	Profile     string    `json:"profile"`
-	Verified    bool      `json:"email_verified"`
-	Roles       string    `json:"roles"`
-	Expiry      time.Time `json:"expiry"`
-	AuthSource  string    `json:"authSource"`
-	DisplayName string    `json:"displayName"`
-	GroupPath   string    `json:"groupPath"`
+	ClientApp   interface{} `json:"aud"`
+	Issuer      string      `json:"iss"`
+	Subject     string      `json:"sub"`
+	Nonce       string      `json:"nonce"`
+	Name        string      `json:"name"`
+	Email       string      `json:"email"`
+	Profile     string      `json:"profile"`
+	Verified    bool        `json:"email_verified"`
+	Roles       string      `json:"roles"`
+	Expiry      time.Time   `json:"expiry"`
+	AuthSource  string      `json:"authSource"`
+	DisplayName string      `json:"displayName"`
+	GroupPath   string      `json:"groupPath"`
 }
 
 // Decode Subject field of the claims
@@ -81,6 +82,17 @@ func (c *Claims) DecodeSubject() (*IDTokenSubject, error) {
 		return nil, err
 	} else {
 		return &subject, nil
+	}
+}
+
+func (c *Claims) GetClientApp() string {
+	switch v := c.ClientApp.(type) {
+	case string:
+		return v
+	case []string:
+		return strings.Join(v, ",")
+	default:
+		return "unknown client app"
 	}
 }
 

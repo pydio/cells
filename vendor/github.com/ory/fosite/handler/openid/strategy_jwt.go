@@ -126,7 +126,6 @@ type DefaultStrategy struct {
 }
 
 func (h DefaultStrategy) GenerateIDToken(ctx context.Context, requester fosite.Requester) (token string, err error) {
-	fmt.Println("Generating id token")
 	if h.Expiry == 0 {
 		h.Expiry = defaultExpiryTime
 	}

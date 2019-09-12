@@ -2,7 +2,7 @@ package sqlcon
 
 // HelpMessage returns a string explaining how to set up SQL using environment variables.
 func HelpMessage() string {
-	return `- DATABASE_URL: A URL to a persistent backend. Various backends are supported:
+	return `- DATABASE_URL: A DSN to a persistent backend. Various backends are supported:
 
   - Changes are lost on process death (ephemeral storage):
 
@@ -11,12 +11,17 @@ func HelpMessage() string {
 
   - Changes are kept after process death (persistent storage):
 
-    - SQL Databases: Officially, PostgreSQL and MySQL are supported. This project works best with PostgreSQL.
+    - SQL Databases: Officially, PostgreSQL, MySQL and CockroachDB are supported. This project works best with PostgreSQL.
 
 	  - PostgreSQL: If DATABASE_URL is a DSN starting with postgres://, PostgreSQL will be used as storage backend.
 		Example: DATABASE_URL=postgres://user:password@host:123/database
 
 		Additionally, the following query/DSN parameters are supported:
+
+      	* max_conns (number): Sets the maximum number of open connections to the database. Defaults to the number of CPU cores times 2.
+		* max_idle_conns (number): Sets the maximum number of connections in the idle. Defaults to the number of CPU cores.
+        * max_conn_lifetime (duratino): Sets the maximum amount of time ("ms", "s", "m", "h") a connection may be reused.
+		  Defaults to 0s (disabled).
 		* sslmode (string): Whether or not to use SSL (default is require)
 		  * disable - No SSL
 		  * require - Always SSL (skip verification)
@@ -58,9 +63,22 @@ func HelpMessage() string {
 		  ("ms", "s", "m", "h"), such as "30s", "0.5m" or "1m30s".
 		Example: DATABASE_URL=mysql://user:password@tcp(host:123)/database?parseTime=true&writeTimeout=123s
 
-	  The following settings can be configured using URL query parameters (postgres://.../database?max_conns=1):
-        * max_conns (number): Sets the maximum number of open connections to the database. Defaults to the number of CPU cores times 2.
-		* max_idle_conns (number): Sets the maximum number of connections in the idle. Defaults to the number of CPU cores.
-        * max_conn_lifetime (duratino): Sets the maximum amount of time ("ms", "s", "m", "h") a connection may be reused.
-		  Defaults to 0s (disabled).`
+	  - CockroachDB: If DATABASE_URL is a DSN starting with cockroach://, CockroachDB will be used as storage backend.
+		Example: DATABASE_URL=cockroach://user:password@host:123/database
+
+		Additionally, the following query/DSN parameters are supported:
+		* sslmode (string): Whether or not to use SSL (default is require)
+		  * disable - No SSL
+		  * require - Always SSL (skip verification)
+		  * verify-ca - Always SSL (verify that the certificate presented by the
+		    server was signed by a trusted CA)
+		  * verify-full - Always SSL (verify that the certification presented by
+		    the server was signed by a trusted CA and the server host name
+		    matches the one in the certificate)
+		* application_name (string): An initial value for the application_name session variable.
+		* sslcert (string): Cert file location. The file must contain PEM encoded data.
+		* sslkey (string): Key file location. The file must contain PEM encoded data.
+		* sslrootcert (string): The location of the root certificate file. The file
+		  must contain PEM encoded data.
+		Example: DATABASE_URL=cockroach://user:password@host:123/database?sslmode=verify-full`
 }

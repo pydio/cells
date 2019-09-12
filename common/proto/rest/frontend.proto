@@ -71,6 +71,11 @@ message FrontSessionResponse{
     map<string,string> TriggerInfo = 4;
 }
 
+message FrontAuthRequest {
+    string RequestID = 1;
+}
+message FrontAuthResponse {}
+
 message FrontEnrollAuthRequest{
     string EnrollType = 1;
     map<string,string> EnrollInfo = 2;

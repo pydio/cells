@@ -22,11 +22,11 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/coreos/go-oidc"
 	"github.com/golang/protobuf/ptypes"
@@ -40,11 +40,11 @@ import (
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -56,86 +56,129 @@ import (
 
 type client struct {
 	ID           string   `json:"id"`
+	ClientID     string   `json:"client_id"`
 	Secret       string   `json:"secret"`
+	ClientSecret string   `json:"client_secret"`
 	RedirectURIs []string `json:"redirectURIs"`
 }
 
-type JWTVerifier struct {
+type provider struct {
 	Issuer  string   `json:"issuer"`
 	Clients []client `json:"staticClients"`
 
-	provider *oidc.Provider
+	oidcProvider  *oidc.Provider
+	verifiers     []*oidc.IDTokenVerifier
+	oauth2Configs []oauth2.Config
+}
+
+var (
+	providers []*provider
+)
+
+type JWTVerifier struct{}
+
+func init() {
+
+	// Register dex configs
+	configDex := config.Values("services", "pydio.grpc.auth", "dex")
+	newProvider(configDex)
+
+	// Register oauth configs
+	configOAuth := config.Values("services", "pydio.web.oauth")
+	newProvider(configOAuth)
 }
 
 func DefaultJWTVerifier() *JWTVerifier {
-	var dex *JWTVerifier
-
-	configDex := config.Get("services", "pydio.grpc.auth", "dex")
-	remarshall, _ := json.Marshal(configDex)
-	json.Unmarshal(remarshall, &dex)
-
-	return dex
+	return &JWTVerifier{}
 }
 
-func (j *JWTVerifier) getProvider() (*oidc.Provider, error) {
-	if j.provider == nil {
+func newProvider(c common.ConfigValues) {
+	p := new(provider)
+
+	err := c.Scan(&p)
+	if err != nil {
+		return
+	}
+
+	providers = append(providers, p)
+
+	go func(p *provider) {
+		externalURL := config.Get("defaults", "url").String("")
+
 		ctx := oidc.ClientContext(context.Background(), &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: config.GetTLSClientConfig("proxy"),
 			},
 		})
-		provider, err := oidc.NewProvider(ctx, j.Issuer)
-		if err != nil {
-			log.Logger(ctx).Error("cannot init oidc provider", zap.Error(err))
-			return nil, err
+
+		for {
+			// Retrieve new provider
+			oidcProvider, err := oidc.NewProvider(ctx, p.Issuer)
+			if err != nil {
+				<-time.After(1 * time.Second)
+				continue
+			}
+
+			p.oidcProvider = oidcProvider
+			break
 		}
 
-		j.provider = provider
-	}
-	return j.provider, nil
+		// retrieve verifiers for each client
+		var verifiers []*oidc.IDTokenVerifier
+		for _, client := range p.Clients {
+			clientID := client.ID
+			if clientID == "" {
+				clientID = client.ClientID
+			}
+			verifiers = append(verifiers, p.oidcProvider.Verifier(&oidc.Config{ClientID: clientID, SkipNonceCheck: true}))
+		}
+		p.verifiers = verifiers
+
+		// retrieve oauthConfigs for each client
+		var oauth2Configs []oauth2.Config
+		for _, client := range p.Clients {
+			clientID := client.ID
+			clientSecret := client.Secret
+			if clientID == "" {
+				clientID = client.ClientID
+				clientSecret = client.ClientSecret
+			}
+
+			oauth2Configs = append(oauth2Configs, oauth2.Config{
+				ClientID:     clientID,
+				ClientSecret: clientSecret,
+				Endpoint:     p.oidcProvider.Endpoint(),
+				RedirectURL:  externalURL + "/login/callback",
+				Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+			})
+		}
+		p.oauth2Configs = oauth2Configs
+	}(p)
+}
+
+func (j *JWTVerifier) getProviders() ([]*provider, error) {
+	return providers, nil
 }
 
 func (j *JWTVerifier) getVerifiers() []*oidc.IDTokenVerifier {
 	var verifiers []*oidc.IDTokenVerifier
 
-	if provider, err := j.getProvider(); err == nil {
-		for _, client := range j.Clients {
-			verifiers = append(verifiers, provider.Verifier(&oidc.Config{ClientID: client.ID, SkipNonceCheck: true}))
-		}
+	for _, p := range providers {
+		verifiers = append(verifiers, p.verifiers...)
 	}
 
 	return verifiers
 }
 
-func (j *JWTVerifier) getOAuthConfigs() []oauth2.Config {
-	var configs []oauth2.Config
+func (j *JWTVerifier) getDefaultOAuthConfig() (*provider, oauth2.Config, error) {
 
-	if provider, err := j.getProvider(); err == nil {
-
-		externalURL := config.Get("defaults", "url").String("")
-
-		for _, client := range j.Clients {
-			configs = append(configs, oauth2.Config{
-				ClientID:     client.ID,
-				ClientSecret: client.Secret,
-				Endpoint:     provider.Endpoint(),
-				RedirectURL:  externalURL + "/login/callback",
-				Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
-			})
+	for _, p := range providers {
+		if len(p.oauth2Configs) > 0 {
+			return p, p.oauth2Configs[0], nil
 		}
-
 	}
 
-	return configs
-}
-
-func (j *JWTVerifier) getDefaultOAuthConfig() (oauth2.Config, error) {
-	configs := j.getOAuthConfigs()
-	if len(configs) > 0 {
-		return configs[0], nil
-	}
-
-	return oauth2.Config{}, fmt.Errorf("Not found")
+	return nil, oauth2.Config{}, fmt.Errorf("Not found")
 }
 
 func (j *JWTVerifier) loadClaims(ctx context.Context, token *oidc.IDToken, claims *claim.Claims) error {
@@ -203,6 +246,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 			e = err
 		} else {
 			idToken = testToken
+			e = nil
 			break
 		}
 	}
@@ -220,7 +264,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 
 // Verify validates an existing JWT token against the OIDC service that issued it
 func (j *JWTVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
-	oauth2Config, err := j.getDefaultOAuthConfig()
+	_, oauth2Config, err := j.getDefaultOAuthConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -239,6 +283,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 
 	idToken, err := j.verifyTokenWithRetry(ctx, rawIDToken, false)
 	if err != nil {
+		log.Logger(ctx).Error("error retrieving token", zap.Error(err))
 		return ctx, claim.Claims{}, err
 	}
 
@@ -259,6 +304,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 
 	claims := &claim.Claims{}
 	if err := j.loadClaims(ctx, idToken, claims); err != nil {
+		log.Logger(ctx).Error("got a token but failed to load claims", zap.Error(err))
 		return ctx, *claims, err
 	}
 
@@ -279,18 +325,13 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 // PasswordCredentialsToken will perform a call to the OIDC service with grantType "password"
 // to get a valid token from a given user/pass credentials
 func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName string, password string) (context.Context, claim.Claims, error) {
-	provider, err := j.getProvider()
-	if err != nil {
-		return ctx, claim.Claims{}, err
-	}
-
-	oauth2Config, err := j.getDefaultOAuthConfig()
+	provider, oauth2Config, err := j.getDefaultOAuthConfig()
 	if err != nil {
 		return ctx, claim.Claims{}, err
 	}
 
 	if token, err := oauth2Config.PasswordCredentialsToken(ctx, userName, password); err == nil {
-		idToken, _ := provider.Verifier(&oidc.Config{SkipClientIDCheck: true, SkipNonceCheck: true}).Verify(ctx, token.Extra("id_token").(string))
+		idToken, _ := provider.oidcProvider.Verifier(&oidc.Config{SkipClientIDCheck: true, SkipNonceCheck: true}).Verify(ctx, token.Extra("id_token").(string))
 
 		claims := &claim.Claims{}
 		if err := j.loadClaims(ctx, idToken, claims); err != nil {

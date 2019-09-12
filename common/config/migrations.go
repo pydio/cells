@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-version"
+	"github.com/ory/hydra/x"
 
 	"github.com/pydio/cells/common"
 )
@@ -68,10 +69,17 @@ func renameServices1(config *Config) (bool, error) {
 func setDefaultConfig(config *Config) (bool, error) {
 	var save bool
 
+	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
+	secret, err := x.GenerateSecret(32)
+	if err != nil {
+		return false, err
+	}
+
 	configKeys := map[string]interface{}{
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_HOST": "localhost",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_PORT": "9980",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_SSL":  true,
+		"services/" + oauthSrv + "/secret":                    string(secret),
 	}
 
 	for path, def := range configKeys {
@@ -91,10 +99,13 @@ func setDefaultConfig(config *Config) (bool, error) {
 func forceDefaultConfig(config *Config) (bool, error) {
 	var save bool
 	authSrv := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH
+	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
 	srvUrl := config.Get("defaults", "url").String("")
+
 	configKeys := map[string]interface{}{
 		"services/" + authSrv + "/dex/issuer":   srvUrl + "/auth/dex",
 		"services/" + authSrv + "/dex/web/http": srvUrl + "/auth/dex",
+		"services/" + oauthSrv + "/issuer":      srvUrl + "/oidc/",
 	}
 
 	for path, def := range configKeys {
@@ -106,16 +117,6 @@ func forceDefaultConfig(config *Config) (bool, error) {
 			config.Set(def, paths...)
 			save = true
 		}
-	}
-
-	if connectors, s, err := UpdateOIDCConnectorsConfig(config.Get("services", authSrv, "dex", "connectors").Bytes(), false, srvUrl); err == nil && s {
-		config.Set(connectors, "services", authSrv, "dex", "connectors")
-		save = true
-	}
-
-	if clients, s, err := UpdateOIDCClients(config.Get("services", authSrv, "dex", "staticClients").Bytes(), srvUrl); err == nil && s {
-		config.Set(clients, "services", authSrv, "dex", "staticClients")
-		save = true
 	}
 
 	return save, nil

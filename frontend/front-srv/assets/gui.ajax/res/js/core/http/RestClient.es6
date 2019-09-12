@@ -25,6 +25,7 @@ import moment from 'moment'
 import JobsServiceApi from "./gen/api/JobsServiceApi";
 import RestUserJobRequest from "./gen/model/RestUserJobRequest";
 import FrontendServiceApi from "./gen/api/FrontendServiceApi";
+import RestFrontAuthRequest from './gen/model/RestFrontAuthRequest';
 import RestFrontSessionRequest from "./gen/model/RestFrontSessionRequest";
 import RestFrontSessionResponse from "./gen/model/RestFrontSessionResponse";
 import IdmApi from './IdmApi'
@@ -88,11 +89,23 @@ class JwtApiClient extends ApiClient{
     sessionLogout(){
         const api = new FrontendServiceApi(this);
         const request = new RestFrontSessionRequest();
+
         request.Logout = true;
         return this.jwtEndpoint(request).then(response => {
             PydioApi.JWT_DATA = null;
             this.pydio.loadXmlRegistry();
         });
+    }
+
+    /**
+     * Call session endpoint for destroying session
+     */
+    sessionAuth(requestID){
+        const api = new FrontendServiceApi(this);
+        const request = new RestFrontAuthRequest();
+        request.RequestID = requestID;
+
+        return api.frontAuth(request)
     }
 
     /**

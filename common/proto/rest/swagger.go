@@ -1259,6 +1259,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/frontend/session/auth": {
+      "post": {
+        "summary": "Handle Auth callback",
+        "operationId": "FrontAuth",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontAuthResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restFrontAuthRequest"
+            }
+          }
+        ],
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
     "/frontend/session/callback": {
       "post": {
         "summary": "Handle Login Callback",
@@ -5605,6 +5632,17 @@ var SwaggerJson = `{
           }
         }
       }
+    },
+    "restFrontAuthRequest": {
+      "type": "object",
+      "properties": {
+        "RequestID": {
+          "type": "string"
+        }
+      }
+    },
+    "restFrontAuthResponse": {
+      "type": "object"
     },
     "restFrontBinaryRequest": {
       "type": "object",

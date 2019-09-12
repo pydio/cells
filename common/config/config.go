@@ -24,14 +24,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/file"
 	"github.com/spf13/cast"
 )
 
 // Map structure to store configuration
 type Map map[string]interface{}
+
+type Array []interface{}
 
 // Value Represent a value retrieved from the values loaded
 type Value interface {
@@ -56,14 +60,33 @@ func NewMap() *Map {
 // If there are no values associated with the key, Get returns
 // the empty string. To access multiple values, use the map
 // directly.
-func (c Map) Get(key string) interface{} {
+func (c Map) Get(keys ...string) interface{} {
 	if c == nil {
 		return nil
 	}
-	if v, ok := c[key]; ok {
+
+	if len(keys) == 0 {
+		return nil
+	}
+
+	k := keys[0]
+	keys = keys[1:]
+
+	v, ok := c[k]
+	if !ok {
+		return nil
+	}
+
+	if len(keys) == 0 {
 		return v
 	}
-	return nil
+
+	m, ok := v.(Map)
+	if !ok {
+		return nil
+	}
+
+	return m.Get(keys...)
 }
 
 func (c Map) Map(key string) map[string]interface{} {
@@ -83,26 +106,55 @@ func (c Map) Map(key string) map[string]interface{} {
 	return nil
 }
 
+func (c Map) Array(key string) common.Scanner {
+	var a Array
+
+	val := c.Get(key)
+
+	m, ok := val.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	a = m
+
+	return a
+}
+
 func (c Map) StringMap(key string) map[string]string {
 	return cast.ToStringMapString(c.Get(key))
 }
 
-func (c Map) String(key string) string {
+func (c Map) String(key string, def ...string) string {
 	if q := c.Get(key); q != nil {
 		switch v := q.(type) {
 		case []string:
 			if b, err := json.Marshal(v); err == nil {
 				return string(b)
 			}
+
+			if len(def) > 0 {
+				return "[" + strings.Join(def, ",") + "]"
+			}
+
 			return "[]"
 		case string:
 			return v
 		}
 	}
+
+	if len(def) > 1 {
+		return "[" + strings.Join(def, ",") + "]"
+	}
+
+	if len(def) > 0 {
+		return def[0]
+	}
+
 	return ""
 }
 
-func (c Map) StringArray(key string) []string {
+func (c Map) StringArray(key string, def ...[]string) []string {
 	val := c.Get(key)
 
 	switch v := val.(type) {
@@ -121,7 +173,29 @@ func (c Map) StringArray(key string) []string {
 		return a
 	}
 
+	if len(def) > 0 {
+		return def[0]
+	}
+
 	return []string{}
+}
+
+func (c Map) Duration(key string, def ...string) time.Duration {
+	val := c.String(key, "")
+
+	d, err := time.ParseDuration(val)
+	if err != nil {
+		if len(def) > 0 {
+			d, err := time.ParseDuration(def[0])
+			if err != nil {
+				return 0
+			}
+
+			return d
+		}
+	}
+
+	return d
 }
 
 // Database returns the driver and dsn in that order for the given key
@@ -223,13 +297,33 @@ func (c Map) Int64(key string, defaultValue ...int64) int64 {
 }
 
 func (c Map) Scan(val interface{}) error {
-	if jsonStr, err := json.Marshal(c); err != nil {
+	jsonStr, err := json.Marshal(c)
+	if err != nil {
 		return err
-	} else if err := json.Unmarshal(jsonStr, val); err != nil {
+	}
+
+	err = json.Unmarshal(jsonStr, val)
+	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (c Map) Bytes(key string, def ...[]byte) []byte {
+	str := c.String(key)
+	return []byte(str)
+}
+
+func (c Map) Values(key string) common.ConfigValues {
+	m, ok := c.Get(key).(map[string]interface{})
+	if !ok {
+		return NewMap()
+	}
+
+	var v Map = m
+
+	return v
 }
 
 // Set sets the key to value. It replaces any existing
@@ -244,6 +338,20 @@ func (c Map) Set(key string, value interface{}) error {
 // Del deletes the values associated with key.
 func (c Map) Del(key string) error {
 	delete(c, key)
+
+	return nil
+}
+
+func (a Array) Scan(val interface{}) error {
+	jsonStr, err := json.Marshal(a)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(jsonStr, val)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

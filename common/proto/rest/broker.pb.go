@@ -83,6 +83,8 @@ It has these top-level messages:
 	FrontLoginCallbackResponse
 	FrontSessionRequest
 	FrontSessionResponse
+	FrontAuthRequest
+	FrontAuthResponse
 	FrontEnrollAuthRequest
 	FrontEnrollAuthResponse
 	FrontBinaryRequest

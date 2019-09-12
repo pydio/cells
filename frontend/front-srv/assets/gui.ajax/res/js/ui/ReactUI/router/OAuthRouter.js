@@ -18,87 +18,54 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const OAuthRouterWrapper = (pydio) => {
-    class OAuthRouter extends React.PureComponent {
-        
+import PydioApi from 'pydio/http/api'
+import qs from 'query-string'
+
+export const OAuthLoginRouter = (pydio) => {
+    return class extends React.PureComponent {
+
+        loginChallenge;
+
         constructor(props) {
             super(props)
 
-            this.state = {
-                jwt: "INITIAL"
-            }
+            const parsed = qs.parse(location.search);
 
-            this._handleAuthorizeChange = this.handleAuthorizeChange.bind(this)
+            this.loginChallenge = parsed.login_challenge
         }
 
-        componentDidMount(props) {
-            this.handleAuthorizeChange()
+        authorize() {
 
-            pydio.observe('user_logged', this._handleAuthorizeChange)
-        }
+            const loginChallenge = this.loginChallenge
 
-        componentWillUnmount(props) {
-            pydio.stopObserving('user_logged', this._handleAuthorizeChange)
-        }
-
-        handleAuthorizeChange() {
-            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => this.setState({
-                jwt: jwt
-            }))
-        }
-
-        /**
-         * sends a request to the specified url from a form. this will change the window location.
-         * @param {string} path the path to send the post request to
-         * @param {object} params the paramiters to add to the url
-         * @param {string} [method=post] the method to use on the form
-         */
-
-        post(path, params, method='post') {
-
-            // The rest of this code assumes you are not using a library.
-            // It can be made less wordy if you use one.
-            const form = document.createElement('form');
-            form.method = method;
-            form.action = path;
-
-            const createInput = (key, val) => {
-                const hiddenField = document.createElement('input');
-                hiddenField.type = 'hidden';
-                hiddenField.name = key;
-                hiddenField.value = val;
-
-                form.appendChild(hiddenField);
-            }
-        
-            for (const key in params) {
-                if (params.hasOwnProperty(key)) {
-                    if (params[key] instanceof Array) {
-                        for (const idx in params[key]) {
-                            createInput(key, params[key][idx])
-                        }
-                    } else {
-                        createInput(key, params[key])
-                    }
+            PydioApi.getRestClient().getOrUpdateJwt().then((jwt) => {
+                const body = {
+                    subject: pydio.user.id,
                 }
-            }
-        
-            document.body.appendChild(form);
-            form.submit();
+                
+                fetch('/oidc/admin/oauth2/auth/requests/login/accept?' + qs.stringify({ login_challenge: loginChallenge }), {
+                    method: 'PUT',
+                    body: JSON.stringify(body),
+                    headers: { 'Content-Type': 'application/json' }
+                }).
+                then(function (response) {
+                    return response.json()
+                }).
+                then(function (response) {
+                    // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                    window.location.replace(response.redirect_to);
+                })
+            })
         }
 
         render() {
-            const {jwt} = this.state;
-
-            if (jwt === "INITIAL") {
-            } else if (jwt === "") {
-                 pydio.getController().fireAction('login');
-            } else {
-                this.post('/oauth2/auth' + window.location.search + '&access_token=' + jwt, {
-                    "scopes": ["openid", "profile", "email", "offline_access"],
-                })
+            if (pydio.user) {
+                this.authorize()
+                return null
             }
 
+            pydio.observe('user_logged', (u) => u && this.authorize())
+            
             return (
                 <div>
                     {this.props.children}
@@ -107,8 +74,79 @@ const OAuthRouterWrapper = (pydio) => {
             
         }
     }
-
-    return OAuthRouter;
 }
 
-export default OAuthRouterWrapper
+export const OAuthConsentRouter = (pydio) => {
+    return class extends React.PureComponent {
+
+        consentChallenge;
+
+        constructor(props) {
+            super(props)
+
+            const parsed = qs.parse(location.search);
+
+            this.consentChallenge = parsed.consent_challenge
+        }
+
+        authorize() {
+
+            const consentChallenge = this.consentChallenge
+
+            PydioApi.getRestClient().getOrUpdateJwt().then((jwt) => {
+                const body = {
+                    // A list of permissions the user granted to the OAuth 2.0 Client. This can be fewer permissions that initially requested, but are rarely more or other permissions than requested.
+                    grant_scope: ["openid", "profile", "email", "pydio", "offline"],
+                
+                    // Sets the audience the user authorized the client to use. Should be a subset of `requested_access_token_audience`.
+                    // grant_access_token_audience: ["cells-front"],
+                
+                    // The session allows you to set additional data in the access and ID tokens.
+                    session: {
+                        // Sets session data for the access and refresh token, as well as any future tokens issued by the
+                        // refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection.
+                        // If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties
+                        // can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care!
+                        access_token: {},
+                
+                        // Sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable
+                        // by anyone that has access to the ID Challenge. Use with care! Any information added here will be mirrored at
+                        // the `/userinfo` endpoint.
+                        id_token: {
+                            name: pydio.user.id
+                        },
+                    }
+                }
+                
+                fetch('/oidc/admin/oauth2/auth/requests/consent/accept?' + qs.stringify({ consent_challenge: consentChallenge }), {
+                    method: 'PUT',
+                    body: JSON.stringify(body),
+                    headers: { 'Content-Type': 'application/json' }
+                }).
+                then(function (response) {
+                    return response.json()
+                }).
+                then(function (response) {
+                    // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                    window.location.replace(response.redirect_to);
+                })
+            })
+        }
+
+        render() {
+            if (pydio.user) {
+                this.authorize()
+                return null
+            }
+
+            pydio.observe('user_logged', (u) => u && this.authorize())
+            
+            return (
+                <div>
+                    {this.props.children}
+                </div>
+            )
+            
+        }
+    }
+}

@@ -21,7 +21,6 @@
 package lib
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 
@@ -29,11 +28,8 @@ import (
 
 	"github.com/pydio/cells/discovery/install/assets"
 
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
 )
 
@@ -53,13 +49,6 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	authGrpc := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH
 	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", authGrpc, "dex", "issuer")
 	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", authGrpc, "dex", "web", "http")
-
-	// Rewrite Dex Connectors
-	if connectors, _, err := config.UpdateOIDCConnectorsConfig(config.Get("services", authGrpc, "dex", "connectors").Bytes(), true, url); err == nil {
-		config.Set(connectors, "services", authGrpc, "dex", "connectors")
-	} else {
-		log.Logger(context.Background()).Error("Could not update Dex Connectors", zap.Error(err))
-	}
 
 	// Rewrite Dex Static Clients
 	dexStaticClient := &DexClient{
