@@ -3,12 +3,14 @@
 
 package rest
 
-import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import _ "github.com/pydio/cells/common/proto/activity"
-import _ "github.com/pydio/cells/common/proto/log"
+import (
+	fmt "fmt"
+	math "math"
+	proto "github.com/golang/protobuf/proto"
+	_ "github.com/pydio/cells/common/proto/activity"
+	_ "github.com/pydio/cells/common/proto/log"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal

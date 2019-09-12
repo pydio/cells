@@ -25,6 +25,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/coreos/dex/storage/sql"
 	"github.com/micro/go-micro"
@@ -114,8 +115,14 @@ func init() {
 					return nil
 				}
 
-				if err := setup(conf); err != nil {
-					return nil, err
+				for {
+					err := setup(conf)
+					if err != nil {
+						fmt.Println(err)
+						<-time.After(1 * time.Second)
+						continue
+					}
+					break
 				}
 
 				// Watching plugins

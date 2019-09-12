@@ -1,14 +1,16 @@
 PROJ=dex
-ORG_PATH=github.com/dexidp
+ORG_PATH=github.com/coreos
 REPO_PATH=$(ORG_PATH)/$(PROJ)
 export PATH := $(PWD)/bin:$(PATH)
 
 VERSION ?= $(shell ./scripts/git-version)
 
-DOCKER_REPO=quay.io/dexidp/dex
+DOCKER_REPO=quay.io/coreos/dex
 DOCKER_IMAGE=$(DOCKER_REPO):$(VERSION)
 
 $( shell mkdir -p bin )
+$( shell mkdir -p _output/images )
+$( shell mkdir -p _output/bin )
 
 user=$(shell id -u -n)
 group=$(shell id -g -n)
@@ -19,13 +21,13 @@ LD_FLAGS="-w -X $(REPO_PATH)/version.Version=$(VERSION)"
 
 build: bin/dex bin/example-app bin/grpc-client
 
-bin/dex:
+bin/dex: check-go-version
 	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/dex
 
-bin/example-app:
+bin/example-app: check-go-version
 	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/example-app
 
-bin/grpc-client:
+bin/grpc-client: check-go-version
 	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/examples/grpc-client
 
 .PHONY: release-binary
@@ -34,37 +36,44 @@ release-binary:
 
 .PHONY: revendor
 revendor:
-	@go mod tidy -v
-	@go mod vendor -v
-	@go mod verify
+	@glide up -v
+	@glide-vc --use-lock-file --no-tests --only-code
 
 test:
-	@go test -v ./...
+	@go test -v -i $(shell go list ./... | grep -v '/vendor/')
+	@go test -v $(shell go list ./... | grep -v '/vendor/')
 
 testrace:
-	@go test -v --race ./...
+	@go test -v -i --race $(shell go list ./... | grep -v '/vendor/')
+	@go test -v --race $(shell go list ./... | grep -v '/vendor/')
 
 vet:
-	@go vet ./...
+	@go vet $(shell go list ./... | grep -v '/vendor/')
 
 fmt:
-	@./scripts/gofmt ./...
+	@go fmt $(shell go list ./... | grep -v '/vendor/')
 
-lint: bin/golint
-	@./bin/golint -set_exit_status $(shell go list ./...)
+lint:
+	@for package in $(shell go list ./... | grep -v '/vendor/' | grep -v '/api' | grep -v '/server/internal'); do \
+      golint -set_exit_status $$package $$i || exit 1; \
+	done
+
+_output/bin/dex:
+	@./scripts/docker-build
+	@sudo chown $(user):$(group) _output/bin/dex
 
 .PHONY: docker-image
-docker-image:
+docker-image: clean-release _output/bin/dex
 	@sudo docker build -t $(DOCKER_IMAGE) .
 
 .PHONY: proto
-proto: bin/protoc bin/protoc-gen-go
-	@./bin/protoc --go_out=plugins=grpc:. --plugin=protoc-gen-go=./bin/protoc-gen-go api/*.proto
-	@./bin/protoc --go_out=. --plugin=protoc-gen-go=./bin/protoc-gen-go server/internal/*.proto
+proto: api/api.pb.go server/internal/types.pb.go
 
-.PHONY: verify-proto
-verify-proto: proto
-	@./scripts/git-diff
+api/api.pb.go: api/api.proto bin/protoc bin/protoc-gen-go
+	@./bin/protoc --go_out=plugins=grpc:. --plugin=protoc-gen-go=./bin/protoc-gen-go api/*.proto
+
+server/internal/types.pb.go: server/internal/types.proto bin/protoc bin/protoc-gen-go
+	@./bin/protoc --go_out=. --plugin=protoc-gen-go=./bin/protoc-gen-go server/internal/*.proto
 
 bin/protoc: scripts/get-protoc
 	@./scripts/get-protoc bin/protoc
@@ -72,11 +81,16 @@ bin/protoc: scripts/get-protoc
 bin/protoc-gen-go:
 	@go install -v $(REPO_PATH)/vendor/github.com/golang/protobuf/protoc-gen-go
 
-bin/golint:
-	@go install -v $(REPO_PATH)/vendor/golang.org/x/lint/golint
+.PHONY: check-go-version
+check-go-version:
+	@./scripts/check-go-version
 
-clean:
+clean: clean-release
 	@rm -rf bin/
+
+.PHONY: clean-release
+clean-release:
+	@rm -rf _output/
 
 testall: testrace vet fmt lint
 

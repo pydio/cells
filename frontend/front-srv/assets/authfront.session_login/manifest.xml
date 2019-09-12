@@ -32,7 +32,7 @@
                 <rightsContext noUser="false" userLogged="only" guestLogged="hidden" read="false" write="false" adminOnly=""/>
                 <processing>
                     <clientCallback module="AuthfrontCoreActions.Callbacks.sessionLogout"/>
-                </processing>
+                </processing> 
             </action>
         </actions>
     </registry_contributions>

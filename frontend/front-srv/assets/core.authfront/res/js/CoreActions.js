@@ -26,6 +26,28 @@ import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
 let pydio = window.pydio;
 
+const LanguagePicker = () => {
+    const items = []
+    
+    pydio.listLanguagesWithCallback((key, label, current) => items.push(
+        <MenuItem
+            primaryText={label}
+            value={key}
+            rightIcon={current ? <FontIcon className="mdi mdi-check"/> : null}
+        />
+    ))
+    
+    return (
+        <IconMenu
+            iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline-variant" iconStyle={{fontSize:20,color:'rgba(255,255,255,.67)'}}/>}
+            onItemTouchTap={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
+            desktop={true}
+        >
+            {items}
+        </IconMenu>
+    );
+}
+
 let LoginDialogMixin = {
 
     getInitialState(){
@@ -50,6 +72,7 @@ let LoginDialogMixin = {
             if (r.data && r.data.Trigger){
                 return;
             }
+
             this.dismiss();
         }).catch(e => {
             if (e.response && e.response.body) {
@@ -168,24 +191,12 @@ let LoginPasswordDialog = React.createClass({
             height: 120
         };
 
-        let languages = [];
-        pydio.listLanguagesWithCallback((key, label, current) => {
-            languages.push(<MenuItem primaryText={label} value={key} rightIcon={current?<FontIcon className="mdi mdi-check"/>:null}/>);
-        });
-        const languageMenu = (
-            <IconMenu
-                iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline-variant" iconStyle={{fontSize:20,color:'rgba(255,255,255,.67)'}}/>}
-                onItemTouchTap={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
-                desktop={true}
-            >{languages}</IconMenu>
-        );
-
         return (
             <DarkThemeContainer>
                 {logoUrl && <div style={logoStyle}></div>}
                 <div className="dialogLegend" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
                     {pydio.MessageHash[passwordOnly ? 552 : 180]}
-                    {languageMenu}
+                    <LanguagePicker />
                 </div>
                 {errorMessage}
                 {additionalComponentsTop}
@@ -304,18 +315,21 @@ class Callbacks{
             return;
         }
 
-        PydioApi.getRestClient().sessionLogout();
+        PydioApi.getRestClient().sessionLogout()
+            .finally((e) => window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout');
 
     }
 
-    static loginPassword(props = {}) {
+    static loginPassword(manager, args = []) {
 
         if(Pydio.getInstance().Parameters.get("PRELOG_USER")){
             return;
         }
 
-        pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', {...props, blur: true});
+        const {...props} = args[0] || {};
 
+        pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', {...props, blur: true});
+        
     }
 
 }
@@ -498,4 +512,4 @@ const ResetPasswordDialog = React.createClass({
 
 });
 
-export {Callbacks, LoginPasswordDialog, ResetPasswordRequire, ResetPasswordDialog, MultiAuthModifier}
+export {Callbacks, LoginPasswordDialog, ResetPasswordRequire, ResetPasswordDialog, MultiAuthModifier, LanguagePicker}

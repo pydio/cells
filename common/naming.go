@@ -58,6 +58,7 @@ const (
 	SERVICE_ROLE      = "role"
 	SERVICE_USER      = "user"
 	SERVICE_AUTH      = "auth"
+	SERVICE_OAUTH     = "oauth"
 	SERVICE_WORKSPACE = "workspace"
 	SERVICE_POLICY    = "policy"
 	SERVICE_GRAPH     = "graph"

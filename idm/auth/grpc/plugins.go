@@ -79,6 +79,8 @@ func init() {
 					sqlConfig.File = dsn
 				}
 
+				fmt.Println(c.Web)
+
 				if config.Get("cert", "http", "ssl").Bool(false) {
 					log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
 					certFile := config.Get("cert", "http", "certFile").String("")

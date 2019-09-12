@@ -50,6 +50,30 @@ var _pydioHttpRestApi = require("pydio/http/rest-api");
 
 var pydio = window.pydio;
 
+var LanguagePicker = function LanguagePicker() {
+    var items = [];
+
+    pydio.listLanguagesWithCallback(function (key, label, current) {
+        return items.push(React.createElement(_materialUi.MenuItem, {
+            primaryText: label,
+            value: key,
+            rightIcon: current ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null
+        }));
+    });
+
+    return React.createElement(
+        _materialUi.IconMenu,
+        {
+            iconButtonElement: React.createElement(_materialUi.IconButton, { tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-flag-outline-variant', iconStyle: { fontSize: 20, color: 'rgba(255,255,255,.67)' } }),
+            onItemTouchTap: function (e, o) {
+                pydio.loadI18NMessages(o.props.value);
+            },
+            desktop: true
+        },
+        items
+    );
+};
+
 var LoginDialogMixin = {
 
     getInitialState: function getInitialState() {
@@ -75,6 +99,7 @@ var LoginDialogMixin = {
             if (r.data && r.data.Trigger) {
                 return;
             }
+
             _this.dismiss();
         })['catch'](function (e) {
             if (e.response && e.response.body) {
@@ -220,22 +245,6 @@ var LoginPasswordDialog = React.createClass({
             height: 120
         };
 
-        var languages = [];
-        pydio.listLanguagesWithCallback(function (key, label, current) {
-            languages.push(React.createElement(_materialUi.MenuItem, { primaryText: label, value: key, rightIcon: current ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null }));
-        });
-        var languageMenu = React.createElement(
-            _materialUi.IconMenu,
-            {
-                iconButtonElement: React.createElement(_materialUi.IconButton, { tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-flag-outline-variant', iconStyle: { fontSize: 20, color: 'rgba(255,255,255,.67)' } }),
-                onItemTouchTap: function (e, o) {
-                    pydio.loadI18NMessages(o.props.value);
-                },
-                desktop: true
-            },
-            languages
-        );
-
         return React.createElement(
             DarkThemeContainer,
             null,
@@ -244,7 +253,7 @@ var LoginPasswordDialog = React.createClass({
                 'div',
                 { className: 'dialogLegend', style: { fontSize: 22, paddingBottom: 12, lineHeight: '28px' } },
                 pydio.MessageHash[passwordOnly ? 552 : 180],
-                languageMenu
+                React.createElement(LanguagePicker, null)
             ),
             errorMessage,
             additionalComponentsTop,
@@ -391,18 +400,35 @@ var Callbacks = (function () {
                 return;
             }
 
-            _pydioHttpApi2['default'].getRestClient().sessionLogout();
+            _pydioHttpApi2['default'].getRestClient().sessionLogout()['finally'](function (e) {
+                return window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout';
+            });
         }
     }, {
         key: 'loginPassword',
-        value: function loginPassword() {
-            var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+        value: function loginPassword(manager) {
+            var args = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
 
             if (Pydio.getInstance().Parameters.get("PRELOG_USER")) {
                 return;
             }
 
-            pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, props, { blur: true }));
+            var _ref = args[0] || {};
+
+            var _ref$createAuthRequest = _ref.createAuthRequest;
+            var createAuthRequest = _ref$createAuthRequest === undefined ? true : _ref$createAuthRequest;
+
+            var props = _objectWithoutProperties(_ref, ['createAuthRequest']);
+
+            var fn = function fn() {
+                return pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, props, { blur: true }));
+            };
+
+            if (createAuthRequest) {
+                _pydioHttpApi2['default'].getRestClient().jwtWithAuthInfo({ type: "create_auth_request" }).then(fn);
+            } else {
+                fn();
+            }
         }
     }]);
 
@@ -602,3 +628,4 @@ exports.LoginPasswordDialog = LoginPasswordDialog;
 exports.ResetPasswordRequire = ResetPasswordRequire;
 exports.ResetPasswordDialog = ResetPasswordDialog;
 exports.MultiAuthModifier = MultiAuthModifier;
+exports.LanguagePicker = LanguagePicker;

@@ -52,6 +52,10 @@ var _genApiFrontendServiceApi = require("./gen/api/FrontendServiceApi");
 
 var _genApiFrontendServiceApi2 = _interopRequireDefault(_genApiFrontendServiceApi);
 
+var _genModelRestFrontAuthRequest = require('./gen/model/RestFrontAuthRequest');
+
+var _genModelRestFrontAuthRequest2 = _interopRequireDefault(_genModelRestFrontAuthRequest);
+
 var _genModelRestFrontSessionRequest = require("./gen/model/RestFrontSessionRequest");
 
 var _genModelRestFrontSessionRequest2 = _interopRequireDefault(_genModelRestFrontSessionRequest);
@@ -131,11 +135,34 @@ var JwtApiClient = (function (_ApiClient) {
 
         var api = new _genApiFrontendServiceApi2['default'](this);
         var request = new _genModelRestFrontSessionRequest2['default']();
+
         request.Logout = true;
-        this.jwtEndpoint(request).then(function (response) {
+        return this.jwtEndpoint(request).then(function (response) {
             _PydioApi2['default'].JWT_DATA = null;
             _this.pydio.loadXmlRegistry();
         });
+    };
+
+    /**
+     * Call session endpoint for destroying session
+     */
+
+    JwtApiClient.prototype.sessionAuth = function sessionAuth(requestID) {
+        var api = new _genApiFrontendServiceApi2['default'](this);
+        var request = new _genModelRestFrontAuthRequest2['default']();
+        request.RequestID = requestID;
+
+        return api.frontAuth(request);
+    };
+
+    /**
+     * Create AuthInfo request with type "authorization_code"
+     * @param code string
+     * @return {Promise<any>}
+     */
+
+    JwtApiClient.prototype.jwtFromAuthorizationCode = function jwtFromAuthorizationCode(code) {
+        return this.jwtWithAuthInfo({ code: code, type: "authorization_code" }, false);
     };
 
     /**
@@ -162,6 +189,7 @@ var JwtApiClient = (function (_ApiClient) {
         return this.jwtEndpoint(request).then(function (response) {
             if (response.data && response.data.JWT) {
                 JwtApiClient.storeJwtLocally(response.data);
+
                 if (reloadRegistry) {
                     var targetRepository = null;
                     if (_this2.pydio.Parameters.has('START_REPOSITORY')) {

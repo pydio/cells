@@ -28,6 +28,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _reactRouterDom = require('react-router-dom');
+
 var _reactRouterLibRouter = require('react-router/lib/Router');
 
 var _reactRouterLibRouter2 = _interopRequireDefault(_reactRouterLibRouter);
@@ -56,20 +58,46 @@ var _PathRouter = require('./PathRouter');
 
 var _PathRouter2 = _interopRequireDefault(_PathRouter);
 
-var _HomeRouter = require('./HomeRouter');
+var _OAuthRouter = require('./OAuthRouter');
 
-var _HomeRouter2 = _interopRequireDefault(_HomeRouter);
+var _LoginRouter = require('./LoginRouter');
+
+var _LoginRouter2 = _interopRequireDefault(_LoginRouter);
+
+var _LoginCallbackRouter = require('./LoginCallbackRouter');
+
+var _LoginCallbackRouter2 = _interopRequireDefault(_LoginCallbackRouter);
+
+var _LogoutRouter = require('./LogoutRouter');
+
+var _LogoutRouter2 = _interopRequireDefault(_LogoutRouter);
 
 function getRoutes(pydio) {
     var routes = React.createElement(
-        _reactRouterLibRoute2['default'],
-        { path: '/', component: _MainRouter2['default'](pydio) },
-        React.createElement(_reactRouterLibIndexRoute2['default'], { component: _HomeRouter2['default'] }),
+        _reactRouterDom.Switch,
+        null,
         React.createElement(
             _reactRouterLibRoute2['default'],
-            { path: ':workspaceId', component: _WorkspaceRouter2['default'](pydio) },
-            React.createElement(_reactRouterLibIndexRoute2['default'], { component: _PathRouter2['default'](pydio) }),
-            React.createElement(_reactRouterLibRoute2['default'], { path: '*', component: _PathRouter2['default'](pydio) })
+            { path: 'login' },
+            React.createElement(_reactRouterLibIndexRoute2['default'], { component: _LoginRouter2['default'](pydio) }),
+            React.createElement(_reactRouterLibRoute2['default'], { path: 'callback', component: _LoginCallbackRouter2['default'](pydio) })
+        ),
+        React.createElement(_reactRouterLibRoute2['default'], { path: 'logout', component: _LogoutRouter2['default'](pydio) }),
+        React.createElement(
+            _reactRouterLibRoute2['default'],
+            { path: 'oauth2' },
+            React.createElement(_reactRouterLibRoute2['default'], { path: 'login', component: _OAuthRouter.OAuthLoginRouter(pydio) }),
+            React.createElement(_reactRouterLibRoute2['default'], { path: 'consent', component: _OAuthRouter.OAuthConsentRouter(pydio) })
+        ),
+        React.createElement(
+            _reactRouterLibRoute2['default'],
+            { path: '/', component: _MainRouter2['default'](pydio) },
+            React.createElement(
+                _reactRouterLibRoute2['default'],
+                { path: ':workspaceId', component: _WorkspaceRouter2['default'](pydio) },
+                React.createElement(_reactRouterLibIndexRoute2['default'], { component: _PathRouter2['default'](pydio) }),
+                React.createElement(_reactRouterLibRoute2['default'], { path: '*', component: _PathRouter2['default'](pydio) })
+            )
         )
     );
     return routes;
@@ -82,6 +110,10 @@ var PydioRouter = (function (_React$PureComponent) {
         _classCallCheck(this, PydioRouter);
 
         _React$PureComponent.call(this, props);
+
+        this.state = {
+            renderOnce: true
+        };
     }
 
     PydioRouter.prototype.render = function render() {

@@ -224,6 +224,17 @@ func (c *Config) Unmarshal(val interface{}) error {
 func (c *Config) UnmarshalKey(key string, val interface{}) error {
 	return c.Config.Get(key).Scan(&val)
 }
+func Values(keys ...string) common.ConfigValues {
+	var m Map
+
+	err := Default().Get(keys[0 : len(keys)-1]...).Scan(&m)
+	if err != nil {
+		fmt.Println("Error converting map", err)
+		return nil
+	}
+
+	return m.Values(keys[len(keys)-1])
+}
 
 func watchConfig() {
 

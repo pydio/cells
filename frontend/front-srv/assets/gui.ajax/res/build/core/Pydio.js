@@ -134,13 +134,18 @@ var Pydio = (function (_Observable) {
             this.WebSocketClient.open();
         }
         if (!this.Parameters.has('START_REPOSITORY')) {
-            var loadUriParts = _utilLangUtils2['default'].trim(window.location.href.replace(parameters.get('FRONTEND_URL'), ''), '/').split('/');
+            var uri = window.location.href.replace(parameters.get('FRONTEND_URL'), '').replace(window.location.search, '');
+
+            var loadUriParts = _utilLangUtils2['default'].trim(uri, '/').split('/');
             if (loadUriParts.length) {
                 var loadWs = loadUriParts[0];
                 var other = loadUriParts.slice(1);
 
                 if (loadWs.indexOf('ws-') === 0) {
                     loadWs = loadWs.substr(3);
+                }
+                if (loadWs === "login") {
+                    return;
                 }
                 this.Parameters.set('START_REPOSITORY', loadWs);
                 if (other.length) {
@@ -200,7 +205,6 @@ var Pydio = (function (_Observable) {
         var _this2 = this;
 
         this.observe("registry_loaded", function () {
-
             _this2.Registry.refreshExtensionsRegistry();
             _this2.updateUser(_this2.Registry.parseUser(), false);
             if (_this2.user) {

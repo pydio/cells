@@ -10461,6 +10461,25 @@
             "description": "Call session endpoint for destroying session"
           },
           {
+            "name": "jwtFromAuthorizationCode",
+            "docblock": "Create AuthInfo request with type \"authorization_code\"\n@param code string\n@return {Promise<any>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "code",
+                "description": "string",
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Create AuthInfo request with type \"authorization_code\""
+          },
+          {
             "name": "jwtFromCredentials",
             "docblock": "Create AuthInfo request with type \"credentials\"\n@param login string\n@param password string\n@param reloadRegistry bool\n@return {Promise<any>}",
             "modifiers": [],
@@ -12443,6 +12462,32 @@
             "description": "List all defined virtual nodes"
           },
           {
+            "name": "oAuthConfigurationWithHttpInfo",
+            "docblock": "@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOAuthConfigurationResponse} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOAuthConfigurationResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
+            "name": "oAuthConfiguration",
+            "docblock": "@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOAuthConfigurationResponse}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOAuthConfigurationResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
             "name": "openApiDiscoveryWithHttpInfo",
             "docblock": "Publish available REST APIs\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOpenApiResponse} and HTTP response",
             "modifiers": [],
@@ -12687,6 +12732,48 @@
               }
             },
             "description": "Generic endpoint that can be implemented by 2FA systems for enrollment"
+          },
+          {
+            "name": "frontLoginCallbackWithHttpInfo",
+            "docblock": "Handle Login Callback\n@param {module:model/RestFrontLoginCallbackRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestFrontLoginCallbackRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Handle Login Callback"
+          },
+          {
+            "name": "frontLoginCallback",
+            "docblock": "Handle Login Callback\n@param {module:model/RestFrontLoginCallbackRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestFrontLoginCallbackRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Handle Login Callback"
           },
           {
             "name": "frontMessagesWithHttpInfo",
@@ -21066,6 +21153,52 @@
         ]
       }
     ],
+    "core/http/gen/model/RestFrontLoginCallbackRequest.js": [
+      {
+        "description": "The RestFrontLoginCallbackRequest model module.\n@module model/RestFrontLoginCallbackRequest\n@version 1.0",
+        "displayName": "RestFrontLoginCallbackRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontLoginCallbackRequest</code>.\n@alias module:model/RestFrontLoginCallbackRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontLoginCallbackRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontLoginCallbackRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontLoginCallbackRequest} obj Optional instance to populate.\n@return {module:model/RestFrontLoginCallbackRequest} The populated <code>RestFrontLoginCallbackRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontLoginCallbackRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontLoginCallbackRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontLoginCallbackRequest"
+              }
+            },
+            "description": "Constructs a <code>RestFrontLoginCallbackRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestFrontMessagesResponse.js": [
       {
         "description": "The RestFrontMessagesResponse model module.\n@module model/RestFrontMessagesResponse\n@version 1.0",
@@ -21982,6 +22115,52 @@
               }
             },
             "description": "Constructs a <code>RestNodesCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestOAuthConfigurationResponse.js": [
+      {
+        "description": "The RestOAuthConfigurationResponse model module.\n@module model/RestOAuthConfigurationResponse\n@version 1.0",
+        "displayName": "RestOAuthConfigurationResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestOAuthConfigurationResponse</code>.\n@alias module:model/RestOAuthConfigurationResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestOAuthConfigurationResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestOAuthConfigurationResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestOAuthConfigurationResponse} obj Optional instance to populate.\n@return {module:model/RestOAuthConfigurationResponse} The populated <code>RestOAuthConfigurationResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestOAuthConfigurationResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestOAuthConfigurationResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestOAuthConfigurationResponse"
+              }
+            },
+            "description": "Constructs a <code>RestOAuthConfigurationResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
