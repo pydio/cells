@@ -152,7 +152,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		sessionName = sessionName + "-" + h
 	}
 	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
-	if err != nil {
+	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
 	}

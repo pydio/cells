@@ -79,7 +79,7 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 			sessionName = sessionName + "-" + strings.Join(h, "")
 		}
 		session, err := GetSessionStore().Get(r, sessionName)
-		if err != nil {
+		if err != nil && !strings.Contains(err.Error(), "securecookie: the value is not valid") {
 			log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
 		}
 		//log.Logger(r.Context()).Info("Loading session name", zap.String("s", sessionName), zap.Any("jwt", session.Values["jwt"]))
