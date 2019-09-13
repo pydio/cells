@@ -668,6 +668,12 @@
 			"revisionTime": "2017-11-20T01:03:07Z"
 		},
 		{
+			"checksumSHA1": "q80QFVMYa7tNChN4JZ28WVgePCs=",
+			"path": "github.com/cenkalti/backoff",
+			"revision": "2146c93394225c3732078705043ce9f26584d334",
+			"revisionTime": "2019-05-06T07:51:56Z"
+		},
+		{
 			"checksumSHA1": "PYXuf7wvcj492uWhjvmXlyyQUYc=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/lucas-clemente/quic-go/vendor/github.com/cheekybits/genny/generic",
 			"path": "github.com/cheekybits/genny/generic",
@@ -2217,16 +2223,16 @@
 			"revisionTime": "2018-01-09T21:29:12Z"
 		},
 		{
-			"checksumSHA1": "Thmrezy2+xEG9MhR6TPb3yKvBIQ=",
-			"path": "github.com/karrick/godirwalk",
-			"revision": "5e617d9cfec6f870e63b168e9a2fb7c490a1c108",
-			"revisionTime": "2019-05-10T20:35:04Z"
-		},
-		{
 			"checksumSHA1": "z/DzcKNumSHzzxg9Widbi9KgwNw=",
 			"path": "github.com/julienschmidt/httprouter",
 			"revision": "26a05976f9bf5c3aa992cc20e8588c359418ee58",
 			"revisionTime": "2018-10-21T22:38:31Z"
+		},
+		{
+			"checksumSHA1": "Thmrezy2+xEG9MhR6TPb3yKvBIQ=",
+			"path": "github.com/karrick/godirwalk",
+			"revision": "5e617d9cfec6f870e63b168e9a2fb7c490a1c108",
+			"revisionTime": "2019-05-10T20:35:04Z"
 		},
 		{
 			"checksumSHA1": "ZAwOhj3rRI9u1+XelsFJmYMSGpY=",
@@ -3287,6 +3293,12 @@
 			"revisionTime": "2013-12-21T20:05:32Z"
 		},
 		{
+			"checksumSHA1": "R8z+BOS81hOWgcqymuVWHNta/yc=",
+			"path": "github.com/oleiade/reflections",
+			"revision": "0e86b3c98b2ff33e30c85cfe97d9a63d439fe7eb",
+			"revisionTime": "2016-08-17T07:03:35Z"
+		},
+		{
 			"checksumSHA1": "txsZLJ7XQsUIoAze9dD+XHYJguk=",
 			"path": "github.com/olekukonko/tablewriter",
 			"revision": "b8a9be070da40449e501c3c4730a889e42d87a9e",
@@ -3369,6 +3381,12 @@
 			"path": "github.com/ory/go-convenience/stringsx",
 			"revision": "ab120a447a7fe88a9c3b7cbfca477340b0e88ef3",
 			"revisionTime": "2018-10-08T11:33:10Z"
+		},
+		{
+			"checksumSHA1": "5NCrZV5kF7bXU4w7T+28I/V0Epo=",
+			"path": "github.com/ory/gojsonschema",
+			"revision": "a64d4f8926919e182a1a447058aa31ffb1566470",
+			"revisionTime": "2019-07-20T14:02:44Z"
 		},
 		{
 			"checksumSHA1": "Rhi165esp5rWXDiLLc07IZGUpcQ=",
@@ -3642,6 +3660,12 @@
 			"path": "github.com/pquerna/cachecontrol/cacheobject",
 			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
 			"revisionTime": "2018-04-06T10:54:59Z"
+		},
+		{
+			"checksumSHA1": "UcahVbxaRZ35Wh58lM9AWEbUEts=",
+			"path": "github.com/prometheus/client_golang/prometheus/promhttp",
+			"revision": "b4781a8cbdccaef5a0a785bea59ca3d5adc1554f",
+			"revisionTime": "2019-08-30T11:28:58Z"
 		},
 		{
 			"checksumSHA1": "v7JvA8xYrYPkgol6XU29z2aPvcQ=",
@@ -4157,6 +4181,12 @@
 			"path": "github.com/stretchr/testify/require",
 			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
 			"revisionTime": "2018-03-14T08:05:35Z"
+		},
+		{
+			"checksumSHA1": "MZ4JU44HUXZ4JB+oxYrw9wpaOZU=",
+			"path": "github.com/subosito/gotenv",
+			"revision": "9a514f5d13c15e6b1116aa2210ca142e1531e873",
+			"revisionTime": "2019-09-06T15:52:50Z"
 		},
 		{
 			"checksumSHA1": "GQ9bu6PuydK3Yor1JgtVKUfEJm8=",
