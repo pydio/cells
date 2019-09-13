@@ -3728,6 +3728,18 @@
 			"revisionTime": "2019-09-05T20:14:53Z"
 		},
 		{
+			"checksumSHA1": "KW5XhSxhVaEfvr5uKJQGrSz2z4I=",
+			"path": "github.com/prometheus/procfs/internal/fs",
+			"revision": "8664f2c2972d68fceb4361449e91f1ebe0ced4fe",
+			"revisionTime": "2019-09-05T20:14:53Z"
+		},
+		{
+			"checksumSHA1": "qAI4PxOOcHBpZ5i03ntVaLudXo8=",
+			"path": "github.com/prometheus/procfs/internal/util",
+			"revision": "8664f2c2972d68fceb4361449e91f1ebe0ced4fe",
+			"revisionTime": "2019-09-05T20:14:53Z"
+		},
+		{
 			"checksumSHA1": "v7JvA8xYrYPkgol6XU29z2aPvcQ=",
 			"path": "github.com/pydio/cells-sdk-go",
 			"revision": "c0973b667fb044bc984b6e0433567143893e0637",
