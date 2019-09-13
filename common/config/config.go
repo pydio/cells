@@ -113,10 +113,10 @@ func (c Map) Array(key string) common.Scanner {
 
 	m, ok := val.([]interface{})
 	if !ok {
-		return nil
+		a = []interface{}{}
+	} else {
+		a = m
 	}
-
-	a = m
 
 	return a
 }
