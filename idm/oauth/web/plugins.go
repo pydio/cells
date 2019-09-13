@@ -60,7 +60,6 @@ func init() {
 			service.Name(common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("OAuth Provider"),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
 			service.WithStorage(oauth.NewDAO),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 				return service.RunnerFunc(func() error {
@@ -125,7 +124,10 @@ func initialize(s service.Service) error {
 
 	r := reg.(*driver.RegistrySQL).WithDB(db)
 	r.Init()
-
+	sql.LockMigratePackage()
+	defer func() {
+		sql.UnlockMigratePackage()
+	}()
 	if _, err := r.ClientManager().(*client.SQLManager).CreateSchemas(dao.Driver()); err != nil {
 		return err
 	}

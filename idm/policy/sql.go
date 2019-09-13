@@ -63,9 +63,12 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	db := sqlx.NewDb(s.DB(), s.Driver())
 	manag := manager.NewSQLManager(db, nil)
 
+	sql.LockMigratePackage()
 	if _, err := manag.CreateSchemas("", ""); err != nil {
+		sql.UnlockMigratePackage()
 		return err
 	}
+	sql.UnlockMigratePackage()
 
 	s.Manager = manag
 	s.SQLManager = *manag
