@@ -60,7 +60,7 @@ func init() {
 			service.Name(common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH),
 			service.Tag(common.SERVICE_TAG_IDM),
 			service.Description("OAuth Provider"),
-			// service.Dependency(common.SERVICE_WEB_NAMESPACE_+common.SERVICE_AUTH, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
 			service.WithStorage(oauth.NewDAO),
 			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 				return service.RunnerFunc(func() error {
@@ -147,11 +147,32 @@ func initialize(s service.Service) error {
 		return err
 	}
 
+	w, err := config.Watch("services", common.SERVICE_REST_NAMESPACE_+common.SERVICE_OAUTH)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		defer w.Stop()
+		for {
+			_, err := w.Next()
+			if err != nil {
+				break
+			}
+
+			syncClients(s.Options().Context, r.ClientManager(), c.Array("staticClients"))
+		}
+	}()
+
 	return nil
 }
 
 func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error {
 	var clients []*client.Client
+
+	if c == nil {
+		return nil
+	}
 
 	if err := c.Scan(&clients); err != nil {
 		return err
