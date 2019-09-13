@@ -78,11 +78,18 @@ class Pydio extends Observable{
             this.WebSocketClient.open();
         }
         if(!this.Parameters.has('START_REPOSITORY')){
-            const loadUriParts = LangUtils.trim(window.location.href.replace(parameters.get('FRONTEND_URL'), ''), '/').split('/');
+            const uri = window.location.href.
+                replace(parameters.get('FRONTEND_URL'), '').
+                replace(window.location.search, '')
+
+            const loadUriParts = LangUtils.trim(uri, '/').split('/');
             if(loadUriParts.length){
                 let [loadWs, ...other] = loadUriParts;
                 if(loadWs.indexOf('ws-') === 0){
                     loadWs = loadWs.substr(3);
+                }
+                if (loadWs === "login") {
+                    return
                 }
                 this.Parameters.set('START_REPOSITORY', loadWs);
                 if (other.length){
@@ -132,7 +139,6 @@ class Pydio extends Observable{
      */
     init(){
         this.observe("registry_loaded", () => {
-
             this.Registry.refreshExtensionsRegistry();
             this.updateUser(this.Registry.parseUser(), false);
             if(this.user){

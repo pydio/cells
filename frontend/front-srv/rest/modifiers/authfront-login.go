@@ -29,13 +29,19 @@ import (
 func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
-
 		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" { // Ignore this middleware
 			return middleware(req, rsp, in, out, session)
 		}
 
-		nonce := uuid.New()
-		respMap, err := GrantTypeAccess(req.Request.Context(), nonce, "", in.AuthInfo["login"], in.AuthInfo["password"], false)
+		fmt.Println("Going through here")
+
+		// Nonce is being set somewhere else
+		nonce, ok := session.Values["nonce"]
+		if !ok {
+			nonce = uuid.New()
+		}
+
+		respMap, err := GrantTypeAccess(req.Request.Context(), nonce.(string), "", in.AuthInfo["login"], in.AuthInfo["password"], false)
 		if err != nil {
 			return err
 		}
@@ -43,10 +49,12 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		expiry := respMap["expires_in"].(float64)
 		refreshToken := respMap["refresh_token"].(string)
 
-		session.Values["nonce"] = nonce
 		session.Values["jwt"] = token
 		session.Values["refresh_token"] = refreshToken
 		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
+
+		fmt.Println("Setting nonce value in LoginPasswordAuth ", nonce)
+		session.Values["nonce"] = nonce
 
 		out.JWT = token
 		out.ExpireTime = int32(expiry)
@@ -54,7 +62,6 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		return middleware(req, rsp, in, out, session)
 
 	}
-
 }
 
 func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string, expireTime int32, e error) {
@@ -71,10 +78,7 @@ func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string,
 			if err != nil {
 				// Refresh_token is invalid: clear session
 				e = err
-				delete(session.Values, "refresh_token")
-				delete(session.Values, "nonce")
-				delete(session.Values, "jwt")
-				delete(session.Values, "expiry")
+				session.Values = make(map[interface{}]interface{})
 				return
 			}
 			expiry := refreshResponse["expires_in"].(float64)

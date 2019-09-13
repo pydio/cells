@@ -29,7 +29,7 @@ type TemplateNode struct {
 func (m *TemplateNode) Reset()                    { *m = TemplateNode{} }
 func (m *TemplateNode) String() string            { return proto.CompactTextString(m) }
 func (*TemplateNode) ProtoMessage()               {}
-func (*TemplateNode) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
+func (*TemplateNode) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{0} }
 
 func (m *TemplateNode) GetIsFile() bool {
 	if m != nil {
@@ -74,7 +74,7 @@ type Template struct {
 func (m *Template) Reset()                    { *m = Template{} }
 func (m *Template) String() string            { return proto.CompactTextString(m) }
 func (*Template) ProtoMessage()               {}
-func (*Template) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
+func (*Template) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{1} }
 
 func (m *Template) GetUUID() string {
 	if m != nil {
@@ -110,7 +110,7 @@ type ListTemplatesRequest struct {
 func (m *ListTemplatesRequest) Reset()                    { *m = ListTemplatesRequest{} }
 func (m *ListTemplatesRequest) String() string            { return proto.CompactTextString(m) }
 func (*ListTemplatesRequest) ProtoMessage()               {}
-func (*ListTemplatesRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{2} }
+func (*ListTemplatesRequest) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{2} }
 
 type ListTemplatesResponse struct {
 	Templates []*Template `protobuf:"bytes,1,rep,name=Templates" json:"Templates,omitempty"`
@@ -119,7 +119,7 @@ type ListTemplatesResponse struct {
 func (m *ListTemplatesResponse) Reset()                    { *m = ListTemplatesResponse{} }
 func (m *ListTemplatesResponse) String() string            { return proto.CompactTextString(m) }
 func (*ListTemplatesResponse) ProtoMessage()               {}
-func (*ListTemplatesResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
+func (*ListTemplatesResponse) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{3} }
 
 func (m *ListTemplatesResponse) GetTemplates() []*Template {
 	if m != nil {
@@ -136,7 +136,7 @@ type CreateFromTemplateRequest struct {
 func (m *CreateFromTemplateRequest) Reset()                    { *m = CreateFromTemplateRequest{} }
 func (m *CreateFromTemplateRequest) String() string            { return proto.CompactTextString(m) }
 func (*CreateFromTemplateRequest) ProtoMessage()               {}
-func (*CreateFromTemplateRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{4} }
+func (*CreateFromTemplateRequest) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{4} }
 
 func (m *CreateFromTemplateRequest) GetTemplateUUID() string {
 	if m != nil {
@@ -160,7 +160,7 @@ type CreateFromTemplateResponse struct {
 func (m *CreateFromTemplateResponse) Reset()                    { *m = CreateFromTemplateResponse{} }
 func (m *CreateFromTemplateResponse) String() string            { return proto.CompactTextString(m) }
 func (*CreateFromTemplateResponse) ProtoMessage()               {}
-func (*CreateFromTemplateResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{5} }
+func (*CreateFromTemplateResponse) Descriptor() ([]byte, []int) { return fileDescriptor11, []int{5} }
 
 func (m *CreateFromTemplateResponse) GetSuccess() bool {
 	if m != nil {
@@ -185,9 +185,9 @@ func init() {
 	proto.RegisterType((*CreateFromTemplateResponse)(nil), "rest.CreateFromTemplateResponse")
 }
 
-func init() { proto.RegisterFile("templates.proto", fileDescriptor10) }
+func init() { proto.RegisterFile("templates.proto", fileDescriptor11) }
 
-var fileDescriptor10 = []byte{
+var fileDescriptor11 = []byte{
 	// 391 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x52, 0x51, 0x8b, 0xd3, 0x40,
 	0x10, 0x26, 0x77, 0xf1, 0x4c, 0xe7, 0x44, 0x61, 0x39, 0xcf, 0x58, 0x44, 0x42, 0x1e, 0xa4, 0x88,

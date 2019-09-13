@@ -33,6 +33,7 @@ import (
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-web"
 	"github.com/pborman/uuid"
+	"github.com/rs/cors"
 
 	"github.com/micro/cli"
 	"github.com/pydio/cells/common"
@@ -178,6 +179,8 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 				return e
 			}
 			wrapped = NewLogHttpHandlerWrapper(wrapped, name, servicecontext.GetServiceColor(ctx))
+
+			wrapped = cors.Default().Handler(wrapped)
 
 			s.Options().Web.Handle("/", wrapped)
 

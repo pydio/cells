@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
@@ -134,7 +134,6 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	}
 	plugins := pool.AllPluginsManifests(req.Request.Context(), lang)
 	rsp.WriteAsXml(plugins)
-
 }
 
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
@@ -162,9 +161,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	// Special case for Logout
 	if loginRequest.Logout {
 		if _, ok := session.Values["jwt"]; ok {
-			delete(session.Values, "jwt")
-			delete(session.Values, "expiry")
-			delete(session.Values, "refresh_token")
+			session.Values = make(map[interface{}]interface{})
 			session.Options.MaxAge = 0
 			session.Save(req.Request, rsp.ResponseWriter)
 		}
@@ -213,6 +210,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
 		log.Logger(ctx).Error("Error saving session", zap.Error(e))
 	}
+
 	rsp.WriteEntity(response)
 }
 

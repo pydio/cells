@@ -3,22 +3,24 @@
 
 package rest
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
-import _ "github.com/pydio/cells/common/proto/activity"
-import _ "github.com/pydio/cells/common/proto/ctl"
-import _ "github.com/pydio/cells/common/proto/encryption"
-import _ "github.com/pydio/cells/common/proto/idm"
-import _ "github.com/pydio/cells/common/proto/install"
-import _ "github.com/pydio/cells/common/proto/jobs"
-import _ "github.com/pydio/cells/common/proto/log"
-import _ "github.com/pydio/cells/common/proto/mailer"
-import _ "github.com/pydio/cells/common/proto/object"
-import _ "github.com/pydio/cells/common/proto/tree"
-import _ "github.com/pydio/cells/common/proto/update"
-import _ "google.golang.org/genproto/googleapis/api/annotations"
+import (
+	fmt "fmt"
+	math "math"
+	proto "github.com/golang/protobuf/proto"
+	_ "github.com/pydio/cells/common/proto/install"
+	_ "github.com/pydio/cells/common/proto/update"
+	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+	_ "github.com/pydio/cells/common/proto/mailer"
+	_ "github.com/pydio/cells/common/proto/jobs"
+	_ "github.com/pydio/cells/common/proto/encryption"
+	_ "github.com/pydio/cells/common/proto/log"
+	_ "github.com/pydio/cells/common/proto/object"
+	_ "github.com/pydio/cells/common/proto/tree"
+	_ "github.com/pydio/cells/common/proto/idm"
+	_ "github.com/pydio/cells/common/proto/activity"
+	_ "github.com/pydio/cells/common/proto/ctl"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal

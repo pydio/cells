@@ -42,19 +42,21 @@ type DexClient struct {
 func actionConfigsSet(c *install.InstallConfig) error {
 
 	url := config.Get("defaults", "url").String("")
-	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "issuer")
-	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "web", "http")
+	authGrpc := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH
+	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", authGrpc, "dex", "issuer")
+	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", authGrpc, "dex", "web", "http")
 
+	// Rewrite Dex Static Clients
 	dexStaticClient := &DexClient{
 		Id:                     c.GetExternalDexID(),
 		Name:                   c.GetExternalDexID(),
 		Secret:                 c.GetExternalDexSecret(),
-		RedirectURIs:           []string{fmt.Sprintf("%s/auth/callback", url)},
+		RedirectURIs:           []string{fmt.Sprintf("%s/login/callback", url)},
 		IdTokensExpiry:         "10m",
 		RefreshTokensExpiry:    "30m",
 		OfflineSessionsSliding: true,
 	}
-	config.Set([]*DexClient{dexStaticClient}, "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "staticClients")
+	config.Set([]*DexClient{dexStaticClient}, "services", authGrpc, "dex", "staticClients")
 
 	// Adding the config for activities and chat
 	// TODO - make it better

@@ -3,10 +3,12 @@
 
 package rest
 
-import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	math "math"
+	proto "github.com/golang/protobuf/proto"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -71,12 +73,24 @@ func (this *FrontMessagesResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *FrontLoginCallbackRequest) Validate() error {
+	return nil
+}
+func (this *FrontLoginCallbackResponse) Validate() error {
+	return nil
+}
 func (this *FrontSessionRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *FrontSessionResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *FrontAuthRequest) Validate() error {
+	return nil
+}
+func (this *FrontAuthResponse) Validate() error {
 	return nil
 }
 func (this *FrontEnrollAuthRequest) Validate() error {

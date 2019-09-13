@@ -12,6 +12,7 @@ import "graph.proto";
 import "share.proto";
 import "frontend.proto";
 import "templates.proto";
+import "oauth.proto";
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
 import "github.com/pydio/cells/common/proto/idm/idm.proto";
 import "github.com/pydio/cells/common/proto/mailer/mailer.proto";
@@ -189,6 +190,12 @@ service ConfigService {
     rpc ConfigFormsDiscovery(ConfigFormRequest) returns (DiscoveryResponse){
         option (google.api.http) = {
             get: "/config/discovery/forms/{ServiceName}"
+        };
+    }
+
+    rpc OAuthConfiguration(OAuthConfigurationRequest) returns (OAuthConfigurationResponse) {
+        option (google.api.http) = {
+            get: "/config/discovery/.well-known/openid-configuration"
         };
     }
 }
@@ -777,10 +784,24 @@ service FrontendService {
             get: "/frontend/plugins/{Lang}"
         };
     }
+    // Handle Login Callback
+    rpc FrontLoginCallback(FrontLoginCallbackRequest) returns (FrontSessionResponse) {
+        option (google.api.http) = {
+            post: "/frontend/session/callback"
+            body: "*"
+        };
+    }
     // Handle JWT
     rpc FrontSession(FrontSessionRequest) returns (FrontSessionResponse) {
         option (google.api.http) = {
             post: "/frontend/session"
+            body: "*"
+        };
+    }
+    // Handle Auth callback
+    rpc FrontAuth(FrontAuthRequest) returns (FrontAuthResponse) {
+        option (google.api.http) = {
+            post: "/frontend/session/auth"
             body: "*"
         };
     }

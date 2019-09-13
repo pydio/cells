@@ -473,6 +473,14 @@ var _modelRestError = require('./model/RestError');
 
 var _modelRestError2 = _interopRequireDefault(_modelRestError);
 
+var _modelRestFrontAuthRequest = require('./model/RestFrontAuthRequest');
+
+var _modelRestFrontAuthRequest2 = _interopRequireDefault(_modelRestFrontAuthRequest);
+
+var _modelRestFrontAuthResponse = require('./model/RestFrontAuthResponse');
+
+var _modelRestFrontAuthResponse2 = _interopRequireDefault(_modelRestFrontAuthResponse);
+
 var _modelRestFrontBinaryRequest = require('./model/RestFrontBinaryRequest');
 
 var _modelRestFrontBinaryRequest2 = _interopRequireDefault(_modelRestFrontBinaryRequest);
@@ -492,6 +500,10 @@ var _modelRestFrontEnrollAuthRequest2 = _interopRequireDefault(_modelRestFrontEn
 var _modelRestFrontEnrollAuthResponse = require('./model/RestFrontEnrollAuthResponse');
 
 var _modelRestFrontEnrollAuthResponse2 = _interopRequireDefault(_modelRestFrontEnrollAuthResponse);
+
+var _modelRestFrontLoginCallbackRequest = require('./model/RestFrontLoginCallbackRequest');
+
+var _modelRestFrontLoginCallbackRequest2 = _interopRequireDefault(_modelRestFrontLoginCallbackRequest);
 
 var _modelRestFrontMessagesResponse = require('./model/RestFrontMessagesResponse');
 
@@ -572,6 +584,10 @@ var _modelRestMetadata2 = _interopRequireDefault(_modelRestMetadata);
 var _modelRestNodesCollection = require('./model/RestNodesCollection');
 
 var _modelRestNodesCollection2 = _interopRequireDefault(_modelRestNodesCollection);
+
+var _modelRestOAuthConfigurationResponse = require('./model/RestOAuthConfigurationResponse');
+
+var _modelRestOAuthConfigurationResponse2 = _interopRequireDefault(_modelRestOAuthConfigurationResponse);
 
 var _modelRestOpenApiResponse = require('./model/RestOpenApiResponse');
 
@@ -1796,6 +1812,20 @@ RestError = _modelRestError2['default'];
 exports.
 
 /**
+ * The RestFrontAuthRequest model constructor.
+ * @property {module:model/RestFrontAuthRequest}
+ */
+RestFrontAuthRequest = _modelRestFrontAuthRequest2['default'];
+exports.
+
+/**
+ * The RestFrontAuthResponse model constructor.
+ * @property {module:model/RestFrontAuthResponse}
+ */
+RestFrontAuthResponse = _modelRestFrontAuthResponse2['default'];
+exports.
+
+/**
  * The RestFrontBinaryRequest model constructor.
  * @property {module:model/RestFrontBinaryRequest}
  */
@@ -1828,6 +1858,13 @@ exports.
  * @property {module:model/RestFrontEnrollAuthResponse}
  */
 RestFrontEnrollAuthResponse = _modelRestFrontEnrollAuthResponse2['default'];
+exports.
+
+/**
+ * The RestFrontLoginCallbackRequest model constructor.
+ * @property {module:model/RestFrontLoginCallbackRequest}
+ */
+RestFrontLoginCallbackRequest = _modelRestFrontLoginCallbackRequest2['default'];
 exports.
 
 /**
@@ -1968,6 +2005,13 @@ exports.
  * @property {module:model/RestNodesCollection}
  */
 RestNodesCollection = _modelRestNodesCollection2['default'];
+exports.
+
+/**
+ * The RestOAuthConfigurationResponse model constructor.
+ * @property {module:model/RestOAuthConfigurationResponse}
+ */
+RestOAuthConfigurationResponse = _modelRestOAuthConfigurationResponse2['default'];
 exports.
 
 /**

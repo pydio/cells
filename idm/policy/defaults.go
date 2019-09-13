@@ -24,7 +24,7 @@ import (
 	"github.com/ory/ladon"
 
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/idm/policy/conditions"
 )

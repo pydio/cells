@@ -21,7 +21,7 @@ type UserJobRequest struct {
 func (m *UserJobRequest) Reset()                    { *m = UserJobRequest{} }
 func (m *UserJobRequest) String() string            { return proto.CompactTextString(m) }
 func (*UserJobRequest) ProtoMessage()               {}
-func (*UserJobRequest) Descriptor() ([]byte, []int) { return fileDescriptor8, []int{0} }
+func (*UserJobRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{0} }
 
 func (m *UserJobRequest) GetJobName() string {
 	if m != nil {
@@ -44,7 +44,7 @@ type UserJobResponse struct {
 func (m *UserJobResponse) Reset()                    { *m = UserJobResponse{} }
 func (m *UserJobResponse) String() string            { return proto.CompactTextString(m) }
 func (*UserJobResponse) ProtoMessage()               {}
-func (*UserJobResponse) Descriptor() ([]byte, []int) { return fileDescriptor8, []int{1} }
+func (*UserJobResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{1} }
 
 func (m *UserJobResponse) GetJobUuid() string {
 	if m != nil {
@@ -60,7 +60,7 @@ type UserJobsCollection struct {
 func (m *UserJobsCollection) Reset()                    { *m = UserJobsCollection{} }
 func (m *UserJobsCollection) String() string            { return proto.CompactTextString(m) }
 func (*UserJobsCollection) ProtoMessage()               {}
-func (*UserJobsCollection) Descriptor() ([]byte, []int) { return fileDescriptor8, []int{2} }
+func (*UserJobsCollection) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{2} }
 
 func (m *UserJobsCollection) GetJobs() []*jobs.Job {
 	if m != nil {
@@ -75,9 +75,9 @@ func init() {
 	proto.RegisterType((*UserJobsCollection)(nil), "rest.UserJobsCollection")
 }
 
-func init() { proto.RegisterFile("scheduler.proto", fileDescriptor8) }
+func init() { proto.RegisterFile("scheduler.proto", fileDescriptor9) }
 
-var fileDescriptor8 = []byte{
+var fileDescriptor9 = []byte{
 	// 209 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x5c, 0x8e, 0xc1, 0x4a, 0xc5, 0x30,
 	0x10, 0x45, 0xa9, 0x3e, 0x94, 0x17, 0xa1, 0x85, 0xac, 0x82, 0x20, 0x94, 0x2e, 0xa4, 0x20, 0x34,
