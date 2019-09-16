@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/coreos/go-oidc"
@@ -72,13 +73,13 @@ type provider struct {
 }
 
 var (
+	once      = &sync.Once{}
 	providers []*provider
 )
 
 type JWTVerifier struct{}
 
-func init() {
-
+func initProviders() {
 	// Register dex configs
 	configDex := config.Values("services", "pydio.grpc.auth", "dex")
 	newProvider(configDex)
@@ -97,73 +98,75 @@ func newProvider(c common.ConfigValues) {
 
 	err := c.Scan(&p)
 	if err != nil {
+		fmt.Println("Error scanning provider", err)
 		return
 	}
 
 	providers = append(providers, p)
 
-	go func(p *provider) {
-		externalURL := config.Get("defaults", "url").String("")
+	externalURL := config.Get("defaults", "url").String("")
 
-		ctx := oidc.ClientContext(context.Background(), &http.Client{
-			Transport: &http.Transport{
-				TLSClientConfig: config.GetTLSClientConfig("proxy"),
-			},
+	ctx := oidc.ClientContext(context.Background(), &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: config.GetTLSClientConfig("proxy"),
+		},
+	})
+
+	for {
+		// Retrieve new provider
+		oidcProvider, err := oidc.NewProvider(ctx, p.Issuer)
+		if err != nil {
+			fmt.Println(err)
+			<-time.After(1 * time.Second)
+			continue
+		}
+
+		p.oidcProvider = oidcProvider
+		break
+	}
+
+	// retrieve verifiers for each client
+	var verifiers []*oidc.IDTokenVerifier
+	for _, client := range p.Clients {
+		clientID := client.ID
+		if clientID == "" {
+			clientID = client.ClientID
+		}
+		verifiers = append(verifiers, p.oidcProvider.Verifier(&oidc.Config{ClientID: clientID, SkipNonceCheck: true}))
+	}
+	p.verifiers = verifiers
+
+	// retrieve oauthConfigs for each client
+	var oauth2Configs []oauth2.Config
+	for _, client := range p.Clients {
+		clientID := client.ID
+		clientSecret := client.Secret
+		if clientID == "" {
+			clientID = client.ClientID
+			clientSecret = client.ClientSecret
+		}
+
+		oauth2Configs = append(oauth2Configs, oauth2.Config{
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+			Endpoint:     p.oidcProvider.Endpoint(),
+			RedirectURL:  externalURL + "/login/callback",
+			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 		})
-
-		for {
-			// Retrieve new provider
-			oidcProvider, err := oidc.NewProvider(ctx, p.Issuer)
-			if err != nil {
-				<-time.After(1 * time.Second)
-				continue
-			}
-
-			p.oidcProvider = oidcProvider
-			break
-		}
-
-		// retrieve verifiers for each client
-		var verifiers []*oidc.IDTokenVerifier
-		for _, client := range p.Clients {
-			clientID := client.ID
-			if clientID == "" {
-				clientID = client.ClientID
-			}
-			verifiers = append(verifiers, p.oidcProvider.Verifier(&oidc.Config{ClientID: clientID, SkipNonceCheck: true}))
-		}
-		p.verifiers = verifiers
-
-		// retrieve oauthConfigs for each client
-		var oauth2Configs []oauth2.Config
-		for _, client := range p.Clients {
-			clientID := client.ID
-			clientSecret := client.Secret
-			if clientID == "" {
-				clientID = client.ClientID
-				clientSecret = client.ClientSecret
-			}
-
-			oauth2Configs = append(oauth2Configs, oauth2.Config{
-				ClientID:     clientID,
-				ClientSecret: clientSecret,
-				Endpoint:     p.oidcProvider.Endpoint(),
-				RedirectURL:  externalURL + "/login/callback",
-				Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
-			})
-		}
-		p.oauth2Configs = oauth2Configs
-	}(p)
+	}
+	p.oauth2Configs = oauth2Configs
 }
 
-func (j *JWTVerifier) getProviders() ([]*provider, error) {
-	return providers, nil
+func (j *JWTVerifier) getProviders() []*provider {
+	once.Do(initProviders)
+
+	return providers
 }
 
 func (j *JWTVerifier) getVerifiers() []*oidc.IDTokenVerifier {
 	var verifiers []*oidc.IDTokenVerifier
 
-	for _, p := range providers {
+	for _, p := range j.getProviders() {
 		verifiers = append(verifiers, p.verifiers...)
 	}
 
@@ -172,7 +175,7 @@ func (j *JWTVerifier) getVerifiers() []*oidc.IDTokenVerifier {
 
 func (j *JWTVerifier) getDefaultOAuthConfig() (*provider, oauth2.Config, error) {
 
-	for _, p := range providers {
+	for _, p := range j.getProviders() {
 		if len(p.oauth2Configs) > 0 {
 			return p, p.oauth2Configs[0], nil
 		}

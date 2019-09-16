@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/ory/hydra/x"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
@@ -43,6 +45,7 @@ func actionConfigsSet(c *install.InstallConfig) error {
 
 	url := config.Get("defaults", "url").String("")
 	authGrpc := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH
+
 	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", authGrpc, "dex", "issuer")
 	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", authGrpc, "dex", "web", "http")
 
@@ -57,6 +60,16 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		OfflineSessionsSliding: true,
 	}
 	config.Set([]*DexClient{dexStaticClient}, "services", authGrpc, "dex", "staticClients")
+
+	// OAuth web
+	oauthWeb := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
+	config.Set(fmt.Sprintf("%s/oidc/", url), "services", oauthWeb, "issuer")
+
+	secret, err := x.GenerateSecret(32)
+	if err != nil {
+		return err
+	}
+	config.Set(string(secret), "services", oauthWeb, "secret")
 
 	// Adding the config for activities and chat
 	// TODO - make it better
