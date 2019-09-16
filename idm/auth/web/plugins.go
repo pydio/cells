@@ -108,7 +108,7 @@ func init() {
 							return err
 						}
 
-						mariaMatched, err := regexp.MatchString("^MariaDB$", version)
+						mariaMatched, err := regexp.MatchString("MariaDB$", version)
 						if err != nil {
 							return err
 						}
