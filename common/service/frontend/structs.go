@@ -187,6 +187,7 @@ type Ceditor struct {
 	AttriconClass       string         `xml:"iconClass,attr,omitempty"  json:",omitempty"`
 	Attrmimes           string         `xml:"mimes,attr,omitempty"  json:",omitempty"`
 	Attropenable        string         `xml:"openable,attr,omitempty"  json:",omitempty"`
+	Attrextensions      string         `xml:"extensions,attr,omitempty"  json:",omitempty"`
 	Attrorder           string         `xml:"order,attr,omitempty"  json:",omitempty"`
 	AttrpreviewProvider string         `xml:"previewProvider,attr,omitempty"  json:",omitempty"`
 	Attrtext            string         `xml:"text,attr,omitempty"  json:",omitempty"`

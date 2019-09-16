@@ -104,6 +104,24 @@ var ImageContainer = (function (_Component2) {
 
             var remaining = _objectWithoutProperties(_props2, ['src', 'style', 'width', 'height', 'imgStyle', 'imgClassName', 'scale']);
 
+            var editorData = this.props.editorData;
+
+            if (editorData && editorData.extensions && editorData.extensions.length > 0) {
+                var extName = editorData.extensions[0];
+                // it must have been previously loaded via classes dependencies
+                var provider = window[extName];
+                if (provider && provider.getWrapper && provider.getWrapper('ImageContainer')) {
+                    return _react2['default'].createElement(provider.getWrapper('ImageContainer'), _extends({}, this.props, { style: _extends({}, ImageContainer.styles, style) }), _react2['default'].createElement(Image, {
+                        src: src,
+                        className: imgClassName,
+                        style: _extends({
+                            width: width && width * scale || "100%",
+                            height: height && height * scale || "100%"
+                        }, imgStyle)
+                    }));
+                }
+            }
+
             return _react2['default'].createElement(
                 'div',
                 _extends({ style: _extends({}, ImageContainer.styles, style) }, remaining),

@@ -222,6 +222,7 @@ var Registry = (function () {
                 previewProvider: xmlNode.getAttribute("previewProvider") === "true",
                 order: xmlNode.getAttribute("order") ? parseInt(xmlNode.getAttribute("order")) : 0,
                 formId: xmlNode.getAttribute("formId") || null,
+                extensions: [],
                 text: this._pydioObject.MessageHash[xmlNode.getAttribute("text")],
                 title: this._pydioObject.MessageHash[xmlNode.getAttribute("title")],
                 icon: xmlNode.getAttribute("icon"),
@@ -232,6 +233,10 @@ var Registry = (function () {
                 write: xmlNode.getAttribute("write") && xmlNode.getAttribute("write") === "true" ? true : false,
                 canWrite: xmlNode.getAttribute("canWrite") && xmlNode.getAttribute("canWrite") === "true" ? true : false
             });
+            if (xmlNode.hasAttribute('extensions')) {
+                // register additional extensions
+                extensionDefinition.extensions = xmlNode.getAttribute('extensions').split(',');
+            }
         } else if (xmlNode.nodeName === 'uploader') {
 
             var th = this._pydioObject.Parameters.get('theme');

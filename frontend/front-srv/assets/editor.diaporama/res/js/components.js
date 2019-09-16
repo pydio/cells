@@ -72,7 +72,29 @@ export class ImageContainer extends Component {
     }
 
     render() {
-        const {src, style, width, height, imgStyle, imgClassName, scale = 1, ...remaining} = this.props
+        const {src, style, width, height, imgStyle, imgClassName, scale = 1, ...remaining} = this.props;
+
+        const {editorData} = this.props;
+        if(editorData && editorData.extensions && editorData.extensions.length > 0){
+            const extName = editorData.extensions[0];
+            // it must have been previously loaded via classes dependencies
+            const provider = window[extName];
+            if(provider && provider.getWrapper && provider.getWrapper('ImageContainer')){
+                return React.createElement(
+                    provider.getWrapper('ImageContainer'),
+                    {...this.props, style:{...ImageContainer.styles, ...style}},
+                    <Image
+                        src={src}
+                        className={imgClassName}
+                        style={{
+                            width: width && width * scale || "100%",
+                            height: height && height * scale || "100%",
+                            ...imgStyle,
+                        }}
+                    />
+                );
+            }
+        }
 
         return (
             <div style={{...ImageContainer.styles, ...style}} {...remaining}>
