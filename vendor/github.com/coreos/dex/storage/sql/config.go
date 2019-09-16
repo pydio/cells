@@ -173,9 +173,9 @@ func (s *MySQL) open(logger logrus.FieldLogger) (*conn, error) {
 	dexDSN.MultiStatements = true
 	//dexDSN.Collation = "utf8_general_ci"
 
-	params := make(map[string]string)
-	params["transaction_isolation"] = "'SERIALIZABLE'"
-	dexDSN.Params = params
+	// params := make(map[string]string)
+	// params["transaction_isolation"] = "'SERIALIZABLE'"
+	// dexDSN.Params = params
 
 	db, err := sql.Open("mysql", dexDSN.FormatDSN())
 	if err != nil {

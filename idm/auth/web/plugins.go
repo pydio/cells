@@ -25,19 +25,23 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/coreos/dex/storage/sql"
+	"github.com/go-sql-driver/mysql"
 	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/dex"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	commonsql "github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/idm/auth"
 )
 
@@ -93,8 +97,33 @@ func init() {
 					driver, dsn := conf.Database("dsn")
 					switch driver {
 					case "mysql":
+						dsnConfig, err := mysql.ParseDSN(dsn)
+						if err != nil {
+							return err
+						}
+
+						dao := servicecontext.GetDAO(s.Options().Context)
+						version, err := dao.(commonsql.DAO).Version()
+						if err != nil {
+							return err
+						}
+
+						mariaMatched, err := regexp.MatchString("^MariaDB$", version)
+						if err != nil {
+							return err
+						}
+						if dsnConfig.Params == nil {
+							dsnConfig.Params = make(map[string]string)
+						}
+						if mariaMatched {
+							dsnConfig.Params["tx_isolation"] = "SERIALIZABLE"
+						} else {
+							dsnConfig.Params["transaction_isolation"] = "SERIALIZABLE"
+						}
+
 						sqlConfig := new(sql.MySQL)
-						sqlConfig.DSN = dsn
+						sqlConfig.DSN = dsnConfig.FormatDSN()
+
 						c.Storage.Config = sqlConfig
 					case "sqlite3":
 						sqlConfig := new(sql.SQLite3)

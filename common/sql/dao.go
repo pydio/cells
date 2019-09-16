@@ -41,6 +41,7 @@ type DAO interface {
 	dao.DAO
 
 	DB() *sql.DB
+	Version() (string, error)
 	Prepare(string, interface{}) error
 	GetStmt(string, ...interface{}) *sql.Stmt
 	GetStmtWithArgs(string, ...interface{}) (*sql.Stmt, []interface{}, error)
@@ -95,6 +96,21 @@ func (h *Handler) Init(c common.ConfigValues) error {
 // DB returns the sql DB object
 func (h *Handler) DB() *sql.DB {
 	return h.GetConn().(*sql.DB)
+}
+
+// Version
+func (h *Handler) Version() (string, error) {
+	// Here we check the version of mysql and the default charset
+	var version string
+	err := h.DB().QueryRow("SELECT VERSION()").Scan(&version)
+	switch {
+	case err == sql.ErrNoRows:
+		return "", fmt.Errorf("Could not retrieve mysql version")
+	case err != nil:
+		return "", err
+	}
+
+	return version, nil
 }
 
 // Prepare the statements that can be used by the DAO
