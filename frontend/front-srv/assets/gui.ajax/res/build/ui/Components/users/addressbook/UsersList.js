@@ -351,7 +351,7 @@ var UsersList = (function (_React$Component) {
 
         return _react2['default'].createElement(
             'div',
-            { style: { flex: 1, flexDirection: 'column', display: 'flex', width: '100%' }, onTouchTap: this.props.onTouchTap },
+            { style: { flex: 1, flexDirection: 'column', display: 'flex', width: '100%', overflowX: 'hidden' }, onTouchTap: this.props.onTouchTap },
             mode !== 'inner' && !this.props.noToolbar && toolbar,
             !emptyState && !loading && _react2['default'].createElement(
                 _materialUi.List,

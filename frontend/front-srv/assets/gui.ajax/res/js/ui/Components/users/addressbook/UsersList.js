@@ -265,7 +265,7 @@ class UsersList extends React.Component{
         }
 
         return (
-            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%'}} onTouchTap={this.props.onTouchTap}>
+            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%', overflowX: 'hidden'}} onTouchTap={this.props.onTouchTap}>
                 {mode !== 'inner' && !this.props.noToolbar && toolbar}
                 {!emptyState && !loading &&
                     <List style={{flex: 1, overflowY: mode !== 'inner' ? 'auto' : 'initial'}}>
