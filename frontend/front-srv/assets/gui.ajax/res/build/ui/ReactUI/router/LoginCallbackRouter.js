@@ -36,7 +36,7 @@ var LoginCallbackRouterWrapper = function LoginCallbackRouterWrapper(pydio) {
         var params = queryString.parse(props.location.search);
 
         PydioApi.getRestClient().jwtFromAuthorizationCode(params.code).then(function () {
-            return _reactRouterLibBrowserHistory2['default'].push("/");
+            return _reactRouterLibBrowserHistory2['default'].goBack();
         })['catch'](function (e) {
             return _reactRouterLibBrowserHistory2['default'].push("/login");
         });

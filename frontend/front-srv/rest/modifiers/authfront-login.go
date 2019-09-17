@@ -33,8 +33,6 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return middleware(req, rsp, in, out, session)
 		}
 
-		fmt.Println("Going through here")
-
 		// Nonce is being set somewhere else
 		nonce, ok := session.Values["nonce"]
 		if !ok {
@@ -52,8 +50,6 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		session.Values["jwt"] = token
 		session.Values["refresh_token"] = refreshToken
 		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
-
-		fmt.Println("Setting nonce value in LoginPasswordAuth ", nonce)
 		session.Values["nonce"] = nonce
 
 		out.JWT = token

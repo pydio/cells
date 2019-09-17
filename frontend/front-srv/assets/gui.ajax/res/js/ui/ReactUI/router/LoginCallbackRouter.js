@@ -28,7 +28,7 @@ const LoginCallbackRouterWrapper = (pydio) => {
         const params = queryString.parse(props.location.search);
 
         PydioApi.getRestClient().jwtFromAuthorizationCode(params.code)
-            .then(() => browserHistory.push("/"))
+            .then(() => browserHistory.goBack())
             .catch(e => browserHistory.push("/login"))
 
         pydio.observe("user_logged", (user) => user && browserHistory.push("/"))

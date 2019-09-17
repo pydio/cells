@@ -79,8 +79,6 @@ It has these top-level messages:
 	FrontPluginsResponse
 	FrontMessagesRequest
 	FrontMessagesResponse
-	FrontLoginCallbackRequest
-	FrontLoginCallbackResponse
 	FrontSessionRequest
 	FrontSessionResponse
 	FrontAuthRequest

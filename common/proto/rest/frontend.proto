@@ -48,11 +48,6 @@ message FrontMessagesResponse{
     map<string,string> Messages = 1;
 }
 
-message FrontLoginCallbackRequest {
-    string Code = 1;
-}
-message FrontLoginCallbackResponse {}
-
 message FrontSessionRequest{
     // Time reference for computing jwt expiry
     int32 ClientTime = 1;
