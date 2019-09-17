@@ -1286,33 +1286,6 @@ var SwaggerJson = `{
         ]
       }
     },
-    "/frontend/session/callback": {
-      "post": {
-        "summary": "Handle Login Callback",
-        "operationId": "FrontLoginCallback",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restFrontSessionResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restFrontLoginCallbackRequest"
-            }
-          }
-        ],
-        "tags": [
-          "FrontendService"
-        ]
-      }
-    },
     "/frontend/settings-menu": {
       "get": {
         "summary": "Sends a tree of nodes to be used a menu in the Settings panel",
@@ -5673,14 +5646,6 @@ var SwaggerJson = `{
             "type": "string"
           },
           "title": "Any parameters can be returned"
-        }
-      }
-    },
-    "restFrontLoginCallbackRequest": {
-      "type": "object",
-      "properties": {
-        "Code": {
-          "type": "string"
         }
       }
     },

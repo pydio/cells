@@ -7,10 +7,10 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/pydio/cells/common/service/proto"
-	_ "github.com/pydio/cells/common/proto/idm"
 	_ "github.com/pydio/cells/common/proto/tree"
 	_ "github.com/mwitkow/go-proto-validators"
+	_ "github.com/pydio/cells/common/service/proto"
+	_ "github.com/pydio/cells/common/proto/idm"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 

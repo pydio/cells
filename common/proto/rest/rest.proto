@@ -784,13 +784,6 @@ service FrontendService {
             get: "/frontend/plugins/{Lang}"
         };
     }
-    // Handle Login Callback
-    rpc FrontLoginCallback(FrontLoginCallbackRequest) returns (FrontSessionResponse) {
-        option (google.api.http) = {
-            post: "/frontend/session/callback"
-            body: "*"
-        };
-    }
     // Handle JWT
     rpc FrontSession(FrontSessionRequest) returns (FrontSessionResponse) {
         option (google.api.http) = {

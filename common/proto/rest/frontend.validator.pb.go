@@ -73,12 +73,6 @@ func (this *FrontMessagesResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *FrontLoginCallbackRequest) Validate() error {
-	return nil
-}
-func (this *FrontLoginCallbackResponse) Validate() error {
-	return nil
-}
 func (this *FrontSessionRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

@@ -133,7 +133,6 @@ import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
 import RestFrontEnrollAuthRequest from './model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from './model/RestFrontEnrollAuthResponse';
-import RestFrontLoginCallbackRequest from './model/RestFrontLoginCallbackRequest';
 import RestFrontMessagesResponse from './model/RestFrontMessagesResponse';
 import RestFrontPluginsResponse from './model/RestFrontPluginsResponse';
 import RestFrontSessionRequest from './model/RestFrontSessionRequest';
@@ -1012,12 +1011,6 @@ export {
      * @property {module:model/RestFrontEnrollAuthResponse}
      */
     RestFrontEnrollAuthResponse,
-
-    /**
-     * The RestFrontLoginCallbackRequest model constructor.
-     * @property {module:model/RestFrontLoginCallbackRequest}
-     */
-    RestFrontLoginCallbackRequest,
 
     /**
      * The RestFrontMessagesResponse model constructor.
