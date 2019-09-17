@@ -25,7 +25,7 @@ import (
 	"io"
 	"net/url"
 
-	"github.com/pydio/minio-go"
+	minio "github.com/pydio/minio-go"
 
 	sdk "github.com/pydio/cells-sdk-go"
 	"github.com/pydio/cells-sdk-go/transport/oidc"

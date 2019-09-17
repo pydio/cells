@@ -73,7 +73,12 @@ func (t *TokenStore) computeKey(c *cells_sdk.SdkConfig) string {
 	// Is this relly necessary or rather security theater?
 	// using a generic password causes issues when testing wrong password access.
 	//s := fmt.Sprintf("%s-%s-%s-%s-%s", c.Url, c.ClientKey, c.ClientSecret, c.User, "OBFUSCATED PWD XXXX")
-	s := fmt.Sprintf("%s-%s-%s-%s-%s", c.Url, c.ClientKey, c.ClientSecret, c.User, c.Password)
+	var s string
+	if c.IdToken != "" {
+		s = fmt.Sprintf("%s-%s", c.Url, c.User)
+	} else {
+		s = fmt.Sprintf("%s-%s-%s-%s-%s", c.Url, c.ClientKey, c.ClientSecret, c.User, c.Password)
+	}
 	hasher := md5.New()
 	hasher.Write([]byte(s))
 	return hex.EncodeToString(hasher.Sum(nil))
@@ -88,6 +93,12 @@ func RetrieveToken(sdkConfig *cells_sdk.SdkConfig) (string, error) {
 			return cached, nil
 		}
 		// fmt.Println("No token found in cache, querying the server")
+	}
+	if sdkConfig.IdToken != "" {
+		// We passed a pre-fetched valid token
+		expTime := time.Unix(int64(sdkConfig.TokenExpiresAt), 0)
+		store.Store(sdkConfig, sdkConfig.IdToken, expTime.Sub(time.Now()))
+		return sdkConfig.IdToken, nil
 	}
 
 	fullURL := sdkConfig.Url + oidcResourcePath + "/token"

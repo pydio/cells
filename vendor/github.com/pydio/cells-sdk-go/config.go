@@ -13,6 +13,11 @@ type SdkConfig struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
 
+	// OIDC Code Flow
+	IdToken        string `json:"idToken"`
+	RefreshToken   string `json:"refreshToken"`
+	TokenExpiresAt int    `json:"tokenExpiresAt"`
+
 	// SkipVerify tells the transport to ignore expired or self-signed TLS certificates
 	SkipVerify bool `json:"skipVerify"`
 
