@@ -43,12 +43,15 @@ import (
 type RemoteConfig struct {
 	// Url stores domain name or IP & port to the server.
 	Url string `json:"url"`
-	// OIDC ClientKey / ClientSecret
+	// OIDC GrantPassword Flow
 	ClientKey    string `json:"clientKey"`
 	ClientSecret string `json:"clientSecret"`
-	// Pydio User Authentication
-	User     string `json:"user"`
-	Password string `json:"password"`
+	User         string `json:"user"`
+	Password     string `json:"password"`
+	// OIDC Code Flow
+	IdToken      string `json:"id_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresAt    int    `json:"expires_at"`
 	// SkipVerify tells the transport to ignore expired or self-signed TLS certificates
 	SkipVerify bool `json:"skipVerify"`
 }
@@ -65,13 +68,18 @@ type Remote struct {
 // NewRemote creates a new Remote Endpoint
 func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	sdkConfig := &sdk.SdkConfig{
-		Url:           config.Url,
+		Url:        config.Url,
+		SkipVerify: config.SkipVerify,
+		// Password Flow
 		ClientKey:     config.ClientKey,
 		ClientSecret:  config.ClientSecret,
 		User:          config.User,
 		Password:      config.Password,
-		SkipVerify:    config.SkipVerify,
 		UseTokenCache: true,
+		// Code Flow
+		IdToken:        config.IdToken,
+		RefreshToken:   config.RefreshToken,
+		TokenExpiresAt: config.ExpiresAt,
 	}
 	c := &Remote{
 		abstract: abstract{
@@ -91,6 +99,14 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	logCtx = servicecontext.WithServiceColor(logCtx, servicecontext.ServiceColorGrpc)
 	c.globalCtx = logCtx
 	return c
+}
+
+// RefreshRemoteConfig is used to refresh ID Token / Refresh Token from outside
+func (c *Remote) RefreshRemoteConfig(config RemoteConfig) {
+	c.config.IdToken = config.IdToken
+	c.config.RefreshToken = config.RefreshToken
+	c.config.TokenExpiresAt = config.ExpiresAt
+	c.factory.(*remoteClientFactory).config = c.config
 }
 
 // GetEndpointInfo returns Endpoint information in standard format.
