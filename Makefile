@@ -1,9 +1,9 @@
 GOBUILD=go build
 ENV=env GOOS=linux
-TODAY=`date -u +%Y-%m-%dT%H:%M:%S`
-GITREV=`git rev-parse HEAD`
+TODAY=$(date -u +%Y-%m-%dT%H:%M:%S)
+GITREV=$(git rev-parse HEAD)
 CELLS_VERSION?=0.2.0
-
+XGO_TARGETS?="linux/amd64,darwin/amd64,windows/amd64"
 
 .PHONY: all clean build front main client static
 
@@ -29,7 +29,7 @@ main:
 xgo:
 	${GOPATH}/bin/xgo -go 1.12 \
 	 --image pydio/xgo:latest \
-	 --targets linux/amd64,darwin/amd64,windows/amd64,linux/arm64 \
+	 --targets ${XGO_TARGETS} \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}\
@@ -57,7 +57,7 @@ ctl:
 xgo-ctl:
 	${GOPATH}/bin/xgo -go 1.12 \
 	 --image pydio/xgo:latest \
-	 --targets linux/amd64,darwin/amd64,windows/amd64,linux/arm64 \
+	 --targets ${XGO_TARGETS} \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}"\
