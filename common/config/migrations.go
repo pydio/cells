@@ -74,12 +74,20 @@ func setDefaultConfig(config *Config) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
+	oAuthStaticConfig := map[string]interface{}{
+		"client_id":      "cells-sync",
+		"client_name":    "cells-sync",
+		"grant_types":    []string{"authorization_code", "refresh_token"},
+		"redirect_uris":  []string{"http://localhost:3636/servers/callback", "http://localhost:3000/servers/callback"},
+		"response_types": []string{"code", "token", "id_token"},
+		"scope":          "openid email profile pydio offline",
+	}
 	configKeys := map[string]interface{}{
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_HOST": "localhost",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_PORT": "9980",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_SSL":  true,
 		"services/" + oauthSrv + "/secret":                    string(secret),
+		"services/" + oauthSrv + "/staticClients":             []map[string]interface{}{oAuthStaticConfig},
 	}
 
 	for path, def := range configKeys {
@@ -101,6 +109,9 @@ func forceDefaultConfig(config *Config) (bool, error) {
 	authSrv := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH
 	oauthSrv := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
 	srvUrl := config.Get("defaults", "url").String("")
+	if srvUrl == "" {
+		return false, nil
+	}
 
 	configKeys := map[string]interface{}{
 		"services/" + authSrv + "/dex/issuer":   srvUrl + "/auth/dex",

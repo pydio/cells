@@ -162,6 +162,24 @@ var SampleConfig = `{
 		},
         "pydio.grpc.tasks": {
             "fork": true
-        }
+        },
+		"pydio.web.oauth":{
+			"staticClients": [
+				{
+					"client_id": "cells-sync",
+					"client_name": "cells-sync",
+					"grant_types": [
+						"authorization_code", 
+						"refresh_token"
+					],
+					"redirect_uris": [
+						"http://localhost:3636/servers/callback",
+						"http://localhost:3000/servers/callback"
+					],
+					"response_types": ["code", "token", "id_token"],
+					"scope": "openid email profile pydio offline"
+				}
+			]
+		}
     }
 }`
