@@ -67,6 +67,10 @@ type Remote struct {
 
 // NewRemote creates a new Remote Endpoint
 func NewRemote(config RemoteConfig, root string, options Options) *Remote {
+	useCache := true
+	if config.IdToken != "" {
+		useCache = false
+	}
 	sdkConfig := &sdk.SdkConfig{
 		Url:        config.Url,
 		SkipVerify: config.SkipVerify,
@@ -75,7 +79,7 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 		ClientSecret:  config.ClientSecret,
 		User:          config.User,
 		Password:      config.Password,
-		UseTokenCache: true,
+		UseTokenCache: useCache,
 		// Code Flow
 		IdToken:        config.IdToken,
 		RefreshToken:   config.RefreshToken,
