@@ -1,7 +1,7 @@
 GOBUILD=go build
 ENV=env GOOS=linux
-TODAY=$(date -u +%Y-%m-%dT%H:%M:%S)
-GITREV=$(git rev-parse HEAD)
+TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
+GITREV:=$(shell git rev-parse HEAD)
 CELLS_VERSION?=0.2.0
 XGO_TARGETS?="linux/amd64,darwin/amd64,windows/amd64"
 
