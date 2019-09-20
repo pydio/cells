@@ -14,7 +14,8 @@ build: generate main
 generate:
 	# Removing existing packr files and running packr
 	find . -name *-packr.go | xargs rm -f
-	grep -ri -l "packr.NewBox" */* | while read -r line; do cd `dirname "$$line"`; echo "Run packr for $$line" ; ${GOPATH}/bin/packr --compress --input=. ; cd -; done
+	# manually filtering out ory/x/dbal package
+	grep -ri -l "packr.NewBox" */* | while read -r line; do if ! [ "$$line" == "vendor/github.com/ory/x/dbal/migrate.go" ]; then cd `dirname "$$line"`; echo "Run packr for $$line"; ${GOPATH}/bin/packr --compress --input=. ; cd -;  fi; done;
 
 main:
 	go build -a\
