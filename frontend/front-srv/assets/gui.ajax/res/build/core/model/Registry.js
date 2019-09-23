@@ -126,6 +126,10 @@ var Registry = (function () {
                 headers: headers
             }).then(function (response) {
                 _this._globalLoading = false;
+                if (response.status !== 200) {
+                    _this._pydioObject.getController().fireAction("login");
+                    return;
+                }
                 response.text().then(function (text) {
                     _this._registry = _utilXMLUtils2['default'].parseXml(text).documentElement;
                     if (completeFunc) {

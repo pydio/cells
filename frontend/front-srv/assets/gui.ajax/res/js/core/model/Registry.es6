@@ -90,6 +90,10 @@ export default class Registry{
                 headers:headers,
             }).then((response) => {
                 this._globalLoading = false;
+                if (response.status !== 200) {
+                    this._pydioObject.getController().fireAction("login")
+                    return
+                }
                 response.text().then((text) => {
                     this._registry = XMLUtils.parseXml(text).documentElement;
                     if (completeFunc) {

@@ -83,6 +83,9 @@ func (c *pydioregistry) GetServiceByName(name string) Service {
 func (c *pydioregistry) GetServicesByName(name string) []Service {
 	var s []Service
 
+	c.registerlock.RLock()
+	defer c.registerlock.RUnlock()
+
 	for _, ss := range c.register {
 		if matched, _ := regexp.MatchString(name, ss.Name()); matched {
 			if !ss.IsExcluded() {
@@ -103,7 +106,11 @@ func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
 		return nil, fmt.Errorf("Could not sort services")
 	}
 
+	c.registerlock.RLock()
+	defer c.registerlock.RUnlock()
+
 	for _, serviceID := range servicesID {
+
 		if service, ok := c.register[serviceID.String()]; ok {
 			if !service.IsExcluded() || (len(withExcluded) > 0 && withExcluded[0]) {
 				services = append(services, service)
@@ -121,6 +128,9 @@ func (c *pydioregistry) ListServicesWithFilter(fn func(Service) bool) ([]Service
 	if !ok {
 		return nil, fmt.Errorf("Could not sort services")
 	}
+
+	c.registerlock.RLock()
+	defer c.registerlock.RUnlock()
 
 	for _, serviceID := range servicesID {
 		if service, ok := c.register[serviceID.String()]; ok {

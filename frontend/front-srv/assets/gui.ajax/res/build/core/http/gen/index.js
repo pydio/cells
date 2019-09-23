@@ -501,10 +501,6 @@ var _modelRestFrontEnrollAuthResponse = require('./model/RestFrontEnrollAuthResp
 
 var _modelRestFrontEnrollAuthResponse2 = _interopRequireDefault(_modelRestFrontEnrollAuthResponse);
 
-var _modelRestFrontLoginCallbackRequest = require('./model/RestFrontLoginCallbackRequest');
-
-var _modelRestFrontLoginCallbackRequest2 = _interopRequireDefault(_modelRestFrontLoginCallbackRequest);
-
 var _modelRestFrontMessagesResponse = require('./model/RestFrontMessagesResponse');
 
 var _modelRestFrontMessagesResponse2 = _interopRequireDefault(_modelRestFrontMessagesResponse);
@@ -1858,13 +1854,6 @@ exports.
  * @property {module:model/RestFrontEnrollAuthResponse}
  */
 RestFrontEnrollAuthResponse = _modelRestFrontEnrollAuthResponse2['default'];
-exports.
-
-/**
- * The RestFrontLoginCallbackRequest model constructor.
- * @property {module:model/RestFrontLoginCallbackRequest}
- */
-RestFrontLoginCallbackRequest = _modelRestFrontLoginCallbackRequest2['default'];
 exports.
 
 /**

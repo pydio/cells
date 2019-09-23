@@ -39,6 +39,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
@@ -142,6 +143,8 @@ func initialize(s service.Service) error {
 
 	store = oauth2.NewFositeSQLStore(db, r, conf)
 	store.CreateSchemas(dao.Driver())
+
+	auth.RegisterOryProvider(r.OAuth2Provider())
 
 	c := servicecontext.GetConfig(s.Options().Context)
 

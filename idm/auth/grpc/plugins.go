@@ -22,7 +22,6 @@
 package grpc
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/coreos/dex/storage/sql"
@@ -31,17 +30,22 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	commonauth "github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/idm/auth"
 )
 
 func init() {
+
 	plugins.Register(func() {
+
+		configDex := config.Values("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex")
+
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
 			service.Tag(common.SERVICE_TAG_IDM),
@@ -59,11 +63,12 @@ func init() {
 				// INIT DEX CONFIG
 				ctx := m.Options().Context
 				conf := servicecontext.GetConfig(ctx)
+
 				log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
-				configDex := conf.Get("dex")
+
 				var c auth.Config
-				remarshall, _ := json.Marshal(configDex)
-				if err := json.Unmarshal(remarshall, &c); err != nil {
+				err := configDex.Scan(&c)
+				if err != nil {
 					return fmt.Errorf("error parsing config file %s: %v", configDex, err)
 				}
 
@@ -78,8 +83,6 @@ func init() {
 					sqlConfig := new(sql.SQLite3)
 					sqlConfig.File = dsn
 				}
-
-				fmt.Println(c.Web)
 
 				if config.Get("cert", "http", "ssl").Bool(false) {
 					log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
@@ -108,5 +111,7 @@ func init() {
 				return nil
 			}),
 		)
+
+		go commonauth.RegisterDexProvider(configDex)
 	})
 }
