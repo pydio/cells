@@ -229,6 +229,7 @@ type SnapshotUpdater interface {
 type SnapshotFactory interface {
 	// Load creates the snapshot and return it
 	Load(source PathSyncSource) (Snapshoter, error)
+	Close(ctx context.Context) error
 	Reset(ctx context.Context) error
 }
 

@@ -312,11 +312,13 @@ func (s *BoltSnapshot) IsEmpty() bool {
 }
 
 func (s *BoltSnapshot) Close(delete ...bool) {
+	close(s.autoBatchClose)
+	<-time.After(500 * time.Millisecond)
 	s.db.Close()
+	<-time.After(500 * time.Millisecond)
 	if len(delete) > 0 && delete[0] && s.folderPath != "" {
 		os.RemoveAll(s.folderPath)
 	}
-	close(s.autoBatchClose)
 }
 
 func (s *BoltSnapshot) Capture(ctx context.Context, source model.PathSyncSource, paths ...string) error {
