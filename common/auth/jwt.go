@@ -193,7 +193,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 		return ctx, claim.Claims{}, err
 	}
 
-	cli := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
+	cli := auth.NewAuthTokenRevokerService(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
 	rsp, err := cli.MatchInvalid(ctx, &auth.MatchInvalidTokenRequest{
 		Token: rawIDToken,
 	})

@@ -18,48 +18,47 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package auth
+package grpc
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite"
-	"github.com/ory/fosite/token/jwt"
 	"github.com/ory/hydra/oauth2"
+
+	proto "github.com/pydio/cells/common/proto/auth"
 )
 
-type oryprovider struct {
-	oauth2Provider fosite.OAuth2Provider
+type AuthTokenVerifierHandler struct{}
+
+func NewAuthTokenVerifierHandler() (proto.AuthTokenVerifierHandler, error) {
+	return &AuthTokenVerifierHandler{}, nil
 }
 
-type orytoken struct {
-	claims *jwt.IDTokenClaims
-}
-
-func RegisterOryProvider(o fosite.OAuth2Provider) {
-	p := new(oryprovider)
-
-	p.oauth2Provider = o
-
-	providers = append([]Provider{p}, providers...)
-}
-
-func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
+// Verify checks if the token is valid for hydra
+func (h *AuthTokenVerifierHandler) Verify(ctx context.Context, in *proto.VerifyTokenRequest, out *proto.VerifyTokenResponse) error {
 	session := oauth2.NewSession("")
-	tokenType, ar, err := c.oauth2Provider.IntrospectToken(ctx, rawIDToken, fosite.AccessToken, session)
+
+	tokenType, ar, err := reg.OAuth2Provider().IntrospectToken(ctx, in.GetToken(), fosite.AccessToken, session)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if tokenType != fosite.AccessToken {
-		return nil, errors.New("Only access tokens are allowed in the authorization header")
+		return errors.New("Only access tokens are allowed in the authorization header")
 	}
 
-	return &orytoken{ar.GetSession().(*oauth2.Session).IDTokenClaims()}, nil
-}
+	claims := ar.GetSession().(*oauth2.Session).IDTokenClaims()
+	b, err := json.Marshal(claims)
 
-func (t *orytoken) Claims(v interface{}) error {
-	return mapstructure.Decode(t.claims.ToMap(), &v)
+	if err != nil {
+		return err
+	}
+
+	out.Success = true
+	out.Data = b
+
+	return nil
 }

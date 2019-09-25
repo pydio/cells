@@ -1,4 +1,4 @@
-package web
+package oauth
 
 import (
 	"net/url"

@@ -54,7 +54,7 @@ import (
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	net2 "github.com/pydio/cells/common/utils/net"
 )
@@ -208,6 +208,42 @@ func NewService(opts ...ServiceOption) Service {
 			ctx = servicecontext.WithConfig(ctx, cfg)
 
 			s.Init(Context(ctx))
+
+			return nil
+		}),
+
+		// Setting config watchers
+		AfterInit(func(_ Service) error {
+			watchers := s.Options().Watchers
+
+			if len(watchers) == 0 {
+				return nil
+			}
+
+			w, err := config.Watch("services", s.Name())
+			if err != nil {
+				return err
+			}
+
+			go func() {
+				defer w.Stop()
+
+				for {
+					ch, err := w.Next()
+					if err != nil {
+						break
+					}
+
+					var c config.Map
+					if err := ch.Scan(&c); err != nil {
+						continue
+					}
+
+					for _, watcher := range watchers {
+						watcher(s.Options().Context, c)
+					}
+				}
+			}()
 
 			return nil
 		}),

@@ -85,7 +85,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 		claimsBytes, _ := json.Marshal(claims)
 		revokeRequest.Token = &auth.Token{Value: string(claimsBytes)}
 	}
-	revokerClient := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
+	revokerClient := auth.NewAuthTokenRevokerService(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
 	if _, err := revokerClient.Revoke(ctx, revokeRequest); err != nil {
 		service.RestError500(req, resp, err)
 		return

@@ -96,7 +96,7 @@ func (c *PruneTokensAction) Run(ctx context.Context, channels *actions.RunnableC
 	output := input
 
 	// Prune revoked tokens
-	cli := auth.NewAuthTokenRevokerClient(registry.GetClient(common.SERVICE_AUTH))
+	cli := auth.NewAuthTokenRevokerService(registry.GetClient(common.SERVICE_AUTH))
 	if pruneResp, e := cli.PruneTokens(ctx, &auth.PruneTokensRequest{}); e != nil {
 		return input.WithError(e), e
 	} else {

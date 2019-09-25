@@ -73,7 +73,12 @@ func init() {
 			},
 				serve,
 				wrapAfterStart(initialize),
-			))
+			),
+			service.Watch(func(ctx context.Context, c common.ConfigValues) {
+				// Making sure the staticClients are up to date
+				syncClients(ctx, reg.ClientManager(), c.Array("staticClients"))
+			}),
+		)
 	})
 }
 
@@ -82,7 +87,7 @@ func serve(s service.Service) (micro.Option, error) {
 
 	externalURL := config.Get("defaults", "url").String("")
 
-	conf = NewProvider(externalURL, servicecontext.GetConfig(s.Options().Context))
+	conf = oauth.NewProvider(externalURL, servicecontext.GetConfig(s.Options().Context))
 
 	admin := x.NewRouterAdmin()
 	public := x.NewRouterPublic()
@@ -120,7 +125,9 @@ func wrapAfterStart(f func(service.Service) error) func(service.Service) (micro.
 }
 
 func initialize(s service.Service) error {
-	dao := servicecontext.GetDAO(s.Options().Context).(sql.DAO)
+	ctx := s.Options().Context
+
+	dao := servicecontext.GetDAO(ctx).(sql.DAO)
 	db := sqlx.NewDb(dao.DB(), dao.Driver())
 
 	r := reg.(*driver.RegistrySQL).WithDB(db)
@@ -146,28 +153,11 @@ func initialize(s service.Service) error {
 
 	auth.RegisterOryProvider(r.OAuth2Provider())
 
-	c := servicecontext.GetConfig(s.Options().Context)
+	c := servicecontext.GetConfig(ctx)
 
-	if err := syncClients(s.Options().Context, r.ClientManager(), c.Array("staticClients")); err != nil {
+	if err := syncClients(ctx, r.ClientManager(), c.Array("staticClients")); err != nil {
 		return err
 	}
-
-	w, err := config.Watch("services", common.SERVICE_REST_NAMESPACE_+common.SERVICE_OAUTH)
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		defer w.Stop()
-		for {
-			_, err := w.Next()
-			if err != nil {
-				break
-			}
-
-			syncClients(s.Options().Context, r.ClientManager(), c.Array("staticClients"))
-		}
-	}()
 
 	return nil
 }

@@ -92,6 +92,9 @@ type ServiceOptions struct {
 	// Web init
 	WebInit         func(Service) error
 	webHandlerWraps []func(http.Handler) http.Handler
+
+	// Watcher
+	Watchers []func(context.Context, common.ConfigValues)
 }
 
 type ServiceOption func(*ServiceOptions)
@@ -255,5 +258,11 @@ func AfterStart(fn func(Service) error) ServiceOption {
 func AfterStop(fn func(Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.AfterStop = append(o.AfterStop, fn)
+	}
+}
+
+func Watch(fn func(context.Context, common.ConfigValues)) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Watchers = append(o.Watchers, fn)
 	}
 }
