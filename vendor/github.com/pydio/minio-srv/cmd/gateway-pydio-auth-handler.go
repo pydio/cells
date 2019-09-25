@@ -71,7 +71,11 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if bearer, ok := r.Header["X-Pydio-Bearer"]; ok && len(bearer) > 0 {
+	if values, ok := r.Header[common.PYDIO_CONTEXT_USER_KEY]; !a.gateway && ok && len(values) > 0 {
+
+		userName = strings.Join(values, "")
+
+	} else if bearer, ok := r.Header["X-Pydio-Bearer"]; ok && len(bearer) > 0 {
 
 		rawIDToken := strings.Join(bearer, "")
 		var err error
@@ -85,10 +89,6 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if storeJwtInGlobalIAM {
 			globalIAMSys.SetTempUser(rawIDToken, auth2.Credentials{}, "")
 		}
-
-	} else if values, ok := r.Header[common.PYDIO_CONTEXT_USER_KEY]; !a.gateway && ok && len(values) > 0 {
-
-		userName = strings.Join(values, "")
 
 	} else if agent, aOk := r.Header["User-Agent"]; aOk && strings.Contains(strings.Join(agent, ""), "pydio.sync.client.s3") {
 
