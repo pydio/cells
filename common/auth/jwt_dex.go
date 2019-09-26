@@ -92,8 +92,12 @@ func RegisterDexProvider(c common.ConfigValues) {
 		}
 		p.passwordCredentialsTokenVerifier = oidcProvider.Verifier(&oidc.Config{SkipClientIDCheck: true, SkipNonceCheck: true})
 
-		providers = append(providers, p)
+		addProvider(p)
 	}
+}
+
+func (p *dexprovider) GetType() ProviderType {
+	return PROVIDER_TYPE_DEX
 }
 
 func (p *dexprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {

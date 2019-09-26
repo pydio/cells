@@ -85,6 +85,7 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 		RefreshToken:   config.RefreshToken,
 		TokenExpiresAt: config.ExpiresAt,
 	}
+
 	c := &Remote{
 		abstract: abstract{
 			root:       strings.TrimLeft(root, "/"),
@@ -116,7 +117,7 @@ func (c *Remote) RefreshRemoteConfig(config RemoteConfig) {
 // GetEndpointInfo returns Endpoint information in standard format.
 func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: fmt.Sprintf("%s/%s", c.config.Url, c.root),
+		URI:                   fmt.Sprintf("%s/%s", c.config.Url, c.root),
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,

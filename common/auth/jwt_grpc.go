@@ -22,48 +22,59 @@ package auth
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
-	"github.com/ory/hydra/oauth2"
+
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/auth"
 )
 
-type oryprovider struct {
-	oauth2Provider fosite.OAuth2Provider
+type grpcprovider struct {
+	service string
 }
 
-type orytoken struct {
+type grpctoken struct {
 	claims *jwt.IDTokenClaims
 }
 
-func RegisterOryProvider(o fosite.OAuth2Provider) {
-	p := new(oryprovider)
+type grpcclaims interface {
+	ToMap() map[string]interface{}
+}
 
-	p.oauth2Provider = o
+func RegisterGRPCProvider(service string) {
+	p := new(grpcprovider)
+
+	p.service = service
 
 	addProvider(p)
 }
 
-func (p *oryprovider) GetType() ProviderType {
-	return PROVIDER_TYPE_ORY
+func (p *grpcprovider) GetType() ProviderType {
+	return PROVIDER_TYPE_GRPC
 }
 
-func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
-	session := oauth2.NewSession("")
-	tokenType, ar, err := c.oauth2Provider.IntrospectToken(ctx, rawIDToken, fosite.AccessToken, session)
+func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
+
+	cli := auth.NewAuthTokenVerifierService(c.service, defaults.NewClient())
+
+	resp, err := cli.Verify(ctx, &auth.VerifyTokenRequest{
+		Token: rawIDToken,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	if tokenType != fosite.AccessToken {
-		return nil, errors.New("Only access tokens are allowed in the authorization header")
+	token := new(grpctoken)
+
+	if err := json.Unmarshal(resp.GetData(), &token.claims); err != nil {
+		return nil, err
 	}
 
-	return &orytoken{ar.GetSession().(*oauth2.Session).IDTokenClaims()}, nil
+	return token, nil
 }
 
-func (t *orytoken) Claims(v interface{}) error {
+func (t *grpctoken) Claims(v interface{}) error {
 	return mapstructure.Decode(t.claims.ToMap(), &v)
 }

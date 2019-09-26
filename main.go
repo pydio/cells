@@ -79,6 +79,7 @@ import (
 	_ "github.com/pydio/cells/idm/key/grpc"
 	_ "github.com/pydio/cells/idm/meta/grpc"
 	_ "github.com/pydio/cells/idm/meta/rest"
+	_ "github.com/pydio/cells/idm/oauth/grpc"
 	_ "github.com/pydio/cells/idm/oauth/web"
 	_ "github.com/pydio/cells/idm/policy/grpc"
 	_ "github.com/pydio/cells/idm/policy/rest"

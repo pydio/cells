@@ -1,0 +1,110 @@
+package log
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/sirupsen/logrus"
+
+	"go.uber.org/zap"
+)
+
+type logrusLogger struct {
+	logger *zap.Logger
+}
+
+func NewLogrusLogger(ctx context.Context) logrus.FieldLogger {
+	return &logrusLogger{Logger(ctx)}
+}
+
+func (l *logrusLogger) WithField(key string, value interface{}) *logrus.Entry {
+	new := l.logger.With(zap.Any(key, value))
+	return logrus.NewEntry(l)
+}
+func (l *logrusLogger) WithFields(fields logrus.Fields) *logrus.Entry {
+	new := l.logger
+	for key, value := range fields {
+		new := new.With(zap.Any(key, value))
+	}
+
+	return logrus.NewEntry(&logrusLogger{new})
+}
+func (l *logrusLogger) WithError(err error) *logrus.Entry {
+	new := l.logger.With(zap.Error(err))
+	return logrus.NewEntry(&logrusLogger{new})
+}
+
+func (l *logrusLogger) Debugf(format string, args ...interface{}) {
+	l.logger.Debug(fmt.Sprintf(format, args...))
+}
+func (l *logrusLogger) Infof(format string, args ...interface{}) {
+	l.logger.Info(fmt.Sprintf(format, args...))
+}
+func (l *logrusLogger) Printf(format string, args ...interface{}) {
+	l.logger.Info(fmt.Sprintf(format, args...))
+}
+func (l *logrusLogger) Warnf(format string, args ...interface{}) {
+	l.logger.Warn(fmt.Sprintf(format, args...))
+}
+func (l *logrusLogger) Warningf(format string, args ...interface{}) {
+	l.logger.Warn(fmt.Sprintf(format, args...))
+}
+func (l *logrusLogger) Errorf(format string, args ...interface{}) {
+	l.logger.Error(fmt.Sprintf(format, args...))
+}
+func (l *logrusLogger) Fatalf(format string, args ...interface{}) {
+	l.logger.Fatal(fmt.Sprintf(format, args...))
+}
+func (l *logrusLogger) Panicf(format string, args ...interface{}) {
+	l.logger.Panic(fmt.Sprintf(format, args...))
+}
+
+func (l *logrusLogger) Debug(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Info(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Print(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Warn(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Warning(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Error(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Fatal(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Panic(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+
+func (l *logrusLogger) Debugln(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Infoln(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Println(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Warnln(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Warningln(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Errorln(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Fatalln(args ...interface{}) {
+	l.logger.Debug(args...)
+}
+func (l *logrusLogger) Panicln(args ...interface{}) {
+	l.logger.Debug(args...)
+}

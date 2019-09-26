@@ -1,6 +1,7 @@
 package plugins
 
 var initializers []func()
+var afterInits []func()
 
 func Register(y ...func()) {
 	initializers = append(initializers, y...)

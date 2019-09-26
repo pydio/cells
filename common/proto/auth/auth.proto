@@ -4,7 +4,6 @@ package auth;
 
 //SERVICES
 service AuthTokenRevoker {
-
     // Look for an invalid token entry in the store that match the current one
     rpc MatchInvalid (MatchInvalidTokenRequest) returns (MatchInvalidTokenResponse) {};
 
@@ -13,9 +12,12 @@ service AuthTokenRevoker {
 
     // PruneTokens clear revoked tokens
     rpc PruneTokens (PruneTokensRequest) returns (PruneTokensResponse) {};
-
 }
 
+service AuthTokenVerifier {
+    // Verifies a token and returns claims
+    rpc Verify (VerifyTokenRequest) returns (VerifyTokenResponse) {};
+}
 
 enum State {
     NO_MATCH = 0;
@@ -50,4 +52,13 @@ message PruneTokensRequest {
 
 message PruneTokensResponse {
     repeated string tokens = 1;
+}
+
+message VerifyTokenRequest {
+    string Token = 1;
+}
+
+message VerifyTokenResponse {
+    bool Success = 1;
+    bytes Data = 2;
 }
