@@ -476,6 +476,11 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 }
 
 func (s *TreeServer) PublishChange(change *tree.NodeChangeEvent) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Logger(context.Background()).Error("Panic recovered in PublishChange", zap.Any("error", e))
+		}
+	}()
 	for _, l := range s.listeners {
 		if !l.closing {
 			l.in <- change
