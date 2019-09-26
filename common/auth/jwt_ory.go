@@ -43,7 +43,11 @@ func RegisterOryProvider(o fosite.OAuth2Provider) {
 
 	p.oauth2Provider = o
 
-	providers = append([]Provider{p}, providers...)
+	addProvider(p)
+}
+
+func (p *oryprovider) GetType() ProviderType {
+	return PROVIDER_TYPE_ORY
 }
 
 func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {

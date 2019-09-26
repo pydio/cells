@@ -23,6 +23,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"sort"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes"
@@ -43,7 +44,17 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
-type Provider interface{}
+type ProviderType int
+
+const (
+	PROVIDER_TYPE_DEX ProviderType = iota
+	PROVIDER_TYPE_ORY
+	PROVIDER_TYPE_GRPC
+)
+
+type Provider interface {
+	GetType() ProviderType
+}
 
 type Verifier interface {
 	Verify(context.Context, string) (IDToken, error)
@@ -377,4 +388,15 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 		}
 	}
 	return
+}
+
+func addProvider(p Provider) {
+	providers = append(providers, p)
+	sortProviders()
+}
+
+func sortProviders() {
+	sort.Slice(providers, func(i, j int) bool {
+		return providers[i].GetType() < providers[j].GetType()
+	})
 }

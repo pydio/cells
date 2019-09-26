@@ -48,7 +48,11 @@ func RegisterGRPCProvider(service string) {
 
 	p.service = service
 
-	providers = append(providers, p)
+	addProvider(p)
+}
+
+func (p *grpcprovider) GetType() ProviderType {
+	return PROVIDER_TYPE_GRPC
 }
 
 func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
