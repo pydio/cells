@@ -35,12 +35,10 @@ func InitRegistry(c common.ConfigValues, dao sql.DAO) {
 
 		conf = NewProvider(externalURL, c)
 
-		fmt.Printf("SECRET IS %s\n", conf.GetSystemSecret())
-
 		db := sqlx.NewDb(dao.DB(), dao.Driver())
 
 		// reg = driver.NewRegistrySQL().WithDB(db).WithConfig(conf)
-		// err := reg.Init()
+		// err := reg.Init()JSON Web Key Set
 		reg = driver.NewRegistrySQL().WithConfig(conf)
 		r := reg.(*driver.RegistrySQL).WithDB(db)
 		r.Init()
