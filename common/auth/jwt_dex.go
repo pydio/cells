@@ -78,6 +78,11 @@ func RegisterDexProvider(c common.ConfigValues) {
 		break
 	}
 
+	// We're first removing all providers that have the same type
+	delProviders(func(p Provider) bool {
+		return p.GetType() == PROVIDER_TYPE_DEX
+	})
+
 	// retrieve verifiers for each client
 	for _, c := range m.Clients {
 		p := new(dexprovider)

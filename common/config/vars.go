@@ -236,10 +236,6 @@ func Values(keys ...string) common.ConfigValues {
 	return m.Values(keys[len(keys)-1])
 }
 
-func watchConfig() {
-
-}
-
 // GetJsonPath build path for json that contain the local config
 func GetJsonPath() string {
 	return filepath.Join(PydioConfigDir, PydioConfigFile)

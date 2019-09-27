@@ -112,6 +112,29 @@ func init() {
 			}),
 		)
 
+		// TODO - there is probably a cleaner way than having to do all that
 		go commonauth.RegisterDexProvider(configDex)
+
+		w, err := config.Watch("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex")
+		if err != nil {
+			return
+		}
+
+		go func() {
+			defer w.Stop()
+			for {
+				c, err := w.Next()
+				if err != nil {
+					break
+				}
+
+				var conf config.Map
+				if err := c.Scan(&conf); err != nil {
+					break
+				}
+
+				commonauth.RegisterDexProvider(conf)
+			}
+		}()
 	})
 }
