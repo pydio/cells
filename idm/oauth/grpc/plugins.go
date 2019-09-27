@@ -22,10 +22,7 @@
 package grpc
 
 import (
-	"github.com/jmoiron/sqlx"
-
 	"github.com/micro/go-micro"
-	"github.com/ory/hydra/driver"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
@@ -36,10 +33,6 @@ import (
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/idm/oauth"
-)
-
-var (
-	reg driver.Registry
 )
 
 func init() {
@@ -59,7 +52,7 @@ func init() {
 
 				return nil
 			}),
-			service.AfterStart(initialize),
+			service.BeforeStart(initialize),
 		)
 	})
 
@@ -71,14 +64,8 @@ func initialize(s service.Service) error {
 	ctx := s.Options().Context
 
 	dao := servicecontext.GetDAO(ctx).(sql.DAO)
-	db := sqlx.NewDb(dao.DB(), dao.Driver())
 
-	externalURL := config.Get("defaults", "url").String("")
-
-	conf := oauth.NewProvider(externalURL, config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH))
-
-	reg = driver.NewRegistrySQL().WithConfig(conf).(*driver.RegistrySQL).WithDB(db)
-	reg.Init()
+	oauth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), dao)
 
 	return nil
 }

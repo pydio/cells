@@ -22,15 +22,21 @@ type Provider struct {
 	cors common.ConfigValues
 	urls common.ConfigValues
 	oidc common.ConfigValues
+
+	drv string
+	dsn string
 }
 
 func NewProvider(rootURL string, values common.ConfigValues) configuration.Provider {
+	drv, dsn := values.Database("dsn")
 	return &Provider{
 		r:    rootURL,
 		v:    values,
 		cors: values.Values("cors"),
 		urls: values.Values("urls"),
 		oidc: values.Values("oidc"),
+		drv:  drv,
+		dsn:  dsn,
 	}
 }
 
@@ -82,11 +88,11 @@ func (v *Provider) CORSOptions(iface string) cors.Options {
 }
 
 func (v *Provider) DSN() string {
-	return ""
+	return v.drv + "://" + v.dsn
 }
 
 func (v *Provider) DataSourcePlugin() string {
-	return ""
+	return v.drv + "://" + v.dsn
 }
 
 func (v *Provider) BCryptCost() int {

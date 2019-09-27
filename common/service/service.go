@@ -152,21 +152,23 @@ type HandlerProvider func(micro.Service) interface{}
 func NewService(opts ...ServiceOption) Service {
 
 	s := &service{
-		opts: newOptions(opts...),
+		opts: newOptions(append(mandatoryOptions, opts...)...),
 	}
+	//opts: newOptions(append(mandatoryOptions(), opts...)...),
+
+	name := s.Options().Name
 
 	// Checking that the service is not bound to a certain IP
-	peerAddress := config.Get("services", s.opts.Name, "PeerAddress").String("")
+	peerAddress := config.Get("services", name, "PeerAddress").String("")
 
 	if peerAddress != "" && !net2.PeerAddressIsLocal(peerAddress) {
-		log.Debug("Ignoring this service as peerAddress is not local", zap.String("name", s.opts.Name), zap.String("ip", peerAddress))
+		log.Debug("Ignoring this service as peerAddress is not local", zap.String("name", name), zap.String("ip", peerAddress))
 		return nil
 	}
 
 	// Setting context
 	ctx, cancel := context.WithCancel(context.Background())
-
-	ctx = servicecontext.WithServiceName(ctx, s.opts.Name)
+	ctx = servicecontext.WithServiceName(ctx, name)
 
 	if s.IsGRPC() {
 		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
@@ -186,173 +188,184 @@ func NewService(opts ...ServiceOption) Service {
 		Context(ctx),
 		Cancel(cancel),
 		Version(common.Version().String()),
-		// Adding the config to the context
-		AfterInit(func(_ Service) error {
-			cfg := make(config.Map)
-
-			if err := config.Get("services", s.Name()).Scan(&cfg); err != nil {
-				log.Logger(ctx).Error("", zap.Error(err))
-				return err
-			}
-
-			if cfg == nil {
-				cfg = make(config.Map)
-			}
-
-			// Retrieving and assigning port to the config
-			if p := config.Get("ports", s.Name()).Int(0); p != 0 {
-				cfg.Set("port", p)
-			}
-
-			//log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", s.Name()), zap.Any("cfg", cfg))
-			ctx = servicecontext.WithConfig(ctx, cfg)
-
-			s.Init(Context(ctx))
-
-			return nil
-		}),
-
-		// Setting config watchers
-		AfterInit(func(_ Service) error {
-			watchers := s.Options().Watchers
-
-			if len(watchers) == 0 {
-				return nil
-			}
-
-			w, err := config.Watch("services", s.Name())
-			if err != nil {
-				return err
-			}
-
-			go func() {
-				defer w.Stop()
-
-				for {
-					ch, err := w.Next()
-					if err != nil {
-						break
-					}
-
-					var c config.Map
-					if err := ch.Scan(&c); err != nil {
-						continue
-					}
-
-					for _, watcher := range watchers {
-						watcher(s.Options().Context, c)
-					}
-				}
-			}()
-
-			return nil
-		}),
-
-		// Adding the dao to the context
-		BeforeStart(func(_ Service) error {
-
-			// Only if we have a DAO
-			if s.Options().DAO == nil {
-				return nil
-			}
-
-			var d dao.DAO
-			driver, dsn := config.GetDatabase(s.Name())
-
-			var prefix string
-			switch v := s.Options().Prefix.(type) {
-			case func(Service) string:
-				prefix = v(s)
-			case string:
-				prefix = v
-			default:
-				prefix = ""
-			}
-
-			switch driver {
-			case "mysql":
-				if c := sql.NewDAO(driver, dsn, prefix); c != nil {
-					d = s.Options().DAO(c)
-				}
-			case "sqlite3":
-				if c := sql.NewDAO(driver, dsn, prefix); c != nil {
-					d = s.Options().DAO(c)
-				}
-			case "boltdb":
-				if c := boltdb.NewDAO(driver, dsn, prefix); c != nil {
-					d = s.Options().DAO(c)
-				}
-			default:
-				return fmt.Errorf("unsupported driver type: %s", driver)
-			}
-
-			if d == nil {
-				return fmt.Errorf("Storage is not available")
-			}
-
-			ctx = servicecontext.WithDAO(ctx, d)
-
-			s.Init(Context(ctx))
-
-			return nil
-
-		}),
-
-		// Adding a check before starting the service to ensure only one is started if unique
-		BeforeStart(func(s Service) error {
-
-			if s.MustBeUnique() {
-				runningServices, err := registry.ListRunningServices()
-				if err != nil {
-					return err
-				}
-
-				for _, r := range runningServices {
-					log.Logger(ctx).Debug("BeforeStart - Check unique ", zap.String("name ", s.Name()), zap.String("name2 ", r.Name()))
-					if s.Name() == r.Name() {
-						return fmt.Errorf("already started")
-					}
-				}
-			}
-
-			return nil
-		}),
-
-		// Adding a check before starting the service to ensure all dependencies are running
-		BeforeStart(func(_ Service) error {
-			log.Logger(ctx).Debug("BeforeStart - Check dependencies")
-
-			for _, d := range s.Options().Dependencies {
-				err := Retry(func() error {
-					runningServices, err := registry.ListRunningServices()
-					if err != nil {
-						return err
-					}
-
-					for _, r := range runningServices {
-						if d.Name == r.Name() {
-							return nil
-						}
-					}
-
-					return fmt.Errorf("dependency %s not found", d.Name)
-				}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
-
-				if err != nil {
-					return err
-				}
-			}
-
-			log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
-
-			return nil
-		}),
 	)
 
 	// Finally, register on the main app registry
 	s.Options().Registry.Register(s)
 
 	return s
+}
+
+var mandatoryOptions = []ServiceOption{
+	// Adding the config to the context
+	AfterInit(func(s Service) error {
+		ctx := s.Options().Context
+
+		cfg := make(config.Map)
+
+		if err := config.Get("services", s.Name()).Scan(&cfg); err != nil {
+			log.Logger(ctx).Error("", zap.Error(err))
+			return err
+		}
+
+		if cfg == nil {
+			cfg = make(config.Map)
+		}
+
+		// Retrieving and assigning port to the config
+		if p := config.Get("ports", s.Name()).Int(0); p != 0 {
+			cfg.Set("port", p)
+		}
+
+		//log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", s.Name()), zap.Any("cfg", cfg))
+		ctx = servicecontext.WithConfig(ctx, cfg)
+
+		s.Init(Context(ctx))
+
+		return nil
+	}),
+
+	// Setting config watchers
+	AfterInit(func(s Service) error {
+		watchers := s.Options().Watchers
+
+		if len(watchers) == 0 {
+			return nil
+		}
+
+		w, err := config.Watch("services", s.Name())
+		if err != nil {
+			return err
+		}
+
+		go func() {
+			defer w.Stop()
+
+			for {
+				ch, err := w.Next()
+				if err != nil {
+					break
+				}
+
+				var c config.Map
+				if err := ch.Scan(&c); err != nil {
+					continue
+				}
+
+				for _, watcher := range watchers {
+					watcher(s.Options().Context, c)
+				}
+			}
+		}()
+
+		return nil
+	}),
+
+	// Adding the dao to the context
+	BeforeStart(func(s Service) error {
+
+		ctx := s.Options().Context
+
+		// Only if we have a DAO
+		if s.Options().DAO == nil {
+			return nil
+		}
+
+		var d dao.DAO
+		driver, dsn := config.GetDatabase(s.Name())
+
+		var prefix string
+		switch v := s.Options().Prefix.(type) {
+		case func(Service) string:
+			prefix = v(s)
+		case string:
+			prefix = v
+		default:
+			prefix = ""
+		}
+
+		switch driver {
+		case "mysql":
+			if c := sql.NewDAO(driver, dsn, prefix); c != nil {
+				d = s.Options().DAO(c)
+			}
+		case "sqlite3":
+			if c := sql.NewDAO(driver, dsn, prefix); c != nil {
+				d = s.Options().DAO(c)
+			}
+		case "boltdb":
+			if c := boltdb.NewDAO(driver, dsn, prefix); c != nil {
+				d = s.Options().DAO(c)
+			}
+		default:
+			return fmt.Errorf("unsupported driver type: %s", driver)
+		}
+
+		if d == nil {
+			return fmt.Errorf("Storage is not available")
+		}
+
+		ctx = servicecontext.WithDAO(ctx, d)
+
+		s.Init(Context(ctx))
+
+		return nil
+
+	}),
+
+	// Adding a check before starting the service to ensure only one is started if unique
+	BeforeStart(func(s Service) error {
+
+		ctx := s.Options().Context
+
+		if s.MustBeUnique() {
+			runningServices, err := registry.ListRunningServices()
+			if err != nil {
+				return err
+			}
+
+			for _, r := range runningServices {
+				log.Logger(ctx).Debug("BeforeStart - Check unique ", zap.String("name ", s.Name()), zap.String("name2 ", r.Name()))
+				if s.Name() == r.Name() {
+					return fmt.Errorf("already started")
+				}
+			}
+		}
+
+		return nil
+	}),
+
+	// Adding a check before starting the service to ensure all dependencies are running
+	BeforeStart(func(s Service) error {
+		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Check dependencies")
+
+		for _, d := range s.Options().Dependencies {
+			err := Retry(func() error {
+				runningServices, err := registry.ListRunningServices()
+				if err != nil {
+					return err
+				}
+
+				for _, r := range runningServices {
+					if d.Name == r.Name() {
+						return nil
+					}
+				}
+
+				return fmt.Errorf("dependency %s not found", d.Name)
+			}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
+
+			if err != nil {
+				return err
+			}
+		}
+
+		log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
+
+		return nil
+	}),
 }
 
 func (s *service) Init(opts ...ServiceOption) {

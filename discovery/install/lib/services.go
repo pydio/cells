@@ -24,8 +24,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/ory/hydra/x"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
@@ -65,11 +63,11 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	oauthWeb := common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH
 	config.Set(fmt.Sprintf("%s/oidc/", url), "services", oauthWeb, "issuer")
 
-	secret, err := x.GenerateSecret(32)
-	if err != nil {
-		return err
-	}
-	config.Set(string(secret), "services", oauthWeb, "secret")
+	// secret, err := x.GenerateSecret(32)
+	// if err != nil {
+	// 	return err
+	// }
+	// config.Set(string(secret), "services", oauthWeb, "secret")
 
 	// Adding the config for activities and chat
 	// TODO - make it better

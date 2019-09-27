@@ -29,6 +29,7 @@ import (
 	"github.com/ory/hydra/oauth2"
 
 	proto "github.com/pydio/cells/common/proto/auth"
+	"github.com/pydio/cells/idm/oauth"
 )
 
 type AuthTokenVerifierHandler struct{}
@@ -41,7 +42,7 @@ func NewAuthTokenVerifierHandler() (proto.AuthTokenVerifierHandler, error) {
 func (h *AuthTokenVerifierHandler) Verify(ctx context.Context, in *proto.VerifyTokenRequest, out *proto.VerifyTokenResponse) error {
 	session := oauth2.NewSession("")
 
-	tokenType, ar, err := reg.OAuth2Provider().IntrospectToken(ctx, in.GetToken(), fosite.AccessToken, session)
+	tokenType, ar, err := oauth.GetRegistry().OAuth2Provider().IntrospectToken(ctx, in.GetToken(), fosite.AccessToken, session)
 	if err != nil {
 		return err
 	}
