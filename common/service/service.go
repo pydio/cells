@@ -188,6 +188,11 @@ func NewService(opts ...ServiceOption) Service {
 		Context(ctx),
 		Cancel(cancel),
 		Version(common.Version().String()),
+		Watch(func(ctx context.Context, v common.ConfigValues) {
+			ctx = servicecontext.WithConfig(ctx, v)
+
+			s.Init(Context(ctx))
+		}),
 	)
 
 	// Finally, register on the main app registry
