@@ -453,12 +453,12 @@ let AddressBook = React.createClass({
             }else if(selectedItem.id === 'ext'){
                 emptyStatePrimary = getMessage(585, '');
                 emptyStateSecondary = getMessage(586, '');
-            }else if((selectedItem.IdmUser && selectedItem.IdmUser.IsGroup) || selectedItem.id === 'PYDIO_GRP_/'){
+            }else if((selectedItem.IdmUser && selectedItem.IdmUser.IsGroup) || selectedItem.id === 'PYDIO_GRP_/' || (selectedItem.IdmRole && selectedItem.IdmRole.IsTeam)){
                 otherProps = {
                     showSubheaders: true,
                     paginatorType: !(selectedItem.currentParams && selectedItem.currentParams.has_search) && 'alpha',
                     paginatorCallback: this.reloadCurrentAtPage.bind(this),
-                    enableSearch: !this.props.disableSearch,
+                    enableSearch: !this.props.disableSearch && !(selectedItem.IdmRole && selectedItem.IdmRole.IsTeam), // do not enable inside teams
                     searchLabel: getMessage(595, ''),
                     onSearch: this.reloadCurrentWithSearch.bind(this),
                 };

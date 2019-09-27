@@ -204,12 +204,14 @@ var IdmApi = (function () {
      * @param roleId string
      * @param offset integer
      * @param limit integer
+     * @param filterString
      * @return Promise<RestUsersCollection>
      */
 
     IdmApi.prototype.listUsersWithRole = function listUsersWithRole(roleId) {
         var offset = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
         var limit = arguments.length <= 2 || arguments[2] === undefined ? -1 : arguments[2];
+        var filterString = arguments.length <= 3 || arguments[3] === undefined ? '' : arguments[3];
 
         var api = new _genApiUserServiceApi2["default"](this.client);
         var request = new _genModelRestSearchUserRequest2["default"]();
@@ -223,6 +225,11 @@ var IdmApi = (function () {
         var query2 = new _genModelIdmUserSingleQuery2["default"]();
         query2.HasRole = roleId;
         request.Queries.push(query2);
+        if (filterString) {
+            var queryString = new _genModelIdmUserSingleQuery2["default"]();
+            queryString.Login = filterString + '*';
+            request.Queries.push(queryString);
+        }
 
         if (offset > 0) {
             request.Offset = offset + '';

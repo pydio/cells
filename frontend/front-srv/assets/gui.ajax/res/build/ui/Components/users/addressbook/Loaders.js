@@ -236,7 +236,8 @@ var Loaders = (function () {
 
     Loaders.loadTeamUsers = function loadTeamUsers(entry, callback) {
         var offset = 0,
-            limit = 50;
+            limit = 50,
+            filter = '';
         if (entry.range) {
             var _entry$range$split4 = entry.range.split('-');
 
@@ -247,7 +248,10 @@ var Loaders = (function () {
             end = parseInt(end);
             limit = end - offset;
         }
-        IdmApi.listUsersWithRole(entry.IdmRole.Uuid, offset, limit).then(function (users) {
+        if (entry.currentParams && (entry.currentParams.alpha_pages || entry.currentParams.has_search)) {
+            filter = entry.currentParams.value;
+        }
+        IdmApi.listUsersWithRole(entry.IdmRole.Uuid, offset, limit, filter).then(function (users) {
             entry.pagination = Loaders.computePagination(users);
             var items = users.Users.map(function (idmUser) {
                 return {

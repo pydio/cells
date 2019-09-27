@@ -188,14 +188,17 @@ class Loaders{
     }
 
     static loadTeamUsers(entry, callback){
-        let offset = 0, limit = 50;
+        let offset = 0, limit = 50, filter = '';
         if(entry.range){
             let [start, end] = entry.range.split('-');
             offset = parseInt(start);
             end = parseInt(end);
             limit = end - offset;
         }
-        IdmApi.listUsersWithRole(entry.IdmRole.Uuid, offset, limit).then(users => {
+        if(entry.currentParams && (entry.currentParams.alpha_pages || entry.currentParams.has_search)){
+            filter = entry.currentParams.value;
+        }
+        IdmApi.listUsersWithRole(entry.IdmRole.Uuid, offset, limit, filter).then(users => {
             entry.pagination = Loaders.computePagination(users);
             const items = users.Users.map((idmUser) => {
                 return {

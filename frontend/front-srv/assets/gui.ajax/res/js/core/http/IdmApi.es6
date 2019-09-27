@@ -139,9 +139,10 @@ class IdmApi {
      * @param roleId string
      * @param offset integer
      * @param limit integer
+     * @param filterString
      * @return Promise<RestUsersCollection>
      */
-    listUsersWithRole(roleId, offset = 0, limit = -1){
+    listUsersWithRole(roleId, offset = 0, limit = -1, filterString = ''){
 
         const api = new UserServiceApi(this.client);
         const request = new RestSearchUserRequest();
@@ -155,6 +156,11 @@ class IdmApi {
         const query2 = new IdmUserSingleQuery();
         query2.HasRole = roleId;
         request.Queries.push(query2);
+        if(filterString){
+            const queryString = new IdmUserSingleQuery();
+            queryString.Login = filterString + '*';
+            request.Queries.push(queryString);
+        }
 
         if(offset > 0){
             request.Offset = offset + '';
