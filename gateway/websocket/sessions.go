@@ -24,9 +24,9 @@ package websocket
 import (
 	"context"
 
+	"github.com/pydio/melody"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
-	"gopkg.in/olahol/melody.v1"
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"

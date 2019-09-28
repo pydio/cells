@@ -30,8 +30,8 @@ import (
 	"context"
 
 	"github.com/micro/protobuf/jsonpb"
+	"github.com/pydio/melody"
 	"go.uber.org/zap"
-	"gopkg.in/olahol/melody.v1"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
@@ -296,6 +296,9 @@ func (c *ChatHandler) FindOrCreateRoom(ctx context.Context, room *chat.ChatRoom,
 	resp, e1 := chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: room})
 	if e1 != nil {
 		return nil, e1
+	}
+	if resp.Room == nil {
+		return nil, fmt.Errorf("nil room in response, this is not normal")
 	}
 	return resp.Room, nil
 
