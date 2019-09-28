@@ -1619,6 +1619,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -1928,8 +1930,8 @@ var DataSourceEditor = (function (_React$Component) {
                     marginBottom: 0
                 },
                 legend: {},
-                section: { padding: '0 20px 20px' },
-                storageSection: { border: '1px solid #e0e0e0', padding: 20, marginTop: -1, borderRadius: 2 },
+                section: { padding: '0 20px 20px', margin: 10, backgroundColor: 'white' },
+                storageSection: { padding: 20, marginTop: -1 },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
             };
 
@@ -2005,8 +2007,8 @@ var DataSourceEditor = (function (_React$Component) {
                     )
                 ),
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -2024,8 +2026,8 @@ var DataSourceEditor = (function (_React$Component) {
                     )
                 ),
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: _extends({}, styles.section, { padding: 0 }) },
                     _react2['default'].createElement(_DsStorageSelector2['default'], { disabled: !create, value: model.StorageType, onChange: function (e, i, v) {
                             model.StorageType = v;
                         }, values: storageData }),
@@ -2110,10 +2112,9 @@ var DataSourceEditor = (function (_React$Component) {
                             } })
                     )
                 ),
-                _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -2608,15 +2609,15 @@ var DsStorageType = (function (_React$Component) {
                     transition: _pydioUtilDom2['default'].getBeziersTransition()
                 },
                 image: {
-                    width: 36,
-                    height: 36,
+                    width: 30,
+                    height: 30,
                     opacity: .3,
                     transition: _pydioUtilDom2['default'].getBeziersTransition()
                 },
                 label: {
                     margin: 5,
                     marginTop: 8,
-                    textTransform: 'uppercase',
+                    /*textTransform: 'uppercase',*/
                     fontSize: 11,
                     fontWeight: 500,
                     color: 'rgba(0,0,0,.3)',
@@ -2626,9 +2627,9 @@ var DsStorageType = (function (_React$Component) {
             };
             if (selected) {
                 styles.cont.borderBottom = '2px solid #0e4d6d';
-                styles.cont.backgroundColor = '#fff';
+                //styles.cont.backgroundColor = '#fff';
                 styles.image.opacity = 1;
-                styles.label.color = 'rgba(0,0,0,.77)';
+                styles.label.color = '#0e4d6d';
             }
 
             return _react2['default'].createElement(
@@ -2680,7 +2681,8 @@ var DsStorageSelector = (function (_React$Component2) {
 
             var style = {
                 display: 'flex',
-                padding: '0 1px'
+                padding: '0 1px',
+                backgroundColor: '#ECEFF1'
             };
             return _react2['default'].createElement(
                 'div',
@@ -4048,7 +4050,7 @@ var WsEditor = (function (_React$Component) {
                     marginBottom: 0
                 },
                 legend: { color: '#9E9E9E', paddingTop: 10 },
-                section: { padding: '0 20px 20px' },
+                section: { padding: '0 20px 20px', margin: 10, backgroundColor: 'white' },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
             };
 
@@ -4100,8 +4102,8 @@ var WsEditor = (function (_React$Component) {
                     contentFill: false
                 },
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -4133,10 +4135,9 @@ var WsEditor = (function (_React$Component) {
                             workspace.Description = v;
                         } })
                 ),
-                _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -4168,10 +4169,9 @@ var WsEditor = (function (_React$Component) {
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.write'), value: "w" })
                     )
                 ),
-                _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -4180,7 +4180,7 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: m('ws.editor.other.sync'), toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: m('ws.editor.other.sync'), labelPosition: "right", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
                                 workspace.Attributes['ALLOW_SYNC'] = v;
                             } })
                     ),

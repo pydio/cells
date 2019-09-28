@@ -182,7 +182,7 @@ var WsEditor = (function (_React$Component) {
                     marginBottom: 0
                 },
                 legend: { color: '#9E9E9E', paddingTop: 10 },
-                section: { padding: '0 20px 20px' },
+                section: { padding: '0 20px 20px', margin: 10, backgroundColor: 'white' },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
             };
 
@@ -234,8 +234,8 @@ var WsEditor = (function (_React$Component) {
                     contentFill: false
                 },
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -267,10 +267,9 @@ var WsEditor = (function (_React$Component) {
                             workspace.Description = v;
                         } })
                 ),
-                _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -302,10 +301,9 @@ var WsEditor = (function (_React$Component) {
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.write'), value: "w" })
                     )
                 ),
-                _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
@@ -314,7 +312,7 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: m('ws.editor.other.sync'), toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: m('ws.editor.other.sync'), labelPosition: "right", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
                                 workspace.Attributes['ALLOW_SYNC'] = v;
                             } })
                     ),

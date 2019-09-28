@@ -18,15 +18,15 @@ class DsStorageType extends React.Component{
                 transition:DOMUtils.getBeziersTransition(),
             },
             image: {
-                width: 36,
-                height: 36,
+                width: 30,
+                height: 30,
                 opacity: .3,
                 transition:DOMUtils.getBeziersTransition(),
             },
             label:{
                 margin: 5,
                 marginTop: 8,
-                textTransform: 'uppercase',
+                /*textTransform: 'uppercase',*/
                 fontSize: 11,
                 fontWeight: 500,
                 color: 'rgba(0,0,0,.3)',
@@ -36,9 +36,9 @@ class DsStorageType extends React.Component{
         };
         if(selected){
             styles.cont.borderBottom = '2px solid #0e4d6d';
-            styles.cont.backgroundColor = '#fff';
+            //styles.cont.backgroundColor = '#fff';
             styles.image.opacity = 1;
-            styles.label.color = 'rgba(0,0,0,.77)'
+            styles.label.color = '#0e4d6d'
         }
 
         return (
@@ -70,6 +70,7 @@ class DsStorageSelector extends React.Component{
         const style = {
             display:'flex',
             padding: '0 1px',
+            backgroundColor:'#ECEFF1'
         };
         return (
             <div style={style}>
