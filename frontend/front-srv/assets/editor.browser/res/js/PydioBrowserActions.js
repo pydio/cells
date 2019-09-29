@@ -17,10 +17,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-const React = require('react');
-const {TextField} = require('material-ui');
-const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = require('pydio').requireLib('boot')
+import Pydio from 'pydio'
+import React from "react";
+const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot');
+const {ModernTextField} = Pydio.requireLib('hoc');
 const PydioApi = require('pydio/http/api');
 import LangUtils from 'pydio/util/lang';
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
@@ -74,8 +74,8 @@ const CreateLinkDialog = React.createClass({
         const mess = this.props.pydio.MessageHash;
         return (
             <div>
-                <TextField ref="url" floatingLabelText={mess['openbrowser.6']} fullWidth={true} hintText="https://..."  onKeyDown={(e) => {this.submitOnEnterKey(e)}} />
-                <TextField ref="name" floatingLabelText={mess['openbrowser.8']} fullWidth={true} onKeyDown={(e) => {this.submitOnEnterKey(e)}}/>
+                <ModernTextField ref="url" floatingLabelText={mess['openbrowser.6']} fullWidth={true} hintText="https://..."  onKeyDown={(e) => {this.submitOnEnterKey(e)}} />
+                <ModernTextField ref="name" floatingLabelText={mess['openbrowser.8']} fullWidth={true} onKeyDown={(e) => {this.submitOnEnterKey(e)}}/>
             </div>
         );
     }

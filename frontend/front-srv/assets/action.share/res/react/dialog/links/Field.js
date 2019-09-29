@@ -190,6 +190,7 @@ let PublicLinkField = React.createClass({
                             value={publicLink}
                             onFocus={e => {e.target.select()}}
                             fullWidth={true}
+                            style={{height: 40}}
                             inputStyle={{textAlign: 'center', backgroundColor:'#f5f5f5', borderRadius: 2, padding: '0 5px'}}
                             underlineStyle={{borderColor: '#f5f5f5', textDecoration:linkModel.isExpired()?'line-through':null}}
                             underlineFocusStyle={{bottom: 0}}

@@ -19,12 +19,12 @@
  */
 
 const React = require('react');
-const {TextField} = require('material-ui');
 import SharedUsers from './SharedUsers'
 import NodesPicker from './NodesPicker'
 import GenericEditor from '../main/GenericEditor'
 import Pydio from 'pydio'
 const {ResourcePoliciesPanel} = Pydio.requireLib('components');
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 /**
  * Dialog for letting users create a workspace
@@ -73,8 +73,8 @@ export default React.createClass({
 
         const header = (
             <div>
-                <TextField style={{marginTop: -14}} floatingLabelText={m(267)} value={model.getLabel()} onChange={(e,v)=>{model.setLabel(v)}} fullWidth={true}/>
-                <TextField style={{marginTop: -14}} floatingLabelText={m(268)} value={model.getDescription()} onChange={(e,v)=>{model.setDescription(v)}} fullWidth={true}/>
+                <ModernTextField floatingLabelText={m(267)} value={model.getLabel()} onChange={(e,v)=>{model.setLabel(v)}} fullWidth={true}/>
+                <ModernTextField floatingLabelText={m(268)} value={model.getDescription()} onChange={(e,v)=>{model.setDescription(v)}} fullWidth={true}/>
             </div>
         );
         const tabs = {

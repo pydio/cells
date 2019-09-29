@@ -23,7 +23,8 @@ import DOMUtils from 'pydio/util/dom'
 import AjxpNode from 'pydio/model/node'
 import React from "react";
 const {PydioContextConsumer} = Pydio.requireLib('boot')
-const {Paper, TextField, FlatButton} = require('material-ui')
+const {Paper, FlatButton} = require('material-ui')
+const {ModernTextField} = Pydio.requireLib("hoc");
 
 let InlineEditor = React.createClass({
 
@@ -55,8 +56,10 @@ let InlineEditor = React.createClass({
     },
 
     componentDidMount:function(){
-        DOMUtils.selectBaseFileName(this.refs.text.input);
-        this.refs.text.focus();
+        if(this.refs.text){
+            DOMUtils.selectBaseFileName(this.refs.text.getInput());
+            this.refs.text.focus();
+        }
     },
 
     catchClicks: function(e){
@@ -76,7 +79,7 @@ let InlineEditor = React.createClass({
         const messages = Pydio.getMessages();
         return (
             <Paper className={"inline-editor" + (this.props.detached ? " detached" : "")} style={{padding: 8}} zDepth={2}>
-                <TextField
+                <ModernTextField
                     ref="text"
                     defaultValue={this.props.node.getLabel()}
                     onChange={(e, value)=>{this.setState({value:value})}}

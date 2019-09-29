@@ -17,12 +17,13 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from "react";
+import Pydio from "pydio";
+
 import PydioApi from 'pydio/http/api'
 import {UserServiceApi, IdmUser} from 'pydio/http/rest-api'
-const React = require('react')
-const Pydio = require('pydio')
-const {TextField} = require('material-ui')
-const {ValidPassword} = Pydio.requireLib('form')
+const {ValidPassword} = Pydio.requireLib('form');
+const {ModernTextField} = Pydio.requireLib("hoc");
 
 
 let PasswordForm = React.createClass({
@@ -104,7 +105,7 @@ let PasswordForm = React.createClass({
                 {legend}
                 <div>
                     <form autoComplete="off">
-                        <TextField
+                        <ModernTextField
                             onChange={oldChange}
                             type="password"
                             value={this.state.oldPass}
@@ -114,7 +115,7 @@ let PasswordForm = React.createClass({
                         />
                     </form>
                 </div>
-                <div style={{width:250}}>
+                <div style={{width:256}}>
                     <ValidPassword
                         onChange={newChange}
                         attributes={{name:'pass',label:messages[198]}}

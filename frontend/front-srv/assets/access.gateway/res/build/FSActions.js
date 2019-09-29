@@ -1499,9 +1499,14 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _Pydio$requireLib = _pydio2["default"].requireLib('components');
+var _Pydio$requireLib = _pydio2["default"].requireLib("hoc");
 
-var FoldersTree = _Pydio$requireLib.FoldersTree;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+
+var _Pydio$requireLib2 = _pydio2["default"].requireLib('components');
+
+var FoldersTree = _Pydio$requireLib2.FoldersTree;
 
 var TreeDialog = _react2["default"].createClass({
     displayName: "TreeDialog",
@@ -1634,7 +1639,7 @@ var TreeDialog = _react2["default"].createClass({
                     "div",
                     null,
                     _react2["default"].createElement(
-                        _materialUi.SelectField,
+                        ModernSelectField,
                         {
                             style: { width: '100%' },
                             floatingLabelText: _this2.props.pydio.MessageHash[373],
@@ -1652,11 +1657,11 @@ var TreeDialog = _react2["default"].createClass({
 
         return _react2["default"].createElement(
             "div",
-            { style: { width: '100%' } },
+            { style: { width: '100%', paddingTop: 18 } },
             wsSelector,
             _react2["default"].createElement(
                 _materialUi.Paper,
-                { zDepth: 0, style: { height: 300, overflowX: 'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: '#eceff1', marginTop: -6 } },
+                { zDepth: 0, style: { height: 300, overflowX: 'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: '#f5f5f5', marginTop: 4 } },
                 _react2["default"].createElement(
                     "div",
                     { style: { marginTop: -41, marginLeft: -21 } },
@@ -1675,26 +1680,25 @@ var TreeDialog = _react2["default"].createClass({
                     className: "bezier-transitions",
                     zDepth: 0,
                     style: {
-                        backgroundColor: '#eceff1',
                         display: 'flex',
                         alignItems: 'baseline',
-                        height: newFolderFormOpen ? 80 : 0,
+                        height: newFolderFormOpen ? 50 : 0,
                         overflow: newFolderFormOpen ? 'visible' : 'hidden',
                         opacity: newFolderFormOpen ? 1 : 0,
-                        padding: '0 10px',
-                        marginTop: 6
+                        padding: 0,
+                        marginTop: newFolderFormOpen ? 0 : 4
                     }
                 },
-                _react2["default"].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelText: this.props.pydio.MessageHash[173], ref: "newfolder_input", style: { flex: 1 } }),
-                _react2["default"].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo", iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[49], onTouchTap: openNewFolderForm }),
+                _react2["default"].createElement(ModernTextField, { fullWidth: true, floatingLabelText: this.props.pydio.MessageHash[173], ref: "newfolder_input", style: { flex: 1 } }),
                 _react2["default"].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-check", iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[48], onTouchTap: function () {
                         _this2.createNewFolder();
-                    } })
+                    } }),
+                _react2["default"].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[49], onTouchTap: openNewFolderForm })
             ),
             _react2["default"].createElement(
                 "div",
-                { style: { display: 'flex', alignItems: 'baseline' } },
-                _react2["default"].createElement(_materialUi.TextField, {
+                { style: { display: 'flex', alignItems: 'center' } },
+                _react2["default"].createElement(ModernTextField, {
                     style: { flex: 1, width: '100%', marginRight: 10 },
                     floatingLabelText: this.props.pydio.MessageHash[373],
                     ref: "input",
@@ -1702,7 +1706,14 @@ var TreeDialog = _react2["default"].createClass({
                     disabled: false,
                     onChange: function () {}
                 }),
-                !newFolderFormOpen && _react2["default"].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-folder-plus", style: { backgroundColor: '#eceff1', borderRadius: '50%' }, iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[154], onTouchTap: openNewFolderForm })
+                !newFolderFormOpen && _react2["default"].createElement(_materialUi.IconButton, {
+                    iconClassName: "mdi mdi-folder-plus",
+                    style: { height: 38, width: 38, padding: 6 },
+                    iconStyle: { color: '#546E7A', fontSize: 24 },
+                    tooltip: this.props.pydio.MessageHash[154],
+                    tooltipPosition: "top-left",
+                    onTouchTap: openNewFolderForm
+                })
             )
         );
     }

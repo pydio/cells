@@ -19,11 +19,12 @@
  */
 
 import React from "react";
+import Pydio from 'pydio';
 import LangUtils from 'pydio/util/lang';
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
 import PydioDataModel from "pydio/model/data-model";
-import {IconButton, MenuItem, Paper, SelectField, TextField} from "material-ui";
-import Pydio from 'pydio';
+import {IconButton, MenuItem, Paper} from "material-ui";
+const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
 
 const {FoldersTree} = Pydio.requireLib('components');
 
@@ -147,14 +148,14 @@ const TreeDialog = React.createClass({
             });
             wsSelector = (
                 <div>
-                    <SelectField
+                    <ModernSelectField
                         style={{width:'100%'}}
                         floatingLabelText={this.props.pydio.MessageHash[373]}
                         value={this.state.wsId}
                         onChange={this.handleRepositoryChange}
                     >
                         {items}
-                    </SelectField>
+                    </ModernSelectField>
                 </div>
             );
         }
@@ -162,9 +163,9 @@ const TreeDialog = React.createClass({
         let closeStyle = {width:0};
         const {newFolderFormOpen} = this.state;
         return (
-            <div style={{width:'100%'}}>
+            <div style={{width:'100%', paddingTop: 18}}>
                 {wsSelector}
-                <Paper zDepth={0} style={{height: 300, overflowX:'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: '#eceff1', marginTop:-6}}>
+                <Paper zDepth={0} style={{height: 300, overflowX:'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: '#f5f5f5', marginTop:4}}>
                     <div style={{marginTop: -41, marginLeft: -21}}>
                         <FoldersTree
                             pydio={this.props.pydio}
@@ -179,22 +180,21 @@ const TreeDialog = React.createClass({
                     className="bezier-transitions"
                     zDepth={0}
                     style={{
-                        backgroundColor:'#eceff1',
                         display:'flex',
                         alignItems:'baseline',
-                        height:newFolderFormOpen?80:0,
+                        height:newFolderFormOpen?50:0,
                         overflow:newFolderFormOpen ? 'visible':'hidden',
                         opacity:newFolderFormOpen ? 1:0,
-                        padding: '0 10px',
-                        marginTop: 6
+                        padding: 0,
+                        marginTop: newFolderFormOpen ? 0:4
                     }}
                 >
-                    <TextField fullWidth={true} floatingLabelText={this.props.pydio.MessageHash[173]} ref="newfolder_input" style={{flex:1}}/>
-                    <IconButton iconClassName="mdi mdi-undo" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onTouchTap={openNewFolderForm}/>
+                    <ModernTextField fullWidth={true} floatingLabelText={this.props.pydio.MessageHash[173]} ref="newfolder_input" style={{flex:1}}/>
                     <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onTouchTap={() => {this.createNewFolder() }}/>
+                    <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onTouchTap={openNewFolderForm}/>
                 </Paper>
-                <div style={{display:'flex',alignItems:'baseline'}}>
-                    <TextField
+                <div style={{display:'flex',alignItems:'center'}}>
+                    <ModernTextField
                         style={{flex:1,width:'100%', marginRight: 10}}
                         floatingLabelText={this.props.pydio.MessageHash[373]}
                         ref="input"
@@ -203,7 +203,14 @@ const TreeDialog = React.createClass({
                         onChange={()=>{}}
                     />
                     {!newFolderFormOpen &&
-                        <IconButton iconClassName="mdi mdi-folder-plus" style={{backgroundColor:'#eceff1', borderRadius: '50%'}} iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[154]} onTouchTap={openNewFolderForm}/>
+                        <IconButton
+                            iconClassName="mdi mdi-folder-plus"
+                            style={{height:38, width:38, padding: 6}}
+                            iconStyle={{color: '#546E7A', fontSize: 24}}
+                            tooltip={this.props.pydio.MessageHash[154]}
+                            tooltipPosition={"top-left"}
+                            onTouchTap={openNewFolderForm}
+                        />
                     }
                 </div>
             </div>

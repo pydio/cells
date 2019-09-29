@@ -25,6 +25,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -44,7 +46,8 @@ var styles = {
         inputStyle: { backgroundColor: 'rgba(224, 224, 224, 0.33)', height: 34, borderRadius: 3, marginTop: 6, padding: 7 },
         hintStyle: _extends({ paddingLeft: 7, color: 'rgba(0,0,0,0.5)' }, noWrap, { width: '100%' }),
         underlineStyle: { opacity: 0 },
-        underlineFocusStyle: { opacity: 1, borderRadius: '0px 0px 3px 3px' }
+        underlineFocusStyle: { opacity: 1, borderRadius: '0px 0px 3px 3px' },
+        errorStyle: { bottom: -4 }
     },
     textareaField: {
         rows: 4,
@@ -64,6 +67,14 @@ var styles = {
     div: {
         backgroundColor: 'rgba(224, 224, 224, 0.33)', color: 'rgba(0,0,0,.5)',
         height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0
+    },
+    toggleField: {
+        style: {
+            backgroundColor: 'rgba(224, 224, 224, 0.33)',
+            padding: '7px 5px 4px',
+            borderRadius: 3,
+            fontSize: 15
+        }
     }
 };
 
@@ -93,7 +104,31 @@ function withModernTheme(formComponent) {
             }
         };
 
+        ModernThemeComponent.prototype.focus = function focus() {
+            if (this.refs.component) {
+                this.refs.component.focus();
+            }
+        };
+
+        ModernThemeComponent.prototype.getInput = function getInput() {
+            if (this.refs.component) {
+                return this.refs.component.input;
+            }
+        };
+
+        ModernThemeComponent.prototype.getValue = function getValue() {
+            return this.refs.component.getValue();
+        };
+
         ModernThemeComponent.prototype.render = function render() {
+            var _props = this.props;
+            var floatingLabelText = _props.floatingLabelText;
+
+            var otherProps = _objectWithoutProperties(_props, ['floatingLabelText']);
+
+            if (floatingLabelText) {
+                otherProps["hintText"] = floatingLabelText;
+            }
 
             if (formComponent === _materialUi.TextField) {
                 var styleProps = undefined;
@@ -102,12 +137,12 @@ function withModernTheme(formComponent) {
                 } else {
                     styleProps = this.mergedProps(_extends({}, styles.textField));
                 }
-                return _react2['default'].createElement(_materialUi.TextField, _extends({}, this.props, styleProps, { ref: "component" }));
+                return _react2['default'].createElement(_materialUi.TextField, _extends({}, otherProps, styleProps, { ref: "component" }));
             } else if (formComponent === _materialUi.SelectField) {
                 var styleProps = this.mergedProps(_extends({}, styles.selectField));
-                return _react2['default'].createElement(_materialUi.SelectField, _extends({}, this.props, styleProps, { ref: "component" }));
+                return _react2['default'].createElement(_materialUi.SelectField, _extends({}, otherProps, styleProps, { ref: "component" }));
             } else {
-                return null;
+                return formComponent;
             }
         };
 

@@ -17,11 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from "react";
+import Pydio from 'pydio'
+import PassUtils from "pydio/util/pass";
 import FormMixin from '../mixins/FormMixin'
-const PassUtils = require('pydio/util/pass')
-const React = require('react')
-const {TextField} = require('material-ui')
+const {ModernTextField} = Pydio.requireLib("hoc");
 
 export default React.createClass({
 
@@ -77,8 +77,8 @@ export default React.createClass({
             let confirm;
             if(this.state.value && !this.props.disabled){
                 confirm = [
-                    <div key="sep" style={{width: 20}}></div>,
-                    <TextField
+                    <div key="sep" style={{width: 8}}></div>,
+                    <ModernTextField
                         key="confirm"
                         ref="confirm"
                         floatingLabelText={this.getMessage(199)}
@@ -98,8 +98,8 @@ export default React.createClass({
             }
             return(
                 <form autoComplete="off">
-                    <div style={{display:'flex', marginTop:-16}}>
-                        <TextField
+                    <div style={{display:'flex'}}>
+                        <ModernTextField
                             ref="pass"
                             floatingLabelText={this.isDisplayForm()?this.props.attributes.label:null}
                             floatingLabelShrinkStyle={{...overflow, width:'130%'}}

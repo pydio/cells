@@ -19,11 +19,13 @@
  */
 
 import React from 'react'
-import {FontIcon, FlatButton, RaisedButton, TextField} from 'material-ui'
+import Pydio from 'pydio'
+import {FontIcon, FlatButton, RaisedButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import SharedUsers from './SharedUsers'
 import NodesPicker from './NodesPicker'
 import CellModel from 'pydio/model/cell'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 /**
  * Dialog for letting users create a workspace
@@ -126,8 +128,8 @@ let CreateCellDialog = React.createClass({
             content = (
                 <div>
                     <div>{this.m(275)}</div>
-                    <TextField ref={"title"} floatingLabelText={this.m(276)} value={model.getLabel()} onChange={(e,v)=>{model.setLabel(v)}} fullWidth={true}/>
-                    <TextField floatingLabelText={this.m(277)} value={model.getDescription()} onChange={(e,v)=>{model.setDescription(v)}} fullWidth={true}/>
+                    <ModernTextField ref={"title"} floatingLabelText={this.m(276)} value={model.getLabel()} onChange={(e,v)=>{model.setLabel(v)}} fullWidth={true}/>
+                    <ModernTextField floatingLabelText={this.m(277)} value={model.getDescription()} onChange={(e,v)=>{model.setDescription(v)}} fullWidth={true}/>
                 </div>
             );
 

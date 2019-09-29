@@ -22,6 +22,9 @@ import FormMixin from '../mixins/FormMixin'
 const React = require('react');
 const {AutoComplete, MenuItem, RefreshIndicator} = require('material-ui');
 import FieldWithChoices from '../mixins/FieldWithChoices'
+import Pydio from 'pydio'
+const {ModernStyles} = Pydio.requireLib('hoc');
+
 
 let AutocompleteBox = React.createClass({
 
@@ -89,7 +92,7 @@ let AutocompleteBox = React.createClass({
                         onUpdateInput={this.handleUpdateInput}
                         onNewRequest={this.handleNewRequest}
                         dataSource={dataSource}
-                        floatingLabelText={this.props.attributes['label']}
+                        hintText={this.props.attributes['label']}
                         filter={(searchText, key) => {
                             if(!key || !searchText) {
                                 return false;
@@ -98,6 +101,7 @@ let AutocompleteBox = React.createClass({
                         }}
                         openOnFocus={true}
                         menuProps={{maxHeight: 200}}
+                        {...ModernStyles.textField}
                     />
                 }
             </div>

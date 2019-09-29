@@ -18,9 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import FormMixin from '../mixins/FormMixin'
-const React = require('react')
-const ReactMUI = require('material-ui-legacy')
+import Pydio from 'pydio'
+const {ModernTextField} = Pydio.requireLib('hoc');
+
 
 /**
  * Text input that is converted to integer, and
@@ -63,12 +65,13 @@ export default React.createClass({
             }
             return(
                 <span className="integer-input">
-                    <ReactMUI.TextField
+                    <ModernTextField
                         value={intval}
                         onChange={this.onChange}
                         onKeyDown={this.keyDown}
                         disabled={this.props.disabled}
-                        floatingLabelText={this.isDisplayForm()?this.props.attributes.label:null}
+                        fullWidth={true}
+                        hintText={this.isDisplayForm()?this.props.attributes.label:null}
                     />
                 </span>
             );

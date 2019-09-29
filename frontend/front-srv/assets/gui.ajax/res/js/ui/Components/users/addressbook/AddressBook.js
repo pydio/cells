@@ -570,7 +570,7 @@ let AddressBook = React.createClass({
                 dialogContent = (
                     <UserCreationForm
                         zDepth={0}
-                        style={{display:'flex', flexDirection:'column', flex: 1, marginTop: -40}}
+                        style={{display:'flex', flexDirection:'column', flex: 1}}
                         newUserName={""}
                         onUserCreated={this.closeCreateDialogAndReload.bind(this)}
                         onCancel={() => {this.setState({createDialogItem:null})}}

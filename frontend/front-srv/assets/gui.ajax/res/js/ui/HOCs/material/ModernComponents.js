@@ -30,6 +30,7 @@ const styles = {
         hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%'},
         underlineStyle:{opacity:0},
         underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
+        errorStyle:{bottom:-4}
     },
     textareaField:{
         rows: 4,
@@ -49,6 +50,14 @@ const styles = {
     div:{
         backgroundColor:'rgba(224, 224, 224, 0.33)', color:'rgba(0,0,0,.5)',
         height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0
+    },
+    toggleField:{
+        style: {
+            backgroundColor: 'rgba(224, 224, 224, 0.33)',
+            padding: '7px 5px 4px',
+            borderRadius: 3,
+            fontSize: 15
+        }
     }
 };
 
@@ -72,7 +81,28 @@ function withModernTheme(formComponent) {
             }
         }
 
+        focus(){
+            if(this.refs.component){
+                this.refs.component.focus();
+            }
+        }
+
+        getInput(){
+            if(this.refs.component){
+                return this.refs.component.input;
+            }
+        }
+
+        getValue(){
+            return this.refs.component.getValue();
+        }
+
         render() {
+
+            const {floatingLabelText, ...otherProps} = this.props;
+            if(floatingLabelText){
+                otherProps["hintText"] = floatingLabelText;
+            }
 
             if (formComponent === TextField) {
                 let styleProps;
@@ -81,12 +111,12 @@ function withModernTheme(formComponent) {
                 } else {
                     styleProps = this.mergedProps({...styles.textField});
                 }
-                return <TextField {...this.props} {...styleProps} ref={"component"} />
+                return <TextField {...otherProps} {...styleProps} ref={"component"} />
             } else if (formComponent === SelectField) {
                 const styleProps = this.mergedProps({...styles.selectField});
-                return <SelectField {...this.props} {...styleProps} ref={"component"}/>
+                return <SelectField {...otherProps} {...styleProps} ref={"component"}/>
             } else {
-                return null;
+                return formComponent;
             }
         }
     }

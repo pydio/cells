@@ -42,6 +42,10 @@ const FORM_CSS = `
   height: 200px;
   background-color: #eceff1;
 }
+.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image > div:first-child {
+  padding: 0;
+  border-radius: 0;
+}
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .image-label,
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .form-legend {
   display: none;

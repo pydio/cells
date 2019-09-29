@@ -45,7 +45,9 @@ var _LinkModel = require('./LinkModel');
 
 var _LinkModel2 = _interopRequireDefault(_LinkModel);
 
-var _materialUi = require('material-ui');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var LabelPanel = (function (_React$Component) {
     _inherits(LabelPanel, _React$Component);
@@ -80,8 +82,8 @@ var LabelPanel = (function (_React$Component) {
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(_materialUi.TextField, { style: { marginTop: -14 }, floatingLabelText: m(265), value: link.Label, onChange: updateLabel, fullWidth: true }),
-                _react2['default'].createElement(_materialUi.TextField, { style: { marginTop: -14 }, floatingLabelText: m(266), value: link.Description, onChange: updateDescription, fullWidth: true })
+                _react2['default'].createElement(ModernTextField, { floatingLabelText: m(265), value: link.Label, onChange: updateLabel, fullWidth: true }),
+                _react2['default'].createElement(ModernTextField, { floatingLabelText: m(266), value: link.Description, onChange: updateDescription, fullWidth: true })
             );
         }
     }]);

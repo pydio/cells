@@ -17,27 +17,36 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
 
 var _mixinsFormMixin = require('../mixins/FormMixin');
 
 var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
 
-var React = require('react');
+var _materialUi = require("material-ui");
 
-var _require = require('material-ui');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
-var Toggle = _require.Toggle;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 /**
  * Boolean input
  */
-exports['default'] = React.createClass({
+exports['default'] = _react2['default'].createClass({
     displayName: 'InputBoolean',
 
     mixins: [_mixinsFormMixin2['default']],
@@ -59,23 +68,23 @@ exports['default'] = React.createClass({
     getBooleanState: function getBooleanState() {
         var boolVal = this.state.value;
         if (typeof boolVal === 'string') {
-            boolVal = boolVal == "true";
+            boolVal = boolVal === "true";
         }
         return boolVal;
     },
 
     render: function render() {
         var boolVal = this.getBooleanState();
-        return React.createElement(
+        return _react2['default'].createElement(
             'span',
             null,
-            React.createElement(Toggle, {
+            _react2['default'].createElement(_materialUi.Toggle, _extends({
                 toggled: boolVal,
                 onToggle: this.onCheck,
                 disabled: this.props.disabled,
                 label: this.isDisplayForm() ? this.props.attributes.label : null,
                 labelPosition: this.isDisplayForm() ? 'left' : 'right'
-            })
+            }, ModernStyles.toggleField))
         );
     }
 

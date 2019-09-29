@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -26,23 +25,29 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
-var React = require('react');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
-var _require = require('material-ui');
+var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
+var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
+var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
 
-var TextField = _require.TextField;
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
 
-var _require$requireLib = require('pydio').requireLib('boot');
-
-var ActionDialogMixin = _require$requireLib.ActionDialogMixin;
-var CancelButtonProviderMixin = _require$requireLib.CancelButtonProviderMixin;
-var SubmitButtonProviderMixin = _require$requireLib.SubmitButtonProviderMixin;
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
 
 var PydioApi = require('pydio/http/api');
 
@@ -61,7 +66,7 @@ var Callbacks = (function () {
     return Callbacks;
 })();
 
-var CreateLinkDialog = React.createClass({
+var CreateLinkDialog = _react2['default'].createClass({
     displayName: 'CreateLinkDialog',
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
@@ -101,13 +106,13 @@ var CreateLinkDialog = React.createClass({
         var _this2 = this;
 
         var mess = this.props.pydio.MessageHash;
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             null,
-            React.createElement(TextField, { ref: 'url', floatingLabelText: mess['openbrowser.6'], fullWidth: true, hintText: 'https://...', onKeyDown: function (e) {
+            _react2['default'].createElement(ModernTextField, { ref: 'url', floatingLabelText: mess['openbrowser.6'], fullWidth: true, hintText: 'https://...', onKeyDown: function (e) {
                     _this2.submitOnEnterKey(e);
                 } }),
-            React.createElement(TextField, { ref: 'name', floatingLabelText: mess['openbrowser.8'], fullWidth: true, onKeyDown: function (e) {
+            _react2['default'].createElement(ModernTextField, { ref: 'name', floatingLabelText: mess['openbrowser.8'], fullWidth: true, onKeyDown: function (e) {
                     _this2.submitOnEnterKey(e);
                 } })
         );

@@ -18,17 +18,18 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react';
-import ShareContextConsumer from '../ShareContextConsumer'
-import {FlatButton, IconButton, FontIcon, TextField, DatePicker, Popover} from 'material-ui'
 import Pydio from 'pydio'
+import PassUtils from 'pydio/util/pass'
+import {FlatButton, IconButton, FontIcon, DatePicker, Popover} from 'material-ui'
+import ShareContextConsumer from '../ShareContextConsumer'
 import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
-import PassUtils from 'pydio/util/pass'
 const {ValidPassword} = Pydio.requireLib('form');
+const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 const globStyles = {
     leftIcon: {
-        margin:'0 20px 0 4px',
+        margin:'0 16px 0 4px',
         color: '#757575'
     }
 };
@@ -153,7 +154,7 @@ let PublicLinkSecureOptions = React.createClass({
                                 value={this.state.updatingPassword ? this.state.updatingPassword : ""}
                                 onChange={(v) => {this.setUpdatingPassword(v)}}
                             />
-                            <div style={{paddingTop:36, textAlign:'right'}}>
+                            <div style={{paddingTop:20, textAlign:'right'}}>
                                 <FlatButton label={"OK"} onTouchTap={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid}/>
                                 <FlatButton label={"Cancel"} onTouchTap={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
                             </div>
@@ -162,7 +163,7 @@ let PublicLinkSecureOptions = React.createClass({
                 </div>
             );
             passwordField = (
-                <TextField
+                <ModernTextField
                     floatingLabelText={this.props.getMessage('23')}
                     disabled={true}
                     value={'********'}
@@ -182,7 +183,7 @@ let PublicLinkSecureOptions = React.createClass({
         }
         if(passwordField){
             return (
-                <div className="password-container" style={{display:'flex', alignItems:'baseline'}}>
+                <div className="password-container" style={{display:'flex', alignItems:'center'}}>
                     <FontIcon className="mdi mdi-file-lock" style={globStyles.leftIcon}/>
                     <div style={{width:resetPassword ? '40%' : '100%', display:'inline-block'}}>
                         {passwordField}
@@ -266,16 +267,17 @@ let PublicLinkSecureOptions = React.createClass({
                         disabled={this.props.isReadonly() || !linkModel.isEditable()}
                         onChange={this.onDateChange}
                         showYearSelector={true}
-                        floatingLabelText={this.props.getMessage(dateExpired?'21b':'21')}
+                        hintText={this.props.getMessage(dateExpired?'21b':'21')}
                         mode="landscape"
                         formatDate={this.formatDate}
                         style={{flex: 1}}
                         fullWidth={true}
+                        {...ModernStyles.textField}
                     />
                 </div>
                 <div style={{flex:1, alignItems:'baseline', display:crtLinkDLAllowed?'flex':'none', position:'relative'}} className={dlExpired?'limit-block-expired':null}>
                     <FontIcon className="mdi mdi-download" style={globStyles.leftIcon}/>
-                    <TextField
+                    <ModernTextField
                         type="number"
                         disabled={this.props.isReadonly() || !linkModel.isEditable()}
                         floatingLabelText={this.props.getMessage(dlExpired?'22b':'22')}
@@ -284,7 +286,7 @@ let PublicLinkSecureOptions = React.createClass({
                         fullWidth={true}
                         style={{flex: 1}}
                     />
-                    <span style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{dlCounterString}</span>
+                    <span style={{position: 'absolute', right: 10, top: 14, fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{dlCounterString}</span>
                 </div>
                 </div>
             </div>

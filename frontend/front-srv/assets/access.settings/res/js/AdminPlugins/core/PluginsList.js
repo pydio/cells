@@ -127,7 +127,7 @@ const PluginsList = React.createClass({
             columns = [
                 {name:'enabled', label: m('column.enabled'), style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled},
                 {name:'label', label: m('column.label'), style:{fontSize:15}},
-                {name:'action', label: '', style:{width:80}, headerStyle:{width:80}, renderCell: renderEditButton}
+                {name:'action', label: '', style:{width:80, textOverflow:'inherit'}, headerStyle:{width:80}, renderCell: renderEditButton}
             ];
 
         } else {
@@ -136,7 +136,7 @@ const PluginsList = React.createClass({
                 {name:'label', label: m('column.label'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
                 {name:'id', label: m('column.id'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall: true},
                 {name:'description', label: m('column.description'), hideSmall: true},
-                {name:'action', label: '', style:{width:80}, headerStyle:{width:80}, renderCell: renderEditButton}
+                {name:'action', label: '', style:{width:80, textOverflow:'inherit'}, headerStyle:{width:80}, renderCell: renderEditButton}
             ];
         }
 

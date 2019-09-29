@@ -18,10 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {Component, PropTypes} = require('react')
-const {TextField, FlatButton} = require('material-ui')
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
+import {Component, PropTypes} from "react";
+import {FlatButton} from "material-ui";
+const {PydioContextConsumer} = Pydio.requireLib('boot');
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 /**
  * Simple form for creating a team
@@ -50,7 +52,13 @@ class TeamCreationForm extends Component{
             <div>
                 <div style={{padding: 20}}>
                     <div>{getMessage(591)}</div>
-                    <TextField floatingLabelText={getMessage(578)} value={this.state.value} onChange={this.onChange.bind(this)} fullWidth={true}/>
+                    <ModernTextField
+                        focusOnMount={true}
+                        floatingLabelText={getMessage(578)}
+                        value={this.state.value}
+                        onChange={this.onChange.bind(this)}
+                        fullWidth={true}
+                    />
                 </div>
                 <div>
                     <div style={{textAlign:'right', padding: 8}}>

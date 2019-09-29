@@ -33,10 +33,6 @@ var _ShareContextConsumer = require('../ShareContextConsumer');
 
 var _ShareContextConsumer2 = _interopRequireDefault(_ShareContextConsumer);
 
-var _UserBadge = require('./UserBadge');
-
-var _UserBadge2 = _interopRequireDefault(_UserBadge);
-
 var _SharedUserEntry = require('./SharedUserEntry');
 
 var _SharedUserEntry2 = _interopRequireDefault(_SharedUserEntry);

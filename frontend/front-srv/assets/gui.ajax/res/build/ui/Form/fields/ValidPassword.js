@@ -17,29 +17,37 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioUtilPass = require("pydio/util/pass");
+
+var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
 var _mixinsFormMixin = require('../mixins/FormMixin');
 
 var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
 
-var PassUtils = require('pydio/util/pass');
-var React = require('react');
+var _Pydio$requireLib = _pydio2["default"].requireLib("hoc");
 
-var _require = require('material-ui');
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+exports["default"] = _react2["default"].createClass({
+    displayName: "ValidPassword",
 
-var TextField = _require.TextField;
-exports['default'] = React.createClass({
-    displayName: 'ValidPassword',
-
-    mixins: [_mixinsFormMixin2['default']],
+    mixins: [_mixinsFormMixin2["default"]],
 
     isValid: function isValid() {
         return this.state.valid;
@@ -60,7 +68,7 @@ exports['default'] = React.createClass({
 
     updatePassState: function updatePassState() {
         var prevStateValid = this.state.valid;
-        var newState = PassUtils.getState(this.refs.pass.getValue(), this.refs.confirm ? this.refs.confirm.getValue() : '');
+        var newState = _pydioUtilPass2["default"].getState(this.refs.pass.getValue(), this.refs.confirm ? this.refs.confirm.getValue() : '');
         this.setState(newState);
         if (prevStateValid !== newState.valid && this.props.onValidStatusChange) {
             this.props.onValidStatusChange(newState.valid);
@@ -81,8 +89,8 @@ exports['default'] = React.createClass({
     render: function render() {
         if (this.isDisplayGrid() && !this.state.editMode) {
             var value = this.state.value;
-            return React.createElement(
-                'div',
+            return _react2["default"].createElement(
+                "div",
                 { onClick: this.props.disabled ? function () {} : this.toggleEditMode, className: value ? '' : 'paramValue-empty' },
                 !value ? 'Empty' : value
             );
@@ -94,16 +102,16 @@ exports['default'] = React.createClass({
             }
             var _confirm = undefined;
             if (this.state.value && !this.props.disabled) {
-                _confirm = [React.createElement('div', { key: 'sep', style: { width: 20 } }), React.createElement(TextField, {
-                    key: 'confirm',
-                    ref: 'confirm',
+                _confirm = [_react2["default"].createElement("div", { key: "sep", style: { width: 8 } }), _react2["default"].createElement(ModernTextField, {
+                    key: "confirm",
+                    ref: "confirm",
                     floatingLabelText: this.getMessage(199),
                     floatingLabelShrinkStyle: _extends({}, overflow, { width: '130%' }),
                     floatingLabelStyle: overflow,
                     className: className,
                     value: this.state.confirmValue,
                     onChange: this.onConfirmChange,
-                    type: 'password',
+                    type: "password",
                     multiLine: false,
                     disabled: this.props.disabled,
                     fullWidth: true,
@@ -111,14 +119,14 @@ exports['default'] = React.createClass({
                     errorText: this.state.confirmErrorText
                 })];
             }
-            return React.createElement(
-                'form',
-                { autoComplete: 'off' },
-                React.createElement(
-                    'div',
-                    { style: { display: 'flex', marginTop: -16 } },
-                    React.createElement(TextField, {
-                        ref: 'pass',
+            return _react2["default"].createElement(
+                "form",
+                { autoComplete: "off" },
+                _react2["default"].createElement(
+                    "div",
+                    { style: { display: 'flex' } },
+                    _react2["default"].createElement(ModernTextField, {
+                        ref: "pass",
                         floatingLabelText: this.isDisplayForm() ? this.props.attributes.label : null,
                         floatingLabelShrinkStyle: _extends({}, overflow, { width: '130%' }),
                         floatingLabelStyle: overflow,
@@ -126,7 +134,7 @@ exports['default'] = React.createClass({
                         value: this.state.value,
                         onChange: this.onPasswordChange,
                         onKeyDown: this.enterToToggle,
-                        type: 'password',
+                        type: "password",
                         multiLine: false,
                         disabled: this.props.disabled,
                         errorText: this.state.passErrorText,
@@ -140,4 +148,4 @@ exports['default'] = React.createClass({
     }
 
 });
-module.exports = exports['default'];
+module.exports = exports["default"];

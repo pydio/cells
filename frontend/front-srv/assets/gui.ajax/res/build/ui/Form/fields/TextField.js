@@ -24,19 +24,29 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var _mixinsFormMixin = require('../mixins/FormMixin');
 
 var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
 
 var _materialUi = require('material-ui');
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
 /**
  * Text input, can be single line, multiLine, or password, depending on the
  * attributes.type key.
  */
-
-var React = require('react');
-exports['default'] = React.createClass({
+exports['default'] = _react2['default'].createClass({
     displayName: 'TextField',
 
     mixins: [_mixinsFormMixin2['default']],
@@ -49,14 +59,14 @@ exports['default'] = React.createClass({
             } else {
                 value = this.state.value;
             }
-            return React.createElement(
+            return _react2['default'].createElement(
                 'div',
                 { onClick: this.props.disabled ? function () {} : this.toggleEditMode, className: value ? '' : 'paramValue-empty' },
                 !value ? 'Empty' : value
             );
         } else {
-            var field = React.createElement(_materialUi.TextField, {
-                floatingLabelText: this.isDisplayForm() ? this.props.attributes.label : null,
+            var field = _react2['default'].createElement(ModernTextField, {
+                hintText: this.isDisplayForm() ? this.props.attributes.label : null,
                 value: this.state.value || "",
                 onChange: this.onChange,
                 onKeyDown: this.enterToToggle,
@@ -68,13 +78,13 @@ exports['default'] = React.createClass({
                 fullWidth: true
             });
             if (this.props.attributes['type'] === 'password') {
-                return React.createElement(
+                return _react2['default'].createElement(
                     'form',
                     { autoComplete: 'off', style: { display: 'inline' } },
                     field
                 );
             } else {
-                return React.createElement(
+                return _react2['default'].createElement(
                     'span',
                     null,
                     field

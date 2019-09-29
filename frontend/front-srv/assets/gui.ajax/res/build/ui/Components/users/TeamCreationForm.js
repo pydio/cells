@@ -28,27 +28,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _react = require("react");
+
+var _materialUi = require("material-ui");
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+
+var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+
 /**
  * Simple form for creating a team
  */
-
-var _require = require('react');
-
-var Component = _require.Component;
-var PropTypes = _require.PropTypes;
-
-var _require2 = require('material-ui');
-
-var TextField = _require2.TextField;
-var FlatButton = _require2.FlatButton;
-
-var _require$requireLib = require('pydio').requireLib('boot');
-
-var PydioContextConsumer = _require$requireLib.PydioContextConsumer;
 
 var TeamCreationForm = (function (_Component) {
     _inherits(TeamCreationForm, _Component);
@@ -83,7 +85,13 @@ var TeamCreationForm = (function (_Component) {
                     null,
                     getMessage(591)
                 ),
-                React.createElement(TextField, { floatingLabelText: getMessage(578), value: this.state.value, onChange: this.onChange.bind(this), fullWidth: true })
+                React.createElement(ModernTextField, {
+                    focusOnMount: true,
+                    floatingLabelText: getMessage(578),
+                    value: this.state.value,
+                    onChange: this.onChange.bind(this),
+                    fullWidth: true
+                })
             ),
             React.createElement(
                 'div',
@@ -91,25 +99,25 @@ var TeamCreationForm = (function (_Component) {
                 React.createElement(
                     'div',
                     { style: { textAlign: 'right', padding: 8 } },
-                    React.createElement(FlatButton, { label: getMessage(49), onTouchTap: this.props.onCancel.bind(this) }),
-                    React.createElement(FlatButton, { label: getMessage(579), primary: true, onTouchTap: this.submitCreationForm.bind(this) })
+                    React.createElement(_materialUi.FlatButton, { label: getMessage(49), onTouchTap: this.props.onCancel.bind(this) }),
+                    React.createElement(_materialUi.FlatButton, { label: getMessage(579), primary: true, onTouchTap: this.submitCreationForm.bind(this) })
                 )
             )
         );
     };
 
     return TeamCreationForm;
-})(Component);
+})(_react.Component);
 
 TeamCreationForm.propTypes = {
     /**
      * Callback triggered after team creation succeeded
      */
-    onTeamCreated: PropTypes.func.isRequired,
+    onTeamCreated: _react.PropTypes.func.isRequired,
     /**
      * Request modal close
      */
-    onCancel: PropTypes.func.isRequired
+    onCancel: _react.PropTypes.func.isRequired
 };
 
 exports['default'] = TeamCreationForm = PydioContextConsumer(TeamCreationForm);

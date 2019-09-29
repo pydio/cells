@@ -17,13 +17,21 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require("pydio");
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -31,19 +39,16 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var React = require('react');
-var Pydio = require('pydio');
-
-var _require = require('material-ui');
-
-var TextField = _require.TextField;
-
-var _Pydio$requireLib = Pydio.requireLib('form');
+var _Pydio$requireLib = _pydio2["default"].requireLib('form');
 
 var ValidPassword = _Pydio$requireLib.ValidPassword;
 
-var PasswordForm = React.createClass({
-    displayName: 'PasswordForm',
+var _Pydio$requireLib2 = _pydio2["default"].requireLib("hoc");
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+
+var PasswordForm = _react2["default"].createClass({
+    displayName: "PasswordForm",
 
     getInitialState: function getInitialState() {
         return { error: null, old: '', newPass: '' };
@@ -102,7 +107,7 @@ var PasswordForm = React.createClass({
             var updateUser = _pydioHttpRestApi.IdmUser.constructFromObject(JSON.parse(JSON.stringify(idmUser)));
             updateUser.OldPassword = oldPass;
             updateUser.Password = newPass;
-            var api = new _pydioHttpRestApi.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _pydioHttpRestApi.UserServiceApi(_pydioHttpApi2["default"].getRestClient());
             api.putUser(updateUser.Login, updateUser).then(function () {
                 pydio.displayMessage('SUCCESS', _this2.getMessage(197) + logoutString);
                 callback(true);
@@ -122,14 +127,14 @@ var PasswordForm = React.createClass({
         var messages = this.props.pydio.MessageHash;
         var legend = undefined;
         if (this.state.error) {
-            legend = React.createElement(
-                'div',
-                { className: 'error' },
+            legend = _react2["default"].createElement(
+                "div",
+                { className: "error" },
                 this.state.error
             );
         } else if (this.props.pydio.user.lock) {
-            legend = React.createElement(
-                'div',
+            legend = _react2["default"].createElement(
+                "div",
                 null,
                 messages[444]
             );
@@ -140,35 +145,35 @@ var PasswordForm = React.createClass({
         var newChange = function newChange(newV, oldV) {
             _this3.update(newV, 'newPass');
         };
-        return React.createElement(
-            'div',
+        return _react2["default"].createElement(
+            "div",
             { style: this.props.style },
             legend,
-            React.createElement(
-                'div',
+            _react2["default"].createElement(
+                "div",
                 null,
-                React.createElement(
-                    'form',
-                    { autoComplete: 'off' },
-                    React.createElement(TextField, {
+                _react2["default"].createElement(
+                    "form",
+                    { autoComplete: "off" },
+                    _react2["default"].createElement(ModernTextField, {
                         onChange: oldChange,
-                        type: 'password',
+                        type: "password",
                         value: this.state.oldPass,
-                        ref: 'old',
+                        ref: "old",
                         floatingLabelText: messages[237],
-                        autoComplete: 'off'
+                        autoComplete: "off"
                     })
                 )
             ),
-            React.createElement(
-                'div',
-                { style: { width: 250 } },
-                React.createElement(ValidPassword, {
+            _react2["default"].createElement(
+                "div",
+                { style: { width: 256 } },
+                _react2["default"].createElement(ValidPassword, {
                     onChange: newChange,
                     attributes: { name: 'pass', label: messages[198] },
                     value: this.state.newPass,
-                    name: 'newpassword',
-                    ref: 'newpass'
+                    name: "newpassword",
+                    ref: "newpass"
                 })
             )
         );
@@ -176,5 +181,5 @@ var PasswordForm = React.createClass({
 
 });
 
-exports['default'] = PasswordForm;
-module.exports = exports['default'];
+exports["default"] = PasswordForm;
+module.exports = exports["default"];

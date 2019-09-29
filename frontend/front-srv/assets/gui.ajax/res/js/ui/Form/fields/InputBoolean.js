@@ -17,10 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
+import React from "react";
 import FormMixin from '../mixins/FormMixin'
-const React = require('react')
-const {Toggle} = require('material-ui')
+import {Toggle} from "material-ui";
+const {ModernStyles} = Pydio.requireLib('hoc');
 
 /**
  * Boolean input
@@ -46,7 +47,7 @@ export default React.createClass({
     getBooleanState:function(){
         let boolVal = this.state.value;
         if(typeof boolVal  === 'string'){
-            boolVal = (boolVal == "true");
+            boolVal = (boolVal === "true");
         }
         return boolVal;
     },
@@ -61,6 +62,7 @@ export default React.createClass({
                     disabled={this.props.disabled}
                     label={this.isDisplayForm()?this.props.attributes.label:null}
                     labelPosition={this.isDisplayForm()?'left':'right'}
+                    {...ModernStyles.toggleField}
                 />
             </span>
         );

@@ -24,18 +24,27 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var _mixinsFormMixin = require('../mixins/FormMixin');
 
 var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
 
-var React = require('react');
-var ReactMUI = require('material-ui-legacy');
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 /**
  * Text input that is converted to integer, and
  * the UI can react to arrows for incrementing/decrementing values
  */
-exports['default'] = React.createClass({
+exports['default'] = _react2['default'].createClass({
     displayName: 'InputInteger',
 
     mixins: [_mixinsFormMixin2['default']],
@@ -63,7 +72,7 @@ exports['default'] = React.createClass({
     render: function render() {
         if (this.isDisplayGrid() && !this.state.editMode) {
             var value = this.state.value;
-            return React.createElement(
+            return _react2['default'].createElement(
                 'div',
                 { onClick: this.props.disabled ? function () {} : this.toggleEditMode, className: value ? '' : 'paramValue-empty' },
                 !value ? 'Empty' : value
@@ -76,15 +85,16 @@ exports['default'] = React.createClass({
             } else {
                 intval = '0';
             }
-            return React.createElement(
+            return _react2['default'].createElement(
                 'span',
                 { className: 'integer-input' },
-                React.createElement(ReactMUI.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     value: intval,
                     onChange: this.onChange,
                     onKeyDown: this.keyDown,
                     disabled: this.props.disabled,
-                    floatingLabelText: this.isDisplayForm() ? this.props.attributes.label : null
+                    fullWidth: true,
+                    hintText: this.isDisplayForm() ? this.props.attributes.label : null
                 })
             );
         }

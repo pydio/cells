@@ -46,6 +46,14 @@ var _SubmitButtonProviderMixin = require('./SubmitButtonProviderMixin');
 
 var _SubmitButtonProviderMixin2 = _interopRequireDefault(_SubmitButtonProviderMixin);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _Pydio$requireLib = _pydio2["default"].requireLib("hoc");
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
 /**
  * Ready-to-use dialog for requiring information (text or password) from the user
  *
@@ -93,11 +101,18 @@ exports["default"] = _react2["default"].createClass({
             fieldType: 'text'
         };
     },
+    getInitialState: function getInitialState() {
+        if (this.props.defaultValue) {
+            return { internalValue: this.props.defaultValue };
+        } else {
+            return { internalValue: '' };
+        }
+    },
     /**
      * Trigger props callback and dismiss modal
      */
     submit: function submit() {
-        this.props.submitValue(this.refs.input.getValue());
+        this.props.submitValue(this.state.internalValue);
         this.dismiss();
     },
 
@@ -111,8 +126,8 @@ exports["default"] = _react2["default"].createClass({
 
         setTimeout(function () {
             try {
-                if (defaultInputSelection) {
-                    _pydioUtilDom2["default"].selectBaseFileName(_this.refs.input.input);
+                if (defaultInputSelection && _this.refs.input && _this.refs.input.getInput()) {
+                    _pydioUtilDom2["default"].selectBaseFileName(_this.refs.input.getInput());
                 }
                 _this.refs.input.focus();
             } catch (e) {}
@@ -120,6 +135,10 @@ exports["default"] = _react2["default"].createClass({
     },
 
     render: function render() {
+        var _this2 = this;
+
+        var internalValue = this.state.internalValue;
+
         return _react2["default"].createElement(
             "div",
             { style: { width: '100%' } },
@@ -128,11 +147,14 @@ exports["default"] = _react2["default"].createClass({
                 { className: "dialogLegend" },
                 MessageHash[this.props.legendId] || this.props.legendId
             ),
-            _react2["default"].createElement(_materialUi.TextField, {
+            _react2["default"].createElement(ModernTextField, {
                 floatingLabelText: MessageHash[this.props.fieldLabelId] || this.props.fieldLabelId,
                 ref: "input",
                 onKeyDown: this.submitOnEnterKey,
-                defaultValue: this.props.defaultValue,
+                value: internalValue,
+                onChange: function (e, v) {
+                    return _this2.setState({ internalValue: v });
+                },
                 type: this.props.fieldType,
                 fullWidth: true
             })

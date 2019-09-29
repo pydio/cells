@@ -116,7 +116,7 @@ class GenericEditor extends React.Component {
                 <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
                     <div style={{display:'flex', padding: '10px 20px 20px'}}>
                         <div style={{flex: 1, paddingRight: 20}}>{header}</div>
-                        <div style={{paddingTop: 10}}>
+                        <div style={{paddingTop: 18}}>
                             <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onTouchTap={onSaveAction}/>
                             <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onTouchTap={onRevertAction} style={{marginLeft: 10}}/>
                             <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onTouchTap={onCloseAction} style={{marginLeft: 10}}/>
@@ -128,10 +128,10 @@ class GenericEditor extends React.Component {
                     </div>
                     <Divider/>
                     <div style={{display:'flex', flex: 1}}>
-                        <div style={{overflowY:'auto', width:'50%', borderRight: '1px solid #e0e0e0', height: '100%', padding: 10, ...tabs.leftStyle}}>
+                        <div style={{overflowY:'auto', width:'50%', borderRight: '1px solid #e0e0e0', padding: 10, ...tabs.leftStyle}}>
                             <EditorTabContent tabs={tabs.left} active={left}/>
                         </div>
-                        <div style={{overflowY:'auto', width:'50%', height: '100%', padding: 10, ...tabs.rightStyle}}>
+                        <div style={{overflowY:'auto', width:'50%', padding: 10, ...tabs.rightStyle}}>
                             <EditorTabContent tabs={tabs.right} active={right}/>
                         </div>
                     </div>

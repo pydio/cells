@@ -29,6 +29,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -40,6 +44,11 @@ var _pydioUtilPath = require('pydio/util/path');
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
 var _materialUi = require('material-ui');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib("hoc");
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 
 var CompressionDialog = React.createClass({
     displayName: 'CompressionDialog',
@@ -152,9 +161,9 @@ var CompressionDialog = React.createClass({
         return React.createElement(
             'div',
             { style: { display: 'flex' } },
-            React.createElement(_materialUi.TextField, { style: { width: 210, marginRight: 10 }, onChange: this.textFieldChange, value: fileName, floatingLabelText: messages['compression.4'], floatingLabelStyle: flStyle }),
+            React.createElement(ModernTextField, { style: { width: 210, marginRight: 10 }, onChange: this.textFieldChange, value: fileName, floatingLabelText: messages['compression.4'], floatingLabelStyle: flStyle }),
             React.createElement(
-                _materialUi.SelectField,
+                ModernSelectField,
                 { style: { width: 160 }, onChange: this.selectFieldChange, value: compression, floatingLabelText: messages['compression.3'], floatingLabelStyle: flStyle },
                 formatMenus
             )

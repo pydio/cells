@@ -24,6 +24,8 @@ import DOMUtils from 'pydio/util/dom';
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
+import Pydio from 'pydio'
+const {ModernTextField} = Pydio.requireLib("hoc");
 
 
 /**
@@ -76,11 +78,18 @@ export default React.createClass({
             fieldType: 'text'
         };
     },
+    getInitialState(){
+        if(this.props.defaultValue){
+            return {internalValue: this.props.defaultValue}
+        }else {
+            return {internalValue: ''}
+        }
+    },
     /**
      * Trigger props callback and dismiss modal
      */
     submit(){
-        this.props.submitValue(this.refs.input.getValue());
+        this.props.submitValue(this.state.internalValue);
         this.dismiss();
     },
 
@@ -91,8 +100,8 @@ export default React.createClass({
         const {defaultInputSelection} = this.props;
         setTimeout(()=> {
             try{
-                if(defaultInputSelection){
-                    DOMUtils.selectBaseFileName(this.refs.input.input);
+                if(defaultInputSelection && this.refs.input && this.refs.input.getInput()){
+                    DOMUtils.selectBaseFileName(this.refs.input.getInput());
                 }
                 this.refs.input.focus();
             }catch (e){}
@@ -100,14 +109,16 @@ export default React.createClass({
     },
 
     render(){
+        const {internalValue} = this.state;
         return (
             <div style={{width:'100%'}}>
                 <div className="dialogLegend">{MessageHash[this.props.legendId] || this.props.legendId}</div>
-                <TextField
+                <ModernTextField
                     floatingLabelText={MessageHash[this.props.fieldLabelId] || this.props.fieldLabelId}
                     ref="input"
                     onKeyDown={this.submitOnEnterKey}
-                    defaultValue={this.props.defaultValue}
+                    value={internalValue}
+                    onChange={(e,v) => this.setState({internalValue: v})}
                     type={this.props.fieldType}
                     fullWidth={true}
                 />

@@ -57,9 +57,14 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('form');
 
 var ValidPassword = _Pydio$requireLib.ValidPassword;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
+
 var globStyles = {
     leftIcon: {
-        margin: '0 20px 0 4px',
+        margin: '0 16px 0 4px',
         color: '#757575'
     }
 };
@@ -210,7 +215,7 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
                         }),
                         _react2['default'].createElement(
                             'div',
-                            { style: { paddingTop: 36, textAlign: 'right' } },
+                            { style: { paddingTop: 20, textAlign: 'right' } },
                             _react2['default'].createElement(_materialUi.FlatButton, { label: "OK", onTouchTap: function () {
                                     _this2.changePassword();
                                 }, disabled: !this.state.updatingPassword || !this.state.updatingPasswordValid }),
@@ -221,7 +226,7 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
                     )
                 )
             );
-            passwordField = _react2['default'].createElement(_materialUi.TextField, {
+            passwordField = _react2['default'].createElement(ModernTextField, {
                 floatingLabelText: this.props.getMessage('23'),
                 disabled: true,
                 value: '********',
@@ -239,7 +244,7 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
         if (passwordField) {
             return _react2['default'].createElement(
                 'div',
-                { className: 'password-container', style: { display: 'flex', alignItems: 'baseline' } },
+                { className: 'password-container', style: { display: 'flex', alignItems: 'center' } },
                 _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-file-lock', style: globStyles.leftIcon }),
                 _react2['default'].createElement(
                     'div',
@@ -338,7 +343,7 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
                     'div',
                     { style: { flex: 1, display: 'flex', alignItems: 'baseline', position: 'relative' }, className: dateExpired ? 'limit-block-expired' : null },
                     calIcon,
-                    _react2['default'].createElement(_materialUi.DatePicker, {
+                    _react2['default'].createElement(_materialUi.DatePicker, _extends({
                         ref: 'expirationDate',
                         key: 'start',
                         value: expDate,
@@ -348,18 +353,18 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
                         disabled: this.props.isReadonly() || !linkModel.isEditable(),
                         onChange: this.onDateChange,
                         showYearSelector: true,
-                        floatingLabelText: this.props.getMessage(dateExpired ? '21b' : '21'),
+                        hintText: this.props.getMessage(dateExpired ? '21b' : '21'),
                         mode: 'landscape',
                         formatDate: this.formatDate,
                         style: { flex: 1 },
                         fullWidth: true
-                    })
+                    }, ModernStyles.textField))
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, alignItems: 'baseline', display: crtLinkDLAllowed ? 'flex' : 'none', position: 'relative' }, className: dlExpired ? 'limit-block-expired' : null },
                     _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-download', style: globStyles.leftIcon }),
-                    _react2['default'].createElement(_materialUi.TextField, {
+                    _react2['default'].createElement(ModernTextField, {
                         type: 'number',
                         disabled: this.props.isReadonly() || !linkModel.isEditable(),
                         floatingLabelText: this.props.getMessage(dlExpired ? '22b' : '22'),
@@ -370,7 +375,7 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
                     }),
                     _react2['default'].createElement(
                         'span',
-                        { style: { fontSize: 13, fontWeight: 500, color: 'rgba(0,0,0,0.43)' } },
+                        { style: { position: 'absolute', right: 10, top: 14, fontSize: 13, fontWeight: 500, color: 'rgba(0,0,0,0.43)' } },
                         dlCounterString
                     )
                 )

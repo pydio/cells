@@ -20,7 +20,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import LinkModel from './LinkModel'
-import {TextField} from 'material-ui'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 class LabelPanel extends React.Component {
 
@@ -42,8 +42,8 @@ class LabelPanel extends React.Component {
 
         return (
             <div>
-                <TextField style={{marginTop: -14}} floatingLabelText={m(265)} value={link.Label} onChange={updateLabel} fullWidth={true}/>
-                <TextField style={{marginTop: -14}} floatingLabelText={m(266)} value={link.Description} onChange={updateDescription} fullWidth={true}/>
+                <ModernTextField floatingLabelText={m(265)} value={link.Label} onChange={updateLabel} fullWidth={true}/>
+                <ModernTextField floatingLabelText={m(266)} value={link.Description} onChange={updateDescription} fullWidth={true}/>
             </div>
         );
 

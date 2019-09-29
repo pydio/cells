@@ -219,7 +219,7 @@ var GenericEditor = (function (_React$Component3) {
                         ),
                         _react2['default'].createElement(
                             'div',
-                            { style: { paddingTop: 10 } },
+                            { style: { paddingTop: 18 } },
                             _react2['default'].createElement(_materialUi.RaisedButton, { disabled: !saveEnabled, primary: true, label: pydio.MessageHash['53'], onTouchTap: onSaveAction }),
                             _react2['default'].createElement(_materialUi.FlatButton, { disabled: !saveEnabled, label: pydio.MessageHash['628'], onTouchTap: onRevertAction, style: { marginLeft: 10 } }),
                             _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onTouchTap: onCloseAction, style: { marginLeft: 10 } })
@@ -241,12 +241,12 @@ var GenericEditor = (function (_React$Component3) {
                         { style: { display: 'flex', flex: 1 } },
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({ overflowY: 'auto', width: '50%', borderRight: '1px solid #e0e0e0', height: '100%', padding: 10 }, tabs.leftStyle) },
+                            { style: _extends({ overflowY: 'auto', width: '50%', borderRight: '1px solid #e0e0e0', padding: 10 }, tabs.leftStyle) },
                             _react2['default'].createElement(EditorTabContent, { tabs: tabs.left, active: left })
                         ),
                         _react2['default'].createElement(
                             'div',
-                            { style: _extends({ overflowY: 'auto', width: '50%', height: '100%', padding: 10 }, tabs.rightStyle) },
+                            { style: _extends({ overflowY: 'auto', width: '50%', padding: 10 }, tabs.rightStyle) },
                             _react2['default'].createElement(EditorTabContent, { tabs: tabs.right, active: right })
                         )
                     )

@@ -17,11 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from "react";
+import Pydio from 'pydio'
 import FormMixin from '../mixins/FormMixin'
-const React = require('react')
 import PassUtils from 'pydio/util/pass'
-import {TextField} from 'material-ui'
+
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 /**
  * Text input, can be single line, multiLine, or password, depending on the
@@ -55,7 +56,7 @@ export default React.createClass({
         }else{
             const {err} = this.state;
             let field = (
-                <TextField
+                <ModernTextField
                     floatingLabelText={this.isDisplayForm()?this.props.attributes.label:null}
                     value={this.state.value || ""}
                     onChange={(e,v) => this.textValueChanged(e,v)}

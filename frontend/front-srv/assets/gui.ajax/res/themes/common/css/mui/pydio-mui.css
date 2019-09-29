@@ -2978,6 +2978,17 @@
 .react-mui-context .pydio-form-panel .form-entry-boolean .form-legend {
   padding-top: 4px;
 }
+.react-mui-context .pydio-form-panel .form-entry-image > div:first-child {
+  background-color: whitesmoke;
+  border-radius: 5px;
+  padding: 10px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  -ms-flex-align: center;
+      align-items: center;
+}
 .react-mui-context .pydio-form-panel .form-entry-image .binary-remove-button {
   color: #ABABAB;
   padding: 2px 0px 0;
@@ -2992,6 +3003,7 @@
   margin-bottom: 16px;
   font-size: 12px;
   font-weight: 400;
+  padding-left: 3px;
 }
 .react-mui-context .pydio-form-panel .form-legend .icon-question-sign {
   display: inline-block;
@@ -3017,7 +3029,7 @@
   opacity: 0;
 }
 .react-mui-context .pydio-form-panel .form-entry-select .form-legend {
-  margin-top: -10px;
+  /*margin-top: -10px;*/
 }
 .react-mui-context .pydio-form-panel .form-entry-button {
   display: inline-block;

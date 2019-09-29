@@ -17,10 +17,13 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import {JobsServiceApi, RestUserJobRequest} from 'pydio/http/rest-api'
 import PathUtils from 'pydio/util/path'
 import {MenuItem, TextField, SelectField} from 'material-ui'
+const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
+
 
 let CompressionDialog = React.createClass({
 
@@ -130,8 +133,8 @@ let CompressionDialog = React.createClass({
 
         return (
             <div style={{display:'flex'}}>
-                <TextField style={{width: 210, marginRight: 10}} onChange={this.textFieldChange} value={fileName} floatingLabelText={messages['compression.4']}  floatingLabelStyle={flStyle}/>
-                <SelectField style={{width: 160}} onChange={this.selectFieldChange} value={compression} floatingLabelText={messages['compression.3']} floatingLabelStyle={flStyle}>{formatMenus}</SelectField>
+                <ModernTextField style={{width: 210, marginRight: 10}} onChange={this.textFieldChange} value={fileName} floatingLabelText={messages['compression.4']}  floatingLabelStyle={flStyle}/>
+                <ModernSelectField style={{width: 160}} onChange={this.selectFieldChange} value={compression} floatingLabelText={messages['compression.3']} floatingLabelStyle={flStyle}>{formatMenus}</ModernSelectField>
             </div>
         );
     }

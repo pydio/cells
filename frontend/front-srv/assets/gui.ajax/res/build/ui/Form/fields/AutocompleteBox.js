@@ -22,6 +22,8 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _mixinsFormMixin = require('../mixins/FormMixin');
@@ -32,6 +34,10 @@ var _mixinsFieldWithChoices = require('../mixins/FieldWithChoices');
 
 var _mixinsFieldWithChoices2 = _interopRequireDefault(_mixinsFieldWithChoices);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -39,6 +45,10 @@ var _require = require('material-ui');
 var AutoComplete = _require.AutoComplete;
 var MenuItem = _require.MenuItem;
 var RefreshIndicator = _require.RefreshIndicator;
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 var AutocompleteBox = React.createClass({
     displayName: 'AutocompleteBox',
@@ -105,13 +115,13 @@ var AutocompleteBox = React.createClass({
                 top: 0,
                 status: 'loading'
             }),
-            dataSource.length && React.createElement(AutoComplete, {
+            dataSource.length && React.createElement(AutoComplete, _extends({
                 fullWidth: true,
                 searchText: displayText,
                 onUpdateInput: this.handleUpdateInput,
                 onNewRequest: this.handleNewRequest,
                 dataSource: dataSource,
-                floatingLabelText: this.props.attributes['label'],
+                hintText: this.props.attributes['label'],
                 filter: function (searchText, key) {
                     if (!key || !searchText) {
                         return false;
@@ -120,7 +130,7 @@ var AutocompleteBox = React.createClass({
                 },
                 openOnFocus: true,
                 menuProps: { maxHeight: 200 }
-            })
+            }, ModernStyles.textField))
         );
     }
 

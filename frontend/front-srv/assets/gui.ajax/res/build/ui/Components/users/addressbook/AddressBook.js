@@ -643,7 +643,7 @@ var AddressBook = _react2['default'].createClass({
                 dialogTitle = getMessage(484, '');
                 dialogContent = _react2['default'].createElement(_UserCreationForm2['default'], {
                     zDepth: 0,
-                    style: { display: 'flex', flexDirection: 'column', flex: 1, marginTop: -40 },
+                    style: { display: 'flex', flexDirection: 'column', flex: 1 },
                     newUserName: "",
                     onUserCreated: this.closeCreateDialogAndReload.bind(this),
                     onCancel: function () {

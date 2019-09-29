@@ -18,9 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import FormMixin from '../mixins/FormMixin'
-const React = require('react')
 import {TextField} from 'material-ui'
+import Pydio from 'pydio'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 /**
  * Text input, can be single line, multiLine, or password, depending on the
@@ -41,8 +43,8 @@ export default React.createClass({
             return <div onClick={this.props.disabled?function(){}:this.toggleEditMode} className={value?'':'paramValue-empty'}>{!value?'Empty':value}</div>;
         }else{
             let field = (
-                <TextField
-                    floatingLabelText={this.isDisplayForm()?this.props.attributes.label:null}
+                <ModernTextField
+                    hintText={this.isDisplayForm()?this.props.attributes.label:null}
                     value={this.state.value || ""}
                     onChange={this.onChange}
                     onKeyDown={this.enterToToggle}

@@ -19,7 +19,6 @@
  */
 import React from 'react'
 import ShareContextConsumer from '../ShareContextConsumer'
-import UserBadge from './UserBadge'
 import SharedUserEntry from './SharedUserEntry'
 import ActionButton from '../main/ActionButton'
 import Pydio from 'pydio'

@@ -18,9 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react';
+import Pydio from 'pydio';
 import ShareContextConsumer from '../ShareContextConsumer'
-import {SelectField, MenuItem} from 'material-ui';
+import {MenuItem} from 'material-ui';
 import LinkModel from './LinkModel'
+const {ModernSelectField} = Pydio.requireLib('hoc');
 
 class PublicLinkTemplate extends React.Component{
 
@@ -46,13 +48,14 @@ class PublicLinkTemplate extends React.Component{
         });
         return (
             <div style={this.props.style}>
-                <SelectField
+                <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{this.props.getMessage('151')}</div>
+                <ModernSelectField
                     fullWidth={true}
                     value={selected}
                     onChange={this.onDropDownChange.bind(this)}
                     disabled={this.props.isReadonly() || this.props.readonly || !linkModel.isEditable()}
                     floatingLabelText={this.props.getMessage('151')}
-                >{menuItems}</SelectField>
+                >{menuItems}</ModernSelectField>
             </div>
         );
     }

@@ -47,8 +47,11 @@ var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 var _require = require('material-ui');
 
 var Paper = _require.Paper;
-var TextField = _require.TextField;
 var FlatButton = _require.FlatButton;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib("hoc");
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
 
 var InlineEditor = _react2['default'].createClass({
     displayName: 'InlineEditor',
@@ -81,8 +84,10 @@ var InlineEditor = _react2['default'].createClass({
     },
 
     componentDidMount: function componentDidMount() {
-        _pydioUtilDom2['default'].selectBaseFileName(this.refs.text.input);
-        this.refs.text.focus();
+        if (this.refs.text) {
+            _pydioUtilDom2['default'].selectBaseFileName(this.refs.text.getInput());
+            this.refs.text.focus();
+        }
     },
 
     catchClicks: function catchClicks(e) {
@@ -105,7 +110,7 @@ var InlineEditor = _react2['default'].createClass({
         return _react2['default'].createElement(
             Paper,
             { className: "inline-editor" + (this.props.detached ? " detached" : ""), style: { padding: 8 }, zDepth: 2 },
-            _react2['default'].createElement(TextField, {
+            _react2['default'].createElement(ModernTextField, {
                 ref: 'text',
                 defaultValue: this.props.node.getLabel(),
                 onChange: function (e, value) {

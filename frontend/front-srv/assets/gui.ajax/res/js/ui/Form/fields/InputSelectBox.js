@@ -23,6 +23,8 @@ const React = require('react')
 const {SelectField, MenuItem, Chip} = require('material-ui')
 const LangUtils = require('pydio/util/lang')
 import FieldWithChoices from '../mixins/FieldWithChoices'
+import Pydio from 'pydio'
+const {ModernSelectField} = Pydio.requireLib('hoc');
 
 /**
  * Select box input conforming to Pydio standard form parameter.
@@ -96,25 +98,25 @@ let InputSelectBox = React.createClass({
                         <div style={{display:'flex', flexWrap:'wrap'}}>{currentValues.map((v) => {
                             return <Chip onRequestDelete={() => {this.onMultipleRemove(v)}}>{v}</Chip>;
                         })}</div>
-                        <SelectField
+                        <ModernSelectField
                             value={-1}
                             onChange={this.onMultipleSelect}
                             fullWidth={true}
                             className={this.props.className}
-                        >{menuItems}</SelectField>
+                        >{menuItems}</ModernSelectField>
 
                     </span>
                 );
             }else{
                 return(
                     <span>
-                        <SelectField
-                            floatingLabelText={this.props.attributes.label}
+                        <ModernSelectField
+                            hintText={this.props.attributes.label}
                             value={currentValue}
                             onChange={this.onDropDownChange}
                             fullWidth={true}
                             className={this.props.className}
-                        >{menuItems}</SelectField>
+                        >{menuItems}</ModernSelectField>
                     </span>
                 );
             }

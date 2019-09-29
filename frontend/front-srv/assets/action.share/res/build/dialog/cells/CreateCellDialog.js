@@ -30,6 +30,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
 var _materialUiStyles = require('material-ui/styles');
@@ -45,6 +49,10 @@ var _NodesPicker2 = _interopRequireDefault(_NodesPicker);
 var _pydioModelCell = require('pydio/model/cell');
 
 var _pydioModelCell2 = _interopRequireDefault(_pydioModelCell);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 /**
  * Dialog for letting users create a workspace
@@ -165,10 +173,10 @@ var CreateCellDialog = _react2['default'].createClass({
                     null,
                     this.m(275)
                 ),
-                _react2['default'].createElement(_materialUi.TextField, { ref: "title", floatingLabelText: this.m(276), value: model.getLabel(), onChange: function (e, v) {
+                _react2['default'].createElement(ModernTextField, { ref: "title", floatingLabelText: this.m(276), value: model.getLabel(), onChange: function (e, v) {
                         model.setLabel(v);
                     }, fullWidth: true }),
-                _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: this.m(277), value: model.getDescription(), onChange: function (e, v) {
+                _react2['default'].createElement(ModernTextField, { floatingLabelText: this.m(277), value: model.getDescription(), onChange: function (e, v) {
                         model.setDescription(v);
                     }, fullWidth: true })
             );

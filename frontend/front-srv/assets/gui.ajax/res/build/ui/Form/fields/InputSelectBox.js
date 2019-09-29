@@ -32,9 +32,9 @@ var _mixinsFieldWithChoices = require('../mixins/FieldWithChoices');
 
 var _mixinsFieldWithChoices2 = _interopRequireDefault(_mixinsFieldWithChoices);
 
-/**
- * Select box input conforming to Pydio standard form parameter.
- */
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var React = require('react');
 
@@ -45,6 +45,14 @@ var MenuItem = _require.MenuItem;
 var Chip = _require.Chip;
 
 var LangUtils = require('pydio/util/lang');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+
+/**
+ * Select box input conforming to Pydio standard form parameter.
+ */
 var InputSelectBox = React.createClass({
     displayName: 'InputSelectBox',
 
@@ -135,7 +143,7 @@ var InputSelectBox = React.createClass({
                         })
                     ),
                     React.createElement(
-                        SelectField,
+                        ModernSelectField,
                         {
                             value: -1,
                             onChange: this.onMultipleSelect,
@@ -150,9 +158,9 @@ var InputSelectBox = React.createClass({
                     'span',
                     null,
                     React.createElement(
-                        SelectField,
+                        ModernSelectField,
                         {
-                            floatingLabelText: this.props.attributes.label,
+                            hintText: this.props.attributes.label,
                             value: currentValue,
                             onChange: this.onDropDownChange,
                             fullWidth: true,

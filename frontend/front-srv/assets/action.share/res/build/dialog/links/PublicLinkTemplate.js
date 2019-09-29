@@ -37,6 +37,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _ShareContextConsumer = require('../ShareContextConsumer');
 
 var _ShareContextConsumer2 = _interopRequireDefault(_ShareContextConsumer);
@@ -46,6 +50,10 @@ var _materialUi = require('material-ui');
 var _LinkModel = require('./LinkModel');
 
 var _LinkModel2 = _interopRequireDefault(_LinkModel);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 
 var PublicLinkTemplate = (function (_React$Component) {
     _inherits(PublicLinkTemplate, _React$Component);
@@ -85,7 +93,12 @@ var PublicLinkTemplate = (function (_React$Component) {
                 'div',
                 { style: this.props.style },
                 _react2['default'].createElement(
-                    _materialUi.SelectField,
+                    'div',
+                    { style: { fontSize: 13, fontWeight: 500, color: 'rgba(0,0,0,0.43)' } },
+                    this.props.getMessage('151')
+                ),
+                _react2['default'].createElement(
+                    ModernSelectField,
                     {
                         fullWidth: true,
                         value: selected,

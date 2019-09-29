@@ -44,13 +44,13 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var React = require('react');
 
-var _require = require('material-ui');
-
-var TextField = _require.TextField;
-
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var ResourcePoliciesPanel = _Pydio$requireLib.ResourcePoliciesPanel;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
 
 /**
  * Dialog for letting users create a workspace
@@ -115,10 +115,10 @@ exports['default'] = React.createClass({
         var header = React.createElement(
             'div',
             null,
-            React.createElement(TextField, { style: { marginTop: -14 }, floatingLabelText: m(267), value: model.getLabel(), onChange: function (e, v) {
+            React.createElement(ModernTextField, { floatingLabelText: m(267), value: model.getLabel(), onChange: function (e, v) {
                     model.setLabel(v);
                 }, fullWidth: true }),
-            React.createElement(TextField, { style: { marginTop: -14 }, floatingLabelText: m(268), value: model.getDescription(), onChange: function (e, v) {
+            React.createElement(ModernTextField, { floatingLabelText: m(268), value: model.getDescription(), onChange: function (e, v) {
                     model.setDescription(v);
                 }, fullWidth: true })
         );
