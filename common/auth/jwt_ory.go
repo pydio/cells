@@ -65,5 +65,5 @@ func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, e
 }
 
 func (t *orytoken) Claims(v interface{}) error {
-	return mapstructure.Decode(t.claims.ToMap(), &v)
+	return mapstructure.WeakDecode(t.claims.ToMap(), &v)
 }
