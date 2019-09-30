@@ -19,10 +19,11 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {TextField} from 'material-ui'
 import PassUtils from 'pydio/util/pass'
 import Node from 'pydio/model/node'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 const CreateUserForm = React.createClass({
 
@@ -104,7 +105,7 @@ const CreateUserForm = React.createClass({
                 {path}
                 <form autoComplete={"off"}>
                     <div style={{width:'100%'}}>
-                        <TextField
+                        <ModernTextField
                             ref="user_id"
                             onChange={this.checkLogin}
                             fullWidth={true}
@@ -114,7 +115,7 @@ const CreateUserForm = React.createClass({
                         />
                     </div>
                     <div>
-                        <TextField
+                        <ModernTextField
                             ref="pass"
                             type="password"
                             floatingLabelText={this.context.getMessage('ajxp_admin.user.22')}
@@ -125,7 +126,7 @@ const CreateUserForm = React.createClass({
                         />
                     </div>
                     <div>
-                        <TextField
+                        <ModernTextField
                             ref="passconf"
                             type="password"
                             floatingLabelText={this.context.getMessage('ajxp_admin.user.23')}

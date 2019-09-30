@@ -1,9 +1,30 @@
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 import React from 'react'
+import Pydio from 'pydio'
 import {Dialog, FlatButton, TextField, SelectField, MenuItem, IconButton, Toggle} from 'material-ui'
 import {IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi} from 'pydio/http/rest-api'
 import LangUtils from 'pydio/util/lang'
 import Metadata from '../model/Metadata'
 import PydioApi from 'pydio/http/api'
+const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 class MetaNamespace extends React.Component{
 
@@ -93,7 +114,7 @@ class MetaNamespace extends React.Component{
         const data = this.getSelectionData();
         const {m, selectorNewKey, selectorNewValue} = this.state;
         return (
-            <div style={{padding: 10, backgroundColor: '#f5f5f5', borderRadius: 2}}>
+            <div style={{padding: 10, backgroundColor: '#f5f5f5', borderRadius: 3}}>
                 <div style={{fontSize: 13}}>{m('editor.selection')}</div>
                 <div>{Object.keys(data).map(k => {
                     return (
@@ -187,19 +208,22 @@ class MetaNamespace extends React.Component{
                 });
             }}/>);
         }
-
+        const styles = {
+            section: {marginTop: 10, fontWeight: 500, fontSize: 12}
+        };
 
         return (
             <Dialog
                 title={title}
                 actions={actions}
                 modal={false}
-                contentStyle={{width: 420}}
+                contentStyle={{width: 360}}
                 open={this.props.open}
                 onRequestClose={this.props.onRequestClose}
                 autoScrollBodyContent={true}
+                bodyStyle={{padding: 20}}
             >
-                <TextField
+                <ModernTextField
                     floatingLabelText={m('namespace')}
                     disabled={!create}
                     value={namespace.Namespace}
@@ -207,39 +231,44 @@ class MetaNamespace extends React.Component{
                     fullWidth={true}
                     errorText={nameError}
                 />
-                <TextField
+                <ModernTextField
                     floatingLabelText={m('label')}
                     value={namespace.Label}
                     onChange={(e,v) => {namespace.Label = v; this.setState({namespace})}}
                     fullWidth={true}
                     errorText={labelError}
                 />
-                <TextField
-                    floatingLabelText={m('order')}
-                    value={namespace.Order ? namespace.Order : '0'}
-                    onChange={(e,v) => {namespace.Order = parseInt(v); this.setState({namespace})}}
-                    fullWidth={true}
-                    type={"number"}
-                />
-                <SelectField
-                    floatingLabelText={m('type')}
+                <div style={styles.section}>{m('type')}</div>
+                <ModernSelectField
+                    hintText={m('type')}
                     value={type}
                     onChange={(e,i,v) => this.updateType(v)}
                     fullWidth={true}>
                     {Object.keys(Metadata.MetaTypes).map(k => {
                         return <MenuItem value={k} primaryText={Metadata.MetaTypes[k]}/>
                     })}
-                </SelectField>
+                </ModernSelectField>
                 {type === 'choice' && this.renderSelectionBoard()}
-                <div style={{padding:'20px 0 10px'}}>
-                    <Toggle label={m('toggle.index')} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}}/>
+
+                <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
+                <div style={{padding:'6px 0 10px'}}>
+                    <Toggle label={m('toggle.index')} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}} {...ModernStyles.toggleField}/>
                 </div>
-                <div style={{padding:'20px 0 10px'}}>
-                    <Toggle label={m('toggle.read')} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}}/>
+                <div style={{padding:'6px 0 10px'}}>
+                    <Toggle label={m('toggle.read')} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}} {...ModernStyles.toggleField}/>
                 </div>
-                <div style={{padding:'20px 0 10px'}}>
-                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}}/>
+                <div style={{padding:'6px 0 10px'}}>
+                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}} {...ModernStyles.toggleField}/>
                 </div>
+
+                <div style={styles.section}>{m('order')}</div>
+                <ModernTextField
+                    floatingLabelText={m('order')}
+                    value={namespace.Order ? namespace.Order : '0'}
+                    onChange={(e,v) => {namespace.Order = parseInt(v); this.setState({namespace})}}
+                    fullWidth={true}
+                    type={"number"}
+                />
             </Dialog>
 
         );

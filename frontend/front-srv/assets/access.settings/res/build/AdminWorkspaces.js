@@ -508,6 +508,26 @@ exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];
 
 },{"../editor/DataSourceEditor":8,"../editor/VersionPolicyEditor":12,"../editor/VersionPolicyPeriods":13,"../model/DataSource":19,"./EncryptionKeys":3,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":1}],3:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -543,6 +563,10 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
 
 var EncryptionKeys = (function (_React$Component) {
     _inherits(EncryptionKeys, _React$Component);
@@ -724,7 +748,7 @@ var EncryptionKeys = (function (_React$Component) {
             if (showExportKey || exportedKey) {
                 dialogTitle = m('key.export');
                 if (exportedKey) {
-                    dialogContent = _react2['default'].createElement(_materialUi.TextField, {
+                    dialogContent = _react2['default'].createElement(ModernTextField, {
                         value: exportedKey.Content,
                         fullWidth: true,
                         floatingLabelText: m('key.export.result.copy'),
@@ -739,8 +763,8 @@ var EncryptionKeys = (function (_React$Component) {
                     dialogContent = _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
                     );
                     dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                             _this6.setState({ showExportKey: null, showDialog: false });
@@ -756,11 +780,11 @@ var EncryptionKeys = (function (_React$Component) {
                     !showImportKey.ID && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.id'), ref: 'key-import-id', fullWidth: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.label'), ref: 'key-import-label', fullWidth: true })
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'key-import-id', fullWidth: true }),
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'key-import-label', fullWidth: true })
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
                 );
                 dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                         _this6.setState({ showImportKey: null, showDialog: false });
@@ -772,8 +796,8 @@ var EncryptionKeys = (function (_React$Component) {
                 dialogContent = _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
                 );
                 dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                         _this6.setState({ showCreateKey: null, showDialog: false });
@@ -1096,6 +1120,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _modelVirtualNode = require('../model/VirtualNode');
 
 var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
@@ -1109,6 +1137,10 @@ var _virtualNodeCard = require('../virtual/NodeCard');
 var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
 
 var _materialUi = require('material-ui');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var VirtualNodes = (function (_React$Component) {
     _inherits(VirtualNodes, _React$Component);
@@ -1221,7 +1253,7 @@ var VirtualNodes = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { margin: '0 10px' } },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
                                 _this4.setState({ newName: v });
                             }, hintText: "Provide a label for this node" })
                     ),
@@ -1264,7 +1296,7 @@ var VirtualNodes = (function (_React$Component) {
 exports['default'] = VirtualNodes;
 module.exports = exports['default'];
 
-},{"../model/DataSource":19,"../model/VirtualNode":21,"../virtual/NodeCard":23,"material-ui":"material-ui","react":"react"}],6:[function(require,module,exports){
+},{"../model/DataSource":19,"../model/VirtualNode":21,"../virtual/NodeCard":23,"material-ui":"material-ui","pydio":"pydio","react":"react"}],6:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1657,6 +1689,12 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
+
 var DataSourceEditor = (function (_React$Component) {
     _inherits(DataSourceEditor, _React$Component);
 
@@ -1927,7 +1965,7 @@ var DataSourceEditor = (function (_React$Component) {
                 title: {
                     fontSize: 20,
                     paddingTop: 20,
-                    marginBottom: 0
+                    marginBottom: 10
                 },
                 legend: {},
                 section: { padding: '0 20px 20px', margin: 10, backgroundColor: 'white' },
@@ -2014,15 +2052,15 @@ var DataSourceEditor = (function (_React$Component) {
                         { style: styles.title },
                         m('options')
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.id') + ' *', disabled: !create, value: model.Name, onChange: function (e, v) {
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('options.id') + ' *', disabled: !create, value: model.Name, onChange: function (e, v) {
                             model.Name = v;
                         } }),
                     !create && _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
                                 model.Disabled = !v;
-                            } })
+                            } }, ModernStyles.toggleField))
                     )
                 ),
                 _react2['default'].createElement(
@@ -2043,9 +2081,9 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(
                             'div',
                             { style: styles.toggleDiv },
-                            _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
+                            _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
                                     storageConfig.normalize = v ? "true" : "false";
-                                } })
+                                } }, ModernStyles.toggleField))
                         )
                     ),
                     model.StorageType === 'S3' && _react2['default'].createElement(
@@ -2056,19 +2094,19 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.s3')
                         ),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.endpoint'), hintText: m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint'), hintText: m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
                                 model.StorageConfiguration.customEndpoint = v;
                             } })
                     ),
@@ -2080,16 +2118,16 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.azure')
                         ),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } })
                     ),
@@ -2101,13 +2139,13 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.gcs')
                         ),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.gcs.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.credentials') + ' *', value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.gcs.credentials') + ' *', value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
                                 model.StorageConfiguration.jsonCredentials = v;
                             }, multiLine: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } })
                     )
@@ -2121,8 +2159,8 @@ var DataSourceEditor = (function (_React$Component) {
                         m('datamanagement')
                     ),
                     _react2['default'].createElement(
-                        _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('versioning'), value: model.VersioningPolicyName, onChange: function (e, i, v) {
+                        ModernSelectField,
+                        { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
                                 model.VersioningPolicyName = v;
                             } },
                         _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
@@ -2133,14 +2171,14 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState'] + ')' : ''), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState'] + ')' : ''), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
                                 _this6.toggleEncryption(v);
                             },
-                            disabled: cannotEnableEnc })
+                            disabled: cannotEnableEnc }, ModernStyles.toggleField))
                     ),
                     model.EncryptionMode === "MASTER" && _react2['default'].createElement(
-                        _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('enc.key'), value: model.EncryptionKey, onChange: function (e, i, v) {
+                        ModernSelectField,
+                        { fullWidth: true, hintText: m('enc.key'), value: model.EncryptionKey, onChange: function (e, i, v) {
                                 model.EncryptionKey = v;
                             } },
                         encryptionKeys.map(function (key) {
@@ -2164,11 +2202,33 @@ exports['default'] = DataSourceEditor;
 module.exports = exports['default'];
 
 },{"../model/DataSource":19,"./DataSourceLocalSelector":9,"./DsStorageSelector":10,"material-ui":"material-ui","pydio":"pydio","react":"react"}],9:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -2183,6 +2243,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -2203,6 +2267,12 @@ var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 var _pydioUtilPath = require('pydio/util/path');
 
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 var AutocompleteTree = (function (_React$Component) {
     _inherits(AutocompleteTree, _React$Component);
@@ -2393,22 +2463,19 @@ var AutocompleteTree = (function (_React$Component) {
                         status: loading ? "loading" : "hide"
                     })
                 ),
-                _react2['default'].createElement(_materialUi.AutoComplete, {
+                _react2['default'].createElement(_materialUi.AutoComplete, _extends({
                     fullWidth: true,
                     searchText: displayText,
                     onUpdateInput: this.handleUpdateInput.bind(this),
                     onNewRequest: this.handleNewRequest.bind(this),
                     dataSource: dataSource,
-                    floatingLabelText: fieldLabel,
-                    floatingLabelStyle: { whiteSpace: 'nowrap' },
-                    floatingLabelFixed: true,
-                    hintText: this.props.hintText,
+                    hintText: fieldLabel,
                     filter: function (searchText, key) {
                         return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
                     },
                     openOnFocus: true,
                     menuProps: { maxHeight: 200 }
-                })
+                }, ModernStyles.textField))
             );
         }
     }]);
@@ -2496,11 +2563,10 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                         'div',
                         { style: { width: 180, marginRight: 10 } },
                         _react2['default'].createElement(
-                            _materialUi.SelectField,
+                            ModernSelectField,
                             {
                                 value: model.PeerAddress || '',
-                                floatingLabelFixed: true,
-                                floatingLabelText: m('selector.peer') + ' *',
+                                hintText: m('selector.peer') + ' *',
                                 onChange: function (e, i, v) {
                                     model.PeerAddress = v;
                                 },
@@ -2513,7 +2579,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { style: { flex: 1 } },
+                        { style: { flex: 1, height: 36 } },
                         model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
                             value: model.StorageConfiguration.folder,
                             peerAddress: model.PeerAddress,
@@ -2521,13 +2587,12 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             fieldLabel: m('selector.completer') + (model.StorageConfiguration.create ? ' (' + m('selector.completer.create') + ')' : '') + ' *',
                             hintText: m('selector.completer.hint')
                         }),
-                        !model.PeerAddress && _react2['default'].createElement(_materialUi.TextField, {
+                        !model.PeerAddress && _react2['default'].createElement(ModernTextField, {
                             style: { marginTop: -3 },
                             fullWidth: true,
                             disabled: true,
                             value: model.StorageConfiguration.folder,
                             floatingLabelText: m('selector.folder') + ' *',
-                            floatingLabelFixed: true,
                             hintText: m('selector.folder.hint')
                         })
                     )
@@ -2547,7 +2612,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
 exports['default'] = DataSourceLocalSelector;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],10:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2707,11 +2772,32 @@ exports['default'] = DsStorageSelector;
 module.exports = exports['default'];
 
 },{"material-ui":"material-ui","pydio":"pydio","pydio/util/dom":"pydio/util/dom","react":"react"}],11:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
@@ -2729,6 +2815,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
@@ -2744,6 +2834,12 @@ var _modelMetadata2 = _interopRequireDefault(_modelMetadata);
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 var MetaNamespace = (function (_React$Component) {
     _inherits(MetaNamespace, _React$Component);
@@ -2873,7 +2969,7 @@ var MetaNamespace = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                { style: { padding: 10, backgroundColor: '#f5f5f5', borderRadius: 2 } },
+                { style: { padding: 10, backgroundColor: '#f5f5f5', borderRadius: 3 } },
                 _react2['default'].createElement(
                     'div',
                     { style: { fontSize: 13 } },
@@ -3025,6 +3121,9 @@ var MetaNamespace = (function (_React$Component) {
                         });
                     } }));
             }
+            var styles = {
+                section: { marginTop: 10, fontWeight: 500, fontSize: 12 }
+            };
 
             return _react2['default'].createElement(
                 _materialUi.Dialog,
@@ -3032,12 +3131,13 @@ var MetaNamespace = (function (_React$Component) {
                     title: title,
                     actions: actions,
                     modal: false,
-                    contentStyle: { width: 420 },
+                    contentStyle: { width: 360 },
                     open: this.props.open,
                     onRequestClose: this.props.onRequestClose,
-                    autoScrollBodyContent: true
+                    autoScrollBodyContent: true,
+                    bodyStyle: { padding: 20 }
                 },
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     floatingLabelText: m('namespace'),
                     disabled: !create,
                     value: namespace.Namespace,
@@ -3047,7 +3147,7 @@ var MetaNamespace = (function (_React$Component) {
                     fullWidth: true,
                     errorText: nameError
                 }),
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     floatingLabelText: m('label'),
                     value: namespace.Label,
                     onChange: function (e, v) {
@@ -3056,19 +3156,15 @@ var MetaNamespace = (function (_React$Component) {
                     fullWidth: true,
                     errorText: labelError
                 }),
-                _react2['default'].createElement(_materialUi.TextField, {
-                    floatingLabelText: m('order'),
-                    value: namespace.Order ? namespace.Order : '0',
-                    onChange: function (e, v) {
-                        namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
-                    },
-                    fullWidth: true,
-                    type: "number"
-                }),
                 _react2['default'].createElement(
-                    _materialUi.SelectField,
+                    'div',
+                    { style: styles.section },
+                    m('type')
+                ),
+                _react2['default'].createElement(
+                    ModernSelectField,
                     {
-                        floatingLabelText: m('type'),
+                        hintText: m('type'),
                         value: type,
                         onChange: function (e, i, v) {
                             return _this4.updateType(v);
@@ -3081,25 +3177,44 @@ var MetaNamespace = (function (_React$Component) {
                 type === 'choice' && this.renderSelectionBoard(),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.index'), labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
+                    { style: styles.section },
+                    _pydio2['default'].getInstance().MessageHash[310]
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '6px 0 10px' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
                             namespace.Indexable = v;_this4.setState({ namespace: namespace });
-                        } })
+                        } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.read'), labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
+                    { style: { padding: '6px 0 10px' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
                             _this4.togglePolicies('READ', v);
-                        } })
+                        } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.write'), labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
+                    { style: { padding: '6px 0 10px' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
                             _this4.togglePolicies('WRITE', v);
-                        } })
-                )
+                        } }, ModernStyles.toggleField))
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.section },
+                    m('order')
+                ),
+                _react2['default'].createElement(ModernTextField, {
+                    floatingLabelText: m('order'),
+                    value: namespace.Order ? namespace.Order : '0',
+                    onChange: function (e, v) {
+                        namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
+                    },
+                    fullWidth: true,
+                    type: "number"
+                })
             );
         }
     }]);
@@ -3117,7 +3232,7 @@ MetaNamespace.PropTypes = {
 exports['default'] = MetaNamespace;
 module.exports = exports['default'];
 
-},{"../model/Metadata":20,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],12:[function(require,module,exports){
+},{"../model/Metadata":20,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3537,6 +3652,25 @@ exports['default'] = VersionPolicyPeriods;
 module.exports = exports['default'];
 
 },{"material-ui":"material-ui","react":"react"}],14:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3561,6 +3695,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
 var _lodashDebounce = require('lodash.debounce');
@@ -3572,6 +3710,10 @@ var _pydioUtilPath = require('pydio/util/path');
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 var WsAutoComplete = (function (_React$Component) {
     _inherits(WsAutoComplete, _React$Component);
@@ -3772,10 +3914,10 @@ var WsAutoComplete = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: zDepth, style: _extends({ display: 'flex', alignItems: 'baseline', margin: '10px 0 0 -8px', padding: '0 8px 10px', backgroundColor: '#fafafa' }, this.props.style) },
+                { zDepth: zDepth, style: _extends({ display: 'flex', alignItems: 'center', margin: '2px 0' }, this.props.style) },
                 _react2['default'].createElement(
                     'div',
-                    { style: { position: 'relative', flex: 1, marginTop: -5 } },
+                    { style: { position: 'relative', flex: 1 } },
                     _react2['default'].createElement(
                         'div',
                         { style: { position: 'absolute', right: 0, top: 30, width: 30 } },
@@ -3786,7 +3928,7 @@ var WsAutoComplete = (function (_React$Component) {
                             status: loading ? "loading" : "hide"
                         })
                     ),
-                    _react2['default'].createElement(_materialUi.AutoComplete, {
+                    _react2['default'].createElement(_materialUi.AutoComplete, _extends({
                         fullWidth: true,
                         searchText: value,
                         onUpdateInput: function (value) {
@@ -3799,17 +3941,15 @@ var WsAutoComplete = (function (_React$Component) {
                             return _this4.handleNewRequest(value);
                         },
                         dataSource: dataSource,
-                        floatingLabelText: label || m('ws.complete.label'),
-                        floatingLabelStyle: { whiteSpace: 'nowrap' },
-                        floatingLabelFixed: true,
+                        hintText: label || m('ws.complete.label'),
                         filter: function (searchText, key) {
                             return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
                         },
                         openOnFocus: true,
                         menuProps: { maxHeight: 200 }
-                    })
+                    }, ModernStyles.textField))
                 ),
-                onDelete && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: onDelete })
+                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: onDelete ? '#9e9e9e' : '#eee' }, iconClassName: "mdi mdi-delete", onTouchTap: onDelete, disabled: !onDelete })
             );
         }
     }], [{
@@ -3865,12 +4005,33 @@ var WsAutoComplete = (function (_React$Component) {
 exports['default'] = WsAutoComplete;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path","react":"react"}],15:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path","react":"react"}],15:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -3903,6 +4064,12 @@ var _WsAutoComplete2 = _interopRequireDefault(_WsAutoComplete);
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
 
 var WsEditor = (function (_React$Component) {
     _inherits(WsEditor, _React$Component);
@@ -4114,26 +4281,37 @@ var WsEditor = (function (_React$Component) {
                         { style: styles.legend },
                         m('ws.editor.options.legend')
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
+                    _react2['default'].createElement(ModernTextField, {
+                        fullWidth: true,
                         errorText: workspace.Label ? "" : m('ws.editor.label.legend'),
                         floatingLabelText: mS('8'),
-                        value: workspace.Label, onChange: function (e, v) {
+                        value: workspace.Label,
+                        onChange: function (e, v) {
                             workspace.Label = v;
                         }
                     }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
+                    _react2['default'].createElement(ModernTextField, {
+                        fullWidth: true,
+                        floatingLabelText: m("ws.editor.description"),
+                        value: workspace.Description,
+                        onChange: function (e, v) {
+                            workspace.Description = v;
+                        }
+                    }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
+                        m('ws.editor.slug.legend')
+                    ),
+                    _react2['default'].createElement(ModernTextField, {
+                        fullWidth: true,
                         errorText: workspace.Label && !workspace.Slug ? m('ws.editor.slug.legend') : "",
                         floatingLabelText: m('ws.5'),
                         value: workspace.Slug,
                         onChange: function (e, v) {
                             workspace.Slug = v;
                         }
-                    }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
-                        floatingLabelText: m("ws.editor.description"),
-                        value: workspace.Description, onChange: function (e, v) {
-                            workspace.Description = v;
-                        } })
+                    })
                 ),
                 _react2['default'].createElement(
                     _materialUi.Paper,
@@ -4155,7 +4333,7 @@ var WsEditor = (function (_React$Component) {
                         m('ws.editor.default_rights')
                     ),
                     _react2['default'].createElement(
-                        _materialUi.SelectField,
+                        ModernSelectField,
                         {
                             fullWidth: true,
                             value: workspace.Attributes['DEFAULT_RIGHTS'],
@@ -4180,13 +4358,23 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: m('ws.editor.other.sync'), labelPosition: "right", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('ws.editor.other.sync'),
+                            labelPosition: "right",
+                            toggled: workspace.Attributes['ALLOW_SYNC'],
+                            onToggle: function (e, v) {
                                 workspace.Attributes['ALLOW_SYNC'] = v;
-                            } })
+                            }
+                        }, ModernStyles.toggleField))
                     ),
                     _react2['default'].createElement(
-                        _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('ws.editor.other.layout'), value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
+                        'div',
+                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
+                        m('ws.editor.other.layout')
+                    ),
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { fullWidth: true, value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
                                 workspace.Attributes['META_LAYOUT'] = v;
                             } },
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.default'), value: "" }),

@@ -1,9 +1,29 @@
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 import Pydio from 'pydio'
 import React from 'react'
-import {FlatButton, RaisedButton, SelectField, Paper, TextField, Divider, Toggle, MenuItem, FontIcon, IconButton, Subheader} from 'material-ui'
+import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, FontIcon, IconButton, Subheader} from 'material-ui'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
 const {PaperEditorLayout} = Pydio.requireLib('components');
+const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 
 class WsEditor extends React.Component {
 
@@ -153,27 +173,34 @@ class WsEditor extends React.Component {
                     <div style={styles.title}>{m('ws.30')}</div>
                     <div style={styles.legend}>{m('ws.editor.options.legend')}</div>
 
-                    <TextField fullWidth={true} floatingLabelFixed={true}
-                               errorText={workspace.Label ? "" : m('ws.editor.label.legend')}
-                               floatingLabelText={mS('8')}
-                               value={workspace.Label} onChange={(e,v)=>{workspace.Label = v}}
+                    <ModernTextField
+                        fullWidth={true}
+                        errorText={workspace.Label ? "" : m('ws.editor.label.legend')}
+                        floatingLabelText={mS('8')}
+                        value={workspace.Label}
+                        onChange={(e,v)=>{workspace.Label = v}}
                     />
-                    <TextField fullWidth={true} floatingLabelFixed={true}
-                               errorText={(workspace.Label && !workspace.Slug) ? m('ws.editor.slug.legend') : ""}
-                               floatingLabelText={m('ws.5')}
-                               value={workspace.Slug}
-                               onChange={(e,v)=>{workspace.Slug = v}}
+                    <ModernTextField
+                        fullWidth={true}
+                        floatingLabelText={m("ws.editor.description")}
+                        value={workspace.Description}
+                        onChange={(e,v)=>{workspace.Description = v}}
                     />
-                    <TextField fullWidth={true} floatingLabelFixed={true}
-                               floatingLabelText={m("ws.editor.description")}
-                               value={workspace.Description} onChange={(e,v)=>{workspace.Description = v}}/>
+                    <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.slug.legend')}</div>
+                    <ModernTextField
+                        fullWidth={true}
+                        errorText={(workspace.Label && !workspace.Slug) ? m('ws.editor.slug.legend') : ""}
+                        floatingLabelText={m('ws.5')}
+                        value={workspace.Slug}
+                        onChange={(e,v)=>{workspace.Slug = v}}
+                    />
                 </Paper>
                 <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('ws.editor.data.title')}</div>
                     <div style={styles.legend}>{m('ws.editor.data.legend')}</div>
                     {completers}
                     <div style={styles.legend}>{m('ws.editor.default_rights')}</div>
-                    <SelectField
+                    <ModernSelectField
                         fullWidth={true}
                         value={workspace.Attributes['DEFAULT_RIGHTS']}
                         onChange={(e,i,v) => {workspace.Attributes['DEFAULT_RIGHTS'] = v}}
@@ -182,15 +209,24 @@ class WsEditor extends React.Component {
                         <MenuItem primaryText={m('ws.editor.default_rights.read')} value={"r"}/>
                         <MenuItem primaryText={m('ws.editor.default_rights.readwrite')} value={"rw"}/>
                         <MenuItem primaryText={m('ws.editor.default_rights.write')} value={"w"}/>
-                    </SelectField>
+                    </ModernSelectField>
                 </Paper>
                 <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('ws.editor.other')}</div>
-                    <div style={styles.toggleDiv}><Toggle label={m('ws.editor.other.sync')} labelPosition={"right"} toggled={workspace.Attributes['ALLOW_SYNC']} onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}} /></div>
-                    <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('ws.editor.other.layout')} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
+                    <div style={styles.toggleDiv}>
+                        <Toggle
+                            label={m('ws.editor.other.sync')}
+                            labelPosition={"right"}
+                            toggled={workspace.Attributes['ALLOW_SYNC']}
+                            onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}}
+                            {...ModernStyles.toggleField}
+                        />
+                    </div>
+                    <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.layout')}</div>
+                    <ModernSelectField fullWidth={true} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
                         <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
                         <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
-                    </SelectField>
+                    </ModernSelectField>
                 </Paper>
             </PaperEditorLayout>
         );

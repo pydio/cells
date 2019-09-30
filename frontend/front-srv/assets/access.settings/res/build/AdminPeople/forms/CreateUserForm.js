@@ -32,11 +32,13 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _materialUi = require('material-ui');
 
 var _pydioUtilPass = require('pydio/util/pass');
 
@@ -45,6 +47,10 @@ var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var CreateUserForm = _react2['default'].createClass({
     displayName: 'CreateUserForm',
@@ -132,7 +138,7 @@ var CreateUserForm = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: { width: '100%' } },
-                    _react2['default'].createElement(_materialUi.TextField, {
+                    _react2['default'].createElement(ModernTextField, {
                         ref: 'user_id',
                         onChange: this.checkLogin,
                         fullWidth: true,
@@ -144,7 +150,7 @@ var CreateUserForm = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, {
+                    _react2['default'].createElement(ModernTextField, {
                         ref: 'pass',
                         type: 'password',
                         floatingLabelText: this.context.getMessage('ajxp_admin.user.22'),
@@ -157,7 +163,7 @@ var CreateUserForm = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, {
+                    _react2['default'].createElement(ModernTextField, {
                         ref: 'passconf',
                         type: 'password',
                         floatingLabelText: this.context.getMessage('ajxp_admin.user.23'),

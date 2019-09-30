@@ -18,12 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const {TextField} = require('material-ui')
-const Pydio = require('pydio');
-const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot');
-const PassUtils = require('pydio/util/pass');
+import React from "react";
+import Pydio from "pydio";
 import User from '../model/User'
+import PassUtils from "pydio/util/pass";
+const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot');
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 export default React.createClass({
 
@@ -80,16 +80,22 @@ export default React.createClass({
         const getMessage = (id, namespace = '') => global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         return (
             <div style={{width: '100%'}}>
-                <TextField ref="pass" type="password" fullWidth={true}
-                           onChange={this.onChange}
-                           floatingLabelText={getMessage('523')}
-                           errorText={this.state.passErrorText}
-                           hintText={this.state.passHintText}
+                <ModernTextField
+                    ref="pass"
+                    type="password"
+                    fullWidth={true}
+                    onChange={this.onChange}
+                    floatingLabelText={getMessage('523')}
+                    errorText={this.state.passErrorText}
+                    hintText={this.state.passHintText}
                 />
-                <TextField ref="confirm" type="password" fullWidth={true}
-                           onChange={this.onChange}
-                           floatingLabelText={getMessage('199')}
-                           errorText={this.state.confirmErrorText}
+                <ModernTextField
+                    ref="confirm"
+                    type="password"
+                    fullWidth={true}
+                    onChange={this.onChange}
+                    floatingLabelText={getMessage('199')}
+                    errorText={this.state.confirmErrorText}
                 />
             </div>
         );

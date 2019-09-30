@@ -29,6 +29,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -37,7 +41,9 @@ var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
-var _materialUi = require('material-ui');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var CreateRoleOrGroupForm = _react2['default'].createClass({
     displayName: 'CreateRoleOrGroupForm',
@@ -167,7 +173,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             return _react2['default'].createElement(
                 'div',
                 { style: { width: '100%' } },
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     value: groupId,
                     errorText: groupIdError,
                     onChange: function (e, v) {
@@ -176,7 +182,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                     fullWidth: true,
                     floatingLabelText: this.context.getMessage('ajxp_admin.user.16')
                 }),
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     value: groupLabel,
                     errorText: groupLabelError,
                     onChange: function (e, v) {
@@ -190,7 +196,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             return _react2['default'].createElement(
                 'div',
                 { style: { width: '100%' } },
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     value: roleId,
                     errorText: roleIdError,
                     onChange: function (e, v) {

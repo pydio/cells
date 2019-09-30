@@ -18,43 +18,49 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require("pydio");
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _modelUser = require('../model/User');
 
 var _modelUser2 = _interopRequireDefault(_modelUser);
 
-var React = require('react');
+var _pydioUtilPass = require("pydio/util/pass");
 
-var _require = require('material-ui');
+var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
-var TextField = _require.TextField;
-
-var Pydio = require('pydio');
-
-var _Pydio$requireLib = Pydio.requireLib('boot');
+var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
 var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
 
-var PassUtils = require('pydio/util/pass');
-exports['default'] = React.createClass({
-    displayName: 'UserPasswordDialog',
+var _Pydio$requireLib2 = _pydio2["default"].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+exports["default"] = _react2["default"].createClass({
+    displayName: "UserPasswordDialog",
 
     mixins: [AdminComponents.MessagesConsumerMixin, ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        user: React.PropTypes.instanceOf(_modelUser2['default'])
+        pydio: _react2["default"].PropTypes.instanceOf(_pydio2["default"]),
+        user: _react2["default"].PropTypes.instanceOf(_modelUser2["default"])
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -65,14 +71,14 @@ exports['default'] = React.createClass({
     },
 
     getInitialState: function getInitialState() {
-        var pwdState = PassUtils.getState();
+        var pwdState = _pydioUtilPass2["default"].getState();
         return _extends({}, pwdState);
     },
 
     onChange: function onChange(event, value) {
         var passValue = this.refs.pass.getValue();
         var confirmValue = this.refs.confirm.getValue();
-        var newState = PassUtils.getState(passValue, confirmValue, this.state);
+        var newState = _pydioUtilPass2["default"].getState(passValue, confirmValue, this.state);
         this.setState(newState);
     },
 
@@ -101,16 +107,22 @@ exports['default'] = React.createClass({
             var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
             return global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         };
-        return React.createElement(
-            'div',
+        return _react2["default"].createElement(
+            "div",
             { style: { width: '100%' } },
-            React.createElement(TextField, { ref: 'pass', type: 'password', fullWidth: true,
+            _react2["default"].createElement(ModernTextField, {
+                ref: "pass",
+                type: "password",
+                fullWidth: true,
                 onChange: this.onChange,
                 floatingLabelText: getMessage('523'),
                 errorText: this.state.passErrorText,
                 hintText: this.state.passHintText
             }),
-            React.createElement(TextField, { ref: 'confirm', type: 'password', fullWidth: true,
+            _react2["default"].createElement(ModernTextField, {
+                ref: "confirm",
+                type: "password",
+                fullWidth: true,
                 onChange: this.onChange,
                 floatingLabelText: getMessage('199'),
                 errorText: this.state.confirmErrorText
@@ -119,4 +131,4 @@ exports['default'] = React.createClass({
     }
 
 });
-module.exports = exports['default'];
+module.exports = exports["default"];

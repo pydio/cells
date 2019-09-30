@@ -1,3 +1,22 @@
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -22,6 +41,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
 var _lodashDebounce = require('lodash.debounce');
@@ -33,6 +56,10 @@ var _pydioUtilPath = require('pydio/util/path');
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 var WsAutoComplete = (function (_React$Component) {
     _inherits(WsAutoComplete, _React$Component);
@@ -233,10 +260,10 @@ var WsAutoComplete = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: zDepth, style: _extends({ display: 'flex', alignItems: 'baseline', margin: '10px 0 0 -8px', padding: '0 8px 10px', backgroundColor: '#fafafa' }, this.props.style) },
+                { zDepth: zDepth, style: _extends({ display: 'flex', alignItems: 'center', margin: '2px 0' }, this.props.style) },
                 _react2['default'].createElement(
                     'div',
-                    { style: { position: 'relative', flex: 1, marginTop: -5 } },
+                    { style: { position: 'relative', flex: 1 } },
                     _react2['default'].createElement(
                         'div',
                         { style: { position: 'absolute', right: 0, top: 30, width: 30 } },
@@ -247,7 +274,7 @@ var WsAutoComplete = (function (_React$Component) {
                             status: loading ? "loading" : "hide"
                         })
                     ),
-                    _react2['default'].createElement(_materialUi.AutoComplete, {
+                    _react2['default'].createElement(_materialUi.AutoComplete, _extends({
                         fullWidth: true,
                         searchText: value,
                         onUpdateInput: function (value) {
@@ -260,17 +287,15 @@ var WsAutoComplete = (function (_React$Component) {
                             return _this4.handleNewRequest(value);
                         },
                         dataSource: dataSource,
-                        floatingLabelText: label || m('ws.complete.label'),
-                        floatingLabelStyle: { whiteSpace: 'nowrap' },
-                        floatingLabelFixed: true,
+                        hintText: label || m('ws.complete.label'),
                         filter: function (searchText, key) {
                             return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
                         },
                         openOnFocus: true,
                         menuProps: { maxHeight: 200 }
-                    })
+                    }, ModernStyles.textField))
                 ),
-                onDelete && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: onDelete })
+                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: onDelete ? '#9e9e9e' : '#eee' }, iconClassName: "mdi mdi-delete", onTouchTap: onDelete, disabled: !onDelete })
             );
         }
     }], [{

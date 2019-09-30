@@ -1,3 +1,23 @@
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -33,6 +53,10 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
 
 var EncryptionKeys = (function (_React$Component) {
     _inherits(EncryptionKeys, _React$Component);
@@ -214,7 +238,7 @@ var EncryptionKeys = (function (_React$Component) {
             if (showExportKey || exportedKey) {
                 dialogTitle = m('key.export');
                 if (exportedKey) {
-                    dialogContent = _react2['default'].createElement(_materialUi.TextField, {
+                    dialogContent = _react2['default'].createElement(ModernTextField, {
                         value: exportedKey.Content,
                         fullWidth: true,
                         floatingLabelText: m('key.export.result.copy'),
@@ -229,8 +253,8 @@ var EncryptionKeys = (function (_React$Component) {
                     dialogContent = _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
                     );
                     dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                             _this6.setState({ showExportKey: null, showDialog: false });
@@ -246,11 +270,11 @@ var EncryptionKeys = (function (_React$Component) {
                     !showImportKey.ID && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.id'), ref: 'key-import-id', fullWidth: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.label'), ref: 'key-import-label', fullWidth: true })
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'key-import-id', fullWidth: true }),
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'key-import-label', fullWidth: true })
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
                 );
                 dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                         _this6.setState({ showImportKey: null, showDialog: false });
@@ -262,8 +286,8 @@ var EncryptionKeys = (function (_React$Component) {
                 dialogContent = _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
                 );
                 dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                         _this6.setState({ showCreateKey: null, showDialog: false });

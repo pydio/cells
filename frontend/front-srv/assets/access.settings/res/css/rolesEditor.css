@@ -293,11 +293,6 @@
 .paper-editor .user-roles-picker .mui-paper {
   margin: 8px 0;
 }
-.paper-editor .user-roles-picker .roles-list {
-  padding: 2px 10px;
-  background-color: #eaeaea;
-  border-radius: 3px;
-}
 .paper-editor .user-roles-picker .role-item {
   padding: 10px;
   font-size: 14px;

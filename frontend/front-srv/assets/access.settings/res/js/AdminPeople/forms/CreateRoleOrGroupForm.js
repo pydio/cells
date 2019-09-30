@@ -18,9 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import Node from 'pydio/model/node'
-import {TextField} from 'material-ui'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 const CreateRoleOrGroupForm = React.createClass({
 
@@ -132,14 +133,14 @@ const CreateRoleOrGroupForm = React.createClass({
         if(this.props.type === 'group'){
             return (
                 <div style={{width:'100%'}}>
-                    <TextField
+                    <ModernTextField
                         value={groupId}
                         errorText={groupIdError}
                         onChange={(e,v)=>{this.update({groupId:v})}}
                         fullWidth={true}
                         floatingLabelText={this.context.getMessage('ajxp_admin.user.16')}
                     />
-                    <TextField
+                    <ModernTextField
                         value={groupLabel}
                         errorText={groupLabelError}
                         onChange={(e,v)=>{this.update({groupLabel:v})}}
@@ -151,7 +152,7 @@ const CreateRoleOrGroupForm = React.createClass({
         }else{
             return (
                 <div style={{width:'100%'}}>
-                    <TextField
+                    <ModernTextField
                         value={roleId}
                         errorText={roleIdError}
                         onChange={(e,v)=>{this.update({roleId:v})}}

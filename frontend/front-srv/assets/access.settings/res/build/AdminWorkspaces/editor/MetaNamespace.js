@@ -1,8 +1,29 @@
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
@@ -20,6 +41,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
@@ -35,6 +60,12 @@ var _modelMetadata2 = _interopRequireDefault(_modelMetadata);
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 var MetaNamespace = (function (_React$Component) {
     _inherits(MetaNamespace, _React$Component);
@@ -164,7 +195,7 @@ var MetaNamespace = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                { style: { padding: 10, backgroundColor: '#f5f5f5', borderRadius: 2 } },
+                { style: { padding: 10, backgroundColor: '#f5f5f5', borderRadius: 3 } },
                 _react2['default'].createElement(
                     'div',
                     { style: { fontSize: 13 } },
@@ -316,6 +347,9 @@ var MetaNamespace = (function (_React$Component) {
                         });
                     } }));
             }
+            var styles = {
+                section: { marginTop: 10, fontWeight: 500, fontSize: 12 }
+            };
 
             return _react2['default'].createElement(
                 _materialUi.Dialog,
@@ -323,12 +357,13 @@ var MetaNamespace = (function (_React$Component) {
                     title: title,
                     actions: actions,
                     modal: false,
-                    contentStyle: { width: 420 },
+                    contentStyle: { width: 360 },
                     open: this.props.open,
                     onRequestClose: this.props.onRequestClose,
-                    autoScrollBodyContent: true
+                    autoScrollBodyContent: true,
+                    bodyStyle: { padding: 20 }
                 },
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     floatingLabelText: m('namespace'),
                     disabled: !create,
                     value: namespace.Namespace,
@@ -338,7 +373,7 @@ var MetaNamespace = (function (_React$Component) {
                     fullWidth: true,
                     errorText: nameError
                 }),
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     floatingLabelText: m('label'),
                     value: namespace.Label,
                     onChange: function (e, v) {
@@ -347,19 +382,15 @@ var MetaNamespace = (function (_React$Component) {
                     fullWidth: true,
                     errorText: labelError
                 }),
-                _react2['default'].createElement(_materialUi.TextField, {
-                    floatingLabelText: m('order'),
-                    value: namespace.Order ? namespace.Order : '0',
-                    onChange: function (e, v) {
-                        namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
-                    },
-                    fullWidth: true,
-                    type: "number"
-                }),
                 _react2['default'].createElement(
-                    _materialUi.SelectField,
+                    'div',
+                    { style: styles.section },
+                    m('type')
+                ),
+                _react2['default'].createElement(
+                    ModernSelectField,
                     {
-                        floatingLabelText: m('type'),
+                        hintText: m('type'),
                         value: type,
                         onChange: function (e, i, v) {
                             return _this4.updateType(v);
@@ -372,25 +403,44 @@ var MetaNamespace = (function (_React$Component) {
                 type === 'choice' && this.renderSelectionBoard(),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.index'), labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
+                    { style: styles.section },
+                    _pydio2['default'].getInstance().MessageHash[310]
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '6px 0 10px' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
                             namespace.Indexable = v;_this4.setState({ namespace: namespace });
-                        } })
+                        } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.read'), labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
+                    { style: { padding: '6px 0 10px' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
                             _this4.togglePolicies('READ', v);
-                        } })
+                        } }, ModernStyles.toggleField))
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.write'), labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
+                    { style: { padding: '6px 0 10px' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
                             _this4.togglePolicies('WRITE', v);
-                        } })
-                )
+                        } }, ModernStyles.toggleField))
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.section },
+                    m('order')
+                ),
+                _react2['default'].createElement(ModernTextField, {
+                    floatingLabelText: m('order'),
+                    value: namespace.Order ? namespace.Order : '0',
+                    onChange: function (e, v) {
+                        namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
+                    },
+                    fullWidth: true,
+                    type: "number"
+                })
             );
         }
     }]);

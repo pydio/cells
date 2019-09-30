@@ -40,6 +40,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _modelVirtualNode = require('../model/VirtualNode');
 
 var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
@@ -53,6 +57,10 @@ var _virtualNodeCard = require('../virtual/NodeCard');
 var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
 
 var _materialUi = require('material-ui');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var VirtualNodes = (function (_React$Component) {
     _inherits(VirtualNodes, _React$Component);
@@ -165,7 +173,7 @@ var VirtualNodes = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { margin: '0 10px' } },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
                                 _this4.setState({ newName: v });
                             }, hintText: "Provide a label for this node" })
                     ),

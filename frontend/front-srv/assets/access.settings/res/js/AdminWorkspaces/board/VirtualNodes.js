@@ -19,10 +19,12 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
 import VirtualNode from '../model/VirtualNode'
 import DataSource from '../model/DataSource'
 import NodeCard from '../virtual/NodeCard'
-import {Paper, Divider, IconButton, FlatButton, RaisedButton, Popover, TextField} from 'material-ui'
+import {Paper, Divider, IconButton, FlatButton, RaisedButton, Popover} from 'material-ui'
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 class VirtualNodes extends React.Component{
 
@@ -103,7 +105,7 @@ class VirtualNodes extends React.Component{
                     onRequestClose={this.handleRequestClose.bind(this)}
                 >
                     <div style={{margin:'0 10px'}}>
-                        <TextField ref="newNode" floatingLabelText={m('label')} value={this.state.newName} onChange={(e,v)=>{this.setState({newName:v})}} hintText={"Provide a label for this node"}/>
+                        <ModernTextField ref="newNode" floatingLabelText={m('label')} value={this.state.newName} onChange={(e,v)=>{this.setState({newName:v})}} hintText={"Provide a label for this node"}/>
                     </div>
                     <Divider/>
                     <div style={{textAlign:'right', padding:'4px 10px'}}>

@@ -1,10 +1,31 @@
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 import React from 'react'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
-import {Paper, TextField, RaisedButton, FlatButton, IconButton, Dialog} from 'material-ui'
+import {Paper, RaisedButton, FlatButton, IconButton, Dialog} from 'material-ui'
 import {ConfigServiceApi, EncryptionAdminExportKeyRequest, EncryptionAdminImportKeyRequest,
     EncryptionAdminListKeysRequest, EncryptionAdminCreateKeyRequest, EncryptionAdminDeleteKeyRequest, EncryptionKey} from 'pydio/http/rest-api'
 const {MaterialTable} = Pydio.requireLib('components');
+const {ModernTextField} = Pydio.requireLib('hoc');
 
 class EncryptionKeys extends React.Component{
 
@@ -145,7 +166,7 @@ class EncryptionKeys extends React.Component{
             dialogTitle = m('key.export');
             if(exportedKey){
                 dialogContent = (
-                    <TextField
+                    <ModernTextField
                         value={exportedKey.Content}
                         fullWidth={true}
                         floatingLabelText={m('key.export.result.copy')}
@@ -162,8 +183,8 @@ class EncryptionKeys extends React.Component{
             } else {
                 dialogContent = (
                     <div>
-                        <TextField floatingLabelText={m('key.export.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
-                        <TextField floatingLabelText={m('key.export.confirm')} ref="key-password-confirm" type={"password"} fullWidth={true}/>
+                        <ModernTextField floatingLabelText={m('key.export.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
+                        <ModernTextField floatingLabelText={m('key.export.confirm')} ref="key-password-confirm" type={"password"} fullWidth={true}/>
                     </div>
                 );
                 dialogActions = [
@@ -177,12 +198,12 @@ class EncryptionKeys extends React.Component{
                 <div>
                     {!showImportKey.ID &&
                         <div>
-                            <TextField floatingLabelText={m('key.import.id')} ref="key-import-id" fullWidth={true}/>
-                            <TextField floatingLabelText={m('key.import.label')} ref="key-import-label" fullWidth={true}/>
+                            <ModernTextField floatingLabelText={m('key.import.id')} ref="key-import-id" fullWidth={true}/>
+                            <ModernTextField floatingLabelText={m('key.import.label')} ref="key-import-label" fullWidth={true}/>
                         </div>
                     }
-                    <TextField floatingLabelText={m('key.import.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
-                    <TextField fullWidth={true} floatingLabelText={m('key.import.content')} multiLine={true} ref="key-imported-field"/>
+                    <ModernTextField floatingLabelText={m('key.import.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
+                    <ModernTextField fullWidth={true} floatingLabelText={m('key.import.content')} multiLine={true} ref="key-imported-field"/>
                 </div>
             );
             dialogActions =[
@@ -193,8 +214,8 @@ class EncryptionKeys extends React.Component{
             dialogTitle = "Create a Key";
             dialogContent = (
                 <div>
-                    <TextField floatingLabelText={m('key.import.id')} ref="createKeyId" fullWidth={true}/>
-                    <TextField floatingLabelText={m('key.import.label')} ref="createKeyLabel" fullWidth={true}/>
+                    <ModernTextField floatingLabelText={m('key.import.id')} ref="createKeyId" fullWidth={true}/>
+                    <ModernTextField floatingLabelText={m('key.import.label')} ref="createKeyLabel" fullWidth={true}/>
                 </div>
             );
             dialogActions = [

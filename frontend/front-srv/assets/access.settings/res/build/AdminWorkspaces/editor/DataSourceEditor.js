@@ -42,6 +42,12 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
+
 var DataSourceEditor = (function (_React$Component) {
     _inherits(DataSourceEditor, _React$Component);
 
@@ -312,7 +318,7 @@ var DataSourceEditor = (function (_React$Component) {
                 title: {
                     fontSize: 20,
                     paddingTop: 20,
-                    marginBottom: 0
+                    marginBottom: 10
                 },
                 legend: {},
                 section: { padding: '0 20px 20px', margin: 10, backgroundColor: 'white' },
@@ -399,15 +405,15 @@ var DataSourceEditor = (function (_React$Component) {
                         { style: styles.title },
                         m('options')
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.id') + ' *', disabled: !create, value: model.Name, onChange: function (e, v) {
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('options.id') + ' *', disabled: !create, value: model.Name, onChange: function (e, v) {
                             model.Name = v;
                         } }),
                     !create && _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
                                 model.Disabled = !v;
-                            } })
+                            } }, ModernStyles.toggleField))
                     )
                 ),
                 _react2['default'].createElement(
@@ -428,9 +434,9 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(
                             'div',
                             { style: styles.toggleDiv },
-                            _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
+                            _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
                                     storageConfig.normalize = v ? "true" : "false";
-                                } })
+                                } }, ModernStyles.toggleField))
                         )
                     ),
                     model.StorageType === 'S3' && _react2['default'].createElement(
@@ -441,19 +447,19 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.s3')
                         ),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.endpoint'), hintText: m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint'), hintText: m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
                                 model.StorageConfiguration.customEndpoint = v;
                             } })
                     ),
@@ -465,16 +471,16 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.azure')
                         ),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } })
                     ),
@@ -486,13 +492,13 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.gcs')
                         ),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.gcs.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.credentials') + ' *', value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.gcs.credentials') + ' *', value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
                                 model.StorageConfiguration.jsonCredentials = v;
                             }, multiLine: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } })
                     )
@@ -506,8 +512,8 @@ var DataSourceEditor = (function (_React$Component) {
                         m('datamanagement')
                     ),
                     _react2['default'].createElement(
-                        _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('versioning'), value: model.VersioningPolicyName, onChange: function (e, i, v) {
+                        ModernSelectField,
+                        { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
                                 model.VersioningPolicyName = v;
                             } },
                         _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
@@ -518,14 +524,14 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState'] + ')' : ''), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState'] + ')' : ''), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
                                 _this6.toggleEncryption(v);
                             },
-                            disabled: cannotEnableEnc })
+                            disabled: cannotEnableEnc }, ModernStyles.toggleField))
                     ),
                     model.EncryptionMode === "MASTER" && _react2['default'].createElement(
-                        _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('enc.key'), value: model.EncryptionKey, onChange: function (e, i, v) {
+                        ModernSelectField,
+                        { fullWidth: true, hintText: m('enc.key'), value: model.EncryptionKey, onChange: function (e, i, v) {
                                 model.EncryptionKey = v;
                             } },
                         encryptionKeys.map(function (key) {

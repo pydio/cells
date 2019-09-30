@@ -5625,43 +5625,49 @@ module.exports = exports["default"];
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require("pydio");
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _modelUser = require('../model/User');
 
 var _modelUser2 = _interopRequireDefault(_modelUser);
 
-var React = require('react');
+var _pydioUtilPass = require("pydio/util/pass");
 
-var _require = require('material-ui');
+var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
-var TextField = _require.TextField;
-
-var Pydio = require('pydio');
-
-var _Pydio$requireLib = Pydio.requireLib('boot');
+var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
 var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
 
-var PassUtils = require('pydio/util/pass');
-exports['default'] = React.createClass({
-    displayName: 'UserPasswordDialog',
+var _Pydio$requireLib2 = _pydio2["default"].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+exports["default"] = _react2["default"].createClass({
+    displayName: "UserPasswordDialog",
 
     mixins: [AdminComponents.MessagesConsumerMixin, ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        user: React.PropTypes.instanceOf(_modelUser2['default'])
+        pydio: _react2["default"].PropTypes.instanceOf(_pydio2["default"]),
+        user: _react2["default"].PropTypes.instanceOf(_modelUser2["default"])
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -5672,14 +5678,14 @@ exports['default'] = React.createClass({
     },
 
     getInitialState: function getInitialState() {
-        var pwdState = PassUtils.getState();
+        var pwdState = _pydioUtilPass2["default"].getState();
         return _extends({}, pwdState);
     },
 
     onChange: function onChange(event, value) {
         var passValue = this.refs.pass.getValue();
         var confirmValue = this.refs.confirm.getValue();
-        var newState = PassUtils.getState(passValue, confirmValue, this.state);
+        var newState = _pydioUtilPass2["default"].getState(passValue, confirmValue, this.state);
         this.setState(newState);
     },
 
@@ -5708,16 +5714,22 @@ exports['default'] = React.createClass({
             var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
             return global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         };
-        return React.createElement(
-            'div',
+        return _react2["default"].createElement(
+            "div",
             { style: { width: '100%' } },
-            React.createElement(TextField, { ref: 'pass', type: 'password', fullWidth: true,
+            _react2["default"].createElement(ModernTextField, {
+                ref: "pass",
+                type: "password",
+                fullWidth: true,
                 onChange: this.onChange,
                 floatingLabelText: getMessage('523'),
                 errorText: this.state.passErrorText,
                 hintText: this.state.passHintText
             }),
-            React.createElement(TextField, { ref: 'confirm', type: 'password', fullWidth: true,
+            _react2["default"].createElement(ModernTextField, {
+                ref: "confirm",
+                type: "password",
+                fullWidth: true,
                 onChange: this.onChange,
                 floatingLabelText: getMessage('199'),
                 errorText: this.state.confirmErrorText
@@ -5726,10 +5738,10 @@ exports['default'] = React.createClass({
     }
 
 });
-module.exports = exports['default'];
+module.exports = exports["default"];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../model/User":21,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],28:[function(require,module,exports){
+},{"../model/User":21,"pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],28:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5863,30 +5875,30 @@ exports['default'] = _react2['default'].createClass({
 
         return _react2['default'].createElement(
             'div',
-            { className: 'user-roles-picker', style: { padding: 0, marginBottom: 20 } },
+            { className: 'user-roles-picker', style: { padding: 0, margin: '-30px 20px 40px', backgroundColor: '#f5f5f5', borderRadius: 3 } },
             _react2['default'].createElement(
                 'div',
-                { style: { paddingLeft: 22, marginTop: -40, display: 'flex', alignItems: 'center' } },
+                { style: { paddingLeft: 10, marginBottom: -6, display: 'flex', alignItems: 'center' } },
                 _react2['default'].createElement(
                     'div',
-                    { style: { flex: 1, color: '#bdbdbd', fontWeight: 500 } },
+                    { style: { flex: 1, color: '#a1a1a1', fontSize: 16 } },
                     ctx.getMessage('roles.picker.title'),
                     ' ',
                     loadingMessage ? ' (' + ctx.getMessage('21') + ')' : ''
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { className: 'roles-picker-menu', style: { marginTop: -12 } },
+                    { className: 'roles-picker-menu', style: { marginBottom: -12 } },
                     _react2['default'].createElement(
                         _materialUi.DropDownMenu,
-                        { onChange: this.onChange, value: -1 },
+                        { underlineStyle: { display: 'none' }, onChange: this.onChange, value: -1 },
                         addableRoles
                     )
                 )
             ),
             _react2['default'].createElement(
                 'div',
-                { className: 'roles-list', style: { margin: '0 16px' } },
+                { className: 'roles-list', style: { margin: '0 8px', paddingBottom: 1 } },
                 groups.map(function (g) {
                     return _react2['default'].createElement(
                         'div',
@@ -6015,6 +6027,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -6023,7 +6039,9 @@ var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
-var _materialUi = require('material-ui');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var CreateRoleOrGroupForm = _react2['default'].createClass({
     displayName: 'CreateRoleOrGroupForm',
@@ -6153,7 +6171,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             return _react2['default'].createElement(
                 'div',
                 { style: { width: '100%' } },
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     value: groupId,
                     errorText: groupIdError,
                     onChange: function (e, v) {
@@ -6162,7 +6180,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                     fullWidth: true,
                     floatingLabelText: this.context.getMessage('ajxp_admin.user.16')
                 }),
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     value: groupLabel,
                     errorText: groupLabelError,
                     onChange: function (e, v) {
@@ -6176,7 +6194,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             return _react2['default'].createElement(
                 'div',
                 { style: { width: '100%' } },
-                _react2['default'].createElement(_materialUi.TextField, {
+                _react2['default'].createElement(ModernTextField, {
                     value: roleId,
                     errorText: roleIdError,
                     onChange: function (e, v) {
@@ -6193,7 +6211,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],31:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],31:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -6228,11 +6246,13 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _materialUi = require('material-ui');
 
 var _pydioUtilPass = require('pydio/util/pass');
 
@@ -6241,6 +6261,10 @@ var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var CreateUserForm = _react2['default'].createClass({
     displayName: 'CreateUserForm',
@@ -6328,7 +6352,7 @@ var CreateUserForm = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: { width: '100%' } },
-                    _react2['default'].createElement(_materialUi.TextField, {
+                    _react2['default'].createElement(ModernTextField, {
                         ref: 'user_id',
                         onChange: this.checkLogin,
                         fullWidth: true,
@@ -6340,7 +6364,7 @@ var CreateUserForm = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, {
+                    _react2['default'].createElement(ModernTextField, {
                         ref: 'pass',
                         type: 'password',
                         floatingLabelText: this.context.getMessage('ajxp_admin.user.22'),
@@ -6353,7 +6377,7 @@ var CreateUserForm = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, {
+                    _react2['default'].createElement(ModernTextField, {
                         ref: 'passconf',
                         type: 'password',
                         floatingLabelText: this.context.getMessage('ajxp_admin.user.23'),
@@ -6371,7 +6395,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],32:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],32:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

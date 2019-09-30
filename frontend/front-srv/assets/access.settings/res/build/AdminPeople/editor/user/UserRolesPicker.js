@@ -131,30 +131,30 @@ exports['default'] = _react2['default'].createClass({
 
         return _react2['default'].createElement(
             'div',
-            { className: 'user-roles-picker', style: { padding: 0, marginBottom: 20 } },
+            { className: 'user-roles-picker', style: { padding: 0, margin: '-30px 20px 40px', backgroundColor: '#f5f5f5', borderRadius: 3 } },
             _react2['default'].createElement(
                 'div',
-                { style: { paddingLeft: 22, marginTop: -40, display: 'flex', alignItems: 'center' } },
+                { style: { paddingLeft: 10, marginBottom: -6, display: 'flex', alignItems: 'center' } },
                 _react2['default'].createElement(
                     'div',
-                    { style: { flex: 1, color: '#bdbdbd', fontWeight: 500 } },
+                    { style: { flex: 1, color: '#a1a1a1', fontSize: 16 } },
                     ctx.getMessage('roles.picker.title'),
                     ' ',
                     loadingMessage ? ' (' + ctx.getMessage('21') + ')' : ''
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { className: 'roles-picker-menu', style: { marginTop: -12 } },
+                    { className: 'roles-picker-menu', style: { marginBottom: -12 } },
                     _react2['default'].createElement(
                         _materialUi.DropDownMenu,
-                        { onChange: this.onChange, value: -1 },
+                        { underlineStyle: { display: 'none' }, onChange: this.onChange, value: -1 },
                         addableRoles
                     )
                 )
             ),
             _react2['default'].createElement(
                 'div',
-                { className: 'roles-list', style: { margin: '0 16px' } },
+                { className: 'roles-list', style: { margin: '0 8px', paddingBottom: 1 } },
                 groups.map(function (g) {
                     return _react2['default'].createElement(
                         'div',
