@@ -119,11 +119,11 @@ class DataSourcesBoard extends React.Component {
         }
         let index, sync, object;
         startedServices.map(service => {
-            if (service.Name === 'pydio.grpc.data.sync.' + dataSource.Name){
+            if (service.Name === 'pydio.grpc.data.sync.' + dataSource.Name && service.Status === 'STARTED'){
                 sync = true;
-            } else if (service.Name === 'pydio.grpc.data.index.' + dataSource.Name){
+            } else if (service.Name === 'pydio.grpc.data.index.' + dataSource.Name && service.Status === 'STARTED'){
                 index = true;
-            } else if (service.Name === 'pydio.grpc.data.objects.' + dataSource.ObjectsServiceName){
+            } else if (service.Name === 'pydio.grpc.data.objects.' + dataSource.ObjectsServiceName && service.Status === 'STARTED'){
                 object = true;
             }
         });
