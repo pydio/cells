@@ -243,7 +243,6 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 // to get a valid token from a given user/pass credentials
 func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName string, password string) (context.Context, claim.Claims, error) {
 
-	var claims *claim.Claims
 	var token *oauth2.Token
 	var idToken IDToken
 	var err error
@@ -263,9 +262,10 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 	}
 
 	if err != nil {
-		return ctx, *claims, err
+		return ctx, claim.Claims{}, err
 	}
 
+	claims := &claim.Claims{}
 	if err := j.loadClaims(ctx, idToken, claims); err != nil {
 		return ctx, *claims, err
 	}
