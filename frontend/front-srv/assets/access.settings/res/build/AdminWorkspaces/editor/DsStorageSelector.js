@@ -59,15 +59,15 @@ var DsStorageType = (function (_React$Component) {
                     transition: _pydioUtilDom2['default'].getBeziersTransition()
                 },
                 image: {
-                    width: 36,
-                    height: 36,
+                    width: 30,
+                    height: 30,
                     opacity: .3,
                     transition: _pydioUtilDom2['default'].getBeziersTransition()
                 },
                 label: {
                     margin: 5,
                     marginTop: 8,
-                    textTransform: 'uppercase',
+                    /*textTransform: 'uppercase',*/
                     fontSize: 11,
                     fontWeight: 500,
                     color: 'rgba(0,0,0,.3)',
@@ -77,9 +77,9 @@ var DsStorageType = (function (_React$Component) {
             };
             if (selected) {
                 styles.cont.borderBottom = '2px solid #0e4d6d';
-                styles.cont.backgroundColor = '#fff';
+                //styles.cont.backgroundColor = '#fff';
                 styles.image.opacity = 1;
-                styles.label.color = 'rgba(0,0,0,.77)';
+                styles.label.color = '#0e4d6d';
             }
 
             return _react2['default'].createElement(
@@ -131,7 +131,8 @@ var DsStorageSelector = (function (_React$Component2) {
 
             var style = {
                 display: 'flex',
-                padding: '0 1px'
+                padding: '0 1px',
+                backgroundColor: '#ECEFF1'
             };
             return _react2['default'].createElement(
                 'div',

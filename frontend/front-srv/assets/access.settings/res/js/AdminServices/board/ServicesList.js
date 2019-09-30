@@ -187,7 +187,7 @@ export default React.createClass({
         if (!details){
             let tableData = [];
             const tableColumns = [
-                {name:'Status', label: '', style:{width:56, paddingLeft:12, paddingRight:12}, headerStyle:{width:56}, renderCell: (service) =>{
+                {name:'Status', label: '', style:{width:56, paddingLeft:12, paddingRight:12, textOverflow:'inherit'}, headerStyle:{width:56}, renderCell: (service) =>{
                     let iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
                     if( service.Status !== 'STARTED' && (service.Name === "consul" || service.Name === "pydio.rest.install" || service.Name === "nats") ){
                         iconColor = '#9E9E9E';

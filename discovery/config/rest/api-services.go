@@ -22,6 +22,8 @@ package rest
 
 import (
 	"context"
+	"fmt"
+	"net"
 	"path"
 	"strings"
 
@@ -306,6 +308,10 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 		RunningPeers: []*ctl.Peer{},
 	}
 	for _, node := range srv.RunningNodes() {
+		// Double check that node is really running
+		if _, err := net.Dial("tcp", fmt.Sprintf("%s:%d", node.Address, node.Port)); err != nil {
+			continue
+		}
 		p := int32(node.Port)
 		a := node.Address
 		if configAddress != "" {
@@ -318,6 +324,9 @@ func (h *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 			Address:  a,
 			Metadata: node.Metadata,
 		})
+	}
+	if len(protoSrv.RunningPeers) == 0 {
+		protoSrv.Status = ctl.ServiceStatus_STOPPED
 	}
 	return protoSrv
 }

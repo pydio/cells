@@ -73,3 +73,7 @@ ds: dev start
 clean:
 	rm -f cells cells-*
 	${GOPATH}/bin/packr clean
+
+vdrminio:
+	${GOPATH}/bin/govendor update github.com/pydio/minio-srv
+	rm -rf vendor/github.com/pydio/minio-srv/vendor/golang.org/x/net/trace

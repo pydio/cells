@@ -3818,6 +3818,12 @@
 			"revisionTime": "2018-04-10T16:16:42Z"
 		},
 		{
+			"checksumSHA1": "yd5t2POcO9mlvm5scxyP7nf+Wgg=",
+			"path": "github.com/pydio/melody",
+			"revision": "4271c6513fb6ce53f13f99b5c419758c82313e9c",
+			"revisionTime": "2019-09-28T13:35:20Z"
+		},
+		{
 			"checksumSHA1": "cF572fAv+3P9DFqrl9hU9D9m+DQ=",
 			"path": "github.com/pydio/minio-go",
 			"revision": "41cbe90c6ca928f2142e907f12955c35a4ffeee2",
@@ -5310,12 +5316,6 @@
 			"path": "gopkg.in/natefinch/lumberjack.v2",
 			"revision": "a96e63847dc3c67d17befa69c303767e2f84e54f",
 			"revisionTime": "2017-05-31T16:03:50Z"
-		},
-		{
-			"checksumSHA1": "imPi2JDKAJPo4w4tiJWviYRKXOg=",
-			"path": "gopkg.in/olahol/melody.v1",
-			"revision": "d521390733761fe1db13de575c253afd5c743085",
-			"revisionTime": "2017-05-18T10:55:55Z"
 		},
 		{
 			"checksumSHA1": "WrnWl9sC9qr8Ny0wkfKfnuwIxDM=",

@@ -100,7 +100,7 @@ class WsEditor extends React.Component {
                 marginBottom: 0,
             },
             legend: {color: '#9E9E9E', paddingTop: 10},
-            section: {padding: '0 20px 20px'},
+            section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white'},
             toggleDiv:{height: 50, display:'flex', alignItems:'flex-end'}
         };
 
@@ -149,7 +149,7 @@ class WsEditor extends React.Component {
                 className="workspace-editor"
                 contentFill={false}
             >
-                <div style={styles.section}>
+                <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('ws.30')}</div>
                     <div style={styles.legend}>{m('ws.editor.options.legend')}</div>
 
@@ -167,9 +167,8 @@ class WsEditor extends React.Component {
                     <TextField fullWidth={true} floatingLabelFixed={true}
                                floatingLabelText={m("ws.editor.description")}
                                value={workspace.Description} onChange={(e,v)=>{workspace.Description = v}}/>
-                </div>
-                <Divider/>
-                <div style={styles.section}>
+                </Paper>
+                <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('ws.editor.data.title')}</div>
                     <div style={styles.legend}>{m('ws.editor.data.legend')}</div>
                     {completers}
@@ -184,16 +183,15 @@ class WsEditor extends React.Component {
                         <MenuItem primaryText={m('ws.editor.default_rights.readwrite')} value={"rw"}/>
                         <MenuItem primaryText={m('ws.editor.default_rights.write')} value={"w"}/>
                     </SelectField>
-                </div>
-                <Divider/>
-                <div style={styles.section}>
+                </Paper>
+                <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('ws.editor.other')}</div>
-                    <div style={styles.toggleDiv}><Toggle label={m('ws.editor.other.sync')} toggled={workspace.Attributes['ALLOW_SYNC']} onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}} /></div>
+                    <div style={styles.toggleDiv}><Toggle label={m('ws.editor.other.sync')} labelPosition={"right"} toggled={workspace.Attributes['ALLOW_SYNC']} onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}} /></div>
                     <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('ws.editor.other.layout')} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
                         <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
                         <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
                     </SelectField>
-                </div>
+                </Paper>
             </PaperEditorLayout>
         );
 

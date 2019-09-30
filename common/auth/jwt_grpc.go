@@ -57,7 +57,7 @@ func (p *grpcprovider) GetType() ProviderType {
 
 func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
 
-	cli := auth.NewAuthTokenVerifierService(c.service, defaults.NewClient())
+	cli := auth.NewAuthTokenVerifierClient(c.service, defaults.NewClient())
 
 	resp, err := cli.Verify(ctx, &auth.VerifyTokenRequest{
 		Token: rawIDToken,

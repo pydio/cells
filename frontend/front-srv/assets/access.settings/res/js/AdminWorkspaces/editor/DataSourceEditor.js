@@ -1,7 +1,7 @@
 import Pydio from 'pydio'
 import React from 'react'
 import DataSource from '../model/DataSource'
-import {Dialog, Divider, Subheader, TextField, SelectField, Toggle, FlatButton, RaisedButton, MenuItem} from 'material-ui'
+import {Dialog, Divider, Subheader, TextField, SelectField, Toggle, FlatButton, RaisedButton, MenuItem, Paper} from 'material-ui'
 import DataSourceLocalSelector from './DataSourceLocalSelector'
 import DsStorageSelector from './DsStorageSelector'
 const {PaperEditorLayout} = Pydio.requireLib('components');
@@ -193,8 +193,8 @@ class DataSourceEditor extends React.Component{
                 marginBottom: 0,
             },
             legend: {},
-            section: {padding: '0 20px 20px'},
-            storageSection: {border: '1px solid #e0e0e0', padding: 20, marginTop: -1, borderRadius: 2},
+            section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white'},
+            storageSection: {padding: 20, marginTop: -1},
             toggleDiv:{height: 50, display:'flex', alignItems:'flex-end'}
         };
 
@@ -245,14 +245,14 @@ class DataSourceEditor extends React.Component{
                         </div>
                     }
                 </Dialog>
-                <div style={styles.section}>
+                <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('options')}</div>
                     <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('options.id') + ' *'} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}}/>
                     {!create &&
                         <div style={styles.toggleDiv}><Toggle labelPosition={"right"} label={m('options.enabled')} toggled={!model.Disabled} onToggle={(e,v) =>{model.Disabled = !v}} /></div>
                     }
-                </div>
-                <div style={styles.section}>
+                </Paper>
+                <Paper zDepth={1} style={{...styles.section, padding: 0}}>
                     <DsStorageSelector disabled={!create} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}} values={storageData}/>
                     {model.StorageType === 'LOCAL' &&
                     <div style={styles.storageSection}>
@@ -288,9 +288,8 @@ class DataSourceEditor extends React.Component{
                         <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
                     </div>
                     }
-                </div>
-                <Divider/>
-                <div style={styles.section}>
+                </Paper>
+                <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('datamanagement')}</div>
                     <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('versioning')} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
                         <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
@@ -309,7 +308,7 @@ class DataSourceEditor extends React.Component{
                             })}
                         </SelectField>
                     }
-                </div>
+                </Paper>
 
             </PydioComponents.PaperEditorLayout>
         );

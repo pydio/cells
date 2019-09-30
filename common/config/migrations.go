@@ -74,11 +74,18 @@ func setDefaultConfig(config *Config) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	var syncRedirects = []string{
+		"http://localhost:3000/servers/callback", // SYNC UX DEBUG PORT
+	}
+	// Allow a range of 30 ports for cells-sync [3636::3666]
+	for i := 0; i <= 30; i++ {
+		syncRedirects = append(syncRedirects, fmt.Sprintf("http://localhost:%d/servers/callback", 3636+i))
+	}
 	oAuthStaticConfig := map[string]interface{}{
 		"client_id":      "cells-sync",
 		"client_name":    "cells-sync",
 		"grant_types":    []string{"authorization_code", "refresh_token"},
-		"redirect_uris":  []string{"http://localhost:3636/servers/callback", "http://localhost:3000/servers/callback"},
+		"redirect_uris":  syncRedirects,
 		"response_types": []string{"code", "token", "id_token"},
 		"scope":          "openid email profile pydio offline",
 	}
