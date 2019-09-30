@@ -22,17 +22,9 @@ package registry
 
 import (
 	"fmt"
-	"strings"
-	"sync"
 	"time"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
-)
-
-var (
-	runningOnce  = &sync.Once{}
-	runningMutex = &sync.Mutex{}
 )
 
 // ListRunningServices returns a list of services that are registered with the main registry
@@ -47,11 +39,7 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 			if s, ok := c.register[rs.Name]; ok {
 				services = append(services, s)
 			} else {
-				mock := &mockService{name: rs.Name, running: true}
-				if strings.HasPrefix(rs.Name, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_) {
-					mock.tags = []string{common.SERVICE_TAG_DATASOURCE}
-				}
-				services = append(services, mock)
+				services = append(services, NewMockFromMicroService(rs))
 			}
 		}
 	}

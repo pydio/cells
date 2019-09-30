@@ -42,7 +42,15 @@ func (c *pydioregistry) ListServicesWithMicroMeta(metaName string, metaValue ...
 			if service, ok := c.register[rs.Name()]; ok {
 				result = append(result, service)
 			} else {
-				result = append(result, &mockService{rs.Name(), true, rs.RunningNodes(), []string{}, false})
+				result = append(result, &mockService{
+					name:          rs.Name(),
+					version:       rs.Version(),
+					running:       true,
+					nodes:         rs.RunningNodes(),
+					tags:          []string{},
+					excluded:      false,
+					microMetadata: make(map[string]string),
+				})
 			}
 		}
 	}

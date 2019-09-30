@@ -23,17 +23,38 @@ package registry
 import (
 	"context"
 	"regexp"
+	"strings"
 
 	"github.com/micro/go-micro/registry"
 	"github.com/pydio/cells/common"
 )
 
 type mockService struct {
-	name     string
-	running  bool
-	nodes    []*registry.Node
-	tags     []string
-	excluded bool
+	name          string
+	version       string
+	running       bool
+	nodes         []*registry.Node
+	tags          []string
+	excluded      bool
+	microMetadata map[string]string
+}
+
+func NewMockFromMicroService(rs *registry.Service) *mockService {
+	m := &mockService{
+		name:          rs.Name,
+		version:       rs.Version,
+		running:       true,
+		tags:          nil,
+		excluded:      false,
+		microMetadata: rs.Metadata,
+	}
+	if m.microMetadata == nil {
+		m.microMetadata = make(map[string]string)
+	}
+	if strings.HasPrefix(rs.Name, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_) {
+		m.tags = []string{common.SERVICE_TAG_DATASOURCE}
+	}
+	return m
 }
 
 func (m *mockService) Start() {}
@@ -57,7 +78,7 @@ func (m *mockService) Address() string {
 	return ""
 }
 func (m *mockService) Version() string {
-	return ""
+	return m.version
 }
 func (m *mockService) Description() string {
 	return ""
@@ -78,19 +99,26 @@ func (m *mockService) SetRunningNodes(nodes []*registry.Node) {
 	m.nodes = nodes
 }
 func (m *mockService) RunningNodes() []*registry.Node {
-	return m.nodes
+	var nodes []*registry.Node
+	for _, p := range Default.GetPeers() {
+		for _, ms := range p.GetServices(m.Name()) {
+			nodes = append(nodes, ms.Nodes...)
+		}
+	}
+	return nodes
+
 }
 func (m *mockService) ExposedConfigs() common.XMLSerializableForm {
 	return nil
 }
 func (m *mockService) IsGeneric() bool {
-	return false
+	return !strings.HasPrefix(m.name, common.SERVICE_GRPC_NAMESPACE_) && !strings.HasPrefix(m.name, common.SERVICE_REST_NAMESPACE_)
 }
 func (m *mockService) IsGRPC() bool {
-	return false
+	return strings.HasPrefix(m.name, common.SERVICE_GRPC_NAMESPACE_)
 }
 func (m *mockService) IsREST() bool {
-	return false
+	return strings.HasPrefix(m.name, common.SERVICE_REST_NAMESPACE_)
 }
 func (m *mockService) RequiresFork() bool {
 	return false
