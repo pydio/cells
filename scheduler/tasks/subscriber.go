@@ -295,6 +295,9 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 
 func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChangeEvent) {
 
+	s.jobsLock.Lock()
+	defer s.jobsLock.Unlock()
+
 	for jobId, jobData := range s.JobsDefinitions {
 		if jobData.Inactive {
 			continue
