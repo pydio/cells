@@ -25,6 +25,8 @@ import (
 	"strings"
 	"time"
 
+	servicecontext "github.com/pydio/cells/common/service/context"
+
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -37,6 +39,10 @@ import (
 	log2 "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/scheduler/jobs"
 	"github.com/pydio/cells/scheduler/lang"
+)
+
+var (
+	bgContext = servicecontext.WithServiceColor(servicecontext.WithServiceName(context.Background(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS), servicecontext.ServiceColorGrpc)
 )
 
 // JobsHandler implements the JobService API
@@ -113,7 +119,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 			JobRemoved: request.JobID,
 		}))
 		go func() {
-			j.DeleteLogsFor(ctx, request.JobID)
+			j.DeleteLogsFor(bgContext, request.JobID)
 		}()
 		response.Success = true
 
@@ -165,7 +171,7 @@ func (j *JobsHandler) DeleteJob(ctx context.Context, request *proto.DeleteJobReq
 					JobRemoved: id,
 				}))
 				go func() {
-					j.DeleteLogsFor(ctx, id)
+					j.DeleteLogsFor(bgContext, id)
 				}()
 
 			}
@@ -371,7 +377,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 			}
 			response.Deleted = append(response.Deleted, tasks...)
 			go func() {
-				j.DeleteLogsFor(ctx, jId, tasks...)
+				j.DeleteLogsFor(bgContext, jId, tasks...)
 			}()
 		}
 		return nil
@@ -381,7 +387,7 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 		if e := j.store.DeleteTasks(request.JobId, request.TaskID); e == nil {
 			response.Deleted = append(response.Deleted, request.TaskID...)
 			go func() {
-				j.DeleteLogsFor(ctx, request.JobId, request.TaskID...)
+				j.DeleteLogsFor(bgContext, request.JobId, request.TaskID...)
 			}()
 			return nil
 		} else {
