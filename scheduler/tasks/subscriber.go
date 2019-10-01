@@ -260,8 +260,8 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 		return nil
 	}
 
-	s.jobsLock.Lock()
-	defer s.jobsLock.Unlock()
+//	s.jobsLock.Lock()
+//	defer s.jobsLock.Unlock()
 
 	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
