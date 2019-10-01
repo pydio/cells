@@ -108,14 +108,19 @@ func init() {
 							return err
 						}
 
+						if dsnConfig.Params == nil {
+							dsnConfig.Params = make(map[string]string)
+						}
 						mariaMatched, err := regexp.MatchString("MariaDB", version)
 						if err != nil {
 							return err
 						}
-						if dsnConfig.Params == nil {
-							dsnConfig.Params = make(map[string]string)
+						mysqlMatched, err := regexp.MatchString("^[0-4]\\.[0-9]+\\.[0-9]+$|^5\\.[0-6]\\.[0-9]+$|^5\\.7\\.[0-1][0-9]$|^5\\.7\\.[0-9]$", version)
+						if err != nil {
+							return err
 						}
-						if mariaMatched {
+
+						if mariaMatched || mysqlMatched {
 							dsnConfig.Params["tx_isolation"] = "SERIALIZABLE"
 						} else {
 							dsnConfig.Params["transaction_isolation"] = "SERIALIZABLE"
