@@ -22,6 +22,7 @@ package merger
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"go.uber.org/zap/zapcore"
@@ -47,6 +48,7 @@ type AbstractPatch struct {
 	doneChan   chan interface{}
 	cmd        *model.Command
 	closing    bool
+	closeLock  *sync.Mutex
 	patchError error
 }
 
@@ -70,6 +72,9 @@ func (b *AbstractPatch) SetupChannels(status chan model.Status, done chan interf
 	b.statusChan = status
 	b.doneChan = done
 	b.cmd = cmd
+	if b.closeLock == nil {
+		b.closeLock = &sync.Mutex{}
+	}
 	// This may be a second processing
 	b.closing = false
 }
@@ -86,7 +91,10 @@ func (b *AbstractPatch) Status(s model.Status) {
 	}
 	if b.statusChan != nil {
 		go func() {
-			if !b.closing {
+			b.closeLock.Lock()
+			c := b.closing
+			b.closeLock.Unlock()
+			if !c {
 				b.statusChan <- s
 			}
 		}()
@@ -95,8 +103,10 @@ func (b *AbstractPatch) Status(s model.Status) {
 
 func (b *AbstractPatch) Done(info interface{}) {
 	b.mTime = time.Now()
-	b.closing = true
 	if b.doneChan != nil {
+		b.closeLock.Lock()
+		b.closing = true
+		b.closeLock.Unlock()
 		b.doneChan <- info
 	}
 }
