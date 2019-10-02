@@ -115,7 +115,6 @@ func getTLSServerConfig(t string) {
 			return
 		}
 		if cert, e := tls.X509KeyPair(data.Cert, data.Key); e == nil {
-			fmt.Println("[TLS] Activating TLS from provided tls file storage")
 			tlsServerConfig[t] = &tls.Config{Certificates: []tls.Certificate{cert}}
 		} else {
 			fmt.Println("[TLS] Cannot load certificates loaded from TLS File Storage")
