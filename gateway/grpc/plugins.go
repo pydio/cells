@@ -24,6 +24,7 @@ func init() {
 		service.Name(common.SERVICE_GATEWAY_GRPC),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+		service.Dependency(common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_GATEWAY_PROXY, []string{}),
 		service.Description("External gRPC Access"),
 		service.WithMicro(func(m micro.Service) error {
 			m.Init(micro.WrapHandler(JWTWrapper(m.Options().Context)))

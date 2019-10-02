@@ -3,10 +3,13 @@ package config
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"sync"
 
+	"github.com/mholt/caddy/caddytls"
 	"github.com/spf13/cobra"
 )
 
@@ -72,28 +75,53 @@ func getTLSServerConfig(t string) {
 	selfSigned := Get("cert", t, "self").Bool(false)
 	certFile := Get("cert", t, "certFile").String("")
 	keyFile := Get("cert", t, "keyFile").String("")
+	caUrl := Get("cert", t, "caUrl").String("")
 
 	if !ssl {
 		return
 	}
 
-	if certFile == "" || keyFile == "" {
-		if selfSigned {
-			tlsServerConfig[t] = &tls.Config{
-				InsecureSkipVerify: true,
-			}
+	if certFile != "" && keyFile != "" {
+		// Directly provided in conf
+		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			log.Fatal("Cannot load client key pair ", err)
 		}
-		return
+
+		tlsServerConfig[t] = &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		}
+	} else if selfSigned {
+		// Self signed
+		tlsServerConfig[t] = &tls.Config{
+			InsecureSkipVerify: true,
+		}
+	} else if caUrl != "" {
+		// Auto-cert (let's encrypt)
+		u, _ := url.Parse(Get("defaults", "url").String(""))
+		p, e := url.Parse(caUrl)
+		if e != nil {
+			fmt.Println("[TLS] Cannot parse caUrl")
+			return
+		}
+		store, e := caddytls.NewFileStorage(p)
+		if e != nil {
+			fmt.Println("[TLS] Cannot load TLS File Storage")
+			return
+		}
+		data, err := store.LoadSite(u.Hostname())
+		if err != nil {
+			fmt.Printf("[TLS] Cannot load site %s from TLS File Storage\n", u.Hostname())
+			return
+		}
+		if cert, e := tls.X509KeyPair(data.Cert, data.Key); e == nil {
+			fmt.Println("[TLS] Activating TLS from provided tls file storage")
+			tlsServerConfig[t] = &tls.Config{Certificates: []tls.Certificate{cert}}
+		} else {
+			fmt.Println("[TLS] Cannot load certificates loaded from TLS File Storage")
+		}
 	}
 
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-	if err != nil {
-		log.Fatal("Cannot load client key pair ", err)
-	}
-
-	tlsServerConfig[t] = &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}
 }
 
 func getTLSClientConfig(t string) {
