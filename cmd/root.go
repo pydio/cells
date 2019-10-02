@@ -177,6 +177,8 @@ func init() {
 	flags.String("transport", "grpc", "Transport protocol for RPC")
 	flags.String("transport_address", ":4222", "Transport protocol port")
 
+	flags.String("grpc_external", "", "External port exposed for gRPC communication")
+
 	flags.String("log", "info", "Sets the log level mode")
 	flags.String("grpc_cert", "", "Certificates used for communication via grpc")
 	flags.String("grpc_key", "", "Certificates used for communication via grpc")
@@ -198,6 +200,7 @@ func init() {
 	viper.BindPFlag("logs_level", flags.Lookup("log"))
 	viper.BindPFlag("grpc_cert", flags.Lookup("grpc_cert"))
 	viper.BindPFlag("grpc_key", flags.Lookup("grpc_key"))
+	viper.BindPFlag("grpc_external", flags.Lookup("grpc_external"))
 
 	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
 	viper.BindPFlag("enable_pprof", flags.Lookup("enable_pprof"))

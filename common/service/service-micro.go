@@ -21,12 +21,16 @@
 package service
 
 import (
+	"strings"
 	"time"
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
+	"github.com/micro/go-micro/server"
+	"github.com/micro/go-plugins/server/grpc"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
@@ -44,10 +48,19 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			name := s.Name()
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
-
+			var srvOpts []server.Option
+			if o.Port != "" {
+				srvOpts = append(srvOpts, server.Address(":"+o.Port))
+			}
+			// pydio.gateway.grpc specific stuff
+			tls := config.GetTLSServerConfig("proxy")
+			if tls != nil && strings.Contains(o.Name, common.SERVICE_GATEWAY_NAMESPACE_) {
+				srvOpts = append(srvOpts, grpc.AuthTLS(tls))
+			}
+			srv := defaults.NewServer(srvOpts...)
 			s.Options().Micro.Init(
 				micro.Client(defaults.NewClient()),
-				micro.Server(defaults.NewServer()),
+				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(time.Second*30),
 				micro.RegisterInterval(time.Second*10),

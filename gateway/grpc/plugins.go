@@ -3,6 +3,8 @@ package grpc
 import (
 	"context"
 
+	"github.com/spf13/viper"
+
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
@@ -17,27 +19,29 @@ import (
 
 func init() {
 
+	// Build options - optionally force port
+	opts := []service.ServiceOption{
+		service.Name(common.SERVICE_GATEWAY_GRPC),
+		service.Tag(common.SERVICE_TAG_GATEWAY),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+		service.Description("External gRPC Access"),
+		service.WithMicro(func(m micro.Service) error {
+			m.Init(micro.WrapHandler(JWTWrapper(m.Options().Context)))
+			h := &TreeHandler{}
+			srv := m.Options().Server
+			tree.RegisterNodeProviderHandler(srv, h)
+			tree.RegisterNodeReceiverHandler(srv, h)
+			tree.RegisterNodeChangesStreamerHandler(srv, h)
+			tree.RegisterNodeProviderStreamerHandler(srv, h)
+			tree.RegisterNodeReceiverStreamHandler(srv, h)
+			return nil
+		}),
+	}
+	if port := viper.Get("grpc_external"); port != nil {
+		opts = append(opts, service.Port(port.(string)))
+	}
 	plugins.Register(func() {
-		service.NewService(
-			service.Name(common.SERVICE_GATEWAY_GRPC),
-			service.Tag(common.SERVICE_TAG_GATEWAY),
-			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
-			service.Description("External GRPC Access"),
-			service.WithMicro(func(m micro.Service) error {
-
-				m.Init(micro.WrapHandler(JWTWrapper(m.Options().Context)))
-
-				h := &TreeHandler{}
-				srv := m.Options().Server
-				tree.RegisterNodeProviderHandler(srv, h)
-				tree.RegisterNodeReceiverHandler(srv, h)
-				tree.RegisterNodeChangesStreamerHandler(srv, h)
-				tree.RegisterNodeProviderStreamerHandler(srv, h)
-				tree.RegisterNodeReceiverStreamHandler(srv, h)
-
-				return nil
-			}),
-		)
+		service.NewService(opts...)
 	})
 
 }
