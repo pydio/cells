@@ -21,7 +21,6 @@
 import browserHistory from 'react-router/lib/browserHistory';
 
 const MainRouterWrapper = (pydio) => {
-
     class MainRouter extends React.PureComponent {
 
         constructor(props) {
@@ -31,6 +30,11 @@ const MainRouterWrapper = (pydio) => {
 
             this._ctxObs = (e) => {
                 this.setState(this.getState())
+            }
+
+            if (!pydio.user) {
+                localStorage.setItem("loginOrigin", props.location.pathname)
+                localStorage.removeItem("oauthOrigin")
             }
         }
 
@@ -54,6 +58,8 @@ const MainRouterWrapper = (pydio) => {
         componentDidMount() {
             pydio.getContextHolder().observe("context_changed", this._ctxObs);
             pydio.getContextHolder().observe("repository_list_refreshed", this._ctxObs);
+
+            
         }
 
         componentWillUnmount() {
@@ -62,7 +68,6 @@ const MainRouterWrapper = (pydio) => {
         }
 
         componentDidUpdate(prevProps, prevState) {
-
             if (prevState !== this.state) {
                 const uri = this.getURI(this.state)
 

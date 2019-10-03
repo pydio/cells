@@ -32,6 +32,9 @@ export const OAuthLoginRouter = (pydio) => {
             const parsed = qs.parse(location.search);
 
             this.loginChallenge = parsed.login_challenge
+
+            localStorage.setItem("oauthOrigin", document.referrer)
+            localStorage.removeItem("loginOrigin")
         }
 
         authorize() {

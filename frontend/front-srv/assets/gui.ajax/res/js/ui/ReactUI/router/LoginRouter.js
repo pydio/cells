@@ -33,6 +33,9 @@ const LoginRouterWrapper = (pydio) => {
 
         componentDidMount() {
             pydio.observe('user_logged', (user) => this.setState(user))
+
+            localStorage.removeItem("loginOrigin")
+            localStorage.removeItem("oauthOrigin")
         }
 
         render() {
