@@ -35,8 +35,19 @@ var LoginCallbackRouterWrapper = function LoginCallbackRouterWrapper(pydio) {
     var LoginCallbackRouter = function LoginCallbackRouter(props) {
         var params = queryString.parse(props.location.search);
 
+        var loginOrigin = localStorage.getItem("loginOrigin");
+        var oauthOrigin = localStorage.getItem("oauthOrigin");
+
         PydioApi.getRestClient().jwtFromAuthorizationCode(params.code).then(function () {
-            return _reactRouterLibBrowserHistory2['default'].goBack();
+            if (loginOrigin !== "") {
+                _reactRouterLibBrowserHistory2['default'].push(loginOrigin);
+            } else if (oauthOrigin !== "") {
+                window.location.href = oauthOrigin;
+            } else {
+                _reactRouterLibBrowserHistory2['default'].push("/");
+            }
+            localStorage.removeItem("loginOrigin");
+            localStorage.removeItem("oauthOrigin");
         })['catch'](function (e) {
             return _reactRouterLibBrowserHistory2['default'].push("/login");
         });

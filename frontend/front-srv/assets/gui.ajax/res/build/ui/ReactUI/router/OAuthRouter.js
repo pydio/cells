@@ -48,6 +48,9 @@ var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
             var parsed = _queryString2['default'].parse(location.search);
 
             this.loginChallenge = parsed.login_challenge;
+
+            localStorage.setItem("oauthOrigin", document.referrer);
+            localStorage.removeItem("loginOrigin");
         }
 
         _class.prototype.authorize = function authorize() {
