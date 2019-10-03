@@ -257,6 +257,12 @@ class UpgraderWizard extends React.Component{
                                 </div>
                             </div>
                         }
+                        {!versionLoading && !versionAvailable && (!versionsNoMatch || versionsNoMatch.length === 0) &&
+                            <div>
+                                <h5>3. {m('version.nomatch')}</h5>
+                                <div>{m('version.nomatch.legend1')}</div>
+                            </div>
+                        }
                     </div>
                 );
                 actions = [

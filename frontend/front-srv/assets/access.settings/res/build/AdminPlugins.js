@@ -2833,6 +2833,21 @@ var UpgraderWizard = (function (_React$Component) {
                                     })
                                 )
                             )
+                        ),
+                        !versionLoading && !versionAvailable && (!versionsNoMatch || versionsNoMatch.length === 0) && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(
+                                'h5',
+                                null,
+                                '3. ',
+                                m('version.nomatch')
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                null,
+                                m('version.nomatch.legend1')
+                            )
                         )
                     );
                     actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
