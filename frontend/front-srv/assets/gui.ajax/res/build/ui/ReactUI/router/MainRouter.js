@@ -48,18 +48,16 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
             this._ctxObs = function (e) {
                 _this.setState(_this.getState());
             };
-
-            if (!pydio.user) {
-                localStorage.setItem("loginOrigin", props.location.pathname);
-                localStorage.removeItem("oauthOrigin");
-            }
         }
 
         MainRouter.prototype.getState = function getState() {
+            var list = pydio.user ? pydio.user.getRepositoriesList() : new Map();
+            var active = pydio.user ? pydio.user.getActiveRepository() : "";
+            var path = pydio.user ? pydio.getContextNode().getPath() : "";
+            var uri = this.getURI({ list: list, active: active, path: path });
+
             return {
-                list: pydio.user ? pydio.user.getRepositoriesList() : new Map(),
-                active: pydio.user ? pydio.user.getActiveRepository() : "",
-                path: pydio.user ? pydio.getContextNode().getPath() : ""
+                uri: uri
             };
         };
 
@@ -86,17 +84,13 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
             pydio.getContextHolder().stopObserving("repository_list_refreshed", this._ctxObs);
         };
 
-        MainRouter.prototype.componentDidUpdate = function componentDidUpdate(prevProps, prevState) {
-            if (prevState !== this.state) {
-                var uri = this.getURI(this.state);
-
-                if (uri !== "/" + this.props.location.pathname) {
-                    _reactRouterLibBrowserHistory2["default"].push(uri);
-                }
-            }
-        };
-
         MainRouter.prototype.render = function render() {
+            var uri = this.state.uri;
+
+            if (pydio.user && uri !== this.props.location.pathname) {
+                _reactRouterLibBrowserHistory2["default"].replace(uri);
+            }
+
             return React.createElement(
                 "div",
                 null,

@@ -27,24 +27,22 @@ const LoginCallbackRouterWrapper = (pydio) => {
     const LoginCallbackRouter = (props) => {
         const params = queryString.parse(props.location.search);
 
-        const loginOrigin = localStorage.getItem("loginOrigin")
-        const oauthOrigin = localStorage.getItem("oauthOrigin")
+        const redirect = () => {
+            const loginOrigin = localStorage.getItem("loginOrigin")
+
+            if (loginOrigin) {
+                localStorage.removeItem("loginOrigin")
+                browserHistory.replace(loginOrigin)
+            } else {
+                browserHistory.replace("/")
+            }
+        }
+
+        pydio.observeOnce('user_logged', () => redirect());
 
         PydioApi.getRestClient().jwtFromAuthorizationCode(params.code)
-            .then(() => {
-                if (loginOrigin !== "") {
-                    browserHistory.push(loginOrigin)
-                } else if (oauthOrigin !== "") {
-                    window.location.href = oauthOrigin
-                } else {
-                    browserHistory.push("/")
-                }
-                localStorage.removeItem("loginOrigin")
-                localStorage.removeItem("oauthOrigin")
-            })
             .catch(e => browserHistory.push("/login"))
 
-        pydio.observe("user_logged", (user) => user && browserHistory.push("/"))
 
         return <div></div>
     }

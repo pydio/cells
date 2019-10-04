@@ -31,18 +31,16 @@ const MainRouterWrapper = (pydio) => {
             this._ctxObs = (e) => {
                 this.setState(this.getState())
             }
-
-            if (!pydio.user) {
-                localStorage.setItem("loginOrigin", props.location.pathname)
-                localStorage.removeItem("oauthOrigin")
-            }
         }
 
         getState() {
+            const list =  pydio.user ? pydio.user.getRepositoriesList() : new Map()
+            const active = pydio.user ? pydio.user.getActiveRepository() : ""
+            const path = pydio.user ? pydio.getContextNode().getPath() : ""
+            const uri = this.getURI({list, active, path})
+
             return {
-                list: pydio.user ? pydio.user.getRepositoriesList() : new Map(),
-                active: pydio.user ? pydio.user.getActiveRepository() : "",
-                path: pydio.user ? pydio.getContextNode().getPath() : ""
+                uri
             }
         }
 
@@ -58,8 +56,6 @@ const MainRouterWrapper = (pydio) => {
         componentDidMount() {
             pydio.getContextHolder().observe("context_changed", this._ctxObs);
             pydio.getContextHolder().observe("repository_list_refreshed", this._ctxObs);
-
-            
         }
 
         componentWillUnmount() {
@@ -67,17 +63,13 @@ const MainRouterWrapper = (pydio) => {
             pydio.getContextHolder().stopObserving("repository_list_refreshed", this._ctxObs);
         }
 
-        componentDidUpdate(prevProps, prevState) {
-            if (prevState !== this.state) {
-                const uri = this.getURI(this.state)
-
-                if (uri !== "/" + this.props.location.pathname) {
-                    browserHistory.push(uri)
-                }
-            }
-        }
-
         render() {
+            const {uri} = this.state
+
+            if (pydio.user && uri !== this.props.location.pathname) {
+                browserHistory.replace(uri)
+            }
+
             return (
                 <div>
                     {this.props.children}
