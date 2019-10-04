@@ -48,6 +48,11 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
             this._ctxObs = function (e) {
                 _this.setState(_this.getState());
             };
+
+            if (!pydio.user) {
+                localStorage.setItem("loginOrigin", props.location.pathname);
+                localStorage.removeItem("oauthOrigin");
+            }
         }
 
         MainRouter.prototype.getState = function getState() {
@@ -82,7 +87,6 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
         };
 
         MainRouter.prototype.componentDidUpdate = function componentDidUpdate(prevProps, prevState) {
-
             if (prevState !== this.state) {
                 var uri = this.getURI(this.state);
 

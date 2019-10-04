@@ -21,6 +21,7 @@
 package service
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -55,6 +56,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			// pydio.gateway.grpc specific stuff
 			tls := config.GetTLSServerConfig("proxy")
 			if tls != nil && strings.Contains(o.Name, common.SERVICE_GATEWAY_NAMESPACE_) {
+				fmt.Println("[TLS] Activating TLS on " + o.Name)
 				srvOpts = append(srvOpts, grpc.AuthTLS(tls))
 			}
 			srv := defaults.NewServer(srvOpts...)

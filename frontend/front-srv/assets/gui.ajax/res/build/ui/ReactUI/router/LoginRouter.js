@@ -52,6 +52,9 @@ var LoginRouterWrapper = function LoginRouterWrapper(pydio) {
             pydio.observe('user_logged', function (user) {
                 return _this.setState(user);
             });
+
+            localStorage.removeItem("loginOrigin");
+            localStorage.removeItem("oauthOrigin");
         };
 
         LoginRouter.prototype.render = function render() {

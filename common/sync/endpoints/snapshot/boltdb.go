@@ -211,7 +211,8 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 			return nil
 		})
 	} else {
-		return s.db.View(func(tx *bbolt.Tx) error {
+		var nn []*tree.Node
+		er := s.db.View(func(tx *bbolt.Tx) error {
 			b := tx.Bucket(bucketName)
 			if b == nil {
 				return fmt.Errorf("cannot find root bucket")
@@ -223,36 +224,20 @@ func (s *BoltSnapshot) CreateNode(ctx context.Context, node *tree.Node, updateIf
 				for i := 0; i < len(parts); i++ {
 					pKey := strings.Join(parts[:i+1], "/")
 					if ex := b.Get([]byte(pKey)); ex == nil {
-						//b.Put([]byte(pKey), s.marshal(&tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}))
-						s.autoBatchChan <- &tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}
+						nn = append(nn, &tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"})
 					}
 				}
 			}
-			s.autoBatchChan <- node
+			nn = append(nn, node)
 			return nil
-			//return b.Put([]byte(node.Path), s.marshal(node))
 		})
-
-		/*
-			return s.db.Update(func(tx *bbolt.Tx) error {
-				b := tx.Bucket(bucketName)
-				if b == nil {
-					return fmt.Errorf("cannot find root bucket")
-				}
-				// Create parents if necessary
-				dir := strings.Trim(path.Dir(node.Path), "/")
-				if dir != "" && dir != "." {
-					parts := strings.Split(strings.Trim(path.Dir(node.Path), "/"), "/")
-					for i := 0; i < len(parts); i++ {
-						pKey := strings.Join(parts[:i+1], "/")
-						if ex := b.Get([]byte(pKey)); ex == nil {
-							b.Put([]byte(pKey), s.marshal(&tree.Node{Path: pKey, Type: tree.NodeType_COLLECTION, Etag: "-1"}))
-						}
-					}
-				}
-				return b.Put([]byte(node.Path), s.marshal(node))
-			})
-		*/
+		if er != nil {
+			return
+		}
+		for _, n := range nn {
+			s.autoBatchChan <- n
+		}
+		return nil
 	}
 }
 
