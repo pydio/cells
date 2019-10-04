@@ -92,7 +92,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	log.Logger(ctx).Info("Received Install.Post request", zap.Any("input", input))
+	log.Logger(ctx).Debug("Received Install.Post request", zap.Any("input", input))
 
 	response := &install.InstallResponse{}
 	if er := lib.Install(ctx, input.GetConfig(), lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
