@@ -74,10 +74,11 @@ func FirstRun(ctx context.Context) error {
 	if hasPersonal {
 		log.Logger(ctx).Info("Creating a Personal workspace")
 		ws := &idm.Workspace{
-			UUID:        uuid.NewUUID().String(),
-			Label:       "Personal Files",
-			Description: "User personal data",
-			Slug:        "personal-files",
+			UUID:            uuid.NewUUID().String(),
+			Label:           "Personal Files",
+			Description:     "User personal data",
+			Slug:            "personal-files",
+			Attrstillibutes: `{"ALLOW_SYNC":true}`,
 		}
 		createWs(ctx, wsClient, ws, "my-files", "my-files")
 	}

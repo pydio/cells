@@ -1393,21 +1393,32 @@ exports['default'] = _react2['default'].createClass({
 
     computeTableData: function computeTableData() {
         var data = [];
+        var pydio = this.props.pydio;
         var workspaces = this.state.workspaces;
 
         workspaces.map(function (workspace) {
-            var summary = ""; // compute root nodes list ?
+            var summary = ""; // compute root nodes list
             if (workspace.RootNodes) {
                 summary = Object.keys(workspace.RootNodes).map(function (k) {
                     return _pydioUtilLang2['default'].trimRight(workspace.RootNodes[k].Path, '/');
                 }).join(', ');
+            }
+            var syncable = false;
+            if (workspace.Attributes) {
+                try {
+                    var atts = JSON.parse(workspace.Attributes);
+                    if (atts['ALLOW_SYNC'] === true) {
+                        syncable = true;
+                    }
+                } catch (e) {}
             }
             data.push({
                 payload: workspace,
                 label: workspace.Label,
                 description: workspace.Description,
                 slug: workspace.Slug,
-                summary: summary
+                summary: summary,
+                syncable: syncable
             });
         });
         data.sort(_pydioUtilLang2['default'].arraySorter('label', false, true));
@@ -1424,7 +1435,9 @@ exports['default'] = _react2['default'].createClass({
             return pydio.MessageHash['settings.' + id];
         };
 
-        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } }];
+        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'syncable', label: m('ws.board.syncable'), style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%', textAlign: 'center' }, renderCell: function renderCell(row) {
+                return _react2['default'].createElement('span', { className: "mdi mdi-check", style: { fontSize: 18, opacity: row.syncable ? 1 : 0 } });
+            } }, { name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } }];
         var loading = this.state.loading;
 
         var data = this.computeTableData();
