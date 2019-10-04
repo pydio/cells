@@ -79,7 +79,7 @@ func (h *Handler) GetInstall(req *restful.Request, rsp *restful.Response) {
 	rsp.WriteEntity(response)
 }
 
-// PostInstall updates pydio.json configuration file after having gathered modifiaction from the admin end user.
+// PostInstall updates pydio.json configuration file after having gathered modifications from the admin end user.
 func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -92,7 +92,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	log.Logger(ctx).Debug("Received Install.Post request", zap.Any("input", input))
+	log.Logger(ctx).Info("Received Install.Post request", zap.Any("input", input))
 
 	response := &install.InstallResponse{}
 	if er := lib.Install(ctx, input.GetConfig(), lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
