@@ -130,6 +130,16 @@ func (s *Sync) setupWatcher(ctx context.Context, source model.PathSyncSource, ta
 				}
 				if err != nil {
 					log.Logger(ctx).Error("Received error from watcher", zap.Error(err))
+					if err.Error() == "API Not Supported" {
+						// Special case for S3 Client => Send Disconnected Status if API does not support events watch
+						log.Logger(ctx).Error("Endpoint does not support watching with this config", zap.Error(err))
+						s.watchConn <- &model.EndpointStatus{
+							WatchConnection: model.WatchDisconnected,
+							EndpointInfo:    source.GetEndpointInfo(),
+						}
+						close(input)
+						return
+					}
 				}
 			case connInfo := <-watchObject.ConnectionInfo:
 				if s.watchConn != nil {
