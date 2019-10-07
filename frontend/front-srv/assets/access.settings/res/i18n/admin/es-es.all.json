@@ -1388,6 +1388,9 @@
   "ws.board.summary": {
     "other": "Raíces de los workspaces"
   },
+  "ws.board.syncable": {
+    "other": "Sync"
+  },
   "ws.complete.datasources": {
     "other": "DataSources y directorios"
   },
@@ -1455,7 +1458,7 @@
     "other": "Diseño de Transferencia Fácil (sólo en versión para Empresas)"
   },
   "ws.editor.other.sync": {
-    "other": "Permitir sincronización de escritorio (aún experimental)"
+    "other": "Permitir sincronización de escritorio"
   },
   "ws.editor.path.folder": {
     "other": "Ruta de la Carpeta"

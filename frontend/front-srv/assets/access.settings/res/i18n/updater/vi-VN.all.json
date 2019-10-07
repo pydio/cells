@@ -1,24 +1,24 @@
 {
   "title": {
-    "other": "Aggiornamenti software"
+    "other": "Software Updates"
   },
   "legend": {
-    "other": "Aggiornamento in-app dei binari"
+    "other": "In-app binary updates"
   },
   "current.version": {
-    "other": "Versione attuale"
+    "other": "Current Version"
   },
   "confirm.update": {
-    "other": "Sei sicuro di voler eseguire l'aggiornamento?"
+    "other": "Are you sure that you want to perform the update?"
   },
   "packages.available": {
-    "other": "I seguenti pacchetti sono disponibili per l'aggiornamento"
+    "other": "Following packages are available for update"
   },
   "checking": {
-    "other": "Verifica degli aggiornamenti disponibili..."
+    "other": "Checking for available updates..."
   },
   "noupdates": {
-    "other": "Non c'è nessun aggiornamento necessario: clicca per eseguire una nuova verifica."
+    "other": "No necessary update detected: click to perform a new check."
   },
   "alert.noselect": {
     "other": "Please select at least one package!"
@@ -30,10 +30,10 @@
     "other": "Revision"
   },
   "check.legend": {
-    "other": "Clicca per verificare la presenza di un nuovo aggiornamento"
+    "other": "Click to check for new update"
   },
   "check.button": {
-    "other": "Controlla"
+    "other": "Check now"
   },
   "start.update": {
     "other": "Start Upgrade"
