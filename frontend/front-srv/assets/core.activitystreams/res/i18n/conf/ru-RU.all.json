@@ -1,0 +1,35 @@
+{
+  "Activate desktop notifications": {
+    "other": "Activate desktop notifications"
+  },
+  "Choose the plugin": {
+    "other": "Choose the plugin"
+  },
+  "Desktop Notifications": {
+    "other": "Desktop notifications"
+  },
+  "Display Workspaces Activity": {
+    "other": "Display Workspaces Activity"
+  },
+  "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration.": {
+    "other": "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration."
+  },
+  "Display workspaces activity to the users in the right-hand information panel": {
+    "other": "Display workspaces activity to the users in the right-hand information panel"
+  },
+  "Feed Instance": {
+    "other": "Feed Instance"
+  },
+  "Handle users watches and notifications": {
+    "other": "Handle users watches and notifications"
+  },
+  "Instance Params": {
+    "other": "Instance Params"
+  },
+  "Notification Center": {
+    "other": "Notification Center"
+  },
+  "User events and alerts": {
+    "other": "User events and alerts"
+  }
+}
