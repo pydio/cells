@@ -1,0 +1,74 @@
+{
+  "Additional info": {
+    "other": "Additional info"
+  },
+  "Color labels": {
+    "other": "Color labels"
+  },
+  "Column visibility": {
+    "other": "Column visibility"
+  },
+  "Created by...": {
+    "other": "Created by..."
+  },
+  "Depending on the field type. Currently used for selection only": {
+    "other": "Depending on the field type. Currently used for selection only"
+  },
+  "Field ID": {
+    "other": "Field ID"
+  },
+  "Field Type": {
+    "other": "Field Type"
+  },
+  "Hidden": {
+    "other": "Hidden"
+  },
+  "Hidden file used inside folders to save meta data": {
+    "other": "Hidden file used inside folders to save meta data"
+  },
+  "Id of fiels, use standard characters here.": {
+    "other": "Id of fields, use standard characters here."
+  },
+  "Label": {
+    "other": "Label"
+  },
+  "Label of the field, human friendly": {
+    "other": "Label of the field, human friendly"
+  },
+  "Last updated by...": {
+    "other": "Last updated by..."
+  },
+  "Long text": {
+    "other": "Long text"
+  },
+  "Meta File": {
+    "other": "Meta File"
+  },
+  "Selection (set choices in Additional Info)": {
+    "other": "Selection (set choices in Additional Info)"
+  },
+  "Set default visibility.": {
+    "other": "Set default visibility."
+  },
+  "Short text": {
+    "other": "Short text"
+  },
+  "Simple metadata implementation stored in a hidden file.": {
+    "other": "Simple metadata implementation stored in a hidden file."
+  },
+  "Stars Rating": {
+    "other": "Stars Rating"
+  },
+  "Tags (extensible sets of values)": {
+    "other": "Tags (extensible sets of values)"
+  },
+  "Text Metadata": {
+    "other": "Text Metadata"
+  },
+  "Type of field": {
+    "other": "Type of field"
+  },
+  "Visible": {
+    "other": "Visible"
+  }
+}
