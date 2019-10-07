@@ -3,43 +3,51 @@ files:
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
-        fr: fr
         de: de
-        pt-BR: pt-br
         es-ES: es-es
+        fr: fr
         it: it
         ja: ja
         lv: lv
+        pt-BR: pt-br
+        ru-RU: ru
+        vi-VN: vi-vn
   - source: '*/i18n/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
-        fr: fr
         de: de
-        pt-BR: pt-br
         es-ES: es-es
+        fr: fr
         it: it
         ja: ja
         lv: lv
+        pt-BR: pt-br
+        ru-RU: ru
+        vi-VN: vi-vn
   - source: '*/i18n/*/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
-        fr: fr
         de: de
-        pt-BR: pt-br
         es-ES: es-es
+        fr: fr
         it: it
         ja: ja
         lv: lv
+        pt-BR: pt-br
+        ru-RU: ru
+        vi-VN: vi-vn
   - source: '*/i18n/*/conf/en-us.all.json'
     translation: /%original_path%/%locale%.all.json
     languages_mapping:
       locale:
-        fr: fr
         de: de
-        pt-BR: pt-br
         es-ES: es-es
+        fr: fr
         it: it
         ja: ja
         lv: lv
+        pt-BR: pt-br
+        ru-RU: ru
+        vi-VN: vi-vn
