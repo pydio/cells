@@ -1,6 +1,6 @@
 {
   "Address used for notifications": {
-    "other": "Address used for notifications"
+    "other": "Почтовый адрес для оповещений"
   },
   "All roles": {
     "other": "All roles"
@@ -27,31 +27,31 @@
     "other": "Always override other roles, included group roles."
   },
   "Avatar": {
-    "other": "Avatar"
+    "other": "Аватара"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "Выберите конфигурационный плагин"
   },
   "Configuration Store Instance": {
     "other": "Configuration Store Instance"
   },
   "Configurations Management": {
-    "other": "Configurations Management"
+    "other": "Управление конфигурациями"
   },
   "Core SQL Connexion": {
-    "other": "Core SQL Connection"
+    "other": "Core SQL Connexion"
   },
   "Country": {
-    "other": "Country"
+    "other": "Страна"
   },
   "Create external users": {
-    "other": "Create external users"
+    "other": "Создать внешних пользователей"
   },
   "Default Workspace": {
-    "other": "Default Workspace"
+    "other": "Хранилище по умолчанию"
   },
   "Default start repository": {
-    "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
+    "other": "Начальное хранилище по умолчанию"
   },
   "Display roles and/or groups": {
     "other": "Display roles and/or groups"
@@ -63,7 +63,7 @@
     "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
   },
   "Email": {
-    "other": "Email"
+    "other": "Почтовый адрес (Email)"
   },
   "Excluded Roles": {
     "other": "Excluded Roles"
@@ -72,16 +72,16 @@
     "other": "External Users Creation"
   },
   "External users parameters": {
-    "other": "External users parameters"
+    "other": "Параметры внешних пользователей"
   },
   "Full name displayed to others": {
-    "other": "Full name displayed to others"
+    "other": "Имя, которое отображается для всех"
   },
   "Generic Conf Features": {
-    "other": "Generic Conf Features"
+    "other": "Основная конфигурация"
   },
   "Hide real login": {
-    "other": "Hide real login"
+    "other": "Скрыть реальный логин"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
     "other": "If previous option is set to True, directly display a full list of users from all groups"
@@ -93,7 +93,7 @@
     "other": "If the 'guest' user is enabled, remember her preferences accross sessions."
   },
   "Image displayed next to the user name": {
-    "other": "Image displayed next to the user name"
+    "other": "Изображение, которое отображается рядом с именем пользователя"
   },
   "Included Roles": {
     "other": "Included Roles"
@@ -102,13 +102,13 @@
     "other": "Instance"
   },
   "Internal / External Users": {
-    "other": "Internal / External Users"
+    "other": "Внутренние / внешние пользователи"
   },
   "Language": {
-    "other": "Language"
+    "other": "Язык"
   },
   "Let user create repositories": {
-    "other": "Let user create workspaces"
+    "other": "Разрешить пользоватею создавать рабочие пространства"
   },
   "Let user create repositories from templates": {
     "other": "Let user create repositories from templates"
@@ -126,7 +126,7 @@
     "other": "Make regexp mandatory"
   },
   "Maximum number of shared users per user": {
-    "other": "Maximum number of shared users per user"
+    "other": "Максимальное количество общих пользователей для этого пользователя"
   },
   "Maximum number of users displayed in the users autocompleter": {
     "other": "Maximum number of users displayed in the users autocompleter"
@@ -135,13 +135,13 @@
     "other": "Minimum number of characters to trigger the auto completion feature"
   },
   "Name": {
-    "other": "Name"
+    "other": "Имя"
   },
   "Preferences Saving": {
-    "other": "Preferences Saving"
+    "other": "Предпочтения сохранены"
   },
   "Remember guest preferences": {
-    "other": "Remember guest preferences"
+    "other": "Запоминать настройки для гостя"
   },
   "Role Label": {
     "other": "Role Label"
@@ -153,10 +153,10 @@
     "other": "Roles / Groups Directory Listing"
   },
   "SQL Connexion": {
-    "other": "SQL Connection"
+    "other": "SQL Connexion"
   },
   "See existing users": {
-    "other": "See existing users"
+    "other": "Смотреть существующих пользователей"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
     "other": "Sets how the application core data (users,roles,etc) is stored."
@@ -165,13 +165,13 @@
     "other": "Share with existing users from all groups"
   },
   "Shared users limit": {
-    "other": "Shared users limit"
+    "other": "Лимит общих пользователей"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
-    "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
+    "other": "Simple SQL Connexion definition that can be used by other sql-based plugins"
   },
   "Skip user history": {
-    "other": "Skip interface preferences"
+    "other": "Пропустить настройку интерфейса"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
     "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."
@@ -183,7 +183,7 @@
     "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
   },
   "User Language": {
-    "other": "User Language"
+    "other": "Язык пользователя"
   },
   "User roles only": {
     "other": "User roles only"

@@ -1,99 +1,99 @@
 {
   "1": {
-    "other": "%s Public Download"
+    "other": "%s общий доступ"
   },
   "10": {
-    "other": "Folder is shared"
+    "other": "Папка в общем доступе"
   },
   "100": {
-    "other": "Shared files"
+    "other": "Общие файлы"
   },
   "101": {
-    "other": "All files shared as public links"
+    "other": "Все общие файлы с публичными ссылками на них"
   },
   "102": {
-    "other": "Shared folders"
+    "other": "Общие папки"
   },
   "103": {
-    "other": "All folders shared as workspaces or minisites."
+    "other": "Все общие папки (рабочие пространства и мини-майты)."
   },
   "104": {
-    "other": "Displaying first link, there are %s others"
+    "other": "Показ первой ссылки, есть ещё - %s"
   },
   "105": {
-    "other": "Displaying first link, there is one other"
+    "other": "Показ первой ссылки, есть ещё одна"
   },
   "106": {
-    "other": "Do you want to reset the download counter?"
+    "other": "Хотите сбросить счётчик скачиваний?"
   },
   "107": {
-    "other": "Download limit must be between 1 and %s"
+    "other": "Лимит скачиваний должен быть между 1 и %s"
   },
   "108": {
-    "other": "Use a QRCode reader to scan the image "
+    "other": "Используйте устройство для сканирования QR-коде"
   },
   "109": {
-    "other": "Minisite User"
+    "other": "Пользователь для мини-сайта"
   },
   "11": {
-    "other": "Expiration"
+    "other": "Окончание"
   },
   "110": {
-    "other": "Share this"
+    "other": "В общие"
   },
   "110b": {
-    "other": "Share"
+    "other": "Общий доступ"
   },
   "111": {
-    "other": "Share this page with other people"
+    "other": "Предоставить доступ к этой странице другим пользователям"
   },
   "112": {
-    "other": "Share this page"
+    "other": "общий доступ"
   },
   "113": {
-    "other": "As New Workspace"
+    "other": "Как новое рабочее пространство"
   },
   "114": {
-    "other": "Share this folder with internal users"
+    "other": "Предоставить доступ к этой папке другим пользователям системы"
   },
   "115": {
-    "other": "As Web link"
+    "other": "Как Веб-ссылку"
   },
   "116": {
-    "other": "Publish folder content as a minisite"
+    "other": "Сделать папку общим мини-сайтом"
   },
   "117": {
-    "other": "As private minisite"
+    "other": "Как личный мини-сайт"
   },
   "118": {
-    "other": "Password-protected minisite"
+    "other": "Мини-сайт защищённый паролем"
   },
   "119": {
-    "other": "Download link"
+    "other": "Ссылка на скачивание"
   },
   "12": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "120": {
-    "other": "Simple download page"
+    "other": "Страница скачивания"
   },
   "121": {
-    "other": "Public link"
+    "other": "Публичная ссылка"
   },
   "122": {
-    "other": "Create a public URL"
+    "other": "Создать публичную ссылку (URL)"
   },
   "123": {
-    "other": "Selection as minisite"
+    "other": "сделать выбранное минисайтом"
   },
   "124": {
-    "other": "Publish current selection"
+    "other": "Опубликовать выбранное"
   },
   "125": {
-    "other": "Edit Share"
+    "other": "Редактировать общий доступ"
   },
   "126": {
-    "other": "Edit/stop already configured sharing"
+    "other": "Редактировать/остановить сконфигурированный общий доступ"
   },
   "127": {
     "other": "Migrate legacy"
@@ -102,118 +102,118 @@
     "other": "Migrate legacy shares"
   },
   "129": {
-    "other": "Copy URL"
+    "other": "Копировать URL"
   },
   "13": {
-    "other": "Yes"
+    "other": "Да"
   },
   "130": {
-    "other": "Copy URL to your clipboard"
+    "other": "Копировать URL в clipboard"
   },
   "131": {
-    "other": "No shared files or folders yet."
+    "other": "Вы не предоставили папки или файлы в общий доступ."
   },
   "132": {
-    "other": "Workspace"
+    "other": "Рабочее пространство"
   },
   "133": {
-    "other": "As a public link"
+    "other": "Как общую ссылку"
   },
   "134": {
-    "other": "As a workspace"
+    "other": "Как рабочее пространство"
   },
   "135": {
-    "other": "Folder will appear as a minisite in the user browser"
+    "other": "Папка будет отображаться в браузере пользователя как минисайт"
   },
   "136": {
-    "other": "Folder content will appear as a new workspace for the application users"
+    "other": "Содержимое папки для пользователей будет отображаться как новое рабочее пространство"
   },
   "137": {
-    "other": "Share selected file via a public link"
+    "other": "Сделать выделенные файлы общими общедоступными через веб-ссылку"
   },
   "138": {
-    "other": "You have shared this folder as a public link (minisite)"
+    "other": "Вы поделились этой папкой как публичной ссылкой (минисайт для всех)"
   },
   "138b": {
     "other": "You have shared this folder as a public link, but it is currently inactive (expired)."
   },
   "139": {
-    "other": "You have shared this folder as a workspace with application users"
+    "other": "Вы поделились этой папкой в виде рабочего пространства с пользователями приложения"
   },
   "139b": {
     "other": "You have shared this folder as a workspace with application users, but it is currently inactive (expired)."
   },
   "14": {
-    "other": "No"
+    "other": "Нет"
   },
   "140": {
-    "other": "You have shared this file via a public link"
+    "other": "Вы поделились этим файлом как публичной ссылкой"
   },
   "140b": {
     "other": "You have shared this file via a public link, but it is currently inactive (expired)."
   },
   "141": {
-    "other": "Change parameters"
+    "other": "Изменить параметры"
   },
   "142": {
-    "other": "Hide parameters"
+    "other": "Скрыть параметры"
   },
   "143": {
-    "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd>to copy the link"
+    "other": "Используйте \u003ckbd\u003eCtrl\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e для копирования ссылки"
   },
   "144": {
-    "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
+    "other": "Используйте \u003ckbd\u003e\u0026#8984;\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e для копирования ссылки"
   },
   "145": {
-    "other": "Description"
+    "other": "Описание"
   },
   "146": {
-    "other": "Will be displayed to the shared users"
+    "other": "Будет показываться у пользователей с доступом"
   },
   "147": {
-    "other": "Security"
+    "other": "Безопасность"
   },
   "148": {
-    "other": "(Optional)"
+    "other": "(опционально)"
   },
   "149": {
-    "other": "Leave 0 for no limit"
+    "other": "0 - нет лимита"
   },
   "15": {
-    "other": "File was download %s times"
+    "other": "Файл был скачан %s раз"
   },
   "150": {
-    "other": "Access rights"
+    "other": "Права доступа"
   },
   "151": {
-    "other": "Layout"
+    "other": "Выравнивание"
   },
   "152": {
-    "other": "Update"
+    "other": "Обновить"
   },
   "153": {
-    "other": "Standard (file list with application header)"
+    "other": "Стандартно (список файлов со значками приложений)"
   },
   "154": {
-    "other": "Film Strip (good for image galleries)"
+    "other": "Нарезка фильмов (для фотогалерей)"
   },
   "155": {
-    "other": "Embedded (smaller header, for widgets)"
+    "other": "Объединение (маленькие заголовки, для виджетов)"
   },
   "156": {
-    "other": "Successfully published link %s"
+    "other": "Публикация прошла успешно. Ссылка: %s"
   },
   "157": {
-    "other": "This folder is currently shared. If you delete it, associated share will be disabled."
+    "other": "К этой папке предоставлен общий доступ. Если вы удалите её, то все связанные доступы будут отключены."
   },
   "158": {
-    "other": "This file is currently shared. If you delete it, associated share will be disabled. "
+    "other": "К этому файлу предоставлен общий доступ. Если вы удалите его, то все связанные доступы будут отключены."
   },
   "159": {
     "other": "Owner"
   },
   "16": {
-    "other": "reset"
+    "other": "сбросить"
   },
   "160": {
     "other": "You are not allowed to delete this shared item"
@@ -222,7 +222,7 @@
     "other": "Deprecated Link"
   },
   "162": {
-    "other": "You have one or more legacy link on this file. Links are still active, but you can replace them with a new share link by stopping this share and recreating a new one. Copy the share 'hash' (the last part of the link, e.g. http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) and apply it to the new link using the 'Change Parameters' form."
+    "other": "You have one or more legacy link on this file. Links are still active, but you can replace them with a new share link by stopping this share and recreating a new one. Copy the share 'hash' (the last part of the link, e.g. http://yourpydio.com/data/public/\u003cem style='color:red;'\u003e206a51\u003c/em\u003e.php) and apply it to the new link using the 'Change Parameters' form."
   },
   "163": {
     "other": "Drop Files Here (for upload-enabled minisites)"
@@ -231,13 +231,13 @@
     "other": "Not allowed: script was modified!"
   },
   "165": {
-    "other": "Sorry, this link is expired!"
+    "other": "Извините, закончилось время, отведённое на доступ к этой ссылке!"
   },
   "166": {
-    "other": "Cannot find specified link!"
+    "other": "Ссылка не найдена!"
   },
   "167": {
-    "other": "Link is expired!"
+    "other": "Время жизни ссылки истекло!"
   },
   "168": {
     "other": "The number of authorized downloads have been reached. Click to reset the counter and reactivate the link."
@@ -246,22 +246,22 @@
     "other": "The expiration date was reached. Change the parameters with a new date if you want to reactivate the link."
   },
   "17": {
-    "other": "Click to reset download counter"
+    "other": "Нажмите для сброса счётчика"
   },
   "170": {
-    "other": "This is link is secured with a password."
+    "other": "Эта ссылка защищена паролем."
   },
   "171": {
-    "other": "Link Handle"
+    "other": "Короткая ссылка"
   },
   "172": {
-    "other": "Sorry this link is already used, please pick another handle."
+    "other": "Извините, такая короткая ссылка уже используется, выберите другую."
   },
   "173": {
-    "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
+    "other": "Используйте поле для короткой и понятной ссылки (примерно - https://.../my-share-link). Если оставите поле пустым, то система сама сгенерирует ссылку."
   },
   "174": {
-    "other": "Reset"
+    "other": "Выключить"
   },
   "175": {
     "other": "Please set a password and make sure it's long enough!"
@@ -279,7 +279,7 @@
     "other": "Revert"
   },
   "18": {
-    "other": "Folder is shared as a new workspace"
+    "other": "Папка в общем доступе как новое рабочее пространство."
   },
   "180": {
     "other": "Clear list"
@@ -312,7 +312,7 @@
     "other": "Enable Public Link"
   },
   "19": {
-    "other": "Shared workspace options were successfully modified"
+    "other": "Настройки рабочего пространства с общим доступом изменены"
   },
   "190": {
     "other": "This file is not currently publicly accessible. Enabling a public link will create a unique access that you can send to anyone. If you want to share with existing Pydio users, use the \"Users\" tab."
@@ -345,10 +345,10 @@
     "other": "Share Visibility"
   },
   "2": {
-    "other": "Click on the image to download <b>%s</b> to your hard drive"
+    "other": "Нажмите на изображение для загрузки \u003cb\u003e%s\u003c/b\u003e на ваш локальный диск"
   },
   "20": {
-    "other": "Ooops, the file you required could not be found! Maybe it was deleted or it is not shared with you anymore."
+    "other": "Запрашиваемый файл не найдем. Возможно, он удалён или исключен из общего доступа для вас."
   },
   "200": {
     "other": "Visible to other users"
@@ -384,10 +384,10 @@
     "other": "Remote Address"
   },
   "21": {
-    "other": "Will expire on"
+    "other": "Доступно (дней)"
   },
   "210": {
-    "other": "Identifier"
+    "other": "User Identifier"
   },
   "211": {
     "other": "pending"
@@ -420,7 +420,7 @@
     "other": "Expired on"
   },
   "22": {
-    "other": "Allowed Downloads"
+    "other": "Разрешено загрузок"
   },
   "220": {
     "other": "You are not allowed to create users"
@@ -456,7 +456,7 @@
     "other": "No more downloads"
   },
   "23": {
-    "other": "Password"
+    "other": "Пароль"
   },
   "230": {
     "other": "Please save before sending an invitation"
@@ -486,7 +486,7 @@
     "other": "Share Types"
   },
   "24": {
-    "other": "Set expiration limits or define a password to access this share."
+    "other": "Установите срок окончания и определите пароль для доступа к файлу, нажмите \u003cspan class=\"icon-plus-sign\"\u003e\u003c/span\u003e для создания ссылки. Вы можете создать несколько ссылок для отправки разным людям."
   },
   "240": {
     "other": "Group by..."
@@ -519,7 +519,7 @@
     "other": "Contents"
   },
   "25": {
-    "other": "No limit"
+    "other": "Нет лимита"
   },
   "250": {
     "other": "Cells"
@@ -552,7 +552,7 @@
     "other": "Remove from this cell"
   },
   "26": {
-    "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
+    "other": "Выберите пользователей или группы для присвоения им прав. 'Запись' создаст рабочее пространство только для загрузки, без просмотра."
   },
   "260": {
     "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
@@ -585,7 +585,7 @@
     "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
   },
   "27": {
-    "other": "Share file"
+    "other": "Доступ к фалу"
   },
   "270": {
     "other": "users"
@@ -618,7 +618,7 @@
     "other": "Create cell now!"
   },
   "28": {
-    "other": "Share folder"
+    "other": "Доступ к папке"
   },
   "280": {
     "other": "Cell has its own folder"
@@ -636,273 +636,258 @@
     "other": "Visible in %s cells"
   },
   "29": {
-    "other": "WebLink"
+    "other": "Интернет-ссылка"
   },
   "3": {
-    "other": "Wrong password"
+    "other": "пароль неверен"
   },
   "30": {
-    "other": "Share with..."
+    "other": "Доступ вместе с..."
   },
   "31": {
-    "other": "Read"
+    "other": "Чтение"
   },
   "32": {
-    "other": "Write"
+    "other": "Запись"
   },
   "33": {
-    "other": "Watch"
+    "other": "Следить"
   },
   "34": {
-    "other": "Existing or new user"
+    "other": "Существующий или новый пользователь"
   },
   "35": {
-    "other": "Label"
+    "other": "Метка"
   },
   "36": {
-    "other": "Set a label and a short description"
+    "other": "Установите метку и короткое описание"
   },
   "37": {
-    "other": "Confirm"
+    "other": "Подтверждение"
   },
   "38": {
-    "other": "Watch this folder content"
+    "other": "Следить за содержимым папки"
   },
   "39": {
-    "other": "Watch this file activity"
+    "other": "Следить за доступом к этому файлу"
   },
   "4": {
-    "other": "Enter the required password and click on the image to download <b>%s</b> to your hard drive"
+    "other": "Введите пароль и нажмите на картинкудля загрузки \u003cb\u003e%s\u003c/b\u003e на локальный диск"
   },
   "40": {
-    "other": "Invitations"
+    "other": "Приглашения"
   },
   "41": {
-    "other": "Send invitations by email to the users you have shared this item with."
+    "other": "Послать приглашения пользователям, которым вы предоставили доступ к этим элементам."
   },
   "42": {
-    "other": "A user of %s is sharing a file with you"
+    "other": "Пользователь %s дал вам права к файлу"
   },
   "43": {
-    "other": "A user of %s is sharing a folder with you"
+    "other": "Пользователь %s дал вам права к папке"
   },
   "44": {
     "other": "%s Share"
   },
   "45": {
-    "other": "Send Invitation"
+    "other": "Послать приглашение"
   },
   "46": {
-    "other": "Open workspace %s1 directly in %s2"
+    "other": "Открыть рабочее пространство %s1 напрямую в %s2"
   },
   "46_file": {
-    "other": "Open file %s1"
+    "other": "Открыть файл %s1"
   },
   "46_mini": {
-    "other": "Open mini %s1"
+    "other": "Открыть мини %s1"
   },
   "47": {
-    "other": "Successfully updated watch status"
+    "other": "Статус отслеживания обновлён"
   },
   "48": {
-    "other": "You are not allowed to access this data"
+    "other": "У вас нет прав доступа"
   },
   "49": {
-    "other": "create user"
+    "other": "создать пользователя"
   },
   "5": {
-    "other": "password"
+    "other": "пароль"
   },
   "50": {
-    "other": "Shared"
+    "other": "Общие"
   },
   "51": {
-    "other": "Downloaded"
+    "other": "Скачано"
   },
   "52": {
-    "other": "Configuration"
+    "other": "Конфигурация"
   },
   "53": {
-    "other": "none"
+    "other": "ничего"
   },
   "54": {
-    "other": "Shared with"
+    "other": "Общие с..."
   },
   "55": {
-    "other": "Shared..."
+    "other": "Общие..."
   },
   "56": {
-    "other": "Configure sharing..."
+    "other": "конфигурация софместного доступа..."
   },
   "57": {
-    "other": "times"
+    "other": "раз"
   },
   "58": {
-    "other": "Please check at least one permission!"
+    "other": "Установите хотя бы одно разрешение!"
   },
   "59": {
-    "other": "Download Page"
+    "other": "Страница скачивания"
   },
   "6": {
-    "other": "Stop Sharing"
+    "other": "Остановить общий доступ"
   },
   "60": {
-    "other": "Direct Download Link"
+    "other": "Прямая ссылка на скачивание"
   },
   "61": {
-    "other": "HTML Embed Code"
+    "other": "Встроенный код HTML"
   },
   "62": {
-    "other": "Minisite Adress"
+    "other": "Адрес мини-сайта"
   },
   "63": {
-    "other": "New workspace"
+    "other": "Новое рабочее пространство"
   },
   "64": {
-    "other": "For both internal and external users, the folder will appear as a new workspace in the target users workspace list."
+    "other": "Для внутренних и внешних пользователей папка будет представлена как новое рабочее пространство."
   },
   "65": {
-    "other": "Public Minisite (no authentication required)"
+    "other": "Публичный минисайт (без аутентификации)"
   },
   "66": {
-    "other": "For external users, the folder will appear at a new public adress as a simple file list."
+    "other": "Для внешних пользователей папка будет выглядеть как новый публичный адрес со списком файлов."
   },
   "67": {
-    "other": "Private Minisite (users authentication required)"
+    "other": "Защищённый минисайт (требуется аутентификация)"
   },
   "68": {
-    "other": "For internal or external users, the folder will appear at a new adress as a simple file list, but with user authentication required"
+    "other": "Для внешних и внутренних пользователей папка будет выглядеть как новый публичный адрес со списком файлов. Требуется аутентификация."
   },
   "69": {
-    "other": "Configure Minisite"
+    "other": "Конфигурировать мини-сайт"
   },
   "69r": {
-    "other": "Link Parameters"
+    "other": "Параметры ссылки"
   },
   "7": {
-    "other": "Stopping the share will not remove the file. If you want to change the parameters, re-share the file."
+    "other": "Остановка общего доступа не удаляет файлы. Для изменения параметров заново определите общий доступ к файлу."
   },
   "70": {
-    "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
+    "other": "Используйте переключатели для предоставления прав к папке. Если выбрать только 'Upload' (Загрузка), папка будет выглядеть пустой. В неё можно перетаскивать файлы."
   },
   "70r": {
-    "other": "Permissions granted to the users accessing this link"
+    "other": "Метки и права на доступ к ссылке предоставленые пользователям."
   },
   "71": {
-    "other": "Permissions"
+    "other": "Разрешения"
   },
   "72": {
-    "other": "Preview"
+    "other": "Предпросмотр"
   },
   "73": {
-    "other": "Download"
+    "other": "Скачивание"
   },
   "74": {
-    "other": "Upload files"
+    "other": "Загрузка файлов"
   },
   "74b": {
     "other": "Edit"
   },
   "75": {
-    "other": "Please use a positive number for both Expiration and Download limit fields."
+    "other": "Используйте положительные значения для срока окончания и количества скачиваний."
   },
   "76": {
-    "other": "Please enable Cookies to access this application"
+    "other": "Включите куки для работы с программой"
   },
   "77": {
-    "other": "Please enable JavaScript to access this application"
+    "other": "Включите JavaScript для работы с программой"
   },
   "78": {
-    "other": "Warning, you should only use standard alphanumerical characters for user names. The identifier '%CURRENT%' will be replaced by '%NEW%'"
+    "other": "Внимание! Используйте только буквы и цифры для имён пользователей. Желательно, латинские. Идентификатор '%CURRENT%' будет заменён на '%NEW%'"
   },
   "79": {
-    "other": "invite"
+    "other": "приглашение"
   },
   "8": {
-    "other": "File is shared"
+    "other": "Файл в общем доступе"
   },
   "80": {
-    "other": "Send link by email to a selection of users or addresses"
+    "other": "Послать ссылку по почте выбранным пользователям или на адреса почты."
   },
   "80b": {
-    "other": "Invite by email the selected users to visit this workspace"
+    "other": "Пригласите пользователей посмотреть рабочее пространство по почте"
   },
   "81": {
-    "other": "stop watching"
+    "other": "остановить слежение"
   },
   "82": {
-    "other": "watch"
+    "other": "слежение"
   },
   "83": {
-    "other": "Toggle watch status to receive or not notifications when file is downloaded"
+    "other": "Изменение статуса отслеживания. Включить/выключить получение уведомлений при скачивании файла"
   },
   "83b": {
-    "other": "Toggle watch status to receive or not notifications when workspace is consulted"
+    "other": "Переключатель: получать или нет уведомления о просмотре рабочего пространства кем-то"
   },
   "84": {
-    "other": "password"
+    "other": "пароль"
   },
   "85": {
-    "other": "A protection password is set on this link"
+    "other": "Для ссылки установлена защита паролем"
   },
   "86": {
-    "other": "expire"
+    "other": "срок"
   },
   "87": {
-    "other": "This link will automatically expire on..."
+    "other": "Эта ссылка действительна до..."
   },
   "88": {
-    "other": "downloads"
+    "other": "скачиваний"
   },
   "89": {
-    "other": "Number of downloads / authorized downloads. Click to reset download counter."
+    "other": "Количество скачиваний / авторизованных скачиваний. Нажмите для сброса счётчика."
   },
   "9": {
-    "other": "Use this button to stop sharing this folder"
+    "other": "Используйте это кнопку для прекращения общего доступа"
   },
   "90": {
-    "other": "Link URL"
+    "other": "URL ссылки"
   },
   "91": {
-    "other": "Tags (Enter to save)"
+    "other": "Тэги (Enter для сохранения)"
   },
   "92": {
-    "other": "Create link"
+    "other": "Новая ссылка"
   },
   "93": {
-    "other": "Existing links"
+    "other": "Существующая ссылка"
   },
   "94": {
-    "other": "QR Code"
+    "other": "QR код"
   },
   "95": {
-    "other": "QR code"
+    "other": "QR код"
   },
   "96": {
-    "other": "stop sharing"
+    "other": "остановить общий доступ"
   },
   "97": {
-    "other": "Stop sharing this folder with other users"
+    "other": "Остановить общий доступ к этой папке другим пользователям"
   },
   "98": {
-    "other": "My Shares"
+    "other": "Общий доступ"
   },
   "99": {
-    "other": "All shared elements"
-  },
-  "cells.create.advanced": {
-    "other": "Add users/data"
-  },
-  "cells.create.buttons.separator": {
-    "other": "or"
-  },
-  "cells.create.title.fill.folders": {
-    "other": "Share existing folder(s)"
-  },
-  "cell.visibility.advanced": {
-    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
-  },
-  "link.visibility.advanced": {
-    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
+    "other": "Все общие элементы"
   }
 }

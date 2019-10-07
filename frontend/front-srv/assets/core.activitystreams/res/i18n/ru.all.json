@@ -1,12 +1,12 @@
 {
   "1": {
-    "other": "Notifications"
+    "other": "Уведомления"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "Активность по папке"
   },
   "11": {
-    "other": "File Activity"
+    "other": "Активность по файлу"
   },
   "12": {
     "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
@@ -20,43 +20,28 @@
   "15": {
     "other": "Notifications about files that you monitor will appear here"
   },
-  "16": {
-    "other": "Inside"
-  },
-  "17": {
-    "other": "Loading activities..."
-  },
-  "18": {
-    "other": "No recent activity"
-  },
-  "19": {
-    "other": "More"
-  },
   "2": {
-    "other": "Notifications feed"
-  },
-  "20": {
-    "other": "Loading feed..."
+    "other": "Очередь уведомлений"
   },
   "3": {
-    "other": "Alerts"
+    "other": "Предупреждения"
   },
   "4": {
-    "other": "Notifications"
+    "other": "Уведомления"
   },
   "5": {
-    "other": "All Events"
+    "other": "Все события"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "Перейти к ..."
   },
   "7": {
-    "other": "Dismiss"
+    "other": "Убрать"
   },
   "8": {
-    "other": "No alerts"
+    "other": "Нет предупреждений"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "Активность по рабочему пространству"
   }
 }

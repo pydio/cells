@@ -3,10 +3,10 @@
     "other": "Remote DL"
   },
   "10": {
-    "other": "Download to APPLICATION_TITLE"
+    "other": "Загрузить в APPLICATION_TITLE"
   },
   "10a": {
-    "other": "Download to %s"
+    "other": "Загрузить в  %s"
   },
   "10b": {
     "other": "DL to %s"
@@ -18,31 +18,31 @@
     "other": "AjXp Download (%s)"
   },
   "11": {
-    "other": "Drag one of the following link to your bookmark bar : "
+    "other": "Перетащите одну из ссылок в ваши закладки : "
   },
   "12": {
     "other": "Trigger remote file download"
   },
   "13": {
-    "other": "From computer"
+    "other": "С компьютера"
   },
   "14": {
-    "other": "From remote server"
+    "other": "С другого сервера"
   },
   "15": {
-    "other": "Or create a bookmark manually and use the code below as the link url : "
+    "other": "Или создайте закладки вручную, использовав приведённый код как ссылку (URL) : "
   },
   "16": {
-    "other": "Drag me to your bookmark bar!"
+    "other": "Перетащи меня в закладки!"
   },
   "17": {
-    "other": "Download file"
+    "other": "Загрузить файл"
   },
   "18": {
     "other": "Partial file"
   },
   "2": {
-    "other": "Download file(s) from remote server"
+    "other": "Загрузить фал(ы) с другого сервера"
   },
   "3": {
     "other": "m"
@@ -57,12 +57,12 @@
     "other": "Downloading"
   },
   "7": {
-    "other": "to server"
+    "other": "на сервер"
   },
   "8": {
     "other": "File downloaded, reloading the client!"
   },
   "9": {
-    "other": "Generate Bookmarklet"
+    "other": "Сгенерировать закладки"
   }
 }
