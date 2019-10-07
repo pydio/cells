@@ -7,6 +7,9 @@
             <js className="PydioActivityStreams" file="plug/core.activitystreams/res/build/PydioActivityStreams.js" depends="React,PydioComponents,PydioWorkspaces"/>
         </resources>
     </client_settings>
+    <server_settings>
+        <global_param name="ACTIVITY_SHOW_ACTIVITIES" group="CONF_MESSAGE[Activities]"  type="boolean" label="CONF_MESSAGE[Show file/folders activities]" description="CONF_MESSAGE[Display file and folders activities in the right-hand info panel]"  mandatory="false" default="true" expose="true"/>
+    </server_settings>
     <registry_contributions>
         <client_configs>
             <component_config component="InfoPanel">
