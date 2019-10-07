@@ -1,8 +1,8 @@
 {
   "Async downloader to load a file from another source": {
-    "other": "Асинхроннный загрузчик файлов из другого источника"
+    "other": "Async downloader to load a file from another source"
   },
   "Remote Download": {
-    "other": "Другой сервер"
+    "other": "Remote Server"
   }
 }

@@ -1,150 +1,150 @@
 {
   "1": {
-    "other": "Адресная книга"
+    "other": "Address Book"
   },
   "10": {
-    "other": "Присоединённые пространства"
+    "other": "Associated workspaces"
   },
   "11": {
-    "other": "Вы уверены, что хотите удалить выделенный(е) элемент(ы)?"
+    "other": "Are you sure that you want to delete the selected element(s)?"
   },
   "12": {
-    "other": "У Вас нет прав на удаление этого элемента."
+    "other": "You don't have the permission to delete this element."
   },
   "13": {
-    "other": "Общий файл успешно удалён."
+    "other": "Successfully deleted public file."
   },
   "14": {
-    "other": "Целостность"
+    "other": "Integrity"
   },
   "15": {
     "other": "Ok"
   },
   "16": {
-    "other": "Сломан"
+    "other": "Broken"
   },
   "17": {
-    "other": "Скачать URL"
+    "other": "Download URL"
   },
   "18": {
-    "other": "Копировать URL"
+    "other": "Copy URL"
   },
   "19": {
-    "other": "Копировать URL для отправки по email."
+    "other": "Copy url to send by email."
   },
   "2": {
-    "other": "Общие папки"
+    "other": "Shared folders"
   },
   "20": {
-    "other": "Загрузки"
+    "other": "Downloads"
   },
   "21": {
-    "other": "Да"
+    "other": "Yes"
   },
   "22": {
-    "other": "Нет"
+    "other": "No"
   },
   "23": {
-    "other": "%s файлов успешно удалено."
+    "other": "Successfully deleted %s files."
   },
   "24": {
-    "other": "Нечего удалять."
+    "other": "Nothing to delete."
   },
   "25": {
-    "other": "Очистить срок окончания"
+    "other": "Clear Expired"
   },
   "26": {
-    "other": "Удалить просроченные общие файлы."
+    "other": "Delete expired shared files."
   },
   "27": {
-    "other": "Владелец"
+    "other": "Owner"
   },
   "28": {
-    "other": "Общие файлы для прямой загрузки. Защищённые паролем или нет."
+    "other": "Files shared for direct download, either protected by a password or not."
   },
   "29": {
-    "other": "Делегированные рабочие пространства, созданные пользователями."
+    "other": "Delegates workspaces created by users."
   },
   "3": {
-    "other": "Общие файлы"
+    "other": "Shared files"
   },
   "30": {
-    "other": "Пользователи, созданные для доступа к делегированным рабочим пространствам."
+    "other": "Users created to access the delegated workspaces."
   },
   "31": {
-    "other": "Описание"
+    "other": "Description"
   },
   "32": {
-    "other": "Сброс"
+    "other": "Reset"
   },
   "33": {
-    "other": "Сбросить счётчики количества загрузок"
+    "other": "Reset download counter"
   },
   "34": {
-    "other": "Мои общие ресурсы"
+    "other": "My Shares"
   },
   "35": {
-    "other": "Все мои общие элементы (файлы и папки)"
+    "other": "All my shared items (files and folders)"
   },
   "36": {
-    "other": "Параметры"
+    "other": "Parameters"
   },
   "37": {
-    "other": "Профиль и настройки приложения"
+    "other": "My profile and application settings"
   },
   "38": {
-    "other": "Уведомления"
+    "other": "Notifications"
   },
   "39": {
-    "other": "Список пространств, которые Вам доступны. Они могут быть персональными или разделяемые с другими людьми."
+    "other": "Below is a list of the workspaces you can access to. They can be personal or shared with/by others users."
   },
   "4": {
-    "other": "Путь к файлу"
+    "other": "File Path"
   },
   "40": {
-    "other": "Добро пожаловать, %s! "
+    "other": "Welcome, %s! "
   },
   "41": {
-    "other": "Использовать это пространство по умолчанию"
+    "other": "Use this workspace as default"
   },
   "42": {
-    "other": "Войти"
+    "other": "Enter"
   },
   "43": {
-    "other": "Мой профиль"
+    "other": "My Profile"
   },
   "43t": {
-    "other": "Все мои персональные данные"
+    "other": "All my personal data"
   },
   "44": {
-    "other": "Моя учётная запись"
+    "other": "My Account"
   },
   "45": {
-    "other": "Персональные данные"
+    "other": "Personal data"
   },
   "46": {
-    "other": "Адресная книга"
+    "other": "Address Book"
   },
   "47": {
-    "other": "Пользователи и сообщества, которые Вы создали"
+    "other": "Users and teams that you created"
   },
   "48": {
-    "other": "Мои пользователи"
+    "other": "My Users"
   },
   "49": {
-    "other": "Внешние пользователи, которых Вы создали"
+    "other": "External users that you created"
   },
   "5": {
-    "other": "Хранилище"
+    "other": "Repository"
   },
   "50": {
-    "other": "Мои сообщества"
+    "other": "My Teams"
   },
   "51": {
-    "other": "Команды из пользователей, которые служат для быстрого доступа при обмене информацией"
+    "other": "Teams of users, used as shortcuts when sharing"
   },
   "52": {
-    "other": "Вы уверены, что хотите удалить сообщество? Это не удалит пользователей."
+    "other": "Are you sure you want to delete this team? This will not remove any users."
   },
   "53": {
     "other": "Back to my workspaces"
@@ -168,7 +168,7 @@
     "other": "Team Label"
   },
   "6": {
-    "other": "Пароль"
+    "other": "Password"
   },
   "60": {
     "other": "Team Users"
@@ -201,7 +201,7 @@
     "other": "Tuesday"
   },
   "7": {
-    "other": "Окончание"
+    "other": "Expiration"
   },
   "70": {
     "other": "Wednesday"
@@ -219,15 +219,15 @@
     "other": "Sunday"
   },
   "8": {
-    "other": "Элементы"
+    "other": "Elements"
   },
   "9": {
-    "other": "Присоединённые пользователи"
+    "other": "Associated users"
   },
   "desc": {
-    "other": "Управление предпочтениями, адресной книгой, общими элементами и т. д."
+    "other": "Manage my account preferences, my address book, shared elements, etc."
   },
   "title": {
-    "other": "Настройки"
+    "other": "My Account"
   }
 }
