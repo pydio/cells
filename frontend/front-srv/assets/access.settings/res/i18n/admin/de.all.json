@@ -1388,6 +1388,9 @@
   "ws.board.summary": {
     "other": "Workspace Wurzeln"
   },
+  "ws.board.syncable": {
+    "other": "Sync"
+  },
   "ws.complete.datasources": {
     "other": "DataSources und Ordner"
   },
@@ -1455,7 +1458,7 @@
     "other": "Easy Transfer Layout (nur für Enterprise Distribution)"
   },
   "ws.editor.other.sync": {
-    "other": "Desktop-Synchronisierung zulassen (noch experimentell)"
+    "other": "Desktop-Synchronisierung zulassen"
   },
   "ws.editor.path.folder": {
     "other": "Ordnerpfad"
