@@ -94,6 +94,21 @@ func (c *abstract) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	// Do nothing - we assume Snapshot was updated directly during Watch when receiving events
 }
 
+// Convert micro errors to user readable errors
+func (c *abstract) parseMicroErrors(e error) error {
+	er := errors.Parse(e.Error())
+	if er.Code == 408 {
+		return fmt.Errorf("cannot connect (408 Timeout): the gRPC port may not be correctly opened in the server")
+	} else if strings.Contains(er.Detail, "connection refused") {
+		return fmt.Errorf("cannot connect (connection refused): there may be an issue with the SSL certificate")
+	} else if er.Code == 401 || er.Code == 403 {
+		return fmt.Errorf("cannot connect (authorization error %d) : %s", er.Code, er.Detail)
+	} else if er.Detail != "" {
+		return fmt.Errorf(er.Detail)
+	}
+	return e
+}
+
 // LoadNode forwards call to cli.ReadNode
 func (c *abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 	ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext(ctx))
@@ -109,7 +124,7 @@ func (c *abstract) LoadNode(ctx context.Context, path string, extendedStats ...b
 		WithExtendedStats: x,
 	})
 	if e != nil {
-		return nil, e
+		return nil, c.parseMicroErrors(e)
 	}
 	out := resp.Node
 	out.Path = c.unrooted(resp.Node.Path)

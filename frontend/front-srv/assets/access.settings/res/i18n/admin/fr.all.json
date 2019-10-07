@@ -1388,6 +1388,9 @@
   "ws.board.summary": {
     "other": "Racines du workspace"
   },
+  "ws.board.syncable": {
+    "other": "Synchro"
+  },
   "ws.complete.datasources": {
     "other": "Datasources et répertoires"
   },
@@ -1455,7 +1458,7 @@
     "other": "Easy Transfer (enterprise seulement)"
   },
   "ws.editor.other.sync": {
-    "other": "Autoriser la synchronisation (experimental)"
+    "other": "Autoriser la synchronisation"
   },
   "ws.editor.path.folder": {
     "other": "Chemin du dossier"

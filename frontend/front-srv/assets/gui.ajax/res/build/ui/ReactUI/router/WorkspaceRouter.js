@@ -38,12 +38,17 @@ var WorkspaceRouterWrapper = function WorkspaceRouterWrapper(pydio) {
 
         WorkspaceRouter.prototype._handle = function _handle(_ref) {
             var params = _ref.params;
+            var location = _ref.location;
 
             // Making sure we redirect to the right workspace based on initial url
             var slug = params.workspaceId.replace("ws-", "");
             var splat = params.splat || "";
             var repositories = pydio.user ? pydio.user.getRepositoriesList() : new Map();
             var active = pydio.user ? pydio.user.getActiveRepository() : null;
+
+            if (!pydio.user) {
+                localStorage.setItem("loginOrigin", location.pathname);
+            }
 
             repositories.forEach(function (repository) {
                 if (repository.slug === slug && active !== repository.getId()) {

@@ -34,23 +34,23 @@ import LogoutRouter from './LogoutRouter';
 
 function getRoutes(pydio){
     const routes = (
-        <Switch>
-            <Route path="login">
-                <IndexRoute component={LoginRouter(pydio)}/>
-                <Route path="callback" component={LoginCallbackRouter(pydio)} />
-            </Route>
-            <Route path="logout" component={LogoutRouter(pydio)} />
-            <Route path="oauth2">
-                <Route path="login" component={OAuthLoginRouter(pydio)} />
-                <Route path="consent" component={OAuthConsentRouter(pydio)} />
-            </Route> 
-            <Route path="/" component={MainRouter(pydio)}>
-                <Route path=":workspaceId" component={WorkspaceRouter(pydio)}>
-                    <IndexRoute component={PathRouter(pydio)}/>
-                    <Route path="*" component={PathRouter(pydio)}/>
+            <Switch>
+                <Route path="/login">
+                    <IndexRoute component={LoginRouter(pydio)}/>
+                    <Route path="callback" component={LoginCallbackRouter(pydio)} />
                 </Route>
-            </Route>
-        </Switch>
+                <Route path="/logout" component={LogoutRouter(pydio)} />
+                <Route path="/oauth2">
+                    <Route path="login" component={OAuthLoginRouter(pydio)} />
+                    <Route path="consent" component={OAuthConsentRouter(pydio)} />
+                </Route>
+                <Route path="/" component={MainRouter(pydio)}>
+                    <Route path=":workspaceId" component={WorkspaceRouter(pydio)}>
+                        <IndexRoute component={PathRouter(pydio)}/>
+                        <Route path="*" component={PathRouter(pydio)}/>
+                    </Route>
+                </Route>
+            </Switch>
     )
     return routes;
 }

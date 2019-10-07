@@ -35,25 +35,23 @@ var LoginCallbackRouterWrapper = function LoginCallbackRouterWrapper(pydio) {
     var LoginCallbackRouter = function LoginCallbackRouter(props) {
         var params = queryString.parse(props.location.search);
 
-        var loginOrigin = localStorage.getItem("loginOrigin");
-        var oauthOrigin = localStorage.getItem("oauthOrigin");
+        var redirect = function redirect() {
+            var loginOrigin = localStorage.getItem("loginOrigin");
 
-        PydioApi.getRestClient().jwtFromAuthorizationCode(params.code).then(function () {
-            if (loginOrigin !== "") {
-                _reactRouterLibBrowserHistory2['default'].push(loginOrigin);
-            } else if (oauthOrigin !== "") {
-                window.location.href = oauthOrigin;
+            if (loginOrigin) {
+                localStorage.removeItem("loginOrigin");
+                _reactRouterLibBrowserHistory2['default'].replace(loginOrigin);
             } else {
-                _reactRouterLibBrowserHistory2['default'].push("/");
+                _reactRouterLibBrowserHistory2['default'].replace("/");
             }
-            localStorage.removeItem("loginOrigin");
-            localStorage.removeItem("oauthOrigin");
-        })['catch'](function (e) {
-            return _reactRouterLibBrowserHistory2['default'].push("/login");
+        };
+
+        pydio.observeOnce('user_logged', function () {
+            return redirect();
         });
 
-        pydio.observe("user_logged", function (user) {
-            return user && _reactRouterLibBrowserHistory2['default'].push("/");
+        PydioApi.getRestClient().jwtFromAuthorizationCode(params.code)['catch'](function (e) {
+            return _reactRouterLibBrowserHistory2['default'].push("/login");
         });
 
         return React.createElement('div', null);

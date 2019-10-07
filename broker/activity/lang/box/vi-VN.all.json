@@ -1,0 +1,68 @@
+{
+  "AccessedBy": {
+    "other": "Truy cập bởi {{.Actor}}"
+  },
+  "AccessedObject": {
+    "other": "{{.Object}}"
+  },
+  "AccessedObjectBy": {
+    "other": "{{.Object}} đã được truy cập bởi {{.Actor}}"
+  },
+  "Cell": {
+    "other": "Cell"
+  },
+  "CreatedBy": {
+    "other": "Tạo bởi {{.Actor}}"
+  },
+  "CreatedObject": {
+    "other": "{{.Object}}"
+  },
+  "CreatedObjectBy": {
+    "other": "{{.Object}} được tạo bởi {{.Actor}}"
+  },
+  "DeletedBy": {
+    "other": "Đã bị xóa bởi {{.Actor}}"
+  },
+  "DeletedObject": {
+    "other": "{{.Object}}"
+  },
+  "DeletedObjectBy": {
+    "other": "{{.Object}} đã bị xóa bởi {{.Actor}}"
+  },
+  "SharedWs": {
+    "other": "Được chia sẻ trong {{.Object}}"
+  },
+  "SharedWsWithYou": {
+    "other": "{{.Actor}} đã chia sẻ {{.Object}} với bạn"
+  },
+  "DigestTitle": {
+    "other": "Bản tóm tắt hằng ngày"
+  },
+  "Document": {
+    "other": "Tài liệu"
+  },
+  "Folder": {
+    "other": "Thư mục"
+  },
+  "ModifiedBy": {
+    "other": "Đã chỉnh sửa bởi {{.Actor}}"
+  },
+  "ModifiedObject": {
+    "other": "{{.Object}}"
+  },
+  "ModifiedObjectBy": {
+    "other": "{{.Object}} đã được chỉnh sửa bởi {{.Actor}}"
+  },
+  "MovedBy": {
+    "other": "{{.Actor}} đã chuyển đi"
+  },
+  "MovedObject": {
+    "other": "{{.Object}} đã được chuyển"
+  },
+  "MovedObjectBy": {
+    "other": "{{.Object}} đã được chuyển đi bởi {{.Actor}}"
+  },
+  "Workspace": {
+    "other": "Workspace"
+  }
+}

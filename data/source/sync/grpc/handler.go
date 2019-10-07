@@ -187,7 +187,13 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		return fmt.Errorf("datasource watch is not implemented yet")
 	} else {
 		s3client, errs3 := s3.NewClient(ctx,
-			minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, syncConfig.ObjectsBucket, syncConfig.ObjectsBaseFolder, model.EndpointOptions{})
+			minioConfig.BuildUrl(),
+			minioConfig.ApiKey,
+			minioConfig.ApiSecret,
+			syncConfig.ObjectsBucket,
+			syncConfig.ObjectsBaseFolder,
+			false,
+			model.EndpointOptions{})
 		if errs3 != nil {
 			return errs3
 		}

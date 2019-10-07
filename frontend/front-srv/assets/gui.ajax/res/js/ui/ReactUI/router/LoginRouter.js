@@ -22,35 +22,23 @@
 import browserHistory from 'react-router/lib/browserHistory'
 
 const LoginRouterWrapper = (pydio) => {
-    class LoginRouter extends React.PureComponent {
-        constructor(props) {
-            super(props)
-
-            this.state = {
-                user: pydio.user
-            }
+    const LoginRouter = (props) => {
+        if (pydio.user) {
+            browserHistory.replace("/")
+            return null
         }
 
-        componentDidMount() {
-            pydio.observe('user_logged', (user) => this.setState(user))
+        pydio.observeOnce('user_logged', (u) => {
+            browserHistory.replace('/')
+        })
 
-            localStorage.removeItem("loginOrigin")
-            localStorage.removeItem("oauthOrigin")
-        }
-
-        render() {
-            const {user} = this.state;
-
-            if (user) {
-                browserHistory.push('/')
-            }
-
-            return (
-                <div>
-                    {this.props.children}
-                </div>
-            )
-        }
+        localStorage.removeItem("loginOrigin")
+    
+        return (
+            <div>
+                {props.children}
+            </div>
+        )
     }
 
     return LoginRouter

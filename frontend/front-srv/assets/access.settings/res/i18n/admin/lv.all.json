@@ -1388,6 +1388,9 @@
   "ws.board.summary": {
     "other": "Darbvirsmas sākums"
   },
+  "ws.board.syncable": {
+    "other": "Sync"
+  },
   "ws.complete.datasources": {
     "other": "Datu avoti un Direktorijas"
   },
@@ -1455,7 +1458,7 @@
     "other": "Ātrās nosūtīšanas izkārtojums (tikai enterprise versijā)"
   },
   "ws.editor.other.sync": {
-    "other": "Ļaut darbvirsmas sinhronizāciju (eksperimentāli)"
+    "other": "Ļaut darbvirsmas sinhronizāciju"
   },
   "ws.editor.path.folder": {
     "other": "Direktorijas ceļš"

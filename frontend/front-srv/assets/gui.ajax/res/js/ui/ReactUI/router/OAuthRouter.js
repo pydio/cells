@@ -33,8 +33,7 @@ export const OAuthLoginRouter = (pydio) => {
 
             this.loginChallenge = parsed.login_challenge
 
-            localStorage.setItem("oauthOrigin", document.referrer)
-            localStorage.removeItem("loginOrigin")
+            localStorage.setItem("loginOrigin", props.location.pathname + props.location.search)
         }
 
         authorize() {
@@ -52,7 +51,6 @@ export const OAuthLoginRouter = (pydio) => {
                     headers: { 'Content-Type': 'application/json' }
                 }).
                 then(function (response) {
-                    console.log("Response is ", response)
                     return response.json()
                 }).
                 then(function (response) {

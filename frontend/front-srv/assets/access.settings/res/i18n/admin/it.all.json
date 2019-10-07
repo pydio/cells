@@ -1388,6 +1388,9 @@
   "ws.board.summary": {
     "other": "Root del workspace"
   },
+  "ws.board.syncable": {
+    "other": "Sync"
+  },
   "ws.complete.datasources": {
     "other": "DataSource e cartelle"
   },
@@ -1455,7 +1458,7 @@
     "other": "Layout facile per il trasferimento (solo aziende)"
   },
   "ws.editor.other.sync": {
-    "other": "Consenti la sincronizzazione dei desktop (ancora sperimentale)"
+    "other": "Consenti la sincronizzazione dei desktop"
   },
   "ws.editor.path.folder": {
     "other": "Percorso della Cartella"

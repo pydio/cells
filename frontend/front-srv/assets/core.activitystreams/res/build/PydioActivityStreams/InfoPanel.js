@@ -67,6 +67,10 @@ var InfoPanel = (function (_React$Component) {
             var node = _props.node;
             var pydio = _props.pydio;
 
+            if (pydio.getPluginConfigs("core.activitystreams").get("ACTIVITY_SHOW_ACTIVITIES") === false) {
+                return null;
+            }
+
             return _react2['default'].createElement(
                 InfoPanelCard,
                 { identifier: "activity", title: node.isLeaf() ? pydio.MessageHash['notification_center.11'] : pydio.MessageHash['notification_center.10'] },

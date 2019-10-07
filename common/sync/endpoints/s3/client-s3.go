@@ -57,14 +57,15 @@ type Client struct {
 	Mc                          MockableMinio
 	Bucket                      string
 	RootPath                    string
+	Host                        string
 	ServerRequiresNormalization bool
 	options                     model.EndpointOptions
 	globalContext               context.Context
 	plainSizeComputer           func(nodeUUID string) (int64, error)
 }
 
-func NewClient(ctx context.Context, url string, key string, secret string, bucket string, rootPath string, options model.EndpointOptions) (*Client, error) {
-	mc, e := minio.New(url, key, secret, false)
+func NewClient(ctx context.Context, host string, key string, secret string, bucket string, rootPath string, secure bool, options model.EndpointOptions) (*Client, error) {
+	mc, e := minio.New(host, key, secret, secure)
 	if e != nil {
 		return nil, e
 	}
@@ -72,6 +73,7 @@ func NewClient(ctx context.Context, url string, key string, secret string, bucke
 	return &Client{
 		Mc:            mc,
 		Bucket:        bucket,
+		Host:          host,
 		RootPath:      strings.TrimRight(rootPath, "/"),
 		options:       options,
 		globalContext: ctx,
@@ -81,7 +83,7 @@ func NewClient(ctx context.Context, url string, key string, secret string, bucke
 func (c *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "s3:///" + path.Join(c.Bucket, c.RootPath),
+		URI: "s3://" + c.Host + "/" + path.Join(c.Bucket, c.RootPath),
 		RequiresFoldersRescan: false,
 		RequiresNormalization: c.ServerRequiresNormalization,
 	}

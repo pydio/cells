@@ -66,20 +66,31 @@ export default React.createClass({
 
     computeTableData(){
         let data = [];
+        const {pydio} = this.props;
         const {workspaces} = this.state;
         workspaces.map((workspace) => {
-            let summary = ""; // compute root nodes list ?
+            let summary = ""; // compute root nodes list
             if(workspace.RootNodes){
                 summary = Object.keys(workspace.RootNodes).map(k => {
                     return LangUtils.trimRight(workspace.RootNodes[k].Path, '/');
                 }).join(', ');
+            }
+            let syncable = false;
+            if(workspace.Attributes){
+                try {
+                    const atts = JSON.parse(workspace.Attributes);
+                    if (atts['ALLOW_SYNC'] === true) {
+                        syncable = true;
+                    }
+                }catch(e){}
             }
             data.push({
                 payload: workspace,
                 label: workspace.Label,
                 description : workspace.Description,
                 slug : workspace.Slug,
-                summary: summary
+                summary: summary,
+                syncable: syncable,
             });
         });
         data.sort(LangUtils.arraySorter('label', false, true));
@@ -94,8 +105,11 @@ export default React.createClass({
 
         const columns = [
             {name:'label', label: s('8'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
-            {name:'description', label: s('103'), hideSmall:true, style:{width:'30%'}, headerStyle:{width:'30%'}},
-            {name:'summary', label: m('ws.board.summary'), hideSmall:true, style:{width:'30%'}, headerStyle:{width:'30%'}},
+            {name:'description', label: s('103'), hideSmall:true, style:{width:'25%'}, headerStyle:{width:'25%'}},
+            {name:'summary', label: m('ws.board.summary'), hideSmall:true, style:{width:'25%'}, headerStyle:{width:'25%'}},
+            {name:'syncable', label: m('ws.board.syncable'), style:{width:'10%', textAlign:'center'}, headerStyle:{width:'10%', textAlign:'center'}, renderCell:(row)=>{
+                    return <span className={"mdi mdi-check"} style={{fontSize:18, opacity:row.syncable?1:0}}/>
+                }},
             {name:'slug', label: m('ws.5'), style:{width:'20%'}, headerStyle:{width:'20%'}},
         ];
         const {loading} = this.state;

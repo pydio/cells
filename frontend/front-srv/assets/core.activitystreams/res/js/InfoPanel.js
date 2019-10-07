@@ -30,6 +30,10 @@ class InfoPanel extends React.Component {
     render(){
         const {node, pydio} = this.props;
 
+        if (pydio.getPluginConfigs("core.activitystreams").get("ACTIVITY_SHOW_ACTIVITIES") === false) {
+            return null;
+        }
+
         return (
             <InfoPanelCard identifier={"activity"} title={node.isLeaf()?pydio.MessageHash['notification_center.11']:pydio.MessageHash['notification_center.10']}>
                 <ActivityList

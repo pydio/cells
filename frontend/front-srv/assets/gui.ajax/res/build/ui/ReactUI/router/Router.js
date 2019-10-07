@@ -78,14 +78,14 @@ function getRoutes(pydio) {
         null,
         React.createElement(
             _reactRouterLibRoute2['default'],
-            { path: 'login' },
+            { path: '/login' },
             React.createElement(_reactRouterLibIndexRoute2['default'], { component: _LoginRouter2['default'](pydio) }),
             React.createElement(_reactRouterLibRoute2['default'], { path: 'callback', component: _LoginCallbackRouter2['default'](pydio) })
         ),
-        React.createElement(_reactRouterLibRoute2['default'], { path: 'logout', component: _LogoutRouter2['default'](pydio) }),
+        React.createElement(_reactRouterLibRoute2['default'], { path: '/logout', component: _LogoutRouter2['default'](pydio) }),
         React.createElement(
             _reactRouterLibRoute2['default'],
-            { path: 'oauth2' },
+            { path: '/oauth2' },
             React.createElement(_reactRouterLibRoute2['default'], { path: 'login', component: _OAuthRouter.OAuthLoginRouter(pydio) }),
             React.createElement(_reactRouterLibRoute2['default'], { path: 'consent', component: _OAuthRouter.OAuthConsentRouter(pydio) })
         ),

@@ -49,8 +49,7 @@ var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
 
             this.loginChallenge = parsed.login_challenge;
 
-            localStorage.setItem("oauthOrigin", document.referrer);
-            localStorage.removeItem("loginOrigin");
+            localStorage.setItem("loginOrigin", props.location.pathname + props.location.search);
         }
 
         _class.prototype.authorize = function authorize() {
@@ -67,7 +66,6 @@ var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
                     body: JSON.stringify(body),
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
-                    console.log("Response is ", response);
                     return response.json();
                 }).then(function (response) {
                     // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.

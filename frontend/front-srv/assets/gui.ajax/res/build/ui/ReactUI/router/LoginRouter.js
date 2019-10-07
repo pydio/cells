@@ -24,55 +24,29 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
 var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
 
 var LoginRouterWrapper = function LoginRouterWrapper(pydio) {
-    var LoginRouter = (function (_React$PureComponent) {
-        _inherits(LoginRouter, _React$PureComponent);
-
-        function LoginRouter(props) {
-            _classCallCheck(this, LoginRouter);
-
-            _React$PureComponent.call(this, props);
-
-            this.state = {
-                user: pydio.user
-            };
+    var LoginRouter = function LoginRouter(props) {
+        if (pydio.user) {
+            _reactRouterLibBrowserHistory2['default'].replace("/");
+            return null;
         }
 
-        LoginRouter.prototype.componentDidMount = function componentDidMount() {
-            var _this = this;
+        pydio.observeOnce('user_logged', function (u) {
+            _reactRouterLibBrowserHistory2['default'].replace('/');
+        });
 
-            pydio.observe('user_logged', function (user) {
-                return _this.setState(user);
-            });
+        localStorage.removeItem("loginOrigin");
 
-            localStorage.removeItem("loginOrigin");
-            localStorage.removeItem("oauthOrigin");
-        };
-
-        LoginRouter.prototype.render = function render() {
-            var user = this.state.user;
-
-            if (user) {
-                _reactRouterLibBrowserHistory2['default'].push('/');
-            }
-
-            return React.createElement(
-                'div',
-                null,
-                this.props.children
-            );
-        };
-
-        return LoginRouter;
-    })(React.PureComponent);
+        return React.createElement(
+            'div',
+            null,
+            props.children
+        );
+    };
 
     return LoginRouter;
 };
