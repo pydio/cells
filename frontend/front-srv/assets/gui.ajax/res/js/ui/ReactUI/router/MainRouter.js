@@ -18,67 +18,45 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import _ from 'lodash';
 import browserHistory from 'react-router/lib/browserHistory';
 
 const MainRouterWrapper = (pydio) => {
     class MainRouter extends React.PureComponent {
-
-        constructor(props) {
-            super(props)
-
-            this.state = this.getState()
-
-            this._ctxObs = (e) => {
-                this.setState(this.getState())
-            }
-        }
-
-        getState() {
+        reset() {
             const list =  pydio.user ? pydio.user.getRepositoriesList() : new Map()
             const active = pydio.user ? pydio.user.getActiveRepository() : ""
             const path = pydio.user ? pydio.getContextNode().getPath() : ""
-            const uri = this.getURI({list, active, path})
-
-            return {
-                uri
-            }
-        }
-
-        getURI({list, active, path}) {
             const repo = list.get(active);
             const slug = repo ? repo.getSlug() : "";
             const reserved = ['homepage', 'settings'];
             const prefix = repo && reserved.indexOf(repo.getAccessType()) === -1 ? "ws-" : "";
+            const uri = `/${prefix}${slug}${path}`
 
-            return `/${prefix}${slug}${path}`
+            if (this.props.location.action === 'POP') {
+                browserHistory.replace(uri)
+            } else {
+                browserHistory.push(uri)
+            }
         }
 
         componentDidMount() {
-            pydio.getContextHolder().observe("context_changed", this._ctxObs);
-            pydio.getContextHolder().observe("repository_list_refreshed", this._ctxObs);
-        }
-
-        componentWillUnmount() {
-            pydio.getContextHolder().stopObserving("context_changed", this._ctxObs);
-            pydio.getContextHolder().stopObserving("repository_list_refreshed", this._ctxObs);
+            const ctxObs = _.debounce(() => this.reset(), 1000, {'leading': true, 'trailing': false})
+            
+            pydio.getContextHolder().observe("context_changed", ctxObs);
+            pydio.getContextHolder().observe("repository_list_refreshed", ctxObs);
         }
 
         render() {
-            const {uri} = this.state
-
-            if (pydio.user && uri !== this.props.location.pathname) {
-                browserHistory.replace(uri)
-            }
-
             return (
                 <div>
                     {this.props.children}
                 </div>
-            );
+            )
         }
-    };
+    }
 
-    return MainRouter;
-};
+    return MainRouter
+}
 
-export {MainRouterWrapper as default}
+export default MainRouterWrapper

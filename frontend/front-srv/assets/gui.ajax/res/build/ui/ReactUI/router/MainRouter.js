@@ -18,15 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
@@ -36,63 +40,43 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
     var MainRouter = (function (_React$PureComponent) {
         _inherits(MainRouter, _React$PureComponent);
 
-        function MainRouter(props) {
-            var _this = this;
-
+        function MainRouter() {
             _classCallCheck(this, MainRouter);
 
-            _React$PureComponent.call(this, props);
-
-            this.state = this.getState();
-
-            this._ctxObs = function (e) {
-                _this.setState(_this.getState());
-            };
+            _React$PureComponent.apply(this, arguments);
         }
 
-        MainRouter.prototype.getState = function getState() {
+        MainRouter.prototype.reset = function reset() {
             var list = pydio.user ? pydio.user.getRepositoriesList() : new Map();
             var active = pydio.user ? pydio.user.getActiveRepository() : "";
             var path = pydio.user ? pydio.getContextNode().getPath() : "";
-            var uri = this.getURI({ list: list, active: active, path: path });
-
-            return {
-                uri: uri
-            };
-        };
-
-        MainRouter.prototype.getURI = function getURI(_ref) {
-            var list = _ref.list;
-            var active = _ref.active;
-            var path = _ref.path;
-
             var repo = list.get(active);
             var slug = repo ? repo.getSlug() : "";
             var reserved = ['homepage', 'settings'];
             var prefix = repo && reserved.indexOf(repo.getAccessType()) === -1 ? "ws-" : "";
+            var uri = '/' + prefix + slug + path;
 
-            return "/" + prefix + slug + path;
+            if (this.props.location.action === 'POP') {
+                _reactRouterLibBrowserHistory2['default'].replace(uri);
+            } else {
+                _reactRouterLibBrowserHistory2['default'].push(uri);
+            }
         };
 
         MainRouter.prototype.componentDidMount = function componentDidMount() {
-            pydio.getContextHolder().observe("context_changed", this._ctxObs);
-            pydio.getContextHolder().observe("repository_list_refreshed", this._ctxObs);
-        };
+            var _this = this;
 
-        MainRouter.prototype.componentWillUnmount = function componentWillUnmount() {
-            pydio.getContextHolder().stopObserving("context_changed", this._ctxObs);
-            pydio.getContextHolder().stopObserving("repository_list_refreshed", this._ctxObs);
+            var ctxObs = _lodash2['default'].debounce(function () {
+                return _this.reset();
+            }, 1000, { 'leading': true, 'trailing': false });
+
+            pydio.getContextHolder().observe("context_changed", ctxObs);
+            pydio.getContextHolder().observe("repository_list_refreshed", ctxObs);
         };
 
         MainRouter.prototype.render = function render() {
-            var uri = this.state.uri;
-
-            if (pydio.user && uri !== this.props.location.pathname) {
-                _reactRouterLibBrowserHistory2["default"].replace(uri);
-            }
-
             return React.createElement(
-                "div",
+                'div',
                 null,
                 this.props.children
             );
@@ -101,10 +85,8 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
         return MainRouter;
     })(React.PureComponent);
 
-    ;
-
     return MainRouter;
 };
 
-exports["default"] = MainRouterWrapper;
-module.exports = exports["default"];
+exports['default'] = MainRouterWrapper;
+module.exports = exports['default'];
