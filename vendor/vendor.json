@@ -3758,10 +3758,10 @@
 			"revisionTime": "2019-09-17T18:18:20Z"
 		},
 		{
-			"checksumSHA1": "q/5UnhKPEJM/sk/qZvAnLAV/AIg=",
+			"checksumSHA1": "0iIm38Gd5ODsra6pQ+vxIVkXf9I=",
 			"path": "github.com/pydio/cells-sdk-go/transport/mc",
-			"revision": "608efa720add571710de67201f84277de745f09e",
-			"revisionTime": "2019-09-17T18:18:20Z"
+			"revision": "1b422953843ef8277f57a3a7e70975222e5ca12d",
+			"revisionTime": "2019-10-08T18:04:56Z"
 		},
 		{
 			"checksumSHA1": "eR/ZvzP12MEPPsmjmAZ7CCXP+n8=",

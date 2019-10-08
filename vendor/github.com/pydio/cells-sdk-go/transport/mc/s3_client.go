@@ -22,10 +22,12 @@ package mc
 
 import (
 	"context"
+	"crypto/tls"
 	"io"
+	"net/http"
 	"net/url"
 
-	minio "github.com/pydio/minio-go"
+	"github.com/pydio/minio-go"
 
 	sdk "github.com/pydio/cells-sdk-go"
 	"github.com/pydio/cells-sdk-go/transport/oidc"
@@ -63,6 +65,9 @@ func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *
 	if e != nil {
 		return nil, e
 	}
+	if g.config.SkipVerify {
+		mc.SetCustomTransport(&http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}})
+	}
 	r, _, e := mc.GetObject(g.s3config.Bucket, node.Path, minio.GetObjectOptions{})
 	return r, e
 }
@@ -78,6 +83,9 @@ func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	if e != nil {
 		return 0, e
 	}
+	if g.config.SkipVerify {
+		mc.SetCustomTransport(&http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}})
+	}
 	return mc.PutObjectWithContext(ctx, g.s3config.Bucket, node.Path, reader, requestData.Size, minio.PutObjectOptions{
 		UserMetadata: requestData.Metadata,
 	})
@@ -91,6 +99,9 @@ func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	mc, e := minio.New(g.s3config.Endpoint, g.s3config.ApiKey, jwt, false)
 	if e != nil {
 		return 0, e
+	}
+	if g.config.SkipVerify {
+		mc.SetCustomTransport(&http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}})
 	}
 	dst, e := minio.NewDestinationInfo(g.s3config.Bucket, to.Path, nil, requestData.Metadata)
 	if e != nil {
