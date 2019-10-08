@@ -85,7 +85,9 @@ func getTLSServerConfig(t string) {
 		// Directly provided in conf
 		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
 		if err != nil {
-			log.Fatal("Cannot load client key pair ", err)
+			//log.Fatal("Cannot load client key pair ", err)
+			fmt.Println("[ERROR] Cannot load client key pair ", err)
+			return
 		}
 
 		tlsServerConfig[t] = &tls.Config{
@@ -93,6 +95,10 @@ func getTLSServerConfig(t string) {
 		}
 	} else if selfSigned {
 		// Self signed
+		// TODO
+		// THIS is incorrect (this is a client Config, not a server config with self_signed certificates)
+		// We are not able to retrieve Caddy-generated self-signed certificate
+		// Shall we generate our own self-signed for gRPC ?
 		tlsServerConfig[t] = &tls.Config{
 			InsecureSkipVerify: true,
 		}
