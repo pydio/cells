@@ -21,6 +21,7 @@ package cells
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -52,21 +53,39 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 		err = errors.Wrap(model.NewConfigError(e), "cannot parse url")
 		return
 	}
-
+	var mainPort string
 	if strings.Contains(u.Host, ":") {
-		host, _, err = net.SplitHostPort(u.Host)
+		host, mainPort, err = net.SplitHostPort(u.Host)
 		if err != nil {
 			return "", "", errors.Wrap(model.NewConfigError(err), "cannot split host/port")
 		}
 	} else {
 		host = u.Host
 	}
+	// Grpc should be accessible on the main port - no need to perform dynamic detection
+	if u.Scheme == "https" {
+		if mainPort == "" {
+			port = "443"
+		} else {
+			port = mainPort
+		}
+		return
+	}
+
 	var ok bool
 	if detectedGrpcPorts == nil {
 		detectedGrpcPorts = make(map[string]string)
 	}
 	if port, ok = detectedGrpcPorts[host]; !ok || reload {
-		resp, e := http.DefaultClient.Get(fmt.Sprintf("%s/a/config/discovery", config.Url))
+		httpClient := http.DefaultClient
+		if config.SkipVerify {
+			httpClient = &http.Client{
+				Transport: &http.Transport{
+					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				},
+			}
+		}
+		resp, e := httpClient.Get(fmt.Sprintf("%s/a/config/discovery", config.Url))
 		if e != nil {
 			err = errors.Wrap(e, "cannot connect to discovery endpoint")
 			return

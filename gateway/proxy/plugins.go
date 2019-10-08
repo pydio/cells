@@ -52,112 +52,125 @@ import (
 
 var (
 	caddyfile = `
-		{{.Bind}} {
-		proxy /a  {{.Micro | urls}} {
-			without /a
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-		proxy /auth/dex {{.Dex | urls}} {
-			insecure_skip_verify
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-		proxy /oidc {{.OAuth | urls}} {
-			insecure_skip_verify
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-		proxy /io   {{.Gateway | serviceAddress}} {
-			header_upstream Host {{.ExternalHost}}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-		proxy /data {{.Gateway | serviceAddress}} {
-			header_upstream Host {{.ExternalHost}}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-		proxy /ws   {{.WebSocket | urls}} {
-			websocket
-			without /ws
-		}
-		proxy /plug/ {{.FrontPlugins | urls}} {
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-			header_downstream Cache-Control "public, max-age=31536000"
-		}
-		proxy /dav/ {{.DAV | urls}} {
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
+{{.Bind}} {
+	proxy /a  {{.Micro | urls}} {
+		without /a
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	proxy /auth/dex {{.Dex | urls}} {
+		insecure_skip_verify
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	proxy /oidc {{.OAuth | urls}} {
+		insecure_skip_verify
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	proxy /io   {{.Gateway | serviceAddress}} {
+		header_upstream Host {{.ExternalHost}}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	proxy /data {{.Gateway | serviceAddress}} {
+		header_upstream Host {{.ExternalHost}}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	proxy /ws   {{.WebSocket | urls}} {
+		websocket
+		without /ws
+	}
+	proxy /plug/ {{.FrontPlugins | urls}} {
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+		header_downstream Cache-Control "public, max-age=31536000"
+	}
+	proxy /dav/ {{.DAV | urls}} {
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	
+	proxy /public/ {{.FrontPlugins | urls}} {
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	
+	proxy /user/reset-password/ {{.FrontPlugins | urls}} {
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	
+	proxy /robots.txt {{.FrontPlugins | urls}} {
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+	
+	proxy /login {{urls .FrontPlugins "/gui"}} {
+		without /login
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+{{if .ProxyGRPC}}
+	proxy /grpc https://{{.ProxyGRPC | urls}} {
+		without /grpc
+		insecure_skip_verify
+	}
+	
+	rewrite {
+		if {>Content-type} has "application/grpc"
+		to /grpc/{path}
+	}
+{{end}}
 
-		proxy /public/ {{.FrontPlugins | urls}} {
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-
-		proxy /user/reset-password/ {{.FrontPlugins | urls}} {
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-
-		proxy /robots.txt {{.FrontPlugins | urls}} {
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-
-		proxy /login {{urls .FrontPlugins "/gui"}} {
-			without /login
-			header_upstream Host {host}
-			header_upstream X-Real-IP {remote}
-			header_upstream X-Forwarded-Proto {scheme}
-		}
-
-		redir 302 {
-		  if {path} is /
-		  / /login
-		}
-
-		{{range .PluginTemplates}}
-		{{call .}}
+	redir 302 {
+		{{if .ProxyGRPC}}if {>Content-type} not_has "application/grpc"{{end}}
+		if {path} is /
+		/ /login
+	}
+	
+	{{range .PluginTemplates}}
+	{{call .}}
+	{{end}}
+	
+	rewrite {
+		if {path} not_starts_with "/a/"
+		if {path} not_starts_with "/auth/"
+		if {path} not_starts_with "/oidc/"
+		if {path} not_starts_with "/io"
+		if {path} not_starts_with "/data"
+		if {path} not_starts_with "/ws/"
+		if {path} not_starts_with "/plug/"
+		if {path} not_starts_with "/dav/"
+		{{range .PluginPathes}}
+		if {path} not_starts_with "{{.}}"
 		{{end}}
+		if {path} not_starts_with "/public/"
+		if {path} not_starts_with "/user/reset-password"
+		if {path} not_starts_with "/robots.txt"
+		to {path} {path}/ /login
+	}
 
-		rewrite {
-			if {path} not_starts_with "/a/"
-			if {path} not_starts_with "/auth/"
-			if {path} not_starts_with "/oidc/"
-			if {path} not_starts_with "/io"
-			if {path} not_starts_with "/data"
-			if {path} not_starts_with "/ws/"
-			if {path} not_starts_with "/plug/"
-			if {path} not_starts_with "/dav/"
-			{{range .PluginPathes}}
-			if {path} not_starts_with "{{.}}"
-			{{end}}
-			if {path} not_starts_with "/public/"
-			if {path} not_starts_with "/user/reset-password"
-			if {path} not_starts_with "/robots.txt"
-			to {path} {path}/ /login
-		}
+	{{if .TLS}}tls {{.TLS}}{{end}}
+	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
+	errors "{{.Logs}}/caddy_errors.log"
+}
 
-		{{if .TLS}}tls {{.TLS}}{{end}}
-		errors "{{.Logs}}/caddy_errors.log"
-		}
-
-		{{if .HTTPRedirectSource}}
-		http://{{.HTTPRedirectSource.Host}} {
-			redir https://{{.HTTPRedirectTarget.Host}}
-		}
-		{{end}}
+{{if .HTTPRedirectSource}}
+http://{{.HTTPRedirectSource.Host}} {
+	redir https://{{.HTTPRedirectTarget.Host}}
+}
+{{end}}
 	`
 
 	caddyconf = struct {
@@ -171,10 +184,13 @@ var (
 		WebSocket    string
 		FrontPlugins string
 		DAV          string
+		ProxyGRPC    string
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
 		// Caddy compliant TLS string, either "self_signed", a valid email for Let's encrypt managed certificate or paths to "cert key"
-		TLS string
+		TLS     string
+		TLSCert string
+		TLSKey  string
 		// If TLS is enabled, also enable auto-redirect from http to https
 		HTTPRedirectSource *url.URL
 		HTTPRedirectTarget *url.URL
@@ -357,11 +373,14 @@ func LoadCaddyConf() error {
 			caddyconf.TLS = "self_signed"
 		} else if certEmail := config.Get("cert", "proxy", "email").String(""); certEmail != "" {
 			caddyconf.TLS = certEmail
+			caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
 		} else {
 			cert := config.Get("cert", "proxy", "certFile").String("")
 			key := config.Get("cert", "proxy", "keyFile").String("")
 			if cert != "" && key != "" {
-				caddyconf.TLS = fmt.Sprintf("%s %s", cert, key)
+				caddyconf.TLSCert = cert
+				caddyconf.TLSKey = key
+				caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
 			} else {
 				fmt.Println("Missing one of certFile/keyFile in SSL declaration. Will not enable SSL on proxy")
 			}

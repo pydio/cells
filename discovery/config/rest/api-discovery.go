@@ -86,17 +86,19 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	endpointResponse.Endpoints["websocket"] = fmt.Sprintf("%s://%s/ws/event", wsProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["frontend"] = fmt.Sprintf("%s://%s", httpProtocol, urlParsed.Host)
 
-	// Detect GRPC Service Ports
-	var grpcPorts []string
-	if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC); e == nil {
-		for _, s := range ss {
-			for _, n := range s.Nodes {
-				grpcPorts = append(grpcPorts, fmt.Sprintf("%d", n.Port))
+	if !ssl {
+		// Detect GRPC Service Ports
+		var grpcPorts []string
+		if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC); e == nil {
+			for _, s := range ss {
+				for _, n := range s.Nodes {
+					grpcPorts = append(grpcPorts, fmt.Sprintf("%d", n.Port))
+				}
 			}
 		}
-	}
-	if len(grpcPorts) > 0 {
-		endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
+		if len(grpcPorts) > 0 {
+			endpointResponse.Endpoints["grpc"] = strings.Join(grpcPorts, ",")
+		}
 	}
 
 	resp.WriteEntity(endpointResponse)
