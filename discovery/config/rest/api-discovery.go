@@ -26,13 +26,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/viper"
-
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
@@ -50,21 +50,21 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	if t, e = time.Parse("2006-01-02T15:04:05", common.BuildStamp); e != nil {
 		t = time.Now()
 	}
+
 	endpointResponse := &rest.DiscoveryResponse{
-		PackageType:   common.PackageType,
-		PackageLabel:  common.PackageLabel,
-		Version:       common.Version().String(),
-		BuildStamp:    int32(t.Unix()),
-		BuildRevision: common.BuildRevision,
-		Endpoints:     make(map[string]string),
+		Endpoints: make(map[string]string),
+	}
+	if _, ok := req.Request.Context().Value(claim.ContextKey).(claim.Claims); ok {
+		endpointResponse.PackageType = common.PackageType
+		endpointResponse.PackageLabel = common.PackageLabel
+		endpointResponse.Version = common.Version().String()
+		endpointResponse.BuildStamp = int32(t.Unix())
+		endpointResponse.BuildRevision = common.BuildRevision
 	}
 
 	cfg := config.Default()
 	httpProtocol := "http"
 	wsProtocol := "ws"
-
-	ip, _ := net.GetExternalIP()
-	s3Port := cfg.Get("services", "pydio.grpc.gateway.data", "port").String("")
 
 	mainUrl := cfg.Get("defaults", "url").String("")
 	if !strings.HasPrefix(mainUrl, "http") {
@@ -82,8 +82,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	endpointResponse.Endpoints["openapi"] = fmt.Sprintf("%s://%s/a/config/discovery/openapi", httpProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["forms"] = fmt.Sprintf("%s://%s/a/config/discovery/forms/{serviceName}", httpProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["oidc"] = fmt.Sprintf("%s://%s/auth", httpProtocol, urlParsed.Host)
-	endpointResponse.Endpoints["s3"] = fmt.Sprintf("%s://%s:%s", httpProtocol, ip.String(), s3Port)
-
+	endpointResponse.Endpoints["s3"] = fmt.Sprintf("%s://%s/io", httpProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["chats"] = fmt.Sprintf("%s://%s/ws/chat", wsProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["websocket"] = fmt.Sprintf("%s://%s/ws/event", wsProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["frontend"] = fmt.Sprintf("%s://%s", httpProtocol, urlParsed.Host)
