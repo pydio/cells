@@ -243,7 +243,10 @@ func (f *remoteClientFactory) serverCerts() (*x509.CertPool, error) {
 	defer conn.Close()
 	cert := conn.ConnectionState().PeerCertificates
 
-	pool := x509.NewCertPool()
+	var pool *x509.CertPool
+	if pool, err = x509.SystemCertPool(); err != nil {
+		pool = x509.NewCertPool()
+	}
 	for _, c := range cert {
 		pool.AddCert(c)
 	}

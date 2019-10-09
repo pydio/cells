@@ -153,7 +153,10 @@ func getTLSClientConfig(t string) {
 		log.Fatal("Cannot read cert file", err)
 	}
 
-	cp := x509.NewCertPool()
+	var cp *x509.CertPool
+	if cp, err = x509.SystemCertPool(); err != nil {
+		cp = x509.NewCertPool()
+	}
 	if !cp.AppendCertsFromPEM(b) {
 		log.Fatal("Cannot append cert to pool")
 	}
