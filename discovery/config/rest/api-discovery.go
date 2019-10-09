@@ -88,7 +88,8 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	endpointResponse.Endpoints["websocket"] = fmt.Sprintf("%s://%s/ws/event", wsProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["frontend"] = fmt.Sprintf("%s://%s", httpProtocol, urlParsed.Host)
 
-	externalSet := viper.Get("grpc_external") != nil
+	external := viper.Get("grpc_external")
+	externalSet := external != nil && external.(string) != ""
 	if !ssl || externalSet {
 		// Detect GRPC Service Ports
 		var grpcPorts []string

@@ -366,7 +366,8 @@ func LoadCaddyConf() error {
 	}
 
 	caddyconf.Micro = common.SERVICE_MICRO_API
-	externalSet := viper.Get("grpc_external") != nil
+	external := viper.Get("grpc_external")
+	externalSet := external != nil && external.(string) != ""
 
 	protocol := "http://"
 	tls := config.Get("cert", "proxy", "ssl").Bool(false)
