@@ -62,15 +62,6 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 	} else {
 		host = u.Host
 	}
-	// Grpc should be accessible on the main port - no need to perform dynamic detection
-	if u.Scheme == "https" {
-		if mainPort == "" {
-			port = "443"
-		} else {
-			port = mainPort
-		}
-		return
-	}
 
 	var ok bool
 	if detectedGrpcPorts == nil {
@@ -105,7 +96,13 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 			}
 		}
 		if !found {
-			err = model.NewConfigError(errors.New("no port declared for GRPC endpoint"))
+			// If no port is declared, we consider gRPC should be accessible on the main port
+			if mainPort == "" {
+				port = "443"
+			} else {
+				port = mainPort
+			}
+			detectedGrpcPorts[host] = port
 			return
 		}
 	}

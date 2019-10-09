@@ -177,7 +177,7 @@ func init() {
 	flags.String("transport", "grpc", "Transport protocol for RPC")
 	flags.String("transport_address", ":4222", "Transport protocol port")
 
-	flags.String("grpc_external", "", "External port exposed for gRPC communication (may be needed if no SSL is configured)")
+	flags.String("grpc_external", "", "External port exposed for gRPC (may be fixed if no SSL is configured or a reverse proxy is used)")
 
 	flags.String("log", "info", "Sets the log level mode")
 	flags.String("grpc_cert", "", "Certificates used for communication via grpc")

@@ -33,6 +33,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/viper"
+
 	caddyutils "github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-micro/broker"
@@ -364,6 +366,7 @@ func LoadCaddyConf() error {
 	}
 
 	caddyconf.Micro = common.SERVICE_MICRO_API
+	externalSet := viper.Get("grpc_external") != nil
 
 	protocol := "http://"
 	tls := config.Get("cert", "proxy", "ssl").Bool(false)
@@ -373,14 +376,18 @@ func LoadCaddyConf() error {
 			caddyconf.TLS = "self_signed"
 		} else if certEmail := config.Get("cert", "proxy", "email").String(""); certEmail != "" {
 			caddyconf.TLS = certEmail
-			caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
+			if !externalSet {
+				caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
+			}
 		} else {
 			cert := config.Get("cert", "proxy", "certFile").String("")
 			key := config.Get("cert", "proxy", "keyFile").String("")
 			if cert != "" && key != "" {
 				caddyconf.TLSCert = cert
 				caddyconf.TLSKey = key
-				caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
+				if !externalSet {
+					caddyconf.ProxyGRPC = common.SERVICE_GATEWAY_GRPC
+				}
 			} else {
 				fmt.Println("Missing one of certFile/keyFile in SSL declaration. Will not enable SSL on proxy")
 			}

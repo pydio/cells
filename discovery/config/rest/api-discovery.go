@@ -26,6 +26,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
+
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
@@ -86,7 +88,8 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	endpointResponse.Endpoints["websocket"] = fmt.Sprintf("%s://%s/ws/event", wsProtocol, urlParsed.Host)
 	endpointResponse.Endpoints["frontend"] = fmt.Sprintf("%s://%s", httpProtocol, urlParsed.Host)
 
-	if !ssl {
+	externalSet := viper.Get("grpc_external") != nil
+	if !ssl || externalSet {
 		// Detect GRPC Service Ports
 		var grpcPorts []string
 		if ss, e := registry.GetService(common.SERVICE_GATEWAY_GRPC); e == nil {
