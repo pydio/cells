@@ -96,7 +96,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 					ID: "actions.archive.compress",
 					Parameters: map[string]string{
 						"format": format,
-						"target": targetNodePath, // NOT USED YET - TODO
+						"target": targetNodePath,
 					},
 					NodesSelector: &jobs.NodesSelector{
 						Collect: true,
