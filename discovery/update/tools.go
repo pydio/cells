@@ -37,7 +37,10 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
+
+	"github.com/hashicorp/go-version"
 
 	"github.com/golang/protobuf/jsonpb"
 	update2 "github.com/inconshreveable/go-update"
@@ -144,6 +147,13 @@ func LoadUpdates(ctx context.Context, conf common.ConfigValues, request *update.
 		}
 		updateResponse.AvailableBinaries = bins
 	}
+
+	// Sort by version using hashicorp sorting (X.X.X-rc should appear before X.X.X)
+	sort.Slice(updateResponse.AvailableBinaries, func(i, j int) bool {
+		va, _ := version.NewVersion(updateResponse.AvailableBinaries[i].Version)
+		vb, _ := version.NewVersion(updateResponse.AvailableBinaries[j].Version)
+		return va.LessThan(vb)
+	})
 
 	return updateResponse.AvailableBinaries, nil
 
