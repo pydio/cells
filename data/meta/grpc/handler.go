@@ -149,6 +149,9 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 				resp.Success = true
 				respNode := req.Node
 				for k, v := range metaD {
+					if k == "name" { // Never read name from cache
+						continue
+					}
 					var metaValue interface{}
 					json.Unmarshal([]byte(v), &metaValue)
 					respNode.SetMeta(k, metaValue)
