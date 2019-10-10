@@ -236,8 +236,8 @@ func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 				go c.receiveEvents(ctx, changes, finished)
 			case <-obj.DoneChan:
 				log.Logger(c.globalCtx).Info("Stopping event watcher")
-				cancel()
 				c.watchCtxCancelled = true
+				cancel()
 				return
 			}
 		}
@@ -354,7 +354,9 @@ func (c *abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 		}
 		if e != nil {
 			log.Logger(c.globalCtx).Error("Stopping watcher on error" + e.Error())
-			finished <- e
+			if !c.watchCtxCancelled {
+				finished <- e
+			}
 			break
 		}
 		if change.Source != nil {
