@@ -150,7 +150,14 @@ func (diff *TreeDiff) ToUnidirectionalPatch(direction model.DirectionType, patch
 		return errors.New("error while extracting unidirectional patch. either left or right is not a sync target")
 	}
 	for _, c := range diff.conflictsByType(ConflictFileContent) {
-		n := MostRecentNode(c.NodeLeft, c.NodeRight)
+		var n *tree.Node
+		if direction == model.DirectionRight {
+			n = c.NodeLeft
+		} else if direction == model.DirectionLeft {
+			n = c.NodeRight
+		} else {
+			n = MostRecentNode(c.NodeLeft, c.NodeRight)
+		}
 		patch.Enqueue(NewOperation(OpUpdateFile, model.NodeToEventInfo(diff.ctx, n.Path, n, model.EventCreate), n))
 	}
 	log.Logger(diff.ctx).Info("Sending unidirectional patch", zap.Any("patch", patch.Stats()))

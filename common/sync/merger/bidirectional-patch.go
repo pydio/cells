@@ -221,8 +221,8 @@ func (p *BidirectionalPatch) initMatrix() {
 	cmt := p.compareMoveTargets
 	cms := p.compareMoveSources
 	mrg := p.mergeDataOperations
-	cnT := func(left, right *TreeNode) { p.enqueConflict(left, right, ConflictNodeType) }
-	cnP := func(left, right *TreeNode) { p.enqueConflict(left, right, ConflictPathOperation) }
+	cnT := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictNodeType) }
+	cnP := func(left, right *TreeNode) { p.enqueueConflict(left, right, ConflictPathOperation) }
 	p.matrix = map[OperationType]map[OperationType]Solver{
 		OpNone:         {OpNone: ign, OpCreateFolder: eqb, OpMoveFile: eqb, OpMoveFolder: eqb, OpDelete: eqb, OpCreateFile: eqb, OpUpdateFile: eqb, OpMoveTarget: eqb},
 		OpCreateFolder: {OpNone: nil, OpCreateFolder: ign, OpMoveFile: cnP, OpMoveFolder: cnP, OpDelete: eql, OpCreateFile: cnP, OpUpdateFile: cnP, OpMoveTarget: eqb},
@@ -333,7 +333,7 @@ func (p *BidirectionalPatch) enqueueRight(left, right *TreeNode) {
 }
 
 // enqueueConflict sets a Conflict flag on the the given path in side the patch. The Conflict has references to left and right operations
-func (p *BidirectionalPatch) enqueConflict(left, right *TreeNode, t ConflictType) {
+func (p *BidirectionalPatch) enqueueConflict(left, right *TreeNode, t ConflictType) {
 	log.Logger(p.ctx).Error("-- Unsolvable conflict!", zap.Any("left", left.PathOperation), zap.Any("right", right.PathOperation))
 	p.unexpected = append(p.unexpected, fmt.Errorf("registered conflict at path %s", left.Path))
 	var leftOp, rightOp Operation
@@ -405,7 +405,7 @@ func (p *BidirectionalPatch) compareMoveSources(left, right *TreeNode) {
 		log.Logger(p.ctx).Debug("-- Moved from the same source, do not trigger conflict")
 	} else {
 		log.Logger(p.ctx).Info("-- Different sources pointing to same target, trigger a conflict")
-		p.enqueConflict(left, right, ConflictMoveSameSource)
+		p.enqueueConflict(left, right, ConflictMoveSameSource)
 	}
 }
 
@@ -478,18 +478,19 @@ func (p *BidirectionalPatch) mergeDataOperations(left, right *TreeNode) {
 			}
 		}
 
-		// TODO - FIND A CLEANER WAY
+		// TODO - FIND A CLEANER WAY ?
+		leftSuffix, rightSuffix := p.computeAutoFixSuffixes(left.DataOperation.Source().GetEndpointInfo(), right.DataOperation.Source().GetEndpointInfo())
 		leftSource, _ := model.AsPathSyncTarget(left.DataOperation.Source())
-		leftSource.MoveNode(p.ctx, initialPath, basePath+"-left"+ext)
+		leftSource.MoveNode(p.ctx, initialPath, basePath+"-"+leftSuffix+ext)
 
-		lOp.UpdateRefPath(basePath + "-left" + ext)
+		lOp.UpdateRefPath(basePath + "-" + leftSuffix + ext)
 		lOp.UpdateType(OpCreateFile)
 		p.Enqueue(lOp.Clone().SetDirection(OperationDirRight))
 
 		rightSource, _ := model.AsPathSyncTarget(right.DataOperation.Source())
-		rightSource.MoveNode(p.ctx, initialPath, basePath+"-right"+ext)
+		rightSource.MoveNode(p.ctx, initialPath, basePath+"-"+rightSuffix+ext)
 
-		rOp.UpdateRefPath(basePath + "-right" + ext)
+		rOp.UpdateRefPath(basePath + "-" + rightSuffix + ext)
 		rOp.UpdateType(OpCreateFile)
 		p.Enqueue(rOp.Clone().SetDirection(OperationDirLeft))
 		// Remove original ones
@@ -502,4 +503,31 @@ func (p *BidirectionalPatch) mergeDataOperations(left, right *TreeNode) {
 		p.Enqueue(right.DataOperation.Clone().SetDirection(OperationDirLeft))
 	}
 
+}
+
+func (p *BidirectionalPatch) computeAutoFixSuffixes(source, target model.EndpointInfo) (string, string) {
+	leftSuffix := "left"
+	rightSuffix := "right"
+	leftUri, _ := url.Parse(source.URI)
+	rightUri, _ := url.Parse(target.URI)
+	if leftUri.Scheme != rightUri.Scheme {
+		leftSuffix = p.autoFixSuffix(leftUri.Scheme)
+		rightSuffix = p.autoFixSuffix(rightUri.Scheme)
+	}
+	return leftSuffix, rightSuffix
+}
+
+func (p *BidirectionalPatch) autoFixSuffix(scheme string) string {
+	switch scheme {
+	case "fs":
+		return "local"
+	case "http", "https":
+		return "server"
+	case "s3":
+		return "s3"
+	case "local":
+		return "datasource"
+	default:
+		return scheme
+	}
 }
