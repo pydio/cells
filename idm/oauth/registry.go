@@ -37,16 +37,9 @@ func InitRegistry(c common.ConfigValues, dao sql.DAO) {
 
 		db := sqlx.NewDb(dao.DB(), dao.Driver())
 
-		// reg = driver.NewRegistrySQL().WithDB(db).WithConfig(conf)
-		// err := reg.Init()JSON Web Key Set
 		reg = driver.NewRegistrySQL().WithConfig(conf)
 		r := reg.(*driver.RegistrySQL).WithDB(db)
 		r.Init()
-		// reg, err = driver.NewRegistry(conf)
-		// if err != nil {
-		// 	fmt.Println("Error while initing the registry ", err)
-		// 	return
-		// }
 
 		sql.LockMigratePackage()
 		defer func() {
@@ -75,14 +68,7 @@ func InitRegistry(c common.ConfigValues, dao sql.DAO) {
 		if err := syncClients(context.Background(), r.ClientManager(), c.Array("staticClients")); err != nil {
 			return
 		}
-
-		// NEED TO DO SOMETHING ABOUT THE WATCH
-		// service.Watch(func(ctx context.Context, c common.ConfigValues) {
-		// 	// Making sure the staticClients are up to date
-		// 	syncClients(ctx, reg.ClientManager(), c.Array("staticClients"))
-		// }),
 	})
-
 }
 
 func GetRegistry() driver.Registry {

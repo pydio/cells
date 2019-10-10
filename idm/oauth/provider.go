@@ -173,6 +173,7 @@ func (v *Provider) GetRotatedSystemSecrets() [][]byte {
 }
 
 func (v *Provider) GetSystemSecret() []byte {
+
 	return v.v.Bytes("secret", []byte{})
 }
 

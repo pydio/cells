@@ -52,7 +52,12 @@ type Value interface {
 }
 
 // NewMap variable
-func NewMap() *Map {
+func NewMap(ms ...map[string]interface{}) *Map {
+	if len(ms) > 0 {
+		m := new(Map)
+		*m = ms[0]
+		return m
+	}
 	return &Map{}
 }
 

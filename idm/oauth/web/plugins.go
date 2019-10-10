@@ -34,6 +34,7 @@ import (
 	"github.com/ory/hydra/x"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
@@ -106,7 +107,7 @@ func initialize(s service.Service) error {
 
 	ctx := s.Options().Context
 
-	oauth.InitRegistry(servicecontext.GetConfig(ctx), servicecontext.GetDAO(ctx).(sql.DAO))
+	oauth.InitRegistry(config.Values("services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_OAUTH), servicecontext.GetDAO(ctx).(sql.DAO))
 
 	return nil
 }

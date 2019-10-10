@@ -36,6 +36,7 @@ import (
 )
 
 func init() {
+
 	plugins.Register(func() {
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_OAUTH),
