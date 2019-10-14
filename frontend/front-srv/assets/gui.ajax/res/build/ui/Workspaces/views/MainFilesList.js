@@ -251,6 +251,9 @@ var MainFilesList = _react2['default'].createClass({
         } else {
             window.attachEvent('onresize', this.recomputeThumbnailsDimension);
         }
+        if (this.props.onDisplayModeChange && this.state && this.state.displayMode) {
+            this.props.onDisplayModeChange(this.state.displayMode);
+        }
     },
 
     componentWillUnmount: function componentWillUnmount() {
@@ -270,28 +273,36 @@ var MainFilesList = _react2['default'].createClass({
     },
 
     componentWillReceiveProps: function componentWillReceiveProps() {
+        var _this = this;
+
         if (this.state && this.state.repositoryId !== this.props.pydio.repositoryId) {
-            this.props.pydio.getController().updateGuiActions(this.getPydioActions());
-            var configParser = new ComponentConfigsParser();
-            var columns = configParser.loadConfigs('FilesList').get('columns');
-            var dMode = this.displayModeFromPrefs(this.state ? this.state.displayMode : 'list');
-            if (this.state.displayMode !== dMode && dMode.indexOf('grid-') === 0) {
-                var tSize = 200;
-                if (dMode === 'grid-320') {
-                    tSize = 320;
-                } else if (dMode === 'grid-80') {
-                    tSize = 80;
+            (function () {
+                _this.props.pydio.getController().updateGuiActions(_this.getPydioActions());
+                var configParser = new ComponentConfigsParser();
+                var columns = configParser.loadConfigs('FilesList').get('columns');
+                var dMode = _this.displayModeFromPrefs(_this.state ? _this.state.displayMode : 'list');
+                if (_this.state.displayMode !== dMode && dMode.indexOf('grid-') === 0) {
+                    var tSize = 200;
+                    if (dMode === 'grid-320') {
+                        tSize = 320;
+                    } else if (dMode === 'grid-80') {
+                        tSize = 80;
+                    }
+                    _this.setState({
+                        thumbNearest: tSize,
+                        thumbSize: tSize
+                    });
                 }
-                this.setState({
-                    thumbNearest: tSize,
-                    thumbSize: tSize
+                _this.setState({
+                    repositoryId: _this.props.pydio.repositoryId,
+                    columns: columns ? columns : configParser.getDefaultListColumns(),
+                    displayMode: dMode
+                }, function () {
+                    if (_this.props.onDisplayModeChange) {
+                        _this.props.onDisplayModeChange(dMode);
+                    }
                 });
-            }
-            this.setState({
-                repositoryId: this.props.pydio.repositoryId,
-                columns: columns ? columns : configParser.getDefaultListColumns(),
-                displayMode: dMode
-            });
+            })();
         }
     },
 
@@ -300,7 +311,7 @@ var MainFilesList = _react2['default'].createClass({
     },
 
     recomputeThumbnailsDimension: function recomputeThumbnailsDimension(nearest) {
-        var _this = this;
+        var _this2 = this;
 
         var MAIN_CONTAINER_FULL_PADDING = 2;
         var THUMBNAIL_MARGIN = 1;
@@ -337,15 +348,15 @@ var MainFilesList = _react2['default'].createClass({
         } else {
             (function () {
                 // Recompute columns widths
-                var columns = _this.state.columns;
+                var columns = _this2.state.columns;
                 var columnKeys = Object.keys(columns);
                 var defaultFirstWidthPercent = 10;
                 var firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
-                var otherColWidth = (containerWidth - firstColWidth) / (Object.keys(_this.state.columns).length - 1);
+                var otherColWidth = (containerWidth - firstColWidth) / (Object.keys(_this2.state.columns).length - 1);
                 columnKeys.map(function (columnKey) {
                     columns[columnKey]['width'] = otherColWidth;
                 });
-                _this.setState({
+                _this2.setState({
                     columns: columns
                 });
             })();
@@ -353,7 +364,7 @@ var MainFilesList = _react2['default'].createClass({
     },
 
     entryRenderIcon: function entryRenderIcon(node) {
-        var _this2 = this;
+        var _this3 = this;
 
         var entryProps = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -363,7 +374,7 @@ var MainFilesList = _react2['default'].createClass({
                 node: node,
                 mimeClassName: 'mimefont mdi mdi-chevron-left',
                 onTouchTap: function () {
-                    _this2.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE);
+                    _this3.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE);
                 },
                 style: { cursor: 'pointer' }
             });
@@ -385,7 +396,7 @@ var MainFilesList = _react2['default'].createClass({
         var mobile = pydio.UI.MOBILE_EXTENSIONS;
         var dm = pydio.getContextHolder();
         if (mobile) {
-            var _ret3 = (function () {
+            var _ret4 = (function () {
                 var ContextMenuModel = require('pydio/model/context-menu');
                 return {
                     v: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-dots-vertical', style: { zIndex: 0, padding: 10 }, tooltip: 'Info', onClick: function (event) {
@@ -399,7 +410,7 @@ var MainFilesList = _react2['default'].createClass({
                 };
             })();
 
-            if (typeof _ret3 === 'object') return _ret3.v;
+            if (typeof _ret4 === 'object') return _ret4.v;
         } else if (node.getMetadata().get('overlay_class')) {
             var elements = node.getMetadata().get('overlay_class').split(',').filter(function (c) {
                 return !!c;
@@ -548,21 +559,24 @@ var MainFilesList = _react2['default'].createClass({
     },
 
     switchDisplayMode: function switchDisplayMode(displayMode) {
-        var _this3 = this;
+        var _this4 = this;
 
         this.setState({ displayMode: displayMode }, function () {
             var near = null;
             if (displayMode.indexOf('grid-') === 0) {
                 near = parseInt(displayMode.split('-')[1]);
             }
-            _this3.recomputeThumbnailsDimension(near);
-            _this3.displayModeToPrefs(displayMode);
-            _this3.props.pydio.notify('actions_refreshed');
+            _this4.recomputeThumbnailsDimension(near);
+            _this4.displayModeToPrefs(displayMode);
+            if (_this4.props.onDisplayModeChange) {
+                _this4.props.onDisplayModeChange(displayMode);
+            }
+            _this4.props.pydio.notify('actions_refreshed');
         });
     },
 
     buildDisplayModeItems: function buildDisplayModeItems() {
-        var _this4 = this;
+        var _this5 = this;
 
         var displayMode = this.state.displayMode;
 
@@ -571,7 +585,7 @@ var MainFilesList = _react2['default'].createClass({
             var i = _extends({}, item);
             var value = item.value;
             i.callback = function () {
-                _this4.switchDisplayMode(i.value);
+                _this5.switchDisplayMode(i.value);
             };
             if (value === displayMode) {
                 i.icon_class = 'mdi mdi-check';

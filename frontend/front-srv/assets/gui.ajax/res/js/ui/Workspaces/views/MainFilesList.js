@@ -196,6 +196,9 @@ let MainFilesList = React.createClass({
         }else{
             window.attachEvent('onresize', this.recomputeThumbnailsDimension);
         }
+        if(this.props.onDisplayModeChange && this.state && this.state.displayMode){
+            this.props.onDisplayModeChange(this.state.displayMode);
+        }
     },
 
     componentWillUnmount: function(){
@@ -236,6 +239,10 @@ let MainFilesList = React.createClass({
                 repositoryId: this.props.pydio.repositoryId,
                 columns: columns ? columns : configParser.getDefaultListColumns(),
                 displayMode:dMode
+            }, ()=>{
+                if(this.props.onDisplayModeChange) {
+                    this.props.onDisplayModeChange(dMode);
+                }
             })
         }
     },
@@ -468,6 +475,9 @@ let MainFilesList = React.createClass({
             }
             this.recomputeThumbnailsDimension(near);
             this.displayModeToPrefs(displayMode);
+            if(this.props.onDisplayModeChange) {
+                this.props.onDisplayModeChange(displayMode);
+            }
             this.props.pydio.notify('actions_refreshed');
         });
     },

@@ -351,6 +351,7 @@ var FSTemplate = _react2['default'].createClass({
         var infoPanelOpen = _state2.infoPanelOpen;
         var drawerOpen = _state2.drawerOpen;
         var infoPanelToggle = _state2.infoPanelToggle;
+        var filesListDisplayMode = _state2.filesListDisplayMode;
         var rightColumnState = this.state.rightColumnState;
 
         var mainToolbars = ["change_main", "info_panel", "info_panel_share"];
@@ -378,7 +379,8 @@ var FSTemplate = _react2['default'].createClass({
         }
 
         var classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
-        if (infoPanelOpen && infoPanelToggle) {
+        var thumbDisplay = filesListDisplayMode && filesListDisplayMode.indexOf("grid-") === 0;
+        if ((infoPanelOpen || thumbDisplay) && infoPanelToggle) {
             classes.push('info-panel-open');
             if (rightColumnState !== 'info-panel') {
                 classes.push('info-panel-open-lg');
@@ -590,7 +592,10 @@ var FSTemplate = _react2['default'].createClass({
                     )
                 )
             ),
-            _react2['default'].createElement(_MainFilesList2['default'], { ref: 'list', pydio: pydio }),
+            _react2['default'].createElement(_MainFilesList2['default'], { ref: 'list', pydio: pydio, onDisplayModeChange: function (dMode) {
+                    _this6.setState({ filesListDisplayMode: dMode });
+                    console.log('Child MainFilesList had displayMode changed :' + dMode);
+                } }),
             rightColumnState === 'info-panel' && _react2['default'].createElement(_detailpanesInfoPanel2['default'], _extends({}, props, {
                 dataModel: props.pydio.getContextHolder(),
                 onRequestClose: function () {
