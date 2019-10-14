@@ -267,7 +267,7 @@ let FSTemplate = React.createClass({
         styles.activeButtonStyle = {...styles.buttonsStyle, ...styles.activeButtonStyle};
         styles.activeButtonIconStyle = {...styles.buttonsIconStyle, ...styles.activeButtonIconStyle};
 
-        const {infoPanelOpen, drawerOpen, infoPanelToggle} = this.state;
+        const {infoPanelOpen, drawerOpen, infoPanelToggle, filesListDisplayMode} = this.state;
         let {rightColumnState} = this.state;
 
         let mainToolbars = [
@@ -298,7 +298,8 @@ let FSTemplate = React.createClass({
         }
 
         let classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
-        if(infoPanelOpen && infoPanelToggle) {
+        const thumbDisplay = filesListDisplayMode && filesListDisplayMode.indexOf("grid-") === 0;
+        if((infoPanelOpen || thumbDisplay) && infoPanelToggle) {
             classes.push('info-panel-open');
             if(rightColumnState !== 'info-panel'){
                 classes.push('info-panel-open-lg');
@@ -495,7 +496,10 @@ let FSTemplate = React.createClass({
                             </div>
                         </div>
                     </Paper>
-                    <MainFilesList ref="list" pydio={pydio}/>
+                    <MainFilesList ref="list" pydio={pydio} onDisplayModeChange={(dMode) => {
+                        this.setState({filesListDisplayMode: dMode});
+                        console.log('Child MainFilesList had displayMode changed :' + dMode);
+                    }}/>
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel
                         {...props}
