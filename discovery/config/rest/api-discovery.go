@@ -26,6 +26,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/spec"
+
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
@@ -37,7 +39,6 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/utils/net"
 )
 
 /*****************************
@@ -111,20 +112,35 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) {
 
 	cfg := config.Default()
-	ssl := cfg.Get("cert", "proxy", "ssl").Bool(false)
-	restPort := cfg.Get("services", "micro.web", "port").String("")
-	ip, _ := net.GetExternalIP()
-	protocol := "http"
-	if ssl {
-		protocol = "https"
-	}
+	u := cfg.Get("defaults", "url").String("")
+	p, _ := url.Parse(u)
 
 	jsonSpec := service.SwaggerSpec()
-	jsonSpec.Spec().Host = fmt.Sprintf("%s://%s:%s", protocol, ip.String(), restPort)
-	jsonSpec.Spec().Info.Title = "Pydio API"
-	jsonSpec.Spec().Info.Version = "1.0"
-	jsonSpec.Spec().Info.Description = "Automatically generated from Protobufs schemas"
-
+	jsonSpec.Spec().Host = p.Host
+	jsonSpec.Spec().Schemes = []string{p.Scheme}
+	jsonSpec.Spec().Info.Title = "Pydio Cells API"
+	jsonSpec.Spec().Info.Version = "2.0"
+	jsonSpec.Spec().Info.Description = "OAuth2-based REST API (automatically generated from protobufs)"
+	scheme := &spec.SecurityScheme{
+		VendorExtensible: spec.VendorExtensible{},
+		SecuritySchemeProps: spec.SecuritySchemeProps{
+			Type:             "oauth2",
+			Description:      "Login using OAuth2 code flow",
+			Flow:             "accessCode",
+			AuthorizationURL: u + "/oidc/oauth2/auth",
+			TokenURL:         u + "/oidc/oauth2/token",
+		},
+	}
+	jsonSpec.Spec().SecurityDefinitions = map[string]*spec.SecurityScheme{"oauth2": scheme}
+	jsonSpec.Spec().Security = append(jsonSpec.Spec().Security, map[string][]string{"oauth2": []string{}})
+	for path, ops := range jsonSpec.Spec().Paths.Paths {
+		if strings.HasPrefix(path, "/a/") {
+			continue
+		}
+		outPath := "/a" + path
+		delete(jsonSpec.Spec().Paths.Paths, path)
+		jsonSpec.Spec().Paths.Paths[outPath] = ops
+	}
 	resp.WriteAsJson(jsonSpec.Spec())
 
 }
