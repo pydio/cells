@@ -18,7 +18,7 @@
   "dependencies": {
     "lodash.shuffle": "^4.2.0",
     "react-codemirror": "^1.0.0",
-    "react-swagger-ui": "^3.0.17-0",
+    "swagger-ui-react": "3.24.0",
     "uuid4": "1.1.4"
   }
 }

@@ -18,8 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import PydioApi from 'pydio/http/api'
 import {Paper} from 'material-ui'
-import {SwaggerUI} from 'react-swagger-ui'
+import SwaggerUI from 'swagger-ui-react'
 
 class OpenApiDashboard extends React.Component {
 
@@ -29,6 +30,13 @@ class OpenApiDashboard extends React.Component {
         const restEndpoint = props.pydio.Parameters.get("ENDPOINT_REST_API");
         this.state = { specUrl: restEndpoint + '/config/discovery/openapi' };
     }
+
+    static requestInterceptor(request) {
+        // Allow developers to set a bearertoken since
+        const bearerToken = PydioApi.JWT_DATA.jwt;
+        request.headers.Authorization = `Bearer ${bearerToken}`;
+        return request;
+    };
 
     render(){
         const {pydio} = this.props;
@@ -44,8 +52,11 @@ class OpenApiDashboard extends React.Component {
                         {pydio.MessageHash['ajxp_admin.developer.rest.apis.legend']}
                         <span style={{cursor:'pointer'}} className={"mdi mdi-open-in-new"} onClick={()=>{open('https://pydio.com/en/docs/administration-guides')}}/>
                     </div>
-                    <Paper zDepth={1} style={{margin:16}}>
-                        <SwaggerUI url={this.state.specUrl}/>
+                    <Paper zDepth={1} style={{margin:16, paddingBottom: 1}}>
+                        <SwaggerUI
+                            url={this.state.specUrl}
+                            requestInterceptor={OpenApiDashboard.requestInterceptor}
+                        />
                     </Paper>
                 </div>
             </div>
