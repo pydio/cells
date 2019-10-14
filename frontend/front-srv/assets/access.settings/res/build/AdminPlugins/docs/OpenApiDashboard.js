@@ -37,9 +37,15 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
 var _materialUi = require('material-ui');
 
-var _reactSwaggerUi = require('react-swagger-ui');
+var _swaggerUiReact = require('swagger-ui-react');
+
+var _swaggerUiReact2 = _interopRequireDefault(_swaggerUiReact);
 
 var OpenApiDashboard = (function (_React$Component) {
     _inherits(OpenApiDashboard, _React$Component);
@@ -77,11 +83,22 @@ var OpenApiDashboard = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 1, style: { margin: 16 } },
-                        _react2['default'].createElement(_reactSwaggerUi.SwaggerUI, { url: this.state.specUrl })
+                        { zDepth: 1, style: { margin: 16, paddingBottom: 1 } },
+                        _react2['default'].createElement(_swaggerUiReact2['default'], {
+                            url: this.state.specUrl,
+                            requestInterceptor: OpenApiDashboard.requestInterceptor
+                        })
                     )
                 )
             );
+        }
+    }], [{
+        key: 'requestInterceptor',
+        value: function requestInterceptor(request) {
+            // Allow developers to set a bearertoken since
+            var bearerToken = _pydioHttpApi2['default'].JWT_DATA.jwt;
+            request.headers.Authorization = 'Bearer ' + bearerToken;
+            return request;
         }
     }]);
 

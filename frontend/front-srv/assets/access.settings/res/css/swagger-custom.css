@@ -9,11 +9,46 @@
 .react-mui-context .swagger-ui {
   padding-top: 10px;
 }
+.react-mui-context .swagger-ui * {
+  transition: background-color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  font-family: Roboto, sans-serif;
+}
+.react-mui-context .swagger-ui .wrapper {
+  padding: 0 10px;
+}
 .react-mui-context .swagger-ui .scheme-container {
   display: none;
 }
 .react-mui-context .swagger-ui .information-container {
   display: none;
+}
+.react-mui-context .swagger-ui .btn {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 16px;
+  transition: all .3s;
+  border-radius: 2px;
+  border: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  background-color: #134d6c !important;
+  color: white !important;
+  text-transform: uppercase;
+}
+.react-mui-context .swagger-ui .btn.cancel {
+  background-color: #F44336 !important;
+}
+.react-mui-context .swagger-ui .body-param-options {
+  display: none;
+}
+.react-mui-context .swagger-ui .execute-wrapper {
+  padding-left: 21%;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 20px;
+  text-align: center;
+}
+.react-mui-context .swagger-ui .execute-wrapper .btn {
+  margin: -10px 0 20px;
 }
 .react-mui-context .swagger-ui select {
   border: 1px solid #637e8a;
@@ -21,26 +56,88 @@
   font-weight: normal;
 }
 .react-mui-context .swagger-ui .opblock-tag {
-  font-size: 20px;
+  font-size: 18px;
+  padding: 0px 20px 0px 10px;
+  margin-top: 6px;
+}
+.react-mui-context .swagger-ui .opblock-tag .expand-operation {
+  margin-top: 5px;
 }
 .react-mui-context .swagger-ui .opblock {
   border-radius: 0;
   border: 0;
   box-shadow: none;
+  margin-bottom: 5px;
+  background: transparent;
 }
-.react-mui-context .swagger-ui .opblock .opblock-summary-path {
+.react-mui-context .swagger-ui .opblock .opblock-body {
+  background-color: #ECEFF1;
+  /*
+        box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
+        margin: 6px;
+        */
+}
+.react-mui-context .swagger-ui .opblock .opblock-summary {
+  background-color: #ECEFF1;
+  padding: 0;
+}
+.react-mui-context .swagger-ui .opblock .opblock-summary .opblock-summary-path {
   font-weight: 400;
+  font-size: 15px;
+  color: #37474f;
 }
-.react-mui-context .swagger-ui .opblock .btn.try-out__btn {
-  display: none;
+.react-mui-context .swagger-ui .opblock .opblock-summary .opblock-summary-description {
+  color: rgba(96, 125, 139, 0.75);
+}
+.react-mui-context .swagger-ui .opblock .opblock-summary .opblock-summary-method {
+  border-radius: 0;
+  min-width: 90px;
+  text-align: right;
+  text-shadow: none;
+  padding: 6px 10px;
 }
 .react-mui-context .swagger-ui .opblock .opblock-section-header {
-  background: inherit;
-  padding: 0 20px;
+  background-color: #CFD8DC;
+  padding: 0;
+  padding-left: 10px;
+  height: 34px;
   box-shadow: none;
 }
-.react-mui-context .swagger-ui .opblock .opblock-summary-method {
-  border-radius: 2px;
+.react-mui-context .swagger-ui .opblock .opblock-section-header .tab-header {
+  flex: 1;
+}
+.react-mui-context .swagger-ui .opblock .opblock-section-header h4 {
+  padding-top: 0;
+  font-size: 13px;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+}
+.react-mui-context .swagger-ui .opblock .parameters-container .table-container {
+  padding-top: 0;
+}
+.react-mui-context .swagger-ui .opblock .parameters-col_description {
+  padding-top: 0;
+}
+.react-mui-context .swagger-ui .opblock .authorization__btn {
+  display: none;
+}
+.react-mui-context .swagger-ui .opblock.is-open {
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
+}
+.react-mui-context .swagger-ui .opblock.is-open .opblock-summary {
+  border: 0;
+  background-color: #607D8B;
+}
+.react-mui-context .swagger-ui .opblock.is-open .opblock-summary-method {
+  background-color: #37474F;
+}
+.react-mui-context .swagger-ui .opblock.is-open .opblock-summary-path {
+  font-weight: 500;
+  color: white;
+}
+.react-mui-context .swagger-ui .opblock.is-open .opblock-summary-description {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
 }
 .react-mui-context .swagger-ui .models {
   border-radius: 0;
