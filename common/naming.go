@@ -173,6 +173,8 @@ const (
 	META_FLAG_WORKSPACE_PERMISSIONS = "ws_permissions"
 	META_FLAG_WORKSPACE_LABEL       = "ws_label"
 	META_FLAG_WORKSPACE_DESCRIPTION = "ws_description"
+	META_FLAG_WORKSPACE_SLUG        = "ws_slug"
+	META_FLAG_WORKSPACE_UUID        = "ws_uuid"
 	META_FLAG_VIRTUAL_ROOT          = "virtual_root"
 	NODE_FLAG_ETAG_TEMPORARY        = "temporary"
 )
