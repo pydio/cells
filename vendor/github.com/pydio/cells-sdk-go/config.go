@@ -24,6 +24,9 @@ type SdkConfig struct {
 	// UseTokenCache flags wether we should rely on a local cache to avoid retrieving a new JWT token at each request.
 	// It is useful to *not* use the cache when running connection tests for instance.
 	UseTokenCache bool `json:"useTokenCache"`
+
+	// Optional list of headers to override in requests, typically User-Agent
+	CustomHeaders map[string]string
 }
 
 // S3Config stores connection parameters to a running Cells instance S3 gateway via the AWS SDK for Go.

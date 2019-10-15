@@ -3746,28 +3746,28 @@
 			"revisionTime": "2019-09-05T20:14:53Z"
 		},
 		{
-			"checksumSHA1": "/Fma9ka7AzSMLsccCDoxLJSnFjY=",
+			"checksumSHA1": "NdL+B9VTnM2Sd1Uoq0elAoXlL3g=",
 			"path": "github.com/pydio/cells-sdk-go",
-			"revision": "608efa720add571710de67201f84277de745f09e",
-			"revisionTime": "2019-09-17T18:18:20Z"
+			"revision": "4f01d3ca3c3e4f50e4b8ec5888a72980aceec67a",
+			"revisionTime": "2019-10-15T19:25:08Z"
 		},
 		{
-			"checksumSHA1": "IWenbnIPbaRQwMVPaVGOdW3b0LM=",
+			"checksumSHA1": "jUASx35M8tnoWQtabPuVq3plDm8=",
 			"path": "github.com/pydio/cells-sdk-go/transport/http",
-			"revision": "608efa720add571710de67201f84277de745f09e",
-			"revisionTime": "2019-09-17T18:18:20Z"
+			"revision": "4f01d3ca3c3e4f50e4b8ec5888a72980aceec67a",
+			"revisionTime": "2019-10-15T19:25:08Z"
 		},
 		{
-			"checksumSHA1": "0iIm38Gd5ODsra6pQ+vxIVkXf9I=",
+			"checksumSHA1": "tbDYGzm1e8+w1W0C9Kd27fj7yBA=",
 			"path": "github.com/pydio/cells-sdk-go/transport/mc",
-			"revision": "1b422953843ef8277f57a3a7e70975222e5ca12d",
-			"revisionTime": "2019-10-08T18:04:56Z"
+			"revision": "4f01d3ca3c3e4f50e4b8ec5888a72980aceec67a",
+			"revisionTime": "2019-10-15T19:25:08Z"
 		},
 		{
 			"checksumSHA1": "eR/ZvzP12MEPPsmjmAZ7CCXP+n8=",
 			"path": "github.com/pydio/cells-sdk-go/transport/oidc",
-			"revision": "608efa720add571710de67201f84277de745f09e",
-			"revisionTime": "2019-09-17T18:18:20Z"
+			"revision": "4f01d3ca3c3e4f50e4b8ec5888a72980aceec67a",
+			"revisionTime": "2019-10-15T19:25:08Z"
 		},
 		{
 			"checksumSHA1": "fYA/Rl0HUmTWPs8Vvwfr4m+ow9M=",

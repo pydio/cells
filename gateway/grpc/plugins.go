@@ -114,6 +114,10 @@ func ctxRequestInfoToMetadata(ctx context.Context) context.Context {
 				meta[k] = v
 			}
 		}
+		// Override with specific header
+		if ua, ok := existing["x-pydio-grpc-user-agent"]; ok {
+			meta[servicecontext.HttpMetaUserAgent] = ua
+		}
 	}
 	meta[servicecontext.HttpMetaExtracted] = servicecontext.HttpMetaExtracted
 	layout := "2006-01-02T15:04-0700"
