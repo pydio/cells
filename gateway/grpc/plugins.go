@@ -2,12 +2,12 @@ package grpc
 
 import (
 	"context"
-
-	"github.com/spf13/viper"
+	"time"
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
@@ -15,6 +15,7 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 func init() {
@@ -27,7 +28,7 @@ func init() {
 		service.Dependency(common.SERVICE_GATEWAY_PROXY, []string{}),
 		service.Description("External gRPC Access"),
 		service.WithMicro(func(m micro.Service) error {
-			m.Init(micro.WrapHandler(JWTWrapper(m.Options().Context)))
+			m.Init(micro.WrapHandler(jwtWrapper(m.Options().Context), httpMetaWrapper()))
 			h := &TreeHandler{}
 			srv := m.Options().Server
 			tree.RegisterNodeProviderHandler(srv, h)
@@ -47,7 +48,8 @@ func init() {
 
 }
 
-func JWTWrapper(serviceCtx context.Context) func(handlerFunc server.HandlerFunc) server.HandlerFunc {
+// jwtWrapper extracts x-pydio-bearer metadata to validate authentication
+func jwtWrapper(serviceCtx context.Context) func(handlerFunc server.HandlerFunc) server.HandlerFunc {
 
 	jwtVerifier := auth.DefaultJWTVerifier()
 
@@ -78,4 +80,47 @@ func JWTWrapper(serviceCtx context.Context) func(handlerFunc server.HandlerFunc)
 		}
 	}
 
+}
+
+// httpMetaWrapper translates gRPC meta headers (lowercase x-header-name) to standard cells metadata
+func httpMetaWrapper() func(handlerFunc server.HandlerFunc) server.HandlerFunc {
+
+	return func(handlerFunc server.HandlerFunc) server.HandlerFunc {
+		return func(ctx context.Context, req server.Request, rsp interface{}) error {
+
+			return handlerFunc(ctxRequestInfoToMetadata(ctx), req, rsp)
+
+		}
+	}
+}
+
+func ctxRequestInfoToMetadata(ctx context.Context) context.Context {
+
+	meta := metadata.Metadata{}
+	if existing, ok := metadata.FromContext(ctx); ok {
+		if _, already := existing[servicecontext.HttpMetaExtracted]; already {
+			return ctx
+		}
+		translate := map[string]string{
+			"user-agent":      servicecontext.HttpMetaUserAgent,
+			"content-type":    servicecontext.HttpMetaContentType,
+			"x-forwarded-for": servicecontext.HttpMetaRemoteAddress,
+			"x-pydio-span-id": servicecontext.SpanMetadataId,
+		}
+		for k, v := range existing {
+			if newK, ok := translate[k]; ok {
+				meta[newK] = v
+			} else {
+				meta[k] = v
+			}
+		}
+	}
+	meta[servicecontext.HttpMetaExtracted] = servicecontext.HttpMetaExtracted
+	layout := "2006-01-02T15:04-0700"
+	t := time.Now()
+	meta[servicecontext.ServerTime] = t.Format(layout)
+	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
+	meta[servicecontext.ClientTime] = t.Format(layout)
+
+	return metadata.NewContext(ctx, meta)
 }
