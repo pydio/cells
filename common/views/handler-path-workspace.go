@@ -144,10 +144,13 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 						Uuid: ws.RootUUIDs[0],
 						Path: ws.Slug,
 					}
+					// Pass workspace data along in node MetaStore
 					node.SetMeta(common.META_FLAG_WORKSPACE_SCOPE, ws.Scope.String())
 					node.SetMeta(common.META_FLAG_WORKSPACE_PERMISSIONS, wsPermissions)
 					node.SetMeta(common.META_FLAG_WORKSPACE_LABEL, ws.Label)
 					node.SetMeta(common.META_FLAG_WORKSPACE_DESCRIPTION, ws.Description)
+					node.SetMeta(common.META_FLAG_WORKSPACE_SLUG, ws.Slug)
+					node.SetMeta(common.META_FLAG_WORKSPACE_UUID, ws.UUID)
 					if ws.Attributes != "" && ws.Attributes != "{}" {
 						var aa map[string]interface{}
 						if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
