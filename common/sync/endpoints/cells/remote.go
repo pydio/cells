@@ -58,7 +58,8 @@ type RemoteConfig struct {
 	RefreshToken string `json:"refresh_token"`
 	ExpiresAt    int    `json:"expires_at"`
 	// SkipVerify tells the transport to ignore expired or self-signed TLS certificates
-	SkipVerify bool `json:"skipVerify"`
+	SkipVerify    bool              `json:"skipVerify"`
+	CustomHeaders map[string]string `json:"-"`
 }
 
 // Remote connect to a remove Cells server using the GRPC gateway.
@@ -89,6 +90,7 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 		IdToken:        config.IdToken,
 		RefreshToken:   config.RefreshToken,
 		TokenExpiresAt: config.ExpiresAt,
+		CustomHeaders:  config.CustomHeaders,
 	}
 
 	c := &Remote{
@@ -211,6 +213,11 @@ func (f *remoteClientFactory) getClient(ctx context.Context) (context.Context, c
 		md = metadata.Metadata{}
 	}
 	md["x-pydio-bearer"] = jwt
+	if f.config.CustomHeaders != nil {
+		if ua, ok := f.config.CustomHeaders["User-Agent"]; ok {
+			md["x-pydio-grpc-user-agent"] = ua
+		}
+	}
 	ctx = metadata.NewContext(ctx, md)
 	return ctx, microClient, nil
 
