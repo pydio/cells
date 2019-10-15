@@ -79,7 +79,7 @@ export default React.createClass({
             if(workspace.Attributes){
                 try {
                     const atts = JSON.parse(workspace.Attributes);
-                    if (atts['ALLOW_SYNC'] === true) {
+                    if (atts['ALLOW_SYNC'] === true || atts['ALLOW_SYNC'] === "true") {
                         syncable = true;
                     }
                 }catch(e){}
