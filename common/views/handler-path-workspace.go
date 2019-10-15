@@ -131,7 +131,13 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 		streamer := NewWrappingStreamer()
 		go func() {
 			defer streamer.Close()
-			for _, ws := range accessList.Workspaces {
+			wss := accessList.Workspaces
+			for wsId, wsPermissions := range accessList.GetAccessibleWorkspaces(ctx) {
+				ws, o := wss[wsId]
+				if !o {
+					// This is the case if wsId is "settings" or "homepage" => ignore!
+					continue
+				}
 				if len(ws.RootUUIDs) > 0 {
 					node := &tree.Node{
 						Type: tree.NodeType_COLLECTION,
@@ -139,6 +145,9 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 						Path: ws.Slug,
 					}
 					node.SetMeta(common.META_FLAG_WORKSPACE_SCOPE, ws.Scope.String())
+					node.SetMeta(common.META_FLAG_WORKSPACE_PERMISSIONS, wsPermissions)
+					node.SetMeta(common.META_FLAG_WORKSPACE_LABEL, ws.Label)
+					node.SetMeta(common.META_FLAG_WORKSPACE_DESCRIPTION, ws.Description)
 					if ws.Attributes != "" && ws.Attributes != "{}" {
 						var aa map[string]interface{}
 						if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
