@@ -108,7 +108,7 @@ exports['default'] = _react2['default'].createClass({
             if (workspace.Attributes) {
                 try {
                     var atts = JSON.parse(workspace.Attributes);
-                    if (atts['ALLOW_SYNC'] === true) {
+                    if (atts['ALLOW_SYNC'] === true || atts['ALLOW_SYNC'] === "true") {
                         syncable = true;
                     }
                 } catch (e) {}

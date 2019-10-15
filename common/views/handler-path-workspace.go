@@ -142,8 +142,14 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 					if ws.Attributes != "" && ws.Attributes != "{}" {
 						var aa map[string]interface{}
 						if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
-							if canSync, ok := aa["ALLOW_SYNC"]; ok && canSync.(bool) {
-								node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, canSync)
+							if canSync, ok := aa["ALLOW_SYNC"]; ok {
+								if b, o := canSync.(bool); o {
+									node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, b)
+								} else if s, o := canSync.(string); o {
+									if s == "true" {
+										node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, true)
+									}
+								}
 							}
 						}
 					}
