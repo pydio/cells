@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sync/endpoints/memory"
 	"github.com/pydio/cells/common/sync/model"
+	context2 "github.com/pydio/cells/common/utils/context"
 )
 
 type Client struct {
@@ -117,6 +118,9 @@ func (i *Client) LoadNode(ctx context.Context, path string, extendedStats ...boo
 func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error) {
 
 	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
+	if i.indexationSession() != "" {
+		ctx = context2.WithMetadata(ctx, map[string]string{"x-indexation-session": i.indexationSession()})
+	}
 	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{
 			Uuid: uuid,

@@ -214,8 +214,13 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
 
 	defer track(ctx, "ReadNode", time.Now(), req, resp)
-
 	dao := servicecontext.GetDAO(ctx).(index.DAO)
+	md, has := metadata.FromContext(ctx)
+	if has {
+		if session, ok := md["x-indexation-session"]; ok {
+			dao = getDAO(ctx, session)
+		}
+	}
 	name := servicecontext.GetServiceName(ctx)
 
 	var node *mtree.TreeNode

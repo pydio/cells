@@ -383,6 +383,13 @@ func (d *daocache) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 }
 
 func (d *daocache) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
+	d.mutex.RLock()
+	defer d.mutex.RUnlock()
+	for _, n := range d.cache {
+		if n.Uuid == uuid {
+			return n, nil
+		}
+	}
 	return d.DAO.GetNodeByUUID(uuid)
 }
 
