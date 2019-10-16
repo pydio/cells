@@ -1461,10 +1461,22 @@
     "other": "Allow desktop synchronisation"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. You can currently enable this feature for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
   },
   "ws.editor.other.sync-personal": {
     "other": "(personal workspaces only)"
+  },
+  "ws.editor.sync.warning":{
+    "other" : "Warning!"
+  },
+  "ws.editor.sync.warning.validate":{
+    "other" : "I understand"
+  },
+  "ws.editor.sync.warning.enable":{
+    "other" : "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+  },
+  "ws.editor.sync.warning.disable":{
+    "other" : "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
   },
   "ws.editor.path.folder": {
     "other": "Folder Path"

@@ -19,7 +19,7 @@
  */
 import Pydio from 'pydio'
 import React from 'react'
-import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, FontIcon, IconButton, Subheader} from 'material-ui'
+import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, FontIcon, IconButton, Subheader, Dialog} from 'material-ui'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
 const {PaperEditorLayout} = Pydio.requireLib('components');
@@ -36,8 +36,23 @@ class WsEditor extends React.Component {
         this.state = {
             workspace: workspace.getModel(),
             container: workspace,
-            newFolderKey: Math.random()
+            newFolderKey: Math.random(),
+            showDialog: false
         };
+    }
+
+    enableSync(value){
+        if(value){
+            this.setState({showDialog:'enableSync', dialogTargetValue: value});
+        } else {
+            this.setState({showDialog:'disableSync', dialogTargetValue: value});
+        }
+    }
+
+    confirmSync(value){
+        const {workspace} = this.state;
+        workspace.Attributes['ALLOW_SYNC']= value;
+        this.setState({showDialog: false, dialogTargetValue: null});
     }
 
     revert(){
@@ -79,7 +94,7 @@ class WsEditor extends React.Component {
     render(){
 
         const {closeEditor, pydio, advanced} = this.props;
-        const {workspace, container, newFolderKey, saving} = this.state;
+        const {workspace, container, newFolderKey, saving, showDialog, dialogTargetValue} = this.state;
         const m = id => pydio.MessageHash['ajxp_admin.' + id] || id;
         const mS = id => pydio.MessageHash['settings.' + id] || id;
 
@@ -169,6 +184,27 @@ class WsEditor extends React.Component {
                 className="workspace-editor"
                 contentFill={false}
             >
+                <Dialog
+                    open={showDialog}
+                    title={m('ws.editor.sync.warning')}
+                    onRequestClose={()=>{this.confirmSync(!dialogTargetValue)}}
+                    actions={[
+                        <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.confirmSync(!dialogTargetValue)}}/>,
+                        <FlatButton label={m('ws.editor.sync.warning.validate')} onTouchTap={()=>{this.confirmSync(dialogTargetValue)}}/>
+                    ]}
+                >
+                    {showDialog === 'enableSync' &&
+                    <div>
+                        {m('ws.editor.sync.warning.enable')}
+                    </div>
+                    }
+                    {showDialog === 'disableSync' &&
+                    <div>
+                        {m('ws.editor.sync.warning.disable')}
+                    </div>
+                    }
+                </Dialog>
+
                 <Paper zDepth={1} style={styles.section}>
                     <div style={styles.title}>{m('ws.30')}</div>
                     <div style={styles.legend}>{m('ws.editor.options.legend')}</div>
@@ -217,11 +253,18 @@ class WsEditor extends React.Component {
                         <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.sync.legend')}</div>
                         <div style={styles.toggleDiv}>
                             <Toggle
-                                label={m('ws.editor.other.sync') + (container.hasTemplatePath() ? '' : ' ' + m('ws.editor.other.sync-personal'))}
+                                label={m('ws.editor.other.sync')}
                                 labelPosition={"right"}
                                 toggled={workspace.Attributes['ALLOW_SYNC']}
-                                onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}}
-                                disabled={!container.hasTemplatePath()}
+                                onToggle={(e,v) =>{
+                                    if(!container.hasTemplatePath() && v) {
+                                        this.enableSync(v)
+                                    } else if (!v) {
+                                        this.enableSync(v)
+                                    } else {
+                                        workspace.Attributes['ALLOW_SYNC'] = v;
+                                    }
+                                }}
                                 {...ModernStyles.toggleField}
                             />
                         </div>
