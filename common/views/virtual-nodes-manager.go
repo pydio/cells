@@ -217,7 +217,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
 			return nil, err
 		} else {
-			// Manually create the .pydio file
+			// Silently create the .pydio file if necessary
 			router := NewStandardRouter(RouterOptions{AdminView: true})
 			newNode := createResp.Node.Clone()
 			newNode.Path = path.Join(newNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
@@ -225,10 +225,9 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			createCtx := context2.WithAdditionalMetadata(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
 			_, pE := router.PutObject(createCtx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))})
 			if pE != nil {
-				log.Logger(ctx).Error("Could not create hidden file for resolved node", newNode.Zap("resolved"), zap.Error(pE))
-			}
-			if e := m.copyRecycleRootAcl(ctx, vNode, createResp.Node); e != nil {
-				return nil, e
+				log.Logger(ctx).Warn("Creating hidden file for resolved node (may not be required)", newNode.Zap("resolved"), zap.Error(pE))
+			} else if e := m.copyRecycleRootAcl(ctx, vNode, createResp.Node); e != nil {
+				log.Logger(ctx).Warn("Silently ignoring copyRecycleRoot", newNode.Zap("resolved"), zap.Error(e))
 			}
 			return createResp.Node, nil
 		}
