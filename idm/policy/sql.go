@@ -106,9 +106,9 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		group.Uuid = uuid.NewUUID().String()
 	} else {
 		// First clear relations
-		stmt := s.GetStmt("deleteRelPolicies")
-		if stmt == nil {
-			return nil, fmt.Errorf("Unknown statement")
+		stmt, er := s.GetStmt("deleteRelPolicies")
+		if er != nil {
+			return nil, er
 		}
 
 		_, err := stmt.Exec(group.Uuid)
@@ -148,9 +148,9 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	// Insert Policy Group
 	now := int32(time.Now().Unix())
 
-	stmt := s.GetStmt("upsertPolicyGroup")
-	if stmt == nil {
-		return nil, fmt.Errorf("Unknown statement")
+	stmt, er := s.GetStmt("upsertPolicyGroup")
+	if er != nil {
+		return nil, er
 	}
 
 	_, err := stmt.Exec(
@@ -163,9 +163,9 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 
 	// Now recreate relations
 	for _, policy := range group.Policies {
-		stmt := s.GetStmt("insertRelPolicy")
-		if stmt == nil {
-			return nil, fmt.Errorf("Unknown statement")
+		stmt, er := s.GetStmt("insertRelPolicy")
+		if er != nil {
+			return nil, er
 		}
 
 		if _, err := stmt.Exec(group.Uuid, policy.Id); err != nil {
@@ -180,9 +180,9 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 // ListPolicyGroups searches the db and returns an array of PolicyGroup.
 func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGroup, e error) {
 
-	stmt := s.GetStmt("listJoined")
-	if stmt == nil {
-		return nil, fmt.Errorf("Unknown statement")
+	stmt, er := s.GetStmt("listJoined")
+	if er != nil {
+		return nil, er
 	}
 
 	res, err := stmt.Query()
@@ -224,9 +224,9 @@ func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup)
 
 	var policies []string
 
-	stmt := s.GetStmt("listRelPolicies")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+	stmt, er := s.GetStmt("listRelPolicies")
+	if er != nil {
+		return er
 	}
 
 	if res, err := stmt.Query(group.Uuid); err == nil {
@@ -238,18 +238,18 @@ func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup)
 		}
 	}
 
-	stmt = s.GetStmt("deleteRelPolicies")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+	stmt, er = s.GetStmt("deleteRelPolicies")
+	if er != nil {
+		return er
 	}
 
 	if _, err := stmt.Exec(group.Uuid); err != nil {
 		return err
 	}
 
-	stmt = s.GetStmt("deletePolicyGroup")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+	stmt, er = s.GetStmt("deletePolicyGroup")
+	if er != nil {
+		return er
 	}
 	if _, err := stmt.Exec(group.Uuid); err != nil {
 		return err

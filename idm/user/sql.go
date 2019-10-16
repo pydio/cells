@@ -281,24 +281,24 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	}()
 
 	// Insure we can retrieve all necessary prepared statements
-	delAttributes := s.GetStmt("DeleteAttributes")
-	if delAttributes == nil {
-		errTx = fmt.Errorf("Unknown statement")
+	delAttributes, er := s.GetStmt("DeleteAttributes")
+	if er != nil {
+		errTx = er
+		return nil, createdNodes, er
+	}
+	addAttribute, er := s.GetStmt("AddAttribute")
+	if er != nil {
+		errTx = er
 		return nil, createdNodes, errTx
 	}
-	addAttribute := s.GetStmt("AddAttribute")
-	if addAttribute == nil {
-		errTx = fmt.Errorf("Unknown statement")
+	delUserRoles, er := s.GetStmt("DeleteUserRoles")
+	if er != nil {
+		errTx = er
 		return nil, createdNodes, errTx
 	}
-	delUserRoles := s.GetStmt("DeleteUserRoles")
-	if delUserRoles == nil {
-		errTx = fmt.Errorf("Unknown statement")
-		return nil, createdNodes, errTx
-	}
-	addUserRole := s.GetStmt("AddRole")
-	if addUserRole == nil {
-		errTx = fmt.Errorf("Unknown statement")
+	addUserRole, er := s.GetStmt("AddRole")
+	if er != nil {
+		errTx = er
 		return nil, createdNodes, errTx
 	}
 
@@ -472,7 +472,11 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 			node.Node.Type = tree.NodeType_LEAF
 			userOrGroup = nodeToUser(node)
 
-			if resRoles, err := s.GetStmt("GetRoles").Query(userOrGroup.Uuid); err != nil {
+			st, err := s.GetStmt("GetRoles")
+			if err != nil {
+				return err
+			}
+			if resRoles, err := st.Query(userOrGroup.Uuid); err != nil {
 				return err
 			} else {
 				for resRoles.Next() {
@@ -487,7 +491,11 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		}
 
 		userOrGroup.Attributes = make(map[string]string)
-		if resAttributes, err := s.GetStmt("GetAttributes").Query(userOrGroup.Uuid); err != nil {
+		st, err := s.GetStmt("GetAttributes")
+		if err != nil {
+			return err
+		}
+		if resAttributes, err := st.Query(userOrGroup.Uuid); err != nil {
 			return err
 		} else {
 			for resAttributes.Next() {
@@ -581,11 +589,15 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 	}
 
 	// If some children have been deleted, remove them now
-	if _, err := s.GetStmt("DeleteUserRolesClean").Exec(); err != nil {
+	if st, er := s.GetStmt("DeleteUserRolesClean"); er != nil {
+		return rows, er
+	} else if _, err := st.Exec(); err != nil {
 		return rows, err
 	}
 
-	if _, err := s.GetStmt("DeleteAttsClean").Exec(); err != nil {
+	if st, er := s.GetStmt("DeleteAttsClean"); er != nil {
+		return rows, er
+	} else if _, err := st.Exec(); err != nil {
 		return rows, err
 	}
 
@@ -594,18 +606,29 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 
 func (s *sqlimpl) CleanRole(roleId string) error {
 
-	_, err := s.GetStmt("DeleteRoleById").Exec(roleId)
+	st, er := s.GetStmt("DeleteRoleById")
+	if er != nil {
+		return er
+	}
+	_, err := st.Exec(roleId)
 	return err
 
 }
 
 func (s *sqlimpl) deleteNodeData(uuid string) error {
 
-	if _, err := s.GetStmt("DeleteAttributes").Exec(uuid); err != nil {
+	stAtt, er := s.GetStmt("DeleteAttributes")
+	if er != nil {
+		return er
+	}
+	stRoles, er := s.GetStmt("DeleteUserRoles")
+	if er != nil {
+		return er
+	}
+	if _, err := stAtt.Exec(uuid); err != nil {
 		return err
 	}
-
-	if _, err := s.GetStmt("DeleteUserRoles").Exec(uuid); err != nil {
+	if _, err := stRoles.Exec(uuid); err != nil {
 		return err
 	}
 

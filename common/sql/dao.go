@@ -43,7 +43,7 @@ type DAO interface {
 	DB() *sql.DB
 	Version() (string, error)
 	Prepare(string, interface{}) error
-	GetStmt(string, ...interface{}) *sql.Stmt
+	GetStmt(string, ...interface{}) (*sql.Stmt, error)
 	GetStmtWithArgs(string, ...interface{}) (*sql.Stmt, []interface{}, error)
 	UseExclusion()
 	Lock()
@@ -168,62 +168,39 @@ func (h *Handler) getStmt(query string) (*sql.Stmt, error) {
 }
 
 // GetStmt returns a list of all statements used by the dao
-func (h *Handler) GetStmt(key string, args ...interface{}) *sql.Stmt {
+func (h *Handler) GetStmt(key string, args ...interface{}) (*sql.Stmt, error) {
 	if v, ok := h.stmts[key]; ok {
-		stmt, err := h.getStmt(v)
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
-		return stmt
+		return h.getStmt(v)
 	}
 	if v, ok := h.ifuncs[key]; ok {
-
 		query := v(args...)
 		query = h.replacer.Replace(query)
-
-		stmt, err := h.getStmt(query)
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
-		return stmt
+		return h.getStmt(query)
 	}
 	if v, ok := h.funcs[key]; ok {
-		var sargs []string
+		var sArgs []string
 		for _, s := range args {
-			sargs = append(sargs, fmt.Sprintf("%v", s))
+			sArgs = append(sArgs, fmt.Sprintf("%v", s))
 		}
-		query := v(sargs...)
+		query := v(sArgs...)
 		query = h.replacer.Replace(query)
 
-		stmt, err := h.getStmt(query)
-		if err != nil {
-			return nil
-		}
-		return stmt
+		return h.getStmt(query)
 	}
-
-	return nil
+	return nil, fmt.Errorf("cannot find statement for key %s", key)
 }
 
 // GetStmt returns a list of all statements used by the dao
 func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (*sql.Stmt, []interface{}, error) {
 	if v, ok := h.funcsWithArgs[key]; ok {
-		var sparams []string
+		var sParams []string
 		for _, s := range params {
-			sparams = append(sparams, fmt.Sprintf("%v", s))
+			sParams = append(sParams, fmt.Sprintf("%v", s))
 		}
-		query, args := v(sparams...)
+		query, args := v(sParams...)
 		query = h.replacer.Replace(query)
 		stmt, err := h.getStmt(query)
-		if err != nil {
-			return nil, nil, err
-		}
-		if stmt == nil {
-			return nil, nil, fmt.Errorf("empty statement")
-		}
-		return stmt, args, nil
+		return stmt, args, err
 	}
 
 	return nil, nil, fmt.Errorf("cannot find query for " + key)

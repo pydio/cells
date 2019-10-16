@@ -77,9 +77,9 @@ func (s *ResourcesSQL) Init(options common.ConfigValues) error {
 // AddPolicy persists a policy in the underlying storage
 func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePolicy) error {
 
-	prepared := s.GetStmt("AddRuleForResource")
-	if prepared == nil {
-		return fmt.Errorf("Unknown statement")
+	prepared, er := s.GetStmt("AddRuleForResource")
+	if er != nil {
+		return er
 	}
 
 	_, err := prepared.Exec(resourceId, policy.Action.String(), policy.Subject, policy.Effect.String(), policy.JsonConditions)
@@ -107,9 +107,9 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 
 	var res []*service.ResourcePolicy
 
-	prepared := s.GetStmt("SelectRulesForResource")
-	if prepared == nil {
-		return nil, fmt.Errorf("Unknown statement")
+	prepared, er := s.GetStmt("SelectRulesForResource")
+	if er != nil {
+		return nil, er
 	}
 
 	rows, err := prepared.Query(resourceId)
@@ -135,9 +135,9 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 // DeletePoliciesForResource removes all policies for a given resource
 func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 
-	prepared := s.GetStmt("DeleteRulesForResource")
-	if prepared == nil {
-		return fmt.Errorf("Unknown statement")
+	prepared, er := s.GetStmt("DeleteRulesForResource")
+	if er != nil {
+		return er
 	}
 
 	_, err := prepared.Exec(resourceId)
@@ -148,9 +148,9 @@ func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 // DeletePoliciesForResource removes all policies for a given resource
 func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 
-	prepared := s.GetStmt("DeleteRulesForSubject")
-	if prepared == nil {
-		return fmt.Errorf("Unknown statement")
+	prepared, er := s.GetStmt("DeleteRulesForSubject")
+	if er != nil {
+		return er
 	}
 
 	_, err := prepared.Exec(subject)
@@ -161,9 +161,9 @@ func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 // DeletePoliciesForResourceAndAction removes policies for a given resource only if they have the corresponding action
 func (s *ResourcesSQL) DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error {
 
-	prepared := s.GetStmt("DeleteRulesForResourceAndAction")
-	if prepared == nil {
-		return fmt.Errorf("Unknown statement")
+	prepared, er := s.GetStmt("DeleteRulesForResourceAndAction")
+	if er != nil {
+		return er
 	}
 
 	_, err := prepared.Exec(resourceId, action.String())

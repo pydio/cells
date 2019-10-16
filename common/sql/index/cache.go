@@ -174,7 +174,7 @@ func (d *daocache) Prepare(name string, args interface{}) error {
 }
 
 // GetStmt returns a statement that had been already prepared
-func (d *daocache) GetStmt(name string, args ...interface{}) *sql.Stmt {
+func (d *daocache) GetStmt(name string, args ...interface{}) (*sql.Stmt, error) {
 	return d.DAO.(commonsql.DAO).GetStmt(name, args...)
 }
 

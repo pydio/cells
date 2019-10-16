@@ -37,7 +37,7 @@ type DAO interface {
 func NewDAO(o dao.DAO) dao.DAO {
 	switch v := o.(type) {
 	case sql.DAO:
-		return &sqlimpl{DAO: v}
+		return &sqlImpl{DAO: v}
 	}
 	return nil
 }

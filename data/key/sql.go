@@ -22,12 +22,14 @@ package key
 
 import (
 	"context"
+	"sync/atomic"
+
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
-	"sync/atomic"
 
 	sqldb "database/sql"
+
 	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
@@ -96,9 +98,9 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 }
 
 func (h *sqlimpl) ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, error) {
-	stmt := h.GetStmt("node_block_select")
-	if stmt == nil {
-		return nil, errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_select")
+	stmt, er := h.GetStmt("node_block_select")
+	if er != nil {
+		return nil, er
 	}
 
 	rows, err := stmt.Query(nodeUuid)
@@ -110,18 +112,18 @@ func (h *sqlimpl) ListEncryptedBlockInfo(nodeUuid string) (QueryResultCursor, er
 }
 
 func (h *sqlimpl) SaveEncryptedBlockInfo(nodeUuid string, b *RangedBlocks) error {
-	stmt := h.GetStmt("node_block_insert")
-	if stmt == nil {
-		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_block_insert")
+	stmt, er := h.GetStmt("node_block_insert")
+	if er != nil {
+		return er
 	}
 	_, err := stmt.Exec(nodeUuid, b.PartId, b.SeqStart, b.SeqEnd, b.BlockSize, b.HeaderSize, b.OwnerId)
 	return err
 }
 
 func (h *sqlimpl) GetEncryptedLegacyBlockInfo(nodeUuid string) (*RangedBlocks, error) {
-	stmt := h.GetStmt("node_legacy_block_select")
-	if stmt == nil {
-		return nil, errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_legacy_block_select")
+	stmt, er := h.GetStmt("node_legacy_block_select")
+	if er != nil {
+		return nil, er
 	}
 
 	rows, err := stmt.Query(nodeUuid)
@@ -140,18 +142,18 @@ func (h *sqlimpl) GetEncryptedLegacyBlockInfo(nodeUuid string) (*RangedBlocks, e
 }
 
 func (h *sqlimpl) ClearNodeEncryptedBlockInfo(nodeUuid string) error {
-	stmt := h.GetStmt("node_block_delete")
-	if stmt == nil {
-		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_block_delete")
+	stmt, er := h.GetStmt("node_block_delete")
+	if er != nil {
+		return er
 	}
 	_, err := stmt.Exec(nodeUuid)
 	return err
 }
 
 func (h *sqlimpl) ClearNodeEncryptedPartBlockInfo(nodeUuid string, partID int) error {
-	stmt := h.GetStmt("node_part_block_delete")
-	if stmt == nil {
-		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_block_delete")
+	stmt, er := h.GetStmt("node_part_block_delete")
+	if er != nil {
+		return er
 	}
 	_, err := stmt.Exec(nodeUuid, partID)
 	return err
@@ -203,7 +205,10 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 	}
 	defer cursor.Close()
 
-	stmt := h.GetStmt("node_block_insert")
+	stmt, er := h.GetStmt("node_block_insert")
+	if er != nil {
+		return er
+	}
 	for cursor.HasNext() {
 		bi, err := cursor.Next()
 		if err != nil {
@@ -227,9 +232,9 @@ func (h *sqlimpl) CopyNode(srcUuid string, targetUuid string) error {
 }
 
 func (h *sqlimpl) SaveNode(node *encryption.Node) error {
-	stmt := h.GetStmt("node_insert")
-	if stmt == nil {
-		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_insert")
+	stmt, er := h.GetStmt("node_insert")
+	if er != nil {
+		return er
 	}
 	var intLegacy int
 	if node.Legacy {
@@ -240,18 +245,18 @@ func (h *sqlimpl) SaveNode(node *encryption.Node) error {
 }
 
 func (h *sqlimpl) UpgradeNodeVersion(nodeUuid string) error {
-	stmt := h.GetStmt("node_update")
-	if stmt == nil {
-		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_update")
+	stmt, er := h.GetStmt("node_update")
+	if er != nil {
+		return er
 	}
 	_, err := stmt.Exec(0, nodeUuid)
 	return err
 }
 
 func (h *sqlimpl) GetNode(nodeUuid string) (*encryption.Node, error) {
-	stmt := h.GetStmt("node_select")
-	if stmt == nil {
-		return nil, errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_select")
+	stmt, er := h.GetStmt("node_select")
+	if er != nil {
+		return nil, er
 	}
 
 	rows, err := stmt.Query(nodeUuid)
@@ -272,18 +277,18 @@ func (h *sqlimpl) GetNode(nodeUuid string) (*encryption.Node, error) {
 }
 
 func (h *sqlimpl) DeleteNode(nodeUuid string) error {
-	stmt := h.GetStmt("node_delete")
-	if stmt == nil {
-		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_delete")
+	stmt, er := h.GetStmt("node_delete")
+	if er != nil {
+		return er
 	}
 	_, err := stmt.Exec(nodeUuid)
 	return err
 }
 
 func (h *sqlimpl) SaveNodeKey(key *encryption.NodeKey) error {
-	stmt := h.GetStmt("node_key_insert")
-	if stmt == nil {
-		return errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_key_insert")
+	stmt, er := h.GetStmt("node_key_insert")
+	if er != nil {
+		return er
 	}
 
 	_, err := stmt.Exec(key.NodeId, key.OwnerId, key.UserId, key.KeyData)
@@ -291,9 +296,9 @@ func (h *sqlimpl) SaveNodeKey(key *encryption.NodeKey) error {
 }
 
 func (h *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey, error) {
-	stmt := h.GetStmt("node_key_select")
-	if stmt == nil {
-		return nil, errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_select")
+	stmt, er := h.GetStmt("node_key_select")
+	if er != nil {
+		return nil, er
 	}
 
 	rows, err := stmt.Query(nodeUuid, user)
@@ -321,18 +326,18 @@ func (h *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey,
 }
 
 func (h *sqlimpl) DeleteNodeKey(key *encryption.NodeKey) error {
-	stmt := h.GetStmt("node_key_delete")
-	if stmt == nil {
-		return errors.NotFound("node.key.dao", "internal error: %s statement not found", "node_key_delete")
+	stmt, er := h.GetStmt("node_key_delete")
+	if er != nil {
+		return er
 	}
 	_, err := stmt.Exec(key.NodeId, key.UserId)
 	return err
 }
 
 func (h *sqlimpl) GetAllNodeKey(nodeUuid string) (QueryResultCursor, error) {
-	stmt := h.GetStmt("node_key_select_all")
-	if stmt == nil {
-		return nil, errors.InternalServerError("node.key.dao", "internal error: %s statement not found", "node_key_select_all")
+	stmt, er := h.GetStmt("node_key_select_all")
+	if er != nil {
+		return nil, er
 	}
 
 	rows, err := stmt.Query(nodeUuid)
