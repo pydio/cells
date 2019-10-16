@@ -58,7 +58,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-folder-open",
 						Component: "AdminWorkspaces.WsDashboard",
-						Props:     `{"filter":"workspaces"}`,
 					},
 				},
 				{

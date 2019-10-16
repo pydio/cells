@@ -151,15 +151,19 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 					node.SetMeta(common.META_FLAG_WORKSPACE_DESCRIPTION, ws.Description)
 					node.SetMeta(common.META_FLAG_WORKSPACE_SLUG, ws.Slug)
 					node.SetMeta(common.META_FLAG_WORKSPACE_UUID, ws.UUID)
-					if ws.Attributes != "" && ws.Attributes != "{}" {
-						var aa map[string]interface{}
-						if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
-							if canSync, ok := aa["ALLOW_SYNC"]; ok {
-								if b, o := canSync.(bool); o {
-									node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, b)
-								} else if s, o := canSync.(string); o {
-									if s == "true" {
+					if common.PackageType == "PydioHome" && ws.Scope == idm.WorkspaceScope_ADMIN {
+						node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, true)
+					} else {
+						if ws.Attributes != "" && ws.Attributes != "{}" {
+							var aa map[string]interface{}
+							if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
+								if canSync, ok := aa["ALLOW_SYNC"]; ok {
+									if b, o := canSync.(bool); o && b {
 										node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, true)
+									} else if s, o := canSync.(string); o {
+										if s == "true" {
+											node.SetMeta(common.META_FLAG_WORKSPACE_SYNCABLE, true)
+										}
 									}
 								}
 							}
