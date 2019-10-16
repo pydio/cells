@@ -78,7 +78,6 @@ func FirstRun(ctx context.Context) error {
 			Label:       "Personal Files",
 			Description: "User personal data",
 			Slug:        "personal-files",
-			Attributes:  `{"ALLOW_SYNC":true}`,
 		}
 		createWs(ctx, wsClient, ws, "my-files", "my-files")
 	}
