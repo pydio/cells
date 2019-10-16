@@ -99,7 +99,7 @@ func (h *sqlImpl) SetMetadata(nodeId string, author string, metadata map[string]
 			ns := namespace
 			if data == "" {
 				// Delete namespace
-				stmt, er := h.GetStmt("deleteNs")
+				stmt, er := h.GetStmt("deleteNS")
 				if er != nil {
 					return er
 				}
