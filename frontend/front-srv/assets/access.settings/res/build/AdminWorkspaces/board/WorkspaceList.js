@@ -61,7 +61,7 @@ exports['default'] = _react2['default'].createClass({
         rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         openSelection: _react2['default'].PropTypes.func,
-        filter: _react2['default'].PropTypes.string
+        advanced: _react2['default'].PropTypes.boolean
     },
 
     getInitialState: function getInitialState() {
@@ -127,7 +127,9 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
-        var pydio = this.props.pydio;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var advanced = _props.advanced;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.' + id];
@@ -136,9 +138,16 @@ exports['default'] = _react2['default'].createClass({
             return pydio.MessageHash['settings.' + id];
         };
 
-        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'syncable', label: m('ws.board.syncable'), style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%', textAlign: 'center' }, renderCell: function renderCell(row) {
-                return _react2['default'].createElement('span', { className: "mdi mdi-check", style: { fontSize: 18, opacity: row.syncable ? 1 : 0 } });
-            } }, { name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } }];
+        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' } }];
+        if (advanced) {
+            columns.push({
+                name: 'syncable', label: m('ws.board.syncable'), style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%', textAlign: 'center' }, renderCell: function renderCell(row) {
+                    return _react2['default'].createElement('span', { className: "mdi mdi-check", style: { fontSize: 18, opacity: row.syncable ? 1 : 0 } });
+                } });
+        }
+
+        columns.push({ name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } });
+
         var loading = this.state.loading;
 
         var data = this.computeTableData();

@@ -78,7 +78,7 @@ class WsEditor extends React.Component {
 
     render(){
 
-        const {closeEditor, pydio} = this.props;
+        const {closeEditor, pydio, advanced} = this.props;
         const {workspace, container, newFolderKey, saving} = this.state;
         const m = id => pydio.MessageHash['ajxp_admin.' + id] || id;
         const mS = id => pydio.MessageHash['settings.' + id] || id;
@@ -211,23 +211,27 @@ class WsEditor extends React.Component {
                         <MenuItem primaryText={m('ws.editor.default_rights.write')} value={"w"}/>
                     </ModernSelectField>
                 </Paper>
-                <Paper zDepth={1} style={styles.section}>
-                    <div style={styles.title}>{m('ws.editor.other')}</div>
-                    <div style={styles.toggleDiv}>
-                        <Toggle
-                            label={m('ws.editor.other.sync')}
-                            labelPosition={"right"}
-                            toggled={workspace.Attributes['ALLOW_SYNC']}
-                            onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}}
-                            {...ModernStyles.toggleField}
-                        />
-                    </div>
-                    <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.layout')}</div>
-                    <ModernSelectField fullWidth={true} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
-                        <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
-                        <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
-                    </ModernSelectField>
-                </Paper>
+                {advanced &&
+                    <Paper zDepth={1} style={styles.section}>
+                        <div style={styles.title}>{m('ws.editor.other')}</div>
+                        <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.sync.legend')}</div>
+                        <div style={styles.toggleDiv}>
+                            <Toggle
+                                label={m('ws.editor.other.sync') + (container.hasTemplatePath() ? '' : ' ' + m('ws.editor.other.sync-personal'))}
+                                labelPosition={"right"}
+                                toggled={workspace.Attributes['ALLOW_SYNC']}
+                                onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}}
+                                disabled={!container.hasTemplatePath()}
+                                {...ModernStyles.toggleField}
+                            />
+                        </div>
+                        <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.layout')}</div>
+                        <ModernSelectField fullWidth={true} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
+                            <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
+                            <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
+                        </ModernSelectField>
+                    </Paper>
+                }
             </PaperEditorLayout>
         );
 

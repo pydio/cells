@@ -146,6 +146,7 @@ var WsEditor = (function (_React$Component) {
             var _props3 = this.props;
             var closeEditor = _props3.closeEditor;
             var pydio = _props3.pydio;
+            var advanced = _props3.advanced;
             var _state = this.state;
             var workspace = _state.workspace;
             var container = _state.container;
@@ -339,7 +340,7 @@ var WsEditor = (function (_React$Component) {
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.write'), value: "w" })
                     )
                 ),
-                _react2['default'].createElement(
+                advanced && _react2['default'].createElement(
                     _materialUi.Paper,
                     { zDepth: 1, style: styles.section },
                     _react2['default'].createElement(
@@ -349,14 +350,20 @@ var WsEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         'div',
+                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
+                        m('ws.editor.other.sync.legend')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
                         { style: styles.toggleDiv },
                         _react2['default'].createElement(_materialUi.Toggle, _extends({
-                            label: m('ws.editor.other.sync'),
+                            label: m('ws.editor.other.sync') + (container.hasTemplatePath() ? '' : ' ' + m('ws.editor.other.sync-personal')),
                             labelPosition: "right",
                             toggled: workspace.Attributes['ALLOW_SYNC'],
                             onToggle: function (e, v) {
                                 workspace.Attributes['ALLOW_SYNC'] = v;
-                            }
+                            },
+                            disabled: !container.hasTemplatePath()
                         }, ModernStyles.toggleField))
                     ),
                     _react2['default'].createElement(

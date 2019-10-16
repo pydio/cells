@@ -35,7 +35,7 @@ export default React.createClass({
         rootNode:       React.PropTypes.instanceOf(Node).isRequired,
         currentNode:    React.PropTypes.instanceOf(Node).isRequired,
         openSelection:  React.PropTypes.func,
-        filter:         React.PropTypes.string
+        advanced:         React.PropTypes.boolean
     },
 
     getInitialState(){
@@ -99,7 +99,7 @@ export default React.createClass({
 
     render(){
 
-        const {pydio} = this.props;
+        const {pydio, advanced} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.' + id];
         const s = (id) => pydio.MessageHash['settings.' + id];
 
@@ -107,11 +107,16 @@ export default React.createClass({
             {name:'label', label: s('8'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
             {name:'description', label: s('103'), hideSmall:true, style:{width:'25%'}, headerStyle:{width:'25%'}},
             {name:'summary', label: m('ws.board.summary'), hideSmall:true, style:{width:'25%'}, headerStyle:{width:'25%'}},
-            {name:'syncable', label: m('ws.board.syncable'), style:{width:'10%', textAlign:'center'}, headerStyle:{width:'10%', textAlign:'center'}, renderCell:(row)=>{
+            ];
+        if (advanced){
+            columns.push({
+                name:'syncable', label: m('ws.board.syncable'), style:{width:'10%', textAlign:'center'}, headerStyle:{width:'10%', textAlign:'center'}, renderCell:(row)=>{
                     return <span className={"mdi mdi-check"} style={{fontSize:18, opacity:row.syncable?1:0}}/>
-                }},
-            {name:'slug', label: m('ws.5'), style:{width:'20%'}, headerStyle:{width:'20%'}},
-        ];
+                }});
+        }
+
+        columns.push({name:'slug', label: m('ws.5'), style:{width:'20%'}, headerStyle:{width:'20%'}});
+
         const {loading} = this.state;
         const data = this.computeTableData();
 

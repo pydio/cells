@@ -59,11 +59,11 @@ exports['default'] = _react2['default'].createClass({
         openEditor: _react2['default'].PropTypes.func.isRequired,
         openRightPane: _react2['default'].PropTypes.func.isRequired,
         closeRightPane: _react2['default'].PropTypes.func.isRequired,
-        filter: _react2['default'].PropTypes.string
+        advanced: _react2['default'].PropTypes.boolean
     },
 
     getInitialState: function getInitialState() {
-        return { selectedNode: null, filter: this.props.filter || 'workspaces' };
+        return { selectedNode: null };
     },
 
     componentDidMount: function componentDidMount() {
@@ -106,7 +106,9 @@ exports['default'] = _react2['default'].createClass({
         if (editorNode) {
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
         }
-        var pydio = this.props.pydio;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var advanced = _props.advanced;
 
         var editorData = {
             COMPONENT: editor,
@@ -115,6 +117,7 @@ exports['default'] = _react2['default'].createClass({
                 pydio: pydio,
                 workspace: workspace,
                 closeEditor: this.closeWorkspace,
+                advanced: advanced,
                 reloadList: function reloadList() {
                     _this2.refs['workspacesList'].reload();
                 }
@@ -133,7 +136,9 @@ exports['default'] = _react2['default'].createClass({
     showWorkspaceCreator: function showWorkspaceCreator(type) {
         var _this3 = this;
 
-        var pydio = this.props.pydio;
+        var _props2 = this.props;
+        var pydio = _props2.pydio;
+        var advanced = _props2.advanced;
 
         var editorData = {
             COMPONENT: _editorWsEditor2['default'],
@@ -141,6 +146,7 @@ exports['default'] = _react2['default'].createClass({
                 ref: "editor",
                 type: type,
                 pydio: pydio,
+                advanced: advanced,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
                     _this3.refs['workspacesList'].reload();
@@ -188,7 +194,7 @@ exports['default'] = _react2['default'].createClass({
                             rootNode: this.props.rootNode,
                             currentNode: this.props.currentNode,
                             openSelection: this.openWorkspace,
-                            filter: this.state.filter
+                            advanced: this.props.advanced
                         })
                     )
                 )
