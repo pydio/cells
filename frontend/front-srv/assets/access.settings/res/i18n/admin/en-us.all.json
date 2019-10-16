@@ -1407,7 +1407,7 @@
     "other": "Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource."
   },
   "ws.editor.data.legend": {
-    "other": "Workspace exposes one or many 'roots' to the users: choose on or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
+    "other": "Workspace exposes one or many 'roots' to the users: choose one or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
   },
   "ws.editor.data.title": {
     "other": "Data Access"
@@ -1459,6 +1459,12 @@
   },
   "ws.editor.other.sync": {
     "other": "Allow desktop synchronisation"
+  },
+  "ws.editor.other.sync.legend": {
+    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. You can currently enable this feature for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+  },
+  "ws.editor.other.sync-personal": {
+    "other": "(personal workspaces only)"
   },
   "ws.editor.path.folder": {
     "other": "Folder Path"

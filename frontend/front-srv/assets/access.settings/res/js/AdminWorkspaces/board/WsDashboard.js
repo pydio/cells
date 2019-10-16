@@ -37,11 +37,11 @@ export default React.createClass({
         openEditor:React.PropTypes.func.isRequired,
         openRightPane:React.PropTypes.func.isRequired,
         closeRightPane:React.PropTypes.func.isRequired,
-        filter:React.PropTypes.string,
+        advanced:React.PropTypes.boolean,
     },
 
     getInitialState(){
-        return {selectedNode:null, filter:this.props.filter || 'workspaces'}
+        return {selectedNode:null}
     },
 
     componentDidMount(){
@@ -79,7 +79,7 @@ export default React.createClass({
         if(editorNode){
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
         }
-        const {pydio} = this.props;
+        const {pydio, advanced} = this.props;
         const editorData = {
             COMPONENT:editor,
             PROPS:{
@@ -87,6 +87,7 @@ export default React.createClass({
                 pydio: pydio,
                 workspace:workspace,
                 closeEditor:this.closeWorkspace,
+                advanced,
                 reloadList:()=>{this.refs['workspacesList'].reload();}
             }
         };
@@ -101,13 +102,14 @@ export default React.createClass({
     },
 
     showWorkspaceCreator(type){
-        const {pydio} = this.props;
+        const {pydio, advanced} = this.props;
         const editorData = {
             COMPONENT:WsEditor,
             PROPS:{
                 ref:"editor",
                 type:type,
                 pydio: pydio,
+                advanced,
                 closeEditor:this.closeWorkspace,
                 reloadList:()=>{this.refs['workspacesList'].reload();}
             }
@@ -148,7 +150,7 @@ export default React.createClass({
                                 rootNode={this.props.rootNode}
                                 currentNode={this.props.currentNode}
                                 openSelection={this.openWorkspace}
-                                filter={this.state.filter}
+                                advanced={this.props.advanced}
                             />
                         </Paper>
                     </div>
