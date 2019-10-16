@@ -291,8 +291,6 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 	dao.Lock()
 	defer dao.Unlock()
 
-	var err error
-
 	mTime := node.GetMTime()
 	if mTime == 0 {
 		mTime = time.Now().Unix()
@@ -300,28 +298,27 @@ func (dao *IndexSQL) AddNode(node *mtree.TreeNode) error {
 
 	mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
 
-	if stmt := dao.GetStmt("insertTree"); stmt != nil {
-
-		if _, err = stmt.Exec(
-			node.Uuid,
-			node.Level,
-			node.MPath.Hash(),
-			node.Name(),
-			node.IsLeafInt(),
-			mTime,
-			node.GetEtag(),
-			node.GetSize(),
-			node.GetMode(),
-			mpath1,
-			mpath2,
-			mpath3,
-			mpath4,
-			node.Bytes(),
-		); err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("empty statement")
+	stmt, er := dao.GetStmt("insertTree")
+	if er != nil {
+		return er
+	}
+	if _, err := stmt.Exec(
+		node.Uuid,
+		node.Level,
+		node.MPath.Hash(),
+		node.Name(),
+		node.IsLeafInt(),
+		mTime,
+		node.GetEtag(),
+		node.GetSize(),
+		node.GetMode(),
+		mpath1,
+		mpath2,
+		mpath3,
+		mpath4,
+		node.Bytes(),
+	); err != nil {
+		return err
 	}
 
 	return nil
@@ -341,9 +338,9 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 			dao.Lock()
 			defer dao.Unlock()
 
-			insertTree := dao.GetStmt("insertTree", num)
-			if insertTree == nil {
-				return fmt.Errorf("unknown statement")
+			insertTree, er := dao.GetStmt("insertTree", num)
+			if er != nil {
+				return er
 			}
 			if _, err := insertTree.Exec(valsInsertTree...); err != nil {
 				return err
@@ -405,9 +402,9 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 
 	mpath1, mpath2, mpath3, mpath4 := prepareMPathParts(node)
 
-	updateTree := dao.GetStmt("updateTree")
-	if updateTree == nil {
-		return fmt.Errorf("empty statement")
+	updateTree, er := dao.GetStmt("updateTree")
+	if er != nil {
+		return er
 	}
 
 	_, err := updateTree.Exec(
@@ -436,9 +433,9 @@ func (dao *IndexSQL) SetNodeMeta(node *mtree.TreeNode) error {
 	dao.Lock()
 	defer dao.Unlock()
 
-	updateMeta := dao.GetStmt("updateMeta")
-	if updateMeta == nil {
-		return fmt.Errorf("empty statement")
+	updateMeta, er := dao.GetStmt("updateMeta")
+	if er != nil {
+		return er
 	}
 
 	_, err := updateMeta.Exec(
@@ -464,17 +461,15 @@ func (dao *IndexSQL) PushCommit(node *mtree.TreeNode) error {
 	if mTime == 0 {
 		mTime = time.Now().Unix()
 	}
-	if stmt := dao.GetStmt("insertCommit"); stmt != nil {
-		if _, err := stmt.Exec(
-			node.Uuid,
-			node.Etag,
-			mTime,
-			node.Size,
-		); err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("empty statement")
+	if stmt, er := dao.GetStmt("insertCommit"); er != nil {
+		return er
+	} else if _, err := stmt.Exec(
+		node.Uuid,
+		node.Etag,
+		mTime,
+		node.Size,
+	); err != nil {
+		return err
 	}
 
 	return nil
@@ -485,13 +480,13 @@ func (dao *IndexSQL) DeleteCommits(node *mtree.TreeNode) error {
 
 	dao.Lock()
 	defer dao.Unlock()
-	if stmt := dao.GetStmt("deleteCommits"); stmt != nil {
-		_, err := stmt.Exec(node.Uuid)
-		if err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("empty statement")
+	stmt, er := dao.GetStmt("deleteCommits")
+	if er != nil {
+		return er
+	}
+	_, err := stmt.Exec(node.Uuid)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -511,13 +506,12 @@ func (dao *IndexSQL) ListCommits(node *mtree.TreeNode) (commits []*tree.ChangeLo
 	}()
 
 	// First we check if we already have an object with the same key
-	if stmt := dao.GetStmt("selectCommits"); stmt != nil {
-		rows, err = stmt.Query(node.Uuid)
-		if err != nil {
-			return commits, err
-		}
-	} else {
-		return commits, fmt.Errorf("empty statement")
+	stmt, er := dao.GetStmt("selectCommits")
+	if er != nil {
+		return commits, er
+	}
+	if rows, err = stmt.Query(node.Uuid); err != nil {
+		return commits, err
 	}
 	for rows.Next() {
 		var uid string
@@ -642,15 +636,15 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 			return eE
 		}
 		log.Logger(context.Background()).Info("Computed Etag For Node", zap.Any("etag", newEtag))
-		if stmt := dao.GetStmt("updateEtag"); stmt != nil {
-			if _, err = stmt.Exec(
-				newEtag,
-				node.Uuid,
-			); err != nil {
-				return err
-			}
-		} else {
-			return fmt.Errorf("empty statement")
+		stmt, er := dao.GetStmt("updateEtag")
+		if er != nil {
+			return er
+		}
+		if _, err = stmt.Exec(
+			newEtag,
+			node.Uuid,
+		); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -765,19 +759,19 @@ func (dao *IndexSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 	dao.Lock()
 	defer dao.Unlock()
 
-	if stmt := dao.GetStmt("selectNodeUuid"); stmt != nil {
-		row := stmt.QueryRow(uuid)
-		treeNode, err := dao.scanDbRowToTreeNode(row)
-		if err != nil && err != sql.ErrNoRows {
-			return nil, err
-		}
-		if treeNode != nil && !treeNode.IsLeaf() {
-			dao.folderSize(treeNode)
-		}
-		return treeNode, nil
+	stmt, er := dao.GetStmt("selectNodeUuid")
+	if er != nil {
+		return nil, er
 	}
-
-	return nil, fmt.Errorf("empty statement")
+	row := stmt.QueryRow(uuid)
+	treeNode, err := dao.scanDbRowToTreeNode(row)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+	if treeNode != nil && !treeNode.IsLeaf() {
+		dao.folderSize(treeNode)
+	}
+	return treeNode, nil
 }
 
 // GetNodes List
@@ -1085,9 +1079,9 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 	p1 := mtree.NewMatrix(pf1.Num(), psf1.Num(), pf1.Denom(), psf1.Denom())
 	toPath := nodeTo.Path
 
-	updateTree := dao.GetStmt("updateTree")
-	if updateTree == nil {
-		return fmt.Errorf("empty statement")
+	updateTree, er := dao.GetStmt("updateTree")
+	if er != nil {
+		return er
 	}
 
 	// Update Node MPath/Rat

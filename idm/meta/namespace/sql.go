@@ -21,8 +21,6 @@
 package namespace
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
@@ -48,25 +46,25 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options common.ConfigValues) error {
+func (dao *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
-	s.DAO.Init(options)
+	dao.DAO.Init(options)
 
 	// Preparing the resources
-	s.ResourcesSQL = resources.NewDAO(s.Handler, "idm_usr_meta_ns.namespace").(*resources.ResourcesSQL)
-	if err := s.ResourcesSQL.Init(options); err != nil {
+	dao.ResourcesSQL = resources.NewDAO(dao.Handler, "idm_usr_meta_ns.namespace").(*resources.ResourcesSQL)
+	if err := dao.ResourcesSQL.Init(options); err != nil {
 		return err
 	}
 
 	// Doing the database migrations
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../idm/meta/namespace/migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix() + "_ns",
+		Dir:         dao.Driver(),
+		TablePrefix: dao.Prefix() + "_ns",
 	}
 
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_usr_meta_ns_")
+	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Up, "idm_usr_meta_ns_")
 	if err != nil {
 		return err
 	}
@@ -74,13 +72,13 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	// Preparing the db statements
 	if options.Bool("prepare", true) {
 		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
+			if err := dao.Prepare(key, query); err != nil {
 				return err
 			}
 		}
 	}
 
-	s.Add(&idm.UserMetaNamespace{
+	dao.Add(&idm.UserMetaNamespace{
 		Namespace: ReservedNamespaceBookmark,
 		Label:     "Bookmarks",
 		Policies: []*service.ResourcePolicy{
@@ -92,15 +90,16 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
+// Add inserts a namespace
 func (dao *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
 	indexableValue := 0
 	if ns.Indexable {
 		indexableValue = 1
 	}
 
-	stmt := dao.GetStmt("Add")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+	stmt, er := dao.GetStmt("Add")
+	if er != nil {
+		return er
 	}
 
 	_, err := stmt.Exec(
@@ -121,11 +120,12 @@ func (dao *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
 	return nil
 }
 
+// Del removes a namespace
 func (dao *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
 
-	stmt := dao.GetStmt("Delete")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+	stmt, er := dao.GetStmt("Delete")
+	if er != nil {
+		return er
 	}
 
 	if _, err := stmt.Exec(ns.Namespace); err != nil {
@@ -139,11 +139,12 @@ func (dao *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
 	return nil
 }
 
+// List list all namespaces
 func (dao *sqlimpl) List() (result map[string]*idm.UserMetaNamespace, err error) {
 
-	stmt := dao.GetStmt("List")
-	if stmt == nil {
-		return nil, fmt.Errorf("Unknown statement")
+	stmt, er := dao.GetStmt("List")
+	if er != nil {
+		return nil, er
 	}
 
 	res, err := stmt.Query()

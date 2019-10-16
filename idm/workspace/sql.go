@@ -95,9 +95,9 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 		return false, errors.BadRequest(common.SERVICE_WORKSPACE, "Wrong type")
 	}
 	update := false
-	stmt := s.GetStmt("ExistsWorkspace")
-	if stmt == nil {
-		return false, fmt.Errorf("Unknown statement")
+	stmt, er := s.GetStmt("ExistsWorkspace")
+	if er != nil {
+		return false, er
 	}
 
 	exists := stmt.QueryRow(workspace.UUID)
@@ -118,9 +118,9 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 		}
 		workspace.Slug = testSlug
 	}
-	stmt = s.GetStmt("AddWorkspace")
-	if stmt == nil {
-		return false, fmt.Errorf("Unknown statement")
+	stmt, er = s.GetStmt("AddWorkspace")
+	if er != nil {
+		return false, er
 	}
 
 	_, err := stmt.Exec(workspace.UUID, workspace.Label, workspace.Description, workspace.Attributes, workspace.Slug, workspace.Scope, time.Now().Unix())
@@ -136,8 +136,8 @@ func (s *sqlimpl) slugExists(slug string) bool {
 		return true
 	}
 
-	stmt := s.GetStmt("ExistsWorkspaceWithSlug")
-	if stmt == nil {
+	stmt, er := s.GetStmt("ExistsWorkspaceWithSlug")
+	if er != nil {
 		return false
 	}
 

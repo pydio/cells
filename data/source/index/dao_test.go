@@ -130,7 +130,8 @@ func trimSchema(schema []string) []string {
 func printTree() {
 	// query
 
-	rows, err := getSQLDAO(ctx).GetStmt("printTree").Query()
+	st, _ := getSQLDAO(ctx).GetStmt("printTree")
+	rows, err := st.Query()
 	So(err, ShouldBeNil)
 
 	var uuid, mpath string
@@ -147,7 +148,8 @@ func printTree() {
 
 func printNodes() {
 	// query
-	rows, err := getSQLDAO(ctx).GetStmt("printNodes").Query()
+	st, _ := getSQLDAO(ctx).GetStmt("printNodes")
+	rows, err := st.Query()
 	So(err, ShouldBeNil)
 
 	var uuid, name, etag, mode string

@@ -22,7 +22,6 @@ package meta
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/packr"
@@ -116,21 +115,22 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 
 	owner := dao.extractOwner(meta.Policies)
 
-	if stmt := dao.GetStmt("Exists"); stmt != nil {
-
-		exists := stmt.QueryRow(meta.NodeUuid, meta.Namespace, owner)
-		if err := exists.Scan(&metaId); err == nil && metaId != "" {
-			update = true
-		} else {
-			metaId = uuid.NewUUID().String()
-		}
+	stmt, er := dao.GetStmt("Exists")
+	if er != nil {
+		return nil, false, er
 	}
 
-	var err error
+	exists := stmt.QueryRow(meta.NodeUuid, meta.Namespace, owner)
+	if err := exists.Scan(&metaId); err == nil && metaId != "" {
+		update = true
+	} else {
+		metaId = uuid.NewUUID().String()
+	}
+
 	if update {
-		stmt := dao.GetStmt("UpdateMeta")
-		if stmt == nil {
-			return nil, false, fmt.Errorf("Unknown statement")
+		stmt, er := dao.GetStmt("UpdateMeta")
+		if er != nil {
+			return nil, false, er
 		}
 
 		if _, err := stmt.Exec(
@@ -145,9 +145,9 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 			return meta, update, err
 		}
 	} else {
-		stmt := dao.GetStmt("AddMeta")
-		if stmt == nil {
-			return nil, false, fmt.Errorf("Unknown statement")
+		stmt, er := dao.GetStmt("AddMeta")
+		if er != nil {
+			return nil, false, er
 		}
 
 		if _, err := stmt.Exec(
@@ -165,7 +165,8 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 	}
 	meta.Uuid = metaId
 
-	if err == nil && len(meta.Policies) > 0 {
+	var err error
+	if len(meta.Policies) > 0 {
 		for _, p := range meta.Policies {
 			p.Resource = meta.Uuid
 		}
@@ -177,9 +178,9 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 
 // Delete meta by their Id
 func (dao *sqlimpl) Del(meta *idm.UserMeta) (e error) {
-	stmt := dao.GetStmt("DeleteMeta")
-	if stmt == nil {
-		return fmt.Errorf("Unknown statement")
+	stmt, er := dao.GetStmt("DeleteMeta")
+	if er != nil {
+		return er
 	}
 
 	if _, e := stmt.Exec(meta.Uuid); e != nil {

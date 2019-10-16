@@ -21,7 +21,6 @@
 package key
 
 import (
-	"fmt"
 	"sync/atomic"
 
 	"github.com/gobuffalo/packr"
@@ -50,19 +49,19 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options common.ConfigValues) error {
+func (dao *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
-	s.DAO.Init(options)
+	dao.DAO.Init(options)
 
 	// Doing the database migrations
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../idm/key/migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
+		Dir:         dao.Driver(),
+		TablePrefix: dao.Prefix(),
 	}
 
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_key_")
+	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Up, "idm_key_")
 	if err != nil {
 		return err
 	}
@@ -70,7 +69,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	// Preparing the db statements
 	if options.Bool("prepare", true) {
 		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
+			if err := dao.Prepare(key, query); err != nil {
 				return err
 			}
 		}
@@ -78,10 +77,11 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
+// SaveKey saves the key to persistence layer
 func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
-	insertStmt := dao.GetStmt("insert")
-	if insertStmt == nil {
-		return fmt.Errorf("Unknown stmt")
+	insertStmt, er := dao.GetStmt("insert")
+	if er != nil {
+		return er
 	}
 
 	var bytes = []byte{}
@@ -96,9 +96,9 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 
 	_, err = insertStmt.Exec(key.Owner, key.ID, key.Label, key.Content, key.CreationDate, bytes)
 	if err != nil {
-		updateStmt := dao.GetStmt("update")
-		if updateStmt == nil {
-			return fmt.Errorf("Unknown stmt")
+		updateStmt, er := dao.GetStmt("update")
+		if er != nil {
+			return er
 		}
 
 		_, err = updateStmt.Exec(key.Content, bytes, key.Owner, key.ID)
@@ -106,10 +106,11 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 	return err
 }
 
+// GetKey loads key from persistence layer
 func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) {
-	getStmt := dao.GetStmt("get")
-	if getStmt == nil {
-		return nil, fmt.Errorf("Unknown stmt")
+	getStmt, er := dao.GetStmt("get")
+	if er != nil {
+		return nil, er
 	}
 
 	rows, err := getStmt.Query(owner, KeyID)
@@ -137,10 +138,11 @@ func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) 
 	}
 }
 
+// ListKeys list all keys by owner
 func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
-	getStmt := dao.GetStmt("list")
-	if getStmt == nil {
-		return nil, fmt.Errorf("Unknown stmt")
+	getStmt, er := dao.GetStmt("list")
+	if er != nil {
+		return nil, er
 	}
 
 	rows, err := getStmt.Query(owner)
@@ -173,10 +175,11 @@ func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 	return list, rows.Err()
 }
 
+// DeleteKey removes a key from the persistence layer
 func (dao *sqlimpl) DeleteKey(owner string, keyID string) error {
-	delStmt := dao.GetStmt("delete")
-	if delStmt == nil {
-		return fmt.Errorf("Unknown stmt")
+	delStmt, er := dao.GetStmt("delete")
+	if er != nil {
+		return er
 	}
 
 	_, err := delStmt.Exec(owner, keyID)

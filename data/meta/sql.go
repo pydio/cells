@@ -21,8 +21,6 @@
 package meta
 
 import (
-	"fmt"
-	"sync/atomic"
 	"time"
 
 	"github.com/gobuffalo/packr"
@@ -41,28 +39,27 @@ var (
 		"select":     `SELECT * FROM data_meta WHERE node_id=?`,
 		"selectAll":  `SELECT * FROM data_meta LIMIT 0, 500`,
 	}
-	mu atomic.Value
 )
 
 // Impl of the SQL interface
-type sqlimpl struct {
+type sqlImpl struct {
 	sql.DAO
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options common.ConfigValues) error {
+func (h *sqlImpl) Init(options common.ConfigValues) error {
 
 	// super
-	s.DAO.Init(options)
+	h.DAO.Init(options)
 
 	// Doing the database migrations
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../data/meta/migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
+		Dir:         h.Driver(),
+		TablePrefix: h.Prefix(),
 	}
 
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "data_meta_")
+	_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Up, "data_meta_")
 	if err != nil {
 		return err
 	}
@@ -70,7 +67,7 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	// Preparing the db statements
 	if options.Bool("prepare", true) {
 		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
+			if err := h.Prepare(key, query); err != nil {
 				return err
 			}
 		}
@@ -79,13 +76,14 @@ func (s *sqlimpl) Init(options common.ConfigValues) error {
 	return nil
 }
 
-func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]string) (err error) {
+// SetMetadata creates or updates metadata for a node
+func (h *sqlImpl) SetMetadata(nodeId string, author string, metadata map[string]string) (err error) {
 
 	if len(metadata) == 0 {
 		// Delete all metadata for node
-		stmt := h.GetStmt("deleteUuid")
-		if stmt == nil {
-			return fmt.Errorf("Unknown statement")
+		stmt, er := h.GetStmt("deleteUuid")
+		if er != nil {
+			return er
 		}
 
 		stmt.Exec(
@@ -101,9 +99,9 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 			ns := namespace
 			if data == "" {
 				// Delete namespace
-				stmt := h.GetStmt("deleteNs")
-				if stmt == nil {
-					return fmt.Errorf("Unknown statement")
+				stmt, er := h.GetStmt("deleteNs")
+				if er != nil {
+					return er
 				}
 
 				stmt.Exec(ns)
@@ -111,9 +109,9 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 				// Insert or update namespace
 				tStamp := time.Now().Unix()
 
-				stmt := h.GetStmt("upsert")
-				if stmt == nil {
-					return fmt.Errorf("Unknown statement")
+				stmt, er := h.GetStmt("upsert")
+				if er != nil {
+					return er
 				}
 
 				stmt.Exec(
@@ -135,11 +133,12 @@ func (h *sqlimpl) SetMetadata(nodeId string, author string, metadata map[string]
 	return nil
 }
 
-func (h *sqlimpl) GetMetadata(nodeId string) (metadata map[string]string, err error) {
+// GetMetadata loads metadata for a node
+func (h *sqlImpl) GetMetadata(nodeId string) (metadata map[string]string, err error) {
 
-	stmt := h.GetStmt("select")
-	if stmt == nil {
-		return nil, fmt.Errorf("Unknown statement")
+	stmt, er := h.GetStmt("select")
+	if er != nil {
+		return nil, er
 	}
 
 	r, err := stmt.Query(nodeId)
@@ -178,11 +177,12 @@ func (h *sqlimpl) GetMetadata(nodeId string) (metadata map[string]string, err er
 
 }
 
-func (h *sqlimpl) ListMetadata(query string) (metaByUuid map[string]map[string]string, err error) {
+// ListMetadata lists all metadata by query
+func (h *sqlImpl) ListMetadata(query string) (metaByUuid map[string]map[string]string, err error) {
 
-	stmt := h.GetStmt("selectAll")
-	if stmt == nil {
-		return nil, fmt.Errorf("Unknown statement")
+	stmt, er := h.GetStmt("selectAll")
+	if er != nil {
+		return nil, er
 	}
 
 	r, err := stmt.Query()

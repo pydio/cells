@@ -22,7 +22,6 @@ package role
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -101,14 +100,14 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 	var update bool
 	if role.Uuid != "" {
-		if stmt := s.GetStmt("Exists"); stmt != nil {
-			exists := stmt.QueryRow(role.Uuid)
-			count := new(int)
-			if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
-				update = true
-			}
-		} else {
-			return nil, false, fmt.Errorf("Cannot retrieve statement")
+		stmt, er := s.GetStmt("Exists")
+		if er != nil {
+			return nil, false, er
+		}
+		exists := stmt.QueryRow(role.Uuid)
+		count := new(int)
+		if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
+			update = true
 		}
 	} else {
 		role.Uuid = uuid.NewUUID().String()
@@ -121,40 +120,38 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 	}
 
 	if !update {
-		if stmt := s.GetStmt("AddRole"); stmt != nil {
-
-			if _, err := stmt.Exec(
-				role.Uuid,
-				role.Label,
-				role.IsTeam,
-				role.GroupRole,
-				role.UserRole,
-				role.LastUpdated,
-				strings.Join(role.AutoApplies, ","),
-				role.ForceOverride,
-			); err != nil {
-				return nil, false, err
-			}
-		} else {
-			return nil, false, fmt.Errorf("Cannot retrieve statement")
+		stmt, er := s.GetStmt("AddRole")
+		if er != nil {
+			return nil, false, er
+		}
+		if _, err := stmt.Exec(
+			role.Uuid,
+			role.Label,
+			role.IsTeam,
+			role.GroupRole,
+			role.UserRole,
+			role.LastUpdated,
+			strings.Join(role.AutoApplies, ","),
+			role.ForceOverride,
+		); err != nil {
+			return nil, false, err
 		}
 	} else {
-		if stmt := s.GetStmt("UpdateRole"); stmt != nil {
-
-			if _, err := stmt.Exec(
-				role.Label,
-				role.IsTeam,
-				role.GroupRole,
-				role.UserRole,
-				role.LastUpdated,
-				strings.Join(role.AutoApplies, ","),
-				role.ForceOverride,
-				role.Uuid,
-			); err != nil {
-				return nil, false, err
-			}
-		} else {
-			return nil, false, fmt.Errorf("Cannot retrieve statement")
+		stmt, er := s.GetStmt("UpdateRole")
+		if er != nil {
+			return nil, false, er
+		}
+		if _, err := stmt.Exec(
+			role.Label,
+			role.IsTeam,
+			role.GroupRole,
+			role.UserRole,
+			role.LastUpdated,
+			strings.Join(role.AutoApplies, ","),
+			role.ForceOverride,
+			role.Uuid,
+		); err != nil {
+			return nil, false, err
 		}
 	}
 	return role, update, nil

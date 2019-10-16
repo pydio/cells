@@ -73,7 +73,8 @@ func getDAO(ctx context.Context) DAO {
 func printTree(ctx context.Context) {
 	// query
 
-	rows, _ := getSQLDAO(ctx).GetStmt("printTree").Query()
+	st, _ := getSQLDAO(ctx).GetStmt("printTree")
+	rows, _ := st.Query()
 
 	var uuid, mpath string
 	var level int
@@ -91,7 +92,8 @@ func printTree(ctx context.Context) {
 
 func printNodes(ctx context.Context) {
 	// query
-	rows, _ := getSQLDAO(ctx).GetStmt("printNodes").Query()
+	st, _ := getSQLDAO(ctx).GetStmt("printNodes")
+	rows, _ := st.Query()
 
 	var uuid, name, etag, mode string
 	var mtime, size int
