@@ -360,7 +360,7 @@ var DataSourceEditor = (function (_React$Component) {
                         onRequestClose: function () {
                             _this6.confirmEncryption(!dialogTargetValue);
                         },
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                                 _this6.confirmEncryption(!dialogTargetValue);
                             } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('enc.validate'), onTouchTap: function () {
                                 _this6.confirmEncryption(dialogTargetValue);
