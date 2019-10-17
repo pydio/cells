@@ -21,15 +21,19 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto"
+	"github.com/spf13/cast"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/file"
-	"github.com/spf13/cast"
 )
 
 // Map structure to store configuration
@@ -307,12 +311,15 @@ func (c Map) Scan(val interface{}) error {
 		return err
 	}
 
-	err = json.Unmarshal(jsonStr, val)
-	if err != nil {
-		return err
+	switch v := val.(type) {
+	case proto.Message:
+		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
+		fmt.Println("This is where we have the error")
+	default:
+		err = json.Unmarshal(jsonStr, v)
 	}
 
-	return nil
+	return err
 }
 
 func (c Map) Bytes(key string, def ...[]byte) []byte {
@@ -347,18 +354,20 @@ func (c Map) Del(key string) error {
 	return nil
 }
 
-func (a Array) Scan(val interface{}) error {
-	jsonStr, err := json.Marshal(a)
+func (c Array) Scan(val interface{}) error {
+	jsonStr, err := json.Marshal(c)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(jsonStr, val)
-	if err != nil {
-		return err
+	switch v := val.(type) {
+	case proto.Message:
+		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
+	default:
+		err = json.Unmarshal(jsonStr, v)
 	}
 
-	return nil
+	return err
 }
 
 // SaveConfigs sends configuration to a local file.
