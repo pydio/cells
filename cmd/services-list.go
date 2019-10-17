@@ -32,7 +32,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 )
@@ -73,7 +73,6 @@ type Tags struct {
 	Tags     map[string]*Tags
 }
 
-// servicesListCmd lists available services and their statuses.
 var servicesListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all available services and their statuses",

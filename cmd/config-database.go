@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ConfigDatabaseCmd represents the database command
+// ConfigDatabaseCmd is the parent for database config commands.
 var ConfigDatabaseCmd = &cobra.Command{
 	Use:   "db",
 	Short: "Manage Database configuration",

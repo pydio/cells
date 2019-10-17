@@ -25,20 +25,20 @@ import (
 	"log"
 	"net/url"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/manifoldco/promptui"
 	"github.com/pydio/cells/common/config"
 )
 
 // SslModeCmd permits configuration of used SSL mode.
 var SslModeCmd = &cobra.Command{
 	Use:   "mode",
-	Short: "Manage HTTPS support on proxy",
+	Short: "Manage TLS configuration of the application internal proxy",
 	Long: `
 This command lets you enable/disabled SSL on application main access point.
 
-Four modes are currently supported :
+Four modes are currently supported:
 - TLS mode : provide the paths to certificate and key (as you would on an apache server)
 - Let's Encrypt: certificate is automagically generated during installation process, and later managed (e.g. renewed) by the embedded Caddy server
 - Self-Signed : a self-signed certificate will be generated at each application start

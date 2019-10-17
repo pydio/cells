@@ -27,16 +27,17 @@ import (
 	"os"
 
 	"github.com/manifoldco/promptui"
-	"github.com/pydio/cells/common/config"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common/config"
 )
 
-// ConfigDatabaseSetCmd permits configuration of a new database connection.
+// ConfigDatabaseSetCmd assigns a database connection to a service.
 var ConfigDatabaseSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Assign a database connection to a service",
 	Long: `
-This command let you assign a different database connection to a service. Use default to change the default database
+This command lets you assign a different database connection to a service. Use default to change to the default database.
 
 ` + promptui.IconWarn + `  Note that the database data will not be transferred to the new database.`,
 	Args: func(cmd *cobra.Command, args []string) error {

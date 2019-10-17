@@ -26,16 +26,16 @@ import (
 	"strings"
 
 	micro "github.com/micro/go-micro"
+	"github.com/spf13/cobra"
+
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	proto "github.com/pydio/cells/common/service/proto"
-	"github.com/spf13/cobra"
 )
 
 var filterStopTag string
 
-// stopCmd represents the stop command
 var stopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "Stop one or more services",

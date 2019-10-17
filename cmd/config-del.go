@@ -30,15 +30,14 @@ import (
 	"github.com/pydio/cells/common/config"
 )
 
-// delCmd represents the delete command
 var delCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete a configuration item",
-	Long: `Deletes a configuration item. It will be removed both from the pydio.json file and from the database.
+	Long: `Delete a configuration item. It will be removed both from the pydio.json file and from the database.
 
 ### Syntax
 
-Configurations are represented by two parameters that you must pass as arguments :
+Configurations are represented by two parameters that you must pass as arguments:
 - serviceName: name of the corresponding service
 - configName: name of the parameter you want to delete
 

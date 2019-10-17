@@ -34,8 +34,8 @@ import (
 )
 
 // This test fails because the call to registry.ListRunningServices()
-// List the services that are started on the local workstation rather than in the current test
-// we will then found ~70 services if a pydio server is running on the current machine
+// lists the services that are started on the local workstation rather than in the current test.
+// We will then found ~70 services if a pydio server is running on the current machine
 // or 0 otherwise but not the expected 1.
 
 func TestCreationOfServices(t *testing.T) {
