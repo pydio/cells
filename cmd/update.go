@@ -42,7 +42,6 @@ import (
 var updateToVersion string
 var updateDryRun bool
 
-// updateBinCmd represents the command to update Pydio Cells binary
 var updateBinCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Check for available updates and apply them",

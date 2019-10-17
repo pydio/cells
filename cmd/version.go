@@ -24,11 +24,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pydio/cells/common"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
 )
 
-// versionCmd represents the versioning command
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Display current version of this software",

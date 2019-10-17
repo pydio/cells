@@ -32,12 +32,12 @@ import (
 	service2 "github.com/pydio/cells/common/service/proto"
 )
 
-// userCmd represents the user command
+// adminCmd is the parent for all admin commands.
 var adminCmd = &cobra.Command{
 	Use:   "admin",
 	Short: "Administrative tools",
 	Long: `These tools may be helpful for admins, particularly if they are locked
-out of the web interface. These commands are also found in cells-ctl binary.
+out of the web interface.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -33,10 +33,10 @@ import (
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
 	"github.com/mholt/caddy/caddytls"
+	"github.com/micro/cli"
 	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
 
-	"github.com/micro/cli"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
@@ -72,7 +72,6 @@ var (
 	niLeAcceptEula   bool
 )
 
-// installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Pydio Cells Installer",

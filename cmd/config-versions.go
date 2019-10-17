@@ -49,8 +49,7 @@ var versionsListCmd = &cobra.Command{
 	Use:   "versions",
 	Short: "List all configurations versions",
 	Long: `
-This command allows to manage configurations changes history and eventually
-revert to a given version.
+This command allows to manage configurations changes history and revert to a given version if necessary.
 
 A version is created at each call to config.Save() inside the application, along with a log message
 and the user originating this call.

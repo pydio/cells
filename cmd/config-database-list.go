@@ -26,11 +26,12 @@ import (
 
 	"github.com/micro/go-micro/registry"
 	"github.com/olekukonko/tablewriter"
-	"github.com/pydio/cells/common/config"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common/config"
 )
 
-// ConfigDatabaseListCmd permits configuration of a new database connection.
+// ConfigDatabaseListCmd lists all database connections.
 var ConfigDatabaseListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all database connections",
