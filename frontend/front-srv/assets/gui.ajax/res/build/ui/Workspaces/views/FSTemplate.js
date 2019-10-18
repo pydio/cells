@@ -594,7 +594,6 @@ var FSTemplate = _react2['default'].createClass({
             ),
             _react2['default'].createElement(_MainFilesList2['default'], { ref: 'list', pydio: pydio, onDisplayModeChange: function (dMode) {
                     _this6.setState({ filesListDisplayMode: dMode });
-                    console.log('Child MainFilesList had displayMode changed :' + dMode);
                 } }),
             rightColumnState === 'info-panel' && _react2['default'].createElement(_detailpanesInfoPanel2['default'], _extends({}, props, {
                 dataModel: props.pydio.getContextHolder(),

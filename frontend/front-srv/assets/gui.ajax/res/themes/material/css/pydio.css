@@ -102,6 +102,9 @@ input {
 *::-moz-focus-inner {
   border: none;
 }
+.no_select_bg::-moz-selection {
+  background: transparent;
+}
 .no_select_bg::selection {
   background: transparent;
 }
@@ -542,9 +545,13 @@ div.dialogBox div#element_overlay {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.react-mui-context .material-list.files-list.table-mode .material-list-icon-none,
-.react-mui-context .material-list.files-list.table-mode .material-list-actions {
+.react-mui-context .material-list.files-list.table-mode .material-list-icon-none {
   display: none;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-actions {
+  position: absolute;
+  right: 0;
+  padding-top: 4px;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected-dark span.cell {
   color: rgba(255, 255, 255, 0.63);
@@ -614,8 +621,9 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  padding: 0;
+  top: 0px;
+  left: 4px;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions span.overlay-class-span {
   color: rgba(0, 0, 0, 0.63);
@@ -623,23 +631,25 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .mimefont-container {
   background-color: transparent !important;
+  /*
+            &.with-editor-badge::before{
+              content: ' ';
+              position: absolute;
+              top: 6px;
+              right: 6px;
+              background-color: #03a9f4;
+              width: 14px;
+              height: 14px;
+              border-radius: 50%;
+              border: 2px solid white;
+            }
+            */
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .mimefont-container .mimefont {
   color: white !important;
 }
-.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .mimefont-container.with-editor-badge::before {
-  content: ' ';
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background-color: #03a9f4;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid white;
-}
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .material-list-text {
-  background-color: rgba(0, 0, 0, 0.53);
+  background-color: rgba(1, 141, 204, 0.67);
 }
 .react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text {
   display: none;
@@ -649,11 +659,15 @@ div.dialogBox div#element_overlay {
   font-size: 12px;
   line-height: 12px;
 }
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-actions {
+  display: none;
+}
 .react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry div.mimefont-container .mimefont {
   margin: auto;
   font-size: 30px !important;
 }
-.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry:hover .material-list-text {
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry:hover .material-list-text,
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry.selected-dark .material-list-text {
   display: block;
 }
 .react-mui-context .material-list.files-list.material-list-grid.grid-size-320 .material-list-entry div.mimefont-container .mimefont {

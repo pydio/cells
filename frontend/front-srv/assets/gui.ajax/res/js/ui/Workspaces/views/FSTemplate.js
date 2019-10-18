@@ -498,7 +498,6 @@ let FSTemplate = React.createClass({
                     </Paper>
                     <MainFilesList ref="list" pydio={pydio} onDisplayModeChange={(dMode) => {
                         this.setState({filesListDisplayMode: dMode});
-                        console.log('Child MainFilesList had displayMode changed :' + dMode);
                     }}/>
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel
