@@ -122,7 +122,8 @@ let MainFilesList = React.createClass({
         tableEntryRenderCell: function(node){
             return (
                 <span>
-                    <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>{node.getLabel()}
+                    <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
+                    <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{node.getLabel()}</span>
                 </span>
             );
         }

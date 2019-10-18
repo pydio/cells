@@ -176,7 +176,11 @@ var MainFilesList = _react2['default'].createClass({
                 'span',
                 null,
                 _react2['default'].createElement(_FilePreview2['default'], { rounded: true, loadThumbnail: false, node: node, style: { backgroundColor: 'transparent' } }),
-                node.getLabel()
+                _react2['default'].createElement(
+                    'span',
+                    { style: { display: 'block', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }, title: node.getLabel() },
+                    node.getLabel()
+                )
             );
         }
     },
