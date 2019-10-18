@@ -30,8 +30,8 @@ import (
 	"github.com/pydio/cells/discovery/install/lib"
 )
 
-// ConfigDatabaseAddCmd adds database connection to the configuration.
-var ConfigDatabaseAddCmd = &cobra.Command{
+// configDatabaseAddCmd adds database connection to the configuration.
+var configDatabaseAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a database connection to the configuration",
 	Long: `
@@ -63,5 +63,5 @@ To assign the database connection to a service, you need to use the config datab
 }
 
 func init() {
-	ConfigDatabaseCmd.AddCommand(ConfigDatabaseAddCmd)
+	configDatabaseCmd.AddCommand(configDatabaseAddCmd)
 }
