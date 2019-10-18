@@ -21,18 +21,47 @@
 package cmd
 
 import (
+	"fmt"
+
+	"github.com/micro/go-log"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common/registry"
 )
 
-// i18n subcommands implement utilitary methods to help with internationalisation.
-var i18n = &cobra.Command{
-	Use:   "i18n",
-	Short: "Internationalisation Utils",
+// docDepsCmd shows dependencies between services.
+var docDepsCmd = &cobra.Command{
+	Use:   "deps",
+	Short: "Show dependencies between services",
+	Long:  `Display a tree of dependencies between services`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+
+		services, e := registry.ListServices()
+		if e != nil {
+			log.Fatal(e)
+		}
+		for _, s := range services {
+			fmt.Println(s.Name())
+			listDeps(s, "")
+		}
+
 	},
 }
 
+// List dependencies recursively. Ignore nats.
+func listDeps(service registry.Service, sep string) {
+	for _, dep := range service.GetDependencies() {
+		var sub string
+		if sep == "" {
+			sub = "   |> "
+		} else {
+			sub = "    " + sep
+		}
+		fmt.Println(sub + dep.Name())
+		listDeps(dep, sub)
+	}
+}
+
 func init() {
-	RootCmd.AddCommand(i18n)
+	docCmd.AddCommand(docDepsCmd)
 }

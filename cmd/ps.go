@@ -73,8 +73,8 @@ type Tags struct {
 	Tags     map[string]*Tags
 }
 
-var servicesListCmd = &cobra.Command{
-	Use:   "list",
+var psCmd = &cobra.Command{
+	Use:   "ps",
 	Short: "List all available services and their statuses",
 	Long: `List all available services and their statuses
 
@@ -86,7 +86,7 @@ organized by tags (broker, data, idm, etc.)
 
 Use the --tags/-t flag to limit display to one specific tag, use lowercase for tags.
 
-$ ` + os.Args[0] + ` list -t=broker
+$ ` + os.Args[0] + ` ps -t=broker
 
 - pydio.grpc.activity   [X]
 - pydio.grpc.chat       [X]
@@ -204,10 +204,10 @@ $ ` + os.Args[0] + ` list -t=broker
 }
 
 func init() {
-	servicesListCmd.Flags().BoolVarP(&showDescription, "verbose", "v", false, "Show services description")
-	servicesListCmd.Flags().StringArrayVarP(&filterListTags, "tags", "t", []string{}, "Filter by tags")
-	servicesListCmd.Flags().StringArrayVarP(&filterListExclude, "exclude", "x", []string{}, "Filter")
-	RootCmd.AddCommand(servicesListCmd)
+	psCmd.Flags().BoolVarP(&showDescription, "verbose", "v", false, "Show services description")
+	psCmd.Flags().StringArrayVarP(&filterListTags, "tags", "t", []string{}, "Filter by tags")
+	psCmd.Flags().StringArrayVarP(&filterListExclude, "exclude", "x", []string{}, "Filter")
+	RootCmd.AddCommand(psCmd)
 }
 
 func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {

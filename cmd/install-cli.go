@@ -318,9 +318,9 @@ func promptFrontendAdmin(c *install.InstallConfig) error {
 	pwd2 := p.Prompt{Label: "Confirm Password", Mask: '*', Validate: func(s string) error {
 		if c.FrontendPassword != s {
 			return fmt.Errorf("Password differ!")
-		} else {
-			return nil
 		}
+		return nil
+
 	}}
 	var e error
 	if c.FrontendLogin, e = login.Run(); e != nil {
