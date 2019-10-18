@@ -24,34 +24,32 @@ import (
 	"context"
 	"fmt"
 	"log"
-
-	"github.com/spf13/cobra"
+	"os"
 
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/spf13/cobra"
 )
 
 var (
 	userUnlockLogin string
 )
 
-// userUnlockCmd removes lock on a given user.
 var userUnlockCmd = &cobra.Command{
-	Use:   "user-unlock",
+	Use:   "unlock",
 	Short: "Unlock User",
 	Long: fmt.Sprintf(`Remove locks on a user
 
-This may be handy if admin is locked out of the interface.
+This may be handy if admin is locked out of the interface
 
 EXAMPLE
 =======
-$ cells admin user-unlock -u LOGIN
+$ %s user unlock -u LOGIN
 
-`),
+`, os.Args[0]),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if userUnlockLogin == "" {
-			cmd.Usage()
 			return fmt.Errorf("Missing arguments")
 		}
 		return nil
@@ -61,7 +59,7 @@ $ cells admin user-unlock -u LOGIN
 
 		users, err := searchUser(context.Background(), client, userUnlockLogin)
 		if err != nil {
-			fmt.Printf("Cannot list users for login %s: %s\n", userUnlockLogin, err.Error())
+			fmt.Printf("Cannot list users for login %s: %s", userUnlockLogin, err.Error())
 		}
 
 		for _, user := range users {
@@ -78,7 +76,7 @@ $ cells admin user-unlock -u LOGIN
 				fmt.Printf("could not unlock user [%s], skipping.\n Error message: %s", user.Login, err.Error())
 				log.Println(err)
 			} else {
-				fmt.Printf("Successfully unlocked user %s\n", user.Login)
+				fmt.Printf("Successfully unlocked user %s", user.Login)
 			}
 			break
 		}
@@ -87,5 +85,5 @@ $ cells admin user-unlock -u LOGIN
 
 func init() {
 	userUnlockCmd.Flags().StringVarP(&userUnlockLogin, "username", "u", "", "Login of the user to unlock")
-	adminCmd.AddCommand(userUnlockCmd)
+	userCmd.AddCommand(userUnlockCmd)
 }
