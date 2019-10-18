@@ -27,7 +27,7 @@ import (
 // configCmd represents the config command
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "Configuration Manager",
+	Short: "Configuration manager",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

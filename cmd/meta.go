@@ -26,7 +26,7 @@ import (
 
 var metaCmd = &cobra.Command{
 	Use:   "meta",
-	Short: "Directly manage metadata on the nodes.",
+	Short: "Directly manage metadata on the nodes",
 	Long: `Manage metadata that enrich some of the nodes.
 
 Metadata are stored as simple key/values and attached to a node UUID.

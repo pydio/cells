@@ -27,7 +27,7 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/test"
 	"github.com/spf13/cobra"
 )
@@ -39,7 +39,7 @@ var (
 // configCmd represents the config command
 var testCmd = &cobra.Command{
 	Use:   "test",
-	Short: "Conformance Tests Runner",
+	Short: "Run conformance tests",
 	Long:  "Launch conformance tests on a running instance. Provide a test name to run with --service or -s parameter.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if conformanceTestServiceName == "" {
