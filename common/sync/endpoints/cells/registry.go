@@ -80,6 +80,9 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 		if e != nil {
 			err = errors.Wrap(e, "cannot connect to discovery endpoint")
 			return
+		} else if resp.StatusCode != 200 {
+			err = errors.New("cannot connect to discovery endpoint")
+			return
 		}
 		var data map[string]interface{}
 		var found bool
