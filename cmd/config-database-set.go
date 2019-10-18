@@ -32,8 +32,8 @@ import (
 	"github.com/pydio/cells/common/config"
 )
 
-// ConfigDatabaseSetCmd assigns a database connection to a service.
-var ConfigDatabaseSetCmd = &cobra.Command{
+// configDatabaseSetCmd assigns a database connection to a service.
+var configDatabaseSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Assign a database connection to a service",
 	Long: `
@@ -97,5 +97,5 @@ This command lets you assign a different database connection to a service. Use d
 }
 
 func init() {
-	ConfigDatabaseCmd.AddCommand(ConfigDatabaseSetCmd)
+	configDatabaseCmd.AddCommand(configDatabaseSetCmd)
 }
