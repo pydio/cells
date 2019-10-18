@@ -31,7 +31,6 @@ import (
 	"github.com/pydio/cells/common/config"
 )
 
-// listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all configurations",

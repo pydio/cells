@@ -24,8 +24,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ConfigDatabaseCmd represents the database command
-var ConfigDatabaseCmd = &cobra.Command{
+// configDatabaseCmd is the parent for database config commands.
+var configDatabaseCmd = &cobra.Command{
 	Use:   "db",
 	Short: "Manage Database configuration",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -34,5 +34,5 @@ var ConfigDatabaseCmd = &cobra.Command{
 }
 
 func init() {
-	configCmd.AddCommand(ConfigDatabaseCmd)
+	configCmd.AddCommand(configDatabaseCmd)
 }

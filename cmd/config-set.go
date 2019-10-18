@@ -35,7 +35,7 @@ import (
 var updateCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Store a configuration",
-	Long: `Stores a configuration. Will be stored in both your pydio.json file and in the database.
+	Long: `Store a configuration. Will be stored in both your pydio.json file and in the database.
 
 ### Syntax
 

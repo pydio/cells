@@ -25,23 +25,24 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
 )
 
 var (
 	userUnlockLogin string
 )
 
-// userSetProfileCmd represents the set profile command
+// userUnlockCmd removes lock on a given user.
 var userUnlockCmd = &cobra.Command{
 	Use:   "user-unlock",
 	Short: "Unlock User",
 	Long: fmt.Sprintf(`Remove locks on a user
 
-This may be handy if admin is locked out of the interface
+This may be handy if admin is locked out of the interface.
 
 EXAMPLE
 =======
@@ -74,7 +75,7 @@ $ cells admin user-unlock -u LOGIN
 			if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
 				User: user,
 			}); err != nil {
-				fmt.Printf("could not update user [%s], skipping.\n Error message: %s", user.Login, err.Error())
+				fmt.Printf("could not unlock user [%s], skipping.\n Error message: %s", user.Login, err.Error())
 				log.Println(err)
 			} else {
 				fmt.Printf("Successfully unlocked user %s\n", user.Login)
@@ -85,6 +86,6 @@ $ cells admin user-unlock -u LOGIN
 }
 
 func init() {
-	userUnlockCmd.Flags().StringVarP(&userUnlockLogin, "username", "u", "", "Login of the user to update")
+	userUnlockCmd.Flags().StringVarP(&userUnlockLogin, "username", "u", "", "Login of the user to unlock")
 	adminCmd.AddCommand(userUnlockCmd)
 }

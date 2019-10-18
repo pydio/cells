@@ -26,12 +26,13 @@ import (
 
 	"github.com/micro/go-micro/registry"
 	"github.com/olekukonko/tablewriter"
-	"github.com/pydio/cells/common/config"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common/config"
 )
 
-// ConfigDatabaseListCmd permits configuration of a new database connection.
-var ConfigDatabaseListCmd = &cobra.Command{
+// configDatabaseListCmd lists all database connections.
+var configDatabaseListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all database connections",
 	Long: `
@@ -107,5 +108,5 @@ This command lists all databases connections from all servers registered with ce
 }
 
 func init() {
-	ConfigDatabaseCmd.AddCommand(ConfigDatabaseListCmd)
+	configDatabaseCmd.AddCommand(configDatabaseListCmd)
 }
