@@ -26,15 +26,27 @@ class Callbacks {
                 break;
         }
 
+        let reload = () => {}
+        if(firstNode.getParent()) {
+            const parent = firstNode.getParent();
+            reload = () => {parent.reload(null, true)}
+        }
         const callback = () => {
-            const proms = userSelection.getSelectedNodes().map(n => {
-                return PydioApi.getRestClient().getIdmApi().deleteIdmUser(n.getMetadata().get('IdmUser'));
-            });
-            Promise.all(proms).then(() => {
-                if(firstNode.getParent()) {
-                    firstNode.getParent().reload(null, true);
+            const selection = userSelection.getSelectedNodes();
+            const next = () => {
+                if(!selection.length) {
+                    return;
                 }
-            });
+                const n = selection.shift();
+                PydioApi.getRestClient().getIdmApi().deleteIdmUser(n.getMetadata().get('IdmUser')).then(() => {
+                    reload();
+                    next();
+                }).catch(e => {
+                    Pydio.getInstance().UI.displayMessage('ERROR', e.message);
+                    next();
+                });
+            };
+            next();
         };
 
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {

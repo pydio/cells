@@ -159,15 +159,31 @@ var Callbacks = (function () {
                     break;
             }
 
+            var reload = function reload() {};
+            if (firstNode.getParent()) {
+                (function () {
+                    var parent = firstNode.getParent();
+                    reload = function () {
+                        parent.reload(null, true);
+                    };
+                })();
+            }
             var callback = function callback() {
-                var proms = userSelection.getSelectedNodes().map(function (n) {
-                    return _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteIdmUser(n.getMetadata().get('IdmUser'));
-                });
-                Promise.all(proms).then(function () {
-                    if (firstNode.getParent()) {
-                        firstNode.getParent().reload(null, true);
+                var selection = userSelection.getSelectedNodes();
+                var next = function next() {
+                    if (!selection.length) {
+                        return;
                     }
-                });
+                    var n = selection.shift();
+                    _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteIdmUser(n.getMetadata().get('IdmUser')).then(function () {
+                        reload();
+                        next();
+                    })['catch'](function (e) {
+                        Pydio.getInstance().UI.displayMessage('ERROR', e.message);
+                        next();
+                    });
+                };
+                next();
             };
 
             pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
