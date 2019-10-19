@@ -46,7 +46,8 @@ class ResourcePoliciesPanel extends React.Component{
             edit: false,
             loading: true,
             policies: [],
-            diffPolicies:{add:{},remove:{}}
+            diffPolicies:{add:{},remove:{}},
+            hideGroups : Pydio.getInstance().getPluginConfigs("action.advanced_settings").get("DISABLE_SHARE_GROUPS") === true
         };
     }
 
@@ -167,10 +168,11 @@ class ResourcePoliciesPanel extends React.Component{
      * @return {{groupBlocks: Array, hasWrite: boolean}}
      */
     listUserRoles(idmUser, policies){
+        const {hideGroups} = this.state;
         const crtUserSubject = 'user:' + idmUser.Login;
         let values = {};
         idmUser.Roles.map(role => {
-            if (!role.GroupRole) {
+            if (!role.GroupRole || hideGroups) {
                 return;
             }
             values['role:' + role.Uuid] = role.Label;
@@ -205,6 +207,7 @@ class ResourcePoliciesPanel extends React.Component{
 
     listOtherUsersSubjects(policies, currentUserSubject){
         const {resourceId, cellAcls} = this.props;
+        const {hideGroups} = this.state;
         let subs = {};
         policies.map(p=>{
             if(p.Subject.indexOf('user:') === 0 && p.Subject !== currentUserSubject && p.Subject !== 'user:' + resourceId){
@@ -217,7 +220,7 @@ class ResourcePoliciesPanel extends React.Component{
                     if(currentUserSubject !== 'user:' + usr.Login){
                         subs[p.Subject] = usr.Attributes && usr.Attributes['displayName'] ? usr.Attributes['displayName'] : usr.Login;
                     }
-                } else if(cellAcls[roleId].Group) {
+                } else if(cellAcls[roleId].Group && !hideGroups) {
                     const grp = cellAcls[roleId].Group;
                     subs[p.Subject] = grp.Attributes && grp.Attributes['displayName'] ? grp.Attributes['displayName'] : grp.GroupLabel;
                 }
@@ -392,7 +395,7 @@ class ResourcePoliciesPanel extends React.Component{
                             fieldLabel={mess['visibility.panel.pickuser']}
                             renderSuggestion={userObject => <div style={{fontSize:13}}>{userObject.getExtendedLabel()}</div>}
                             onValueSelected={this.pickUser.bind(this)}
-                            usersOnly={true}
+                            usersOnly={false}
                             existingOnly={true}
                             excludes={[resourceId, ...userListExcludes, ...exludes]}
                             pydio={pydio}

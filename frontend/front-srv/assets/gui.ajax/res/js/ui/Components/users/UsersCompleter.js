@@ -79,7 +79,8 @@ const UsersLoader = React.createClass({
             dataSource  : [],
             loading     : false,
             searchText  : '',
-            minChars    : parseInt(global.pydio.getPluginConfigs("core.auth").get("USERS_LIST_COMPLETE_MIN_CHARS"))
+            minChars    : parseInt(Pydio.getInstance().getPluginConfigs("core.auth").get("USERS_LIST_COMPLETE_MIN_CHARS")),
+            hideGroups  : Pydio.getInstance().getPluginConfigs("action.advanced_settings").get("DISABLE_SHARE_GROUPS") === true
         };
     },
 
@@ -89,14 +90,24 @@ const UsersLoader = React.createClass({
      * @param {Function} callback Called with the values
      */
     suggestionLoader(input, callback){
-        const excludes = this.props.excludes;
+        const {excludes, usersOnly} = this.props;
+        const {hideGroups} = this.state;
         //const disallowTemporary = this.props.existingOnly && !this.props.freeValueAllowed;
         this.setState({loading:this.state.loading + 1});
         const api = PydioApi.getRestClient().getIdmApi();
-        const uPromise = api.listUsers('/', input, true, 0, 20);
-        const gPromise = api.listGroups('/', input, true, 0, 20);
-        const tPromise = api.listTeams(input, 0, 20);
-        Promise.all([uPromise, gPromise, tPromise]).then(results => {
+        const proms = [];
+        proms.push(api.listUsers('/', input, true, 0, 20));
+        if (hideGroups || usersOnly) {
+            proms.push(Promise.resolve({Groups: []}))
+        } else {
+            proms.push(api.listGroups('/', input, true, 0, 20));
+        }
+        if (usersOnly){
+            proms.push(Promise.resolve({Teams: []}))
+        } else {
+            proms.push(api.listTeams(input, 0, 20));
+        }
+        Promise.all(proms).then(results => {
             this.setState({loading:this.state.loading - 1});
             let [users, groups, teams] = results;
             users = users.Users;

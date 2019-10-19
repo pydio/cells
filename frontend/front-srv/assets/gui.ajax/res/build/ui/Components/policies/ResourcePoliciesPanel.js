@@ -79,7 +79,8 @@ var ResourcePoliciesPanel = (function (_React$Component) {
             edit: false,
             loading: true,
             policies: [],
-            diffPolicies: { add: {}, remove: {} }
+            diffPolicies: { add: {}, remove: {} },
+            hideGroups: _pydio3['default'].getInstance().getPluginConfigs("action.advanced_settings").get("DISABLE_SHARE_GROUPS") === true
         };
     }
 
@@ -222,10 +223,12 @@ var ResourcePoliciesPanel = (function (_React$Component) {
      */
 
     ResourcePoliciesPanel.prototype.listUserRoles = function listUserRoles(idmUser, policies) {
+        var hideGroups = this.state.hideGroups;
+
         var crtUserSubject = 'user:' + idmUser.Login;
         var values = {};
         idmUser.Roles.map(function (role) {
-            if (!role.GroupRole) {
+            if (!role.GroupRole || hideGroups) {
                 return;
             }
             values['role:' + role.Uuid] = role.Label;
@@ -265,6 +268,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
         var _props3 = this.props;
         var resourceId = _props3.resourceId;
         var cellAcls = _props3.cellAcls;
+        var hideGroups = this.state.hideGroups;
 
         var subs = {};
         policies.map(function (p) {
@@ -278,7 +282,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                     if (currentUserSubject !== 'user:' + usr.Login) {
                         subs[p.Subject] = usr.Attributes && usr.Attributes['displayName'] ? usr.Attributes['displayName'] : usr.Login;
                     }
-                } else if (cellAcls[roleId].Group) {
+                } else if (cellAcls[roleId].Group && !hideGroups) {
                     var grp = cellAcls[roleId].Group;
                     subs[p.Subject] = grp.Attributes && grp.Attributes['displayName'] ? grp.Attributes['displayName'] : grp.GroupLabel;
                 }
@@ -566,7 +570,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                                 );
                             },
                             onValueSelected: _this5.pickUser.bind(_this5),
-                            usersOnly: true,
+                            usersOnly: false,
                             existingOnly: true,
                             excludes: [resourceId].concat(userListExcludes, exludes),
                             pydio: pydio,

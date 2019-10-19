@@ -104,7 +104,8 @@ var UsersLoader = _react2['default'].createClass({
             dataSource: [],
             loading: false,
             searchText: '',
-            minChars: parseInt(global.pydio.getPluginConfigs("core.auth").get("USERS_LIST_COMPLETE_MIN_CHARS"))
+            minChars: parseInt(_pydio2['default'].getInstance().getPluginConfigs("core.auth").get("USERS_LIST_COMPLETE_MIN_CHARS")),
+            hideGroups: _pydio2['default'].getInstance().getPluginConfigs("action.advanced_settings").get("DISABLE_SHARE_GROUPS") === true
         };
     },
 
@@ -116,14 +117,27 @@ var UsersLoader = _react2['default'].createClass({
     suggestionLoader: function suggestionLoader(input, callback) {
         var _this = this;
 
-        var excludes = this.props.excludes;
+        var _props = this.props;
+        var excludes = _props.excludes;
+        var usersOnly = _props.usersOnly;
+        var hideGroups = this.state.hideGroups;
+
         //const disallowTemporary = this.props.existingOnly && !this.props.freeValueAllowed;
         this.setState({ loading: this.state.loading + 1 });
         var api = _pydioHttpApi2['default'].getRestClient().getIdmApi();
-        var uPromise = api.listUsers('/', input, true, 0, 20);
-        var gPromise = api.listGroups('/', input, true, 0, 20);
-        var tPromise = api.listTeams(input, 0, 20);
-        Promise.all([uPromise, gPromise, tPromise]).then(function (results) {
+        var proms = [];
+        proms.push(api.listUsers('/', input, true, 0, 20));
+        if (hideGroups || usersOnly) {
+            proms.push(Promise.resolve({ Groups: [] }));
+        } else {
+            proms.push(api.listGroups('/', input, true, 0, 20));
+        }
+        if (usersOnly) {
+            proms.push(Promise.resolve({ Teams: [] }));
+        } else {
+            proms.push(api.listTeams(input, 0, 20));
+        }
+        Promise.all(proms).then(function (results) {
             _this.setState({ loading: _this.state.loading - 1 });
             var users = results[0];
             var groups = results[1];
@@ -185,10 +199,10 @@ var UsersLoader = _react2['default'].createClass({
             this.setState({ dataSource: this._emptyValueList });
             return;
         }
-        var _props = this.props;
-        var existingOnly = _props.existingOnly;
-        var freeValueAllowed = _props.freeValueAllowed;
-        var excludes = _props.excludes;
+        var _props2 = this.props;
+        var existingOnly = _props2.existingOnly;
+        var freeValueAllowed = _props2.freeValueAllowed;
+        var excludes = _props2.excludes;
 
         _pydioUtilFunc2['default'].bufferCallback('remote_users_search', timeout, (function () {
             this.setState({ loading: true });

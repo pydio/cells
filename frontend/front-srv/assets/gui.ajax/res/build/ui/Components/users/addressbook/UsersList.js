@@ -206,7 +206,7 @@ var UsersList = (function (_React$Component) {
         var toolbar = _react2['default'].createElement(
             'div',
             { style: { padding: stylesProps.titlePadding, height: stylesProps.toolbarHeight, minHeight: stylesProps.toolbarHeight, backgroundColor: stylesProps.toolbarBgColor, borderRadius: '2px 2px 0 0', display: 'flex', alignItems: 'center', transition: _pydioUtilDom2['default'].getBeziersTransition() } },
-            mode === "selector" && item._parent && _react2['default'].createElement(_materialUi.IconButton, { style: { marginLeft: -10 }, iconStyle: { color: 'white' }, iconClassName: 'mdi mdi-chevron-left', onTouchTap: function () {
+            mode === "selector" && item._parent && _react2['default'].createElement(_materialUi.IconButton, { style: { marginLeft: -10 }, iconStyle: { color: stylesProps.titleColor }, iconClassName: 'mdi mdi-chevron-left', onTouchTap: function () {
                     _this.props.onFolderClicked(item._parent);
                 } }),
             mode === 'book' && total > 0 && item.actions && item.actions.multiple && _react2['default'].createElement(_materialUi.Checkbox, { style: { width: 'initial', marginLeft: this.state.select ? 7 : 14 }, checked: this.state.select, onCheck: toggleSelect }),
