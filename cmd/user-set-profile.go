@@ -24,9 +24,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/spf13/cobra"
 )
@@ -42,9 +43,8 @@ var (
 	}
 )
 
-// userSetProfileCmd represents the set profile command
 var userSetProfileCmd = &cobra.Command{
-	Use:   "user-profile",
+	Use:   "set-profile",
 	Short: "Set profile",
 	Long: fmt.Sprintf(`Set the profile of a given user
 
@@ -53,22 +53,22 @@ Valid profiles are one of: %s, %s, %s or %s.
 Installation specific profiles are not yet supported by this CLI.
 
 *WARNING*: please remember that user with admin profile have 
-full control over your app via the web front end. So think twice.
+full control over your app via the web front end. So think twice beforew 
 
 EXAMPLE
 =======
-$ cells admin user-profile -u 'USER_LOGIN' --profile '%s'
+$ %s admin user-profile -u 'USER_LOGIN' --profile '%s'
 
 `,
 		common.PYDIO_PROFILE_ADMIN,
 		common.PYDIO_PROFILE_STANDARD,
 		common.PYDIO_PROFILE_SHARED,
 		common.PYDIO_PROFILE_ANON,
+		os.Args[0],
 		common.PYDIO_PROFILE_STANDARD,
 	),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if userProfileLogin == "" || userTargetProfile == "" {
-			cmd.Usage()
 			return fmt.Errorf("Missing arguments")
 		}
 
@@ -93,6 +93,17 @@ $ cells admin user-profile -u 'USER_LOGIN' --profile '%s'
 			fmt.Printf("Cannot list users for login %s: %s", userProfileLogin, err.Error())
 		}
 
+		// for _, user := range users {
+		// 	// cmd.Print(fmt.Sprintf("B4 trying to set [%s] profile on %s\n", userTargetProfile, user.Login))
+
+		// 	user.Attributes["profile"] = userTargetProfile
+		// 	if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
+		// 		User: user,
+		// 	}); err != nil {
+		// 		fmt.Printf("could not update profile for [%s], skipping and continuing.\n Error message: %s", user.Login, err.Error())
+		// 		log.Println(err)
+		// 	}
+		// }
 		for _, user := range users {
 			if user.Attributes == nil {
 				user.Attributes = make(map[string]string, 1)
@@ -114,5 +125,5 @@ func init() {
 	userSetProfileCmd.Flags().StringVarP(&userProfileLogin, "username", "u", "", "Login of the user to update")
 	userSetProfileCmd.Flags().StringVar(&userTargetProfile, "profile", "", "New profile")
 
-	adminCmd.AddCommand(userSetProfileCmd)
+	userCmd.AddCommand(userSetProfileCmd)
 }

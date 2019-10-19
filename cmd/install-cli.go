@@ -45,6 +45,58 @@ var (
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
+var installCliCmd = &cobra.Command{
+	Use:   "install-cli",
+	Short: "Install Cells using this terminal",
+	Long:  "This command launch the installation process of Pydio Cells in the command line instead of a browser.",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
+		if micro == 0 {
+			micro = net.GetAvailablePort()
+			config.Set(micro, "ports", common.SERVICE_MICRO_API)
+			config.Save("cli", "Install / Setting default Ports")
+		}
+
+		internalUrl, _, err := promptAndSaveInstallUrls()
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		installConfig := lib.GenerateDefaultConfig()
+		installConfig.InternalUrl = internalUrl.String()
+		fmt.Println("")
+		fmt.Println("\033[1m## Database Connection\033[0m")
+		if e := promptDB(installConfig); e != nil {
+			log.Fatal(e.Error())
+		}
+
+		fmt.Println("")
+		fmt.Println("\033[1m## Frontend Configuration\033[0m")
+		if e := promptFrontendAdmin(installConfig); e != nil {
+			log.Fatal(e.Error())
+		}
+		fmt.Println("")
+		fmt.Println("\033[1m## Advanced Settings\033[0m")
+		if e := promptAdvanced(installConfig); e != nil {
+			log.Fatal(e.Error())
+		}
+
+		fmt.Println("")
+		fmt.Println("\033[1m## Performing Installation\033[0m")
+		e := lib.Install(context.Background(), installConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+			fmt.Println(p.IconGood + " " + event.Message)
+		})
+		if e != nil {
+			log.Fatal("Error while performing installation: " + e.Error())
+		}
+
+		fmt.Println("")
+		fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+		fmt.Println("")
+	},
+}
+
 func validateMailFormat(input string) error {
 	if !emailRegexp.MatchString(input) {
 		return fmt.Errorf("Please enter a valid e-mail address!")
@@ -193,59 +245,6 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	return
 }
 
-// installCmd represents the install command
-var installCliCmd = &cobra.Command{
-	Use:   "install-cli",
-	Short: "Pydio Cells Command-Line Installer",
-	Long:  "This command launch the installation process of Pydio Cells in the command line instead of a browser.",
-	Run: func(cmd *cobra.Command, args []string) {
-
-		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
-		if micro == 0 {
-			micro = net.GetAvailablePort()
-			config.Set(micro, "ports", common.SERVICE_MICRO_API)
-			config.Save("cli", "Install / Setting default Ports")
-		}
-
-		internalUrl, _, err := promptAndSaveInstallUrls()
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-
-		installConfig := lib.GenerateDefaultConfig()
-		installConfig.InternalUrl = internalUrl.String()
-		fmt.Println("")
-		fmt.Println("\033[1m## Database Connection\033[0m")
-		if e := promptDB(installConfig); e != nil {
-			log.Fatal(e.Error())
-		}
-
-		fmt.Println("")
-		fmt.Println("\033[1m## Frontend Configuration\033[0m")
-		if e := promptFrontendAdmin(installConfig); e != nil {
-			log.Fatal(e.Error())
-		}
-		fmt.Println("")
-		fmt.Println("\033[1m## Advanced Settings\033[0m")
-		if e := promptAdvanced(installConfig); e != nil {
-			log.Fatal(e.Error())
-		}
-
-		fmt.Println("")
-		fmt.Println("\033[1m## Performing Installation\033[0m")
-		e := lib.Install(context.Background(), installConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
-			fmt.Println(p.IconGood + " " + event.Message)
-		})
-		if e != nil {
-			log.Fatal("Error while performing installation: " + e.Error())
-		}
-
-		fmt.Println("")
-		fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
-		fmt.Println("")
-	},
-}
-
 func promptDB(c *install.InstallConfig) error {
 
 	connType := p.Select{
@@ -318,9 +317,9 @@ func promptFrontendAdmin(c *install.InstallConfig) error {
 	pwd2 := p.Prompt{Label: "Confirm Password", Mask: '*', Validate: func(s string) error {
 		if c.FrontendPassword != s {
 			return fmt.Errorf("Password differ!")
-		} else {
-			return nil
 		}
+		return nil
+
 	}}
 	var e error
 	if c.FrontendLogin, e = login.Run(); e != nil {

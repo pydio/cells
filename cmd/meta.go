@@ -21,35 +21,21 @@
 package cmd
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/spf13/cobra"
-
-	"github.com/pydio/cells/common"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display current version of this software",
+var metaCmd = &cobra.Command{
+	Use:   "meta",
+	Short: "Directly manage metadata on the nodes",
+	Long: `Manage metadata that enrich some of the nodes.
+
+Metadata are stored as simple key/values and attached to a node UUID.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		var t time.Time
-		if common.BuildStamp != "" {
-			t, _ = time.Parse("2006-01-02T15:04:05", common.BuildStamp)
-		} else {
-			t = time.Now()
-		}
-
-		fmt.Println("")
-		fmt.Println("    " + fmt.Sprintf("%s (%s)", common.PackageLabel, common.Version().String()))
-		fmt.Println("    " + fmt.Sprintf("Published on %s", t.Format(time.RFC822Z)))
-		fmt.Println("    " + fmt.Sprintf("Revision number %s", common.BuildRevision))
-		fmt.Println("")
-
+		cmd.Help()
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(metaCmd)
 }

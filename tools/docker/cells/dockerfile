@@ -8,10 +8,7 @@ ENV CELLS_VERSION ${version}
 WORKDIR /pydio
 
 RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
-RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells-ctl"
-
 RUN chmod +x /pydio/cells
-RUN chmod +x /pydio/cells-ctl
 
 # Creates the final image
 FROM busybox:glibc
@@ -26,12 +23,10 @@ ENV CELLS_EXTERNAL localhost:8080
 COPY docker-entrypoint.sh /pydio/docker-entrypoint.sh
 COPY libdl.so.2 /pydio/libdl.so.2
 COPY --from=certs /etc/ssl/certs /etc/ssl/certs
-COPY --from=certs /pydio/cells-ctl .
 COPY --from=certs /pydio/cells .
 
 # Final configuration
 RUN ln -s /pydio/cells /bin/cells \
-    && ln -s /pydio/cells-ctl /bin/cells-ctl \
     && ln -s /pydio/libdl.so.2 /lib64/libdl.so.2 \
     && ln -s /pydio/docker-entrypoint.sh /bin/docker-entrypoint.sh \
     && chmod +x /pydio/docker-entrypoint.sh

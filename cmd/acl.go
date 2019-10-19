@@ -24,15 +24,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// i18n subcommands implement utilitary methods to help with internationalisation.
-var i18n = &cobra.Command{
-	Use:   "i18n",
-	Short: "Internationalisation Utils",
+var (
+	action       string
+	value        string
+	roleID       string
+	workspaceID  string
+	nodeID       string
+	actions      []string
+	roleIDs      []string
+	workspaceIDs []string
+	nodeIDs      []string
+)
+
+// aclCmd represents the acl command
+var aclCmd = &cobra.Command{
+	Use:   "acl",
+	Short: "Manage access control lists",
+	Long: `ACLs are managed in a dedicated micro-service.
+
+It is simpler to manage them in the frontend, but you can use this command to create/delete/search ACLs directly.
+ACLs are used to grant permissions to a given node Uuid for a given Role.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(i18n)
+	RootCmd.AddCommand(aclCmd)
 }

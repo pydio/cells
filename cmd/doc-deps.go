@@ -22,34 +22,46 @@ package cmd
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/micro/go-log"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/registry"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display current version of this software",
+// docDepsCmd shows dependencies between services.
+var docDepsCmd = &cobra.Command{
+	Use:   "deps",
+	Short: "Show dependencies between services",
+	Long:  `Display a tree of dependencies between services`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var t time.Time
-		if common.BuildStamp != "" {
-			t, _ = time.Parse("2006-01-02T15:04:05", common.BuildStamp)
-		} else {
-			t = time.Now()
+		services, e := registry.ListServices()
+		if e != nil {
+			log.Fatal(e)
 		}
-
-		fmt.Println("")
-		fmt.Println("    " + fmt.Sprintf("%s (%s)", common.PackageLabel, common.Version().String()))
-		fmt.Println("    " + fmt.Sprintf("Published on %s", t.Format(time.RFC822Z)))
-		fmt.Println("    " + fmt.Sprintf("Revision number %s", common.BuildRevision))
-		fmt.Println("")
+		for _, s := range services {
+			fmt.Println(s.Name())
+			listDeps(s, "")
+		}
 
 	},
 }
 
+// List dependencies recursively. Ignore nats.
+func listDeps(service registry.Service, sep string) {
+	for _, dep := range service.GetDependencies() {
+		var sub string
+		if sep == "" {
+			sub = "   |> "
+		} else {
+			sub = "    " + sep
+		}
+		fmt.Println(sub + dep.Name())
+		listDeps(dep, sub)
+	}
+}
+
 func init() {
-	RootCmd.AddCommand(versionCmd)
+	docCmd.AddCommand(docDepsCmd)
 }

@@ -23,21 +23,22 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/spf13/cobra"
 
+	"github.com/pydio/cells/common"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	service2 "github.com/pydio/cells/common/service/proto"
 )
 
-// adminCmd is the parent for all admin commands.
-var adminCmd = &cobra.Command{
-	Use:   "admin",
-	Short: "Administrative tools",
-	Long: `These tools may be helpful for admins, particularly if they are locked
-out of the web interface.
+var userCmd = &cobra.Command{
+	Use:   "user",
+	Short: "Manage users",
+	Long: `Manage users from command line by calling the dedicated services.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -46,7 +47,7 @@ out of the web interface.
 }
 
 func init() {
-	RootCmd.AddCommand(adminCmd)
+	RootCmd.AddCommand(userCmd)
 }
 
 /* Package protected utility methods that are used by the various user subcommands */
@@ -87,4 +88,54 @@ func searchUser(ctx context.Context, cli idm.UserServiceClient, login string) ([
 		users = append(users, currUser)
 	}
 	return users, nil
+}
+
+func deleteUser(ctx context.Context, login string) error {
+
+	singleQ := &idm.UserSingleQuery{}
+	if strings.HasSuffix(login, "%2F") || strings.HasSuffix(login, "/") {
+		// log.Logger(ctx).Debug("Received User.Delete API request (GROUP)", zap.String("login", login))
+		singleQ.GroupPath = login
+		singleQ.Recursive = true
+	} else {
+		// log.Logger(ctx).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login))
+		singleQ.Login = login
+	}
+	query, _ := ptypes.MarshalAny(singleQ)
+	mainQuery := &service2.Query{SubQueries: []*any.Any{query}}
+	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+
+	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{Query: mainQuery})
+	if err != nil {
+		return err
+	}
+	// Search first to check policies
+
+	defer stream.Close()
+	for {
+		response, e := stream.Recv()
+		if e != nil {
+			break
+		}
+		if response == nil {
+			continue
+		}
+		// if !s.MatchPolicies(ctx, response.User.Uuid, response.User.Policies, service2.ResourcePolicyAction_WRITE) {
+		// 	msg := fmt.Sprintf("forbidden action: you are not allowed to delete user %s", login)
+		// 	log.Auditer(ctx).Error( msg, log.GetAuditId(common.AUDIT_USER_DELETE))
+		// 	return  errors.Forbidden(common.SERVICE_USER, msg)
+		// }
+		break
+	}
+
+	// Now delete user or group
+	_, e := cli.DeleteUser(ctx, &idm.DeleteUserRequest{Query: mainQuery})
+	if e != nil {
+		return e
+	}
+	// log.Auditer(ctx).Info(
+	// 	fmt.Sprintf("%d users have been deleted", n.RowsDeleted),
+	// 	log.GetAuditId(common.AUDIT_USER_DELETE),
+	// )
+	return nil
 }

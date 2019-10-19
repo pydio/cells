@@ -21,35 +21,18 @@
 package cmd
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/spf13/cobra"
-
-	"github.com/pydio/cells/common"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display current version of this software",
+// i18n subcommands implement utilitary methods to help with internationalisation.
+var i18n = &cobra.Command{
+	Use:   "i18n",
+	Short: "Internationalisation Utils",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		var t time.Time
-		if common.BuildStamp != "" {
-			t, _ = time.Parse("2006-01-02T15:04:05", common.BuildStamp)
-		} else {
-			t = time.Now()
-		}
-
-		fmt.Println("")
-		fmt.Println("    " + fmt.Sprintf("%s (%s)", common.PackageLabel, common.Version().String()))
-		fmt.Println("    " + fmt.Sprintf("Published on %s", t.Format(time.RFC822Z)))
-		fmt.Println("    " + fmt.Sprintf("Revision number %s", common.BuildRevision))
-		fmt.Println("")
-
+		cmd.Help()
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(versionCmd)
+	docCmd.AddCommand(i18n)
 }

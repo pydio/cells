@@ -21,47 +21,33 @@
 package cmd
 
 import (
-	"fmt"
-
-	"github.com/micro/go-log"
 	"github.com/spf13/cobra"
-
-	"github.com/pydio/cells/common/registry"
 )
 
-// servicesDepsCmd shows dependencies between services.
-var servicesDepsCmd = &cobra.Command{
-	Use:   "deps",
-	Short: "Show dependencies between services",
-	Long:  `Display a tree of dependencies between services`,
+var (
+// dsSource string
+// dsUser        string
+// dsServiceName string
+// recursive   bool
+
+// READ  = &idm.ACLAction{Name: "read", Value: "1"}
+// WRITE = &idm.ACLAction{Name: "write", Value: "1"}
+// DENY  = &idm.ACLAction{Name: "deny", Value: "1"}
+)
+
+var dataCmd = &cobra.Command{
+	Use:   "data",
+	Short: "Directly interact with a datasource",
+	Long: `Commands for managing indexed data.
+
+Data are indexed in the various data sources you may have defined, and aggregated into a unique tree by
+the tree service. This command allows you among others to launch a full re-synchronisation of a given datasource.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		services, e := registry.ListServices()
-		if e != nil {
-			log.Fatal(e)
-		}
-		for _, s := range services {
-			fmt.Println(s.Name())
-			listDeps(s, "")
-		}
-
+		cmd.Help()
 	},
 }
 
-// List dependencies recursively. Ignore nats.
-func listDeps(service registry.Service, sep string) {
-	for _, dep := range service.GetDependencies() {
-		var sub string
-		if sep == "" {
-			sub = "   |> "
-		} else {
-			sub = "    " + sep
-		}
-		fmt.Println(sub + dep.Name())
-		listDeps(dep, sub)
-	}
-}
-
 func init() {
-	RootCmd.AddCommand(servicesDepsCmd)
+	RootCmd.AddCommand(dataCmd)
 }

@@ -74,28 +74,28 @@ var (
 
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Pydio Cells Installer",
+	Short: "Install Cells using a friendly user interface (browser)",
 	Long: `This command launch the installation process of Pydio Cells.
 
  It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
- the machine from outside world (if it is behind a proxy or inside a container with ports mapping for example).
+ the machine from outside world (if it is behind a proxy or inside a container with ports mapping for instance).
  You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
  installer with SSL active using self_signed setup by default.
  You might also use Let's Encrypt automatic certificate generation by providing a contact email and accepting Let's Encrypt EULA, for instance:
  $ ` + os.Args[0] + ` install --bind share.mydomain.tld:443 --external share.mydomain.tld --le_email admin@mydomain.tld --le_agree true
 
- For example
- - Bind Host : 0.0.0.0:8080
- - External Host : share.mydomain.tld
+ For instance:
+ - Bind Host: 0.0.0.0:8080
+ - External Host: share.mydomain.tld
  Or
- - Bind Host : share.mydomain.tld
- - External Host : share.mydomain.tld
+ - Bind Host: share.mydomain.tld
+ - External Host: share.mydomain.tld
  Or
- - Bind Host : IP:1515       # internal port
- - External Host : IP:8080   # external port mapped by docker
+ - Bind Host: IP:1515       # internal port
+ - External Host: IP:8080   # external port mapped by docker
  Or
- - Bind Host : IP:8080
- - External Host : IP:8080
+ - Bind Host: IP:8080
+ - External Host: IP:8080
 
  It will open a browser to gather necessary information and configuration for Pydio Cells. if you don't have a browser access,
  you can launch the command line installation using the install-cli command:

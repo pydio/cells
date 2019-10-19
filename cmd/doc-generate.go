@@ -21,35 +21,38 @@
 package cmd
 
 import (
-	"fmt"
-	"time"
+	"log"
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/utils/docs"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display current version of this software",
+var docPath string
+
+var generateDocCmd = &cobra.Command{
+	Use:   "generate",
+	Short: "Generate MD and YAML documentation for all Cells CLI commands",
+	Long: `Generate Markdown documentation for the Pydio Cells command line tool.
+Provide a target folder where to put the generated files.
+This command also generates yaml files for pydio.com documentation format.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var t time.Time
-		if common.BuildStamp != "" {
-			t, _ = time.Parse("2006-01-02T15:04:05", common.BuildStamp)
+		if docPath == "" {
+			log.Fatal("Please provide a path to store output files")
 		} else {
-			t = time.Now()
-		}
 
-		fmt.Println("")
-		fmt.Println("    " + fmt.Sprintf("%s (%s)", common.PackageLabel, common.Version().String()))
-		fmt.Println("    " + fmt.Sprintf("Published on %s", t.Format(time.RFC822Z)))
-		fmt.Println("    " + fmt.Sprintf("Revision number %s", common.BuildRevision))
-		fmt.Println("")
+			err := docs.GenMarkdownTree(RootCmd, docPath)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(versionCmd)
+	generateDocCmd.Flags().StringVarP(&docPath, "path", "p", "", "Target folder where to put the files")
+	docCmd.AddCommand(generateDocCmd)
 }
