@@ -60,7 +60,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 		}
 	}()
 
-	router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
+	router := views.NewStandardRouter(views.RouterOptions{AdminView: true, SynchronousTasks: true})
 	clientsPool := router.GetClientsPool()
 	// For the moment, just rename personal folder to user UUID to collision with new user with same Login
 	vNodesManager := views.GetVirtualNodesManager()
@@ -80,9 +80,14 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 			// Resolve as Uuid - Move Node
 			folderName := "deleted-" + u.Login + "-" + u.Uuid[0:13]
 			targetNode, _ := vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": folderName}, clientsPool)
-			log.Logger(ctx).Info("Renaming user personal folder", u.ZapLogin(), targetNode.ZapPath())
-			log.TasksLogger(ctx).Info("Renaming personal folder to " + targetNode.Path)
-			if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, true, true, false, status, progress); e != nil {
+			log.Logger(ctx).Info("Copy/Delete user personal folder", u.ZapLogin(), targetNode.ZapPath())
+			log.TasksLogger(ctx).Info("Copy/Delete personal folder to " + targetNode.Path)
+			// Make a Copy then Delete, to make sure UUID are changed and references are cleared
+			if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, false, true, false, status, progress); e != nil {
+				done <- true
+				return input.WithError(e), e
+			}
+			if _, e := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: realNode}); e != nil {
 				done <- true
 				return input.WithError(e), e
 			}
