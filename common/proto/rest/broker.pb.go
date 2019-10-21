@@ -12,7 +12,6 @@ It is generated from these files:
 	frontend.proto
 	graph.proto
 	idm.proto
-	oauth.proto
 	rest.proto
 	scheduler.proto
 	share.proto
@@ -118,8 +117,6 @@ It has these top-level messages:
 	ResetPasswordTokenResponse
 	ResetPasswordRequest
 	ResetPasswordResponse
-	OAuthConfigurationRequest
-	OAuthConfigurationResponse
 	UserJobRequest
 	UserJobResponse
 	UserJobsCollection
