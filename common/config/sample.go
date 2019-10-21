@@ -167,7 +167,7 @@ var SampleConfig = `{
 			"staticClients": [
 				{
 					"client_id": "cells-sync",
-					"client_name": "cells-sync",
+					"client_name": "CellsSync Application",
 					"grant_types": [
 						"authorization_code", 
 						"refresh_token"
@@ -207,6 +207,41 @@ var SampleConfig = `{
 						"http://localhost:3666/servers/callback"
 					],
 					"response_types": ["code", "token", "id_token"],
+					"scope": "openid email profile pydio offline"
+				},
+				{
+					"client_id": "cells-client",
+					"client_name": "Cells Client CLI Tool",
+					"grant_types": [
+						"authorization_code",
+						"refresh_token"
+					],
+					"redirect_uris": [
+						"http://localhost:3000/servers/callback",
+						"https://local.pydio:8080/oauth2/oob"
+					],
+					"response_types": [
+						"code",
+						"token",
+						"id_token"
+					],
+					"scope": "openid email profile pydio offline"
+				},
+				{
+					"client_id": "cells-mobile",
+					"client_name": "Mobile Applications",
+					"grant_types": [
+						"authorization_code",
+						"refresh_token"
+					],
+					"redirect_uris": [
+						"cellsauth://callback"
+					],
+					"response_types": [
+						"code",
+						"token",
+						"id_token"
+					],
 					"scope": "openid email profile pydio offline"
 				}
 			]

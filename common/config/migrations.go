@@ -81,11 +81,33 @@ func setDefaultConfig(config *Config) (bool, error) {
 	for i := 0; i <= 30; i++ {
 		syncRedirects = append(syncRedirects, fmt.Sprintf("http://localhost:%d/servers/callback", 3636+i))
 	}
-	oAuthStaticConfig := map[string]interface{}{
+	oAuthSyncConfig := map[string]interface{}{
 		"client_id":      "cells-sync",
-		"client_name":    "cells-sync",
+		"client_name":    "CellsSync Application",
 		"grant_types":    []string{"authorization_code", "refresh_token"},
 		"redirect_uris":  syncRedirects,
+		"response_types": []string{"code", "token", "id_token"},
+		"scope":          "openid email profile pydio offline",
+	}
+	external := config.Get("defaults", "url").String("")
+	oAuthCecConfig := map[string]interface{}{
+		"client_id":   "cells-client",
+		"client_name": "Cells Client CLI Tool",
+		"grant_types": []string{"authorization_code", "refresh_token"},
+		"redirect_uris": []string{
+			"http://localhost:3000/servers/callback",
+			external + "/oauth2/oob",
+		},
+		"response_types": []string{"code", "token", "id_token"},
+		"scope":          "openid email profile pydio offline",
+	}
+	oAuthMobileConfig := map[string]interface{}{
+		"client_id":   "cells-mobile",
+		"client_name": "Mobile Applications",
+		"grant_types": []string{"authorization_code", "refresh_token"},
+		"redirect_uris": []string{
+			"cellsauth://callback",
+		},
 		"response_types": []string{"code", "token", "id_token"},
 		"scope":          "openid email profile pydio offline",
 	}
@@ -94,7 +116,11 @@ func setDefaultConfig(config *Config) (bool, error) {
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_PORT": "9980",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_SSL":  true,
 		"services/" + oauthSrv + "/secret":                    string(secret),
-		"services/" + oauthSrv + "/staticClients":             []map[string]interface{}{oAuthStaticConfig},
+		"services/" + oauthSrv + "/staticClients": []map[string]interface{}{
+			oAuthSyncConfig,
+			oAuthCecConfig,
+			oAuthMobileConfig,
+		},
 	}
 
 	for path, def := range configKeys {
@@ -120,6 +146,7 @@ func forceDefaultConfig(config *Config) (bool, error) {
 		return false, nil
 	}
 
+	// Easy finding usage of srvUrl
 	configKeys := map[string]interface{}{
 		"services/" + authSrv + "/dex/issuer":   srvUrl + "/auth/dex",
 		"services/" + authSrv + "/dex/web/http": srvUrl + "/auth/dex",
@@ -133,6 +160,32 @@ func forceDefaultConfig(config *Config) (bool, error) {
 		if val.Scan(&data); data != def {
 			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", path, def)
 			config.Set(def, paths...)
+			save = true
+		}
+	}
+
+	// Special case for srvUrl/oauth2/oob url
+	statics := config.Get("services", oauthSrv, "staticClients")
+	var data []map[string]interface{}
+	if err := statics.Scan(&data); err == nil {
+		var saveStatics bool
+		for _, static := range data {
+			if redirs, ok := static["redirect_uris"].([]interface{}); ok {
+				var newRedirs []string
+				for _, redir := range redirs {
+					if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != srvUrl+"/oauth2/oob" {
+						newRedirs = append(newRedirs, srvUrl+"/oauth2/oob")
+						saveStatics = true
+					} else {
+						newRedirs = append(newRedirs, redir.(string))
+					}
+				}
+				static["redirect_uris"] = newRedirs
+			}
+		}
+		if saveStatics {
+			fmt.Printf("[Configs] Upgrading: updating out-of-band redirect URI")
+			config.Set(data, "services", oauthSrv, "staticClients")
 			save = true
 		}
 	}

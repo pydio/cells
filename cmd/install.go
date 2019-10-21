@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"bytes"
-	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
@@ -51,17 +50,20 @@ const (
 		 {{.URL}} {
 			 root "{{.Root}}"
 			 proxy /install {{urls .Micro}}
-			 {{.TLS}}
+		 	{{if .TLS}}tls {{.TLS}}{{end}}
+			{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
 		 }
 	 `
 )
 
 var (
 	caddyconf = struct {
-		URL   *url.URL
-		Root  string
-		Micro string
-		TLS   string
+		URL     *url.URL
+		Root    string
+		Micro   string
+		TLS     string
+		TLSCert string
+		TLSKey  string
 	}{}
 	niBindUrl        string
 	niExtUrl         string
@@ -209,12 +211,12 @@ var installCmd = &cobra.Command{
 		config.Save("cli", "Install / Setting default Port")
 
 		// Manage TLS settings
-		var tls string
+		var tls, tlsKey, tlsCert string
 		if config.Get("cert", "proxy", "ssl").Bool(false) {
 			if config.Get("cert", "proxy", "self").Bool(false) {
-				tls = "tls self_signed"
+				tls = "self_signed"
 			} else if config.Get("cert", "proxy", "email").String("") != "" {
-				tls = fmt.Sprintf("tls %s", config.Get("cert", "proxy", "email").String(""))
+				tls = config.Get("cert", "proxy", "email").String("")
 				caddytls.Agreed = true
 				caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
 				// useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
@@ -222,7 +224,8 @@ var installCmd = &cobra.Command{
 				cert := config.Get("cert", "proxy", "certFile").String("")
 				key := config.Get("cert", "proxy", "keyFile").String("")
 				if cert != "" && key != "" {
-					tls = fmt.Sprintf("tls %s %s", cert, key)
+					tlsCert = cert
+					tlsKey = key
 				}
 			}
 		}
@@ -255,7 +258,12 @@ var installCmd = &cobra.Command{
 		caddyconf.URL = internal
 		caddyconf.Root = dir
 		caddyconf.Micro = common.SERVICE_MICRO_API
-		caddyconf.TLS = tls
+		if tls != "" {
+			caddyconf.TLS = tls
+		} else if tlsCert != "" {
+			caddyconf.TLSCert = tlsCert
+			caddyconf.TLSKey = tlsKey
+		}
 
 		caddy.Enable(caddyfile, play)
 
