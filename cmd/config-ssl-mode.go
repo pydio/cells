@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
+	"path/filepath"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -52,7 +54,7 @@ Four modes are currently supported:
 		intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
 
 		// Get SSL info from end user
-		enabled, certData, e := promptSslMode()
+		enabled, certData, e := promptSslMode(intURL.Hostname())
 		if e != nil {
 			log.Fatal(e)
 		}
@@ -79,7 +81,7 @@ Four modes are currently supported:
 	},
 }
 
-func promptSslMode() (enabled bool, certData map[string]interface{}, e error) {
+func promptSslMode(knownHostname string) (enabled bool, certData map[string]interface{}, e error) {
 
 	proxyData := make(map[string]interface{})
 	certData = map[string]interface{}{
@@ -93,12 +95,12 @@ func promptSslMode() (enabled bool, certData map[string]interface{}, e error) {
 	caURL := config.Get("cert", "proxy", "caUrl").String(config.DefaultCaUrl)
 
 	selector := promptui.Select{
-		Label: "Choose SSL activation mode",
+		Label: "Choose SSL activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'Tls => Clear' is generally not supported",
 		Items: []string{
 			"Provide paths to certificate/key files",
 			"Use Let's Encrypt to automagically generate certificate during installation process",
-			"Generate a self-signed certificate (for staging environments only!)",
-			"Disable SSL (not recommended)",
+			"Generate your own locally trusted certificate (for staging env or if you are behind a reverse proxy)",
+			"Disable SSL (staging environments only, never recommended!)",
 		},
 	}
 	var i int
@@ -147,9 +149,31 @@ func promptSslMode() (enabled bool, certData map[string]interface{}, e error) {
 		proxyData["caUrl"] = caURL
 
 	case 2:
-		enabled = true
-		proxyData["ssl"] = true
-		proxyData["self"] = true
+
+		if knownHostname == "" {
+			hostPrompt := promptui.Prompt{Label: "Please provide one or more hosts to generate a self-signed certificate", Default: ""}
+			knownHostname, _ = hostPrompt.Run()
+		}
+		storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
+		os.MkdirAll(storageLocation, 0600)
+		mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
+		if err := mkCert.MakeCert([]string{knownHostname}); err == nil {
+			certFile, certKey, caFile, _ := mkCert.GeneratedResources()
+			fmt.Println("")
+			fmt.Println("")
+			fmt.Println("👉 If you are behind a reverse proxy, you can either install the RootCA on the proxy machine " +
+				"trust store, or configure your proxy to `insecure_skip_verify` for pointing to Cells.")
+			fmt.Println("👉 If you are developing locally, you may install the RootCA in your system trust store to " +
+				"see a green light in your browser!")
+			fmt.Println("🗒  To easily install the RootCA in your trust store, use https://github.com/FiloSottile/mkcert. " +
+				"Set the $CAROOT environment variable to the rootCA folder then use 'mkcert -install'")
+			fmt.Println("")
+			enabled = true
+			proxyData["ssl"] = true
+			proxyData["certFile"] = certFile
+			proxyData["keyFile"] = certKey
+			proxyData["autoCA"] = caFile
+		}
 	case 3:
 		proxyData["ssl"] = false
 	}

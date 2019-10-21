@@ -204,7 +204,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 		defaultExternal = parts[0]
 	}
 
-	sslEnabled, certData, e := promptSslMode()
+	sslEnabled, certData, e := promptSslMode(parts[0])
 	if e != nil {
 		return
 	}
@@ -220,17 +220,26 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 		return
 	}
 
-	extPrompt := p.Prompt{
-		Label:    "External Url, used to access application from outside world (it can differ from internal url if you are behind a proxy or inside a private network)",
-		Validate: validScheme,
-		Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
+	externalUrl := fmt.Sprintf("%s://%s", scheme, defaultExternal)
+
+	fmt.Println("Your instance will be accessible at " + externalUrl + ". If you are behind a reverse proxy or inside a private network, you may need to manually set an alternative External URL. Do not change this is you are not sure!")
+	changeExternal := p.Select{
+		Label: "Setup a different URL for external access",
+		Items: []string{"Use " + externalUrl, "Set another URL"},
 	}
-	externalUrl, er := extPrompt.Run()
-	if er != nil {
-		e = er
-		return
+	if choice, _, _ := changeExternal.Run(); choice == 1 {
+		extPrompt := p.Prompt{
+			Label:    "External Url used to access application from outside world",
+			Validate: validScheme,
+			Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
+		}
+		externalUrl, er := extPrompt.Run()
+		if er != nil {
+			e = er
+			return
+		}
+		externalUrl = strings.TrimSuffix(externalUrl, "/")
 	}
-	externalUrl = strings.TrimSuffix(externalUrl, "/")
 
 	external, e = url.Parse(externalUrl)
 	if e != nil {

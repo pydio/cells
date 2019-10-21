@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/url"
 	"sync"
 
@@ -148,17 +147,14 @@ func getTLSClientConfig(t string) {
 		return
 	}
 
-	b, err := ioutil.ReadFile(certFile)
-	if err != nil {
-		log.Fatal("Cannot read cert file", err)
-	}
-
 	var cp *x509.CertPool
+	var err error
 	if cp, err = x509.SystemCertPool(); err != nil {
 		cp = x509.NewCertPool()
 	}
-	if !cp.AppendCertsFromPEM(b) {
-		log.Fatal("Cannot append cert to pool")
+	if b, err := ioutil.ReadFile(certFile); err == nil {
+		// If no specific CAs, try to load them from within the certFile
+		cp.AppendCertsFromPEM(b)
 	}
 
 	tlsClientConfig[t] = &tls.Config{
