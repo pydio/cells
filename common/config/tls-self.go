@@ -49,6 +49,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// MkCert provides tooling for generating auto-certified certificate
 type MkCert struct {
 	rootLocation    string
 	userAndHostname string
@@ -59,6 +60,7 @@ type MkCert struct {
 	caKey  crypto.PrivateKey
 }
 
+// NewMkCert creates a new MkCert instance
 func NewMkCert(storageLocation string) *MkCert {
 	c := &MkCert{rootLocation: storageLocation}
 	u, err := user.Current()
@@ -78,10 +80,12 @@ func NewMkCert(storageLocation string) *MkCert {
 	return c
 }
 
+// GeneratedResources returns all files generated during certificate creation
 func (m *MkCert) GeneratedResources() (certFile, keyFile, caFile, caKeyFile string) {
 	return m.certFile, m.keyFile, m.caFile, m.caKeyFile
 }
 
+// MakeCerts triggers the certificate generation process, using a list of known hosts
 func (m *MkCert) MakeCert(hosts []string) error {
 	if err := m.loadCA(); err != nil {
 		return err
