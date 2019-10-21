@@ -126,8 +126,6 @@ import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
 import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
 import RestError from './model/RestError';
-import RestFrontAuthRequest from './model/RestFrontAuthRequest';
-import RestFrontAuthResponse from './model/RestFrontAuthResponse';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
@@ -153,7 +151,6 @@ import RestMetaCollection from './model/RestMetaCollection';
 import RestMetaNamespaceRequest from './model/RestMetaNamespaceRequest';
 import RestMetadata from './model/RestMetadata';
 import RestNodesCollection from './model/RestNodesCollection';
-import RestOAuthConfigurationResponse from './model/RestOAuthConfigurationResponse';
 import RestOpenApiResponse from './model/RestOpenApiResponse';
 import RestPagination from './model/RestPagination';
 import RestProcess from './model/RestProcess';
@@ -971,18 +968,6 @@ export {
     RestError,
 
     /**
-     * The RestFrontAuthRequest model constructor.
-     * @property {module:model/RestFrontAuthRequest}
-     */
-    RestFrontAuthRequest,
-
-    /**
-     * The RestFrontAuthResponse model constructor.
-     * @property {module:model/RestFrontAuthResponse}
-     */
-    RestFrontAuthResponse,
-
-    /**
      * The RestFrontBinaryRequest model constructor.
      * @property {module:model/RestFrontBinaryRequest}
      */
@@ -1131,12 +1116,6 @@ export {
      * @property {module:model/RestNodesCollection}
      */
     RestNodesCollection,
-
-    /**
-     * The RestOAuthConfigurationResponse model constructor.
-     * @property {module:model/RestOAuthConfigurationResponse}
-     */
-    RestOAuthConfigurationResponse,
 
     /**
      * The RestOpenApiResponse model constructor.
