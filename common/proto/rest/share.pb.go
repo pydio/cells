@@ -42,7 +42,7 @@ var ShareLinkAccessType_value = map[string]int32{
 func (x ShareLinkAccessType) String() string {
 	return proto.EnumName(ShareLinkAccessType_name, int32(x))
 }
-func (ShareLinkAccessType) EnumDescriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
+func (ShareLinkAccessType) EnumDescriptor() ([]byte, []int) { return fileDescriptor9, []int{0} }
 
 type ListSharedResourcesRequest_ListShareType int32
 
@@ -67,7 +67,7 @@ func (x ListSharedResourcesRequest_ListShareType) String() string {
 	return proto.EnumName(ListSharedResourcesRequest_ListShareType_name, int32(x))
 }
 func (ListSharedResourcesRequest_ListShareType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor10, []int{12, 0}
+	return fileDescriptor9, []int{12, 0}
 }
 
 // Group collected acls by subjects
@@ -83,7 +83,7 @@ type CellAcl struct {
 func (m *CellAcl) Reset()                    { *m = CellAcl{} }
 func (m *CellAcl) String() string            { return proto.CompactTextString(m) }
 func (*CellAcl) ProtoMessage()               {}
-func (*CellAcl) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{0} }
+func (*CellAcl) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{0} }
 
 func (m *CellAcl) GetRoleId() string {
 	if m != nil {
@@ -141,7 +141,7 @@ type Cell struct {
 func (m *Cell) Reset()                    { *m = Cell{} }
 func (m *Cell) String() string            { return proto.CompactTextString(m) }
 func (*Cell) ProtoMessage()               {}
-func (*Cell) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{1} }
+func (*Cell) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{1} }
 
 func (m *Cell) GetUuid() string {
 	if m != nil {
@@ -200,7 +200,7 @@ type ShareLinkTargetUser struct {
 func (m *ShareLinkTargetUser) Reset()                    { *m = ShareLinkTargetUser{} }
 func (m *ShareLinkTargetUser) String() string            { return proto.CompactTextString(m) }
 func (*ShareLinkTargetUser) ProtoMessage()               {}
-func (*ShareLinkTargetUser) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{2} }
+func (*ShareLinkTargetUser) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{2} }
 
 func (m *ShareLinkTargetUser) GetDisplay() string {
 	if m != nil {
@@ -242,7 +242,7 @@ type ShareLink struct {
 func (m *ShareLink) Reset()                    { *m = ShareLink{} }
 func (m *ShareLink) String() string            { return proto.CompactTextString(m) }
 func (*ShareLink) ProtoMessage()               {}
-func (*ShareLink) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{3} }
+func (*ShareLink) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{3} }
 
 func (m *ShareLink) GetUuid() string {
 	if m != nil {
@@ -385,7 +385,7 @@ type PutCellRequest struct {
 func (m *PutCellRequest) Reset()                    { *m = PutCellRequest{} }
 func (m *PutCellRequest) String() string            { return proto.CompactTextString(m) }
 func (*PutCellRequest) ProtoMessage()               {}
-func (*PutCellRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{4} }
+func (*PutCellRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{4} }
 
 func (m *PutCellRequest) GetRoom() *Cell {
 	if m != nil {
@@ -408,7 +408,7 @@ type GetCellRequest struct {
 func (m *GetCellRequest) Reset()                    { *m = GetCellRequest{} }
 func (m *GetCellRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetCellRequest) ProtoMessage()               {}
-func (*GetCellRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{5} }
+func (*GetCellRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{5} }
 
 func (m *GetCellRequest) GetUuid() string {
 	if m != nil {
@@ -424,7 +424,7 @@ type DeleteCellRequest struct {
 func (m *DeleteCellRequest) Reset()                    { *m = DeleteCellRequest{} }
 func (m *DeleteCellRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeleteCellRequest) ProtoMessage()               {}
-func (*DeleteCellRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{6} }
+func (*DeleteCellRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{6} }
 
 func (m *DeleteCellRequest) GetUuid() string {
 	if m != nil {
@@ -440,7 +440,7 @@ type DeleteCellResponse struct {
 func (m *DeleteCellResponse) Reset()                    { *m = DeleteCellResponse{} }
 func (m *DeleteCellResponse) String() string            { return proto.CompactTextString(m) }
 func (*DeleteCellResponse) ProtoMessage()               {}
-func (*DeleteCellResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{7} }
+func (*DeleteCellResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{7} }
 
 func (m *DeleteCellResponse) GetSuccess() bool {
 	if m != nil {
@@ -456,7 +456,7 @@ type GetShareLinkRequest struct {
 func (m *GetShareLinkRequest) Reset()                    { *m = GetShareLinkRequest{} }
 func (m *GetShareLinkRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetShareLinkRequest) ProtoMessage()               {}
-func (*GetShareLinkRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{8} }
+func (*GetShareLinkRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{8} }
 
 func (m *GetShareLinkRequest) GetUuid() string {
 	if m != nil {
@@ -476,7 +476,7 @@ type PutShareLinkRequest struct {
 func (m *PutShareLinkRequest) Reset()                    { *m = PutShareLinkRequest{} }
 func (m *PutShareLinkRequest) String() string            { return proto.CompactTextString(m) }
 func (*PutShareLinkRequest) ProtoMessage()               {}
-func (*PutShareLinkRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{9} }
+func (*PutShareLinkRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{9} }
 
 func (m *PutShareLinkRequest) GetShareLink() *ShareLink {
 	if m != nil {
@@ -520,7 +520,7 @@ type DeleteShareLinkRequest struct {
 func (m *DeleteShareLinkRequest) Reset()                    { *m = DeleteShareLinkRequest{} }
 func (m *DeleteShareLinkRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeleteShareLinkRequest) ProtoMessage()               {}
-func (*DeleteShareLinkRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{10} }
+func (*DeleteShareLinkRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{10} }
 
 func (m *DeleteShareLinkRequest) GetUuid() string {
 	if m != nil {
@@ -536,7 +536,7 @@ type DeleteShareLinkResponse struct {
 func (m *DeleteShareLinkResponse) Reset()                    { *m = DeleteShareLinkResponse{} }
 func (m *DeleteShareLinkResponse) String() string            { return proto.CompactTextString(m) }
 func (*DeleteShareLinkResponse) ProtoMessage()               {}
-func (*DeleteShareLinkResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{11} }
+func (*DeleteShareLinkResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{11} }
 
 func (m *DeleteShareLinkResponse) GetSuccess() bool {
 	if m != nil {
@@ -561,7 +561,7 @@ type ListSharedResourcesRequest struct {
 func (m *ListSharedResourcesRequest) Reset()                    { *m = ListSharedResourcesRequest{} }
 func (m *ListSharedResourcesRequest) String() string            { return proto.CompactTextString(m) }
 func (*ListSharedResourcesRequest) ProtoMessage()               {}
-func (*ListSharedResourcesRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{12} }
+func (*ListSharedResourcesRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{12} }
 
 func (m *ListSharedResourcesRequest) GetShareType() ListSharedResourcesRequest_ListShareType {
 	if m != nil {
@@ -610,7 +610,7 @@ type ListSharedResourcesResponse struct {
 func (m *ListSharedResourcesResponse) Reset()                    { *m = ListSharedResourcesResponse{} }
 func (m *ListSharedResourcesResponse) String() string            { return proto.CompactTextString(m) }
 func (*ListSharedResourcesResponse) ProtoMessage()               {}
-func (*ListSharedResourcesResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{13} }
+func (*ListSharedResourcesResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{13} }
 
 func (m *ListSharedResourcesResponse) GetResources() []*ListSharedResourcesResponse_SharedResource {
 	if m != nil {
@@ -655,7 +655,7 @@ func (m *ListSharedResourcesResponse_SharedResource) String() string {
 }
 func (*ListSharedResourcesResponse_SharedResource) ProtoMessage() {}
 func (*ListSharedResourcesResponse_SharedResource) Descriptor() ([]byte, []int) {
-	return fileDescriptor10, []int{13, 0}
+	return fileDescriptor9, []int{13, 0}
 }
 
 func (m *ListSharedResourcesResponse_SharedResource) GetNode() *tree.Node {
@@ -687,7 +687,7 @@ type UpdateSharePoliciesRequest struct {
 func (m *UpdateSharePoliciesRequest) Reset()                    { *m = UpdateSharePoliciesRequest{} }
 func (m *UpdateSharePoliciesRequest) String() string            { return proto.CompactTextString(m) }
 func (*UpdateSharePoliciesRequest) ProtoMessage()               {}
-func (*UpdateSharePoliciesRequest) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{14} }
+func (*UpdateSharePoliciesRequest) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{14} }
 
 func (m *UpdateSharePoliciesRequest) GetUuid() string {
 	if m != nil {
@@ -712,7 +712,7 @@ type UpdateSharePoliciesResponse struct {
 func (m *UpdateSharePoliciesResponse) Reset()                    { *m = UpdateSharePoliciesResponse{} }
 func (m *UpdateSharePoliciesResponse) String() string            { return proto.CompactTextString(m) }
 func (*UpdateSharePoliciesResponse) ProtoMessage()               {}
-func (*UpdateSharePoliciesResponse) Descriptor() ([]byte, []int) { return fileDescriptor10, []int{15} }
+func (*UpdateSharePoliciesResponse) Descriptor() ([]byte, []int) { return fileDescriptor9, []int{15} }
 
 func (m *UpdateSharePoliciesResponse) GetSuccess() bool {
 	if m != nil {
@@ -757,9 +757,9 @@ func init() {
 	proto.RegisterEnum("rest.ListSharedResourcesRequest_ListShareType", ListSharedResourcesRequest_ListShareType_name, ListSharedResourcesRequest_ListShareType_value)
 }
 
-func init() { proto.RegisterFile("share.proto", fileDescriptor10) }
+func init() { proto.RegisterFile("share.proto", fileDescriptor9) }
 
-var fileDescriptor10 = []byte{
+var fileDescriptor9 = []byte{
 	// 1250 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0xdd, 0x6e, 0xdb, 0x46,
 	0x13, 0x8d, 0x7e, 0xa8, 0x9f, 0x51, 0x2c, 0x2b, 0xeb, 0x7c, 0x09, 0x3f, 0xa5, 0x49, 0x04, 0x26,

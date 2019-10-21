@@ -626,22 +626,6 @@ var SwaggerJson = `{
         ]
       }
     },
-    "/config/discovery/.well-known/openid-configuration": {
-      "get": {
-        "operationId": "OAuthConfiguration",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restOAuthConfigurationResponse"
-            }
-          }
-        },
-        "tags": [
-          "ConfigService"
-        ]
-      }
-    },
     "/config/discovery/forms/{ServiceName}": {
       "get": {
         "summary": "Publish Forms definition for building screens in frontend",
@@ -1251,33 +1235,6 @@ var SwaggerJson = `{
             "required": true,
             "schema": {
               "$ref": "#/definitions/restFrontSessionRequest"
-            }
-          }
-        ],
-        "tags": [
-          "FrontendService"
-        ]
-      }
-    },
-    "/frontend/session/auth": {
-      "post": {
-        "summary": "Handle Auth callback",
-        "operationId": "FrontAuth",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restFrontAuthResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restFrontAuthRequest"
             }
           }
         ],
@@ -5583,17 +5540,6 @@ var SwaggerJson = `{
         }
       }
     },
-    "restFrontAuthRequest": {
-      "type": "object",
-      "properties": {
-        "RequestID": {
-          "type": "string"
-        }
-      }
-    },
-    "restFrontAuthResponse": {
-      "type": "object"
-    },
     "restFrontBinaryRequest": {
       "type": "object",
       "properties": {
@@ -5930,59 +5876,6 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
-          }
-        }
-      }
-    },
-    "restOAuthConfigurationResponse": {
-      "type": "object",
-      "properties": {
-        "issuer": {
-          "type": "string"
-        },
-        "authorization_endpoint": {
-          "type": "string"
-        },
-        "token_endpoint": {
-          "type": "string"
-        },
-        "jwks_uri": {
-          "type": "string"
-        },
-        "response_types_supported": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "subject_types_supported": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "id_token_signing_alg_values_supported": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "scopes_supported": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "token_endpoint_auth_methods_supported": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "claims_supported": {
-          "type": "array",
-          "items": {
-            "type": "string"
           }
         }
       }
