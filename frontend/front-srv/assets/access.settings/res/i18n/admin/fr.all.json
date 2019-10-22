@@ -1407,7 +1407,7 @@
     "other": "Les workspaces définissent l'accès aux données pour vos utilisateurs. Assurez-vous d'avoir au moins créé une datasource pour pouvoir créer un workspace qui pointe vers ce stockage."
   },
   "ws.editor.data.legend": {
-    "other": "Un workspace exposent une ou plusieurs 'racines' à l'utilisateur: sélectionner un chemin vers un dossier d'une datasource, ou un modèle prédéfini qui sera résolu en fonction de l'utilisateur du contexte."
+    "other": "Un workspace expose une ou plusieurs 'racines' à l'utilisateur : sélectionnez un chemin vers un dossier d'une datasource, ou un modèle prédéfini qui sera résolu en fonction de l'utilisateur du contexte."
   },
   "ws.editor.data.title": {
     "other": "Accès aux données"
@@ -1459,6 +1459,24 @@
   },
   "ws.editor.other.sync": {
     "other": "Autoriser la synchronisation"
+  },
+  "ws.editor.other.sync.legend": {
+    "other": "La synchronisation permet aux utilisateurs de synchroniser leurs fichiers hors-ligne sur leur ordinateur. Attention, cette fonctionnalité n'est actuellement supportée que pour les fichiers personnels, car les espaces partagés peuvent créer des conflits si de nombreux utilisateurs synchronisent des documents en même temps. Vous pouvez également activer/désactiver cette fonctionnalité par rôle ou utilisateur en utilisant les règles de sécurité."
+  },
+  "ws.editor.other.sync-personal": {
+    "other": "(workspaces personnels seulement)"
+  },
+  "ws.editor.sync.warning": {
+    "other": "Attention!"
+  },
+  "ws.editor.sync.warning.validate": {
+    "other": "J'ai compris"
+  },
+  "ws.editor.sync.warning.enable": {
+    "other": "L'activation de la synchro sur des dossiers partagés peut avoir des résultats inattendus si plusieurs utilisateurs y accèdent en même temps. Veuillez bien noter que CETTE FONCTIONNALITE N'EST PAS SUPPORTEE OFFICIELLEMENT par notre service de support. Ne l'utilisez qu'à vos risques et périls!"
+  },
+  "ws.editor.sync.warning.disable": {
+    "other": "Si des personnes synchronisent ce workspace, leur application n'y aura plus accès! Etes-vous sûr de vouloir changer ça?"
   },
   "ws.editor.path.folder": {
     "other": "Chemin du dossier"

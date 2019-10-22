@@ -1,113 +1,113 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "Điểm truy cập công khai"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Public access to discovery endpoints"
+    "other": "Điểm truy cập mở giúp quá trình tìm thông tin các endpoints"
   },
   "PolicyGroup.PublicAccess.Rule1": {
-    "other": "Anonymous access to discovery (GET)"
+    "other": "Điểm truy cập mở giúp việc dò thông tin hệ thống (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
+    "other": "Điểm truy cập mở cho dịch vụ thay đổi mật khẩu (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "Điểm truy cập mở vào dịch vụ cung cấp giao diện (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "Điểm truy cập mở cho việc khởi tạo session cho giao diện (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Installation Endpoints (first run)"
+    "other": "Đường truy cập vào dịch vụ cài đặt (cho lần chạy đầu tiên)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Installation endpoints require public access at first run"
+    "other": "Điểm truy cập mở công khai cho lần khởi chạy đầu tiên"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Anonymous access to install endpoints (GET, POST)"
+    "other": "Điểm truy cập mở cho dịch vụ cài đặt (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "Truy cập dành cho User đã chứng thực và Admin"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
+    "other": "Quản lý việc try cập vào rest APIs cho các loại user standard/shared/admin"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "Các nhà quản trị có toàn quyền truy cập vào REST"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "REST mặc định cho user đã chứng thực"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
     "other": "User-meta prevent deleting tags"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
-    "other": "Standard users cannot create/delete workspaces"
+    "other": "Users standard không thể tạo/xóa workspaces"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Operations"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Bật/Tắt chứng thực user với máy chủ OpenID Connect"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "Điểm truy cập mặc định cho việc đăng nhập của tất cả các user"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Complex ACL Policy"
+    "other": "[Example] ACL Policy phức tạp"
   },
   "PolicyGroup.ACLSample1.Description": {
-    "other": "Sample Complex Policy for managing ACLs dynamically"
+    "other": "Một mẫu Policy phức tạp để quản lý ACLs một cách linh động"
   },
   "PolicyGroup.ACLSample1.Rule1": {
-    "other": "Default allowing read/write"
+    "other": "Mặc định cho phép read/write"
   },
   "PolicyGroup.ACLSample1.Rule2": {
-    "other": "Preventing modification based on IP and file metadata conditions"
+    "other": "Không cho phép thay đổi file dựa vào IP và metadata của file"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out any file with a PNG extension if request does not come from localhost"
+    "other": "Lọc tất cả các files PNG nếu như yêu cầu không đến từ localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Limited Period"
+    "other": "[Example] Khung giờ giới hạn"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
-    "other": "Enables access to a workspace only for a given period"
+    "other": "Cho phép truy cập vào một workspace ở một khung giờ nhất định"
   },
   "PolicyGroup.ACLSamplePeriod.Rule1": {
-    "other": "ACL Rule example, allowing access only in Feb. and March 2018"
+    "other": "Ví dụ ACL Rule, cho phép truy cập chỉ vào tháng 2 và 3 năm 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] No access after a given date"
+    "other": "[Example] Không cho phép truy cập sau một ngày nhất định"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
-    "other": "Disable access to a workspace after a given date"
+    "other": "Không cho phép truy cập vào một workspace sau một ngày nhất định"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule1": {
-    "other": "Global read/write"
+    "other": "Quyền read/write cao nhất"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule2": {
-    "other": "Deny read/write if date is after 2018-02-28"
+    "other": "Không cho read/write sau ngày 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Access allowed only during business hours"
+    "other": "[Example] Chỉ cho phép truy cập trong giờ làm việc"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
-    "other": "Enable access to a workspace only certain days within pre-defined hours"
+    "other": "Cho phép truy cập vào một workspace trong một số ngày ở một vài giờ cho trước"
   },
   "PolicyGroup.ACLSampleBusinessHours.Rule1": {
-    "other": "Office hours rule example, allowing read/write"
+    "other": "Ví dụ về cho phép read/write trong giờ làm việc"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Disable access based on IP"
+    "other": "[Example] Cấm truy cập dựa vào IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
-    "other": "Disable access to IPs outside of LAN"
+    "other": "Cấm truy cập đối với những IP đến từ ngoài LAN"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule1": {
-    "other": "Global read/write"
+    "other": "Quyền read/write cao nhất"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule2": {
-    "other": "Denying IP if it's not localhost, 127.0.0.1 or ::1"
+    "other": "Cấm truy cập với những IP khác với localhost, 127.0.0.1 hoặc ::1"
   }
 }

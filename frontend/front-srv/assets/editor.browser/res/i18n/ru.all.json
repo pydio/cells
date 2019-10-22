@@ -1,18 +1,18 @@
 {
   "1": {
-    "other": "Программы просмотра"
+    "other": "External window"
   },
   "2": {
-    "other": "Открыть с помощью программы просмотра"
+    "other": "External browser window"
   },
   "3": {
-    "other": "Открытие файла в окне просмотра, подождите, это окно автоматически закроется."
+    "other": "Opening file in external window, please wait, this window should close automatically."
   },
   "4": {
     "other": "New URL Bookmark"
   },
   "5": {
-    "other": "Alternatively, you can \u003ca\u003ecreate a new bookmark to an URL\u003c/a\u003e"
+    "other": "Alternatively, you can <a>create a new bookmark to an URL</a>"
   },
   "6": {
     "other": "Enter an URL starting with http/https"

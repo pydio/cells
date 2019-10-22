@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Метаданные"
+    "other": "Meta Data"
   },
   "10": {
     "other": "Existing or new tag"
@@ -21,27 +21,27 @@
     "other": "Save meta"
   },
   "2": {
-    "other": "Нет метки"
+    "other": "No Label"
   },
   "3": {
-    "other": "Удалить рейтинг"
+    "other": "Remove Rating"
   },
   "4": {
-    "other": "Неважно"
+    "other": "Low"
   },
   "5": {
-    "other": "Сделать"
+    "other": "Todo"
   },
   "6": {
-    "other": "Персональное"
+    "other": "Personal"
   },
   "7": {
-    "other": "Работа"
+    "other": "Work"
   },
   "8": {
-    "other": "Важно"
+    "other": "Important"
   },
   "9": {
-    "other": "Нет значений"
+    "other": "No Value"
   }
 }

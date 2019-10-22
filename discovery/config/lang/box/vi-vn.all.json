@@ -1,20 +1,20 @@
 {
   "30 days max": {
-    "other": "30 days max"
+    "other": "tối đa 30 ngày"
   },
   "Remove versions after 30 days": {
-    "other": "Remove versions after 30 days"
+    "other": "Xóa phiên bản cũ sau 30 ngày"
   },
   "Keep All": {
-    "other": "Keep All"
+    "other": "Giữ lại tất cả"
   },
   "Keep all versions forever": {
-    "other": "Keep all versions forever"
+    "other": "Luôn giữ lại tất cả các phiên bản"
   },
   "Regular Pruning": {
-    "other": "Regular Pruning"
+    "other": "Định kỳ dọn dẹp"
   },
   "Prune versions regularly at various intervals": {
-    "other": "Prune versions regularly at various intervals"
+    "other": "Dọn dẹp các phiên bản theo định kỳ hoặc theo các khung thời gian khác nhau"
   }
 }

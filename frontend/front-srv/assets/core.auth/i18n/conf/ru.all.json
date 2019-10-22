@@ -3,13 +3,13 @@
     "other": "Action to trigger when clicking on Forgot Password"
   },
   "Activate the users management system to protect your Pydio installation.": {
-    "other": "Активировать управление пользователями для защиты вашей системы."
+    "other": "Activate the users management system to protect your Pydio installation."
   },
   "Add a Forgot Password link at the bottom of the login form": {
     "other": "Add a Forgot Password link at the bottom of the login form"
   },
   "Authentication": {
-    "other": "Аутентификация"
+    "other": "Authentication"
   },
   "Both": {
     "other": "Both"
@@ -18,7 +18,7 @@
     "other": "Cache master users"
   },
   "Case Sensitive": {
-    "other": "Различать регистр букв"
+    "other": "Case Sensitive"
   },
   "Choose the configuration plugin": {
     "other": "Choose the configuration plugin"
@@ -36,19 +36,19 @@
     "other": "Enable Forgot Password"
   },
   "Enable Users": {
-    "other": "Включить пользователей"
+    "other": "Enable Users"
   },
   "Enable the 'guest' user, who does not need to log in.": {
-    "other": "Включить ли гостевой доступ без пароля."
+    "other": "Enable the 'guest' user, who does not need to log in."
   },
   "Forgot Password Action": {
     "other": "Forgot Password Action"
   },
   "Generic Auth Features": {
-    "other": "Ключевые параметры"
+    "other": "Generic Features"
   },
   "Guest Browsing": {
-    "other": "Гостевой доступ"
+    "other": "Guest Browsing"
   },
   "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
     "other": "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)"
@@ -75,7 +75,7 @@
     "other": "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup."
   },
   "Minimum number of characters required for passwords in the application": {
-    "other": "Минимальная длина пароля"
+    "other": "Minimum number of characters required for passwords in the application"
   },
   "Mode": {
     "other": "Mode"
@@ -87,7 +87,7 @@
     "other": "Options applied to all auth drivers"
   },
   "Password length": {
-    "other": "Длина пароля"
+    "other": "Password length"
   },
   "Raise the security of the login form by disabling autocompletion and remember me feature": {
     "other": "Raise the security of the login form by disabling autocompletion and remember me feature"
@@ -105,7 +105,7 @@
     "other": "Separator"
   },
   "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
-    "other": "Не буду переводить :) Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins."
+    "other": "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins."
   },
   "Slave Authentifiaction Label": {
     "other": "Slave Authentication Label"
@@ -114,10 +114,10 @@
     "other": "Slave Only"
   },
   "Store Credentials in Session": {
-    "other": "Хранить аут. данные в сессии"
+    "other": "Store Credentials in Session"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
-    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!"
+    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use folder name compliant characters. For example :: does not work!"
   },
   "User Choice": {
     "other": "User Choice"
@@ -126,7 +126,7 @@
     "other": "Users Listing"
   },
   "Whether the users identifiers should be case sensitive or not": {
-    "other": "Требуется ли в идентификаторах пользователей учитывать регистр букв. WARNING, sql-based drivers will disable this by default, even if you check this."
+    "other": "Whether the users identifiers should be case sensitive or not. WARNING, sql-based drivers will disable this by default, even if you check this."
   },
   "Will be shown to the user at login": {
     "other": "Will be shown to the user at login"
