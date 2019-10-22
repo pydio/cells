@@ -5,7 +5,7 @@ GITREV:=$(shell git rev-parse HEAD)
 CELLS_VERSION?=0.2.0
 XGO_TARGETS?="linux/amd64,darwin/amd64,windows/amd64"
 
-.PHONY: all clean build front main client static
+.PHONY: all clean build main dev
 
 all: clean build
 
@@ -46,24 +46,6 @@ dev:
 	 -X github.com/pydio/cells/common.BuildRevision=dev"\
 	 -o cells\
 	 .
-
-ctl:
-	go build\
-	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}"\
-	 -o cells-ctl\
-	 cmd/ctl/main.go
-
-xgo-ctl:
-	${GOPATH}/bin/xgo -go 1.12 \
-	 --image pydio/xgo:latest \
-	 --targets ${XGO_TARGETS} \
-	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}"\
-	 ${GOPATH}/src/github.com/pydio/cells/cmd/ctl
-
 
 start:
 	./cells start
