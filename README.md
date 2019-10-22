@@ -55,7 +55,7 @@ We still currently manage third party dependencies via the [vendor mechanism](ht
 
 When you clone the `github.com/pydio/cells` repository, you then also have an embedded local copy of  all the sources for you to investigate. Yet, you should not try to directly modify code that have been _vendored_.
 
-Please also not that we had to fork a few libraries before integrating them as dependencies, most important being dex and minio. If you need to modify this part of the code, please get in touch with us.
+Please also note that we had to fork a few libraries before integrating them as dependencies, most important being dex and minio. If you need to modify this part of the code, please get in touch with us.
 
 ## Running the tests
 
