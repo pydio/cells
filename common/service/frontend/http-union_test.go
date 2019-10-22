@@ -21,9 +21,8 @@
 package frontend
 
 import (
-	"testing"
-
 	"io/ioutil"
+	"testing"
 
 	"github.com/gobuffalo/packr"
 	. "github.com/smartystreets/goconvey/convey"

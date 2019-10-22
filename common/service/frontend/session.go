@@ -1,17 +1,14 @@
 package frontend
 
 import (
+	"encoding/base64"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"go.uber.org/zap"
-
-	"encoding/base64"
-
-	"strings"
-
-	"net/url"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"

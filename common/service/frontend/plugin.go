@@ -2,11 +2,10 @@ package frontend
 
 import (
 	"encoding/json"
-	"strconv"
-	"strings"
-
 	"encoding/xml"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
