@@ -77,54 +77,12 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		}
 	}
 
-	//logger.Infof("config issuer: %s", c.Issuer)
-
-	// var grpcOptions []grpc.ServerOption
-	// if c.GRPC.TLSCert != "" {
-	// 	if c.GRPC.TLSClientCA != "" {
-	// 		// Parse certificates from certificate file and key file for server.
-	// 		cert, err := tls.LoadX509KeyPair(c.GRPC.TLSCert, c.GRPC.TLSKey)
-	// 		if err != nil {
-	// 			return fmt.Errorf("invalid config: error parsing gRPC certificate file: %v", err)
-	// 		}
-	//
-	// 		// Parse certificates from client CA file to a new CertPool.
-	// 		cPool := x509.NewCertPool()
-	// 		clientCert, err := ioutil.ReadFile(c.GRPC.TLSClientCA)
-	// 		if err != nil {
-	// 			return fmt.Errorf("invalid config: reading from client CA file: %v", err)
-	// 		}
-	// 		if cPool.AppendCertsFromPEM(clientCert) != true {
-	// 			return errors.New("invalid config: failed to parse client CA")
-	// 		}
-	//
-	// 		tlsConfig := tls.Config{
-	// 			Certificates: []tls.Certificate{cert},
-	// 			ClientAuth:   tls.RequireAndVerifyClientCert,
-	// 			ClientCAs:    cPool,
-	// 		}
-	// 		grpcOptions = append(grpcOptions, grpc.Creds(credentials.NewTLS(&tlsConfig)))
-	// 	} else {
-	// 		opt, err := credentials.NewServerTLSFromFile(c.GRPC.TLSCert, c.GRPC.TLSKey)
-	// 		if err != nil {
-	// 			return fmt.Errorf("invalid config: load grpc certs: %v", err)
-	// 		}
-	// 		grpcOptions = append(grpcOptions, grpc.Creds(opt))
-	// 	}
-	// }
-
 	s, err := c.Storage.Config.Open(logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize storage: %v", err)
 	}
-	//logger.Infof("config storage: %s", c.Storage.Type)
 
 	if len(c.StaticClients) > 0 {
-		/*
-			for _, client := range c.StaticClients {
-				logger.Infof("config static client: %s", client.ID)
-			}
-		*/
 		s = storage.WithStaticClients(s, c.StaticClients)
 	}
 	if len(c.StaticPasswords) > 0 {
@@ -135,23 +93,49 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 		s = storage.WithStaticPasswords(s, passwords, logger)
 	}
 
-	storageConnectors := make([]storage.Connector, len(c.StaticConnectors))
-	for i, c := range c.StaticConnectors {
+	var storageConnectors []storage.Connector
+	for _, c := range c.StaticConnectors {
 		if c.ID == "" || c.Name == "" || c.Type == "" {
-			return nil, fmt.Errorf("invalid config: ID, Type and Name fields are required for a connector")
+			pydioLogger.Error("invalid config: ID, Type or Name field missing", zap.String("connector", c.ID))
+			continue
 		}
+
 		if c.Config == nil {
-			return nil, fmt.Errorf("invalid config: no config field for connector %q", c.ID)
+			pydioLogger.Error("invalid config: no config field", zap.String("connector", c.ID))
+			continue
 		}
-		//logger.Infof("config connector: %s", c.ID)
+
+		// Testing to ensure we have the correct configuration
+		f, ok := server.ConnectorsConfig[c.Type]
+		if !ok {
+			pydioLogger.Error("Unknown connector type", zap.String("type", c.Type))
+			continue
+		}
+
+		connConfig := f()
+		data, err := json.Marshal(c.Config)
+		if err != nil {
+			pydioLogger.Error("Failed to marshal configurationr", zap.Error(err))
+			continue
+		}
+
+		if err := json.Unmarshal(data, connConfig); err != nil {
+			pydioLogger.Error("Failed to unmarshal configurationr", zap.Error(err))
+			continue
+		}
+
+		if _, err := connConfig.Open(logger); err != nil {
+			pydioLogger.Error("Failed to load connector", zap.String("connector", c.ID), zap.Error(err))
+			continue
+		}
 
 		// convert to a storage connector object
 		conn, err := auth.ToStorageConnector(c)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize storage connectors: %v", err)
 		}
-		storageConnectors[i] = conn
 
+		storageConnectors = append(storageConnectors, conn)
 	}
 
 	if c.EnablePasswordDB {
@@ -160,20 +144,9 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 			Name: "Email",
 			Type: server.LocalConnector,
 		})
-		//logger.Infof("config connector: local passwords enabled")
 	}
 
 	s = storage.WithStaticConnectors(s, storageConnectors)
-
-	if len(c.OAuth2.ResponseTypes) > 0 {
-		//logger.Infof("config response types accepted: %s", c.OAuth2.ResponseTypes)
-	}
-	if c.OAuth2.SkipApprovalScreen {
-		//logger.Infof("config skipping approval screen")
-	}
-	if len(c.Web.AllowedOrigins) > 0 {
-		logger.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
-	}
 
 	// explicitly convert to UTC.
 	now := func() time.Time { return time.Now().UTC() }
@@ -233,40 +206,6 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	}
 
 	return wrapped, nil
-
-	// errc := make(chan error, 3)
-	// if c.Web.HTTP != "" {
-	// 	logger.Infof("listening (http) on %s", c.Web.HTTP)
-	// 	go func() {
-	// 		err := http.ListenAndServe(c.Web.HTTP, wrapped)
-	// 		errc <- fmt.Errorf("listening on %s failed: %v", c.Web.HTTP, err)
-	// 	}()
-	// }
-	// if c.Web.HTTPS != "" {
-	// 	logger.Infof("listening (https) on %s", c.Web.HTTPS)
-	// 	go func() {
-	// 		err := http.ListenAndServeTLS(c.Web.HTTPS, c.Web.TLSCert, c.Web.TLSKey, wrapped)
-	// 		errc <- fmt.Errorf("listening on %s failed: %v", c.Web.HTTPS, err)
-	// 	}()
-	// }
-	//
-	// if c.GRPC.Addr != "" {
-	// 	logger.Infof("listening (grpc) on %s", c.GRPC.Addr)
-	// 	go func() {
-	// 		errc <- func() error {
-	// 			list, err := net.Listen("tcp", c.GRPC.Addr)
-	// 			if err != nil {
-	// 				return fmt.Errorf("listening on %s failed: %v", c.GRPC.Addr, err)
-	// 			}
-	// 			s := grpc.NewServer(grpcOptions...)
-	// 			api.RegisterDexServer(s, server.NewAPI(serverConfig.Storage, logger))
-	// 			err = s.Serve(list)
-	// 			return fmt.Errorf("listening on %s failed: %v", c.GRPC.Addr, err)
-	// 		}()
-	// 	}()
-	// }
-	//
-	// return <-errc
 }
 
 type WrappedLogger struct {
