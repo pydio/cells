@@ -1,135 +1,138 @@
 {
   "1": {
-    "other": "Редатор ролей"
+    "other": "Role Editor"
   },
   "10": {
-    "other": "Выберите действие, которое вы хотите запретить пользователям с этой ролью. Можно запретить для всех хранилищ, можно только для выбранного."
+    "other": "Use the selectors below to select the actions you want to disabled for the users of this role. You can choose to disable the action for all repositories, or for a given workspace only."
   },
   "11": {
-    "other": "Идентификатор плагина"
+    "other": "Plugin Identifier"
   },
   "12": {
-    "other": "Выберите плагин..."
+    "other": "Select a plugin..."
   },
   "12a": {
-    "other": "Выберите действие..."
+    "other": "Select an action..."
   },
   "12b": {
-    "other": "Выберите параметр..."
+    "other": "Select a parameter..."
   },
   "12c": {
-    "other": "Отметье одно или все рабочие пространства..."
+    "other": "Pick one or all workspaces..."
   },
   "12d": {
-    "other": "Все рабочие пространства"
+    "other": "All Workspaces"
   },
   "12e": {
-    "other": "Разделяемые рабочие пространства"
+    "other": "Shared Workspaces"
   },
   "13": {
-    "other": "Действие"
+    "other": "Action name"
   },
   "14": {
-    "other": "Область применения"
+    "other": "Repository Scope"
   },
   "15": {
-    "other": "Добавить действие"
+    "other": "Add Action"
   },
   "16": {
-    "other": "Выберите параметры, которые требуется определить для пользователей этой роли. Можно применять для всех или только одного рабочего пространств, хотя, это может зависеть от контекста плагина."
+    "other": "Use the selectors below to select the parameters you want to refine for the users of this role. Can be applied to all or one given workspace only, although this may depend on the plugin context."
   },
   "17": {
-    "other": "Имя параметра"
+    "other": "Parameter name"
   },
   "18": {
-    "other": "Добавить параметр"
+    "other": "Add parameter"
   },
   "19": {
-    "other": "Имеются несохранённые изменения, уверены, что хотите закрыть?"
+    "other": "There are unsaved changes, are you sure you want to close?"
   },
   "2": {
-    "other": "Редактор ролей"
+    "other": "Role editor"
   },
   "20": {
-    "other": "Роль обновлена"
+    "other": "Role updated successfully"
   },
   "21": {
-    "other": "ID пользователя"
+    "other": "User ID"
   },
   "22": {
-    "other": "Специальный профиль"
+    "other": "Special Profile"
   },
   "23": {
-    "other": "Хранилище по умолчанию"
+    "other": "Default Workspace"
   },
   "24": {
-    "other": "Роли (используйте Ctrl/Cmd кнопку для множественного выбора)"
+    "other": "User Roles"
   },
   "25": {
-    "other": "Изменить пароль"
+    "other": "Change Password"
   },
   "26": {
-    "other": "Блокировка пользователя"
+    "other": "Lock out user"
   },
   "27": {
-    "other": "Переактивировать пользователя"
+    "other": "Reactivate user"
   },
   "28": {
-    "other": "Принудительная смена пароля"
+    "other": "Force password change"
   },
   "28b": {
     "other": "Cancel password change"
   },
   "29": {
-    "other": "Введите новый пароль для этого пользователя"
+    "other": "Enter new password for this user"
   },
   "3": {
-    "other": "Учётная информация"
+    "other": "Account Info"
   },
   "30": {
-    "other": "Подтверждение"
+    "other": "Confirm"
   },
   "31": {
-    "other": "ID роли"
+    "other": "Role ID"
   },
   "32": {
-    "other": "Название роли"
+    "other": "Role Label"
   },
   "33": {
-    "other": "Автоматически присваивать пользователям с профилем..."
+    "other": "Apply automatically to users with profile..."
   },
   "34": {
-    "other": "ID группы"
+    "other": "Group ID"
   },
   "35": {
-    "other": "Название группы"
+    "other": "Group Label"
   },
   "36": {
-    "other": "заблокировано"
+    "other": "locked"
   },
   "37": {
-    "other": "Запрет"
+    "other": "Deny"
   },
   "38": {
-    "other": "наследовано"
+    "other": "inherited"
+  },
+  "workspace.roots.invalid": {
+    "other": "invalid roots"
   },
   "39": {
-    "other": "Отключить"
+    "other": "Disable"
   },
   "4": {
     "other": "ACL"
   },
   "40": {
-    "other": "Включить"
+    "other": "Enable"
   },
   "41": {
-    "other": "Удалить"
+    "other": "Remove"
   },
   "42": {
-    "other": "Другие свойства роли"
+    "other": "Role custom data"
   },
   "43": {
-    "other": "Выберите не менее одного"
+    "other": "Select one or more"
   },
   "44": {
     "other": "Plugins Parameters Fine-tuning"
@@ -144,19 +147,19 @@
     "other": "Search Roles"
   },
   "5": {
-    "other": "Действия"
+    "other": "Actions"
   },
   "6": {
-    "other": "Параметры"
+    "other": "Parameters"
   },
   "7": {
-    "other": "Внутренние данные"
+    "other": "Internal Data"
   },
   "8": {
-    "other": "Персональная информация"
+    "other": "Personal information"
   },
   "9": {
-    "other": "Выберите рабочее пространство к которому роль будет иметь доступ. Используйте 'Запрет' для переопределения наследования от других ролей и для наследуемых ролей."
+    "other": "Select the workspaces to which the use with this role will have access. Use the 'Deny' value to either override a value set by a previous role, or definitely deny the access to this workspace even to inherited roles."
   },
   "dashboard.description": {
     "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."

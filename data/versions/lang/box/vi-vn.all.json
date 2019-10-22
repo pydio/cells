@@ -1,88 +1,88 @@
 {
   "Job.Version.Title": {
-    "other": "Event Based Job for replicating data for versioning"
+    "other": "Event Based Job cho việc sao lưu các phiên bản"
   },
   "Job.Version.StatusFile": {
-    "other": "Created version {{.Uuid}} inside version bucket "
+    "other": "Phiên bản {{.Uuid}} được tạo trong bucket dùng để lưu các phiên bản "
   },
   "Job.Version.StatusMeta": {
-    "other": "Created version metadata for {{.Uuid}}"
+    "other": "Các metadata cho phiên bản {{.Uuid}} được tạo"
   },
   "Job.Version.StatusPrune": {
-    "one": "Pruned {{.Count}} version",
-    "other": "Pruned {{.Count}} versions"
+    "one": "Xóa {{.Count}} véion",
+    "other": "Đã xóa {{.Count}} phiên bản"
   },
   "Job.Pruning.Title": {
-    "other": "Cleaning versions files for deleted nodes"
+    "other": "Dọn dẹp các phiên bản từ những files đã bị xóa"
   },
   "Job.Pruning.StatusDone": {
-    "one": "Succesfully removed {{.Count}} version",
-    "other": "Succesfully removed {{.Count}} versions."
+    "one": "Đã xóa thành công {{.Count}} phiên bản",
+    "other": "Đã xóa thành công {{.Count}} phiên bản."
   },
   "Config.GroupPolicy.Title": {
     "other": "Policy"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other": "Name"
+    "other": "Tên"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other": "Policy Name"
+    "other": "Tên Policy"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other": "Description"
+    "other": "Mô tả"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other": "Policy description"
+    "other": "Mô tả cho policy"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
     "other": "Store"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other": "DataSource used to store versions"
+    "other": "DataSource dùng để lưu trữ các phiên bản"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
     "other": "Bucket"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other": "Bucket used inside this datasource"
+    "other": "Bucket được sử dụng bên trong datasource"
   },
   "Config.GroupSizes.Title": {
-    "other": "Size Limits"
+    "other": "Giới hạn kích thước"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other": "Global size of all versions kept in this bucket"
+    "other": "Giới hạn kích thước áp dụng cho tất cả các phiên bản được lưu trữ trong bucket"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other": "Limit the overall size taken. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Giới hạn kích thước tổng dung lượng các phiên bản. Các phiên bản cũ nhất sẽ bị xóa nếu đầy. Sử dụng -1 nếu không có giới hạn"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other": "Cumulated sizes for versions of one given file"
+    "other": "Tổng kích thước các phiên bản được tạo từ một file"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other": "Limit the size taken by all versions of one file. If limit is hit, oldest versions will be deleted. Use -1 for no limit"
+    "other": "Giới hạn kích thước các phiên bản được tạo từ một file. Các phiên bản cũ nhất sẽ bị xóa nếu đầy. Sử dụng -1 nếu không có giới hạn"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other": "Ignore files greater than..."
+    "other": "Bỏ qua các files có kích thước lớn hơn..."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other": "Do NOT version files with size greater than this limit. Use -1 for no limit"
+    "other": "Xin đừng kích hoạt version trên những file có kích thước lớn. Bạn có thể sử dụng giá trị -1 để thay cho giá trị không giới hạn"
   },
   "Config.GroupRetention.Title": {
-    "other": "Retention Periods"
+    "other": "Chu kỳ giữ lại"
   },
   "Config.GroupRetention.Description": {
-    "other": "Number of versions to keep per period"
+    "other": "Số phiên bản bạn muốn giữ lại trong một chu kỳ"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other": "Period Start"
+    "other": "Bắt đầu chu kỳ"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other": "Start point used for computing period. 0 is the time of the last version set, use another Period to set an limit"
+    "other": "Thời điểm bắt đầu chu kỳ. Thời điểm của phiên bản cuối cùng được thiết lập là 0, bạn có thể dùng số khác để xác định giới hạn cho chu kỳ"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other": "Maximum Number of Versions"
+    "other": "Số phiên bản tối đa"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other": "Max number of versions to keep over this period. Use -1 to keep all versions, 0 to delete all."
+    "other": "Số phiên bản tối đa được giữ lại cho chu kỳ này. Sử dụng -1 có nghĩa là giữ lại tất cả các phiên bản, và 0 thì sẽ xóa hết."
   }
 }

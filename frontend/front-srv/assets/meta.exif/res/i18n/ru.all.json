@@ -1,11 +1,11 @@
 {
   "1": {
-    "other": "Exif геолокация"
+    "other": "GeoLocation"
   },
   "2": {
-    "other": "Расположение"
+    "other": "Locate"
   },
   "3": {
-    "other": "Meta Data (EXIF)"
+    "other": "EXIF Data"
   }
 }

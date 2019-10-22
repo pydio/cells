@@ -1,53 +1,53 @@
 {
   "1": {
-    "other": "Следить за..."
+    "other": "Watch for..."
   },
   "10": {
-    "other": "Кто-то открыл файл"
+    "other": "Anyone is opening the file"
   },
   "10b": {
-    "other": "Кто-то зашёл внутрь папки"
+    "other": "Anyone is exploring the folder"
   },
   "11": {
-    "other": "Изменениями"
+    "other": "Modification"
   },
   "12": {
-    "other": "Кто-то изменил файл"
+    "other": "Anyone is modifying the file"
   },
   "12b": {
-    "other": "Кто-то изменил файл в папке"
+    "other": "Anyone is modifying a file inside this folder"
   },
   "13": {
-    "other": "ВСЕМ!"
+    "other": "Both"
   },
   "14": {
-    "other": "Кто-то открыл или изменил файл"
+    "other": "Anyone opening or writing into the file"
   },
   "14b": {
-    "other": "Кто-то зашёл в папку и/или изменил её содержимое"
+    "other": "Anyone exploring or modifying the folder content"
   },
   "2": {
-    "other": "Сообщить при обращении к папке"
+    "other": "Be notified when this folder is accessed"
   },
   "3": {
-    "other": "Остановить отслеживание"
+    "other": "Stop watching"
   },
   "4": {
-    "other": "Остановить отслеживание обращений у папке"
+    "other": "Stop watching this folder for accesses"
   },
   "5": {
-    "other": "Следить за..."
+    "other": "Watch for..."
   },
   "6": {
-    "other": "Следить за изменениями файла"
+    "other": "Watch this file for changes"
   },
   "7": {
-    "other": "Остановить отслеживание"
+    "other": "Stop watching"
   },
   "8": {
-    "other": "Остановить отслеживание изменений файла"
+    "other": "Stop watching this file for changes"
   },
   "9": {
-    "other": "Доступом"
+    "other": "Consultation"
   }
 }

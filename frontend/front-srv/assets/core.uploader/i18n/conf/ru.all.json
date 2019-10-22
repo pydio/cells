@@ -1,27 +1,27 @@
 {
   "Allowed Extensions": {
-    "other": "Допустимые расширения"
+    "other": "Allowed Extensions"
   },
   "Cumul. Size": {
-    "other": "Суммарный размер"
+    "other": "Cumul. Size"
   },
   "Ext. Label": {
-    "other": "Метки расширений"
+    "other": "Ext. Label"
   },
   "Extensions List": {
-    "other": "Список расширений"
+    "other": "Extensions List"
   },
   "File Size": {
-    "other": "Размер файла"
+    "other": "File Size"
   },
   "Files Number": {
-    "other": "Количество файлов"
+    "other": "Files Number"
   },
   "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list.": {
     "other": "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list."
   },
   "Limitations": {
-    "other": "Ограничения"
+    "other": "Limitations"
   },
   "Maximum number of files for each upload. Leave to 0 for no limit.": {
     "other": "Maximum number of files for each upload. Leave to 0 for no limit."
@@ -33,10 +33,10 @@
     "other": "Maximum total size (all files size cumulated) by upload. Leave to 0 if you do not want any limit. See the previous variable for syntax ('2M' or 2097152 )"
   },
   "Options shared by all uploaders plugins": {
-    "other": "Настройки для всех плагинов загрузки"
+    "other": "Options shared by all uploaders plugins"
   },
   "Uploaders Options": {
-    "other": "Настройки загрузки"
+    "other": "Uploaders Options"
   },
   "User readable label for the list of allowed extensions (images, all files, etc).": {
     "other": "User readable label for the list of allowed extensions (images, all files, etc)."

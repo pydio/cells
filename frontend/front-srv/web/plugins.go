@@ -24,15 +24,15 @@ package web
 import (
 	"context"
 	"net/http"
-	"time"
-
-	"path/filepath"
-
 	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
 	micro "github.com/micro/go-micro"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -41,7 +41,6 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/frontend/front-srv/web/index"
-	"go.uber.org/zap"
 )
 
 var (

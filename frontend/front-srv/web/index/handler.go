@@ -3,18 +3,17 @@ package index
 import (
 	"compress/gzip"
 	"context"
+	"encoding/xml"
 	"html/template"
 	"net/http"
 	"strings"
 
 	"github.com/gorilla/mux"
 
-	"encoding/xml"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/frontend"
 )
 
