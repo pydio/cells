@@ -1,9 +1,7 @@
 language: go
 
 go:
-#- "1.10.8"
-#- "1.11.13"
-- "1.12.9"
+- "1.12.12"
 
 script:
 - go build main.go
