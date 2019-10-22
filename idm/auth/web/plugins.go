@@ -115,7 +115,7 @@ func init() {
 						if err != nil {
 							return err
 						}
-						mysqlMatched, err := regexp.MatchString("^[0-4]\\.[0-9]+\\.[0-9]+$|^5\\.[0-6]\\.[0-9]+$|^5\\.7\\.[0-1][0-9]$|^5\\.7\\.[0-9]$", version)
+						mysqlMatched, err := regexp.MatchString("^[0-4]\\.[0-9]+\\.[0-9]+(-.*)?$|^5\\.[0-6]\\.[0-9]+(-.*)?$|^5\\.7\\.[0-1][0-9](-.*)?$|^5\\.7\\.[0-9](-.*)?$", version)
 						if err != nil {
 							return err
 						}
