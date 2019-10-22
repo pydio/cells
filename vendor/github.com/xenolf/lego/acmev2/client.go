@@ -5,13 +5,11 @@ import (
 	"crypto"
 	"crypto/x509"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -82,27 +80,26 @@ func NewClient(caDirURL string, user User, keyType KeyType) (*Client, error) {
 		return nil, fmt.Errorf("get directory at '%s': %v", caDirURL, err)
 	}
 
-	if dir.NewRegURL == "" {
+	if dir.NewAccountURL == "" {
 		return nil, errors.New("directory missing new registration URL")
 	}
-	if dir.NewAuthzURL == "" {
-		return nil, errors.New("directory missing new authz URL")
+	if dir.NewOrderURL == "" {
+		return nil, errors.New("directory missing new order URL")
 	}
-	if dir.NewCertURL == "" {
-		return nil, errors.New("directory missing new certificate URL")
-	}
-	if dir.RevokeCertURL == "" {
+	/*if dir.RevokeCertURL == "" {
 		return nil, errors.New("directory missing revoke certificate URL")
-	}
+	}*/
 
-	jws := &jws{privKey: privKey, directoryURL: caDirURL}
+	jws := &jws{privKey: privKey, getNonceURL: dir.NewNonceURL}
+	if reg := user.GetRegistration(); reg != nil {
+		jws.kid = reg.URI
+	}
 
 	// REVIEW: best possibility?
 	// Add all available solvers with the right index as per ACME
 	// spec to this map. Otherwise they won`t be found.
 	solvers := make(map[Challenge]solver)
 	solvers[HTTP01] = &httpChallenge{jws: jws, validate: validate, provider: &HTTPProviderServer{}}
-	solvers[TLSSNI01] = &tlsSNIChallenge{jws: jws, validate: validate, provider: &TLSProviderServer{}}
 
 	return &Client{directory: dir, user: user, jws: jws, keyType: keyType, solvers: solvers}, nil
 }
@@ -112,8 +109,6 @@ func (c *Client) SetChallengeProvider(challenge Challenge, p ChallengeProvider) 
 	switch challenge {
 	case HTTP01:
 		c.solvers[challenge] = &httpChallenge{jws: c.jws, validate: validate, provider: p}
-	case TLSSNI01:
-		c.solvers[challenge] = &tlsSNIChallenge{jws: c.jws, validate: validate, provider: p}
 	case DNS01:
 		c.solvers[challenge] = &dnsChallenge{jws: c.jws, validate: validate, provider: p}
 	default:
@@ -141,24 +136,6 @@ func (c *Client) SetHTTPAddress(iface string) error {
 	return nil
 }
 
-// SetTLSAddress specifies a custom interface:port to be used for TLS based challenges.
-// If this option is not used, the default port 443 and all interfaces will be used.
-// To only specify a port and no interface use the ":port" notation.
-//
-// NOTE: This REPLACES any custom TLS-SNI provider previously set by calling
-// c.SetChallengeProvider with the default TLS-SNI challenge provider.
-func (c *Client) SetTLSAddress(iface string) error {
-	host, port, err := net.SplitHostPort(iface)
-	if err != nil {
-		return err
-	}
-
-	if chlng, ok := c.solvers[TLSSNI01]; ok {
-		chlng.(*tlsSNIChallenge).provider = NewTLSProviderServer(host, port)
-	}
-	return nil
-}
-
 // ExcludeChallenges explicitly removes challenges from the pool for solving.
 func (c *Client) ExcludeChallenges(challenges []Challenge) {
 	// Loop through all challenges and delete the requested one if found.
@@ -167,59 +144,69 @@ func (c *Client) ExcludeChallenges(challenges []Challenge) {
 	}
 }
 
+// GetToSURL returns the current ToS URL from the Directory
+func (c *Client) GetToSURL() string {
+	return c.directory.Meta.TermsOfService
+}
+
 // Register the current account to the ACME server.
-func (c *Client) Register() (*RegistrationResource, error) {
+func (c *Client) Register(tosAgreed bool) (*RegistrationResource, error) {
 	if c == nil || c.user == nil {
 		return nil, errors.New("acme: cannot register a nil client or user")
 	}
 	logf("[INFO] acme: Registering account for %s", c.user.GetEmail())
 
-	regMsg := registrationMessage{
-		Resource: "new-reg",
-	}
+	accMsg := accountMessage{}
 	if c.user.GetEmail() != "" {
-		regMsg.Contact = []string{"mailto:" + c.user.GetEmail()}
+		accMsg.Contact = []string{"mailto:" + c.user.GetEmail()}
 	} else {
-		regMsg.Contact = []string{}
+		accMsg.Contact = []string{}
 	}
+	accMsg.TermsOfServiceAgreed = tosAgreed
 
-	var serverReg Registration
-	var regURI string
-	hdr, err := postJSON(c.jws, c.directory.NewRegURL, regMsg, &serverReg)
+	var serverReg accountMessage
+	hdr, err := postJSON(c.jws, c.directory.NewAccountURL, accMsg, &serverReg)
 	if err != nil {
 		remoteErr, ok := err.(RemoteError)
 		if ok && remoteErr.StatusCode == 409 {
-			regURI = hdr.Get("Location")
-			regMsg = registrationMessage{
-				Resource: "reg",
-			}
-			if hdr, err = postJSON(c.jws, regURI, regMsg, &serverReg); err != nil {
-				return nil, err
-			}
 		} else {
 			return nil, err
 		}
 	}
 
-	reg := &RegistrationResource{Body: serverReg}
-
-	links := parseLinks(hdr["Link"])
-
-	if regURI == "" {
-		regURI = hdr.Get("Location")
+	reg := &RegistrationResource{
+		URI:  hdr.Get("Location"),
+		Body: serverReg,
 	}
-	reg.URI = regURI
-	if links["terms-of-service"] != "" {
-		reg.TosURL = links["terms-of-service"]
-	}
-
-	if links["next"] != "" {
-		reg.NewAuthzURL = links["next"]
-	} else {
-		return nil, errors.New("acme: The server did not return 'next' link to proceed")
-	}
+	c.jws.kid = reg.URI
 
 	return reg, nil
+}
+
+// ResolveAccountByKey will attempt to look up an account using the given account key
+// and return its registration resource.
+func (c *Client) ResolveAccountByKey() (*RegistrationResource, error) {
+	logf("[INFO] acme: Trying to resolve account by key")
+
+	acc := accountMessage{OnlyReturnExisting: true}
+	hdr, err := postJSON(c.jws, c.directory.NewAccountURL, acc, &acc)
+	if err != nil {
+		return nil, err
+	}
+
+	accountLink := hdr.Get("Location")
+	if accountLink == "" {
+		return nil, errors.New("Server did not return the account link")
+	}
+
+	var retAccount accountMessage
+	c.jws.kid = accountLink
+	hdr, err = postJSON(c.jws, accountLink, accountMessage{}, &retAccount)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RegistrationResource{URI: accountLink, Body: retAccount}, nil
 }
 
 // DeleteRegistration deletes the client's user registration from the ACME
@@ -230,12 +217,11 @@ func (c *Client) DeleteRegistration() error {
 	}
 	logf("[INFO] acme: Deleting account for %s", c.user.GetEmail())
 
-	regMsg := registrationMessage{
-		Resource: "reg",
-		Delete:   true,
+	accMsg := accountMessage{
+		Status: "deactivated",
 	}
 
-	_, err := postJSON(c.jws, c.user.GetRegistration().URI, regMsg, nil)
+	_, err := postJSON(c.jws, c.user.GetRegistration().URI, accMsg, nil)
 	if err != nil {
 		return err
 	}
@@ -255,44 +241,21 @@ func (c *Client) QueryRegistration() (*RegistrationResource, error) {
 	// Log the URL here instead of the email as the email may not be set
 	logf("[INFO] acme: Querying account for %s", c.user.GetRegistration().URI)
 
-	regMsg := registrationMessage{
-		Resource: "reg",
-	}
+	accMsg := accountMessage{}
 
-	var serverReg Registration
-	hdr, err := postJSON(c.jws, c.user.GetRegistration().URI, regMsg, &serverReg)
+	var serverReg accountMessage
+	_, err := postJSON(c.jws, c.user.GetRegistration().URI, accMsg, &serverReg)
 	if err != nil {
 		return nil, err
 	}
 
 	reg := &RegistrationResource{Body: serverReg}
 
-	links := parseLinks(hdr["Link"])
 	// Location: header is not returned so this needs to be populated off of
 	// existing URI
 	reg.URI = c.user.GetRegistration().URI
-	if links["terms-of-service"] != "" {
-		reg.TosURL = links["terms-of-service"]
-	}
-
-	if links["next"] != "" {
-		reg.NewAuthzURL = links["next"]
-	} else {
-		return nil, errors.New("acme: No new-authz link in response to registration query")
-	}
 
 	return reg, nil
-}
-
-// AgreeToTOS updates the Client registration and sends the agreement to
-// the server.
-func (c *Client) AgreeToTOS() error {
-	reg := c.user.GetRegistration()
-
-	reg.Body.Agreement = c.user.GetRegistration().TosURL
-	reg.Body.Resource = "reg"
-	_, err := postJSON(c.jws, c.user.GetRegistration().URI, c.user.GetRegistration().Body, nil)
-	return err
 }
 
 // ObtainCertificateForCSR tries to obtain a certificate matching the CSR passed into it.
@@ -327,17 +290,25 @@ DNSNames:
 		logf("[INFO][%s] acme: Obtaining SAN certificate given a CSR", strings.Join(domains, ", "))
 	}
 
-	challenges, failures := c.getChallenges(domains)
+	order, err := c.createOrderForIdentifiers(domains)
+	if err != nil {
+		identErrors := make(map[string]error)
+		for _, auth := range order.Identifiers {
+			identErrors[auth.Value] = err
+		}
+		return CertificateResource{}, identErrors
+	}
+	authz, failures := c.getAuthzForOrder(order)
 	// If any challenge fails - return. Do not generate partial SAN certificates.
 	if len(failures) > 0 {
-		for _, auth := range challenges {
+		/*for _, auth := range authz {
 			c.disableAuthz(auth)
-		}
+		}*/
 
 		return CertificateResource{}, failures
 	}
 
-	errs := c.solveChallenges(challenges)
+	errs := c.solveChallengeForAuthz(authz)
 	// If any challenge fails - return. Do not generate partial SAN certificates.
 	if len(errs) > 0 {
 		return CertificateResource{}, errs
@@ -345,10 +316,10 @@ DNSNames:
 
 	logf("[INFO][%s] acme: Validations succeeded; requesting certificates", strings.Join(domains, ", "))
 
-	cert, err := c.requestCertificateForCsr(challenges, bundle, csr.Raw, nil)
+	cert, err := c.requestCertificateForCsr(order, bundle, csr.Raw, nil)
 	if err != nil {
-		for _, chln := range challenges {
-			failures[chln.Domain] = err
+		for _, chln := range authz {
+			failures[chln.Identifier.Value] = err
 		}
 	}
 
@@ -374,17 +345,25 @@ func (c *Client) ObtainCertificate(domains []string, bundle bool, privKey crypto
 		logf("[INFO][%s] acme: Obtaining SAN certificate", strings.Join(domains, ", "))
 	}
 
-	challenges, failures := c.getChallenges(domains)
+	order, err := c.createOrderForIdentifiers(domains)
+	if err != nil {
+		identErrors := make(map[string]error)
+		for _, auth := range order.Identifiers {
+			identErrors[auth.Value] = err
+		}
+		return CertificateResource{}, identErrors
+	}
+	authz, failures := c.getAuthzForOrder(order)
 	// If any challenge fails - return. Do not generate partial SAN certificates.
 	if len(failures) > 0 {
-		for _, auth := range challenges {
+		/*for _, auth := range authz {
 			c.disableAuthz(auth)
-		}
+		}*/
 
 		return CertificateResource{}, failures
 	}
 
-	errs := c.solveChallenges(challenges)
+	errs := c.solveChallengeForAuthz(authz)
 	// If any challenge fails - return. Do not generate partial SAN certificates.
 	if len(errs) > 0 {
 		return CertificateResource{}, errs
@@ -392,10 +371,10 @@ func (c *Client) ObtainCertificate(domains []string, bundle bool, privKey crypto
 
 	logf("[INFO][%s] acme: Validations succeeded; requesting certificates", strings.Join(domains, ", "))
 
-	cert, err := c.requestCertificate(challenges, bundle, privKey, mustStaple)
+	cert, err := c.requestCertificateForOrder(order, bundle, privKey, mustStaple)
 	if err != nil {
-		for _, chln := range challenges {
-			failures[chln.Domain] = err
+		for _, auth := range authz {
+			failures[auth.Identifier.Value] = err
 		}
 	}
 
@@ -416,7 +395,7 @@ func (c *Client) RevokeCertificate(certificate []byte) error {
 
 	encodedCert := base64.URLEncoding.EncodeToString(x509Cert.Raw)
 
-	_, err = postJSON(c.jws, c.directory.RevokeCertURL, revokeCertMessage{Resource: "revoke-cert", Certificate: encodedCert}, nil)
+	_, err = postJSON(c.jws, c.directory.RevokeCertURL, revokeCertMessage{Certificate: encodedCert}, nil)
 	return err
 }
 
@@ -484,129 +463,123 @@ func (c *Client) RenewCertificate(cert CertificateResource, bundle, mustStaple b
 	return newCert, failures[cert.Domain]
 }
 
+func (c *Client) createOrderForIdentifiers(domains []string) (orderResource, error) {
+
+	var identifiers []identifier
+	for _, domain := range domains {
+		identifiers = append(identifiers, identifier{Type: "dns", Value: domain})
+	}
+
+	order := orderMessage{
+		Identifiers: identifiers,
+	}
+
+	var response orderMessage
+	hdr, err := postJSON(c.jws, c.directory.NewOrderURL, order, &response)
+	if err != nil {
+		return orderResource{}, err
+	}
+
+	orderRes := orderResource{
+		URL:          hdr.Get("Location"),
+		orderMessage: response,
+	}
+	return orderRes, nil
+}
+
 // Looks through the challenge combinations to find a solvable match.
 // Then solves the challenges in series and returns.
-func (c *Client) solveChallenges(challenges []authorizationResource) map[string]error {
+func (c *Client) solveChallengeForAuthz(authorizations []authorization) map[string]error {
 	// loop through the resources, basically through the domains.
 	failures := make(map[string]error)
-	for _, authz := range challenges {
-		if authz.Body.Status == "valid" {
+	for _, authz := range authorizations {
+		if authz.Status == "valid" {
 			// Boulder might recycle recent validated authz (see issue #267)
-			logf("[INFO][%s] acme: Authorization already valid; skipping challenge", authz.Domain)
+			logf("[INFO][%s] acme: Authorization already valid; skipping challenge", authz.Identifier.Value)
 			continue
 		}
+
 		// no solvers - no solving
-		if solvers := c.chooseSolvers(authz.Body, authz.Domain); solvers != nil {
-			for i, solver := range solvers {
-				// TODO: do not immediately fail if one domain fails to validate.
-				err := solver.Solve(authz.Body.Challenges[i], authz.Domain)
-				if err != nil {
-					c.disableAuthz(authz)
-					failures[authz.Domain] = err
-				}
+		if i, solver := c.chooseSolver(authz, authz.Identifier.Value); solver != nil {
+			err := solver.Solve(authz.Challenges[i], authz.Identifier.Value)
+			if err != nil {
+				//c.disableAuthz(authz.Identifier)
+				failures[authz.Identifier.Value] = err
 			}
 		} else {
-			c.disableAuthz(authz)
-			failures[authz.Domain] = fmt.Errorf("[%s] acme: Could not determine solvers", authz.Domain)
+			//c.disableAuthz(authz)
+			failures[authz.Identifier.Value] = fmt.Errorf("[%s] acme: Could not determine solvers", authz.Identifier.Value)
 		}
 	}
 
 	return failures
 }
 
-// Checks all combinations from the server and returns an array of
-// solvers which should get executed in series.
-func (c *Client) chooseSolvers(auth authorization, domain string) map[int]solver {
-	for _, combination := range auth.Combinations {
-		solvers := make(map[int]solver)
-		for _, idx := range combination {
-			if solver, ok := c.solvers[auth.Challenges[idx].Type]; ok {
-				solvers[idx] = solver
-			} else {
-				logf("[INFO][%s] acme: Could not find solver for: %s", domain, auth.Challenges[idx].Type)
-			}
+// Checks all challenges from the server in order and returns the first matching solver.
+func (c *Client) chooseSolver(auth authorization, domain string) (int, solver) {
+	for i, challenge := range auth.Challenges {
+		if solver, ok := c.solvers[Challenge(challenge.Type)]; ok {
+			return i, solver
 		}
-
-		// If we can solve the whole combination, return the solvers
-		if len(solvers) == len(combination) {
-			return solvers
-		}
+		logf("[INFO][%s] acme: Could not find solver for: %s", domain, challenge.Type)
 	}
-	return nil
+	return 0, nil
 }
 
 // Get the challenges needed to proof our identifier to the ACME server.
-func (c *Client) getChallenges(domains []string) ([]authorizationResource, map[string]error) {
-	resc, errc := make(chan authorizationResource), make(chan domainError)
+func (c *Client) getAuthzForOrder(order orderResource) ([]authorization, map[string]error) {
+	resc, errc := make(chan authorization), make(chan domainError)
 
 	delay := time.Second / overallRequestLimit
 
-	for _, domain := range domains {
+	for _, authzURL := range order.Authorizations {
 		time.Sleep(delay)
 
-		go func(domain string) {
-			authMsg := authorization{Resource: "new-authz", Identifier: identifier{Type: "dns", Value: domain}}
+		go func(authzURL string) {
 			var authz authorization
-			hdr, err := postJSON(c.jws, c.user.GetRegistration().NewAuthzURL, authMsg, &authz)
+			_, err := getJSON(authzURL, &authz)
 			if err != nil {
-				errc <- domainError{Domain: domain, Error: err}
+				errc <- domainError{Domain: authz.Identifier.Value, Error: err}
 				return
 			}
 
-			links := parseLinks(hdr["Link"])
-			if links["next"] == "" {
-				logf("[ERROR][%s] acme: Server did not provide next link to proceed", domain)
-				errc <- domainError{Domain: domain, Error: errors.New("Server did not provide next link to proceed")}
-				return
-			}
-
-			resc <- authorizationResource{Body: authz, NewCertURL: links["next"], AuthURL: hdr.Get("Location"), Domain: domain}
-		}(domain)
+			resc <- authz
+		}(authzURL)
 	}
 
-	responses := make(map[string]authorizationResource)
+	var responses []authorization
 	failures := make(map[string]error)
-	for i := 0; i < len(domains); i++ {
+	for i := 0; i < len(order.Authorizations); i++ {
 		select {
 		case res := <-resc:
-			responses[res.Domain] = res
+			responses = append(responses, res)
 		case err := <-errc:
 			failures[err.Domain] = err.Error
 		}
 	}
 
-	challenges := make([]authorizationResource, 0, len(responses))
-	for _, domain := range domains {
-		if challenge, ok := responses[domain]; ok {
-			challenges = append(challenges, challenge)
-		}
-	}
-
-	logAuthz(challenges)
+	logAuthz(order)
 
 	close(resc)
 	close(errc)
 
-	return challenges, failures
+	return responses, failures
 }
 
-func logAuthz(authz []authorizationResource) {
-	for _, auth := range authz {
-		logf("[INFO][%s] AuthURL: %s", auth.Domain, auth.AuthURL)
+func logAuthz(order orderResource) {
+	for i, auth := range order.Authorizations {
+		logf("[INFO][%s] AuthURL: %s", order.Identifiers[i].Value, auth)
 	}
 }
 
 // cleanAuthz loops through the passed in slice and disables any auths which are not "valid"
-func (c *Client) disableAuthz(auth authorizationResource) error {
+func (c *Client) disableAuthz(authURL string) error {
 	var disabledAuth authorization
-	_, err := postJSON(c.jws, auth.AuthURL, deactivateAuthMessage{Resource: "authz", Status: "deactivated"}, &disabledAuth)
+	_, err := postJSON(c.jws, authURL, deactivateAuthMessage{Status: "deactivated"}, &disabledAuth)
 	return err
 }
 
-func (c *Client) requestCertificate(authz []authorizationResource, bundle bool, privKey crypto.PrivateKey, mustStaple bool) (CertificateResource, error) {
-	if len(authz) == 0 {
-		return CertificateResource{}, errors.New("Passed no authorizations to requestCertificate!")
-	}
+func (c *Client) requestCertificateForOrder(order orderResource, bundle bool, privKey crypto.PrivateKey, mustStaple bool) (CertificateResource, error) {
 
 	var err error
 	if privKey == nil {
@@ -617,50 +590,65 @@ func (c *Client) requestCertificate(authz []authorizationResource, bundle bool, 
 	}
 
 	// determine certificate name(s) based on the authorization resources
-	commonName := authz[0]
+	commonName := order.Identifiers[0].Value
 	var san []string
-	for _, auth := range authz[1:] {
-		san = append(san, auth.Domain)
+	for _, auth := range order.Identifiers {
+		san = append(san, auth.Value)
 	}
 
 	// TODO: should the CSR be customizable?
-	csr, err := generateCsr(privKey, commonName.Domain, san, mustStaple)
+	csr, err := generateCsr(privKey, commonName, san, mustStaple)
 	if err != nil {
 		return CertificateResource{}, err
 	}
 
-	return c.requestCertificateForCsr(authz, bundle, csr, pemEncode(privKey))
+	return c.requestCertificateForCsr(order, bundle, csr, pemEncode(privKey))
 }
 
-func (c *Client) requestCertificateForCsr(authz []authorizationResource, bundle bool, csr []byte, privateKeyPem []byte) (CertificateResource, error) {
-	commonName := authz[0]
+func (c *Client) requestCertificateForCsr(order orderResource, bundle bool, csr []byte, privateKeyPem []byte) (CertificateResource, error) {
+	commonName := order.Identifiers[0].Value
 
 	var authURLs []string
-	for _, auth := range authz[1:] {
-		authURLs = append(authURLs, auth.AuthURL)
+	for _, auth := range order.Identifiers[1:] {
+		authURLs = append(authURLs, auth.Value)
 	}
 
-	csrString := base64.URLEncoding.EncodeToString(csr)
-	jsonBytes, err := json.Marshal(csrMessage{Resource: "new-cert", Csr: csrString, Authorizations: authURLs})
-	if err != nil {
-		return CertificateResource{}, err
+	csrString := base64.RawURLEncoding.EncodeToString(csr)
+	var retOrder orderMessage
+	_, error := postJSON(c.jws, order.Finalize, csrMessage{Csr: csrString}, &retOrder)
+	if error != nil {
+		return CertificateResource{}, error
 	}
 
-	resp, err := c.jws.post(commonName.NewCertURL, jsonBytes)
-	if err != nil {
-		return CertificateResource{}, err
+	if retOrder.Status == "invalid" {
+		return CertificateResource{}, error
 	}
 
 	certRes := CertificateResource{
-		Domain:     commonName.Domain,
-		CertURL:    resp.Header.Get("Location"),
+		Domain:     commonName,
+		CertURL:    retOrder.Certificate,
 		PrivateKey: privateKeyPem,
+	}
+
+	if retOrder.Status == "valid" {
+		// if the certificate is available right away, short cut!
+		ok, err := c.checkCertResponse(retOrder, &certRes, bundle)
+		if err != nil {
+			return CertificateResource{}, err
+		}
+
+		if ok {
+			return certRes, nil
+		}
 	}
 
 	maxChecks := 1000
 	for i := 0; i < maxChecks; i++ {
-		done, err := c.checkCertResponse(resp, &certRes, bundle)
-		resp.Body.Close()
+		_, err := getJSON(order.URL, &retOrder)
+		if err != nil {
+			return CertificateResource{}, err
+		}
+		done, err := c.checkCertResponse(retOrder, &certRes, bundle)
 		if err != nil {
 			return CertificateResource{}, err
 		}
@@ -670,43 +658,36 @@ func (c *Client) requestCertificateForCsr(authz []authorizationResource, bundle 
 		if i == maxChecks-1 {
 			return CertificateResource{}, fmt.Errorf("polled for certificate %d times; giving up", i)
 		}
-		resp, err = httpGet(certRes.CertURL)
-		if err != nil {
-			return CertificateResource{}, err
-		}
 	}
 
 	return certRes, nil
 }
 
-// checkCertResponse checks resp to see if a certificate is contained in the
-// response, and if so, loads it into certRes and returns true. If the cert
-// is not yet ready, it returns false. This function honors the waiting period
-// required by the Retry-After header of the response, if specified. This
-// function may read from resp.Body but does NOT close it. The certRes input
+// checkCertResponse checks to see if the certificate is ready and a link is contained in the
+// response. if so, loads it into certRes and returns true. If the cert
+// is not yet ready, it returns false. The certRes input
 // should already have the Domain (common name) field populated. If bundle is
 // true, the certificate will be bundled with the issuer's cert.
-func (c *Client) checkCertResponse(resp *http.Response, certRes *CertificateResource, bundle bool) (bool, error) {
-	switch resp.StatusCode {
-	case 201, 202:
+func (c *Client) checkCertResponse(order orderMessage, certRes *CertificateResource, bundle bool) (bool, error) {
+
+	switch order.Status {
+	case "valid":
+		resp, err := httpGet(order.Certificate)
+		if err != nil {
+			return false, err
+		}
+
 		cert, err := ioutil.ReadAll(limitReader(resp.Body, maxBodySize))
 		if err != nil {
 			return false, err
 		}
 
-		// The server returns a body with a length of zero if the
-		// certificate was not ready at the time this request completed.
-		// Otherwise the body is the certificate.
-		if len(cert) > 0 {
-			certRes.CertStableURL = resp.Header.Get("Content-Location")
-			certRes.AccountRef = c.user.GetRegistration().URI
+		// The issuer certificate link is always supplied via an "up" link
+		// in the response headers of a new certificate.
+		links := parseLinks(resp.Header["Link"])
+		if link, ok := links["up"]; ok {
+			issuerCert, err := c.getIssuerCertificate(link)
 
-			issuedCert := pemEncode(derCertificateBytes(cert))
-
-			// The issuer certificate link is always supplied via an "up" link
-			// in the response headers of a new certificate.
-			links := parseLinks(resp.Header["Link"])
-			issuerCert, err := c.getIssuerCertificate(links["up"])
 			if err != nil {
 				// If we fail to acquire the issuer cert, return the issued certificate - do not fail.
 				logf("[WARNING][%s] acme: Could not bundle issuer certificate: %v", certRes.Domain, err)
@@ -716,31 +697,26 @@ func (c *Client) checkCertResponse(resp *http.Response, certRes *CertificateReso
 				// If bundle is true, we want to return a certificate bundle.
 				// To do this, we append the issuer cert to the issued cert.
 				if bundle {
-					issuedCert = append(issuedCert, issuerCert...)
+					cert = append(cert, issuerCert...)
 				}
+
+				certRes.IssuerCertificate = issuerCert
 			}
-
-			certRes.Certificate = issuedCert
-			certRes.IssuerCertificate = issuerCert
-			logf("[INFO][%s] Server responded with a certificate.", certRes.Domain)
-			return true, nil
 		}
 
-		// The certificate was granted but is not yet issued.
-		// Check retry-after and loop.
-		ra := resp.Header.Get("Retry-After")
-		retryAfter, err := strconv.Atoi(ra)
-		if err != nil {
-			return false, err
-		}
+		certRes.Certificate = cert
+		certRes.CertURL = order.Certificate
+		certRes.CertStableURL = order.Certificate
+		logf("[INFO][%s] Server responded with a certificate.", certRes.Domain)
+		return true, nil
 
-		logf("[INFO][%s] acme: Server responded with status 202; retrying after %ds", certRes.Domain, retryAfter)
-		time.Sleep(time.Duration(retryAfter) * time.Second)
-
+	case "processing":
 		return false, nil
-	default:
-		return false, handleHTTPError(resp)
+	case "invalid":
+		return false, errors.New("Order has invalid state: invalid")
 	}
+
+	return false, nil
 }
 
 // getIssuerCertificate requests the issuer certificate
@@ -786,10 +762,10 @@ func parseLinks(links []string) map[string]string {
 
 // validate makes the ACME server start validating a
 // challenge response, only returning once it is done.
-func validate(j *jws, domain, uri string, chlng challenge) error {
-	var challengeResponse challenge
+func validate(j *jws, domain, uri string, c challenge) error {
+	var chlng challenge
 
-	hdr, err := postJSON(j, uri, chlng, &challengeResponse)
+	hdr, err := postJSON(j, uri, c, &chlng)
 	if err != nil {
 		return err
 	}
@@ -797,27 +773,27 @@ func validate(j *jws, domain, uri string, chlng challenge) error {
 	// After the path is sent, the ACME server will access our server.
 	// Repeatedly check the server for an updated status on our request.
 	for {
-		switch challengeResponse.Status {
+		switch chlng.Status {
 		case "valid":
 			logf("[INFO][%s] The server validated our request", domain)
 			return nil
 		case "pending":
 			break
 		case "invalid":
-			return handleChallengeError(challengeResponse)
+			return handleChallengeError(chlng)
 		default:
-			return errors.New("The server returned an unexpected state.")
+			return errors.New("The server returned an unexpected state")
 		}
 
 		ra, err := strconv.Atoi(hdr.Get("Retry-After"))
 		if err != nil {
 			// The ACME server MUST return a Retry-After.
 			// If it doesn't, we'll just poll hard.
-			ra = 1
+			ra = 5
 		}
 		time.Sleep(time.Duration(ra) * time.Second)
 
-		hdr, err = getJSON(uri, &challengeResponse)
+		hdr, err = getJSON(uri, &chlng)
 		if err != nil {
 			return err
 		}

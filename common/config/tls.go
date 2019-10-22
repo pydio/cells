@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	DefaultCaUrl = "https://acme-v01.api.letsencrypt.org/directory"
+	DefaultCaUrl = "https://acme-v02.api.letsencrypt.org/directory"
 
 	tlsClientOnce   = &sync.Once{}
 	tlsClientConfig = make(map[string]*tls.Config)

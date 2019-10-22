@@ -31,7 +31,7 @@ var (
 )
 
 func init() {
-	configsMigrations = append(configsMigrations, renameServices1, setDefaultConfig, forceDefaultConfig, dsnRemoveAllowNativePassword)
+	configsMigrations = append(configsMigrations, renameServices1, setDefaultConfig, forceDefaultConfig, dsnRemoveAllowNativePassword, updateLeCaURL)
 }
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
@@ -108,6 +108,29 @@ func setDefaultConfig(config *Config) (bool, error) {
 		}
 	}
 
+	return save, nil
+}
+
+// updateLeCaURL changes the URL of acme API endpoint for Let's Encrypt certificate generation to v2 if it is used.
+func updateLeCaURL(config *Config) (bool, error) {
+
+	caURLKey := "cert/proxy/caUrl"
+	caURLOldValue := "https://acme-v01.api.letsencrypt.org/directory"
+	caURLNewValue := "https://acme-v02.api.letsencrypt.org/directory"
+
+	paths := strings.Split(caURLKey, "/")
+	val := config.Get(paths...)
+
+	var data interface{}
+	save := false
+	if e := val.Scan(&data); e == nil && data != nil {
+		ov := data.(string)
+		if ov == caURLOldValue {
+			fmt.Printf("[Configs] Upgrading: rather use acme v2 API to generate Let's Encrypt certificates\n")
+			config.Set(caURLNewValue, paths...)
+			save = true
+		}
+	}
 	return save, nil
 }
 
