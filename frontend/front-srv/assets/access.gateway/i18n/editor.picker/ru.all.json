@@ -1,18 +1,18 @@
 {
   "1": {
-    "other": "Другой..."
+    "other": "Choose other..."
   },
   "2": {
-    "other": "Выбрать другой редактор"
+    "other": "Choose another editor"
   },
   "3": {
-    "other": "Выбрать другой редактор для открытия этого файла"
+    "other": "Select another editor to open this file"
   },
   "4": {
-    "other": "Внимание! Этот редактор не поддерживает файлы данного типа, результат непредсказуем!"
+    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
   },
   "5": {
-    "other": "Очистить существующие ассоциации"
+    "other": "Clear associations"
   },
   "drop.cell.picker": {
     "other": "Pick action for %s..."

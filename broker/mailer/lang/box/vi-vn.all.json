@@ -1,192 +1,192 @@
 {
   "Mail.Main.Copyright": {
-    "other": "File Sharing platform proudly powered by Pydio"
+    "other": "Nền tảng chia sẻ dữ liệu được tạo bởi Pydio"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
+    "other": "Nếu nút bấm {ACTION} không hoạt động, bạn chỉ cần copy đường dẫn dưới đây."
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "Xin chào"
   },
   "Mail.Main.Signature": {
-    "other": "Sincerely"
+    "other": "Trân trọng"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "Reset password requested for {{.Configs.Title}}"
+    "other": "Yêu cầu thay đổi mật khẩu cho {{.Configs.Title}}"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "A reset password request has been received for your account on {{.Configs.Title}}."
+    "other": "Bạn nhận được một yêu cầu thay đổi mật khẩu cho tài khoản trên {{.Configs.Title}}."
   },
   "Mail.ResetPassword.Outros": {
-    "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
+    "other": "Nếu bạn không phải là người yêu cầu, bạn có thể bỏ qua thư này. Nếu như bạn vẫn nhận được thư này thì xin thông báo cho nhà quản trị được biết để phòng trường hợp có lỗi bảo mật."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "Thay đổi mật khẩu"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "Click to reset your password"
+    "other": "Ấn nút để thay đổi mật khẩu"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "Your password on {{.Configs.Title}} has been reset"
+    "other": "Mật khẩu của bạn trên {{.Configs.Title}} đã được thay đổi"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
+    "other": "Theo yêu cầu của bạn, mật khẩu trên {{.Configs.Title}} đã được thay đổi thành công."
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
+    "other": "Nếu bạn không phải là người yêu cầu, xin vui lòng thông báo cho ban quản trị được biết để phòng tránh."
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} notifications"
+    "other": "Thông báo của {{.Configs.Title}}"
   },
   "Mail.Digest.Intros": {
-    "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
+    "other": "Dưới đây là bản tổng hợp các thông báo bạn nhận được từ {{.Configs.Title}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "Welcome on {{.Configs.Title}}"
+    "other": "Xin chào mừng tới {{.Configs.Title}}"
   },
   "Mail.Welcome.Intros": {
-    "other": "An account has been created for you on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it at first login{{end}}."
+    "other": "Một tài khoản vừa được tạo mới cho bạn trên {{.Configs.Title}}.\nTài khoản của bạn tên là {{.TplData.Login}}{{if .TplData.Password}} với mật khẩu là {{.TplData.Password}}. Bạn có thể đổi mật khẩu khi đăng nhập lần đầu tiên{{end}}."
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Ấn để đăng nhập"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Đăng nhập vào {{.Configs.Title}}"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by your team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} Nền tảng chia sẻ file mạnh mẽ sẽ giúp sẽ giúp team của bạn trao đổi tài liệu hiệu quả hơn. Chúng tôi vui mừng chào đón bạn!"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} vừa mời bạn tham gia {{.Configs.Title}}"
   },
   "Mail.Invite.Intros": {
-    "other": "An account has been created for you by {{.TplData.Inviter}} on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it the first time you log in{{end}}."
+    "other": "Một tài khoản mới vừa được tạo dành cho bạn {{.TplData.Inviter}} trên {{.Configs.Title}}.\nTên đăng nhập là {{.TplData.Login}}{{if .TplData.Password}} và mật khẩu là {{.TplData.Password}}. Bạn có thể đổi mật khẩu khi bạn đăng nhập lần đầu tiên{{end}}."
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Ấn để đăng nhập"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Đăng nhập vào {{.Configs.Title}}"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "{{.Configs.Title}} Nền tảng chia sẻ file được sử dung bởi {{.TplData.Inviter}} sẽ giúp bạn tương tác hiệu quả hơn với các thành viên trong nhóm. Chúng tôi vui mừng chào đón bạn!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} vừa thêm bạn vào cells {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} vừa thêm bạn vào cell {{.TplData.Cell}} trên {{.Configs.Title}}! Bạn có thể bắt đầu chia sẻ dữ liệu với các thành viên khác ngay bây giờ."
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "Click to open cell"
+    "other": "Ấn để mở cell"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "Open {{.TplData.Cell}}"
+    "other": "Mở cell {{.TplData.Cell}}"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you"
+    "other": "{{.TplData.Inviter}} vừa chia sẻ với bạn một file"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} vừa chia sẻ với bạn một file\n\n'{{.TplData.Message}}'\n\n{{if .TplData.Expire}} Liên kết này sẽ hết hạn vào {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}} Số lần download tối đa là: {{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "Mở {{.TplData.FileName}}"
   },
   "Mail.PublicFile.LinkInstructions": {
-    "other": "Click to preview the file in your browser"
+    "other": "Ấn để xem sơ qua file trên trình duyệt"
   },
   "Mail.PublicFile.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} Nền tảng chia sẻ file được nhóm {{.TplData.Inviter}} sử dụng để tăng cường tương tác giữa các thành viên trong nhóm."
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you"
+    "other": "{{.TplData.Inviter}} vừa chia sẻ với bạn một thư mục"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} vừa chia sẻ với bạn một thư mục\n\n'{{.TplData.Message}}'\n\n{{if .TplData.Expire}}Liên kết sẽ hết hạn vào {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Số lần download tối đa là: {{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
-    "other": "Open {{.TplData.FolderName}}"
+    "other": "Mở {{.TplData.FolderName}}"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "Click to preview the documents in your browser"
+    "other": "Mở để xem qua tài liệu trên trình duyệt"
   },
   "Mail.PublicFolder.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} Nền tảng chia sẻ file được nhóm {{.TplData.Inviter}} sử dụng để trao đổi thông tin hiệu quả hơn giữa các thành viên trong nhóm."
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} vừa gửi bạn một thư để kiểm tra kết nối"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "Mở Cells"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "Ấn để mở giao diện"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "{{.Configs.Title}} Nền tảng chia sẻ dữ liệu được sử dụng bởi các nhóm giúp trao đổi dữ liệu hiệu quả hơn giữa các thành viên trong nhóm."
   },
   "Mail.Config.Title": {
     "other": "Mailer"
   },
   "Mail.Config.From.Label": {
-    "other": "Default FROM email address"
+    "other": "Trường địa chỉ email của người gửi"
   },
   "Mail.Config.From.Description": {
-    "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
+    "other": "Địa chỉ được sử dụng mặc định khi gửi thư. Bạn cũng có thể tùy biến địa chỉ này theo từng người thay vì việc dùng cố định một địa chỉ."
   },
   "Mail.Config.Queue.Label": {
-    "other": "Queue Type"
+    "other": "Loại Queue"
   },
   "Mail.Config.Queue.Description": {
-    "other": "Persistence layer for storing pending emails"
+    "other": "Nơi lưu trữ các thư chờ gửi đi"
   },
   "Mail.Config.Queue.ValueBolt": {
-    "other": "On-file Database (Bolt)"
+    "other": "File cơ sở dữ liệu (dùng Bolt)"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "In-Memory"
+    "other": "Lưu trên bộ nhớ"
   },
   "Mail.Config.Mailer.Label": {
-    "other": "Mailer Engine"
+    "other": "Phần mềm gửi mail"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "Phần mềm gửi mail đang được sử dụng"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP Server"
   },
   "Mail.Config.Smtp.Host.Label": {
-    "other": "Server Hostname"
+    "other": "Tên máy chủ smtp"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "Tên máy chủ SMTP, ví dụ smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
-    "other": "Server Port"
+    "other": "Smtp Port"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "Port of the SMTP Server, e.g. 587 (non-secure) or 465 (TLS)"
+    "other": "Port cho dịch vụ SMTP, thường là 587 (không bảo mật) hoặc 465 (dùng TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "Connection User"
+    "other": "Tài khoản để truy cập vào máy chủ Smtp"
   },
   "Mail.Config.Smtp.User.Description": {
-    "other": "Username required to connect to the SMTP server"
+    "other": "Tên truy cập bắt buộc để truy cập vào máy chủ SMTP"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "Connection Password"
+    "other": "Mật khẩu"
   },
   "Mail.Config.Smtp.Password.Description": {
-    "other": "Password required to connect to the SMTP server"
+    "other": "Mật khẩu bắt buộc để truy cập vào máy chủ SMTP"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
     "other": "Self-signed Certificate"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "Bỏ qua việc kiểm tra các certificate của máy chủ SMTP nếu nó là self-signed"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid Service"
@@ -195,39 +195,39 @@
     "other": "Api Key"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "Api Key được cung cấp bở SendGrid để truy cập"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"
   },
   "Mail.Config.Sendmail.Executable.Label": {
-    "other": "Executable Path"
+    "other": "Đường dẫn tới tệp sendmail"
   },
   "Mail.Config.Sendmail.Executable.Description": {
-    "other": "Full path of the sendmail executable on the server"
+    "other": "Dường dẫn vật lý đầy đủ tới tệp sendmail"
   },
   "Mail.Config.Sendmail.Executable.Other": {
-    "other": "Other path (set manually in pydio.json config file)"
+    "other": "Các đường dẫn khác (có thể thay đổi trong pydio.json)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "Tên đầy đủ của người gửi"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "Tên đầy đủ được dùng mặc định khi gửi emails."
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "Địa chỉ email/Tên người gửi"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "Lựa chọn địa chỉ email/tên người gửi. Nếu không thì FROM mặc định sẽ được dùng cho tất cả các trường hợp."
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "Gửi mail FROM"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "Gửi thư ON BEHALF OF"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "Luôn gửi thư với FROM mặc định"
   }
 }

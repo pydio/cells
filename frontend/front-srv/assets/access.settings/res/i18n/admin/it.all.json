@@ -1407,7 +1407,7 @@
     "other": "I workspace definiscono il punto di accesso principale ai tuoi dati per gli utenti. Assicurati di definire almeno un datasource per poter creare un workspace che punti a un percorso di questo datasource."
   },
   "ws.editor.data.legend": {
-    "other": "Il workspace espone una o molte 'root' agli utenti: scegli uno o più percorsi da qualsiasi DataSource o un percorso Template che verrà risolto automaticamente al runtime."
+    "other": "Workspace exposes one or many 'roots' to the users: choose one or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
   },
   "ws.editor.data.title": {
     "other": "Accesso ai Dati"
@@ -1459,6 +1459,24 @@
   },
   "ws.editor.other.sync": {
     "other": "Consenti la sincronizzazione dei desktop"
+  },
+  "ws.editor.other.sync.legend": {
+    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+  },
+  "ws.editor.other.sync-personal": {
+    "other": "(personal workspaces only)"
+  },
+  "ws.editor.sync.warning": {
+    "other": "Warning!"
+  },
+  "ws.editor.sync.warning.validate": {
+    "other": "I understand"
+  },
+  "ws.editor.sync.warning.enable": {
+    "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+  },
+  "ws.editor.sync.warning.disable": {
+    "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
   },
   "ws.editor.path.folder": {
     "other": "Percorso della Cartella"

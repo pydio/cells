@@ -90,10 +90,10 @@
     "other": "Se você não é %s, %logout."
   },
   "68": {
-    "other": "Faça o Download do Cliente para Windows"
+    "other": "Baixar cliente de sincronização para Windows"
   },
   "69": {
-    "other": "Faça o Download do Cliente para Mac OSX"
+    "other": "Baixar cliente de sincronização para Mac OSX"
   },
   "70": {
     "other": "Aplicação nativa para dispositivos iOS"
@@ -108,7 +108,7 @@
     "other": "Conecte suas aplicações móveis facilmente"
   },
   "74": {
-    "other": "Scaneie este QRCode como seu aplicativo móvel para configurar a conexão de forma fácil"
+    "other": "Escanear este QRCode para configurar facilmente seu aplicativo móvel"
   },
   "75": {
     "other": "Search all files..."
@@ -171,7 +171,7 @@
     "other": "Video Tutorial"
   },
   "desc": {
-    "other": "Página de Boas vindas"
+    "other": "Página de boas vindas"
   },
   "title": {
     "other": "Início"

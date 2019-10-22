@@ -1,47 +1,47 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Lưu các thiết lập"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "Máy chủ dùng để cập nhật"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "Liên kết http của máy chủ phục vụ việc cập nhật"
   },
   "Update.Config.PublicKey.Label": {
     "other": "Public Key"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Khóa công khai của Pydio dùng để kiểm tra tính toàn vẹn đồng thời xác thực file chạy."
   },
   "Update.Config.Channel.Label": {
     "other": "Update Channel"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "Kênh sử dụng để yêu cầu thông tin cập nhật. Xin để mặc định là \"Stable\"."
   },
   "Update.Config.Channel.ValueStable": {
     "other": "Stable"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Dev (sản phẩm chưa ổn định)"
   },
   "Update.Config.ProxyHost.Label": {
     "other": "Proxy"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "Địa chỉ máy chủ proxy cho kết nối ra ngoài"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "Tên tài khoản"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "User proxy"
   },
   "Update.Config.ProxyPassword.Label": {
     "other": "Proxy Password"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "Proxy Password"
   }
 }
