@@ -155,7 +155,7 @@ func promptSslMode(knownHostname string) (enabled bool, certData map[string]inte
 			knownHostname, _ = hostPrompt.Run()
 		}
 		storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
-		os.MkdirAll(storageLocation, 0600)
+		os.MkdirAll(storageLocation, 0700)
 		mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
 		if err := mkCert.MakeCert([]string{knownHostname}); err == nil {
 			certFile, certKey, caFile, _ := mkCert.GeneratedResources()
@@ -173,6 +173,9 @@ func promptSslMode(knownHostname string) (enabled bool, certData map[string]inte
 			proxyData["certFile"] = certFile
 			proxyData["keyFile"] = certKey
 			proxyData["autoCA"] = caFile
+		} else {
+			e = err
+			return
 		}
 	case 3:
 		proxyData["ssl"] = false
