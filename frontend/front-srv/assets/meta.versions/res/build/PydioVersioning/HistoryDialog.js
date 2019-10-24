@@ -25,6 +25,10 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -37,11 +41,50 @@ var _pydioUtilPath = require('pydio/util/path');
 
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
+var _reactMarkdown = require('react-markdown');
+
+var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
+
 var _materialUi = require('material-ui');
 
-var PydioComponents = require('pydio').requireLib('components');
 var Node = require('pydio/model/node');
-var PydioReactUi = require('pydio').requireLib('boot');
+var PydioReactUi = _pydio2['default'].requireLib('boot');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var UserAvatar = _Pydio$requireLib.UserAvatar;
+var NodeListCustomProvider = _Pydio$requireLib.NodeListCustomProvider;
+var SimpleList = _Pydio$requireLib.SimpleList;
+
+var UserLinkWrapper = function UserLinkWrapper(_ref) {
+    var href = _ref.href;
+    var children = _ref.children;
+
+    if (href.startsWith('user://')) {
+        var userId = href.replace('user://', '');
+        return _react2['default'].createElement(UserAvatar, {
+            userId: userId,
+            displayAvatar: false,
+            richOnClick: false,
+            style: { cursor: 'pointer', display: 'inline-block', color: 'rgb(66, 140, 179)' },
+            pydio: _pydio2['default'].getInstance()
+        });
+    }
+    return _react2['default'].createElement(
+        'span',
+        null,
+        children
+    );
+};
+
+var Paragraph = function Paragraph(_ref2) {
+    var children = _ref2.children;
+    return _react2['default'].createElement(
+        'span',
+        null,
+        children
+    );
+};
 
 var HistoryBrowser = _react2['default'].createClass({
     displayName: 'HistoryBrowser',
@@ -114,7 +157,13 @@ var HistoryBrowser = _react2['default'].createClass({
                     return _pydioUtilPath2['default'].roundFileSize(s);
                 } },
             ajxp_modiftime: { label: mess['meta.versions.10'], sortType: 'string', width: '25%' },
-            versionDescription: { label: mess['meta.versions.11'], sortType: 'string', width: '55%' }
+            versionDescription: { label: mess['meta.versions.11'], sortType: 'string', width: '55%', renderCell: function renderCell(data) {
+                    return _react2['default'].createElement(
+                        'span',
+                        { title: mess['meta.versions.11'] },
+                        _react2['default'].createElement(_reactMarkdown2['default'], { source: data.getMetadata().get('versionDescription'), renderers: { 'link': UserLinkWrapper, 'paragraph': Paragraph } })
+                    );
+                } }
         };
 
         var disabled = !this.state.selectedNode;
@@ -140,11 +189,11 @@ var HistoryBrowser = _react2['default'].createClass({
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-backup-restore", tooltipPosition: "bottom-left", iconStyle: disabled ? {} : { color: 'white' }, disabled: disabled, label: mess['meta.versions.7'], tooltip: mess['meta.versions.8'], onTouchTap: this.applyAction.bind(this, 'revert') })
                 )
             ),
-            _react2['default'].createElement(PydioComponents.NodeListCustomProvider, {
+            _react2['default'].createElement(NodeListCustomProvider, {
                 style: { flex: 1 },
                 presetDataModel: this.state.api.getDataModel(),
                 actionBarGroups: [],
-                elementHeight: PydioComponents.SimpleList.HEIGHT_ONE_LINE,
+                elementHeight: SimpleList.HEIGHT_ONE_LINE,
                 tableKeys: tableKeys,
                 entryHandleClicks: this.nodeClicked,
                 emptyStateProps: {

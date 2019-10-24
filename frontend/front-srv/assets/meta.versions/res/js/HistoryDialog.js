@@ -17,13 +17,33 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 import React from 'react'
 import HistoryApi from './HistoryApi'
 import PathUtils from 'pydio/util/path'
+import ReactMarkdown from 'react-markdown';
 import {Toolbar, ToolbarGroup, Divider, FontIcon, IconButton, Paper} from 'material-ui'
-const PydioComponents = require('pydio').requireLib('components');
 const Node = require('pydio/model/node');
-const PydioReactUi = require('pydio').requireLib('boot');
+const PydioReactUi = Pydio.requireLib('boot');
+const {UserAvatar, NodeListCustomProvider, SimpleList} = Pydio.requireLib('components');
+
+
+const UserLinkWrapper = ({href, children}) => {
+    if (href.startsWith('user://')) {
+        const userId = href.replace('user://', '');
+        return (
+            <UserAvatar
+                userId={userId}
+                displayAvatar={false}
+                richOnClick={false}
+                style={{cursor:'pointer', display:'inline-block', color: 'rgb(66, 140, 179)'}}
+                pydio={Pydio.getInstance()}
+            />)
+    }
+    return <span>{children}</span>
+};
+
+const Paragraph = ({children}) => <span>{children}</span>;
 
 
 let HistoryBrowser = React.createClass({
@@ -93,7 +113,9 @@ let HistoryBrowser = React.createClass({
                     return PathUtils.roundFileSize(s);
             }},
             ajxp_modiftime: {label: mess['meta.versions.10'], sortType: 'string', width: '25%'},
-            versionDescription: {label: mess['meta.versions.11'], sortType: 'string', width: '55%'},
+            versionDescription: {label: mess['meta.versions.11'], sortType: 'string', width: '55%', renderCell: data => {
+                    return <span title={mess['meta.versions.11']}><ReactMarkdown source={data.getMetadata().get('versionDescription')} renderers={{'link': UserLinkWrapper, 'paragraph':Paragraph}}/></span>
+            }},
         };
 
         let disabled = !this.state.selectedNode;
@@ -108,11 +130,11 @@ let HistoryBrowser = React.createClass({
                         <IconButton iconClassName={"mdi mdi-backup-restore"} tooltipPosition={"bottom-left"} iconStyle={disabled?{}:{color:'white'}} disabled={disabled} label={mess['meta.versions.7']} tooltip={mess['meta.versions.8']} onTouchTap={this.applyAction.bind(this, 'revert')}/>
                     </ToolbarGroup>
                 </Toolbar>
-                <PydioComponents.NodeListCustomProvider
+                <NodeListCustomProvider
                     style={{flex:1}}
                     presetDataModel={this.state.api.getDataModel()}
                     actionBarGroups={[]}
-                    elementHeight={PydioComponents.SimpleList.HEIGHT_ONE_LINE}
+                    elementHeight={SimpleList.HEIGHT_ONE_LINE}
                     tableKeys={tableKeys}
                     entryHandleClicks={this.nodeClicked}
                     emptyStateProps={{
