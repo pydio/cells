@@ -3,13 +3,14 @@ services:
 
     # Cells image with one named volume for the data
     cells:
-        image: pydio/cells:latest
+        image: pydio/cells:dev
         restart: always    
-        volumes: ["data:/root/.config/pydio/cells/data"]      
+        volumes: ["data:/var/cells/data"]      
         ports: ["8080:8080"]
         environment:
             - CELLS_BIND=localhost:8080
             - CELLS_EXTERNAL=localhost:8080
+            - CELLS_NO_SSL=1
 
     # MySQL image with a default database cells and a dedicated user pydio
     mysql:
@@ -19,7 +20,7 @@ services:
             MYSQL_ROOT_PASSWORD: P@ssw0rd
             MYSQL_DATABASE: cells
             MYSQL_USER: pydio
-            MYSQL_PASSWORD: P@ssw0rd
+            MYSQL_PASSWORD: pydio
         command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
         ports: ["3306:3306"]
 
