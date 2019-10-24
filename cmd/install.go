@@ -156,8 +156,18 @@ var installCmd = &cobra.Command{
 					saveMsg += "With Let's Encrypt automatic cert generation"
 
 				} else {
-					config.Set(true, "cert", "proxy", "self")
+					// Generate a custom certificate
 					saveMsg += "With self signed certificate"
+					hostName := strings.Split(niBindUrl, ":")[0]
+					storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
+					os.MkdirAll(storageLocation, 0700)
+					mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
+					if err := mkCert.MakeCert([]string{hostName}); err == nil {
+						certFile, certKey, caFile, _ := mkCert.GeneratedResources()
+						config.Set(certFile, "cert", "proxy", "certFile")
+						config.Set(certKey, "cert", "proxy", "keyFile")
+						config.Set(caFile, "cert", "proxy", "autoCA")
+					}
 				}
 				// config.Save("cli", "Install / Non-Interactive / With SSL")
 			}
