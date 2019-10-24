@@ -44,14 +44,65 @@
         opacity: .73;
       }
     }
+    &.files-list.material-list-grid{
+      .material-list-entry{
+        box-shadow: none;
+        border-radius: 12px;
+        border: 1px solid var(--md-sys-color-outline-variant-50);
+        margin: 4px;
+        &.selected{
+          box-shadow: none !important;
+        }
+        .material-list-text{
+          border-top: 0;
+        }
+        .material-list-icon {
+          .mimefont-container{
+            border-radius: 12px;
+          }
+        }
+      }
+      &.grid-size-80 .material-list-entry {
+        .material-list-icon {
+          height: calc(100% - 20px);
+        }
+        .material-list-text {
+          padding: 4px 6px;
+        }
+      }
+    }
   }
 
   .mimefont-container {
     background-color: var(--md-sys-color-mimefont-background) !important;
     div.mimefont{
       color: var(--md-sys-color-mimefont-color) !important;
+      &.mdi-file-pdf,&.mdi-file-image{
+        color: var(--md-sys-color-custom-pdf-color) !important;
+      }
+      &.mdi-file-word, &.mdi-file-document{
+        color: var(--md-sys-color-custom-doc-color) !important;
+      }
+      &.mdi-file-excel{
+        color: var(--md-sys-color-custom-xls-color) !important;
+      }
+      &.mdi-file-music{
+        color: var(--md-sys-color-custom-music-color) !important;
+      }
+      &.mdi-file-video, &.mdi-movie{
+        color: var(--md-sys-color-custom-video-color) !important;
+      }
+      &.mdi-file-powerpoint{
+        color:var(--md-sys-color-custom-ppt-color) !important;
+      }
+      &.mdi-archive{
+        color:var(--md-sys-color-custom-archive-color) !important;
+      }
     }
+  }
 
+  .selected .mimefont-container {
+    background-color: var(--md-sys-color-primary-container) !important;
   }
 
   .info-panel-open .masonry-grid{
@@ -85,10 +136,6 @@
         }
       }
     }
-  }
-
-  div[role="menu"]{
-    background: var(--md-sys-color-surface-2);
   }
 }
 

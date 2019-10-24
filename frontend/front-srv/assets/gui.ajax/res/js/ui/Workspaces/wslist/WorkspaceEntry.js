@@ -22,8 +22,7 @@ import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 import Pydio from "pydio";
 import {muiThemeable} from "material-ui/styles";
-import Color from 'color'
-import {CircularProgress, Popover, Dialog, Menu} from 'material-ui'
+import {CircularProgress, Dialog, Menu} from 'material-ui'
 import { DropTarget} from 'react-dnd';
 import Node from "pydio/model/node";
 import DOMUtils from 'pydio/util/dom'
@@ -31,8 +30,7 @@ import ResourcesManager from 'pydio/http/resources-manager'
 const {FoldersTree, DND, ChatIcon} = Pydio.requireLib('components');
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import WorkspaceCard from "./WorkspaceCard";
-import ContextMenuModel from 'pydio/model/context-menu'
-
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 const { Types, collectDrop, nodeDropTarget } = DND;
 
 
@@ -325,7 +323,7 @@ class WorkspaceEntry extends React.Component {
         let iconStyle = {
             fontSize: 20,
             marginRight: 10,
-            opacity: 0.3
+            opacity: 0.53
         };
         if(searchView) {
             icon = isSearchAll ? 'mdi mdi-folder-multiple' : 'mdi mdi-folder'

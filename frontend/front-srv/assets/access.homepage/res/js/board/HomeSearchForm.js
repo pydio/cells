@@ -59,7 +59,11 @@ class HomeSearchForm extends Component{
 
         // From HOC
         const {searchTools, searchTools:{facets, activeFacets, toggleFacet, loading, dataModel, empty}} = this.props;
-        const {style, zDepth, pydio, fullScreen, fullScreenTransition, onFocusChange} = this.props;
+        const {style, zDepth, pydio, fullScreen, fullScreenTransition, onFocusChange, muiTheme} = this.props;
+
+        const isMui3 = muiTheme.userTheme === 'mui3'
+        const {palette:{mui3}} = muiTheme
+
 
         const whiteTransp = 'rgba(0,0,0,.53)';
 
@@ -80,7 +84,7 @@ class HomeSearchForm extends Component{
                 display:'flex',
                 flexDirection:'column',
                 alignItems:'center',
-                backgroundColor:'transparent',
+                background:isMui3&&fullScreen?mui3['surface-1']:'transparent',
                 padding: fullScreen ? '10px 50px': 0
             },
             textFieldContainer: {
@@ -88,7 +92,7 @@ class HomeSearchForm extends Component{
                 maxWidth:fullScreen?10000:700,
                 display:'flex',
                 alignItems:'center',
-                backgroundColor: '#eceff1',
+                background: isMui3?mui3['surface-variant']:'#eceff1',
                 height: fullScreen?40:50,
                 padding: '2px 4px',
                 borderRadius: 50,
@@ -122,10 +126,13 @@ class HomeSearchForm extends Component{
                 container: {
                     width: 230,
                     overflowY: 'auto',
-                    color: '#5c7784',
+                    background:mui3['surface-2'],
+                    color: isMui3?mui3['on-surface-variant']:'#5c7784',
+                    borderRadius: 0,
+                    borderRight: isMui3?'1px solid '+mui3['outline-variant-50']:undefined,
                     paddingLeft: 16,
                     paddingRight: 16,
-                    paddingTop: 10
+                    paddingTop: 10,
                 },
                 header : {
                     fontWeight: 500,
@@ -199,6 +206,7 @@ class HomeSearchForm extends Component{
                                 onToggleFacet={toggleFacet}
                                 emptyStateView={<div style={{fontWeight: 500,padding: '10px 0px',fontSize: 15}}>Filter Results... (no results)</div>}
                                 styles={styles.facets}
+                                zDepth={isMui3?0:undefined}
                             />
                             }
                             <NodeListCustomProvider

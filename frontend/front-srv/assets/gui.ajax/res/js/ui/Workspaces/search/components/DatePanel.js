@@ -20,9 +20,9 @@
 
 import React from 'react';
 import Pydio from 'pydio';
-const {ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernSelectField, ModernStyles, DatePicker} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-import {MenuItem, DatePicker} from 'material-ui';
+import {MenuItem} from 'material-ui';
 
 class SearchDatePanel extends React.Component {
 

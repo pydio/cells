@@ -50,7 +50,7 @@ class BoxFacet extends React.Component {
                 label={mFacet(facet.Label) + ' (' + facet.Count + ') '}
                 labelPosition={"right"}
                 style={{padding: '5px 0', marginLeft: -2}}
-                iconStyle={{opacity: .5, marginRight: 10}}
+                iconStyle={{opacity: .8, marginRight: 10}}
                 labelStyle={{fontSize: 14, fontWeight: 500, color:'inherit'}}
                 checked={selected}
                 onCheck={(e,v) => {

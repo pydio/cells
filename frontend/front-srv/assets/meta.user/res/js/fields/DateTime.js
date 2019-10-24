@@ -21,9 +21,9 @@ import React, {Fragment, Component} from 'react'
 import Pydio from 'pydio'
 import asMetaField from "../hoc/asMetaField";
 import asMetaForm from "../hoc/asMetaForm";
-import {DatePicker, TimePicker, MenuItem, FontIcon} from 'material-ui'
+import {MenuItem, FontIcon} from 'material-ui'
 import MetaClient from "../MetaClient";
-const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernStyles, DatePicker, TimePicker} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot')
 
 class DateTimeField extends Component {

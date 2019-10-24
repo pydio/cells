@@ -68,14 +68,12 @@ class AltDashboard extends React.Component {
         const {drawerOpen, fullScreen, fullScreenTransition} = this.state;
 
         const appBarColor = new Color(muiTheme.appBar.color);
-        const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
-        const lightBg = new Color({h:colorHue,s:35,l:98});
-        const fontColor =  Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
-
+        const isMui3 = muiTheme.userTheme === 'mui3'
+        const {palette:{mui3}} = muiTheme
 
         const styles = {
             appBarStyle : {
-                backgroundColor: 'rgba(255, 255, 255, 0.50)',
+                backgroundColor: 'rgba(255, 255, 255, 0.40)',
                 height: fullScreen? 0: 200,
                 display: 'flex',
                 alignItems: 'center',
@@ -92,12 +90,11 @@ class AltDashboard extends React.Component {
                 display:'flex',
                 flexDirection:'column',
                 alignItems:'center',
-                backgroundColor: 'white',
+                backgroundColor: isMui3 ? mui3['surface']:'white',
                 overflow:'hidden'
-            },
-            wsListStyle:{
             }
         };
+
 
         let mainClasses = ['vertical_layout', 'vertical_fit', 'react-fs-template', 'user-dashboard-template'];
 
@@ -126,9 +123,6 @@ class AltDashboard extends React.Component {
                     boxShadow: 'none',
                     background:'transparent'
                 }
-            },
-            workspacesListProps:{
-                style:styles.wsListStyle
             }
         };
 
@@ -171,7 +165,7 @@ class AltDashboard extends React.Component {
                     </div>
                 </Paper>
                 <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} fullScreenTransition={fullScreenTransition} onFocusChange={onFocusChange}>
-                    <SmartRecents {...this.props} style={{maxWidth: 660, width:'100%', padding:'8px 0'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
+                    <SmartRecents {...this.props} style={{maxWidth: 680, width:'100%', padding:'8px 0'}} emptyStateProps={{style:{backgroundColor:'transparent'}}}/>
                 </HomeSearchForm>
             </MasterLayout>
 

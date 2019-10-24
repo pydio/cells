@@ -3925,11 +3925,61 @@ body,
   background-color: transparent !important;
   opacity: 0.73;
 }
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry {
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  border-radius: 12px;
+  border: 1px solid var(--md-sys-color-outline-variant-50);
+  margin: 4px;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry.selected {
+  -webkit-box-shadow: none !important;
+          box-shadow: none !important;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-text {
+  border-top: 0;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid .material-list-entry .material-list-icon .mimefont-container {
+  border-radius: 12px;
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-icon {
+  height: calc(100% - 20px);
+}
+.react-mui-context.mui3-token .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text {
+  padding: 4px 6px;
+}
 .react-mui-context.mui3-token .mimefont-container {
   background-color: var(--md-sys-color-mimefont-background) !important;
 }
 .react-mui-context.mui3-token .mimefont-container div.mimefont {
   color: var(--md-sys-color-mimefont-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-pdf,
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-image {
+  color: var(--md-sys-color-custom-pdf-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-word,
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-document {
+  color: var(--md-sys-color-custom-doc-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-excel {
+  color: var(--md-sys-color-custom-xls-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-music {
+  color: var(--md-sys-color-custom-music-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-video,
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-movie {
+  color: var(--md-sys-color-custom-video-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-file-powerpoint {
+  color: var(--md-sys-color-custom-ppt-color) !important;
+}
+.react-mui-context.mui3-token .mimefont-container div.mimefont.mdi-archive {
+  color: var(--md-sys-color-custom-archive-color) !important;
+}
+.react-mui-context.mui3-token .selected .mimefont-container {
+  background-color: var(--md-sys-color-primary-container) !important;
 }
 .react-mui-context.mui3-token .info-panel-open .masonry-grid {
   width: calc(100% - 270px) !important;
@@ -3965,7 +4015,4 @@ body,
 .react-mui-context.mui3-token .masonry-grid .masonry-card .mimefont-container .mimefont {
   font-size: 36px;
   margin-bottom: 22px;
-}
-.react-mui-context.mui3-token div[role="menu"] {
-  background: var(--md-sys-color-surface-2);
 }

@@ -86,6 +86,43 @@ async function image_sourceColorsFromImage(image) {
 let DETECTED_BACKGROUND;
 let builderInstance;
 
+/*
+.mimefont {
+  &.mdi-file-pdf,&.mdi-file-image{
+    color: #f44336 !important;
+  }
+  &.mdi-file-word, &.mdi-file-document{
+    color: #2196f3 !important;
+  }
+  &.mdi-file-excel{
+    color: #4caf50 !important;
+  }
+  &.mdi-file-music{
+    color: #ff9800 !important;
+  }
+  &.mdi-file-video, &.mdi-movie{
+    color: #ff5722 !important;
+  }
+  &.mdi-file-powerpoint{
+    color:#3f51b5 !important;
+  }
+  &.mdi-archive{
+    color:#fbc02d !important;
+  }
+}
+
+ */
+
+const customTypesColors = {
+    'pdf':'#f44336',
+    'doc':'#2196f3',
+    'xls':'#4caf50',
+    'music':'#ff9800',
+    'video':'#ff5722',
+    'ppt':'#3f51b5',
+    'archive':'#fbc02d'
+}
+
 export default class ThemeBuilder {
 
     static getInstance(pydio, requireRefresh=()=>{}){
@@ -210,14 +247,10 @@ export default class ThemeBuilder {
         let mui3 = {}, isMUI3
 
         if(this.userTheme === 'mui3') {
-            // Get the theme from a hex color
-            const theme3 = themeFromSourceColor(argbFromHex(palette.primary1Color), [
-                {
-                    name: "custom-1",
-                    value: argbFromHex(palette.primary2Color),
-                    blend: true,
-                },
-            ]);
+            // Get the theme from a hex color, prepare blended custom colors
+            const customs = Object.keys(customTypesColors).map(k => {return {name:k, value: argbFromHex(customTypesColors[k]), blend: true}})
+            const theme3 = themeFromSourceColor(argbFromHex(palette.primary1Color), customs);
+            console.log(theme3);
             // Apply the theme to the body by updating custom properties for material tokens
             if(styleTarget.className && styleTarget.className.indexOf('mui3-token') === -1) {
                 styleTarget.className += ' mui3-token'
@@ -244,17 +277,32 @@ export default class ThemeBuilder {
                 add(`surface-${idx+1}`, background)
             })
 
+            const customKeys = ['color', 'onColor', 'colorContainer', 'onColorContainer']
+            theme3.customColors.forEach(c => {
+                const name = c.color.name;
+                customKeys.forEach(k => {
+                    add(`custom-${name}-${k}`, hexFromArgb(systemDark?c.dark[k]:c.light[k]))
+                })
+            })
+
             // Build a lighter outline-variant
-            add('outline-variant-50', Color(mui3['outline-variant']).fade(.5).toString())
+            add('outline-variant-50', Color(mui3['outline-variant']).fade(systemDark?.2:.5).toString())
             add('field-underline-idle', systemDark?mui3['outline']:mui3['outline-variant'])
 
             add('mimefont-background', Color(mui3['primary-container']).fade(systemDark?.1:.7).toString())
             add('mimefont-color', mui3['on-primary-container'])
 
-            // Used for Dividers
-            palette.borderColor = systemDark?mui3['outline-variant']:mui3['outline-variant-50']
-
             isMUI3 = true
+            palette = {
+                ...palette,
+                primary1Color: mui3['primary'],
+                disabledColor: Color(mui3['on-surface']).fade(.62).toString(),
+                // Used for Dividers
+                borderColor: systemDark?mui3['outline-variant']:mui3['outline-variant-50'],
+                textColor: mui3['on-background'],
+                primaryTextColor:mui3['on-primary'],
+                secondaryTextColor:mui3['on-secondary']
+            }
 
         } else {
 
@@ -281,9 +329,6 @@ export default class ThemeBuilder {
         palette = {
             ...palette,
             mui3,
-            textColor: mui3['on-background'],
-            primaryTextColor:mui3['on-primary'],
-            secondaryTextColor:mui3['on-secondary']
         }
 
         const themeCusto = {
@@ -332,9 +377,9 @@ export default class ThemeBuilder {
                 containerBackground: mui3['surface-4'],
                 bodyColor:mui3['on-surface-variant']
             },
-            paper :{
+            paper : this.userTheme === 'mui3' ? {
                 backgroundColor:'transparent'
-            },
+            } : {},
             menuContainer: {
                 background:mui3['surface-2'],
                 color:mui3['on-surface-variant'],
@@ -342,7 +387,7 @@ export default class ThemeBuilder {
             },
             textField: {
                 floatingLabelColor:mui3['on-surface-variant'],
-                focusColor:mui3.primary
+                errorColor:mui3['error']
             }
         };
 
@@ -362,6 +407,7 @@ export default class ThemeBuilder {
         }
 
         this._theme = getMuiTheme(themeCusto);
+        console.log(this._theme)
         return this._theme;
 
     }

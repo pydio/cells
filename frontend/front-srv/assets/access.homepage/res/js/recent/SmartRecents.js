@@ -261,7 +261,9 @@ class RecentCard extends React.Component{
 
     render(){
         const {opacity, hover} = this.state;
-        const styles={
+        const {muiTheme} =  this.props;
+
+        let styles={
             paper:{
                 width: 140, height: 160,
                 margin: 10,
@@ -287,6 +289,35 @@ class RecentCard extends React.Component{
             title:{fontSize:14, marginTop: 10},
             legend:{fontSize: 11, fontWeight: 500, color: '#9E9E9E'},
         };
+        if(muiTheme.userTheme === 'mui3') {
+            const {palette:{mui3}} = muiTheme
+            styles.paper = {
+                ...styles.paper,
+                width:160,
+                height: 160,
+                borderRadius: 12,
+                boxShadow: null,
+                margin: 4,
+                padding: 0,
+                paddingBottom: 6,
+                backgroundColor:mui3['surface'],
+                color:mui3['on-surface'],
+                border: '1px solid ' + mui3['outline-variant-50']
+            }
+            styles.preview = {
+                ...styles.preview,
+                borderRadius: 12,
+                boxShadow: null
+            }
+            styles.label = {
+                ...styles.label,
+                paddingLeft: 10,
+                textAlign: 'left'
+            }
+            styles.title.fontWeight = 500
+            styles.legend.color = mui3['on-surface-variant']
+            styles.legend.fontWeight = 400
+        }
 
         const {title, legend, node, pydio} = this.props;
         return (
@@ -320,12 +351,24 @@ class SmartRecents extends React.Component{
 
     render(){
 
+
+        const {pydio, style, muiTheme} = this.props;
+        const {nodes, loading} = this.state;
+
+        let phStyle = {margin:10,width:140, height: 160, padding: 6, display:'flex', flexDirection:'column', alignItems:'center', borderRadius: 6}
+        if(muiTheme.userTheme === 'mui3') {
+            phStyle.width = 160;
+            phStyle.height = 160;
+            phStyle.margin=4;
+            phStyle.borderRadius=12;
+        }
+
         const cardsPH = (
             <div style={{display:'flex', flexWrap:'wrap'}}>
                 {[0,1,2,3,4,5,6,7].map(() => {
                     return (
-                        <div style={{margin:10,width:140, height: 160, padding: 6, display:'flex', flexDirection:'column', alignItems:'center'}}>
-                            <PhRoundShape style={{width:'100%', height:100, borderRadius: 6}}/>
+                        <div style={phStyle}>
+                            <PhRoundShape style={{width:'100%', height:100, borderRadius: phStyle.borderRadius}}/>
                             <PhTextRow/>
                             <PhTextRow/>
                         </div>
@@ -333,9 +376,6 @@ class SmartRecents extends React.Component{
                 })}
             </div>
         );
-
-        const {pydio, style} = this.props;
-        const {nodes, loading} = this.state;
 
         if (!pydio.user || pydio.user.lock) {
             return <div></div>;
@@ -352,6 +392,7 @@ class SmartRecents extends React.Component{
                 <RecentCard
                     key={k}
                     pydio={pydio}
+                    muiTheme={muiTheme}
                     node={node}
                     title={node.getLabel()}
                     legend={node.getMetadata().get('card_legend')}

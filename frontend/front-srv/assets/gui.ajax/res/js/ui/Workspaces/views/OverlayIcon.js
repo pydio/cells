@@ -23,7 +23,6 @@ import {muiThemeable}from 'material-ui/styles'
 import Color from 'color'
 import {IconButton, Popover} from 'material-ui'
 const {AsyncComponent} = Pydio.requireLib('boot');
-const {IconButtonMenu} = Pydio.requireLib('components');
 const {Callbacks} = Pydio.requireLib('actions/core')
 
 class OverlayIcon extends Component{

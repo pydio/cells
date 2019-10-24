@@ -72,6 +72,8 @@ const PydioHOCs = {
     SearchConstants,
     ...Modern,
     ThemedContainers,
+    DatePicker: ThemedContainers.DatePicker,
+    TimePicker: ThemedContainers.TimePicker,
     dropProvider,
     NativeFileDropProvider,
     ...Animations,

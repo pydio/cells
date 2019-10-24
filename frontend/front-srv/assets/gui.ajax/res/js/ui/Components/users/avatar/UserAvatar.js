@@ -1,13 +1,3 @@
-import GraphPanel from './GraphPanel';
-import ActionsPanel from './ActionsPanel'
-const debounce = require('lodash.debounce');
-const React = require('react');
-const Color = require('color');
-const {FontIcon, Popover, Paper, Avatar, CardTitle, Divider} = require('material-ui');
-const {muiThemeable} = require('material-ui/styles');
-const MetaCacheService = require('pydio/http/meta-cache-service');
-const {UsersApi} = require('pydio/http/users-api');
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28,8 +18,18 @@ const {UsersApi} = require('pydio/http/users-api');
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
+import React from 'react'
+import GraphPanel from './GraphPanel';
+import ActionsPanel from './ActionsPanel'
+const debounce = require('lodash.debounce');
+const Color = require('color');
+const {FontIcon, Paper, Avatar, CardTitle} = require('material-ui');
+const {muiThemeable} = require('material-ui/styles');
+const MetaCacheService = require('pydio/http/meta-cache-service');
+const {UsersApi} = require('pydio/http/users-api');
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 import PropTypes from 'prop-types';
-
 import PydioApi from "pydio/http/api";
 
 /**

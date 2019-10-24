@@ -25,9 +25,10 @@ import ResourcePoliciesPanel from '../../policies/ResourcePoliciesPanel'
 const React = require('react');
 const PydioApi = require('pydio/http/api');
 const ResourcesManager = require('pydio/http/resources-manager');
-const {IconButton, Popover} = require('material-ui');
+const {IconButton} = require('material-ui');
 const {muiThemeable} = require('material-ui/styles');
 const {PydioContextConsumer, AsyncComponent} = require('pydio').requireLib('boot');
+const {ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 
 class ActionsPanel extends React.Component{
 

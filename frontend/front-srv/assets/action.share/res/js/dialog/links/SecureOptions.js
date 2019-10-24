@@ -23,12 +23,12 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import PassUtils from 'pydio/util/pass'
-import {FlatButton, IconButton, DatePicker} from 'material-ui'
+import {FlatButton, IconButton} from 'material-ui'
 import ShareContextConsumer from '../ShareContextConsumer'
 import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
 const {ValidPassword} = Pydio.requireLib('form');
-const {ThemedContainers:{Popover}, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {ThemedContainers:{Popover}, ModernTextField, ModernStyles, DatePicker} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot');
 import {muiThemeable} from 'material-ui/styles'
 

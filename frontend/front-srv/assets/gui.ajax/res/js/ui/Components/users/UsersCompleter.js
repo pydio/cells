@@ -24,10 +24,10 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import AddressBook from './addressbook/AddressBook'
-import {TextField, AutoComplete, MenuItem, RefreshIndicator, Popover, FontIcon} from 'material-ui'
+import {AutoComplete, MenuItem, RefreshIndicator, FontIcon} from 'material-ui'
 import FuncUtils from 'pydio/util/func'
 import UserCreationForm from './UserCreationForm'
-const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc')
+const {ModernAutoComplete, ThemedContainers:{Popover}} = Pydio.requireLib('hoc')
 
 /**
  * Ready to use autocomplete field that will load users/groups/roles from

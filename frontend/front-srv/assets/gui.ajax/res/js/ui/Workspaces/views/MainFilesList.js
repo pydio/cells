@@ -36,6 +36,7 @@ const {SimpleList, Masonry} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import OverlayIcon from './OverlayIcon'
 import {debounce} from 'lodash'
+import {muiThemeable} from 'material-ui/styles'
 
 class ComponentConfigsParser {
 
@@ -274,12 +275,13 @@ class MainFilesList extends React.Component {
     recomputeThumbnailsDimension(nearest){
 
         const {contextNode, displayMode, thumbNearest} = this.state;
+        const {muiTheme} = this.props;
         if(displayMode.indexOf('grid') !== 0){
             return
         }
 
         const MAIN_CONTAINER_FULL_PADDING = 5;
-        const THUMBNAIL_MARGIN = displayMode === 'grid-80' ? 4 : 8;
+        const THUMBNAIL_MARGIN = (muiTheme.userTheme === 'mui3' || displayMode ===  'grid-80') ? 4 : 8;
         let containerWidth;
         try{
             containerWidth = ReactDOM.findDOMNode(this.refs['list'].infinite.current).clientWidth - MAIN_CONTAINER_FULL_PADDING;
@@ -966,4 +968,5 @@ class MainFilesList extends React.Component {
     }
 }
 
+MainFilesList = muiThemeable()(MainFilesList)
 export {MainFilesList as default}

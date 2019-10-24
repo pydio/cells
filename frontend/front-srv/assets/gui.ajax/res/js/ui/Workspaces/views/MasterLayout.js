@@ -29,6 +29,15 @@ import {ThemeProvider} from "@mui/material/styles";
 const {withContextMenu, dropProvider} = Pydio.requireLib('hoc');
 const {ContextMenu} = Pydio.requireLib('components');
 
+const localStyle = `
+  div[role="menu"]{
+    background: var(--md-sys-color-surface-2);
+    span[role="menuitem"]{
+      font-size: 14px !important;
+    }
+  }
+`
+
 class MasterLayout extends React.Component{
 
     closeDrawer(e){
@@ -57,7 +66,8 @@ class MasterLayout extends React.Component{
             <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>,
             <div className="desktop-container vertical_layout vertical_fit" style={desktopStyle}>{children}</div>,
             <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>,
-            <FastSearch/>
+            <FastSearch/>,
+            <style type={"text/css"} dangerouslySetInnerHTML={{__html:localStyle}} />
         ]
 
         // Re-wrap into @mui ThemeProvider

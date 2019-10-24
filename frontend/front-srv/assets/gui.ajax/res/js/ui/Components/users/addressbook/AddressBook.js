@@ -29,11 +29,12 @@ import React from 'react'
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
-import {Popover, IconButton, Divider, Paper, List, Dialog} from 'material-ui'
+import {Divider, Paper, List, Dialog} from 'material-ui'
 import {muiThemeable, colors} from 'material-ui/styles'
 import ActionsPanel from '../avatar/ActionsPanel'
 import UserCreationForm from '../UserCreationForm'
 const {PydioContextConsumer, PydioContextProvider} = Pydio.requireLib('boot');
+const {ThemedContainers:{Popover, IconButton}} = Pydio.requireLib('hoc')
 import DOMUtils from 'pydio/util/dom'
 import PydioApi from 'pydio/http/api';
 
@@ -403,25 +404,18 @@ class AddressBook extends React.Component {
 
     render() {
 
-        const {mode, getMessage, bookColumn, listStyles} = this.props;
+        const {mode, getMessage, bookColumn, listStyles, pydio} = this.props;
 
         if(mode === 'popover'){
 
-            const popoverStyle = this.props.popoverStyle || {}
-            const popoverContainerStyle = this.props.popoverContainerStyle || {}
-            const iconButtonStyle = this.props.popoverIconButtonStyle || {}
             let iconButton = (
                 <IconButton
-                    style={{position:'absolute', padding:15, zIndex:100, right:0, bottom: 0, display:this.state.loading?'none':'initial', ...iconButtonStyle}}
-                    iconStyle={{fontSize:19, color:'rgba(0,0,0,0.6)'}}
+                    style={{position:'absolute', padding:15, zIndex:100, right:0, bottom: 0, display:this.state.loading?'none':'initial'}}
+                    iconStyle={{fontSize:19}}
                     iconClassName={'mdi mdi-book-open-variant'}
                     onClick={this.openPopover}
                 />
             );
-            if(this.props.popoverButton){
-                iconButton = <this.props.popoverButton.type {...this.props.popoverButton.props} onClick={this.openPopover}/>
-            }
-            const {pydio} = this.props;
             const WrappedAddressBook = PydioContextProvider(AddressBook, pydio, pydio.UI.themeBuilder);
             return (
                 <span>
@@ -432,10 +426,10 @@ class AddressBook extends React.Component {
                         anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                         targetOrigin={{horizontal: 'left', vertical: 'top'}}
                         onRequestClose={this.closePopover}
-                        style={{marginLeft: 20, ...popoverStyle}}
+                        style={{marginLeft: 20}}
                         zDepth={2}
                     >
-                        <div style={{width: 320, height: 420, ...popoverContainerStyle}}>
+                        <div style={{width: 320, height: 420}}>
                             <WrappedAddressBook {...this.props} mode="selector" style={{height:420}} />
                         </div>
                     </Popover>
