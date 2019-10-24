@@ -265,7 +265,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	}
 
 	if len(queryObject.Extension) > 0 {
-		extQuery := bleve.NewTermQuery(queryObject.Extension)
+		extQuery := bleve.NewTermQuery(strings.ToLower(queryObject.Extension))
 		extQuery.SetField("Extension")
 		boolean.AddMust(extQuery)
 	}

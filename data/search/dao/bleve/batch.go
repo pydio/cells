@@ -122,7 +122,7 @@ func (b *Batch) LoadIndexableNode(indexNode *IndexableNode, excludes map[string]
 	indexNode.Basename = basename
 	if indexNode.Type == 1 {
 		indexNode.NodeType = "file"
-		indexNode.Extension = strings.TrimLeft(filepath.Ext(basename), ".")
+		indexNode.Extension = strings.ToLower(strings.TrimLeft(filepath.Ext(basename), "."))
 	} else {
 		indexNode.NodeType = "folder"
 	}
