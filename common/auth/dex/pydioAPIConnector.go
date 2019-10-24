@@ -92,7 +92,7 @@ func (p *pydioAPIConnector) Login(ctx context.Context, s connector.Scopes, usern
 	}
 
 	identity = ConvertUserApiToIdentity(resp.GetUser(), "pydioapi")
-	log.Logger(ctx).Info("Login", zap.Any("identity", identity))
+	log.Logger(ctx).Info("Login : "+resp.GetUser().Login, zap.Any("identity", identity))
 	return identity, true, nil
 }
 
