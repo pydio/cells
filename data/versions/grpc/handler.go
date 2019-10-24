@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"encoding/json"
+	"net/url"
 	"sync"
 	"time"
 
@@ -54,8 +55,10 @@ type Handler struct {
 func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.ChangeLog) string {
 	var description string
 	if version.OwnerUuid != "" && version.Event != nil {
+		serverLinks := render.NewServerLinks()
+		serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
 		ac, _ := activity.DocumentActivity(version.OwnerUuid, version.Event)
-		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, i18n.UserLanguageFromContext(ctx, config.Default(), true))
+		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, i18n.UserLanguageFromContext(ctx, config.Default(), true), serverLinks)
 	} else {
 		description = "N/A"
 	}
