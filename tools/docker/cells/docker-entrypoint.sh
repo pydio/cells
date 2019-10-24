@@ -8,7 +8,7 @@ fi
 
 if [ "$1" == "cells" ]; then
 	# This file acts as a flag to check if we can start Cells or if we want to perform the non-interactive install.
-	FILE="/root/.config/pydio/cells/pydio.json"
+	FILE="/$CELLS_WORKING_DIR/pydio.json"
 	if [ ! -f "$FILE" ] ; then 
 		
 		if [ -z "$CELLS_NO_SSL" -o "$CELLS_NO_SSL" != "1" ]; then
