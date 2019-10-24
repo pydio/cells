@@ -76,7 +76,7 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 		TroubleText:  T("Mail.Main.Troubleshoot"),
 		Greeting:     T("Mail.Main.Greeting"),
 		Signature:    T("Mail.Main.Signature"),
-		Theme:        new(hermes.Flat),
+		Theme:        new(pydioTheme),
 		ButtonsColor: "#22BC66",
 	}
 
@@ -87,4 +87,14 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 	}
 
 	return a
+}
+
+type pydioTheme struct {
+	hermes.Flat
+}
+
+func (p pydioTheme) HTMLTemplate() string {
+	s := p.Flat.HTMLTemplate()
+	s = strings.Replace(s, "mso-hide: all;", "", -1)
+	return s
 }
