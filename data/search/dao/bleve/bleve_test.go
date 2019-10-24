@@ -268,6 +268,23 @@ func TestSearchNode(t *testing.T) {
 		results, e := search(ctx, server, queryObject)
 		So(e, ShouldBeNil)
 		So(results, ShouldHaveLength, 1)
+
+		// Check extension is case-insensitive
+		e = server.IndexNode(ctx, &tree.Node{
+			Uuid:      "node-with-uppercase-extension",
+			Type:      tree.NodeType_LEAF,
+			Path:      "/toto.PNG",
+			MetaStore: map[string]string{"name": `"toto.PNG"`},
+		}, false, nil)
+		So(e, ShouldBeNil)
+		<-time.After(5 * time.Second)
+
+		queryObject = &tree.Query{
+			Extension: "png",
+		}
+		results, e = search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
 	})
 
 	Convey("Search Node by size", t, func() {
