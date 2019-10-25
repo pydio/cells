@@ -26,8 +26,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	errors2 "github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
@@ -39,17 +37,15 @@ import (
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
 type ProviderType int
 
 const (
-	PROVIDER_TYPE_DEX ProviderType = iota
-	PROVIDER_TYPE_ORY
-	PROVIDER_TYPE_GRPC
+	ProviderTypeDex ProviderType = iota
+	ProviderTypeOry
+	ProviderTypeGrpc
 )
 
 type Provider interface {
@@ -58,6 +54,10 @@ type Provider interface {
 
 type Verifier interface {
 	Verify(context.Context, string) (IDToken, error)
+}
+
+type ContextVerifier interface {
+	Verify(ctx context.Context, user *idm.User) error
 }
 
 type Exchanger interface {
@@ -74,11 +74,27 @@ type IDToken interface {
 }
 
 var (
-	providers []Provider
+	providers        []Provider
+	contextVerifiers []ContextVerifier
 )
+
+// AddContextVerifier registers an additional verifier
+func AddContextVerifier(v ContextVerifier) {
+	contextVerifiers = append(contextVerifiers, v)
+}
+
+func VerifyContext(ctx context.Context, user *idm.User) error {
+	for _, v := range contextVerifiers {
+		if err := v.Verify(ctx, user); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 type JWTVerifier struct{}
 
+// DefaultJWTVerifier creates a ready to use JWTVerifier
 func DefaultJWTVerifier() *JWTVerifier {
 	return &JWTVerifier{}
 }
@@ -115,6 +131,11 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 		} else {
 			return errors2.NotFound("user.not.found", "user not found neither by name or email")
 		}
+	}
+
+	// Check if User is locked
+	if e := VerifyContext(ctx, user); e != nil {
+		return errors2.Unauthorized("user.context", e.Error())
 	}
 
 	displayName, ok := user.Attributes["displayName"]
@@ -297,97 +318,6 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 		Roles: strings.Join(roles, ","),
 	}
 	return context.WithValue(ctx, claim.ContextKey, c)
-}
-
-// SubjectsForResourcePolicyQuery prepares a slice of strings that will be used to check for resource ownership.
-// Can be extracted either from context or by loading a given user ID from database.
-func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQuery) (subjects []string, err error) {
-
-	if q == nil {
-		q = &rest.ResourcePolicyQuery{Type: rest.ResourcePolicyQuery_CONTEXT}
-	}
-
-	switch q.Type {
-	case rest.ResourcePolicyQuery_ANY, rest.ResourcePolicyQuery_NONE:
-
-		var value interface{}
-		if value = ctx.Value(claim.ContextKey); value == nil {
-			return subjects, errors2.BadRequest("resources", "Only admin profiles can list resources of other users")
-		}
-		claims := value.(claim.Claims)
-		if claims.Profile != common.PYDIO_PROFILE_ADMIN {
-			return subjects, errors2.Forbidden("resources", "Only admin profiles can list resources with ANY or NONE filter")
-		}
-		return subjects, nil
-
-	case rest.ResourcePolicyQuery_CONTEXT:
-
-		subjects = append(subjects, "*")
-		if value := ctx.Value(claim.ContextKey); value != nil {
-			claims := value.(claim.Claims)
-			subjects = append(subjects, "user:"+claims.Name)
-			// Add all profiles up to the current one (e.g admin will check for anon, shared, standard, admin)
-			for _, p := range common.PydioUserProfiles {
-				subjects = append(subjects, "profile:"+p)
-				if p == claims.Profile {
-					break
-				}
-			}
-			//subjects = append(subjects, "profile:"+claims.Profile)
-			for _, r := range strings.Split(claims.Roles, ",") {
-				subjects = append(subjects, "role:"+r)
-			}
-		} else {
-			log.Logger(ctx).Error("Cannot find claims in context", zap.Any("c", ctx))
-			subjects = append(subjects, "profile:anon")
-		}
-
-	case rest.ResourcePolicyQuery_USER:
-
-		if q.UserId == "" {
-			return subjects, errors2.BadRequest("resources", "Please provide a non-empty user id")
-		}
-		var value interface{}
-		if value = ctx.Value(claim.ContextKey); value == nil {
-			return subjects, errors2.BadRequest("resources", "Only admin profiles can list resources of other users")
-		}
-		claims := value.(claim.Claims)
-		if claims.Profile != common.PYDIO_PROFILE_ADMIN {
-			return subjects, errors2.Forbidden("resources", "Only admin profiles can list resources of other users")
-		}
-		subjects = append(subjects, "*")
-		subQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
-			Uuid: q.UserId,
-		})
-		uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
-		if stream, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{
-			Query: &service.Query{SubQueries: []*any.Any{subQ}},
-		}); e == nil {
-			var user *idm.User
-			for {
-				resp, err := stream.Recv()
-				if err != nil {
-					break
-				}
-				if resp == nil {
-					continue
-				}
-				user = resp.User
-				break
-			}
-			if user == nil {
-				return subjects, errors2.BadRequest("resources", "Cannot find user with id "+q.UserId)
-			}
-			for _, role := range user.Roles {
-				subjects = append(subjects, "role:"+role.Uuid)
-			}
-			subjects = append(subjects, "user:"+user.Login)
-			subjects = append(subjects, "profile:"+user.Attributes["profile"])
-		} else {
-			err = e
-		}
-	}
-	return
 }
 
 func addProvider(p Provider) {

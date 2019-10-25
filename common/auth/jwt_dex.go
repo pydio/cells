@@ -80,7 +80,7 @@ func RegisterDexProvider(c common.ConfigValues) {
 
 	// We're first removing all providers that have the same type
 	delProviders(func(p Provider) bool {
-		return p.GetType() == PROVIDER_TYPE_DEX
+		return p.GetType() == ProviderTypeDex
 	})
 
 	// retrieve verifiers for each client
@@ -102,7 +102,7 @@ func RegisterDexProvider(c common.ConfigValues) {
 }
 
 func (p *dexprovider) GetType() ProviderType {
-	return PROVIDER_TYPE_DEX
+	return ProviderTypeDex
 }
 
 func (p *dexprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {

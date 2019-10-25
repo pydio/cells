@@ -52,7 +52,7 @@ func RegisterGRPCProvider(service string) {
 }
 
 func (p *grpcprovider) GetType() ProviderType {
-	return PROVIDER_TYPE_GRPC
+	return ProviderTypeGrpc
 }
 
 func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
