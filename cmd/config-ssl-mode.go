@@ -74,6 +74,8 @@ Four modes are currently supported:
 			cmd.Println("Error while saving config: " + e.Error())
 		}
 
+		config.ResetTlsConfigs()
+
 		cmd.Println("*************************************************************")
 		cmd.Println(" Config has been updated, please restart now!")
 		cmd.Println("**************************************************************")

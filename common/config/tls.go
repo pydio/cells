@@ -16,9 +16,11 @@ var (
 	DefaultCaUrl = "https://acme-v02.api.letsencrypt.org/directory"
 
 	tlsClientOnce   = &sync.Once{}
+	tlsClientMutex  = &sync.Mutex{}
 	tlsClientConfig = make(map[string]*tls.Config)
 
 	tlsServerOnce   = &sync.Once{}
+	tlsServerMutex  = &sync.Mutex{}
 	tlsServerConfig = make(map[string]*tls.Config)
 )
 
@@ -47,26 +49,37 @@ func init() {
 	})
 }
 
+func ResetTlsConfigs() {
+	tlsServerMutex.Lock()
+	tlsClientMutex.Lock()
+	defer tlsServerMutex.Unlock()
+	defer tlsClientMutex.Unlock()
+	for _, t := range []string{"http", "proxy", "grpc"} {
+		delete(tlsClientConfig, t)
+		delete(tlsServerConfig, t)
+	}
+}
+
 // GetTLSServerConfig returns the configuration ssl for a server handler
 func GetTLSServerConfig(t string) *tls.Config {
-	tlsServerOnce.Do(func() {
-		getTLSServerConfig("proxy")
-		getTLSServerConfig("grpc")
-		getTLSServerConfig("http")
-	})
-
+	tlsServerMutex.Lock()
+	defer tlsServerMutex.Unlock()
+	if _, ok := tlsServerConfig[t]; !ok {
+		getTLSServerConfig(t)
+	}
 	return tlsServerConfig[t]
 }
 
 // GetTLSConfig returns the configuration ssl for a server handler
 func GetTLSClientConfig(t string) *tls.Config {
-	tlsClientOnce.Do(func() {
-		getTLSClientConfig("proxy")
-		getTLSClientConfig("grpc")
-		getTLSClientConfig("http")
-	})
 
+	tlsClientMutex.Lock()
+	defer tlsClientMutex.Unlock()
+	if _, ok := tlsClientConfig[t]; !ok {
+		getTLSClientConfig(t)
+	}
 	return tlsClientConfig[t]
+
 }
 
 func getTLSServerConfig(t string) {
