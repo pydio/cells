@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
@@ -54,6 +53,7 @@ exports['default'] = function () {
                 request.MetaDatas = res.Metadatas;
                 api.updateUserMeta(request).then(function () {
                     selection.requireNodeReload(node);
+                    _globals.pydio.notify("reload-bookmarks");
                 });
             }
         });
@@ -67,6 +67,7 @@ exports['default'] = function () {
         request.MetaDatas = [userMeta];
         api.updateUserMeta(request).then(function () {
             selection.requireNodeReload(node);
+            _globals.pydio.notify("reload-bookmarks");
         });
     }
 };

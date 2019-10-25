@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 import {pydio} from '../globals'
 import PydioApi from 'pydio/http/api'
 import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResourcePolicy, IdmSearchUserMetaRequest, UpdateUserMetaRequestUserMetaOp} from 'pydio/http/rest-api'
@@ -44,6 +43,7 @@ export default function(){
                 request.MetaDatas = res.Metadatas;
                 api.updateUserMeta(request).then(() => {
                     selection.requireNodeReload(node);
+                    pydio.notify("reload-bookmarks");
                 });
             }
         });
@@ -61,6 +61,7 @@ export default function(){
         request.MetaDatas = [userMeta];
         api.updateUserMeta(request).then(() => {
             selection.requireNodeReload(node);
+            pydio.notify("reload-bookmarks");
         });
     }
 
