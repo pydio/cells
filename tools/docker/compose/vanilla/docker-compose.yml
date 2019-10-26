@@ -9,9 +9,6 @@ services:
     environment:
       - INSTALL_CONF_FILE=/pydio/install/config.yml
       - CELLS_WORKING_DIR=/var/cells
-      #- CELLS_BIND=0.0.0.0:8080
-      #- CELLS_EXTERNAL=localhost:8080
-      #- CELLS_NO_SSL=1
     volumes: ["workingdir:/var/cells", "./install:/pydio/install"] 
     depends_on:
       - mysql
