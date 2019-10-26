@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -79,14 +80,10 @@ var installYmlCmd = &cobra.Command{
 			log.Fatal(fmt.Sprintf("Error parsing YAML file at %s: %s\n", ymlFile, err.Error()))
 		}
 
-		cmd.Printf("CurrentConfig: %v\n", currConfig)
-
 		err = handleSSLConfig(currConfig.SSLConfig)
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Could not configure SSL mode: %s\n", err.Error()))
 		}
-
-		cmd.Println("SSL mode configured")
 
 		microStr := currConfig.InstallConfig.GetExternalMicro()
 		if microStr == "" || microStr == "0" {
@@ -94,10 +91,22 @@ var installYmlCmd = &cobra.Command{
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
 			config.Save("cli", "Install / Setting default Ports")
 		}
-		cmd.Println("Micro Set")
 
 		_ = lib.GenerateDefaultConfig()
-		fmt.Println("\033[1m## Performing Installation\033[0m")
+		fmt.Printf("\033[1m## Performing Installation\033[0m using deafult config from %s\n", ymlFile)
+
+		// Check if pre-configured DB is up and running
+		nbRetry := 10
+		for i := 0; i < nbRetry; i++ {
+			if res := lib.PerformCheck(context.Background(), "DB", currConfig.InstallConfig); res.Success {
+				break
+			}
+			if i == nbRetry-1 {
+				fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection config")
+			}
+			fmt.Println("... Cannot connect to database, wait before retry")
+			<-time.After(2)
+		}
 
 		currConfig.InstallConfig.InternalUrl = currConfig.SSLConfig.BindUrl
 		fmt.Println("InternalUrl:", currConfig.InstallConfig.InternalUrl, ":", currConfig.SSLConfig.BindUrl)

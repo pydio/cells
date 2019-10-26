@@ -15,6 +15,7 @@ ARG version
 
 WORKDIR /pydio
 
+ENV CELLS_NO_SSL 1
 ENV CELLS_BIND localhost:8080
 ENV CELLS_EXTERNAL localhost:8080
 ENV CELLS_WORKING_DIR /var/cells
