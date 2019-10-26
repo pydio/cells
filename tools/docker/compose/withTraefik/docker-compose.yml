@@ -1,7 +1,6 @@
 version: "3"
 
 services:
-
   reverse-proxy:
     # The official v2.0 Traefik docker image
     image: traefik:v2.0
@@ -16,9 +15,16 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./install/traefik.yml:/etc/traefik/traefik.yml
+    labels:
+      - "traefik.http.routers.api.rule=Host(`localhost`)"
+      - "traefik.http.routers.api.entrypoints=dashboard"
+      - "traefik.http.routers.api.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.api.service=api@internal"
+    # environment:
 
   cells:
-    image: pydio/cells:dev
+    image: bsinou/cells:quickstart
     restart: always
     volumes:
       - "workingdir:/var/cells"
@@ -26,11 +32,14 @@ services:
     ports: ["8000:80"]
     environment:
       - INSTALL_CONF_FILE=/pydio/config.yml
+      # CELLS_BIND=0.0.0.0:80
+      # CELLS_EXTERNAL=localhost
+      # CELLS_NO_SSL=1
     depends_on:
       - mysql
     labels:
-      - "traefik.http.routers.cells.rule=Host(`cells.docker.localhost`)"
-  #      - "traefik.http.routers.cells.entrypoints=websecure"
+      - "traefik.http.routers.cells.rule=Host(`localhost`)"
+      - "traefik.http.routers.cells.entrypoints=web"
   #      - "traefik.http.routers.cells.tls.certresolver=sample"
   #	These entries might be useful for gRPC in cells	2
   #- "traefik.tcp.routers.cells.rule=HostSNI(`${DOMAIN_NAME}`)"

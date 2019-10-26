@@ -1,6 +1,6 @@
 sslconfig:
-  bindurl: localhost:8080
-  exturl: localhost:8080
+  bindurl: 0.0.0.0:80
+  exturl: localhost
   disablessl: true
   #certfile:
   #keyfile:
@@ -8,7 +8,7 @@ sslconfig:
   #leaccepteula:
 installconfig:
   dbconnectiontype: tcp
-  dbtcphostname: localhost
+  dbtcphostname: mysql
   dbtcpport: 3306
   dbtcpname: cells
   dbtcpuser: pydio
