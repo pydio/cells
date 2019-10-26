@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+
+  reverse-proxy:
+    # The official v2.0 Traefik docker image
+    image: traefik:v2.0
+    restart: always
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  cells:
+    image: pydio/cells:dev
+    restart: always
+    volumes:
+      - "workingdir:/var/cells"
+      - "./install/config.yml:/pydio/config.yml"
+    ports: ["8000:80"]
+    environment:
+      - INSTALL_CONF_FILE=/pydio/config.yml
+    depends_on:
+      - mysql
+    labels:
+      - "traefik.http.routers.cells.rule=Host(`cells.docker.localhost`)"
+  #      - "traefik.http.routers.cells.entrypoints=websecure"
+  #      - "traefik.http.routers.cells.tls.certresolver=sample"
+  #	These entries might be useful for gRPC in cells	2
+  #- "traefik.tcp.routers.cells.rule=HostSNI(`${DOMAIN_NAME}`)"
+  #- "traefik.tcp.routers.cells.entrypoints=websecure"
+  #- "traefik.tcp.routers.cells.tls.passthrough=true"
+  #command: ["cells", "start", "--log=production"]
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_DATABASE: cells
+      MYSQL_USER: pydio
+      MYSQL_PASSWORD: pydio
+    command:
+      [
+        mysqld,
+        --character-set-server=utf8mb4,
+        --collation-server=utf8mb4_unicode_ci,
+      ]
+
+volumes:
+  workingdir: {}
