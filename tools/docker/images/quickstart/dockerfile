@@ -18,9 +18,6 @@ WORKDIR /pydio
 ENV CELLS_BIND localhost:8080
 ENV CELLS_EXTERNAL localhost:8080
 ENV CELLS_WORKING_DIR /var/cells
-ENV CELLS_LOG_DIR /var/log/cells
-ENV CELLS_DATA_DIR ${CELLS_WORKING_DIR}/data
-ENV CELLS_SERVICES_DIR ${CELLS_WORKING_DIR}/services
 
 # Add necessary files
 COPY docker-entrypoint.sh /pydio/docker-entrypoint.sh
@@ -33,7 +30,8 @@ RUN chmod +x /pydio/cells
 
 # Final configuration
 RUN ln -s /pydio/cells /bin/cells \
-    && ln -s /pydio/libdl.so.2borypoint.sh /bin/docker-entrypoint.sh \
+    && ln -s /pydio/libdl.so.2 /lib64/libdl.so.2 \
+    && ln -s /pydio/docker-entrypoint.sh /bin/docker-entrypoint.sh \
     && chmod +x /pydio/docker-entrypoint.sh \
     && mkdir -p ${CELLS_DATA_DIR} \
     && mkdir -p ${CELLS_LOG_DIR} 
