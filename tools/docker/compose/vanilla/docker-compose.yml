@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+
+  cells:
+    image: pydio/cells:quickstart
+    restart: always
+    ports: ["8000:80"]
+    environment:
+      - INSTALL_CONF_FILE=/pydio/install/config.yml
+    volumes:
+      - "workingdir:/var/cells"
+      - "./install:/pydio/install"
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_DATABASE: cells
+      MYSQL_USER: pydio
+      MYSQL_PASSWORD: pydio
+    command:
+      [
+        mysqld,
+        --character-set-server=utf8mb4,
+        --collation-server=utf8mb4_unicode_ci,
+      ]
+
+volumes:
+  workingdir: {}

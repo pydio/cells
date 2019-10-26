@@ -1,0 +1,53 @@
+# handle certificate and downloads in another stage to reduce image size
+FROM alpine as certs
+ARG version
+
+RUN apk update && apk add ca-certificates
+ENV CELLS_VERSION ${version}
+
+#WORKDIR /pydio
+#RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
+#RUN chmod +x /pydio/cells
+
+# Creates the final image
+FROM busybox:glibc
+ARG version
+
+WORKDIR /pydio
+
+ENV CELLS_BIND localhost:8080
+ENV CELLS_EXTERNAL localhost:8080
+ENV CELLS_WORKING_DIR /var/cells
+ENV CELLS_LOG_DIR /var/log/cells
+ENV CELLS_DATA_DIR ${CELLS_WORKING_DIR}/data
+ENV CELLS_SERVICES_DIR ${CELLS_WORKING_DIR}/services
+
+# Add necessary files
+COPY docker-entrypoint.sh /pydio/docker-entrypoint.sh
+COPY libdl.so.2 /pydio/libdl.so.2
+## TEST ONLY. SEE ALSO ABOVE
+# COPY --from=certs /pydio/cells /pydio/cells
+COPY cells /pydio/cells
+RUN chmod +x /pydio/cells
+COPY --from=certs /etc/ssl/certs /etc/ssl/certs
+
+# Create non-root user pydio to run the app 
+RUN adduser --disabled-password -h ${CELLS_WORKING_DIR} pydio && \
+    adduser pydio pydio
+
+# Final configuration
+RUN ln -s /pydio/cells /bin/cells \
+    && ln -s /pydio/libdl.so.2 /lib64/libdl.so.2 \
+    && ln -s /pydio/docker-entrypoint.sh /bin/docker-entrypoint.sh \
+    && chmod +x /pydio/docker-entrypoint.sh \
+    && mkdir -p ${CELLS_DATA_DIR} \
+    && chown -R pydio.pydio ${CELLS_WORKING_DIR} \
+    && mkdir -p ${CELLS_LOG_DIR} \
+    && chown -R pydio.pydio ${CELLS_LOG_DIR}
+
+
+VOLUME ["$CELLS_WORKING_DIR"]
+ENTRYPOINT ["docker-entrypoint.sh"]
+WORKDIR $CELLS_WORKING_DIR
+USER pydio
+CMD ["cells", "start"]
