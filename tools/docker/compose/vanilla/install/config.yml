@@ -8,7 +8,7 @@ sslconfig:
   #leaccepteula:
 installconfig:
   dbconnectiontype: tcp
-  dbtcphostname: localhost
+  dbtcphostname: mysql
   dbtcpport: 3306
   dbtcpname: cells
   dbtcpuser: pydio
@@ -16,7 +16,7 @@ installconfig:
   dbsocketfile: /tmp/mysql.sock
   dbsocketname: cells
   dbsocketuser: root
-  dbsocketpassword: root@tcp(localhost=3306)/cells
+  dbsocketpassword: root@tcp(mysql=3306)/cells
   dsname: pydiods1
   dsport: 41850
   dsfolder: /tmp/data
