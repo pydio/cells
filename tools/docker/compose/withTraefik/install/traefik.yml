@@ -1,0 +1,27 @@
+entryPoints:
+  dashboard:
+    address: :8080
+  web:
+    address: :80
+  # websecure:
+  #   address: :443
+
+#certificatesResolvers:
+#  sample:
+#    acme:
+#      email: test@example.com
+#      storage: /letsencrypt/acme.json
+#      dnsChallenge:
+#	    provider: gandiv5
+#	    delayBeforeCheck: 0
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+
+api:
+  dashboard: true
+  debug: true
+
+# log:
+#   level: DEBUG
