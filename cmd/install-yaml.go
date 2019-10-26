@@ -103,9 +103,10 @@ var installYmlCmd = &cobra.Command{
 			}
 			if i == nbRetry-1 {
 				fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection config")
+				log.Fatal("No DB. Aborting...")
 			}
 			fmt.Println("... Cannot connect to database, wait before retry")
-			<-time.After(2)
+			<-time.After(3 * time.Second)
 		}
 
 		currConfig.InstallConfig.InternalUrl = currConfig.SSLConfig.BindUrl
