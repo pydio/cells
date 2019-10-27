@@ -13,15 +13,19 @@ services:
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
     volumes:
+      # Configuration file for traefik
+      - ./install/traefik.yml:/etc/traefik/traefik.yml
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./install/traefik.yml:/etc/traefik/traefik.yml
     labels:
-      - "traefik.http.routers.api.rule=Host(`localhost`)"
+      - "traefik.http.routers.api.rule=Host(`$CHOST`)"
       - "traefik.http.routers.api.entrypoints=dashboard"
       - "traefik.http.routers.api.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
       - "traefik.http.routers.api.service=api@internal"
     # environment:
+    #networks:
+    #  - internal
+    #  - web
 
   cells:
     image: bsinou/cells:quickstart
@@ -38,7 +42,7 @@ services:
     depends_on:
       - mysql
     labels:
-      - "traefik.http.routers.cells.rule=Host(`localhost`)"
+      - "traefik.http.routers.cells.rule=Host(`$CHOST`)"
       - "traefik.http.routers.cells.entrypoints=web"
   #      - "traefik.http.routers.cells.tls.certresolver=sample"
   #	These entries might be useful for gRPC in cells	2
@@ -55,6 +59,8 @@ services:
       MYSQL_DATABASE: cells
       MYSQL_USER: pydio
       MYSQL_PASSWORD: pydio
+    volumes:
+      - "db:/var/lib/mysql"
     command:
       [
         mysqld,
@@ -64,3 +70,4 @@ services:
 
 volumes:
   workingdir: {}
+  db: {}

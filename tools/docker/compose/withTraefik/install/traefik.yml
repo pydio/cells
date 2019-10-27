@@ -15,8 +15,11 @@ entryPoints:
 #	    provider: gandiv5
 #	    delayBeforeCheck: 0
 
+# Define docker aś the main provider for traefik labels
 providers:
   docker:
+    # default
+    # see https://docs.traefik.io/providers/overview/ for security concerns.
     endpoint: "unix:///var/run/docker.sock"
 
 api:
