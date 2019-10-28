@@ -268,6 +268,9 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		dsName := jsonParams["dsName"].(string)
 		jobUuid, err = syncDatasource(ctx, dsName, languages...)
 		break
+	case "import-p8":
+		jobUuid, err = p8migration(ctx, request.JsonParameters)
+		break
 	}
 
 	if err != nil {

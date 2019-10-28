@@ -41,6 +41,7 @@ var BasePluginsBox = frontend.PluginBox{
 		"access.settings",
 		"action.avatar",
 		"action.compression",
+		"action.migration",
 		"action.share",
 		"action.user",
 		"auth.pydio",

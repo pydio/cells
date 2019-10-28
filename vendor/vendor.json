@@ -1075,10 +1075,20 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
-			"checksumSHA1": "nN8WjFFkeFCpK9lM7RildDP2rSY=",
+			"checksumSHA1": "DzMVaYuYsPkLHgWzR0bn0D+BYxI=",
 			"path": "github.com/go-openapi/analysis",
-			"revision": "f59a71f0ece6f9dfb438be7f45148f006cbad88e",
-			"revisionTime": "2018-01-26T16:37:18Z"
+			"revision": "c701774f4e604d952e4e8c56dee260be696e33c3",
+			"revisionTime": "2018-10-07T00:20:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "6owET5Pniz4yv9/BfnX/5CD/bhU=",
+			"path": "github.com/go-openapi/analysis/internal",
+			"revision": "c701774f4e604d952e4e8c56dee260be696e33c3",
+			"revisionTime": "2018-10-07T00:20:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
 		},
 		{
 			"checksumSHA1": "7dalNGdjLV+ArdiaCVl8HvANenE=",
@@ -1105,10 +1115,76 @@
 			"revisionTime": "2017-12-07T19:22:34Z"
 		},
 		{
-			"checksumSHA1": "fCYb5uWGf4zdE/Eoky8K87zjE2Y=",
+			"checksumSHA1": "B20k1Lv78a7mte7Y0PQwAiauniA=",
+			"path": "github.com/go-openapi/runtime",
+			"revision": "231d7876b7019dbcbfc97a7ba764379497b67c1d",
+			"revisionTime": "2018-10-07T00:21:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "ifOfKHIYHWT2OVXDoQCcI7cful8=",
+			"path": "github.com/go-openapi/runtime/client",
+			"revision": "231d7876b7019dbcbfc97a7ba764379497b67c1d",
+			"revisionTime": "2018-10-07T00:21:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "EdEoTJA+zIFqToVebQ+0+7BUGNY=",
+			"path": "github.com/go-openapi/runtime/logger",
+			"revision": "231d7876b7019dbcbfc97a7ba764379497b67c1d",
+			"revisionTime": "2018-10-07T00:21:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "XF1ZvlhNg8kn8xjCnl37sMvvFRg=",
+			"path": "github.com/go-openapi/runtime/middleware",
+			"revision": "231d7876b7019dbcbfc97a7ba764379497b67c1d",
+			"revisionTime": "2018-10-07T00:21:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "NcTUgn9dgtv404Xz3UNAlqZfg4M=",
+			"path": "github.com/go-openapi/runtime/middleware/denco",
+			"revision": "231d7876b7019dbcbfc97a7ba764379497b67c1d",
+			"revisionTime": "2018-10-07T00:21:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "jfqBLF0Wne1J9bcCKYPOC0jsR08=",
+			"path": "github.com/go-openapi/runtime/middleware/header",
+			"revision": "231d7876b7019dbcbfc97a7ba764379497b67c1d",
+			"revisionTime": "2018-10-07T00:21:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "cUNViMkcsvgmjbpAEPSfx0EoycQ=",
+			"path": "github.com/go-openapi/runtime/middleware/untyped",
+			"revision": "231d7876b7019dbcbfc97a7ba764379497b67c1d",
+			"revisionTime": "2018-10-07T00:21:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "uZe38gPS5VjnkexUn/khoJsIZDk=",
+			"path": "github.com/go-openapi/runtime/security",
+			"revision": "231d7876b7019dbcbfc97a7ba764379497b67c1d",
+			"revisionTime": "2018-10-07T00:21:54Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
+		},
+		{
+			"checksumSHA1": "FvUCWhO7gwebE0eG9dLwRF4z5G0=",
 			"path": "github.com/go-openapi/spec",
-			"revision": "d8000b5bfbd1147255710505a27c735b6b2ae2ac",
-			"revisionTime": "2018-03-02T16:01:22Z"
+			"revision": "5bae59e25b21498baea7f9d46e9c147ec106a42e",
+			"revisionTime": "2018-10-07T00:20:15Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
 		},
 		{
 			"checksumSHA1": "G485hoWWVtor/Wzn04gRMw5mFFM=",
@@ -1121,6 +1197,14 @@
 			"path": "github.com/go-openapi/swag",
 			"revision": "ceb469cb0fdf2d792f28d771bc05da6c606f55e5",
 			"revisionTime": "2018-03-02T19:28:43Z"
+		},
+		{
+			"checksumSHA1": "eEPvAg0L5gAyKWvRk9vknJQ2DnI=",
+			"path": "github.com/go-openapi/validate",
+			"revision": "d2eab7d93009e9215fc85b2faa2c2f2a98c2af48",
+			"revisionTime": "2018-10-07T00:21:36Z",
+			"version": "v0.17.1",
+			"versionExact": "v0.17.1"
 		},
 		{
 			"checksumSHA1": "yg01DVQJjQgMeXf9C7Fpl2Yo5+Y=",
@@ -3951,6 +4035,60 @@
 			"tree": true
 		},
 		{
+			"checksumSHA1": "kkYqEi0iUICktn03od75Zb0dKmA=",
+			"path": "github.com/pydio/pydio-sdk-go/client",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
+			"checksumSHA1": "jB+jOQY6387RmhRYc0Dmzr8hivM=",
+			"path": "github.com/pydio/pydio-sdk-go/client/file",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
+			"checksumSHA1": "zKtYrAc3j0bSJ26tUpSqp33g+50=",
+			"path": "github.com/pydio/pydio-sdk-go/client/provisioning",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
+			"checksumSHA1": "YTt1GW7mW3UjiqS5E/HV8TWJ9Hk=",
+			"path": "github.com/pydio/pydio-sdk-go/client/task",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
+			"checksumSHA1": "E632KulYMUD0f/Jb24m/DnUIVPA=",
+			"path": "github.com/pydio/pydio-sdk-go/client/user_account",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
+			"checksumSHA1": "VrcRHZkO3/B8WkfisguiRzJRfE4=",
+			"path": "github.com/pydio/pydio-sdk-go/client/workspace",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
+			"checksumSHA1": "wonnJ/dBkU/Oz7KF6g+Bh/HZY2g=",
+			"path": "github.com/pydio/pydio-sdk-go/config",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
+			"checksumSHA1": "HHjLBDVty73kNqpVpIMHUyh3hdc=",
+			"path": "github.com/pydio/pydio-sdk-go/models",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
+			"checksumSHA1": "wbehULd5E/4uv/uxkQst5FYxMwM=",
+			"path": "github.com/pydio/pydio-sdk-go/shares",
+			"revision": "23ce5c39e65c98e201e4a517b5b63f60efb9aa9f",
+			"revisionTime": "2019-01-16T15:38:40Z"
+		},
+		{
 			"checksumSHA1": "pvg8L4xN+zO9HLJislpVeHPPLjM=",
 			"path": "github.com/rainycape/unidecode",
 			"revision": "cb7f23ec59bec0d61b19c56cd88cee3d0cc1870c",
@@ -4536,6 +4674,12 @@
 			"path": "github.com/yudai/golcs",
 			"revision": "ecda9a501e8220fae3b4b600c3db4b0ba22cfc68",
 			"revisionTime": "2017-03-16T03:48:04Z"
+		},
+		{
+			"checksumSHA1": "vZhZDeP8Y60xphQEdyMSHj5loWE=",
+			"path": "github.com/yvasiyarov/php_session_decoder/php_serialize",
+			"revision": "a065a3b0b7d18ee6b5f5b41e53429474c6fb13bd",
+			"revisionTime": "2018-08-03T06:56:42Z"
 		},
 		{
 			"checksumSHA1": "//vnPN1cVjTt4sbL9/dylf2IGAE=",
