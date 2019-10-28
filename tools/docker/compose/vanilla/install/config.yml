@@ -6,6 +6,8 @@ sslconfig:
   #keyfile:
   #lemailcontact:
   #leaccepteula:
+  #httpredir: true
+  #rootca: 
 installconfig:
   dbconnectiontype: tcp
   dbtcphostname: mysql
