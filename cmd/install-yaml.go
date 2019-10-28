@@ -112,7 +112,6 @@ var installYmlCmd = &cobra.Command{
 		}
 
 		currConfig.InstallConfig.InternalUrl = currConfig.SSLConfig.BindUrl
-		fmt.Println("InternalUrl:", currConfig.InstallConfig.InternalUrl, ":", currConfig.SSLConfig.BindUrl)
 
 		e := lib.Install(context.Background(), currConfig.InstallConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 			fmt.Println(event.Message)
@@ -135,6 +134,7 @@ func handleSSLConfig(c *SSLConfig) error {
 
 	var saveMsg, prefix string
 	var internal, external *url.URL
+	isLE := false
 
 	if c.DisableSSL {
 		prefix = "http://"
@@ -180,6 +180,9 @@ func handleSSLConfig(c *SSLConfig) error {
 	config.Set(external.String(), "defaults", "url")
 	config.Save("cli", saveMsg)
 
+	if isLE { // Sleeps 10 seconds to let automated cert process run
+		<-time.After(10 * time.Second)
+	}
 	return nil
 }
 
