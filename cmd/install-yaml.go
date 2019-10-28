@@ -181,6 +181,7 @@ func handleSSLConfig(c *SSLConfig) error {
 	config.Save("cli", saveMsg)
 
 	if isLE { // Sleeps 10 seconds to let automated cert process run
+		fmt.Println("... Waiting after Let's Encrypt configuration")
 		<-time.After(10 * time.Second)
 	}
 	return nil
