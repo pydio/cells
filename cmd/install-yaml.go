@@ -52,6 +52,8 @@ type SSLConfig struct {
 	KeyFile        string `yaml:"keyfile"`
 	LeEmailContact string `yaml:"lemailcontact"`
 	LeAcceptEula   bool   `yaml:"leaccepteula"`
+	HttpRedir      bool   `yaml:"httpredir"`
+	RootCA         string `yaml:"rootca"`
 }
 
 type CustomConfig struct {
@@ -158,6 +160,10 @@ func handleSSLConfig(c *SSLConfig) error {
 		} else {
 			config.Set(true, "cert", "proxy", "self")
 			saveMsg += "With self signed certificate"
+		}
+
+		if c.HttpRedir {
+			config.Set(true, "cert", "proxy", "httpRedir")
 		}
 	}
 

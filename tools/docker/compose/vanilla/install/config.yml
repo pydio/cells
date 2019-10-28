@@ -1,13 +1,21 @@
 sslconfig:
-  bindurl: localhost:8080
-  exturl: localhost:8080
+  bindurl: 0.0.0.0:80
+  # Put your domain name in the line below to reach your server from the internet
+  exturl: http://localhost
   disablessl: true
+  ### Rather enable below lines (and remove the above, if you have a valid registered domain name and want to enable https with Let's Encrypt)
+  #bindurl: 0.0.0.0:443
+  #exturl: https://yourdomain.example.com
+  #disablessl: false
+  #lemailcontact: admin@yourdomain.example.com
+  #leaccepteula: true
+  #httpredir: true
+  
+  ### other possible conf, refer to the documentation
+  #rootca: 
   #certfile:
   #keyfile:
-  #lemailcontact:
-  #leaccepteula:
-  #httpredir: true
-  #rootca: 
+
 installconfig:
   dbconnectiontype: tcp
   dbtcphostname: mysql

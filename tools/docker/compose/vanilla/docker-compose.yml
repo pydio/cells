@@ -5,11 +5,14 @@ services:
   cells:
     image: bsinou/cells:quickstart
     restart: always
-    ports: ["8080:8080"]
+    ports: ["80:80", "443:443"]
     environment:
       - INSTALL_CONF_FILE=/pydio/install/config.yml
       - CELLS_WORKING_DIR=/var/cells
-    volumes: ["workingdir:/var/cells", "./install:/pydio/install"] 
+    volumes: 
+      - "workingdir:/var/cells"
+      - "./install:/pydio/install"
+      - "cert:/root/.caddy"
     depends_on:
       - mysql
 
@@ -30,3 +33,4 @@ services:
 
 volumes:
   workingdir: {}
+  cert: {}
