@@ -82,11 +82,6 @@ var installYmlCmd = &cobra.Command{
 			log.Fatal(fmt.Sprintf("Error parsing YAML file at %s: %s\n", ymlFile, err.Error()))
 		}
 
-		err = handleSSLConfig(currConfig.SSLConfig)
-		if err != nil {
-			log.Fatal(fmt.Sprintf("Could not configure SSL mode: %s\n", err.Error()))
-		}
-
 		microStr := currConfig.InstallConfig.GetExternalMicro()
 		if microStr == "" || microStr == "0" {
 			micro := net.GetAvailablePort()
@@ -95,7 +90,7 @@ var installYmlCmd = &cobra.Command{
 		}
 
 		_ = lib.GenerateDefaultConfig()
-		fmt.Printf("\033[1m## Performing Installation\033[0m using deafult config from %s\n", ymlFile)
+		fmt.Printf("\033[1m## Performing Installation\033[0m using default config from %s\n", ymlFile)
 
 		// Check if pre-configured DB is up and running
 		nbRetry := 10
@@ -109,6 +104,11 @@ var installYmlCmd = &cobra.Command{
 			}
 			fmt.Println("... Cannot connect to database, wait before retry")
 			<-time.After(3 * time.Second)
+		}
+
+		err = handleSSLConfig(currConfig.SSLConfig)
+		if err != nil {
+			log.Fatal(fmt.Sprintf("Could not configure SSL mode: %s\n", err.Error()))
 		}
 
 		currConfig.InstallConfig.InternalUrl = currConfig.SSLConfig.BindUrl
