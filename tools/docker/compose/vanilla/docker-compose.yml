@@ -3,7 +3,7 @@ version: "3"
 services:
 
   cells:
-    image: pydio/cells:quickstart
+    image: bsinou/cells:quickstart
     restart: always
     ports: ["8080:8080"]
     environment:
