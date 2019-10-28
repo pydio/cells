@@ -66,6 +66,10 @@ func ApplicationWorkingDir(dirType ...ApplicationDirType) string {
 		}
 		f = folders[0].Path
 		if len(dirType) > 0 {
+			// Recheck base folder
+			if os.Getenv("CELLS_WORKING_DIR") != "" {
+				f = os.Getenv("CELLS_WORKING_DIR")
+			}
 			switch d {
 			case ApplicationDirData:
 				f = filepath.Join(f, "data")
