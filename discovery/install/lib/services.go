@@ -82,7 +82,6 @@ func actionConfigsSet(c *install.InstallConfig) error {
 				var newRedirs []string
 				for _, redir := range redirs {
 					if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != url+"/oauth2/oob" {
-						fmt.Println(redir, "vs", url+"/oauth2/oob")
 						newRedirs = append(newRedirs, url+"/oauth2/oob")
 						saveStatics = true
 					} else {
