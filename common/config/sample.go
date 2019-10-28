@@ -218,7 +218,7 @@ var SampleConfig = `{
 					],
 					"redirect_uris": [
 						"http://localhost:3000/servers/callback",
-						"https://local.pydio:8080/oauth2/oob"
+						"http://EXTERNAL_HOST/oauth2/oob"
 					],
 					"response_types": [
 						"code",

@@ -207,7 +207,7 @@ func forceDefaultConfig(config *Config) (bool, error) {
 			}
 		}
 		if saveStatics {
-			fmt.Printf("[Configs] Upgrading: updating out-of-band redirect URI")
+			fmt.Println("[Configs] Upgrading: updating out-of-band redirect URI")
 			config.Set(data, "services", oauthSrv, "staticClients")
 			save = true
 		}
