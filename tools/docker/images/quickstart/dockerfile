@@ -32,9 +32,7 @@ RUN chmod +x /pydio/cells
 RUN ln -s /pydio/cells /bin/cells \
     && ln -s /pydio/libdl.so.2 /lib64/libdl.so.2 \
     && ln -s /pydio/docker-entrypoint.sh /bin/docker-entrypoint.sh \
-    && chmod +x /pydio/docker-entrypoint.sh \
-    && mkdir -p ${CELLS_DATA_DIR} \
-    && mkdir -p ${CELLS_LOG_DIR} 
+    && chmod +x /pydio/docker-entrypoint.sh 
 
 VOLUME ["$CELLS_WORKING_DIR"]
 ENTRYPOINT ["docker-entrypoint.sh"]
