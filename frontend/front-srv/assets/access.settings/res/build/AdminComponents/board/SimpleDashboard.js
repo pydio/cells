@@ -25,33 +25,23 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _materialUi = require('material-ui');
+
 var _utilMixins = require('../util/Mixins');
 
-var React = require('react');
+var _lodashShuffle = require('lodash.shuffle');
 
-var _require = require('material-ui/styles');
+var _lodashShuffle2 = _interopRequireDefault(_lodashShuffle);
 
-var muiThemeable = _require.muiThemeable;
-
-var _require2 = require('material-ui');
-
-var Paper = _require2.Paper;
-var Card = _require2.Card;
-var CardTitle = _require2.CardTitle;
-var CardMedia = _require2.CardMedia;
-var CardActions = _require2.CardActions;
-var CardHeader = _require2.CardHeader;
-var CardText = _require2.CardText;
-var FlatButton = _require2.FlatButton;
-var List = _require2.List;
-var ListItem = _require2.ListItem;
-var Divider = _require2.Divider;
-var IconButton = _require2.IconButton;
-var FontIcon = _require2.FontIcon;
-
-var shuffle = require('lodash.shuffle');
-
-var Dashboard = React.createClass({
+var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
     mixins: [_utilMixins.MessagesConsumerMixin],
@@ -70,7 +60,7 @@ var Dashboard = React.createClass({
     },
 
     getOpenIcon: function getOpenIcon(link) {
-        return React.createElement(IconButton, {
+        return _react2['default'].createElement(_materialUi.IconButton, {
             iconClassName: 'mdi mdi-arrow-right',
             iconStyle: { color: 'rgba(0,0,0,.33)' },
             tooltip: 'Open in new window',
@@ -82,28 +72,14 @@ var Dashboard = React.createClass({
     },
 
     getDocButton: function getDocButton(icon, message, link) {
-        return React.createElement(
-            'div',
-            { style: { width: 180 }, key: icon },
-            React.createElement(FlatButton, {
-                primary: true,
-                style: { height: 110, lineHeight: '20px' },
-                label: React.createElement(
-                    'div',
-                    null,
-                    React.createElement('div', { style: { fontSize: 36 }, className: "mdi mdi-" + icon }),
-                    React.createElement(
-                        'div',
-                        null,
-                        message
-                    )
-                ),
-                fullWidth: true,
-                onTouchTap: function () {
-                    window.open(link);
-                }
-            })
-        );
+        return _react2['default'].createElement(_materialUi.FlatButton, {
+            key: message,
+            label: message,
+            primary: true,
+            icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-" + icon }),
+            onTouchTap: function () {
+                window.open(link);
+            } });
     },
 
     welcomeClick: function welcomeClick(e) {
@@ -119,195 +95,145 @@ var Dashboard = React.createClass({
     render: function render() {
         var _this2 = this;
 
-        var horizontalFlex = { display: 'flex', width: '100%' };
         var verticalFlex = { display: 'flex', flexDirection: 'column', height: '100%' };
         var flexFill = { flex: 1 };
         var paperStyle = { flex: 1, minWidth: 450, margin: 5 };
         var flexContainerStyle = _extends({}, verticalFlex);
-        var _props$muiTheme$palette = this.props.muiTheme.palette;
-        var accent1Color = _props$muiTheme$palette.accent1Color;
-        var accent2Color = _props$muiTheme$palette.accent2Color;
-
-        var MEDIA_TEST_CARD = React.createElement(
-            Card,
-            { style: paperStyle },
-            React.createElement(
-                CardMedia,
-                {
-                    overlay: React.createElement(CardTitle, { title: 'Want to contribute?', subtitle: 'Pydio is Open Source and will always be' })
-                },
-                React.createElement(
-                    'div',
-                    null,
-                    React.createElement(
-                        'div',
-                        { style: { backgroundColor: '#b0bec5', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 400 } },
-                        React.createElement('div', { className: 'mdi mdi-github-circle', style: { fontSize: 200, paddingBottom: 60 } })
-                    )
-                )
-            ),
-            React.createElement(
-                CardActions,
-                null,
-                React.createElement(FlatButton, { label: 'Get Started' })
-            )
-        );
-
+        var accent2Color = this.props.muiTheme.palette.accent2Color;
         var pydio = this.props.pydio;
 
         var message = function message(id) {
             return pydio.MessageHash['admin_dashboard.' + id];
         };
-        var OPEN_IN_NEW_ICON = React.createElement(IconButton, { iconClassName: 'mdi mdi-arrow-right', iconStyle: { color: 'rgba(0,0,0,.33)' }, tooltip: 'Open in new window' });
 
         // ADMIN GUIDE BUTTONS
         var guidesButtons = [{ icon: 'clock-start', id: 'start', link: 'https://pydio.com/en/docs/cells/v1/getting-started' }, { icon: 'network', id: 'ws', link: 'https://pydio.com/en/docs/cells/v1/storage-data-and-metadata' }, { icon: 'account-multiple', id: 'users', link: 'https://pydio.com/en/docs/cells/v1/access-control-and-security' }, { icon: 'professional-hexagon', id: 'advanced', link: 'https://pydio.com/en/docs/cells/v1/advanced' }];
 
         // DOCS LIST
         var kbItems = [];
-        shuffle(this.state.kb).forEach(function (object) {
-            kbItems.push(React.createElement(ListItem, { key: object.title, primaryText: object.title, secondaryText: object.desc, rightIconButton: _this2.getOpenIcon(object.link), secondaryTextLines: 2, disabled: true }));
-            kbItems.push(React.createElement(Divider, { key: object.title + '-divider' }));
+        (0, _lodashShuffle2['default'])(this.state.kb).forEach(function (object) {
+            kbItems.push(_react2['default'].createElement(_materialUi.ListItem, { key: object.title, primaryText: object.title, secondaryText: object.desc, rightIconButton: _this2.getOpenIcon(object.link), secondaryTextLines: 2, disabled: true }));
+            kbItems.push(_react2['default'].createElement(_materialUi.Divider, { key: object.title + '-divider' }));
         });
         // Remove last divider
         if (kbItems.length) {
             kbItems.pop();
         }
 
-        var WELCOME_COMMUNITY_CARD = React.createElement(
-            Card,
-            { style: paperStyle },
-            React.createElement(CardTitle, {
+        var WELCOME_COMMUNITY_CARD = _react2['default'].createElement(
+            _materialUi.Card,
+            { style: _extends({}, paperStyle, { minWidth: '95%' }), containerStyle: flexContainerStyle },
+            _react2['default'].createElement(_materialUi.CardTitle, {
                 title: message('welc.title'),
                 subtitle: message('welc.subtitle')
             }),
-            React.createElement(
-                CardText,
-                null,
-                React.createElement('style', { dangerouslySetInnerHTML: { __html: '.doc-link{color: ' + accent2Color + ';cursor: pointer;}' } }),
-                React.createElement('span', { dangerouslySetInnerHTML: { __html: message('welc.intro') }, onClick: this.welcomeClick })
-            ),
-            React.createElement(
-                CardText,
-                null,
-                message('welc.guide'),
-                React.createElement(
-                    'div',
-                    { style: _extends({}, horizontalFlex, { flexWrap: 'wrap', justifyContent: 'center', padding: '10px 20px 0' }) },
-                    guidesButtons.map(function (object) {
-                        return _this2.getDocButton(object.icon, message('welc.btn.' + object.id), object.link);
-                    })
-                )
-            )
-        );
-
-        var GET_SOME_HELP_CARD = React.createElement(
-            Card,
-            { style: paperStyle, containerStyle: flexContainerStyle },
-            React.createElement(CardTitle, {
-                title: message('kb.title'),
-                subtitle: message('kb.subtitle')
-            }),
-            React.createElement(
-                CardText,
-                null,
-                message('kb.intro')
-            ),
-            React.createElement(
-                List,
-                { style: { overflow: 'auto', flex: 1, maxHeight: 320 } },
-                kbItems
-            ),
-            React.createElement(Divider, null),
-            React.createElement(
-                CardActions,
-                { style: { textAlign: 'right' } },
-                React.createElement(FlatButton, { label: message('kb.btn.alldocs'), primary: true, onTouchTap: function () {
-                        window.open('https://github.com/pydio/cells/wiki');
-                    } }),
-                React.createElement(FlatButton, { label: message('kb.btn.forum'), primary: true, onTouchTap: function () {
-                        window.open('https://forum.pydio.com/');
-                    } })
-            )
-        );
-
-        var PAY_IT_FORWARD_CARD = React.createElement(
-            Card,
-            { style: paperStyle, containerStyle: flexContainerStyle },
-            React.createElement(CardTitle, { title: message('cont.title'), subtitle: message('cont.subtitle') }),
-            React.createElement(
-                CardText,
+            _react2['default'].createElement(
+                _materialUi.CardText,
                 { style: flexFill },
-                React.createElement('div', { className: 'mdi mdi-github-circle', style: { fontSize: 60, display: 'inline-block', float: 'left', marginRight: 10, marginBottom: 10 } }),
-                message('cont.intro'),
-                React.createElement(
-                    List,
-                    null,
-                    React.createElement(ListItem, { disabled: true, primaryText: message('cont.topic.report'), rightIconButton: this.getOpenIcon('https://forum.pydio.com/') }),
-                    React.createElement(Divider, null),
-                    React.createElement(ListItem, { disabled: true, primaryText: message('cont.topic.report.2'), rightIconButton: this.getOpenIcon('https://github.com/pydio/cells') }),
-                    React.createElement(Divider, null),
-                    React.createElement(ListItem, { disabled: true, primaryText: message('cont.topic.pr'), rightIconButton: this.getOpenIcon('https://github.com/pydio/cells') }),
-                    React.createElement(Divider, null),
-                    React.createElement(ListItem, { disabled: true, primaryText: message('cont.topic.translate'), rightIconButton: this.getOpenIcon('https://pydio.com/en/community/contribute/adding-translation-pydio') })
+                _react2['default'].createElement('style', { dangerouslySetInnerHTML: { __html: '.doc-link{color: ' + accent2Color + ';cursor: pointer;text-decoration:underline;}' } }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { lineHeight: '1.6em' } },
+                    _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: message('welc.intro') }, onClick: this.welcomeClick }),
+                    _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: message('welc.import') }, onClick: this.welcomeClick })
+                ),
+                _react2['default'].createElement(
+                    'p',
+                    { style: { fontSize: 14 } },
+                    message('welc.guide')
                 )
             ),
-            React.createElement(Divider, null),
-            React.createElement(
-                CardActions,
-                { style: { textAlign: 'center' } },
-                React.createElement(FlatButton, { label: message('cont.btn.github'), primary: true, icon: React.createElement(FontIcon, { className: 'mdi mdi-github-box' }), onTouchTap: function () {
+            _react2['default'].createElement(_materialUi.Divider, null),
+            _react2['default'].createElement(
+                _materialUi.CardActions,
+                { style: { textAlign: 'right' } },
+                guidesButtons.map(function (object) {
+                    return _this2.getDocButton(object.icon, message('welc.btn.' + object.id), object.link);
+                })
+            )
+        );
+
+        var PAY_IT_FORWARD_CARD = _react2['default'].createElement(
+            _materialUi.Card,
+            { style: paperStyle, containerStyle: flexContainerStyle },
+            _react2['default'].createElement(_materialUi.CardTitle, { title: message('cont.title'), subtitle: message('cont.subtitle') }),
+            _react2['default'].createElement(
+                _materialUi.CardText,
+                { style: flexFill },
+                _react2['default'].createElement('div', { className: 'mdi mdi-github-circle', style: { fontSize: 60, display: 'inline-block', float: 'left', marginRight: 10, marginBottom: 10 } }),
+                message('cont.intro'),
+                _react2['default'].createElement(
+                    _materialUi.List,
+                    null,
+                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.report'), rightIconButton: this.getOpenIcon('https://forum.pydio.com/') }),
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.report.2'), rightIconButton: this.getOpenIcon('https://github.com/pydio/cells') }),
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.pr'), rightIconButton: this.getOpenIcon('https://github.com/pydio/cells') }),
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(_materialUi.ListItem, { disabled: true, primaryText: message('cont.topic.translate'), rightIconButton: this.getOpenIcon('https://pydio.com/en/community/contribute/adding-translation-pydio') })
+                )
+            ),
+            _react2['default'].createElement(_materialUi.Divider, null),
+            _react2['default'].createElement(
+                _materialUi.CardActions,
+                { style: { textAlign: 'right' } },
+                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.github'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-github-box' }), onTouchTap: function () {
                         window.open('https://github.com/pydio/cells');
                     } }),
-                React.createElement(FlatButton, { label: message('cont.btn.tw'), primary: true, icon: React.createElement(FontIcon, { className: 'mdi mdi-twitter-box' }), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.tw'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-twitter-box' }), onTouchTap: function () {
                         window.open('https://twitter.com/Pydio');
                     } }),
-                React.createElement(FlatButton, { label: message('cont.btn.fb'), primary: true, icon: React.createElement(FontIcon, { className: 'mdi mdi-facebook-box' }), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { label: message('cont.btn.fb'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-facebook-box' }), onTouchTap: function () {
                         window.open('https://facebook.com/Pydio/');
                     } })
             )
         );
 
-        var DISCOVER_ENTERPRISE_CARD = React.createElement(
-            Card,
-            { style: paperStyle },
-            React.createElement(
-                CardMedia,
+        var DISCOVER_ENTERPRISE_CARD = _react2['default'].createElement(
+            _materialUi.Card,
+            { style: paperStyle, containerStyle: flexContainerStyle },
+            _react2['default'].createElement(
+                _materialUi.CardMedia,
                 {
-                    overlay: React.createElement(CardTitle, { title: message('ent.title'), subtitle: message('ent.subtitle') })
+                    overlay: _react2['default'].createElement(_materialUi.CardTitle, { title: message('ent.title'), subtitle: message('ent.subtitle') })
                 },
-                React.createElement('div', { style: { height: 230, backgroundImage: 'url(plug/access.settings/res/images/dashboard.png)', backgroundSize: 'cover', borderRadius: 3 } })
+                _react2['default'].createElement('div', { style: { height: 230, backgroundImage: 'url(plug/access.settings/res/images/dashboard.png)', backgroundSize: 'cover', borderRadius: 3 } })
             ),
-            React.createElement(
-                List,
-                null,
-                React.createElement(ListItem, { leftIcon: React.createElement(FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-certificate' }), primaryText: message('ent.features'), secondaryText: message('ent.features.legend') }),
-                React.createElement(Divider, null),
-                React.createElement(ListItem, { leftIcon: React.createElement(FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-chart-areaspline' }), primaryText: message('ent.advanced'), secondaryText: message('ent.advanced.legend') }),
-                React.createElement(Divider, null),
-                React.createElement(ListItem, { leftIcon: React.createElement(FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-message-alert' }), primaryText: message('ent.support'), secondaryText: message('ent.support.legend') })
+            _react2['default'].createElement(
+                _materialUi.List,
+                { style: flexFill },
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-certificate' }), primaryText: message('ent.features'), secondaryText: message('ent.features.legend'), disabled: true }),
+                _react2['default'].createElement(_materialUi.Divider, null),
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-chart-areaspline' }), primaryText: message('ent.advanced'), secondaryText: message('ent.advanced.legend'), disabled: true }),
+                _react2['default'].createElement(_materialUi.Divider, null),
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-message-alert' }), primaryText: message('ent.support'), secondaryText: message('ent.support.legend'), disabled: true }),
+                _react2['default'].createElement(_materialUi.Divider, null),
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-download' }), onTouchTap: function () {
+                        pydio.goTo('/admin/update');
+                    }, primaryText: _react2['default'].createElement(
+                        'span',
+                        { style: { color: 'rgb(1, 141, 204)' } },
+                        message('ent.upgrade')
+                    ), secondaryText: message('ent.upgrade.legend') })
             ),
-            React.createElement(Divider, null),
-            React.createElement(
-                CardActions,
+            _react2['default'].createElement(_materialUi.Divider, null),
+            _react2['default'].createElement(
+                _materialUi.CardActions,
                 { style: { textAlign: 'right' } },
-                React.createElement(FlatButton, { label: message('ent.btn.more'), primary: true, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { label: message('ent.btn.more'), icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "icomoon-cells" }), primary: true, onTouchTap: function () {
                         window.open('https://pydio.com/en/features/pydio-cells-overview');
                     } }),
-                React.createElement(FlatButton, { label: message('ent.btn.contact'), primary: true, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { label: message('ent.btn.contact'), icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-domain" }), primary: true, onTouchTap: function () {
                         window.open('https://pydio.com/en/pricing/contact');
                     } })
             )
         );
 
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             { className: "main-layout-nav-to-stack vertical-layout" },
-            React.createElement(AdminComponents.Header, {
-                title: message('welc.title'),
-                icon: 'icomoon-cells'
-            }),
-            React.createElement(
+            _react2['default'].createElement(
                 'div',
                 { className: "layout-fill", style: { display: 'flex', alignItems: 'top', flexWrap: 'wrap', padding: 5 } },
                 WELCOME_COMMUNITY_CARD,
@@ -319,6 +245,6 @@ var Dashboard = React.createClass({
 
 });
 
-exports['default'] = Dashboard = muiThemeable()(Dashboard);
+exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard);
 exports['default'] = Dashboard;
 module.exports = exports['default'];
