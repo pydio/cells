@@ -250,6 +250,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	config.Set(internalUrl, "defaults", "urlInternal")
 	config.Set(certData, "cert")
 	config.Save("cli", "Install / Setting default URLs")
+	config.ResetTlsConfigs()
 
 	return
 }
