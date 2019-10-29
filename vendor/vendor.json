@@ -784,6 +784,12 @@
 			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
+			"checksumSHA1": "P7bWArXNDqkhPs5gR3+joRHUITk=",
+			"path": "github.com/coreos/dex/pkg/groups",
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
+		},
+		{
 			"checksumSHA1": "Ls9+0opTZ8u0l7JuIbthlsCrLs4=",
 			"path": "github.com/coreos/dex/server",
 			"revision": "6e834adab31f31544b60234d90abd4001929b786",
