@@ -47,58 +47,108 @@ var StepPrerequisites = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var advanced = this.props.advanced;
 
             var content = _react2['default'].createElement(
                 'div',
                 null,
                 _react2['default'].createElement(
                     'p',
-                    { style: { backgroundColor: '#C62828', color: 'white', borderRadius: 2, padding: 12, fontWeight: 500 } },
-                    this.T('step.prereq.disclaimer'),
-                    _react2['default'].createElement('br', null),
-                    _react2['default'].createElement('br', null),
-                    this.T('step.prereq.disclaimer2'),
-                    _react2['default'].createElement(
-                        'a',
-                        { href: "https://pydio.com/en/user/login", style: { textDecoration: 'underline', color: 'white' } },
-                        _react2['default'].createElement(_materialUi.FontIcon, { color: "white", className: "mdi mdi-open-in-new" })
-                    ),
-                    '.'
-                ),
-                _react2['default'].createElement(
-                    'p',
                     null,
                     this.T('step.prereq.welcome'),
                     _react2['default'].createElement('br', null),
-                    this.T('step.prereq.check'),
+                    this.T('step.prereq.check')
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex' } },
                     _react2['default'].createElement(
-                        'ul',
-                        null,
+                        'div',
+                        { style: { border: '2px solid rgb(96, 125, 138)', borderRadius: 8, padding: '8px 16px', flex: 1, marginRight: 8 } },
                         _react2['default'].createElement(
-                            'li',
-                            { style: { listStyle: 'inherit', margin: 20 } },
-                            this.T('step.prereq.check.copy')
+                            'h4',
+                            { style: { color: '#607D8B', paddingTop: 0 } },
+                            this.T('step.prereq.step1')
                         ),
                         _react2['default'].createElement(
-                            'li',
-                            { style: { listStyle: 'inherit', margin: 20 } },
+                            'p',
+                            null,
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check", style: { fontSize: 'inherit' } }),
+                            ' ',
+                            this.T('step.prereq.check.adminpydio')
+                        ),
+                        _react2['default'].createElement(
+                            'p',
+                            null,
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check", style: { fontSize: 'inherit' } }),
+                            ' ',
                             this.T('step.prereq.check.install'),
+                            ' : ',
                             _react2['default'].createElement(
                                 'a',
                                 { href: "https://download.pydio.com/pub/plugins/archives/action.migration.tar.gz", target: "_blank" },
-                                _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-open-in-new" })
-                            ),
-                            '.'
+                                _react2['default'].createElement(_materialUi.FontIcon, { style: { fontSize: 'inherit' }, className: "mdi mdi-open-in-new" })
+                            )
+                        )
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { border: '2px solid rgb(96, 125, 138)', borderRadius: 8, padding: '8px 16px', flex: 1 } },
+                        _react2['default'].createElement(
+                            'h4',
+                            { style: { color: '#607D8B', paddingTop: 0 } },
+                            this.T('step.prereq.step2')
                         ),
                         _react2['default'].createElement(
-                            'li',
-                            { style: { listStyle: 'inherit', margin: 20 } },
+                            'p',
+                            null,
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check", style: { fontSize: 'inherit' } }),
+                            ' ',
                             this.T('step.prereq.check.admincell')
                         ),
                         _react2['default'].createElement(
-                            'li',
-                            { style: { listStyle: 'inherit', margin: 20 } },
-                            this.T('step.prereq.check.adminpydio')
+                            'p',
+                            null,
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check", style: { fontSize: 'inherit' } }),
+                            ' ',
+                            this.T('step.prereq.check.copy')
+                        )
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { border: '2px solid rgb(96, 125, 138)', borderRadius: 8, padding: '8px 16px', flex: 1, marginLeft: 8 } },
+                        _react2['default'].createElement(
+                            'h4',
+                            { style: { color: '#607D8B', paddingTop: 0 } },
+                            this.T('step.prereq.step3')
+                        ),
+                        _react2['default'].createElement(
+                            'p',
+                            null,
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check", style: { fontSize: 'inherit' } }),
+                            ' ',
+                            this.T('step.prereq.ds.create')
+                        ),
+                        advanced && _react2['default'].createElement(
+                            'p',
+                            null,
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check", style: { fontSize: 'inherit' } }),
+                            ' ',
+                            this.T('step.prereq.ds.tpl.ed')
+                        ),
+                        !advanced && _react2['default'].createElement(
+                            'p',
+                            null,
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-alert", style: { fontSize: 'inherit' } }),
+                            ' ',
+                            this.T('step.prereq.ds.tpl.home')
+                        ),
+                        _react2['default'].createElement(
+                            'p',
+                            null,
+                            _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check", style: { fontSize: 'inherit' } }),
+                            ' ',
+                            this.T('step.prereq.ds.done')
                         )
                     )
                 )

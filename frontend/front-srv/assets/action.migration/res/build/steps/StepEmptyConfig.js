@@ -10,6 +10,8 @@ var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_ag
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -49,13 +51,17 @@ var StepEmptyConfig = (function (_React$Component) {
             var onBack = _props.onBack;
             var onComplete = _props.onComplete;
             var nextLabel = _props.nextLabel;
-            var title = _props.title;
             var legend = _props.legend;
             var styles = _props.styles;
+            var otherButtons = _props.otherButtons;
+            var _props2 = this.props;
+            var title = _props2.title;
+
+            var remainingProps = _objectWithoutProperties(_props2, ['title']);
 
             return _react2['default'].createElement(
                 _materialUi.Step,
-                this.props,
+                remainingProps,
                 _react2['default'].createElement(
                     _materialUi.StepLabel,
                     null,
@@ -72,6 +78,7 @@ var StepEmptyConfig = (function (_React$Component) {
                     _react2['default'].createElement(
                         _StepActions2['default'],
                         null,
+                        otherButtons,
                         onBack && _react2['default'].createElement(_materialUi.RaisedButton, {
                             onClick: function () {
                                 return onBack();

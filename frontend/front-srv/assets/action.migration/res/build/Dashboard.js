@@ -66,6 +66,10 @@ var _stepsStepPrerequisites = require('./steps/StepPrerequisites');
 
 var _stepsStepPrerequisites2 = _interopRequireDefault(_stepsStepPrerequisites);
 
+var _stepsStepDisclaimer = require('./steps/StepDisclaimer');
+
+var _stepsStepDisclaimer2 = _interopRequireDefault(_stepsStepDisclaimer);
+
 var _TaskActivity = require('./TaskActivity');
 
 var _TaskActivity2 = _interopRequireDefault(_TaskActivity);
@@ -177,6 +181,7 @@ var Dashboard = (function (_React$Component) {
             var pydio = _props.pydio;
             var openRightPane = _props.openRightPane;
             var closeRightPane = _props.closeRightPane;
+            var advanced = _props.advanced;
             var _state = this.state;
             var activeStep = _state.activeStep;
             var url = _state.url;
@@ -244,7 +249,8 @@ var Dashboard = (function (_React$Component) {
                         _react2['default'].createElement(
                             _materialUi.Stepper,
                             { style: { display: 'flex' }, orientation: 'vertical', activeStep: activeStep },
-                            _react2['default'].createElement(_stepsStepPrerequisites2['default'], _extends({}, commonProps, { onBack: null })),
+                            _react2['default'].createElement(_stepsStepDisclaimer2['default'], _extends({}, commonProps, { onBack: null, advanced: advanced })),
+                            _react2['default'].createElement(_stepsStepPrerequisites2['default'], _extends({}, commonProps, { onBack: null, advanced: advanced })),
                             _react2['default'].createElement(_stepsStepConnection2['default'], _extends({}, commonProps, { url: url, skipVerify: skipVerify, user: user, pwd: pwd })),
                             _react2['default'].createElement(_stepsStepCategories2['default'], _extends({}, commonProps, { features: features,
                                 onChange: function (newFeatures) {

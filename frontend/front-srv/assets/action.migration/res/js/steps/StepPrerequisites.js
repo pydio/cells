@@ -11,25 +11,40 @@ class StepPrerequisites extends React.Component {
 
     render() {
 
+        const {advanced} = this.props;
+
         const content = (
             <div>
-                <p style={{backgroundColor: '#C62828', color: 'white', borderRadius: 2, padding: 12, fontWeight: 500}}>
-                    {this.T('step.prereq.disclaimer')}<br/><br/>
-                    {this.T('step.prereq.disclaimer2')}
-                    <a href={"https://pydio.com/en/user/login"} style={{textDecoration:'underline', color:'white'}}>{<FontIcon  color={"white"} className={"mdi mdi-open-in-new"}/>}</a>.
-                </p>
                 <p>
                     {this.T('step.prereq.welcome')}<br/>
                     {this.T('step.prereq.check')}
-                    <ul>
-                        <li style={{listStyle:'inherit', margin: 20}}>{this.T('step.prereq.check.copy')}</li>
-                        <li style={{listStyle:'inherit', margin: 20}}>{this.T('step.prereq.check.install')}<a href={"https://download.pydio.com/pub/plugins/archives/action.migration.tar.gz"} target={"_blank"}><FontIcon className={"mdi mdi-open-in-new"}/></a>.</li>
-                        <li style={{listStyle:'inherit', margin: 20}}>{this.T('step.prereq.check.admincell')}</li>
-                        <li style={{listStyle:'inherit', margin: 20}}>{this.T('step.prereq.check.adminpydio')}</li>
-                    </ul>
                 </p>
+                <div style={{display:'flex'}}>
+                    <div style={{border: '2px solid rgb(96, 125, 138)', borderRadius:8, padding:'8px 16px', flex: 1, marginRight: 8}}>
+                        <h4 style={{color:'#607D8B', paddingTop: 0}}>{this.T('step.prereq.step1')}</h4>
+                        <p><FontIcon className={"mdi mdi-check"} style={{fontSize:'inherit'}}/> {this.T('step.prereq.check.adminpydio')}</p>
+                        <p><FontIcon className={"mdi mdi-check"} style={{fontSize:'inherit'}}/> {this.T('step.prereq.check.install')} : <a href={"https://download.pydio.com/pub/plugins/archives/action.migration.tar.gz"} target={"_blank"}><FontIcon style={{fontSize:'inherit'}} className={"mdi mdi-open-in-new"}/></a></p>
+                    </div>
+                    <div style={{border: '2px solid rgb(96, 125, 138)', borderRadius:8, padding:'8px 16px', flex: 1}}>
+                        <h4 style={{color:'#607D8B', paddingTop: 0}}>{this.T('step.prereq.step2')}</h4>
+                        <p><FontIcon className={"mdi mdi-check"} style={{fontSize:'inherit'}}/> {this.T('step.prereq.check.admincell')}</p>
+                        <p><FontIcon className={"mdi mdi-check"} style={{fontSize:'inherit'}}/> {this.T('step.prereq.check.copy')}</p>
+                    </div>
+                    <div style={{border: '2px solid rgb(96, 125, 138)', borderRadius:8, padding:'8px 16px', flex: 1, marginLeft: 8}}>
+                        <h4 style={{color:'#607D8B', paddingTop: 0}}>{this.T('step.prereq.step3')}</h4>
+                        <p><FontIcon className={"mdi mdi-check"} style={{fontSize:'inherit'}}/> {this.T('step.prereq.ds.create')}</p>
+                        {advanced &&
+                            <p><FontIcon className={"mdi mdi-check"} style={{fontSize:'inherit'}}/> {this.T('step.prereq.ds.tpl.ed')}</p>
+                        }
+                        {!advanced &&
+                            <p><FontIcon className={"mdi mdi-alert"} style={{fontSize:'inherit'}}/> {this.T('step.prereq.ds.tpl.home')}</p>
+                        }
+                        <p><FontIcon className={"mdi mdi-check"} style={{fontSize:'inherit'}}/> {this.T('step.prereq.ds.done')}</p>
+                    </div>
+                </div>
             </div>
         );
+
 
         return <StepEmptyConfig {...this.props} title={this.T('step.prereq.title')} legend={content} nextLabel={this.T('step.prereq.start')}/>
 

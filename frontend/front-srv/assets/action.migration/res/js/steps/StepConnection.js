@@ -1,5 +1,6 @@
 import React from 'react'
 import Pydio from 'pydio'
+import LangUtils from 'pydio/util/lang'
 const {ModernTextField} = Pydio.requireLib('hoc');
 import {Step, StepLabel, StepContent, RaisedButton, Paper, Checkbox} from 'material-ui'
 import StepActions from './StepActions'
@@ -43,7 +44,7 @@ class StepConnection extends React.Component {
             return
         }
 
-        this.testUrl('GET', url + '/api/v2/admin/workspaces', user, pwd).then(()=> {
+        this.testUrl('GET', LangUtils.trimRight(url, '/') + '/api/v2/admin/workspaces', user, pwd).then(()=> {
 
             pydio.UI.displayMessage("SUCCESS", this.T('success'));
             this.setState({error: null});

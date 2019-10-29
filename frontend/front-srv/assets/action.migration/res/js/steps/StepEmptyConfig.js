@@ -13,16 +13,18 @@ class StepEmptyConfig extends React.Component {
     }
 
     render() {
-        const {onBack, onComplete, nextLabel, title, legend, styles} = this.props;
+        const {onBack, onComplete, nextLabel, legend, styles, otherButtons} = this.props;
+        const {title, ...remainingProps} = this.props;
 
         return (
-            <Step {...this.props}>
+            <Step {...remainingProps}>
                 <StepLabel>{title}</StepLabel>
                 <StepContent>
                     <div style={styles.stepLegend}>
                         {legend}
                     </div>
                     <StepActions>
+                        {otherButtons}
                         {onBack &&
                             <RaisedButton
                                 onClick={() => onBack()}

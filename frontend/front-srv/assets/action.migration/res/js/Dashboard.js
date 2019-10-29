@@ -12,6 +12,7 @@ import StepMetadata from './steps/StepMetadata'
 import StepShares from './steps/StepShares'
 import StepWorkspaces from './steps/StepWorkspaces'
 import StepPrequisites from './steps/StepPrerequisites'
+import StepDisclaimer from './steps/StepDisclaimer'
 import TaskActivity from './TaskActivity'
 
 import * as Actions from './actions/actions'
@@ -94,7 +95,7 @@ export default class Dashboard extends React.Component {
 
     render(){
 
-        const {pydio, openRightPane, closeRightPane} = this.props;
+        const {pydio, openRightPane, closeRightPane, advanced} = this.props;
         const {activeStep, url, skipVerify, user, pwd, features, task, showLogs, localStatus, previousTasks, ...remainingState} = this.state;
         const previousJobsSelector = (
             <SelectField fullWidth={true} value={showLogs} onChange={(e,i,v) => {this.setState({showLogs:v})}}>
@@ -137,7 +138,9 @@ export default class Dashboard extends React.Component {
             content = (
                 <Paper style={{margin: 16, paddingBottom: 16}}>
                     <Stepper style={{display:'flex'}} orientation="vertical" activeStep={activeStep}>
-                        <StepPrequisites {...commonProps} onBack={null}/>
+                        <StepDisclaimer {...commonProps} onBack={null} advanced={advanced}/>
+
+                        <StepPrequisites {...commonProps} onBack={null} advanced={advanced}/>
 
                         <StepConnection {...commonProps} url={url} skipVerify={skipVerify} user={user} pwd={pwd}/>
 

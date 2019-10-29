@@ -24,6 +24,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 var _materialUi = require('material-ui');
 
 var _StepActions = require('./StepActions');
@@ -89,7 +93,7 @@ var StepConnection = (function (_React$Component) {
                 return;
             }
 
-            this.testUrl('GET', url + '/api/v2/admin/workspaces', user, pwd).then(function () {
+            this.testUrl('GET', _pydioUtilLang2['default'].trimRight(url, '/') + '/api/v2/admin/workspaces', user, pwd).then(function () {
 
                 pydio.UI.displayMessage("SUCCESS", _this2.T('success'));
                 _this2.setState({ error: null });
