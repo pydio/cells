@@ -115,7 +115,10 @@ func setDefaultConfig(config *Config) (bool, error) {
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_HOST": "localhost",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_PORT": "9980",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_SSL":  true,
-		"services/" + oauthSrv + "/secret":                    string(secret),
+		"services/" + oauthSrv + "/cors/public": map[string]interface{}{
+			"allowedOrigins": "*",
+		},
+		"services/" + oauthSrv + "/secret": string(secret),
 		"services/" + oauthSrv + "/staticClients": []map[string]interface{}{
 			oAuthSyncConfig,
 			oAuthCecConfig,

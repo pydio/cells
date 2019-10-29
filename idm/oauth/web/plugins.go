@@ -32,6 +32,7 @@ import (
 	"github.com/ory/hydra/jwk"
 	"github.com/ory/hydra/oauth2"
 	"github.com/ory/hydra/x"
+	"github.com/rs/cors"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -91,7 +92,13 @@ func serve(s service.Service) (micro.Option, error) {
 	keyHandler.SetRoutes(admin, public, driver.OAuth2AwareCORSMiddleware("public", reg, conf))
 
 	mux := http.NewServeMux()
-	mux.Handle("/oidc/admin/", http.StripPrefix("/oidc/admin", admin))
+
+	if conf.CORSEnabled("admin") {
+		mux.Handle("/oidc-admin/", http.StripPrefix("/oidc-admin", cors.New(conf.CORSOptions("admin")).Handler(admin)))
+	} else {
+		mux.Handle("/oidc-admin/", http.StripPrefix("/oidc-admin", admin))
+	}
+
 	mux.Handle("/oidc/", http.StripPrefix("/oidc", public))
 
 	hd := srv.NewHandler(mux)

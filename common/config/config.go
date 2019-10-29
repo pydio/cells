@@ -338,6 +338,10 @@ func (c Map) Values(key string) common.ConfigValues {
 	return v
 }
 
+func (c Map) IsEmpty() bool {
+	return len(c) > 0
+}
+
 // Set sets the key to value. It replaces any existing
 // values.
 func (c Map) Set(key string, value interface{}) error {

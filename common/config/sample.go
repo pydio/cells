@@ -164,6 +164,11 @@ var SampleConfig = `{
             "fork": true
         },
 		"pydio.web.oauth":{
+			"cors": {
+				"public": {
+					"allowedOrigins": "*"
+				}
+			},
 			"staticClients": [
 				{
 					"client_id": "cells-sync",
