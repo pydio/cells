@@ -103,9 +103,7 @@ func GetAvailableIPs() (ips []net.IP, e error) {
 			ips = append(ips, ip)
 		}
 	}
-	if len(ips) == 0 {
-		return nil, errors.New("are you connected to the network?")
-	}
+	ips = append(ips, net.ParseIP("127.0.0.1"))
 	return
 }
 
@@ -125,6 +123,10 @@ func GetOutboundIP() (net.IP, error) {
 
 // PeerAddressIsLocal compares and address (can be an IP or Hostname) to the current server values
 func PeerAddressIsLocal(address string) bool {
+	if address == "localhost" {
+		return true
+	}
+
 	if host, e := os.Hostname(); e == nil && address == host {
 		return true
 	}

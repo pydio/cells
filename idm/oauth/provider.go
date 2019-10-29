@@ -71,19 +71,19 @@ func (v *Provider) DefaultClientScope() []string {
 }
 
 func (v *Provider) CORSEnabled(iface string) bool {
-	return v.cors != nil
+	return v.cors.Values(iface).IsEmpty()
 }
 
 func (v *Provider) CORSOptions(iface string) cors.Options {
 	return cors.Options{
-		AllowedOrigins:     v.cors.StringArray("allowedOrigins"),
-		AllowedMethods:     v.cors.StringArray("allowedMethods"),
-		AllowedHeaders:     v.cors.StringArray("allowedHeaders"),
-		ExposedHeaders:     v.cors.StringArray("exposedHeaders"),
-		AllowCredentials:   v.cors.Bool("allowCredentials", true),
-		OptionsPassthrough: v.cors.Bool("optionsPassthrough", false),
-		MaxAge:             v.cors.Int("maxAge", 0),
-		Debug:              v.cors.Bool("debug", false),
+		AllowedOrigins:     v.cors.Values(iface).StringArray("allowedOrigins"),
+		AllowedMethods:     v.cors.Values(iface).StringArray("allowedMethods"),
+		AllowedHeaders:     v.cors.Values(iface).StringArray("allowedHeaders"),
+		ExposedHeaders:     v.cors.Values(iface).StringArray("exposedHeaders"),
+		AllowCredentials:   v.cors.Values(iface).Bool("allowCredentials", true),
+		OptionsPassthrough: v.cors.Values(iface).Bool("optionsPassthrough", false),
+		MaxAge:             v.cors.Values(iface).Int("maxAge", 0),
+		Debug:              v.cors.Values(iface).Bool("debug", false),
 	}
 }
 
@@ -173,7 +173,6 @@ func (v *Provider) GetRotatedSystemSecrets() [][]byte {
 }
 
 func (v *Provider) GetSystemSecret() []byte {
-
 	return v.v.Bytes("secret", []byte{})
 }
 

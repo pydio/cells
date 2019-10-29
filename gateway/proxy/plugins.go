@@ -73,6 +73,12 @@ var (
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
+	proxy /oidc-admin/oauth2/auth/requests {{.OAuth | urls}} {
+		insecure_skip_verify
+		header_upstream Host {host}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
 	proxy /io   {{.Gateway | serviceAddress}} {
 		header_upstream Host {{.ExternalHost}}
 		header_upstream X-Real-IP {remote}
@@ -149,6 +155,7 @@ var (
 		if {path} not_starts_with "/a/"
 		if {path} not_starts_with "/auth/"
 		if {path} not_starts_with "/oidc/"
+		if {path} not_starts_with "/oidc-admin/oauth2/auth/requests/"
 		if {path} not_starts_with "/io"
 		if {path} not_starts_with "/data"
 		if {path} not_starts_with "/ws/"
