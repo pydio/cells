@@ -1,51 +1,51 @@
 {
   "1": {
-    "other": "Configuration Data"
+    "other": "Dữ liệu cấu hình"
   },
   "10": {
     "other": "Meta Sources"
   },
   "100": {
-    "other": "Common '%s' plugins options"
+    "other": "Các thiết lập chung cho plugins '%s'"
   },
   "101": {
-    "other": "Name"
+    "other": "Tên"
   },
   "102": {
-    "other": "Identifier"
+    "other": "User name"
   },
   "103": {
-    "other": "Description"
+    "other": "Mô tả"
   },
   "104": {
-    "other": "Enabled"
+    "other": "Bật"
   },
   "105": {
-    "other": "Automatic checks"
+    "other": "Tự động kiểm tra"
   },
   "106": {
-    "other": "Unique Identifier"
+    "other": "User name duy nhất"
   },
   "107": {
-    "other": "Plugin Configurations"
+    "other": "Các thiết lập của plugin"
   },
   "108": {
     "other": "Documentation"
   },
   "109": {
-    "other": "Application Parameters"
+    "other": "Các thiết lập cơ bản"
   },
   "11": {
-    "other": "Add a source"
+    "other": "Thêm mới source"
   },
   "110": {
-    "other": "Workspaces & Users"
+    "other": "Workspaces và Người dùng"
   },
   "111": {
     "other": "Backend"
   },
   "112": {
-    "other": "<b>Apply this role by default</b> to all new users."
+    "other": "<b>Mặc định gán role này </b> cho các user được tạo mới từ lúc này."
   },
   "113": {
     "other": "Role đã được thay đổi thành công"
@@ -201,7 +201,7 @@
     "other": "Guest"
   },
   "160": {
-    "other": "Group was successfully created"
+    "other": "Nhóm đã được tạo thành công"
   },
   "161": {
     "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
@@ -498,52 +498,52 @@
     "other": "Cập nhật danh sách actions cho role đã thành công"
   },
   "88": {
-    "other": "This workspace is defined in the config file, you cannot edit its meta sources via the GUI."
+    "other": "Workspace này được thiết lập trong bootstrap_repository. php, bạn không thể thay đổi meta sources từ giao diện."
   },
   "89": {
-    "other": "User specific data"
+    "other": "Các dữ liệu khác của người dùng"
   },
   "9": {
-    "other": "Access Type"
+    "other": "Giao thức của dữ liệu nguồn"
   },
   "90": {
-    "other": "New Workspace"
+    "other": "Workspace mới"
   },
   "91": {
-    "other": "New Template"
+    "other": "Tạo mới một workspace mẫu"
   },
   "92": {
-    "other": "Create a new template"
+    "other": "Tạo mới một workspace mẫu"
   },
   "93": {
-    "other": "Edit"
+    "other": "Thay đổi"
   },
   "94": {
-    "other": "Batch Edit"
+    "other": "Thay đổi một loạt"
   },
   "95": {
-    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
+    "other": "Đặt tên và lựa chọn giao thức của dữ liệu nguồn (Xin điền đầy đủ các thông tin bắt buộc. Bạn có thể đưa chuột lên tên các đề mcj để biết thêm thông tin yêu cầu)."
   },
   "96": {
-    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
+    "other": "Một khi tên và giao thức dữ liệu nguồn được thiết lập, các trường được bạn định nghĩa trước trên workspace mẫu sẽ xuất hiện ở dạng checkbox. Các trường còn lại sẽ được điền tiếp khi user sử dụng mẫu này. Nếu bạn không muốn user thay đổi một trường nào đó thì bật nó lên và để giá trị rỗng."
   },
   "97": {
-    "other": "Plugin options successfully updated"
+    "other": "Thiết lập mới cho plugin được lưu thành công"
   },
   "98": {
-    "other": "Application Core"
+    "other": "Các thành phần lõi của ứng dụng"
   },
   "99": {
-    "other": "Feature plugins"
+    "other": "Các plugins phụ trợ"
   },
   "topbar.title": {
     "other": "Cells Console"
   },
   "topbar.button.advanced": {
-    "other": "Show/hide advanced parameters"
+    "other": "Bật/Tắt các thiết lập nâng cao"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "Thêm thông tin về Pydio Cells"
   },
   "group_access": {
     "other": "g"

@@ -59,23 +59,14 @@
   "ent.title": {
     "other": "Scopri Pydio Cells Enterprise"
   },
-  "kb.btn.alldocs": {
-    "other": "Tutta la documentazione"
+  "ent.upgrade": {
+    "other": "Upgrade now!"
   },
-  "kb.btn.forum": {
-    "other": "Vai al Forum"
-  },
-  "kb.intro": {
-    "other": "Oltre al forum, il nostro sito fornisce un gran numero di documenti per aiutarti. Assicuratevi di averli letti prima di inviare le vostre domande ;-)"
-  },
-  "kb.subtitle": {
-    "other": "F.A.Q e tutorial più comuni, ovvero RTFM"
-  },
-  "kb.title": {
-    "other": "Chiedete aiuto"
+  "ent.upgrade.legend": {
+    "other": "In-app upgrade Cells Enterprise (license required)"
   },
   "welc.btn.advanced": {
-    "other": "Argomenti avanzati"
+    "other": "Advanced"
   },
   "welc.btn.parameters": {
     "other": "Informazioni sui parametri"
@@ -84,21 +75,24 @@
     "other": "Guida introduttiva"
   },
   "welc.btn.users": {
-    "other": "Informazioni sulla gestione degli utenti"
+    "other": "Users"
   },
   "welc.btn.ws": {
-    "other": "Informazioni sui workspace"
+    "other": "Workspaces"
   },
   "welc.guide": {
-    "other": "Se non sai da dove cominciare, la guida per l'amministratore è sicuramente una buona lettura:"
+    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
   },
   "welc.intro": {
     "other": "Questo è il pannello di controllo per la gestione di Pydio Cells. Usando il menù sulla sinistra, è possibile creare i <a class=\"doc-link\" data-path=\"/data/workspaces\">workspace</a> e gli <a class=\"doc-link\" data-path=\"/idm/users\">utenti</a>,\n                            controllate tutti gli <a class=\"doc-link\" data-path=\"/admin/logs\">eventi</a> che si sono verificati sulla piattaforma, e gestire le <a class=\"doc-link\" data-path=\"/parameters/core\">configurazioni</a> e i <a class=\"doc-link\" data-path=\"/plugins/manager\">plugin</a>."
+  },
+  "welc.import": {
+    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
   },
   "welc.subtitle": {
     "other": "Il luogo dove amministrare e monitorare l'attività sulla piattaforma"
   },
   "welc.title": {
-    "other": "Benvenuto sul pannello di controllo di Pydio Cells"
+    "other": "Welcome to Pydio Cells v2"
   }
 }
