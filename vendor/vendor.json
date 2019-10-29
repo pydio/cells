@@ -726,104 +726,110 @@
 		{
 			"checksumSHA1": "gJqPpMcZ+8pC1D1dMIvnO09vO6w=",
 			"path": "github.com/coreos/dex",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "0a1SxY6u2ChUk16fhbO3pcFf41M=",
 			"path": "github.com/coreos/dex/api",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "tn7M0Hyr4yQ6F/uobr16SiFUF4U=",
 			"path": "github.com/coreos/dex/connector",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "dAgUYWnytoZyyInRjgV81RkO3kA=",
 			"path": "github.com/coreos/dex/connector/github",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "u6AxfFqDoEWv8cc2xZE6IoFId4U=",
 			"path": "github.com/coreos/dex/connector/gitlab",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "I83x46h/kPv+L2ua5ggRZqZvMyc=",
 			"path": "github.com/coreos/dex/connector/ldap",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
+		},
+		{
+			"checksumSHA1": "HugiEIGwuyKAwSYZ43k1o+1dtug=",
+			"path": "github.com/coreos/dex/connector/microsoft",
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "g/87jFFJi/LTlSw7RGIOMK47W84=",
 			"path": "github.com/coreos/dex/connector/mock",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "0PwQyoc39/XOVnT6OeCie0SBfx8=",
 			"path": "github.com/coreos/dex/connector/oidc",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "y+/yleb47rjC5EC1YYYq26DhnyE=",
 			"path": "github.com/coreos/dex/connector/saml",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
-			"checksumSHA1": "PnmQO52I3zz6sib5WTUg/XJ8NbI=",
+			"checksumSHA1": "Ls9+0opTZ8u0l7JuIbthlsCrLs4=",
 			"path": "github.com/coreos/dex/server",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "zqifAxI1D9ALpAFGq6HDolxTa34=",
 			"path": "github.com/coreos/dex/server/internal",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "uTTd+zEIJTSfLCXSbyAgIl+hJbE=",
 			"path": "github.com/coreos/dex/storage",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "Q4h74qAaLQ1Oule+YnJeJfRdmKU=",
 			"path": "github.com/coreos/dex/storage/kubernetes",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "/zH14s/TiaZ3OzYH7Wl31bAns9Y=",
 			"path": "github.com/coreos/dex/storage/kubernetes/k8sapi",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "QrRicuwS/rpxs4b5oeI0z8fgFbM=",
 			"path": "github.com/coreos/dex/storage/memory",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
-			"checksumSHA1": "RVgANKGGr3shCP5xfTQ+eXARmro=",
+			"checksumSHA1": "AZ5g81g3cca16Yc2fj0Z0kdjJZ4=",
 			"path": "github.com/coreos/dex/storage/sql",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "bUKVUnGHjs8pb4RNhoO+j6P5hKc=",
 			"path": "github.com/coreos/dex/version",
-			"revision": "3ba1b21f4b3c258ff0a2093e2fb3de26959e6bd2",
-			"revisionTime": "2019-08-02T09:57:34Z"
+			"revision": "6e834adab31f31544b60234d90abd4001929b786",
+			"revisionTime": "2019-10-29T09:30:32Z"
 		},
 		{
 			"checksumSHA1": "t6GkLUdf0ydkb/CuG90XPRY8H/o=",
