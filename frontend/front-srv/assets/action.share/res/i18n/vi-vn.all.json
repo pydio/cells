@@ -3,43 +3,43 @@
     "other": "%s Public Download"
   },
   "10": {
-    "other": "Folder is shared"
+    "other": "Thư mục này đã được chia sẻ"
   },
   "100": {
-    "other": "Shared files"
+    "other": "Tập tin được chia sẻ"
   },
   "101": {
-    "other": "All files shared as public links"
+    "other": "Các files đã được chia sẻ dưới dạng liên kết public"
   },
   "102": {
-    "other": "Shared folders"
+    "other": "Thư mục được chia sẻ"
   },
   "103": {
-    "other": "All folders shared as workspaces or minisites."
+    "other": "Các thư mục đã được chia sẻ dưới dạng workspace hay minisites."
   },
   "104": {
-    "other": "Displaying first link, there are %s others"
+    "other": "Đây là liên kết đầu tiên, trong tổng số %s liên kết"
   },
   "105": {
-    "other": "Displaying first link, there is one other"
+    "other": "Đây là liên kết đầu tiên, ngoài ra còn một liên kết khác nữa"
   },
   "106": {
-    "other": "Do you want to reset the download counter?"
+    "other": "Bạn có chắc xóa bộ đếm lượt download?"
   },
   "107": {
-    "other": "Download limit must be between 1 and %s"
+    "other": "Giới hạn download phải là con số từ 1 tới %s"
   },
   "108": {
-    "other": "Use a QRCode reader to scan the image "
+    "other": "Sử dụng phần mềm đọc QRCode "
   },
   "109": {
-    "other": "Minisite User"
+    "other": "User cho Minisite"
   },
   "11": {
-    "other": "Expiration"
+    "other": "Thời hạn"
   },
   "110": {
-    "other": "Share this"
+    "other": "Chia sẻ cái này"
   },
   "110b": {
     "other": "Share"
@@ -192,154 +192,154 @@
     "other": "Update"
   },
   "153": {
-    "other": "Standard (file list with application header)"
+    "other": "Standard (danh sách file được liệt kê với dòng tiêu đề)"
   },
   "154": {
-    "other": "Film Strip (good for image galleries)"
+    "other": "Film Strip (phù hợp với thư viện ảnh)"
   },
   "155": {
     "other": "Embedded (smaller header, for widgets)"
   },
   "156": {
-    "other": "Successfully published link %s"
+    "other": "Đã tạo mới liên kết %s"
   },
   "157": {
-    "other": "This folder is currently shared. If you delete it, associated share will be disabled."
+    "other": "Thư mục này đang được chia sẻ. Nếu bạn xóa nó thì liên kết trên đó cũng sẽ mất tác dụng."
   },
   "158": {
-    "other": "This file is currently shared. If you delete it, associated share will be disabled. "
+    "other": "File này đang được chia sẻ. Nếu bạn xóa nó thì liên kết chia sẻ cũng sẽ mất tác dụng. "
   },
   "159": {
     "other": "Owner"
   },
   "16": {
-    "other": "reset"
+    "other": "thiết lập lại"
   },
   "160": {
-    "other": "You are not allowed to delete this shared item"
+    "other": "Bạn không có quyền xóa chia sẻ này"
   },
   "161": {
-    "other": "Deprecated Link"
+    "other": "Các liên kết lỗi thời, không nên sử dụng"
   },
   "162": {
-    "other": "You have one or more legacy link on this file. Links are still active, but you can replace them with a new share link by stopping this share and recreating a new one. Copy the share 'hash' (the last part of the link, e.g. http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) and apply it to the new link using the 'Change Parameters' form."
+    "other": "Bạn đang có chia sẻ trên file này. Các liên kết vẫn được duy trì nhưng không phù hợp cho phiên bản hiện tại. Bạn cần phải xóa chúng đi và tạo mới lại. Chỉ cần sao chép \"hash\" (chuỗi ký tự cuối của liên kết, ví dụ:http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) và dùng nó khi tạo một link mới."
   },
   "163": {
-    "other": "Drop Files Here (for upload-enabled minisites)"
+    "other": "Kéo và thả file ở đây (để upload lên minisite)"
   },
   "164": {
-    "other": "Not allowed: script was modified!"
+    "other": "Không thể tiến hành: script đã bị thay đổi!"
   },
   "165": {
-    "other": "Sorry, this link is expired!"
+    "other": "Rất tiếc, liên kết này đã hết hạn!"
   },
   "166": {
-    "other": "Cannot find specified link!"
+    "other": "Không thể tìm thấy đường liên kết này!"
   },
   "167": {
-    "other": "Link is expired!"
+    "other": "Liên kết đã hết hạn!"
   },
   "168": {
-    "other": "The number of authorized downloads have been reached. Click to reset the counter and reactivate the link."
+    "other": "Số lượt download đã không còn. Ấn và khởi tạo lại bộ đếm lượt để đưa liên kết này vào hoạt động."
   },
   "169": {
-    "other": "The expiration date was reached. Change the parameters with a new date if you want to reactivate the link."
+    "other": "Liên kết đã hết hạn. Nếu bạn muốn khôi phục liên kết này thì xin thay đổi thời hạn của nó."
   },
   "17": {
-    "other": "Click to reset download counter"
+    "other": "Bấm để thiết lập lại số lượt tải xuống"
   },
   "170": {
-    "other": "This is link is secured with a password."
+    "other": "Liên kết này được bảo vệ bởi mật khẩu."
   },
   "171": {
     "other": "Link Handle"
   },
   "172": {
-    "other": "Sorry this link is already used, please pick another handle."
+    "other": "Rất tiếc liên kết này đã được sử dụng, xin vui lòng chọn một tên khác."
   },
   "173": {
-    "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
+    "other": "Nếu bạn muốn một liên kết dễ đọc, dễ nhớ hơn (như kiểu https://.../my-share-link), bạn có thể điền vào ô này. Tên liên kết sẽ được sinh ra tự động nếu bạn để trống."
   },
   "174": {
-    "other": "Reset"
+    "other": "Thiết lập lại"
   },
   "175": {
-    "other": "Please set a password and make sure it's long enough!"
+    "other": "Xin vui lòng đặt mật khẩu với độ dài đủ tốt!"
   },
   "176": {
-    "other": "(Mandatory)"
+    "other": "(Bắt buộc)"
   },
   "177": {
-    "other": "View parameters"
+    "other": "Các tham số"
   },
   "178": {
-    "other": "enabled"
+    "other": "bật"
   },
   "179": {
-    "other": "Revert"
+    "other": "Phục hồi"
   },
   "18": {
-    "other": "Folder is shared as a new workspace"
+    "other": "Thư mục được chia sẻ như một workspace"
   },
   "180": {
-    "other": "Clear list"
+    "other": "Xoá danh sách"
   },
   "181": {
-    "other": "Modify"
+    "other": "Sửa đổi"
   },
   "182": {
-    "other": "Use the field above to pick a user from the internal directory or from your personal address book. If you want to create a new user, just type in a new identifier and hit Enter."
+    "other": "Sử dụng ô trên đây để chọn user từ danh bạ. Nếu bạn muốn tạo mới một user, chỉ cần gõ tên của họ và ấn Enter."
   },
   "183": {
-    "other": "Notify on content change"
+    "other": "Gửi thông báo khi có thay đổi"
   },
   "184": {
-    "other": "Notify me when content is accessed or changed"
+    "other": "Gửi tôi thông báo khi có truy cập hoặc thay đổi nội dung"
   },
   "185": {
-    "other": "Notify me when content is accessed"
+    "other": "Gửi tôi thông báo khi có truy cập"
   },
   "186": {
-    "other": "Notify me when content is changed"
+    "other": "Gửi tôi thông báo khi có thay đổi ở nội dung"
   },
   "187": {
-    "other": "Do not notify me"
+    "other": "Không gửi thông báo"
   },
   "188": {
-    "other": "Receive alerts whenever a user accesses or modifies the content of this share."
+    "other": "Nhận thông báo khi người dùng truy cập hoặc sửa đổi nội dung của liên kết này."
   },
   "189": {
-    "other": "Enable Public Link"
+    "other": "Cho phép tạo liên kết Public"
   },
   "19": {
-    "other": "Shared workspace options were successfully modified"
+    "other": "Các thiết lập cho workspace chia sẻ được lưu thành công"
   },
   "190": {
-    "other": "This file is not currently publicly accessible. Enabling a public link will create a unique access that you can send to anyone. If you want to share with existing Pydio users, use the \"Users\" tab."
+    "other": "File này hiện không thể truy cập từ bên ngoài được. Tạo mới liên kết public trên nó sẽ cho phép người khác truy cập. Nếu bạn muốn chia sẻ chỉ với những người nội bộ, hãy sử dụng thẻ \"Users\"."
   },
   "191": {
-    "other": "Copy link to clipboard"
+    "other": "Sao chép liên kết"
   },
   "192": {
-    "other": "Link has been copied to clipboard"
+    "other": "Link đã được sao chép"
   },
   "193": {
-    "other": "Customize Link"
+    "other": "Chỉnh sửa liên kết"
   },
   "194": {
-    "other": "For a prettier link, you can customize the last part"
+    "other": "Để có liên kết dễ nhớ hơn, bạn có thể thay đổi phần cuối cùng của nó"
   },
   "195": {
-    "other": "Warning, there is no embedded viewer for this file, except opening in a new tab of your browser: this may trigger a download automatically when user opens the link."
+    "other": "Chú ý, hiện không có modun để đọc file này, nếu người dùng mở liên kết này thì sẽ kích hoạt quá trình download tự động."
   },
   "196": {
-    "other": "Secure Access"
+    "other": "Kiểm soát truy cập"
   },
   "197": {
-    "other": "Use this field to send optional comments"
+    "other": "Sử dụng ô này để gửi các chú thích"
   },
   "198": {
-    "other": "You can select the appearance of the link as it will appear in the browser."
+    "other": "Lựa chọn cách thức hiển thị của liên kết trên trình duyệt."
   },
   "199": {
     "other": "Share Visibility"
@@ -495,31 +495,31 @@
     "other": "Shares List"
   },
   "242": {
-    "other": "Load More Results"
+    "other": "Tải thêm"
   },
   "243": {
     "other": "Public Links"
   },
   "244": {
-    "other": "Shared Folders"
+    "other": "Thư mục được chia sẻ"
   },
   "245": {
-    "other": "%s personal invitation(s) sent"
+    "other": "Vừa gửi %s thư mời"
   },
   "246": {
-    "other": "Open cell"
+    "other": "Mở Cells"
   },
   "247": {
-    "other": "Edit cell"
+    "other": "Thay đổi cell"
   },
   "248": {
-    "other": "Delete cell"
+    "other": "Xóa cell"
   },
   "249": {
-    "other": "Contents"
+    "other": "Nội Dung"
   },
   "25": {
-    "other": "No limit"
+    "other": "Không giới hạn"
   },
   "250": {
     "other": "Cells"
@@ -528,70 +528,70 @@
     "other": "Link"
   },
   "252": {
-    "other": "Access"
+    "other": "Truy cập"
   },
   "253": {
-    "other": "Visibility"
+    "other": "Chia quyền"
   },
   "254": {
-    "other": "Shared in cells"
+    "other": "Các dữ liệu chia sẻ trong cells"
   },
   "255": {
-    "other": "Are you sure you want to delete all cells and links on this item?"
+    "other": "Bạn có chắc muốn xóa cells và các liên kết được tạo ra trong nó?"
   },
   "256": {
-    "other": "Shares for %s"
+    "other": "Chia sẻ cho %s"
   },
   "257": {
-    "other": "Created on %s"
+    "other": "Đã tạo: %s"
   },
   "258": {
-    "other": "Edit cell users"
+    "other": "Thêm bớt users cho cell"
   },
   "259": {
-    "other": "Remove from this cell"
+    "other": "Xóa khỏi cell này"
   },
   "26": {
-    "other": "Choose users or groups and set their access rights. 'Write' only will create an upload-only workspace."
+    "other": "Lựa chọn các users và groups rồi phân quyền cho họ. Nếu chỉ có quyền đọc thì workspace chỉ dùng để upload lên."
   },
   "260": {
-    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+    "other": "Thư mục được chia sẻ trong các cells sau. Bạn có thể thêm users hoặc tạo mới một cell khác."
   },
   "261": {
-    "other": "Pick users or groups who will have access to this cell"
+    "other": "Chọn users hoặc groups rồi phân quyền truy cập vào cell này"
   },
   "262": {
-    "other": "Share this folder with other users by creating a new cell"
+    "other": "Tạo mới một cell trên thư mục này rồi chia sẻ với người khác"
   },
   "263": {
-    "other": "Add to Cell..."
+    "other": "Thêm vào Cell..."
   },
   "264": {
-    "other": "+ New Cell"
+    "other": "+ Tạo mới Cell"
   },
   "265": {
-    "other": "Link Label"
+    "other": "Tên liên kết"
   },
   "266": {
-    "other": "Link Description"
+    "other": "Mô tả cho liên kết"
   },
   "267": {
-    "other": "Cell Label"
+    "other": "Tên Cell"
   },
   "268": {
-    "other": "Cell Description"
+    "other": "Mô tả cho Cell"
   },
   "269": {
-    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+    "other": "Bạn đang tạo mới một cells và chia sẻ với %USERS. Vui lòng chỉ cho cells này một thư mục có sẵn hoặc để Pydio tự tạo một thư mục rỗng cho cells này!"
   },
   "27": {
-    "other": "Share file"
+    "other": "Chia sẻ tệp"
   },
   "270": {
-    "other": "users"
+    "other": "tài khoản người dùng"
   },
   "271": {
-    "other": "groups"
+    "other": "nhóm"
   },
   "272": {
     "other": "teams"
@@ -600,46 +600,46 @@
     "other": "nobody"
   },
   "274": {
-    "other": " and "
+    "other": " và "
   },
   "275": {
-    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+    "other": "Tạo mới cells cho nhóm làm việc. Bắt đầu bằng việc xác định dữ liệu cho cell."
   },
   "276": {
-    "other": "Title of your cell"
+    "other": "Tên của cell"
   },
   "277": {
-    "other": "Optionally add a description"
+    "other": "Thêm vào mô tả"
   },
   "278": {
-    "other": "Choose who you will share data with"
+    "other": "Lựa chọn ai sẽ được chia sẻ"
   },
   "279": {
-    "other": "Create cell now!"
+    "other": "Tạo mới cell ngay bây giờ!"
   },
   "28": {
-    "other": "Share folder"
+    "other": "Chia sẻ thư mục"
   },
   "280": {
-    "other": "Cell has its own folder"
+    "other": "Cell có sẵn thư mục riêng"
   },
   "281": {
-    "other": "Cell will be created in a new folder"
+    "other": "Cell sẽ được tạo trên một thư mục mới"
   },
   "282": {
-    "other": "Add an existing folder..."
+    "other": "Thêm thư mục có sãn vào cell..."
   },
   "283": {
-    "other": "Select a node in the tree..."
+    "other": "Chọn một file hay thư mục trên cây thư mục..."
   },
   "284": {
-    "other": "Visible in %s cells"
+    "other": "Xuất hiện trên cells %s"
   },
   "29": {
     "other": "WebLink"
   },
   "3": {
-    "other": "Wrong password"
+    "other": "Sai mật khẩu"
   },
   "30": {
     "other": "Share with..."

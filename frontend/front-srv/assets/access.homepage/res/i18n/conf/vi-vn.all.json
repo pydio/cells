@@ -1,33 +1,33 @@
 {
   "Android App URL": {
-    "other": "URL to Android App"
+    "other": "URL tới ứng dụng Android"
   },
   "Display Server QRCode": {
-    "other": "Display Server QRCode"
+    "other": "Hiển thị QRCode máy chủ"
   },
   "Enable Getting Started": {
-    "other": "Enable Getting Started"
+    "other": "Hiển thị lời hướng dẫn"
   },
   "Enable Global Search": {
-    "other": "Enable Global Search"
+    "other": "Bật tìm kiếm toàn bộ"
   },
   "Enable addition tabulation to access getting started videos": {
-    "other": "Enable addition tabulation to access getting started videos"
+    "other": "Thêm một tab để hiển thị video hướng dẫn"
   },
   "Enable cross-workspaces search form on home page": {
-    "other": "Enable cross-workspaces search form on home page"
+    "other": "Cho phép tìm kiếm trên tất cả các workspaces từ trang home"
   },
   "Let users connect easily to the latest mobile applications by displaying a QRCode": {
-    "other": "Let users connect easily to the latest mobile applications by displaying a QRCode"
+    "other": "Cho phép người dùng dễ dàng kết nối với các ứng dụng di động mới nhất bằng QRCode"
   },
   "Mac PydioSync URL": {
     "other": "Mac PydioSync URL"
   },
   "Open workspace by simple click": {
-    "other": "Open workspace by simple click"
+    "other": "Mở một workspace bằng một click chuột"
   },
   "Open workspace by simple click instead of double click.": {
-    "other": "Open workspace by simple click instead of double click."
+    "other": "Mở workspace bằng một click chuột thay vì nháy đúp."
   },
   "URL of the Android application": {
     "other": "URL to Android App (leave empty if you want to hide the block)"
@@ -45,7 +45,7 @@
     "other": "Welcome Page"
   },
   "Welcome Page displaying a list of workspaces": {
-    "other": "Welcome Page displaying a list of workspaces"
+    "other": "Trang chào mừng với danh sách các workspaces"
   },
   "Windows PydioSync URL": {
     "other": "Windows PydioSync URL"
