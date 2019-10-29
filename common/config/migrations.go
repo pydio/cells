@@ -76,10 +76,7 @@ func setDefaultConfig(config *Config) (bool, error) {
 	}
 	var syncRedirects = []string{
 		"http://localhost:3000/servers/callback", // SYNC UX DEBUG PORT
-	}
-	// Allow a range of 30 ports for cells-sync [3636::3666]
-	for i := 0; i <= 30; i++ {
-		syncRedirects = append(syncRedirects, fmt.Sprintf("http://localhost:%d/servers/callback", 3636+i))
+		"http://localhost:[3636-3666]/servers/callback",
 	}
 	oAuthSyncConfig := map[string]interface{}{
 		"client_id":      "cells-sync",

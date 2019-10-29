@@ -3,6 +3,8 @@ package oauth
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
 	"sync"
 
 	"github.com/jmoiron/sqlx"
@@ -103,6 +105,13 @@ func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error 
 	for _, cli := range clients {
 		_, err := s.GetClient(ctx, cli.GetID())
 
+		var redirectURIs []string
+		for _, r := range cli.RedirectURIs {
+			redirectURIs = append(redirectURIs, rangeFromStr(r)...)
+		}
+
+		cli.RedirectURIs = redirectURIs
+
 		if errors.Cause(err) == sqlcon.ErrNoRows {
 			// Let's create it
 			if err := s.CreateClient(ctx, cli); err != nil {
@@ -124,4 +133,42 @@ func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error 
 	}
 
 	return nil
+}
+
+func rangeFromStr(s string) []string {
+
+	var res []string
+	re := regexp.MustCompile(`\[([0-9]+)-([0-9]+)\]`)
+
+	r := re.FindStringSubmatch(s)
+
+	if len(r) < 3 {
+		return []string{s}
+	}
+
+	min, err := strconv.Atoi(r[1])
+	if err != nil {
+		return []string{s}
+	}
+
+	max, err := strconv.Atoi(r[2])
+	if err != nil {
+		return []string{s}
+	}
+
+	if min > max {
+		return []string{s}
+	}
+
+	for {
+		if min > max {
+			break
+		}
+
+		res = append(res, re.ReplaceAllString(s, strconv.Itoa(min)))
+
+		min = min + 1
+	}
+
+	return res
 }
