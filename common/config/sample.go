@@ -166,7 +166,7 @@ var SampleConfig = `{
 		"pydio.web.oauth":{
 			"cors": {
 				"public": {
-					"allowedOrigins: "*"
+					"allowedOrigins": "*"
 				}
 			},
 			"staticClients": [
