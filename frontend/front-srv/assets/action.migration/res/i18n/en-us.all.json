@@ -13,6 +13,8 @@
   "step.categories.summary.legend":{"other":"Here is a summary of the configuration. Please review it before launching importation in background."},
   "step.categories.summary.empty":{"other":"No specific configuration"},
   "step.categories.summary.launch":{"other":"Launch Import Now"},
+  "step.connection":{"other":"Pydio 8 Connection"},
+  "step.connection.legend":{"other":"Use the form below connect to the Pydio 8 server, using the dedicated user you have created."},
   "step.connection.fail":{"other":"Cannot connect to %s"},
   "step.connection.missing":{"other":"Please fill all required fields"},
   "step.connection.success":{"other":"Successful connection to the API"},

@@ -127,7 +127,7 @@ var StepConnection = (function (_React$Component) {
                 _react2['default'].createElement(
                     _materialUi.StepLabel,
                     null,
-                    'Pydio 8 Connection'
+                    this.T('step.connection')
                 ),
                 _react2['default'].createElement(
                     _materialUi.StepContent,
@@ -135,7 +135,7 @@ var StepConnection = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.stepLegend },
-                        'Use the form below connect to the Pydio 8 server with the "import" user you created.'
+                        this.T('legend')
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,

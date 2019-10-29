@@ -63,9 +63,9 @@ class StepConnection extends React.Component {
 
         return (
             <Step {...remainingProps}>
-                <StepLabel>Pydio 8 Connection</StepLabel>
+                <StepLabel>{this.T('step.connection')}</StepLabel>
                 <StepContent>
-                    <div style={styles.stepLegend}>Use the form below connect to the Pydio 8 server with the "import" user you created.</div>
+                    <div style={styles.stepLegend}>{this.T('legend')}</div>
                     <Paper zDepth={1} style={{padding:16, paddingTop: 24, margin: 3, width: 480}}>
                         <ModernTextField errorText={error} floatingLabelText={this.T('field.url')} hintText={"https://yourcompany.com/pydio"} value={url} onChange={(e, v)=>{onChange({url: v})}} fullWidth={true} style={{marginTop: -10}} />
                         <Checkbox label={this.T('field.skipssl')} checked={skipVerify} onCheck={(e, v) => {onChange({skipVerify: v})}} />
