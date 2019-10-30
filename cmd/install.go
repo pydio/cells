@@ -27,7 +27,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
@@ -65,6 +64,7 @@ var (
 		TLSCert string
 		TLSKey  string
 	}{}
+
 	niBindUrl        string
 	niExtUrl         string
 	niDisableSsl     bool
@@ -72,6 +72,9 @@ var (
 	niKeyFile        string
 	niLeEmailContact string
 	niLeAcceptEula   bool
+	niLeUseStagingCA bool
+	ymlFile          string
+	jsonFile         string
 )
 
 var installCmd = &cobra.Command{
@@ -124,192 +127,51 @@ var installCmd = &cobra.Command{
 		cmd.Println("")
 
 		var internal, external *url.URL
+		exposeInstallServer := false
+		var err error
 
 		// If these flags are set, non interractive mode
-		if niBindUrl != "" && niExtUrl != "" {
-
-			var saveMsg, prefix string
-
-			if niDisableSsl {
-				prefix = "http://"
-				saveMsg = "Install / Non-Interactive / Without SSL"
-			} else {
-
-				saveMsg = "Install / Non-Interactive / "
-				prefix = "https://"
-				config.Set(true, "cert", "proxy", "ssl")
-
-				if niCertFile != "" && niKeyFile != "" {
-					config.Set(niCertFile, "cert", "proxy", "certFile")
-					config.Set(niKeyFile, "cert", "proxy", "keyFile")
-					saveMsg += "With provided certificate"
-
-				} else if niLeEmailContact != "" {
-					// TODO add an option to provide specific CA URL
-					if !niLeAcceptEula {
-						cmd.Print("fatal: you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
-						os.Exit(1)
-					}
-					config.Set(false, "cert", "proxy", "self")
-					config.Set(niLeEmailContact, "cert", "proxy", "email")
-					config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
-					saveMsg += "With Let's Encrypt automatic cert generation"
-
-				} else {
-					// Generate a custom certificate
-					saveMsg += "With self signed certificate"
-					hostName := strings.Split(niBindUrl, ":")[0]
-					storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
-					os.MkdirAll(storageLocation, 0700)
-					mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
-					if err := mkCert.MakeCert([]string{hostName}); err == nil {
-						certFile, certKey, caFile, _ := mkCert.GeneratedResources()
-						config.Set(certFile, "cert", "proxy", "certFile")
-						config.Set(certKey, "cert", "proxy", "keyFile")
-						config.Set(caFile, "cert", "proxy", "autoCA")
-					}
-				}
-				// config.Save("cli", "Install / Non-Interactive / With SSL")
+		if (niBindUrl != "" && niExtUrl != "") || ymlFile != "" || niExtUrl != "" {
+			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
+			if err != nil {
+				cmd.Help()
+				log.Fatal(err.Error())
+				os.Exit(1)
 			}
-
-			internal, _ = url.Parse(prefix + niBindUrl)
-			config.Set(internal.String(), "defaults", "urlInternal")
-
-			// Enables more complex configs with a proxy.
-			if strings.HasPrefix(niExtUrl, "http://") || strings.HasPrefix(niExtUrl, "https://") {
-				external, _ = url.Parse(niExtUrl)
-			} else {
-				external, _ = url.Parse(prefix + niExtUrl)
-			}
-			config.Set(external.String(), "defaults", "url")
-
-			config.Save("cli", saveMsg)
 		} else {
-			// Gather necessary basic info via the command line
+
+			// Choose between browser or CLI
 			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
-			if i, _, e := p.Run(); e != nil {
+			i, _, e := p.Run()
+			if e != nil {
 				cmd.Help()
 				log.Fatal(e.Error())
 				os.Exit(1)
+			}
+
+			// Gather proxy information (we do that now because we must do it anyway in both version of the installer)
+			internal, external, err := promptAndSaveInstallUrls()
+			cmd.Println("After prompt")
+			if err != nil {
+				cmd.Help()
+				log.Fatal(err.Error())
+			}
+
+			if i == 0 {
+				cmd.Println("Exposing")
+				exposeInstallServer = true
 			} else {
-				if i == 0 {
-					var err error
-					internal, external, err = promptAndSaveInstallUrls()
-					if err != nil {
-						cmd.Help()
-						log.Fatal(err.Error())
-					}
-				} else {
-					// Launch install cli then
-					installCliCmd.Run(cmd, args)
-					return
-				}
+				cmd.Println("Running cli")
+				// Run CLI install
+				cliInstall(internal, external)
+				return
 			}
 		}
 
-		// Installing the JS data
-		dir, err := assets.GetAssets("../discovery/install/assets/src")
-		if err != nil {
-			dir = filepath.Join(config.ApplicationWorkingDir(), "static", "install")
-
-			if err, _, _ := assets.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
-				cmd.Println("Could not restore install package", err)
-				os.Exit(0)
-			}
+		if exposeInstallServer {
+			cmd.Println("In expose")
+			performBrowserInstall(cmd, internal, external)
 		}
-
-		config.Save("cli", "Install / Setting default Port")
-
-		// Manage TLS settings
-		var tls, tlsKey, tlsCert string
-		if config.Get("cert", "proxy", "ssl").Bool(false) {
-			if config.Get("cert", "proxy", "self").Bool(false) {
-				tls = "self_signed"
-			} else if config.Get("cert", "proxy", "email").String("") != "" {
-				tls = config.Get("cert", "proxy", "email").String("")
-				caddytls.Agreed = true
-				caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
-				// useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
-			} else {
-				cert := config.Get("cert", "proxy", "certFile").String("")
-				key := config.Get("cert", "proxy", "keyFile").String("")
-				if cert != "" && key != "" {
-					tlsCert = cert
-					tlsKey = key
-				}
-			}
-		}
-
-		config.Save("cli", "Install / Saving final configs")
-
-		// starting the micro service
-		micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)
-		micro.Start()
-
-		// starting the installation REST service
-		install := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
-
-		installServ := install.(service.Service)
-		// Strip some flag to avoid panic on re-registering a flag twice
-		flags := installServ.Options().Web.Options().Cmd.App().Flags
-		var newFlags []cli.Flag
-		for _, f := range flags {
-			if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
-				continue
-			}
-			newFlags = append(newFlags, f)
-		}
-		installServ.Options().Web.Options().Cmd.App().Flags = newFlags
-
-		// Starting service install
-		install.Start()
-
-		// Creating temporary caddy file
-		caddyconf.URL = internal
-		caddyconf.Root = dir
-		caddyconf.Micro = common.SERVICE_MICRO_API
-		if tls != "" {
-			caddyconf.TLS = tls
-		} else if tlsCert != "" {
-			caddyconf.TLSCert = tlsCert
-			caddyconf.TLSKey = tlsKey
-		}
-
-		caddy.Enable(caddyfile, play)
-
-		restartDone, err := caddy.StartWithFastRestart()
-		if err != nil {
-			cmd.Print(err)
-			os.Exit(1)
-		}
-
-		cmd.Println("")
-		cmd.Println(promptui.Styler(promptui.FGWhite)("Installation Server is starting ") + promptui.Styler(promptui.FGYellow)("..."))
-		cmd.Println(promptui.Styler(promptui.FGWhite)(" internal URL: " + internal.String()))
-		cmd.Println(promptui.Styler(promptui.FGWhite)(" external URL: " + external.String()))
-		cmd.Println("")
-
-		subscriber, err := broker.Subscribe(common.TOPIC_PROXY_RESTART, func(p broker.Publication) error {
-			cmd.Println("")
-			cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(external.String()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
-			cmd.Println("")
-
-			open(external.String())
-
-			return nil
-		})
-
-		if err != nil {
-			cmd.Print(err)
-			os.Exit(1)
-		}
-
-		<-restartDone
-		instance := caddy.GetInstance()
-		instance.Wait()
-
-		subscriber.Unsubscribe()
-		install.Stop()
 
 		cmd.Println("")
 		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
@@ -355,6 +217,114 @@ var installCmd = &cobra.Command{
 	},
 }
 
+func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
+
+	// Installing the JS data
+	dir, err := assets.GetAssets("../discovery/install/assets/src")
+	if err != nil {
+		dir = filepath.Join(config.ApplicationWorkingDir(), "static", "install")
+		if err, _, _ := assets.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
+			cmd.Println("Could not restore install package", err)
+			os.Exit(0)
+		}
+	}
+
+	// config.Save("cli", "Install / Setting default Port")
+	cmd.Println("Got the assets")
+
+	// Manage TLS settings
+	var tls, tlsKey, tlsCert string
+	if config.Get("cert", "proxy", "ssl").Bool(false) {
+		if config.Get("cert", "proxy", "self").Bool(false) {
+			tls = "self_signed"
+		} else if config.Get("cert", "proxy", "email").String("") != "" {
+			tls = config.Get("cert", "proxy", "email").String("")
+			caddytls.Agreed = true
+			caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
+			// useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
+		} else {
+			cert := config.Get("cert", "proxy", "certFile").String("")
+			key := config.Get("cert", "proxy", "keyFile").String("")
+			if cert != "" && key != "" {
+				tlsCert = cert
+				tlsKey = key
+			}
+		}
+	}
+
+	config.Save("cli", "Install / Saving final configs")
+
+	// starting the micro service
+	micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)
+	micro.Start()
+
+	// starting the installation REST service
+	install := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
+
+	installServ := install.(service.Service)
+	// Strip some flag to avoid panic on re-registering a flag twice
+	flags := installServ.Options().Web.Options().Cmd.App().Flags
+	var newFlags []cli.Flag
+	for _, f := range flags {
+		if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
+			continue
+		}
+		newFlags = append(newFlags, f)
+	}
+	installServ.Options().Web.Options().Cmd.App().Flags = newFlags
+
+	// Starting service install
+	install.Start()
+
+	// Creating temporary caddy file
+	caddyconf.URL = internal
+	caddyconf.Root = dir
+	caddyconf.Micro = common.SERVICE_MICRO_API
+	if tls != "" {
+		caddyconf.TLS = tls
+	} else if tlsCert != "" {
+		caddyconf.TLSCert = tlsCert
+		caddyconf.TLSKey = tlsKey
+	}
+
+	caddy.Enable(caddyfile, play)
+
+	restartDone, err := caddy.StartWithFastRestart()
+	if err != nil {
+		cmd.Print(err)
+		os.Exit(1)
+	}
+
+	cmd.Println("")
+	cmd.Println(promptui.Styler(promptui.FGWhite)("Installation Server is starting ") + promptui.Styler(promptui.FGYellow)("..."))
+	cmd.Println(promptui.Styler(promptui.FGWhite)(" internal URL: " + internal.String()))
+	cmd.Println(promptui.Styler(promptui.FGWhite)(" external URL: " + external.String()))
+	cmd.Println("")
+
+	subscriber, err := broker.Subscribe(common.TOPIC_PROXY_RESTART, func(p broker.Publication) error {
+		cmd.Println("")
+		cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(external.String()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
+		cmd.Println("")
+
+		open(external.String())
+
+		return nil
+	})
+
+	if err != nil {
+		cmd.Print(err)
+		os.Exit(1)
+	}
+
+	<-restartDone
+	instance := caddy.GetInstance()
+	instance.Wait()
+
+	subscriber.Unsubscribe()
+	install.Stop()
+
+}
+
 func play() (*bytes.Buffer, error) {
 	template := caddy.Get().GetTemplate()
 
@@ -393,6 +363,9 @@ func init() {
 	flags.StringVar(&niKeyFile, "ssl_key_file", "", "[Non interactive mode] ssl key file path")
 	flags.StringVar(&niLeEmailContact, "le_email", "", "[Non interactive mode] contact e-mail for Let's Encrypt provided certificate")
 	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "[Non interactive mode] accept Let's Encrypt EULA")
+	flags.BoolVar(&niLeUseStagingCA, "le_staging", false, "[Non interactive mode] rather use staging CA entry point")
+	flags.StringVar(&ymlFile, "yaml", "", "points toward a configuration in YAML format")
+	flags.StringVar(&jsonFile, "json", "", "points toward a configuration in JSON format")
 
 	RootCmd.AddCommand(installCmd)
 }

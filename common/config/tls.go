@@ -14,6 +14,7 @@ import (
 
 var (
 	DefaultCaUrl = "https://acme-v02.api.letsencrypt.org/directory"
+	DefaultCaStagingUrl = "https://acme-v02.api.letsencrypt.org/directory"
 
 	tlsClientOnce   = &sync.Once{}
 	tlsClientMutex  = &sync.Mutex{}

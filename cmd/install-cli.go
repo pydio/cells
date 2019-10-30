@@ -31,7 +31,6 @@ import (
 
 	p "github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
-	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -45,56 +44,60 @@ var (
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
-var installCliCmd = &cobra.Command{
-	Use:   "install-cli",
-	Short: "Install Cells using this terminal",
-	Long:  "This command launch the installation process of Pydio Cells in the command line instead of a browser.",
-	Run: func(cmd *cobra.Command, args []string) {
+// var installCliCmd = &cobra.Command{
+// 	Use:   "install-cli",
+// 	Short: "Install Cells using this terminal",
+// 	Long:  "This command launch the installation process of Pydio Cells in the command line instead of a browser.",
+// 	Run: func(cmd *cobra.Command, args []string) {
 
-		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
-		if micro == 0 {
-			micro = net.GetAvailablePort()
-			config.Set(micro, "ports", common.SERVICE_MICRO_API)
-			config.Save("cli", "Install / Setting default Ports")
-		}
+// 	},
+// }
 
-		internalUrl, _, err := promptAndSaveInstallUrls()
-		if err != nil {
-			log.Fatal(err.Error())
-		}
+func cliInstall(internalUrl, Url *url.URL) {
 
-		installConfig := lib.GenerateDefaultConfig()
-		installConfig.InternalUrl = internalUrl.String()
-		fmt.Println("")
-		fmt.Println("\033[1m## Database Connection\033[0m")
-		if e := promptDB(installConfig); e != nil {
-			log.Fatal(e.Error())
-		}
+	micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
+	if micro == 0 {
+		micro = net.GetAvailablePort()
+		config.Set(micro, "ports", common.SERVICE_MICRO_API)
+		config.Save("cli", "Install / Setting default Ports")
+	}
 
-		fmt.Println("")
-		fmt.Println("\033[1m## Frontend Configuration\033[0m")
-		if e := promptFrontendAdmin(installConfig); e != nil {
-			log.Fatal(e.Error())
-		}
-		fmt.Println("")
-		fmt.Println("\033[1m## Advanced Settings\033[0m")
-		if e := promptAdvanced(installConfig); e != nil {
-			log.Fatal(e.Error())
-		}
+	// internalUrl, _, err := promptAndSaveInstallUrls()
+	// if err != nil {
+	// 	log.Fatal(err.Error())
+	// }
 
-		fmt.Println("")
-		fmt.Println("\033[1m## Performing Installation\033[0m")
-		e := lib.Install(context.Background(), installConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
-			fmt.Println(p.IconGood + " " + event.Message)
-		})
-		if e != nil {
-			log.Fatal("Error while performing installation: " + e.Error())
-		}
+	cliConfig := lib.GenerateDefaultConfig()
+	cliConfig.InternalUrl = internalUrl.String()
+	fmt.Println("")
+	fmt.Println("\033[1m## Database Connection\033[0m")
+	if e := promptDB(cliConfig); e != nil {
+		log.Fatal(e.Error())
+	}
 
-		fmt.Println("")
-		fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
-		fmt.Println("")
-	},
+	fmt.Println("")
+	fmt.Println("\033[1m## Frontend Configuration\033[0m")
+	if e := promptFrontendAdmin(cliConfig); e != nil {
+		log.Fatal(e.Error())
+	}
+	fmt.Println("")
+	fmt.Println("\033[1m## Advanced Settings\033[0m")
+	if e := promptAdvanced(cliConfig); e != nil {
+		log.Fatal(e.Error())
+	}
+
+	fmt.Println("")
+	fmt.Println("\033[1m## Performing Installation\033[0m")
+	e := lib.Install(context.Background(), cliConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+		fmt.Println(p.IconGood + " " + event.Message)
+	})
+	if e != nil {
+		log.Fatal("Error while performing installation: " + e.Error())
+	}
+
+	fmt.Println("")
+	fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+	fmt.Println("")
 }
 
 func validateMailFormat(input string) error {
@@ -160,7 +163,7 @@ func validUrl(input string) error {
 	return e
 }
 
-func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) {
+func promptAndSaveInstallUrls() (internal, external *url.URL, e error) {
 
 	defaultPort := "8080"
 	var internalHost string
@@ -400,6 +403,6 @@ func promptAdvanced(c *install.InstallConfig) error {
 	return nil
 }
 
-func init() {
-	RootCmd.AddCommand(installCliCmd)
-}
+// func init() {
+// 	RootCmd.AddCommand(installCliCmd)
+// }
