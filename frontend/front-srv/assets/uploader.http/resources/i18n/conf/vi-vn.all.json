@@ -1,8 +1,8 @@
 {
   "Async downloader to load a file from another source": {
-    "other": "Async downloader to load a file from another source"
+    "other": "Trình Async downloader để tải tệp tin từ một nguồn khác"
   },
   "Remote Download": {
-    "other": "Remote Server"
+    "other": "Máy chủ từ xa"
   }
 }
