@@ -29,6 +29,12 @@
   "step.categories.summary.launch": {
     "other": "Lancer l'import maintenant"
   },
+  "step.connection": {
+    "other": "Pydio 8 Connection"
+  },
+  "step.connection.legend": {
+    "other": "Use the form below connect to the Pydio 8 server, using the dedicated user you have created."
+  },
   "step.connection.fail": {
     "other": "Impossible de se connecter à %s"
   },
