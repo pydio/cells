@@ -81,7 +81,7 @@ export const OAuthLoginRouter = (pydio) => {
                     subject: pydio.user.id,
                 };
                 
-                fetch('/oidc/admin/oauth2/auth/requests/login/accept?' + qs.stringify({ login_challenge: loginChallenge }), {
+                fetch('/oidc-admin/oauth2/auth/requests/login/accept?' + qs.stringify({ login_challenge: loginChallenge }), {
                     method: 'PUT',
                     body: JSON.stringify(body),
                     headers: { 'Content-Type': 'application/json' }
@@ -160,7 +160,7 @@ export const OAuthConsentRouter = (pydio) => {
                     }
                 };
                 
-                fetch('/oidc/admin/oauth2/auth/requests/consent/accept?' + qs.stringify({ consent_challenge: consentChallenge }), {
+                fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + qs.stringify({ consent_challenge: consentChallenge }), {
                     method: 'PUT',
                     body: JSON.stringify(body),
                     headers: { 'Content-Type': 'application/json' }

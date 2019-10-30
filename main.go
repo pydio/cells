@@ -105,6 +105,11 @@ import (
 	_ "github.com/pydio/cells/scheduler/actions/scheduler"
 	_ "github.com/pydio/cells/scheduler/actions/tree"
 
+	// ETL Actions and stores
+	_ "github.com/pydio/cells/common/etl/actions"
+	_ "github.com/pydio/cells/common/etl/stores/cells/local"
+	_ "github.com/pydio/cells/common/etl/stores/pydio8"
+
 	"github.com/pydio/cells/common"
 )
 

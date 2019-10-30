@@ -1,0 +1,21 @@
+{
+  "name": "action.migration",
+  "version": "1.0.0",
+  "description": "Migration Dashboard",
+  "source_path": "res/js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Abstrium SAS",
+  "license": "eula",
+  "devDependencies": {},
+  "dependencies": {
+    "grunt": "^1.0.1",
+    "grunt-babel": "~5.0.3",
+    "grunt-browserify": "~4.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "pydio-sdk-js": "github:pydio/pydio-sdk-js",
+    "uuid4": "^1.0.0"
+  }
+}

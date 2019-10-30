@@ -23,6 +23,7 @@ package lib
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/ory/hydra/x"
 
@@ -70,6 +71,30 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		return err
 	}
 	config.Set(string(secret), "services", oauthWeb, "secret")
+
+	// OIDC Static client - special case for srvUrl/oauth2/oob url
+	statics := config.Get("services", oauthWeb, "staticClients")
+	var data []map[string]interface{}
+	if err := statics.Scan(&data); err == nil {
+		var saveStatics bool
+		for _, static := range data {
+			if redirs, ok := static["redirect_uris"].([]interface{}); ok {
+				var newRedirs []string
+				for _, redir := range redirs {
+					if strings.HasSuffix(redir.(string), "/oauth2/oob") && redir.(string) != url+"/oauth2/oob" {
+						newRedirs = append(newRedirs, url+"/oauth2/oob")
+						saveStatics = true
+					} else {
+						newRedirs = append(newRedirs, redir.(string))
+					}
+				}
+				static["redirect_uris"] = newRedirs
+			}
+		}
+		if saveStatics {
+			config.Set(data, "services", oauthWeb, "staticClients")
+		}
+	}
 
 	// Adding the config for activities and chat
 	// TODO - make it better

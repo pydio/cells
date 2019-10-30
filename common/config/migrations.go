@@ -76,10 +76,7 @@ func setDefaultConfig(config *Config) (bool, error) {
 	}
 	var syncRedirects = []string{
 		"http://localhost:3000/servers/callback", // SYNC UX DEBUG PORT
-	}
-	// Allow a range of 30 ports for cells-sync [3636::3666]
-	for i := 0; i <= 30; i++ {
-		syncRedirects = append(syncRedirects, fmt.Sprintf("http://localhost:%d/servers/callback", 3636+i))
+		"http://localhost:[3636-3666]/servers/callback",
 	}
 	oAuthSyncConfig := map[string]interface{}{
 		"client_id":      "cells-sync",
@@ -115,7 +112,10 @@ func setDefaultConfig(config *Config) (bool, error) {
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_HOST": "localhost",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_PORT": "9980",
 		"frontend/plugin/editor.libreoffice/LIBREOFFICE_SSL":  true,
-		"services/" + oauthSrv + "/secret":                    string(secret),
+		"services/" + oauthSrv + "/cors/public": map[string]interface{}{
+			"allowedOrigins": "*",
+		},
+		"services/" + oauthSrv + "/secret": string(secret),
 		"services/" + oauthSrv + "/staticClients": []map[string]interface{}{
 			oAuthSyncConfig,
 			oAuthCecConfig,
@@ -207,7 +207,7 @@ func forceDefaultConfig(config *Config) (bool, error) {
 			}
 		}
 		if saveStatics {
-			fmt.Printf("[Configs] Upgrading: updating out-of-band redirect URI")
+			fmt.Println("[Configs] Upgrading: updating out-of-band redirect URI")
 			config.Set(data, "services", oauthSrv, "staticClients")
 			save = true
 		}

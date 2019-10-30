@@ -57,7 +57,7 @@ func (m *mysql) Open(dsn string) (Conn, error) {
 	if db, err = getSqlConnection("mysql", rootDSN); err != nil {
 		return nil, err
 	}
-	if _, err = db.Exec(fmt.Sprintf("create database if not exists %s", dbName)); err != nil {
+	if _, err = db.Exec(fmt.Sprintf("create database if not exists `%s`", dbName)); err != nil {
 		return nil, err
 	}
 

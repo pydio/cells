@@ -1,80 +1,80 @@
 {
   "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
-    "other": "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path."
+    "other": "Đường dẫn tuyệt đối đến thư mục trên máy chủ. Bạn có thể sử dụng PYDIO_DATA_PATH và PYDIO_INSTALL_PATH để trỏ đến đường dẫn dữ liệu mặc định của Pydio và đường dẫn cài đặt gốc."
   },
   "Create": {
-    "other": "Create"
+    "other": "Tạo mới"
   },
   "Create folder if it does not exists": {
-    "other": "Create folder if it does not exists"
+    "other": "Tạo thư mục nếu nó không tồn tại"
   },
   "Data template": {
-    "other": "Data template"
+    "other": "Mẫu dữ liệu"
   },
   "Delegates all download operations to nginx using the X-Accel-Redirect header. Warning, you have to add some configuration in nginx, like X-Accel-Mapping": {
-    "other": "Delegates all download operations to nginx using the X-Accel-Redirect header. Warning, you have to add some configuration in nginx, like X-Accel-Mapping"
+    "other": "Ủy quyền việc download cho nginx với Header X-Accel-Redirect. Chú ý, bạn phải thêm một số cấu hình trong nginx, như X-Accel-Mapping"
   },
   "Delegates all download operations to the webserver using the X-SendFile header. Warning, this is an external module to install for Apache. Module is active by default in Lighttpd. Warning, you have to manually add the folders where files will be downloaded in the module configuration (XSendFilePath directive)": {
-    "other": "Delegates all download operations to the webserver using the X-SendFile header. Warning, this is an external module to install for Apache. Module is active by default in Lighttpd. Warning, you have to manually add the folders where files will be downloaded in the module configuration (XSendFilePath directive)"
+    "other": "Ủy quyền việc download cho máy chủ web với Header X-SendFile. Chú ý, đây là một mô-đun của Apache. Mô-đun được kích hoạt theo mặc định trong Lighttpd. Chú ý, bạn phải thêm thủ công các thư mục nơi tệp sẽ được tải xuống trong cấu hình mô-đun (chỉ thị XSendFilePath)"
   },
   "Directly write the zip file to an output stream which is connected to the user's browser.": {
-    "other": "Directly write the zip file to an output stream which is connected to the user's browser."
+    "other": "Ghi trực tiếp tệp zip vào luồng đầu ra được kết nối với trình duyệt của người dùng."
   },
   "File Creation Mask": {
-    "other": "File Creation Mask"
+    "other": "Mặt nạ quyền truy cập khi tạo file"
   },
   "File System (Standard)": {
     "other": "File System (Standard)"
   },
   "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature."
+    "other": "Tùy chọn xóa tài liệu sau một số ngày nhất định (ngay cả khi được chia sẻ). Bạn phải thiết lập một tác vụ trong CRON. Để giá trị là 0 nếu bạn không muốn sử dụng tính năng này."
   },
   "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature."
+    "other": "Tùy chọn xóa tài liệu sau một số ngày nhất định (ngay cả khi được chia sẻ). Bạn phải thiết lập một tác vụ trong CRON. Để giá trị là 0 nếu bạn không muốn sử dụng tính năng này."
   },
   "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature."
+    "other": "Tùy chọn để thanh lọc tài liệu sau một số ngày nhất định. Này đòi hỏi một bộ khay tay với một nhiệm vụ cron. Để lại 0 nếu bạn không muốn sử dụng tính năng này."
   },
   "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc.": {
-    "other": "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc."
+    "other": "Tùy chọn cho chmod. Giá trị phải là số như 0777, 0644."
   },
   "Path": {
-    "other": "Path"
+    "other": "Đường dẫn"
   },
   "Path to a directory on the filesystem whose content will be copied to the repository the first time it is loaded.": {
-    "other": "Path to a directory on the filesystem whose content will be copied to the workspace the first time it is loaded."
+    "other": "Đường dẫn tới thư mục mẫu để khi tạo mới workspace thì nó sẽ được sao chép vào trong workspace."
   },
   "Purge Days": {
-    "other": "Purge Days"
+    "other": "Số ngày xác định để xóa"
   },
   "Purge Days (Hard limit)": {
-    "other": "Purge Days (Hard limit)"
+    "other": "Dọn dẹp ngày (Giới hạn cứng)"
   },
   "Purge Days (Soft limit)": {
-    "other": "Purge Days (Soft limit)"
+    "other": "Dọn dẹp ngày (Giới hạn mềm)"
   },
   "Real Size Probing": {
-    "other": "Real Size Probing"
+    "other": "Kích thước thật"
   },
   "The most standard access to a filesystem located on the server.": {
-    "other": "The most standard access to a filesystem located on the server."
+    "other": "Truy cập tiêu chuẩn nhất vào một hệ thống tập tin nằm trên máy chủ."
   },
   "Use POSIX": {
-    "other": "Use POSIX"
+    "other": "Sử dụng POSIX"
   },
   "Use php POSIX extension to read files permissions. Only works on *nix systems.": {
-    "other": "Use php POSIX extension to read files permissions. Only works on *nix systems."
+    "other": "Sử dụng phần mở rộng php POSIX để đọc quyền truy cập tệp. Chỉ hoạt động trên các hệ thống * nix."
   },
   "Use system command line to get the filesize instead of php built-in function (fixes the 2Go limitation)": {
-    "other": "Use system command line to get the filesize instead of php built-in function (fixes the 2Go limitation)"
+    "other": "Sử dụng dòng lệnh hệ thống để lấy kích thước tệp thay vì chức năng tích hợp php (sửa lỗi giới hạn 2Go)"
   },
   "X-Accel-Redirect Active": {
-    "other": "X-Accel-Redirect Active"
+    "other": "Hoạt động X-Accel-Redirect"
   },
   "X-SendFile Active": {
-    "other": "X-SendFile Active"
+    "other": "Hoạt động X-SendFile"
   },
   "Zip downloading files on the fly": {
-    "other": "Zip downloading files on the fly"
+    "other": "Tải tập tin Zip nhanh chóng"
   }
 }

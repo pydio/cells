@@ -109,7 +109,8 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		rsp.WriteEntity(response)
 	}
 
-	<-time.After(2 * time.Second)
-
-	caddy.Stop()
+	go func() {
+		<-time.After(3 * time.Second)
+		caddy.Stop()
+	}()
 }

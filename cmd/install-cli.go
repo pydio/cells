@@ -236,7 +236,8 @@ func promptAndSaveInstallUrls() (internal, external *url.URL, e error) {
 			Validate: validScheme,
 			Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
 		}
-		externalUrl, er := extPrompt.Run()
+		var er error
+		externalUrl, er = extPrompt.Run()
 		if er != nil {
 			e = er
 			return
@@ -253,6 +254,7 @@ func promptAndSaveInstallUrls() (internal, external *url.URL, e error) {
 	config.Set(internalUrl, "defaults", "urlInternal")
 	config.Set(certData, "cert")
 	config.Save("cli", "Install / Setting default URLs")
+	config.ResetTlsConfigs()
 
 	return
 }

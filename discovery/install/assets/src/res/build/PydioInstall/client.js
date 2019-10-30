@@ -46,28 +46,39 @@ var Client = function (_ApiClient) {
             var _this2 = this;
 
             var params = {
-                timeout: 60,
+                timeout: 10,
                 category: 'install'
             };
             if (this.lastEventsTimestamp) {
                 params['since_time'] = this.lastEventsTimestamp;
             }
             _get(Client.prototype.__proto__ || Object.getPrototypeOf(Client.prototype), 'callApi', this).call(this, "/install/events", "GET", [], params, [], [], [], [], ["application/json"], ["application/json"], Object).then(function (response) {
-                if (response.data && response.data.events && response.data.events.length) {
-                    var events = [].concat(_toConsumableArray(response.data.events));
-                    var lastEvent = events.pop();
-                    _this2.lastEventsTimestamp = lastEvent.timestamp;
-                    observer(response.data.events);
-                    if (lastEvent.data.Progress < 100) {
-                        _this2.pollEvents(observer, reloadObserver);
-                    } else {
-                        // This is finished now, do not poll events again but poll any url to detect that services are loaded
-                        _this2.pollDiscovery(reloadObserver);
+                if (response && response.data) {
+                    if (response.data.events && response.data.events.length) {
+                        var events = [].concat(_toConsumableArray(response.data.events));
+                        var lastEvent = events.pop();
+                        _this2.lastEventsTimestamp = lastEvent.timestamp;
+                        observer(response.data.events);
+                        if (lastEvent.data.Progress < 99) {
+                            _this2.pollEvents(observer, reloadObserver);
+                        } else {
+                            // This is finished now, do not poll events again but poll any url to detect that services are loaded
+                            _this2.pollDiscovery(reloadObserver);
+                        }
+                    } else if (response.data.timestamp) {
+                        _this2.lastEventsTimestamp = response.data.timestamp;
+                        setTimeout(function () {
+                            _this2.pollEvents(observer, reloadObserver);
+                        }, 4000);
                     }
-                } else if (response.data && response.data.timestamp) {
-                    _this2.lastEventsTimestamp = response.data.timestamp;
+                } else {
+                    // Not sure what happened, let's switch to discovery endpoint
+                    _this2.pollDiscovery(reloadObserver);
                 }
-            }).catch(function (reason) {});
+            }).catch(function (reason) {
+                console.log("Got events error", reason);
+                _this2.pollDiscovery(reloadObserver);
+            });
         }
     }, {
         key: 'pollDiscovery',

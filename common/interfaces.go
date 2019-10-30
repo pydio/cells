@@ -25,6 +25,8 @@ type ConfigValues interface {
 
 	Database(k string) (string, string)
 
+	IsEmpty() bool
+
 	Scanner
 }
 

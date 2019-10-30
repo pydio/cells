@@ -22,9 +22,11 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -455,4 +457,57 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	}
 	return jobUuids, nil
 
+}
+
+func p8migration(ctx context.Context, jsonParams string) (string, error) {
+
+	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	if claims.Profile != common.PYDIO_PROFILE_ADMIN {
+		return "", errors.Forbidden("user.job.forbidden", "you are not allowed to create this job")
+	}
+	jobUuid := "pydio8-data-import"
+	// Parse JsonParams
+	type Action struct {
+		Name   string            `json:"name"`
+		Params map[string]string `json:"params"`
+	}
+	var data []*Action
+	if err := json.Unmarshal([]byte(jsonParams), &data); err != nil {
+		return "", err
+	}
+	job := &jobs.Job{
+		ID:       jobUuid,
+		Label:    "Import Data from Pydio 8",
+		Owner:    common.PYDIO_SYSTEM_USERNAME,
+		Inactive: false,
+		//AutoStart:         true,
+		MaxConcurrency: 1,
+	}
+	rootAction := &jobs.Action{}
+	log.Logger(ctx).Info("Got Actions", zap.Any("actions", data))
+	parentAction := rootAction
+	for _, a := range data {
+		action := &jobs.Action{
+			ID:             a.Name,
+			Parameters:     a.Params,
+			ChainedActions: []*jobs.Action{},
+		}
+		parentAction.ChainedActions = append(parentAction.ChainedActions, action)
+		parentAction = action
+	}
+	job.Actions = rootAction.ChainedActions
+
+	log.Logger(ctx).Info("Posting Job", zap.Any("job", job))
+
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er == nil {
+		<-time.After(2 * time.Second)
+		client.Publish(ctx, client.NewPublication(common.TOPIC_TIMER_EVENT, &jobs.JobTriggerEvent{
+			JobID:  jobUuid,
+			RunNow: true,
+		}))
+		return jobUuid, nil
+	} else {
+		return "", er
+	}
 }

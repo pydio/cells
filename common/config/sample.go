@@ -164,6 +164,11 @@ var SampleConfig = `{
             "fork": true
         },
 		"pydio.web.oauth":{
+			"cors": {
+				"public": {
+					"allowedOrigins": "*"
+				}
+			},
 			"staticClients": [
 				{
 					"client_id": "cells-sync",
@@ -174,37 +179,7 @@ var SampleConfig = `{
 					],
 					"redirect_uris": [
 						"http://localhost:3000/servers/callback",
-						"http://localhost:3636/servers/callback",
-						"http://localhost:3637/servers/callback",
-						"http://localhost:3638/servers/callback",
-						"http://localhost:3639/servers/callback",
-						"http://localhost:3640/servers/callback",
-						"http://localhost:3641/servers/callback",
-						"http://localhost:3642/servers/callback",
-						"http://localhost:3643/servers/callback",
-						"http://localhost:3644/servers/callback",
-						"http://localhost:3645/servers/callback",
-						"http://localhost:3646/servers/callback",
-						"http://localhost:3647/servers/callback",
-						"http://localhost:3048/servers/callback",
-						"http://localhost:3049/servers/callback",
-						"http://localhost:3650/servers/callback",
-						"http://localhost:3651/servers/callback",
-						"http://localhost:3652/servers/callback",
-						"http://localhost:3653/servers/callback",
-						"http://localhost:3654/servers/callback",
-						"http://localhost:3655/servers/callback",
-						"http://localhost:3656/servers/callback",
-						"http://localhost:3657/servers/callback",
-						"http://localhost:3058/servers/callback",
-						"http://localhost:3059/servers/callback",
-						"http://localhost:3660/servers/callback",
-						"http://localhost:3661/servers/callback",
-						"http://localhost:3662/servers/callback",
-						"http://localhost:3663/servers/callback",
-						"http://localhost:3664/servers/callback",
-						"http://localhost:3665/servers/callback",
-						"http://localhost:3666/servers/callback"
+						"http://localhost:[3636-3666]/servers/callback"
 					],
 					"response_types": ["code", "token", "id_token"],
 					"scope": "openid email profile pydio offline"
@@ -218,7 +193,7 @@ var SampleConfig = `{
 					],
 					"redirect_uris": [
 						"http://localhost:3000/servers/callback",
-						"https://local.pydio:8080/oauth2/oob"
+						"http://EXTERNAL_HOST/oauth2/oob"
 					],
 					"response_types": [
 						"code",

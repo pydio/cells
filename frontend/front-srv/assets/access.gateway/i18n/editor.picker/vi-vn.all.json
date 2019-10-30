@@ -1,44 +1,44 @@
 {
   "1": {
-    "other": "Choose other..."
+    "other": "Chọn..."
   },
   "2": {
-    "other": "Choose another editor"
+    "other": "Chọn một trình soạn thảo khác"
   },
   "3": {
-    "other": "Select another editor to open this file"
+    "other": "Chọn một trình soạn thảo khác để mở tệp này"
   },
   "4": {
-    "other": "Warning, these editors do not declare to be supporting this file type, their behaviour maybe unpredictable!"
+    "other": "Cảnh báo, các trình soạn thảo này không khai báo sẽ hỗ trợ loại tệp này, hành vi của họ có thể không dự đoán được!"
   },
   "5": {
-    "other": "Clear associations"
+    "other": "Xóa các liên kết"
   },
   "drop.cell.picker": {
-    "other": "Pick action for %s..."
+    "other": "Chọn hành động cho %s..."
   },
   "drop.cell.share.legend": {
-    "other": "Add new item to this cell"
+    "other": "Thêm mục mới vào ô này"
   },
   "drop.cell.copymove.legend": {
-    "other": "Inside %s"
+    "other": "Bên trong %s"
   },
   "drop.cell.file.share": {
-    "other": "Share file"
+    "other": "Chia sẻ tệp"
   },
   "drop.cell.folder.share": {
-    "other": "Share folder"
+    "other": "Chia sẻ thư mục"
   },
   "drop.cell.file.move": {
-    "other": "Move file"
+    "other": "Di chuyển tập tin"
   },
   "drop.cell.folder.move": {
-    "other": "Move folder"
+    "other": "Di chuyển thư mục"
   },
   "drop.cell.file.copy": {
-    "other": "Copy file"
+    "other": "Sao chép tập tin"
   },
   "drop.cell.folder.copy": {
-    "other": "Copy folder"
+    "other": "Sao Chép Thư Mục"
   }
 }

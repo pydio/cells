@@ -54358,6 +54358,23 @@ var PluginEditor = _react2['default'].createClass({
         }
     },
 
+    computeButtons: function computeButtons() {
+        var dirty = this.state.dirty;
+
+        var actions = [];
+        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+        return actions;
+    },
+
+    componentDidMount: function componentDidMount() {
+        var onHeaderChange = this.props.onHeaderChange;
+
+        if (onHeaderChange) {
+            onHeaderChange({ buttons: this.computeButtons() });
+        }
+    },
+
     getInitialState: function getInitialState() {
 
         this.loadPluginData(this.props.pluginId);
@@ -54373,30 +54390,44 @@ var PluginEditor = _react2['default'].createClass({
         };
     },
 
+    setDirty: function setDirty(value) {
+        var _this2 = this;
+
+        var onHeaderChange = this.props.onHeaderChange;
+
+        this.setState({ dirty: value }, function () {
+            if (onHeaderChange) {
+                onHeaderChange({ buttons: _this2.computeButtons() });
+            }
+        });
+    },
+
     externalSetDirty: function externalSetDirty() {
-        this.setState({ dirty: true });
+        this.setDirty(true);
     },
 
     onChange: function onChange(formValues, dirty) {
-        this.setState({ dirty: dirty, values: formValues });
+        this.setState({ values: formValues });
+        this.setDirty(dirty);
         if (this.props.onDirtyChange) {
             this.props.onDirtyChange(dirty, formValues);
         }
     },
 
     save: function save() {
-        var _this2 = this;
+        var _this3 = this;
 
         _Loader2['default'].getInstance(this.props.pydio).savePluginConfigs(this.props.pluginId, this.state.values, function (newValues) {
-            _this2.setState({ dirty: false });
-            if (_this2.props.onAfterSave) {
-                _this2.props.onAfterSave(newValues);
+            _this3.setDirty(false);
+            if (_this3.props.onAfterSave) {
+                _this3.props.onAfterSave(newValues);
             }
         });
     },
 
     revert: function revert() {
-        this.setState({ dirty: false, values: this.state.originalValues });
+        this.setState({ values: this.state.originalValues });
+        this.setDirty(false);
         if (this.props.onRevert) {
             this.props.onRevert(this.state.originalValues);
         }
@@ -54458,6 +54489,7 @@ var PluginEditor = _react2['default'].createClass({
         var additionalPanes = _props.additionalPanes;
         var currentNode = _props.currentNode;
         var docAsAdditionalPane = _props.docAsAdditionalPane;
+        var onHeaderChange = _props.onHeaderChange;
         var _state = this.state;
         var dirty = _state.dirty;
         var mainPaneScrolled = _state.mainPaneScrolled;
@@ -54517,7 +54549,7 @@ var PluginEditor = _react2['default'].createClass({
         return _react2['default'].createElement(
             'div',
             { className: (this.props.className ? this.props.className + " " : "") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName, style: this.props.style },
-            _react2['default'].createElement(AdminComponents.Header, { title: titleLabel, actions: actions, scrolling: this.state && this.state.mainPaneScrolled, icon: titleIcon, editorMode: !!closeEditor }),
+            !onHeaderChange && _react2['default'].createElement(AdminComponents.Header, { title: titleLabel, actions: actions, scrolling: this.state && this.state.mainPaneScrolled, icon: titleIcon, editorMode: !!closeEditor }),
             _react2['default'].createElement(PydioForm.FormPanel, {
                 ref: 'formPanel',
                 className: 'row-flex',
