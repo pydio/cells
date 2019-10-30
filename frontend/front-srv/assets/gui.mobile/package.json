@@ -14,6 +14,6 @@
     "grunt-contrib-copy": "1.0.0"
   },
   "dependencies": {
-    "smart-app-banner": "git://github.com/tomek-f/smart-app-banner.git#patch-1"
+    "smart-app-banner": "2.0.0"
   }
 }
