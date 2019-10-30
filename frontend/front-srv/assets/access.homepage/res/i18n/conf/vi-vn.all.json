@@ -30,19 +30,19 @@
     "other": "Mở workspace bằng một click chuột thay vì nháy đúp."
   },
   "URL of the Android application": {
-    "other": "URL to Android App (leave empty if you want to hide the block)"
+    "other": "URL tới Ứng dụng Android (để trống nếu bạn muốn ẩn)"
   },
   "URL of the iOS application": {
-    "other": "URL to iOS App (leave empty if you want to hide the block)"
+    "other": "URL tới Ứng dụng iOS (để trống nếu bạn muốn ẩn)"
   },
   "URL of the mac sync application": {
-    "other": "URL to Mac sync application (leave empty if you want to hide the block)"
+    "other": "URL tới ứng dụng đồng bộ hóa trên Mac (để trống nếu bạn muốn ẩn)"
   },
   "URL of the windows sync application": {
-    "other": "URL to Windows sync application (leave empty if you want to hide the block)"
+    "other": "URL tới ứng dụng đồng bộ hóa trên Windows (để trống nếu bạn muốn ẩn)"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Trang chào mừng"
   },
   "Welcome Page displaying a list of workspaces": {
     "other": "Trang chào mừng với danh sách các workspaces"
@@ -51,6 +51,6 @@
     "other": "Windows PydioSync URL"
   },
   "iOS App URL": {
-    "other": "URL to iOS App"
+    "other": "URL tới ứng dụng iOS"
   }
 }

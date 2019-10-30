@@ -1,80 +1,80 @@
 {
   "1": {
-    "other": "%s files queued for upload"
+    "other": "%s tập tin đã vào danh sách để upload"
   },
   "10": {
     "other": ""
   },
   "11": {
-    "other": "Start"
+    "other": "Bắt đầu"
   },
   "12": {
-    "other": "Clear list"
+    "other": "Xoá danh sách"
   },
   "13": {
-    "other": "Folder created"
+    "other": "Thư mục đã tạo"
   },
   "14": {
-    "other": "Processing"
+    "other": "Đang xử lý"
   },
   "15": {
-    "other": "Pending"
+    "other": "Đang chờ"
   },
   "16": {
-    "other": "Processed"
+    "other": "Đã xử lý"
   },
   "17": {
-    "other": "Show/hide processed files"
+    "other": "Hiển thị / ẩn tập tin đã xử lý"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "Nếu một tệp có cùng tên tồn tại:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "Dừng tải lên và thông báo cho tôi"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Đổi tên thư mục rồi đến tập tin"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Chỉ đổi tên tệp (hợp nhất thư mục)"
   },
   "2": {
-    "other": "Uploading %s files"
+    "other": "Đang tải lên %s tệp"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "Mặc định ghi đè tập tin nếu đã tồn tại"
   },
   "22": {
-    "other": "Options"
+    "other": "Tùy chọn"
   },
   "23": {
-    "other": "Errors"
+    "other": "Lỗi"
   },
   "3": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Bạn không được phép tải lên tập tin này ở đây"
   },
   "4": {
-    "other": "Pick File"
+    "other": "Chọn một tệp"
   },
   "5": {
-    "other": "Pick Folder"
+    "other": "Chọn thư mục"
   },
   "6": {
-    "other": "Cannot abort folder creation"
+    "other": "Không thể hủy bỏ việc tạo thư mục"
   },
   "7": {
-    "other": "Uploading files to server..."
+    "other": "Đang tải tệp lên máy chủ..."
   },
   "8": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Có vẻ như trình duyệt của bạn không hỗ trợ kéo thả thư mục"
   },
   "9": {
     "other": ""
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "Chuẩn bị tập tin và thư mục để tải lên..."
   },
   "drophere": {
-    "other": "Drop Files Here"
+    "other": "Thả các tập tin tại đây"
   }
 }
