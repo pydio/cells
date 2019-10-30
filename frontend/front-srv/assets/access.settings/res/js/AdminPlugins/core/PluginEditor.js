@@ -104,6 +104,21 @@ const PluginEditor = React.createClass({
         }
     },
 
+    computeButtons(){
+        const {dirty} = this.state;
+        const actions = [];
+        actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
+        actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
+        return actions;
+    },
+
+    componentDidMount(){
+        const {onHeaderChange} = this.props;
+        if(onHeaderChange) {
+            onHeaderChange({buttons: this.computeButtons()});
+        }
+    },
+
     getInitialState(){
 
         this.loadPluginData(this.props.pluginId);
@@ -119,12 +134,22 @@ const PluginEditor = React.createClass({
         };
     },
 
+    setDirty(value){
+        const {onHeaderChange} = this.props;
+        this.setState({dirty: value}, ()=>{
+            if(onHeaderChange) {
+                onHeaderChange({buttons: this.computeButtons()});
+            }
+        })
+    },
+
     externalSetDirty(){
-        this.setState({dirty:true});
+        this.setDirty(true);
     },
 
     onChange(formValues, dirty){
-        this.setState({dirty:dirty, values:formValues});
+        this.setState({values:formValues});
+        this.setDirty(dirty);
         if(this.props.onDirtyChange){
             this.props.onDirtyChange(dirty, formValues);
         }
@@ -132,7 +157,7 @@ const PluginEditor = React.createClass({
 
     save(){
         Loader.getInstance(this.props.pydio).savePluginConfigs(this.props.pluginId, this.state.values, (newValues) => {
-            this.setState({dirty:false});
+            this.setDirty(false);
             if(this.props.onAfterSave){
                 this.props.onAfterSave(newValues);
             }
@@ -140,7 +165,8 @@ const PluginEditor = React.createClass({
     },
 
     revert(){
-        this.setState({dirty:false, values:this.state.originalValues});
+        this.setState({values:this.state.originalValues});
+        this.setDirty(false);
         if(this.props.onRevert){
             this.props.onRevert(this.state.originalValues);
         }
@@ -198,7 +224,7 @@ const PluginEditor = React.createClass({
 
     render(){
 
-        const {closeEditor, additionalPanes, currentNode, docAsAdditionalPane} = this.props;
+        const {closeEditor, additionalPanes, currentNode, docAsAdditionalPane, onHeaderChange} = this.props;
         const {dirty, mainPaneScrolled, label, documentation} = this.state;
 
         let addPanes = {top:[], bottom:[]};
@@ -248,7 +274,7 @@ const PluginEditor = React.createClass({
         // Building  a form
         return (
             <div className={(this.props.className?this.props.className+" ":"") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName} style={this.props.style}>
-                <AdminComponents.Header title={titleLabel} actions={actions} scrolling={this.state && this.state.mainPaneScrolled} icon={titleIcon} editorMode={!!closeEditor}/>
+                {!onHeaderChange && <AdminComponents.Header title={titleLabel} actions={actions} scrolling={this.state && this.state.mainPaneScrolled} icon={titleIcon} editorMode={!!closeEditor}/>}
                 <PydioForm.FormPanel
                     ref="formPanel"
                     className="row-flex"
