@@ -233,7 +233,8 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 			Validate: validScheme,
 			Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
 		}
-		externalUrl, er := extPrompt.Run()
+		var er error
+		externalUrl, er = extPrompt.Run()
 		if er != nil {
 			e = er
 			return
