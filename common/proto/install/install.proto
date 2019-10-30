@@ -37,6 +37,38 @@ message InstallConfig {
     bool   licenseRequired = 29;
     string licenseString = 30;
     repeated CheckResult CheckResults = 31;
+    // Additional proxy config (optional)
+    ProxyConfig ProxyConfig = 34;
+}
+
+// ProxyConfig gives necessary URL and TLS configurations to start proxy
+message ProxyConfig {
+    string BindURL = 1;
+    string ExternalURL = 2;
+    repeated string RedirectURLs = 3;
+    oneof TLSConfig {
+        TLSSelfSigned SelfSigned = 4;
+        TLSLetsEncrypt LetsEncrypt = 5;
+        TLSCertificate Certificate = 6;
+    }
+}
+
+// TLSSelfSigned generates a selfsigned certificate
+message TLSSelfSigned {
+    repeated string Hostname = 1;
+}
+
+// TLSLetsEncrypt set up proxy to automatically get a valid certificate from let's encrypt servers
+message TLSLetsEncrypt {
+    string Email = 1;
+    bool AcceptEULA = 2;
+    bool StagingCA = 3;
+}
+
+// TLSCertificate is a TLSConfig where user passes
+message TLSCertificate {
+    string CertFile = 1;
+    string KeyFile = 2;
 }
 
 message CheckResult{

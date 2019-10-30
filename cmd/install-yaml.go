@@ -62,10 +62,32 @@ type CustomConfig struct {
 }
 
 var installYmlCmd = &cobra.Command{
-	Use:   "install-yml",
+	Use:   "install-yaml",
 	Short: "Install Cells using this terminal",
 	Long:  "This command launch the installation process of Pydio Cells in the command line instead of a browser.",
 	Run: func(cmd *cobra.Command, args []string) {
+
+		/*
+			// SAMPLE TEST
+			testProxyConfig := &install.ProxyConfig{
+				BindURL:      "bindUrl",
+				ExternalURL:  "extUrl",
+				RedirectURLs: []string{"redirectUrl"},
+				TLSConfig: &install.ProxyConfig_LetsEncrypt{
+					&install.TLSLetsEncrypt{
+						Email:      "email@toto.com",
+						AcceptEULA: true,
+						StagingCA:  false,
+					},
+				},
+			}
+				data1, _ := json.MarshalIndent(testProxyConfig, "", "  ")
+				fmt.Println(string(data1))
+
+				data2, _ := yaml.Marshal(testProxyConfig)
+				fmt.Println(string(data2))
+				os.Exit(0)
+		*/
 
 		if ymlFile == "" {
 			log.Fatal("Please provide yaml file by using -f option")
