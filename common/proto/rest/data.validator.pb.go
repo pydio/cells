@@ -179,16 +179,3 @@ func (this *DocstoreCollection) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeRequest) Validate() error {
-	return nil
-}
-func (this *ChangeCollection) Validate() error {
-	for _, item := range this.Changes {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Changes", err)
-			}
-		}
-	}
-	return nil
-}

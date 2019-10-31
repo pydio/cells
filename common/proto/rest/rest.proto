@@ -560,7 +560,6 @@ service UserMetaService {
     }
 }
 
-
 // User-accessible Jobs service
 service JobsService {
     // Create a predefined job to be run directly
@@ -631,17 +630,6 @@ service GraphService {
     rpc Relation (RelationRequest) returns (RelationResponse) {
         option (google.api.http) =  {
             get: "/graph/relation/{UserId}"
-        };
-    }
-}
-
-// Change Service provides backward compatibility to the changes API.
-service ChangeService {
-    // Get Changes
-    rpc GetChanges(ChangeRequest) returns (ChangeCollection) {
-        option(google.api.http) = {
-            post: "/changes/{SeqID}"
-            body: "*"
         };
     }
 }

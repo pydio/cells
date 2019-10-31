@@ -121,15 +121,3 @@ message DocstoreCollection {
     repeated docstore.Document Docs = 1;
     int64 Total = 2;
 }
-
-message ChangeRequest {
-    int64 SeqID = 1;
-    string filter = 2;
-    bool flatten = 3;
-    bool stream = 4;
-}
-
-message ChangeCollection {
-    repeated tree.SyncChange Changes = 1 [json_name="changes"];
-    int64 LastSeqId = 2 [json_name="last_seq"];
-}

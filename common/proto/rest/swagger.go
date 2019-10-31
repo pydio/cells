@@ -286,40 +286,6 @@ var SwaggerJson = `{
         ]
       }
     },
-    "/changes/{SeqID}": {
-      "post": {
-        "summary": "Get Changes",
-        "operationId": "GetChanges",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restChangeCollection"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "SeqID",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "format": "int64"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restChangeRequest"
-            }
-          }
-        ],
-        "tags": [
-          "ChangeService"
-        ]
-      }
-    },
     "/config/ctl": {
       "get": {
         "summary": "List all services and their status",
@@ -5160,7 +5126,7 @@ var SwaggerJson = `{
       "properties": {
         "type_url": {
           "type": "string",
-          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
+          "description": "A URL/resource name whose content describes the type of the\nserialized protocol buffer message.\n\nFor URLs which use the scheme http, https, or no scheme, the\nfollowing restrictions and interpretations apply:\n\n* If no scheme is provided, https is assumed.\n* The last segment of the URL's path must represent the fully\n  qualified name of the type (as in path/google.protobuf.Duration).\n  The name should be in a canonical form (e.g., leading \".\" is\n  not accepted).\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
         },
         "value": {
           "type": "string",
@@ -5218,101 +5184,79 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Uuid": {
-          "type": "string"
+          "type": "string",
+          "title": "Unique Id of the Cell"
         },
         "Label": {
-          "type": "string"
+          "type": "string",
+          "title": "Label of the Cell (max 500 chars)"
         },
         "Description": {
-          "type": "string"
+          "type": "string",
+          "title": "Long description of the Cell (max 1000 chars)"
         },
         "RootNodes": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
-          }
+          },
+          "title": "Nodes attached as roots to this Cell"
         },
         "ACLs": {
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/restCellAcl"
-          }
+          },
+          "title": "Access control for this Cell"
         },
         "Policies": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/serviceResourcePolicy"
-          }
+          },
+          "title": "Associated access policies"
         },
         "PoliciesContextEditable": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether these policies are currently editable"
         }
       },
-      "title": "Model for representing a shared room"
+      "title": "Model for representing a Cell"
     },
     "restCellAcl": {
       "type": "object",
       "properties": {
         "RoleId": {
-          "type": "string"
+          "type": "string",
+          "title": "Associated Role ID"
         },
         "Actions": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmACLAction"
-          }
+          },
+          "title": "List of Acl Actions and their effect"
         },
         "IsUserRole": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Flag for detecting if it's a user role or not"
         },
         "User": {
-          "$ref": "#/definitions/idmUser"
+          "$ref": "#/definitions/idmUser",
+          "title": "Associated User"
         },
         "Group": {
-          "$ref": "#/definitions/idmUser"
+          "$ref": "#/definitions/idmUser",
+          "title": "Associated Group"
         },
         "Role": {
-          "$ref": "#/definitions/idmRole"
+          "$ref": "#/definitions/idmRole",
+          "title": "Associated Role"
         }
       },
       "title": "Group collected acls by subjects"
-    },
-    "restChangeCollection": {
-      "type": "object",
-      "properties": {
-        "Changes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/treeSyncChange"
-          }
-        },
-        "LastSeqId": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
-    "restChangeRequest": {
-      "type": "object",
-      "properties": {
-        "SeqID": {
-          "type": "string",
-          "format": "int64"
-        },
-        "filter": {
-          "type": "string"
-        },
-        "flatten": {
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "stream": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      }
     },
     "restConfiguration": {
       "type": "object",
@@ -5411,7 +5355,8 @@ var SwaggerJson = `{
       "properties": {
         "Success": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Delete result"
         }
       }
     },
@@ -5500,9 +5445,11 @@ var SwaggerJson = `{
       "properties": {
         "Success": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "If delete sucess or failed"
         }
-      }
+      },
+      "title": "Response for deleting a share link"
     },
     "restDeleteUserMetaTagsResponse": {
       "type": "object",
@@ -5760,11 +5707,13 @@ var SwaggerJson = `{
         },
         "Offset": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Start listing at a given offset"
         },
         "Limit": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Limit number of results"
         }
       }
     },
@@ -5958,34 +5907,43 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Room": {
-          "$ref": "#/definitions/restCell"
+          "$ref": "#/definitions/restCell",
+          "title": "Content of the Cell (Room is legacy name)"
         },
         "CreateEmptyRoot": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether to create a dedicated folder for this cell at creation"
         }
-      }
+      },
+      "title": "Request for creating a Cell"
     },
     "restPutShareLinkRequest": {
       "type": "object",
       "properties": {
         "ShareLink": {
-          "$ref": "#/definitions/restShareLink"
+          "$ref": "#/definitions/restShareLink",
+          "title": "Content of the link to create"
         },
         "PasswordEnabled": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether it has Password enabled"
         },
         "CreatePassword": {
-          "type": "string"
+          "type": "string",
+          "title": "Set if switching from no password to password"
         },
         "UpdatePassword": {
-          "type": "string"
+          "type": "string",
+          "title": "Set if updating an existing password"
         },
         "UpdateCustomHash": {
-          "type": "string"
+          "type": "string",
+          "title": "Change the ShareLink Hash with a custom value"
         }
-      }
+      },
+      "title": "Request for create/update a link"
     },
     "restPutUserMetaTagRequest": {
       "type": "object",
@@ -6378,80 +6336,99 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Uuid": {
-          "type": "string"
+          "type": "string",
+          "title": "Internal identifier of the link"
         },
         "LinkHash": {
-          "type": "string"
+          "type": "string",
+          "title": "Unique Hash for accessing the link"
         },
         "LinkUrl": {
-          "type": "string"
+          "type": "string",
+          "title": "Full URL for accessing the link"
         },
         "Label": {
-          "type": "string"
+          "type": "string",
+          "title": "Label of the Link (max 500 chars)"
         },
         "Description": {
-          "type": "string"
+          "type": "string",
+          "title": "Description of the Link (max 1000 chars)"
         },
         "UserUuid": {
-          "type": "string"
+          "type": "string",
+          "title": "Temporary user Uuid used to login automatically when accessing this link"
         },
         "UserLogin": {
-          "type": "string"
+          "type": "string",
+          "title": "Temporary user Login used to login automatically when accessing this link"
         },
         "PasswordRequired": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether a password is required or not to access the link"
         },
         "AccessStart": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Timestamp of start date for enabling the share (not implemented yet)"
         },
         "AccessEnd": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Timestamp after which the share is disabled"
         },
         "MaxDownloads": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Maximum number of downloads until expiration"
         },
         "CurrentDownloads": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Current number of downloads"
         },
         "ViewTemplateName": {
-          "type": "string"
+          "type": "string",
+          "title": "Display Template for loading the public link"
         },
         "TargetUsers": {
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/restShareLinkTargetUser"
-          }
+          },
+          "title": "TargetUsers can be used to restrict access"
         },
         "RestrictToTargetUsers": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "RestrictToTargetUsers enable users restriction"
         },
         "RootNodes": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
-          }
+          },
+          "title": "Nodes in the tree that serve as root to this link"
         },
         "Permissions": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/restShareLinkAccessType"
-          }
+          },
+          "title": "Specific permissions for public links"
         },
         "Policies": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/serviceResourcePolicy"
-          }
+          },
+          "title": "Security policies"
         },
         "PoliciesContextEditable": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether policies are currently editable or not"
         }
       },
       "title": "Model for representing a public link"
@@ -6545,13 +6522,15 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Uuid": {
-          "type": "string"
+          "type": "string",
+          "title": "Cell or Link UUID"
         },
         "Policies": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/serviceResourcePolicy"
-          }
+          },
+          "title": "List of policies to update"
         }
       }
     },
@@ -7112,63 +7091,6 @@ var SwaggerJson = `{
           "title": "Facet search"
         }
       }
-    },
-    "treeSyncChange": {
-      "type": "object",
-      "properties": {
-        "seq": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "nodeId": {
-          "type": "string"
-        },
-        "type": {
-          "$ref": "#/definitions/treeSyncChangeType"
-        },
-        "source": {
-          "type": "string"
-        },
-        "target": {
-          "type": "string"
-        },
-        "node": {
-          "$ref": "#/definitions/treeSyncChangeNode"
-        }
-      }
-    },
-    "treeSyncChangeNode": {
-      "type": "object",
-      "properties": {
-        "bytesize": {
-          "type": "string",
-          "format": "int64"
-        },
-        "md5": {
-          "type": "string"
-        },
-        "mtime": {
-          "type": "string",
-          "format": "int64"
-        },
-        "nodePath": {
-          "type": "string"
-        },
-        "repositoryIdentifier": {
-          "type": "string"
-        }
-      }
-    },
-    "treeSyncChangeType": {
-      "type": "string",
-      "enum": [
-        "unknown",
-        "create",
-        "delete",
-        "path",
-        "content"
-      ],
-      "default": "unknown"
     },
     "treeVersioningKeepPeriod": {
       "type": "object",
