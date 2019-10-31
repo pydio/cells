@@ -689,13 +689,20 @@ func (m *DeleteJobResponse) GetDeleteCount() int32 {
 }
 
 type ListJobsRequest struct {
-	Owner       string     `protobuf:"bytes,1,opt,name=Owner" json:"Owner,omitempty"`
-	EventsOnly  bool       `protobuf:"varint,2,opt,name=EventsOnly" json:"EventsOnly,omitempty"`
-	TimersOnly  bool       `protobuf:"varint,3,opt,name=TimersOnly" json:"TimersOnly,omitempty"`
-	LoadTasks   TaskStatus `protobuf:"varint,4,opt,name=LoadTasks,enum=jobs.TaskStatus" json:"LoadTasks,omitempty"`
-	JobIDs      []string   `protobuf:"bytes,5,rep,name=JobIDs" json:"JobIDs,omitempty"`
-	TasksOffset int32      `protobuf:"varint,6,opt,name=TasksOffset" json:"TasksOffset,omitempty"`
-	TasksLimit  int32      `protobuf:"varint,7,opt,name=TasksLimit" json:"TasksLimit,omitempty"`
+	// Restrict to a specific owner (current user by default)
+	Owner string `protobuf:"bytes,1,opt,name=Owner" json:"Owner,omitempty"`
+	// Filter with only event-based jobs
+	EventsOnly bool `protobuf:"varint,2,opt,name=EventsOnly" json:"EventsOnly,omitempty"`
+	// Filter with only timer-based jobs
+	TimersOnly bool `protobuf:"varint,3,opt,name=TimersOnly" json:"TimersOnly,omitempty"`
+	// Load tasks that correspond to the given TaskStatus
+	LoadTasks TaskStatus `protobuf:"varint,4,opt,name=LoadTasks,enum=jobs.TaskStatus" json:"LoadTasks,omitempty"`
+	// Load jobs by their ID
+	JobIDs []string `protobuf:"bytes,5,rep,name=JobIDs" json:"JobIDs,omitempty"`
+	// Start listing at a given position
+	TasksOffset int32 `protobuf:"varint,6,opt,name=TasksOffset" json:"TasksOffset,omitempty"`
+	// Lmit the number of results
+	TasksLimit int32 `protobuf:"varint,7,opt,name=TasksLimit" json:"TasksLimit,omitempty"`
 }
 
 func (m *ListJobsRequest) Reset()                    { *m = ListJobsRequest{} }
@@ -769,7 +776,9 @@ func (m *ListJobsResponse) GetJob() *Job {
 }
 
 type ListTasksRequest struct {
-	JobID  string     `protobuf:"bytes,1,opt,name=JobID" json:"JobID,omitempty"`
+	// List tasks for the job with this Id
+	JobID string `protobuf:"bytes,1,opt,name=JobID" json:"JobID,omitempty"`
+	// List only tasks with this Status
 	Status TaskStatus `protobuf:"varint,2,opt,name=Status,enum=jobs.TaskStatus" json:"Status,omitempty"`
 }
 
@@ -1042,10 +1051,14 @@ func (m *Task) GetActionsLogs() []*ActionLog {
 }
 
 type CtrlCommand struct {
-	Cmd     Command `protobuf:"varint,1,opt,name=Cmd,enum=jobs.Command" json:"Cmd,omitempty"`
-	JobId   string  `protobuf:"bytes,2,opt,name=JobId" json:"JobId,omitempty"`
-	TaskId  string  `protobuf:"bytes,3,opt,name=TaskId" json:"TaskId,omitempty"`
-	OwnerId string  `protobuf:"bytes,4,opt,name=OwnerId" json:"OwnerId,omitempty"`
+	// Type of command to send (None, Pause, Resume, Stop, Delete, RunOnce, Inactive, Active)
+	Cmd Command `protobuf:"varint,1,opt,name=Cmd,enum=jobs.Command" json:"Cmd,omitempty"`
+	// Id of the job
+	JobId string `protobuf:"bytes,2,opt,name=JobId" json:"JobId,omitempty"`
+	// Id of the associated task
+	TaskId string `protobuf:"bytes,3,opt,name=TaskId" json:"TaskId,omitempty"`
+	// Owner of the job
+	OwnerId string `protobuf:"bytes,4,opt,name=OwnerId" json:"OwnerId,omitempty"`
 }
 
 func (m *CtrlCommand) Reset()                    { *m = CtrlCommand{} }

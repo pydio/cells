@@ -3,12 +3,16 @@ syntax = "proto3";
 package encryption;
 
 message Export {
+    // Name of exporter
     string By = 1;
+    // Date of export
     int32 Date = 2;
 }
 
 message Import {
+    // Name of importer
     string By = 1;
+    // Date of import
     int32 Date = 3;
 }
 
@@ -18,11 +22,17 @@ message KeyInfo {
 }
 
 message Key {
+    // Key owner
     string Owner = 1;
+    // Key ID
     string ID = 2;
+    // Key label
     string Label = 3;
+    // Key content
     string Content = 4;
+    // Key creation date
     int32 CreationDate = 5;
+    // Additional key info
     KeyInfo Info = 6;
 }
 
@@ -49,7 +59,9 @@ service UserKeyStore {
 }
 
 message AddKeyRequest {
+    // Key to add
     Key Key = 1;
+    // Key password as string
     string StrPassword = 2;
 }
 
@@ -76,6 +88,7 @@ message AdminListKeysResponse {
 }
 
 message AdminDeleteKeyRequest {
+    // Id of the key to delete
     string KeyID = 1;
 }
 
@@ -84,7 +97,9 @@ message AdminDeleteKeyResponse {
 }
 
 message AdminExportKeyRequest {
+    // Id of the key to export
     string KeyID = 1;
+    // Associated password as string
     string StrPassword = 2;
 }
 
@@ -93,8 +108,11 @@ message AdminExportKeyResponse {
 }
 
 message AdminImportKeyRequest {
+    // Imported key data
     Key Key = 1;
+    // Key password
     string StrPassword = 2;
+    // Whether to override if a key with same ID already exists
     bool Override = 3;
 }
 
@@ -103,7 +121,9 @@ message AdminImportKeyResponse {
 }
 
 message AdminCreateKeyRequest {
+    // Create a key with this ID
     string KeyID = 1;
+    // Provide label for the newly created key
     string Label = 2;
 }
 

@@ -10,28 +10,39 @@ message User {
 }
 
 message Mail {
-
+    // User object used to compute the From header
     User From = 1;
+    // List of target users to send the mail to
     repeated User To = 3;
+    // List of target users to put in CC
     repeated User Cc = 4;
+    // Date of sending
     int64 DateSent = 5;
-
+    // String used as subject for the email
     string Subject = 6;
+    // Plain-text content used for the body, if not set will be generated from the ContentHtml
     string ContentPlain = 7;
+    // HTML content used for the body
     string ContentHtml = 8;
+    // Markdown content used for the body
     string ContentMarkdown = 9;
+    // List of attachments
     repeated string Attachments = 10;
 
-    // Could be used for Re: ... conversations
+    // Not used, could be used to create conversations
     string ThreadUuid = 11;
+    // Not used, could be used to create conversations
     string ThreadIndex = 12;
 
+    // Mail Template Id refers to predefined templates
     string TemplateId = 13;
+    // Key/values to pass to the template
     map<string,string> TemplateData = 14;
-
+    // Number of retries after failed attempts (used internally)
     int32 Retries = 15;
+    // Errors stacked on failed attempts
     repeated string sendErrors = 16;
-
+    // User object used to compute the Sender header
     User Sender = 17;
 }
 
@@ -41,7 +52,9 @@ service MailerService {
 }
 
 message SendMailRequest {
+    // Complete mail object to send
     Mail Mail = 1;
+    // Whether to place in mails queue or to send right away
     bool InQueue = 2;
 }
 

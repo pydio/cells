@@ -40,16 +40,24 @@ message MetaCollection {
 }
 
 message MetaNamespaceRequest{
+    // Path to the requested node
     string NodePath = 1;
+    // List of namespaces to load
     repeated string Namespace = 2;
 }
 
 message GetBulkMetaRequest{
+    // List of node paths to query (use paths ending with /* to load the children)
     repeated string NodePaths = 1;
+    // List of nodes based on their Uuids
     repeated string NodeUuids = 2;
+    // Whether to query all services for the metadata they can contribute to enrich the node
     bool AllMetaProviders = 3;
+    // Load Versions of the given node
     bool Versions = 4;
+    // Start listing at a given position
     int32 Offset = 5;
+    // Limit number of results
     int32 Limit = 6;
 }
 
@@ -59,6 +67,7 @@ message BulkMetaResponse{
 }
 
 message HeadNodeRequest {
+    // The node to state
     string Node = 1;
 }
 
@@ -67,14 +76,20 @@ message HeadNodeResponse {
 }
 
 message CreateNodesRequest {
+    // A list of nodes that must be created
     repeated tree.Node Nodes = 1;
+    // If nodes are created inside non-existing folders, whether the parents should be created automatically or not
     bool Recursive = 2;
+    // Use a template to create this node
     string TemplateUUID = 3;
 }
 
 message CreateSelectionRequest {
+    // Create a temporary selection out of this list of nodes
     repeated tree.Node Nodes = 1;
+    // Associated target action for this selection
     string TargetAction = 2;
+    // Whether to save the selection or just get a temporary Uuid in return
     bool Persist = 3;
 }
 
@@ -89,7 +104,9 @@ message NodesCollection {
 }
 
 message DeleteNodesRequest {
+    // List of nodes to delete
     repeated tree.Node Nodes = 1;
+    // Whether to delete all the children if node is a folder
     bool Recursive = 2;
 }
 
@@ -104,6 +121,7 @@ message DeleteNodesResponse {
 }
 
 message RestoreNodesRequest {
+    // Restore this node from the recycle bin to its original location
     repeated tree.Node Nodes = 1;
 }
 
@@ -112,8 +130,11 @@ message RestoreNodesResponse {
 }
 
 message ListDocstoreRequest {
+    // Id of the Store to list
     string StoreID = 1;
+    // Bleve-query for searching the store
     docstore.DocumentQuery Query = 2;
+    // Return only the number of results, no actual documents
     bool CountOnly = 3;
 }
 

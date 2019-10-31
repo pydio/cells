@@ -301,6 +301,7 @@ var SwaggerJson = `{
         "parameters": [
           {
             "name": "StatusFilter",
+            "description": "Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -382,6 +383,7 @@ var SwaggerJson = `{
           },
           {
             "name": "Disabled",
+            "description": "Whether this data source is disabled or running.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -389,6 +391,7 @@ var SwaggerJson = `{
           },
           {
             "name": "StorageType",
+            "description": "Type of underlying storage (LOCAL, S3, AZURE, GCS).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -407,18 +410,21 @@ var SwaggerJson = `{
           },
           {
             "name": "ObjectsServiceName",
+            "description": "Corresponding objects service name (underlying s3 service).",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "ObjectsHost",
+            "description": "Corresponding objects service host.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "ObjectsPort",
+            "description": "Corresponding objects service port.",
             "in": "query",
             "required": false,
             "type": "integer",
@@ -426,6 +432,7 @@ var SwaggerJson = `{
           },
           {
             "name": "ObjectsSecure",
+            "description": "Corresponding objects service connection type.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -433,36 +440,42 @@ var SwaggerJson = `{
           },
           {
             "name": "ObjectsBucket",
+            "description": "Corresponding objects service bucket.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "ObjectsBaseFolder",
+            "description": "Corresponding objects service base folder inside the bucket.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "ApiKey",
+            "description": "Corresponding objects service api key.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "ApiSecret",
+            "description": "Corresponding objects service api secret.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "PeerAddress",
+            "description": "Peer address of the data source.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "Watch",
+            "description": "Not implemented, whether to watch for underlying changes on the FS.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -470,6 +483,7 @@ var SwaggerJson = `{
           },
           {
             "name": "EncryptionMode",
+            "description": "Type of encryption applied before sending data to storage.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -483,18 +497,21 @@ var SwaggerJson = `{
           },
           {
             "name": "EncryptionKey",
+            "description": "Encryption key used for encrypting data.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "VersioningPolicyName",
+            "description": "Versioning policy describes how files are kept in the versioning queue.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "CreationDate",
+            "description": "Data Source creation date.",
             "in": "query",
             "required": false,
             "type": "integer",
@@ -502,6 +519,7 @@ var SwaggerJson = `{
           },
           {
             "name": "LastSynchronizationDate",
+            "description": "Data Source last synchronization date.",
             "in": "query",
             "required": false,
             "type": "integer",
@@ -582,6 +600,7 @@ var SwaggerJson = `{
         "parameters": [
           {
             "name": "EndpointType",
+            "description": "Filter result to a specific endpoint type.",
             "in": "query",
             "required": false,
             "type": "string"
@@ -632,6 +651,7 @@ var SwaggerJson = `{
         "parameters": [
           {
             "name": "EndpointType",
+            "description": "Filter result to a specific endpoint type.",
             "in": "query",
             "required": false,
             "type": "string"
@@ -979,6 +999,7 @@ var SwaggerJson = `{
           },
           {
             "name": "Data",
+            "description": "JSON-encoded data to store.",
             "in": "query",
             "required": false,
             "type": "string"
@@ -3465,10 +3486,12 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "KeyID": {
-          "type": "string"
+          "type": "string",
+          "title": "Create a key with this ID"
         },
         "Label": {
-          "type": "string"
+          "type": "string",
+          "title": "Provide label for the newly created key"
         }
       }
     },
@@ -3485,7 +3508,8 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "KeyID": {
-          "type": "string"
+          "type": "string",
+          "title": "Id of the key to delete"
         }
       }
     },
@@ -3502,10 +3526,12 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "KeyID": {
-          "type": "string"
+          "type": "string",
+          "title": "Id of the key to export"
         },
         "StrPassword": {
-          "type": "string"
+          "type": "string",
+          "title": "Associated password as string"
         }
       }
     },
@@ -3521,14 +3547,17 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Key": {
-          "$ref": "#/definitions/encryptionKey"
+          "$ref": "#/definitions/encryptionKey",
+          "title": "Imported key data"
         },
         "StrPassword": {
-          "type": "string"
+          "type": "string",
+          "title": "Key password"
         },
         "Override": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether to override if a key with same ID already exists"
         }
       }
     },
@@ -3559,11 +3588,13 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "By": {
-          "type": "string"
+          "type": "string",
+          "title": "Name of exporter"
         },
         "Date": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Date of export"
         }
       }
     },
@@ -3571,11 +3602,13 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "By": {
-          "type": "string"
+          "type": "string",
+          "title": "Name of importer"
         },
         "Date": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Date of import"
         }
       }
     },
@@ -3583,23 +3616,29 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Owner": {
-          "type": "string"
+          "type": "string",
+          "title": "Key owner"
         },
         "ID": {
-          "type": "string"
+          "type": "string",
+          "title": "Key ID"
         },
         "Label": {
-          "type": "string"
+          "type": "string",
+          "title": "Key label"
         },
         "Content": {
-          "type": "string"
+          "type": "string",
+          "title": "Key content"
         },
         "CreationDate": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Key creation date"
         },
         "Info": {
-          "$ref": "#/definitions/encryptionKeyInfo"
+          "$ref": "#/definitions/encryptionKeyInfo",
+          "title": "Additional key info"
         }
       }
     },
@@ -4591,16 +4630,20 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Cmd": {
-          "$ref": "#/definitions/jobsCommand"
+          "$ref": "#/definitions/jobsCommand",
+          "title": "Type of command to send (None, Pause, Resume, Stop, Delete, RunOnce, Inactive, Active)"
         },
         "JobId": {
-          "type": "string"
+          "type": "string",
+          "title": "Id of the job"
         },
         "TaskId": {
-          "type": "string"
+          "type": "string",
+          "title": "Id of the associated task"
         },
         "OwnerId": {
-          "type": "string"
+          "type": "string",
+          "title": "Owner of the job"
         }
       }
     },
@@ -4735,32 +4778,39 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Owner": {
-          "type": "string"
+          "type": "string",
+          "title": "Restrict to a specific owner (current user by default)"
         },
         "EventsOnly": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Filter with only event-based jobs"
         },
         "TimersOnly": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Filter with only timer-based jobs"
         },
         "LoadTasks": {
-          "$ref": "#/definitions/jobsTaskStatus"
+          "$ref": "#/definitions/jobsTaskStatus",
+          "title": "Load tasks that correspond to the given TaskStatus"
         },
         "JobIDs": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Load jobs by their ID"
         },
         "TasksOffset": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Start listing at a given position"
         },
         "TasksLimit": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Lmit the number of results"
         }
       }
     },
@@ -5027,70 +5077,85 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "From": {
-          "$ref": "#/definitions/mailerUser"
+          "$ref": "#/definitions/mailerUser",
+          "title": "User object used to compute the From header"
         },
         "To": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/mailerUser"
-          }
+          },
+          "title": "List of target users to send the mail to"
         },
         "Cc": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/mailerUser"
-          }
+          },
+          "title": "List of target users to put in CC"
         },
         "DateSent": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Date of sending"
         },
         "Subject": {
-          "type": "string"
+          "type": "string",
+          "title": "String used as subject for the email"
         },
         "ContentPlain": {
-          "type": "string"
+          "type": "string",
+          "title": "Plain-text content used for the body, if not set will be generated from the ContentHtml"
         },
         "ContentHtml": {
-          "type": "string"
+          "type": "string",
+          "title": "HTML content used for the body"
         },
         "ContentMarkdown": {
-          "type": "string"
+          "type": "string",
+          "title": "Markdown content used for the body"
         },
         "Attachments": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of attachments"
         },
         "ThreadUuid": {
           "type": "string",
-          "title": "Could be used for Re: ... conversations"
+          "title": "Not used, could be used to create conversations"
         },
         "ThreadIndex": {
-          "type": "string"
+          "type": "string",
+          "title": "Not used, could be used to create conversations"
         },
         "TemplateId": {
-          "type": "string"
+          "type": "string",
+          "title": "Mail Template Id refers to predefined templates"
         },
         "TemplateData": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
-          }
+          },
+          "title": "Key/values to pass to the template"
         },
         "Retries": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Number of retries after failed attempts (used internally)"
         },
         "sendErrors": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Errors stacked on failed attempts"
         },
         "Sender": {
-          "$ref": "#/definitions/mailerUser"
+          "$ref": "#/definitions/mailerUser",
+          "title": "User object used to compute the Sender header"
         }
       }
     },
@@ -5124,70 +5189,89 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Name": {
-          "type": "string"
+          "type": "string",
+          "title": "Name of the data source (max length 34)"
         },
         "Disabled": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether this data source is disabled or running"
         },
         "StorageType": {
-          "$ref": "#/definitions/objectStorageType"
+          "$ref": "#/definitions/objectStorageType",
+          "title": "Type of underlying storage (LOCAL, S3, AZURE, GCS)"
         },
         "StorageConfiguration": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
-          }
+          },
+          "title": "List of key values describing storage configuration"
         },
         "ObjectsServiceName": {
-          "type": "string"
+          "type": "string",
+          "title": "Corresponding objects service name (underlying s3 service)"
         },
         "ObjectsHost": {
-          "type": "string"
+          "type": "string",
+          "title": "Corresponding objects service host"
         },
         "ObjectsPort": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Corresponding objects service port"
         },
         "ObjectsSecure": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Corresponding objects service connection type"
         },
         "ObjectsBucket": {
-          "type": "string"
+          "type": "string",
+          "title": "Corresponding objects service bucket"
         },
         "ObjectsBaseFolder": {
-          "type": "string"
+          "type": "string",
+          "title": "Corresponding objects service base folder inside the bucket"
         },
         "ApiKey": {
-          "type": "string"
+          "type": "string",
+          "title": "Corresponding objects service api key"
         },
         "ApiSecret": {
-          "type": "string"
+          "type": "string",
+          "title": "Corresponding objects service api secret"
         },
         "PeerAddress": {
-          "type": "string"
+          "type": "string",
+          "title": "Peer address of the data source"
         },
         "Watch": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Not implemented, whether to watch for underlying changes on the FS"
         },
         "EncryptionMode": {
-          "$ref": "#/definitions/objectEncryptionMode"
+          "$ref": "#/definitions/objectEncryptionMode",
+          "title": "Type of encryption applied before sending data to storage"
         },
         "EncryptionKey": {
-          "type": "string"
+          "type": "string",
+          "title": "Encryption key used for encrypting data"
         },
         "VersioningPolicyName": {
-          "type": "string"
+          "type": "string",
+          "title": "Versioning policy describes how files are kept in the versioning queue"
         },
         "CreationDate": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Data Source creation date"
         },
         "LastSynchronizationDate": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Data Source last synchronization date"
         }
       },
       "title": "DataSource Object description"
@@ -5362,10 +5446,12 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "FullPath": {
-          "type": "string"
+          "type": "string",
+          "title": "Full slash-separated path to the config key"
         },
         "Data": {
-          "type": "string"
+          "type": "string",
+          "title": "JSON-encoded data to store"
         }
       },
       "title": "Configuration message. Data is an Json representation of any value"
@@ -5374,13 +5460,16 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "ServiceName": {
-          "type": "string"
+          "type": "string",
+          "title": "Name of the service to stop"
         },
         "NodeName": {
-          "type": "string"
+          "type": "string",
+          "title": "Name of the node"
         },
         "Command": {
-          "$ref": "#/definitions/ctlServiceCommand"
+          "$ref": "#/definitions/ctlServiceCommand",
+          "title": "Command to apply (START or STOP)"
         }
       }
     },
@@ -5391,14 +5480,17 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
-          }
+          },
+          "title": "A list of nodes that must be created"
         },
         "Recursive": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "If nodes are created inside non-existing folders, whether the parents should be created automatically or not"
         },
         "TemplateUUID": {
-          "type": "string"
+          "type": "string",
+          "title": "Use a template to create this node"
         }
       }
     },
@@ -5409,14 +5501,17 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
-          }
+          },
+          "title": "Create a temporary selection out of this list of nodes"
         },
         "TargetAction": {
-          "type": "string"
+          "type": "string",
+          "title": "Associated target action for this selection"
         },
         "Persist": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether to save the selection or just get a temporary Uuid in return"
         }
       }
     },
@@ -5476,11 +5571,13 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
-          }
+          },
+          "title": "List of nodes to delete"
         },
         "Recursive": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether to delete all the children if node is a folder"
         }
       }
     },
@@ -5564,26 +5661,32 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "PackageType": {
-          "type": "string"
+          "type": "string",
+          "title": "Current Package Type, empty if user is not authenticated"
         },
         "PackageLabel": {
-          "type": "string"
+          "type": "string",
+          "title": "Current Package Label, empty if user is not authenticated"
         },
         "Version": {
-          "type": "string"
+          "type": "string",
+          "title": "Current Package Version, empty if user is not authenticated"
         },
         "BuildStamp": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Build stamp of the binary build, empty if user is not authenticated"
         },
         "BuildRevision": {
-          "type": "string"
+          "type": "string",
+          "title": "Revision of the current binary build, empty if user is not authenticated"
         },
         "Endpoints": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
-          }
+          },
+          "title": "List of endpoints and their corresponding URL access. Special case for grpc that just send back its port"
         }
       }
     },
@@ -5711,29 +5814,35 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of node paths to query (use paths ending with /* to load the children)"
         },
         "NodeUuids": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of nodes based on their Uuids"
         },
         "AllMetaProviders": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether to query all services for the metadata they can contribute to enrich the node"
         },
         "Versions": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Load Versions of the given node"
         },
         "Offset": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Start listing at a given position"
         },
         "Limit": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Limit number of results"
         }
       }
     },
@@ -5749,10 +5858,12 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "PeerAddress": {
-          "type": "string"
+          "type": "string",
+          "title": "Restrict listing to a given peer"
         },
         "Path": {
-          "type": "string"
+          "type": "string",
+          "title": "Path to the parent folder for listing"
         }
       }
     },
@@ -5763,7 +5874,8 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of peer addresses"
         }
       }
     },
@@ -5771,10 +5883,12 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "PeerId": {
-          "type": "string"
+          "type": "string",
+          "title": "Id of the peer node"
         },
         "ServiceName": {
-          "type": "string"
+          "type": "string",
+          "title": "Look for a service name"
         }
       }
     },
@@ -5895,13 +6009,15 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "NodePath": {
-          "type": "string"
+          "type": "string",
+          "title": "Path to the requested node"
         },
         "Namespace": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of namespaces to load"
         }
       }
     },
@@ -5978,29 +6094,36 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "ID": {
-          "type": "string"
+          "type": "string",
+          "title": "Process ID"
         },
         "ParentID": {
-          "type": "string"
+          "type": "string",
+          "title": "Parent Process ID"
         },
         "MetricsPort": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Port to access the metrics api"
         },
         "PeerId": {
-          "type": "string"
+          "type": "string",
+          "title": "Id of peer node"
         },
         "PeerAddress": {
-          "type": "string"
+          "type": "string",
+          "title": "Address of peer node"
         },
         "StartTag": {
-          "type": "string"
+          "type": "string",
+          "title": "Parameters used to start this process"
         },
         "Services": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of services running inside this process"
         }
       }
     },
@@ -6148,7 +6271,8 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
-          }
+          },
+          "title": "Restore this node from the recycle bin to its original location"
         }
       }
     },
@@ -6698,10 +6822,12 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "JobName": {
-          "type": "string"
+          "type": "string",
+          "title": "Name of the job to create in the user space"
         },
         "JsonParameters": {
-          "type": "string"
+          "type": "string",
+          "title": "Json-encoded parameters for this job"
         }
       }
     },

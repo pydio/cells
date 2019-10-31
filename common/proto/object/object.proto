@@ -44,45 +44,72 @@ enum EncryptionMode {
 
 // DataSource Object description
 message DataSource {
+    // Name of the data source (max length 34)
     string Name = 1 [(validator.field) = {length_lt: 34}];
+    // Whether this data source is disabled or running
     bool Disabled = 2;
 
+    // Type of underlying storage (LOCAL, S3, AZURE, GCS)
     StorageType StorageType = 3;
+    // List of key values describing storage configuration
     map<string,string> StorageConfiguration = 4;
 
+    // Corresponding objects service name (underlying s3 service)
     string ObjectsServiceName = 18;
+    // Corresponding objects service host
     string ObjectsHost = 12;
+    // Corresponding objects service port
     int32  ObjectsPort = 5;
+    // Corresponding objects service connection type
     bool   ObjectsSecure = 13;
+    // Corresponding objects service bucket
     string ObjectsBucket = 14;
+    // Corresponding objects service base folder inside the bucket
     string ObjectsBaseFolder = 15;
 
+    // Corresponding objects service api key
     string ApiKey = 16;
+    // Corresponding objects service api secret
     string ApiSecret = 17;
+    // Peer address of the data source
     string PeerAddress = 19;
-
+    // Not implemented, whether to watch for underlying changes on the FS
     bool Watch = 6;
 
+    // Type of encryption applied before sending data to storage
     EncryptionMode EncryptionMode = 7;
+    // Encryption key used for encrypting data
     string EncryptionKey = 8;
+    // Versioning policy describes how files are kept in the versioning queue
     string VersioningPolicyName = 9;
 
+    // Data Source creation date
     int32 CreationDate = 10;
+    // Data Source last synchronization date
     int32 LastSynchronizationDate = 11;
 }
 
 // Used a config storage for minio services
 message MinioConfig {
+    // Name of the object service
     string Name = 1;
+    // Underlying storage type (LOCAL, S3, AZURE, GCS)
     StorageType StorageType = 2;
+    // Host where this minio is running
     string RunningHost = 3;
+    // Whether it is exposed with TLS or not
     bool RunningSecure = 4;
+    // Port where this minio is bound
     int32 RunningPort = 5;
+    // Api Key to access this object service
     string ApiKey = 6;
+    // Api Secret to access this object service
     string ApiSecret = 7;
+    // Url to get info about this object service
     string EndpointUrl = 10;
     // Specific to Local storage type
     string LocalFolder = 8;
+    // Restrict this service to run on a given peer
     string PeerAddress = 9;
     // Additional configs
     map<string,string> GatewayConfiguration = 11;

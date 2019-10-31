@@ -68,8 +68,10 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Export struct {
-	By   string `protobuf:"bytes,1,opt,name=By" json:"By,omitempty"`
-	Date int32  `protobuf:"varint,2,opt,name=Date" json:"Date,omitempty"`
+	// Name of exporter
+	By string `protobuf:"bytes,1,opt,name=By" json:"By,omitempty"`
+	// Date of export
+	Date int32 `protobuf:"varint,2,opt,name=Date" json:"Date,omitempty"`
 }
 
 func (m *Export) Reset()                    { *m = Export{} }
@@ -92,8 +94,10 @@ func (m *Export) GetDate() int32 {
 }
 
 type Import struct {
-	By   string `protobuf:"bytes,1,opt,name=By" json:"By,omitempty"`
-	Date int32  `protobuf:"varint,3,opt,name=Date" json:"Date,omitempty"`
+	// Name of importer
+	By string `protobuf:"bytes,1,opt,name=By" json:"By,omitempty"`
+	// Date of import
+	Date int32 `protobuf:"varint,3,opt,name=Date" json:"Date,omitempty"`
 }
 
 func (m *Import) Reset()                    { *m = Import{} }
@@ -140,12 +144,18 @@ func (m *KeyInfo) GetImports() []*Import {
 }
 
 type Key struct {
-	Owner        string   `protobuf:"bytes,1,opt,name=Owner" json:"Owner,omitempty"`
-	ID           string   `protobuf:"bytes,2,opt,name=ID" json:"ID,omitempty"`
-	Label        string   `protobuf:"bytes,3,opt,name=Label" json:"Label,omitempty"`
-	Content      string   `protobuf:"bytes,4,opt,name=Content" json:"Content,omitempty"`
-	CreationDate int32    `protobuf:"varint,5,opt,name=CreationDate" json:"CreationDate,omitempty"`
-	Info         *KeyInfo `protobuf:"bytes,6,opt,name=Info" json:"Info,omitempty"`
+	// Key owner
+	Owner string `protobuf:"bytes,1,opt,name=Owner" json:"Owner,omitempty"`
+	// Key ID
+	ID string `protobuf:"bytes,2,opt,name=ID" json:"ID,omitempty"`
+	// Key label
+	Label string `protobuf:"bytes,3,opt,name=Label" json:"Label,omitempty"`
+	// Key content
+	Content string `protobuf:"bytes,4,opt,name=Content" json:"Content,omitempty"`
+	// Key creation date
+	CreationDate int32 `protobuf:"varint,5,opt,name=CreationDate" json:"CreationDate,omitempty"`
+	// Additional key info
+	Info *KeyInfo `protobuf:"bytes,6,opt,name=Info" json:"Info,omitempty"`
 }
 
 func (m *Key) Reset()                    { *m = Key{} }
@@ -196,7 +206,9 @@ func (m *Key) GetInfo() *KeyInfo {
 }
 
 type AddKeyRequest struct {
-	Key         *Key   `protobuf:"bytes,1,opt,name=Key" json:"Key,omitempty"`
+	// Key to add
+	Key *Key `protobuf:"bytes,1,opt,name=Key" json:"Key,omitempty"`
+	// Key password as string
 	StrPassword string `protobuf:"bytes,2,opt,name=StrPassword" json:"StrPassword,omitempty"`
 }
 
@@ -308,6 +320,7 @@ func (m *AdminListKeysResponse) GetKeys() []*Key {
 }
 
 type AdminDeleteKeyRequest struct {
+	// Id of the key to delete
 	KeyID string `protobuf:"bytes,1,opt,name=KeyID" json:"KeyID,omitempty"`
 }
 
@@ -340,7 +353,9 @@ func (m *AdminDeleteKeyResponse) GetSuccess() bool {
 }
 
 type AdminExportKeyRequest struct {
-	KeyID       string `protobuf:"bytes,1,opt,name=KeyID" json:"KeyID,omitempty"`
+	// Id of the key to export
+	KeyID string `protobuf:"bytes,1,opt,name=KeyID" json:"KeyID,omitempty"`
+	// Associated password as string
 	StrPassword string `protobuf:"bytes,2,opt,name=StrPassword" json:"StrPassword,omitempty"`
 }
 
@@ -380,9 +395,12 @@ func (m *AdminExportKeyResponse) GetKey() *Key {
 }
 
 type AdminImportKeyRequest struct {
-	Key         *Key   `protobuf:"bytes,1,opt,name=Key" json:"Key,omitempty"`
+	// Imported key data
+	Key *Key `protobuf:"bytes,1,opt,name=Key" json:"Key,omitempty"`
+	// Key password
 	StrPassword string `protobuf:"bytes,2,opt,name=StrPassword" json:"StrPassword,omitempty"`
-	Override    bool   `protobuf:"varint,3,opt,name=Override" json:"Override,omitempty"`
+	// Whether to override if a key with same ID already exists
+	Override bool `protobuf:"varint,3,opt,name=Override" json:"Override,omitempty"`
 }
 
 func (m *AdminImportKeyRequest) Reset()                    { *m = AdminImportKeyRequest{} }
@@ -428,7 +446,9 @@ func (m *AdminImportKeyResponse) GetSuccess() bool {
 }
 
 type AdminCreateKeyRequest struct {
+	// Create a key with this ID
 	KeyID string `protobuf:"bytes,1,opt,name=KeyID" json:"KeyID,omitempty"`
+	// Provide label for the newly created key
 	Label string `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
 }
 

@@ -159,7 +159,9 @@ func (m *MetaCollection) GetMetadatas() []*Metadata {
 }
 
 type MetaNamespaceRequest struct {
-	NodePath  string   `protobuf:"bytes,1,opt,name=NodePath" json:"NodePath,omitempty"`
+	// Path to the requested node
+	NodePath string `protobuf:"bytes,1,opt,name=NodePath" json:"NodePath,omitempty"`
+	// List of namespaces to load
 	Namespace []string `protobuf:"bytes,2,rep,name=Namespace" json:"Namespace,omitempty"`
 }
 
@@ -183,12 +185,18 @@ func (m *MetaNamespaceRequest) GetNamespace() []string {
 }
 
 type GetBulkMetaRequest struct {
-	NodePaths        []string `protobuf:"bytes,1,rep,name=NodePaths" json:"NodePaths,omitempty"`
-	NodeUuids        []string `protobuf:"bytes,2,rep,name=NodeUuids" json:"NodeUuids,omitempty"`
-	AllMetaProviders bool     `protobuf:"varint,3,opt,name=AllMetaProviders" json:"AllMetaProviders,omitempty"`
-	Versions         bool     `protobuf:"varint,4,opt,name=Versions" json:"Versions,omitempty"`
-	Offset           int32    `protobuf:"varint,5,opt,name=Offset" json:"Offset,omitempty"`
-	Limit            int32    `protobuf:"varint,6,opt,name=Limit" json:"Limit,omitempty"`
+	// List of node paths to query (use paths ending with /* to load the children)
+	NodePaths []string `protobuf:"bytes,1,rep,name=NodePaths" json:"NodePaths,omitempty"`
+	// List of nodes based on their Uuids
+	NodeUuids []string `protobuf:"bytes,2,rep,name=NodeUuids" json:"NodeUuids,omitempty"`
+	// Whether to query all services for the metadata they can contribute to enrich the node
+	AllMetaProviders bool `protobuf:"varint,3,opt,name=AllMetaProviders" json:"AllMetaProviders,omitempty"`
+	// Load Versions of the given node
+	Versions bool `protobuf:"varint,4,opt,name=Versions" json:"Versions,omitempty"`
+	// Start listing at a given position
+	Offset int32 `protobuf:"varint,5,opt,name=Offset" json:"Offset,omitempty"`
+	// Limit number of results
+	Limit int32 `protobuf:"varint,6,opt,name=Limit" json:"Limit,omitempty"`
 }
 
 func (m *GetBulkMetaRequest) Reset()                    { *m = GetBulkMetaRequest{} }
@@ -263,6 +271,7 @@ func (m *BulkMetaResponse) GetPagination() *Pagination {
 }
 
 type HeadNodeRequest struct {
+	// The node to state
 	Node string `protobuf:"bytes,1,opt,name=Node" json:"Node,omitempty"`
 }
 
@@ -295,9 +304,12 @@ func (m *HeadNodeResponse) GetNode() *tree.Node {
 }
 
 type CreateNodesRequest struct {
-	Nodes        []*tree.Node `protobuf:"bytes,1,rep,name=Nodes" json:"Nodes,omitempty"`
-	Recursive    bool         `protobuf:"varint,2,opt,name=Recursive" json:"Recursive,omitempty"`
-	TemplateUUID string       `protobuf:"bytes,3,opt,name=TemplateUUID" json:"TemplateUUID,omitempty"`
+	// A list of nodes that must be created
+	Nodes []*tree.Node `protobuf:"bytes,1,rep,name=Nodes" json:"Nodes,omitempty"`
+	// If nodes are created inside non-existing folders, whether the parents should be created automatically or not
+	Recursive bool `protobuf:"varint,2,opt,name=Recursive" json:"Recursive,omitempty"`
+	// Use a template to create this node
+	TemplateUUID string `protobuf:"bytes,3,opt,name=TemplateUUID" json:"TemplateUUID,omitempty"`
 }
 
 func (m *CreateNodesRequest) Reset()                    { *m = CreateNodesRequest{} }
@@ -327,9 +339,12 @@ func (m *CreateNodesRequest) GetTemplateUUID() string {
 }
 
 type CreateSelectionRequest struct {
-	Nodes        []*tree.Node `protobuf:"bytes,1,rep,name=Nodes" json:"Nodes,omitempty"`
-	TargetAction string       `protobuf:"bytes,2,opt,name=TargetAction" json:"TargetAction,omitempty"`
-	Persist      bool         `protobuf:"varint,3,opt,name=Persist" json:"Persist,omitempty"`
+	// Create a temporary selection out of this list of nodes
+	Nodes []*tree.Node `protobuf:"bytes,1,rep,name=Nodes" json:"Nodes,omitempty"`
+	// Associated target action for this selection
+	TargetAction string `protobuf:"bytes,2,opt,name=TargetAction" json:"TargetAction,omitempty"`
+	// Whether to save the selection or just get a temporary Uuid in return
+	Persist bool `protobuf:"varint,3,opt,name=Persist" json:"Persist,omitempty"`
 }
 
 func (m *CreateSelectionRequest) Reset()                    { *m = CreateSelectionRequest{} }
@@ -407,8 +422,10 @@ func (m *NodesCollection) GetChildren() []*tree.Node {
 }
 
 type DeleteNodesRequest struct {
-	Nodes     []*tree.Node `protobuf:"bytes,1,rep,name=Nodes" json:"Nodes,omitempty"`
-	Recursive bool         `protobuf:"varint,2,opt,name=Recursive" json:"Recursive,omitempty"`
+	// List of nodes to delete
+	Nodes []*tree.Node `protobuf:"bytes,1,rep,name=Nodes" json:"Nodes,omitempty"`
+	// Whether to delete all the children if node is a folder
+	Recursive bool `protobuf:"varint,2,opt,name=Recursive" json:"Recursive,omitempty"`
 }
 
 func (m *DeleteNodesRequest) Reset()                    { *m = DeleteNodesRequest{} }
@@ -479,6 +496,7 @@ func (m *DeleteNodesResponse) GetDeleteJobs() []*BackgroundJobResult {
 }
 
 type RestoreNodesRequest struct {
+	// Restore this node from the recycle bin to its original location
 	Nodes []*tree.Node `protobuf:"bytes,1,rep,name=Nodes" json:"Nodes,omitempty"`
 }
 
@@ -511,9 +529,12 @@ func (m *RestoreNodesResponse) GetRestoreJobs() []*BackgroundJobResult {
 }
 
 type ListDocstoreRequest struct {
-	StoreID   string                  `protobuf:"bytes,1,opt,name=StoreID" json:"StoreID,omitempty"`
-	Query     *docstore.DocumentQuery `protobuf:"bytes,2,opt,name=Query" json:"Query,omitempty"`
-	CountOnly bool                    `protobuf:"varint,3,opt,name=CountOnly" json:"CountOnly,omitempty"`
+	// Id of the Store to list
+	StoreID string `protobuf:"bytes,1,opt,name=StoreID" json:"StoreID,omitempty"`
+	// Bleve-query for searching the store
+	Query *docstore.DocumentQuery `protobuf:"bytes,2,opt,name=Query" json:"Query,omitempty"`
+	// Return only the number of results, no actual documents
+	CountOnly bool `protobuf:"varint,3,opt,name=CountOnly" json:"CountOnly,omitempty"`
 }
 
 func (m *ListDocstoreRequest) Reset()                    { *m = ListDocstoreRequest{} }

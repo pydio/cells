@@ -14,7 +14,9 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type UserJobRequest struct {
-	JobName        string `protobuf:"bytes,1,opt,name=JobName" json:"JobName,omitempty"`
+	// Name of the job to create in the user space
+	JobName string `protobuf:"bytes,1,opt,name=JobName" json:"JobName,omitempty"`
+	// Json-encoded parameters for this job
 	JsonParameters string `protobuf:"bytes,2,opt,name=JsonParameters" json:"JsonParameters,omitempty"`
 }
 

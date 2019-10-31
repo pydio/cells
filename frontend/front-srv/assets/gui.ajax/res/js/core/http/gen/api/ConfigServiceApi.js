@@ -305,7 +305,7 @@ export default class ConfigServiceApi {
     /**
      * Publish available endpoints
      * @param {Object} opts Optional parameters
-     * @param {String} opts.endpointType 
+     * @param {String} opts.endpointType Filter result to a specific endpoint type.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDiscoveryResponse} and HTTP response
      */
     endpointsDiscoveryWithHttpInfo(opts) {
@@ -338,7 +338,7 @@ export default class ConfigServiceApi {
     /**
      * Publish available endpoints
      * @param {Object} opts Optional parameters
-     * @param {String} opts.endpointType 
+     * @param {String} opts.endpointType Filter result to a specific endpoint type.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDiscoveryResponse}
      */
     endpointsDiscovery(opts) {
@@ -401,7 +401,7 @@ export default class ConfigServiceApi {
      * Generic config Get using a full path in the config tree
      * @param {String} fullPath 
      * @param {Object} opts Optional parameters
-     * @param {String} opts.data 
+     * @param {String} opts.data JSON-encoded data to store.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestConfiguration} and HTTP response
      */
     getConfigWithHttpInfo(fullPath, opts) {
@@ -441,7 +441,7 @@ export default class ConfigServiceApi {
      * Generic config Get using a full path in the config tree
      * @param {String} fullPath 
      * @param {Object} opts Optional parameters
-     * @param {String} opts.data 
+     * @param {String} opts.data JSON-encoded data to store.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestConfiguration}
      */
     getConfig(fullPath, opts) {
@@ -456,23 +456,23 @@ export default class ConfigServiceApi {
      * Load datasource information
      * @param {String} name 
      * @param {Object} opts Optional parameters
-     * @param {Boolean} opts.disabled 
-     * @param {module:model/String} opts.storageType  (default to LOCAL)
-     * @param {String} opts.objectsServiceName 
-     * @param {String} opts.objectsHost 
-     * @param {Number} opts.objectsPort 
-     * @param {Boolean} opts.objectsSecure 
-     * @param {String} opts.objectsBucket 
-     * @param {String} opts.objectsBaseFolder 
-     * @param {String} opts.apiKey 
-     * @param {String} opts.apiSecret 
-     * @param {String} opts.peerAddress 
-     * @param {Boolean} opts.watch 
-     * @param {module:model/String} opts.encryptionMode  (default to CLEAR)
-     * @param {String} opts.encryptionKey 
-     * @param {String} opts.versioningPolicyName 
-     * @param {Number} opts.creationDate 
-     * @param {Number} opts.lastSynchronizationDate 
+     * @param {Boolean} opts.disabled Whether this data source is disabled or running.
+     * @param {module:model/String} opts.storageType Type of underlying storage (LOCAL, S3, AZURE, GCS). (default to LOCAL)
+     * @param {String} opts.objectsServiceName Corresponding objects service name (underlying s3 service).
+     * @param {String} opts.objectsHost Corresponding objects service host.
+     * @param {Number} opts.objectsPort Corresponding objects service port.
+     * @param {Boolean} opts.objectsSecure Corresponding objects service connection type.
+     * @param {String} opts.objectsBucket Corresponding objects service bucket.
+     * @param {String} opts.objectsBaseFolder Corresponding objects service base folder inside the bucket.
+     * @param {String} opts.apiKey Corresponding objects service api key.
+     * @param {String} opts.apiSecret Corresponding objects service api secret.
+     * @param {String} opts.peerAddress Peer address of the data source.
+     * @param {Boolean} opts.watch Not implemented, whether to watch for underlying changes on the FS.
+     * @param {module:model/String} opts.encryptionMode Type of encryption applied before sending data to storage. (default to CLEAR)
+     * @param {String} opts.encryptionKey Encryption key used for encrypting data.
+     * @param {String} opts.versioningPolicyName Versioning policy describes how files are kept in the versioning queue.
+     * @param {Number} opts.creationDate Data Source creation date.
+     * @param {Number} opts.lastSynchronizationDate Data Source last synchronization date.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/ObjectDataSource} and HTTP response
      */
     getDataSourceWithHttpInfo(name, opts) {
@@ -528,23 +528,23 @@ export default class ConfigServiceApi {
      * Load datasource information
      * @param {String} name 
      * @param {Object} opts Optional parameters
-     * @param {Boolean} opts.disabled 
-     * @param {module:model/String} opts.storageType  (default to LOCAL)
-     * @param {String} opts.objectsServiceName 
-     * @param {String} opts.objectsHost 
-     * @param {Number} opts.objectsPort 
-     * @param {Boolean} opts.objectsSecure 
-     * @param {String} opts.objectsBucket 
-     * @param {String} opts.objectsBaseFolder 
-     * @param {String} opts.apiKey 
-     * @param {String} opts.apiSecret 
-     * @param {String} opts.peerAddress 
-     * @param {Boolean} opts.watch 
-     * @param {module:model/String} opts.encryptionMode  (default to CLEAR)
-     * @param {String} opts.encryptionKey 
-     * @param {String} opts.versioningPolicyName 
-     * @param {Number} opts.creationDate 
-     * @param {Number} opts.lastSynchronizationDate 
+     * @param {Boolean} opts.disabled Whether this data source is disabled or running.
+     * @param {module:model/String} opts.storageType Type of underlying storage (LOCAL, S3, AZURE, GCS). (default to LOCAL)
+     * @param {String} opts.objectsServiceName Corresponding objects service name (underlying s3 service).
+     * @param {String} opts.objectsHost Corresponding objects service host.
+     * @param {Number} opts.objectsPort Corresponding objects service port.
+     * @param {Boolean} opts.objectsSecure Corresponding objects service connection type.
+     * @param {String} opts.objectsBucket Corresponding objects service bucket.
+     * @param {String} opts.objectsBaseFolder Corresponding objects service base folder inside the bucket.
+     * @param {String} opts.apiKey Corresponding objects service api key.
+     * @param {String} opts.apiSecret Corresponding objects service api secret.
+     * @param {String} opts.peerAddress Peer address of the data source.
+     * @param {Boolean} opts.watch Not implemented, whether to watch for underlying changes on the FS.
+     * @param {module:model/String} opts.encryptionMode Type of encryption applied before sending data to storage. (default to CLEAR)
+     * @param {String} opts.encryptionKey Encryption key used for encrypting data.
+     * @param {String} opts.versioningPolicyName Versioning policy describes how files are kept in the versioning queue.
+     * @param {Number} opts.creationDate Data Source creation date.
+     * @param {Number} opts.lastSynchronizationDate Data Source last synchronization date.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/ObjectDataSource}
      */
     getDataSource(name, opts) {
@@ -913,7 +913,7 @@ export default class ConfigServiceApi {
     /**
      * List all services and their status
      * @param {Object} opts Optional parameters
-     * @param {module:model/String} opts.statusFilter  (default to ANY)
+     * @param {module:model/String} opts.statusFilter Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING). (default to ANY)
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestServiceCollection} and HTTP response
      */
     listServicesWithHttpInfo(opts) {
@@ -946,7 +946,7 @@ export default class ConfigServiceApi {
     /**
      * List all services and their status
      * @param {Object} opts Optional parameters
-     * @param {module:model/String} opts.statusFilter  (default to ANY)
+     * @param {module:model/String} opts.statusFilter Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING). (default to ANY)
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestServiceCollection}
      */
     listServices(opts) {
@@ -1042,7 +1042,7 @@ export default class ConfigServiceApi {
     /**
      * Publish available REST APIs
      * @param {Object} opts Optional parameters
-     * @param {String} opts.endpointType 
+     * @param {String} opts.endpointType Filter result to a specific endpoint type.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOpenApiResponse} and HTTP response
      */
     openApiDiscoveryWithHttpInfo(opts) {
@@ -1075,7 +1075,7 @@ export default class ConfigServiceApi {
     /**
      * Publish available REST APIs
      * @param {Object} opts Optional parameters
-     * @param {String} opts.endpointType 
+     * @param {String} opts.endpointType Filter result to a specific endpoint type.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOpenApiResponse}
      */
     openApiDiscovery(opts) {

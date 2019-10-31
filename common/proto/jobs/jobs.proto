@@ -155,14 +155,19 @@ message DeleteJobResponse {
 }
 
 message ListJobsRequest {
+    // Restrict to a specific owner (current user by default)
     string Owner = 1;
+    // Filter with only event-based jobs
     bool EventsOnly = 2;
+    // Filter with only timer-based jobs
     bool TimersOnly = 3;
-
+    // Load tasks that correspond to the given TaskStatus
     TaskStatus LoadTasks = 4;
-
+    // Load jobs by their ID
     repeated string JobIDs = 5;
+    // Start listing at a given position
     int32 TasksOffset = 6;
+    // Lmit the number of results
     int32 TasksLimit = 7;
 }
 
@@ -171,7 +176,9 @@ message ListJobsResponse {
 }
 
 message ListTasksRequest {
+    // List tasks for the job with this Id
     string JobID = 1;
+    // List only tasks with this Status
     TaskStatus Status = 2;
 }
 
@@ -278,9 +285,13 @@ enum Command {
 }
 
 message CtrlCommand {
+    // Type of command to send (None, Pause, Resume, Stop, Delete, RunOnce, Inactive, Active)
     Command Cmd = 1;
+    // Id of the job
     string JobId = 2;
+    // Id of the associated task
     string TaskId = 3;
+    // Owner of the job
     string OwnerId = 4;
 }
 
