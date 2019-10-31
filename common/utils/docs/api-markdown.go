@@ -125,6 +125,13 @@ var fMap = template.FuncMap{
 	},
 }
 
+var ApiDocsOutputRootTitle = "REST API"
+var ApiDocsOutputRootId = "1_all_api"
+var ApiDocsOutputRootWeight = 1
+var ApiDocsMenuName = ""
+
+// GenOpenAPIDocs generates docs for OpenAPI in markdown format,
+// ready to be pushed to pydio docs git repositories
 func GenOpenAPIDocs(output string) error {
 	// Load Json Spec into a readable format
 	services := loadJsonSpec()
@@ -155,10 +162,10 @@ func writeOnePagerMd(folder string, tplData *TplData) error {
 }
 
 func writeMultiPageMd(folder string, data *TplData) error {
-	if e := toMd(folder, "API", "all_api", multiMain, nil); e != nil {
+	if e := toMd(folder, ApiDocsOutputRootTitle, ApiDocsOutputRootId, multiMain, nil); e != nil {
 		return e
 	}
-	srvF := filepath.Join(folder, "all_api")
+	srvF := filepath.Join(folder, ApiDocsOutputRootId)
 	for _, s := range data.Services {
 		if e := toMd(srvF, s.Title, s.Name, multiService, s); e != nil {
 			return e
@@ -197,7 +204,11 @@ func toMd(folder, title, id, page string, data interface{}) error {
 		return e
 	}
 	defer w.Close()
-	return writeYaml(title, PydioDocsMenuName, 0, w)
+	weight := 0
+	if id == ApiDocsOutputRootId {
+		weight = ApiDocsOutputRootWeight
+	}
+	return writeYaml(title, ApiDocsMenuName, weight, w)
 }
 
 func writeYaml(title, menu string, position int, w io.Writer) error {

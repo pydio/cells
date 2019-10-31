@@ -25,15 +25,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/utils/docs"
+	"github.com/pydio/go/docs"
 )
 
 var docPath string
 
 var generateDocCmd = &cobra.Command{
-	Use:   "generate",
-	Short: "Generate MD and YAML documentation for all Cells CLI commands",
-	Long: `Generate Markdown documentation for the Pydio Cells command line tool.
+	Use:   "commands",
+	Short: "Generate MD and YAML documentation for all Cells commands",
+	Long: `Generate Markdown documentation for the Cells command line tool.
 Provide a target folder where to put the generated files.
 This command also generates yaml files for pydio.com documentation format.
 `,

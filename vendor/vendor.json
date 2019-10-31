@@ -3992,6 +3992,12 @@
 			"revisionTime": "2018-04-10T16:16:42Z"
 		},
 		{
+			"checksumSHA1": "SlRmZ/lsK+3MddRIpXHr8ssDPlk=",
+			"path": "github.com/pydio/go/docs",
+			"revision": "acb6d08a055fa9fad5bc4af76e31a3dffa8cb42a",
+			"revisionTime": "2019-10-31T16:53:01Z"
+		},
+		{
 			"checksumSHA1": "yd5t2POcO9mlvm5scxyP7nf+Wgg=",
 			"path": "github.com/pydio/melody",
 			"revision": "4271c6513fb6ce53f13f99b5c419758c82313e9c",
