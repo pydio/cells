@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"bytes"
-	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
@@ -142,7 +141,9 @@ var installCmd = &cobra.Command{
 		if micro == 0 {
 			micro = net.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
-			config.Save("cli", "Install / Setting default Ports")
+			// config.Save("cli", "Install / Setting default Ports")
+			err = config.Save("cli", "Install / Setting default Ports")
+			fatalIfError(cmd, err)
 		}
 
 		if (niBindUrl != "" && niExtUrl != "") || ymlFile != "" || jsonFile != "" {
@@ -158,20 +159,14 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 
 			// Gather proxy information (we do that now because we must do it anyway in both version of the installer)
-			internal, external, err = promptAndSaveInstallUrls()
+			internal, external, err = promptAndApplyProxyConfig()
 			fatalIfError(cmd, err)
 
 			if installIndex == 0 {
 				exposeInstallServer = true
 			} else {
-
 				err := cliInstall(internal)
 				fatalIfError(cmd, err)
-
-				fmt.Println("")
-				fmt.Println(promptui.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
-				fmt.Println("")
-				// Return, really? Why can't we restart the sever here like with the browser install
 				return
 			}
 		}
@@ -183,8 +178,6 @@ var installCmd = &cobra.Command{
 		cmd.Println("")
 		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
 		cmd.Println("")
-
-		// TODO factorise restart ?
 
 		// Re-building allServices list
 		if s, err := registry.Default.ListServices(); err != nil {
@@ -337,6 +330,8 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 	install.Stop()
 
 }
+
+/* HELPERS */
 
 func play() (*bytes.Buffer, error) {
 	template := caddy.Get().GetTemplate()

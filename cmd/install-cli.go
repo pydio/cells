@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -31,9 +32,7 @@ import (
 	p "github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/lib"
 )
 
@@ -41,106 +40,106 @@ var (
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
-func promptAndSaveInstallUrls() (internal, external *url.URL, e error) {
+// func promptAndSaveInstallUrls() (internal, external *url.URL, e error) {
 
-	defaultPort := "8080"
-	var internalHost string
-	defaultIps, e := net.GetAvailableIPs()
-	if e != nil {
-		return
-	}
-	var items []string
+// 	defaultPort := "8080"
+// 	var internalHost string
+// 	defaultIps, e := net.GetAvailableIPs()
+// 	if e != nil {
+// 		return
+// 	}
+// 	var items []string
 
-	testExt, eExt := net.GetOutboundIP()
-	if eExt == nil {
-		items = append(items, fmt.Sprintf("%s:%s", testExt.String(), defaultPort))
-	}
-	for _, ip := range defaultIps {
-		if testExt != nil && testExt.String() == ip.String() {
-			continue
-		}
-		items = append(items, fmt.Sprintf("%s:%s", ip.String(), defaultPort))
-	}
-	items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
+// 	testExt, eExt := net.GetOutboundIP()
+// 	if eExt == nil {
+// 		items = append(items, fmt.Sprintf("%s:%s", testExt.String(), defaultPort))
+// 	}
+// 	for _, ip := range defaultIps {
+// 		if testExt != nil && testExt.String() == ip.String() {
+// 			continue
+// 		}
+// 		items = append(items, fmt.Sprintf("%s:%s", ip.String(), defaultPort))
+// 	}
+// 	items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
 
-	prompt := p.SelectWithAdd{
-		Label:    "Internal Url (address that the web server will listen to, use ip:port or yourdomain.tld, without http/https)",
-		Items:    items,
-		AddLabel: "Other",
-		Validate: validHostPort,
-	}
-	_, internalHost, e = prompt.Run()
-	if e != nil {
-		return
-	}
-	internalHost = strings.TrimSuffix(internalHost, "/")
-	internalHost = strings.TrimPrefix(internalHost, "http://")
-	internalHost = strings.TrimPrefix(internalHost, "https://")
-	parts := strings.Split(internalHost, ":")
-	if len(parts) != 2 {
-		return nil, nil, fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
-	}
-	defaultExternal := internalHost
-	if parts[1] == "80" || parts[1] == "443" {
-		defaultExternal = parts[0]
-	}
+// 	prompt := p.SelectWithAdd{
+// 		Label:    "Internal Url (address that the web server will listen to, use ip:port or yourdomain.tld, without http/https)",
+// 		Items:    items,
+// 		AddLabel: "Other",
+// 		Validate: validHostPort,
+// 	}
+// 	_, internalHost, e = prompt.Run()
+// 	if e != nil {
+// 		return
+// 	}
+// 	internalHost = strings.TrimSuffix(internalHost, "/")
+// 	internalHost = strings.TrimPrefix(internalHost, "http://")
+// 	internalHost = strings.TrimPrefix(internalHost, "https://")
+// 	parts := strings.Split(internalHost, ":")
+// 	if len(parts) != 2 {
+// 		return nil, nil, fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
+// 	}
+// 	defaultExternal := internalHost
+// 	if parts[1] == "80" || parts[1] == "443" {
+// 		defaultExternal = parts[0]
+// 	}
 
-	sslEnabled, certData, e := promptSslMode(parts[0])
-	if e != nil {
-		return
-	}
-	scheme := "http"
-	if sslEnabled {
-		// We cannot rely on this before the save
-		// if config.Get("cert", "proxy", "ssl").Bool(false)
-		scheme = "https"
-	}
-	internalUrl := fmt.Sprintf("%s://%s", scheme, internalHost)
-	internal, e = url.Parse(internalUrl)
-	if e != nil {
-		return
-	}
+// 	sslEnabled, certData, e := promptSslMode(parts[0])
+// 	if e != nil {
+// 		return
+// 	}
+// 	scheme := "http"
+// 	if sslEnabled {
+// 		// We cannot rely on this before the save
+// 		// if config.Get("cert", "proxy", "ssl").Bool(false)
+// 		scheme = "https"
+// 	}
+// 	internalUrl := fmt.Sprintf("%s://%s", scheme, internalHost)
+// 	internal, e = url.Parse(internalUrl)
+// 	if e != nil {
+// 		return
+// 	}
 
-	externalUrl := fmt.Sprintf("%s://%s", scheme, defaultExternal)
+// 	externalUrl := fmt.Sprintf("%s://%s", scheme, defaultExternal)
 
-	fmt.Println("Your instance will be accessible at " + externalUrl + ". If you are behind a reverse proxy or inside a private network, you may need to manually set an alternative External URL. Do not change this is you are not sure!")
-	changeExternal := p.Select{
-		Label: "Setup a different URL for external access",
-		Items: []string{"Use " + externalUrl, "Set another URL"},
-	}
-	if choice, _, _ := changeExternal.Run(); choice == 1 {
-		extPrompt := p.Prompt{
-			Label:    "External Url used to access application from outside world",
-			Validate: validScheme,
-			Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
-		}
-		var er error
-		externalUrl, er = extPrompt.Run()
-		if er != nil {
-			e = er
-			return
-		}
-		externalUrl = strings.TrimSuffix(externalUrl, "/")
-	}
+// 	fmt.Println("Your instance will be accessible at " + externalUrl + ". If you are behind a reverse proxy or inside a private network, you may need to manually set an alternative External URL. Do not change this is you are not sure!")
+// 	changeExternal := p.Select{
+// 		Label: "Setup a different URL for external access",
+// 		Items: []string{"Use " + externalUrl, "Set another URL"},
+// 	}
+// 	if choice, _, _ := changeExternal.Run(); choice == 1 {
+// 		extPrompt := p.Prompt{
+// 			Label:    "External Url used to access application from outside world",
+// 			Validate: validScheme,
+// 			Default:  fmt.Sprintf("%s://%s", scheme, defaultExternal),
+// 		}
+// 		var er error
+// 		externalUrl, er = extPrompt.Run()
+// 		if er != nil {
+// 			e = er
+// 			return
+// 		}
+// 		externalUrl = strings.TrimSuffix(externalUrl, "/")
+// 	}
 
-	external, e = url.Parse(externalUrl)
-	if e != nil {
-		return
-	}
+// 	external, e = url.Parse(externalUrl)
+// 	if e != nil {
+// 		return
+// 	}
 
-	config.Set(externalUrl, "defaults", "url")
-	config.Set(internalUrl, "defaults", "urlInternal")
-	config.Set(certData, "cert")
-	config.Save("cli", "Install / Setting default URLs")
+// 	config.Set(externalUrl, "defaults", "url")
+// 	config.Set(internalUrl, "defaults", "urlInternal")
+// 	config.Set(certData, "cert")
+// 	config.Save("cli", "Install / Setting default URLs")
 
-	// WHY ???
-	config.ResetTlsConfigs()
-	return
-}
+// 	// WHY ???
+// 	config.ResetTlsConfigs()
+// 	return
+// }
 
 func cliInstall(bindUrl *url.URL) error {
 
-	// // A quoi ca sert ca?  (move in main install command)
+	// Dupplicated code
 	// micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
 	// if micro == 0 {
 	// 	micro = net.GetAvailablePort()
@@ -173,10 +172,12 @@ func cliInstall(bindUrl *url.URL) error {
 	if e != nil {
 		return fmt.Errorf("could not perform installation: %s", e.Error())
 	}
+
+	fmt.Println("")
+	fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+	fmt.Println("")
 	return nil
-	// fmt.Println("")
-	// fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
-	// fmt.Println("")
+
 }
 
 func promptDB(c *install.InstallConfig) error {

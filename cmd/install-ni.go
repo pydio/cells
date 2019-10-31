@@ -26,19 +26,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
-	"os"
 	"time"
 
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/lib"
 )
 
@@ -156,59 +151,6 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 	return proxyConfig, nil
 }
 
-func applyProxyConfig(pconf *install.ProxyConfig) error {
-
-	var saveMsg string
-
-	config.Set(pconf.GetBindURL(), "defaults", "urlInternal")
-	config.Set(pconf.GetExternalURL(), "defaults", "url")
-
-	if pconf.TLSConfig == nil {
-		saveMsg = "Install / Non-Interactive / Without SSL"
-	}
-
-	switch v := pconf.TLSConfig.(type) {
-
-	case *install.ProxyConfig_SelfSigned:
-
-		// Generate a custom certificate
-		saveMsg += "With self signed certificate"
-		storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
-		os.MkdirAll(storageLocation, 0700)
-		mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
-
-		err := mkCert.MakeCert(v.SelfSigned.GetHostnames())
-		if err != nil {
-			return err
-		}
-		certFile, certKey, caFile, _ := mkCert.GeneratedResources()
-		config.Set(certFile, "cert", "proxy", "certFile")
-		config.Set(certKey, "cert", "proxy", "keyFile")
-		config.Set(caFile, "cert", "proxy", "autoCA")
-
-	case *install.ProxyConfig_LetsEncrypt:
-
-		config.Set(false, "cert", "proxy", "self")
-		config.Set(v.LetsEncrypt.GetEmail(), "cert", "proxy", "email")
-		config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
-		if v.LetsEncrypt.GetStagingCA() {
-			config.Set(config.DefaultCaStagingUrl, "cert", "proxy", "caUrl")
-		}
-		saveMsg += "With Let's Encrypt automatic cert generation"
-
-	case *install.ProxyConfig_Certificate:
-
-		config.Set(v.Certificate.GetCertFile(), "cert", "proxy", "certFile")
-		config.Set(v.Certificate.GetKeyFile(), "cert", "proxy", "keyFile")
-		saveMsg += "With provided certificate"
-
-	default:
-		saveMsg = "Install / Non-Interactive / Without SSL"
-	}
-
-	return config.Save("cli", saveMsg)
-}
-
 func installFromConf() (*install.InstallConfig, error) {
 
 	var confFromFile *install.InstallConfig
@@ -242,18 +184,18 @@ func installFromConf() (*install.InstallConfig, error) {
 
 	fmt.Printf("\033[1m## Performing Installation\033[0m using default config from %s\n", path)
 
-	//
+	// TODO double check this
 	// _ := lib.GenerateDefaultConfig()
 
-	microStr := confFromFile.GetExternalMicro()
-	if microStr == "" || microStr == "0" {
-		micro := net.GetAvailablePort()
-		config.Set(micro, "ports", common.SERVICE_MICRO_API)
-		err := config.Save("cli", "Install / Setting default Ports")
-		if err != nil {
-			return nil, fmt.Errorf("could not save config after micro port definition: %s", err.Error())
-		}
-	}
+	// microStr := confFromFile.GetExternalMicro()
+	// if microStr == "" || microStr == "0" {
+	// 	micro := net.GetAvailablePort()
+	// 	config.Set(micro, "ports", common.SERVICE_MICRO_API)
+	// 	err := config.Save("cli", "Install / Setting default Ports")
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("could not save config after micro port definition: %s", err.Error())
+	// 	}
+	// }
 
 	// Preconfiguring proxy:
 	err := applyProxyConfig(confFromFile.GetProxyConfig())
