@@ -41,6 +41,7 @@ const LoginCallbackRouterWrapper = (pydio) => {
         pydio.observeOnce('user_logged', () => redirect());
 
         PydioApi.getRestClient().jwtFromAuthorizationCode(params.code)
+            .then((res) => res.data && res.data.JWT && !pydio.user && pydio.Registry.load())
             .catch(e => browserHistory.push("/login"))
 
 

@@ -50,7 +50,9 @@ var LoginCallbackRouterWrapper = function LoginCallbackRouterWrapper(pydio) {
             return redirect();
         });
 
-        PydioApi.getRestClient().jwtFromAuthorizationCode(params.code)['catch'](function (e) {
+        PydioApi.getRestClient().jwtFromAuthorizationCode(params.code).then(function (res) {
+            return res.data && res.data.JWT && !pydio.user && pydio.Registry.load();
+        })['catch'](function (e) {
             return _reactRouterLibBrowserHistory2['default'].push("/login");
         });
 
