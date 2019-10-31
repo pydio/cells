@@ -94,7 +94,6 @@ func promptSslMode(knownHostname string) (enabled bool, certData map[string]inte
 	certFile := config.Get("cert", "proxy", "certFile").String("")
 	keyFile := config.Get("cert", "proxy", "keyFile").String("")
 	certEmail := config.Get("cert", "proxy", "email").String("")
-	caURL := config.Get("cert", "proxy", "caUrl").String(config.DefaultCaUrl)
 
 	selector := promptui.Select{
 		Label: "Choose SSL activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'Tls => Clear' is generally not supported",
@@ -130,6 +129,7 @@ func promptSslMode(knownHostname string) (enabled bool, certData map[string]inte
 	case 1:
 		mailPrompt := promptui.Prompt{Label: "Please enter the mail address for certificate generation", Validate: validateMailFormat, Default: certEmail}
 		acceptLeSa := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
+		useStagingCa := promptui.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
 
 		if certEmail, e = mailPrompt.Run(); e != nil {
 			return
@@ -144,6 +144,17 @@ func promptSslMode(knownHostname string) (enabled bool, certData map[string]inte
 			e = fmt.Errorf("You must agree to Let's Encrypt SA to use automated certificate generation feature.")
 			return
 		}
+
+		caURL := config.DefaultCaUrl
+		val, e1 = useStagingCa.Run()
+		if e1 != nil {
+			e = e1
+			return
+		}
+		if !(val == "N" || val == "n" || val == "") {
+			caURL = config.DefaultCaStagingUrl
+		}
+
 		enabled = true
 		proxyData["ssl"] = true
 		proxyData["self"] = false

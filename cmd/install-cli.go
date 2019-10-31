@@ -179,69 +179,6 @@ func cliInstall(bindUrl *url.URL) error {
 	// fmt.Println("")
 }
 
-func validateMailFormat(input string) error {
-	if !emailRegexp.MatchString(input) {
-		return fmt.Errorf("Please enter a valid e-mail address!")
-	}
-	return nil
-}
-
-func notEmpty(input string) error {
-	if len(input) > 0 {
-		return nil
-	} else {
-		return fmt.Errorf("Field cannot be empty!")
-	}
-}
-
-func validHostPort(input string) error {
-	if e := notEmpty(input); e != nil {
-		return e
-	}
-	parts := strings.Split(input, ":")
-	if len(parts) != 2 {
-		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
-	}
-	if e := validPortNumber(parts[1]); e != nil {
-		return e
-	}
-	return nil
-}
-
-// ValidScheme validates that url is [SCHEME]://[IP or DOMAIN] "[http/https]://......."
-func validScheme(input string) error {
-	if e := notEmpty(input); e != nil {
-		return e
-	}
-
-	u, err := url.Parse(input)
-	if err != nil {
-		return fmt.Errorf("could not parse URL")
-	}
-
-	if len(u.Scheme) > 0 && len(u.Host) > 0 {
-		if u.Scheme == "http" || u.Scheme == "https" {
-			return nil
-		}
-		return fmt.Errorf("scheme %s is not supported (only http/https are supported)", u.Scheme)
-	}
-
-	return fmt.Errorf("Please use a [SCHEME]://[IP|DOMAIN] string")
-}
-
-func validPortNumber(input string) error {
-	port, e := strconv.ParseInt(input, 10, 64)
-	if e == nil && port == 0 {
-		return fmt.Errorf("Please use a non empty port!")
-	}
-	return e
-}
-
-func validUrl(input string) error {
-	_, e := url.Parse(input)
-	return e
-}
-
 func promptDB(c *install.InstallConfig) error {
 
 	connType := p.Select{
@@ -384,10 +321,69 @@ func promptAdvanced(c *install.InstallConfig) error {
 			return e
 		}
 	*/
-
 	return nil
 }
 
-// func init() {
-// 	RootCmd.AddCommand(installCliCmd)
-// }
+/* VARIOUS HELPERS */
+
+func validateMailFormat(input string) error {
+	if !emailRegexp.MatchString(input) {
+		return fmt.Errorf("Please enter a valid e-mail address!")
+	}
+	return nil
+}
+
+func notEmpty(input string) error {
+	if len(input) == 0 {
+		return fmt.Errorf("Field cannot be empty!")
+	}
+	return nil
+}
+
+func validHostPort(input string) error {
+	if e := notEmpty(input); e != nil {
+		return e
+	}
+	parts := strings.Split(input, ":")
+	if len(parts) != 2 {
+		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
+	}
+	if e := validPortNumber(parts[1]); e != nil {
+		return e
+	}
+	return nil
+}
+
+// ValidScheme validates that url is [SCHEME]://[IP or DOMAIN] "[http/https]://......."
+func validScheme(input string) error {
+	if e := notEmpty(input); e != nil {
+		return e
+	}
+
+	u, err := url.Parse(input)
+	if err != nil {
+		return fmt.Errorf("could not parse URL")
+	}
+
+	if len(u.Scheme) > 0 && len(u.Host) > 0 {
+		if u.Scheme == "http" || u.Scheme == "https" {
+			return nil
+		}
+		return fmt.Errorf("scheme %s is not supported (only http/https are supported)", u.Scheme)
+	}
+
+	return fmt.Errorf("Please use a [SCHEME]://[IP|DOMAIN] string")
+}
+
+func validPortNumber(input string) error {
+	port, e := strconv.ParseInt(input, 10, 64)
+	if e == nil && port == 0 {
+		return fmt.Errorf("Please use a non empty port!")
+	}
+	return e
+}
+
+func validUrl(input string) error {
+	_, e := url.Parse(input)
+	return e
+}

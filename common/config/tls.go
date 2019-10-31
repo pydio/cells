@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	DefaultCaUrl = "https://acme-v02.api.letsencrypt.org/directory"
-	DefaultCaStagingUrl = "https://acme-v02.api.letsencrypt.org/directory"
+	DefaultCaUrl        = "https://acme-v02.api.letsencrypt.org/directory"
+	DefaultCaStagingUrl = "https://acme-staging-v02.api.letsencrypt.org/directory"
 
 	tlsClientMutex  = &sync.Mutex{}
 	tlsClientConfig = make(map[string]*tls.Config)
@@ -69,7 +69,7 @@ func GetTLSServerConfig(t string) *tls.Config {
 	return tlsServerConfig[t]
 }
 
-// GetTLSConfig returns the configuration ssl for a server handler
+// GetTLSClientConfig returns the configuration ssl for a server handler.
 func GetTLSClientConfig(t string) *tls.Config {
 
 	tlsClientMutex.Lock()

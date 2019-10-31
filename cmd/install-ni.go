@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/url"
@@ -67,6 +68,12 @@ func nonInterractiveInstall(cmd *cobra.Command, args []string) (*url.URL, *url.U
 	if err != nil {
 		return nil, nil, false, err
 	}
+
+	data1, _ := json.MarshalIndent(pconf, "", "  ")
+	fmt.Println(string(data1))
+
+	data2, _ := yaml.Marshal(pconf)
+	fmt.Println(string(data2))
 
 	// At this point we assume URLs are correctly formatted
 	bind, _ := url.Parse(pconf.GetBindURL())
@@ -222,7 +229,15 @@ func installFromConf() (*install.InstallConfig, error) {
 
 	if jsonFile != "" {
 		path = jsonFile
-		return nil, fmt.Errorf("Unimplemented initialisation mode...")
+
+		file, err := ioutil.ReadFile(jsonFile)
+		if err != nil {
+			return nil, fmt.Errorf("could not read JSON file at %s: %s", jsonFile, err.Error())
+		}
+		err = json.Unmarshal(file, &confFromFile)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing JSON file at %s: %s", jsonFile, err.Error())
+		}
 	}
 
 	fmt.Printf("\033[1m## Performing Installation\033[0m using default config from %s\n", path)
