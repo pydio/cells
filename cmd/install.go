@@ -145,7 +145,7 @@ var installCmd = &cobra.Command{
 			config.Save("cli", "Install / Setting default Ports")
 		}
 
-		if (niBindUrl != "" && niExtUrl != "") || ymlFile != "" || niExtUrl != "" {
+		if (niBindUrl != "" && niExtUrl != "") || ymlFile != "" || jsonFile != "" {
 			// If these flags are set, non interractive mode
 			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
