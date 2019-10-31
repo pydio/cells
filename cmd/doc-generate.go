@@ -54,5 +54,6 @@ This command also generates yaml files for pydio.com documentation format.
 
 func init() {
 	generateDocCmd.Flags().StringVarP(&docPath, "path", "p", "", "Target folder where to put the files")
+	generateDocCmd.Flags().StringVarP(&docs.PydioDocsMenuName, "menu", "m", "menu-admin-guide-v7", "Pydio Docs menu name")
 	docCmd.AddCommand(generateDocCmd)
 }

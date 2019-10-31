@@ -35,7 +35,8 @@ import (
 )
 
 var (
-	yamlPosition = 0
+	yamlPosition      = 0
+	PydioDocsMenuName = "menu-admin-guide-v7"
 )
 
 func printOptions(buf *bytes.Buffer, cmd *cobra.Command, name string) error {
@@ -76,7 +77,7 @@ func GenPydioYaml(cmd *cobra.Command, position int, w io.Writer) error {
 	buf.WriteString("title: \"" + name + "\"\n")
 	buf.WriteString("menu: \"" + name + "\"\n")
 	buf.WriteString("language: und\n")
-	buf.WriteString("menu_name: menu-administration-guide\n")
+	buf.WriteString("menu_name: " + PydioDocsMenuName + "\n")
 	buf.WriteString(fmt.Sprintf("weight: %d\n", position))
 
 	_, err := buf.WriteTo(w)

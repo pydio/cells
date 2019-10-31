@@ -47,5 +47,6 @@ var docOpenApiCmd = &cobra.Command{
 func init() {
 
 	docOpenApiCmd.Flags().StringVarP(&openApiTargetFolder, "path", "p", "./", "Path to output folder")
+	docOpenApiCmd.Flags().StringVarP(&docs.PydioDocsMenuName, "menu", "m", "menu-admin-guide-v7", "Pydio Docs menu name")
 	docCmd.AddCommand(docOpenApiCmd)
 }
