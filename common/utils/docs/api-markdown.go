@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"text/template"
 )
@@ -136,8 +137,14 @@ func GenOpenAPIDocs(output string) error {
 			s.Name = name
 		}
 		s.Operations = ops
+		sort.Slice(s.Operations, func(i, j int) bool {
+			return s.Operations[i].Path < s.Operations[j].Path
+		})
 		tplData.Services = append(tplData.Services, s)
 	}
+	sort.Slice(tplData.Services, func(i, j int) bool {
+		return tplData.Services[i].Title < tplData.Services[j].Title
+	})
 	// Feed Json Data
 	//return writeOnePagerMd(output, tplData)
 	return writeMultiPageMd(output, tplData)

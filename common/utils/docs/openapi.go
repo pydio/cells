@@ -48,7 +48,7 @@ func parseOperation(document *loads.Document, uri, opType string, o *spec.Operat
 		}
 		if param.Schema != nil {
 			parameter.TypeName = "object"
-			parameter.TypeDescription, parameter.FirstLevel, parameter.TypeExample = parseSchema(document, param.Schema)
+			parameter.TypeDescription, parameter.FirstLevel, parameter.TypeExample = parseSchema(document, param.Schema, "in")
 		} else {
 			parameter.TypeName = param.SimpleSchema.Type
 		}
@@ -61,7 +61,7 @@ func parseOperation(document *loads.Document, uri, opType string, o *spec.Operat
 	for code, message := range o.Responses.StatusCodeResponses {
 		if code == 200 {
 			respParam := &Parameter{}
-			respParam.TypeDescription, respParam.FirstLevel, respParam.TypeExample = parseSchema(document, message.Schema)
+			respParam.TypeDescription, respParam.FirstLevel, respParam.TypeExample = parseSchema(document, message.Schema, "out")
 			op.Response200 = respParam
 		}
 	}
@@ -81,13 +81,13 @@ func getDefinition(document *loads.Document, ref spec.Ref) (spec.Schema, string,
 	return def, defName, ok
 }
 
-func parseSchema(document *loads.Document, schema *spec.Schema) (description string, structure map[string]*Parameter, example interface{}) {
+func parseSchema(document *loads.Document, schema *spec.Schema, dir string) (description string, structure map[string]*Parameter, example interface{}) {
 	def, _, ok := getDefinition(document, schema.Ref)
 	if !ok {
 		return
 	}
 	description = schema.Ref.Ref.GetPointer().String()
-	example = createSample(document, schema)
+	example = createSample(document, schema, dir)
 	structure = make(map[string]*Parameter, len(def.SchemaProps.Properties))
 	for name, p := range def.SchemaProps.Properties {
 		par := &Parameter{
@@ -104,7 +104,7 @@ func parseSchema(document *loads.Document, schema *spec.Schema) (description str
 	return
 }
 
-func createSample(document *loads.Document, data *spec.Schema, chain ...string) interface{} {
+func createSample(document *loads.Document, data *spec.Schema, dir string, chain ...string) interface{} {
 	if refScheme, refName, ok := getDefinition(document, data.Ref); ok {
 		for _, c := range chain {
 			if c == refName {
@@ -112,7 +112,12 @@ func createSample(document *loads.Document, data *spec.Schema, chain ...string) 
 			}
 		}
 		chain = append(chain, refName)
-		return createSample(document, &refScheme, chain...)
+		s := createSample(document, &refScheme, dir, chain...)
+		// Special case for treeNode, only keep Path field in sample
+		if m, o := s.(map[string]interface{}); o && refName == "treeNode" && dir == "in" {
+			return map[string]interface{}{"Path": m["Path"]}
+		}
+		return s
 	}
 	switch data.Type[0] {
 	case "boolean":
@@ -126,12 +131,12 @@ func createSample(document *loads.Document, data *spec.Schema, chain ...string) 
 		if len(data.Items.Schemas) > 0 {
 			arSchema = &data.Items.Schemas[0]
 		}
-		itemSample := createSample(document, arSchema, chain...)
+		itemSample := createSample(document, arSchema, dir, chain...)
 		return []interface{}{itemSample}
 	case "object":
 		example := make(map[string]interface{})
 		for name, p := range data.SchemaProps.Properties {
-			example[name] = createSample(document, &p, chain...)
+			example[name] = createSample(document, &p, dir, chain...)
 		}
 		return example
 	default:
