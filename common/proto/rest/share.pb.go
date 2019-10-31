@@ -72,12 +72,18 @@ func (ListSharedResourcesRequest_ListShareType) EnumDescriptor() ([]byte, []int)
 
 // Group collected acls by subjects
 type CellAcl struct {
-	RoleId     string           `protobuf:"bytes,1,opt,name=RoleId" json:"RoleId,omitempty"`
-	Actions    []*idm.ACLAction `protobuf:"bytes,2,rep,name=Actions" json:"Actions,omitempty"`
-	IsUserRole bool             `protobuf:"varint,3,opt,name=IsUserRole" json:"IsUserRole,omitempty"`
-	User       *idm.User        `protobuf:"bytes,4,opt,name=User" json:"User,omitempty"`
-	Group      *idm.User        `protobuf:"bytes,5,opt,name=Group" json:"Group,omitempty"`
-	Role       *idm.Role        `protobuf:"bytes,6,opt,name=Role" json:"Role,omitempty"`
+	// Associated Role ID
+	RoleId string `protobuf:"bytes,1,opt,name=RoleId" json:"RoleId,omitempty"`
+	// List of Acl Actions and their effect
+	Actions []*idm.ACLAction `protobuf:"bytes,2,rep,name=Actions" json:"Actions,omitempty"`
+	// Flag for detecting if it's a user role or not
+	IsUserRole bool `protobuf:"varint,3,opt,name=IsUserRole" json:"IsUserRole,omitempty"`
+	// Associated User
+	User *idm.User `protobuf:"bytes,4,opt,name=User" json:"User,omitempty"`
+	// Associated Group
+	Group *idm.User `protobuf:"bytes,5,opt,name=Group" json:"Group,omitempty"`
+	// Associated Role
+	Role *idm.Role `protobuf:"bytes,6,opt,name=Role" json:"Role,omitempty"`
 }
 
 func (m *CellAcl) Reset()                    { *m = CellAcl{} }
@@ -127,15 +133,22 @@ func (m *CellAcl) GetRole() *idm.Role {
 	return nil
 }
 
-// Model for representing a shared room
+// Model for representing a Cell
 type Cell struct {
-	Uuid                    string                    `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
-	Label                   string                    `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
-	Description             string                    `protobuf:"bytes,3,opt,name=Description" json:"Description,omitempty"`
-	RootNodes               []*tree.Node              `protobuf:"bytes,4,rep,name=RootNodes" json:"RootNodes,omitempty"`
-	ACLs                    map[string]*CellAcl       `protobuf:"bytes,5,rep,name=ACLs" json:"ACLs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Policies                []*service.ResourcePolicy `protobuf:"bytes,6,rep,name=Policies" json:"Policies,omitempty"`
-	PoliciesContextEditable bool                      `protobuf:"varint,7,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
+	// Unique Id of the Cell
+	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
+	// Label of the Cell (max 500 chars)
+	Label string `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
+	// Long description of the Cell (max 1000 chars)
+	Description string `protobuf:"bytes,3,opt,name=Description" json:"Description,omitempty"`
+	// Nodes attached as roots to this Cell
+	RootNodes []*tree.Node `protobuf:"bytes,4,rep,name=RootNodes" json:"RootNodes,omitempty"`
+	// Access control for this Cell
+	ACLs map[string]*CellAcl `protobuf:"bytes,5,rep,name=ACLs" json:"ACLs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Associated access policies
+	Policies []*service.ResourcePolicy `protobuf:"bytes,6,rep,name=Policies" json:"Policies,omitempty"`
+	// Whether these policies are currently editable
+	PoliciesContextEditable bool `protobuf:"varint,7,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
 }
 
 func (m *Cell) Reset()                    { *m = Cell{} }
@@ -218,25 +231,44 @@ func (m *ShareLinkTargetUser) GetDownloadCount() int32 {
 
 // Model for representing a public link
 type ShareLink struct {
-	Uuid                    string                          `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
-	LinkHash                string                          `protobuf:"bytes,2,opt,name=LinkHash" json:"LinkHash,omitempty"`
-	LinkUrl                 string                          `protobuf:"bytes,3,opt,name=LinkUrl" json:"LinkUrl,omitempty"`
-	Label                   string                          `protobuf:"bytes,4,opt,name=Label" json:"Label,omitempty"`
-	Description             string                          `protobuf:"bytes,5,opt,name=Description" json:"Description,omitempty"`
-	UserUuid                string                          `protobuf:"bytes,6,opt,name=UserUuid" json:"UserUuid,omitempty"`
-	UserLogin               string                          `protobuf:"bytes,7,opt,name=UserLogin" json:"UserLogin,omitempty"`
-	PasswordRequired        bool                            `protobuf:"varint,8,opt,name=PasswordRequired" json:"PasswordRequired,omitempty"`
-	AccessStart             int64                           `protobuf:"varint,9,opt,name=AccessStart" json:"AccessStart,omitempty"`
-	AccessEnd               int64                           `protobuf:"varint,10,opt,name=AccessEnd" json:"AccessEnd,omitempty"`
-	MaxDownloads            int64                           `protobuf:"varint,11,opt,name=MaxDownloads" json:"MaxDownloads,omitempty"`
-	CurrentDownloads        int64                           `protobuf:"varint,12,opt,name=CurrentDownloads" json:"CurrentDownloads,omitempty"`
-	ViewTemplateName        string                          `protobuf:"bytes,13,opt,name=ViewTemplateName" json:"ViewTemplateName,omitempty"`
-	TargetUsers             map[string]*ShareLinkTargetUser `protobuf:"bytes,14,rep,name=TargetUsers" json:"TargetUsers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	RestrictToTargetUsers   bool                            `protobuf:"varint,15,opt,name=RestrictToTargetUsers" json:"RestrictToTargetUsers,omitempty"`
-	RootNodes               []*tree.Node                    `protobuf:"bytes,16,rep,name=RootNodes" json:"RootNodes,omitempty"`
-	Permissions             []ShareLinkAccessType           `protobuf:"varint,17,rep,packed,name=Permissions,enum=rest.ShareLinkAccessType" json:"Permissions,omitempty"`
-	Policies                []*service.ResourcePolicy       `protobuf:"bytes,18,rep,name=Policies" json:"Policies,omitempty"`
-	PoliciesContextEditable bool                            `protobuf:"varint,19,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
+	// Internal identifier of the link
+	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
+	// Unique Hash for accessing the link
+	LinkHash string `protobuf:"bytes,2,opt,name=LinkHash" json:"LinkHash,omitempty"`
+	// Full URL for accessing the link
+	LinkUrl string `protobuf:"bytes,3,opt,name=LinkUrl" json:"LinkUrl,omitempty"`
+	// Label of the Link (max 500 chars)
+	Label string `protobuf:"bytes,4,opt,name=Label" json:"Label,omitempty"`
+	// Description of the Link (max 1000 chars)
+	Description string `protobuf:"bytes,5,opt,name=Description" json:"Description,omitempty"`
+	// Temporary user Uuid used to login automatically when accessing this link
+	UserUuid string `protobuf:"bytes,6,opt,name=UserUuid" json:"UserUuid,omitempty"`
+	// Temporary user Login used to login automatically when accessing this link
+	UserLogin string `protobuf:"bytes,7,opt,name=UserLogin" json:"UserLogin,omitempty"`
+	// Whether a password is required or not to access the link
+	PasswordRequired bool `protobuf:"varint,8,opt,name=PasswordRequired" json:"PasswordRequired,omitempty"`
+	// Timestamp of start date for enabling the share (not implemented yet)
+	AccessStart int64 `protobuf:"varint,9,opt,name=AccessStart" json:"AccessStart,omitempty"`
+	// Timestamp after which the share is disabled
+	AccessEnd int64 `protobuf:"varint,10,opt,name=AccessEnd" json:"AccessEnd,omitempty"`
+	// Maximum number of downloads until expiration
+	MaxDownloads int64 `protobuf:"varint,11,opt,name=MaxDownloads" json:"MaxDownloads,omitempty"`
+	// Current number of downloads
+	CurrentDownloads int64 `protobuf:"varint,12,opt,name=CurrentDownloads" json:"CurrentDownloads,omitempty"`
+	// Display Template for loading the public link
+	ViewTemplateName string `protobuf:"bytes,13,opt,name=ViewTemplateName" json:"ViewTemplateName,omitempty"`
+	// TargetUsers can be used to restrict access
+	TargetUsers map[string]*ShareLinkTargetUser `protobuf:"bytes,14,rep,name=TargetUsers" json:"TargetUsers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// RestrictToTargetUsers enable users restriction
+	RestrictToTargetUsers bool `protobuf:"varint,15,opt,name=RestrictToTargetUsers" json:"RestrictToTargetUsers,omitempty"`
+	// Nodes in the tree that serve as root to this link
+	RootNodes []*tree.Node `protobuf:"bytes,16,rep,name=RootNodes" json:"RootNodes,omitempty"`
+	// Specific permissions for public links
+	Permissions []ShareLinkAccessType `protobuf:"varint,17,rep,packed,name=Permissions,enum=rest.ShareLinkAccessType" json:"Permissions,omitempty"`
+	// Security policies
+	Policies []*service.ResourcePolicy `protobuf:"bytes,18,rep,name=Policies" json:"Policies,omitempty"`
+	// Whether policies are currently editable or not
+	PoliciesContextEditable bool `protobuf:"varint,19,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
 }
 
 func (m *ShareLink) Reset()                    { *m = ShareLink{} }
@@ -377,9 +409,12 @@ func (m *ShareLink) GetPoliciesContextEditable() bool {
 	return false
 }
 
+// Request for creating a Cell
 type PutCellRequest struct {
-	Room            *Cell `protobuf:"bytes,1,opt,name=Room" json:"Room,omitempty"`
-	CreateEmptyRoot bool  `protobuf:"varint,2,opt,name=CreateEmptyRoot" json:"CreateEmptyRoot,omitempty"`
+	// Content of the Cell (Room is legacy name)
+	Room *Cell `protobuf:"bytes,1,opt,name=Room" json:"Room,omitempty"`
+	// Whether to create a dedicated folder for this cell at creation
+	CreateEmptyRoot bool `protobuf:"varint,2,opt,name=CreateEmptyRoot" json:"CreateEmptyRoot,omitempty"`
 }
 
 func (m *PutCellRequest) Reset()                    { *m = PutCellRequest{} }
@@ -401,7 +436,9 @@ func (m *PutCellRequest) GetCreateEmptyRoot() bool {
 	return false
 }
 
+// Load a Cell request
 type GetCellRequest struct {
+	// Cell Uuid
 	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
 }
 
@@ -417,7 +454,9 @@ func (m *GetCellRequest) GetUuid() string {
 	return ""
 }
 
+// Request for deleting a Cell
 type DeleteCellRequest struct {
+	// Cell Uuid
 	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
 }
 
@@ -434,6 +473,7 @@ func (m *DeleteCellRequest) GetUuid() string {
 }
 
 type DeleteCellResponse struct {
+	// Delete result
 	Success bool `protobuf:"varint,1,opt,name=Success" json:"Success,omitempty"`
 }
 
@@ -450,6 +490,7 @@ func (m *DeleteCellResponse) GetSuccess() bool {
 }
 
 type GetShareLinkRequest struct {
+	// Link Uuid
 	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
 }
 
@@ -465,12 +506,18 @@ func (m *GetShareLinkRequest) GetUuid() string {
 	return ""
 }
 
+// Request for create/update a link
 type PutShareLinkRequest struct {
-	ShareLink        *ShareLink `protobuf:"bytes,1,opt,name=ShareLink" json:"ShareLink,omitempty"`
-	PasswordEnabled  bool       `protobuf:"varint,2,opt,name=PasswordEnabled" json:"PasswordEnabled,omitempty"`
-	CreatePassword   string     `protobuf:"bytes,3,opt,name=CreatePassword" json:"CreatePassword,omitempty"`
-	UpdatePassword   string     `protobuf:"bytes,4,opt,name=UpdatePassword" json:"UpdatePassword,omitempty"`
-	UpdateCustomHash string     `protobuf:"bytes,5,opt,name=UpdateCustomHash" json:"UpdateCustomHash,omitempty"`
+	// Content of the link to create
+	ShareLink *ShareLink `protobuf:"bytes,1,opt,name=ShareLink" json:"ShareLink,omitempty"`
+	// Whether it has Password enabled
+	PasswordEnabled bool `protobuf:"varint,2,opt,name=PasswordEnabled" json:"PasswordEnabled,omitempty"`
+	// Set if switching from no password to password
+	CreatePassword string `protobuf:"bytes,3,opt,name=CreatePassword" json:"CreatePassword,omitempty"`
+	// Set if updating an existing password
+	UpdatePassword string `protobuf:"bytes,4,opt,name=UpdatePassword" json:"UpdatePassword,omitempty"`
+	// Change the ShareLink Hash with a custom value
+	UpdateCustomHash string `protobuf:"bytes,5,opt,name=UpdateCustomHash" json:"UpdateCustomHash,omitempty"`
 }
 
 func (m *PutShareLinkRequest) Reset()                    { *m = PutShareLinkRequest{} }
@@ -513,7 +560,9 @@ func (m *PutShareLinkRequest) GetUpdateCustomHash() string {
 	return ""
 }
 
+// Request for deleting a link
 type DeleteShareLinkRequest struct {
+	// Id of Link to delete
 	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
 }
 
@@ -529,7 +578,9 @@ func (m *DeleteShareLinkRequest) GetUuid() string {
 	return ""
 }
 
+// Response for deleting a share link
 type DeleteShareLinkResponse struct {
+	// If delete sucess or failed
 	Success bool `protobuf:"varint,1,opt,name=Success" json:"Success,omitempty"`
 }
 
@@ -553,9 +604,11 @@ type ListSharedResourcesRequest struct {
 	// be any resource policy subject
 	Subject string `protobuf:"bytes,3,opt,name=Subject" json:"Subject,omitempty"`
 	// If true, will also check filter the output to shares actually owned by subject
-	OwnedBySubject bool  `protobuf:"varint,4,opt,name=OwnedBySubject" json:"OwnedBySubject,omitempty"`
-	Offset         int32 `protobuf:"varint,5,opt,name=Offset" json:"Offset,omitempty"`
-	Limit          int32 `protobuf:"varint,6,opt,name=Limit" json:"Limit,omitempty"`
+	OwnedBySubject bool `protobuf:"varint,4,opt,name=OwnedBySubject" json:"OwnedBySubject,omitempty"`
+	// Start listing at a given offset
+	Offset int32 `protobuf:"varint,5,opt,name=Offset" json:"Offset,omitempty"`
+	// Limit number of results
+	Limit int32 `protobuf:"varint,6,opt,name=Limit" json:"Limit,omitempty"`
 }
 
 func (m *ListSharedResourcesRequest) Reset()                    { *m = ListSharedResourcesRequest{} }
@@ -680,7 +733,9 @@ func (m *ListSharedResourcesResponse_SharedResource) GetCells() []*Cell {
 }
 
 type UpdateSharePoliciesRequest struct {
-	Uuid     string                    `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
+	// Cell or Link UUID
+	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
+	// List of policies to update
 	Policies []*service.ResourcePolicy `protobuf:"bytes,2,rep,name=Policies" json:"Policies,omitempty"`
 }
 

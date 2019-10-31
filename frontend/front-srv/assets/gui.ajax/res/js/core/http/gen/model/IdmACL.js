@@ -27,6 +27,7 @@ import IdmACLAction from './IdmACLAction';
 export default class IdmACL {
     /**
     * Constructs a new <code>IdmACL</code>.
+    * ACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role. The context of how they apply can be fine-tuned by workspace.
     * @alias module:model/IdmACL
     * @class
     */

@@ -95,6 +95,7 @@ var Registry = (function () {
         if (this._globalLoading) {
             return;
         }
+        this._pydioObject.fire("registry_loading");
         this._globalLoading = true;
         _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
             var _pydioObject = _this._pydioObject;
@@ -103,6 +104,7 @@ var Registry = (function () {
 
             var url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state/';
             var headers = {};
+
             if (jwt) {
                 headers = { Authorization: 'Bearer ' + jwt };
                 if (user || repositoryId) {
@@ -132,6 +134,7 @@ var Registry = (function () {
                 }
                 response.text().then(function (text) {
                     _this._registry = _utilXMLUtils2['default'].parseXml(text).documentElement;
+
                     if (completeFunc) {
                         completeFunc(_this._registry);
                     } else {

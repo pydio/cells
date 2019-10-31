@@ -101,6 +101,7 @@ export default class RestSearchUserRequest {
     */
     Limit = undefined;
     /**
+    * Group by ...
     * @member {Number} GroupBy
     */
     GroupBy = undefined;

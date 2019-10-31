@@ -129,6 +129,7 @@ export default class ActivityStreamActivitiesRequest {
     */
     PointOfView = undefined;
     /**
+    * Provide language information for building the human-readable strings.
     * @member {String} Language
     */
     Language = undefined;

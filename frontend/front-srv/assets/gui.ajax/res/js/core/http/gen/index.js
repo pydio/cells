@@ -109,8 +109,6 @@ import RestBackgroundJobResult from './model/RestBackgroundJobResult';
 import RestBulkMetaResponse from './model/RestBulkMetaResponse';
 import RestCell from './model/RestCell';
 import RestCellAcl from './model/RestCellAcl';
-import RestChangeCollection from './model/RestChangeCollection';
-import RestChangeRequest from './model/RestChangeRequest';
 import RestConfiguration from './model/RestConfiguration';
 import RestControlServiceRequest from './model/RestControlServiceRequest';
 import RestCreateNodesRequest from './model/RestCreateNodesRequest';
@@ -213,9 +211,6 @@ import TreeQuery from './model/TreeQuery';
 import TreeReadNodeRequest from './model/TreeReadNodeRequest';
 import TreeReadNodeResponse from './model/TreeReadNodeResponse';
 import TreeSearchRequest from './model/TreeSearchRequest';
-import TreeSyncChange from './model/TreeSyncChange';
-import TreeSyncChangeNode from './model/TreeSyncChangeNode';
-import TreeSyncChangeType from './model/TreeSyncChangeType';
 import TreeVersioningKeepPeriod from './model/TreeVersioningKeepPeriod';
 import TreeVersioningPolicy from './model/TreeVersioningPolicy';
 import TreeWorkspaceRelativePath from './model/TreeWorkspaceRelativePath';
@@ -229,7 +224,6 @@ import UpdateUserMetaRequestUserMetaOp from './model/UpdateUserMetaRequestUserMe
 import ACLServiceApi from './api/ACLServiceApi';
 import ActivityServiceApi from './api/ActivityServiceApi';
 import AdminTreeServiceApi from './api/AdminTreeServiceApi';
-import ChangeServiceApi from './api/ChangeServiceApi';
 import ConfigServiceApi from './api/ConfigServiceApi';
 import FrontendServiceApi from './api/FrontendServiceApi';
 import GraphServiceApi from './api/GraphServiceApi';
@@ -866,18 +860,6 @@ export {
     RestCellAcl,
 
     /**
-     * The RestChangeCollection model constructor.
-     * @property {module:model/RestChangeCollection}
-     */
-    RestChangeCollection,
-
-    /**
-     * The RestChangeRequest model constructor.
-     * @property {module:model/RestChangeRequest}
-     */
-    RestChangeRequest,
-
-    /**
      * The RestConfiguration model constructor.
      * @property {module:model/RestConfiguration}
      */
@@ -1490,24 +1472,6 @@ export {
     TreeSearchRequest,
 
     /**
-     * The TreeSyncChange model constructor.
-     * @property {module:model/TreeSyncChange}
-     */
-    TreeSyncChange,
-
-    /**
-     * The TreeSyncChangeNode model constructor.
-     * @property {module:model/TreeSyncChangeNode}
-     */
-    TreeSyncChangeNode,
-
-    /**
-     * The TreeSyncChangeType model constructor.
-     * @property {module:model/TreeSyncChangeType}
-     */
-    TreeSyncChangeType,
-
-    /**
      * The TreeVersioningKeepPeriod model constructor.
      * @property {module:model/TreeVersioningKeepPeriod}
      */
@@ -1584,12 +1548,6 @@ export {
     * @property {module:api/AdminTreeServiceApi}
     */
     AdminTreeServiceApi,
-
-    /**
-    * The ChangeServiceApi service constructor.
-    * @property {module:api/ChangeServiceApi}
-    */
-    ChangeServiceApi,
 
     /**
     * The ConfigServiceApi service constructor.

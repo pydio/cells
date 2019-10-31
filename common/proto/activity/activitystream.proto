@@ -191,20 +191,25 @@ enum SummaryPointOfView {
 }
 
 message StreamActivitiesRequest{
-    StreamContext Context = 1; // Define the context of the stream
-    string ContextData = 2; // Value for the context (e.g. User Id, Node Id)
-
-    string StreamFilter = 3; // Json-encoded filter
+    // Define the context of the stream
+    StreamContext Context = 1;
+    // Value for the context (e.g. User Id, Node Id)
+    string ContextData = 2;
+    // Json-encoded filter
+    string StreamFilter = 3;
+    // Target inbox or outbox for the given object
     string BoxName = 4;
-
+    // Count last activities that were not loaded yet
     bool UnreadCountOnly = 5;
-
+    // Start listing at a given position
     int64 Offset = 6;
+    // Limit the number of results
     int64 Limit = 7;
-
+    // Compute a digest of all unread activities
     bool AsDigest = 8;
+    // Provide context for building the human-readable strings of each activity
     SummaryPointOfView PointOfView = 9;
-
+    // Provide language information for building the human-readable strings.
     string Language = 10;
 }
 
@@ -218,13 +223,18 @@ enum OwnerType {
 }
 
 message Subscription {
+    // Id of the user for this subscription
     string UserId = 1;
+    // Type of owner
     OwnerType ObjectType = 2;
+    // If of the owner
     string ObjectId = 3;
+    // List of events to listen to
     repeated string Events = 4;
 }
 
 message SubscribeRequest {
+    // Place a new subscription
     Subscription Subscription = 1;
 }
 
@@ -233,8 +243,11 @@ message SubscribeResponse {
 }
 
 message SearchSubscriptionsRequest{
+    // List of UserIds for which we want to list
     repeated string UserIds = 1;
+    // Filter by type of objects
     repeated OwnerType ObjectTypes = 2;
+    // Filter by object Ids
     repeated string ObjectIds = 3;
 }
 
@@ -243,6 +256,7 @@ message SearchSubscriptionsResponse{
 }
 
 message UnreadActivitiesRequest{
+    // Get the number of unread activities for this user
     string UserId = 1;
 }
 
@@ -251,8 +265,11 @@ message UnreadActivitiesResponse {
 }
 
 message UserLastActivityRequest {
+    // Current user Id
     string UserId = 1;
+    // Inbox or Outbox
     string BoxName = 2;
+    // Id of the last known activity
     string ActivityId = 3;
 }
 

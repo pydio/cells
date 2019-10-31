@@ -65,8 +65,6 @@ It has these top-level messages:
 	RestoreNodesResponse
 	ListDocstoreRequest
 	DocstoreCollection
-	ChangeRequest
-	ChangeCollection
 	SettingsMenuRequest
 	SettingsEntryMeta
 	SettingsEntry

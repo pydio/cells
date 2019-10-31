@@ -99,7 +99,7 @@ var MobileExtensions = (function (_Component) {
                 daysHidden: 15, // days to hide banner after close button is clicked (defaults to 15)
                 daysReminder: 90, // days to hide banner after "VIEW" button is clicked (defaults to 90)
                 appStoreLanguage: 'us', // language code for the App Store (defaults to user's browser language)
-                title: 'Pydio Pro',
+                title: 'Pydio',
                 author: 'Abstrium SAS',
                 button: 'VIEW',
                 store: {
@@ -107,16 +107,16 @@ var MobileExtensions = (function (_Component) {
                     android: 'In Google Play'
                 },
                 price: {
-                    ios: '0,99€',
-                    android: '0,99€'
+                    ios: 'FREE',
+                    android: 'FREE'
                 }
-                //, theme: '' // put platform type ('ios', 'android', etc.) here to force single theme on all device
-                // , icon: '' // full path to icon image if not using website icon image
-                //, force: 'android' // Uncomment for platform emulation
             });
         }
     }, {
         key: "componentWillUnmount",
+        //, theme: '' // put platform type ('ios', 'android', etc.) here to force single theme on all device
+        // , icon: '' // full path to icon image if not using website icon image
+        //, force: 'android' // Uncomment for platform emulation
         value: function componentWillUnmount() {
             ["apple-itunes-app-element", "apple-touch-icon-element", "android-app-element", "android-touch-icon-element"].forEach(function (id) {
                 var el = document.getElementById(id);

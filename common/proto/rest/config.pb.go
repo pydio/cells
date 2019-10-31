@@ -17,8 +17,10 @@ var _ = math.Inf
 
 // Configuration message. Data is an Json representation of any value
 type Configuration struct {
+	// Full slash-separated path to the config key
 	FullPath string `protobuf:"bytes,1,opt,name=FullPath" json:"FullPath,omitempty"`
-	Data     string `protobuf:"bytes,2,opt,name=Data" json:"Data,omitempty"`
+	// JSON-encoded data to store
+	Data string `protobuf:"bytes,2,opt,name=Data" json:"Data,omitempty"`
 }
 
 func (m *Configuration) Reset()                    { *m = Configuration{} }
@@ -98,6 +100,7 @@ func (*ListPeersAddressesRequest) ProtoMessage()               {}
 func (*ListPeersAddressesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
 
 type ListPeersAddressesResponse struct {
+	// List of peer addresses
 	PeerAddresses []string `protobuf:"bytes,1,rep,name=PeerAddresses" json:"PeerAddresses,omitempty"`
 }
 
@@ -114,8 +117,10 @@ func (m *ListPeersAddressesResponse) GetPeerAddresses() []string {
 }
 
 type ListPeerFoldersRequest struct {
+	// Restrict listing to a given peer
 	PeerAddress string `protobuf:"bytes,1,opt,name=PeerAddress" json:"PeerAddress,omitempty"`
-	Path        string `protobuf:"bytes,2,opt,name=Path" json:"Path,omitempty"`
+	// Path to the parent folder for listing
+	Path string `protobuf:"bytes,2,opt,name=Path" json:"Path,omitempty"`
 }
 
 func (m *ListPeerFoldersRequest) Reset()                    { *m = ListPeerFoldersRequest{} }
@@ -138,13 +143,20 @@ func (m *ListPeerFoldersRequest) GetPath() string {
 }
 
 type Process struct {
-	ID          string   `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	ParentID    string   `protobuf:"bytes,2,opt,name=ParentID" json:"ParentID,omitempty"`
-	MetricsPort int32    `protobuf:"varint,3,opt,name=MetricsPort" json:"MetricsPort,omitempty"`
-	PeerId      string   `protobuf:"bytes,4,opt,name=PeerId" json:"PeerId,omitempty"`
-	PeerAddress string   `protobuf:"bytes,5,opt,name=PeerAddress" json:"PeerAddress,omitempty"`
-	StartTag    string   `protobuf:"bytes,6,opt,name=StartTag" json:"StartTag,omitempty"`
-	Services    []string `protobuf:"bytes,7,rep,name=Services" json:"Services,omitempty"`
+	// Process ID
+	ID string `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
+	// Parent Process ID
+	ParentID string `protobuf:"bytes,2,opt,name=ParentID" json:"ParentID,omitempty"`
+	// Port to access the metrics api
+	MetricsPort int32 `protobuf:"varint,3,opt,name=MetricsPort" json:"MetricsPort,omitempty"`
+	// Id of peer node
+	PeerId string `protobuf:"bytes,4,opt,name=PeerId" json:"PeerId,omitempty"`
+	// Address of peer node
+	PeerAddress string `protobuf:"bytes,5,opt,name=PeerAddress" json:"PeerAddress,omitempty"`
+	// Parameters used to start this process
+	StartTag string `protobuf:"bytes,6,opt,name=StartTag" json:"StartTag,omitempty"`
+	// List of services running inside this process
+	Services []string `protobuf:"bytes,7,rep,name=Services" json:"Services,omitempty"`
 }
 
 func (m *Process) Reset()                    { *m = Process{} }
@@ -202,7 +214,9 @@ func (m *Process) GetServices() []string {
 }
 
 type ListProcessesRequest struct {
-	PeerId      string `protobuf:"bytes,1,opt,name=PeerId" json:"PeerId,omitempty"`
+	// Id of the peer node
+	PeerId string `protobuf:"bytes,1,opt,name=PeerId" json:"PeerId,omitempty"`
+	// Look for a service name
 	ServiceName string `protobuf:"bytes,2,opt,name=ServiceName" json:"ServiceName,omitempty"`
 }
 
@@ -274,6 +288,7 @@ func (*ListVirtualNodesRequest) ProtoMessage()               {}
 func (*ListVirtualNodesRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{12} }
 
 type ListServiceRequest struct {
+	// Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING)
 	StatusFilter ctl.ServiceStatus `protobuf:"varint,1,opt,name=StatusFilter,enum=ctl.ServiceStatus" json:"StatusFilter,omitempty"`
 }
 
@@ -314,9 +329,12 @@ func (m *ServiceCollection) GetTotal() int32 {
 }
 
 type ControlServiceRequest struct {
-	ServiceName string             `protobuf:"bytes,1,opt,name=ServiceName" json:"ServiceName,omitempty"`
-	NodeName    string             `protobuf:"bytes,2,opt,name=NodeName" json:"NodeName,omitempty"`
-	Command     ctl.ServiceCommand `protobuf:"varint,3,opt,name=Command,enum=ctl.ServiceCommand" json:"Command,omitempty"`
+	// Name of the service to stop
+	ServiceName string `protobuf:"bytes,1,opt,name=ServiceName" json:"ServiceName,omitempty"`
+	// Name of the node
+	NodeName string `protobuf:"bytes,2,opt,name=NodeName" json:"NodeName,omitempty"`
+	// Command to apply (START or STOP)
+	Command ctl.ServiceCommand `protobuf:"varint,3,opt,name=Command,enum=ctl.ServiceCommand" json:"Command,omitempty"`
 }
 
 func (m *ControlServiceRequest) Reset()                    { *m = ControlServiceRequest{} }
@@ -346,6 +364,7 @@ func (m *ControlServiceRequest) GetCommand() ctl.ServiceCommand {
 }
 
 type DiscoveryRequest struct {
+	// Filter result to a specific endpoint type
 	EndpointType string `protobuf:"bytes,1,opt,name=EndpointType" json:"EndpointType,omitempty"`
 }
 
@@ -362,12 +381,18 @@ func (m *DiscoveryRequest) GetEndpointType() string {
 }
 
 type DiscoveryResponse struct {
-	PackageType   string            `protobuf:"bytes,1,opt,name=PackageType" json:"PackageType,omitempty"`
-	PackageLabel  string            `protobuf:"bytes,2,opt,name=PackageLabel" json:"PackageLabel,omitempty"`
-	Version       string            `protobuf:"bytes,3,opt,name=Version" json:"Version,omitempty"`
-	BuildStamp    int32             `protobuf:"varint,4,opt,name=BuildStamp" json:"BuildStamp,omitempty"`
-	BuildRevision string            `protobuf:"bytes,5,opt,name=BuildRevision" json:"BuildRevision,omitempty"`
-	Endpoints     map[string]string `protobuf:"bytes,6,rep,name=Endpoints" json:"Endpoints,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Current Package Type, empty if user is not authenticated
+	PackageType string `protobuf:"bytes,1,opt,name=PackageType" json:"PackageType,omitempty"`
+	// Current Package Label, empty if user is not authenticated
+	PackageLabel string `protobuf:"bytes,2,opt,name=PackageLabel" json:"PackageLabel,omitempty"`
+	// Current Package Version, empty if user is not authenticated
+	Version string `protobuf:"bytes,3,opt,name=Version" json:"Version,omitempty"`
+	// Build stamp of the binary build, empty if user is not authenticated
+	BuildStamp int32 `protobuf:"varint,4,opt,name=BuildStamp" json:"BuildStamp,omitempty"`
+	// Revision of the current binary build, empty if user is not authenticated
+	BuildRevision string `protobuf:"bytes,5,opt,name=BuildRevision" json:"BuildRevision,omitempty"`
+	// List of endpoints and their corresponding URL access. Special case for grpc that just send back its port
+	Endpoints map[string]string `protobuf:"bytes,6,rep,name=Endpoints" json:"Endpoints,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 
 func (m *DiscoveryResponse) Reset()                    { *m = DiscoveryResponse{} }
@@ -418,6 +443,7 @@ func (m *DiscoveryResponse) GetEndpoints() map[string]string {
 }
 
 type ConfigFormRequest struct {
+	// Retrieve a configuration form for a given service
 	ServiceName string `protobuf:"bytes,1,opt,name=ServiceName" json:"ServiceName,omitempty"`
 }
 

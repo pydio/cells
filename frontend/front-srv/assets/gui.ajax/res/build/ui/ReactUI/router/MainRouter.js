@@ -46,6 +46,22 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
             _React$PureComponent.apply(this, arguments);
         }
 
+        MainRouter.prototype.componentDidMount = function componentDidMount() {
+            var _this = this;
+
+            this.ctxObs = _lodash2['default'].debounce(function () {
+                return _this.reset();
+            }, 1000, { 'leading': true, 'trailing': false });
+
+            pydio.getContextHolder().observe("context_changed", this.ctxObs);
+            pydio.getContextHolder().observe("repository_list_refreshed", this.ctxObs);
+        };
+
+        MainRouter.prototype.componentWillUnmount = function componentWillUnmount() {
+            pydio.getContextHolder().stopObserving("context_changed", this.ctxObs);
+            pydio.getContextHolder().stopObserving("repository_list_refreshed", this.ctxObs);
+        };
+
         MainRouter.prototype.reset = function reset() {
             var list = pydio.user ? pydio.user.getRepositoriesList() : new Map();
             var active = pydio.user ? pydio.user.getActiveRepository() : "";
@@ -63,15 +79,14 @@ var MainRouterWrapper = function MainRouterWrapper(pydio) {
             }
         };
 
-        MainRouter.prototype.componentDidMount = function componentDidMount() {
-            var _this = this;
+        MainRouter.prototype.startObservers = function startObservers() {
+            pydio.getContextHolder().observe("context_changed", this.ctxObs);
+            pydio.getContextHolder().observe("repository_list_refreshed", this.ctxObs);
+        };
 
-            var ctxObs = _lodash2['default'].debounce(function () {
-                return _this.reset();
-            }, 1000, { 'leading': true, 'trailing': false });
-
-            pydio.getContextHolder().observe("context_changed", ctxObs);
-            pydio.getContextHolder().observe("repository_list_refreshed", ctxObs);
+        MainRouter.prototype.stopObservers = function stopObservers() {
+            pydio.getContextHolder().stopObserving("context_changed", this.ctxObs);
+            pydio.getContextHolder().stopObserving("repository_list_refreshed", this.ctxObs);
         };
 
         MainRouter.prototype.render = function render() {

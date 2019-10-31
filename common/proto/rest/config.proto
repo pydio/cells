@@ -8,7 +8,9 @@ import "github.com/pydio/cells/common/proto/ctl/ctl.proto";
 
 // Configuration message. Data is an Json representation of any value
 message Configuration{
+    // Full slash-separated path to the config key
     string FullPath = 1;
+    // JSON-encoded data to store
     string Data = 2;
 }
 
@@ -31,26 +33,38 @@ message ListPeersAddressesRequest {
 }
 
 message ListPeersAddressesResponse {
+    // List of peer addresses
     repeated string PeerAddresses = 1;
 }
 
 message ListPeerFoldersRequest{
+    // Restrict listing to a given peer
     string PeerAddress = 1;
+    // Path to the parent folder for listing
     string Path = 2;
 }
 
 message Process {
+    // Process ID
     string ID = 1;
+    // Parent Process ID
     string ParentID = 2;
+    // Port to access the metrics api
     int32 MetricsPort = 3;
+    // Id of peer node
     string PeerId = 4;
+    // Address of peer node
     string PeerAddress = 5;
+    // Parameters used to start this process
     string StartTag = 6;
+    // List of services running inside this process
     repeated string Services = 7;
 }
 
 message ListProcessesRequest {
+    // Id of the peer node
     string PeerId = 1;
+    // Look for a service name
     string ServiceName = 2;
 }
 
@@ -67,6 +81,7 @@ message VersioningPolicyCollection{
 message ListVirtualNodesRequest{}
 
 message ListServiceRequest{
+    // Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING)
     ctl.ServiceStatus StatusFilter = 1;
 }
 
@@ -76,25 +91,36 @@ message ServiceCollection{
 }
 
 message ControlServiceRequest{
+    // Name of the service to stop
     string ServiceName = 1;
+    // Name of the node
     string NodeName = 2;
+    // Command to apply (START or STOP)
     ctl.ServiceCommand Command = 3;
 }
 
 message DiscoveryRequest{
+    // Filter result to a specific endpoint type
     string EndpointType = 1;
 }
 
 message DiscoveryResponse{
+    // Current Package Type, empty if user is not authenticated
     string PackageType = 1;
+    // Current Package Label, empty if user is not authenticated
     string PackageLabel = 2;
+    // Current Package Version, empty if user is not authenticated
     string Version = 3;
+    // Build stamp of the binary build, empty if user is not authenticated
     int32 BuildStamp = 4;
+    // Revision of the current binary build, empty if user is not authenticated
     string BuildRevision = 5;
+    // List of endpoints and their corresponding URL access. Special case for grpc that just send back its port
     map<string, string> Endpoints = 6;
 }
 
 message ConfigFormRequest{
+    // Retrieve a configuration form for a given service
     string ServiceName = 1;
 }
 

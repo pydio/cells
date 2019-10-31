@@ -136,6 +136,7 @@ export default class IdmUser {
     */
     Policies = undefined;
     /**
+    * Context-resolved to quickly check if user is editable or not.
     * @member {Boolean} PoliciesContextEditable
     */
     PoliciesContextEditable = undefined;

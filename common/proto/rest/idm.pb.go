@@ -45,8 +45,10 @@ func (ResourcePolicyQuery_QueryType) EnumDescriptor() ([]byte, []int) {
 
 // Generic Query for limiting results based on resource permissions
 type ResourcePolicyQuery struct {
-	Type   ResourcePolicyQuery_QueryType `protobuf:"varint,1,opt,name=Type,enum=rest.ResourcePolicyQuery_QueryType" json:"Type,omitempty"`
-	UserId string                        `protobuf:"bytes,2,opt,name=UserId" json:"UserId,omitempty"`
+	// The type can be CONTEXT, ANY, NODE or USER. This restricts the may filter out the result set based on their policies
+	Type ResourcePolicyQuery_QueryType `protobuf:"varint,1,opt,name=Type,enum=rest.ResourcePolicyQuery_QueryType" json:"Type,omitempty"`
+	// Limit to one given user ID
+	UserId string `protobuf:"bytes,2,opt,name=UserId" json:"UserId,omitempty"`
 }
 
 func (m *ResourcePolicyQuery) Reset()                    { *m = ResourcePolicyQuery{} }
@@ -70,13 +72,20 @@ func (m *ResourcePolicyQuery) GetUserId() string {
 
 // Roles Search
 type SearchRoleRequest struct {
-	Queries             []*idm.RoleSingleQuery `protobuf:"bytes,1,rep,name=Queries" json:"Queries,omitempty"`
-	ResourcePolicyQuery *ResourcePolicyQuery   `protobuf:"bytes,7,opt,name=ResourcePolicyQuery" json:"ResourcePolicyQuery,omitempty"`
-	Offset              int64                  `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
-	Limit               int64                  `protobuf:"varint,3,opt,name=Limit" json:"Limit,omitempty"`
-	GroupBy             int32                  `protobuf:"varint,4,opt,name=GroupBy" json:"GroupBy,omitempty"`
-	CountOnly           bool                   `protobuf:"varint,5,opt,name=CountOnly" json:"CountOnly,omitempty"`
-	Operation           service.OperationType  `protobuf:"varint,6,opt,name=Operation,enum=service.OperationType" json:"Operation,omitempty"`
+	// List of atomic queries that will be combined using the Operation type (AND / OR)
+	Queries []*idm.RoleSingleQuery `protobuf:"bytes,1,rep,name=Queries" json:"Queries,omitempty"`
+	// Policies query for specifying the search context
+	ResourcePolicyQuery *ResourcePolicyQuery `protobuf:"bytes,7,opt,name=ResourcePolicyQuery" json:"ResourcePolicyQuery,omitempty"`
+	// Start listing at a given position
+	Offset int64 `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
+	// Limit number of results
+	Limit int64 `protobuf:"varint,3,opt,name=Limit" json:"Limit,omitempty"`
+	// Group results by
+	GroupBy int32 `protobuf:"varint,4,opt,name=GroupBy" json:"GroupBy,omitempty"`
+	// Return counts only, no actual results
+	CountOnly bool `protobuf:"varint,5,opt,name=CountOnly" json:"CountOnly,omitempty"`
+	// Combine Single Queries with AND or OR
+	Operation service.OperationType `protobuf:"varint,6,opt,name=Operation,enum=service.OperationType" json:"Operation,omitempty"`
 }
 
 func (m *SearchRoleRequest) Reset()                    { *m = SearchRoleRequest{} }
@@ -135,6 +144,7 @@ func (m *SearchRoleRequest) GetOperation() service.OperationType {
 
 // Roles Collection
 type RolesCollection struct {
+	// List of Roles
 	Roles []*idm.Role `protobuf:"bytes,1,rep,name=Roles" json:"Roles,omitempty"`
 }
 
@@ -152,13 +162,20 @@ func (m *RolesCollection) GetRoles() []*idm.Role {
 
 // Users Search
 type SearchUserRequest struct {
-	Queries             []*idm.UserSingleQuery `protobuf:"bytes,1,rep,name=Queries" json:"Queries,omitempty"`
-	ResourcePolicyQuery *ResourcePolicyQuery   `protobuf:"bytes,7,opt,name=ResourcePolicyQuery" json:"ResourcePolicyQuery,omitempty"`
-	Offset              int64                  `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
-	Limit               int64                  `protobuf:"varint,3,opt,name=Limit" json:"Limit,omitempty"`
-	GroupBy             int32                  `protobuf:"varint,4,opt,name=GroupBy" json:"GroupBy,omitempty"`
-	CountOnly           bool                   `protobuf:"varint,5,opt,name=CountOnly" json:"CountOnly,omitempty"`
-	Operation           service.OperationType  `protobuf:"varint,6,opt,name=Operation,enum=service.OperationType" json:"Operation,omitempty"`
+	// Atomic queries that will be combined using the Operation Type (AND or OR)
+	Queries []*idm.UserSingleQuery `protobuf:"bytes,1,rep,name=Queries" json:"Queries,omitempty"`
+	// Policies queries to filter the search context
+	ResourcePolicyQuery *ResourcePolicyQuery `protobuf:"bytes,7,opt,name=ResourcePolicyQuery" json:"ResourcePolicyQuery,omitempty"`
+	// Start listing at a given position
+	Offset int64 `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
+	// Limit number of results
+	Limit int64 `protobuf:"varint,3,opt,name=Limit" json:"Limit,omitempty"`
+	// Group by ...
+	GroupBy int32 `protobuf:"varint,4,opt,name=GroupBy" json:"GroupBy,omitempty"`
+	// Return counts only, no actual results
+	CountOnly bool `protobuf:"varint,5,opt,name=CountOnly" json:"CountOnly,omitempty"`
+	// Combine single queries with AND or OR logic
+	Operation service.OperationType `protobuf:"varint,6,opt,name=Operation,enum=service.OperationType" json:"Operation,omitempty"`
 }
 
 func (m *SearchUserRequest) Reset()                    { *m = SearchUserRequest{} }
@@ -217,9 +234,12 @@ func (m *SearchUserRequest) GetOperation() service.OperationType {
 
 // Users Collection
 type UsersCollection struct {
+	// List of Groups
 	Groups []*idm.User `protobuf:"bytes,1,rep,name=Groups" json:"Groups,omitempty"`
-	Users  []*idm.User `protobuf:"bytes,2,rep,name=Users" json:"Users,omitempty"`
-	Total  int32       `protobuf:"varint,3,opt,name=Total" json:"Total,omitempty"`
+	// List of Users
+	Users []*idm.User `protobuf:"bytes,2,rep,name=Users" json:"Users,omitempty"`
+	// Total number of results
+	Total int32 `protobuf:"varint,3,opt,name=Total" json:"Total,omitempty"`
 }
 
 func (m *UsersCollection) Reset()                    { *m = UsersCollection{} }
@@ -267,11 +287,17 @@ func (m *BindResponse) GetSuccess() bool {
 
 // Rest request for ACL's
 type SearchACLRequest struct {
-	Queries   []*idm.ACLSingleQuery `protobuf:"bytes,1,rep,name=Queries" json:"Queries,omitempty"`
-	Offset    int64                 `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
-	Limit     int64                 `protobuf:"varint,3,opt,name=Limit" json:"Limit,omitempty"`
-	GroupBy   int32                 `protobuf:"varint,4,opt,name=GroupBy" json:"GroupBy,omitempty"`
-	CountOnly bool                  `protobuf:"varint,5,opt,name=CountOnly" json:"CountOnly,omitempty"`
+	// Atomic queries that will be combined using the OperationType (AND or OR)
+	Queries []*idm.ACLSingleQuery `protobuf:"bytes,1,rep,name=Queries" json:"Queries,omitempty"`
+	// Start listing at a given position
+	Offset int64 `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
+	// Limit the number of results
+	Limit int64 `protobuf:"varint,3,opt,name=Limit" json:"Limit,omitempty"`
+	// Group results
+	GroupBy int32 `protobuf:"varint,4,opt,name=GroupBy" json:"GroupBy,omitempty"`
+	// Return counts only, no actual results
+	CountOnly bool `protobuf:"varint,5,opt,name=CountOnly" json:"CountOnly,omitempty"`
+	// Single queries will be combined using this operation AND or OR logic
 	Operation service.OperationType `protobuf:"varint,6,opt,name=Operation,enum=service.OperationType" json:"Operation,omitempty"`
 }
 
@@ -324,8 +350,10 @@ func (m *SearchACLRequest) GetOperation() service.OperationType {
 
 // Response for search request
 type ACLCollection struct {
-	ACLs  []*idm.ACL `protobuf:"bytes,1,rep,name=ACLs" json:"ACLs,omitempty"`
-	Total int32      `protobuf:"varint,2,opt,name=Total" json:"Total,omitempty"`
+	// List of ACLs
+	ACLs []*idm.ACL `protobuf:"bytes,1,rep,name=ACLs" json:"ACLs,omitempty"`
+	// Total number of results
+	Total int32 `protobuf:"varint,2,opt,name=Total" json:"Total,omitempty"`
 }
 
 func (m *ACLCollection) Reset()                    { *m = ACLCollection{} }
@@ -349,13 +377,20 @@ func (m *ACLCollection) GetTotal() int32 {
 
 // Rest request for searching workspaces
 type SearchWorkspaceRequest struct {
-	Queries             []*idm.WorkspaceSingleQuery `protobuf:"bytes,1,rep,name=Queries" json:"Queries,omitempty"`
-	ResourcePolicyQuery *ResourcePolicyQuery        `protobuf:"bytes,7,opt,name=ResourcePolicyQuery" json:"ResourcePolicyQuery,omitempty"`
-	Offset              int64                       `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
-	Limit               int64                       `protobuf:"varint,3,opt,name=Limit" json:"Limit,omitempty"`
-	GroupBy             int32                       `protobuf:"varint,4,opt,name=GroupBy" json:"GroupBy,omitempty"`
-	CountOnly           bool                        `protobuf:"varint,5,opt,name=CountOnly" json:"CountOnly,omitempty"`
-	Operation           service.OperationType       `protobuf:"varint,6,opt,name=Operation,enum=service.OperationType" json:"Operation,omitempty"`
+	// Atomic queries that will be combined using the OperationType (AND or OR)
+	Queries []*idm.WorkspaceSingleQuery `protobuf:"bytes,1,rep,name=Queries" json:"Queries,omitempty"`
+	// Policies queries to filter the search context
+	ResourcePolicyQuery *ResourcePolicyQuery `protobuf:"bytes,7,opt,name=ResourcePolicyQuery" json:"ResourcePolicyQuery,omitempty"`
+	// Start listing at a given position
+	Offset int64 `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
+	// Limit the number of results
+	Limit int64 `protobuf:"varint,3,opt,name=Limit" json:"Limit,omitempty"`
+	// Group results
+	GroupBy int32 `protobuf:"varint,4,opt,name=GroupBy" json:"GroupBy,omitempty"`
+	// Return counts only, no actual results
+	CountOnly bool `protobuf:"varint,5,opt,name=CountOnly" json:"CountOnly,omitempty"`
+	// Single queries will be combined using this operation AND or OR logic
+	Operation service.OperationType `protobuf:"varint,6,opt,name=Operation,enum=service.OperationType" json:"Operation,omitempty"`
 }
 
 func (m *SearchWorkspaceRequest) Reset()                    { *m = SearchWorkspaceRequest{} }
@@ -414,8 +449,10 @@ func (m *SearchWorkspaceRequest) GetOperation() service.OperationType {
 
 // Rest response for workspace search
 type WorkspaceCollection struct {
+	// List of workspaces
 	Workspaces []*idm.Workspace `protobuf:"bytes,1,rep,name=Workspaces" json:"Workspaces,omitempty"`
-	Total      int32            `protobuf:"varint,2,opt,name=Total" json:"Total,omitempty"`
+	// Total number of results
+	Total int32 `protobuf:"varint,2,opt,name=Total" json:"Total,omitempty"`
 }
 
 func (m *WorkspaceCollection) Reset()                    { *m = WorkspaceCollection{} }
@@ -456,6 +493,7 @@ func (m *UserMetaCollection) GetMetadatas() []*idm.UserMeta {
 
 // Collection of Meta Namespaces
 type UserMetaNamespaceCollection struct {
+	// List of user meta Namespaces
 	Namespaces []*idm.UserMetaNamespace `protobuf:"bytes,1,rep,name=Namespaces" json:"Namespaces,omitempty"`
 }
 
@@ -472,6 +510,7 @@ func (m *UserMetaNamespaceCollection) GetNamespaces() []*idm.UserMetaNamespace {
 }
 
 type ListUserMetaTagsRequest struct {
+	// List user meta tags for this namespace
 	Namespace string `protobuf:"bytes,1,opt,name=Namespace" json:"Namespace,omitempty"`
 }
 
@@ -488,6 +527,7 @@ func (m *ListUserMetaTagsRequest) GetNamespace() string {
 }
 
 type ListUserMetaTagsResponse struct {
+	// List of existing tags values
 	Tags []string `protobuf:"bytes,1,rep,name=Tags" json:"Tags,omitempty"`
 }
 
@@ -504,8 +544,10 @@ func (m *ListUserMetaTagsResponse) GetTags() []string {
 }
 
 type PutUserMetaTagRequest struct {
+	// Add a tag value for this namespace
 	Namespace string `protobuf:"bytes,1,opt,name=Namespace" json:"Namespace,omitempty"`
-	Tag       string `protobuf:"bytes,2,opt,name=Tag" json:"Tag,omitempty"`
+	// New tag value
+	Tag string `protobuf:"bytes,2,opt,name=Tag" json:"Tag,omitempty"`
 }
 
 func (m *PutUserMetaTagRequest) Reset()                    { *m = PutUserMetaTagRequest{} }
@@ -528,6 +570,7 @@ func (m *PutUserMetaTagRequest) GetTag() string {
 }
 
 type PutUserMetaTagResponse struct {
+	// Operation success
 	Success bool `protobuf:"varint,1,opt,name=Success" json:"Success,omitempty"`
 }
 
@@ -544,8 +587,10 @@ func (m *PutUserMetaTagResponse) GetSuccess() bool {
 }
 
 type DeleteUserMetaTagsRequest struct {
+	// Delete tags from this namespace
 	Namespace string `protobuf:"bytes,1,opt,name=Namespace" json:"Namespace,omitempty"`
-	Tags      string `protobuf:"bytes,2,opt,name=Tags" json:"Tags,omitempty"`
+	// Delete this tag
+	Tags string `protobuf:"bytes,2,opt,name=Tags" json:"Tags,omitempty"`
 }
 
 func (m *DeleteUserMetaTagsRequest) Reset()                    { *m = DeleteUserMetaTagsRequest{} }
@@ -594,6 +639,7 @@ func (*UserBookmarksRequest) Descriptor() ([]byte, []int) { return fileDescripto
 // Rest request for revocation. Token is not mandatory, if not set
 // request will use current JWT token
 type RevokeRequest struct {
+	// Pass a specific Token ID to be revoked. If empty, request will use current JWT
 	TokenId string `protobuf:"bytes,1,opt,name=TokenId" json:"TokenId,omitempty"`
 }
 
@@ -635,6 +681,7 @@ func (m *RevokeResponse) GetMessage() string {
 }
 
 type ResetPasswordTokenRequest struct {
+	// Start a ResetPassword workflow for this user
 	UserLogin string `protobuf:"bytes,1,opt,name=UserLogin" json:"UserLogin,omitempty"`
 }
 
@@ -675,9 +722,12 @@ func (m *ResetPasswordTokenResponse) GetMessage() string {
 }
 
 type ResetPasswordRequest struct {
+	// Token generated by the previous step of the reset password workflow
 	ResetPasswordToken string `protobuf:"bytes,1,opt,name=ResetPasswordToken" json:"ResetPasswordToken,omitempty"`
-	UserLogin          string `protobuf:"bytes,2,opt,name=UserLogin" json:"UserLogin,omitempty"`
-	NewPassword        string `protobuf:"bytes,3,opt,name=NewPassword" json:"NewPassword,omitempty"`
+	// User Login
+	UserLogin string `protobuf:"bytes,2,opt,name=UserLogin" json:"UserLogin,omitempty"`
+	// New password to be stored for this user
+	NewPassword string `protobuf:"bytes,3,opt,name=NewPassword" json:"NewPassword,omitempty"`
 }
 
 func (m *ResetPasswordRequest) Reset()                    { *m = ResetPasswordRequest{} }

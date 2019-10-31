@@ -26,6 +26,7 @@ import ApiClient from '../ApiClient';
 export default class IdmRoleSingleQuery {
     /**
     * Constructs a new <code>IdmRoleSingleQuery</code>.
+    * RoleSingleQuery is the basic unit for building queries to Roles.
     * @alias module:model/IdmRoleSingleQuery
     * @class
     */

@@ -5,7 +5,9 @@ import "github.com/pydio/cells/common/proto/jobs/jobs.proto";
 package rest;
 
 message UserJobRequest {
+    // Name of the job to create in the user space
     string JobName = 1;
+    // Json-encoded parameters for this job
     string JsonParameters = 2;
 }
 

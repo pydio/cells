@@ -173,25 +173,44 @@ func (m *CleanResourcesResponse) GetMessage() string {
 
 // DataSource Object description
 type DataSource struct {
-	Name                    string            `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
-	Disabled                bool              `protobuf:"varint,2,opt,name=Disabled" json:"Disabled,omitempty"`
-	StorageType             StorageType       `protobuf:"varint,3,opt,name=StorageType,enum=object.StorageType" json:"StorageType,omitempty"`
-	StorageConfiguration    map[string]string `protobuf:"bytes,4,rep,name=StorageConfiguration" json:"StorageConfiguration,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ObjectsServiceName      string            `protobuf:"bytes,18,opt,name=ObjectsServiceName" json:"ObjectsServiceName,omitempty"`
-	ObjectsHost             string            `protobuf:"bytes,12,opt,name=ObjectsHost" json:"ObjectsHost,omitempty"`
-	ObjectsPort             int32             `protobuf:"varint,5,opt,name=ObjectsPort" json:"ObjectsPort,omitempty"`
-	ObjectsSecure           bool              `protobuf:"varint,13,opt,name=ObjectsSecure" json:"ObjectsSecure,omitempty"`
-	ObjectsBucket           string            `protobuf:"bytes,14,opt,name=ObjectsBucket" json:"ObjectsBucket,omitempty"`
-	ObjectsBaseFolder       string            `protobuf:"bytes,15,opt,name=ObjectsBaseFolder" json:"ObjectsBaseFolder,omitempty"`
-	ApiKey                  string            `protobuf:"bytes,16,opt,name=ApiKey" json:"ApiKey,omitempty"`
-	ApiSecret               string            `protobuf:"bytes,17,opt,name=ApiSecret" json:"ApiSecret,omitempty"`
-	PeerAddress             string            `protobuf:"bytes,19,opt,name=PeerAddress" json:"PeerAddress,omitempty"`
-	Watch                   bool              `protobuf:"varint,6,opt,name=Watch" json:"Watch,omitempty"`
-	EncryptionMode          EncryptionMode    `protobuf:"varint,7,opt,name=EncryptionMode,enum=object.EncryptionMode" json:"EncryptionMode,omitempty"`
-	EncryptionKey           string            `protobuf:"bytes,8,opt,name=EncryptionKey" json:"EncryptionKey,omitempty"`
-	VersioningPolicyName    string            `protobuf:"bytes,9,opt,name=VersioningPolicyName" json:"VersioningPolicyName,omitempty"`
-	CreationDate            int32             `protobuf:"varint,10,opt,name=CreationDate" json:"CreationDate,omitempty"`
-	LastSynchronizationDate int32             `protobuf:"varint,11,opt,name=LastSynchronizationDate" json:"LastSynchronizationDate,omitempty"`
+	// Name of the data source (max length 34)
+	Name string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
+	// Whether this data source is disabled or running
+	Disabled bool `protobuf:"varint,2,opt,name=Disabled" json:"Disabled,omitempty"`
+	// Type of underlying storage (LOCAL, S3, AZURE, GCS)
+	StorageType StorageType `protobuf:"varint,3,opt,name=StorageType,enum=object.StorageType" json:"StorageType,omitempty"`
+	// List of key values describing storage configuration
+	StorageConfiguration map[string]string `protobuf:"bytes,4,rep,name=StorageConfiguration" json:"StorageConfiguration,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Corresponding objects service name (underlying s3 service)
+	ObjectsServiceName string `protobuf:"bytes,18,opt,name=ObjectsServiceName" json:"ObjectsServiceName,omitempty"`
+	// Corresponding objects service host
+	ObjectsHost string `protobuf:"bytes,12,opt,name=ObjectsHost" json:"ObjectsHost,omitempty"`
+	// Corresponding objects service port
+	ObjectsPort int32 `protobuf:"varint,5,opt,name=ObjectsPort" json:"ObjectsPort,omitempty"`
+	// Corresponding objects service connection type
+	ObjectsSecure bool `protobuf:"varint,13,opt,name=ObjectsSecure" json:"ObjectsSecure,omitempty"`
+	// Corresponding objects service bucket
+	ObjectsBucket string `protobuf:"bytes,14,opt,name=ObjectsBucket" json:"ObjectsBucket,omitempty"`
+	// Corresponding objects service base folder inside the bucket
+	ObjectsBaseFolder string `protobuf:"bytes,15,opt,name=ObjectsBaseFolder" json:"ObjectsBaseFolder,omitempty"`
+	// Corresponding objects service api key
+	ApiKey string `protobuf:"bytes,16,opt,name=ApiKey" json:"ApiKey,omitempty"`
+	// Corresponding objects service api secret
+	ApiSecret string `protobuf:"bytes,17,opt,name=ApiSecret" json:"ApiSecret,omitempty"`
+	// Peer address of the data source
+	PeerAddress string `protobuf:"bytes,19,opt,name=PeerAddress" json:"PeerAddress,omitempty"`
+	// Not implemented, whether to watch for underlying changes on the FS
+	Watch bool `protobuf:"varint,6,opt,name=Watch" json:"Watch,omitempty"`
+	// Type of encryption applied before sending data to storage
+	EncryptionMode EncryptionMode `protobuf:"varint,7,opt,name=EncryptionMode,enum=object.EncryptionMode" json:"EncryptionMode,omitempty"`
+	// Encryption key used for encrypting data
+	EncryptionKey string `protobuf:"bytes,8,opt,name=EncryptionKey" json:"EncryptionKey,omitempty"`
+	// Versioning policy describes how files are kept in the versioning queue
+	VersioningPolicyName string `protobuf:"bytes,9,opt,name=VersioningPolicyName" json:"VersioningPolicyName,omitempty"`
+	// Data Source creation date
+	CreationDate int32 `protobuf:"varint,10,opt,name=CreationDate" json:"CreationDate,omitempty"`
+	// Data Source last synchronization date
+	LastSynchronizationDate int32 `protobuf:"varint,11,opt,name=LastSynchronizationDate" json:"LastSynchronizationDate,omitempty"`
 }
 
 func (m *DataSource) Reset()                    { *m = DataSource{} }
@@ -334,16 +353,25 @@ func (m *DataSource) GetLastSynchronizationDate() int32 {
 
 // Used a config storage for minio services
 type MinioConfig struct {
-	Name          string      `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
-	StorageType   StorageType `protobuf:"varint,2,opt,name=StorageType,enum=object.StorageType" json:"StorageType,omitempty"`
-	RunningHost   string      `protobuf:"bytes,3,opt,name=RunningHost" json:"RunningHost,omitempty"`
-	RunningSecure bool        `protobuf:"varint,4,opt,name=RunningSecure" json:"RunningSecure,omitempty"`
-	RunningPort   int32       `protobuf:"varint,5,opt,name=RunningPort" json:"RunningPort,omitempty"`
-	ApiKey        string      `protobuf:"bytes,6,opt,name=ApiKey" json:"ApiKey,omitempty"`
-	ApiSecret     string      `protobuf:"bytes,7,opt,name=ApiSecret" json:"ApiSecret,omitempty"`
-	EndpointUrl   string      `protobuf:"bytes,10,opt,name=EndpointUrl" json:"EndpointUrl,omitempty"`
+	// Name of the object service
+	Name string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
+	// Underlying storage type (LOCAL, S3, AZURE, GCS)
+	StorageType StorageType `protobuf:"varint,2,opt,name=StorageType,enum=object.StorageType" json:"StorageType,omitempty"`
+	// Host where this minio is running
+	RunningHost string `protobuf:"bytes,3,opt,name=RunningHost" json:"RunningHost,omitempty"`
+	// Whether it is exposed with TLS or not
+	RunningSecure bool `protobuf:"varint,4,opt,name=RunningSecure" json:"RunningSecure,omitempty"`
+	// Port where this minio is bound
+	RunningPort int32 `protobuf:"varint,5,opt,name=RunningPort" json:"RunningPort,omitempty"`
+	// Api Key to access this object service
+	ApiKey string `protobuf:"bytes,6,opt,name=ApiKey" json:"ApiKey,omitempty"`
+	// Api Secret to access this object service
+	ApiSecret string `protobuf:"bytes,7,opt,name=ApiSecret" json:"ApiSecret,omitempty"`
+	// Url to get info about this object service
+	EndpointUrl string `protobuf:"bytes,10,opt,name=EndpointUrl" json:"EndpointUrl,omitempty"`
 	// Specific to Local storage type
 	LocalFolder string `protobuf:"bytes,8,opt,name=LocalFolder" json:"LocalFolder,omitempty"`
+	// Restrict this service to run on a given peer
 	PeerAddress string `protobuf:"bytes,9,opt,name=PeerAddress" json:"PeerAddress,omitempty"`
 	// Additional configs
 	GatewayConfiguration map[string]string `protobuf:"bytes,11,rep,name=GatewayConfiguration" json:"GatewayConfiguration,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
