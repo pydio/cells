@@ -55,7 +55,7 @@ message ProxyConfig {
 
 // TLSSelfSigned generates a selfsigned certificate
 message TLSSelfSigned {
-    repeated string Hostname = 1;
+    repeated string Hostnames = 1;
 }
 
 // TLSLetsEncrypt set up proxy to automatically get a valid certificate from let's encrypt servers

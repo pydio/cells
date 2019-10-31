@@ -64,7 +64,7 @@ func nonInterractiveInstall(cmd *cobra.Command, args []string) (*url.URL, *url.U
 		return nil, nil, false, err
 	}
 
-	err = preConfigureProxy(pconf)
+	err = applyProxyConfig(pconf)
 	if err != nil {
 		return nil, nil, false, err
 	}
@@ -99,7 +99,7 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 		if niCertFile != "" && niKeyFile != "" {
 			tlsConf := &install.ProxyConfig_Certificate{
-				&install.TLSCertificate{
+				Certificate: &install.TLSCertificate{
 					CertFile: niCertFile,
 					KeyFile:  niKeyFile,
 				}}
@@ -111,7 +111,7 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 			}
 
 			tlsConf := &install.ProxyConfig_LetsEncrypt{
-				&install.TLSLetsEncrypt{
+				LetsEncrypt: &install.TLSLetsEncrypt{
 					Email:      niLeEmailContact,
 					AcceptEULA: niLeAcceptEula,
 					StagingCA:  niLeUseStagingCA,
@@ -129,8 +129,8 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 			hostNameNoPort := strings.Split(hostName, ":")[0]
 
 			tlsConf := &install.ProxyConfig_SelfSigned{
-				&install.TLSSelfSigned{
-					Hostname: []string{hostNameNoPort},
+				SelfSigned: &install.TLSSelfSigned{
+					Hostnames: []string{hostNameNoPort},
 				},
 			}
 			proxyConfig.TLSConfig = tlsConf
@@ -156,7 +156,7 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 	return proxyConfig, nil
 }
 
-func preConfigureProxy(pconf *install.ProxyConfig) error {
+func applyProxyConfig(pconf *install.ProxyConfig) error {
 
 	var saveMsg string
 
@@ -177,7 +177,7 @@ func preConfigureProxy(pconf *install.ProxyConfig) error {
 		os.MkdirAll(storageLocation, 0700)
 		mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
 
-		err := mkCert.MakeCert(v.SelfSigned.GetHostname())
+		err := mkCert.MakeCert(v.SelfSigned.GetHostnames())
 		if err != nil {
 			return err
 		}
@@ -256,7 +256,7 @@ func installFromConf() (*install.InstallConfig, error) {
 	}
 
 	// Preconfiguring proxy:
-	err := preConfigureProxy(confFromFile.GetProxyConfig())
+	err := applyProxyConfig(confFromFile.GetProxyConfig())
 	if err != nil {
 		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
 	}
