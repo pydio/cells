@@ -27,7 +27,7 @@ import (
 // SslCmd represents the ssl command
 var SslCmd = &cobra.Command{
 	Use:   "ssl",
-	Short: "Manage SSL configuration",
+	Short: "[Deprecated] Manage SSL configuration - rather use proxy subcommand",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

@@ -9,10 +9,11 @@ services:
     environment:
       - INSTALL_CONF_FILE=/pydio/install/config.yml
       - CELLS_WORKING_DIR=/var/cells
+      - CADDY_PATH=/etc/ssl/caddy 
     volumes: 
       - "workingdir:/var/cells"
       - "./install:/pydio/install"
-      - "cert:/root/.caddy"
+      - "caddy:/etc/ssl/caddy"
     depends_on:
       - mysql
 
@@ -33,4 +34,4 @@ services:
 
 volumes:
   workingdir: {}
-  cert: {}
+  caddy: {}

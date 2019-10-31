@@ -138,7 +138,7 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 		if val, e1 := useStagingPrompt.Run(); e1 != nil {
 			e = e1
 			return
-		} else if !(val == "N" || val == "n" || val == "") {
+		} else if val == "N" || val == "n" || val == "" {
 			useStaging = false
 		}
 

@@ -49,6 +49,8 @@ Four modes are currently supported:
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		log.Fatal("DEPRECATED. will be removed in 2.0 GA version")
+
 		// Retrieve already defined conf
 		extURL, _ := url.Parse(config.Get("defaults", "url").String(""))
 		intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
