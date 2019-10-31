@@ -92,8 +92,12 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 		hns := v.SelfSigned.GetHostnames()
 		if hns == nil || len(hns) == 0 {
 			binddn := strings.TrimPrefix(strings.TrimPrefix(pconf.GetBindURL(), "http://"), "https://")
-			binddn = strings.Split(binddn, ":")[0]
-			hns = []string{binddn}
+			parts := strings.Split(binddn, ":")
+			hns = []string{}
+			if len(parts) > 1 && parts[1] == "443" {
+				hns = append(hns, parts[0])
+			}
+			hns = append(hns, binddn)
 		}
 
 		fmt.Printf("[DEBUG] Host names: %v \n", hns)
@@ -143,6 +147,10 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 		config.Set(false, "cert", "proxy", "ssl")
 		saveMsg = "Install / Non-Interactive / Without SSL"
 	}
+
+	// Simplified management of redirect URLs
+	redirect := pconf.GetRedirectURLs() != nil && len(pconf.GetRedirectURLs()) > 0
+	config.Set(redirect, "cert", "proxy", "httpRedir")
 
 	err := config.Save("cli", saveMsg)
 	if err != nil {

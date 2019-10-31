@@ -87,7 +87,7 @@ var installCmd = &cobra.Command{
  the machine from outside world (if it is behind a proxy or inside a container with ports mapping for instance).
  
  You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
- installer with SSL active using self_signed setup by default.
+ installer with SSL active using self_signed setup by default. See the possible flags for more details.
  
  You might also use Let's Encrypt automatic certificate generation by providing a contact email and accepting Let's Encrypt EULA, for instance:
  $ ` + os.Args[0] + ` install --bind share.mydomain.tld:443 --external https://share.mydomain.tld --le_email admin@mydomain.tld --le_agree true
@@ -108,13 +108,12 @@ var installCmd = &cobra.Command{
  - Bind Host: localhost:8080
  - External Host: http://localhost:8080  # for non-secured local installation
 
- It will open a browser to gather necessary information and configuration for Pydio Cells. if you don't have a browser access,
- you can launch the command line installation using the install-cli command:
-
- $ ` + os.Args[0] + ` install-cli
-
+ It will open a browser to gather necessary information and configuration for Pydio Cells. 
  Services will all start automatically after the install process is finished.
-	 `,
+ 
+ If you do not have a browser access, you can also perform the whole installation process using this CLI.
+
+ `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if err := checkFdlimit(); err != nil {
 			return err
