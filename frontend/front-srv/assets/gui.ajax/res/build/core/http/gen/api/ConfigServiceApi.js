@@ -111,10 +111,6 @@ var _modelRestNodesCollection = require('../model/RestNodesCollection');
 
 var _modelRestNodesCollection2 = _interopRequireDefault(_modelRestNodesCollection);
 
-var _modelRestOAuthConfigurationResponse = require('../model/RestOAuthConfigurationResponse');
-
-var _modelRestOAuthConfigurationResponse2 = _interopRequireDefault(_modelRestOAuthConfigurationResponse);
-
 var _modelRestOpenApiResponse = require('../model/RestOpenApiResponse');
 
 var _modelRestOpenApiResponse2 = _interopRequireDefault(_modelRestOpenApiResponse);
@@ -968,36 +964,6 @@ var ConfigServiceApi = (function () {
 
   ConfigServiceApi.prototype.listVirtualNodes = function listVirtualNodes() {
     return this.listVirtualNodesWithHttpInfo().then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOAuthConfigurationResponse} and HTTP response
-   */
-
-  ConfigServiceApi.prototype.oAuthConfigurationWithHttpInfo = function oAuthConfigurationWithHttpInfo() {
-    var postBody = null;
-
-    var pathParams = {};
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestOAuthConfigurationResponse2['default'];
-
-    return this.apiClient.callApi('/config/discovery/.well-known/openid-configuration', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOAuthConfigurationResponse}
-   */
-
-  ConfigServiceApi.prototype.oAuthConfiguration = function oAuthConfiguration() {
-    return this.oAuthConfigurationWithHttpInfo().then(function (response_and_data) {
       return response_and_data.data;
     });
   };

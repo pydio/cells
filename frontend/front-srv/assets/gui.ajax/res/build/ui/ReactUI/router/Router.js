@@ -50,6 +50,10 @@ var _MainRouter = require('./MainRouter');
 
 var _MainRouter2 = _interopRequireDefault(_MainRouter);
 
+var _HomepageRouter = require('./HomepageRouter');
+
+var _HomepageRouter2 = _interopRequireDefault(_HomepageRouter);
+
 var _WorkspaceRouter = require('./WorkspaceRouter');
 
 var _WorkspaceRouter2 = _interopRequireDefault(_WorkspaceRouter);
@@ -94,6 +98,7 @@ function getRoutes(pydio) {
         React.createElement(
             _reactRouterLibRoute2['default'],
             { path: '/', component: _MainRouter2['default'](pydio) },
+            React.createElement(_reactRouterLibIndexRoute2['default'], { component: _HomepageRouter2['default'](pydio) }),
             React.createElement(
                 _reactRouterLibRoute2['default'],
                 { path: ':workspaceId', component: _WorkspaceRouter2['default'](pydio) },

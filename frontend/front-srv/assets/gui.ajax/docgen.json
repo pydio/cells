@@ -3807,6 +3807,25 @@
             "returns": null
           },
           {
+            "name": "computeButtons",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "setDirty",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "externalSetDirty",
             "docblock": null,
             "modifiers": [],
@@ -4322,7 +4341,22 @@
       {
         "description": "",
         "displayName": "OpenApiDashboard",
-        "methods": []
+        "methods": [
+          {
+            "name": "requestInterceptor",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "request",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
       }
     ],
     "AdminPlugins/updater/UpdaterDashboard.js": [
@@ -4399,6 +4433,30 @@
           },
           {
             "name": "findVersion",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "licenseKey",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "applyUpgrade",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "version",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "upgradeFinished",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -5257,9 +5315,10 @@
             "required": false,
             "description": ""
           },
-          "filter": {
+          "advanced": {
             "type": {
-              "name": "string"
+              "name": "custom",
+              "raw": "React.PropTypes.boolean"
             },
             "required": false,
             "description": ""
@@ -5363,9 +5422,10 @@
             "required": true,
             "description": ""
           },
-          "filter": {
+          "advanced": {
             "type": {
-              "name": "string"
+              "name": "custom",
+              "raw": "React.PropTypes.boolean"
             },
             "required": false,
             "description": ""
@@ -5848,6 +5908,30 @@
         "displayName": "WsEditor",
         "methods": [
           {
+            "name": "enableSync",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "confirmSync",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "revert",
             "docblock": null,
             "modifiers": [],
@@ -6017,6 +6101,1068 @@
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ]
+  },
+  "action.migration": {
+    "Dashboard.js": [
+      {
+        "description": "",
+        "displayName": "Dashboard",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "loadPreviousTasks",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "TaskActivity.js": [
+      {
+        "description": "",
+        "displayName": "TaskActivity",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "loadActivity",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "props",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "actions/actions.js": [
+      {
+        "description": "",
+        "displayName": "getWorkspacesSummary",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "getSharesSummary",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "getMedataSummary",
+        "methods": []
+      }
+    ],
+    "steps/StepActions.js": [
+      {
+        "description": "",
+        "displayName": "StepActions",
+        "methods": [
+          {
+            "name": "show",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "steps/StepCategories.js": [
+      {
+        "description": "",
+        "displayName": "StepCategories",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "steps/StepConnection.js": [
+      {
+        "description": "",
+        "displayName": "StepConnection",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "testUrl",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "method",
+                "type": null
+              },
+              {
+                "name": "url",
+                "type": null
+              },
+              {
+                "name": "user",
+                "type": null
+              },
+              {
+                "name": "pwd",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleNext",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "steps/StepDisclaimer.js": [
+      {
+        "description": "",
+        "displayName": "StepDisclaimer",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "steps/StepEmptyConfig.js": [
+      {
+        "description": "",
+        "displayName": "StepEmptyConfig",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "steps/StepMetadata.js": [
+      {
+        "description": "",
+        "displayName": "StepMetadata",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "exportFeatures",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toggle",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "featureName",
+                "type": null
+              },
+              {
+                "name": "checked",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "steps/StepPrerequisites.js": [
+      {
+        "description": "",
+        "displayName": "StepPrerequisites",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "steps/StepShares.js": [
+      {
+        "description": "",
+        "displayName": "StepShares",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "exportFeatures",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toggle",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "featureName",
+                "type": null
+              },
+              {
+                "name": "checked",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "steps/StepWorkspaces.js": [
+      {
+        "description": "",
+        "displayName": "StepWorkspaces",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "startListeningToJob",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "workspaces/Connect.js": [
+      {
+        "description": "",
+        "displayName": "Connect",
+        "methods": [
+          {
+            "name": "getLeftGridY",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getRightGridY",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "drawGrid",
+            "docblock": "@param ctx {CanvasRenderingContext2D}\n@param offsetX int\n@param offsetY int\n@param gridHeight int\n@param dotsNumber int",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ctx",
+                "description": "{CanvasRenderingContext2D}",
+                "type": null
+              },
+              {
+                "name": "offsetX",
+                "description": "int",
+                "type": null
+              },
+              {
+                "name": "offsetY",
+                "description": "int",
+                "type": null
+              },
+              {
+                "name": "gridHeight",
+                "description": "int",
+                "type": null
+              },
+              {
+                "name": "dotsNumber",
+                "description": "int",
+                "type": null
+              }
+            ],
+            "returns": null,
+            "description": null
+          },
+          {
+            "name": "linkDots",
+            "docblock": "@param ctx {CanvasRenderingContext2D}\n@param leftDotIndex int\n@param rightDotIndex int\n@param color",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ctx",
+                "description": "{CanvasRenderingContext2D}",
+                "type": null
+              },
+              {
+                "name": "leftDotIndex",
+                "description": "int",
+                "type": null
+              },
+              {
+                "name": "rightDotIndex",
+                "description": "int",
+                "type": null
+              },
+              {
+                "name": "color",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": null,
+            "description": null
+          },
+          {
+            "name": "buildCanvas",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "props",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dotsRadius": {
+            "defaultValue": {
+              "value": "4",
+              "computed": false
+            },
+            "required": false
+          },
+          "subheaderHeight": {
+            "defaultValue": {
+              "value": "40",
+              "computed": false
+            },
+            "required": false
+          },
+          "leftGridX": {
+            "defaultValue": {
+              "value": "10",
+              "computed": false
+            },
+            "required": false
+          },
+          "leftGridHeight": {
+            "defaultValue": {
+              "value": "72",
+              "computed": false
+            },
+            "required": false
+          },
+          "leftGridOffset": {
+            "defaultValue": {
+              "value": "0",
+              "computed": false
+            },
+            "required": false
+          },
+          "rightGridX": {
+            "defaultValue": {
+              "value": "140",
+              "computed": false
+            },
+            "required": false
+          },
+          "rightGridHeight": {
+            "defaultValue": {
+              "value": "72",
+              "computed": false
+            },
+            "required": false
+          },
+          "rightGridOffset": {
+            "defaultValue": {
+              "value": "0",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      }
+    ],
+    "workspaces/Mapper.js": [
+      {
+        "description": "",
+        "displayName": "WorkspaceMapper",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "loadDatasources",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "loadTemplatePaths",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toggleRemap",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "check",
+                "type": null
+              },
+              {
+                "name": "cellsWorkspace",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "mapping",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "linkWorkspacesToDatasources",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "linkWorkspacesToTemplatePaths",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "linkDatasourcesToTemplatePaths",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "linkDatasourcesToWorkspaces",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "linkTemplatePathsToWorkspaces",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "linkWorkspacesToWorkspaces",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getLinks",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "arr1",
+                "type": null
+              },
+              {
+                "name": "arr2",
+                "type": null
+              },
+              {
+                "name": "comp",
+                "type": null
+              },
+              {
+                "name": "color",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleSelectWorkspace",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ws",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleSelectDatasource",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ds",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleSelectTemplatePath",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "tp",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleSelectRootNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ws",
+                "type": null
+              },
+              {
+                "name": "node",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleInvalidRootNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ws",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleShowPath",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ws",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleHidePath",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleShowDatasources",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleHideDatasources",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleShowTemplatePaths",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleHideTemplatePaths",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleCreateDatasource",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleCreateTemplatePath",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleNext",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "isInvalid",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ws",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "isValid",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ws",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "isDatasourceSelectable",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ds",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "isDatasourceHighlighted",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ds",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "isTemplatePathSelectable",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "tp",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "isTemplatePathHighlighted",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "tp",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "paginator",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "workspaces/MetadataMapper.js": [
+      {
+        "description": "",
+        "displayName": "MetadataMapper",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "renderFontIcon",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "meta",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "exportMapping",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toggle",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "index",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "updateLabel",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "index",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "buildNamespaces",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "workspaces/Pydio8Workspaces.js": [
+      {
+        "description": "",
+        "displayName": "Pydio8Workspaces",
+        "methods": [
+          {
+            "name": "toString",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "{accessType: type, parameters = {}}",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "extractPath",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "{accessType: type, parameters = {}}",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "Workspace",
+        "methods": [
+          {
+            "name": "handleSelect",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ws",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleHover",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "workspaces/Ws2Datasources.js": [
+      {
+        "description": "",
+        "displayName": "Ws2Datasources",
+        "methods": [
+          {
+            "name": "toString",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "datasource",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "extractPath",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "datasource",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "Datasource",
+        "methods": [
+          {
+            "name": "handleSelect",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "workspaces/Ws2RootNodes.js": [
+      {
+        "description": "",
+        "displayName": "Ws2RootNodes",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "workspaces/Ws2TemplatePaths.js": [
+      {
+        "description": "",
+        "displayName": "Ws2TemplatePaths",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "TemplatePath",
+        "methods": [
+          {
+            "name": "handleSelect",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ]
@@ -6594,6 +7740,11 @@
   },
   "core.authfront": {
     "CoreActions.js": [
+      {
+        "description": "",
+        "displayName": "LanguagePicker",
+        "methods": []
+      },
       {
         "description": "",
         "displayName": "DarkThemeContainer",
@@ -8371,7 +9522,7 @@
           },
           {
             "name": "listUsersWithRole",
-            "docblock": "@param roleId string\n@param offset integer\n@param limit integer\n@return Promise<RestUsersCollection>",
+            "docblock": "@param roleId string\n@param offset integer\n@param limit integer\n@param filterString\n@return Promise<RestUsersCollection>",
             "modifiers": [],
             "params": [
               {
@@ -8387,6 +9538,11 @@
               {
                 "name": "limit",
                 "description": "integer",
+                "type": null
+              },
+              {
+                "name": "filterString",
+                "description": null,
                 "type": null
               }
             ],
@@ -10461,6 +11617,18 @@
             "description": "Call session endpoint for destroying session"
           },
           {
+            "name": "sessionAuth",
+            "docblock": "Call session endpoint for destroying session",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "requestID"
+              }
+            ],
+            "returns": null,
+            "description": "Call session endpoint for destroying session"
+          },
+          {
             "name": "jwtFromAuthorizationCode",
             "docblock": "Create AuthInfo request with type \"authorization_code\"\n@param code string\n@return {Promise<any>}",
             "modifiers": [],
@@ -12462,32 +13630,6 @@
             "description": "List all defined virtual nodes"
           },
           {
-            "name": "oAuthConfigurationWithHttpInfo",
-            "docblock": "@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOAuthConfigurationResponse} and HTTP response",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOAuthConfigurationResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": null
-          },
-          {
-            "name": "oAuthConfiguration",
-            "docblock": "@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOAuthConfigurationResponse}",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOAuthConfigurationResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": null
-          },
-          {
             "name": "openApiDiscoveryWithHttpInfo",
             "docblock": "Publish available REST APIs\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOpenApiResponse} and HTTP response",
             "modifiers": [],
@@ -12732,48 +13874,6 @@
               }
             },
             "description": "Generic endpoint that can be implemented by 2FA systems for enrollment"
-          },
-          {
-            "name": "frontLoginCallbackWithHttpInfo",
-            "docblock": "Handle Login Callback\n@param {module:model/RestFrontLoginCallbackRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/RestFrontLoginCallbackRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Handle Login Callback"
-          },
-          {
-            "name": "frontLoginCallback",
-            "docblock": "Handle Login Callback\n@param {module:model/RestFrontLoginCallbackRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/RestFrontLoginCallbackRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Handle Login Callback"
           },
           {
             "name": "frontMessagesWithHttpInfo",
@@ -21153,52 +22253,6 @@
         ]
       }
     ],
-    "core/http/gen/model/RestFrontLoginCallbackRequest.js": [
-      {
-        "description": "The RestFrontLoginCallbackRequest model module.\n@module model/RestFrontLoginCallbackRequest\n@version 1.0",
-        "displayName": "RestFrontLoginCallbackRequest",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestFrontLoginCallbackRequest</code>.\n@alias module:model/RestFrontLoginCallbackRequest\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestFrontLoginCallbackRequest</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestFrontLoginCallbackRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontLoginCallbackRequest} obj Optional instance to populate.\n@return {module:model/RestFrontLoginCallbackRequest} The populated <code>RestFrontLoginCallbackRequest</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestFrontLoginCallbackRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestFrontLoginCallbackRequest</code> instance.",
-              "type": {
-                "name": "module:model/RestFrontLoginCallbackRequest"
-              }
-            },
-            "description": "Constructs a <code>RestFrontLoginCallbackRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
     "core/http/gen/model/RestFrontMessagesResponse.js": [
       {
         "description": "The RestFrontMessagesResponse model module.\n@module model/RestFrontMessagesResponse\n@version 1.0",
@@ -22115,52 +23169,6 @@
               }
             },
             "description": "Constructs a <code>RestNodesCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/RestOAuthConfigurationResponse.js": [
-      {
-        "description": "The RestOAuthConfigurationResponse model module.\n@module model/RestOAuthConfigurationResponse\n@version 1.0",
-        "displayName": "RestOAuthConfigurationResponse",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestOAuthConfigurationResponse</code>.\n@alias module:model/RestOAuthConfigurationResponse\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestOAuthConfigurationResponse</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestOAuthConfigurationResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestOAuthConfigurationResponse} obj Optional instance to populate.\n@return {module:model/RestOAuthConfigurationResponse} The populated <code>RestOAuthConfigurationResponse</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestOAuthConfigurationResponse"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestOAuthConfigurationResponse</code> instance.",
-              "type": {
-                "name": "module:model/RestOAuthConfigurationResponse"
-              }
-            },
-            "description": "Constructs a <code>RestOAuthConfigurationResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -37274,12 +38282,20 @@
         "require": "const {ServerPromptDialog} = require('pydio').requireLib('boot')"
       }
     ],
-    "ReactUI/router/HomeRouter.js": [
+    "ReactUI/router/OAuthRouter.js": [
       {
         "description": "",
-        "displayName": "HomeRouter",
-        "methods": [],
-        "require": "const {HomeRouter} = require('pydio').requireLib('boot')"
+        "displayName": "ErrorDialog",
+        "methods": [
+          {
+            "name": "dismiss",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "require": "const {OAuthRouter} = require('pydio').requireLib('boot')"
       }
     ],
     "ReactUI/router/Router.js": [
@@ -39323,6 +40339,16 @@
   },
   "meta.versions": {
     "HistoryDialog.js": [
+      {
+        "description": "",
+        "displayName": "UserLinkWrapper",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "Paragraph",
+        "methods": []
+      },
       {
         "description": "",
         "methods": [

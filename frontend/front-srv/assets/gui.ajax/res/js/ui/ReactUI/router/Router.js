@@ -25,6 +25,7 @@ import IndexRoute from 'react-router/lib/IndexRoute';
 import browserHistory from 'react-router/lib/browserHistory';
 
 import MainRouter from './MainRouter';
+import HomepageRouter from './HomepageRouter';
 import WorkspaceRouter from './WorkspaceRouter';
 import PathRouter from './PathRouter';
 import {OAuthLoginRouter, OAuthConsentRouter, OAuthOOBRouter, OAuthFallbacksRouter} from './OAuthRouter';
@@ -47,6 +48,7 @@ function getRoutes(pydio){
                 <Route path="fallbacks/error" component={OAuthFallbacksRouter(pydio)}/>
             </Route>
             <Route path="/" component={MainRouter(pydio)}>
+                <IndexRoute component={HomepageRouter(pydio)}/>
                 <Route path=":workspaceId" component={WorkspaceRouter(pydio)}>
                     <IndexRoute component={PathRouter(pydio)}/>
                     <Route path="*" component={PathRouter(pydio)}/>

@@ -23,6 +23,18 @@ import browserHistory from 'react-router/lib/browserHistory';
 
 const MainRouterWrapper = (pydio) => {
     class MainRouter extends React.PureComponent {
+        componentDidMount() {
+            this.ctxObs = _.debounce(() => this.reset(), 1000, {'leading': true, 'trailing': false})
+
+            pydio.getContextHolder().observe("context_changed", this.ctxObs);
+            pydio.getContextHolder().observe("repository_list_refreshed", this.ctxObs);
+        }
+
+        componentWillUnmount() {
+            pydio.getContextHolder().stopObserving("context_changed", this.ctxObs);
+            pydio.getContextHolder().stopObserving("repository_list_refreshed", this.ctxObs);
+        }
+
         reset() {
             const list =  pydio.user ? pydio.user.getRepositoriesList() : new Map()
             const active = pydio.user ? pydio.user.getActiveRepository() : ""
@@ -40,11 +52,14 @@ const MainRouterWrapper = (pydio) => {
             }
         }
 
-        componentDidMount() {
-            const ctxObs = _.debounce(() => this.reset(), 1000, {'leading': true, 'trailing': false})
-            
-            pydio.getContextHolder().observe("context_changed", ctxObs);
-            pydio.getContextHolder().observe("repository_list_refreshed", ctxObs);
+        startObservers() {
+            pydio.getContextHolder().observe("context_changed", this.ctxObs);
+            pydio.getContextHolder().observe("repository_list_refreshed", this.ctxObs);
+        }
+
+        stopObservers() {
+            pydio.getContextHolder().stopObserving("context_changed", this.ctxObs);
+            pydio.getContextHolder().stopObserving("repository_list_refreshed", this.ctxObs);
         }
 
         render() {

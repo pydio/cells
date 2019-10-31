@@ -62,11 +62,13 @@ export default class Registry{
         if(this._globalLoading) {
             return;
         }
+        this._pydioObject.fire("registry_loading")
         this._globalLoading = true;
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             const {user, Parameters} = this._pydioObject;
             let url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state/';
             let headers = {};
+
             if(jwt){
                 headers = {Authorization: 'Bearer ' + jwt};
                 if (user || repositoryId) {
@@ -96,6 +98,7 @@ export default class Registry{
                 }
                 response.text().then((text) => {
                     this._registry = XMLUtils.parseXml(text).documentElement;
+                
                     if (completeFunc) {
                         completeFunc(this._registry);
                     } else {

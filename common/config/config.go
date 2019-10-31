@@ -314,7 +314,6 @@ func (c Map) Scan(val interface{}) error {
 	switch v := val.(type) {
 	case proto.Message:
 		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
-		fmt.Println("This is where we have the error")
 	default:
 		err = json.Unmarshal(jsonStr, v)
 	}

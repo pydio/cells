@@ -21,7 +21,6 @@
 const WorkspaceRouterWrapper = (pydio) => {
 
     class WorkspaceRouter extends React.PureComponent {
-
         _handle({params, location}) {
             // Making sure we redirect to the right workspace based on initial url
             const slug = params.workspaceId.replace("ws-", "")
@@ -30,7 +29,7 @@ const WorkspaceRouterWrapper = (pydio) => {
             const active = pydio.user ? pydio.user.getActiveRepository() : null
 
             if (!pydio.user) {
-                localStorage.setItem("loginOrigin", location.pathname)
+                localStorage.setItem("loginOrigin", location.pathname);
             }
 
             repositories.forEach((repository) => {
