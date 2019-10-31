@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
@@ -41,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/assets"
 )
 
@@ -135,52 +137,52 @@ var installCmd = &cobra.Command{
 		exposeInstallServer := false
 		var err error
 
-		// If these flags are set, non interractive mode
-		if (niBindUrl != "" && niExtUrl != "") || ymlFile != "" || niExtUrl != "" {
+		// A quoi ca sert ca?
+		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
+		if micro == 0 {
+			micro = net.GetAvailablePort()
+			config.Set(micro, "ports", common.SERVICE_MICRO_API)
+			config.Save("cli", "Install / Setting default Ports")
+		}
+
+		if (niBindUrl != "" && niExtUrl != "") || ymlFile != "" || niExtUrl != "" { // If these flags are set, non interractive mode
 			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
-			if err != nil {
-				cmd.Help()
-				log.Fatal(err.Error())
-				os.Exit(1)
-			}
+			fatalIfError(cmd, err)
 		} else {
 
 			// Choose between browser or CLI
 			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
-			i, _, e := p.Run()
-			if e != nil {
-				cmd.Help()
-				log.Fatal(e.Error())
-				os.Exit(1)
-			}
+			installIndex, _, err := p.Run()
+			fatalIfError(cmd, err)
 
 			// Gather proxy information (we do that now because we must do it anyway in both version of the installer)
-			internal, external, err := promptAndSaveInstallUrls()
-			cmd.Println("After prompt")
-			if err != nil {
-				cmd.Help()
-				log.Fatal(err.Error())
-			}
+			internal, external, err = promptAndSaveInstallUrls()
+			fatalIfError(cmd, err)
 
-			if i == 0 {
-				cmd.Println("Exposing")
+			if installIndex == 0 {
 				exposeInstallServer = true
 			} else {
-				cmd.Println("Running cli")
-				// Run CLI install
-				cliInstall(internal, external)
+
+				err := cliInstall(internal)
+				fatalIfError(cmd, err)
+
+				fmt.Println("")
+				fmt.Println(promptui.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+				fmt.Println("")
+				// Return, really? Why can't we restart the sever here like with the browser install
 				return
 			}
 		}
 
-		if exposeInstallServer {
-			cmd.Println("In expose")
+		if exposeInstallServer { // Run browser install
 			performBrowserInstall(cmd, internal, external)
 		}
 
 		cmd.Println("")
 		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
 		cmd.Println("")
+
+		// TODO factorise restart ?
 
 		// Re-building allServices list
 		if s, err := registry.Default.ListServices(); err != nil {
@@ -234,8 +236,7 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 		}
 	}
 
-	// config.Save("cli", "Install / Setting default Port")
-	cmd.Println("Got the assets")
+	// config.Save("cli", "Install / Setting default Port")	cmd.Println("Got the assets, internal is ", internal.String())
 
 	// Manage TLS settings
 	var tls, tlsKey, tlsCert string
@@ -258,10 +259,12 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 	}
 
 	config.Save("cli", "Install / Saving final configs")
+	cmd.Println("final configs saved")
 
 	// starting the micro service
 	micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)
 	micro.Start()
+	cmd.Println("micro started")
 
 	// starting the installation REST service
 	install := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
@@ -278,8 +281,11 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 	}
 	installServ.Options().Web.Options().Cmd.App().Flags = newFlags
 
+	cmd.Println("starting install server")
+
 	// Starting service install
 	install.Start()
+	cmd.Println("install server started")
 
 	// Creating temporary caddy file
 	caddyconf.URL = internal
@@ -296,7 +302,7 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 
 	restartDone, err := caddy.StartWithFastRestart()
 	if err != nil {
-		cmd.Print(err)
+		cmd.Println("Could not start with fast restart:", err)
 		os.Exit(1)
 	}
 
@@ -356,6 +362,14 @@ func open(url string) error {
 	}
 	args = append(args, url)
 	return exec.Command(cmd, args...).Start()
+}
+
+func fatalIfError(cmd *cobra.Command, err error) {
+	if err != nil {
+		cmd.Help()
+		log.Fatal(err.Error())
+		os.Exit(1)
+	}
 }
 
 func init() {

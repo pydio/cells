@@ -24,7 +24,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -32,9 +31,7 @@ import (
 	p "github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/lib"
@@ -43,125 +40,6 @@ import (
 var (
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
-
-// var installCliCmd = &cobra.Command{
-// 	Use:   "install-cli",
-// 	Short: "Install Cells using this terminal",
-// 	Long:  "This command launch the installation process of Pydio Cells in the command line instead of a browser.",
-// 	Run: func(cmd *cobra.Command, args []string) {
-
-// 	},
-// }
-
-func cliInstall(internalUrl, Url *url.URL) {
-
-	micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
-	if micro == 0 {
-		micro = net.GetAvailablePort()
-		config.Set(micro, "ports", common.SERVICE_MICRO_API)
-		config.Save("cli", "Install / Setting default Ports")
-	}
-
-	// internalUrl, _, err := promptAndSaveInstallUrls()
-	// if err != nil {
-	// 	log.Fatal(err.Error())
-	// }
-
-	cliConfig := lib.GenerateDefaultConfig()
-	cliConfig.InternalUrl = internalUrl.String()
-	fmt.Println("")
-	fmt.Println("\033[1m## Database Connection\033[0m")
-	if e := promptDB(cliConfig); e != nil {
-		log.Fatal(e.Error())
-	}
-
-	fmt.Println("")
-	fmt.Println("\033[1m## Frontend Configuration\033[0m")
-	if e := promptFrontendAdmin(cliConfig); e != nil {
-		log.Fatal(e.Error())
-	}
-	fmt.Println("")
-	fmt.Println("\033[1m## Advanced Settings\033[0m")
-	if e := promptAdvanced(cliConfig); e != nil {
-		log.Fatal(e.Error())
-	}
-
-	fmt.Println("")
-	fmt.Println("\033[1m## Performing Installation\033[0m")
-	e := lib.Install(context.Background(), cliConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
-		fmt.Println(p.IconGood + " " + event.Message)
-	})
-	if e != nil {
-		log.Fatal("Error while performing installation: " + e.Error())
-	}
-
-	fmt.Println("")
-	fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
-	fmt.Println("")
-}
-
-func validateMailFormat(input string) error {
-	if !emailRegexp.MatchString(input) {
-		return fmt.Errorf("Please enter a valid e-mail address!")
-	}
-	return nil
-}
-
-func notEmpty(input string) error {
-	if len(input) > 0 {
-		return nil
-	} else {
-		return fmt.Errorf("Field cannot be empty!")
-	}
-}
-
-func validHostPort(input string) error {
-	if e := notEmpty(input); e != nil {
-		return e
-	}
-	parts := strings.Split(input, ":")
-	if len(parts) != 2 {
-		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
-	}
-	if e := validPortNumber(parts[1]); e != nil {
-		return e
-	}
-	return nil
-}
-
-// ValidScheme validates that url is [SCHEME]://[IP or DOMAIN] "[http/https]://......."
-func validScheme(input string) error {
-	if e := notEmpty(input); e != nil {
-		return e
-	}
-
-	u, err := url.Parse(input)
-	if err != nil {
-		return fmt.Errorf("could not parse URL")
-	}
-
-	if len(u.Scheme) > 0 && len(u.Host) > 0 {
-		if u.Scheme == "http" || u.Scheme == "https" {
-			return nil
-		}
-		return fmt.Errorf("scheme %s is not supported (only http/https are supported)", u.Scheme)
-	}
-
-	return fmt.Errorf("Please use a [SCHEME]://[IP|DOMAIN] string")
-}
-
-func validPortNumber(input string) error {
-	port, e := strconv.ParseInt(input, 10, 64)
-	if e == nil && port == 0 {
-		return fmt.Errorf("Please use a non empty port!")
-	}
-	return e
-}
-
-func validUrl(input string) error {
-	_, e := url.Parse(input)
-	return e
-}
 
 func promptAndSaveInstallUrls() (internal, external *url.URL, e error) {
 
@@ -254,9 +132,114 @@ func promptAndSaveInstallUrls() (internal, external *url.URL, e error) {
 	config.Set(internalUrl, "defaults", "urlInternal")
 	config.Set(certData, "cert")
 	config.Save("cli", "Install / Setting default URLs")
-	config.ResetTlsConfigs()
 
+	// WHY ???
+	config.ResetTlsConfigs()
 	return
+}
+
+func cliInstall(bindUrl *url.URL) error {
+
+	// // A quoi ca sert ca?  (move in main install command)
+	// micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
+	// if micro == 0 {
+	// 	micro = net.GetAvailablePort()
+	// 	config.Set(micro, "ports", common.SERVICE_MICRO_API)
+	// 	config.Save("cli", "Install / Setting default Ports")
+	// }
+
+	cliConfig := lib.GenerateDefaultConfig()
+	cliConfig.InternalUrl = bindUrl.String()
+
+	fmt.Println("\n\033[1m## Database Connection\033[0m")
+	if e := promptDB(cliConfig); e != nil {
+		return e
+	}
+
+	fmt.Println("\n\033[1m## Frontend Configuration\033[0m")
+	if e := promptFrontendAdmin(cliConfig); e != nil {
+		return e
+	}
+
+	fmt.Println("\n\033[1m## Advanced Settings\033[0m")
+	if e := promptAdvanced(cliConfig); e != nil {
+		return e
+	}
+
+	fmt.Println("\n\033[1m## Performing Installation\033[0m")
+	e := lib.Install(context.Background(), cliConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+		fmt.Println(p.IconGood + " " + event.Message)
+	})
+	if e != nil {
+		return fmt.Errorf("could not perform installation: %s", e.Error())
+	}
+	return nil
+	// fmt.Println("")
+	// fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+	// fmt.Println("")
+}
+
+func validateMailFormat(input string) error {
+	if !emailRegexp.MatchString(input) {
+		return fmt.Errorf("Please enter a valid e-mail address!")
+	}
+	return nil
+}
+
+func notEmpty(input string) error {
+	if len(input) > 0 {
+		return nil
+	} else {
+		return fmt.Errorf("Field cannot be empty!")
+	}
+}
+
+func validHostPort(input string) error {
+	if e := notEmpty(input); e != nil {
+		return e
+	}
+	parts := strings.Split(input, ":")
+	if len(parts) != 2 {
+		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
+	}
+	if e := validPortNumber(parts[1]); e != nil {
+		return e
+	}
+	return nil
+}
+
+// ValidScheme validates that url is [SCHEME]://[IP or DOMAIN] "[http/https]://......."
+func validScheme(input string) error {
+	if e := notEmpty(input); e != nil {
+		return e
+	}
+
+	u, err := url.Parse(input)
+	if err != nil {
+		return fmt.Errorf("could not parse URL")
+	}
+
+	if len(u.Scheme) > 0 && len(u.Host) > 0 {
+		if u.Scheme == "http" || u.Scheme == "https" {
+			return nil
+		}
+		return fmt.Errorf("scheme %s is not supported (only http/https are supported)", u.Scheme)
+	}
+
+	return fmt.Errorf("Please use a [SCHEME]://[IP|DOMAIN] string")
+}
+
+func validPortNumber(input string) error {
+	port, e := strconv.ParseInt(input, 10, 64)
+	if e == nil && port == 0 {
+		return fmt.Errorf("Please use a non empty port!")
+	}
+	return e
+}
+
+func validUrl(input string) error {
+	_, e := url.Parse(input)
+	return e
 }
 
 func promptDB(c *install.InstallConfig) error {

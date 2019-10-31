@@ -39,8 +39,8 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/service/context"
+	defaults "github.com/pydio/cells/common/micro"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
