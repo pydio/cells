@@ -1773,12 +1773,14 @@ var SwaggerJson = `{
           },
           {
             "name": "Label",
+            "description": "Label of this role.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "IsTeam",
+            "description": "Whether this role represents a user team or not.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -1786,6 +1788,7 @@ var SwaggerJson = `{
           },
           {
             "name": "GroupRole",
+            "description": "Whether this role is attached to a Group object.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -1793,6 +1796,7 @@ var SwaggerJson = `{
           },
           {
             "name": "UserRole",
+            "description": "Whether this role is attached to a User object.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -1800,6 +1804,7 @@ var SwaggerJson = `{
           },
           {
             "name": "LastUpdated",
+            "description": "Last modification date of the role.",
             "in": "query",
             "required": false,
             "type": "integer",
@@ -1807,6 +1812,7 @@ var SwaggerJson = `{
           },
           {
             "name": "AutoApplies",
+            "description": "List of profiles (standard, shared, admin) on which the role will be automatically applied.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -1816,6 +1822,7 @@ var SwaggerJson = `{
           },
           {
             "name": "PoliciesContextEditable",
+            "description": "Whether the policies resolve into an editable state.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -1823,6 +1830,7 @@ var SwaggerJson = `{
           },
           {
             "name": "ForceOverride",
+            "description": "Is used in a stack of roles, this one will always be applied last.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -2701,31 +2709,35 @@ var SwaggerJson = `{
           },
           {
             "name": "Uuid",
+            "description": "User unique identifier.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "GroupPath",
+            "description": "Path to the parent group.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "Password",
+            "description": "Password can be passed to be updated (but never read back), field is empty for groups.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "OldPassword",
+            "description": "OldPassword must be set when a user updates her own password.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "IsGroup",
-            "description": "Group specific data.",
+            "description": "Whether this object is a group or a user.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -2733,12 +2745,14 @@ var SwaggerJson = `{
           },
           {
             "name": "GroupLabel",
+            "description": "Label of the group, field is empty for users.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "PoliciesContextEditable",
+            "description": "Context-resolved to quickly check if user is editable or not.",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -3267,19 +3281,22 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of UserIds for which we want to list"
         },
         "ObjectTypes": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/activityOwnerType"
-          }
+          },
+          "title": "Filter by type of objects"
         },
         "ObjectIds": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Filter by object Ids"
         }
       }
     },
@@ -3287,38 +3304,48 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Context": {
-          "$ref": "#/definitions/activityStreamContext"
+          "$ref": "#/definitions/activityStreamContext",
+          "title": "Define the context of the stream"
         },
         "ContextData": {
-          "type": "string"
+          "type": "string",
+          "title": "Value for the context (e.g. User Id, Node Id)"
         },
         "StreamFilter": {
-          "type": "string"
+          "type": "string",
+          "title": "Json-encoded filter"
         },
         "BoxName": {
-          "type": "string"
+          "type": "string",
+          "title": "Target inbox or outbox for the given object"
         },
         "UnreadCountOnly": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Count last activities that were not loaded yet"
         },
         "Offset": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Start listing at a given position"
         },
         "Limit": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Limit the number of results"
         },
         "AsDigest": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Compute a digest of all unread activities"
         },
         "PointOfView": {
-          "$ref": "#/definitions/activitySummaryPointOfView"
+          "$ref": "#/definitions/activitySummaryPointOfView",
+          "title": "Provide context for building the human-readable strings of each activity"
         },
         "Language": {
-          "type": "string"
+          "type": "string",
+          "description": "Provide language information for building the human-readable strings."
         }
       }
     },
@@ -3335,19 +3362,23 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "UserId": {
-          "type": "string"
+          "type": "string",
+          "title": "Id of the user for this subscription"
         },
         "ObjectType": {
-          "$ref": "#/definitions/activityOwnerType"
+          "$ref": "#/definitions/activityOwnerType",
+          "title": "Type of owner"
         },
         "ObjectId": {
-          "type": "string"
+          "type": "string",
+          "title": "If of the owner"
         },
         "Events": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of events to listen to"
         }
       }
     },
@@ -3593,21 +3624,27 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "ID": {
-          "type": "string"
+          "type": "string",
+          "title": "Unique ID of this ACL"
         },
         "Action": {
-          "$ref": "#/definitions/idmACLAction"
+          "$ref": "#/definitions/idmACLAction",
+          "title": "Action on which this ACL provides control"
         },
         "RoleID": {
-          "type": "string"
+          "type": "string",
+          "title": "Associated Role"
         },
         "WorkspaceID": {
-          "type": "string"
+          "type": "string",
+          "title": "Associated Workspace"
         },
         "NodeID": {
-          "type": "string"
+          "type": "string",
+          "title": "Associated Node"
         }
-      }
+      },
+      "description": "ACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role.\nThe context of how they apply can be fine-tuned by workspace."
     },
     "idmACLAction": {
       "type": "object",
@@ -3781,48 +3818,59 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Uuid": {
-          "type": "string"
+          "type": "string",
+          "title": "Unique identifier of this role"
         },
         "Label": {
-          "type": "string"
+          "type": "string",
+          "title": "Label of this role"
         },
         "IsTeam": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether this role represents a user team or not"
         },
         "GroupRole": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether this role is attached to a Group object"
         },
         "UserRole": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether this role is attached to a User object"
         },
         "LastUpdated": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Last modification date of the role"
         },
         "AutoApplies": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of profiles (standard, shared, admin) on which the role will be automatically applied"
         },
         "Policies": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/serviceResourcePolicy"
-          }
+          },
+          "title": "List of policies for securing this role access"
         },
         "PoliciesContextEditable": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether the policies resolve into an editable state"
         },
         "ForceOverride": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "description": "Is used in a stack of roles, this one will always be applied last."
         }
-      }
+      },
+      "description": "Role represents a generic set of permissions that can be applied to any users or groups."
     },
     "idmRoleSingleQuery": {
       "type": "object",
@@ -3831,32 +3879,40 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Look for roles by Uuid"
         },
         "Label": {
-          "type": "string"
+          "type": "string",
+          "title": "Look for roles by label, eventually using wildchar"
         },
         "IsTeam": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Look for team roles only"
         },
         "IsGroupRole": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Look for group roles only"
         },
         "IsUserRole": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Look for user roles only"
         },
         "HasAutoApply": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Look for roles that have any value in the autoApplies field"
         },
         "not": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Negate the query"
         }
-      }
+      },
+      "description": "RoleSingleQuery is the basic unit for building queries to Roles."
     },
     "idmSearchUserMetaRequest": {
       "type": "object",
@@ -3865,22 +3921,27 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Look for meta by their unique identifier"
         },
         "NodeUuids": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Look for all meta for a list of nodes"
         },
         "Namespace": {
-          "type": "string"
+          "type": "string",
+          "title": "Filter meta by their namespace"
         },
         "ResourceSubjectOwner": {
-          "type": "string"
+          "type": "string",
+          "title": "Filter meta by owner (in the sense of the policies)"
         },
         "ResourceQuery": {
-          "$ref": "#/definitions/serviceResourcePolicyQuery"
+          "$ref": "#/definitions/serviceResourcePolicyQuery",
+          "title": "Filter meta by policies query"
         }
       },
       "title": "Request for searching UserMeta by NodeUuid or by Namespace"
@@ -3916,13 +3977,15 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Operation": {
-          "$ref": "#/definitions/UpdateUserMetaRequestUserMetaOp"
+          "$ref": "#/definitions/UpdateUserMetaRequestUserMetaOp",
+          "title": "Type of operation to apply (PUT / DELETE)"
         },
         "MetaDatas": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmUserMeta"
-          }
+          },
+          "title": "List of metadatas to update or delete"
         }
       },
       "title": "Request for modifying UserMeta"
@@ -3934,7 +3997,8 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmUserMeta"
-          }
+          },
+          "title": "List of metadatas"
         }
       },
       "title": "Response of UpdateUserMeta service"
@@ -3943,77 +4007,93 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Uuid": {
-          "type": "string"
+          "type": "string",
+          "title": "User unique identifier"
         },
         "GroupPath": {
-          "type": "string"
+          "type": "string",
+          "title": "Path to the parent group"
         },
         "Attributes": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
-          }
+          },
+          "title": "A free list of attributes"
         },
         "Roles": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmRole"
-          }
+          },
+          "title": "List of roles applied to this user or group"
         },
         "Login": {
           "type": "string",
-          "title": "User specific data"
+          "title": "User login is used to connect, field is empty for groups"
         },
         "Password": {
-          "type": "string"
+          "type": "string",
+          "title": "Password can be passed to be updated (but never read back), field is empty for groups"
         },
         "OldPassword": {
-          "type": "string"
+          "type": "string",
+          "title": "OldPassword must be set when a user updates her own password"
         },
         "IsGroup": {
           "type": "boolean",
           "format": "boolean",
-          "title": "Group specific data"
+          "title": "Whether this object is a group or a user"
         },
         "GroupLabel": {
-          "type": "string"
+          "type": "string",
+          "title": "Label of the group, field is empty for users"
         },
         "Policies": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/serviceResourcePolicy"
-          }
+          },
+          "title": "Policies securing access to this user"
         },
         "PoliciesContextEditable": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "description": "Context-resolved to quickly check if user is editable or not."
         }
-      }
+      },
+      "title": "User can represent either a User or a Group"
     },
     "idmUserMeta": {
       "type": "object",
       "properties": {
         "Uuid": {
-          "type": "string"
+          "type": "string",
+          "title": "Unique identifier of the metadata"
         },
         "NodeUuid": {
-          "type": "string"
+          "type": "string",
+          "title": "Unique identifier of the node to which meta is attached"
         },
         "Namespace": {
-          "type": "string"
+          "type": "string",
+          "title": "Namespace for the metadata"
         },
         "JsonValue": {
-          "type": "string"
+          "type": "string",
+          "title": "Json encoded value used to pass any type of values"
         },
         "Policies": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/serviceResourcePolicy"
-          }
+          },
+          "title": "Policies for securing access"
         },
         "PoliciesContextEditable": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Context-resolved to quickly check if this meta is editable or not"
         }
       },
       "title": "Piece of metadata attached to a node"
@@ -4022,27 +4102,33 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Namespace": {
-          "type": "string"
+          "type": "string",
+          "title": "Namespace identifier, must be unique"
         },
         "Label": {
-          "type": "string"
+          "type": "string",
+          "title": "Human-readable Label"
         },
         "Order": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Order is used for sorting lists of namesapces"
         },
         "Indexable": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine"
         },
         "JsonDefinition": {
-          "type": "string"
+          "type": "string",
+          "title": "Json-encoded type to provide accurate interface for edition"
         },
         "Policies": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/serviceResourcePolicy"
-          }
+          },
+          "title": "Policies securing this namespace"
         }
       },
       "title": "Globally declared Namespace with associated policies"
@@ -4099,50 +4185,62 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "UUID": {
-          "type": "string"
+          "type": "string",
+          "title": "Unique identifier of the workspace"
         },
         "Label": {
-          "type": "string"
+          "type": "string",
+          "title": "Label of the workspace (max length 500)"
         },
         "Description": {
-          "type": "string"
+          "type": "string",
+          "title": "Description of the workspace (max length 1000)"
         },
         "Slug": {
-          "type": "string"
+          "type": "string",
+          "title": "Slug is an url-compatible form of the workspace label, or can be freely modified (max length 500)"
         },
         "Scope": {
-          "$ref": "#/definitions/idmWorkspaceScope"
+          "$ref": "#/definitions/idmWorkspaceScope",
+          "title": "Scope can be ADMIN, ROOM (=CELL) or LINK"
         },
         "LastUpdated": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Last modification time"
         },
         "Policies": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/serviceResourcePolicy"
-          }
+          },
+          "title": "Policies for securing access"
         },
         "Attributes": {
-          "type": "string"
+          "type": "string",
+          "title": "JSON-encoded list of attributes"
         },
         "RootUUIDs": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Quick list of the RootNodes uuids"
         },
         "RootNodes": {
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/treeNode"
-          }
+          },
+          "title": "List of the Root Nodes in the tree that compose this workspace"
         },
         "PoliciesContextEditable": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Context-resolved to quickly check if workspace is editable or not"
         }
-      }
+      },
+      "description": "A Workspace is composed of a set of nodes UUIDs and is used to provide accesses to the tree via ACLs."
     },
     "idmWorkspaceScope": {
       "type": "string",
@@ -5143,11 +5241,13 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmACL"
-          }
+          },
+          "title": "List of ACLs"
         },
         "Total": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Total number of results"
         }
       },
       "title": "Response for search request"
@@ -5760,7 +5860,8 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "List of existing tags values"
         }
       }
     },
@@ -5949,10 +6050,12 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Namespace": {
-          "type": "string"
+          "type": "string",
+          "title": "Add a tag value for this namespace"
         },
         "Tag": {
-          "type": "string"
+          "type": "string",
+          "title": "New tag value"
         }
       }
     },
@@ -5961,7 +6064,8 @@ var SwaggerJson = `{
       "properties": {
         "Success": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Operation success"
         }
       }
     },
@@ -5986,13 +6090,16 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "ResetPasswordToken": {
-          "type": "string"
+          "type": "string",
+          "title": "Token generated by the previous step of the reset password workflow"
         },
         "UserLogin": {
-          "type": "string"
+          "type": "string",
+          "title": "User Login"
         },
         "NewPassword": {
-          "type": "string"
+          "type": "string",
+          "title": "New password to be stored for this user"
         }
       }
     },
@@ -6024,10 +6131,12 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Type": {
-          "$ref": "#/definitions/ResourcePolicyQueryQueryType"
+          "$ref": "#/definitions/ResourcePolicyQueryQueryType",
+          "title": "The type can be CONTEXT, ANY, NODE or USER. This restricts the may filter out the result set based on their policies"
         },
         "UserId": {
-          "type": "string"
+          "type": "string",
+          "title": "Limit to one given user ID"
         }
       },
       "title": "Generic Query for limiting results based on resource permissions"
@@ -6058,7 +6167,8 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "TokenId": {
-          "type": "string"
+          "type": "string",
+          "title": "Pass a specific Token ID to be revoked. If empty, request will use current JWT"
         }
       },
       "title": "Rest request for revocation. Token is not mandatory, if not set\nrequest will use current JWT token"
@@ -6083,7 +6193,8 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmRole"
-          }
+          },
+          "title": "List of Roles"
         }
       },
       "title": "Roles Collection"
@@ -6095,26 +6206,32 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmACLSingleQuery"
-          }
+          },
+          "title": "Atomic queries that will be combined using the OperationType (AND or OR)"
         },
         "Offset": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Start listing at a given position"
         },
         "Limit": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Limit the number of results"
         },
         "GroupBy": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Group results"
         },
         "CountOnly": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Return counts only, no actual results"
         },
         "Operation": {
-          "$ref": "#/definitions/serviceOperationType"
+          "$ref": "#/definitions/serviceOperationType",
+          "title": "Single queries will be combined using this operation AND or OR logic"
         }
       },
       "title": "Rest request for ACL's"
@@ -6141,29 +6258,36 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmRoleSingleQuery"
-          }
+          },
+          "title": "List of atomic queries that will be combined using the Operation type (AND / OR)"
         },
         "ResourcePolicyQuery": {
-          "$ref": "#/definitions/restResourcePolicyQuery"
+          "$ref": "#/definitions/restResourcePolicyQuery",
+          "title": "Policies query for specifying the search context"
         },
         "Offset": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Start listing at a given position"
         },
         "Limit": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Limit number of results"
         },
         "GroupBy": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Group results by"
         },
         "CountOnly": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Return counts only, no actual results"
         },
         "Operation": {
-          "$ref": "#/definitions/serviceOperationType"
+          "$ref": "#/definitions/serviceOperationType",
+          "title": "Combine Single Queries with AND or OR"
         }
       },
       "title": "Roles Search"
@@ -6175,29 +6299,36 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmUserSingleQuery"
-          }
+          },
+          "title": "Atomic queries that will be combined using the Operation Type (AND or OR)"
         },
         "ResourcePolicyQuery": {
-          "$ref": "#/definitions/restResourcePolicyQuery"
+          "$ref": "#/definitions/restResourcePolicyQuery",
+          "title": "Policies queries to filter the search context"
         },
         "Offset": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Start listing at a given position"
         },
         "Limit": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Limit number of results"
         },
         "GroupBy": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "description": "Group by ..."
         },
         "CountOnly": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Return counts only, no actual results"
         },
         "Operation": {
-          "$ref": "#/definitions/serviceOperationType"
+          "$ref": "#/definitions/serviceOperationType",
+          "title": "Combine single queries with AND or OR logic"
         }
       },
       "title": "Users Search"
@@ -6209,29 +6340,36 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmWorkspaceSingleQuery"
-          }
+          },
+          "title": "Atomic queries that will be combined using the OperationType (AND or OR)"
         },
         "ResourcePolicyQuery": {
-          "$ref": "#/definitions/restResourcePolicyQuery"
+          "$ref": "#/definitions/restResourcePolicyQuery",
+          "title": "Policies queries to filter the search context"
         },
         "Offset": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Start listing at a given position"
         },
         "Limit": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Limit the number of results"
         },
         "GroupBy": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Group results"
         },
         "CountOnly": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Return counts only, no actual results"
         },
         "Operation": {
-          "$ref": "#/definitions/serviceOperationType"
+          "$ref": "#/definitions/serviceOperationType",
+          "title": "Single queries will be combined using this operation AND or OR logic"
         }
       },
       "title": "Rest request for searching workspaces"
@@ -6605,7 +6743,8 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmUserMetaNamespace"
-          }
+          },
+          "title": "List of user meta Namespaces"
         }
       },
       "title": "Collection of Meta Namespaces"
@@ -6634,17 +6773,20 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmUser"
-          }
+          },
+          "title": "List of Groups"
         },
         "Users": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmUser"
-          }
+          },
+          "title": "List of Users"
         },
         "Total": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Total number of results"
         }
       },
       "title": "Users Collection"
@@ -6667,11 +6809,13 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmWorkspace"
-          }
+          },
+          "title": "List of workspaces"
         },
         "Total": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Total number of results"
         }
       },
       "title": "Rest response for workspace search"
@@ -6848,34 +6992,42 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Node": {
-          "$ref": "#/definitions/treeNode"
+          "$ref": "#/definitions/treeNode",
+          "title": "Main node used as a parent"
         },
         "Recursive": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Send back all children of the node"
         },
         "Ancestors": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Send back a list of parent nodes, until the root, including the original node"
         },
         "WithVersions": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Sends the list of versions for a given node"
         },
         "WithCommits": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Sends the list of commits for a given node (not used)"
         },
         "Limit": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Limit the number of results"
         },
         "Offset": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Start listing at a given position"
         },
         "FilterType": {
-          "$ref": "#/definitions/treeNodeType"
+          "$ref": "#/definitions/treeNodeType",
+          "title": "Filter by node type (LEAF / COLLECTION)"
         }
       }
     },

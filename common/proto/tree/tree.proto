@@ -36,13 +36,21 @@ message ReadNodeResponse {
 }
 
 message ListNodesRequest {
+    // Main node used as a parent
     Node Node = 1;
-    bool Recursive = 2; // Send back all children of the node
-    bool Ancestors = 3; // Send back a list of parent nodes, until the root, including the original node
-    bool WithVersions = 7; // Sends the list of versions for a given node
+    // Send back all children of the node
+    bool Recursive = 2;
+    // Send back a list of parent nodes, until the root, including the original node
+    bool Ancestors = 3;
+    // Sends the list of versions for a given node
+    bool WithVersions = 7;
+    // Sends the list of commits for a given node (not used)
     bool WithCommits = 8;
+    // Limit the number of results
     int64 Limit = 4;
+    // Start listing at a given position
     int64 Offset = 5;
+    // Filter by node type (LEAF / COLLECTION)
     NodeType FilterType = 6;
 }
 

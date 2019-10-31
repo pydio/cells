@@ -90,14 +90,14 @@ export default class RoleServiceApi {
      * Get a Role by ID
      * @param {String} uuid 
      * @param {Object} opts Optional parameters
-     * @param {String} opts.label 
-     * @param {Boolean} opts.isTeam 
-     * @param {Boolean} opts.groupRole 
-     * @param {Boolean} opts.userRole 
-     * @param {Number} opts.lastUpdated 
-     * @param {Array.<String>} opts.autoApplies 
-     * @param {Boolean} opts.policiesContextEditable 
-     * @param {Boolean} opts.forceOverride 
+     * @param {String} opts.label Label of this role.
+     * @param {Boolean} opts.isTeam Whether this role represents a user team or not.
+     * @param {Boolean} opts.groupRole Whether this role is attached to a Group object.
+     * @param {Boolean} opts.userRole Whether this role is attached to a User object.
+     * @param {Number} opts.lastUpdated Last modification date of the role.
+     * @param {Array.<String>} opts.autoApplies List of profiles (standard, shared, admin) on which the role will be automatically applied.
+     * @param {Boolean} opts.policiesContextEditable Whether the policies resolve into an editable state.
+     * @param {Boolean} opts.forceOverride Is used in a stack of roles, this one will always be applied last.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response
      */
     getRoleWithHttpInfo(uuid, opts) {
@@ -144,14 +144,14 @@ export default class RoleServiceApi {
      * Get a Role by ID
      * @param {String} uuid 
      * @param {Object} opts Optional parameters
-     * @param {String} opts.label 
-     * @param {Boolean} opts.isTeam 
-     * @param {Boolean} opts.groupRole 
-     * @param {Boolean} opts.userRole 
-     * @param {Number} opts.lastUpdated 
-     * @param {Array.<String>} opts.autoApplies 
-     * @param {Boolean} opts.policiesContextEditable 
-     * @param {Boolean} opts.forceOverride 
+     * @param {String} opts.label Label of this role.
+     * @param {Boolean} opts.isTeam Whether this role represents a user team or not.
+     * @param {Boolean} opts.groupRole Whether this role is attached to a Group object.
+     * @param {Boolean} opts.userRole Whether this role is attached to a User object.
+     * @param {Number} opts.lastUpdated Last modification date of the role.
+     * @param {Array.<String>} opts.autoApplies List of profiles (standard, shared, admin) on which the role will be automatically applied.
+     * @param {Boolean} opts.policiesContextEditable Whether the policies resolve into an editable state.
+     * @param {Boolean} opts.forceOverride Is used in a stack of roles, this one will always be applied last.
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}
      */
     getRole(uuid, opts) {

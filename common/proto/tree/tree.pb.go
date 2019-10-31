@@ -240,14 +240,22 @@ func (m *ReadNodeResponse) GetNode() *Node {
 }
 
 type ListNodesRequest struct {
-	Node         *Node    `protobuf:"bytes,1,opt,name=Node" json:"Node,omitempty"`
-	Recursive    bool     `protobuf:"varint,2,opt,name=Recursive" json:"Recursive,omitempty"`
-	Ancestors    bool     `protobuf:"varint,3,opt,name=Ancestors" json:"Ancestors,omitempty"`
-	WithVersions bool     `protobuf:"varint,7,opt,name=WithVersions" json:"WithVersions,omitempty"`
-	WithCommits  bool     `protobuf:"varint,8,opt,name=WithCommits" json:"WithCommits,omitempty"`
-	Limit        int64    `protobuf:"varint,4,opt,name=Limit" json:"Limit,omitempty"`
-	Offset       int64    `protobuf:"varint,5,opt,name=Offset" json:"Offset,omitempty"`
-	FilterType   NodeType `protobuf:"varint,6,opt,name=FilterType,enum=tree.NodeType" json:"FilterType,omitempty"`
+	// Main node used as a parent
+	Node *Node `protobuf:"bytes,1,opt,name=Node" json:"Node,omitempty"`
+	// Send back all children of the node
+	Recursive bool `protobuf:"varint,2,opt,name=Recursive" json:"Recursive,omitempty"`
+	// Send back a list of parent nodes, until the root, including the original node
+	Ancestors bool `protobuf:"varint,3,opt,name=Ancestors" json:"Ancestors,omitempty"`
+	// Sends the list of versions for a given node
+	WithVersions bool `protobuf:"varint,7,opt,name=WithVersions" json:"WithVersions,omitempty"`
+	// Sends the list of commits for a given node (not used)
+	WithCommits bool `protobuf:"varint,8,opt,name=WithCommits" json:"WithCommits,omitempty"`
+	// Limit the number of results
+	Limit int64 `protobuf:"varint,4,opt,name=Limit" json:"Limit,omitempty"`
+	// Start listing at a given position
+	Offset int64 `protobuf:"varint,5,opt,name=Offset" json:"Offset,omitempty"`
+	// Filter by node type (LEAF / COLLECTION)
+	FilterType NodeType `protobuf:"varint,6,opt,name=FilterType,enum=tree.NodeType" json:"FilterType,omitempty"`
 }
 
 func (m *ListNodesRequest) Reset()                    { *m = ListNodesRequest{} }

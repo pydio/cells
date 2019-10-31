@@ -43,26 +43,45 @@ message SearchRoleResponse{
     Role Role = 1;
 }
 
+// Role represents a generic set of permissions that can be applied to any users or groups.
 message Role {
+    // Unique identifier of this role
     string Uuid = 1;
+    // Label of this role
     string Label = 2;
+    // Whether this role represents a user team or not
     bool IsTeam = 3;
+    // Whether this role is attached to a Group object
     bool GroupRole = 4;
+    // Whether this role is attached to a User object
     bool UserRole = 5;
+    // Last modification date of the role
     int32 LastUpdated = 6;
+    // List of profiles (standard, shared, admin) on which the role will be automatically applied
     repeated string AutoApplies = 7;
+    // List of policies for securing this role access
     repeated service.ResourcePolicy Policies = 8;
+    // Whether the policies resolve into an editable state
     bool PoliciesContextEditable = 9;
+    // Is used in a stack of roles, this one will always be applied last.
     bool ForceOverride = 10;
 }
 
+// RoleSingleQuery is the basic unit for building queries to Roles.
 message RoleSingleQuery {
+    // Look for roles by Uuid
     repeated string Uuid = 1;
+    // Look for roles by label, eventually using wildchar
     string Label = 2;
+    // Look for team roles only
     bool IsTeam = 3;
+    // Look for group roles only
     bool IsGroupRole = 4;
+    // Look for user roles only
     bool IsUserRole = 5;
+    // Look for roles that have any value in the autoApplies field
     bool HasAutoApply = 6;
+    // Negate the query
     bool not = 7;
 }
 
@@ -122,23 +141,32 @@ message CountUserResponse {
     int32 Count = 1;
 }
 
+// User can represent either a User or a Group
 message User {
-
+    // User unique identifier
     string Uuid = 1;
+    // Path to the parent group
     string GroupPath = 2;
+    // A free list of attributes
     map<string, string> Attributes = 3;
+    // List of roles applied to this user or group
     repeated Role Roles = 4;
 
-    // User specific data
+    // User login is used to connect, field is empty for groups
     string Login = 5;
+    // Password can be passed to be updated (but never read back), field is empty for groups
     string Password = 6;
+    // OldPassword must be set when a user updates her own password
     string OldPassword = 11;
 
-    // Group specific data
+    // Whether this object is a group or a user
     bool IsGroup = 7;
+    // Label of the group, field is empty for users
     string GroupLabel = 8;
 
+    // Policies securing access to this user
     repeated service.ResourcePolicy Policies = 9;
+    // Context-resolved to quickly check if user is editable or not.
     bool PoliciesContextEditable = 10;
 
 }
@@ -216,19 +244,29 @@ enum WorkspaceScope{
     LINK = 3;
 }
 
+// A Workspace is composed of a set of nodes UUIDs and is used to provide accesses to the tree via ACLs.
 message Workspace {
-
+    // Unique identifier of the workspace
     string UUID = 1;
+    // Label of the workspace (max length 500)
     string Label = 2 [(validator.field) = {length_lt: 500}];
+    // Description of the workspace (max length 1000)
     string Description = 3 [(validator.field) = {length_lt: 1000}];
+    // Slug is an url-compatible form of the workspace label, or can be freely modified (max length 500)
     string Slug = 4 [(validator.field) = {length_lt: 500}];
+    // Scope can be ADMIN, ROOM (=CELL) or LINK
     WorkspaceScope Scope = 5;
+    // Last modification time
     int32 LastUpdated = 6;
+    // Policies for securing access
     repeated service.ResourcePolicy Policies = 7;
+    // JSON-encoded list of attributes
     string Attributes = 8;
-
+    // Quick list of the RootNodes uuids
     repeated string RootUUIDs = 9;
+    // List of the Root Nodes in the tree that compose this workspace
     map<string,tree.Node> RootNodes = 11;
+    // Context-resolved to quickly check if workspace is editable or not
     bool PoliciesContextEditable = 12;
 }
 
@@ -283,11 +321,18 @@ message ACLAction{
     string Value = 2;
 }
 
+// ACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role.
+// The context of how they apply can be fine-tuned by workspace.
 message ACL {
+    // Unique ID of this ACL
     string ID = 1;
+    // Action on which this ACL provides control
     ACLAction Action = 2;
+    // Associated Role
     string RoleID = 3;
+    // Associated Workspace
     string WorkspaceID = 4;
+    // Associated Node
     string NodeID = 5;
 }
 
@@ -310,20 +355,32 @@ service UserMetaService {
 
 // Piece of metadata attached to a node
 message UserMeta {
+    // Unique identifier of the metadata
     string Uuid = 1;
+    // Unique identifier of the node to which meta is attached
     string NodeUuid = 2;
+    // Namespace for the metadata
     string Namespace = 3;
+    // Json encoded value used to pass any type of values
     string JsonValue = 4;
+    // Policies for securing access
     repeated service.ResourcePolicy Policies = 5;
+    // Context-resolved to quickly check if this meta is editable or not
     bool PoliciesContextEditable = 6;
 }
 // Globally declared Namespace with associated policies
 message UserMetaNamespace{
+    // Namespace identifier, must be unique
     string Namespace = 1;
+    // Human-readable Label
     string Label = 2;
+    // Order is used for sorting lists of namesapces
     int32 Order = 3;
+    // Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine
     bool Indexable = 4;
+    // Json-encoded type to provide accurate interface for edition
     string JsonDefinition = 5;
+    // Policies securing this namespace
     repeated service.ResourcePolicy Policies = 6;
 }
 // Request for modifying UserMeta
@@ -332,19 +389,27 @@ message UpdateUserMetaRequest{
         PUT = 0;
         DELETE = 1;
     }
+    // Type of operation to apply (PUT / DELETE)
     UserMetaOp Operation = 1;
+    // List of metadatas to update or delete
     repeated UserMeta MetaDatas = 3;
 }
 // Response of UpdateUserMeta service
 message UpdateUserMetaResponse{
+    // List of metadatas
     repeated UserMeta MetaDatas = 3;
 }
 // Request for searching UserMeta by NodeUuid or by Namespace
 message SearchUserMetaRequest{
+    // Look for meta by their unique identifier
     repeated string MetaUuids = 1;
+    // Look for all meta for a list of nodes
     repeated string NodeUuids = 2;
+    // Filter meta by their namespace
     string Namespace = 3;
+    // Filter meta by owner (in the sense of the policies)
     string ResourceSubjectOwner = 4;
+    // Filter meta by policies query
     service.ResourcePolicyQuery ResourceQuery = 5;
 }
 // Streamed container for the UserMeta results

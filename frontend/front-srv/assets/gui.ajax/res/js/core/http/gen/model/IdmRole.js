@@ -27,6 +27,7 @@ import ServiceResourcePolicy from './ServiceResourcePolicy';
 export default class IdmRole {
     /**
     * Constructs a new <code>IdmRole</code>.
+    * Role represents a generic set of permissions that can be applied to any users or groups.
     * @alias module:model/IdmRole
     * @class
     */
@@ -128,6 +129,7 @@ export default class IdmRole {
     */
     PoliciesContextEditable = undefined;
     /**
+    * Is used in a stack of roles, this one will always be applied last.
     * @member {Boolean} ForceOverride
     */
     ForceOverride = undefined;

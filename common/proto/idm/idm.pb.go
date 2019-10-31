@@ -365,17 +365,28 @@ func (m *SearchRoleResponse) GetRole() *Role {
 	return nil
 }
 
+// Role represents a generic set of permissions that can be applied to any users or groups.
 type Role struct {
-	Uuid                    string                    `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
-	Label                   string                    `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
-	IsTeam                  bool                      `protobuf:"varint,3,opt,name=IsTeam" json:"IsTeam,omitempty"`
-	GroupRole               bool                      `protobuf:"varint,4,opt,name=GroupRole" json:"GroupRole,omitempty"`
-	UserRole                bool                      `protobuf:"varint,5,opt,name=UserRole" json:"UserRole,omitempty"`
-	LastUpdated             int32                     `protobuf:"varint,6,opt,name=LastUpdated" json:"LastUpdated,omitempty"`
-	AutoApplies             []string                  `protobuf:"bytes,7,rep,name=AutoApplies" json:"AutoApplies,omitempty"`
-	Policies                []*service.ResourcePolicy `protobuf:"bytes,8,rep,name=Policies" json:"Policies,omitempty"`
-	PoliciesContextEditable bool                      `protobuf:"varint,9,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
-	ForceOverride           bool                      `protobuf:"varint,10,opt,name=ForceOverride" json:"ForceOverride,omitempty"`
+	// Unique identifier of this role
+	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
+	// Label of this role
+	Label string `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
+	// Whether this role represents a user team or not
+	IsTeam bool `protobuf:"varint,3,opt,name=IsTeam" json:"IsTeam,omitempty"`
+	// Whether this role is attached to a Group object
+	GroupRole bool `protobuf:"varint,4,opt,name=GroupRole" json:"GroupRole,omitempty"`
+	// Whether this role is attached to a User object
+	UserRole bool `protobuf:"varint,5,opt,name=UserRole" json:"UserRole,omitempty"`
+	// Last modification date of the role
+	LastUpdated int32 `protobuf:"varint,6,opt,name=LastUpdated" json:"LastUpdated,omitempty"`
+	// List of profiles (standard, shared, admin) on which the role will be automatically applied
+	AutoApplies []string `protobuf:"bytes,7,rep,name=AutoApplies" json:"AutoApplies,omitempty"`
+	// List of policies for securing this role access
+	Policies []*service.ResourcePolicy `protobuf:"bytes,8,rep,name=Policies" json:"Policies,omitempty"`
+	// Whether the policies resolve into an editable state
+	PoliciesContextEditable bool `protobuf:"varint,9,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
+	// Is used in a stack of roles, this one will always be applied last.
+	ForceOverride bool `protobuf:"varint,10,opt,name=ForceOverride" json:"ForceOverride,omitempty"`
 }
 
 func (m *Role) Reset()                    { *m = Role{} }
@@ -453,14 +464,22 @@ func (m *Role) GetForceOverride() bool {
 	return false
 }
 
+// RoleSingleQuery is the basic unit for building queries to Roles.
 type RoleSingleQuery struct {
-	Uuid         []string `protobuf:"bytes,1,rep,name=Uuid" json:"Uuid,omitempty"`
-	Label        string   `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
-	IsTeam       bool     `protobuf:"varint,3,opt,name=IsTeam" json:"IsTeam,omitempty"`
-	IsGroupRole  bool     `protobuf:"varint,4,opt,name=IsGroupRole" json:"IsGroupRole,omitempty"`
-	IsUserRole   bool     `protobuf:"varint,5,opt,name=IsUserRole" json:"IsUserRole,omitempty"`
-	HasAutoApply bool     `protobuf:"varint,6,opt,name=HasAutoApply" json:"HasAutoApply,omitempty"`
-	Not          bool     `protobuf:"varint,7,opt,name=not" json:"not,omitempty"`
+	// Look for roles by Uuid
+	Uuid []string `protobuf:"bytes,1,rep,name=Uuid" json:"Uuid,omitempty"`
+	// Look for roles by label, eventually using wildchar
+	Label string `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
+	// Look for team roles only
+	IsTeam bool `protobuf:"varint,3,opt,name=IsTeam" json:"IsTeam,omitempty"`
+	// Look for group roles only
+	IsGroupRole bool `protobuf:"varint,4,opt,name=IsGroupRole" json:"IsGroupRole,omitempty"`
+	// Look for user roles only
+	IsUserRole bool `protobuf:"varint,5,opt,name=IsUserRole" json:"IsUserRole,omitempty"`
+	// Look for roles that have any value in the autoApplies field
+	HasAutoApply bool `protobuf:"varint,6,opt,name=HasAutoApply" json:"HasAutoApply,omitempty"`
+	// Negate the query
+	Not bool `protobuf:"varint,7,opt,name=not" json:"not,omitempty"`
 }
 
 func (m *RoleSingleQuery) Reset()                    { *m = RoleSingleQuery{} }
@@ -672,20 +691,30 @@ func (m *CountUserResponse) GetCount() int32 {
 	return 0
 }
 
+// User can represent either a User or a Group
 type User struct {
-	Uuid       string            `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
-	GroupPath  string            `protobuf:"bytes,2,opt,name=GroupPath" json:"GroupPath,omitempty"`
+	// User unique identifier
+	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
+	// Path to the parent group
+	GroupPath string `protobuf:"bytes,2,opt,name=GroupPath" json:"GroupPath,omitempty"`
+	// A free list of attributes
 	Attributes map[string]string `protobuf:"bytes,3,rep,name=Attributes" json:"Attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Roles      []*Role           `protobuf:"bytes,4,rep,name=Roles" json:"Roles,omitempty"`
-	// User specific data
-	Login       string `protobuf:"bytes,5,opt,name=Login" json:"Login,omitempty"`
-	Password    string `protobuf:"bytes,6,opt,name=Password" json:"Password,omitempty"`
+	// List of roles applied to this user or group
+	Roles []*Role `protobuf:"bytes,4,rep,name=Roles" json:"Roles,omitempty"`
+	// User login is used to connect, field is empty for groups
+	Login string `protobuf:"bytes,5,opt,name=Login" json:"Login,omitempty"`
+	// Password can be passed to be updated (but never read back), field is empty for groups
+	Password string `protobuf:"bytes,6,opt,name=Password" json:"Password,omitempty"`
+	// OldPassword must be set when a user updates her own password
 	OldPassword string `protobuf:"bytes,11,opt,name=OldPassword" json:"OldPassword,omitempty"`
-	// Group specific data
-	IsGroup                 bool                      `protobuf:"varint,7,opt,name=IsGroup" json:"IsGroup,omitempty"`
-	GroupLabel              string                    `protobuf:"bytes,8,opt,name=GroupLabel" json:"GroupLabel,omitempty"`
-	Policies                []*service.ResourcePolicy `protobuf:"bytes,9,rep,name=Policies" json:"Policies,omitempty"`
-	PoliciesContextEditable bool                      `protobuf:"varint,10,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
+	// Whether this object is a group or a user
+	IsGroup bool `protobuf:"varint,7,opt,name=IsGroup" json:"IsGroup,omitempty"`
+	// Label of the group, field is empty for users
+	GroupLabel string `protobuf:"bytes,8,opt,name=GroupLabel" json:"GroupLabel,omitempty"`
+	// Policies securing access to this user
+	Policies []*service.ResourcePolicy `protobuf:"bytes,9,rep,name=Policies" json:"Policies,omitempty"`
+	// Context-resolved to quickly check if user is editable or not.
+	PoliciesContextEditable bool `protobuf:"varint,10,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
 }
 
 func (m *User) Reset()                    { *m = User{} }
@@ -977,18 +1006,30 @@ func (m *SearchWorkspaceResponse) GetWorkspace() *Workspace {
 	return nil
 }
 
+// A Workspace is composed of a set of nodes UUIDs and is used to provide accesses to the tree via ACLs.
 type Workspace struct {
-	UUID                    string                    `protobuf:"bytes,1,opt,name=UUID" json:"UUID,omitempty"`
-	Label                   string                    `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
-	Description             string                    `protobuf:"bytes,3,opt,name=Description" json:"Description,omitempty"`
-	Slug                    string                    `protobuf:"bytes,4,opt,name=Slug" json:"Slug,omitempty"`
-	Scope                   WorkspaceScope            `protobuf:"varint,5,opt,name=Scope,enum=idm.WorkspaceScope" json:"Scope,omitempty"`
-	LastUpdated             int32                     `protobuf:"varint,6,opt,name=LastUpdated" json:"LastUpdated,omitempty"`
-	Policies                []*service.ResourcePolicy `protobuf:"bytes,7,rep,name=Policies" json:"Policies,omitempty"`
-	Attributes              string                    `protobuf:"bytes,8,opt,name=Attributes" json:"Attributes,omitempty"`
-	RootUUIDs               []string                  `protobuf:"bytes,9,rep,name=RootUUIDs" json:"RootUUIDs,omitempty"`
-	RootNodes               map[string]*tree.Node     `protobuf:"bytes,11,rep,name=RootNodes" json:"RootNodes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	PoliciesContextEditable bool                      `protobuf:"varint,12,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
+	// Unique identifier of the workspace
+	UUID string `protobuf:"bytes,1,opt,name=UUID" json:"UUID,omitempty"`
+	// Label of the workspace (max length 500)
+	Label string `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
+	// Description of the workspace (max length 1000)
+	Description string `protobuf:"bytes,3,opt,name=Description" json:"Description,omitempty"`
+	// Slug is an url-compatible form of the workspace label, or can be freely modified (max length 500)
+	Slug string `protobuf:"bytes,4,opt,name=Slug" json:"Slug,omitempty"`
+	// Scope can be ADMIN, ROOM (=CELL) or LINK
+	Scope WorkspaceScope `protobuf:"varint,5,opt,name=Scope,enum=idm.WorkspaceScope" json:"Scope,omitempty"`
+	// Last modification time
+	LastUpdated int32 `protobuf:"varint,6,opt,name=LastUpdated" json:"LastUpdated,omitempty"`
+	// Policies for securing access
+	Policies []*service.ResourcePolicy `protobuf:"bytes,7,rep,name=Policies" json:"Policies,omitempty"`
+	// JSON-encoded list of attributes
+	Attributes string `protobuf:"bytes,8,opt,name=Attributes" json:"Attributes,omitempty"`
+	// Quick list of the RootNodes uuids
+	RootUUIDs []string `protobuf:"bytes,9,rep,name=RootUUIDs" json:"RootUUIDs,omitempty"`
+	// List of the Root Nodes in the tree that compose this workspace
+	RootNodes map[string]*tree.Node `protobuf:"bytes,11,rep,name=RootNodes" json:"RootNodes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Context-resolved to quickly check if workspace is editable or not
+	PoliciesContextEditable bool `protobuf:"varint,12,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
 }
 
 func (m *Workspace) Reset()                    { *m = Workspace{} }
@@ -1252,12 +1293,19 @@ func (m *ACLAction) GetValue() string {
 	return ""
 }
 
+// ACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role.
+// The context of how they apply can be fine-tuned by workspace.
 type ACL struct {
-	ID          string     `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	Action      *ACLAction `protobuf:"bytes,2,opt,name=Action" json:"Action,omitempty"`
-	RoleID      string     `protobuf:"bytes,3,opt,name=RoleID" json:"RoleID,omitempty"`
-	WorkspaceID string     `protobuf:"bytes,4,opt,name=WorkspaceID" json:"WorkspaceID,omitempty"`
-	NodeID      string     `protobuf:"bytes,5,opt,name=NodeID" json:"NodeID,omitempty"`
+	// Unique ID of this ACL
+	ID string `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
+	// Action on which this ACL provides control
+	Action *ACLAction `protobuf:"bytes,2,opt,name=Action" json:"Action,omitempty"`
+	// Associated Role
+	RoleID string `protobuf:"bytes,3,opt,name=RoleID" json:"RoleID,omitempty"`
+	// Associated Workspace
+	WorkspaceID string `protobuf:"bytes,4,opt,name=WorkspaceID" json:"WorkspaceID,omitempty"`
+	// Associated Node
+	NodeID string `protobuf:"bytes,5,opt,name=NodeID" json:"NodeID,omitempty"`
 }
 
 func (m *ACL) Reset()                    { *m = ACL{} }
@@ -1350,12 +1398,18 @@ func (m *ACLSingleQuery) GetNot() bool {
 
 // Piece of metadata attached to a node
 type UserMeta struct {
-	Uuid                    string                    `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
-	NodeUuid                string                    `protobuf:"bytes,2,opt,name=NodeUuid" json:"NodeUuid,omitempty"`
-	Namespace               string                    `protobuf:"bytes,3,opt,name=Namespace" json:"Namespace,omitempty"`
-	JsonValue               string                    `protobuf:"bytes,4,opt,name=JsonValue" json:"JsonValue,omitempty"`
-	Policies                []*service.ResourcePolicy `protobuf:"bytes,5,rep,name=Policies" json:"Policies,omitempty"`
-	PoliciesContextEditable bool                      `protobuf:"varint,6,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
+	// Unique identifier of the metadata
+	Uuid string `protobuf:"bytes,1,opt,name=Uuid" json:"Uuid,omitempty"`
+	// Unique identifier of the node to which meta is attached
+	NodeUuid string `protobuf:"bytes,2,opt,name=NodeUuid" json:"NodeUuid,omitempty"`
+	// Namespace for the metadata
+	Namespace string `protobuf:"bytes,3,opt,name=Namespace" json:"Namespace,omitempty"`
+	// Json encoded value used to pass any type of values
+	JsonValue string `protobuf:"bytes,4,opt,name=JsonValue" json:"JsonValue,omitempty"`
+	// Policies for securing access
+	Policies []*service.ResourcePolicy `protobuf:"bytes,5,rep,name=Policies" json:"Policies,omitempty"`
+	// Context-resolved to quickly check if this meta is editable or not
+	PoliciesContextEditable bool `protobuf:"varint,6,opt,name=PoliciesContextEditable" json:"PoliciesContextEditable,omitempty"`
 }
 
 func (m *UserMeta) Reset()                    { *m = UserMeta{} }
@@ -1407,12 +1461,18 @@ func (m *UserMeta) GetPoliciesContextEditable() bool {
 
 // Globally declared Namespace with associated policies
 type UserMetaNamespace struct {
-	Namespace      string                    `protobuf:"bytes,1,opt,name=Namespace" json:"Namespace,omitempty"`
-	Label          string                    `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
-	Order          int32                     `protobuf:"varint,3,opt,name=Order" json:"Order,omitempty"`
-	Indexable      bool                      `protobuf:"varint,4,opt,name=Indexable" json:"Indexable,omitempty"`
-	JsonDefinition string                    `protobuf:"bytes,5,opt,name=JsonDefinition" json:"JsonDefinition,omitempty"`
-	Policies       []*service.ResourcePolicy `protobuf:"bytes,6,rep,name=Policies" json:"Policies,omitempty"`
+	// Namespace identifier, must be unique
+	Namespace string `protobuf:"bytes,1,opt,name=Namespace" json:"Namespace,omitempty"`
+	// Human-readable Label
+	Label string `protobuf:"bytes,2,opt,name=Label" json:"Label,omitempty"`
+	// Order is used for sorting lists of namesapces
+	Order int32 `protobuf:"varint,3,opt,name=Order" json:"Order,omitempty"`
+	// Whether a modification of a metadata value for this namespace should trigger an indexation by the search engine
+	Indexable bool `protobuf:"varint,4,opt,name=Indexable" json:"Indexable,omitempty"`
+	// Json-encoded type to provide accurate interface for edition
+	JsonDefinition string `protobuf:"bytes,5,opt,name=JsonDefinition" json:"JsonDefinition,omitempty"`
+	// Policies securing this namespace
+	Policies []*service.ResourcePolicy `protobuf:"bytes,6,rep,name=Policies" json:"Policies,omitempty"`
 }
 
 func (m *UserMetaNamespace) Reset()                    { *m = UserMetaNamespace{} }
@@ -1464,8 +1524,10 @@ func (m *UserMetaNamespace) GetPolicies() []*service.ResourcePolicy {
 
 // Request for modifying UserMeta
 type UpdateUserMetaRequest struct {
+	// Type of operation to apply (PUT / DELETE)
 	Operation UpdateUserMetaRequest_UserMetaOp `protobuf:"varint,1,opt,name=Operation,enum=idm.UpdateUserMetaRequest_UserMetaOp" json:"Operation,omitempty"`
-	MetaDatas []*UserMeta                      `protobuf:"bytes,3,rep,name=MetaDatas" json:"MetaDatas,omitempty"`
+	// List of metadatas to update or delete
+	MetaDatas []*UserMeta `protobuf:"bytes,3,rep,name=MetaDatas" json:"MetaDatas,omitempty"`
 }
 
 func (m *UpdateUserMetaRequest) Reset()                    { *m = UpdateUserMetaRequest{} }
@@ -1489,6 +1551,7 @@ func (m *UpdateUserMetaRequest) GetMetaDatas() []*UserMeta {
 
 // Response of UpdateUserMeta service
 type UpdateUserMetaResponse struct {
+	// List of metadatas
 	MetaDatas []*UserMeta `protobuf:"bytes,3,rep,name=MetaDatas" json:"MetaDatas,omitempty"`
 }
 
@@ -1506,11 +1569,16 @@ func (m *UpdateUserMetaResponse) GetMetaDatas() []*UserMeta {
 
 // Request for searching UserMeta by NodeUuid or by Namespace
 type SearchUserMetaRequest struct {
-	MetaUuids            []string                     `protobuf:"bytes,1,rep,name=MetaUuids" json:"MetaUuids,omitempty"`
-	NodeUuids            []string                     `protobuf:"bytes,2,rep,name=NodeUuids" json:"NodeUuids,omitempty"`
-	Namespace            string                       `protobuf:"bytes,3,opt,name=Namespace" json:"Namespace,omitempty"`
-	ResourceSubjectOwner string                       `protobuf:"bytes,4,opt,name=ResourceSubjectOwner" json:"ResourceSubjectOwner,omitempty"`
-	ResourceQuery        *service.ResourcePolicyQuery `protobuf:"bytes,5,opt,name=ResourceQuery" json:"ResourceQuery,omitempty"`
+	// Look for meta by their unique identifier
+	MetaUuids []string `protobuf:"bytes,1,rep,name=MetaUuids" json:"MetaUuids,omitempty"`
+	// Look for all meta for a list of nodes
+	NodeUuids []string `protobuf:"bytes,2,rep,name=NodeUuids" json:"NodeUuids,omitempty"`
+	// Filter meta by their namespace
+	Namespace string `protobuf:"bytes,3,opt,name=Namespace" json:"Namespace,omitempty"`
+	// Filter meta by owner (in the sense of the policies)
+	ResourceSubjectOwner string `protobuf:"bytes,4,opt,name=ResourceSubjectOwner" json:"ResourceSubjectOwner,omitempty"`
+	// Filter meta by policies query
+	ResourceQuery *service.ResourcePolicyQuery `protobuf:"bytes,5,opt,name=ResourceQuery" json:"ResourceQuery,omitempty"`
 }
 
 func (m *SearchUserMetaRequest) Reset()                    { *m = SearchUserMetaRequest{} }

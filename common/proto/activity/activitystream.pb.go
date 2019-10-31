@@ -881,16 +881,26 @@ func (m *PostActivityEvent) GetActivity() *Object {
 }
 
 type StreamActivitiesRequest struct {
-	Context         StreamContext      `protobuf:"varint,1,opt,name=Context,enum=activity.StreamContext" json:"Context,omitempty"`
-	ContextData     string             `protobuf:"bytes,2,opt,name=ContextData" json:"ContextData,omitempty"`
-	StreamFilter    string             `protobuf:"bytes,3,opt,name=StreamFilter" json:"StreamFilter,omitempty"`
-	BoxName         string             `protobuf:"bytes,4,opt,name=BoxName" json:"BoxName,omitempty"`
-	UnreadCountOnly bool               `protobuf:"varint,5,opt,name=UnreadCountOnly" json:"UnreadCountOnly,omitempty"`
-	Offset          int64              `protobuf:"varint,6,opt,name=Offset" json:"Offset,omitempty"`
-	Limit           int64              `protobuf:"varint,7,opt,name=Limit" json:"Limit,omitempty"`
-	AsDigest        bool               `protobuf:"varint,8,opt,name=AsDigest" json:"AsDigest,omitempty"`
-	PointOfView     SummaryPointOfView `protobuf:"varint,9,opt,name=PointOfView,enum=activity.SummaryPointOfView" json:"PointOfView,omitempty"`
-	Language        string             `protobuf:"bytes,10,opt,name=Language" json:"Language,omitempty"`
+	// Define the context of the stream
+	Context StreamContext `protobuf:"varint,1,opt,name=Context,enum=activity.StreamContext" json:"Context,omitempty"`
+	// Value for the context (e.g. User Id, Node Id)
+	ContextData string `protobuf:"bytes,2,opt,name=ContextData" json:"ContextData,omitempty"`
+	// Json-encoded filter
+	StreamFilter string `protobuf:"bytes,3,opt,name=StreamFilter" json:"StreamFilter,omitempty"`
+	// Target inbox or outbox for the given object
+	BoxName string `protobuf:"bytes,4,opt,name=BoxName" json:"BoxName,omitempty"`
+	// Count last activities that were not loaded yet
+	UnreadCountOnly bool `protobuf:"varint,5,opt,name=UnreadCountOnly" json:"UnreadCountOnly,omitempty"`
+	// Start listing at a given position
+	Offset int64 `protobuf:"varint,6,opt,name=Offset" json:"Offset,omitempty"`
+	// Limit the number of results
+	Limit int64 `protobuf:"varint,7,opt,name=Limit" json:"Limit,omitempty"`
+	// Compute a digest of all unread activities
+	AsDigest bool `protobuf:"varint,8,opt,name=AsDigest" json:"AsDigest,omitempty"`
+	// Provide context for building the human-readable strings of each activity
+	PointOfView SummaryPointOfView `protobuf:"varint,9,opt,name=PointOfView,enum=activity.SummaryPointOfView" json:"PointOfView,omitempty"`
+	// Provide language information for building the human-readable strings.
+	Language string `protobuf:"bytes,10,opt,name=Language" json:"Language,omitempty"`
 }
 
 func (m *StreamActivitiesRequest) Reset()                    { *m = StreamActivitiesRequest{} }
@@ -985,10 +995,14 @@ func (m *StreamActivitiesResponse) GetActivity() *Object {
 }
 
 type Subscription struct {
-	UserId     string    `protobuf:"bytes,1,opt,name=UserId" json:"UserId,omitempty"`
+	// Id of the user for this subscription
+	UserId string `protobuf:"bytes,1,opt,name=UserId" json:"UserId,omitempty"`
+	// Type of owner
 	ObjectType OwnerType `protobuf:"varint,2,opt,name=ObjectType,enum=activity.OwnerType" json:"ObjectType,omitempty"`
-	ObjectId   string    `protobuf:"bytes,3,opt,name=ObjectId" json:"ObjectId,omitempty"`
-	Events     []string  `protobuf:"bytes,4,rep,name=Events" json:"Events,omitempty"`
+	// If of the owner
+	ObjectId string `protobuf:"bytes,3,opt,name=ObjectId" json:"ObjectId,omitempty"`
+	// List of events to listen to
+	Events []string `protobuf:"bytes,4,rep,name=Events" json:"Events,omitempty"`
 }
 
 func (m *Subscription) Reset()                    { *m = Subscription{} }
@@ -1025,6 +1039,7 @@ func (m *Subscription) GetEvents() []string {
 }
 
 type SubscribeRequest struct {
+	// Place a new subscription
 	Subscription *Subscription `protobuf:"bytes,1,opt,name=Subscription" json:"Subscription,omitempty"`
 }
 
@@ -1057,9 +1072,12 @@ func (m *SubscribeResponse) GetSubscription() *Subscription {
 }
 
 type SearchSubscriptionsRequest struct {
-	UserIds     []string    `protobuf:"bytes,1,rep,name=UserIds" json:"UserIds,omitempty"`
+	// List of UserIds for which we want to list
+	UserIds []string `protobuf:"bytes,1,rep,name=UserIds" json:"UserIds,omitempty"`
+	// Filter by type of objects
 	ObjectTypes []OwnerType `protobuf:"varint,2,rep,packed,name=ObjectTypes,enum=activity.OwnerType" json:"ObjectTypes,omitempty"`
-	ObjectIds   []string    `protobuf:"bytes,3,rep,name=ObjectIds" json:"ObjectIds,omitempty"`
+	// Filter by object Ids
+	ObjectIds []string `protobuf:"bytes,3,rep,name=ObjectIds" json:"ObjectIds,omitempty"`
 }
 
 func (m *SearchSubscriptionsRequest) Reset()                    { *m = SearchSubscriptionsRequest{} }
@@ -1105,6 +1123,7 @@ func (m *SearchSubscriptionsResponse) GetSubscription() *Subscription {
 }
 
 type UnreadActivitiesRequest struct {
+	// Get the number of unread activities for this user
 	UserId string `protobuf:"bytes,1,opt,name=UserId" json:"UserId,omitempty"`
 }
 
@@ -1137,8 +1156,11 @@ func (m *UnreadActivitiesResponse) GetNumber() int32 {
 }
 
 type UserLastActivityRequest struct {
-	UserId     string `protobuf:"bytes,1,opt,name=UserId" json:"UserId,omitempty"`
-	BoxName    string `protobuf:"bytes,2,opt,name=BoxName" json:"BoxName,omitempty"`
+	// Current user Id
+	UserId string `protobuf:"bytes,1,opt,name=UserId" json:"UserId,omitempty"`
+	// Inbox or Outbox
+	BoxName string `protobuf:"bytes,2,opt,name=BoxName" json:"BoxName,omitempty"`
+	// Id of the last known activity
 	ActivityId string `protobuf:"bytes,3,opt,name=ActivityId" json:"ActivityId,omitempty"`
 }
 
