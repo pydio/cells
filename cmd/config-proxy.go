@@ -74,85 +74,97 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 
 	config.Set(pconf.GetBindURL(), "defaults", "urlInternal")
 	config.Set(pconf.GetExternalURL(), "defaults", "url")
-
-	if pconf.TLSConfig == nil {
-		saveMsg = "Install / Non-Interactive / Without SSL"
+	err := config.Save("cli", "Saving proxy URLs")
+	if err != nil {
+		fmt.Printf("Could not save proxy URLs: %s\n", err.Error())
+		return err
 	}
 
-	switch v := pconf.TLSConfig.(type) {
+	fmt.Printf("[DEBUG] Applying proxy config: bindURL: %s, ExtURL: %s\n", pconf.GetBindURL(), pconf.GetExternalURL())
 
-	case *install.ProxyConfig_SelfSigned:
+	if pconf.TLSConfig == nil {
 
-		// Generate a custom certificate
-		saveMsg += "With self signed certificate"
-		storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
-		os.MkdirAll(storageLocation, 0700)
-		mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
-
-		hns := v.SelfSigned.GetHostnames()
-		if hns == nil || len(hns) == 0 {
-			binddn := strings.TrimPrefix(strings.TrimPrefix(pconf.GetBindURL(), "http://"), "https://")
-			parts := strings.Split(binddn, ":")
-			hns = []string{}
-			if len(parts) > 1 && parts[1] == "443" {
-				hns = append(hns, parts[0])
-			}
-			hns = append(hns, binddn)
-		}
-
-		fmt.Printf("[DEBUG] Host names: %v \n", hns)
-
-		err := mkCert.MakeCert(hns)
-		if err != nil {
-			return err
-		}
-		certFile, certKey, caFile, _ := mkCert.GeneratedResources()
-
-		fmt.Println("")
-		fmt.Println("")
-		fmt.Println("👉 If you are behind a reverse proxy, you can either install the RootCA on the proxy machine " +
-			"trust store, or configure your proxy to `insecure_skip_verify` for pointing to Cells.")
-		fmt.Println("👉 If you are developing locally, you may install the RootCA in your system trust store to " +
-			"see a green light in your browser!")
-		fmt.Println("🗒  To easily install the RootCA in your trust store, use https://github.com/FiloSottile/mkcert. " +
-			"Set the $CAROOT environment variable to the rootCA folder then use 'mkcert -install'")
-		fmt.Println("")
-
-		config.Set(true, "cert", "proxy", "ssl")
-		config.Set(true, "cert", "proxy", "self")
-		config.Set(certFile, "cert", "proxy", "certFile")
-		config.Set(certKey, "cert", "proxy", "keyFile")
-		config.Set(caFile, "cert", "proxy", "autoCA")
-
-	case *install.ProxyConfig_LetsEncrypt:
-
-		config.Set(true, "cert", "proxy", "ssl")
-		config.Set(false, "cert", "proxy", "self")
-		config.Set(v.LetsEncrypt.GetEmail(), "cert", "proxy", "email")
-		config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
-		if v.LetsEncrypt.GetStagingCA() {
-			config.Set(config.DefaultCaStagingUrl, "cert", "proxy", "caUrl")
-		}
-		saveMsg += "With Let's Encrypt automatic cert generation"
-
-	case *install.ProxyConfig_Certificate:
-
-		config.Set(true, "cert", "proxy", "ssl")
-		config.Set(false, "cert", "proxy", "self")
-		config.Set(v.Certificate.GetCertFile(), "cert", "proxy", "certFile")
-		config.Set(v.Certificate.GetKeyFile(), "cert", "proxy", "keyFile")
-		saveMsg += "With provided certificate"
-
-	default:
-		config.Set(false, "cert", "proxy", "ssl")
+		fmt.Printf("[DEBUG]  No TLS config")
 		saveMsg = "Install / Non-Interactive / Without SSL"
+
+	} else {
+
+		switch v := pconf.TLSConfig.(type) {
+
+		case *install.ProxyConfig_SelfSigned:
+
+			// Generate a custom certificate
+			saveMsg += "With self signed certificate"
+			storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
+			os.MkdirAll(storageLocation, 0700)
+			mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
+
+			hns := v.SelfSigned.GetHostnames()
+			if hns == nil || len(hns) == 0 {
+				binddn := strings.TrimPrefix(strings.TrimPrefix(pconf.GetBindURL(), "http://"), "https://")
+				parts := strings.Split(binddn, ":")
+				hns = []string{}
+				if len(parts) > 1 {
+					binddn = parts[0]
+				}
+				hns = append(hns, binddn)
+			}
+
+			fmt.Printf("[DEBUG] Hostnames: %v \n", hns)
+
+			err := mkCert.MakeCert(hns)
+			if err != nil {
+				return err
+			}
+			certFile, certKey, caFile, _ := mkCert.GeneratedResources()
+
+			fmt.Println("")
+			fmt.Println("")
+			fmt.Println("👉 If you are behind a reverse proxy, you can either install the RootCA on the proxy machine " +
+				"trust store, or configure your proxy to `insecure_skip_verify` for pointing to Cells.")
+			fmt.Println("👉 If you are developing locally, you may install the RootCA in your system trust store to " +
+				"see a green light in your browser!")
+			fmt.Println("🗒  To easily install the RootCA in your trust store, use https://github.com/FiloSottile/mkcert. " +
+				"Set the $CAROOT environment variable to the rootCA folder then use 'mkcert -install'")
+			fmt.Println("")
+
+			config.Set(true, "cert", "proxy", "ssl")
+			// config.Set(true, "cert", "proxy", "self")
+			config.Set(certFile, "cert", "proxy", "certFile")
+			config.Set(certKey, "cert", "proxy", "keyFile")
+			config.Set(caFile, "cert", "proxy", "autoCA")
+
+		case *install.ProxyConfig_LetsEncrypt:
+
+			config.Set(true, "cert", "proxy", "ssl")
+			// config.Set(false, "cert", "proxy", "self")
+			config.Set(v.LetsEncrypt.GetEmail(), "cert", "proxy", "email")
+			config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
+			if v.LetsEncrypt.GetStagingCA() {
+				config.Set(config.DefaultCaStagingUrl, "cert", "proxy", "caUrl")
+			}
+			saveMsg += "With Let's Encrypt automatic cert generation"
+
+		case *install.ProxyConfig_Certificate:
+
+			config.Set(true, "cert", "proxy", "ssl")
+			// config.Set(false, "cert", "proxy", "self")
+			config.Set(v.Certificate.GetCertFile(), "cert", "proxy", "certFile")
+			config.Set(v.Certificate.GetKeyFile(), "cert", "proxy", "keyFile")
+			saveMsg += "With provided certificate"
+
+		default:
+			config.Set(false, "cert", "proxy", "ssl")
+			saveMsg = "Install / Non-Interactive / Without SSL"
+		}
+
 	}
 
 	// Simplified management of redirect URLs
 	redirect := pconf.GetRedirectURLs() != nil && len(pconf.GetRedirectURLs()) > 0
 	config.Set(redirect, "cert", "proxy", "httpRedir")
 
-	err := config.Save("cli", saveMsg)
+	err = config.Save("cli", saveMsg)
 	if err != nil {
 		return err
 	}
