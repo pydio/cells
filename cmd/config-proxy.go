@@ -25,10 +25,10 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
+	"github.com/pydio/cells/common/utils/net"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +45,7 @@ func promptAndApplyProxyConfig() (internal, external *url.URL, e error) {
 	proxyConfig := &install.ProxyConfig{}
 
 	// Get SSL info from end user
-	e = promptURls(proxyConfig)
+	e = promptURLs(proxyConfig, true)
 	if e != nil {
 		return nil, nil, e
 	}
@@ -80,11 +80,8 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 		return err
 	}
 
-	fmt.Printf("[DEBUG] Applying proxy config: bindURL: %s, ExtURL: %s\n", pconf.GetBindURL(), pconf.GetExternalURL())
-
 	if pconf.TLSConfig == nil {
 
-		fmt.Printf("[DEBUG]  No TLS config")
 		saveMsg = "Install / Non-Interactive / Without SSL"
 
 	} else {
@@ -100,14 +97,26 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 			mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
 
 			hns := v.SelfSigned.GetHostnames()
-			if hns == nil || len(hns) == 0 {
-				binddn := strings.TrimPrefix(strings.TrimPrefix(pconf.GetBindURL(), "http://"), "https://")
-				parts := strings.Split(binddn, ":")
-				hns = []string{}
-				if len(parts) > 1 {
-					binddn = parts[0]
+			if len(hns) == 0 {
+				// by default, use the bind url
+				u, err := url.Parse(pconf.GetBindURL())
+				if err != nil {
+					return err
 				}
-				hns = append(hns, binddn)
+				bindHost := u.Hostname()
+				if bindHost != "0.0.0.0" {
+					// Standard case : use internal by default
+					hns = append(hns, bindHost)
+				} else {
+					// Special case for 0.0.0.0 => use all interfaces and external
+					ii, _ := net.GetAvailableIPs()
+					for _, i := range ii {
+						hns = append(hns, i.String())
+					}
+					if u2, e := url.Parse(pconf.GetExternalURL()); e == nil {
+						hns = append(hns, u2.Hostname())
+					}
+				}
 			}
 
 			fmt.Printf("[DEBUG] Hostnames: %v \n", hns)
@@ -129,7 +138,6 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 			fmt.Println("")
 
 			config.Set(true, "cert", "proxy", "ssl")
-			// config.Set(true, "cert", "proxy", "self")
 			config.Set(certFile, "cert", "proxy", "certFile")
 			config.Set(certKey, "cert", "proxy", "keyFile")
 			config.Set(caFile, "cert", "proxy", "autoCA")
@@ -137,7 +145,6 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 		case *install.ProxyConfig_LetsEncrypt:
 
 			config.Set(true, "cert", "proxy", "ssl")
-			// config.Set(false, "cert", "proxy", "self")
 			config.Set(v.LetsEncrypt.GetEmail(), "cert", "proxy", "email")
 			config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
 			if v.LetsEncrypt.GetStagingCA() {
@@ -148,7 +155,6 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 		case *install.ProxyConfig_Certificate:
 
 			config.Set(true, "cert", "proxy", "ssl")
-			// config.Set(false, "cert", "proxy", "self")
 			config.Set(v.Certificate.GetCertFile(), "cert", "proxy", "certFile")
 			config.Set(v.Certificate.GetKeyFile(), "cert", "proxy", "keyFile")
 			saveMsg += "With provided certificate"

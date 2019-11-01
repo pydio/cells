@@ -114,7 +114,7 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 		useStagingPrompt := promptui.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
 
 		certMail, e1 := mailPrompt.Run()
-		if e != nil {
+		if e1 != nil {
 			e = e1
 			return
 		}

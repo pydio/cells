@@ -76,7 +76,7 @@ var (
 	niLeUseStagingCA bool
 	ymlFile          string
 	jsonFile         string
-	test             bool
+	//test             bool
 )
 
 var installCmd = &cobra.Command{
@@ -136,23 +136,21 @@ var installCmd = &cobra.Command{
 		exposeInstallServer := false
 		var err error
 
-		// A quoi ca sert ca?
 		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
 		if micro == 0 {
 			micro = net.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
-			// config.Save("cli", "Install / Setting default Ports")
 			err = config.Save("cli", "Install / Setting default Ports")
 			fatalIfError(cmd, err)
 		}
 
 		if (niBindUrl != "" && niExtUrl != "") || ymlFile != "" || jsonFile != "" {
-			// If these flags are set, non interractive mode
+			// If these flags are set, non interactive mode
 			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
-			if test { // Do not try to start install server or restart services
-				return
-			}
+			//if test { // Do not try to start install server or restart services
+			//	return
+			//}
 
 		} else {
 

@@ -49,7 +49,7 @@ var urlCmd = &cobra.Command{
 		proxyConfig.ExternalURL = config.Get("defaults", "url").String("")
 
 		// Get SSL info from end user
-		e := promptURls(proxyConfig)
+		e := promptURLs(proxyConfig, false)
 		if e != nil {
 			log.Fatal(e)
 		}
@@ -63,30 +63,36 @@ var urlCmd = &cobra.Command{
 	},
 }
 
-func promptURls(proxyConfig *install.ProxyConfig) (e error) {
-	// Get SSL info from end user
-	e = promptBindURl(proxyConfig)
+func promptURLs(proxyConfig *install.ProxyConfig, includeTLS bool) (e error) {
+	// Get URL info from end user
+	e = promptBindURL(proxyConfig)
 	if e != nil {
 		return
 	}
 
-	// TODO Check if TLS is already defined
-	// YES => ask we want to change
-	// NO => change anyway
-
-	_, e = promptTLSMode(proxyConfig)
-	if e != nil {
-		return
+	if !includeTLS {
+		// TLS not included by default, still ask the user if he wants to change it
+		promptTls := p.Prompt{Label: "Do you want to change your TLS config as well? [y/N] ", Default: ""}
+		if val, e1 := promptTls.Run(); e1 == nil && (val == "Y" || val == "y" || val == "") {
+			includeTLS = true
+		}
 	}
 
-	e = promptExtURl(proxyConfig)
+	if includeTLS {
+		_, e = promptTLSMode(proxyConfig)
+		if e != nil {
+			return
+		}
+	}
+
+	e = promptExtURL(proxyConfig)
 	if e != nil {
 		return
 	}
 	return
 }
 
-func promptBindURl(proxyConfig *install.ProxyConfig) (e error) {
+func promptBindURL(proxyConfig *install.ProxyConfig) (e error) {
 
 	defaultPort := "8080"
 	var internalHost string
@@ -139,27 +145,29 @@ func promptBindURl(proxyConfig *install.ProxyConfig) (e error) {
 	return nil
 }
 
-func promptExtURl(proxyConfig *install.ProxyConfig) error {
+func promptExtURL(proxyConfig *install.ProxyConfig) error {
 
 	// Gather predefined info to enhance suggestions
-	bind := proxyConfig.GetBindURL()
-	dn := strings.TrimPrefix(bind, "http://")
-	dn = strings.TrimPrefix(dn, "https://")
-	parts := strings.Split(dn, ":")
+	bind, e := url.Parse(proxyConfig.GetBindURL())
+	if e != nil {
+		return e
+	}
+	parts := strings.Split(bind.Host, ":")
 	if len(parts) != 2 {
-		return fmt.Errorf("Bind URL %s is not valid. Please correct to use an [IP|DOMAIN]:[PORT] string", dn)
+		return fmt.Errorf("Bind URL %s is not valid. Please correct to use an [IP|DOMAIN]:[PORT] string", bind.Host)
 	}
-
+	extUrl := &url.URL{
+		Scheme: "http",
+		Host:   bind.Host,
+	}
 	if parts[1] == "80" || parts[1] == "443" {
-		dn = parts[0]
+		extUrl.Host = parts[0] // Strip port
 	}
-
-	scheme := "http://"
 	if parts[1] == "443" || proxyConfig.GetTLSConfig() != nil {
-		scheme = "https://"
+		extUrl.Scheme = "https"
 	}
 
-	external := fmt.Sprintf("%s%s", scheme, dn)
+	external := extUrl.String()
 
 	fmt.Println("Your instance will be accessible at " + external + ". If you are behind a reverse proxy or inside a private network, you may need to manually set an alternative External URL. Do not change this is you are not sure!")
 	changeExternal := p.Select{
@@ -170,7 +178,7 @@ func promptExtURl(proxyConfig *install.ProxyConfig) error {
 		extPrompt := p.Prompt{
 			Label:    "External Url used to access application from outside world",
 			Validate: validScheme,
-			Default:  fmt.Sprintf("%s://%s", scheme, dn),
+			Default:  extUrl.String(),
 		}
 		var err error
 		external, err = extPrompt.Run()
