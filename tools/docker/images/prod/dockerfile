@@ -5,9 +5,9 @@ ARG version
 RUN apk update && apk add ca-certificates
 ENV CELLS_VERSION ${version}
 
-#WORKDIR /pydio
-#RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
-#RUN chmod +x /pydio/cells
+WORKDIR /pydio
+RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
+RUN chmod +x /pydio/cells
 
 # Creates the final image
 FROM busybox:glibc
@@ -25,9 +25,7 @@ ENV CELLS_SERVICES_DIR ${CELLS_WORKING_DIR}/services
 # Add necessary files
 COPY docker-entrypoint.sh /pydio/docker-entrypoint.sh
 COPY libdl.so.2 /pydio/libdl.so.2
-## TEST ONLY. SEE ALSO ABOVE
-# COPY --from=certs /pydio/cells /pydio/cells
-COPY cells /pydio/cells
+COPY --from=certs /pydio/cells /pydio/cells
 RUN chmod +x /pydio/cells
 COPY --from=certs /etc/ssl/certs /etc/ssl/certs
 

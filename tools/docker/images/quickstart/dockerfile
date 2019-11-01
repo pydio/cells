@@ -5,9 +5,9 @@ ARG version
 RUN apk update && apk add ca-certificates
 ENV CELLS_VERSION ${version}
 
-#WORKDIR /pydio
-#RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
-#RUN chmod +x /pydio/cells
+WORKDIR /pydio
+RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
+RUN chmod +x /pydio/cells
 
 # Creates the final image
 FROM busybox:glibc
