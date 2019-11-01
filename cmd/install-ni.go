@@ -26,9 +26,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
-	"time"
-
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -150,6 +149,48 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 func installFromConf() (*install.InstallConfig, error) {
 
+	fmt.Printf("\033[1m## Performing Installation\033[0m \n")
+
+	installConf, err := unmarshallConf()
+
+	// FIXME double check this
+	// _ := lib.GenerateDefaultConfig()
+
+	// Preconfiguring proxy:
+	err = applyProxyConfig(installConf.GetProxyConfig())
+	if err != nil {
+		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
+	}
+
+	// Check if pre-configured DB is up and running
+	nbRetry := 10
+	for i := 0; i < nbRetry; i++ {
+		if res := lib.PerformCheck(context.Background(), "DB", installConf); res.Success {
+			break
+		}
+		if i == nbRetry-1 {
+			fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection config")
+			return nil, fmt.Errorf("no DB. Aborting...")
+		}
+		fmt.Println("... Cannot connect to database, wait before retry")
+		<-time.After(3 * time.Second)
+	}
+
+	// TODO: Double check this
+	installConf.InternalUrl = installConf.GetProxyConfig().GetBindURL()
+
+	err = lib.Install(context.Background(), installConf, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+		fmt.Println(event.Message)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error while performing installation: %s", err.Error())
+	}
+
+	return installConf, nil
+}
+
+func unmarshallConf() (*install.InstallConfig, error) {
+
 	var confFromFile *install.InstallConfig
 	var path string
 
@@ -163,6 +204,8 @@ func installFromConf() (*install.InstallConfig, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error parsing YAML file at %s: %s", niYmlFile, err.Error())
 		}
+
+		fmt.Printf("%v", confFromFile)
 
 	}
 
@@ -178,41 +221,7 @@ func installFromConf() (*install.InstallConfig, error) {
 			return nil, fmt.Errorf("error parsing JSON file at %s: %s", niJsonFile, err.Error())
 		}
 	}
-
-	fmt.Printf("\033[1m## Performing Installation\033[0m using default config from %s\n", path)
-
-	// TODO double check this
-	// _ := lib.GenerateDefaultConfig()
-
-	// Preconfiguring proxy:
-	err := applyProxyConfig(confFromFile.GetProxyConfig())
-	if err != nil {
-		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
-	}
-
-	// Check if pre-configured DB is up and running
-	nbRetry := 10
-	for i := 0; i < nbRetry; i++ {
-		if res := lib.PerformCheck(context.Background(), "DB", confFromFile); res.Success {
-			break
-		}
-		if i == nbRetry-1 {
-			fmt.Println("[Error] Cannot connect to database, you should double check your server and your connection config")
-			return nil, fmt.Errorf("no DB. Aborting...")
-		}
-		fmt.Println("... Cannot connect to database, wait before retry")
-		<-time.After(3 * time.Second)
-	}
-
-	// TODO: Double check this
-	confFromFile.InternalUrl = confFromFile.GetProxyConfig().GetBindURL()
-
-	err = lib.Install(context.Background(), confFromFile, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
-		fmt.Println(event.Message)
-	})
-	if err != nil {
-		return nil, fmt.Errorf("error while performing installation: %s", err.Error())
-	}
+	fmt.Printf("Retrieved default config from %s\n", path)
 
 	return confFromFile, nil
 }

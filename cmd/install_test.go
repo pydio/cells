@@ -21,45 +21,236 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"gopkg.in/yaml.v2"
+
+	"github.com/pydio/cells/common/proto/install"
 )
+
+var (
+	testInstallNoTLS = &install.InstallConfig{
+		ProxyConfig: &install.ProxyConfig{
+			BindURL:     "http://localhost:80",
+			ExternalURL: "http://localhost",
+		},
+	}
+
+	testInstallSelf = &install.InstallConfig{
+		ProxyConfig: &install.ProxyConfig{
+			BindURL:      "https://localhost:443",
+			ExternalURL:  "https://localhost",
+			RedirectURLs: []string{"http://localhost"},
+			TLSConfig: &install.ProxyConfig_SelfSigned{
+				&install.TLSSelfSigned{
+					Hostnames: []string{"localhost"},
+				},
+			},
+		},
+	}
+
+	testInstallLE = &install.InstallConfig{
+		ProxyConfig: &install.ProxyConfig{
+			BindURL:      "https://localhost:443",
+			ExternalURL:  "https://localhost",
+			RedirectURLs: []string{"http://localhost"},
+			TLSConfig: &install.ProxyConfig_LetsEncrypt{
+				&install.TLSLetsEncrypt{
+					Email:      "sofia@example.com",
+					AcceptEULA: true,
+					StagingCA:  true,
+				},
+			},
+		},
+	}
+
+	testInstallCert = &install.InstallConfig{
+		ProxyConfig: &install.ProxyConfig{
+			BindURL:      "https://localhost:443",
+			ExternalURL:  "https://localhost",
+			RedirectURLs: []string{"http://localhost"},
+			TLSConfig: &install.ProxyConfig_Certificate{
+				&install.TLSCertificate{
+					CertFile: "/var/cells/cert/cert.pem",
+					KeyFile:  "/var/cells/cert/key.pem",
+				},
+			},
+		},
+	}
+)
+
+func printMarshalled(title string, conf *install.InstallConfig) {
+
+	fmt.Println("#", title)
+	fmt.Println("## JSON ")
+	data1, _ := json.MarshalIndent(conf, "", "  ")
+	fmt.Println(string(data1))
+	fmt.Println("## YAML ")
+	data2, _ := yaml.Marshal(conf)
+	fmt.Println(string(data2))
+
+}
+func TestMarshallConf(t *testing.T) {
+
+	printMarshalled("NO TLS", testInstallNoTLS)
+	printMarshalled("Self Signed", testInstallSelf)
+	printMarshalled("Let's encrypt", testInstallLE)
+	printMarshalled("Certificate", testInstallCert)
+}
+
+func TestUnmarshallConf(t *testing.T) {
+	// FIXME this will fail with modules.
+	testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "cmd", "testdata")
+
+	Convey("Insure sample files are valid", func() {
+
+		Convey("From YAML File", func() {
+
+			Convey("No TLS", func() {
+				niYmlFile = filepath.Join(testDir, "no-tls.yml")
+				installConf, err := unmarshallConf()
+				So(err, ShouldBeNil)
+				So(installConf.GetProxyConfig(), ShouldNotBeNil)
+				So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "http://localhost:80")
+				So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "http://localhost")
+				So(installConf.GetProxyConfig().GetTLSConfig(), ShouldBeNil)
+				niYmlFile = ""
+			})
+
+			Convey("Self-Signed", func() {
+				niYmlFile = filepath.Join(testDir, "self-signed.yml")
+				installConf, err := unmarshallConf()
+				So(err, ShouldBeNil)
+				So(installConf.GetProxyConfig(), ShouldNotBeNil)
+				So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "https://localhost:8080")
+				So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "https://localhost:8080")
+				So(installConf.GetProxyConfig().GetTLSConfig(), ShouldNotBeNil)
+				niYmlFile = ""
+			})
+
+		})
+
+		Convey("From JSON File", func() {
+
+			Convey("Bind and Ext should generate a plain HTTP config", func() {
+				niJsonFile = filepath.Join(testDir, "no-tls.json")
+				installConf, err := unmarshallConf()
+				So(err, ShouldBeNil)
+				So(installConf.GetProxyConfig(), ShouldNotBeNil)
+				So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "http://localhost:8080")
+				So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "http://localhost:8080")
+				So(installConf.GetProxyConfig().GetTLSConfig(), ShouldBeNil)
+				niJsonFile = ""
+			})
+
+			Convey("Self-Signed", func() {
+				niJsonFile = filepath.Join(testDir, "self-signed.json")
+				installConf, err := unmarshallConf()
+				So(err, ShouldBeNil)
+				So(installConf.GetProxyConfig(), ShouldNotBeNil)
+				So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "https://localhost:8080")
+				So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "https://localhost:8080")
+				So(installConf.GetProxyConfig().GetTLSConfig(), ShouldNotBeNil)
+				niJsonFile = ""
+			})
+			// self signed
+		})
+
+	})
+
+}
 
 func TestNonInteractiveInstall(t *testing.T) {
 
 	Convey("Given an empty config", t, func() {
 
-		Convey("Bind and Ext should generate a NO TLS config", func() {
-			niBindUrl = "localhost:80"
-			niExtUrl = "http://localhost"
-			pconf, err := proxyConfigFromArgs()
-			So(err, ShouldBeNil)
-			So(pconf.GetBindURL(), ShouldEqual, "http://"+niBindUrl)
-			So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
-			So(pconf.GetTLSConfig(), ShouldBeNil)
+		// Convey("Bind and Ext should generate a NO TLS config", func() {
+		// 	niBindUrl = "localhost:80"
+		// 	niExtUrl = "http://localhost"
+		// 	pconf, err := proxyConfigFromArgs()
+		// 	So(err, ShouldBeNil)
+		// 	So(pconf.GetBindURL(), ShouldEqual, "http://"+niBindUrl)
+		// 	So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
+		// 	So(pconf.GetTLSConfig(), ShouldBeNil)
+		// 	niBindUrl = ""
+		// 	niExtUrl = ""
+		// })
+
+		// Convey("Selfsign flags is ok", func() {
+		// 	niBindUrl = "localhost:443"
+		// 	niExtUrl = "https://localhost"
+		// 	niSelfSigned = true
+		// 	pconf, err := proxyConfigFromArgs()
+		// 	So(err, ShouldBeNil)
+		// 	So(pconf.GetBindURL(), ShouldEqual, "https://"+niBindUrl)
+		// 	So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
+		// 	So(pconf.GetTLSConfig(), ShouldNotBeNil)
+		// 	// So(pconf.GetTLSConfig(), ShouldHaveSameTypeAs, *install.ProxyConfig_SelfSigned)
+
+		// 	niBindUrl = "http://localhost:443"
+		// 	_, err = proxyConfigFromArgs()
+		// 	So(err, ShouldNotBeNil)
+
+		// 	niBindUrl = ""
+		// 	niExtUrl = ""
+		// 	niSelfSigned = false
+		// })
+
+		// FIXME this will fail with modules.
+		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "cmd", "testdata")
+
+		Convey("Insure sample files are still valid", func() {
+
+			Convey("From YAML File", func() {
+
+				Convey("Self-Signed", func() {
+					// no TLS
+					niYmlFile = filepath.Join(testDir, "self-signed.yml")
+					installConf, err := unmarshallConf()
+					So(err, ShouldBeNil)
+					So(installConf.GetProxyConfig(), ShouldNotBeNil)
+					So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "https://localhost:8080")
+					So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "https://localhost:8080")
+					So(installConf.GetProxyConfig().GetTLSConfig(), ShouldNotBeNil)
+					niYmlFile = ""
+				})
+				// self signed
+			})
+
+			// Convey("From JSON File", func() {
+
+			// 	// Convey("Bind and Ext should generate a plain HTTP config", func() {
+			// 	// 	niJsonFile = filepath.Join(testDir, "no-tls.json")
+			// 	// 	installConf, err := unmarshallConf()
+			// 	// 	So(err, ShouldBeNil)
+			// 	// 	So(installConf.GetProxyConfig(), ShouldNotBeNil)
+			// 	// 	So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "http://localhost:8080")
+			// 	// 	So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "http://localhost:8080")
+			// 	// 	So(installConf.GetProxyConfig().GetTLSConfig(), ShouldBeNil)
+			// 	// 	niJsonFile = ""
+			// 	// })
+
+			// 	Convey("Self-Signed", func() {
+			// 		// no TLS
+			// 		niJsonFile = filepath.Join(testDir, "self-signed.json")
+			// 		installConf, err := unmarshallConf()
+			// 		So(err, ShouldBeNil)
+			// 		So(installConf.GetProxyConfig(), ShouldNotBeNil)
+			// 		So(installConf.GetProxyConfig().GetBindURL(), ShouldEqual, "https://localhost:8080")
+			// 		So(installConf.GetProxyConfig().GetExternalURL(), ShouldEqual, "https://localhost:8080")
+			// 		So(installConf.GetProxyConfig().GetTLSConfig(), ShouldNotBeNil)
+			// 		niJsonFile = ""
+			// 	})
+			// 	// self signed
+			// })
+
 		})
 
-		Convey("Selfsign flags is ok", func() {
-			niBindUrl = "localhost:443"
-			niExtUrl = "https://localhost"
-			niSelfSigned = true
-			pconf, err := proxyConfigFromArgs()
-			So(err, ShouldBeNil)
-			So(pconf.GetBindURL(), ShouldEqual, "https://"+niBindUrl)
-			So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
-			So(pconf.GetTLSConfig(), ShouldNotBeNil)
-			// So(pconf.GetTLSConfig(), ShouldHaveSameTypeAs, *install.ProxyConfig_SelfSigned)
-
-			niBindUrl = "http://localhost:443"
-			niExtUrl = "https://localhost"
-			niSelfSigned = true
-			_, err = proxyConfigFromArgs()
-			So(err, ShouldNotBeNil)
-
-		})
 	})
 
 }
@@ -67,19 +258,6 @@ func TestNonInteractiveInstall(t *testing.T) {
 func TestJsonConfigInstall(t *testing.T) {
 
 	Convey("Given an empty config", t, func() {
-
-		// FIXME this will fail with modules.
-		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "cmd", "testdata")
-
-		Convey("Bind and Ext should generate a NO TLS config", func() {
-			// no TLS
-			niJsonFile = filepath.Join(testDir, "no-tls.json")
-			pconf, err := proxyConfigFromArgs()
-			So(err, ShouldBeNil)
-			So(pconf.GetBindURL(), ShouldEqual, "http://localhost:8080")
-			So(pconf.GetExternalURL(), ShouldEqual, "http://localhost:8080")
-			So(pconf.GetTLSConfig(), ShouldBeNil)
-		})
 
 		// Convey("Selfsign flags is ok", func() {
 		// 	niBindUrl = "localhost:443"
