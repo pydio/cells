@@ -1,48 +1,35 @@
-sslconfig:
-  bindurl: 0.0.0.0:80
-  # Put your domain name in the line below to reach your server from the internet
-  exturl: http://localhost
-  disablessl: true
-  ### Rather enable below lines (and remove the above, if you have a valid registered domain name and want to enable https with Let's Encrypt)
-  #bindurl: 0.0.0.0:443
-  #exturl: https://yourdomain.example.com
-  #disablessl: false
-  #lemailcontact: admin@yourdomain.example.com
-  #leaccepteula: true
-  #httpredir: true
-  
-  ### other possible conf, refer to the documentation
-  #rootca: 
-  #certfile:
-  #keyfile:
+# Basic no-TLS config for the embedded gateway
+proxyconfig:
+  bindurl: http://localhost:80
+  externalurl: http://localhost
 
-installconfig:
-  dbconnectiontype: tcp
-  dbtcphostname: mysql
-  dbtcpport: 3306
-  dbtcpname: cells
-  dbtcpuser: pydio
-  dbtcppassword: pydio
-  dbsocketfile: /tmp/mysql.sock
-  dbsocketname: cells
-  dbsocketuser: root
-  dbsocketpassword: root@tcp(mysql=3306)/cells
-  dsname: pydiods1
-  dsport: 41850
-  dsfolder: /tmp/data
-  externalmicro: 0
-  externalgateway: 42568
-  externalwebsocket: 42402
-  externalfrontfplugins: 45434
-  externaldav: 43773
-  externalwopi: 35205
-  externaldex: 44771
-  externaldexid: cells-front
-  externaldexsecret: cells-front
-  frontendlogin: admin
-  frontendpassword: admin
-  frontendrepeatpassword: admin
-  frontendapplicationtitle: Pydio Cells
-  frontenddefaultlanguage: en
-  licenserequired: false
-  licensestring: ""
+# The install config
+dbconnectiontype: tcp
+dbtcphostname: mysql
+dbtcpport: 3306
+dbtcpname: cells
+dbtcpuser: pydio
+dbtcppassword: pydio
+dbsocketfile: /tmp/mysql.sock
+dbsocketname: cells
+dbsocketuser: root
+dbsocketpassword: root@tcp(mysql=3306)/cells
+dsname: pydiods1
+dsport: 41850
+dsfolder: /tmp/data
+externalmicro: 0
+externalgateway: 42568
+externalwebsocket: 42402
+externalfrontfplugins: 45434
+externaldav: 43773
+externalwopi: 35205
+externaldex: 44771
+externaldexid: cells-front
+externaldexsecret: cells-front
+frontendlogin: admin
+frontendpassword: admin
+frontendrepeatpassword: admin
+frontendapplicationtitle: Pydio Cells
+frontenddefaultlanguage: en
+licenserequired: false
+licensestring: ""
