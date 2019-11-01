@@ -1,0 +1,6 @@
+{
+    "ProxyConfig": {
+        "BindURL": "http://localhost:8080",
+        "ExternalURL": "http://localhost:8080"
+    }
+}

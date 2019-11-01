@@ -1,0 +1,18 @@
+frontendlogin: ""
+frontendpassword: ""
+frontendrepeatpassword: ""
+frontendapplicationtitle: ""
+frontenddefaultlanguage: ""
+licenserequired: false
+licensestring: ""
+checkresults: []
+proxyconfig:
+  bindurl: https://localhost:443
+  externalurl: https://localhost
+  redirecturls:
+  - http://localhost
+  tlsconfig:
+    letsencrypt:
+      email: sofia@example.com
+      accepteula: true
+      stagingca: true

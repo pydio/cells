@@ -8,10 +8,14 @@ fi
 
 if [ "$1" == "cells" ]; then
 	# This file acts as a flag to check if we can start Cells or if we want to perform the non-interactive install.
-	FILE="/root/.config/pydio/cells/pydio.json"
+	FILE="/$CELLS_WORKING_DIR/pydio.json"
 	if [ ! -f "$FILE" ] ; then 
 		
-		if [ -z "$CELLS_NO_SSL" -o "$CELLS_NO_SSL" != "1" ]; then
+		if [ -f "$INSTALL_CONF_FILE" ] ; then 
+			# Non interractive install based on a yaml config file   	
+			cells install-yml -f $INSTALL_CONF_FILE "$@"
+
+		elif [ -z "$CELLS_NO_SSL" -o "$CELLS_NO_SSL" != "1" ]; then
 			
 			# Provided certificates
 			if [ -n "$CELLS_SSL_CERT_FILE" -a -n "$CELLS_SSL_KEY_FILE" ]; then

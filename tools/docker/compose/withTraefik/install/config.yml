@@ -1,0 +1,38 @@
+sslconfig:
+  bindurl: 0.0.0.0:80
+  exturl: localhost
+  disablessl: true
+  #certfile:
+  #keyfile:
+  #lemailcontact:
+  #leaccepteula:
+installconfig:
+  dbconnectiontype: tcp
+  dbtcphostname: mysql
+  dbtcpport: 3306
+  dbtcpname: cells
+  dbtcpuser: pydio
+  dbtcppassword: pydio
+  dbsocketfile: /tmp/mysql.sock
+  dbsocketname: cells
+  dbsocketuser: root
+  dbsocketpassword: root@tcp(localhost=3306)/cells
+  dsname: pydiods1
+  dsport: 41850
+  dsfolder: /tmp/data
+  externalmicro: 0
+  externalgateway: 42568
+  externalwebsocket: 42402
+  externalfrontfplugins: 45434
+  externaldav: 43773
+  externalwopi: 35205
+  externaldex: 44771
+  externaldexid: cells-front
+  externaldexsecret: H6AAnKFH96LeBG22BWmtfPIMP
+  frontendlogin: admin
+  frontendpassword: admin
+  frontendrepeatpassword: admin
+  frontendapplicationtitle: Pydio Cells
+  frontenddefaultlanguage: en
+  licenserequired: false
+  licensestring: ""

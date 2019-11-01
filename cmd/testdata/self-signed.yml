@@ -1,0 +1,9 @@
+proxyconfig:
+    bindurl: https://localhost:8080
+    externalurl: https://localhost:8080
+    redirecturls:
+        - http://localhost:8080
+    tlsconfig:
+        selfsigned:
+            hostnames:
+                - localhost

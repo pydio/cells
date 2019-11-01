@@ -1,0 +1,73 @@
+version: "3"
+
+services:
+  reverse-proxy:
+    # The official v2.0 Traefik docker image
+    image: traefik:v2.0
+    restart: always
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # Configuration file for traefik
+      - ./install/traefik.yml:/etc/traefik/traefik.yml
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.http.routers.api.rule=Host(`$CHOST`)"
+      - "traefik.http.routers.api.entrypoints=dashboard"
+      - "traefik.http.routers.api.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.api.service=api@internal"
+    # environment:
+    #networks:
+    #  - internal
+    #  - web
+
+  cells:
+    image: bsinou/cells:quickstart
+    restart: always
+    volumes:
+      - "workingdir:/var/cells"
+      - "./install/config.yml:/pydio/config.yml"
+    ports: ["8000:80"]
+    environment:
+      - INSTALL_CONF_FILE=/pydio/config.yml
+      # CELLS_BIND=0.0.0.0:80
+      # CELLS_EXTERNAL=localhost
+      # CELLS_NO_SSL=1
+    depends_on:
+      - mysql
+    labels:
+      - "traefik.http.routers.cells.rule=Host(`$CHOST`)"
+      - "traefik.http.routers.cells.entrypoints=web"
+  #      - "traefik.http.routers.cells.tls.certresolver=sample"
+  #	These entries might be useful for gRPC in cells	2
+  #- "traefik.tcp.routers.cells.rule=HostSNI(`${DOMAIN_NAME}`)"
+  #- "traefik.tcp.routers.cells.entrypoints=websecure"
+  #- "traefik.tcp.routers.cells.tls.passthrough=true"
+  #command: ["cells", "start", "--log=production"]
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_DATABASE: cells
+      MYSQL_USER: pydio
+      MYSQL_PASSWORD: pydio
+    volumes:
+      - "db:/var/lib/mysql"
+    command:
+      [
+        mysqld,
+        --character-set-server=utf8mb4,
+        --collation-server=utf8mb4_unicode_ci,
+      ]
+
+volumes:
+  workingdir: {}
+  db: {}

@@ -23,22 +23,20 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"net/url"
-	"os"
-	"path/filepath"
+	"strings"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/proto/install"
 )
 
-// SslModeCmd permits configuration of used SSL mode.
-var SslModeCmd = &cobra.Command{
-	Use:   "mode",
+var tlsModeCmd = &cobra.Command{
+	Use:   "tls",
 	Short: "Manage TLS configuration of the application internal proxy",
 	Long: `
-This command lets you enable/disabled SSL on application main access point.
+This command lets you enable/disabled TLS on the application main access point.
 
 Four modes are currently supported:
 - TLS mode : provide the paths to certificate and key (as you would on an apache server)
@@ -49,32 +47,23 @@ Four modes are currently supported:
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// Retrieve already defined conf
-		extURL, _ := url.Parse(config.Get("defaults", "url").String(""))
-		intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
-
-		// Get SSL info from end user
-		enabled, certData, e := promptSslMode(intURL.Hostname())
+		proxyConfig := loadProxyConf()
+		initialTLS := proxyConfig.TLSConfig != nil
+		// Get TLS info from end user
+		_, e := promptTLSMode(proxyConfig)
 		if e != nil {
 			log.Fatal(e)
 		}
-
-		// Replace Main URLS
-		if enabled {
-			extURL.Scheme = "https"
-			intURL.Scheme = "https"
-		} else {
-			extURL.Scheme = "http"
-			intURL.Scheme = "http"
-		}
-		config.Set(extURL.String(), "defaults", "url")
-		config.Set(intURL.String(), "defaults", "urlInternal")
-		config.Set(certData, "cert")
-		if e := config.Save("cli", "Update SSL mode"); e != nil {
-			cmd.Println("Error while saving config: " + e.Error())
+		if initialTLS != (proxyConfig.TLSConfig != nil) {
+			// There was a change in tls => this will impact external URL !
+			cmd.Println("Switching TLS mode: checking external URL")
+			e := promptExtURL(proxyConfig)
+			if e != nil {
+				log.Fatal(e)
+			}
 		}
 
-		config.ResetTlsConfigs()
+		applyProxyConfig(proxyConfig)
 
 		cmd.Println("*************************************************************")
 		cmd.Println(" Config has been updated, please restart now!")
@@ -83,26 +72,21 @@ Four modes are currently supported:
 	},
 }
 
-func promptSslMode(knownHostname string) (enabled bool, certData map[string]interface{}, e error) {
-
-	proxyData := make(map[string]interface{})
-	certData = map[string]interface{}{
-		"proxy": proxyData,
-	}
+func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 
 	// Load defaults
 	certFile := config.Get("cert", "proxy", "certFile").String("")
 	keyFile := config.Get("cert", "proxy", "keyFile").String("")
 	certEmail := config.Get("cert", "proxy", "email").String("")
-	caURL := config.Get("cert", "proxy", "caUrl").String(config.DefaultCaUrl)
+	enabled = true
 
 	selector := promptui.Select{
-		Label: "Choose SSL activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'Tls => Clear' is generally not supported",
+		Label: "Choose TLS activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'TLS => Clear' is generally not supported",
 		Items: []string{
 			"Provide paths to certificate/key files",
 			"Use Let's Encrypt to automagically generate certificate during installation process",
 			"Generate your own locally trusted certificate (for staging env or if you are behind a reverse proxy)",
-			"Disable SSL (staging environments only, never recommended!)",
+			"Disable TLS (staging environments only, never recommended!)",
 		},
 	}
 	var i int
@@ -121,68 +105,73 @@ func promptSslMode(knownHostname string) (enabled bool, certData map[string]inte
 		if keyFile, e = keyPrompt.Run(); e != nil {
 			return
 		}
-		enabled = true
-		proxyData["ssl"] = true
-		proxyData["self"] = false
-		proxyData["certFile"] = certFile
-		proxyData["keyFile"] = keyFile
+		tlsConf := &install.ProxyConfig_Certificate{
+			Certificate: &install.TLSCertificate{
+				CertFile: certFile,
+				KeyFile:  keyFile,
+			}}
+		proxyConfig.TLSConfig = tlsConf
 
 	case 1:
 		mailPrompt := promptui.Prompt{Label: "Please enter the mail address for certificate generation", Validate: validateMailFormat, Default: certEmail}
-		acceptLeSa := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
+		acceptEulaPrompt := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
+		useStagingPrompt := promptui.Prompt{Label: "Do you want to use Let's Encrypt staging entrypoint? [y/N] ", Default: ""}
 
-		if certEmail, e = mailPrompt.Run(); e != nil {
-			return
-		}
-
-		val, e1 := acceptLeSa.Run()
+		certMail, e1 := mailPrompt.Run()
 		if e1 != nil {
 			e = e1
 			return
 		}
-		if !(val == "Y" || val == "y" || val == "") {
+		// TODO validate email
+
+		acceptEula := true
+		if val, e1 := acceptEulaPrompt.Run(); e1 != nil {
+			e = e1
+			return
+		} else if !(val == "Y" || val == "y" || val == "") {
 			e = fmt.Errorf("You must agree to Let's Encrypt SA to use automated certificate generation feature.")
 			return
 		}
-		enabled = true
-		proxyData["ssl"] = true
-		proxyData["self"] = false
-		proxyData["email"] = certEmail
-		proxyData["caUrl"] = caURL
+
+		useStaging := true
+		if val, e1 := useStagingPrompt.Run(); e1 != nil {
+			e = e1
+			return
+		} else if val == "N" || val == "n" || val == "" {
+			useStaging = false
+		}
+
+		tlsConf := &install.ProxyConfig_LetsEncrypt{
+			LetsEncrypt: &install.TLSLetsEncrypt{
+				Email:      certMail,
+				AcceptEULA: acceptEula,
+				StagingCA:  useStaging,
+			},
+		}
+		proxyConfig.TLSConfig = tlsConf
 
 	case 2:
 
-		if knownHostname == "" {
-			hostPrompt := promptui.Prompt{Label: "Please provide one or more hosts to generate a self-signed certificate", Default: ""}
-			knownHostname, _ = hostPrompt.Run()
-		}
-		storageLocation := filepath.Join(config.ApplicationWorkingDir(), "certs")
-		os.MkdirAll(storageLocation, 0700)
-		mkCert := config.NewMkCert(filepath.Join(config.ApplicationWorkingDir(), "certs"))
-		if err := mkCert.MakeCert([]string{knownHostname}); err == nil {
-			certFile, certKey, caFile, _ := mkCert.GeneratedResources()
-			fmt.Println("")
-			fmt.Println("")
-			fmt.Println("👉 If you are behind a reverse proxy, you can either install the RootCA on the proxy machine " +
-				"trust store, or configure your proxy to `insecure_skip_verify` for pointing to Cells.")
-			fmt.Println("👉 If you are developing locally, you may install the RootCA in your system trust store to " +
-				"see a green light in your browser!")
-			fmt.Println("🗒  To easily install the RootCA in your trust store, use https://github.com/FiloSottile/mkcert. " +
-				"Set the $CAROOT environment variable to the rootCA folder then use 'mkcert -install'")
-			fmt.Println("")
-			enabled = true
-			proxyData["ssl"] = true
-			proxyData["certFile"] = certFile
-			proxyData["keyFile"] = certKey
-			proxyData["autoCA"] = caFile
-		} else {
-			e = err
-			return
-		}
+		tlsConf := &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}}
+		proxyConfig.TLSConfig = tlsConf
+
 	case 3:
-		proxyData["ssl"] = false
+		proxyConfig.TLSConfig = nil
+		enabled = false
 	}
 
+	// FIXME this is also done cleanly else where
+	// Adapt bind url in case TLS mode has changed
+	scheme := "http://"
+	if enabled {
+		scheme = "https://"
+	}
+	// FIXME rather use URL parse
+	formerdn := strings.TrimPrefix(strings.TrimPrefix(proxyConfig.GetBindURL(), "http://"), "https://")
+	proxyConfig.BindURL = scheme + formerdn
+
+	// Reset redirect URL: for the time being we rather use this as a flag
+	proxyConfig.RedirectURLs = []string{}
 	if enabled {
 		redirPrompt := promptui.Select{
 			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning: this requires the right to bind to port 80 on this machine.",
@@ -191,7 +180,7 @@ func promptSslMode(knownHostname string) (enabled bool, certData map[string]inte
 				"No",
 			}}
 		if i, _, e = redirPrompt.Run(); e == nil && i == 0 {
-			proxyData["httpRedir"] = true
+			proxyConfig.RedirectURLs = []string{"http://" + formerdn}
 		}
 	}
 
@@ -199,5 +188,5 @@ func promptSslMode(knownHostname string) (enabled bool, certData map[string]inte
 }
 
 func init() {
-	SslCmd.AddCommand(SslModeCmd)
+	proxyCmd.AddCommand(tlsModeCmd)
 }

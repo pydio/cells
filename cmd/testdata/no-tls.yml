@@ -1,0 +1,39 @@
+# Basic no-TLS config for the embedded gateway
+proxyconfig:
+  bindurl: http://localhost:80
+  externalurl: http://localhost
+
+# The install config
+internalurl: ""
+dbconnectiontype: ""
+dbtcphostname: ""
+dbtcpport: ""
+dbtcpname: ""
+dbtcpuser: ""
+dbtcppassword: ""
+dbsocketfile: ""
+dbsocketname: ""
+dbsocketuser: ""
+dbsocketpassword: ""
+dbmanualdsn: ""
+dsname: ""
+dsport: ""
+dsfolder: ""
+externalmicro: ""
+externalgateway: ""
+externalwebsocket: ""
+externalfrontplugins: ""
+externaldav: ""
+externalwopi: ""
+externaldex: ""
+externaldexid: ""
+externaldexsecret: ""
+frontendhosts: ""
+frontendlogin: ""
+frontendpassword: ""
+frontendrepeatpassword: ""
+frontendapplicationtitle: ""
+frontenddefaultlanguage: ""
+licenserequired: false
+licensestring: ""
+checkresults: []

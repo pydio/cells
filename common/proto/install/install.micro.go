@@ -9,6 +9,10 @@ It is generated from these files:
 
 It has these top-level messages:
 	InstallConfig
+	ProxyConfig
+	TLSSelfSigned
+	TLSLetsEncrypt
+	TLSCertificate
 	CheckResult
 	PerformCheckRequest
 	PerformCheckResponse

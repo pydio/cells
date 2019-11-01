@@ -7,7 +7,7 @@
 As a convenience, we also provide pre-built Docker images of Pydio Cells that are hosted on the [Docker hub](https://hub.docker.com/r/pydio/cells).  
 If you use Docker compose, the `docker-compose.yml` that is in this directory installs and starts a Pydio Cells instance with a self signed certificate on port 443.
 
-Thanks to the non-interractive installer, it is also possible to modify the configuration to also use:
+Thanks to the non-interactive installer, it is also possible to modify the configuration to also use:
 
 - no certificate
 - a certificate _auto magically_ created using the tools provided by [Let's Encrypt](https://letsencrypt.org/)
@@ -21,7 +21,7 @@ Here are samples of relevant docker-compose directive to achieve these use cases
   cells:
         image: pydio/cells:latest
         restart: always
-        volumes: ["data:/root/.config/pydio/cells/data"]
+        volumes: ["data:/var/cells/data"]
         ports: ["8080:8080"]
         environment:
             - CELLS_BIND=localhost:8080
@@ -35,7 +35,7 @@ Here are samples of relevant docker-compose directive to achieve these use cases
   cells:
         image: pydio/cells:latest
         restart: always
-        volumes: ["data:/root/.config/pydio/cells/data"]
+        volumes: ["data:/var/cells/data"]
         ports: ["80:80", "443:443"]
         environment:
             - CELLS_BIND=0.0.0.0:443
@@ -50,11 +50,11 @@ Here are samples of relevant docker-compose directive to achieve these use cases
   cells:
         image: pydio/cells:latest
         restart: always
-        volumes: ["data:/root/.config/pydio/cells/data", "/path/to/your/ssl.cert:/root/ssl/ssl.cert", "/path/to/your/ssl.key:/root/ssl/ssl.key"]
+        volumes: ["data:/var/cells/data", "/path/to/your/ssl.cert:/etc/ssl/ssl.cert", "/path/to/your/ssl.key:/etc/ssl/ssl.key"]
         ports: ["8080:8080"]
         environment:
             - CELLS_BIND=localhost:443
             - CELLS_EXTERNAL=https://your.fqdn.com
-            - CELLS_SSL_CERT_FILE=/root/ssl/ssl.cert
-            - CELLS_SSL_KEY_FILE=/root/ssl/ssl.key
+            - CELLS_SSL_CERT_FILE=/etc/ssl/ssl.cert
+            - CELLS_SSL_KEY_FILE=/etc/ssl/ssl.key
 ```

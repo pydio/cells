@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+
+  cells:
+    image: bsinou/cells:quickstart
+    restart: always
+    ports: ["80:80", "443:443"]
+    environment:
+      - INSTALL_CONF_FILE=/pydio/install/config.yml
+      - CELLS_WORKING_DIR=/var/cells
+      - CADDY_PATH=/etc/ssl/caddy 
+    volumes: 
+      - "workingdir:/var/cells"
+      - "./install:/pydio/install"
+      - "caddy:/etc/ssl/caddy"
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_DATABASE: cells
+      MYSQL_USER: pydio
+      MYSQL_PASSWORD: pydio
+    command:
+      [
+        mysqld,
+        --character-set-server=utf8mb4,
+        --collation-server=utf8mb4_unicode_ci,
+      ]
+
+volumes:
+  workingdir: {}
+  caddy: {}
