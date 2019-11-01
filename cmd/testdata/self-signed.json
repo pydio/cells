@@ -2,10 +2,12 @@
     "ProxyConfig": {
         "BindURL": "https://localhost:8080",
         "ExternalURL": "https://localhost:8080",
-        "SelfSigned": {
-            "Hostnames": [
-                "localhost"
-            ]
+        "TLSConfig": {
+            "SelfSigned": {
+                "Hostnames": [
+                    "localhost"
+                ]
+            }
         }
     }
 }
