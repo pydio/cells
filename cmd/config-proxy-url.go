@@ -83,6 +83,7 @@ func promptURls(proxyConfig *install.ProxyConfig) (e error) {
 	if e != nil {
 		return
 	}
+
 	return
 }
 

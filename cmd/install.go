@@ -68,15 +68,15 @@ var (
 
 	niBindUrl        string
 	niExtUrl         string
-	niDisableSsl     bool
+	niSelfSigned     bool
 	niCertFile       string
 	niKeyFile        string
 	niLeEmailContact string
 	niLeAcceptEula   bool
 	niLeUseStagingCA bool
-	ymlFile          string
-	jsonFile         string
-	test             bool
+	niYmlFile        string
+	niJsonFile       string
+	// test             bool
 )
 
 var installCmd = &cobra.Command{
@@ -88,9 +88,9 @@ var installCmd = &cobra.Command{
  the machine from outside world (if it is behind a proxy or inside a container with ports mapping for instance).
  
  You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
- installer with SSL active using self_signed setup by default. See the possible flags for more details.
+ installer with NO TLS by default. See the possible flags for more details.
  
- You might also use Let's Encrypt automatic certificate generation by providing a contact email and accepting Let's Encrypt EULA, for instance:
+ You can also use Let's Encrypt automatic certificate generation by providing a contact email and accepting Let's Encrypt EULA, for instance:
  $ ` + os.Args[0] + ` install --bind share.mydomain.tld:443 --external https://share.mydomain.tld --le_email admin@mydomain.tld --le_agree true
 
  For instance:
@@ -136,23 +136,22 @@ var installCmd = &cobra.Command{
 		exposeInstallServer := false
 		var err error
 
-		// A quoi ca sert ca?
+		//
 		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
 		if micro == 0 {
 			micro = net.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
-			// config.Save("cli", "Install / Setting default Ports")
 			err = config.Save("cli", "Install / Setting default Ports")
 			fatalIfError(cmd, err)
 		}
 
-		if (niBindUrl != "" && niExtUrl != "") || ymlFile != "" || jsonFile != "" {
+		if (niBindUrl != "" && niExtUrl != "") || niYmlFile != "" || niJsonFile != "" {
 			// If these flags are set, non interractive mode
 			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
-			if test { // Do not try to start install server or restart services
-				return
-			}
+			// if test { // Do not try to start install server or restart services
+			// 	return
+			// }
 
 		} else {
 
@@ -377,14 +376,14 @@ func init() {
 	flags := installCmd.PersistentFlags()
 	flags.StringVar(&niBindUrl, "bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.StringVar(&niExtUrl, "external", "", "External PROTOCOL:URL:PORT exposed to the outside")
-	flags.BoolVar(&niDisableSsl, "no_ssl", false, "Use raw http (no TLS)")
-	flags.StringVar(&niCertFile, "ssl_cert_file", "", "TLS cert file path")
-	flags.StringVar(&niKeyFile, "ssl_key_file", "", "TLS key file path")
+	flags.BoolVar(&niSelfSigned, "self_signed", false, "Generate locally trusted certificate with mkcert")
+	flags.StringVar(&niCertFile, "tls_cert_file", "", "TLS cert file path")
+	flags.StringVar(&niKeyFile, "tls_key_file", "", "TLS key file path")
 	flags.StringVar(&niLeEmailContact, "le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
 	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "Accept Let's Encrypt EULA")
 	flags.BoolVar(&niLeUseStagingCA, "le_staging", false, "Rather use staging CA entry point")
-	flags.StringVar(&ymlFile, "yaml", "", "Points toward a configuration in YAML format")
-	flags.StringVar(&jsonFile, "json", "", "Points toward a configuration in JSON format")
+	flags.StringVar(&niYmlFile, "yaml", "", "Points toward a configuration in YAML format")
+	flags.StringVar(&niJsonFile, "json", "", "Points toward a configuration in JSON format")
 
 	RootCmd.AddCommand(installCmd)
 }
