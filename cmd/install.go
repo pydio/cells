@@ -373,16 +373,16 @@ func fatalIfError(cmd *cobra.Command, err error) {
 func init() {
 
 	flags := installCmd.PersistentFlags()
-	flags.StringVar(&niBindUrl, "bind", "", "[Non interactive mode] internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.StringVar(&niExtUrl, "external", "", "[Non interactive mode] external PROTOCOL:URL:PORT exposed to the outside")
-	flags.BoolVar(&niDisableSsl, "no_ssl", false, "[Non interactive mode] use raw http (no TLS)")
-	flags.StringVar(&niCertFile, "ssl_cert_file", "", "[Non interactive mode] ssl cert file path")
-	flags.StringVar(&niKeyFile, "ssl_key_file", "", "[Non interactive mode] ssl key file path")
-	flags.StringVar(&niLeEmailContact, "le_email", "", "[Non interactive mode] contact e-mail for Let's Encrypt provided certificate")
-	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "[Non interactive mode] accept Let's Encrypt EULA")
-	flags.BoolVar(&niLeUseStagingCA, "le_staging", false, "[Non interactive mode] rather use staging CA entry point")
-	flags.StringVar(&ymlFile, "yaml", "", "points toward a configuration in YAML format")
-	flags.StringVar(&jsonFile, "json", "", "points toward a configuration in JSON format")
+	flags.StringVar(&niBindUrl, "bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	flags.StringVar(&niExtUrl, "external", "", "External PROTOCOL:URL:PORT exposed to the outside")
+	flags.BoolVar(&niDisableSsl, "no_ssl", false, "Use raw http (no TLS)")
+	flags.StringVar(&niCertFile, "ssl_cert_file", "", "TLS cert file path")
+	flags.StringVar(&niKeyFile, "ssl_key_file", "", "TLS key file path")
+	flags.StringVar(&niLeEmailContact, "le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
+	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "Accept Let's Encrypt EULA")
+	flags.BoolVar(&niLeUseStagingCA, "le_staging", false, "Rather use staging CA entry point")
+	flags.StringVar(&ymlFile, "yaml", "", "Points toward a configuration in YAML format")
+	flags.StringVar(&jsonFile, "json", "", "Points toward a configuration in JSON format")
 
 	RootCmd.AddCommand(installCmd)
 }
