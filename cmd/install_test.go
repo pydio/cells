@@ -107,7 +107,7 @@ func TestUnmarshallConf(t *testing.T) {
 	// FIXME this will fail with modules.
 	testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "cmd", "testdata")
 
-	Convey("Insure sample files are valid", func() {
+	Convey("Insure sample files are valid", t, func() {
 
 		Convey("From YAML File", func() {
 
