@@ -4,6 +4,6 @@ proxyconfig:
     redirecturls:
         - http://localhost:8080
     tlsconfig:
-        tlsselfsigned:
+        selfsigned:
             hostnames:
                 - localhost
