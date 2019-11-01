@@ -4,7 +4,8 @@
 ![Docker Stars](https://img.shields.io/docker/stars/pydio/cells.svg)
 ![](https://images.microbadger.com/badges/image/pydio/cells.svg)
 
-As a convenience, we also provide pre-built Docker images of Pydio Cells that are hosted on the [Docker hub](https://hub.docker.com/r/pydio/cells).  
+As a convenience, we also provide pre-built Docker images of Pydio Cells that are hosted on the [Docker hub](https://hub.docker.com/r/pydio/cells).
+
 If you use Docker compose, the `docker-compose.yml` that is in this directory installs and starts a Pydio Cells instance with a self signed certificate on port 443.
 
 Thanks to the non-interactive installer, it is also possible to modify the configuration to also use:
