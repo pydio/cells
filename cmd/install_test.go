@@ -21,96 +21,132 @@
 package cmd
 
 import (
-	"bytes"
-	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/spf13/cobra"
-
-	"github.com/pydio/cells/common/config"
 )
-
-var (
-	isDebug = false
-)
-
-func init() {
-	test = true
-}
-
-func emptyRun(*cobra.Command, []string) {}
-
-func executeCommand(root *cobra.Command, args ...string) error {
-
-	buf := new(bytes.Buffer)
-	root.SetOutput(buf)
-	root.SetArgs(args)
-
-	_, err := root.ExecuteC()
-	if err != nil {
-		return err
-	}
-	if isDebug {
-		fmt.Println(buf.String())
-	}
-	return nil
-}
-
-// func TestLoadSampleConf(t *testing.T) {
-
-// 	Convey("Testing json validity of sample config", t, func() {
-// 		var data map[string]interface{}
-// 		e := json.Unmarshal([]byte(SampleConfig), &data)
-// 		So(e, ShouldBeNil)
-// 		_, ok := data["services"]
-// 		So(ok, ShouldBeTrue)
-// 	})
-
-// }
 
 func TestNonInteractiveInstall(t *testing.T) {
 
 	Convey("Given an empty config", t, func() {
 
-		Convey("Bind and Ext should generate a self signed config", func() {
-			// Default self signed
-			bind := "localhost:443"
-			ext := "https://localhost"
-
-			err := executeCommand(RootCmd, "install", "--bind="+bind, "--external="+ext)
-			if err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
-
-			So(config.Get("defaults", "urlInternal").String(""), ShouldEqual, "https://"+bind)
-			So(config.Get("defaults", "url").String(""), ShouldEqual, ext)
-			So(config.Get("cert", "proxy", "ssl").Bool(false), ShouldBeTrue)
-			So(config.Get("cert", "proxy", "self").Bool(false), ShouldBeFalse)
-			So(config.Get("cert", "proxy", "certFile").String(""), ShouldNotBeEmpty)
-			So(config.Get("cert", "proxy", "keyFile").String(""), ShouldNotBeEmpty)
-			So(config.Get("cert", "proxy", "autoCA").String(""), ShouldNotBeEmpty)
+		Convey("Bind and Ext should generate a NO TLS config", func() {
+			niBindUrl = "localhost:80"
+			niExtUrl = "http://localhost"
+			pconf, err := proxyConfigFromArgs()
+			So(err, ShouldBeNil)
+			So(pconf.GetBindURL(), ShouldEqual, "http://"+niBindUrl)
+			So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
+			So(pconf.GetTLSConfig(), ShouldBeNil)
 		})
 
-		Convey("Skip TLS should generate a raw http config", func() {
-			// Default self signed
-			bind := "localhost:80"
-			ext := "http://localhost"
+		Convey("Selfsign flags is ok", func() {
+			niBindUrl = "localhost:443"
+			niExtUrl = "https://localhost"
+			niSelfSigned = true
+			pconf, err := proxyConfigFromArgs()
+			So(err, ShouldBeNil)
+			So(pconf.GetBindURL(), ShouldEqual, "https://"+niBindUrl)
+			So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
+			So(pconf.GetTLSConfig(), ShouldNotBeNil)
+			// So(pconf.GetTLSConfig(), ShouldHaveSameTypeAs, *install.ProxyConfig_SelfSigned)
 
-			err := executeCommand(RootCmd, "install", "--bind="+bind, "--external="+ext, "--skip-ssl=true")
-			if err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			niBindUrl = "http://localhost:443"
+			niExtUrl = "https://localhost"
+			niSelfSigned = true
+			_, err = proxyConfigFromArgs()
+			So(err, ShouldNotBeNil)
 
-			So(config.Get("defaults", "urlInternal").String(""), ShouldEqual, "https://"+bind)
-			So(config.Get("defaults", "url").String(""), ShouldEqual, ext)
-			So(config.Get("cert", "proxy", "ssl").Bool(false), ShouldBeFalse)
-			So(config.Get("cert", "proxy", "self").Bool(false), ShouldBeFalse)
-			So(config.Get("cert", "proxy", "certFile").String(""), ShouldBeEmpty)
-			So(config.Get("cert", "proxy", "keyFile").String(""), ShouldBeEmpty)
-			So(config.Get("cert", "proxy", "autoCA").String(""), ShouldBeEmpty)
 		})
-
 	})
 
 }
+
+func TestJsonConfigInstall(t *testing.T) {
+
+	Convey("Given an empty config", t, func() {
+
+		// FIXME this will fail with modules.
+		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "cmd", "testdata")
+
+		Convey("Bind and Ext should generate a NO TLS config", func() {
+			// no TLS
+			niJsonFile = filepath.Join(testDir, "no-tls.json")
+			pconf, err := proxyConfigFromArgs()
+			So(err, ShouldBeNil)
+			So(pconf.GetBindURL(), ShouldEqual, "http://localhost:8080")
+			So(pconf.GetExternalURL(), ShouldEqual, "http://localhost:8080")
+			So(pconf.GetTLSConfig(), ShouldBeNil)
+		})
+
+		// Convey("Selfsign flags is ok", func() {
+		// 	niBindUrl = "localhost:443"
+		// 	niExtUrl = "https://localhost"
+		// 	niSelfSigned = true
+		// 	pconf, err := proxyConfigFromArgs()
+		// 	So(err, ShouldBeNil)
+		// 	So(pconf.GetBindURL(), ShouldEqual, "https://"+niBindUrl)
+		// 	So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
+		// 	So(pconf.GetTLSConfig(), ShouldNotBeNil)
+		// 	// So(pconf.GetTLSConfig(), ShouldHaveSameTypeAs, *install.ProxyConfig_SelfSigned)
+
+		// 	niBindUrl = "http://localhost:443"
+		// 	niExtUrl = "https://localhost"
+		// 	niSelfSigned = true
+		// 	_, err = proxyConfigFromArgs()
+		// 	So(err, ShouldNotBeNil)
+
+		// })
+	})
+}
+
+// TODO Implement a way to cleanly launch tests on fake commands and test the config store.
+
+// var (
+// 	isDebug = false
+// )
+
+// func init() {
+// 	test = true
+// }
+
+// func executeCommand(root *cobra.Command, args ...string) error {
+
+// 	buf := new(bytes.Buffer)
+// 	root.SetOutput(buf)
+// 	root.SetArgs(args)
+
+// 	_, err := root.ExecuteC()
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if isDebug {
+// 		fmt.Println(buf.String())
+// 	}
+// 	return nil
+// }
+
+// func TestNonInteractiveInstall(t *testing.T) {
+
+// 	Convey("Given an empty config", t, func() {
+
+// 		Convey("Bind and Ext should generate a self signed config", func() {
+// 			// Default self signed
+// 			bind := "localhost:80"
+// 			ext := "http://localhost"
+
+// 			err := executeCommand(RootCmd, "install", "--bind="+bind, "--external="+ext)
+// 			if err != nil {
+// 				t.Errorf("Unexpected error: %v", err)
+// 			}
+
+// 			So(config.Get("defaults", "urlInternal").String(""), ShouldEqual, "http://"+bind)
+// 			So(config.Get("defaults", "url").String(""), ShouldEqual, ext)
+// 			So(config.Get("cert", "proxy", "ssl").Bool(false), ShouldBeFalse)
+// 		})
+
+// 	})
+
+// }
