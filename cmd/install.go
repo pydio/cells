@@ -76,7 +76,6 @@ var (
 	niLeUseStagingCA bool
 	niYmlFile        string
 	niJsonFile       string
-	// test             bool
 )
 
 var installCmd = &cobra.Command{
@@ -136,7 +135,7 @@ var installCmd = &cobra.Command{
 		exposeInstallServer := false
 		var err error
 
-		//
+		// Do this in a better way
 		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
 		if micro == 0 {
 			micro = net.GetAvailablePort()
@@ -149,9 +148,6 @@ var installCmd = &cobra.Command{
 			// If these flags are set, non interractive mode
 			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
-			// if test { // Do not try to start install server or restart services
-			// 	return
-			// }
 
 		} else {
 
@@ -244,7 +240,6 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 			tls = config.Get("cert", "proxy", "email").String("")
 			caddytls.Agreed = true
 			caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
-			// useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
 		} else {
 			cert := config.Get("cert", "proxy", "certFile").String("")
 			key := config.Get("cert", "proxy", "keyFile").String("")
@@ -255,8 +250,8 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 		}
 	}
 
-	config.Save("cli", "Install / Saving final configs")
-	cmd.Println("final configs saved")
+	// config.Save("cli", "Install / Saving final configs")
+	// cmd.Println("final configs saved")
 
 	// starting the micro service
 	micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)

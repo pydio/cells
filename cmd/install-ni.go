@@ -38,10 +38,6 @@ import (
 
 func nonInterractiveInstall(cmd *cobra.Command, args []string) (*url.URL, *url.URL, bool, error) {
 
-	// We starts the install server by default when performing a non interactive install
-	// TODO: Enhance
-	startInstallServer := true
-
 	// Install from config file
 	if niYmlFile != "" || niJsonFile != "" {
 		pconf, err := installFromConf()
@@ -72,7 +68,7 @@ func nonInterractiveInstall(cmd *cobra.Command, args []string) (*url.URL, *url.U
 	// At this point we assume URLs are correctly formatted
 	bind, _ := url.Parse(pconf.GetBindURL())
 	ext, _ := url.Parse(pconf.GetExternalURL())
-	return bind, ext, startInstallServer, nil
+	return bind, ext, true, nil
 }
 
 func proxyConfigFromArgs() (*install.ProxyConfig, error) {
