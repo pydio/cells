@@ -256,7 +256,6 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 	// starting the micro service
 	micro := registry.Default.GetServiceByName(common.SERVICE_MICRO_API)
 	micro.Start()
-	cmd.Println("micro started")
 
 	// starting the installation REST service
 	install := registry.Default.GetServiceByName(common.SERVICE_INSTALL)
@@ -273,11 +272,8 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 	}
 	installServ.Options().Web.Options().Cmd.App().Flags = newFlags
 
-	cmd.Println("starting install server")
-
 	// Starting service install
 	install.Start()
-	cmd.Println("install server started")
 
 	// Creating temporary caddy file
 	caddyconf.URL = internal

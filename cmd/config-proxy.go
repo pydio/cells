@@ -156,8 +156,6 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 				}
 			}
 
-			//fmt.Printf("[DEBUG] Hostnames: %v \n", hns)
-
 			err := mkCert.MakeCert(hns)
 			if err != nil {
 				return err

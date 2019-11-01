@@ -166,6 +166,7 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 	if enabled {
 		scheme = "https://"
 	}
+	// FIXME rather use URL parse
 	formerdn := strings.TrimPrefix(strings.TrimPrefix(proxyConfig.GetBindURL(), "http://"), "https://")
 	proxyConfig.BindURL = scheme + formerdn
 
@@ -179,7 +180,6 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 				"No",
 			}}
 		if i, _, e = redirPrompt.Run(); e == nil && i == 0 {
-			fmt.Printf("[DEBUG] Adding redirect URL: %s \n", "http://"+formerdn)
 			proxyConfig.RedirectURLs = []string{"http://" + formerdn}
 		}
 	}

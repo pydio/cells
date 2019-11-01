@@ -59,12 +59,6 @@ func nonInterractiveInstall(cmd *cobra.Command, args []string) (*url.URL, *url.U
 		return nil, nil, false, err
 	}
 
-	data1, _ := json.MarshalIndent(pconf, "", "  ")
-	fmt.Println(string(data1))
-
-	data2, _ := yaml.Marshal(pconf)
-	fmt.Println(string(data2))
-
 	// At this point we assume URLs are correctly formatted
 	bind, _ := url.Parse(pconf.GetBindURL())
 	ext, _ := url.Parse(pconf.GetExternalURL())
