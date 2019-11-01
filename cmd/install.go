@@ -76,6 +76,7 @@ var (
 	niLeUseStagingCA bool
 	ymlFile          string
 	jsonFile         string
+	test             bool
 )
 
 var installCmd = &cobra.Command{
@@ -149,6 +150,9 @@ var installCmd = &cobra.Command{
 			// If these flags are set, non interractive mode
 			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
+			if test { // Do not try to start install server or restart services
+				return
+			}
 
 		} else {
 

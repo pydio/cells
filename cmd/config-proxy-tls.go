@@ -59,11 +59,6 @@ Four modes are currently supported:
 			log.Fatal(e)
 		}
 
-		// proxyData := make(map[string]interface{})
-		// certData = map[string]interface{}{
-		// 	"proxy": proxyData,
-		// }
-
 		applyProxyConfig(proxyConfig)
 
 		cmd.Println("*************************************************************")
