@@ -13,12 +13,12 @@ RUN chmod +x /pydio/cells
 FROM busybox:glibc
 ARG version
 
-WORKDIR /pydio
-
 ENV CELLS_NO_SSL 1
 ENV CELLS_BIND localhost:8080
 ENV CELLS_EXTERNAL localhost:8080
 ENV CELLS_WORKING_DIR /var/cells
+
+WORKDIR $CELLS_WORKING_DIR
 
 # Add necessary files
 COPY docker-entrypoint.sh /pydio/docker-entrypoint.sh
@@ -33,7 +33,5 @@ RUN ln -s /pydio/cells /bin/cells \
     && ln -s /pydio/docker-entrypoint.sh /bin/docker-entrypoint.sh \
     && chmod +x /pydio/docker-entrypoint.sh 
 
-VOLUME ["$CELLS_WORKING_DIR"]
 ENTRYPOINT ["docker-entrypoint.sh"]
-WORKDIR $CELLS_WORKING_DIR
 CMD ["cells", "start"]
