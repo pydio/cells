@@ -1,0 +1,12 @@
+{
+    "ProxyConfig": {
+        "BindURL": "https://localhost:8080",
+        "ExternalURL": "https://localhost:8080",
+        "TLSConfig": {
+            "Certificate": {
+                "CertFile" : "/var/cells/cert/cert.pem", 
+                "KeyFile" : "/var/cells/cert/key.pem" 
+            }
+        }
+    }
+}

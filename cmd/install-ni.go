@@ -44,7 +44,7 @@ func nonInterractiveInstall(cmd *cobra.Command, args []string) (*url.URL, *url.U
 	startInstallServer := true
 
 	// Install from config file
-	if ymlFile != "" || jsonFile != "" {
+	if niYmlFile != "" || niJsonFile != "" {
 		pconf, err := installFromConf()
 		if err != nil {
 			return nil, nil, false, err
@@ -87,56 +87,53 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 		hostname = strings.Split(niBindUrl, "://")[1]
 	}
 
-	if niDisableSsl {
-		prefix = "http://"
-	} else {
-		prefix = "https://"
+	scheme := "https://"
+	if niCertFile != "" && niKeyFile != "" {
+		tlsConf := &install.ProxyConfig_Certificate{
+			Certificate: &install.TLSCertificate{
+				CertFile: niCertFile,
+				KeyFile:  niKeyFile,
+			}}
+		proxyConfig.TLSConfig = tlsConf
+	} else if niLeEmailContact != "" {
 
-		if niCertFile != "" && niKeyFile != "" {
-			tlsConf := &install.ProxyConfig_Certificate{
-				Certificate: &install.TLSCertificate{
-					CertFile: niCertFile,
-					KeyFile:  niKeyFile,
-				}}
-			proxyConfig.TLSConfig = tlsConf
-		} else if niLeEmailContact != "" {
-
-			if !niLeAcceptEula {
-				return nil, fmt.Errorf("you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
-			}
-
-			tlsConf := &install.ProxyConfig_LetsEncrypt{
-				LetsEncrypt: &install.TLSLetsEncrypt{
-					Email:      niLeEmailContact,
-					AcceptEULA: niLeAcceptEula,
-					StagingCA:  niLeUseStagingCA,
-				},
-			}
-			proxyConfig.TLSConfig = tlsConf
-		} else {
-			// TODO enable more than one hostname
-			hostName := niBindUrl
-			if strings.HasPrefix(niBindUrl, "http://") {
-				return nil, fmt.Errorf("you should provide an URL that starts witjh https of self-signed mode")
-			}
-
-			// Remove port
-			hostNameNoPort := strings.Split(hostName, ":")[0]
-
-			tlsConf := &install.ProxyConfig_SelfSigned{
-				SelfSigned: &install.TLSSelfSigned{
-					Hostnames: []string{hostNameNoPort},
-				},
-			}
-			proxyConfig.TLSConfig = tlsConf
+		if !niLeAcceptEula {
+			return nil, fmt.Errorf("you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
 		}
+
+		tlsConf := &install.ProxyConfig_LetsEncrypt{
+			LetsEncrypt: &install.TLSLetsEncrypt{
+				Email:      niLeEmailContact,
+				AcceptEULA: niLeAcceptEula,
+				StagingCA:  niLeUseStagingCA,
+			},
+		}
+		proxyConfig.TLSConfig = tlsConf
+	} else if niSelfSigned {
+		// TODO enable more than one hostname
+		hostName := niBindUrl
+		if strings.HasPrefix(niBindUrl, "http://") {
+			return nil, fmt.Errorf("you must provide an URL that starts with https in self-signed mode")
+		}
+
+		// Remove port
+		hostNameNoPort := strings.Split(hostName, ":")[0]
+
+		tlsConf := &install.ProxyConfig_SelfSigned{
+			SelfSigned: &install.TLSSelfSigned{
+				Hostnames: []string{hostNameNoPort},
+			},
+		}
+		proxyConfig.TLSConfig = tlsConf
+	} else { // NO TLS
+		scheme = "http://"
 	}
 
-	proxyConfig.BindURL = prefix + hostname
+	proxyConfig.BindURL = scheme + hostname
 
 	var external *url.URL
-
 	var err error
+
 	// Enables more complex configs with a proxy.
 	if strings.HasPrefix(niExtUrl, "http://") || strings.HasPrefix(niExtUrl, "https://") {
 		external, err = url.Parse(niExtUrl)
@@ -156,29 +153,29 @@ func installFromConf() (*install.InstallConfig, error) {
 	var confFromFile *install.InstallConfig
 	var path string
 
-	if ymlFile != "" {
-		path = ymlFile
-		file, err := ioutil.ReadFile(ymlFile)
+	if niYmlFile != "" {
+		path = niYmlFile
+		file, err := ioutil.ReadFile(niYmlFile)
 		if err != nil {
-			return nil, fmt.Errorf("could not read YAML file at %s: %s", ymlFile, err.Error())
+			return nil, fmt.Errorf("could not read YAML file at %s: %s", niYmlFile, err.Error())
 		}
 		err = yaml.Unmarshal(file, &confFromFile)
 		if err != nil {
-			return nil, fmt.Errorf("error parsing YAML file at %s: %s", ymlFile, err.Error())
+			return nil, fmt.Errorf("error parsing YAML file at %s: %s", niYmlFile, err.Error())
 		}
 
 	}
 
-	if jsonFile != "" {
-		path = jsonFile
+	if niJsonFile != "" {
+		path = niJsonFile
 
-		file, err := ioutil.ReadFile(jsonFile)
+		file, err := ioutil.ReadFile(niJsonFile)
 		if err != nil {
-			return nil, fmt.Errorf("could not read JSON file at %s: %s", jsonFile, err.Error())
+			return nil, fmt.Errorf("could not read JSON file at %s: %s", niJsonFile, err.Error())
 		}
 		err = json.Unmarshal(file, &confFromFile)
 		if err != nil {
-			return nil, fmt.Errorf("error parsing JSON file at %s: %s", jsonFile, err.Error())
+			return nil, fmt.Errorf("error parsing JSON file at %s: %s", niJsonFile, err.Error())
 		}
 	}
 
@@ -186,16 +183,6 @@ func installFromConf() (*install.InstallConfig, error) {
 
 	// TODO double check this
 	// _ := lib.GenerateDefaultConfig()
-
-	// microStr := confFromFile.GetExternalMicro()
-	// if microStr == "" || microStr == "0" {
-	// 	micro := net.GetAvailablePort()
-	// 	config.Set(micro, "ports", common.SERVICE_MICRO_API)
-	// 	err := config.Save("cli", "Install / Setting default Ports")
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("could not save config after micro port definition: %s", err.Error())
-	// 	}
-	// }
 
 	// Preconfiguring proxy:
 	err := applyProxyConfig(confFromFile.GetProxyConfig())
@@ -217,12 +204,7 @@ func installFromConf() (*install.InstallConfig, error) {
 		<-time.After(3 * time.Second)
 	}
 
-	// err = handleSSLConfig(currConfig.SSLConfig)
-	// if err != nil {
-	// 	log.Fatal(fmt.Sprintf("Could not configure SSL mode: %s\n", err.Error()))
-	// }
-
-	// Really ?
+	// TODO: Double check this
 	confFromFile.InternalUrl = confFromFile.GetProxyConfig().GetBindURL()
 
 	err = lib.Install(context.Background(), confFromFile, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
@@ -234,104 +216,3 @@ func installFromConf() (*install.InstallConfig, error) {
 
 	return confFromFile, nil
 }
-
-// var installYmlCmd = &cobra.Command{
-// 	Use:   "install-yaml",
-// 	Short: "Install Cells using this terminal",
-// 	Long:  "This command launch the installation process of Pydio Cells in the command line instead of a browser.",
-// 	Run: func(cmd *cobra.Command, args []string) {
-
-// 		/*
-// 			// SAMPLE TEST
-// 			testProxyConfig := &install.ProxyConfig{
-// 				BindURL:      "bindUrl",
-// 				ExternalURL:  "extUrl",
-// 				RedirectURLs: []string{"redirectUrl"},
-// 				TLSConfig: &install.ProxyConfig_LetsEncrypt{
-// 					&install.TLSLetsEncrypt{
-// 						Email:      "email@toto.com",
-// 						AcceptEULA: true,
-// 						StagingCA:  false,
-// 					},
-// 				},
-// 			}
-// 				data1, _ := json.MarshalIndent(testProxyConfig, "", "  ")
-// 				fmt.Println(string(data1))
-
-// 				data2, _ := yaml.Marshal(testProxyConfig)
-// 				fmt.Println(string(data2))
-// 				os.Exit(0)
-// 		*/
-
-// 	},
-// }
-
-// func handleSSLConfig(c *SSLConfig) error {
-
-// 	if c.BindUrl == "" || c.ExtUrl == "" {
-// 		return fmt.Errorf("Please define a Bind *and* a public URL to be able to install Cells")
-// 	}
-
-// 	var saveMsg, prefix string
-// 	var internal, external *url.URL
-// 	isLE := false
-
-// 	if c.DisableSSL {
-// 		prefix = "http://"
-// 		saveMsg = "Install / From Yaml Config / Without SSL"
-// 	} else {
-// 		saveMsg = "Install / From Yaml Config / "
-// 		prefix = "https://"
-// 		config.Set(true, "cert", "proxy", "ssl")
-
-// 		if c.CertFile != "" && c.KeyFile != "" {
-// 			config.Set(c.CertFile, "cert", "proxy", "certFile")
-// 			config.Set(c.KeyFile, "cert", "proxy", "keyFile")
-// 			saveMsg += "With provided certificate"
-// 		} else if c.LeEmailContact != "" {
-// 			if !c.LeAcceptEula {
-// 				return fmt.Errorf("You must accept Let's Encrypt EULA by setting the 'leaccepteula' property to 'true' in order to use this mode")
-// 			}
-// 			config.Set(false, "cert", "proxy", "self")
-// 			config.Set(c.LeEmailContact, "cert", "proxy", "email")
-// 			config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
-// 			saveMsg += "With Let's Encrypt automatic cert generation"
-
-// 		} else {
-// 			config.Set(true, "cert", "proxy", "self")
-// 			saveMsg += "With self signed certificate"
-// 		}
-
-// 		if c.HttpRedir {
-// 			config.Set(true, "cert", "proxy", "httpRedir")
-// 		}
-// 	}
-
-// 	internal, _ = url.Parse(prefix + c.BindUrl)
-// 	config.Set(internal.String(), "defaults", "urlInternal")
-// 	c.BindUrl = internal.String()
-
-// 	// Enables more complex configs with a proxy.
-// 	if strings.HasPrefix(c.ExtUrl, "http://") || strings.HasPrefix(c.ExtUrl, "https://") {
-// 		external, _ = url.Parse(c.ExtUrl)
-// 	} else {
-// 		external, _ = url.Parse(prefix + c.ExtUrl)
-// 	}
-// 	config.Set(external.String(), "defaults", "url")
-// 	config.Save("cli", saveMsg)
-
-// 	if isLE { // Sleeps 10 seconds to let automated cert process run
-// 		fmt.Println("... Waiting after Let's Encrypt configuration")
-// 		<-time.After(10 * time.Second)
-// 	}
-// 	return nil
-// }
-
-// func init() {
-
-// 	flags := installYmlCmd.PersistentFlags()
-// 	flags.StringVarP(&ymlFile, "yml-conf-file", "f", "", "[Non interactive mode] with a single YML file")
-
-// 	RootCmd.AddCommand(installYmlCmd)
-
-// }

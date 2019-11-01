@@ -84,6 +84,7 @@ func promptURLs(proxyConfig *install.ProxyConfig, includeTLS bool) (e error) {
 	if e != nil {
 		return
 	}
+
 	return
 }
 

@@ -1,0 +1,13 @@
+{
+    "ProxyConfig": {
+        "BindURL": "https://localhost:8080",
+        "ExternalURL": "https://localhost:8080",
+        "TLSConfig": {
+            "LetsEncrypt": {
+                "Email": "jenny@example.com",
+                "AcceptEULA": "true",
+                "StagingCA": "true"
+            }
+        }
+    }
+}
