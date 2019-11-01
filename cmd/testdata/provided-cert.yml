@@ -1,9 +1,13 @@
-# Basic no-TLS config for the embedded gateway
 proxyconfig:
-  bindurl: http://localhost:80
-  externalurl: http://localhost
+  bindurl: https://localhost:443
+  externalurl: https://localhost
+  redirecturls:
+  - http://localhost
+  tlsconfig:
+    certificate:
+      certfile: /var/cells/cert/cert.pem
+      keyfile: /var/cells/cert/key.pem
 
-# The install config
 internalurl: ""
 dbconnectiontype: ""
 dbtcphostname: ""

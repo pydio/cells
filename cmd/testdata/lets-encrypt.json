@@ -1,12 +1,15 @@
 {
     "ProxyConfig": {
-        "BindURL": "https://localhost:8080",
-        "ExternalURL": "https://localhost:8080",
+        "BindURL": "https://localhost:443",
+        "ExternalURL": "https://localhost",
+        "RedirectURLs": [
+            "http://localhost"
+        ],
         "TLSConfig": {
             "LetsEncrypt": {
-                "Email": "jenny@example.com",
-                "AcceptEULA": "true",
-                "StagingCA": "true"
+                "Email": "sofia@example.com",
+                "AcceptEULA": true,
+                "StagingCA": true
             }
         }
     }

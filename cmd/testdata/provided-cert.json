@@ -1,11 +1,14 @@
 {
     "ProxyConfig": {
-        "BindURL": "https://localhost:8080",
-        "ExternalURL": "https://localhost:8080",
+        "BindURL": "https://localhost:443",
+        "ExternalURL": "https://localhost",
+        "RedirectURLs": [
+            "http://localhost"
+        ],
         "TLSConfig": {
             "Certificate": {
-                "CertFile" : "/var/cells/cert/cert.pem", 
-                "KeyFile" : "/var/cells/cert/key.pem" 
+                "CertFile": "/var/cells/cert/cert.pem",
+                "KeyFile": "/var/cells/cert/key.pem"
             }
         }
     }
