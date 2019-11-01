@@ -47,16 +47,20 @@ Four modes are currently supported:
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		proxyConfig := &install.ProxyConfig{}
-
-		// Retrieve already defined conf
-		proxyConfig.BindURL = config.Get("defaults", "urlInternal").String("")
-		proxyConfig.ExternalURL = config.Get("defaults", "url").String("")
-
+		proxyConfig := loadProxyConf()
+		initialSsl := proxyConfig.TLSConfig != nil
 		// Get SSL info from end user
 		_, e := promptTLSMode(proxyConfig)
 		if e != nil {
 			log.Fatal(e)
+		}
+		if initialSsl != (proxyConfig.TLSConfig != nil) {
+			// There was a change in ssl => this will impact external URL !
+			cmd.Println("Switching SSL mode: checking external URL")
+			e := promptExtURL(proxyConfig)
+			if e != nil {
+				log.Fatal(e)
+			}
 		}
 
 		applyProxyConfig(proxyConfig)
@@ -152,7 +156,7 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 		proxyConfig.TLSConfig = tlsConf
 
 	case 3:
-
+		proxyConfig.TLSConfig = nil
 		enabled = false
 	}
 

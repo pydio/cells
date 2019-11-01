@@ -68,6 +68,41 @@ func promptAndApplyProxyConfig() (internal, external *url.URL, e error) {
 	return intURL, extURL, e
 }
 
+func loadProxyConf() *install.ProxyConfig {
+	i := &install.ProxyConfig{}
+	// Retrieve already defined URLs and Redirects
+	i.BindURL = config.Get("defaults", "urlInternal").String("")
+	i.ExternalURL = config.Get("defaults", "url").String("")
+	if redir := config.Get("cert", "proxy", "httpRedir").String(""); redir != "" {
+		i.RedirectURLs = append(i.RedirectURLs, redir)
+	}
+	// Retrieve TLS config
+	confData := make(map[string]interface{})
+	e := config.Get("cert", "proxy").Scan(&confData)
+	if e != nil {
+		return i
+	}
+	if _, ok := confData["ssl"]; !ok {
+		// No SSL configured
+		return i
+	}
+	if _, ok := confData["autoCA"]; ok {
+		i.TLSConfig = &install.ProxyConfig_SelfSigned{SelfSigned: &install.TLSSelfSigned{}}
+	} else if caUrl, ok2 := confData["caUrl"]; ok2 {
+		i.TLSConfig = &install.ProxyConfig_LetsEncrypt{LetsEncrypt: &install.TLSLetsEncrypt{
+			Email:      confData["email"].(string),
+			AcceptEULA: true,
+			StagingCA:  caUrl == config.DefaultCaStagingUrl,
+		}}
+	} else if cert, ok3 := confData["certFile"]; ok3 {
+		i.TLSConfig = &install.ProxyConfig_Certificate{Certificate: &install.TLSCertificate{
+			CertFile: cert.(string),
+			KeyFile:  confData["keyFile"].(string),
+		}}
+	}
+	return i
+}
+
 func applyProxyConfig(pconf *install.ProxyConfig) error {
 
 	var saveMsg string
@@ -79,6 +114,8 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 		fmt.Printf("Could not save proxy URLs: %s\n", err.Error())
 		return err
 	}
+
+	newConfig := make(map[string]interface{})
 
 	if pconf.TLSConfig == nil {
 
@@ -119,7 +156,7 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 				}
 			}
 
-			fmt.Printf("[DEBUG] Hostnames: %v \n", hns)
+			//fmt.Printf("[DEBUG] Hostnames: %v \n", hns)
 
 			err := mkCert.MakeCert(hns)
 			if err != nil {
@@ -137,39 +174,43 @@ func applyProxyConfig(pconf *install.ProxyConfig) error {
 				"Set the $CAROOT environment variable to the rootCA folder then use 'mkcert -install'")
 			fmt.Println("")
 
-			config.Set(true, "cert", "proxy", "ssl")
-			config.Set(certFile, "cert", "proxy", "certFile")
-			config.Set(certKey, "cert", "proxy", "keyFile")
-			config.Set(caFile, "cert", "proxy", "autoCA")
+			newConfig["ssl"] = true
+			newConfig["certFile"] = certFile
+			newConfig["keyFile"] = certKey
+			newConfig["autoCA"] = caFile
 
 		case *install.ProxyConfig_LetsEncrypt:
 
-			config.Set(true, "cert", "proxy", "ssl")
-			config.Set(v.LetsEncrypt.GetEmail(), "cert", "proxy", "email")
-			config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
+			newConfig["ssl"] = true
+			newConfig["email"] = v.LetsEncrypt.GetEmail()
+			newConfig["caUrl"] = config.DefaultCaUrl
 			if v.LetsEncrypt.GetStagingCA() {
-				config.Set(config.DefaultCaStagingUrl, "cert", "proxy", "caUrl")
+				newConfig["caUrl"] = config.DefaultCaStagingUrl
 			}
 			saveMsg += "With Let's Encrypt automatic cert generation"
 
 		case *install.ProxyConfig_Certificate:
 
-			config.Set(true, "cert", "proxy", "ssl")
-			config.Set(v.Certificate.GetCertFile(), "cert", "proxy", "certFile")
-			config.Set(v.Certificate.GetKeyFile(), "cert", "proxy", "keyFile")
+			newConfig["ssl"] = true
+			newConfig["certFile"] = v.Certificate.GetCertFile()
+			newConfig["keyFile"] = v.Certificate.GetKeyFile()
 			saveMsg += "With provided certificate"
 
 		default:
-			config.Set(false, "cert", "proxy", "ssl")
 			saveMsg = "Install / Non-Interactive / Without SSL"
 		}
 
 	}
 
 	// Simplified management of redirect URLs
-	redirect := pconf.GetRedirectURLs() != nil && len(pconf.GetRedirectURLs()) > 0
-	config.Set(redirect, "cert", "proxy", "httpRedir")
-
+	if redirects := pconf.GetRedirectURLs(); redirects != nil && len(redirects) > 0 {
+		newConfig["httpRedir"] = true
+	}
+	if len(newConfig) > 0 {
+		config.Set(newConfig, "cert", "proxy")
+	} else {
+		config.Del("cert", "proxy")
+	}
 	err = config.Save("cli", saveMsg)
 	if err != nil {
 		return err

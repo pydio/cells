@@ -29,7 +29,6 @@ import (
 	p "github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/utils/net"
 )
@@ -42,11 +41,7 @@ var urlCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		proxyConfig := &install.ProxyConfig{}
-
-		// Retrieve already defined URLs
-		proxyConfig.BindURL = config.Get("defaults", "urlInternal").String("")
-		proxyConfig.ExternalURL = config.Get("defaults", "url").String("")
+		proxyConfig := loadProxyConf()
 
 		// Get SSL info from end user
 		e := promptURLs(proxyConfig, false)
