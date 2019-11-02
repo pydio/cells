@@ -38,17 +38,6 @@ import (
 
 func nonInterractiveInstall(cmd *cobra.Command, args []string) (*url.URL, *url.URL, bool, error) {
 
-	// Install from config file
-	if niYmlFile != "" || niJsonFile != "" {
-		pconf, err := installFromConf()
-		if err != nil {
-			return nil, nil, false, err
-		}
-		bind, _ := url.Parse(pconf.GetProxyConfig().GetBindURL())
-		ext, _ := url.Parse(pconf.GetProxyConfig().GetExternalURL())
-		return bind, ext, false, nil
-	}
-
 	pconf, err := proxyConfigFromArgs()
 	if err != nil {
 		return nil, nil, false, err
@@ -195,13 +184,10 @@ func unmarshallConf() (*install.InstallConfig, error) {
 			return nil, fmt.Errorf("error parsing YAML file at %s: %s", niYmlFile, err.Error())
 		}
 
-		fmt.Printf("%v", confFromFile)
-
 	}
 
 	if niJsonFile != "" {
 		path = niJsonFile
-
 		file, err := ioutil.ReadFile(niJsonFile)
 		if err != nil {
 			return nil, fmt.Errorf("could not read JSON file at %s: %s", niJsonFile, err.Error())
@@ -211,7 +197,8 @@ func unmarshallConf() (*install.InstallConfig, error) {
 			return nil, fmt.Errorf("error parsing JSON file at %s: %s", niJsonFile, err.Error())
 		}
 	}
-	fmt.Printf("Retrieved default config from %s\n", path)
+
+	fmt.Printf("... Install config loaded from %s \n", path)
 
 	return confFromFile, nil
 }

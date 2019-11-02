@@ -7,8 +7,8 @@
         ],
         "TLSConfig": {
             "Certificate": {
-                "CertFile": "/var/cells/cert/cert.pem",
-                "KeyFile": "/var/cells/cert/key.pem"
+                "CertFile": "/var/cells/certs/cert.pem",
+                "KeyFile": "/var/cells/certs/key.pem"
             }
         }
     }

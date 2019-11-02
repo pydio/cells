@@ -5,8 +5,8 @@ proxyconfig:
   - http://localhost
   tlsconfig:
     certificate:
-      certfile: /var/cells/cert/cert.pem
-      keyfile: /var/cells/cert/key.pem
+      certfile: /var/cells/certs/cert.pem
+      keyfile: /var/cells/certs/key.pem
 
 internalurl: ""
 dbconnectiontype: ""

@@ -144,32 +144,38 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 		}
 
-		if (niBindUrl != "" && niExtUrl != "") || niYmlFile != "" || niJsonFile != "" {
-			// If these flags are set, non interractive mode
+		if niYmlFile != "" || niJsonFile != "" {
+			// Load from conf and exit
+			_, err := installFromConf()
+			fatalIfError(cmd, err)
+			return
+
+		} else if niBindUrl != "" && niExtUrl != "" {
+			// Use flags and launch browser install
 			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
 
 		} else {
-
-			// Choose between browser or CLI
+			// Ask user to choose between browser or CLI interactive install
 			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
 			installIndex, _, err := p.Run()
 			fatalIfError(cmd, err)
 
-			// Gather proxy information (we do that now because we must do it anyway in both version of the installer)
+			// Gather proxy information
 			internal, external, err = promptAndApplyProxyConfig()
 			fatalIfError(cmd, err)
 
-			if installIndex == 0 {
-				exposeInstallServer = true
-			} else {
+			// Prompt for config, apply and exit
+			if installIndex == 1 {
 				err := cliInstall(internal)
 				fatalIfError(cmd, err)
 				return
 			}
+			exposeInstallServer = true
 		}
 
-		if exposeInstallServer { // Run browser install
+		// Run browser install
+		if exposeInstallServer {
 			performBrowserInstall(cmd, internal, external)
 		}
 

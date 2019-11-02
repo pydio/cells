@@ -76,8 +76,8 @@ var (
 			RedirectURLs: []string{"http://localhost"},
 			TLSConfig: &install.ProxyConfig_Certificate{
 				&install.TLSCertificate{
-					CertFile: "/var/cells/cert/cert.pem",
-					KeyFile:  "/var/cells/cert/key.pem",
+					CertFile: "/var/cells/certs/cert.pem",
+					KeyFile:  "/var/cells/certs/key.pem",
 				},
 			},
 		},
@@ -173,8 +173,8 @@ func TestUnmarshallConf(t *testing.T) {
 				So(pc.GetSelfSigned(), ShouldBeNil)
 				So(pc.GetLetsEncrypt(), ShouldBeNil)
 				So(pc.GetCertificate(), ShouldNotBeNil)
-				So(pc.GetCertificate().GetCertFile(), ShouldEqual, "/var/cells/cert/cert.pem")
-				So(pc.GetCertificate().GetKeyFile(), ShouldEqual, "/var/cells/cert/key.pem")
+				So(pc.GetCertificate().GetCertFile(), ShouldEqual, "/var/cells/certs/cert.pem")
+				So(pc.GetCertificate().GetKeyFile(), ShouldEqual, "/var/cells/certs/key.pem")
 				niYmlFile = ""
 			})
 
@@ -242,8 +242,8 @@ func TestUnmarshallConf(t *testing.T) {
 				So(pc.GetSelfSigned(), ShouldBeNil)
 				So(pc.GetLetsEncrypt(), ShouldBeNil)
 				So(pc.GetCertificate(), ShouldNotBeNil)
-				So(pc.GetCertificate().GetCertFile(), ShouldEqual, "/var/cells/cert/cert.pem")
-				So(pc.GetCertificate().GetKeyFile(), ShouldEqual, "/var/cells/cert/key.pem")
+				So(pc.GetCertificate().GetCertFile(), ShouldEqual, "/var/cells/certs/cert.pem")
+				So(pc.GetCertificate().GetKeyFile(), ShouldEqual, "/var/cells/certs/key.pem")
 
 				niJsonFile = ""
 			})
