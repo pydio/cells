@@ -40,32 +40,25 @@ var (
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 )
 
-func cliInstall(bindUrl *url.URL) error {
-
-	// Dupplicated code
-	// micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
-	// if micro == 0 {
-	// 	micro = net.GetAvailablePort()
-	// 	config.Set(micro, "ports", common.SERVICE_MICRO_API)
-	// 	config.Save("cli", "Install / Setting default Ports")
-	// }
+func cliInstall(proxyConfig *install.ProxyConfig) (*install.InstallConfig, error) {
 
 	cliConfig := lib.GenerateDefaultConfig()
-	cliConfig.InternalUrl = bindUrl.String()
+	cliConfig.InternalUrl = proxyConfig.GetBindURL()
+	cliConfig.ProxyConfig = proxyConfig
 
 	fmt.Println("\n\033[1m## Database Connection\033[0m")
 	if e := promptDB(cliConfig); e != nil {
-		return e
+		return nil, e
 	}
 
 	fmt.Println("\n\033[1m## Frontend Configuration\033[0m")
 	if e := promptFrontendAdmin(cliConfig); e != nil {
-		return e
+		return nil, e
 	}
 
 	fmt.Println("\n\033[1m## Advanced Settings\033[0m")
 	if e := promptAdvanced(cliConfig); e != nil {
-		return e
+		return nil, e
 	}
 
 	fmt.Println("\n\033[1m## Performing Installation\033[0m")
@@ -73,13 +66,13 @@ func cliInstall(bindUrl *url.URL) error {
 		fmt.Println(p.IconGood + " " + event.Message)
 	})
 	if e != nil {
-		return fmt.Errorf("could not perform installation: %s", e.Error())
+		return nil, fmt.Errorf("could not perform installation: %s", e.Error())
 	}
 
 	fmt.Println("")
 	fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
 	fmt.Println("")
-	return nil
+	return cliConfig, nil
 
 }
 

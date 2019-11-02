@@ -40,32 +40,22 @@ var proxyCmd = &cobra.Command{
 	},
 }
 
-func promptAndApplyProxyConfig() (internal, external *url.URL, e error) {
+func promptAndApplyProxyConfig() (*install.ProxyConfig, error) {
 
 	proxyConfig := &install.ProxyConfig{}
 
 	// Get SSL info from end user
-	e = promptURLs(proxyConfig, true)
+	e := promptURLs(proxyConfig, true)
 	if e != nil {
-		return nil, nil, e
-	}
-
-	// Insure values are valid
-	intURL, err := url.Parse(proxyConfig.GetBindURL())
-	if err != nil {
-		return nil, nil, err
-	}
-	extURL, err := url.Parse(proxyConfig.GetExternalURL())
-	if err != nil {
-		return nil, nil, err
+		return nil, e
 	}
 
 	// Save and reload
 	e = applyProxyConfig(proxyConfig)
 	if e != nil {
-		return nil, nil, e
+		return nil, e
 	}
-	return intURL, extURL, e
+	return proxyConfig, e
 }
 
 func loadProxyConf() *install.ProxyConfig {

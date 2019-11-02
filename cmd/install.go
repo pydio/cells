@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils/net"
@@ -131,8 +132,7 @@ var installCmd = &cobra.Command{
 		cmd.Println("Pick your installation mode when you are ready.")
 		cmd.Println("")
 
-		var internal, external *url.URL
-		exposeInstallServer := false
+		var proxyConf *install.ProxyConfig
 		var err error
 
 		// Do this in a better way
@@ -144,16 +144,17 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 		}
 
-		if niYmlFile != "" || niJsonFile != "" {
-			// Load from conf and exit
-			_, err := installFromConf()
-			fatalIfError(cmd, err)
-			return
+		if niYmlFile != "" || niJsonFile != "" || (niBindUrl != "" && niExtUrl != "") {
 
-		} else if niBindUrl != "" && niExtUrl != "" {
-			// Use flags and launch browser install
-			internal, external, exposeInstallServer, err = nonInterractiveInstall(cmd, args)
+			installConf, err := nonInterractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
+			if installConf.InternalUrl != "" {
+				// We assume we have completely configured Cells. Exit.
+				return
+			} else {
+				// we only non-interractively configured the proxy, launching browser install
+				proxyConf = installConf.GetProxyConfig()
+			}
 
 		} else {
 			// Ask user to choose between browser or CLI interactive install
@@ -162,22 +163,19 @@ var installCmd = &cobra.Command{
 			fatalIfError(cmd, err)
 
 			// Gather proxy information
-			internal, external, err = promptAndApplyProxyConfig()
+			proxyConf, err = promptAndApplyProxyConfig()
 			fatalIfError(cmd, err)
 
-			// Prompt for config, apply and exit
+			// Prompt for config with CLI, apply and exit
 			if installIndex == 1 {
-				err := cliInstall(internal)
+				_, err := cliInstall(proxyConf)
 				fatalIfError(cmd, err)
 				return
 			}
-			exposeInstallServer = true
 		}
 
 		// Run browser install
-		if exposeInstallServer {
-			performBrowserInstall(cmd, internal, external)
-		}
+		performBrowserInstall(cmd, proxyConf)
 
 		cmd.Println("")
 		cmd.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
@@ -223,7 +221,7 @@ var installCmd = &cobra.Command{
 	},
 }
 
-func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
+func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	// Installing the JS data
 	dir, err := assets.GetAssets("../discovery/install/assets/src")
@@ -282,7 +280,7 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 	install.Start()
 
 	// Creating temporary caddy file
-	caddyconf.URL = internal
+	caddyconf.URL, err = url.Parse(proxyConf.GetBindURL())
 	caddyconf.Root = dir
 	caddyconf.Micro = common.SERVICE_MICRO_API
 	if tls != "" {
@@ -302,16 +300,16 @@ func performBrowserInstall(cmd *cobra.Command, internal, external *url.URL) {
 
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.FGWhite)("Installation Server is starting ") + promptui.Styler(promptui.FGYellow)("..."))
-	cmd.Println(promptui.Styler(promptui.FGWhite)(" internal URL: " + internal.String()))
-	cmd.Println(promptui.Styler(promptui.FGWhite)(" external URL: " + external.String()))
+	cmd.Println(promptui.Styler(promptui.FGWhite)(" internal URL: " + proxyConf.GetBindURL()))
+	cmd.Println(promptui.Styler(promptui.FGWhite)(" external URL: " + proxyConf.GetExternalURL()))
 	cmd.Println("")
 
 	subscriber, err := broker.Subscribe(common.TOPIC_PROXY_RESTART, func(p broker.Publication) error {
 		cmd.Println("")
-		cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(external.String()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
+		cmd.Printf(promptui.Styler(promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(proxyConf.GetExternalURL()) + promptui.Styler(promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
 		cmd.Println("")
 
-		open(external.String())
+		open(proxyConf.GetExternalURL())
 
 		return nil
 	})

@@ -36,22 +36,23 @@ import (
 	"github.com/pydio/cells/discovery/install/lib"
 )
 
-func nonInterractiveInstall(cmd *cobra.Command, args []string) (*url.URL, *url.URL, bool, error) {
+func nonInterractiveInstall(cmd *cobra.Command, args []string) (*install.InstallConfig, error) {
+
+	if niYmlFile != "" || niJsonFile != "" {
+		return installFromConf()
+	}
 
 	pconf, err := proxyConfigFromArgs()
 	if err != nil {
-		return nil, nil, false, err
+		return nil, err
 	}
 
 	err = applyProxyConfig(pconf)
 	if err != nil {
-		return nil, nil, false, err
+		return nil, err
 	}
 
-	// At this point we assume URLs are correctly formatted
-	bind, _ := url.Parse(pconf.GetBindURL())
-	ext, _ := url.Parse(pconf.GetExternalURL())
-	return bind, ext, true, nil
+	return &install.InstallConfig{ProxyConfig: pconf}, nil
 }
 
 func proxyConfigFromArgs() (*install.ProxyConfig, error) {
@@ -126,12 +127,15 @@ func installFromConf() (*install.InstallConfig, error) {
 
 	installConf, err := unmarshallConf()
 
-	_ = lib.GenerateDefaultConfig()
-
 	// Preconfiguring proxy:
 	err = applyProxyConfig(installConf.GetProxyConfig())
 	if err != nil {
 		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
+	}
+
+	if installConf.InternalUrl == "" {
+		// only proxy conf => return and launch browser install server
+		return installConf, nil
 	}
 
 	// Check if pre-configured DB is up and running
@@ -147,9 +151,6 @@ func installFromConf() (*install.InstallConfig, error) {
 		fmt.Println("... Cannot connect to database, wait before retry")
 		<-time.After(3 * time.Second)
 	}
-
-	// Double check this
-	installConf.InternalUrl = installConf.GetProxyConfig().GetBindURL()
 
 	err = lib.Install(context.Background(), installConf, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 		fmt.Println(event.Message)
