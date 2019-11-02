@@ -106,7 +106,8 @@ func printMarshalled(title string, conf *install.InstallConfig) {
 }
 
 func TestUnmarshallConf(t *testing.T) {
-	// FIXME this will fail with modules.
+
+	// TODO this will fail with modules.
 	testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "cmd", "testdata")
 
 	Convey("Insure sample files are valid", t, func() {
@@ -249,6 +250,66 @@ func TestUnmarshallConf(t *testing.T) {
 			})
 
 		})
+	})
+}
+
+func TestInstallFlags(t *testing.T) {
+
+	Convey("Given an empty config", t, func() {
+
+		Convey("Bind and Ext should generate a NO TLS config", func() {
+			niBindUrl = "localhost:80"
+			niExtUrl = "http://localhost"
+			pconf, err := proxyConfigFromArgs()
+			So(err, ShouldBeNil)
+			So(pconf.GetBindURL(), ShouldEqual, "http://"+niBindUrl)
+			So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
+			So(pconf.GetTLSConfig(), ShouldBeNil)
+
+			niBindUrl = "localhost"
+			_, err = proxyConfigFromArgs()
+			So(err, ShouldNotBeNil)
+
+			niBindUrl = "localhost:80"
+			niExtUrl = "localhost"
+			pconf, err = proxyConfigFromArgs()
+			So(err, ShouldBeNil)
+			So(pconf.GetExternalURL(), ShouldEqual, "http://localhost")
+
+			niExtUrl = "localhost:8080"
+			pconf, err = proxyConfigFromArgs()
+			So(err, ShouldBeNil)
+			So(pconf.GetExternalURL(), ShouldEqual, "http://localhost:8080")
+
+			niExtUrl = "htp://localhost:8080"
+			pconf, err = proxyConfigFromArgs()
+			So(err, ShouldNotBeNil)
+
+			niBindUrl = ""
+			niExtUrl = ""
+
+		})
+
+		// Convey("Selfsign flags is ok", func() {
+		// 	niBindUrl = "localhost:443"
+		// 	niExtUrl = "https://localhost"
+		// 	niSelfSigned = true
+		// 	pconf, err := proxyConfigFromArgs()
+		// 	So(err, ShouldBeNil)
+		// 	So(pconf.GetBindURL(), ShouldEqual, "https://"+niBindUrl)
+		// 	So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
+		// 	So(pconf.GetTLSConfig(), ShouldNotBeNil)
+		// 	// So(pconf.GetTLSConfig(), ShouldHaveSameTypeAs, *install.ProxyConfig_SelfSigned)
+
+		// 	niBindUrl = "http://localhost:443"
+		// 	_, err = proxyConfigFromArgs()
+		// 	So(err, ShouldNotBeNil)
+
+		// 	niBindUrl = ""
+		// 	niExtUrl = ""
+		// 	niSelfSigned = false
+		// })
+
 	})
 }
 

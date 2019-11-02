@@ -23,7 +23,7 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"strings"
+	"net/url"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -78,7 +78,6 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 	certFile := config.Get("cert", "proxy", "certFile").String("")
 	keyFile := config.Get("cert", "proxy", "keyFile").String("")
 	certEmail := config.Get("cert", "proxy", "email").String("")
-	enabled = true
 
 	selector := promptui.Select{
 		Label: "Choose TLS activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'TLS => Clear' is generally not supported",
@@ -156,19 +155,21 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 		proxyConfig.TLSConfig = tlsConf
 
 	case 3:
-		proxyConfig.TLSConfig = nil
 		enabled = false
+		proxyConfig.TLSConfig = nil
 	}
 
-	// FIXME this is also done cleanly else where
 	// Adapt bind url in case TLS mode has changed
-	scheme := "http://"
+	scheme := "https"
 	if enabled {
-		scheme = "https://"
+		scheme = "https"
 	}
-	// FIXME rather use URL parse
-	formerdn := strings.TrimPrefix(strings.TrimPrefix(proxyConfig.GetBindURL(), "http://"), "https://")
-	proxyConfig.BindURL = scheme + formerdn
+	bu, err := url.Parse(proxyConfig.GetBindURL())
+	if err != nil {
+		return enabled, fmt.Errorf("could not parse bind URL %s, cause: %s", proxyConfig.GetBindURL(), err.Error())
+	}
+	bu.Scheme = scheme
+	proxyConfig.BindURL = bu.String()
 
 	// Reset redirect URL: for the time being we rather use this as a flag
 	proxyConfig.RedirectURLs = []string{}
@@ -180,7 +181,7 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 				"No",
 			}}
 		if i, _, e = redirPrompt.Run(); e == nil && i == 0 {
-			proxyConfig.RedirectURLs = []string{"http://" + formerdn}
+			proxyConfig.RedirectURLs = []string{"http://" + bu.Host}
 		}
 	}
 

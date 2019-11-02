@@ -58,21 +58,26 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 	proxyConfig := &install.ProxyConfig{}
 
-	var prefix string
-
-	hostname := niBindUrl
-	if strings.HasPrefix(niBindUrl, "http://") || strings.HasPrefix(niBindUrl, "https://") {
-		hostname = strings.Split(niBindUrl, "://")[1]
+	bindURL, err := guessSchemeAndParseBaseURL(niBindUrl, true)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse provided bind URL %s: %s", niBindUrl, err.Error())
 	}
 
-	scheme := "https://"
+	parts := strings.Split(bindURL.Host, ":")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Bind URL %s is not valid. Please correct to use an [IP|DOMAIN]:[PORT] string", niBindUrl)
+	}
+
+	scheme := "https"
 	if niCertFile != "" && niKeyFile != "" {
+
 		tlsConf := &install.ProxyConfig_Certificate{
 			Certificate: &install.TLSCertificate{
 				CertFile: niCertFile,
 				KeyFile:  niKeyFile,
 			}}
 		proxyConfig.TLSConfig = tlsConf
+
 	} else if niLeEmailContact != "" {
 
 		if !niLeAcceptEula {
@@ -88,40 +93,29 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 		}
 		proxyConfig.TLSConfig = tlsConf
 	} else if niSelfSigned {
-		// TODO enable more than one hostname
-		hostName := niBindUrl
-		if strings.HasPrefix(niBindUrl, "http://") {
-			return nil, fmt.Errorf("you must provide an URL that starts with https in self-signed mode")
-		}
-
-		// Remove port
-		hostNameNoPort := strings.Split(hostName, ":")[0]
 
 		tlsConf := &install.ProxyConfig_SelfSigned{
 			SelfSigned: &install.TLSSelfSigned{
-				Hostnames: []string{hostNameNoPort},
+				Hostnames: []string{bindURL.Hostname()},
 			},
 		}
 		proxyConfig.TLSConfig = tlsConf
 	} else { // NO TLS
-		scheme = "http://"
+		scheme = "http"
 	}
 
-	proxyConfig.BindURL = scheme + hostname
+	bindURL.Scheme = scheme
 
-	var external *url.URL
-	var err error
-
-	// Enables more complex configs with a proxy.
-	if strings.HasPrefix(niExtUrl, "http://") || strings.HasPrefix(niExtUrl, "https://") {
-		external, err = url.Parse(niExtUrl)
-	} else {
-		external, err = url.Parse(prefix + niExtUrl)
+	extURL, err := url.Parse(niExtUrl)
+	if !strings.HasPrefix(niExtUrl, "http") {
+		extURL, err = guessSchemeAndParseBaseURL(niExtUrl, proxyConfig.GetTLSConfig() != nil)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Malformed exception for External URL: %s, error: %s", niExtUrl, err.Error())
+		return nil, fmt.Errorf("could not parse provided external URL %s: %s", niExtUrl, err.Error())
 	}
-	proxyConfig.ExternalURL = external.String()
+
+	proxyConfig.BindURL = bindURL.String()
+	proxyConfig.ExternalURL = extURL.String()
 
 	return proxyConfig, nil
 }
@@ -132,8 +126,7 @@ func installFromConf() (*install.InstallConfig, error) {
 
 	installConf, err := unmarshallConf()
 
-	// FIXME double check this
-	// _ := lib.GenerateDefaultConfig()
+	_ = lib.GenerateDefaultConfig()
 
 	// Preconfiguring proxy:
 	err = applyProxyConfig(installConf.GetProxyConfig())
@@ -155,7 +148,7 @@ func installFromConf() (*install.InstallConfig, error) {
 		<-time.After(3 * time.Second)
 	}
 
-	// TODO: Double check this
+	// Double check this
 	installConf.InternalUrl = installConf.GetProxyConfig().GetBindURL()
 
 	err = lib.Install(context.Background(), installConf, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {

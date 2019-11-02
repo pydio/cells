@@ -91,7 +91,7 @@ func promptURLs(proxyConfig *install.ProxyConfig, includeTLS bool) (e error) {
 func promptBindURL(proxyConfig *install.ProxyConfig) (e error) {
 
 	defaultPort := "8080"
-	var internalHost string
+	var bindHost string
 	defaultIps, e := net.GetAvailableIPs()
 	if e != nil {
 		return
@@ -116,27 +116,29 @@ func promptBindURL(proxyConfig *install.ProxyConfig) (e error) {
 		AddLabel: "Other",
 		Validate: validHostPort,
 	}
-	_, internalHost, e = prompt.Run()
+	_, bindHost, e = prompt.Run()
 	if e != nil {
 		return
 	}
-	internalHost = strings.TrimSuffix(internalHost, "/")
-	dn := strings.TrimPrefix(internalHost, "http://")
-	dn = strings.TrimPrefix(dn, "https://")
-	parts := strings.Split(dn, ":")
 
-	// TODO retry
+	// Sanity checks
+	tmpBindStr, e1 := guessParsableURL(bindHost, true)
+	if e1 != nil {
+		return fmt.Errorf("could not parse provided host URL %s, please use an [IP|DOMAIN]:[PORT] string", bindHost)
+	}
+	bindURL, e1 := url.Parse(tmpBindStr)
+	if e1 != nil {
+		return fmt.Errorf("could not parse provided host URL %s, please use an [IP|DOMAIN]:[PORT] string", bindHost)
+	}
+
+	// Insure we have a port
+	// TODO let end user try again
+	parts := strings.Split(bindURL.Host, ":")
 	if len(parts) != 2 {
 		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
 	}
 
-	// Default to https
-	scheme := "https://"
-	if parts[1] == "80" || proxyConfig.GetTLSConfig() == nil {
-		scheme = "http://"
-
-	}
-	proxyConfig.BindURL = scheme + dn
+	proxyConfig.BindURL = bindURL.String()
 
 	return nil
 }
@@ -192,6 +194,36 @@ func promptExtURL(proxyConfig *install.ProxyConfig) error {
 
 	proxyConfig.ExternalURL = external
 	return nil
+}
+
+// helper to add a not-so-stupid scheme to URL strings to be then able to rely on the net/url package to manipulate URL.
+func guessSchemeAndParseBaseURL(rawURL string, tlsEnabled bool) (*url.URL, error) {
+
+	wScheme, err := guessParsableURL(rawURL, tlsEnabled)
+	if err != nil {
+		return nil, fmt.Errorf("could not guess scheme for %s: %s", niBindUrl, err.Error())
+	}
+	return url.Parse(wScheme)
+}
+
+func guessParsableURL(rawURL string, tlsEnabled bool) (string, error) {
+
+	if strings.HasPrefix(rawURL, "http") {
+		return rawURL, nil
+	}
+
+	parts := strings.Split(rawURL, ":")
+
+	scheme := "https" // default to TLS
+	if len(parts) > 2 {
+		return rawURL, fmt.Errorf("could not process URL %s. We expect a host of form [IP|DOMAIN](:[PORT]) string", rawURL)
+	} else if len(parts) == 2 && parts[1] == "80" {
+		scheme = "http"
+	} else if !tlsEnabled {
+		scheme = "http"
+	}
+
+	return fmt.Sprintf("%s://%s", scheme, rawURL), nil
 }
 
 func init() {
