@@ -1,6 +1,7 @@
 package docs
 
-var knownServices = map[string]*Service{
+// List of known services, to enrich their description. It is public on purpose.
+var KnownServices = map[string]*Service{
 	"TokenService": {
 		Title: "Token Service",
 		Short: "Authentication tokens service.",

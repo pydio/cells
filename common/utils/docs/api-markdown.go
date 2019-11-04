@@ -139,7 +139,7 @@ func GenOpenAPIDocs(output string) error {
 	tplData := &TplData{}
 	for name, ops := range services {
 		s := Service{Name: name}
-		if ks, ok := knownServices[name]; ok {
+		if ks, ok := KnownServices[name]; ok {
 			s = *ks
 			s.Name = name
 		}
