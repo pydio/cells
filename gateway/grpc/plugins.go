@@ -39,10 +39,10 @@ func init() {
 			return nil
 		}),
 	}
-	if port := viper.Get("grpc_external"); port != nil {
-		opts = append(opts, service.Port(port.(string)))
-	}
 	plugins.Register(func() {
+		if port := viper.Get("grpc_external"); port != nil {
+			opts = append(opts, service.Port(port.(string)))
+		}
 		service.NewService(opts...)
 	})
 
