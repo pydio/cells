@@ -1011,40 +1011,40 @@
     "other": "Tên group"
   },
   "user.16.empty": {
-    "other": "Please provide a unique identifier"
+    "other": "Vui lòng cung cấp một tên duy nhất"
   },
   "user.16.format": {
-    "other": "Please use only alphanumeric characters"
+    "other": "Vui lòng chỉ sử dụng các ký tự chữ và số"
   },
   "user.17": {
-    "other": "Group Label"
+    "other": "Tên nhóm"
   },
   "user.17.empty": {
-    "other": "Please provide a label for this group"
+    "other": "Vui lòng cung cấp nhãn cho nhóm này"
   },
   "user.18": {
-    "other": "Role Identifier"
+    "other": "Tên Role"
   },
   "user.18.empty": {
-    "other": "Please provide a label for this role"
+    "other": "Vui lòng cung cấp nhãn cho role này"
   },
   "user.19": {
-    "other": "Create a new user"
+    "other": "Tạo người dùng mới"
   },
   "user.2": {
-    "other": "+ Group"
+    "other": "+ Nhóm"
   },
   "user.20": {
-    "other": "User will be created in group %s"
+    "other": "Người dùng sẽ được tạo trong nhóm %s"
   },
   "user.21": {
-    "other": "User login"
+    "other": "Tên đăng nhập"
   },
   "user.22": {
-    "other": "User password"
+    "other": "Mật khẩu"
   },
   "user.23": {
-    "other": "Confirm password"
+    "other": "Xác nhận mật khẩu"
   },
   "user.24": {
     "other": "Root Group"
@@ -1071,37 +1071,37 @@
     "other": "+ Role"
   },
   "user.7": {
-    "other": "Search users & groups"
+    "other": "Tìm kiếm người dùng và nhóm"
   },
   "user.8": {
-    "other": "Set parameters on this group to apply them all groups and users."
+    "other": "Đặt tham số trên nhóm này để áp dụng tất cả các nhóm và người dùng."
   },
   "user.9": {
-    "other": "Last connected"
+    "other": "Kết nối lần cuối"
   },
   "user.filter.tooltip": {
-    "other": "Filter users list..."
+    "other": "Lọc danh sách người dùng..."
   },
   "user.filter.internal": {
-    "other": "Internal users"
+    "other": "Người dùng nội bộ"
   },
   "user.filter.shared": {
     "other": "Shared users"
   },
   "user.filter.admins": {
-    "other": "Admins only"
+    "other": "Chỉ dành cho admin"
   },
   "user.filter.all": {
-    "other": "All users"
+    "other": "Mọi người dùng"
   },
   "user.filter.anon": {
-    "other": "Show anonymous"
+    "other": "Hiển thị ẩn danh"
   },
   "versions.editor.delete": {
-    "other": "Delete Policy"
+    "other": "Xóa Policy"
   },
   "versions.editor.delete.confirm": {
-    "other": "Are you sure you want to delete this policy? This is undoable!"
+    "other": "Bạn có chắc chắn muốn xóa policy này? Điều này là không thể hoàn tác!"
   },
   "versions.editor.error.lastdelete": {
     "other": "The last period is configured to delete all versions, you cannot add a new one!"
@@ -1110,175 +1110,175 @@
     "other": "Policy %s"
   },
   "versions.period.keep-all": {
-    "other": "Keep all"
+    "other": "Giữ tất cả"
   },
   "versions.period.keep-all.always": {
-    "other": "Always keep all versions"
+    "other": "Luôn giữ tất cả các phiên bản"
   },
   "versions.period.keep-n": {
-    "other": "Keep %s versions"
+    "other": "Giữ %s phiên bản"
   },
   "versions.period.keep-n-after": {
-    "other": "Keep %1 versions after %2"
+    "other": "Giữ các phiên bản %1 sau %2"
   },
   "versions.period.max-n": {
-    "other": "Max. %s versions"
+    "other": "Tối đa %s phiên bản"
   },
   "versions.period.remove-all": {
-    "other": "Remove all"
+    "other": "Xóa tất cả"
   },
   "versions.period.remove-all-after": {
-    "other": "Remove all after %s"
+    "other": "Xóa tất cả sau %s"
   },
   "versions.period.retentions-n": {
-    "other": "%s retention periods"
+    "other": "Thời gian duy trì %s"
   },
   "virtual.create": {
-    "other": "+ Template Path"
+    "other": "+ Đường dẫn Template"
   },
   "virtual.create.button": {
-    "other": "Create"
+    "other": "Tạo"
   },
   "virtual.label": {
-    "other": "Label"
+    "other": "Tên"
   },
   "virtual.legend.1": {
-    "other": "Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.     They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders."
+    "other": "Template Path được tính toán tùy thuộc vào ngữ cảnh. Chúng có thể được sử dụng làm gốc cho các workspaces thay thế một đường dẫn datasource. Chúng được sử dụng theo mặc định để tạo workspace Personal Files để trỏ đến một thư mục khác nhau cho mỗi người dùng và để tính toán vị trí của các thư mục Cells của người dùng."
   },
   "virtual.legend.2": {
-    "other": "Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically)."
+    "other": "Sử dụng Ctrl + Space bên trong trình chỉnh sửa để nhận gợi ý về các giá trị có thể. Các giá trị hiện tại được hỗ trợ là: User.Name (được giải quyết một cách linh hoạt cho người dùng đăng nhập hiện tại) và DataSources (để chọn một datasource động)."
   },
   "virtual.title": {
-    "other": "Template Paths"
+    "other": "Đường dẫn Template"
   },
   "ws.1": {
     "other": "Manage DataSources"
   },
   "ws.10": {
-    "other": "Select a DataSource"
+    "other": "Chọn một DataSource"
   },
   "ws.11": {
-    "other": "Workspace based on ..."
+    "other": "Workspace dựa trên ..."
   },
   "ws.12": {
     "other": "Template %s"
   },
   "ws.13": {
-    "other": "Template Options"
+    "other": "Tùy chọn Template"
   },
   "ws.14": {
-    "other": "Set Generic Options"
+    "other": "Đặt tùy chọn chung"
   },
   "ws.15": {
-    "other": "Workspace Options"
+    "other": "Tùy chọn Workspace"
   },
   "ws.16": {
-    "other": "Choose Storage Driver"
+    "other": "Chọn Storage Driver"
   },
   "ws.17": {
-    "other": "Select Storage Type"
+    "other": "Chọn kiểu Storage"
   },
   "ws.18": {
-    "other": "Loading drivers"
+    "other": "Đang tải drivers"
   },
   "ws.19": {
-    "other": "Save to add features"
+    "other": "Lưu để thêm tính năng"
   },
   "ws.2": {
-    "other": "Close DataSources"
+    "other": "Đóng DataSources"
   },
   "ws.20": {
-    "other": "Create"
+    "other": "Tạo"
   },
   "ws.21": {
-    "other": "Template General Options"
+    "other": "Cài đặt chung Template"
   },
   "ws.22": {
-    "other": "Workspace General Options"
+    "other": "Cài đặt chung Workspace"
   },
   "ws.23": {
-    "other": "Delete workspace"
+    "other": "Xóa workspace"
   },
   "ws.24": {
-    "other": "Children Workspaces"
+    "other": "Workspaces cấp dưới"
   },
   "ws.25": {
-    "other": "Shares"
+    "other": "Chia sẻ"
   },
   "ws.26": {
-    "other": "Folders Permissions"
+    "other": "Quyền thư mục"
   },
   "ws.27": {
-    "other": "Additional Features"
+    "other": "Tính năng bổ sung"
   },
   "ws.28": {
-    "other": "Summary"
+    "other": "Tổng hợp"
   },
   "ws.29": {
-    "other": "Parameters"
+    "other": "Tham số"
   },
   "ws.3": {
     "other": "+ workspace"
   },
   "ws.30": {
-    "other": "General Options"
+    "other": "Cài đặt chung"
   },
   "ws.31": {
-    "other": "Remove Feature"
+    "other": "Xóa tính năng"
   },
   "ws.32": {
-    "other": "Add a feature..."
+    "other": "Thêm một tính năng..."
   },
   "ws.33": {
-    "other": "Recent Activity"
+    "other": "Hoạt động gần đây"
   },
   "ws.34": {
-    "other": "Last events on this workspace"
+    "other": "Sự kiện cuối cùng trên workspace"
   },
   "ws.35": {
-    "other": "Accessible to %i users"
+    "other": "Có thể truy cập tới %i người dùng"
   },
   "ws.36": {
-    "other": "+ %i files or folders shared"
+    "other": "+ %i tệp hoặc thư mục được chia sẻ"
   },
   "ws.37": {
-    "other": "Workspaces using this template"
+    "other": "Workspaces sử dụng template này"
   },
   "ws.38": {
-    "other": "Shared Items in this workspace"
+    "other": "Các mục được chia sẻ trong workspace này"
   },
   "ws.39": {
-    "other": "Owner"
+    "other": "Chủ sở hữu"
   },
   "ws.4": {
-    "other": "+ datasource"
+    "other": "+ dataSource"
   },
   "ws.40": {
-    "other": "Share Type"
+    "other": "Loại chia sẻ"
   },
   "ws.41": {
-    "other": "Path"
+    "other": "Đường dẫn"
   },
   "ws.42": {
-    "other": "Folder Level Permissions"
+    "other": "Cấp quyền thư mục"
   },
   "ws.43": {
-    "other": "Specify here the default access permissions to this workspace folders.\n                                To enable the permissions management at a sub-level, select the 'CHILDREN' on a given folder.\n                                This will set the current folder as readonly by default, and you will be able to open accesses\n                                selectively to any of its children folders."
+    "other": "Chỉ định ở đây quyền truy cập mặc định cho các thư mục workspace này.\n                                 Để bật quản lý quyền ở cấp độ phụ, hãy chọn 'thư mục con' trên một thư mục nhất định.\n                                 Điều này sẽ đặt thư mục hiện tại là chỉ đọc theo mặc định và bạn sẽ có thể mở truy cập\n                                 có chọn lọc đối với bất kỳ thư mục con."
   },
   "ws.44": {
-    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                paremeter set for this workspace (see the General tab)."
+    "other": "Xin lưu ý rằng đây chỉ là một khuôn mẫu: nếu bạn sửa đổi trực tiếp các thư mục thực, bạn có thể\n                                 chỉnh sửa khuôn mẫu này cho phù hợp. Ngoài ra, các quyền này có thể bị giới hạn toàn cầu bởi 'Quyền mặc định'\n                                 paremeter được đặt cho workspace này (xem General tab)."
   },
   "ws.45": {
-    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic pathes that will be used as masks."
+    "other": "Vì các tham số của nó đang sử dụng 'PYDIO_USER' hoặc từ khóa 'PYDIO_GROUP_ *', nên nội dung của\n                                 workspace này sẽ thay đổi tùy thuộc vào người dùng hiện đang được xác thực. Vì lý do này, bạn không thể duyệt\n                                 thư mục trực tiếp và gán quyền cho chúng, nhưng bạn có thể tự do xác định một số đường dẫn chung sẽ được sử dụng làm khuôn mẫu."
   },
   "ws.46": {
-    "other": "Add a feature"
+    "other": "Thêm một tính năng"
   },
   "ws.47": {
-    "other": "Select a feature"
+    "other": "Chọn tính năng"
   },
   "ws.48": {
-    "other": "Beware, this workspace/template is not editable, as it is defined directly in the conf/bootstrap_repositories.php file."
+    "other": "Cẩn thận, workspace/template này không thể chỉnh sửa được, vì nó được định nghĩa trực tiếp trong conf/bootstrap_repositories.php."
   },
   "ws.49": {
     "other": ""
@@ -1290,7 +1290,7 @@
     "other": "Slug"
   },
   "ws.50": {
-    "other": "Indexation"
+    "other": "Lập chỉ mục"
   },
   "ws.51": {
     "other": "This workspace has an indexer (%s). Normally, indexation is done \"on-the-fly\" when files are added/removed\n                    through the application interfaces. However if you are doing some modifications directly at the storage level, you may have\n                    to manually re-trigger an indexation from time to time. Use buttons below to either index now, or program a task in the scheduler\n                    to run indexation on a regular basis."
@@ -1413,7 +1413,7 @@
     "other": "Data Access"
   },
   "ws.editor.default_rights": {
-    "other": "Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section."
+    "other": "Thiết lập quyền mặc định cho workspace này (áp dụng cho tất cả người dùng nội bộ của ứng dụng). Bạn có thể ghi đè các quyền này trên cơ sở per-user / per-role / per-group basis trong phần People."
   },
   "ws.editor.default_rights.none": {
     "other": "None"
@@ -1509,7 +1509,7 @@
     "other": "Description"
   },
   "services.column.version": {
-    "other": "Version"
+    "other": "Phiên bản"
   },
   "services.column.tag": {
     "other": "Tag"
@@ -1617,7 +1617,7 @@
     "other": "Status"
   },
   "scheduler.job.owner": {
-    "other": "Owner"
+    "other": "Chủ sở hữu"
   },
   "scheduler.job.trigger": {
     "other": "Trigger"
