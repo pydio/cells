@@ -146,15 +146,15 @@ var installCmd = &cobra.Command{
 
 		if niYmlFile != "" || niJsonFile != "" || (niBindUrl != "" && niExtUrl != "") {
 
-			installConf, err := nonInterractiveInstall(cmd, args)
+			installConf, err := nonInteractiveInstall(cmd, args)
 			fatalIfError(cmd, err)
 			if installConf.InternalUrl != "" {
 				// We assume we have completely configured Cells. Exit.
 				return
-			} else {
-				// we only non-interractively configured the proxy, launching browser install
-				proxyConf = installConf.GetProxyConfig()
 			}
+
+			// we only non-interactively configured the proxy, launching browser install
+			proxyConf = installConf.GetProxyConfig()
 
 		} else {
 			// Ask user to choose between browser or CLI interactive install

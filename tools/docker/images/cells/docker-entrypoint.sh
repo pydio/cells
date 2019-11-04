@@ -11,10 +11,14 @@ if [ "$1" == "cells" ]; then
 	FILE="/$CELLS_WORKING_DIR/pydio.json"
 	if [ ! -f "$FILE" ] ; then 
 		
-		if [ -f "$INSTALL_CONF_FILE" ] ; then 
+		if [ -f "$CELLS_INSTALL_YAML" ] ; then 
 			# Non interactive install based on a yaml config file   	
-			cells install --yaml $INSTALL_CONF_FILE "$@"
+			cells install --yaml $CELLS_INSTALL_YAML "$@"
 
+		elif [ -f "$CELLS_INSTALL_JSON" ] ; then 
+			# Non interactive install based on a json config file   	
+			cells install --json $CELLS_INSTALL_JSON "$@"
+		
 		elif [ -z "$CELLS_NO_SSL" -o "$CELLS_NO_SSL" != "1" ]; then
 			
 			# Provided certificates

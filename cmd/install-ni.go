@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/discovery/install/lib"
 )
 
-func nonInterractiveInstall(cmd *cobra.Command, args []string) (*install.InstallConfig, error) {
+func nonInteractiveInstall(cmd *cobra.Command, args []string) (*install.InstallConfig, error) {
 
 	if niYmlFile != "" || niJsonFile != "" {
 		return installFromConf()
