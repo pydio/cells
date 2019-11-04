@@ -404,7 +404,7 @@ func LoadCaddyConf() error {
 
 	caddyconf.Bind = protocol + u.Host
 
-	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && caddyconf.TLS != "" {
+	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && (caddyconf.TLS != "" || caddyconf.TLSCert != "" && caddyconf.TLSKey != "") {
 		if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
 			var e error
 			if caddyconf.HTTPRedirectTarget, e = url.Parse(extUrl); e == nil {
