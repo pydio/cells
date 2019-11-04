@@ -172,8 +172,6 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 	bu.Scheme = scheme
 	proxyConfig.BindURL = bu.String()
 
-	fmt.Printf("####### HERE <= and enabled: %v\n", enabled)
-
 	// Reset redirect URL: for the time being we rather use this as a flag
 	proxyConfig.RedirectURLs = []string{}
 	if enabled {

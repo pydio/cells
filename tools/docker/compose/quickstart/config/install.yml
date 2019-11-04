@@ -11,7 +11,7 @@ proxyconfig:
               - localhost
   
 ## Cells non-interactive install  
-bindurl: http://localhost:443
+internalurl: http://localhost:443
 dbconnectiontype: tcp
 dbtcphostname: mysql
 dbtcpport: 3306
