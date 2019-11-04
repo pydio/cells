@@ -3,12 +3,11 @@ version: "3"
 services:
 
   cells:
-    image: pydio/cells:latest
+    image: pydio/cells:unstable
     restart: always
     ports: ["80:80", "443:443"]
     environment:
-      # dfault anyway
-      #- CELLS_WORKING_DIR=/var/cells
+      - CELLS_WORKING_DIR=/var/cells
       - CELLS_INSTALL_YAML=/pydio/config/install.yml
     volumes: 
       - "cellsdir:/var/cells"

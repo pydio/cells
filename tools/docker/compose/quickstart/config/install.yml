@@ -1,19 +1,23 @@
 # Basic no-TLS config for the embedded gateway
 proxyconfig:
-  bindurl: http://localhost:80
-  externalurl: http://localhost
-
-# The install config
+  ## Self-signed with locally generated CA Root and certs  
+  bindurl: https://localhost:443
+  externalurl: https://localhost
+  redirecturls:
+      - http://localhost
+  tlsconfig:
+      selfsigned:
+          hostnames:
+              - localhost
+  
+## Cells non-interactive install  
+bindurl: http://localhost:443
 dbconnectiontype: tcp
 dbtcphostname: mysql
 dbtcpport: 3306
 dbtcpname: cells
 dbtcpuser: pydio
 dbtcppassword: pydio
-dbsocketfile: /tmp/mysql.sock
-dbsocketname: cells
-dbsocketuser: root
-dbsocketpassword: root@tcp(mysql=3306)/cells
 dsname: pydiods1
 dsport: 41850
 dsfolder: /tmp/data
@@ -32,4 +36,3 @@ frontendrepeatpassword: admin
 frontendapplicationtitle: Pydio Cells
 frontenddefaultlanguage: en
 licenserequired: false
-licensestring: ""

@@ -28,17 +28,19 @@ services:
     #  - web
 
   cells:
-    image: bsinou/cells:quickstart
+    image: pydio/cells:unstable
     restart: always
-    volumes:
-      - "workingdir:/var/cells"
-      - "./install/config.yml:/pydio/config.yml"
     ports: ["8000:80"]
     environment:
-      - INSTALL_CONF_FILE=/pydio/config.yml
-      # CELLS_BIND=0.0.0.0:80
+      - CELLS_WORKING_DIR=/var/cells
+      - CELLS_INSTALL_YAML=/pydio/config/install.yml
+      #- CELLS_BIND=0.0.0.0:80
       # CELLS_EXTERNAL=localhost
       # CELLS_NO_SSL=1
+    volumes:
+      - "workingdir:/var/cells"
+      - "./data:/var/cells/data"
+      - "./config:/pydio/config"
     depends_on:
       - mysql
     labels:
@@ -60,7 +62,7 @@ services:
       MYSQL_USER: pydio
       MYSQL_PASSWORD: pydio
     volumes:
-      - "db:/var/lib/mysql"
+      - "mysqldir:/var/lib/mysql"
     command:
       [
         mysqld,
@@ -70,4 +72,4 @@ services:
 
 volumes:
   workingdir: {}
-  db: {}
+  mysqldir: {}
