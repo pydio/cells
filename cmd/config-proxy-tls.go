@@ -78,6 +78,7 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 	certFile := config.Get("cert", "proxy", "certFile").String("")
 	keyFile := config.Get("cert", "proxy", "keyFile").String("")
 	certEmail := config.Get("cert", "proxy", "email").String("")
+	enabled = true
 
 	selector := promptui.Select{
 		Label: "Choose TLS activation mode. Please note that you should enable SSL even behind a reverse proxy, as HTTP2 'TLS => Clear' is generally not supported",
@@ -170,6 +171,8 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 	}
 	bu.Scheme = scheme
 	proxyConfig.BindURL = bu.String()
+
+	fmt.Printf("####### HERE <= and enabled: %v\n", enabled)
 
 	// Reset redirect URL: for the time being we rather use this as a flag
 	proxyConfig.RedirectURLs = []string{}
