@@ -109,6 +109,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 
 }
 
+// OpenApiDiscovery prints out the Swagger Spec in JSON format
 func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response) {
 
 	cfg := config.Default()
@@ -134,6 +135,12 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 	jsonSpec.Spec().SecurityDefinitions = map[string]*spec.SecurityScheme{"oauth2": scheme}
 	jsonSpec.Spec().Security = append(jsonSpec.Spec().Security, map[string][]string{"oauth2": []string{}})
 	for path, ops := range jsonSpec.Spec().Paths.Paths {
+		s.documentOpResponse(ops.Get)
+		s.documentOpResponse(ops.Head)
+		s.documentOpResponse(ops.Patch)
+		s.documentOpResponse(ops.Post)
+		s.documentOpResponse(ops.Delete)
+		s.documentOpResponse(ops.Put)
 		if strings.HasPrefix(path, "/a/") {
 			continue
 		}
@@ -145,6 +152,18 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 
 }
 
+// documentOpResponse adds a description on response to comply with Swagger spec
+func (s *Handler) documentOpResponse(p *spec.Operation) {
+	if p == nil || p.Responses == nil || p.Responses.StatusCodeResponses == nil {
+		return
+	}
+	if success, ok := p.Responses.StatusCodeResponses[200]; ok {
+		success.Description = "Successful response"
+		p.Responses.StatusCodeResponses[200] = success
+	}
+}
+
+// ConfigFormsDiscovery serves an XML description for building a form
 func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Response) {
 	serviceName := req.PathParameter("ServiceName")
 	if serviceName == "" {
