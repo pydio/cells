@@ -60,13 +60,13 @@
     "other": "Pydio Cells Enterprise entdecken"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "Jetzt upgraden!"
   },
   "ent.upgrade.legend": {
-    "other": "In-app upgrade Cells Enterprise (license required)"
+    "other": "In-App-Upgrade-Zellen Enterprise (Lizenz erforderlich)"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "Erweitert"
   },
   "welc.btn.parameters": {
     "other": "Einstellungen"
@@ -75,24 +75,24 @@
     "other": "Erste Schritte"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "Benutzer"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "Arbeitsumgebungen"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "Bitte lesen Sie zum Einstieg die Administrations-Anleitung!"
   },
   "welc.intro": {
     "other": "Über das Menü auf der linken Seite können Sie <a class=\"doc-link\" data-path=\"/data/workspaces\">Arbeitusmgebungen</a> oder <a class=\"doc-link\" data-path=\"/idm/users\">Benutzer</a> erstellen. Zudem haben Sie die Möglichkeit,\n                            die <a class=\"doc-link\" data-path=\"/admin/logs\">Protokolle</a> zu überprüfen oder Einstellungen des <a class=\"doc-link\" data-path=\"/parameters/core\">Systems</a>, oder einer <a class=\"doc-link\" data-path=\"/plugins/manager\">Erweiterung</a> zu ändern."
   },
   "welc.import": {
-    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+    "other": "Wenn Sie derzeit eine Pydio 8-Installation ausführen, beachten Sie, dass <u> Pydio 8 Ende 2019 als nicht mehr funktionsfähig </u> eingestuft wird. Sie können das <a class=\"doc-link\" data-path=\"/data/migration\"> Import Tool </a> verwenden, um alle Daten zu Pydio Cells zu migrieren."
   },
   "welc.subtitle": {
     "other": "Verwalten und überwachen Sie Ihre Pydio-Installation"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v2"
+    "other": "Willkommen bei Pydio Cells v2"
   }
 }

@@ -1568,6 +1568,18 @@
   "572": {
     "other": "Erstellen Sie Teams, um Elemente einfach freizugeben"
   },
+  "571.readonly": {
+    "other": "Keine Teams verfügbar"
+  },
+  "572.readonly": {
+    "other": "Du bist nicht berechtigt, Teams zu erstellen, aber einige Benutzer können Teams mit dir teilen"
+  },
+  "571.create_team_action": {
+    "other": "Teams erstellen und bearbeiten"
+  },
+  "571.create_team_legend": {
+    "other": "Benutzer dürfen ihre eigenen Teams erstellen und bearbeiten"
+  },
   "573": {
     "other": "Benutzer zu Team hinzufügen"
   },

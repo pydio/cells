@@ -60,13 +60,13 @@
     "other": "Descubra Pydio Cells Enterprise"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "¡Actualizar ahora!"
   },
   "ent.upgrade.legend": {
-    "other": "In-app upgrade Cells Enterprise (license required)"
+    "other": "Actualizar Cell Enterprise desde la aplicación (se requiere licencia)"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "Avanzado"
   },
   "welc.btn.parameters": {
     "other": "Sobre Parámetros"
@@ -75,24 +75,24 @@
     "other": "Comenzando"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "Usuarios"
   },
   "welc.btn.ws": {
     "other": "Workspaces"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "¡Si no sabe por dónde empezar, la Guia para Administradores es un buen comienzo!"
   },
   "welc.intro": {
     "other": "Este es su panel para gestionar Pydio. Usando el menu de la izquierda puede crear <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> y <a class=\"doc-link\" data-path=\"/idm/users\">usuarios</a>,\n                            compruebe todos los <a class=\"doc-link\" data-path=\"/admin/logs\">eventos</a> que ocurren en la plataforma y gestione la <a class=\"doc-link\" data-path=\"/parameters/core\">configuración</a> y los <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
   },
   "welc.import": {
-    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+    "other": "Si está instalando en este momento Pydio 8, tenga en cuenta que <u>Pydio 8 dejará de estar disponible a finales de 2019</u>. Puede utilizar la <a class=\"doc-link\" data-path=\"/data/migration\">Herramienta de Importación</a> para migrar todos sus datos a Pydio Cells."
   },
   "welc.subtitle": {
     "other": "El lugar para administrar y monitorizar la actividad de su plataforma"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v2"
+    "other": "Bienvenido a Pydio Cells v2"
   }
 }

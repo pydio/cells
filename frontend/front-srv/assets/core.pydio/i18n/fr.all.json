@@ -1568,6 +1568,18 @@
   "572": {
     "other": "Créez vos propres équipes pour partager simplement des données avec plusieurs utilisateurs à la fois."
   },
+  "571.readonly": {
+    "other": "Pas d'équipes"
+  },
+  "572.readonly": {
+    "other": "Vous n'êtes pas autorisé à créer une équipe, mais d'autres utilisateurs peuvent éventuellement en partager avec vous."
+  },
+  "571.create_team_action": {
+    "other": "Créer et éditer les équipes"
+  },
+  "571.create_team_legend": {
+    "other": "Autoriser la création ou l'édition d'équipes"
+  },
   "573": {
     "other": "Ajouter à l'équipe..."
   },

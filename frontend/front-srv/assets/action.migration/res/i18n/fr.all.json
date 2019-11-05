@@ -30,10 +30,10 @@
     "other": "Lancer l'import maintenant"
   },
   "step.connection": {
-    "other": "Pydio 8 Connection"
+    "other": "Connexion à Pydio 8"
   },
   "step.connection.legend": {
-    "other": "Use the form below connect to the Pydio 8 server, using the dedicated user you have created."
+    "other": "Utilisez le formulaire ci-dessous pour vous connecter au serveur Pydio 8 avec l'utilisateur dédié que vous avez créé."
   },
   "step.connection.fail": {
     "other": "Impossible de se connecter à %s"
