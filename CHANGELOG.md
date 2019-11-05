@@ -1,79 +1,75 @@
-# Changes between v2.0.0-rc1 and v2.0.0-rc2
+# Changes between v2.0.0-rc2 and v2.0.0-rc3
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.0.0-rc1...v2.0.0-rc2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.0.0-rc2...v2.0.0-rc3)
 
-- [#ebaf156](https://github.com/pydio/cells/commit/ebaf156a37d63bed4b137ecd8142935fc747e774): Fix permission and error feedback on self-signed
-- [#bf5bf52](https://github.com/pydio/cells/commit/bf5bf52894ee05bdd7a09a9cc62a525ad1471046): Fix MySQL version check to allow trailing '-.*' (#165)
-- [#58c5055](https://github.com/pydio/cells/commit/58c505590a0f476c9a728ca841df91a879fcd0cb): Removing legacy github.com/pydio/cells/cmd/ctl/cmd
-- [#6d27878](https://github.com/pydio/cells/commit/6d27878572df201a749ce8304d3ad29fbd37d90d): Cosmetic changes while reviewing frontend code
-- [#e82b3a6](https://github.com/pydio/cells/commit/e82b3a6079670f07dae1693a538579f06e1719b5): Testing connectors during dex startup
-- [#c37df73](https://github.com/pydio/cells/commit/c37df732792f7c39d16e0b0d48b28493cef3162a): Work on translation in various languages
-- [#0d54f61](https://github.com/pydio/cells/commit/0d54f61d1be51f98c41409d98ba5be467174cb8c): Work on translation in various languages
-- [#d0c37aa](https://github.com/pydio/cells/commit/d0c37aa94d22160da6f728870922033750c82597): Bump go version
-- [#c507b90](https://github.com/pydio/cells/commit/c507b9077366008b5d0adaf9dd6806734943b7c2): Adapt after commands merge
-- [#c4e7c15](https://github.com/pydio/cells/commit/c4e7c15bc4ed9644520da7889a721c222ae21c28): Fix typo
-- [#e5caeee](https://github.com/pydio/cells/commit/e5caeee96cb5c9d17ec453f49855a2dc1c2bae8a): Use caddy 0.10.12 released version and acmev2
-- [#c6a14ba](https://github.com/pydio/cells/commit/c6a14ba1928be74f9757bd57f3574f1d4e5d5abc): Default OIDC static clients. Fix install with certFile/certKey pointing to paths with space
-- [#ba8ec4b](https://github.com/pydio/cells/commit/ba8ec4bdc44ff55cf270f0ffe738b3b204b6fa05): Removing unused api
-- [#028db39](https://github.com/pydio/cells/commit/028db39f2fa0f22aabf67f69b2ee6e0686933042): Add comments
-- [#e7e45e0](https://github.com/pydio/cells/commit/e7e45e0f28c8faf8b00fc128cad65e5e9b34c14a): Change how we handle self-signed case : instead of letting Caddy manage, generate our own certif (and a rootCA that can optionally be installed in local truststore with mkcert tool).
-- [#a6121de](https://github.com/pydio/cells/commit/a6121dec5b2f275b5ed5988547ee0851fce9a2ae): Removing unused api
-- [#a700e3b](https://github.com/pydio/cells/commit/a700e3b1f641aa87644f7ba0088bd58792f016e3): Bulk delete sequentially
-- [#a630225](https://github.com/pydio/cells/commit/a6302253195ed6c95f69b295353149bfbd1e7b49): Improve examples for data-sync command. Add "datasource" parameter to ease the process.
-- [#9cd2e51](https://github.com/pydio/cells/commit/9cd2e5128e0a815c45828306603df203b51f4cf4): Fix usersOnly flag in UsersCompleter
-- [#b185c0f](https://github.com/pydio/cells/commit/b185c0fc2972e4da69dafe828f539d88c706008c): On user deletion, copy/delete instead of move user data to keep a backup but clear associated uuids
-- [#5a91520](https://github.com/pydio/cells/commit/5a9152029f7d5a3311c94820c23972978b83c189): Re-add command to resync a ds.
-- [#73ef9d5](https://github.com/pydio/cells/commit/73ef9d548a36d25511288f462c58d91a015671a6): Remove cells-ctl from docker base image
-- [#e039ff2](https://github.com/pydio/cells/commit/e039ff22b664c625939aac0a5cbf19efef08b0db): Enhance main sub-command short descriptions
-- [#c90a614](https://github.com/pydio/cells/commit/c90a6148237129601fc2d0dc7b6983897d3b7739): Merge useful commands from cells-ctl in the main CLI
-- [#88527d4](https://github.com/pydio/cells/commit/88527d4c7e42ac351df933b347b05feb6c55e188): Reorganise existing commands to enhance usability
-- [#335d2e8](https://github.com/pydio/cells/commit/335d2e8a59fe5af6db477362bdf116afdedcef34): Tweaking overlay_icons for thumbs and detail display mode - fix #160
-- [#dab635e](https://github.com/pydio/cells/commit/dab635ea7a3724f2451a3c2fabf4b6f5e96fd476): Fix dynamic registry for cells endpoint
-- [#5a35c69](https://github.com/pydio/cells/commit/5a35c69c3a3be1ded215c90d400c4757a5d9a4ae): Make commands package protected before 2.0
-- [#42cae02](https://github.com/pydio/cells/commit/42cae022f314161c838d0802a063806ce3cb4996): Cosmetic changes and typos while preparing ctl refactoring
-- [#b2b5bfc](https://github.com/pydio/cells/commit/b2b5bfcfeac51e091a55bfa4238e93b79fb3959e): Unmarshalling to proto.Message
-- [#e1032a8](https://github.com/pydio/cells/commit/e1032a84ef076d850bf0b5783111eb11246bd1c6): Change default workspace attributes and how we compute if ws is syncable or not.
-- [#e10ed19](https://github.com/pydio/cells/commit/e10ed1969d27a9a6f40b83d24229539766eeb903): Change WsEditor
-- [#fce05d5](https://github.com/pydio/cells/commit/fce05d57b4566446da5bdb8444ba993b4ec86e40): Make WsDash simpler
-- [#c6c7d89](https://github.com/pydio/cells/commit/c6c7d8931ed9a9ef87deea16944ccabc3c0cedda): Ignore errors when trying to create personal folder (if already created)
-- [#bb09f8f](https://github.com/pydio/cells/commit/bb09f8ffdde797d350e8fd9b63d2770a4269e337): Fix typo in deleteNS statement name
-- [#1e65d0e](https://github.com/pydio/cells/commit/1e65d0e2eafc8f8b96cf941fe78369c5d7367db0): Refactor GetStmt for error reporting
-- [#f8126b8](https://github.com/pydio/cells/commit/f8126b8af9d3941edf00cef07ea4713008e1ab8e): Index: fix GetNodeByUuid in session mode => fixes duplicate folders on FS
-- [#e07fd8d](https://github.com/pydio/cells/commit/e07fd8d7017e4f25f3af8895e1e61ae8275af819): update cells-sdk-go
-- [#4e16f8e](https://github.com/pydio/cells/commit/4e16f8ee46b8839c79b3a6eb70f7691a27c86606): WS Listing : add slug and uuid in metadata
-- [#b079405](https://github.com/pydio/cells/commit/b0794052507b0fe9c19c15b912564976a7bf4f71): gRPC gateway : properly extract meta for policies checks
-- [#97b2185](https://github.com/pydio/cells/commit/97b2185dbb2421a8001f50409a83705e574795fa): Improve list of workspaces output when asking for root in Router
-- [#44caf29](https://github.com/pydio/cells/commit/44caf29ee5811492546c6e502f2dd3c2b456d48f): Handle string value for ALLOW_SYNC flag
-- [#4ce99bf](https://github.com/pydio/cells/commit/4ce99bfcf6de1981903b3e9ec66ccfe2fd9d4a72): Fix AddressBook UX glitch
-- [#77384d3](https://github.com/pydio/cells/commit/77384d3823812380d1a7b27379765b94c8a4719f): Small fix - Do not toggle info panel automatically in thumbs display mode, as it relayout thumbs lines and it's confusing when selecting an image.
-- [#a154943](https://github.com/pydio/cells/commit/a154943002343973d4f851d8bb96bb47f685a0aa): Fix filter events by subscription (#103)
-- [#1bcdf36](https://github.com/pydio/cells/commit/1bcdf36e1d61a2233e292309391019bd9277ad70): Open api spec
-- [#fa039d0](https://github.com/pydio/cells/commit/fa039d08cbca4085a22cc07beb944174501f5a59): Refresh SwaggerUI lib
-- [#4ae4813](https://github.com/pydio/cells/commit/4ae4813e6b7d692b51bba6252a7e1f254e0aacab): Adapt to match with crowdin default language codes
-- [#13db788](https://github.com/pydio/cells/commit/13db7883ac92dc8e274b3634ad0ea67f2a57742b): Fix textOverflow on label in details display mode
-- [#16373d2](https://github.com/pydio/cells/commit/16373d2d7c02fe886d3a85a84938c9cf0c8af725): Tweaking overlay_icons for thumbs and detail display mode - fix #160
-- [#2b10000](https://github.com/pydio/cells/commit/2b10000d98cc80951391a44f1d1d14664d838dfb): Merge remote-tracking branch 'origin/master'
-- [#a3b218c](https://github.com/pydio/cells/commit/a3b218c61719b537caea0496ade10626eef3c36c): Fix dynamic registry for cells endpoint
-- [#049a882](https://github.com/pydio/cells/commit/049a8829002ec1a13f01115a494379a79dc3d7a8): Make commands package protected before 2.0
-- [#74a5cd8](https://github.com/pydio/cells/commit/74a5cd85a710e16a7c9b2701cf5d9f39e4e45e41): Cosmetic changes and typos while preparing ctl refactoring
-- [#a50d6ab](https://github.com/pydio/cells/commit/a50d6abdde59765a1c475d60c0c449ab2e9144b6): Unmarshalling to proto.Message
-- [#163](https://github.com/pydio/cells/pull/163): Fix to use crowdin specific language codes
-- [#f98d2fd](https://github.com/pydio/cells/commit/f98d2fd990de8c25fb373213e3fa2baf2b68cca0): Adapt to match with crowdin default language codes
-- [#114213c](https://github.com/pydio/cells/commit/114213c3956b7b1572047a928ec37b4da60d1cb4): Change default workspace attributes and how we compute if ws is syncable or not.
-- [#57d28b5](https://github.com/pydio/cells/commit/57d28b531c4001f5b0511faf283c05a3b79fee76): Change WsEditor
-- [#51d24cf](https://github.com/pydio/cells/commit/51d24cfeddd4ddf7218abfd3510bdb7e9a2ab353): Make WsDash simpler
-- [#f02816d](https://github.com/pydio/cells/commit/f02816d469113c4330b7650aa5562066c0310afe): Ignore errors when trying to create personal folder (if already created)
-- [#3a48399](https://github.com/pydio/cells/commit/3a48399cddd48e592c70e5f65d958bb2e98352d4): Fix typo in deleteNS statement name
-- [#969b325](https://github.com/pydio/cells/commit/969b3253a945c614e55fbf1bdb325beb99080946): Refactor GetStmt for error reporting
-- [#0480b4e](https://github.com/pydio/cells/commit/0480b4ea32ce7169fdfd361975ef7648e52a9fef): Index: fix GetNodeByUuid in session mode => fixes duplicate folders on FS
-- [#611d48e](https://github.com/pydio/cells/commit/611d48ef5ccf91e74174f453555dc4a32dfa3143): update cells-sdk-go
-- [#2b4eec1](https://github.com/pydio/cells/commit/2b4eec156d2e69d3f166e53a7edbb190a32f72c0): WS Listing : add slug and uuid in metadata
-- [#6ad51e2](https://github.com/pydio/cells/commit/6ad51e2e6cdd20445b3911d4355cbb4305f6ab78): gRPC gateway : properly extract meta for policies checks
-- [#6e2237f](https://github.com/pydio/cells/commit/6e2237fd814c51c1f5fc67ecea19e2ae646e836c): Improve list of workspaces output when asking for root in Router
-- [#7de5ab5](https://github.com/pydio/cells/commit/7de5ab5e71687221527efd40a2db144fc43d329f): Handle string value for ALLOW_SYNC flag
-- [#2333afc](https://github.com/pydio/cells/commit/2333afc11f2598838bdb46fbf35a4710e42405ab): Fix AddressBook UX glitch
-- [#781818d](https://github.com/pydio/cells/commit/781818d2a3afd33f2111a0c906f03176940f8594): Small fix - Do not toggle info panel automatically in thumbs display mode, as it relayout thumbs lines and it's confusing when selecting an image.
-- [#73a1d8e](https://github.com/pydio/cells/commit/73a1d8e043398d7b9b148a16f0e0a778e4c9b0eb): Fix filter events by subscription (#103)
-- [#048d9ac](https://github.com/pydio/cells/commit/048d9ac851da3346afc2e32f941a50f7c18dee51): Open api spec
-- [#54fed56](https://github.com/pydio/cells/commit/54fed56cfc46a3b2e92026a421fe8f88360924ba): Refresh SwaggerUI lib
-- [#946c375](https://github.com/pydio/cells/commit/946c37539b66def3ad7306ac33b091877a442047): Adapt to match with crowdin default language codes
+- [#c004d7c](https://github.com/pydio/cells/commit/c004d7c2a667e29752acbc1b7ce383729fefb31c): Revert to self-signed TLS mode by default
+- [#5e80646](https://github.com/pydio/cells/commit/5e8064637d163f0dd8b326f18e4fc37b42f0aa59): Fix condition for redirect URL in selfseigned and cert modes
+- [#4961bd2](https://github.com/pydio/cells/commit/4961bd2f2c28640405cd6fd2451814ed67d9437a): Clean examples
+- [#7096451](https://github.com/pydio/cells/commit/7096451fdbe80e23290699d472c2eb1053c44d7e): Make var public
+- [#b630a86](https://github.com/pydio/cells/commit/b630a86a62fb2c3f98bd48f1604b5a60327d0d6b): Add a quickstart exemple
+- [#adce0e0](https://github.com/pydio/cells/commit/adce0e0f16b84cec9e4116a4600b658fff7a5ec3): OpenAPI: Missing description in response block
+- [#8cbda4a](https://github.com/pydio/cells/commit/8cbda4a2092e7161ab7f096e0c561356e2de7b7b): 100% DE + more Vietnamese
+- [#6b3dcdb](https://github.com/pydio/cells/commit/6b3dcdbbe1ce339faa620da6696890f11066231c): 100% DE + more Vietnamese
+- [#76a4393](https://github.com/pydio/cells/commit/76a4393403994f71672ef4445d6400dc0d3d553b): Some more cleaning on docker files
+- [#da9f10d](https://github.com/pydio/cells/commit/da9f10da867276a3e384c82ba44d2bdf9f542589): Fix grpc_external flag, make sure to read it inside the Register func (otherwise not yet parsed).
+- [#436ae5c](https://github.com/pydio/cells/commit/436ae5ca387b8a2a60415608acd6a61ed67a13da): Re-enable redirect prompt
+- [#c22263c](https://github.com/pydio/cells/commit/c22263c4022929f45b0ffa69adf38b71dade9a30): Enable definition of proxy config with json & yaml
+- [#6398e11](https://github.com/pydio/cells/commit/6398e11fc62ef489fb0331f130753c10a24b9b3a): Cleaner management of URLs during install
+- [#6d1c01d](https://github.com/pydio/cells/commit/6d1c01d9f99b9abf04572867238faf22c4c600f2): Some cleaning
+- [#bb684f8](https://github.com/pydio/cells/commit/bb684f8c5ecf04a116effd3ad217a27ee5015260): Adapt to API format
+- [#06aadee](https://github.com/pydio/cells/commit/06aadee8c14f6af6c30f8946555b9b63a6a9c226): Remove unnecessary chmod
+- [#1c091a7](https://github.com/pydio/cells/commit/1c091a72882c3bc5f35c3b6750879fa38596d0ae): Try to reduce image size
+- [#cc8abc7](https://github.com/pydio/cells/commit/cc8abc7e2bb029dc4d84d74e22f9b67f9219bb89): Fix
+- [#0923183](https://github.com/pydio/cells/commit/092318335302c70b15a7e4f2de4a495006e00cda): Remove forgotten tweak
+- [#3534dfd](https://github.com/pydio/cells/commit/3534dfdece982709b444a78f2dfc71b0433af523): Adapt flags in docker file
+- [#f6bfaaf](https://github.com/pydio/cells/commit/f6bfaaf6770468a8a52a53536547f2d613ff187c): Refactor and clean install, prepare Docker v2 files
+- [#4c31ee9](https://github.com/pydio/cells/commit/4c31ee9e68c085c58a8bba4f4fbfd56ad140024f): api docs: Special case for treeNode, only keep Path field in sample
+- [#2e557b0](https://github.com/pydio/cells/commit/2e557b0fe4ac57e1e3627357ec583d6da059a9ce): Comments in proto
+- [#c6f76d8](https://github.com/pydio/cells/commit/c6f76d85a9e3f7a35b5860a186c44ad25c1f3e57): Update comments in protos
+- [#13c79d5](https://github.com/pydio/cells/commit/13c79d5e8868586717e45c959841d04b85c901ef): doc commands
+- [#e2ec118](https://github.com/pydio/cells/commit/e2ec11893130ad423129093331dadf3079a4f11b): Remove ChangeService (not used)
+- [#c151506](https://github.com/pydio/cells/commit/c151506b3a990bbd155563ff1e92855785ae6999): Fixing redirection
+- [#7b65f0e](https://github.com/pydio/cells/commit/7b65f0e6e7dfc5b018bdccac9cb4a0cb2c059fbb): Markdown generation for Open API
+- [#e103b92](https://github.com/pydio/cells/commit/e103b921366345bbaea1a86c54588efa79228cba): Update smart-banner app ids
+- [#d1f1c30](https://github.com/pydio/cells/commit/d1f1c308197bfbb73dac30493b1cbfd8ff0818ba): Fix install events (defer caddy stop)
+- [#bcf7311](https://github.com/pydio/cells/commit/bcf73118c569067ca4d048e3d7957c0ba4ca3b10): Fix install events (js)
+- [#d64e688](https://github.com/pydio/cells/commit/d64e68800f77a651cdc70ba2c24c024c298808e7): A few changes + more Vietnamese
+- [#25200d5](https://github.com/pydio/cells/commit/25200d5b9f700535935518f0be49346526ee52ae): A few changes + more Vietnamese
+- [#ce41314](https://github.com/pydio/cells/commit/ce4131421b7a1c0ca048fdee95b36ab691667c92): Merge pull request 175 from pydio-i18n
+- [#fc1351c](https://github.com/pydio/cells/commit/fc1351c76da86632c6b6d5b50235698790288460): Fix scope for externalUrl variable
+- [#f8a9394](https://github.com/pydio/cells/commit/f8a93943a798bac698c0693383f1c625fdc86999): Additional onHeaderChange() props on PluginEditor
+- [#5aed28b](https://github.com/pydio/cells/commit/5aed28b61dfdf79bf38a325e7a69d420fa14c3f0): Make sure to only load TlsServerConfig for gateway.grpc
+- [#a2708e8](https://github.com/pydio/cells/commit/a2708e856cf9e53c8e1e2b806b601f526dea64f9): Migration: missing a few strings
+- [#c6bec89](https://github.com/pydio/cells/commit/c6bec893b0363e09caf2a2b6640e99b1cab3ca0d): Remove unused Once
+- [#1511d17](https://github.com/pydio/cells/commit/1511d1752b05daf5bb1ea5b2e157333a7319e175): Make sure to ResetTlsConfigs after install (and before reload)
+- [#f3ae1aa](https://github.com/pydio/cells/commit/f3ae1aaf674e7954722046b73eb17e843586497c): New French translations
+- [#a0994dc](https://github.com/pydio/cells/commit/a0994dc88d5b0038767c314e6099b4874e7f81ba): New Crowdin translations (#60)
+- [#1358ae8](https://github.com/pydio/cells/commit/1358ae861ca3e08624ffc6e2bfd87f5e7cd83ff9): Accepting range for redirect uris
+- [#041af56](https://github.com/pydio/cells/commit/041af56e2a20318266d73ef445ee4f3def33fdc1): Adapt examples to latest signature of the installer
+- [#6c51d73](https://github.com/pydio/cells/commit/6c51d733e935b3976b9ac86d64bf408cbae9d287): Add Swedish language + more Vietnamese translation + new messages
+- [#8150218](https://github.com/pydio/cells/commit/81502189d68f07b83e8d8fcfb3e27d6a3dda784b): Add Swedish language + more Vietnamese translation + new messages
+- [#f892e73](https://github.com/pydio/cells/commit/f892e739dff223ec7a1fcc35b7d25ceea7e6738f): Merge remote-tracking branch 'origin/master'
+- [#8c3c06d](https://github.com/pydio/cells/commit/8c3c06d5143584cd3a6cf9075a4d73bbe269aa27): Small update on admin dashboard
+- [#bcb0283](https://github.com/pydio/cells/commit/bcb02833a4bc8508469c4c3a18786872e2e1eea8): Split disclaimer / pre-req steps and update i18n
+- [#af68975](https://github.com/pydio/cells/commit/af689752456c613efafb24c331eeeffe0fc166db): Wrong json
+- [#91151c2](https://github.com/pydio/cells/commit/91151c2929d638b4712bc510664486e7780e9d87): Restricting access to oauth2 requests and configure default cors access
+- [#8043996](https://github.com/pydio/cells/commit/8043996ea3c9f5180cf7ff3f23ed2cff57677b60): Log error on task panic
+- [#d0a89e6](https://github.com/pydio/cells/commit/d0a89e666f22f23f03dd5f0868bc0cac53f09d7a): Import data from Pydio 8
+- [#171](https://github.com/pydio/cells/pull/171): fix: quote database name to allow minus sign
+- [#3fcb94c](https://github.com/pydio/cells/commit/3fcb94c7ea11d64dd9105a486541194e4f44bf30): Forgotten fmt.Println
+- [#dd98399](https://github.com/pydio/cells/commit/dd98399cbf8d957d480eceefec3daba90f8fcd73): Merge remote-tracking branch 'origin/master'
+- [#581f6b6](https://github.com/pydio/cells/commit/581f6b661967a20d2e50774c430550ffaf4fd234): Install : update OOB url from sample at install time
+- [#f69eae6](https://github.com/pydio/cells/commit/f69eae67730370febac9d58be56fc049b7491ff2): Fix custom dir schema creation
+- [#0e96335](https://github.com/pydio/cells/commit/0e96335b91513db6925191a13e11c8c5eb8deda8): - fix: quote database name to allow minus sign
+- [#6178a93](https://github.com/pydio/cells/commit/6178a933fbe82ca9009affbca426f13ab04f5207): Add ability to reset TLSConfig for web-based install post-restart
+- [#1bb8363](https://github.com/pydio/cells/commit/1bb8363f9aae8148868197db17f7de0f6a291660): Ignore non used middleware
+- [#ddd550a](https://github.com/pydio/cells/commit/ddd550a1b6fe29fae0d9e7a339c82483e8da6dd3): Test adding middleware on hydra
+- [#4ed2610](https://github.com/pydio/cells/commit/4ed2610d698587e130821a5178efa97e39fe5577): Add more checks on jwt verifier - ContextVerifiers must be as lightweight as possible, using cache if necessary
+- [#872272e](https://github.com/pydio/cells/commit/872272e52d3b9dd0965da7239a7b74bd3344e289): Fix Path in bookmarks - fire js event when toggling bookmark
+- [#82135f7](https://github.com/pydio/cells/commit/82135f79b1f14ead29ec1d1669f3e77cb07c7c22): Add login name in login log
+- [#18ad8d4](https://github.com/pydio/cells/commit/18ad8d442df41c4fd7fd8763698a56b2f82fc1f6): Override hermes template to remove mso-hide css instruction
+- [#1a18c95](https://github.com/pydio/cells/commit/1a18c95c277db298c1843344978d526be8ed5b1a): Add test for extension case-sensitivity
+- [#f878830](https://github.com/pydio/cells/commit/f87883065e9e2b78ad62bf3760b10ca220c9e473): Search : fix case-sensitivity on file extension
+- [#50d8505](https://github.com/pydio/cells/commit/50d85052df61e755efff3ca68c98354f4ed12795): Fix non-interactive install for new SSL mode
+- [#2bd4394](https://github.com/pydio/cells/commit/2bd4394be8bfa991c395bb0913e4af392e6b5fe6): Use md from versionDescription in HistoryDialog
+- [#44ca85d](https://github.com/pydio/cells/commit/44ca85dfaee53189ab8a0a48c937c5ac9ae96204): Set links in versionDescription markdown
