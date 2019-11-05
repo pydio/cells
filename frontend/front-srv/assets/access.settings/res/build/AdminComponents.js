@@ -17839,7 +17839,7 @@ var Dashboard = _react2['default'].createClass({
         };
 
         // ADMIN GUIDE BUTTONS
-        var guidesButtons = [{ icon: 'clock-start', id: 'start', link: 'https://pydio.com/en/docs/cells/v1/getting-started' }, { icon: 'network', id: 'ws', link: 'https://pydio.com/en/docs/cells/v1/storage-data-and-metadata' }, { icon: 'account-multiple', id: 'users', link: 'https://pydio.com/en/docs/cells/v1/access-control-and-security' }, { icon: 'professional-hexagon', id: 'advanced', link: 'https://pydio.com/en/docs/cells/v1/advanced' }];
+        var guidesButtons = [{ icon: 'clock-start', id: 'start', link: 'https://pydio.com/en/docs/cells/v2/quick-admin-tour' }, { icon: 'network', id: 'ws', link: 'https://pydio.com/en/docs/cells/v2/workspaces-cells' }, { icon: 'account-multiple', id: 'users', link: 'https://pydio.com/en/docs/cells/v2/users-roles-and-groups' }, { icon: 'professional-hexagon', id: 'advanced', link: 'https://pydio.com/en/docs/cells/v2/advanced' }];
 
         // DOCS LIST
         var kbItems = [];
