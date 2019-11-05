@@ -70,7 +70,9 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 	}
 
 	scheme := "https"
-	if niCertFile != "" && niKeyFile != "" {
+	if niNoTls { // NO TLS
+		scheme = "http"
+	} else if niCertFile != "" && niKeyFile != "" {
 
 		tlsConf := &install.ProxyConfig_Certificate{
 			Certificate: &install.TLSCertificate{
@@ -93,7 +95,7 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 			},
 		}
 		proxyConfig.TLSConfig = tlsConf
-	} else if niSelfSigned {
+	} else {
 
 		tlsConf := &install.ProxyConfig_SelfSigned{
 			SelfSigned: &install.TLSSelfSigned{
@@ -101,8 +103,6 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 			},
 		}
 		proxyConfig.TLSConfig = tlsConf
-	} else { // NO TLS
-		scheme = "http"
 	}
 
 	bindURL.Scheme = scheme

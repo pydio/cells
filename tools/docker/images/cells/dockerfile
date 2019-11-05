@@ -13,9 +13,8 @@ RUN chmod +x /pydio/cells
 FROM busybox:glibc
 ARG version
 
-ENV CELLS_NO_SSL 1
-ENV CELLS_BIND localhost:8080
-ENV CELLS_EXTERNAL localhost:8080
+ENV CELLS_BIND localhost:443
+ENV CELLS_EXTERNAL https://localhost
 ENV CELLS_WORKING_DIR /var/cells
 ENV CADDYPATH /var/cells/certs 
 

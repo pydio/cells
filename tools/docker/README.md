@@ -4,17 +4,25 @@
 ![Docker Stars](https://img.shields.io/docker/stars/pydio/cells.svg)
 ![](https://images.microbadger.com/badges/image/pydio/cells.svg)
 
-As a convenience, we also provide pre-built Docker images of Pydio Cells that are hosted on the [Docker hub](https://hub.docker.com/r/pydio/cells).
+As a convenience, we also provide a pre-built Docker image of Pydio Cells that is hosted on the [Docker hub](https://hub.docker.com/r/pydio/cells).
+As you can see in the `dockerfile`, the config is quite straight forward. Important points:
 
-If you use Docker compose, the `docker-compose.yml` that is in this directory installs and starts a Pydio Cells instance with a self signed certificate on port 443.
+- by default Cells working dir is set to `/var/cells`
+- the image is run as root
+- the internal proxy configuration that is the only requirement to start Cells in install mode and finetune the configuration via your preferred web browser can be configure via environment variables or json / yaml config file.
 
-Thanks to the non-interactive installer, it is also possible to modify the configuration to also use:
+By default the server starts in self-signed mode on port 443. It is also possible to modify the configuration to also use :
 
 - no certificate
 - a certificate _auto magically_ created using the tools provided by [Let's Encrypt](https://letsencrypt.org/)
 - a custom certificate that you provide.
 
-Here are samples of relevant docker-compose directive to achieve these use cases.
+You can find below samples of relevant docker-compose directive to achieve these use cases.
+
+We also provide 3 sample docker compose configuration as example that are working out-of-the-box, if you only provide your public IP / valid domain name, see `compose` sub directory.  
+
+
+## Sample config for the Pydio Cells internal main gateway
 
 ## Without certificate (via HTTP)
 
@@ -23,11 +31,11 @@ Here are samples of relevant docker-compose directive to achieve these use cases
         image: pydio/cells:latest
         restart: always
         volumes: ["data:/var/cells/data"]
-        ports: ["8080:8080"]
+        ports: ["80:80"]
         environment:
             - CELLS_BIND=localhost:8080
             - CELLS_EXTERNAL=localhost:8080
-            - CELLS_NO_SSL=1
+            - CELLS_NO_TLS=1
 ```
 
 ## With Let's Encrypt
@@ -41,8 +49,9 @@ Here are samples of relevant docker-compose directive to achieve these use cases
         environment:
             - CELLS_BIND=0.0.0.0:443
             - CELLS_EXTERNAL=https://your.fqdn.com
-            - CELLS_ACCEPT_LETSENCRYPT_EULA=true
             - CELLS_TLS_MAIL=admin@example.com
+            - CELLS_ACCEPT_LETSENCRYPT_EULA=true
+            - CELLS_USE_LETSENCRYPT_STAGING=1
 ```
 
 ## Using a custom certificate
@@ -56,6 +65,6 @@ Here are samples of relevant docker-compose directive to achieve these use cases
         environment:
             - CELLS_BIND=localhost:443
             - CELLS_EXTERNAL=https://your.fqdn.com
-            - CELLS_SSL_CERT_FILE=/etc/ssl/ssl.cert
-            - CELLS_SSL_KEY_FILE=/etc/ssl/ssl.key
+            - CELLS_TLS_CERT_FILE=/etc/ssl/ssl.cert
+            - CELLS_TLS_KEY_FILE=/etc/ssl/ssl.key
 ```
