@@ -5,21 +5,7 @@
 	<registry_contributions>
         <actions>
             <action name="user_team_create">
-                <gui iconClass="icon-plus" text="user_dash.57" title="user_dash.57">
-                    <context dir="false" recycle="false" selection="false" actionBar="true" actionBarGroup="team_address_book"/>
-                </gui>
-            </action>
-            <action name="user_team_delete">
-                <gui iconClass="icon-trash" text="7" title="7">
-                    <context dir="false" recycle="false" selection="true" actionBar="true" actionBarGroup="team_address_book"/>
-                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="ajxp_team"/>
-                </gui>
-            </action>
-            <action name="user_team_edit_users">
-                <gui iconClass="icon-edit" text="user_dash.54" title="user_dash.55">
-                    <context dir="false" recycle="false" selection="true" actionBar="true" actionBarGroup="team_address_book"/>
-                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="ajxp_team"/>
-                </gui>
+                <gui iconClass="icon-plus" text="571.create_team_action" title="571.create_team_legend"/>
             </action>
             <action name="custom_data_edit">
                 <gui text="442" title="443" iconClass="icon-reorder" accessKey="" hasAccessKey="false">

@@ -164,6 +164,17 @@ var AddressBook = _react2['default'].createClass({
             return _this.props.getMessage(id, '');
         };
         var authConfigs = pydio.getPluginConfigs('core.auth');
+        var teamActions = {};
+        // Check that user_team_create action is not disabled
+        var teamsEditable = pydio.getController().actions.has("user_team_create");
+        if (teamsEditable) {
+            teamActions = {
+                type: 'teams',
+                create: '+ ' + getMessage(569),
+                remove: getMessage(570),
+                multiple: true
+            };
+        }
 
         var root = undefined;
         if (teamsOnly) {
@@ -173,12 +184,7 @@ var AddressBook = _react2['default'].createClass({
                 childrenLoader: _Loaders2['default'].loadTeams,
                 _parent: null,
                 _notSelectable: true,
-                actions: {
-                    type: 'teams',
-                    create: '+ ' + getMessage(569),
-                    remove: getMessage(570),
-                    multiple: true
-                }
+                actions: teamActions
             };
             return {
                 root: root,
@@ -219,12 +225,7 @@ var AddressBook = _react2['default'].createClass({
                     childrenLoader: _Loaders2['default'].loadTeams,
                     _parent: root,
                     _notSelectable: true,
-                    actions: {
-                        type: 'teams',
-                        create: '+ ' + getMessage(569),
-                        remove: getMessage(570),
-                        multiple: true
-                    }
+                    actions: teamActions
                 });
             }
             root.collections.push({
@@ -269,7 +270,8 @@ var AddressBook = _react2['default'].createClass({
             root: root,
             selectedItem: mode === 'selector' ? root : root.collections[0],
             loading: false,
-            rightPaneItem: null
+            rightPaneItem: null,
+            teamsEditable: teamsEditable
         };
     },
 
@@ -477,6 +479,7 @@ var AddressBook = _react2['default'].createClass({
         var root = _state.root;
         var rightPaneItem = _state.rightPaneItem;
         var createDialogItem = _state.createDialogItem;
+        var teamsEditable = _state.teamsEditable;
 
         var leftColumnStyle = {
             backgroundColor: _materialUiStyles.colors.grey100,
@@ -517,8 +520,13 @@ var AddressBook = _react2['default'].createClass({
             var emptyStateSecondary = undefined;
             var otherProps = {};
             if (selectedItem.id === 'teams') {
-                emptyStatePrimary = getMessage(571, '');
-                emptyStateSecondary = getMessage(572, '');
+                if (teamsEditable) {
+                    emptyStatePrimary = getMessage(571, '');
+                    emptyStateSecondary = getMessage(572, '');
+                } else {
+                    emptyStatePrimary = getMessage('571.readonly', '');
+                    emptyStateSecondary = getMessage('572.readonly', '');
+                }
             } else if (selectedItem.id === 'ext') {
                 emptyStatePrimary = getMessage(585, '');
                 emptyStateSecondary = getMessage(586, '');
@@ -533,7 +541,7 @@ var AddressBook = _react2['default'].createClass({
                 };
             }
 
-            if ((mode === 'book' || bookColumn) && selectedItem.IdmRole && selectedItem.IdmRole.IsTeam) {
+            if ((mode === 'book' || bookColumn) && selectedItem.IdmRole && selectedItem.IdmRole.IsTeam && teamsEditable) {
                 topActionsPanel = _react2['default'].createElement(_avatarActionsPanel2['default'], _extends({}, this.props, {
                     team: selectedItem,
                     userEditable: true,

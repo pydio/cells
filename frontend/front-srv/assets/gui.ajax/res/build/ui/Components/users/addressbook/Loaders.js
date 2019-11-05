@@ -27,6 +27,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -106,6 +110,14 @@ var Loaders = (function () {
             end = parseInt(end);
             limit = end - offset;
         }
+        var actions = {};
+        if (_pydio2['default'].getInstance().getController().actions.has('user_team_create')) {
+            actions = {
+                type: 'team',
+                remove: '574',
+                multiple: true
+            };
+        }
         IdmApi.listTeams('', offset, limit).then(function (collection) {
             entry.pagination = Loaders.computePagination(collection);
             var items = collection.Teams.map(function (team) {
@@ -116,11 +128,7 @@ var Loaders = (function () {
                     type: 'team',
                     icon: 'mdi mdi-account-multiple-outline',
                     itemsLoader: Loaders.loadTeamUsers,
-                    actions: {
-                        type: 'team',
-                        remove: '574',
-                        multiple: true
-                    },
+                    actions: actions,
                     _notSelectable: true,
                     IdmRole: team
                 };

@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
@@ -29,6 +28,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _addressbookAddressBook = require('../addressbook/AddressBook');
 
@@ -125,6 +128,9 @@ var ActionsPanel = (function (_React$Component) {
         var style = _props.style;
         var zDepth = _props.zDepth;
 
+        var teamsEditable = _pydio2['default'].getInstance().getController().actions.has("user_team_create");
+        console.log(team);
+
         var styles = {
             button: {
                 //backgroundColor: muiTheme.palette.accent2Color,
@@ -152,13 +158,17 @@ var ActionsPanel = (function (_React$Component) {
         if (team) {
             resourceType = 'team';
             resourceId = team.id;
-            actions.push({ key: 'users', label: getMessage(599), icon: 'account-multiple-plus', callback: this.openPicker.bind(this) });
+            if (teamsEditable) {
+                actions.push({ key: 'users', label: getMessage(599), icon: 'account-multiple-plus', callback: this.openPicker.bind(this) });
+            }
         } else {
             resourceType = 'user';
             resourceId = userId;
-            actions.push({ key: 'teams', label: getMessage(573), icon: 'account-multiple-plus', callback: this.openPicker.bind(this) });
+            if (teamsEditable) {
+                actions.push({ key: 'teams', label: getMessage(573), icon: 'account-multiple-plus', callback: this.openPicker.bind(this) });
+            }
         }
-        if (userEditable) {
+        if (userEditable && !(this.props.team && !teamsEditable)) {
             if (this.props.onEditAction) {
                 actions.push({ key: 'edit', label: this.props.team ? getMessage(580) : getMessage(600), icon: 'pencil', callback: this.props.onEditAction });
             }
@@ -166,6 +176,9 @@ var ActionsPanel = (function (_React$Component) {
             if (this.props.onDeleteAction) {
                 actions.push({ key: 'delete', label: this.props.team ? getMessage(570) : getMessage(582), icon: 'delete', callback: this.props.onDeleteAction });
             }
+        }
+        if (actions.length === 0) {
+            return null;
         }
 
         return React.createElement(

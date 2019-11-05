@@ -1568,6 +1568,18 @@
   "572": {
     "other": "Create your own teams in order to easily share data between multiple users"
   },
+  "571.readonly": {
+    "other": "No teams available"
+  },
+  "572.readonly": {
+    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+  },
+  "571.create_team_action":{
+    "other": "Create and edit Teams"
+  },
+  "571.create_team_legend":{
+    "other": "Let users create and edit their own teams"
+  },
   "573": {
     "other": "Add user to team"
   },
