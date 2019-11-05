@@ -44,6 +44,7 @@ var _TreeNode2 = _interopRequireDefault(_TreeNode);
 var IdmWorkspace = (function () {
     /**
     * Constructs a new <code>IdmWorkspace</code>.
+    * A Workspace is composed of a set of nodes UUIDs and is used to provide accesses to the tree via ACLs.
     * @alias module:model/IdmWorkspace
     * @class
     */

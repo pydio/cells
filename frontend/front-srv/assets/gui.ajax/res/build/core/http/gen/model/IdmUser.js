@@ -155,5 +155,6 @@ module.exports = exports['default'];
 */
 
 /**
+* Context-resolved to quickly check if user is editable or not.
 * @member {Boolean} PoliciesContextEditable
 */

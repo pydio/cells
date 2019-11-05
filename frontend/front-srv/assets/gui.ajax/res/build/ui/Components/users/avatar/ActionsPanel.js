@@ -129,7 +129,6 @@ var ActionsPanel = (function (_React$Component) {
         var zDepth = _props.zDepth;
 
         var teamsEditable = _pydio2['default'].getInstance().getController().actions.has("user_team_create");
-        console.log(team);
 
         var styles = {
             button: {

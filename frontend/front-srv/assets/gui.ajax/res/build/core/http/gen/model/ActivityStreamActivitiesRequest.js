@@ -147,5 +147,6 @@ module.exports = exports['default'];
 */
 
 /**
+* Provide language information for building the human-readable strings.
 * @member {String} Language
 */

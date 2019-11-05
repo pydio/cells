@@ -83,7 +83,6 @@ class ActionsPanel extends React.Component{
 
         const {getMessage, muiTheme, team, user, userEditable, userId, style, zDepth} = this.props;
         const teamsEditable = Pydio.getInstance().getController().actions.has("user_team_create");
-        console.log(team);
 
         const styles = {
             button: {

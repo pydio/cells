@@ -12738,86 +12738,6 @@
         ]
       }
     ],
-    "core/http/gen/api/ChangeServiceApi.js": [
-      {
-        "description": "ChangeService service.\n@module api/ChangeServiceApi\n@version 1.0",
-        "displayName": "ChangeServiceApi",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new ChangeServiceApi. \n@alias module:api/ChangeServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
-              }
-            ],
-            "returns": null,
-            "description": "Constructs a new ChangeServiceApi."
-          },
-          {
-            "name": "getChangesWithHttpInfo",
-            "docblock": "Get Changes\n@param {String} seqID \n@param {module:model/RestChangeRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestChangeCollection} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "seqID",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              },
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/RestChangeRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestChangeCollection} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Get Changes"
-          },
-          {
-            "name": "getChanges",
-            "docblock": "Get Changes\n@param {String} seqID \n@param {module:model/RestChangeRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestChangeCollection}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "seqID",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              },
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/RestChangeRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestChangeCollection}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Get Changes"
-          }
-        ]
-      }
-    ],
     "core/http/gen/api/ConfigServiceApi.js": [
       {
         "description": "ConfigService service.\n@module api/ConfigServiceApi\n@version 1.0",
@@ -13051,7 +12971,7 @@
           },
           {
             "name": "endpointsDiscoveryWithHttpInfo",
-            "docblock": "Publish available endpoints\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDiscoveryResponse} and HTTP response",
+            "docblock": "Publish available endpoints\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType Filter result to a specific endpoint type.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDiscoveryResponse} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -13072,7 +12992,7 @@
           },
           {
             "name": "endpointsDiscovery",
-            "docblock": "Publish available endpoints\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDiscoveryResponse}",
+            "docblock": "Publish available endpoints\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType Filter result to a specific endpoint type.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDiscoveryResponse}",
             "modifiers": [],
             "params": [
               {
@@ -13135,7 +13055,7 @@
           },
           {
             "name": "getConfigWithHttpInfo",
-            "docblock": "Generic config Get using a full path in the config tree\n@param {String} fullPath \n@param {Object} opts Optional parameters\n@param {String} opts.data \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestConfiguration} and HTTP response",
+            "docblock": "Generic config Get using a full path in the config tree\n@param {String} fullPath \n@param {Object} opts Optional parameters\n@param {String} opts.data JSON-encoded data to store.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestConfiguration} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -13163,7 +13083,7 @@
           },
           {
             "name": "getConfig",
-            "docblock": "Generic config Get using a full path in the config tree\n@param {String} fullPath \n@param {Object} opts Optional parameters\n@param {String} opts.data \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestConfiguration}",
+            "docblock": "Generic config Get using a full path in the config tree\n@param {String} fullPath \n@param {Object} opts Optional parameters\n@param {String} opts.data JSON-encoded data to store.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestConfiguration}",
             "modifiers": [],
             "params": [
               {
@@ -13191,7 +13111,7 @@
           },
           {
             "name": "getDataSourceWithHttpInfo",
-            "docblock": "Load datasource information\n@param {String} name \n@param {Object} opts Optional parameters\n@param {Boolean} opts.disabled \n@param {module:model/String} opts.storageType  (default to LOCAL)\n@param {String} opts.objectsServiceName \n@param {String} opts.objectsHost \n@param {Number} opts.objectsPort \n@param {Boolean} opts.objectsSecure \n@param {String} opts.objectsBucket \n@param {String} opts.objectsBaseFolder \n@param {String} opts.apiKey \n@param {String} opts.apiSecret \n@param {String} opts.peerAddress \n@param {Boolean} opts.watch \n@param {module:model/String} opts.encryptionMode  (default to CLEAR)\n@param {String} opts.encryptionKey \n@param {String} opts.versioningPolicyName \n@param {Number} opts.creationDate \n@param {Number} opts.lastSynchronizationDate \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/ObjectDataSource} and HTTP response",
+            "docblock": "Load datasource information\n@param {String} name \n@param {Object} opts Optional parameters\n@param {Boolean} opts.disabled Whether this data source is disabled or running.\n@param {module:model/String} opts.storageType Type of underlying storage (LOCAL, S3, AZURE, GCS). (default to LOCAL)\n@param {String} opts.objectsServiceName Corresponding objects service name (underlying s3 service).\n@param {String} opts.objectsHost Corresponding objects service host.\n@param {Number} opts.objectsPort Corresponding objects service port.\n@param {Boolean} opts.objectsSecure Corresponding objects service connection type.\n@param {String} opts.objectsBucket Corresponding objects service bucket.\n@param {String} opts.objectsBaseFolder Corresponding objects service base folder inside the bucket.\n@param {String} opts.apiKey Corresponding objects service api key.\n@param {String} opts.apiSecret Corresponding objects service api secret.\n@param {String} opts.peerAddress Peer address of the data source.\n@param {Boolean} opts.watch Not implemented, whether to watch for underlying changes on the FS.\n@param {module:model/String} opts.encryptionMode Type of encryption applied before sending data to storage. (default to CLEAR)\n@param {String} opts.encryptionKey Encryption key used for encrypting data.\n@param {String} opts.versioningPolicyName Versioning policy describes how files are kept in the versioning queue.\n@param {Number} opts.creationDate Data Source creation date.\n@param {Number} opts.lastSynchronizationDate Data Source last synchronization date.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/ObjectDataSource} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -13219,7 +13139,7 @@
           },
           {
             "name": "getDataSource",
-            "docblock": "Load datasource information\n@param {String} name \n@param {Object} opts Optional parameters\n@param {Boolean} opts.disabled \n@param {module:model/String} opts.storageType  (default to LOCAL)\n@param {String} opts.objectsServiceName \n@param {String} opts.objectsHost \n@param {Number} opts.objectsPort \n@param {Boolean} opts.objectsSecure \n@param {String} opts.objectsBucket \n@param {String} opts.objectsBaseFolder \n@param {String} opts.apiKey \n@param {String} opts.apiSecret \n@param {String} opts.peerAddress \n@param {Boolean} opts.watch \n@param {module:model/String} opts.encryptionMode  (default to CLEAR)\n@param {String} opts.encryptionKey \n@param {String} opts.versioningPolicyName \n@param {Number} opts.creationDate \n@param {Number} opts.lastSynchronizationDate \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/ObjectDataSource}",
+            "docblock": "Load datasource information\n@param {String} name \n@param {Object} opts Optional parameters\n@param {Boolean} opts.disabled Whether this data source is disabled or running.\n@param {module:model/String} opts.storageType Type of underlying storage (LOCAL, S3, AZURE, GCS). (default to LOCAL)\n@param {String} opts.objectsServiceName Corresponding objects service name (underlying s3 service).\n@param {String} opts.objectsHost Corresponding objects service host.\n@param {Number} opts.objectsPort Corresponding objects service port.\n@param {Boolean} opts.objectsSecure Corresponding objects service connection type.\n@param {String} opts.objectsBucket Corresponding objects service bucket.\n@param {String} opts.objectsBaseFolder Corresponding objects service base folder inside the bucket.\n@param {String} opts.apiKey Corresponding objects service api key.\n@param {String} opts.apiSecret Corresponding objects service api secret.\n@param {String} opts.peerAddress Peer address of the data source.\n@param {Boolean} opts.watch Not implemented, whether to watch for underlying changes on the FS.\n@param {module:model/String} opts.encryptionMode Type of encryption applied before sending data to storage. (default to CLEAR)\n@param {String} opts.encryptionKey Encryption key used for encrypting data.\n@param {String} opts.versioningPolicyName Versioning policy describes how files are kept in the versioning queue.\n@param {Number} opts.creationDate Data Source creation date.\n@param {Number} opts.lastSynchronizationDate Data Source last synchronization date.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/ObjectDataSource}",
             "modifiers": [],
             "params": [
               {
@@ -13537,7 +13457,7 @@
           },
           {
             "name": "listServicesWithHttpInfo",
-            "docblock": "List all services and their status\n@param {Object} opts Optional parameters\n@param {module:model/String} opts.statusFilter  (default to ANY)\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestServiceCollection} and HTTP response",
+            "docblock": "List all services and their status\n@param {Object} opts Optional parameters\n@param {module:model/String} opts.statusFilter Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING). (default to ANY)\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestServiceCollection} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -13558,7 +13478,7 @@
           },
           {
             "name": "listServices",
-            "docblock": "List all services and their status\n@param {Object} opts Optional parameters\n@param {module:model/String} opts.statusFilter  (default to ANY)\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestServiceCollection}",
+            "docblock": "List all services and their status\n@param {Object} opts Optional parameters\n@param {module:model/String} opts.statusFilter Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING). (default to ANY)\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestServiceCollection}",
             "modifiers": [],
             "params": [
               {
@@ -13631,7 +13551,7 @@
           },
           {
             "name": "openApiDiscoveryWithHttpInfo",
-            "docblock": "Publish available REST APIs\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOpenApiResponse} and HTTP response",
+            "docblock": "Publish available REST APIs\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType Filter result to a specific endpoint type.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOpenApiResponse} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -13652,7 +13572,7 @@
           },
           {
             "name": "openApiDiscovery",
-            "docblock": "Publish available REST APIs\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOpenApiResponse}",
+            "docblock": "Publish available REST APIs\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType Filter result to a specific endpoint type.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestOpenApiResponse}",
             "modifiers": [],
             "params": [
               {
@@ -15195,7 +15115,7 @@
           },
           {
             "name": "getRoleWithHttpInfo",
-            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@param {Boolean} opts.forceOverride \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response",
+            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label Label of this role.\n@param {Boolean} opts.isTeam Whether this role represents a user team or not.\n@param {Boolean} opts.groupRole Whether this role is attached to a Group object.\n@param {Boolean} opts.userRole Whether this role is attached to a User object.\n@param {Number} opts.lastUpdated Last modification date of the role.\n@param {Array.<String>} opts.autoApplies List of profiles (standard, shared, admin) on which the role will be automatically applied.\n@param {Boolean} opts.policiesContextEditable Whether the policies resolve into an editable state.\n@param {Boolean} opts.forceOverride Is used in a stack of roles, this one will always be applied last.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -15223,7 +15143,7 @@
           },
           {
             "name": "getRole",
-            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@param {Boolean} opts.forceOverride \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}",
+            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label Label of this role.\n@param {Boolean} opts.isTeam Whether this role represents a user team or not.\n@param {Boolean} opts.groupRole Whether this role is attached to a Group object.\n@param {Boolean} opts.userRole Whether this role is attached to a User object.\n@param {Number} opts.lastUpdated Last modification date of the role.\n@param {Array.<String>} opts.autoApplies List of profiles (standard, shared, admin) on which the role will be automatically applied.\n@param {Boolean} opts.policiesContextEditable Whether the policies resolve into an editable state.\n@param {Boolean} opts.forceOverride Is used in a stack of roles, this one will always be applied last.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}",
             "modifiers": [],
             "params": [
               {
@@ -16811,7 +16731,7 @@
           },
           {
             "name": "getUserWithHttpInfo",
-            "docblock": "Get a user by login\n@param {String} login \n@param {Object} opts Optional parameters\n@param {String} opts.uuid \n@param {String} opts.groupPath \n@param {String} opts.password \n@param {String} opts.oldPassword \n@param {Boolean} opts.isGroup Group specific data.\n@param {String} opts.groupLabel \n@param {Boolean} opts.policiesContextEditable \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmUser} and HTTP response",
+            "docblock": "Get a user by login\n@param {String} login \n@param {Object} opts Optional parameters\n@param {String} opts.uuid User unique identifier.\n@param {String} opts.groupPath Path to the parent group.\n@param {String} opts.password Password can be passed to be updated (but never read back), field is empty for groups.\n@param {String} opts.oldPassword OldPassword must be set when a user updates her own password.\n@param {Boolean} opts.isGroup Whether this object is a group or a user.\n@param {String} opts.groupLabel Label of the group, field is empty for users.\n@param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmUser} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -16839,7 +16759,7 @@
           },
           {
             "name": "getUser",
-            "docblock": "Get a user by login\n@param {String} login \n@param {Object} opts Optional parameters\n@param {String} opts.uuid \n@param {String} opts.groupPath \n@param {String} opts.password \n@param {String} opts.oldPassword \n@param {Boolean} opts.isGroup Group specific data.\n@param {String} opts.groupLabel \n@param {Boolean} opts.policiesContextEditable \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmUser}",
+            "docblock": "Get a user by login\n@param {String} login \n@param {Object} opts Optional parameters\n@param {String} opts.uuid User unique identifier.\n@param {String} opts.groupPath Path to the parent group.\n@param {String} opts.password Password can be passed to be updated (but never read back), field is empty for groups.\n@param {String} opts.oldPassword OldPassword must be set when a user updates her own password.\n@param {Boolean} opts.isGroup Whether this object is a group or a user.\n@param {String} opts.groupLabel Label of the group, field is empty for users.\n@param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmUser}",
             "modifiers": [],
             "params": [
               {
@@ -18275,11 +18195,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new <code>IdmACL</code>.\n@alias module:model/IdmACL\n@class",
+            "docblock": "Constructs a new <code>IdmACL</code>.\nACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role. The context of how they apply can be fine-tuned by workspace.\n@alias module:model/IdmACL\n@class",
             "modifiers": [],
             "params": [],
             "returns": null,
-            "description": "Constructs a new <code>IdmACL</code>."
+            "description": "Constructs a new <code>IdmACL</code>.\nACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role. The context of how they apply can be fine-tuned by workspace."
           },
           {
             "name": "constructFromObject",
@@ -18724,11 +18644,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new <code>IdmRole</code>.\n@alias module:model/IdmRole\n@class",
+            "docblock": "Constructs a new <code>IdmRole</code>.\nRole represents a generic set of permissions that can be applied to any users or groups.\n@alias module:model/IdmRole\n@class",
             "modifiers": [],
             "params": [],
             "returns": null,
-            "description": "Constructs a new <code>IdmRole</code>."
+            "description": "Constructs a new <code>IdmRole</code>.\nRole represents a generic set of permissions that can be applied to any users or groups."
           },
           {
             "name": "constructFromObject",
@@ -18770,11 +18690,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new <code>IdmRoleSingleQuery</code>.\n@alias module:model/IdmRoleSingleQuery\n@class",
+            "docblock": "Constructs a new <code>IdmRoleSingleQuery</code>.\nRoleSingleQuery is the basic unit for building queries to Roles.\n@alias module:model/IdmRoleSingleQuery\n@class",
             "modifiers": [],
             "params": [],
             "returns": null,
-            "description": "Constructs a new <code>IdmRoleSingleQuery</code>."
+            "description": "Constructs a new <code>IdmRoleSingleQuery</code>.\nRoleSingleQuery is the basic unit for building queries to Roles."
           },
           {
             "name": "constructFromObject",
@@ -19230,11 +19150,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new <code>IdmWorkspace</code>.\n@alias module:model/IdmWorkspace\n@class",
+            "docblock": "Constructs a new <code>IdmWorkspace</code>.\nA Workspace is composed of a set of nodes UUIDs and is used to provide accesses to the tree via ACLs.\n@alias module:model/IdmWorkspace\n@class",
             "modifiers": [],
             "params": [],
             "returns": null,
-            "description": "Constructs a new <code>IdmWorkspace</code>."
+            "description": "Constructs a new <code>IdmWorkspace</code>.\nA Workspace is composed of a set of nodes UUIDs and is used to provide accesses to the tree via ACLs."
           },
           {
             "name": "constructFromObject",
@@ -21237,98 +21157,6 @@
               }
             },
             "description": "Constructs a <code>RestCellAcl</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/RestChangeCollection.js": [
-      {
-        "description": "The RestChangeCollection model module.\n@module model/RestChangeCollection\n@version 1.0",
-        "displayName": "RestChangeCollection",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestChangeCollection</code>.\n@alias module:model/RestChangeCollection\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestChangeCollection</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestChangeCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestChangeCollection} obj Optional instance to populate.\n@return {module:model/RestChangeCollection} The populated <code>RestChangeCollection</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestChangeCollection"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestChangeCollection</code> instance.",
-              "type": {
-                "name": "module:model/RestChangeCollection"
-              }
-            },
-            "description": "Constructs a <code>RestChangeCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/RestChangeRequest.js": [
-      {
-        "description": "The RestChangeRequest model module.\n@module model/RestChangeRequest\n@version 1.0",
-        "displayName": "RestChangeRequest",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestChangeRequest</code>.\n@alias module:model/RestChangeRequest\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestChangeRequest</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestChangeRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestChangeRequest} obj Optional instance to populate.\n@return {module:model/RestChangeRequest} The populated <code>RestChangeRequest</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestChangeRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestChangeRequest</code> instance.",
-              "type": {
-                "name": "module:model/RestChangeRequest"
-              }
-            },
-            "description": "Constructs a <code>RestChangeRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -25926,125 +25754,6 @@
               }
             },
             "description": "Constructs a <code>TreeSearchRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/TreeSyncChange.js": [
-      {
-        "description": "The TreeSyncChange model module.\n@module model/TreeSyncChange\n@version 1.0",
-        "displayName": "TreeSyncChange",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>TreeSyncChange</code>.\n@alias module:model/TreeSyncChange\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>TreeSyncChange</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>TreeSyncChange</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/TreeSyncChange} obj Optional instance to populate.\n@return {module:model/TreeSyncChange} The populated <code>TreeSyncChange</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/TreeSyncChange"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>TreeSyncChange</code> instance.",
-              "type": {
-                "name": "module:model/TreeSyncChange"
-              }
-            },
-            "description": "Constructs a <code>TreeSyncChange</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/TreeSyncChangeNode.js": [
-      {
-        "description": "The TreeSyncChangeNode model module.\n@module model/TreeSyncChangeNode\n@version 1.0",
-        "displayName": "TreeSyncChangeNode",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>TreeSyncChangeNode</code>.\n@alias module:model/TreeSyncChangeNode\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>TreeSyncChangeNode</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>TreeSyncChangeNode</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/TreeSyncChangeNode} obj Optional instance to populate.\n@return {module:model/TreeSyncChangeNode} The populated <code>TreeSyncChangeNode</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/TreeSyncChangeNode"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>TreeSyncChangeNode</code> instance.",
-              "type": {
-                "name": "module:model/TreeSyncChangeNode"
-              }
-            },
-            "description": "Constructs a <code>TreeSyncChangeNode</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/TreeSyncChangeType.js": [
-      {
-        "description": "Enum class TreeSyncChangeType.\n@enum {}\n@readonly",
-        "displayName": "TreeSyncChangeType",
-        "methods": [
-          {
-            "name": "constructFromObject",
-            "docblock": "Returns a <code>TreeSyncChangeType</code> enum value from a Javascript object name.\n@param {Object} data The plain JavaScript object containing the name of the enum value.\n@return {module:model/TreeSyncChangeType} The enum <code>TreeSyncChangeType</code> value.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "object"
-              }
-            ],
-            "returns": {
-              "description": "The enum <code>TreeSyncChangeType</code> value.",
-              "type": {
-                "name": "module:model/TreeSyncChangeType"
-              }
-            },
-            "description": "Returns a <code>TreeSyncChangeType</code> enum value from a Javascript object name."
           }
         ]
       }
