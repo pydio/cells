@@ -69,7 +69,7 @@ var (
 
 	niBindUrl        string
 	niExtUrl         string
-	niSelfSigned     bool
+	niNoTls          bool
 	niCertFile       string
 	niKeyFile        string
 	niLeEmailContact string
@@ -88,7 +88,7 @@ var installCmd = &cobra.Command{
  the machine from outside world (if it is behind a proxy or inside a container with ports mapping for instance).
  
  You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
- installer with NO TLS by default. See the possible flags for more details.
+ installer, by default in self-signed mode. See the possible flags for more details.
  
  You can also use Let's Encrypt automatic certificate generation by providing a contact email and accepting Let's Encrypt EULA, for instance:
  $ ` + os.Args[0] + ` install --bind share.mydomain.tld:443 --external https://share.mydomain.tld --le_email admin@mydomain.tld --le_agree true
@@ -371,7 +371,7 @@ func init() {
 	flags := installCmd.PersistentFlags()
 	flags.StringVar(&niBindUrl, "bind", "", "Internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.StringVar(&niExtUrl, "external", "", "External PROTOCOL:URL:PORT exposed to the outside")
-	flags.BoolVar(&niSelfSigned, "self_signed", false, "Generate locally trusted certificate with mkcert")
+	flags.BoolVar(&niNoTls, "no_tls", false, "Generate locally trusted certificate with mkcert")
 	flags.StringVar(&niCertFile, "tls_cert_file", "", "TLS cert file path")
 	flags.StringVar(&niKeyFile, "tls_key_file", "", "TLS key file path")
 	flags.StringVar(&niLeEmailContact, "le_email", "", "Contact e-mail for Let's Encrypt provided certificate")

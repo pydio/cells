@@ -258,30 +258,30 @@ func TestInstallFlags(t *testing.T) {
 	Convey("Given an empty config", t, func() {
 
 		Convey("Bind and Ext should generate a NO TLS config", func() {
-			niBindUrl = "localhost:80"
-			niExtUrl = "http://localhost"
+			niBindUrl = "localhost:443"
+			niExtUrl = "https://localhost"
 			pconf, err := proxyConfigFromArgs()
 			So(err, ShouldBeNil)
-			So(pconf.GetBindURL(), ShouldEqual, "http://"+niBindUrl)
+			So(pconf.GetBindURL(), ShouldEqual, "https://"+niBindUrl)
 			So(pconf.GetExternalURL(), ShouldEqual, niExtUrl)
-			So(pconf.GetTLSConfig(), ShouldBeNil)
+			So(pconf.GetTLSConfig(), ShouldNotBeNil)
 
 			niBindUrl = "localhost"
 			_, err = proxyConfigFromArgs()
 			So(err, ShouldNotBeNil)
 
-			niBindUrl = "localhost:80"
+			niBindUrl = "localhost:443"
 			niExtUrl = "localhost"
 			pconf, err = proxyConfigFromArgs()
 			So(err, ShouldBeNil)
-			So(pconf.GetExternalURL(), ShouldEqual, "http://localhost")
+			So(pconf.GetExternalURL(), ShouldEqual, "https://localhost")
 
 			niExtUrl = "localhost:8080"
 			pconf, err = proxyConfigFromArgs()
 			So(err, ShouldBeNil)
-			So(pconf.GetExternalURL(), ShouldEqual, "http://localhost:8080")
+			So(pconf.GetExternalURL(), ShouldEqual, "https://localhost:8080")
 
-			niExtUrl = "htp://localhost:8080"
+			niExtUrl = "htps://localhost:8080"
 			pconf, err = proxyConfigFromArgs()
 			So(err, ShouldNotBeNil)
 
