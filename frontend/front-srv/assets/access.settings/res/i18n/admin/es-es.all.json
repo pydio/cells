@@ -1461,7 +1461,7 @@
     "other": "Permitir sincronización de escritorio"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+    "other": "La sincronización de escritorio permite a los usuarios sincronizar sus archivos sin conexión en su ordenador. Advertencia, esta característica sólo está disponible para archivos personales, ya que las áreas de trabajo compartidas pueden crear conflictos si muchos usuarios sincronizan documentación en la misma carpeta. Para archivos personales, también puede activar/desactivar esta característica en base a roles, usando Políticas de Seguridad."
   },
   "ws.editor.other.sync-personal": {
     "other": "(Solo Workspaces personales)"
@@ -1473,10 +1473,10 @@
     "other": "Lo Entiendo"
   },
   "ws.editor.sync.warning.enable": {
-    "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+    "other": "Activar la sincronización en áreas de trabajo compartidas puede tener consecuencias inesperadas si muchos usuarios están sincronizando y editando archivos al mismo tiempo. Por favor, tenga en cuenta que ESTA FUNCIONALIDAD NO ESTÁ EN ESTE MOMENTO SOPORTADA por nuestros servicios profesionales. ¡Utilícela bajo su responsabilidad!"
   },
   "ws.editor.sync.warning.disable": {
-    "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
+    "other": "¡Si los usuarios están conectados a este workspace, la sincronización no funcionará! ¿Está seguro de que desea cambiar esto?"
   },
   "ws.editor.path.folder": {
     "other": "Ruta de la Carpeta"
