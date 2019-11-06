@@ -21,13 +21,13 @@
     "other": "Non c'è nessun aggiornamento necessario: clicca per eseguire una nuova verifica."
   },
   "alert.noselect": {
-    "other": "Please select at least one package!"
+    "other": "Seleziona almeno un pacchetto!"
   },
   "package.released": {
-    "other": "Released"
+    "other": "Rilasciato"
   },
   "package.revision": {
-    "other": "Revision"
+    "other": "Revisione"
   },
   "check.legend": {
     "other": "Clicca per verificare la presenza di un nuovo aggiornamento"
@@ -36,78 +36,78 @@
     "other": "Controlla"
   },
   "start.update": {
-    "other": "Start Upgrade"
+    "other": "Inizia l'aggiornamento"
   },
   "configs.save": {
-    "other": "Save configs"
+    "other": "Salva la configurazione"
   },
   "upgrade.ed.title": {
-    "other": "Upgrade to Cells Enterprise"
+    "other": "Aggiorna a Cells Enterprise"
   },
   "upgrade.ed.button.next": {
-    "other": "Next"
+    "other": "Successivo"
   },
   "upgrade.ed.button.start": {
-    "other": "Start"
+    "other": "Avvia"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "Annulla"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "Installa"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "Chiudi"
   },
   "upgrade.ed.eula.title": {
-    "other": "Please Accept End-User License Agreement"
+    "other": "Devi accettare l'EULA (contratto di licenza)"
   },
   "upgrade.ed.eula.check": {
-    "other": "I thereby accept this EULA"
+    "other": "Accetto l'EULA (contratto di licenza)"
   },
   "upgrade.ed.key.title": {
-    "other": "Enter a valid license key (provided by a Pydio sales representative)"
+    "other": "Inserisci una chiave di licenza valida (fornita da Pydio)"
   },
   "upgrade.ed.key.legend": {
-    "other": "If you do not own one, you can receive a trial key by contacting sales using the button below or directly via "
+    "other": "Se non ne hai già una, puoi ricevere una licenza di prova contattando la direzione vendite attraverso il pulsante qui sotto o direttamente via "
   },
   "upgrade.ed.key.hint": {
-    "other": "Paste provided key here..."
+    "other": "Incolla la chiave che hai ricevuto..."
   },
   "upgrade.ed.version.loading": {
-    "other": "Looking for the closest Cells Enterprise version"
+    "other": "Sto cercando la versione di Cells Enterprise più vicina"
   },
   "upgrade.ed.version.error": {
-    "other": "Cannot load available versions for Cells Enterprise!"
+    "other": "Impossibile caricare le versioni disponibili di Cells Enterprise!"
   },
   "upgrade.ed.version.error.string": {
-    "other": "Error was"
+    "other": "L'errore è"
   },
   "upgrade.ed.version.available": {
-    "other": "Ready to install %s"
+    "other": "Pronto per installare %s"
   },
   "upgrade.ed.version.released": {
-    "other": "Released"
+    "other": "Rilasciato"
   },
   "upgrade.ed.version.arch": {
-    "other": "Architecture"
+    "other": "Architettura"
   },
   "upgrade.ed.version.description": {
-    "other": "Description"
+    "other": "Descrizione"
   },
   "upgrade.ed.version.legend": {
-    "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."
+    "other": "Premendo Prosegui si scaricherà la nuova versione e si sostituirà l'eseguibile di Cells. Un backup dell'eseguibile originale verrà memorizzato nella cartella di configurazione di cells (sotto %s), per un eventuale recupero."
   },
   "upgrade.ed.version.nomatch": {
-    "other": "Could not find a similar version for Cells Enterprise"
+    "other": "Non è possibile trovare una versione simile di Cells Enterprise"
   },
   "upgrade.ed.version.nomatch.legend1": {
-    "other": "To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version."
+    "other": "Per evitare di combinare aggiornamenti e nuove versioni, si consiglia di aggiornare Cells Home alla stessa versione di Enterprise."
   },
   "upgrade.ed.version.nomatch.legend2": {
-    "other": "Please first update your current version to one of the following, then retry upgrading to Cells Enterprise."
+    "other": "Aggiornare la versione corrente a una delle successive, quindi riprovare ad aggiornare a Cells Enterprise."
   },
   "upgrade.ed.installing": {
-    "other": "Installing upgrade, please wait..."
+    "other": "Installazione aggiornamento, attendere prego..."
   }
 }

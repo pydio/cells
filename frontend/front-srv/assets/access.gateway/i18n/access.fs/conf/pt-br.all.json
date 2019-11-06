@@ -1,80 +1,80 @@
 {
   "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
-    "other": "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path."
+    "other": "Caminho absoluto para a pasta no servidor. Você pode usar PYDIO_DATA_PATH e PYDIO_INSTALL_PATH para apontar para o caminho padrão de dados do Pydio e o caminho da instalação raiz."
   },
   "Create": {
-    "other": "Create"
+    "other": "Criar"
   },
   "Create folder if it does not exists": {
-    "other": "Create folder if it does not exists"
+    "other": "Criar pasta se ela não existir"
   },
   "Data template": {
-    "other": "Data template"
+    "other": "Modelo de dados"
   },
   "Delegates all download operations to nginx using the X-Accel-Redirect header. Warning, you have to add some configuration in nginx, like X-Accel-Mapping": {
-    "other": "Delegates all download operations to nginx using the X-Accel-Redirect header. Warning, you have to add some configuration in nginx, like X-Accel-Mapping"
+    "other": "Delega todas as operações de download para o nginx usando o cabeçalho X-Accel-Redirect. Atenção: você deve adicionar algumas configurações no nginx, como X-Accel-Mapping"
   },
   "Delegates all download operations to the webserver using the X-SendFile header. Warning, this is an external module to install for Apache. Module is active by default in Lighttpd. Warning, you have to manually add the folders where files will be downloaded in the module configuration (XSendFilePath directive)": {
-    "other": "Delegates all download operations to the webserver using the X-SendFile header. Warning, this is an external module to install for Apache. Module is active by default in Lighttpd. Warning, you have to manually add the folders where files will be downloaded in the module configuration (XSendFilePath directive)"
+    "other": "Delega todas as operações de download para o servidor web usando o cabeçalho X-SendFile. Atenção: este é um módulo externo para instalar para Apache. Módulo está ativo por padrão no Lighttpd. Atenção: você tem que adicionar manualmente as pastas onde os arquivos serão baixados na configuração do módulo (diretiva XSendFilePath)"
   },
   "Directly write the zip file to an output stream which is connected to the user's browser.": {
-    "other": "Directly write the zip file to an output stream which is connected to the user's browser."
+    "other": "Escreva diretamente o arquivo zip para um fluxo de saída que está conectado ao navegador do usuário."
   },
   "File Creation Mask": {
-    "other": "File Creation Mask"
+    "other": "Máscara de Criação de Arquivo"
   },
   "File System (Standard)": {
-    "other": "File System (Standard)"
+    "other": "Sistema de Arquivos (Padrão)"
   },
   "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature."
+    "other": "Opção de purgar documentos após um determinado número de dias (mesmo que compartilhado). Isso requer uma configuração manual de uma tarefa CRON. Deixe o valor em 0 se você não usar este recurso."
   },
   "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature."
+    "other": "Opção de purgar documentos após um determinado número de dias (mesmo que compartilhado). Isso requer uma configuração manual de uma tarefa CRON. Deixe o valor em 0 se você não usar este recurso."
   },
   "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature."
+    "other": "Opção de purgar documentos após um determinado número de dias. Isso requer uma configuração manual de uma tarefa CRON. Deixe o valor em 0 se você não usar este recurso."
   },
   "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc.": {
-    "other": "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc."
+    "other": "Opção aplica uma operação de chmod. O valor deve ser numérico, como 0777, 0644, etc."
   },
   "Path": {
-    "other": "Path"
+    "other": "Caminho"
   },
   "Path to a directory on the filesystem whose content will be copied to the repository the first time it is loaded.": {
-    "other": "Path to a directory on the filesystem whose content will be copied to the workspace the first time it is loaded."
+    "other": "Caminho para um diretório no sistema de arquivos cujo conteúdo será copiado para o espaço de trabalho pela primeira vez que ele é carregado."
   },
   "Purge Days": {
-    "other": "Purge Days"
+    "other": "Dias para efetuar purga"
   },
   "Purge Days (Hard limit)": {
-    "other": "Purge Days (Hard limit)"
+    "other": "Dias para efetuar purga (Limite rígido)"
   },
   "Purge Days (Soft limit)": {
-    "other": "Purge Days (Soft limit)"
+    "other": "Dias para efetuar purga (Limite flexível)"
   },
   "Real Size Probing": {
-    "other": "Real Size Probing"
+    "other": "Teste do tamanho real"
   },
   "The most standard access to a filesystem located on the server.": {
-    "other": "The most standard access to a filesystem located on the server."
+    "other": "O acesso mais padronizado a um sistema de arquivos localizado no servidor."
   },
   "Use POSIX": {
-    "other": "Use POSIX"
+    "other": "Usar POSIX"
   },
   "Use php POSIX extension to read files permissions. Only works on *nix systems.": {
-    "other": "Use php POSIX extension to read files permissions. Only works on *nix systems."
+    "other": "Use a extensão POSIX do php para ler as permissões de arquivos. Só funciona em sistemas *nix."
   },
   "Use system command line to get the filesize instead of php built-in function (fixes the 2Go limitation)": {
-    "other": "Use system command line to get the filesize instead of php built-in function (fixes the 2Go limitation)"
+    "other": "Use a linha de comando do sistema para obter o tamanho do arquivo em vez da função incluída no php (corrige a limitação 2Go)"
   },
   "X-Accel-Redirect Active": {
-    "other": "X-Accel-Redirect Active"
+    "other": "X-Accel-Redirect ativo"
   },
   "X-SendFile Active": {
-    "other": "X-SendFile Active"
+    "other": "X-SendFile ativo"
   },
   "Zip downloading files on the fly": {
-    "other": "Zip downloading files on the fly"
+    "other": "Zip baixando arquivos de imediato"
   }
 }
