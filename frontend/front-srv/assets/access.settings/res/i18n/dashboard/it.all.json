@@ -60,13 +60,13 @@
     "other": "Scopri Pydio Cells Enterprise"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "Aggiorna"
   },
   "ent.upgrade.legend": {
-    "other": "In-app upgrade Cells Enterprise (license required)"
+    "other": "Aggiornamento in-app di Cells Enterprise (è richiesta la licenza)"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "Avanzate"
   },
   "welc.btn.parameters": {
     "other": "Informazioni sui parametri"
@@ -75,24 +75,24 @@
     "other": "Guida introduttiva"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "Utenti"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "Workspace"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "Se non sai dove iniziare, la Guida Amministratore è sicuramente una buona lettura!"
   },
   "welc.intro": {
     "other": "Questo è il pannello di controllo per la gestione di Pydio Cells. Usando il menù sulla sinistra, è possibile creare i <a class=\"doc-link\" data-path=\"/data/workspaces\">workspace</a> e gli <a class=\"doc-link\" data-path=\"/idm/users\">utenti</a>,\n                            controllate tutti gli <a class=\"doc-link\" data-path=\"/admin/logs\">eventi</a> che si sono verificati sulla piattaforma, e gestire le <a class=\"doc-link\" data-path=\"/parameters/core\">configurazioni</a> e i <a class=\"doc-link\" data-path=\"/plugins/manager\">plugin</a>."
   },
   "welc.import": {
-    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+    "other": "Se stai eseguendo un'installazione di Pydio 8, ti ricordiamo che <u>Pydio 8 arriverà a fine vita alla fine del 2019</u>. Puoi utilizzare lo <a class=\"doc-link\" data-path=\"/data/migration\">Strumento di Importazione</a> per migrare tutti i dati a Pydio Cells."
   },
   "welc.subtitle": {
     "other": "Il luogo dove amministrare e monitorare l'attività sulla piattaforma"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v2"
+    "other": "Benvenuto a Pydio Cells v2"
   }
 }

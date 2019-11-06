@@ -1,47 +1,47 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Atualizar Configuração"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "Atualizar Servidor"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "URL http do servidor de atualização"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "Chave Pública"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Chave Oficial usada para verificar assinaturas de binários."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "Atualizar Canal"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "Canal usado para solicitar atualizações. Marque 'Estável' se você não tiver certeza."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "Estável"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Desenvolvedor (por seu próprio risco)"
   },
   "Update.Config.ProxyHost.Label": {
     "other": "Proxy"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "Host do servidor Proxy se necessário para conexões de saída"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "Usuário do Proxy"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "Usuário para autenticação do servidor Proxy"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "Senha do Proxy"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "Senha para autenticação do servidor Proxy"
   }
 }

@@ -552,7 +552,7 @@
     "other": "Export and download"
   },
   "logs.11": {
-    "other": "Export as..."
+    "other": "Export..."
   },
   "logs.2": {
     "other": "Pick a day"
@@ -1458,7 +1458,7 @@
     "other": "Easy Transfer Layout (enterprise only)"
   },
   "ws.editor.other.sync": {
-    "other": "Allow desktop synchronisation"
+    "other": "Allow desktop synchronisation (still experimental)"
   },
   "ws.editor.other.sync.legend": {
     "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
