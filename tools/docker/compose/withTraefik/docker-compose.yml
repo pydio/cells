@@ -28,7 +28,7 @@ services:
     #  - web
 
   cells:
-    image: pydio/cells:unstable
+    image: pydio/cells:latest
     restart: always
     ports: ["8000:80"]
     environment:

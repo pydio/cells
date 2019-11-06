@@ -30,7 +30,7 @@ COPY --from=certs /pydio/cells /pydio/cells
 RUN ln -s /pydio/cells /bin/cells \
     && ln -s /pydio/libdl.so.2 /lib64/libdl.so.2 \
     && ln -s /pydio/docker-entrypoint.sh /bin/docker-entrypoint.sh \
-    && chmod +x /pydio/docker-entrypoint.sh 
+    && chmod +x /pydio/docker-entrypoint.sh
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["cells", "start"]
