@@ -160,8 +160,8 @@ func promptTLSMode(proxyConfig *install.ProxyConfig) (enabled bool, e error) {
 		proxyConfig.TLSConfig = nil
 	}
 
-	// Adapt bind url in case TLS mode has changed
-	scheme := "https"
+	// Adapt bind URLS in case TLS mode has changed
+	scheme := "http"
 	if enabled {
 		scheme = "https"
 	}
