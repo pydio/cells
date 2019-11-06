@@ -23,8 +23,10 @@ package cmd
 import (
 	"log"
 
-	"github.com/pydio/cells/common/utils/docs"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/utils/docs"
 )
 
 var openApiTargetFolder string
@@ -36,6 +38,7 @@ var docOpenApiCmd = &cobra.Command{
 	Long:  `Generates a markdown documentation of rest APIS using the internal OpenAPI spec`,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		docs.ApiDocsGeneratedBy = common.PackageLabel + " v" + common.Version().String()
 		err := docs.GenOpenAPIDocs(openApiTargetFolder)
 		if err != nil {
 			log.Fatal(err)

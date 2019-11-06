@@ -33,17 +33,21 @@ class GraphPanel extends Component{
     render(){
 
         const {graph, userLabel, pydio, getMessage} = this.props;
+        const teamsEditable = pydio.getController().actions.has("user_team_create");
 
         let elements = [];
         if(graph.teams && graph.teams.length){
-            const onDeleteAction = function(parentItem, team){
-                PydioApi.getRestClient().getIdmApi().removeUserFromTeam(team[0].id, this.props.userId, (response) => {
-                    if(response && response.message) {
-                        pydio.UI.displayMessage('SUCCESS', response.message);
-                    }
-                    this.props.reloadAction();
-                });
-            }.bind(this);
+            let onDeleteAction = null;
+            if (teamsEditable) {
+                onDeleteAction = (parentItem, team) => {
+                    PydioApi.getRestClient().getIdmApi().removeUserFromTeam(team[0].id, this.props.userId, (response) => {
+                        if(response && response.message) {
+                            pydio.UI.displayMessage('SUCCESS', response.message);
+                        }
+                        this.props.reloadAction();
+                    });
+                };
+            }
             elements.push(
                 <div key="teams">
                     <UsersList subHeader={getMessage(581).replace('%s', graph.teams.length)} onItemClicked={()=>{}} item={{leafs: graph.teams}} mode="inner" onDeleteAction={onDeleteAction}/>

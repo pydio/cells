@@ -162,7 +162,7 @@
     "other": "Freigaben importieren"
   },
   "step.shares.alert": {
-    "other": "Please pick at least one share type!"
+    "other": "Bitte wählen Sie mindestens einen Share-Typ aus!"
   },
   "step.shares.legend": {
     "other": "Importieren Sie öffentliche Pydio 8-Links und freigegebene Ordner in Cells. Öffentliche Links werden mit derselben Kennung und denselben Eigenschaften (Kennwort, Ablaufdatum usw.) erstellt. Ordner, die in Pydio 8 als Arbeitsbereiche freigegeben wurden, werden neuen Zellen zugeordnet."
@@ -318,7 +318,7 @@
     "other": "Alle Freigaben werden importiert (Links und freigegebene Ordner)."
   },
   "action.share.user": {
-    "other": "Only shares owned by %s will be imported."
+    "other": "Nur Share von %s werden importiert."
   },
   "action.meta.summary": {
     "other": "Die folgenden Metadaten werden importiert: "

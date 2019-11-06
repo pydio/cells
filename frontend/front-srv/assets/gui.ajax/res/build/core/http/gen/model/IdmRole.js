@@ -36,6 +36,7 @@ var _ServiceResourcePolicy2 = _interopRequireDefault(_ServiceResourcePolicy);
 var IdmRole = (function () {
     /**
     * Constructs a new <code>IdmRole</code>.
+    * Role represents a generic set of permissions that can be applied to any users or groups.
     * @alias module:model/IdmRole
     * @class
     */
@@ -143,5 +144,6 @@ module.exports = exports['default'];
 */
 
 /**
+* Is used in a stack of roles, this one will always be applied last.
 * @member {Boolean} ForceOverride
 */

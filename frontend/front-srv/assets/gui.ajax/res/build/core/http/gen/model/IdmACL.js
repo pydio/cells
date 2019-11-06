@@ -36,6 +36,7 @@ var _IdmACLAction2 = _interopRequireDefault(_IdmACLAction);
 var IdmACL = (function () {
     /**
     * Constructs a new <code>IdmACL</code>.
+    * ACL are the basic flags that can be put anywhere in the tree to provide some specific rights to a given role. The context of how they apply can be fine-tuned by workspace.
     * @alias module:model/IdmACL
     * @class
     */

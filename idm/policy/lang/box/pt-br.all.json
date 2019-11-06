@@ -39,7 +39,7 @@
     "other": "Default REST accesses for a logged user"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "User-meta prevent deleting tags"
+    "other": "REST accesses for incrementing shares downloads"
   },
   "PolicyGroup.LoggedUsers.Rule4": {
     "other": "Standard users cannot create/delete workspaces"

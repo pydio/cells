@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio';
 import AddressBook from '../addressbook/AddressBook'
 import ResourcePoliciesPanel from '../../policies/ResourcePoliciesPanel'
 const React = require('react');
@@ -82,6 +82,7 @@ class ActionsPanel extends React.Component{
     render(){
 
         const {getMessage, muiTheme, team, user, userEditable, userId, style, zDepth} = this.props;
+        const teamsEditable = Pydio.getInstance().getController().actions.has("user_team_create");
 
         const styles = {
             button: {
@@ -109,13 +110,17 @@ class ActionsPanel extends React.Component{
         if(team){
             resourceType = 'team';
             resourceId = team.id;
-            actions.push({key:'users', label:getMessage(599), icon:'account-multiple-plus', callback:this.openPicker.bind(this)});
+            if (teamsEditable){
+                actions.push({key:'users', label:getMessage(599), icon:'account-multiple-plus', callback:this.openPicker.bind(this)});
+            }
         }else{
             resourceType = 'user';
             resourceId = userId;
-            actions.push({key:'teams', label:getMessage(573), icon:'account-multiple-plus', callback:this.openPicker.bind(this)});
+            if(teamsEditable){
+                actions.push({key:'teams', label:getMessage(573), icon:'account-multiple-plus', callback:this.openPicker.bind(this)});
+            }
         }
-        if(userEditable){
+        if(userEditable && !(this.props.team && !teamsEditable)){
             if (this.props.onEditAction) {
                 actions.push({key:'edit', label:this.props.team?getMessage(580):getMessage(600), icon:'pencil', callback:this.props.onEditAction});
             }
@@ -123,6 +128,9 @@ class ActionsPanel extends React.Component{
             if(this.props.onDeleteAction){
                 actions.push({key:'delete', label:this.props.team?getMessage(570):getMessage(582), icon:'delete', callback:this.props.onDeleteAction});
             }
+        }
+        if (actions.length === 0) {
+            return null;
         }
 
         return (

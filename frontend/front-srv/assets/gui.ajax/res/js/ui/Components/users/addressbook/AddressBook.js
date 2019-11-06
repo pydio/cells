@@ -98,7 +98,7 @@ let AddressBook = React.createClass({
             usersOnly       : false,
             usersFrom       : 'any',
             teamsOnly       : false,
-            disableSearch   : false
+            disableSearch   : false,
         };
     },
 
@@ -107,6 +107,17 @@ let AddressBook = React.createClass({
         const {pydio, mode, usersOnly, usersFrom, teamsOnly, disableSearch} = this.props;
         const getMessage = (id) => {return this.props.getMessage(id, '')};
         const authConfigs = pydio.getPluginConfigs('core.auth');
+        let teamActions = {};
+        // Check that user_team_create action is not disabled
+        const teamsEditable = pydio.getController().actions.has("user_team_create");
+        if(teamsEditable) {
+            teamActions = {
+                type: 'teams',
+                create: '+ ' + getMessage(569),
+                remove: getMessage(570),
+                multiple: true
+            };
+        }
 
         let root;
         if(teamsOnly){
@@ -116,12 +127,7 @@ let AddressBook = React.createClass({
                 childrenLoader: Loaders.loadTeams,
                 _parent: null,
                 _notSelectable: true,
-                actions: {
-                    type: 'teams',
-                    create: '+ ' + getMessage(569),
-                    remove: getMessage(570),
-                    multiple: true
-                }
+                actions: teamActions
             };
             return {
                 root: root,
@@ -162,12 +168,7 @@ let AddressBook = React.createClass({
                     childrenLoader: Loaders.loadTeams,
                     _parent: root,
                     _notSelectable: true,
-                    actions: {
-                        type: 'teams',
-                        create: '+ ' + getMessage(569),
-                        remove: getMessage(570),
-                        multiple: true
-                    }
+                    actions: teamActions
                 });
             }
             root.collections.push({
@@ -212,7 +213,8 @@ let AddressBook = React.createClass({
             root: root,
             selectedItem:mode === 'selector' ? root : root.collections[0],
             loading: false,
-            rightPaneItem: null
+            rightPaneItem: null,
+            teamsEditable: teamsEditable
         };
     },
 
@@ -407,7 +409,7 @@ let AddressBook = React.createClass({
 
         }
 
-        const {selectedItem, root, rightPaneItem, createDialogItem} = this.state;
+        const {selectedItem, root, rightPaneItem, createDialogItem, teamsEditable} = this.state;
 
         const leftColumnStyle = {
             backgroundColor: colors.grey100,
@@ -448,8 +450,13 @@ let AddressBook = React.createClass({
             let emptyStateSecondary;
             let otherProps = {};
             if(selectedItem.id === 'teams'){
-                emptyStatePrimary = getMessage(571, '');
-                emptyStateSecondary = getMessage(572, '');
+                if (teamsEditable){
+                    emptyStatePrimary = getMessage(571, '');
+                    emptyStateSecondary = getMessage(572, '');
+                } else {
+                    emptyStatePrimary = getMessage('571.readonly', '');
+                    emptyStateSecondary = getMessage('572.readonly', '');
+                }
             }else if(selectedItem.id === 'ext'){
                 emptyStatePrimary = getMessage(585, '');
                 emptyStateSecondary = getMessage(586, '');
@@ -464,7 +471,7 @@ let AddressBook = React.createClass({
                 };
             }
 
-            if((mode === 'book' || bookColumn ) && selectedItem.IdmRole && selectedItem.IdmRole.IsTeam){
+            if((mode === 'book' || bookColumn ) && selectedItem.IdmRole && selectedItem.IdmRole.IsTeam && teamsEditable){
                 topActionsPanel =
                     (<ActionsPanel
                         {...this.props}

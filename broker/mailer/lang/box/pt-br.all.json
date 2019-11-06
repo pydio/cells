@@ -1,233 +1,233 @@
 {
   "Mail.Main.Copyright": {
-    "other": "File Sharing platform proudly powered by Pydio"
+    "other": "Plataforma de Compartilhamento de Arquivos orgulhosamente desenvolvida por Pydio"
   },
   "Mail.Main.Troubleshoot": {
-    "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
+    "other": "Se o botão {ACTION} não está funcionando para você, copie e cole a URL abaixo em seu navegador web."
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "Olá"
   },
   "Mail.Main.Signature": {
-    "other": "Sincerely"
+    "other": "Atenciosamente"
   },
   "Mail.ResetPassword.Subject": {
-    "other": "Reset password requested for {{.Configs.Title}}"
+    "other": "Alteração de senha solicitada por {{.Configs.Title}}"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "A reset password request has been received for your account on {{.Configs.Title}}."
+    "other": "Uma solicitação de alteração de senha foi recebida para sua conta no {{.Configs.Title}}."
   },
   "Mail.ResetPassword.Outros": {
-    "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
+    "other": "Se você não ativou este pedido, você pode ignorar com segurança o mesmo. Se você continuar a receber este tipo de email, avise o seu administrador como possível problema de segurança."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "Redefinir Minha Senha"
   },
   "Mail.ResetPassword.LinkInstructions": {
-    "other": "Click to reset your password"
+    "other": "Clique para redefinir sua senha"
   },
   "Mail.ResetPasswordDone.Subject": {
-    "other": "Your password on {{.Configs.Title}} has been reset"
+    "other": "Sua senha em {{.Configs.Title}} foi redefinida"
   },
   "Mail.ResetPasswordDone.Intros": {
-    "other": "Following your reset password request, your password has been successfully reset for {{.Configs.Title}}."
+    "other": "Seguindo com sua solicitação, sua senha para {{.Configs.Title}} foi redefinida com sucesso."
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
+    "other": "Se você não ativou esta operação, por favor, avive imediatamente seu administrador, isso pode ser um problema de segurança."
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} notifications"
+    "other": "Your {{.Configs.Title}} daily digest"
   },
   "Mail.Digest.Intros": {
-    "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
+    "other": "Abaixo está o resumo de todas as notificações recebidas em {{.Configs.Title}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "Welcome on {{.Configs.Title}}"
+    "other": "Bem-vindo ao {{.Configs.Title}}"
   },
   "Mail.Welcome.Intros": {
-    "other": "An account has been created for you on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it at first login{{end}}."
+    "other": "Uma conta foi criada para você em {{.Configs.Title}}.\nSeu usuário é \"{{.TplData.Login}}{{if .TplData.Password}}\" e sua senha é \"{{.TplData.Password}}\". Você pode alterar sua senha no primeiro acesso{{end}}."
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Clique para acessar"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Acesso para {{.Configs.Title}}"
   },
   "Mail.Welcome.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by your team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "A Plataforma de gerenciamento {{.Configs.Title}} é usada para sua equipe colaborar eficientemente em documentos. Nós somos gratos em tê-lo a bordo!"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} has invited you on {{.Configs.Title}}"
+    "other": "{{.TplData.Inviter}} convidou você para {{.Configs.Title}}"
   },
   "Mail.Invite.Intros": {
-    "other": "An account has been created for you by {{.TplData.Inviter}} on {{.Configs.Title}}. \n Your login is {{.TplData.Login}}{{if .TplData.Password}} and your password is {{.TplData.Password}}. You may change it the first time you log in{{end}}."
+    "other": "Uma conta foi criada para você por {{.TplData.Inviter}} em {{.Configs.Title}}.\nSeu usuário é \"{{.TplData.Login}}{{if .TplData.Password}}\" e sua senha é \"{{.TplData.Password}}\". Você pode alterar sua senha no primeiro acesso{{end}}."
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "Click to login"
+    "other": "Clique para acessar"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "Login to {{.Configs.Title}}"
+    "other": "Acessar {{.Configs.Title}}"
   },
   "Mail.Invite.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents. We're glad to have you on board!"
+    "other": "A Plataforma de gerenciamento {{.Configs.Title}} é usada pela equipe {{.TplData.Inviter}} para colaborar eficientemente em documentos. Nós somos gratos em tê-lo a bordo!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} adicionou você para a célula {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} incluiu você na célula {{.TplData.Cell}} em {{.Configs.Title}}! Vocês já podem começar a compartilhar arquivos e pastas juntos e colaborarem eficientemente."
   },
   "Mail.Cell.LinkInstructions": {
-    "other": "Click to open cell"
+    "other": "Clique para abrir a célula"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "Open {{.TplData.Cell}}"
+    "other": "Abrir {{.TplData.Cell}}"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you"
+    "other": "{{.TplData.Inviter}} está compartilhando um arquivo com você"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a file with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} está compartilhando um arquivo com você.\n\n'{{.TplData.Message}}'\n\n{{if .TplData.Expire}}Esse link irá expirar em {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Máximo de downloads: {{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
-    "other": "Open {{.TplData.FileName}}"
+    "other": "Abrir {{.TplData.FileName}}"
   },
   "Mail.PublicFile.LinkInstructions": {
-    "other": "Click to preview the file in your browser"
+    "other": "Clica para pré-visualizar o arquivo em seu navegador"
   },
   "Mail.PublicFile.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "A plataforma de compartilhamento {{.Configs.Title}} é usada por {{.TplData.Inviter}} para colaborar eficientemente em documentos."
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you"
+    "other": "{{.TplData.Inviter}} está compartilhando uma pasta com você"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} is sharing a folder with you.\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}}Link will expire on {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Maximum downloads :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} está compartilhando uma pasta com você\n\n'{{.TplData.Message}}'\n\n{{if .TplData.Expire}}Este link irá expirar em {{.TplData.Expire}}{{end}}\n\n{{if .TplData.MaxDownloads}}Máximo de downloads: {{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
-    "other": "Open {{.TplData.FolderName}}"
+    "other": "Abrir {{.TplData.FolderName}}"
   },
   "Mail.PublicFolder.LinkInstructions": {
-    "other": "Click to preview the documents in your browser"
+    "other": "Clique para pré-visualizar os documentos em seu navegador"
   },
   "Mail.PublicFolder.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
+    "other": "A plataforma de compartilhamento {{.Configs.Title}} é usada por {{.TplData.Inviter}} para colaborar eficientemente em documentos."
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} está te enviando um email teste"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "Abrir células"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "Clique para abrir a tela inicial"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "A plataforma de compartilhamento {{.Configs.Title}} é usada para colaborar eficientemente em documentos em equipe."
   },
   "Mail.Config.Title": {
-    "other": "Mailer"
+    "other": "Remetente"
   },
   "Mail.Config.From.Label": {
-    "other": "Default FROM email address"
+    "other": "Endereço de email de remetente (FROM) padrão"
   },
   "Mail.Config.From.Description": {
-    "other": "Address to use as default when sending emails. You should use a proper support email instead of no-reply email."
+    "other": "Endereço a ser usado como padrão quando enviar emails. Você deve usar um email de suporte apropriado ao invés de um email de 'não-responda'."
   },
   "Mail.Config.Queue.Label": {
-    "other": "Queue Type"
+    "other": "Tipo de Fila"
   },
   "Mail.Config.Queue.Description": {
-    "other": "Persistence layer for storing pending emails"
+    "other": "Camada de persistência para armazenar emails pendentes"
   },
   "Mail.Config.Queue.ValueBolt": {
-    "other": "On-file Database (Bolt)"
+    "other": "Banco de dados on-file (Bolt)"
   },
   "Mail.Config.Queue.ValueMemory": {
-    "other": "In-Memory"
+    "other": "Memória"
   },
   "Mail.Config.Mailer.Label": {
-    "other": "Mailer Engine"
+    "other": "Motor do disparador"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "Engine used to actually send emails"
+    "other": "Motor usado para enviar e-mails"
   },
   "Mail.Config.Smtp.Label": {
-    "other": "SMTP Server"
+    "other": "Servidor SMTP"
   },
   "Mail.Config.Smtp.Host.Label": {
-    "other": "Server Hostname"
+    "other": "Nome do Host do servidor"
   },
   "Mail.Config.Smtp.Host.Description": {
-    "other": "Host of the SMTP server, e.g. smtp.gmail.com"
+    "other": "Host do servidor SMTP, por exemplo: smtp.gmail.com"
   },
   "Mail.Config.Smtp.Port.Label": {
-    "other": "Server Port"
+    "other": "Porta do Servidor"
   },
   "Mail.Config.Smtp.Port.Description": {
-    "other": "Port of the SMTP Server, e.g. 587 (non-secure) or 465 (TLS)"
+    "other": "Porta do servidor SMTP. por exemplo: 587 (não segura) ou 465 (TLS)"
   },
   "Mail.Config.Smtp.User.Label": {
-    "other": "Connection User"
+    "other": "Usuário"
   },
   "Mail.Config.Smtp.User.Description": {
-    "other": "Username required to connect to the SMTP server"
+    "other": "Requer nome de usuário para conectar ao servidor SMTP"
   },
   "Mail.Config.Smtp.Password.Label": {
-    "other": "Connection Password"
+    "other": "Senha"
   },
   "Mail.Config.Smtp.Password.Description": {
-    "other": "Password required to connect to the SMTP server"
+    "other": "Requer senha para conectar ao servidor SMTP"
   },
   "Mail.Config.Smtp.SkipVerify.Label": {
-    "other": "Self-signed Certificate"
+    "other": "Certificado Auto-assinado"
   },
   "Mail.Config.Smtp.SkipVerify.Description": {
-    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
+    "other": "Desabilitar a verificação de certificado caso o certificado de seu servidor SMTP for auto-assinado"
   },
   "Mail.Config.SendGrid.Label": {
-    "other": "SendGrid Service"
+    "other": "Serviço SendGrid"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api Key"
+    "other": "Chave API"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "Api Key provided by SendGrid to connect to the service"
+    "other": "Chave API fornecida pelo SendGrid para se conectar ao serviço"
   },
   "Mail.Config.Sendmail.Label": {
-    "other": "Sendmail"
+    "other": "Enviar email"
   },
   "Mail.Config.Sendmail.Executable.Label": {
-    "other": "Executable Path"
+    "other": "Caminho do executável"
   },
   "Mail.Config.Sendmail.Executable.Description": {
-    "other": "Full path of the sendmail executable on the server"
+    "other": "Caminho completo do executável no servidor"
   },
   "Mail.Config.Sendmail.Executable.Other": {
-    "other": "Other path (set manually in pydio.json config file)"
+    "other": "Outro caminho (definir manualmente no arquivo de configuração pydio.json)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Default senders display name"
+    "other": "Nome de exibição do remetente padrão"
   },
   "Mail.Config.FromName.Description": {
-    "other": "Display name to use as default when sending emails."
+    "other": "Nome de exibição usado como padrão quando enviar emails."
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "From/Sender address and name to use"
+    "other": "Endereço 'De/Remetente' e nome para usar"
   },
   "Mail.Config.FromCtl.Description": {
-    "other": "Define which sender address/name to use. If no user email address is configured the default FROM address and name will be used in all cases."
+    "other": "Defina qual endereço de remetente/nome a ser usado. Se nenhum endereço de email do usuário for configurado, o endereço de remetente e nome padrão serão usados em todos os casos."
   },
   "Mail.Config.FromCtlUser.Label": {
-    "other": "Send mail FROM the user"
+    "other": "Enviar email FROM do usuário"
   },
   "Mail.Config.FromCtlSender.Label": {
-    "other": "Send mail ON BEHALF OF the user"
+    "other": "Enviar email 'EM NOME DE' do usuário"
   },
   "Mail.Config.FromCtlDefault.Label": {
-    "other": "Always send from the Default FROM address/name"
+    "other": "Sempre enviar do endereço de remetente/nome padrão"
   }
 }

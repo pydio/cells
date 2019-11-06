@@ -119,6 +119,7 @@ module.exports = exports['default'];
 */
 
 /**
+* Group by ...
 * @member {Number} GroupBy
 */
 

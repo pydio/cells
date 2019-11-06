@@ -405,14 +405,6 @@ var _modelRestCellAcl = require('./model/RestCellAcl');
 
 var _modelRestCellAcl2 = _interopRequireDefault(_modelRestCellAcl);
 
-var _modelRestChangeCollection = require('./model/RestChangeCollection');
-
-var _modelRestChangeCollection2 = _interopRequireDefault(_modelRestChangeCollection);
-
-var _modelRestChangeRequest = require('./model/RestChangeRequest');
-
-var _modelRestChangeRequest2 = _interopRequireDefault(_modelRestChangeRequest);
-
 var _modelRestConfiguration = require('./model/RestConfiguration');
 
 var _modelRestConfiguration2 = _interopRequireDefault(_modelRestConfiguration);
@@ -821,18 +813,6 @@ var _modelTreeSearchRequest = require('./model/TreeSearchRequest');
 
 var _modelTreeSearchRequest2 = _interopRequireDefault(_modelTreeSearchRequest);
 
-var _modelTreeSyncChange = require('./model/TreeSyncChange');
-
-var _modelTreeSyncChange2 = _interopRequireDefault(_modelTreeSyncChange);
-
-var _modelTreeSyncChangeNode = require('./model/TreeSyncChangeNode');
-
-var _modelTreeSyncChangeNode2 = _interopRequireDefault(_modelTreeSyncChangeNode);
-
-var _modelTreeSyncChangeType = require('./model/TreeSyncChangeType');
-
-var _modelTreeSyncChangeType2 = _interopRequireDefault(_modelTreeSyncChangeType);
-
 var _modelTreeVersioningKeepPeriod = require('./model/TreeVersioningKeepPeriod');
 
 var _modelTreeVersioningKeepPeriod2 = _interopRequireDefault(_modelTreeVersioningKeepPeriod);
@@ -884,10 +864,6 @@ var _apiActivityServiceApi2 = _interopRequireDefault(_apiActivityServiceApi);
 var _apiAdminTreeServiceApi = require('./api/AdminTreeServiceApi');
 
 var _apiAdminTreeServiceApi2 = _interopRequireDefault(_apiAdminTreeServiceApi);
-
-var _apiChangeServiceApi = require('./api/ChangeServiceApi');
-
-var _apiChangeServiceApi2 = _interopRequireDefault(_apiChangeServiceApi);
 
 var _apiConfigServiceApi = require('./api/ConfigServiceApi');
 
@@ -1677,20 +1653,6 @@ RestCellAcl = _modelRestCellAcl2['default'];
 exports.
 
 /**
- * The RestChangeCollection model constructor.
- * @property {module:model/RestChangeCollection}
- */
-RestChangeCollection = _modelRestChangeCollection2['default'];
-exports.
-
-/**
- * The RestChangeRequest model constructor.
- * @property {module:model/RestChangeRequest}
- */
-RestChangeRequest = _modelRestChangeRequest2['default'];
-exports.
-
-/**
  * The RestConfiguration model constructor.
  * @property {module:model/RestConfiguration}
  */
@@ -2405,27 +2367,6 @@ TreeSearchRequest = _modelTreeSearchRequest2['default'];
 exports.
 
 /**
- * The TreeSyncChange model constructor.
- * @property {module:model/TreeSyncChange}
- */
-TreeSyncChange = _modelTreeSyncChange2['default'];
-exports.
-
-/**
- * The TreeSyncChangeNode model constructor.
- * @property {module:model/TreeSyncChangeNode}
- */
-TreeSyncChangeNode = _modelTreeSyncChangeNode2['default'];
-exports.
-
-/**
- * The TreeSyncChangeType model constructor.
- * @property {module:model/TreeSyncChangeType}
- */
-TreeSyncChangeType = _modelTreeSyncChangeType2['default'];
-exports.
-
-/**
  * The TreeVersioningKeepPeriod model constructor.
  * @property {module:model/TreeVersioningKeepPeriod}
  */
@@ -2514,13 +2455,6 @@ exports.
 * @property {module:api/AdminTreeServiceApi}
 */
 AdminTreeServiceApi = _apiAdminTreeServiceApi2['default'];
-exports.
-
-/**
-* The ChangeServiceApi service constructor.
-* @property {module:api/ChangeServiceApi}
-*/
-ChangeServiceApi = _apiChangeServiceApi2['default'];
 exports.
 
 /**

@@ -23,9 +23,10 @@ package cmd
 import (
 	"log"
 
+	"github.com/pydio/go/docs"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/go/docs"
+	"github.com/pydio/cells/common"
 )
 
 var docPath string
@@ -42,7 +43,7 @@ This command also generates yaml files for pydio.com documentation format.
 		if docPath == "" {
 			log.Fatal("Please provide a path to store output files")
 		} else {
-
+			docs.PydioDocsGeneratedBy = common.PackageLabel + " v" + common.Version().String()
 			err := docs.GenMarkdownTree(RootCmd, docPath)
 			if err != nil {
 				log.Fatal(err)

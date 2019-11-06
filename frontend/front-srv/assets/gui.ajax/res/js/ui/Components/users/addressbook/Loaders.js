@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio';
 import PydioApi from 'pydio/http/api';
 import LangUtils from 'pydio/util/lang';
 const IdmApi = PydioApi.getRestClient().getIdmApi();
@@ -77,6 +78,14 @@ class Loaders{
             end = parseInt(end);
             limit = end - offset;
         }
+        let actions = {};
+        if (Pydio.getInstance().getController().actions.has('user_team_create')){
+            actions = {
+                type    :'team',
+                remove  :'574',
+                multiple: true
+            };
+        }
         IdmApi.listTeams('', offset, limit).then(collection => {
             entry.pagination = Loaders.computePagination(collection);
             const items = collection.Teams.map(team => {
@@ -87,11 +96,7 @@ class Loaders{
                     type:'team',
                     icon : 'mdi mdi-account-multiple-outline',
                     itemsLoader : Loaders.loadTeamUsers,
-                    actions : {
-                        type    :'team',
-                        remove  :'574',
-                        multiple: true
-                    },
+                    actions : actions,
                     _notSelectable: true,
                     IdmRole: team
                 };

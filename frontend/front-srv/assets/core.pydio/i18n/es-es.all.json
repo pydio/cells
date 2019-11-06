@@ -1568,6 +1568,18 @@
   "572": {
     "other": "Cree sus propios equipos para compartir datos fácilmente entre usuarios"
   },
+  "571.readonly": {
+    "other": "No hay equipos disponibles"
+  },
+  "572.readonly": {
+    "other": "No tienes permiso para crear equipos, pero algunos usuarios pueden compartir equipos contigo"
+  },
+  "571.create_team_action": {
+    "other": "Crear y editar Equipos"
+  },
+  "571.create_team_legend": {
+    "other": "Permitir a los usuarios crear y editar sus propios equipos"
+  },
   "573": {
     "other": "Añadir usuario al equipo"
   },

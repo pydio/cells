@@ -106,13 +106,13 @@ var UserServiceApi = (function () {
    * Get a user by login
    * @param {String} login 
    * @param {Object} opts Optional parameters
-   * @param {String} opts.uuid 
-   * @param {String} opts.groupPath 
-   * @param {String} opts.password 
-   * @param {String} opts.oldPassword 
-   * @param {Boolean} opts.isGroup Group specific data.
-   * @param {String} opts.groupLabel 
-   * @param {Boolean} opts.policiesContextEditable 
+   * @param {String} opts.uuid User unique identifier.
+   * @param {String} opts.groupPath Path to the parent group.
+   * @param {String} opts.password Password can be passed to be updated (but never read back), field is empty for groups.
+   * @param {String} opts.oldPassword OldPassword must be set when a user updates her own password.
+   * @param {Boolean} opts.isGroup Whether this object is a group or a user.
+   * @param {String} opts.groupLabel Label of the group, field is empty for users.
+   * @param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmUser} and HTTP response
    */
 
@@ -152,13 +152,13 @@ var UserServiceApi = (function () {
    * Get a user by login
    * @param {String} login 
    * @param {Object} opts Optional parameters
-   * @param {String} opts.uuid 
-   * @param {String} opts.groupPath 
-   * @param {String} opts.password 
-   * @param {String} opts.oldPassword 
-   * @param {Boolean} opts.isGroup Group specific data.
-   * @param {String} opts.groupLabel 
-   * @param {Boolean} opts.policiesContextEditable 
+   * @param {String} opts.uuid User unique identifier.
+   * @param {String} opts.groupPath Path to the parent group.
+   * @param {String} opts.password Password can be passed to be updated (but never read back), field is empty for groups.
+   * @param {String} opts.oldPassword OldPassword must be set when a user updates her own password.
+   * @param {Boolean} opts.isGroup Whether this object is a group or a user.
+   * @param {String} opts.groupLabel Label of the group, field is empty for users.
+   * @param {Boolean} opts.policiesContextEditable Context-resolved to quickly check if user is editable or not.
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmUser}
    */
 

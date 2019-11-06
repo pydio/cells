@@ -65,24 +65,29 @@ var GraphPanel = (function (_Component) {
     }
 
     GraphPanel.prototype.render = function render() {
+        var _this = this;
+
         var _props = this.props;
         var graph = _props.graph;
         var userLabel = _props.userLabel;
         var pydio = _props.pydio;
         var getMessage = _props.getMessage;
 
+        var teamsEditable = pydio.getController().actions.has("user_team_create");
+
         var elements = [];
         if (graph.teams && graph.teams.length) {
-            var onDeleteAction = (function (parentItem, team) {
-                var _this = this;
-
-                PydioApi.getRestClient().getIdmApi().removeUserFromTeam(team[0].id, this.props.userId, function (response) {
-                    if (response && response.message) {
-                        pydio.UI.displayMessage('SUCCESS', response.message);
-                    }
-                    _this.props.reloadAction();
-                });
-            }).bind(this);
+            var onDeleteAction = null;
+            if (teamsEditable) {
+                onDeleteAction = function (parentItem, team) {
+                    PydioApi.getRestClient().getIdmApi().removeUserFromTeam(team[0].id, _this.props.userId, function (response) {
+                        if (response && response.message) {
+                            pydio.UI.displayMessage('SUCCESS', response.message);
+                        }
+                        _this.props.reloadAction();
+                    });
+                };
+            }
             elements.push(React.createElement(
                 'div',
                 { key: 'teams' },

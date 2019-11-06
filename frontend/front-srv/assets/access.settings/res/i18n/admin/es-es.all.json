@@ -1407,7 +1407,7 @@
     "other": "Los workspaces definen el punto de acceso principal a sus datos por parte de los usuarios. Asegúrese de definir al menos un datasource para que se pueda crear un workspace, que apuntará a la ruta de ese datasource."
   },
   "ws.editor.data.legend": {
-    "other": "Workspace exposes one or many 'roots' to the users: choose one or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
+    "other": "El workspace presenta al usuario una o varias 'raíces': elija una o más rutas de cualquier Datasource o una ruta de plantillas que se resolverán automáticamente en tiempo de ejecución."
   },
   "ws.editor.data.title": {
     "other": "Acceso a datos"
@@ -1464,13 +1464,13 @@
     "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
   },
   "ws.editor.other.sync-personal": {
-    "other": "(personal workspaces only)"
+    "other": "(Solo Workspaces personales)"
   },
   "ws.editor.sync.warning": {
-    "other": "Warning!"
+    "other": "¡Advertencia!"
   },
   "ws.editor.sync.warning.validate": {
-    "other": "I understand"
+    "other": "Lo Entiendo"
   },
   "ws.editor.sync.warning.enable": {
     "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
