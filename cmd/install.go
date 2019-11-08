@@ -81,38 +81,40 @@ var (
 
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install Cells using a friendly user interface (browser)",
-	Long: `This command launch the installation process of Pydio Cells.
+	Short: "Launch the installation process",
+	Long: `
+ This command launches the installation process of Pydio Cells.
 
- It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
- the machine from outside world (if it is behind a proxy or inside a container with ports mapping for instance).
- 
- You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
- installer, by default in self-signed mode. See the possible flags for more details.
- 
- You can also use Let's Encrypt automatic certificate generation by providing a contact email and accepting Let's Encrypt EULA, for instance:
+ Be ready to answer a few questions to configure the network connection of your application:
+   1. Bind URL: the name (or IP) and port to hook the internal webserver on a the network interface 
+   2. TLS Settings: choose the TLS configuration that is exposed by this internal webserver
+   3. External URL: the URL you communicate to your end-users. It can differ from your bind address, 
+      typically if the app is behind a proxy or inside a container with ports mapping.
+
+ You can also directly provide --bind and --external URLs. 
+ This configures the internal proxy in self-signed mode and launches the browser-based installer. 
+ If you are on the same machine, it opens a browser to gather necessary information and configuration for Pydio Cells, otherwise copy/paste the URL. 
+ Services will all start automatically after the install process is finished.
+
+ If you do not have a browser access, you can also perform the whole installation process using this CLI.
+
+ See additional flags for more details or use another TLS mode, like in the following example that uses Let's Encrypt automatic certificate generation.
+
  $ ` + os.Args[0] + ` install --bind share.mydomain.tld:443 --external https://share.mydomain.tld --le_email admin@mydomain.tld --le_agree true
 
- For instance:
+ Here is a list with a few examples of valid URL couples:
+ 
  - Bind Host: 0.0.0.0:8080
  - External Host: https://share.mydomain.tld
  Or
- - Bind Host: share.mydomain.tld
+ - Bind Host: share.mydomain.tld:443
  - External Host: https://share.mydomain.tld
  Or
- - Bind Host: IP:1515       # internal port
+ - Bind Host: IP:1515               # internal port
  - External Host: https://IP:8080   # external port mapped by docker
  Or
- - Bind Host: IP:8080
- - External Host: https://IP:8080
- Or
  - Bind Host: localhost:8080
- - External Host: http://localhost:8080  # for non-secured local installation
-
- It will open a browser to gather necessary information and configuration for Pydio Cells. 
- Services will all start automatically after the install process is finished.
- 
- If you do not have a browser access, you can also perform the whole installation process using this CLI.
+ - External Host: http://localhost:8080  # Non-secured local installation
 
  `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
