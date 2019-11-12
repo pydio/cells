@@ -23,14 +23,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common/log"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/micro/go-micro/errors"
-
-	"github.com/pborman/uuid"
-
-	"github.com/micro/go-micro/client"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -122,10 +120,10 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 
 // FinishSession flushes the session and closes it.
 func (c *Remote) FinishSession(ctx context.Context, sessionUuid string) error {
-	c.FlushSession(ctx, sessionUuid)
+	e := c.FlushSession(ctx, sessionUuid)
 	c.session = nil
 	c.Lock()
 	c.recentMkDirs = nil
 	c.Unlock()
-	return nil
+	return e
 }

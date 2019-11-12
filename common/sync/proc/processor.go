@@ -129,11 +129,17 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// some Pending operations.
 	flusher := func(tt ...merger.OperationType) {}
 	if session, err := patch.StartSession(&tree.Node{Path: "/"}); err == nil {
-		defer patch.FinishSession(session.Uuid)
+		defer func() {
+			if e := patch.FinishSession(session.Uuid); e != nil {
+				patch.SetPatchError(e)
+			}
+		}()
 		flusher = func(tt ...merger.OperationType) {
 			for _, t := range tt {
 				if val, ok := pending[t.String()]; ok && val > 0 {
-					patch.FlushSession(session.Uuid)
+					if e := patch.FlushSession(session.Uuid); e != nil {
+						patch.SetPatchError(e)
+					}
 					return
 				}
 			}
