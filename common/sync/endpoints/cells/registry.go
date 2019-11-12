@@ -116,8 +116,9 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 // DynamicRegistry is an implementation of a Micro Registry that automatically
 // detect the target GRPC port from the discovery endpoint of the target server.
 type DynamicRegistry struct {
-	config *sdk.SdkConfig
-	Micro  registry.Registry
+	Micro          registry.Registry
+	config         *sdk.SdkConfig
+	detectionError error
 }
 
 // NewDynamicRegistry creates a new DynamicRegistry from a standard SdkConfig
@@ -151,7 +152,10 @@ func (d *DynamicRegistry) Refresh() error {
 func (d *DynamicRegistry) detectService(reload bool) (*registry.Service, error) {
 	host, port, err := detectGrpcPort(d.config, reload)
 	if err != nil {
+		d.detectionError = err
 		return nil, err
+	} else {
+		d.detectionError = nil
 	}
 	p, _ := strconv.ParseInt(port, 10, 32)
 	return &registry.Service{
@@ -165,6 +169,21 @@ func (d *DynamicRegistry) detectService(reload bool) (*registry.Service, error) 
 			},
 		},
 	}, nil
+}
+
+func (d *DynamicRegistry) parseNotFound(e error) error {
+	if e == nil {
+		return nil
+	}
+	er := muerrors.Parse(e.Error())
+	if er.Code == 500 && er.Id == "go.micro.client" && er.Detail == "not found" {
+		if d.detectionError != nil {
+			return d.detectionError
+		} else {
+			return fmt.Errorf("cannot initiate gRPC client to server, please check your configuration")
+		}
+	}
+	return er
 }
 
 // RegistryRefreshClient is an implementation of a Micro Client that tries to refresh the registry if a streamer
@@ -199,11 +218,11 @@ func (r *RegistryRefreshClient) NewJsonRequest(service, method string, req inter
 }
 
 func (r *RegistryRefreshClient) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-	return r.w.Call(ctx, req, rsp, opts...)
+	return r.r.parseNotFound(r.w.Call(ctx, req, rsp, opts...))
 }
 
 func (r *RegistryRefreshClient) CallRemote(ctx context.Context, addr string, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-	return r.w.CallRemote(ctx, addr, req, rsp, opts...)
+	return r.r.parseNotFound(r.w.CallRemote(ctx, addr, req, rsp, opts...))
 }
 
 func (r *RegistryRefreshClient) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Streamer, error) {
