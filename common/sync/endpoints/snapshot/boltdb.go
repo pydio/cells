@@ -388,6 +388,7 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 			return nil, err
 		} else if node == nil {
 			err = errors.NotFound("not.found", "node not found in snapshot %s", path)
+			return nil, err
 		}
 	}
 	if len(extendedStats) > 0 && extendedStats[0] {
@@ -409,7 +410,7 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 
 func (s *BoltSnapshot) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: "snapshot://" + s.name,
+		URI:                   "snapshot://" + s.name,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 	}
