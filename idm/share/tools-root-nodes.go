@@ -37,6 +37,7 @@ func LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNod
 					multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
 						WsLabel: ws.Label,
 						WsUuid:  ws.UUID,
+						WsSlug:  ws.Slug,
 						Path:    filtered.Path,
 					})
 					node = filtered
@@ -47,7 +48,7 @@ func LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNod
 			}
 			if metaResp, e := metaClient.ReadNode(ctx, request); e == nil {
 				var isRoomNode bool
-				if metaResp.GetNode().GetMeta("CellNode", &isRoomNode); err == nil && isRoomNode {
+				if mE := metaResp.GetNode().GetMeta("CellNode", &isRoomNode); mE == nil && isRoomNode {
 					node.SetMeta("CellNode", true)
 				}
 			}

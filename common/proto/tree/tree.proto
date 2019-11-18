@@ -333,6 +333,8 @@ message WorkspaceRelativePath {
     string WsLabel = 2;
     // Relative Path inside workspace
     string Path = 3;
+    // Workspace slug
+    string WsSlug = 4;
 }
 
 message ChangeLog{

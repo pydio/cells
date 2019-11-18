@@ -22,7 +22,6 @@ package views
 
 import (
 	"context"
-	"path"
 	"strings"
 
 	"github.com/micro/go-micro/errors"
@@ -113,16 +112,14 @@ func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Nod
 		out := node.Clone()
 		workspaces, wsRoots := accessList.BelongsToWorkspaces(ctx, ancestors...)
 		log.Logger(ctx).Debug("Belongs to workspaces", zap.Any("ws", workspaces), zap.Any("wsRoots", wsRoots))
-		for i, ws := range workspaces {
+		for _, ws := range workspaces {
 			if relativePath, e := h.relativePathToWsRoot(ctx, node.Path, wsRoots[ws.UUID]); e == nil {
 				out.AppearsIn = append(node.AppearsIn, &tree.WorkspaceRelativePath{
 					WsUuid:  ws.UUID,
 					WsLabel: ws.Label,
+					WsSlug:  ws.Slug,
 					Path:    relativePath,
 				})
-				if i == 0 {
-					out.Path = path.Join(ws.Slug, relativePath)
-				}
 			} else {
 				log.Logger(ctx).Error("Error while computing relative path to root", zap.Error(e))
 			}

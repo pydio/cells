@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/emicklei/go-restful"
@@ -270,7 +271,12 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 			Uuid: meta.NodeUuid,
 		}
 		if resp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); e == nil {
-			bulk.Nodes = append(bulk.Nodes, resp.Node.WithoutReservedMetas())
+			n := resp.Node
+			if len(n.AppearsIn) == 0 {
+				continue
+			}
+			n.Path = path.Join(n.AppearsIn[0].WsSlug, n.AppearsIn[0].Path)
+			bulk.Nodes = append(bulk.Nodes, n.WithoutReservedMetas())
 		} else {
 			log.Logger(ctx).Error("ReadNode Error : ", zap.Error(e))
 		}
