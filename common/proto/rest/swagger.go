@@ -4451,6 +4451,10 @@ var SwaggerJson = `{
           "items": {
             "$ref": "#/definitions/installCheckResult"
           }
+        },
+        "ProxyConfig": {
+          "$ref": "#/definitions/installProxyConfig",
+          "title": "Additional proxy config (optional)"
         }
       }
     },
@@ -4489,6 +4493,74 @@ var SwaggerJson = `{
           "$ref": "#/definitions/installCheckResult"
         }
       }
+    },
+    "installProxyConfig": {
+      "type": "object",
+      "properties": {
+        "BindURL": {
+          "type": "string"
+        },
+        "ExternalURL": {
+          "type": "string"
+        },
+        "RedirectURLs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "SelfSigned": {
+          "$ref": "#/definitions/installTLSSelfSigned"
+        },
+        "LetsEncrypt": {
+          "$ref": "#/definitions/installTLSLetsEncrypt"
+        },
+        "Certificate": {
+          "$ref": "#/definitions/installTLSCertificate"
+        }
+      },
+      "title": "ProxyConfig gives necessary URL and TLS configurations to start proxy"
+    },
+    "installTLSCertificate": {
+      "type": "object",
+      "properties": {
+        "CertFile": {
+          "type": "string"
+        },
+        "KeyFile": {
+          "type": "string"
+        }
+      },
+      "title": "TLSCertificate is a TLSConfig where user passes"
+    },
+    "installTLSLetsEncrypt": {
+      "type": "object",
+      "properties": {
+        "Email": {
+          "type": "string"
+        },
+        "AcceptEULA": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "StagingCA": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      },
+      "title": "TLSLetsEncrypt set up proxy to automatically get a valid certificate from let's encrypt servers"
+    },
+    "installTLSSelfSigned": {
+      "type": "object",
+      "properties": {
+        "Hostnames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "TLSSelfSigned generates a selfsigned certificate"
     },
     "jobsAction": {
       "type": "object",
@@ -7434,6 +7506,10 @@ var SwaggerJson = `{
         "Path": {
           "type": "string",
           "title": "Relative Path inside workspace"
+        },
+        "WsSlug": {
+          "type": "string",
+          "title": "Workspace slug"
         }
       },
       "title": "Used in AppearsIn to signal a node is\nappearing in multiple workspaces in the current context"
