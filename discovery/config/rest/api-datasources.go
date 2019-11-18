@@ -258,13 +258,16 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 		return nil, nil
 	}
 
-	folder := ds.StorageConfiguration["folder"]
-	rootPrefix := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String("")
-	if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
-		folder = strings.TrimPrefix(folder, rootPrefix)
+	if ds.StorageConfiguration != nil {
+		if folder, ok := ds.StorageConfiguration["folder"]; ok {
+			rootPrefix := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "allowedLocalDsFolder").String("")
+			if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
+				folder = strings.TrimPrefix(folder, rootPrefix)
+			}
+			// For the API Output, we want to always expose "/" paths, whatever the OS
+			ds.StorageConfiguration["folder"] = filesystem.ToNodePath(folder)
+		}
 	}
-	// For the API Output, we want to always expose "/" paths, whatever the OS
-	ds.StorageConfiguration["folder"] = filesystem.ToNodePath(folder)
 
 	log.Logger(ctx).Debug(fmt.Sprintf("Retrieved datasource [%s]", dsName), zap.Any("datasource", ds))
 	return ds, nil
