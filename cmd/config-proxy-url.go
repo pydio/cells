@@ -111,7 +111,7 @@ func promptBindURL(proxyConfig *install.ProxyConfig) (e error) {
 	items = append(items, "localhost:"+defaultPort, "0.0.0.0:"+defaultPort)
 
 	prompt := p.SelectWithAdd{
-		Label:    "Internal Url (address that the web server will listen to, use ip:port or yourdomain.tld, without http/https)",
+		Label:    "Internal Url (address that the webserver will listen to, use ip:port or yourdomain.tld:port, without http/https)",
 		Items:    items,
 		AddLabel: "Other",
 		Validate: validHostPort,

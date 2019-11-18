@@ -233,7 +233,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "fs://" + c.uriPath,
+		URI:                   "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PYDIO_SYNC_HIDDEN_FILE_META},
@@ -564,7 +564,8 @@ func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
 		return uuid.New(), nil
 	}
 	hiddenFilePath := filepath.Join(path, common.PYDIO_SYNC_HIDDEN_FILE_META)
-	uidFile, uidErr := c.FS.OpenFile(hiddenFilePath, os.O_RDONLY, 0777)
+
+	_, uidErr := c.FS.Stat(hiddenFilePath)
 	if uidErr != nil && os.IsNotExist(uidErr) {
 		uid = uuid.New()
 		we := afero.WriteFile(c.FS, hiddenFilePath, []byte(uid), 0666)
@@ -575,7 +576,6 @@ func (c *FSClient) readOrCreateFolderId(path string) (uid string, e error) {
 			log.Logger(context.Background()).Error("Cannot set file as hidden", zap.Error(err))
 		}
 	} else {
-		uidFile.Close()
 		content, re := afero.ReadFile(c.FS, hiddenFilePath)
 		if re != nil {
 			return "", re
