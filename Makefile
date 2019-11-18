@@ -4,6 +4,7 @@ TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 GITREV:=$(shell git rev-parse HEAD)
 CELLS_VERSION?=0.2.0
 XGO_TARGETS?="linux/amd64,darwin/amd64,windows/amd64"
+XGO_IMAGE?=pydio/xgo:latest
 
 .PHONY: all clean build main dev
 
@@ -29,7 +30,7 @@ main:
 
 xgo:
 	${GOPATH}/bin/xgo -go 1.12 \
-	 --image pydio/xgo:latest \
+	 --image  ${XGO_IMAGE}\
 	 --targets ${XGO_TARGETS} \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
