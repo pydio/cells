@@ -257,6 +257,22 @@ var _modelInstallPerformCheckResponse = require('./model/InstallPerformCheckResp
 
 var _modelInstallPerformCheckResponse2 = _interopRequireDefault(_modelInstallPerformCheckResponse);
 
+var _modelInstallProxyConfig = require('./model/InstallProxyConfig');
+
+var _modelInstallProxyConfig2 = _interopRequireDefault(_modelInstallProxyConfig);
+
+var _modelInstallTLSCertificate = require('./model/InstallTLSCertificate');
+
+var _modelInstallTLSCertificate2 = _interopRequireDefault(_modelInstallTLSCertificate);
+
+var _modelInstallTLSLetsEncrypt = require('./model/InstallTLSLetsEncrypt');
+
+var _modelInstallTLSLetsEncrypt2 = _interopRequireDefault(_modelInstallTLSLetsEncrypt);
+
+var _modelInstallTLSSelfSigned = require('./model/InstallTLSSelfSigned');
+
+var _modelInstallTLSSelfSigned2 = _interopRequireDefault(_modelInstallTLSSelfSigned);
+
 var _modelJobsAction = require('./model/JobsAction');
 
 var _modelJobsAction2 = _interopRequireDefault(_modelJobsAction);
@@ -1391,6 +1407,34 @@ exports.
  * @property {module:model/InstallPerformCheckResponse}
  */
 InstallPerformCheckResponse = _modelInstallPerformCheckResponse2['default'];
+exports.
+
+/**
+ * The InstallProxyConfig model constructor.
+ * @property {module:model/InstallProxyConfig}
+ */
+InstallProxyConfig = _modelInstallProxyConfig2['default'];
+exports.
+
+/**
+ * The InstallTLSCertificate model constructor.
+ * @property {module:model/InstallTLSCertificate}
+ */
+InstallTLSCertificate = _modelInstallTLSCertificate2['default'];
+exports.
+
+/**
+ * The InstallTLSLetsEncrypt model constructor.
+ * @property {module:model/InstallTLSLetsEncrypt}
+ */
+InstallTLSLetsEncrypt = _modelInstallTLSLetsEncrypt2['default'];
+exports.
+
+/**
+ * The InstallTLSSelfSigned model constructor.
+ * @property {module:model/InstallTLSSelfSigned}
+ */
+InstallTLSSelfSigned = _modelInstallTLSSelfSigned2['default'];
 exports.
 
 /**

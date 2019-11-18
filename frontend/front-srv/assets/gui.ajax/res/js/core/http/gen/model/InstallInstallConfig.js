@@ -14,6 +14,7 @@
 
 import ApiClient from '../ApiClient';
 import InstallCheckResult from './InstallCheckResult';
+import InstallProxyConfig from './InstallProxyConfig';
 
 
 
@@ -156,6 +157,9 @@ export default class InstallInstallConfig {
             if (data.hasOwnProperty('CheckResults')) {
                 obj['CheckResults'] = ApiClient.convertToType(data['CheckResults'], [InstallCheckResult]);
             }
+            if (data.hasOwnProperty('ProxyConfig')) {
+                obj['ProxyConfig'] = InstallProxyConfig.constructFromObject(data['ProxyConfig']);
+            }
         }
         return obj;
     }
@@ -292,6 +296,10 @@ export default class InstallInstallConfig {
     * @member {Array.<module:model/InstallCheckResult>} CheckResults
     */
     CheckResults = undefined;
+    /**
+    * @member {module:model/InstallProxyConfig} ProxyConfig
+    */
+    ProxyConfig = undefined;
 
 
 

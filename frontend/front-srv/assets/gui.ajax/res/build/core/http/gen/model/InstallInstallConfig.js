@@ -27,6 +27,10 @@ var _InstallCheckResult = require('./InstallCheckResult');
 
 var _InstallCheckResult2 = _interopRequireDefault(_InstallCheckResult);
 
+var _InstallProxyConfig = require('./InstallProxyConfig');
+
+var _InstallProxyConfig2 = _interopRequireDefault(_InstallProxyConfig);
+
 /**
 * The InstallInstallConfig model module.
 * @module model/InstallInstallConfig
@@ -76,6 +80,7 @@ var InstallInstallConfig = (function () {
         this.licenseRequired = undefined;
         this.licenseString = undefined;
         this.CheckResults = undefined;
+        this.ProxyConfig = undefined;
     }
 
     /**
@@ -188,6 +193,9 @@ var InstallInstallConfig = (function () {
             }
             if (data.hasOwnProperty('CheckResults')) {
                 obj['CheckResults'] = _ApiClient2['default'].convertToType(data['CheckResults'], [_InstallCheckResult2['default']]);
+            }
+            if (data.hasOwnProperty('ProxyConfig')) {
+                obj['ProxyConfig'] = _InstallProxyConfig2['default'].constructFromObject(data['ProxyConfig']);
             }
         }
         return obj;
@@ -328,4 +336,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Array.<module:model/InstallCheckResult>} CheckResults
+*/
+
+/**
+* @member {module:model/InstallProxyConfig} ProxyConfig
 */

@@ -42,6 +42,7 @@ var TreeWorkspaceRelativePath = (function () {
         this.WsUuid = undefined;
         this.WsLabel = undefined;
         this.Path = undefined;
+        this.WsSlug = undefined;
     }
 
     /**
@@ -65,6 +66,9 @@ var TreeWorkspaceRelativePath = (function () {
             if (data.hasOwnProperty('Path')) {
                 obj['Path'] = _ApiClient2['default'].convertToType(data['Path'], 'String');
             }
+            if (data.hasOwnProperty('WsSlug')) {
+                obj['WsSlug'] = _ApiClient2['default'].convertToType(data['WsSlug'], 'String');
+            }
         }
         return obj;
     };
@@ -84,4 +88,8 @@ module.exports = exports['default'];
 
 /**
 * @member {String} Path
+*/
+
+/**
+* @member {String} WsSlug
 */

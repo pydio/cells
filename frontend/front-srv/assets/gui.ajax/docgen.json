@@ -19630,6 +19630,190 @@
         ]
       }
     ],
+    "core/http/gen/model/InstallProxyConfig.js": [
+      {
+        "description": "The InstallProxyConfig model module.\n@module model/InstallProxyConfig\n@version 1.0",
+        "displayName": "InstallProxyConfig",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>InstallProxyConfig</code>.\n@alias module:model/InstallProxyConfig\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>InstallProxyConfig</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>InstallProxyConfig</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/InstallProxyConfig} obj Optional instance to populate.\n@return {module:model/InstallProxyConfig} The populated <code>InstallProxyConfig</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/InstallProxyConfig"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>InstallProxyConfig</code> instance.",
+              "type": {
+                "name": "module:model/InstallProxyConfig"
+              }
+            },
+            "description": "Constructs a <code>InstallProxyConfig</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/InstallTLSCertificate.js": [
+      {
+        "description": "The InstallTLSCertificate model module.\n@module model/InstallTLSCertificate\n@version 1.0",
+        "displayName": "InstallTLSCertificate",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>InstallTLSCertificate</code>.\n@alias module:model/InstallTLSCertificate\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>InstallTLSCertificate</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>InstallTLSCertificate</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/InstallTLSCertificate} obj Optional instance to populate.\n@return {module:model/InstallTLSCertificate} The populated <code>InstallTLSCertificate</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/InstallTLSCertificate"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>InstallTLSCertificate</code> instance.",
+              "type": {
+                "name": "module:model/InstallTLSCertificate"
+              }
+            },
+            "description": "Constructs a <code>InstallTLSCertificate</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/InstallTLSLetsEncrypt.js": [
+      {
+        "description": "The InstallTLSLetsEncrypt model module.\n@module model/InstallTLSLetsEncrypt\n@version 1.0",
+        "displayName": "InstallTLSLetsEncrypt",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>InstallTLSLetsEncrypt</code>.\n@alias module:model/InstallTLSLetsEncrypt\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>InstallTLSLetsEncrypt</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>InstallTLSLetsEncrypt</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/InstallTLSLetsEncrypt} obj Optional instance to populate.\n@return {module:model/InstallTLSLetsEncrypt} The populated <code>InstallTLSLetsEncrypt</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/InstallTLSLetsEncrypt"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>InstallTLSLetsEncrypt</code> instance.",
+              "type": {
+                "name": "module:model/InstallTLSLetsEncrypt"
+              }
+            },
+            "description": "Constructs a <code>InstallTLSLetsEncrypt</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/InstallTLSSelfSigned.js": [
+      {
+        "description": "The InstallTLSSelfSigned model module.\n@module model/InstallTLSSelfSigned\n@version 1.0",
+        "displayName": "InstallTLSSelfSigned",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>InstallTLSSelfSigned</code>.\n@alias module:model/InstallTLSSelfSigned\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>InstallTLSSelfSigned</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>InstallTLSSelfSigned</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/InstallTLSSelfSigned} obj Optional instance to populate.\n@return {module:model/InstallTLSSelfSigned} The populated <code>InstallTLSSelfSigned</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/InstallTLSSelfSigned"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>InstallTLSSelfSigned</code> instance.",
+              "type": {
+                "name": "module:model/InstallTLSSelfSigned"
+              }
+            },
+            "description": "Constructs a <code>InstallTLSSelfSigned</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/JobsAction.js": [
       {
         "description": "The JobsAction model module.\n@module model/JobsAction\n@version 1.0",

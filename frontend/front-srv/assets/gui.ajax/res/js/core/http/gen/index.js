@@ -72,6 +72,10 @@ import InstallInstallRequest from './model/InstallInstallRequest';
 import InstallInstallResponse from './model/InstallInstallResponse';
 import InstallPerformCheckRequest from './model/InstallPerformCheckRequest';
 import InstallPerformCheckResponse from './model/InstallPerformCheckResponse';
+import InstallProxyConfig from './model/InstallProxyConfig';
+import InstallTLSCertificate from './model/InstallTLSCertificate';
+import InstallTLSLetsEncrypt from './model/InstallTLSLetsEncrypt';
+import InstallTLSSelfSigned from './model/InstallTLSSelfSigned';
 import JobsAction from './model/JobsAction';
 import JobsActionLog from './model/JobsActionLog';
 import JobsActionMessage from './model/JobsActionMessage';
@@ -636,6 +640,30 @@ export {
      * @property {module:model/InstallPerformCheckResponse}
      */
     InstallPerformCheckResponse,
+
+    /**
+     * The InstallProxyConfig model constructor.
+     * @property {module:model/InstallProxyConfig}
+     */
+    InstallProxyConfig,
+
+    /**
+     * The InstallTLSCertificate model constructor.
+     * @property {module:model/InstallTLSCertificate}
+     */
+    InstallTLSCertificate,
+
+    /**
+     * The InstallTLSLetsEncrypt model constructor.
+     * @property {module:model/InstallTLSLetsEncrypt}
+     */
+    InstallTLSLetsEncrypt,
+
+    /**
+     * The InstallTLSSelfSigned model constructor.
+     * @property {module:model/InstallTLSSelfSigned}
+     */
+    InstallTLSSelfSigned,
 
     /**
      * The JobsAction model constructor.

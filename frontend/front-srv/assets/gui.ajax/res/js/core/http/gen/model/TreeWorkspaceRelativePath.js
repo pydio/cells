@@ -65,6 +65,9 @@ export default class TreeWorkspaceRelativePath {
             if (data.hasOwnProperty('Path')) {
                 obj['Path'] = ApiClient.convertToType(data['Path'], 'String');
             }
+            if (data.hasOwnProperty('WsSlug')) {
+                obj['WsSlug'] = ApiClient.convertToType(data['WsSlug'], 'String');
+            }
         }
         return obj;
     }
@@ -81,6 +84,10 @@ export default class TreeWorkspaceRelativePath {
     * @member {String} Path
     */
     Path = undefined;
+    /**
+    * @member {String} WsSlug
+    */
+    WsSlug = undefined;
 
 
 
