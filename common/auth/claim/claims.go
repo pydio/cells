@@ -34,15 +34,6 @@ const (
 	ContextKey = "pydio-claims"
 )
 
-type IDTokenSubject struct {
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId" json:"user_id,omitempty"`
-	ConnId string `protobuf:"bytes,2,opt,name=conn_id,json=connId" json:"conn_id,omitempty"`
-}
-
-func (m *IDTokenSubject) Reset()         { *m = IDTokenSubject{} }
-func (m *IDTokenSubject) String() string { return proto.CompactTextString(m) }
-func (*IDTokenSubject) ProtoMessage()    {}
-
 type Claims struct {
 	ClientApp   interface{} `json:"aud"`
 	Issuer      string      `json:"iss"`
@@ -111,5 +102,35 @@ func UserNameFromIDToken(token string) string {
 		return v.(string)
 	}
 	return ""
+}
 
+// IDTokenSubject is the representation of the format of subject we are using
+type IDTokenSubject struct {
+	// UserId specific to cells
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId" json:"user_id,omitempty"`
+	// ConnId defines the connector chosen to login
+	ConnId string `protobuf:"bytes,2,opt,name=conn_id,json=connId" json:"conn_id,omitempty"`
+}
+
+// Reset the value to empty
+func (s *IDTokenSubject) Reset() { *s = IDTokenSubject{} }
+
+// String representation
+func (s *IDTokenSubject) String() string { return proto.CompactTextString(s) }
+
+// ProtoMessage is used by the proto.Message interface
+func (*IDTokenSubject) ProtoMessage() {}
+
+// Encode the content of the ID Token Subject
+func (s *IDTokenSubject) Encode() ([]byte, error) {
+
+	data, err := proto.Marshal(s)
+	if err != nil {
+		return nil, err
+	}
+
+	buf := make([]byte, base64.RawURLEncoding.EncodedLen(len(data)))
+	base64.RawURLEncoding.Encode(buf, data)
+
+	return buf, nil
 }

@@ -22,12 +22,14 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
 	"github.com/ory/hydra/oauth2"
+
+	"github.com/pydio/cells/common/auth/claim"
 )
 
 type oryprovider struct {
@@ -65,5 +67,26 @@ func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, e
 }
 
 func (t *orytoken) Claims(v interface{}) error {
-	return mapstructure.WeakDecode(t.claims.ToMap(), &v)
+
+	sub, err := (&claim.IDTokenSubject{
+		ConnId: "pydioory",
+		UserId: t.claims.Subject,
+	}).Encode()
+
+	if err != nil {
+		return err
+	}
+
+	t.claims.Subject = string(sub)
+
+	data, err := json.Marshal(t.claims.ToMap())
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+
+	return nil
 }
