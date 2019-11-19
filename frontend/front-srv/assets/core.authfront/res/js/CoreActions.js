@@ -316,7 +316,7 @@ class Callbacks{
         }
 
         PydioApi.getRestClient().sessionLogout()
-            .finally((e) => window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout');
+            .catch((e) => window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout');
 
     }
 

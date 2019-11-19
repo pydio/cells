@@ -400,7 +400,7 @@ var Callbacks = (function () {
                 return;
             }
 
-            _pydioHttpApi2['default'].getRestClient().sessionLogout()['finally'](function (e) {
+            _pydioHttpApi2['default'].getRestClient().sessionLogout()['catch'](function (e) {
                 return window.location.href = pydio.Parameters.get('FRONTEND_URL') + '/logout';
             });
         }
@@ -415,20 +415,9 @@ var Callbacks = (function () {
 
             var _ref = args[0] || {};
 
-            var _ref$createAuthRequest = _ref.createAuthRequest;
-            var createAuthRequest = _ref$createAuthRequest === undefined ? true : _ref$createAuthRequest;
+            var props = _objectWithoutProperties(_ref, []);
 
-            var props = _objectWithoutProperties(_ref, ['createAuthRequest']);
-
-            var fn = function fn() {
-                return pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, props, { blur: true }));
-            };
-
-            if (createAuthRequest) {
-                _pydioHttpApi2['default'].getRestClient().jwtWithAuthInfo({ type: "create_auth_request" }).then(fn);
-            } else {
-                fn();
-            }
+            pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, props, { blur: true }));
         }
     }]);
 
