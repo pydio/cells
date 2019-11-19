@@ -77,21 +77,23 @@ export const OAuthLoginRouter = (pydio) => {
             const loginChallenge = this.loginChallenge;
 
             PydioApi.getRestClient().getOrUpdateJwt().then((jwt) => {
-                const body = {
-                    subject: pydio.user.id,
-                };
-                
-                fetch('/oidc-admin/oauth2/auth/requests/login/accept?' + qs.stringify({ login_challenge: loginChallenge }), {
-                    method: 'PUT',
-                    body: JSON.stringify(body),
-                    headers: { 'Content-Type': 'application/json' }
-                }).
-                then(function (response) {
-                    return response.json()
-                }).
-                then(function (response) {
-                    // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                    window.location.replace(response.redirect_to);
+                pydio.user.getIdmUser().then(u => {
+                    const body = {
+                        subject: u.Uuid,
+                    };
+                    
+                    fetch('/oidc-admin/oauth2/auth/requests/login/accept?' + qs.stringify({ login_challenge: loginChallenge }), {
+                        method: 'PUT',
+                        body: JSON.stringify(body),
+                        headers: { 'Content-Type': 'application/json' }
+                    }).
+                    then(function (response) {
+                        return response.json()
+                    }).
+                    then(function (response) {
+                        // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                        window.location.replace(response.redirect_to);
+                    })
                 })
             })
         }

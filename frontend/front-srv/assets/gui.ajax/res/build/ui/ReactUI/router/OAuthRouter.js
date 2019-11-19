@@ -141,19 +141,21 @@ var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
             var loginChallenge = this.loginChallenge;
 
             _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
-                var body = {
-                    subject: pydio.user.id
-                };
+                pydio.user.getIdmUser().then(function (u) {
+                    var body = {
+                        subject: u.Uuid
+                    };
 
-                fetch('/oidc-admin/oauth2/auth/requests/login/accept?' + _queryString2['default'].stringify({ login_challenge: loginChallenge }), {
-                    method: 'PUT',
-                    body: JSON.stringify(body),
-                    headers: { 'Content-Type': 'application/json' }
-                }).then(function (response) {
-                    return response.json();
-                }).then(function (response) {
-                    // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                    window.location.replace(response.redirect_to);
+                    fetch('/oidc-admin/oauth2/auth/requests/login/accept?' + _queryString2['default'].stringify({ login_challenge: loginChallenge }), {
+                        method: 'PUT',
+                        body: JSON.stringify(body),
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(function (response) {
+                        return response.json();
+                    }).then(function (response) {
+                        // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                        window.location.replace(response.redirect_to);
+                    });
                 });
             });
         };
