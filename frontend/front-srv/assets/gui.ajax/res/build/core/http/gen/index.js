@@ -553,6 +553,10 @@ var _modelRestListSharedResourcesResponse = require('./model/RestListSharedResou
 
 var _modelRestListSharedResourcesResponse2 = _interopRequireDefault(_modelRestListSharedResourcesResponse);
 
+var _modelRestListStorageBucketsRequest = require('./model/RestListStorageBucketsRequest');
+
+var _modelRestListStorageBucketsRequest2 = _interopRequireDefault(_modelRestListStorageBucketsRequest);
+
 var _modelRestListTemplatesResponse = require('./model/RestListTemplatesResponse');
 
 var _modelRestListTemplatesResponse2 = _interopRequireDefault(_modelRestListTemplatesResponse);
@@ -1925,6 +1929,13 @@ exports.
  * @property {module:model/RestListSharedResourcesResponse}
  */
 RestListSharedResourcesResponse = _modelRestListSharedResourcesResponse2['default'];
+exports.
+
+/**
+ * The RestListStorageBucketsRequest model constructor.
+ * @property {module:model/RestListStorageBucketsRequest}
+ */
+RestListStorageBucketsRequest = _modelRestListStorageBucketsRequest2['default'];
 exports.
 
 /**

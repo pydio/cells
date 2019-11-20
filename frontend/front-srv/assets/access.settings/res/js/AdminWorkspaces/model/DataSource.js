@@ -1,8 +1,28 @@
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 const Observable = require('pydio/lang/observable');
 const PydioApi = require('pydio/http/api');
 import LangUtils from 'pydio/util/lang'
 import {ConfigServiceApi, ObjectDataSource, ObjectEncryptionMode, ObjectStorageType,
-    JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest} from 'pydio/http/rest-api';
+    JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest, RestListStorageBucketsRequest} from 'pydio/http/rest-api';
 
 class DataSource extends Observable {
 
@@ -83,7 +103,7 @@ class DataSource extends Observable {
             return false;
         }
         if(this.model.StorageType === 'S3' || this.model.StorageType === 'AZURE') {
-            return this.model.ApiKey && this.model.ApiSecret && this.model.Name && this.model.ObjectsBucket;
+            return this.model.ApiKey && this.model.ApiSecret && this.model.Name && (this.model.ObjectsBucket || this.model.StorageConfiguration.bucketsRegexp);
         } else if(this.model.StorageType === 'GCS') {
             return this.model.Name && this.model.ObjectsBucket && this.model.StorageConfiguration && this.model.StorageConfiguration['jsonCredentials'];
         } else {
@@ -109,6 +129,16 @@ class DataSource extends Observable {
     static loadEncryptionKeys(){
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         return api.listEncryptionKeys(new EncryptionAdminListKeysRequest());
+    }
+
+    static loadBuckets(model, regexp = '') {
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        const request = new RestListStorageBucketsRequest();
+        request.DataSource = model;
+        if(regexp) {
+            request.BucketsRegexp = regexp;
+        }
+        return api.listStorageBuckets(request);
     }
 
     deleteSource(){

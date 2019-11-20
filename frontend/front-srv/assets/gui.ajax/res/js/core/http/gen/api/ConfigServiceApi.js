@@ -34,6 +34,7 @@ import RestListPeerFoldersRequest from '../model/RestListPeerFoldersRequest';
 import RestListPeersAddressesResponse from '../model/RestListPeersAddressesResponse';
 import RestListProcessesRequest from '../model/RestListProcessesRequest';
 import RestListProcessesResponse from '../model/RestListProcessesResponse';
+import RestListStorageBucketsRequest from '../model/RestListStorageBucketsRequest';
 import RestNodesCollection from '../model/RestNodesCollection';
 import RestOpenApiResponse from '../model/RestOpenApiResponse';
 import RestServiceCollection from '../model/RestServiceCollection';
@@ -951,6 +952,54 @@ export default class ConfigServiceApi {
      */
     listServices(opts) {
       return this.listServicesWithHttpInfo(opts)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * List Buckets on a given object storage
+     * @param {module:model/RestListStorageBucketsRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response
+     */
+    listStorageBucketsWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling listStorageBuckets");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestNodesCollection;
+
+      return this.apiClient.callApi(
+        '/config/buckets', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * List Buckets on a given object storage
+     * @param {module:model/RestListStorageBucketsRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestNodesCollection}
+     */
+    listStorageBuckets(body) {
+      return this.listStorageBucketsWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

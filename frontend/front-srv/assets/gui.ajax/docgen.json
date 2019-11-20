@@ -13498,6 +13498,48 @@
             "description": "List all services and their status"
           },
           {
+            "name": "listStorageBucketsWithHttpInfo",
+            "docblock": "List Buckets on a given object storage\n@param {module:model/RestListStorageBucketsRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestListStorageBucketsRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List Buckets on a given object storage"
+          },
+          {
+            "name": "listStorageBuckets",
+            "docblock": "List Buckets on a given object storage\n@param {module:model/RestListStorageBucketsRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestNodesCollection}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestListStorageBucketsRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestNodesCollection}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List Buckets on a given object storage"
+          },
+          {
             "name": "listVersioningPoliciesWithHttpInfo",
             "docblock": "List all defined versioning policies\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestVersioningPolicyCollection} and HTTP response",
             "modifiers": [],
@@ -22859,6 +22901,52 @@
               }
             },
             "description": "Constructs a <code>RestListSharedResourcesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestListStorageBucketsRequest.js": [
+      {
+        "description": "The RestListStorageBucketsRequest model module.\n@module model/RestListStorageBucketsRequest\n@version 1.0",
+        "displayName": "RestListStorageBucketsRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestListStorageBucketsRequest</code>.\n@alias module:model/RestListStorageBucketsRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestListStorageBucketsRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestListStorageBucketsRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestListStorageBucketsRequest} obj Optional instance to populate.\n@return {module:model/RestListStorageBucketsRequest} The populated <code>RestListStorageBucketsRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestListStorageBucketsRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestListStorageBucketsRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestListStorageBucketsRequest"
+              }
+            },
+            "description": "Constructs a <code>RestListStorageBucketsRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

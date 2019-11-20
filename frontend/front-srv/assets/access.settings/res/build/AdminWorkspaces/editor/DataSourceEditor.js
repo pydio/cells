@@ -1,3 +1,23 @@
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -37,6 +57,10 @@ var _DataSourceLocalSelector2 = _interopRequireDefault(_DataSourceLocalSelector)
 var _DsStorageSelector = require('./DsStorageSelector');
 
 var _DsStorageSelector2 = _interopRequireDefault(_DsStorageSelector);
+
+var _DataSourceBucketSelector = require('./DataSourceBucketSelector');
+
+var _DataSourceBucketSelector2 = _interopRequireDefault(_DataSourceBucketSelector);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -447,21 +471,16 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.s3')
                         ),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
-                                model.ObjectsBucket = v;
-                            } }),
                         _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
                         _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
-                                model.ObjectsBaseFolder = v;
-                            } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint'), hintText: m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
                                 model.StorageConfiguration.customEndpoint = v;
-                            } })
+                            } }),
+                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') })
                     ),
                     model.StorageType === 'AZURE' && _react2['default'].createElement(
                         'div',

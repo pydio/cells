@@ -107,6 +107,10 @@ var _modelRestListProcessesResponse = require('../model/RestListProcessesRespons
 
 var _modelRestListProcessesResponse2 = _interopRequireDefault(_modelRestListProcessesResponse);
 
+var _modelRestListStorageBucketsRequest = require('../model/RestListStorageBucketsRequest');
+
+var _modelRestListStorageBucketsRequest2 = _interopRequireDefault(_modelRestListStorageBucketsRequest);
+
 var _modelRestNodesCollection = require('../model/RestNodesCollection');
 
 var _modelRestNodesCollection2 = _interopRequireDefault(_modelRestNodesCollection);
@@ -900,6 +904,45 @@ var ConfigServiceApi = (function () {
 
   ConfigServiceApi.prototype.listServices = function listServices(opts) {
     return this.listServicesWithHttpInfo(opts).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * List Buckets on a given object storage
+   * @param {module:model/RestListStorageBucketsRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response
+   */
+
+  ConfigServiceApi.prototype.listStorageBucketsWithHttpInfo = function listStorageBucketsWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling listStorageBuckets");
+    }
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestNodesCollection2['default'];
+
+    return this.apiClient.callApi('/config/buckets', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * List Buckets on a given object storage
+   * @param {module:model/RestListStorageBucketsRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestNodesCollection}
+   */
+
+  ConfigServiceApi.prototype.listStorageBuckets = function listStorageBuckets(body) {
+    return this.listStorageBucketsWithHttpInfo(body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

@@ -146,6 +146,7 @@ import RestListProcessesRequest from './model/RestListProcessesRequest';
 import RestListProcessesResponse from './model/RestListProcessesResponse';
 import RestListSharedResourcesRequest from './model/RestListSharedResourcesRequest';
 import RestListSharedResourcesResponse from './model/RestListSharedResourcesResponse';
+import RestListStorageBucketsRequest from './model/RestListStorageBucketsRequest';
 import RestListTemplatesResponse from './model/RestListTemplatesResponse';
 import RestListUserMetaTagsResponse from './model/RestListUserMetaTagsResponse';
 import RestLogMessageCollection from './model/RestLogMessageCollection';
@@ -1084,6 +1085,12 @@ export {
      * @property {module:model/RestListSharedResourcesResponse}
      */
     RestListSharedResourcesResponse,
+
+    /**
+     * The RestListStorageBucketsRequest model constructor.
+     * @property {module:model/RestListStorageBucketsRequest}
+     */
+    RestListStorageBucketsRequest,
 
     /**
      * The RestListTemplatesResponse model constructor.
