@@ -176,6 +176,7 @@ const (
 	META_FLAG_WORKSPACE_SLUG        = "ws_slug"
 	META_FLAG_WORKSPACE_UUID        = "ws_uuid"
 	META_FLAG_VIRTUAL_ROOT          = "virtual_root"
+	META_FLAG_BUCKET                = "ds_bucket"
 	NODE_FLAG_ETAG_TEMPORARY        = "temporary"
 )
 

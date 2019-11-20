@@ -35,6 +35,10 @@ import (
 	"context"
 	"io"
 
+	"go.uber.org/zap/zapcore"
+
+	"github.com/golang/protobuf/proto"
+
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common/proto/idm"
@@ -198,4 +202,19 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 		return ctx, parents, nil
 	}
 
+}
+
+// WithBucketName creates a copy of a LoadedSource with a bucket name
+func WithBucketName(s LoadedSource, bucket string) LoadedSource {
+	out := LoadedSource{
+		Client: s.Client,
+	}
+	c := proto.Clone(&s.DataSource).(*object.DataSource)
+	c.ObjectsBucket = bucket
+	out.DataSource = *c
+	return out
+}
+
+func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	return encoder.AddObject("DataSource", &s.DataSource)
 }

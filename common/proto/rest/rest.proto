@@ -131,6 +131,13 @@ service ConfigService {
             body: "*"
         };
     }
+    // List Buckets on a given object storage
+    rpc ListStorageBuckets(ListStorageBucketsRequest) returns (NodesCollection) {
+        option (google.api.http) = {
+            post: "/config/buckets"
+            body: "*"
+        };
+    }
     // List running Processes, with option PeerId or ServiceName filter
     rpc ListProcesses(ListProcessesRequest) returns (ListProcessesResponse) {
         option (google.api.http) = {

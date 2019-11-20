@@ -44,6 +44,10 @@ func (c *MinioClientMock) ListBuckets() (bb []minio.BucketInfo, e error) {
 	return
 }
 
+func (c *MinioClientMock) ListBucketsWithContext(ctx context.Context) (bb []minio.BucketInfo, e error) {
+	return
+}
+
 func (c *MinioClientMock) BucketExists(string) (bool, error) {
 	return true, nil
 }

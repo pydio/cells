@@ -21,6 +21,7 @@
 package s3
 
 import (
+	"context"
 	"io"
 
 	"github.com/pydio/minio-go"
@@ -35,5 +36,6 @@ type MockableMinio interface {
 	CopyObject(dest minio.DestinationInfo, source minio.SourceInfo) error
 	ListenBucketNotification(bucketName, prefix, suffix string, events []string, doneCh <-chan struct{}) <-chan minio.NotificationInfo
 	ListBuckets() ([]minio.BucketInfo, error)
+	ListBucketsWithContext(ctx context.Context) ([]minio.BucketInfo, error)
 	BucketExists(string) (bool, error)
 }

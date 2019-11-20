@@ -44,6 +44,11 @@ message ListPeerFoldersRequest{
     string Path = 2;
 }
 
+message ListStorageBucketsRequest {
+    object.DataSource DataSource = 1;
+    string BucketsRegexp = 2;
+}
+
 message Process {
     // Process ID
     string ID = 1;

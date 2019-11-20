@@ -23,6 +23,8 @@ package object
 import (
 	"fmt"
 
+	"go.uber.org/zap/zapcore"
+
 	"github.com/pydio/minio-go"
 )
 
@@ -40,4 +42,58 @@ func (d *DataSource) CreateClient() (*minio.Core, error) {
 // Builds the url used for clients
 func (d *MinioConfig) BuildUrl() string {
 	return fmt.Sprintf("%s:%d", d.RunningHost, d.RunningPort)
+}
+
+/* LOGGING SUPPORT */
+// MarshalLogObject implements custom marshalling for datasource, to avoid logging ApiKey
+func (d *DataSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if d == nil {
+		return nil
+	}
+	if d.Name != "" {
+		encoder.AddString("Name", d.Name)
+	}
+	if d.ObjectsHost != "" {
+		if d.ObjectsPort != 0 {
+			encoder.AddString("Host", fmt.Sprintf("%s:%d", d.ObjectsHost, d.ObjectsPort))
+		} else {
+			encoder.AddString("Host", d.ObjectsHost)
+		}
+	}
+	if d.ObjectsBucket != "" {
+		encoder.AddString("Bucket", d.ObjectsBucket)
+	}
+	encoder.AddString("StorageType", d.StorageType.String())
+	if d.PeerAddress != "" {
+		encoder.AddString("PeerAddress", d.PeerAddress)
+	}
+	if d.EncryptionMode != EncryptionMode_CLEAR {
+		encoder.AddString("EncryptionMode", d.EncryptionMode.String())
+	}
+	return nil
+}
+
+// MarshalLogObject implements custom marshalling for Minio, to avoid logging ApiKey
+func (d *MinioConfig) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	if d == nil {
+		return nil
+	}
+	if d.Name != "" {
+		encoder.AddString("Name", d.Name)
+	}
+	if d.RunningHost != "" {
+		if d.RunningPort != 0 {
+			encoder.AddString("Host", fmt.Sprintf("%s:%d", d.RunningHost, d.RunningPort))
+		} else {
+			encoder.AddString("Host", d.RunningHost)
+		}
+	}
+	if d.RunningSecure {
+		encoder.AddBool("Secure", d.RunningSecure)
+	}
+	encoder.AddString("StorageType", d.StorageType.String())
+	if d.PeerAddress != "" {
+		encoder.AddString("PeerAddress", d.PeerAddress)
+	}
+	return nil
 }

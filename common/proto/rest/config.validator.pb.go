@@ -44,6 +44,14 @@ func (this *ListPeersAddressesResponse) Validate() error {
 func (this *ListPeerFoldersRequest) Validate() error {
 	return nil
 }
+func (this *ListStorageBucketsRequest) Validate() error {
+	if this.DataSource != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataSource); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataSource", err)
+		}
+	}
+	return nil
+}
 func (this *Process) Validate() error {
 	return nil
 }

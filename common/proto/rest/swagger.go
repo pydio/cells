@@ -286,6 +286,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/config/buckets": {
+      "post": {
+        "summary": "List Buckets on a given object storage",
+        "operationId": "ListStorageBuckets",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restNodesCollection"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restListStorageBucketsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
     "/config/ctl": {
       "get": {
         "summary": "List all services and their status",
@@ -6025,6 +6052,17 @@ var SwaggerJson = `{
         "Total": {
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "restListStorageBucketsRequest": {
+      "type": "object",
+      "properties": {
+        "DataSource": {
+          "$ref": "#/definitions/objectDataSource"
+        },
+        "BucketsRegexp": {
+          "type": "string"
         }
       }
     },

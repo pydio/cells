@@ -439,6 +439,10 @@ func (c *Client) SetPlainSizeComputer(computer func(nodeUUID string) (int64, err
 	c.plainSizeComputer = computer
 }
 
+func (c *Client) SetServerRequiresNormalization() {
+	c.ServerRequiresNormalization = true
+}
+
 func (c *Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag string, metaSize int64, e error) {
 	if leaf {
 		return c.getFileHash(c.getFullPath(path))

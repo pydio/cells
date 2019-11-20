@@ -69,6 +69,15 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 				dsPath := strings.Join(parts[1:], "/")
 				out.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsPath)
 			}
+			if source.ObjectsBucket == "" {
+				parts := strings.Split(strings.Trim(node.Path, "/"), "/")
+				if len(parts) >= 2 {
+					// Read bucket name from second segment
+					source = WithBucketName(source, parts[1])
+					// Remove from datasource_path
+					out.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, strings.Join(parts[2:], "/"))
+				}
+			}
 			branchInfo.LoadedSource = source
 			ctx = WithBranchInfo(ctx, identifier, branchInfo)
 		}
@@ -81,6 +90,15 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 		if err != nil {
 			log.Logger(ctx).Error("Cannot find DataSourceInfo for "+dsName, zap.Error(err))
 			return nil, out, err
+		}
+		if source.ObjectsBucket == "" {
+			parts := strings.Split(strings.Trim(node.Path, "/"), "/")
+			if len(parts) >= 2 {
+				// Read bucket name from second segment
+				source = WithBucketName(source, parts[1])
+				// Remove from datasource_path
+				out.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, strings.Join(parts[2:], "/"))
+			}
 		}
 		branchInfo.LoadedSource = source
 		ctx = WithBranchInfo(ctx, identifier, branchInfo)
@@ -96,6 +114,22 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 }
 
 func (v *PathDataSourceHandler) updateOutputNode(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+
+	if branchInfo, ok := GetBranchInfo(ctx, identifier); ok && branchInfo.LoadedSource.Name != "" && branchInfo.LoadedSource.ObjectsBucket == "" {
+		log.Logger(ctx).Info("output", zap.Any("no specific output bucket : ", branchInfo.LoadedSource), node.Zap())
+		sLen := len(strings.Split(strings.Trim(node.Path, "/"), "/"))
+		if sLen == 1 {
+			// The root of the datasource is at the bucket level, set flag readonly
+			n := node.Clone()
+			n.SetMeta(common.META_FLAG_LEVEL_READONLY, "true")
+			return ctx, n, nil
+		} else if sLen == 2 {
+			// Set a specific flag that can adapt the display
+			n := node.Clone()
+			n.SetMeta(common.META_FLAG_BUCKET, "true")
+			return ctx, n, nil
+		}
+	}
 
 	return ctx, node, nil
 

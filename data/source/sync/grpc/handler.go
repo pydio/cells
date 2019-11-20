@@ -164,13 +164,24 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				return e
 			}
 			testCtx := metadata.NewContext(ctx, map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
-			_, err = mc.ListObjectsWithContext(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
-			if err != nil {
-				log.Logger(ctx).Error("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 4s", zap.Error(err))
-				return err
+			if syncConfig.ObjectsBucket == "" {
+				_, err = mc.ListBucketsWithContext(testCtx)
+				if err != nil {
+					log.Logger(ctx).Warn("Cannot contact s3 service (list buckets), will retry in 4s", zap.Error(err))
+					return err
+				} else {
+					log.Logger(ctx).Info("Successfully listed buckets")
+					return nil
+				}
 			} else {
-				log.Logger(ctx).Info("Successfully listed objects from bucket " + syncConfig.ObjectsBucket)
-				return nil
+				_, err = mc.ListObjectsWithContext(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
+				if err != nil {
+					log.Logger(ctx).Warn("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 4s", zap.Error(err))
+					return err
+				} else {
+					log.Logger(ctx).Info("Successfully listed objects from bucket " + syncConfig.ObjectsBucket)
+					return nil
+				}
 			}
 		}, 4*time.Second, 50*time.Second)
 	}()
@@ -185,6 +196,48 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	var source model.PathSyncTarget
 	if syncConfig.Watch {
 		return fmt.Errorf("datasource watch is not implemented yet")
+	}
+	normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration["normalize"])
+	var computer func(string) (int64, error)
+	if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
+		keyClient := encryption.NewNodeKeyManagerClient(registry.GetClient(common.SERVICE_ENC_KEY))
+		computer = func(nodeUUID string) (i int64, e error) {
+			if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
+				NodeId: nodeUUID,
+				UserId: "ds:" + syncConfig.Name,
+			}); e == nil {
+				log.Logger(ctx).Info("Loaded plain size from data-key service")
+				return resp.GetSize(), nil
+			} else {
+				log.Logger(ctx).Error("Cannot loaded plain size from data-key service", zap.Error(e))
+				return 0, e
+			}
+		}
+	}
+	if syncConfig.ObjectsBucket == "" {
+		var bucketsFilter string
+		if f, o := syncConfig.StorageConfiguration["bucketsRegexp"]; o {
+			bucketsFilter = f
+		}
+		multiClient, errs3 := s3.NewMultiBucketClient(ctx,
+			minioConfig.BuildUrl(),
+			minioConfig.ApiKey,
+			minioConfig.ApiSecret,
+			false,
+			model.EndpointOptions{},
+			bucketsFilter,
+		)
+		if errs3 != nil {
+			return errs3
+		}
+		if normalizeS3 {
+			multiClient.SetServerRequiresNormalization()
+		}
+		if computer != nil {
+			multiClient.SetPlainSizeComputer(computer)
+		}
+		source = multiClient
+
 	} else {
 		s3client, errs3 := s3.NewClient(ctx,
 			minioConfig.BuildUrl(),
@@ -197,24 +250,11 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		if errs3 != nil {
 			return errs3
 		}
-		normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration["normalize"])
 		if normalizeS3 {
-			s3client.ServerRequiresNormalization = true
+			s3client.SetServerRequiresNormalization()
 		}
-		if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
-			keyClient := encryption.NewNodeKeyManagerClient(registry.GetClient(common.SERVICE_ENC_KEY))
-			s3client.SetPlainSizeComputer(func(nodeUUID string) (i int64, e error) {
-				if resp, e := keyClient.GetNodePlainSize(ctx, &encryption.GetNodePlainSizeRequest{
-					NodeId: nodeUUID,
-					UserId: "ds:" + syncConfig.Name,
-				}); e == nil {
-					log.Logger(ctx).Info("Loaded plain size from data-key service")
-					return resp.GetSize(), nil
-				} else {
-					log.Logger(ctx).Error("Cannot loaded plain size from data-key service", zap.Error(e))
-					return 0, e
-				}
-			})
+		if computer != nil {
+			s3client.SetPlainSizeComputer(computer)
 		}
 		source = s3client
 	}

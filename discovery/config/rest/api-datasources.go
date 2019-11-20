@@ -27,6 +27,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/pydio/minio-go"
+
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -230,6 +232,56 @@ func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) 
 			Total:       int32(len(sources)),
 		})
 	}
+}
+
+// ListStorageBuckets implements corresponding API. Lists available buckets on a remote
+// object storage. Currently only supports S3 type storages.
+func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Response) {
+	var r rest.ListStorageBucketsRequest
+	if e := req.ReadEntity(&r); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	if r.DataSource.StorageType != object.StorageType_S3 {
+		service.RestError500(req, resp, fmt.Errorf("unsupported datasource type"))
+		return
+	}
+	ds := r.DataSource
+	endpoint := "s3.amazonaws.com"
+	if c, o := ds.StorageConfiguration["customEndpoint"]; o && c != "" {
+		endpoint = c
+	}
+	mc, er := minio.NewCore(endpoint, ds.ApiKey, ds.ApiSecret, true)
+	if er != nil {
+		service.RestErrorDetect(req, resp, er)
+		return
+	}
+	bb, er := mc.ListBuckets()
+	if er != nil {
+		service.RestErrorDetect(req, resp, er)
+		return
+	}
+	var filter *regexp.Regexp
+	if r.BucketsRegexp != "" {
+		filter, er = regexp.Compile(r.BucketsRegexp)
+		if er != nil {
+			service.RestError500(req, resp, er)
+			return
+		}
+	}
+	response := &rest.NodesCollection{}
+	for _, b := range bb {
+		if filter != nil && !filter.MatchString(b.Name) {
+			continue
+		}
+		response.Children = append(response.Children, &tree.Node{
+			Path:  b.Name,
+			Type:  tree.NodeType_COLLECTION,
+			MTime: b.CreationDate.Unix(),
+		})
+	}
+	resp.WriteEntity(response)
+
 }
 
 func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, error) {
