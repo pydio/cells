@@ -9,6 +9,37 @@ import (
 	"github.com/pydio/minio-go/pkg/s3utils"
 )
 
+// ListBuckets list all buckets owned by this authenticated user.
+//
+// This call requires explicit authentication, no anonymous requests are
+// allowed for listing buckets.
+//
+//   api := client.New(....)
+//   for message := range api.ListBuckets() {
+//       fmt.Println(message)
+//   }
+//
+func (c Client) ListBucketsWithContext(ctx context.Context) ([]BucketInfo, error) {
+	// Execute GET on service.
+	resp, err := c.executeMethod(ctx, "GET", requestMetadata{contentSHA256Hex: emptySHA256Hex})
+	defer closeResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp != nil {
+		if resp.StatusCode != http.StatusOK {
+			return nil, httpRespToErrorResponse(resp, "", "")
+		}
+	}
+	listAllMyBucketsResult := listAllMyBucketsResult{}
+	err = xmlDecoder(resp.Body, &listAllMyBucketsResult)
+	if err != nil {
+		return nil, err
+	}
+	return listAllMyBucketsResult.Buckets.Bucket, nil
+}
+
+
 // ListObjects - List all the objects at a prefix, optionally with marker and delimiter
 // you can further filter the results.
 func (c Core) ListObjectsWithContext(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (result ListBucketResult, err error) {
