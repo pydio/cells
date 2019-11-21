@@ -23,6 +23,7 @@ package rest
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -47,6 +48,7 @@ import (
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/filesystem"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/minio-go/pkg/credentials"
 )
 
 /*********************
@@ -247,11 +249,18 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 		return
 	}
 	ds := r.DataSource
-	endpoint := "s3.amazonaws.com"
+	endpoint := "https://s3.amazonaws.com"
 	if c, o := ds.StorageConfiguration["customEndpoint"]; o && c != "" {
 		endpoint = c
 	}
-	mc, er := minio.NewCore(endpoint, ds.ApiKey, ds.ApiSecret, true)
+	u, _ := url.Parse(endpoint)
+	host := u.Host
+	secure := u.Scheme == "https"
+	mc, er := minio.New(host, ds.ApiKey, ds.ApiSecret, secure)
+	if r, o := ds.StorageConfiguration["customRegion"]; o && r != "" {
+		creds := credentials.NewStaticV4(ds.ApiKey, ds.ApiSecret, "")
+		mc, er = minio.NewWithCredentials(host, creds, secure, r)
+	}
 	if er != nil {
 		service.RestErrorDetect(req, resp, er)
 		return
