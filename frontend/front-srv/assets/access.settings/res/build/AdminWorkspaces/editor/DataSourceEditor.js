@@ -91,6 +91,7 @@ var DataSourceEditor = (function (_React$Component) {
             valid: observable.isValid(),
             encryptionKeys: [],
             versioningPolicies: [],
+            s3Custom: observable.getModel().StorageConfiguration.customEndpoint ? 'custom' : 'aws',
             m: function m(id) {
                 return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
             }
@@ -219,6 +220,11 @@ var DataSourceEditor = (function (_React$Component) {
             this.setState({ showDialog: false, dialogTargetValue: null });
         }
     }, {
+        key: 'toggleS3Custom',
+        value: function toggleS3Custom(value) {
+            this.setState({ s3Custom: value });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this6 = this;
@@ -234,6 +240,7 @@ var DataSourceEditor = (function (_React$Component) {
             var versioningPolicies = _state3.versioningPolicies;
             var showDialog = _state3.showDialog;
             var dialogTargetValue = _state3.dialogTargetValue;
+            var s3Custom = _state3.s3Custom;
             var m = _state3.m;
 
             var titleActionBarButtons = [];
@@ -471,15 +478,35 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.s3')
                         ),
+                        _react2['default'].createElement(
+                            ModernSelectField,
+                            { fullWidth: true, value: s3Custom, onChange: function (e, i, v) {
+                                    _this6.toggleS3Custom(v);
+                                } },
+                            _react2['default'].createElement(_materialUi.MenuItem, { value: "aws", primaryText: m('storage.s3.endpoint.amazon') }),
+                            _react2['default'].createElement(_materialUi.MenuItem, { value: "custom", primaryText: m('storage.s3.endpoint.custom') })
+                        ),
                         _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
-                                model.ApiSecret = v;
-                            } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
-                                model.StorageConfiguration.customEndpoint = v;
-                            } }),
+                        _react2['default'].createElement(
+                            'form',
+                            { autoComplete: "off" },
+                            _react2['default'].createElement('input', { type: 'hidden', value: 'something' }),
+                            _react2['default'].createElement(ModernTextField, { autoComplete: "off", fullWidth: true, type: "password", hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                                    model.ApiSecret = v;
+                                } })
+                        ),
+                        s3Custom === 'custom' && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                                    model.StorageConfiguration.customEndpoint = v;
+                                } }),
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
+                                    model.StorageConfiguration.customRegion = v;
+                                } })
+                        ),
                         _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') })
                     ),
                     model.StorageType === 'AZURE' && _react2['default'].createElement(

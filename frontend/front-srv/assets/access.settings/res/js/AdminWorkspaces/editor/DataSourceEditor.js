@@ -42,6 +42,7 @@ class DataSourceEditor extends React.Component{
             valid: observable.isValid(),
             encryptionKeys: [],
             versioningPolicies: [],
+            s3Custom: observable.getModel().StorageConfiguration.customEndpoint ? 'custom' : 'aws',
             m: (id) => props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id
         };
         DataSource.loadEncryptionKeys().then(res => {
@@ -138,9 +139,13 @@ class DataSourceEditor extends React.Component{
         this.setState({showDialog: false, dialogTargetValue: null});
     }
 
+    toggleS3Custom(value){
+        this.setState({s3Custom: value});
+    }
+
     render(){
         const {storageTypes, pydio} = this.props;
-        const {model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, m} = this.state;
+        const {model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, s3Custom, m} = this.state;
 
         let titleActionBarButtons = [];
         if(!create){
@@ -286,9 +291,21 @@ class DataSourceEditor extends React.Component{
                     {model.StorageType === 'S3' &&
                         <div style={styles.storageSection}>
                             <div style={styles.legend}>{m('storage.legend.s3')}</div>
+                            <ModernSelectField fullWidth={true} value={s3Custom} onChange={(e,i,v)=>{this.toggleS3Custom(v)}}>
+                                <MenuItem value={"aws"} primaryText={m('storage.s3.endpoint.amazon')}/>
+                                <MenuItem value={"custom"} primaryText={m('storage.s3.endpoint.custom')}/>
+                            </ModernSelectField>
                             <ModernTextField fullWidth={true} hintText={m('storage.s3.api') + ' *'} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
-                            <ModernTextField fullWidth={true} hintText={m('storage.s3.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
-                            <ModernTextField fullWidth={true} hintText={m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => { model.StorageConfiguration.customEndpoint = v }}/>
+                            <form autoComplete={"off"}>
+                                <input type="hidden" value="something"/>
+                                <ModernTextField autoComplete={"off"} fullWidth={true} type={"password"} hintText={m('storage.s3.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
+                            </form>
+                            {s3Custom === 'custom' &&
+                                <div>
+                                    <ModernTextField fullWidth={true} hintText={m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => {model.StorageConfiguration.customEndpoint = v}}/>
+                                    <ModernTextField fullWidth={true} hintText={m('storage.s3.region')} value={model.StorageConfiguration.customRegion} onChange={(e, v) => {model.StorageConfiguration.customRegion = v}}/>
+                                </div>
+                            }
                             <DataSourceBucketSelector dataSource={model} hintText={m('storage.s3.bucket')}/>
                         </div>
                     }

@@ -22,7 +22,7 @@ import Pydio from 'pydio'
 import React from 'react'
 import LangUtils from 'pydio/util/lang'
 import DataSource from '../model/DataSource'
-import {RaisedButton, Toggle, Chip} from 'material-ui'
+import {RaisedButton, Toggle, Chip, IconButton, FontIcon} from 'material-ui'
 const {ModernTextField} = Pydio.requireLib('hoc');
 import {debounce} from 'lodash'
 
@@ -34,23 +34,39 @@ export default class DataSourceBucketSelector extends React.Component {
             buckets:[],
             selection:[],
             mode:this.modeFromValue(),
+            monitorApi: props.dataSource.ApiKey + '-' + props.dataSource.ApiSecret
         };
         this.load();
         this.loadSelection();
         this.reloadSelection = debounce(() => {
             this.loadSelection();
         }, 500);
+        this.loadDebounced = debounce(() => {
+            this.load();
+        }, 500);
+    }
+
+    componentWillReceiveProps(newProps){
+        const monitor = newProps.dataSource.ApiKey + '-' + newProps.dataSource.ApiSecret;
+        const {monitorApi} = this.state;
+        if(monitor !== monitorApi) {
+            this.loadDebounced();
+            this.setState({monitorApi: monitor})
+        }
     }
 
     load() {
         const {dataSource} = this.props;
         if(!dataSource.ApiKey || !dataSource.ApiSecret) {
             this.setState({buckets:[]});
-            return
+            return;
         }
+        this.setState({loading: true});
         DataSource.loadBuckets(dataSource).then(collection => {
             const nodes = collection.Children || [];
-            this.setState({buckets: nodes.map(n => {return n.Path})})
+            this.setState({buckets: nodes.map(n => {return n.Path}), loading: false})
+        }).catch(e => {
+            this.setState({buckets: [], loading: false});
         })
     }
 
@@ -83,10 +99,26 @@ export default class DataSourceBucketSelector extends React.Component {
         return mode;
     }
 
+    toggleMode(){
+        const {mode} = this.state;
+        const {dataSource} = this.props;
+        if(mode === 'picker'){
+            if(dataSource.ObjectsBucket){
+                dataSource.StorageConfiguration.bucketsRegexp = dataSource.ObjectsBucket;
+                dataSource.ObjectsBucket = '';
+                this.reloadSelection();
+            }
+            this.setState({mode:'regexp'});
+        } else {
+            dataSource.StorageConfiguration.bucketsRegexp = '';
+            this.reloadSelection();
+            this.setState({mode:'picker'});
+        }
+    }
+
     togglePicker(value) {
         const {dataSource} = this.props;
         const {selection} = this.state;
-        console.log(value);
         let newSel = [];
         const idx = selection.indexOf(value);
         if(idx === -1){
@@ -113,26 +145,62 @@ export default class DataSourceBucketSelector extends React.Component {
     render() {
 
         const {dataSource} = this.props;
-        const {buckets, selection, mode} = this.state;
-        const m = (id) => Pydio.getInstance().MessageHash['ajxp_admin.ds.editor.' + id] || id;
+        const {buckets, selection, mode, loading} = this.state;
+        const m = (id) => Pydio.getInstance().MessageHash['ajxp_admin.ds.editor.storage.' + id] || id;
 
+        const iconStyles = {
+            style:{width: 30, height: 30, padding: 5},
+            iconStyle:{width: 20, height: 20, color:'rgba(0,0,0,.5)', fontSize:18},
+        };
+        const disabled = (!dataSource.ApiKey || !dataSource.ApiSecret);
 
         return (
             <div>
-                <RaisedButton label={"Reload all"} onTouchTap={() => {this.load()}}/>
-                <RaisedButton label={"Regexp Mode"} onTouchTap={() => {this.setState({mode:mode==='picker'?'regexp':'picker'})}}/>
-                {mode === 'regexp' &&
-                    <ModernTextField fullWidth={true} value={dataSource.StorageConfiguration.bucketsRegexp || ''} onChange={(e,v) => {this.updateRegexp(v)}}/>
-                }
-                <div style={{display:'flex', flexWrap:'wrap', marginTop: 10, backgroundColor: '#f5f5f5', borderRadius: 5, padding: 2, maxHeight:275, overflowY:'auto'}}>
+                <div style={{display:'flex', alignItems:'flex-end', marginTop: 20}}>
+                    <div style={{flex: 1}}>{m('buckets.legend')}</div>
+                    <div style={{display:'flex', alignItems:'flex-end'}}>
+                        {mode === 'regexp' &&
+                        <div style={{width: 200, height: 36}}>
+                            <ModernTextField
+                                hintText={m('buckets.regexp.hint')}
+                                fullWidth={true}
+                                value={dataSource.StorageConfiguration.bucketsRegexp || ''}
+                                onChange={(e,v) => {this.updateRegexp(v)}}
+                            />
+                        </div>
+                        }
+                        <IconButton
+                            iconClassName={"mdi mdi-filter"}
+                            tooltip={mode==='picker'?m('buckets.regexp'):''}
+                            tooltipPosition={"top-left"}
+                            onTouchTap={() => {this.toggleMode()}}
+                            disabled={disabled}
+                            {...iconStyles}
+                        />
+                    </div>
+                    <IconButton
+                        iconClassName={"mdi mdi-reload"}
+                        tooltip={m('buckets.reload')}
+                        tooltipPosition={"top-left"}
+                        onTouchTap={() => {this.load()}}
+                        disabled={disabled}
+                        {...iconStyles}
+                    />
+                </div>
+                <div style={{display:'flex', flexWrap:'wrap', marginTop: 8, backgroundColor: '#f5f5f5', borderRadius: 5, padding: 2, maxHeight:275, overflowY:'auto'}}>
                     {buckets.map(b => {
                         const selected = selection.indexOf(b) !== -1;
-                        let chipToucher = null;
+                        let chipToucher = {};
                         if(mode === 'picker'){
-                            chipToucher = () => {this.togglePicker(b)}
+                            chipToucher.onTouchTap = () => {this.togglePicker(b)}
                         }
-                        return <div style={{margin:5}}><Chip onTouchTap={chipToucher} backgroundColor={selected?'#03a9f4':null}>{b}</Chip></div>
+                        return <div style={{margin:5}}><Chip {...chipToucher} backgroundColor={selected?'#03a9f4':null}>{b}</Chip></div>
                     })}
+                    {buckets.length === 0 &&
+                        <div style={{padding: 5, textAlign:'center', fontSize:16, color:'rgba(0,0,0,.37)'}}>
+                            {disabled ? m('buckets.cont.nokeys') : (loading ? m('buckets.cont.loading') : m('buckets.cont.empty'))}
+                        </div>
+                    }
                 </div>
             </div>
         );

@@ -18768,6 +18768,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -18816,16 +18818,31 @@ var DataSourceBucketSelector = (function (_React$Component) {
         this.state = {
             buckets: [],
             selection: [],
-            mode: this.modeFromValue()
+            mode: this.modeFromValue(),
+            monitorApi: props.dataSource.ApiKey + '-' + props.dataSource.ApiSecret
         };
         this.load();
         this.loadSelection();
         this.reloadSelection = (0, _lodash.debounce)(function () {
             _this.loadSelection();
         }, 500);
+        this.loadDebounced = (0, _lodash.debounce)(function () {
+            _this.load();
+        }, 500);
     }
 
     _createClass(DataSourceBucketSelector, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            var monitor = newProps.dataSource.ApiKey + '-' + newProps.dataSource.ApiSecret;
+            var monitorApi = this.state.monitorApi;
+
+            if (monitor !== monitorApi) {
+                this.loadDebounced();
+                this.setState({ monitorApi: monitor });
+            }
+        }
+    }, {
         key: 'load',
         value: function load() {
             var _this2 = this;
@@ -18836,11 +18853,14 @@ var DataSourceBucketSelector = (function (_React$Component) {
                 this.setState({ buckets: [] });
                 return;
             }
+            this.setState({ loading: true });
             _modelDataSource2['default'].loadBuckets(dataSource).then(function (collection) {
                 var nodes = collection.Children || [];
                 _this2.setState({ buckets: nodes.map(function (n) {
                         return n.Path;
-                    }) });
+                    }), loading: false });
+            })['catch'](function (e) {
+                _this2.setState({ buckets: [], loading: false });
             });
         }
     }, {
@@ -18881,12 +18901,30 @@ var DataSourceBucketSelector = (function (_React$Component) {
             return mode;
         }
     }, {
+        key: 'toggleMode',
+        value: function toggleMode() {
+            var mode = this.state.mode;
+            var dataSource = this.props.dataSource;
+
+            if (mode === 'picker') {
+                if (dataSource.ObjectsBucket) {
+                    dataSource.StorageConfiguration.bucketsRegexp = dataSource.ObjectsBucket;
+                    dataSource.ObjectsBucket = '';
+                    this.reloadSelection();
+                }
+                this.setState({ mode: 'regexp' });
+            } else {
+                dataSource.StorageConfiguration.bucketsRegexp = '';
+                this.reloadSelection();
+                this.setState({ mode: 'picker' });
+            }
+        }
+    }, {
         key: 'togglePicker',
         value: function togglePicker(value) {
             var dataSource = this.props.dataSource;
             var selection = this.state.selection;
 
-            console.log(value);
             var newSel = [];
             var idx = selection.indexOf(value);
             if (idx === -1) {
@@ -18923,31 +18961,72 @@ var DataSourceBucketSelector = (function (_React$Component) {
             var buckets = _state.buckets;
             var selection = _state.selection;
             var mode = _state.mode;
+            var loading = _state.loading;
 
             var m = function m(id) {
-                return _pydio2['default'].getInstance().MessageHash['ajxp_admin.ds.editor.' + id] || id;
+                return _pydio2['default'].getInstance().MessageHash['ajxp_admin.ds.editor.storage.' + id] || id;
             };
+
+            var iconStyles = {
+                style: { width: 30, height: 30, padding: 5 },
+                iconStyle: { width: 20, height: 20, color: 'rgba(0,0,0,.5)', fontSize: 18 }
+            };
+            var disabled = !dataSource.ApiKey || !dataSource.ApiSecret;
 
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(_materialUi.RaisedButton, { label: "Reload all", onTouchTap: function () {
-                        _this4.load();
-                    } }),
-                _react2['default'].createElement(_materialUi.RaisedButton, { label: "Regexp Mode", onTouchTap: function () {
-                        _this4.setState({ mode: mode === 'picker' ? 'regexp' : 'picker' });
-                    } }),
-                mode === 'regexp' && _react2['default'].createElement(ModernTextField, { fullWidth: true, value: dataSource.StorageConfiguration.bucketsRegexp || '', onChange: function (e, v) {
-                        _this4.updateRegexp(v);
-                    } }),
                 _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', flexWrap: 'wrap', marginTop: 10, backgroundColor: '#f5f5f5', borderRadius: 5, padding: 2, maxHeight: 275, overflowY: 'auto' } },
+                    { style: { display: 'flex', alignItems: 'flex-end', marginTop: 20 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        m('buckets.legend')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', alignItems: 'flex-end' } },
+                        mode === 'regexp' && _react2['default'].createElement(
+                            'div',
+                            { style: { width: 200, height: 36 } },
+                            _react2['default'].createElement(ModernTextField, {
+                                hintText: m('buckets.regexp.hint'),
+                                fullWidth: true,
+                                value: dataSource.StorageConfiguration.bucketsRegexp || '',
+                                onChange: function (e, v) {
+                                    _this4.updateRegexp(v);
+                                }
+                            })
+                        ),
+                        _react2['default'].createElement(_materialUi.IconButton, _extends({
+                            iconClassName: "mdi mdi-filter",
+                            tooltip: mode === 'picker' ? m('buckets.regexp') : '',
+                            tooltipPosition: "top-left",
+                            onTouchTap: function () {
+                                _this4.toggleMode();
+                            },
+                            disabled: disabled
+                        }, iconStyles))
+                    ),
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({
+                        iconClassName: "mdi mdi-reload",
+                        tooltip: m('buckets.reload'),
+                        tooltipPosition: "top-left",
+                        onTouchTap: function () {
+                            _this4.load();
+                        },
+                        disabled: disabled
+                    }, iconStyles))
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', flexWrap: 'wrap', marginTop: 8, backgroundColor: '#f5f5f5', borderRadius: 5, padding: 2, maxHeight: 275, overflowY: 'auto' } },
                     buckets.map(function (b) {
                         var selected = selection.indexOf(b) !== -1;
-                        var chipToucher = null;
+                        var chipToucher = {};
                         if (mode === 'picker') {
-                            chipToucher = function () {
+                            chipToucher.onTouchTap = function () {
                                 _this4.togglePicker(b);
                             };
                         }
@@ -18956,11 +19035,16 @@ var DataSourceBucketSelector = (function (_React$Component) {
                             { style: { margin: 5 } },
                             _react2['default'].createElement(
                                 _materialUi.Chip,
-                                { onTouchTap: chipToucher, backgroundColor: selected ? '#03a9f4' : null },
+                                _extends({}, chipToucher, { backgroundColor: selected ? '#03a9f4' : null }),
                                 b
                             )
                         );
-                    })
+                    }),
+                    buckets.length === 0 && _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 5, textAlign: 'center', fontSize: 16, color: 'rgba(0,0,0,.37)' } },
+                        disabled ? m('buckets.cont.nokeys') : loading ? m('buckets.cont.loading') : m('buckets.cont.empty')
+                    )
                 )
             );
         }
@@ -19066,6 +19150,7 @@ var DataSourceEditor = (function (_React$Component) {
             valid: observable.isValid(),
             encryptionKeys: [],
             versioningPolicies: [],
+            s3Custom: observable.getModel().StorageConfiguration.customEndpoint ? 'custom' : 'aws',
             m: function m(id) {
                 return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
             }
@@ -19194,6 +19279,11 @@ var DataSourceEditor = (function (_React$Component) {
             this.setState({ showDialog: false, dialogTargetValue: null });
         }
     }, {
+        key: 'toggleS3Custom',
+        value: function toggleS3Custom(value) {
+            this.setState({ s3Custom: value });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this6 = this;
@@ -19209,6 +19299,7 @@ var DataSourceEditor = (function (_React$Component) {
             var versioningPolicies = _state3.versioningPolicies;
             var showDialog = _state3.showDialog;
             var dialogTargetValue = _state3.dialogTargetValue;
+            var s3Custom = _state3.s3Custom;
             var m = _state3.m;
 
             var titleActionBarButtons = [];
@@ -19446,15 +19537,35 @@ var DataSourceEditor = (function (_React$Component) {
                             { style: styles.legend },
                             m('storage.legend.s3')
                         ),
+                        _react2['default'].createElement(
+                            ModernSelectField,
+                            { fullWidth: true, value: s3Custom, onChange: function (e, i, v) {
+                                    _this6.toggleS3Custom(v);
+                                } },
+                            _react2['default'].createElement(_materialUi.MenuItem, { value: "aws", primaryText: m('storage.s3.endpoint.amazon') }),
+                            _react2['default'].createElement(_materialUi.MenuItem, { value: "custom", primaryText: m('storage.s3.endpoint.custom') })
+                        ),
                         _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
-                                model.ApiSecret = v;
-                            } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
-                                model.StorageConfiguration.customEndpoint = v;
-                            } }),
+                        _react2['default'].createElement(
+                            'form',
+                            { autoComplete: "off" },
+                            _react2['default'].createElement('input', { type: 'hidden', value: 'something' }),
+                            _react2['default'].createElement(ModernTextField, { autoComplete: "off", fullWidth: true, type: "password", hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                                    model.ApiSecret = v;
+                                } })
+                        ),
+                        s3Custom === 'custom' && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                                    model.StorageConfiguration.customEndpoint = v;
+                                } }),
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
+                                    model.StorageConfiguration.customRegion = v;
+                                } })
+                        ),
                         _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') })
                     ),
                     model.StorageType === 'AZURE' && _react2['default'].createElement(
