@@ -140,6 +140,11 @@ class DataSourceEditor extends React.Component{
     }
 
     toggleS3Custom(value){
+        const {model} = this.state;
+        if(value === "aws"){
+            model.StorageConfiguration.customEndpoint = "";
+            model.StorageConfiguration.customRegion = "";
+        }
         this.setState({s3Custom: value});
     }
 

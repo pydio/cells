@@ -222,6 +222,12 @@ var DataSourceEditor = (function (_React$Component) {
     }, {
         key: 'toggleS3Custom',
         value: function toggleS3Custom(value) {
+            var model = this.state.model;
+
+            if (value === "aws") {
+                model.StorageConfiguration.customEndpoint = "";
+                model.StorageConfiguration.customRegion = "";
+            }
             this.setState({ s3Custom: value });
         }
     }, {
