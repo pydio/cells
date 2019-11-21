@@ -18821,6 +18821,9 @@ var DataSourceBucketSelector = (function (_React$Component) {
             mode: this.modeFromValue(),
             monitorApi: props.dataSource.ApiKey + '-' + props.dataSource.ApiSecret
         };
+        if (props.dataSource.ObjectsBucket) {
+            this.state.selection = [props.dataSource.ObjectsBucket];
+        }
         this.load();
         this.loadSelection();
         this.reloadSelection = (0, _lodash.debounce)(function () {

@@ -36,6 +36,9 @@ export default class DataSourceBucketSelector extends React.Component {
             mode:this.modeFromValue(),
             monitorApi: props.dataSource.ApiKey + '-' + props.dataSource.ApiSecret
         };
+        if (props.dataSource.ObjectsBucket) {
+            this.state.selection = [props.dataSource.ObjectsBucket];
+        }
         this.load();
         this.loadSelection();
         this.reloadSelection = debounce(() => {
