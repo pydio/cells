@@ -116,7 +116,6 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 func (v *PathDataSourceHandler) updateOutputNode(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	if branchInfo, ok := GetBranchInfo(ctx, identifier); ok && branchInfo.LoadedSource.Name != "" && branchInfo.LoadedSource.ObjectsBucket == "" {
-		log.Logger(ctx).Info("output", zap.Any("no specific output bucket : ", branchInfo.LoadedSource), node.Zap())
 		sLen := len(strings.Split(strings.Trim(node.Path, "/"), "/"))
 		if sLen == 1 {
 			// The root of the datasource is at the bucket level, set flag readonly
