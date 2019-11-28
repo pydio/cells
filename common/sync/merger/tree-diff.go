@@ -61,6 +61,15 @@ type TreeDiff struct {
 }
 
 // newTreeDiff instanciate a new TreeDiff
+func NewTreeDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) *TreeDiff {
+	return &TreeDiff{
+		ctx:   ctx,
+		left:  left,
+		right: right,
+	}
+}
+
+// newTreeDiff instanciate a new TreeDiff
 func newTreeDiff(ctx context.Context, left model.PathSyncSource, right model.PathSyncSource) *TreeDiff {
 	return &TreeDiff{
 		ctx:   ctx,
@@ -110,6 +119,8 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, ignores ...glob.Glob)
 					h = rTree.GetHash()
 				}
 			}
+
+			fmt.Println(err)
 			if err != nil {
 				errs = append(errs, err)
 			}
@@ -122,8 +133,8 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, ignores ...glob.Glob)
 
 	diff.Status(model.NewProcessingStatus("Computing diff between snapshots"))
 
-	//fmt.Println(lTree.PrintTree())
-	//fmt.Println(rTree.PrintTree())
+	// fmt.Println(lTree.PrintTree())
+	// fmt.Println(rTree.PrintTree())
 	diff.mergeNodes(lTree, rTree)
 	log.Logger(diff.ctx).Info("Diff Stats", zap.Any("s", diff.Stats()))
 
@@ -197,8 +208,8 @@ func (diff *TreeDiff) ToBidirectionalPatch(leftTarget model.PathSyncTarget, righ
 		}
 		b.Enqueue(NewConflictOperation(c.NodeLeft, c.Type, leftOp, rightOp))
 	}
-	if _, ok := b.HasErrors(); ok {
-		err = fmt.Errorf("diff has conflicts")
+	if errs, ok := b.HasErrors(); ok {
+		err = fmt.Errorf("diff has conflicts %v", errs)
 	}
 	return
 }

@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	"golang.org/x/text/unicode/norm"
 
@@ -62,7 +63,7 @@ func NewMemDB() *MemDB {
 func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "memdb://" + c.testPathURI,
+		URI:                   "memdb://" + c.testPathURI,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: false,
 		Ignores:               c.ignores,
@@ -98,6 +99,7 @@ func (db *MemDB) sendEvent(event DBEvent) {
 func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 
 	for _, node := range db.Nodes {
+		// fmt.Printf("Path:%s Nodes %s\n", norm.NFC.String(path), norm.NFC.String(node.Path))
 		if norm.NFC.String(node.Path) == norm.NFC.String(path) {
 			return node, nil
 		}
@@ -108,6 +110,7 @@ func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...boo
 
 func (db *MemDB) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 	db.Nodes = append(db.Nodes, node)
+
 	db.sendEvent(DBEvent{
 		Type:   "Create",
 		Target: node.Path,
@@ -161,7 +164,67 @@ func (db *MemDB) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 }
 
 func (db *MemDB) Watch(recursivePath string) (*model.WatchObject, error) {
-	return nil, errors.New("Not implemented")
+	inChan := make(chan DBEvent)
+	eventChan := make(chan model.EventInfo)
+	errorChan := make(chan error)
+	doneChan := make(chan bool)
+
+	// wait for doneChan to close the other channels
+	go func() {
+		<-doneChan
+
+		close(eventChan)
+		close(errorChan)
+		close(inChan)
+	}()
+
+	wo := &model.WatchObject{
+		EventInfoChan: eventChan,
+		ErrorChan:     errorChan,
+		DoneChan:      doneChan,
+	}
+
+	go func() {
+		defer wo.Close()
+
+		for ev := range inChan {
+			switch v := ev.Type; v {
+			case "Create":
+				eventChan <- model.EventInfo{
+					Time:   time.Now().String(),
+					Size:   0,
+					Etag:   "",
+					Path:   ev.Target,
+					Folder: false,
+					Source: db,
+					Type:   model.EventCreate,
+				}
+			case "Moved":
+				eventChan <- model.EventInfo{
+					Time:   time.Now().String(),
+					Size:   0,
+					Etag:   "",
+					Path:   ev.Target,
+					Folder: false,
+					Source: db,
+					Type:   model.EventSureMove,
+				}
+			case "Deleted":
+				eventChan <- model.EventInfo{
+					Time:   time.Now().String(),
+					Size:   0,
+					Etag:   "",
+					Path:   ev.Source,
+					Folder: false,
+					Source: db,
+					Type:   model.EventRemove,
+				}
+			}
+
+		}
+	}()
+
+	return wo, nil
 }
 
 func (db *MemDB) ComputeChecksum(node *tree.Node) error {

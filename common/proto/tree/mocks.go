@@ -22,72 +22,137 @@ package tree
 
 import (
 	"context"
+	"io"
+	"reflect"
+	"sort"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 )
 
-type StreamerMock struct{}
+type ErrorThrower func(string, string, ...interface{}) error
 
-func (*StreamerMock) Context() context.Context {
+var errorThrower ErrorThrower = func(string, string, ...interface{}) error {
 	return nil
 }
-func (*StreamerMock) Request() client.Request {
+
+func PredefineError(f ErrorThrower) {
+	errorThrower = f
+}
+
+func ShouldError(obj interface{}, fn string, params ...interface{}) error {
+	return errorThrower(reflect.TypeOf(obj).String(), fn, params...)
+}
+
+type StreamerMock struct {
+	ch chan Node
+}
+
+func NewStreamerMock(nodes map[string]Node) *StreamerMock {
+	ch := make(chan Node)
+
+	go func() {
+		defer close(ch)
+
+		var sorted []string
+
+		for k := range nodes {
+			sorted = append(sorted, k)
+		}
+
+		sort.Strings(sorted)
+
+		for _, k := range sorted {
+			ch <- nodes[k]
+		}
+	}()
+
+	return &StreamerMock{
+		ch: ch,
+	}
+}
+
+func (m *StreamerMock) Context() context.Context {
+	return context.Background()
+}
+func (m *StreamerMock) Request() client.Request {
 	return nil
 }
-func (*StreamerMock) Send(interface{}) error {
+func (m *StreamerMock) Send(v interface{}) error {
 	return nil
 }
-func (*StreamerMock) Recv(interface{}) error {
+func (m *StreamerMock) Recv(v interface{}) error {
+
+	node, ok := <-m.ch
+
+	if err := ShouldError(m, "Recv", node); err != nil {
+		return err
+	}
+
+	if !ok {
+		return io.EOF
+	}
+
+	r, _ := v.(*ListNodesResponse)
+	r.Node = &node
+
 	return nil
 }
-func (*StreamerMock) Error() error {
+func (m *StreamerMock) Error() error {
 	return nil
 }
-func (*StreamerMock) Close() error {
+func (m *StreamerMock) Close() error {
 	return nil
 }
 
 type NodeProviderMock struct {
-	Nodes map[string]string
+	Nodes map[string]Node
+}
+
+func NewNodeProviderMock(n map[string]Node) *NodeProviderMock {
+	return &NodeProviderMock{
+		Nodes: n,
+	}
 }
 
 func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, opts ...client.CallOption) (*ReadNodeResponse, error) {
-
 	if in.Node.Path != "" {
 		if v, ok := m.Nodes[in.Node.Path]; ok {
 			resp := &ReadNodeResponse{
-				Node: &Node{Path: in.Node.Path, Uuid: v},
+				Node: &v,
 			}
 			return resp, nil
 		}
 	} else if in.Node.Uuid != "" {
 		// Search by Uuid
-		for k, v := range m.Nodes {
-			if v == in.Node.Uuid {
+		for _, v := range m.Nodes {
+			if v.Uuid == in.Node.Uuid {
 				return &ReadNodeResponse{
-					Node: &Node{Path: k, Uuid: v},
+					Node: &v,
 				}, nil
 			}
 		}
 	}
 	return nil, errors.NotFound(common.SERVICE_DATA_INDEX_, "Node not found")
-
 }
 
 func (m *NodeProviderMock) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...client.CallOption) (NodeProvider_ListNodesClient, error) {
-
 	// Create fake stream
-	return &nodeProviderListNodesClient{stream: &StreamerMock{}}, nil
+	return &nodeProviderListNodesClient{stream: NewStreamerMock(m.Nodes)}, nil
 
 }
 
 type NodeReceiverMock struct {
-	Nodes map[string]string
+	Nodes map[string]Node
 }
 
 func (m *NodeReceiverMock) CreateNode(ctx context.Context, in *CreateNodeRequest, opts ...client.CallOption) (*CreateNodeResponse, error) {
+	if m.Nodes == nil {
+		m.Nodes = make(map[string]Node)
+	}
+	m.Nodes[in.GetNode().GetPath()] = *in.GetNode()
+
 	return &CreateNodeResponse{Node: in.Node}, nil
 }
 
@@ -97,4 +162,19 @@ func (m *NodeReceiverMock) UpdateNode(ctx context.Context, in *UpdateNodeRequest
 
 func (m *NodeReceiverMock) DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...client.CallOption) (*DeleteNodeResponse, error) {
 	return &DeleteNodeResponse{Success: true}, nil
+}
+
+type SessionIndexerMock struct {
+}
+
+func (s *SessionIndexerMock) OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...client.CallOption) (*OpenSessionResponse, error) {
+	return &OpenSessionResponse{Session: in.GetSession()}, nil
+}
+
+func (s *SessionIndexerMock) FlushSession(ctx context.Context, in *FlushSessionRequest, opts ...client.CallOption) (*FlushSessionResponse, error) {
+	return &FlushSessionResponse{}, nil
+}
+
+func (s *SessionIndexerMock) CloseSession(ctx context.Context, in *CloseSessionRequest, opts ...client.CallOption) (*CloseSessionResponse, error) {
+	return &CloseSessionResponse{}, nil
 }

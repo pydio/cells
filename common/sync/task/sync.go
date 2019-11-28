@@ -186,6 +186,7 @@ func (s *Sync) Run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 			}
 		}
 	}()
+
 	stater, err := s.run(ctx, dryRun, force)
 	if err != nil && s.statuses != nil {
 		s.statuses <- model.NewProcessingStatus(err.Error()).SetError(err).SetProgress(1)
