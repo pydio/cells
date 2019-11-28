@@ -135,6 +135,7 @@ func TreeNodeFromSource(source model.PathSyncSource, root string, ignores []glob
 		}
 	}, root, true)
 	wg.Wait()
+
 	return rootNode, err
 }
 

@@ -36,7 +36,10 @@ func testMkFileResources() (*PutHandler, context.Context, *HandlerMock) {
 	IsUnitTestEnv = true
 	pool := NewClientsPool(false)
 	pool.TreeClient = &tree.NodeProviderMock{
-		Nodes: map[string]string{"existing/node": "found-uuid"},
+		Nodes: map[string]tree.Node{"existing/node": tree.Node{
+			Uuid: "found-uuid",
+			Path: "existing/node",
+		}},
 	}
 	pool.TreeClientWrite = &tree.NodeReceiverMock{}
 

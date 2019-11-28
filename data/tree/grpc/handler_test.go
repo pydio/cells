@@ -38,17 +38,17 @@ func createMocks() (dataSources map[string]DataSource, meta tree.NodeProviderCli
 
 	dataSources["ds1"] = DataSource{
 		Name:   "ds1",
-		reader: &tree.NodeProviderMock{Nodes: map[string]string{"node1": "node1-uuid", "node12": "node12-uuid"}},
+		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node1": tree.Node{Uuid: "node1-uuid", Path: "node1"}, "node12": tree.Node{Uuid: "node12-uuid", Path: "node12"}}},
 		writer: &tree.NodeReceiverMock{},
 	}
 	dataSources["ds2"] = DataSource{
 		Name:   "ds2",
-		reader: &tree.NodeProviderMock{Nodes: map[string]string{"node2": "node2-uuid"}},
+		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node2": tree.Node{Uuid: "node2-uuid", Path: "node2"}}},
 		writer: &tree.NodeReceiverMock{},
 	}
 	dataSources["ds3"] = DataSource{
 		Name:   "ds3",
-		reader: &tree.NodeProviderMock{Nodes: map[string]string{"node2": "node2-uuid"}},
+		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node2": tree.Node{Uuid: "node2-uuid", Path: "node2"}}},
 		writer: &tree.NodeReceiverMock{},
 	}
 
@@ -72,6 +72,7 @@ func TestReadNode(t *testing.T) {
 		resp := &tree.ReadNodeResponse{}
 		err := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "ds1/node1"}}, resp)
 		So(err, ShouldBeNil)
+
 		So(resp.Node.Path, ShouldEqual, "ds1/node1")
 
 		err1 := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "ds1/node2"}}, resp)
@@ -83,6 +84,7 @@ func TestReadNode(t *testing.T) {
 
 		resp := &tree.ReadNodeResponse{}
 		err := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: "node1-uuid"}}, resp)
+
 		So(err, ShouldBeNil)
 		So(resp.Node.Path, ShouldEqual, "ds1/node1")
 
