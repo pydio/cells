@@ -24,6 +24,8 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _materialUi = require('material-ui');
+
 var React = require('react');
 var Pydio = require('pydio');
 
@@ -131,16 +133,25 @@ var GridBuilder = React.createClass({
             return { payload: w, text: w['reactClass'].builderDisplayName };
         }));
 
-        var selector = React.createElement(ReactMUI.DropDownMenu, {
-            menuItems: selectorItems,
-            onChange: this.onDropDownChange,
-            selectedIndex: this.state.selectedIndex,
-            autoWidth: false,
-            className: 'widget-type-selector'
-        });
+        /*
+        var selector = (
+            <DropDownMenu
+                menuItems={selectorItems}
+                onChange={this.onDropDownChange}
+                selectedIndex={this.state.selectedIndex}
+                autoWidth={false}
+                className="widget-type-selector"
+            />
+        );
+        */
+        var selector = React.createElement(
+            'div',
+            null,
+            'DropDownMenu (to be re-implemented)'
+        );
 
         var form, add;
-        if (this.state.selectedIndex != 0) {
+        if (this.state.selectedIndex !== 0) {
             var fields = this.state.selectedWidget['reactClass'].getBuilderFields();
             var defaultValues = {};
             fields.map(function (f) {
@@ -160,14 +171,14 @@ var GridBuilder = React.createClass({
             add = React.createElement(
                 'div',
                 { style: { textAlign: 'center', paddingBottom: 100 } },
-                React.createElement(ReactMUI.RaisedButton, { label: getMessage('home.52'), onClick: this.onFormSubmit }),
+                React.createElement(_materialUi.RaisedButton, { label: getMessage('home.52'), onClick: this.onFormSubmit }),
                 ' ',
-                React.createElement(ReactMUI.RaisedButton, { label: getMessage('54', ''), onClick: this.cancel })
+                React.createElement(_materialUi.RaisedButton, { label: getMessage('54', ''), onClick: this.cancel })
             );
         }
 
         return React.createElement(
-            ReactMUI.Paper,
+            _materialUi.Paper,
             _extends({}, this.props, {
                 zDepth: 3 }),
             React.createElement(
@@ -188,7 +199,7 @@ var GridBuilder = React.createClass({
             React.createElement(
                 'div',
                 { style: { position: 'absolute', bottom: 30, left: 10 } },
-                React.createElement(ReactMUI.FlatButton, { disabled: this.state.selectedIndex != 0, label: getMessage('home.56'), secondary: true, onClick: this.resetLayout })
+                React.createElement(_materialUi.FlatButton, { disabled: this.state.selectedIndex != 0, label: getMessage('home.56'), secondary: true, onClick: this.resetLayout })
             )
         );
     }

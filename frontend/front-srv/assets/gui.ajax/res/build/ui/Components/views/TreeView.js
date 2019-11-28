@@ -36,6 +36,8 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _materialUi = require('material-ui');
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var withContextMenu = _Pydio$requireLib.withContextMenu;
@@ -113,7 +115,7 @@ var SimpleTreeNode = _react2['default'].createClass({
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
         var oldNode = this.props.node;
         var newNode = nextProps.node;
-        if (newNode == oldNode && newNode.getMetadata().get("paginationData")) {
+        if (newNode === oldNode && newNode.getMetadata().get("paginationData")) {
             var remapedChildren = this.state.children.map(function (c) {
                 c.setParent(newNode);return c;
             });
@@ -229,21 +231,24 @@ var SimpleTreeNode = _react2['default'].createClass({
                     var click = (function (event, value) {
                         onCheckboxCheck(node, c, value);
                     }).bind(this);
-                    if (selected) valueClasses.push(c);
-                    return _react2['default'].createElement(ReactMUI.Checkbox, {
+                    if (selected) {
+                        valueClasses.push(c);
+                    }
+                    return _react2['default'].createElement(_materialUi.Checkbox, {
                         name: c,
                         key: c + "-" + (selected ? "true" : "false"),
                         checked: selected,
                         onCheck: click,
                         disabled: disabled[c],
-                        className: "cbox-" + c
+                        className: "cbox-" + c,
+                        style: { width: 44 }
                     });
                 }).bind(this));
                 isSelected += inherited ? " inherited " : "";
                 isSelected += valueClasses.length ? " checkbox-values-" + valueClasses.join('-') : " checkbox-values-empty";
                 boxes = _react2['default'].createElement(
                     'div',
-                    { className: "tree-checkboxes" + additionalClassName },
+                    { style: { display: 'flex', alignItems: 'center' }, className: "tree-checkboxes" + additionalClassName },
                     boxes
                 );
             }

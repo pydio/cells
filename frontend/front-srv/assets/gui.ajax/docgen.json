@@ -5433,6 +5433,66 @@
         }
       }
     ],
+    "AdminWorkspaces/editor/DataSourceBucketSelector.js": [
+      {
+        "description": "",
+        "displayName": "DataSourceBucketSelector",
+        "methods": [
+          {
+            "name": "load",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "loadSelection",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "modeFromValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toggleMode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "togglePicker",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "updateRegexp",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "v",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminWorkspaces/editor/DataSourceEditor.js": [
       {
         "description": "",
@@ -5480,6 +5540,18 @@
           },
           {
             "name": "confirmEncryption",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "toggleS3Custom",
             "docblock": null,
             "modifiers": [],
             "params": [
@@ -7509,22 +7581,6 @@
             "params": [
               {
                 "name": "updater",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "getButton",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "actionName",
-                "type": null
-              },
-              {
-                "name": "messageId",
                 "type": null
               }
             ],
@@ -32421,6 +32477,106 @@
         "require": "const {ReactEditorOpener} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/elements/LabelWithTip.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "show",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "hide",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "label": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "labelElement": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          },
+          "tooltip": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "tooltipClassName": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "className": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "style": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          }
+        },
+        "require": "const {LabelWithTip} = require('pydio').requireLib('components')"
+      }
+    ],
+    "Components/elements/SimpleFigureBadge.js": [
+      {
+        "description": "Simple MuiPaper with a figure and a legend",
+        "methods": [],
+        "props": {
+          "colorIndicator": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": "",
+            "defaultValue": {
+              "value": "''",
+              "computed": false
+            }
+          },
+          "figure": {
+            "type": {
+              "name": "number"
+            },
+            "required": true,
+            "description": ""
+          },
+          "legend": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          }
+        },
+        "require": "const {SimpleFigureBadge} = require('pydio').requireLib('components')"
+      }
+    ],
     "Components/list/ConfigurableListEntry.js": [
       {
         "description": "Callback based material list entry with custom icon render, firstLine, secondLine, etc.",
@@ -33462,6 +33618,231 @@
           }
         },
         "require": "const {SortColumns} = require('pydio').requireLib('components')"
+      }
+    ],
+    "Components/list/SortableList.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "removeClicked",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "connectDragSource": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "connectDropTarget": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "isDragging": {
+            "type": {
+              "name": "bool"
+            },
+            "required": true,
+            "description": ""
+          },
+          "id": {
+            "type": {
+              "name": "any"
+            },
+            "required": true,
+            "description": ""
+          },
+          "label": {
+            "type": {
+              "name": "string"
+            },
+            "required": true,
+            "description": ""
+          },
+          "switchItems": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "removable": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
+          "onRemove": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          }
+        },
+        "require": "const {SortableList} = require('pydio').requireLib('components')"
+      },
+      {
+        "description": "",
+        "methods": []
+      },
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "findItemIndex",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "itemId",
+                "type": null
+              },
+              {
+                "name": "data",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "switchItems",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "oldId",
+                "type": null
+              },
+              {
+                "name": "newId",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "endSwitching",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "values": {
+            "type": {
+              "name": "array"
+            },
+            "required": true,
+            "description": ""
+          },
+          "onOrderUpdated": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "removable": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
+          "onRemove": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "className": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "itemClassName": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "Components/list/TableListHeader.js": [
+      {
+        "description": "Specific header for Table layout, reading metadata from node and using keys",
+        "methods": [],
+        "props": {
+          "tableKeys": {
+            "type": {
+              "name": "object"
+            },
+            "required": true,
+            "description": ""
+          },
+          "loading": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
+          "reload": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "dm": {
+            "type": {
+              "name": "instanceOf",
+              "value": "PydioDataModel"
+            },
+            "required": false,
+            "description": ""
+          },
+          "node": {
+            "type": {
+              "name": "instanceOf",
+              "value": "AjxpNode"
+            },
+            "required": false,
+            "description": ""
+          },
+          "onHeaderClick": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "sortingInfo": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          }
+        },
+        "require": "const {TableListHeader} = require('pydio').requireLib('components')"
       }
     ],
     "Components/menu/ButtonComposed.js": [

@@ -1,8 +1,6 @@
 module.exports = function(grunt){
     grunt.registerTask('mainjs', [
         'copy:dndpatch',
-        // Material UI legacy
-        'babel:materialui',
         // CORE
         'babel:core',
         'env:build',

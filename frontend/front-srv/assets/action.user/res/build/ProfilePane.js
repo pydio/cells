@@ -130,17 +130,6 @@ var ProfilePane = _react2['default'].createClass({
         }
     },
 
-    getButton: function getButton(actionName, messageId) {
-        var pydio = this.props.pydio;
-        if (!pydio.Controller.getActionByName(actionName)) {
-            return null;
-        }
-        var func = function func() {
-            pydio.Controller.fireAction(actionName);
-        };
-        return _react2['default'].createElement(ReactMUI.RaisedButton, { label: pydio.MessageHash[messageId], onClick: func });
-    },
-
     revert: function revert() {
         var _this2 = this;
 

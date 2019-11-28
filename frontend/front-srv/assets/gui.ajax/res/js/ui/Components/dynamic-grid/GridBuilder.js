@@ -18,10 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const Pydio = require('pydio')
-const {PydioContextConsumer, AsyncComponent} = Pydio.requireLib('boot')
-
+const React = require('react');
+const Pydio = require('pydio');
+const {PydioContextConsumer, AsyncComponent} = Pydio.requireLib('boot');
+import {Paper, FlatButton, RaisedButton, DropDownMenu} from 'material-ui';
 
 let GridBuilder = React.createClass({
 
@@ -122,8 +122,9 @@ let GridBuilder = React.createClass({
             })
         );
 
+        /*
         var selector = (
-            <ReactMUI.DropDownMenu
+            <DropDownMenu
                 menuItems={selectorItems}
                 onChange={this.onDropDownChange}
                 selectedIndex={this.state.selectedIndex}
@@ -131,9 +132,11 @@ let GridBuilder = React.createClass({
                 className="widget-type-selector"
             />
         );
+        */
+        var selector = <div>DropDownMenu (to be re-implemented)</div>;
 
         var form, add;
-        if(this.state.selectedIndex != 0){
+        if(this.state.selectedIndex !== 0){
             var fields = this.state.selectedWidget['reactClass'].getBuilderFields();
             var defaultValues={};
             fields.map(function(f){
@@ -154,14 +157,14 @@ let GridBuilder = React.createClass({
             );
             add = (
                 <div style={{textAlign:'center', paddingBottom:100}}>
-                    <ReactMUI.RaisedButton label={getMessage('home.52')} onClick={this.onFormSubmit}/>
-                    &nbsp;<ReactMUI.RaisedButton label={getMessage('54', '')} onClick={this.cancel}/>
+                    <RaisedButton label={getMessage('home.52')} onClick={this.onFormSubmit}/>
+                    &nbsp;<RaisedButton label={getMessage('54', '')} onClick={this.cancel}/>
                 </div>
             );
         }
 
         return (
-            <ReactMUI.Paper
+            <Paper
                 {...this.props}
                 zDepth={3}>
                 <h3>{getMessage('home.53')}</h3>
@@ -173,9 +176,9 @@ let GridBuilder = React.createClass({
                 {form}
                 {add}
                 <div style={{position:'absolute',bottom: 30,left: 10}}>
-                    <ReactMUI.FlatButton disabled={(this.state.selectedIndex != 0)} label={getMessage('home.56')} secondary={true} onClick={this.resetLayout}/>
+                    <FlatButton disabled={(this.state.selectedIndex != 0)} label={getMessage('home.56')} secondary={true} onClick={this.resetLayout}/>
                 </div>
-            </ReactMUI.Paper>
+            </Paper>
         );
     }
 

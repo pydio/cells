@@ -18,7 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-
+import React from 'react'
+import {FontIcon} from 'material-ui'
 import MessagesConsumerMixin from '../util/MessagesConsumerMixin'
 import SortColumns from './SortColumns'
 import ListPaginator from './ListPaginator'
@@ -46,19 +47,20 @@ export default React.createClass({
             paginator = <ListPaginator dataModel={this.props.dm} node={this.props.node}/>;
         }
         return (
-            <ReactMUI.Toolbar className="toolbarTableHeader">
+            <div className="mui-toolbar toolbarTableHeader">
                 <SortColumns displayMode="tableHeader" {...this.props} columnClicked={this.props.onHeaderClick}/>
-                <ReactMUI.ToolbarGroup float="right">
+                <div className={"mui-toolbar-group mui-right"}>
                     {paginator}
-                    <ReactMUI.FontIcon
+                    <FontIcon
                         key={1}
-                        tooltip={this.context.getMessage('149', '')}
-                        className={"icon-refresh" + (this.props.loading?" rotating":"")}
+                        title={this.context.getMessage('149', '')}
+                        className={"mdi mdi-refresh" + (this.props.loading?" rotating":"")}
                         onClick={this.props.reload}
+                        style={{padding: 16, display: 'block', cursor:'pointer', fontSize: 24, color: '#9E9E9E'}}
                     />
                     {this.props.additionalActions}
-                </ReactMUI.ToolbarGroup>
-            </ReactMUI.Toolbar>
+                </div>
+            </div>
         );
 
     }

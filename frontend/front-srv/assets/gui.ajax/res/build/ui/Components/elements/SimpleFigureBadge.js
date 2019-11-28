@@ -18,19 +18,28 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-/**
- * Simple MuiPaper with a figure and a legend
- */
 'use strict';
 
 exports.__esModule = true;
-exports['default'] = React.createClass({
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+/**
+ * Simple MuiPaper with a figure and a legend
+ */
+exports['default'] = _react2['default'].createClass({
     displayName: 'SimpleFigureBadge',
 
     propTypes: {
-        colorIndicator: React.PropTypes.string,
-        figure: React.PropTypes.number.isRequired,
-        legend: React.PropTypes.string
+        colorIndicator: _react2['default'].PropTypes.string,
+        figure: _react2['default'].PropTypes.number.isRequired,
+        legend: _react2['default'].PropTypes.string
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -40,18 +49,18 @@ exports['default'] = React.createClass({
     },
 
     render: function render() {
-        return React.createElement(
-            ReactMUI.Paper,
+        return _react2['default'].createElement(
+            _materialUi.Paper,
             { style: { display: 'inline-block', marginLeft: 16 } },
-            React.createElement(
+            _react2['default'].createElement(
                 'div',
                 { className: 'figure-badge', style: this.props.colorIndicator ? { borderLeftColor: this.props.colorIndicator } : {} },
-                React.createElement(
+                _react2['default'].createElement(
                     'div',
                     { className: 'figure' },
                     this.props.figure
                 ),
-                React.createElement(
+                _react2['default'].createElement(
                     'div',
                     { className: 'legend' },
                     this.props.legend

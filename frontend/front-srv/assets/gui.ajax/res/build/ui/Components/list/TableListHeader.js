@@ -26,6 +26,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
 var _utilMessagesConsumerMixin = require('../util/MessagesConsumerMixin');
 
 var _utilMessagesConsumerMixin2 = _interopRequireDefault(_utilMessagesConsumerMixin);
@@ -41,40 +47,41 @@ var _ListPaginator2 = _interopRequireDefault(_ListPaginator);
 /**
  * Specific header for Table layout, reading metadata from node and using keys
  */
-exports['default'] = React.createClass({
+exports['default'] = _react2['default'].createClass({
     displayName: 'TableListHeader',
 
     mixins: [_utilMessagesConsumerMixin2['default']],
 
     propTypes: {
-        tableKeys: React.PropTypes.object.isRequired,
-        loading: React.PropTypes.bool,
-        reload: React.PropTypes.func,
-        dm: React.PropTypes.instanceOf(PydioDataModel),
-        node: React.PropTypes.instanceOf(AjxpNode),
-        onHeaderClick: React.PropTypes.func,
-        sortingInfo: React.PropTypes.object
+        tableKeys: _react2['default'].PropTypes.object.isRequired,
+        loading: _react2['default'].PropTypes.bool,
+        reload: _react2['default'].PropTypes.func,
+        dm: _react2['default'].PropTypes.instanceOf(PydioDataModel),
+        node: _react2['default'].PropTypes.instanceOf(AjxpNode),
+        onHeaderClick: _react2['default'].PropTypes.func,
+        sortingInfo: _react2['default'].PropTypes.object
     },
 
     render: function render() {
         var headers = undefined,
             paginator = undefined;
         if (this.props.node.getMetadata().get("paginationData") && this.props.node.getMetadata().get("paginationData").get('total') > 1) {
-            paginator = React.createElement(_ListPaginator2['default'], { dataModel: this.props.dm, node: this.props.node });
+            paginator = _react2['default'].createElement(_ListPaginator2['default'], { dataModel: this.props.dm, node: this.props.node });
         }
-        return React.createElement(
-            ReactMUI.Toolbar,
-            { className: 'toolbarTableHeader' },
-            React.createElement(_SortColumns2['default'], _extends({ displayMode: 'tableHeader' }, this.props, { columnClicked: this.props.onHeaderClick })),
-            React.createElement(
-                ReactMUI.ToolbarGroup,
-                { float: 'right' },
+        return _react2['default'].createElement(
+            'div',
+            { className: 'mui-toolbar toolbarTableHeader' },
+            _react2['default'].createElement(_SortColumns2['default'], _extends({ displayMode: 'tableHeader' }, this.props, { columnClicked: this.props.onHeaderClick })),
+            _react2['default'].createElement(
+                'div',
+                { className: "mui-toolbar-group mui-right" },
                 paginator,
-                React.createElement(ReactMUI.FontIcon, {
+                _react2['default'].createElement(_materialUi.FontIcon, {
                     key: 1,
-                    tooltip: this.context.getMessage('149', ''),
-                    className: "icon-refresh" + (this.props.loading ? " rotating" : ""),
-                    onClick: this.props.reload
+                    title: this.context.getMessage('149', ''),
+                    className: "mdi mdi-refresh" + (this.props.loading ? " rotating" : ""),
+                    onClick: this.props.reload,
+                    style: { padding: 16, display: 'block', cursor: 'pointer', fontSize: 24, color: '#9E9E9E' }
                 }),
                 this.props.additionalActions
             )

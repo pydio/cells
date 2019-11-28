@@ -18,6 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import {Paper} from 'material-ui'
+
 /**
  * Simple MuiPaper with a figure and a legend
  */
@@ -37,12 +40,12 @@ export default React.createClass({
 
     render: function(){
         return (
-            <ReactMUI.Paper style={{display:'inline-block', marginLeft:16}}>
+            <Paper style={{display:'inline-block', marginLeft:16}}>
                 <div className="figure-badge" style={(this.props.colorIndicator?{borderLeftColor:this.props.colorIndicator}:{})}>
                     <div className="figure">{this.props.figure}</div>
                     <div className="legend">{this.props.legend}</div>
                 </div>
-            </ReactMUI.Paper>
+            </Paper>
         );
     }
 });

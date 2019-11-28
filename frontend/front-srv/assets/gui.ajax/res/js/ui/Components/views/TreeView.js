@@ -21,6 +21,7 @@
 import {Types, collect, collectDrop, nodeDragSource, nodeDropTarget} from '../util/DND'
 import React from 'react';
 import Pydio from 'pydio';
+import {Checkbox} from 'material-ui'
 const {withContextMenu} = Pydio.requireLib('hoc');
 
 let ContextMenuWrapper = (props) => {
@@ -98,7 +99,7 @@ var SimpleTreeNode = React.createClass({
     componentWillReceiveProps: function(nextProps){
         var oldNode = this.props.node;
         var newNode = nextProps.node;
-        if(newNode == oldNode && newNode.getMetadata().get("paginationData")){
+        if(newNode === oldNode && newNode.getMetadata().get("paginationData")){
             var remapedChildren = this.state.children.map(function(c){c.setParent(newNode);return c;});
             var remapedPathes = this.state.children.map(function(c){return c.getPath()});
             var newChildren = this._nodeToChildren(newNode);
@@ -195,21 +196,24 @@ var SimpleTreeNode = React.createClass({
                     var click = function(event, value){
                         onCheckboxCheck(node, c, value);
                     }.bind(this);
-                    if(selected) valueClasses.push(c);
+                    if(selected) {
+                        valueClasses.push(c);
+                    }
                     return (
-                        <ReactMUI.Checkbox
+                        <Checkbox
                             name={c}
                             key={c+"-"+(selected?"true":"false")}
                             checked={selected}
                             onCheck={click}
                             disabled={disabled[c]}
                             className={"cbox-" + c}
+                            style={{width: 44}}
                         />
                     );
                 }.bind(this));
                 isSelected += inherited?" inherited ":"";
                 isSelected += valueClasses.length ? (" checkbox-values-" + valueClasses.join('-')) : " checkbox-values-empty";
-                boxes = <div className={"tree-checkboxes" + additionalClassName}>{boxes}</div>;
+                boxes = <div style={{display:'flex', alignItems:'center'}} className={"tree-checkboxes" + additionalClassName}>{boxes}</div>;
             }
             let itemStyle = {paddingLeft:(paddingOffset + depth*20)};
             if(this.nodeIsSelected(node) && selectedItemStyle){

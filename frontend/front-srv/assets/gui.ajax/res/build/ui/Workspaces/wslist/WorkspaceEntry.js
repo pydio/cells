@@ -104,10 +104,6 @@ var Confirm = React.createClass({
         mode: React.PropTypes.oneOf(['new_share', 'reject_accepted'])
     },
 
-    componentDidMount: function componentDidMount() {
-        this.refs.dialog.show();
-    },
-
     render: function render() {
         var messages = this.props.pydio.MessageHash,
             messageTitle = messages[545],
@@ -123,13 +119,13 @@ var Confirm = React.createClass({
             messageBody = messageBody.replace(new RegExp(key), this.props.replacements[key]);
         }
 
+        // TODO Retest this component as Dialog replace legacy materialui dialog
         return React.createElement(
             'div',
             { className: 'react-mui-context', style: { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'transparent' } },
             React.createElement(
-                ReactMUI.Dialog,
+                _materialUi.Dialog,
                 {
-                    ref: 'dialog',
                     title: messageTitle,
                     actions: actions,
                     modal: false,

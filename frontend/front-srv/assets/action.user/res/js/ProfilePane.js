@@ -123,19 +123,6 @@ let ProfilePane = React.createClass({
         }
     },
 
-    getButton(actionName, messageId){
-        let pydio = this.props.pydio;
-        if(!pydio.Controller.getActionByName(actionName)){
-            return null;
-        }
-        let func = () => {
-            pydio.Controller.fireAction(actionName);
-        };
-        return (
-            <ReactMUI.RaisedButton label={pydio.MessageHash[messageId]} onClick={func}/>
-        );
-    },
-
     revert(){
         this.setState({
             values: {...this.state.originalValues},

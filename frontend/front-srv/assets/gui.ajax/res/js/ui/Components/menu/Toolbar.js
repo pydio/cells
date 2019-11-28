@@ -203,12 +203,13 @@ export default React.createClass({
                             style={{position:'absolute', top: -20, left: 10}}
                         />);
                     } else if(renderingType === 'button-icon'){
-                        actions.push(<ReactMUI.FlatButton
+                        actions.push(<FlatButton
                             key={actionName}
                             className={id}
                             onTouchTap={click}
                             label={menuTitle}
                             labelStyle={buttonStyle}
+                            style={flatButtonStyle}
                         />);
                     }else if(renderingType === 'button'){
                         actions.push(<FlatButton
