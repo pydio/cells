@@ -143,6 +143,7 @@ func (t *TreeNode) WalkOperations(opTypes []OperationType, callback OpWalker) {
 		callback(t.DataOperation)
 	}
 	if t.filterByTypes(opTypes, t.Conflict) {
+
 		callback(t.Conflict)
 	}
 	for _, c := range t.SortedChildren() {

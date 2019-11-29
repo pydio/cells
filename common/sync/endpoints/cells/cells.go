@@ -154,8 +154,11 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 	defer s.Close()
 	for {
 		resp, e := s.Recv()
-		if e != nil {
+		if e == io.EOF || (e == nil && resp == nil) {
 			break
+		}
+		if e != nil {
+			return e
 		}
 		n := resp.Node
 		if n.Etag == common.NODE_FLAG_ETAG_TEMPORARY {

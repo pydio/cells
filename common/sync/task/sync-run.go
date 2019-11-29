@@ -49,7 +49,7 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 		bb.SetupChannels(s.statuses, s.runDone, s.cmd)
 
 		if e := s.runBi(ctx, bb, dryRun, force, rootsInfo); e != nil || dryRun {
-			// bb.Done(bb)
+			bb.Done(bb)
 			return bb, e
 		} else {
 			s.patchChan <- bb
