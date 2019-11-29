@@ -120,7 +120,6 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, ignores ...glob.Glob)
 				}
 			}
 
-			fmt.Println(err)
 			if err != nil {
 				errs = append(errs, err)
 			}

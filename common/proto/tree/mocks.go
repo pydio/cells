@@ -86,7 +86,7 @@ func (m *StreamerMock) Recv(v interface{}) error {
 
 	node, ok := <-m.ch
 
-	if err := ShouldError(m, "Recv", node); err != nil {
+	if err := ShouldError(m, "Recv", &node); err != nil {
 		return err
 	}
 
