@@ -81,7 +81,7 @@ func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	defer responseClient.Close()
 	for {
 		response, rErr := responseClient.Recv()
-		if rErr == io.EOF || (rErr == nil && response == nil) {
+		if rErr == io.EOF || rErr == io.ErrUnexpectedEOF || (rErr == nil && response == nil) {
 			break
 		}
 		if rErr != nil {
