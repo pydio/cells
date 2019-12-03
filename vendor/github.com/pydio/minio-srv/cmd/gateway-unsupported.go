@@ -140,3 +140,7 @@ func (a GatewayUnsupported) IsEncryptionSupported() bool {
 func (a GatewayUnsupported) IsCompressionSupported() bool {
 	return false
 }
+
+func (a GatewayUnsupported) GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error){
+	return nil, NotImplemented{}
+}
