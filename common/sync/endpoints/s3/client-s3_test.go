@@ -99,6 +99,10 @@ func (c *MinioClientMock) ListenBucketNotification(bucketName, prefix, suffix st
 	return out
 }
 
+func (c *MinioClientMock) GetBucketTagging(string) ([]minio.Tag, error) {
+	return []minio.Tag{}, nil
+}
+
 func NewS3Mock() *Client {
 	mock := &MinioClientMock{
 		objects: make(map[string]minio.ObjectInfo),

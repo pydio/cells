@@ -97,6 +97,7 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 		if er != nil {
 			return er
 		}
+		var taggingError error
 		for _, bucket := range bb {
 			if m.bucketRegexp != nil && !m.bucketRegexp.MatchString(bucket.Name) {
 				continue
@@ -104,7 +105,24 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 			bC, _, _, _ := m.getClient(bucket.Name)
 			uid, _, _ := bC.readOrCreateFolderId("")
 			// Walk bucket as a folder
-			walknFc(bucket.Name, &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}, nil)
+			fNode := &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}
+			// try to read bucket tagging
+			if taggingError == nil {
+				if tags, err := c.Mc.GetBucketTagging(bucket.Name); err == nil {
+					if tags == nil || len(tags) == 0 {
+						log.Logger(context.Background()).Debug("No tags found on bucket " + bucket.Name)
+					} else {
+						log.Logger(context.Background()).Info("Adding Tag information to bucket "+bucket.Name, zap.Any("tags", tags))
+						for _, t := range tags {
+							fNode.SetMeta("pydio:s3-bucket-tag-"+t.Key, t.Value)
+						}
+					}
+				} else {
+					log.Logger(context.Background()).Warn("Cannot read bucket tagging for "+bucket.Name+", will not retry for other buckets", zap.Error(err))
+					taggingError = err
+				}
+			}
+			walknFc(bucket.Name, fNode, nil)
 			// Walk associated .pydio file
 			metaId, metaHash, metaSize, er := bC.getFileHash(common.PYDIO_SYNC_HIDDEN_FILE_META)
 			if er != nil {

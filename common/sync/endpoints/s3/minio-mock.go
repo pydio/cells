@@ -38,4 +38,5 @@ type MockableMinio interface {
 	ListBuckets() ([]minio.BucketInfo, error)
 	ListBucketsWithContext(ctx context.Context) ([]minio.BucketInfo, error)
 	BucketExists(string) (bool, error)
+	GetBucketTagging(string) ([]minio.Tag, error)
 }
