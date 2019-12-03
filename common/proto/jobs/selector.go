@@ -24,8 +24,6 @@ import (
 	"context"
 
 	"github.com/micro/go-micro/client"
-
-	service "github.com/pydio/cells/common/service/proto"
 )
 
 type InputSelector interface {
@@ -35,25 +33,4 @@ type InputSelector interface {
 
 type InputFilter interface {
 	Filter(input ActionMessage) ActionMessage
-}
-
-func reduceQueryBooleans(results []bool, operation service.OperationType) bool {
-
-	reduced := true
-	if operation == service.OperationType_AND {
-		// If one is false, it's false
-		for _, b := range results {
-			reduced = reduced && b
-		}
-	} else {
-		// At least one must be true
-		reduced = false
-		for _, b := range results {
-			reduced = reduced || b
-			if b {
-				break
-			}
-		}
-	}
-	return reduced
 }

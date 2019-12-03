@@ -71,23 +71,32 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 		return err
 	}
 
-	// Propagate event
-	client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
-		Type: idm.ChangeEventType_UPDATE,
-		Role: r,
-	}))
-	log.Logger(ctx).Info(
-		fmt.Sprintf("Role [%s] has been updated", r.Label),
-		log.GetAuditId(common.AUDIT_ROLE_UPDATE),
-		r.ZapUuid(),
-	)
 	if update {
+		// Propagate event
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_UPDATE,
+			Role: r,
+		}))
+		log.Logger(ctx).Info(
+			fmt.Sprintf("Role [%s] has been updated", r.Label),
+			log.GetAuditId(common.AUDIT_ROLE_UPDATE),
+			r.ZapUuid(),
+		)
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated role [%s]", r.Label),
 			log.GetAuditId(common.AUDIT_ROLE_UPDATE),
 			r.ZapUuid(),
 		)
 	} else {
+		client.Publish(ctx, client.NewPublication(common.TOPIC_IDM_EVENT, &idm.ChangeEvent{
+			Type: idm.ChangeEventType_CREATE,
+			Role: r,
+		}))
+		log.Logger(ctx).Info(
+			fmt.Sprintf("Role [%s] has been created", r.Label),
+			log.GetAuditId(common.AUDIT_ROLE_CREATE),
+			r.ZapUuid(),
+		)
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Created role [%s]", r.Label),
 			log.GetAuditId(common.AUDIT_ROLE_CREATE),

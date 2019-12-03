@@ -27,6 +27,10 @@ var _JobsAction = require('./JobsAction');
 
 var _JobsAction2 = _interopRequireDefault(_JobsAction);
 
+var _JobsIdmSelector = require('./JobsIdmSelector');
+
+var _JobsIdmSelector2 = _interopRequireDefault(_JobsIdmSelector);
+
 var _JobsNodesSelector = require('./JobsNodesSelector');
 
 var _JobsNodesSelector2 = _interopRequireDefault(_JobsNodesSelector);
@@ -74,6 +78,7 @@ var JobsJob = (function () {
         this.Tasks = undefined;
         this.NodeEventFilter = undefined;
         this.UserEventFilter = undefined;
+        this.IdmFilter = undefined;
     }
 
     /**
@@ -132,6 +137,9 @@ var JobsJob = (function () {
             }
             if (data.hasOwnProperty('UserEventFilter')) {
                 obj['UserEventFilter'] = _JobsUsersSelector2['default'].constructFromObject(data['UserEventFilter']);
+            }
+            if (data.hasOwnProperty('IdmFilter')) {
+                obj['IdmFilter'] = _JobsIdmSelector2['default'].constructFromObject(data['IdmFilter']);
             }
         }
         return obj;
@@ -200,4 +208,8 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/JobsUsersSelector} UserEventFilter
+*/
+
+/**
+* @member {module:model/JobsIdmSelector} IdmFilter
 */

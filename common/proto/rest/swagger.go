@@ -4602,7 +4602,7 @@ var SwaggerJson = `{
         },
         "UsersSelector": {
           "$ref": "#/definitions/jobsUsersSelector",
-          "title": "Users Selector"
+          "title": "Users Selector (deprecated in favor of IdmSelector)"
         },
         "NodesFilter": {
           "$ref": "#/definitions/jobsNodesSelector",
@@ -4610,7 +4610,15 @@ var SwaggerJson = `{
         },
         "UsersFilter": {
           "$ref": "#/definitions/jobsUsersSelector",
-          "title": "User Filter"
+          "title": "User Filter (deprecated in favor of IdmSelector)"
+        },
+        "IdmSelector": {
+          "$ref": "#/definitions/jobsIdmSelector",
+          "title": "Idm objects collector"
+        },
+        "IdmFilter": {
+          "$ref": "#/definitions/jobsIdmSelector",
+          "title": "Idm objects filter"
         },
         "SourceFilter": {
           "$ref": "#/definitions/jobsSourceFilter",
@@ -4662,6 +4670,24 @@ var SwaggerJson = `{
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmUser"
+          }
+        },
+        "Roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/idmRole"
+          }
+        },
+        "Workspaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/idmWorkspace"
+          }
+        },
+        "Acls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/idmACL"
           }
         },
         "Activities": {
@@ -4793,6 +4819,41 @@ var SwaggerJson = `{
         }
       }
     },
+    "jobsIdmSelector": {
+      "type": "object",
+      "properties": {
+        "Type": {
+          "$ref": "#/definitions/jobsIdmSelectorType",
+          "title": "Type of objects to look for"
+        },
+        "All": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Load all objects"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Serialized search query"
+        },
+        "Collect": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Pass a slice of objects to one action, or trigger all actions in parallel"
+        }
+      },
+      "title": "Generic container for select/filter idm objects"
+    },
+    "jobsIdmSelectorType": {
+      "type": "string",
+      "enum": [
+        "User",
+        "Role",
+        "Workspace",
+        "Acl"
+      ],
+      "default": "User",
+      "title": "Possible values for IdmSelector.Type"
+    },
     "jobsJob": {
       "type": "object",
       "properties": {
@@ -4866,10 +4927,16 @@ var SwaggerJson = `{
           "title": "Filled with currently running tasks"
         },
         "NodeEventFilter": {
-          "$ref": "#/definitions/jobsNodesSelector"
+          "$ref": "#/definitions/jobsNodesSelector",
+          "title": "Filter out specific events"
         },
         "UserEventFilter": {
-          "$ref": "#/definitions/jobsUsersSelector"
+          "$ref": "#/definitions/jobsUsersSelector",
+          "title": "Deprecated in favor of more generic IdmSelector"
+        },
+        "IdmFilter": {
+          "$ref": "#/definitions/jobsIdmSelector",
+          "title": "Idm objects filter"
         }
       }
     },
@@ -5064,7 +5131,8 @@ var SwaggerJson = `{
           "format": "boolean",
           "title": "Wether to trigger one action per user or one action\nwith all user as a selection"
         }
-      }
+      },
+      "title": "Select or filter users - should be replaced by more generic IdmSelector"
     },
     "logListLogRequest": {
       "type": "object",
@@ -7411,6 +7479,11 @@ var SwaggerJson = `{
         "GeoQuery": {
           "$ref": "#/definitions/treeGeoQuery",
           "title": "Search geographically"
+        },
+        "PathDepth": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Limit to a given level of the tree - can be used in filters"
         }
       },
       "title": "Search Queries"

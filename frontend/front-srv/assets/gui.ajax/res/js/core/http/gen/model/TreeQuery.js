@@ -91,6 +91,9 @@ export default class TreeQuery {
             if (data.hasOwnProperty('GeoQuery')) {
                 obj['GeoQuery'] = TreeGeoQuery.constructFromObject(data['GeoQuery']);
             }
+            if (data.hasOwnProperty('PathDepth')) {
+                obj['PathDepth'] = ApiClient.convertToType(data['PathDepth'], 'Number');
+            }
         }
         return obj;
     }
@@ -139,6 +142,10 @@ export default class TreeQuery {
     * @member {module:model/TreeGeoQuery} GeoQuery
     */
     GeoQuery = undefined;
+    /**
+    * @member {Number} PathDepth
+    */
+    PathDepth = undefined;
 
 
 

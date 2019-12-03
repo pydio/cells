@@ -103,6 +103,7 @@ import (
 	_ "github.com/pydio/cells/scheduler/actions/idm"
 	_ "github.com/pydio/cells/scheduler/actions/images"
 	_ "github.com/pydio/cells/scheduler/actions/scheduler"
+	_ "github.com/pydio/cells/scheduler/actions/script"
 	_ "github.com/pydio/cells/scheduler/actions/tree"
 
 	// ETL Actions and stores

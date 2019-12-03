@@ -309,6 +309,14 @@ var _modelJobsDeleteTasksResponse = require('./model/JobsDeleteTasksResponse');
 
 var _modelJobsDeleteTasksResponse2 = _interopRequireDefault(_modelJobsDeleteTasksResponse);
 
+var _modelJobsIdmSelector = require('./model/JobsIdmSelector');
+
+var _modelJobsIdmSelector2 = _interopRequireDefault(_modelJobsIdmSelector);
+
+var _modelJobsIdmSelectorType = require('./model/JobsIdmSelectorType');
+
+var _modelJobsIdmSelectorType2 = _interopRequireDefault(_modelJobsIdmSelectorType);
+
 var _modelJobsJob = require('./model/JobsJob');
 
 var _modelJobsJob2 = _interopRequireDefault(_modelJobsJob);
@@ -1502,6 +1510,20 @@ exports.
  * @property {module:model/JobsDeleteTasksResponse}
  */
 JobsDeleteTasksResponse = _modelJobsDeleteTasksResponse2['default'];
+exports.
+
+/**
+ * The JobsIdmSelector model constructor.
+ * @property {module:model/JobsIdmSelector}
+ */
+JobsIdmSelector = _modelJobsIdmSelector2['default'];
+exports.
+
+/**
+ * The JobsIdmSelectorType model constructor.
+ * @property {module:model/JobsIdmSelectorType}
+ */
+JobsIdmSelectorType = _modelJobsIdmSelectorType2['default'];
 exports.
 
 /**

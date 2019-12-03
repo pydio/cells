@@ -29,6 +29,7 @@ import (
 
 	"github.com/micro/go-micro/client"
 
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/proto/jobs"
 )
 
@@ -53,6 +54,17 @@ type TaskUpdaterDelegateAction interface {
 // Actions that implement this interface will publish progress updates on the progress channel.
 type ProgressProviderAction interface {
 	ProvidesProgress() bool
+}
+
+// SelfDescriberAction provides a label and description for nice display
+type SelfDescriberAction interface {
+	Label() string
+	Description() string
+}
+
+// FormProviderAction provides indication about its parameters in the forms.Form format
+type FormProviderAction interface {
+	ParametersForm() *forms.Form
 }
 
 // Actions that implement this interface can eventually be stopped and/or paused+resumed

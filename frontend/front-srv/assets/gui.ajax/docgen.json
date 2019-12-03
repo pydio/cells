@@ -4588,6 +4588,21 @@
         ]
       }
     ],
+    "AdminScheduler/board/JobGraph.js": [
+      {
+        "description": "",
+        "displayName": "JobGraph",
+        "methods": [
+          {
+            "name": "graphFromJob",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminScheduler/board/JobSchedule.js": [
       {
         "description": "",
@@ -20303,6 +20318,79 @@
               }
             },
             "description": "Constructs a <code>JobsDeleteTasksResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/JobsIdmSelector.js": [
+      {
+        "description": "The JobsIdmSelector model module.\n@module model/JobsIdmSelector\n@version 1.0",
+        "displayName": "JobsIdmSelector",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>JobsIdmSelector</code>.\n@alias module:model/JobsIdmSelector\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>JobsIdmSelector</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>JobsIdmSelector</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsIdmSelector} obj Optional instance to populate.\n@return {module:model/JobsIdmSelector} The populated <code>JobsIdmSelector</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/JobsIdmSelector"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>JobsIdmSelector</code> instance.",
+              "type": {
+                "name": "module:model/JobsIdmSelector"
+              }
+            },
+            "description": "Constructs a <code>JobsIdmSelector</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/JobsIdmSelectorType.js": [
+      {
+        "description": "Enum class JobsIdmSelectorType.\n@enum {}\n@readonly",
+        "displayName": "JobsIdmSelectorType",
+        "methods": [
+          {
+            "name": "constructFromObject",
+            "docblock": "Returns a <code>JobsIdmSelectorType</code> enum value from a Javascript object name.\n@param {Object} data The plain JavaScript object containing the name of the enum value.\n@return {module:model/JobsIdmSelectorType} The enum <code>JobsIdmSelectorType</code> value.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "object"
+              }
+            ],
+            "returns": {
+              "description": "The enum <code>JobsIdmSelectorType</code> value.",
+              "type": {
+                "name": "module:model/JobsIdmSelectorType"
+              }
+            },
+            "description": "Returns a <code>JobsIdmSelectorType</code> enum value from a Javascript object name."
           }
         ]
       }

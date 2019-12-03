@@ -58,6 +58,7 @@ var TreeQuery = (function () {
         this.FreeString = undefined;
         this.Extension = undefined;
         this.GeoQuery = undefined;
+        this.PathDepth = undefined;
     }
 
     /**
@@ -104,6 +105,9 @@ var TreeQuery = (function () {
             }
             if (data.hasOwnProperty('GeoQuery')) {
                 obj['GeoQuery'] = _TreeGeoQuery2['default'].constructFromObject(data['GeoQuery']);
+            }
+            if (data.hasOwnProperty('PathDepth')) {
+                obj['PathDepth'] = _ApiClient2['default'].convertToType(data['PathDepth'], 'Number');
             }
         }
         return obj;
@@ -156,4 +160,8 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/TreeGeoQuery} GeoQuery
+*/
+
+/**
+* @member {Number} PathDepth
 */

@@ -26,6 +26,27 @@ message NodesSelector {
     bool Collect = 5;
 }
 
+// Possible values for IdmSelector.Type
+enum IdmSelectorType {
+    User = 0;
+    Role = 1;
+    Workspace = 2;
+    Acl = 3;
+}
+
+// Generic container for select/filter idm objects
+message IdmSelector {
+    // Type of objects to look for
+    IdmSelectorType Type = 1;
+    // Load all objects
+    bool All = 2;
+    // Serialized search query
+    service.Query Query = 3;
+    // Pass a slice of objects to one action, or trigger all actions in parallel
+    bool Collect = 4;
+}
+
+// Select or filter users - should be replaced by more generic IdmSelector
 message UsersSelector {
     // Select all users
     bool All = 1;
@@ -58,12 +79,17 @@ message Action {
 
     // Nodes Selector
     NodesSelector NodesSelector = 2;
-    // Users Selector
+    // Users Selector (deprecated in favor of IdmSelector)
     UsersSelector UsersSelector = 3;
     // Node Filter
     NodesSelector NodesFilter = 4;
-    // User Filter
+    // User Filter (deprecated in favor of IdmSelector)
     UsersSelector UsersFilter = 5;
+
+    // Idm objects collector
+    IdmSelector IdmSelector = 9;
+    // Idm objects filter
+    IdmSelector IdmFilter = 10;
 
     // Source filter
     SourceFilter SourceFilter = 6;
@@ -112,8 +138,13 @@ message Job {
     // Filled with currently running tasks
     repeated Task Tasks = 14;
 
+    // Filter out specific events
     NodesSelector NodeEventFilter = 15;
+    // Deprecated in favor of more generic IdmSelector
     UsersSelector UserEventFilter = 16;
+    // Idm objects filter
+    IdmSelector IdmFilter = 17;
+
 }
 
 // Events sent by the JobService when CRUD'ing a Job configuration
@@ -333,6 +364,9 @@ message ActionMessage {
     google.protobuf.Any Event = 1;
     repeated tree.Node Nodes = 2;
     repeated idm.User Users = 3;
+    repeated idm.Role Roles = 6;
+    repeated idm.Workspace Workspaces = 7;
+    repeated idm.ACL Acls = 8;
     repeated activity.Object Activities = 4;
     repeated ActionOutput OutputChain = 5;
 }

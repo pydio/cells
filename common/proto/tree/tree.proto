@@ -376,6 +376,8 @@ message Query {
     string Extension = 10;
     // Search geographically
     GeoQuery GeoQuery = 11;
+    // Limit to a given level of the tree - can be used in filters
+    int32 PathDepth = 12;
 }
 
 message GeoQuery {

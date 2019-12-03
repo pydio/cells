@@ -57,7 +57,7 @@ func (n *SourceFilter) Filter(input ActionMessage) ActionMessage {
 
 	}
 
-	if !reduceQueryBooleans(results, n.Query.Operation) {
+	if !service.ReduceQueryBooleans(results, n.Query.Operation) {
 		output := input
 		// Filter out all future message actions
 		output.Nodes = []*tree.Node{}

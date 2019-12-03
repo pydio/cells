@@ -27,9 +27,21 @@ var _ActivityObject = require('./ActivityObject');
 
 var _ActivityObject2 = _interopRequireDefault(_ActivityObject);
 
+var _IdmACL = require('./IdmACL');
+
+var _IdmACL2 = _interopRequireDefault(_IdmACL);
+
+var _IdmRole = require('./IdmRole');
+
+var _IdmRole2 = _interopRequireDefault(_IdmRole);
+
 var _IdmUser = require('./IdmUser');
 
 var _IdmUser2 = _interopRequireDefault(_IdmUser);
+
+var _IdmWorkspace = require('./IdmWorkspace');
+
+var _IdmWorkspace2 = _interopRequireDefault(_IdmWorkspace);
 
 var _JobsActionOutput = require('./JobsActionOutput');
 
@@ -62,6 +74,9 @@ var JobsActionMessage = (function () {
         this.Event = undefined;
         this.Nodes = undefined;
         this.Users = undefined;
+        this.Roles = undefined;
+        this.Workspaces = undefined;
+        this.Acls = undefined;
         this.Activities = undefined;
         this.OutputChain = undefined;
     }
@@ -86,6 +101,15 @@ var JobsActionMessage = (function () {
             }
             if (data.hasOwnProperty('Users')) {
                 obj['Users'] = _ApiClient2['default'].convertToType(data['Users'], [_IdmUser2['default']]);
+            }
+            if (data.hasOwnProperty('Roles')) {
+                obj['Roles'] = _ApiClient2['default'].convertToType(data['Roles'], [_IdmRole2['default']]);
+            }
+            if (data.hasOwnProperty('Workspaces')) {
+                obj['Workspaces'] = _ApiClient2['default'].convertToType(data['Workspaces'], [_IdmWorkspace2['default']]);
+            }
+            if (data.hasOwnProperty('Acls')) {
+                obj['Acls'] = _ApiClient2['default'].convertToType(data['Acls'], [_IdmACL2['default']]);
             }
             if (data.hasOwnProperty('Activities')) {
                 obj['Activities'] = _ApiClient2['default'].convertToType(data['Activities'], [_ActivityObject2['default']]);
@@ -112,6 +136,18 @@ module.exports = exports['default'];
 
 /**
 * @member {Array.<module:model/IdmUser>} Users
+*/
+
+/**
+* @member {Array.<module:model/IdmRole>} Roles
+*/
+
+/**
+* @member {Array.<module:model/IdmWorkspace>} Workspaces
+*/
+
+/**
+* @member {Array.<module:model/IdmACL>} Acls
 */
 
 /**

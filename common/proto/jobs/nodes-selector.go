@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/service/proto"
 )
 
 func contains(slice []string, value string, prefix bool, lower bool) bool {
@@ -138,14 +139,15 @@ func (n *NodesSelector) Filter(input ActionMessage) ActionMessage {
 				}
 				results = append(results, n.evaluateSingleQuery(singleQuery, node))
 			}
-			if !reduceQueryBooleans(results, n.Query.Operation) {
+			if !service.ReduceQueryBooleans(results, n.Query.Operation) {
 				continue
 			}
 		}
 
 		newNodes = append(newNodes, node)
 	}
-	output := input.WithNodes(newNodes...)
+	output := input
+	output.Nodes = newNodes
 	return output
 
 }
@@ -167,6 +169,10 @@ func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool
 	}
 
 	if (q.Type == tree.NodeType_COLLECTION && node.IsLeaf()) || (q.Type == tree.NodeType_LEAF && !node.IsLeaf()) {
+		return false
+	}
+
+	if q.PathDepth > 0 && len(strings.Split(strings.Trim(node.Path, "/"), "/")) != int(q.PathDepth) {
 		return false
 	}
 

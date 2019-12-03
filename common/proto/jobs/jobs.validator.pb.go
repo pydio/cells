@@ -33,6 +33,14 @@ func (this *NodesSelector) Validate() error {
 	}
 	return nil
 }
+func (this *IdmSelector) Validate() error {
+	if this.Query != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
 func (this *UsersSelector) Validate() error {
 	for _, item := range this.Users {
 		if item != nil {
@@ -80,6 +88,16 @@ func (this *Action) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("UsersFilter", err)
 		}
 	}
+	if this.IdmSelector != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.IdmSelector); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("IdmSelector", err)
+		}
+	}
+	if this.IdmFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.IdmFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("IdmFilter", err)
+		}
+	}
 	if this.SourceFilter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SourceFilter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("SourceFilter", err)
@@ -123,6 +141,11 @@ func (this *Job) Validate() error {
 	if this.UserEventFilter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.UserEventFilter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("UserEventFilter", err)
+		}
+	}
+	if this.IdmFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.IdmFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("IdmFilter", err)
 		}
 	}
 	return nil
@@ -293,6 +316,27 @@ func (this *ActionMessage) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Users", err)
+			}
+		}
+	}
+	for _, item := range this.Roles {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Roles", err)
+			}
+		}
+	}
+	for _, item := range this.Workspaces {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Workspaces", err)
+			}
+		}
+	}
+	for _, item := range this.Acls {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Acls", err)
 			}
 		}
 	}

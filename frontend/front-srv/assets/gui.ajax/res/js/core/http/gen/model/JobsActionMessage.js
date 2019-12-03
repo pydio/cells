@@ -14,7 +14,10 @@
 
 import ApiClient from '../ApiClient';
 import ActivityObject from './ActivityObject';
+import IdmACL from './IdmACL';
+import IdmRole from './IdmRole';
 import IdmUser from './IdmUser';
+import IdmWorkspace from './IdmWorkspace';
 import JobsActionOutput from './JobsActionOutput';
 import ProtobufAny from './ProtobufAny';
 import TreeNode from './TreeNode';
@@ -70,6 +73,15 @@ export default class JobsActionMessage {
             if (data.hasOwnProperty('Users')) {
                 obj['Users'] = ApiClient.convertToType(data['Users'], [IdmUser]);
             }
+            if (data.hasOwnProperty('Roles')) {
+                obj['Roles'] = ApiClient.convertToType(data['Roles'], [IdmRole]);
+            }
+            if (data.hasOwnProperty('Workspaces')) {
+                obj['Workspaces'] = ApiClient.convertToType(data['Workspaces'], [IdmWorkspace]);
+            }
+            if (data.hasOwnProperty('Acls')) {
+                obj['Acls'] = ApiClient.convertToType(data['Acls'], [IdmACL]);
+            }
             if (data.hasOwnProperty('Activities')) {
                 obj['Activities'] = ApiClient.convertToType(data['Activities'], [ActivityObject]);
             }
@@ -92,6 +104,18 @@ export default class JobsActionMessage {
     * @member {Array.<module:model/IdmUser>} Users
     */
     Users = undefined;
+    /**
+    * @member {Array.<module:model/IdmRole>} Roles
+    */
+    Roles = undefined;
+    /**
+    * @member {Array.<module:model/IdmWorkspace>} Workspaces
+    */
+    Workspaces = undefined;
+    /**
+    * @member {Array.<module:model/IdmACL>} Acls
+    */
+    Acls = undefined;
     /**
     * @member {Array.<module:model/ActivityObject>} Activities
     */

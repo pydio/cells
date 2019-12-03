@@ -85,6 +85,8 @@ import JobsCtrlCommand from './model/JobsCtrlCommand';
 import JobsCtrlCommandResponse from './model/JobsCtrlCommandResponse';
 import JobsDeleteTasksRequest from './model/JobsDeleteTasksRequest';
 import JobsDeleteTasksResponse from './model/JobsDeleteTasksResponse';
+import JobsIdmSelector from './model/JobsIdmSelector';
+import JobsIdmSelectorType from './model/JobsIdmSelectorType';
 import JobsJob from './model/JobsJob';
 import JobsListJobsRequest from './model/JobsListJobsRequest';
 import JobsNodesSelector from './model/JobsNodesSelector';
@@ -719,6 +721,18 @@ export {
      * @property {module:model/JobsDeleteTasksResponse}
      */
     JobsDeleteTasksResponse,
+
+    /**
+     * The JobsIdmSelector model constructor.
+     * @property {module:model/JobsIdmSelector}
+     */
+    JobsIdmSelector,
+
+    /**
+     * The JobsIdmSelectorType model constructor.
+     * @property {module:model/JobsIdmSelectorType}
+     */
+    JobsIdmSelectorType,
 
     /**
      * The JobsJob model constructor.
