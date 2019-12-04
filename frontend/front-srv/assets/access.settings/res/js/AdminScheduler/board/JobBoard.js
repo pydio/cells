@@ -25,6 +25,7 @@ const {JobsStore, SingleJobProgress} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 import TaskActivity from './TaskActivity'
 import JobSchedule from './JobSchedule'
+import JobGraph from "./JobGraph";
 
 class JobBoard extends React.Component {
 
@@ -183,6 +184,10 @@ class JobBoard extends React.Component {
                             emptyStateString={m('tasks.running.empty')}
                             onSelectRows={(rows) => { if(rows.length === 1 && running.length){ this.setState({taskLogs: rows[0]}); }}}
                         />
+                    </Paper>
+                    <AdminComponents.SubHeader title={"Job Description"}/>
+                    <Paper style={{margin: 20}}>
+                        <JobGraph job={job}/>
                     </Paper>
                     <AdminComponents.SubHeader
                         title={

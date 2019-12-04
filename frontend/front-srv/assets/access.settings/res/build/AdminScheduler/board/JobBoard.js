@@ -54,6 +54,10 @@ var _JobSchedule = require('./JobSchedule');
 
 var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
 
+var _JobGraph = require("./JobGraph");
+
+var _JobGraph2 = _interopRequireDefault(_JobGraph);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -294,6 +298,12 @@ var JobBoard = (function (_React$Component) {
                                 }
                             }
                         })
+                    ),
+                    _react2['default'].createElement(AdminComponents.SubHeader, { title: "Job Description" }),
+                    _react2['default'].createElement(
+                        _materialUi.Paper,
+                        { style: { margin: 20 } },
+                        _react2['default'].createElement(_JobGraph2['default'], { job: job })
                     ),
                     _react2['default'].createElement(AdminComponents.SubHeader, {
                         title: _react2['default'].createElement(
