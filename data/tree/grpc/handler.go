@@ -388,6 +388,8 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 		for {
 			clientResponse, err := stream.Recv()
 
+			return fmt.Errorf("Error whatever")
+
 			if clientResponse == nil {
 				break
 			}

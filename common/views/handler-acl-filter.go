@@ -102,6 +102,9 @@ func (a *AclFilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 		for {
 			resp, err := stream.Recv()
 			if err != nil {
+				if err != io.EOF && err != io.ErrUnexpectedEOF {
+					s.SendError(err)
+				}
 				break
 			}
 			if resp == nil {
@@ -121,6 +124,7 @@ func (a *AclFilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 			s.Send(resp)
 		}
 	}()
+
 	return s, nil
 }
 
