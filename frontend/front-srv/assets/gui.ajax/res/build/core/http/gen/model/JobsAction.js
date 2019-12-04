@@ -23,6 +23,10 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _JobsIdmSelector = require('./JobsIdmSelector');
+
+var _JobsIdmSelector2 = _interopRequireDefault(_JobsIdmSelector);
+
 var _JobsNodesSelector = require('./JobsNodesSelector');
 
 var _JobsNodesSelector2 = _interopRequireDefault(_JobsNodesSelector);
@@ -56,6 +60,8 @@ var JobsAction = (function () {
         this.UsersSelector = undefined;
         this.NodesFilter = undefined;
         this.UsersFilter = undefined;
+        this.IdmSelector = undefined;
+        this.IdmFilter = undefined;
         this.SourceFilter = undefined;
         this.Parameters = undefined;
         this.ChainedActions = undefined;
@@ -87,6 +93,12 @@ var JobsAction = (function () {
             }
             if (data.hasOwnProperty('UsersFilter')) {
                 obj['UsersFilter'] = _JobsUsersSelector2['default'].constructFromObject(data['UsersFilter']);
+            }
+            if (data.hasOwnProperty('IdmSelector')) {
+                obj['IdmSelector'] = _JobsIdmSelector2['default'].constructFromObject(data['IdmSelector']);
+            }
+            if (data.hasOwnProperty('IdmFilter')) {
+                obj['IdmFilter'] = _JobsIdmSelector2['default'].constructFromObject(data['IdmFilter']);
             }
             if (data.hasOwnProperty('SourceFilter')) {
                 obj['SourceFilter'] = _JobsSourceFilter2['default'].constructFromObject(data['SourceFilter']);
@@ -124,6 +136,14 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/JobsUsersSelector} UsersFilter
+*/
+
+/**
+* @member {module:model/JobsIdmSelector} IdmSelector
+*/
+
+/**
+* @member {module:model/JobsIdmSelector} IdmFilter
 */
 
 /**

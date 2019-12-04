@@ -13,6 +13,7 @@
 
 
 import ApiClient from '../ApiClient';
+import JobsIdmSelector from './JobsIdmSelector';
 import JobsNodesSelector from './JobsNodesSelector';
 import JobsSourceFilter from './JobsSourceFilter';
 import JobsUsersSelector from './JobsUsersSelector';
@@ -74,6 +75,12 @@ export default class JobsAction {
             if (data.hasOwnProperty('UsersFilter')) {
                 obj['UsersFilter'] = JobsUsersSelector.constructFromObject(data['UsersFilter']);
             }
+            if (data.hasOwnProperty('IdmSelector')) {
+                obj['IdmSelector'] = JobsIdmSelector.constructFromObject(data['IdmSelector']);
+            }
+            if (data.hasOwnProperty('IdmFilter')) {
+                obj['IdmFilter'] = JobsIdmSelector.constructFromObject(data['IdmFilter']);
+            }
             if (data.hasOwnProperty('SourceFilter')) {
                 obj['SourceFilter'] = JobsSourceFilter.constructFromObject(data['SourceFilter']);
             }
@@ -107,6 +114,14 @@ export default class JobsAction {
     * @member {module:model/JobsUsersSelector} UsersFilter
     */
     UsersFilter = undefined;
+    /**
+    * @member {module:model/JobsIdmSelector} IdmSelector
+    */
+    IdmSelector = undefined;
+    /**
+    * @member {module:model/JobsIdmSelector} IdmFilter
+    */
+    IdmFilter = undefined;
     /**
     * @member {module:model/JobsSourceFilter} SourceFilter
     */

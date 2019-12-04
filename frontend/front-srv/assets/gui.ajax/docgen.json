@@ -4594,6 +4594,42 @@
         "displayName": "JobGraph",
         "methods": [
           {
+            "name": "computeMaxParallelActions",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "chainActions",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "graph",
+                "type": null
+              },
+              {
+                "name": "actions",
+                "type": null
+              },
+              {
+                "name": "inputId",
+                "type": null
+              },
+              {
+                "name": "grid",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "graphFromJob",
             "docblock": null,
             "modifiers": [],
