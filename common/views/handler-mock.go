@@ -84,6 +84,7 @@ func (h *HandlerMock) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 				streamer.Send(&tree.ListNodesResponse{Node: n})
 			}
 		}
+
 	}()
 	return streamer, nil
 }

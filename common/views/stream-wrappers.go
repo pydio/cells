@@ -21,9 +21,12 @@
 package views
 
 import (
-	"encoding/json"
+	"bufio"
+	"encoding/binary"
 	"fmt"
 	"io"
+
+	"github.com/golang/protobuf/proto"
 
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -66,6 +69,7 @@ func (l *ChangesWrappingStreamer) Recv() (*tree.NodeChangeEvent, error) {
 type wrappingStreamer struct {
 	w       *io.PipeWriter
 	r       *io.PipeReader
+	b       *bufio.Reader
 	closed  bool
 	recvErr error
 }
@@ -76,19 +80,46 @@ func newWrappingStreamer() *wrappingStreamer {
 	return &wrappingStreamer{
 		w:      w,
 		r:      r,
+		b:      bufio.NewReader(r),
 		closed: false,
 	}
 }
 
-func (l *wrappingStreamer) Send(msg interface{}) error {
-	enc := json.NewEncoder(l.w)
-	switch v := msg.(type) {
+func (l *wrappingStreamer) Send(in interface{}) error {
+	msg := new(tree.WrappingStreamerResponse)
+	switch v := in.(type) {
 	case *tree.ListNodesResponse:
-		return enc.Encode(&tree.WrappingStreamerResponse{Data: &tree.WrappingStreamerResponse_ListNodesResponse{v}})
+		msg.Data = &tree.WrappingStreamerResponse_ListNodesResponse{
+			ListNodesResponse: v,
+		}
+		break
 	case *tree.NodeChangeEvent:
-		return enc.Encode(&tree.WrappingStreamerResponse{Data: &tree.WrappingStreamerResponse_NodeChangeEvent{v}})
+		msg.Data = &tree.WrappingStreamerResponse_NodeChangeEvent{
+			NodeChangeEvent: v,
+		}
+		break
+	case error:
+		msg.Error = v.Error()
+	default:
+		return fmt.Errorf("unknown format")
 	}
-	return fmt.Errorf("unknown format")
+
+	if out, err := proto.Marshal(msg); err != nil {
+		return err
+	} else {
+		// First sending the message size 2 bytes
+		b := make([]byte, 2)
+		binary.BigEndian.PutUint16(b, uint16(len(out)))
+		if _, err := l.w.Write(b); err != nil {
+			return err
+		}
+
+		if _, err := l.w.Write(out); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (l *wrappingStreamer) SendMsg(msg interface{}) error {
@@ -96,8 +127,7 @@ func (l *wrappingStreamer) SendMsg(msg interface{}) error {
 }
 
 func (l *wrappingStreamer) SendError(err error) error {
-	enc := json.NewEncoder(l.w)
-	return enc.Encode(&tree.WrappingStreamerResponse{Error: err.Error()})
+	return l.Send(err)
 }
 
 func (l *wrappingStreamer) Recv() (*tree.WrappingStreamerResponse, error) {
@@ -105,9 +135,21 @@ func (l *wrappingStreamer) Recv() (*tree.WrappingStreamerResponse, error) {
 		return nil, io.EOF
 	}
 
-	resp := &tree.WrappingStreamerResponse{}
+	// Getting the next message size
+	size := make([]byte, 2)
+	if _, err := l.r.Read(size); err != nil {
+		return nil, err
+	}
 
-	if err := json.NewDecoder(l.r).Decode(resp); err != nil {
+	in := make([]byte, binary.BigEndian.Uint16(size))
+
+	if _, err := l.r.Read(in); err != nil {
+		return nil, err
+	}
+
+	resp := new(tree.WrappingStreamerResponse)
+
+	if err := proto.Unmarshal(in, resp); err != nil {
 		return nil, err
 	}
 
