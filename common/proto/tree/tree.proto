@@ -59,9 +59,9 @@ message ListNodesResponse {
 }
 
 message WrappingStreamerResponse {
-    oneof data {
-        ListNodesResponse listNodesResponse = 1;
-        NodeChangeEvent nodeChangeEvent = 2;
+    oneof Data {
+        ListNodesResponse ListNodesResponse = 1;
+        NodeChangeEvent NodeChangeEvent = 2;
     }
     string Error = 3;
 }

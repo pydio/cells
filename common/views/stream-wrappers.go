@@ -21,7 +21,6 @@
 package views
 
 import (
-	"bufio"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -65,11 +64,9 @@ func (l *ChangesWrappingStreamer) Recv() (*tree.NodeChangeEvent, error) {
 	return msg.GetNodeChangeEvent(), nil
 }
 
-// TODO Switch to Proto encoding instead of json?
 type wrappingStreamer struct {
 	w       *io.PipeWriter
 	r       *io.PipeReader
-	b       *bufio.Reader
 	closed  bool
 	recvErr error
 }
@@ -80,7 +77,6 @@ func newWrappingStreamer() *wrappingStreamer {
 	return &wrappingStreamer{
 		w:      w,
 		r:      r,
-		b:      bufio.NewReader(r),
 		closed: false,
 	}
 }
