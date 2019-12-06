@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
@@ -26,6 +28,21 @@ var (
 type DeleteUsersAction struct {
 	task   *jobs.Task
 	params map[string]string
+}
+
+func (a *DeleteUsersAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              DeleteUsersActionName,
+		Label:           "Remove Users",
+		Icon:            "account-off",
+		Description:     "Batch-delete users and groups",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (a *DeleteUsersAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 func (a *DeleteUsersAction) GetName() string {

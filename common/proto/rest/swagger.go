@@ -901,6 +901,48 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/config/scheduler/actions": {
+      "get": {
+        "summary": "Publish scheduler registered actions",
+        "operationId": "SchedulerActionsDiscovery",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restSchedulerActionsResponse"
+            }
+          }
+        },
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
+    "/config/scheduler/actions/{ActionName}": {
+      "get": {
+        "summary": "Publish scheduler action XML form for building screens in frontend",
+        "operationId": "SchedulerActionFormDiscovery",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restSchedulerActionFormResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ActionName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
     "/config/versioning": {
       "get": {
         "summary": "List all defined versioning policies",
@@ -5503,6 +5545,36 @@ var SwaggerJson = `{
       },
       "title": "Response for search request"
     },
+    "restActionDescription": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string",
+          "title": "Unique name of the action"
+        },
+        "Icon": {
+          "type": "string",
+          "title": "Mdi reference name for displaying icon"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Human-readable label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Long description and help text"
+        },
+        "SummaryTemplate": {
+          "type": "string",
+          "title": "Template for building a short summary of the action configuration"
+        },
+        "HasForm": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Whether this action has a form or not"
+        }
+      }
+    },
     "restBackgroundJobResult": {
       "type": "object",
       "properties": {
@@ -6500,6 +6572,21 @@ var SwaggerJson = `{
         }
       },
       "title": "Roles Collection"
+    },
+    "restSchedulerActionFormResponse": {
+      "type": "object"
+    },
+    "restSchedulerActionsResponse": {
+      "type": "object",
+      "properties": {
+        "Actions": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/restActionDescription"
+          },
+          "title": "List of all registered actions"
+        }
+      }
     },
     "restSearchACLRequest": {
       "type": "object",

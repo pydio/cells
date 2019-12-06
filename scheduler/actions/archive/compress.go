@@ -30,6 +30,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -46,6 +47,21 @@ type CompressAction struct {
 	Router     *views.Router
 	Format     string
 	TargetName string
+}
+
+func (c *CompressAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              compressActionName,
+		Label:           "Create Archive",
+		Icon:            "package-down",
+		Description:     "Create a Zip, Tar or Tar.gz archive from the input nodes selection",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *CompressAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns this action unique identifier

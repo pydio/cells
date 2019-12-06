@@ -26,6 +26,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/scheduler/actions"
+
 	"github.com/go-openapi/spec"
 
 	"github.com/emicklei/go-restful"
@@ -178,4 +180,36 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
 	return
 
+}
+
+// SchedulerActionsDiscovery lists all registered actions
+func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.Response) {
+	actionManager := actions.GetActionsManager()
+	allActions := actionManager.DescribeActions(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
+	response := &rest.SchedulerActionsResponse{
+		Actions: make(map[string]*rest.ActionDescription, len(allActions)),
+	}
+	for name, a := range allActions {
+		response.Actions[name] = &rest.ActionDescription{
+			Name:            a.ID,
+			Icon:            a.Icon,
+			Label:           a.Label,
+			Description:     a.Description,
+			SummaryTemplate: a.SummaryTemplate,
+			HasForm:         a.HasForm,
+		}
+	}
+	rsp.WriteEntity(response)
+}
+
+// SchedulerActionFormDiscovery sends an XML-serialized form for building parameters for a given action
+func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restful.Response) {
+	actionName := req.PathParameter("ActionName")
+	actionManager := actions.GetActionsManager()
+	form, err := actionManager.LoadActionForm(actionName)
+	if err != nil {
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
 }

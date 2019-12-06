@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 
@@ -22,8 +24,35 @@ var (
 
 type StoreAction struct {
 	inputStoreType []string
-	updateIfExists bool
 	cl             client.Client
+}
+
+func (i *StoreAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              StoreActionName,
+		Label:           "Store",
+		Icon:            "database",
+		Description:     "Store or update IDM objects (workspaces, users, roles, acls) passed in input",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (i *StoreAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "objectTypes",
+					Type:        "string",
+					Label:       "Object Types",
+					Description: "Comma-separated list of values amongst user,workspace, acl, role or workspace",
+					Mandatory:   true,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns action name
@@ -40,9 +69,6 @@ func (i *StoreAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action)
 		for k, v := range i.inputStoreType {
 			i.inputStoreType[k] = strings.TrimSpace(v)
 		}
-	}
-	if b, ok := action.Parameters["updateIfExists"]; ok && b == "true" {
-		i.updateIfExists = true
 	}
 	i.cl = cl
 	return nil

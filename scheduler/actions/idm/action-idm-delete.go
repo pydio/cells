@@ -10,6 +10,7 @@ import (
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	service "github.com/pydio/cells/common/service/proto"
@@ -23,6 +24,34 @@ var (
 type DeleteAction struct {
 	inputStoreType []string
 	cl             client.Client
+}
+
+func (i *DeleteAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              DeleteActionName,
+		Label:           "Delete",
+		Icon:            "delete-forever",
+		Description:     "Delete users, roles, workspaces or acls passed in input",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (i *DeleteAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "objectTypes",
+					Type:        "string",
+					Label:       "Object Types",
+					Description: "Comma-separated list of values amongst user,workspace, acl, role or workspace",
+					Mandatory:   true,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns action name

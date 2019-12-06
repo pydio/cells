@@ -35,11 +35,16 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
+)
+
+var (
+	shellActionName = "actions.cmd.shell"
 )
 
 type ShellAction struct {
@@ -60,9 +65,20 @@ type ShellAction struct {
 	ResultPlaceHolder string
 }
 
-var (
-	shellActionName = "actions.cmd.shell"
-)
+func (c *ShellAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              shellActionName,
+		Label:           "Shell Command",
+		Icon:            "console",
+		Description:     "Perform a console command on the underlying server",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *ShellAction) GetParametersForm() *forms.Form {
+	return nil
+}
 
 // Unique identifier
 func (c *ShellAction) GetName() string {

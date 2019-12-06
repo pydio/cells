@@ -12,6 +12,7 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/etl"
 	"github.com/pydio/cells/common/etl/models"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/scheduler/actions"
@@ -19,6 +20,21 @@ import (
 
 type SyncUsersAction struct {
 	etlAction
+}
+
+func (c *SyncUsersAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              SyncUsersActionName,
+		Label:           "Sync Directories",
+		Icon:            "account-convert",
+		Description:     "Synchronize external directories with Cells database",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *SyncUsersAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 type ConnectorConfigs struct {

@@ -26,9 +26,14 @@ import (
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/scheduler/actions"
+)
+
+var (
+	metaActionName = "actions.tree.meta"
 )
 
 type MetaAction struct {
@@ -37,9 +42,43 @@ type MetaAction struct {
 	MetaValue     interface{}
 }
 
-var (
-	metaActionName = "actions.tree.meta"
-)
+func (c *MetaAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              metaActionName,
+		Label:           "Update Meta",
+		Icon:            "tag-multiple",
+		Description:     "Update metadata on files or folders passed in input",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (c *MetaAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "metaName",
+					Type:        "string",
+					Label:       "Meta Name",
+					Description: "Metadata namespace to update",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "metaValue",
+					Type:        "string",
+					Label:       "Meta Value",
+					Description: "Value to apply",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+}
 
 // GetName returns this action unique identifier
 func (c *MetaAction) GetName() string {

@@ -27,13 +27,23 @@ import (
 	"context"
 	"time"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/micro/go-micro/client"
 
-	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/proto/jobs"
 )
 
 type Concrete func() ConcreteAction
+
+type ActionDescription struct {
+	ID              string
+	Label           string
+	Icon            string
+	Description     string
+	SummaryTemplate string
+	HasForm         bool
+}
 
 // ConcreteAction is the base interface for pydio actions. All actions must implement this interface.
 type ConcreteAction interface {
@@ -56,15 +66,10 @@ type ProgressProviderAction interface {
 	ProvidesProgress() bool
 }
 
-// SelfDescriberAction provides a label and description for nice display
-type SelfDescriberAction interface {
-	Label() string
-	Description() string
-}
-
-// FormProviderAction provides indication about its parameters in the forms.Form format
-type FormProviderAction interface {
-	ParametersForm() *forms.Form
+// DescriptionProviderAction has a human-readable label
+type DescriptionProviderAction interface {
+	GetDescription(lang ...string) ActionDescription
+	GetParametersForm() *forms.Form
 }
 
 // Actions that implement this interface can eventually be stopped and/or paused+resumed

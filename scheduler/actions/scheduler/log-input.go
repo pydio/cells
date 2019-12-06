@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/scheduler/actions"
-	"go.uber.org/zap"
 )
 
 var (
@@ -15,6 +17,21 @@ var (
 )
 
 type LogInputAction struct{}
+
+func (l *LogInputAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              LogInputActionName,
+		Label:           "Log Inputs",
+		Icon:            "format-list-bulleted",
+		Description:     "For debug purpose, log all action inputs and pass them along to next action",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (l *LogInputAction) GetParametersForm() *forms.Form {
+	return nil
+}
 
 func (l *LogInputAction) GetName() string {
 	return LogInputActionName

@@ -24,21 +24,36 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/common/log"
-
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
-type PruneJobsAction struct{}
-
 var (
 	pruneJobsActionName = "actions.internal.prune-jobs"
 )
+
+type PruneJobsAction struct{}
+
+func (c *PruneJobsAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              pruneJobsActionName,
+		Label:           "Prune Jobs",
+		Icon:            "delete-sweep",
+		Description:     "Delete finished scheduler jobs marked as AutoClean",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *PruneJobsAction) GetParametersForm() *forms.Form {
+	return nil
+}
 
 // GetName returns this action unique identifier
 func (c *PruneJobsAction) GetName() string {

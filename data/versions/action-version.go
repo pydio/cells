@@ -30,6 +30,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -41,6 +42,21 @@ import (
 )
 
 type VersionAction struct{}
+
+func (c *VersionAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              versionActionName,
+		Label:           "File versioning",
+		Icon:            "content-copy",
+		Description:     "Create a copy of file on each content change",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *VersionAction) GetParametersForm() *forms.Form {
+	return nil
+}
 
 var (
 	versionActionName = "actions.versioning.create"

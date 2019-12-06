@@ -35,6 +35,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/views"
@@ -49,6 +50,21 @@ var (
 type WGetAction struct {
 	Router    *views.Router
 	SourceUrl *url.URL
+}
+
+func (w *WGetAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              wgetActionName,
+		Label:           "Http Get",
+		Icon:            "download",
+		Description:     "Download a remote file or binary, equivalent to wget commmand",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (w *WGetAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns the unique identifier of this action

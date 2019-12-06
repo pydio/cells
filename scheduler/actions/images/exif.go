@@ -35,6 +35,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -55,6 +56,21 @@ var (
 type ExifProcessor struct {
 	//Router     views.Handler
 	metaClient tree.NodeReceiverClient
+}
+
+func (e *ExifProcessor) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              exifTaskName,
+		Label:           "Extract EXIF",
+		Icon:            "image",
+		Description:     "Extract EXIF data from jpeg images and store them as indexed metadata",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (e *ExifProcessor) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns this action unique identifier

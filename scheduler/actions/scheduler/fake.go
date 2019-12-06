@@ -28,6 +28,7 @@ import (
 
 	"github.com/micro/go-micro/client"
 
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/scheduler/actions"
@@ -40,6 +41,45 @@ var (
 type FakeAction struct {
 	timer  int64
 	ticker int64
+}
+
+func (f *FakeAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              fakeActionName,
+		Label:           "Fake Action",
+		Icon:            "clock-end",
+		Description:     "This action simulates a long-running process with progress",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (f *FakeAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "timer",
+					Type:        "integer",
+					Label:       "Total time",
+					Description: "Total task time in seconds",
+					Default:     10,
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "ticker",
+					Type:        "integer",
+					Label:       "Ticks",
+					Description: "Time between each ticks for incrementing progress, in seconds",
+					Default:     3,
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+
 }
 
 // GetName returns this action unique identifier

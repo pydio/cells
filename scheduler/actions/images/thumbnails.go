@@ -43,6 +43,7 @@ import (
 	"golang.org/x/image/colornames"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -81,6 +82,35 @@ type ThumbnailExtractor struct {
 	thumbSizes map[string]int
 	metaClient tree.NodeReceiverClient
 	Client     client.Client
+}
+
+func (t *ThumbnailExtractor) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              thumbnailsActionName,
+		Label:           "Create Thumbs",
+		Icon:            "image-filter",
+		Description:     "Create thumbnails on image creation/modification",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (t *ThumbnailExtractor) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "ThumbSizes",
+					Type:        "string",
+					Label:       "Sizes",
+					Description: "A JSON map describing each thumbnail to be created",
+					Default:     "",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns this action unique identifier.

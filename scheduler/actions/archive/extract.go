@@ -29,6 +29,7 @@ import (
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
@@ -43,6 +44,21 @@ type ExtractAction struct {
 	Router     *views.Router
 	Format     string
 	TargetName string
+}
+
+func (ex *ExtractAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              extractActionName,
+		Label:           "Extract Archive",
+		Icon:            "package-up",
+		Description:     "Extract files and folders from a Zip, Tar or Tar.gz archive",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (ex *ExtractAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns this action unique identifier

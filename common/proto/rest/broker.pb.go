@@ -46,6 +46,11 @@ It has these top-level messages:
 	DiscoveryResponse
 	ConfigFormRequest
 	OpenApiResponse
+	ActionDescription
+	SchedulerActionsRequest
+	SchedulerActionsResponse
+	SchedulerActionFormRequest
+	SchedulerActionFormResponse
 	SearchResults
 	Pagination
 	Metadata

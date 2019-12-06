@@ -24,6 +24,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/common/forms"
+
 	"go.uber.org/zap"
 
 	"github.com/micro/go-micro/client"
@@ -40,6 +42,21 @@ var (
 
 type CleanThumbsTask struct {
 	Client client.Client
+}
+
+func (c *CleanThumbsTask) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              cleanThumbTaskName,
+		Label:           "Clean Thumbs",
+		Icon:            "image-broken-variant",
+		Description:     "Remove thumbnails associated to delete images",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *CleanThumbsTask) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns this action unique identifier.

@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/docstore"
@@ -72,11 +73,26 @@ func InsertPruningJob(ctx context.Context) error {
 	})
 }
 
-type PruneTokensAction struct{}
-
 var (
 	pruneTokensActionName = "actions.auth.prune.tokens"
 )
+
+type PruneTokensAction struct{}
+
+func (c *PruneTokensAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              pruneTokensActionName,
+		Label:           "Prune tokens",
+		Icon:            "delete-sweep",
+		Description:     "Delete expired and revoked token from internal registry",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *PruneTokensAction) GetParametersForm() *forms.Form {
+	return nil
+}
 
 // Unique identifier
 func (c *PruneTokensAction) GetName() string {

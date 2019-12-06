@@ -24,12 +24,18 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/scheduler/actions"
+)
+
+var (
+	rpcActionName = "actions.cmd.rpc"
 )
 
 type RpcAction struct {
@@ -39,9 +45,51 @@ type RpcAction struct {
 	JsonRequest interface{}
 }
 
-var (
-	rpcActionName = "actions.cmd.rpc"
-)
+func (c *RpcAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              rpcActionName,
+		Label:           "gRPC Request",
+		Icon:            "code-braces",
+		Description:     "Perform a valid JSON-encoded call to any micro-service",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (c *RpcAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "service",
+					Type:        "string",
+					Label:       "Service Name",
+					Description: "Full name of the cells micro service",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "method",
+					Type:        "string",
+					Label:       "Method",
+					Description: "Name of the RPC method",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "request",
+					Type:        "string",
+					Label:       "JSON Request",
+					Description: "JSON-encoded body to be sent as request",
+					Default:     "{}",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+}
 
 // Unique identifier
 func (c *RpcAction) GetName() string {

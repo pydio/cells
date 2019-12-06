@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 
@@ -62,4 +64,33 @@ func (a *AnkoAction) Run(ctx context.Context, channels *actions.RunnableChannels
 
 		return input.WithIgnore(), nil
 	}
+}
+
+func (a *AnkoAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              ankoActionName,
+		Label:           "Anko Script",
+		Icon:            "script",
+		Description:     "User-defined script for manipulating action inputs",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (a *AnkoAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "script",
+					Type:        "textarea",
+					Label:       "Script Content",
+					Description: "Pseudo-go Anko script",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }

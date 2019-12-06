@@ -22,14 +22,14 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"time"
-
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -42,6 +42,53 @@ type ResyncAction struct {
 	Path        string
 	DryRun      bool
 	CrtTask     *jobs.Task
+}
+
+func (c *ResyncAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              resyncActionName,
+		Label:           "Resynchronize",
+		Icon:            "reload",
+		Description:     "Trigger sync command on a SyncProvider microservice endpoint",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (c *ResyncAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "service",
+					Type:        "string",
+					Label:       "Service Name",
+					Description: "Full name of the cells micro service",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "path",
+					Type:        "string",
+					Label:       "Path",
+					Description: "Internal path on which to trigger the resync",
+					Default:     "/",
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "dry-run",
+					Type:        "boolean",
+					Label:       "Dry Run",
+					Description: "Perform a dry-run sync, i.e. no changes are applied",
+					Default:     nil,
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 var (
