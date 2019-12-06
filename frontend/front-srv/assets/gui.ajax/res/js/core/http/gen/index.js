@@ -111,6 +111,7 @@ import PackagePackageStatus from './model/PackagePackageStatus';
 import ProtobufAny from './model/ProtobufAny';
 import ResourcePolicyQueryQueryType from './model/ResourcePolicyQueryQueryType';
 import RestACLCollection from './model/RestACLCollection';
+import RestActionDescription from './model/RestActionDescription';
 import RestBackgroundJobResult from './model/RestBackgroundJobResult';
 import RestBulkMetaResponse from './model/RestBulkMetaResponse';
 import RestCell from './model/RestCell';
@@ -173,6 +174,8 @@ import RestRestoreNodesResponse from './model/RestRestoreNodesResponse';
 import RestRevokeRequest from './model/RestRevokeRequest';
 import RestRevokeResponse from './model/RestRevokeResponse';
 import RestRolesCollection from './model/RestRolesCollection';
+import RestSchedulerActionFormResponse from './model/RestSchedulerActionFormResponse';
+import RestSchedulerActionsResponse from './model/RestSchedulerActionsResponse';
 import RestSearchACLRequest from './model/RestSearchACLRequest';
 import RestSearchResults from './model/RestSearchResults';
 import RestSearchRoleRequest from './model/RestSearchRoleRequest';
@@ -879,6 +882,12 @@ export {
     RestACLCollection,
 
     /**
+     * The RestActionDescription model constructor.
+     * @property {module:model/RestActionDescription}
+     */
+    RestActionDescription,
+
+    /**
      * The RestBackgroundJobResult model constructor.
      * @property {module:model/RestBackgroundJobResult}
      */
@@ -1249,6 +1258,18 @@ export {
      * @property {module:model/RestRolesCollection}
      */
     RestRolesCollection,
+
+    /**
+     * The RestSchedulerActionFormResponse model constructor.
+     * @property {module:model/RestSchedulerActionFormResponse}
+     */
+    RestSchedulerActionFormResponse,
+
+    /**
+     * The RestSchedulerActionsResponse model constructor.
+     * @property {module:model/RestSchedulerActionsResponse}
+     */
+    RestSchedulerActionsResponse,
 
     /**
      * The RestSearchACLRequest model constructor.

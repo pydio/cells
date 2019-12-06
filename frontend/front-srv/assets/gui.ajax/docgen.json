@@ -4594,15 +4594,10 @@
         "displayName": "JobGraph",
         "methods": [
           {
-            "name": "computeMaxParallelActions",
+            "name": "loadDescriptions",
             "docblock": null,
             "modifiers": [],
-            "params": [
-              {
-                "name": "job",
-                "type": null
-              }
-            ],
+            "params": [],
             "returns": null
           },
           {
@@ -4623,7 +4618,7 @@
                 "type": null
               },
               {
-                "name": "grid",
+                "name": "hasData",
                 "type": null
               }
             ],
@@ -4631,6 +4626,32 @@
           },
           {
             "name": "graphFromJob",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "clearSelection",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "select",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "model",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "drawGraph",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -4706,8 +4727,18 @@
           {
             "name": "readableString",
             "docblock": null,
-            "modifiers": [],
+            "modifiers": [
+              "static"
+            ],
             "params": [
+              {
+                "name": "state",
+                "type": null
+              },
+              {
+                "name": "T",
+                "type": null
+              },
               {
                 "name": "short",
                 "type": null
@@ -4736,6 +4767,87 @@
             "returns": null
           }
         ]
+      }
+    ],
+    "AdminScheduler/board/builder/FormPanel.js": [
+      {
+        "description": "",
+        "displayName": "FormPanel",
+        "methods": [
+          {
+            "name": "loadForm",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "actionID",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "values",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/QueryBuilder.js": [
+      {
+        "description": "",
+        "displayName": "QueryBuilder",
+        "methods": [
+          {
+            "name": "detectTypes",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "buildGraph",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/Triggers.js": [
+      {
+        "description": "",
+        "displayName": "Schedule",
+        "methods": [
+          {
+            "name": "T",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "Events",
+        "methods": []
       }
     ],
     "AdminServices/board/Dashboard.js": [
@@ -13851,6 +13963,74 @@
               }
             },
             "description": "Create or update a datasource"
+          },
+          {
+            "name": "schedulerActionFormDiscoveryWithHttpInfo",
+            "docblock": "Publish scheduler action XML form for building screens in frontend\n@param {String} actionName \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionFormResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "actionName",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionFormResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Publish scheduler action XML form for building screens in frontend"
+          },
+          {
+            "name": "schedulerActionFormDiscovery",
+            "docblock": "Publish scheduler action XML form for building screens in frontend\n@param {String} actionName \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionFormResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "actionName",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionFormResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Publish scheduler action XML form for building screens in frontend"
+          },
+          {
+            "name": "schedulerActionsDiscoveryWithHttpInfo",
+            "docblock": "Publish scheduler registered actions\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionsResponse} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionsResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Publish scheduler registered actions"
+          },
+          {
+            "name": "schedulerActionsDiscovery",
+            "docblock": "Publish scheduler registered actions\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionsResponse}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionsResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Publish scheduler registered actions"
           }
         ]
       }
@@ -21306,6 +21486,14 @@
               }
             },
             "description": "Constructs a <code>ProtobufAny</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          },
+          {
+            "name": "toJSON",
+            "docblock": "Overrides standard serialization function",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Overrides standard serialization function"
           }
         ]
       }
@@ -21379,6 +21567,52 @@
               }
             },
             "description": "Constructs a <code>RestACLCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestActionDescription.js": [
+      {
+        "description": "The RestActionDescription model module.\n@module model/RestActionDescription\n@version 1.0",
+        "displayName": "RestActionDescription",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestActionDescription</code>.\n@alias module:model/RestActionDescription\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestActionDescription</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestActionDescription</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestActionDescription} obj Optional instance to populate.\n@return {module:model/RestActionDescription} The populated <code>RestActionDescription</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestActionDescription"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestActionDescription</code> instance.",
+              "type": {
+                "name": "module:model/RestActionDescription"
+              }
+            },
+            "description": "Constructs a <code>RestActionDescription</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -24231,6 +24465,98 @@
               }
             },
             "description": "Constructs a <code>RestRolesCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestSchedulerActionFormResponse.js": [
+      {
+        "description": "The RestSchedulerActionFormResponse model module.\n@module model/RestSchedulerActionFormResponse\n@version 1.0",
+        "displayName": "RestSchedulerActionFormResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestSchedulerActionFormResponse</code>.\n@alias module:model/RestSchedulerActionFormResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestSchedulerActionFormResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestSchedulerActionFormResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestSchedulerActionFormResponse} obj Optional instance to populate.\n@return {module:model/RestSchedulerActionFormResponse} The populated <code>RestSchedulerActionFormResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestSchedulerActionFormResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestSchedulerActionFormResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestSchedulerActionFormResponse"
+              }
+            },
+            "description": "Constructs a <code>RestSchedulerActionFormResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestSchedulerActionsResponse.js": [
+      {
+        "description": "The RestSchedulerActionsResponse model module.\n@module model/RestSchedulerActionsResponse\n@version 1.0",
+        "displayName": "RestSchedulerActionsResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestSchedulerActionsResponse</code>.\n@alias module:model/RestSchedulerActionsResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestSchedulerActionsResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestSchedulerActionsResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestSchedulerActionsResponse} obj Optional instance to populate.\n@return {module:model/RestSchedulerActionsResponse} The populated <code>RestSchedulerActionsResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestSchedulerActionsResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestSchedulerActionsResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestSchedulerActionsResponse"
+              }
+            },
+            "description": "Constructs a <code>RestSchedulerActionsResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

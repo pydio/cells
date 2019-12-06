@@ -15,6 +15,8 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -56,12 +58,23 @@ var ProtobufAny = (function () {
         if (data) {
             obj = obj || new ProtobufAny();
 
-            if (data.hasOwnProperty('type_url')) {
-                obj['type_url'] = _ApiClient2['default'].convertToType(data['type_url'], 'String');
+            obj.value = {};
+            Object.keys(data).forEach(function (k) {
+                if (k === '@type') {
+                    obj.type_url = data[k];
+                } else {
+                    obj.value[k] = data[k];
+                }
+            });
+
+            /*
+            if (data.hasOwnProperty('@type')) {
+                obj['type_url'] = ApiClient.convertToType(data['@type'], 'String');
             }
             if (data.hasOwnProperty('value')) {
-                obj['value'] = _ApiClient2['default'].convertToType(data['value'], 'Blob');
+                obj['value'] = ApiClient.convertToType(data['value'], 'Blob');
             }
+            */
         }
         return obj;
     };
@@ -70,6 +83,18 @@ var ProtobufAny = (function () {
     * A URL/resource name whose content describes the type of the serialized protocol buffer message.  For URLs which use the scheme `http`, `https`, or no scheme, the following restrictions and interpretations apply:  * If no scheme is provided, `https` is assumed. * The last segment of the URL's path must represent the fully   qualified name of the type (as in `path/google.protobuf.Duration`).   The name should be in a canonical form (e.g., leading \".\" is   not accepted). * An HTTP GET on the URL must yield a [google.protobuf.Type][]   value in binary format, or produce an error. * Applications are allowed to cache lookup results based on the   URL, or have them precompiled into a binary to avoid any   lookup. Therefore, binary compatibility needs to be preserved   on changes to types. (Use versioned type names to manage   breaking changes.)  Schemes other than `http`, `https` (or the empty scheme) might be used with implementation specific semantics.
     * @member {String} type_url
     */
+
+    /**
+     * Overrides standard serialization function
+     */
+
+    ProtobufAny.prototype.toJSON = function toJSON() {
+        // Expand this.value keys to a unique array
+        return _extends({
+            '@type': this.type_url
+        }, this.value);
+    };
+
     return ProtobufAny;
 })();
 

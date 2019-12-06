@@ -413,6 +413,10 @@ var _modelRestACLCollection = require('./model/RestACLCollection');
 
 var _modelRestACLCollection2 = _interopRequireDefault(_modelRestACLCollection);
 
+var _modelRestActionDescription = require('./model/RestActionDescription');
+
+var _modelRestActionDescription2 = _interopRequireDefault(_modelRestActionDescription);
+
 var _modelRestBackgroundJobResult = require('./model/RestBackgroundJobResult');
 
 var _modelRestBackgroundJobResult2 = _interopRequireDefault(_modelRestBackgroundJobResult);
@@ -660,6 +664,14 @@ var _modelRestRevokeResponse2 = _interopRequireDefault(_modelRestRevokeResponse)
 var _modelRestRolesCollection = require('./model/RestRolesCollection');
 
 var _modelRestRolesCollection2 = _interopRequireDefault(_modelRestRolesCollection);
+
+var _modelRestSchedulerActionFormResponse = require('./model/RestSchedulerActionFormResponse');
+
+var _modelRestSchedulerActionFormResponse2 = _interopRequireDefault(_modelRestSchedulerActionFormResponse);
+
+var _modelRestSchedulerActionsResponse = require('./model/RestSchedulerActionsResponse');
+
+var _modelRestSchedulerActionsResponse2 = _interopRequireDefault(_modelRestSchedulerActionsResponse);
 
 var _modelRestSearchACLRequest = require('./model/RestSearchACLRequest');
 
@@ -1695,6 +1707,13 @@ RestACLCollection = _modelRestACLCollection2['default'];
 exports.
 
 /**
+ * The RestActionDescription model constructor.
+ * @property {module:model/RestActionDescription}
+ */
+RestActionDescription = _modelRestActionDescription2['default'];
+exports.
+
+/**
  * The RestBackgroundJobResult model constructor.
  * @property {module:model/RestBackgroundJobResult}
  */
@@ -2126,6 +2145,20 @@ exports.
  * @property {module:model/RestRolesCollection}
  */
 RestRolesCollection = _modelRestRolesCollection2['default'];
+exports.
+
+/**
+ * The RestSchedulerActionFormResponse model constructor.
+ * @property {module:model/RestSchedulerActionFormResponse}
+ */
+RestSchedulerActionFormResponse = _modelRestSchedulerActionFormResponse2['default'];
+exports.
+
+/**
+ * The RestSchedulerActionsResponse model constructor.
+ * @property {module:model/RestSchedulerActionsResponse}
+ */
+RestSchedulerActionsResponse = _modelRestSchedulerActionsResponse2['default'];
 exports.
 
 /**
