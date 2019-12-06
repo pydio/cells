@@ -40,7 +40,7 @@ var Filter = (function (_shapes$devs$Model) {
             markup: _Configs.TextIconMarkup,
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.WhiteRect),
-                icon: _extends({ text: '' }, _Configs.DarkIcon, { fill: _Configs.Orange, magnet: false }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)('filter-outline') }, _Configs.DarkIcon, { fill: _Configs.Orange, magnet: false }),
                 text: _extends({ text: 'Filter ' + typeLabel, magnet: false }, _Configs.DarkLabel)
             },
             ports: _Configs.PortsConfig

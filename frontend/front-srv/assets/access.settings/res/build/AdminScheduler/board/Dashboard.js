@@ -50,6 +50,8 @@ var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
+var _builderTriggers = require('./builder/Triggers');
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -63,24 +65,6 @@ var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
-
-    nodeEventsNames: {
-        '0': 'trigger.create.node',
-        '1': 'trigger.read.node',
-        '2': 'trigger.update.path',
-        '3': 'trigger.update.content',
-        '4': 'trigger.update.metadata',
-        '5': 'trigger.delete.node'
-    },
-
-    userEventsNames: {
-        '0': 'trigger.create.user',
-        '1': 'trigger.read.user',
-        '2': 'trigger.update.user',
-        '3': 'trigger.delete.user',
-        '4': 'trigger.bind.user',
-        '5': 'trigger.logout.user'
-    },
 
     getInitialState: function getInitialState() {
         return {
@@ -175,7 +159,6 @@ var Dashboard = _react2['default'].createClass({
     showTaskCreator: function showTaskCreator() {},
 
     extractRowsInfo: function extractRowsInfo(jobs, m) {
-        var _this5 = this;
 
         var system = [];
         var other = [];
@@ -247,13 +230,7 @@ var Dashboard = _react2['default'].createClass({
             } else if (job.EventNames) {
                 data.TriggerValue = 2;
                 data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(function (e) {
-                    if (e.indexOf('NODE_CHANGE:') === 0) {
-                        return m(_this5.nodeEventsNames[e.replace('NODE_CHANGE:', '')]);
-                    } else if (e.indexOf('IDM_CHANGE:USER:') === 0) {
-                        return m(_this5.userEventsNames[e.replace('IDM_CHANGE:USER:', '')]);
-                    } else {
-                        return e;
-                    }
+                    return _builderTriggers.Events.eventLabel(e, m);
                 }).join(', ');
             } else if (job.AutoStart) {
                 data.Trigger = m('trigger.manual');
@@ -284,7 +261,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     render: function render() {
-        var _this6 = this;
+        var _this5 = this;
 
         var _props = this.props;
         var pydio = _props.pydio;
@@ -326,7 +303,7 @@ var Dashboard = _react2['default'].createClass({
             style: { width: 100 }, headerStyle: { width: 100 },
             renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', iconStyle: { color: 'rgba(0,0,0,.3)' }, onTouchTap: function () {
-                        _this6.setState({ selectJob: row.ID });
+                        _this5.setState({ selectJob: row.ID });
                     } });
             }
         }];
@@ -342,7 +319,7 @@ var Dashboard = _react2['default'].createClass({
             });
             if (found.length) {
                 return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onRequestClose: function () {
-                        return _this6.setState({ selectJob: null });
+                        return _this5.setState({ selectJob: null });
                     } });
             }
         }
@@ -380,7 +357,7 @@ var Dashboard = _react2['default'].createClass({
                         data: system,
                         columns: keys,
                         onSelectRows: function (rows) {
-                            _this6.selectRows(rows);
+                            _this5.selectRows(rows);
                         },
                         showCheckboxes: false,
                         emptyStateString: loading ? this.context.getMessage('466', '') : m('system.empty')
@@ -397,7 +374,7 @@ var Dashboard = _react2['default'].createClass({
                         data: other,
                         columns: keys,
                         onSelectRows: function (rows) {
-                            _this6.selectRows(rows);
+                            _this5.selectRows(rows);
                         },
                         showCheckboxes: false,
                         emptyStateString: m('users.empty')

@@ -148,49 +148,6 @@ var JobSchedule = (function (_React$Component) {
             this.setState({ frequency: f, monthday: monthday, weekday: weekday, daytime: daytime, everyminutes: everyminutes });
         }
     }, {
-        key: 'readableString',
-        value: function readableString() {
-            var short = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-            var _state2 = this.state;
-            var frequency = _state2.frequency;
-            var monthday = _state2.monthday;
-            var weekday = _state2.weekday;
-            var daytime = _state2.daytime;
-            var everyminutes = _state2.everyminutes;
-
-            var dTRead = '0:00';
-            if (daytime) {
-                dTRead = moment(daytime).format('h:mm');
-            }
-            switch (frequency) {
-                case "manual":
-                    return this.T("trigger.manual");
-                case "monthly":
-                    if (short) {
-                        return this.T("schedule.monthly.short").replace('%1', monthday);
-                    } else {
-                        return this.T("schedule.monthly").replace('%1', monthday).replace('%2', dTRead);
-                    }
-                case "weekly":
-                    if (short) {
-                        return this.T("schedule.weekly.short").replace('%1', moment.weekdays()[weekday]);
-                    } else {
-                        return this.T("schedule.weekly").replace('%1', moment.weekdays()[weekday]).replace('%2', dTRead);
-                    }
-                case "daily":
-                    if (short) {
-                        return this.T("schedule.daily.short").replace('%1', dTRead);
-                    } else {
-                        return this.T("schedule.daily").replace('%1', dTRead);
-                    }
-                case "timely":
-                    var duration = moment.duration(everyminutes, 'minutes');
-                    return this.T("schedule.timely").replace('%1', (duration.hours() ? duration.hours() + 'h' : '') + (duration.minutes() ? duration.minutes() + 'mn' : ''));
-                default:
-                    return "Error";
-            }
-        }
-    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -201,15 +158,15 @@ var JobSchedule = (function (_React$Component) {
                 return _react2['default'].createElement(
                     'div',
                     null,
-                    this.readableString(true)
+                    JobSchedule.readableString(this.state, this.T, true)
                 );
             }
-            var _state3 = this.state;
-            var frequency = _state3.frequency;
-            var monthday = _state3.monthday;
-            var weekday = _state3.weekday;
-            var daytime = _state3.daytime;
-            var everyminutes = _state3.everyminutes;
+            var _state2 = this.state;
+            var frequency = _state2.frequency;
+            var monthday = _state2.monthday;
+            var weekday = _state2.weekday;
+            var daytime = _state2.daytime;
+            var everyminutes = _state2.everyminutes;
 
             var monthdays = [];
             var weekdays = moment.weekdays();
@@ -219,7 +176,7 @@ var JobSchedule = (function (_React$Component) {
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), label: this.readableString(true), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), label: JobSchedule.readableString(this.state, this.T, true), onTouchTap: function () {
                         _this2.setState({ open: true });
                     } }),
                 _react2['default'].createElement(
@@ -244,7 +201,7 @@ var JobSchedule = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'div',
                                 { style: { color: '#212121' } },
-                                this.readableString()
+                                JobSchedule.readableString(this.state, this.T, false)
                             ),
                             frequency !== 'manual' && _react2['default'].createElement(
                                 'div',
@@ -412,6 +369,48 @@ var JobSchedule = (function (_React$Component) {
                     break;
             }
             return 'R/' + moment(startDate).toISOString() + '/' + duration.toISOString();
+        }
+    }, {
+        key: 'readableString',
+        value: function readableString(state, T) {
+            var short = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+            var frequency = state.frequency;
+            var monthday = state.monthday;
+            var weekday = state.weekday;
+            var daytime = state.daytime;
+            var everyminutes = state.everyminutes;
+
+            var dTRead = '0:00';
+            if (daytime) {
+                dTRead = moment(daytime).format('h:mm');
+            }
+            switch (frequency) {
+                case "manual":
+                    return T("trigger.manual");
+                case "monthly":
+                    if (short) {
+                        return T("schedule.monthly.short").replace('%1', monthday);
+                    } else {
+                        return T("schedule.monthly").replace('%1', monthday).replace('%2', dTRead);
+                    }
+                case "weekly":
+                    if (short) {
+                        return T("schedule.weekly.short").replace('%1', moment.weekdays()[weekday]);
+                    } else {
+                        return T("schedule.weekly").replace('%1', moment.weekdays()[weekday]).replace('%2', dTRead);
+                    }
+                case "daily":
+                    if (short) {
+                        return T("schedule.daily.short").replace('%1', dTRead);
+                    } else {
+                        return T("schedule.daily").replace('%1', dTRead);
+                    }
+                case "timely":
+                    var duration = moment.duration(everyminutes, 'minutes');
+                    return T("schedule.timely").replace('%1', (duration.hours() ? duration.hours() + 'h' : '') + (duration.minutes() ? duration.minutes() + 'mn' : ''));
+                default:
+                    return "Error";
+            }
         }
     }]);
 

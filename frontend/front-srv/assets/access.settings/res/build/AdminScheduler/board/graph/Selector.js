@@ -40,7 +40,7 @@ var Selector = (function (_shapes$devs$Model) {
             markup: _Configs.TextIconMarkup,
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.WhiteRect),
-                icon: _extends({ text: '' }, _Configs.DarkIcon, { fill: _Configs.Orange }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Orange }),
                 text: _extends({ text: 'Select ' + typeLabel, magnet: false }, _Configs.DarkLabel)
             },
             ports: _Configs.PortsConfig

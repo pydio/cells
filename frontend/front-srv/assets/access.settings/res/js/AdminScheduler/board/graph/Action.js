@@ -1,12 +1,22 @@
 import {shapes} from 'jointjs'
-import {LightLabel, PortsConfig, BlueRect, LightIcon, TextIconMarkup, BoxSize} from "./Configs";
+import {LightLabel, PortsConfig, BlueRect, LightIcon, TextIconMarkup, BoxSize, IconToUnicode} from "./Configs";
 
 class Action extends shapes.devs.Model{
 
-    constructor(action, hasOutput){
+    constructor(descriptions, action, hasOutput){
 
-        const parts = action.ID.split(".");
-        const aName = parts.pop();
+        let aName;
+        if(descriptions && descriptions[action.ID] && descriptions[action.ID].Label){
+            aName = descriptions[action.ID].Label
+        } else {
+            const parts = action.ID.split(".");
+            aName = parts.pop();
+        }
+
+        let iconCode = IconToUnicode("chip");
+        if(descriptions && descriptions[action.ID] && descriptions[action.ID].Icon){
+            iconCode = IconToUnicode(descriptions[action.ID].Icon);
+        }
 
         const config = {
             size: { ...BoxSize, fill: 'transparent' ,rx: 5,ry: 5, 'stroke-width':1.5,  'stroke': '#31d0c6' },
@@ -14,7 +24,7 @@ class Action extends shapes.devs.Model{
             markup: TextIconMarkup,
             attrs: {
                 rect: { ...BoxSize, ...BlueRect},
-                icon: {text: '\uF61A', ...LightIcon},
+                icon: {text: iconCode, ...LightIcon},
                 text: { text: aName , magnet: false, ...LightLabel}
             },
             ports:PortsConfig
@@ -35,6 +45,7 @@ class Action extends shapes.devs.Model{
     getJobsAction(){
         return this._jobModel;
     }
+
 }
 
 export default Action;

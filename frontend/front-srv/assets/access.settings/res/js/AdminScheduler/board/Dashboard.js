@@ -26,28 +26,11 @@ const {MaterialTable} = Pydio.requireLib('components');
 import JobBoard from './JobBoard'
 import JobSchedule from './JobSchedule'
 import debounce from 'lodash.debounce'
+import {Events} from './builder/Triggers'
 
 const Dashboard = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
-
-    nodeEventsNames: {
-        '0':'trigger.create.node',
-        '1':'trigger.read.node',
-        '2':'trigger.update.path',
-        '3':'trigger.update.content',
-        '4':'trigger.update.metadata',
-        '5':'trigger.delete.node'
-    },
-
-    userEventsNames: {
-        '0': 'trigger.create.user',
-        '1': 'trigger.read.user',
-        '2': 'trigger.update.user',
-        '3': 'trigger.delete.user',
-        '4': 'trigger.bind.user',
-        '5': 'trigger.logout.user'
-    },
 
     getInitialState(){
         return {
@@ -176,15 +159,7 @@ const Dashboard = React.createClass({
                 data.TriggerValue = 1;
             } else if(job.EventNames) {
                 data.TriggerValue = 2;
-                data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(e => {
-                    if(e.indexOf('NODE_CHANGE:') === 0) {
-                        return m(this.nodeEventsNames[e.replace('NODE_CHANGE:', '')]);
-                    } else if(e.indexOf('IDM_CHANGE:USER:') === 0) {
-                        return m(this.userEventsNames[e.replace('IDM_CHANGE:USER:', '')]);
-                    }else {
-                        return e;
-                    }
-                }).join(', ');
+                data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(e => Events.eventLabel(e, m)).join(', ');
             } else if(job.AutoStart) {
                 data.Trigger = m('trigger.manual');
                 data.TriggerValue = 0;

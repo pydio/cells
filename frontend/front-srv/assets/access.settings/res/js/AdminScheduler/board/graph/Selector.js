@@ -1,5 +1,5 @@
 import {shapes} from 'jointjs'
-import {PortsConfig, WhiteRect, DarkLabel, TextIconMarkup, DarkIcon, BoxSize, Orange} from "./Configs";
+import {PortsConfig, WhiteRect, DarkLabel, TextIconMarkup, DarkIcon, BoxSize, Orange, IconToUnicode} from "./Configs";
 
 
 class Selector extends shapes.devs.Model{
@@ -22,7 +22,7 @@ class Selector extends shapes.devs.Model{
             markup: TextIconMarkup,
             attrs: {
                 rect: { ...BoxSize, ...WhiteRect },
-                icon: { text: '\uF349', ...DarkIcon, fill: Orange},
+                icon: { text: IconToUnicode('magnify'), ...DarkIcon, fill: Orange},
                 text: { text: 'Select ' + typeLabel, magnet: false, ...DarkLabel}
             },
             ports: PortsConfig

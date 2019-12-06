@@ -43408,6 +43408,8 @@ var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
+var _builderTriggers = require('./builder/Triggers');
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -43421,24 +43423,6 @@ var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
-
-    nodeEventsNames: {
-        '0': 'trigger.create.node',
-        '1': 'trigger.read.node',
-        '2': 'trigger.update.path',
-        '3': 'trigger.update.content',
-        '4': 'trigger.update.metadata',
-        '5': 'trigger.delete.node'
-    },
-
-    userEventsNames: {
-        '0': 'trigger.create.user',
-        '1': 'trigger.read.user',
-        '2': 'trigger.update.user',
-        '3': 'trigger.delete.user',
-        '4': 'trigger.bind.user',
-        '5': 'trigger.logout.user'
-    },
 
     getInitialState: function getInitialState() {
         return {
@@ -43533,7 +43517,6 @@ var Dashboard = _react2['default'].createClass({
     showTaskCreator: function showTaskCreator() {},
 
     extractRowsInfo: function extractRowsInfo(jobs, m) {
-        var _this5 = this;
 
         var system = [];
         var other = [];
@@ -43605,13 +43588,7 @@ var Dashboard = _react2['default'].createClass({
             } else if (job.EventNames) {
                 data.TriggerValue = 2;
                 data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(function (e) {
-                    if (e.indexOf('NODE_CHANGE:') === 0) {
-                        return m(_this5.nodeEventsNames[e.replace('NODE_CHANGE:', '')]);
-                    } else if (e.indexOf('IDM_CHANGE:USER:') === 0) {
-                        return m(_this5.userEventsNames[e.replace('IDM_CHANGE:USER:', '')]);
-                    } else {
-                        return e;
-                    }
+                    return _builderTriggers.Events.eventLabel(e, m);
                 }).join(', ');
             } else if (job.AutoStart) {
                 data.Trigger = m('trigger.manual');
@@ -43642,7 +43619,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     render: function render() {
-        var _this6 = this;
+        var _this5 = this;
 
         var _props = this.props;
         var pydio = _props.pydio;
@@ -43684,7 +43661,7 @@ var Dashboard = _react2['default'].createClass({
             style: { width: 100 }, headerStyle: { width: 100 },
             renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', iconStyle: { color: 'rgba(0,0,0,.3)' }, onTouchTap: function () {
-                        _this6.setState({ selectJob: row.ID });
+                        _this5.setState({ selectJob: row.ID });
                     } });
             }
         }];
@@ -43700,7 +43677,7 @@ var Dashboard = _react2['default'].createClass({
             });
             if (found.length) {
                 return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onRequestClose: function () {
-                        return _this6.setState({ selectJob: null });
+                        return _this5.setState({ selectJob: null });
                     } });
             }
         }
@@ -43738,7 +43715,7 @@ var Dashboard = _react2['default'].createClass({
                         data: system,
                         columns: keys,
                         onSelectRows: function (rows) {
-                            _this6.selectRows(rows);
+                            _this5.selectRows(rows);
                         },
                         showCheckboxes: false,
                         emptyStateString: loading ? this.context.getMessage('466', '') : m('system.empty')
@@ -43755,7 +43732,7 @@ var Dashboard = _react2['default'].createClass({
                         data: other,
                         columns: keys,
                         onSelectRows: function (rows) {
-                            _this6.selectRows(rows);
+                            _this5.selectRows(rows);
                         },
                         showCheckboxes: false,
                         emptyStateString: m('users.empty')
@@ -43770,7 +43747,7 @@ var Dashboard = _react2['default'].createClass({
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"./JobBoard":471,"./JobSchedule":473,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","react":"react"}],471:[function(require,module,exports){
+},{"./JobBoard":471,"./JobSchedule":473,"./builder/Triggers":480,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","react":"react"}],471:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -44073,11 +44050,7 @@ var JobBoard = (function (_React$Component) {
                         })
                     ),
                     _react2['default'].createElement(AdminComponents.SubHeader, { title: "Job Description" }),
-                    _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { style: { margin: 20 } },
-                        _react2['default'].createElement(_JobGraph2['default'], { job: job })
-                    ),
+                    _react2['default'].createElement(_JobGraph2['default'], { job: job }),
                     _react2['default'].createElement(AdminComponents.SubHeader, {
                         title: _react2['default'].createElement(
                             'div',
@@ -44142,6 +44115,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -44159,6 +44134,12 @@ var _react2 = _interopRequireDefault(_react);
 var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _jointjs = require('jointjs');
 
@@ -44192,6 +44173,18 @@ var _graphSelector = require("./graph/Selector");
 
 var _graphSelector2 = _interopRequireDefault(_graphSelector);
 
+var _materialUi = require('material-ui');
+
+var _builderFormPanel = require("./builder/FormPanel");
+
+var _builderFormPanel2 = _interopRequireDefault(_builderFormPanel);
+
+var _builderQueryBuilder = require("./builder/QueryBuilder");
+
+var _builderQueryBuilder2 = _interopRequireDefault(_builderQueryBuilder);
+
+var _builderTriggers = require("./builder/Triggers");
+
 var style = '\ntext[joint-selector="icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\n';
 
 var JobGraph = (function (_React$Component) {
@@ -44201,23 +44194,53 @@ var JobGraph = (function (_React$Component) {
         _classCallCheck(this, JobGraph);
 
         _get(Object.getPrototypeOf(JobGraph.prototype), 'constructor', this).call(this, props);
+        this.state = {};
         this.graph = new _jointjs.dia.Graph();
-        this.state = this.graphFromJob();
     }
 
     _createClass(JobGraph, [{
-        key: 'chainActions',
-        value: function chainActions(graph, actions, inputId) {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.loadDescriptions();
+        }
+    }, {
+        key: 'loadDescriptions',
+        value: function loadDescriptions() {
             var _this = this;
 
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.schedulerActionsDiscovery().then(function (data) {
+                // Draw now!
+                _this.setState({ descriptions: data.Actions }, function () {
+                    var bbox = _this.graphFromJob();
+                    _this.setState(bbox, function () {
+                        _this.drawGraph();
+                    });
+                });
+            })['catch'](function () {
+                var bbox = _this.graphFromJob();
+                _this.setState(bbox, function () {
+                    _this.drawGraph();
+                });
+            });
+        }
+    }, {
+        key: 'chainActions',
+        value: function chainActions(graph, actions, inputId) {
+            var _this2 = this;
+
             var hasData = arguments.length <= 3 || arguments[3] === undefined ? true : arguments[3];
+            var descriptions = this.state.descriptions;
 
             actions.forEach(function (action) {
                 var crtInput = inputId;
                 var hasChain = action.ChainedActions && action.ChainedActions.length;
                 var filter = action.NodesFilter || action.IdmFilter || action.UsersFilter;
                 var selector = action.NodesSelector || action.IdmSelector || action.UsersSelector;
+                var cluster = undefined;
                 if (filter || selector) {
+                    cluster = new _jointjs.shapes.basic.Rect(_graphConfigs.ClusterConfig);
+                    cluster.addTo(graph);
                     var filterShape = undefined;
                     if (filter) {
                         filterShape = new _graphFilter2['default'](filter, action.NodesFilter ? 'node' : action.UsersFilter ? 'user' : 'idm');
@@ -44225,17 +44248,21 @@ var JobGraph = (function (_React$Component) {
                         filterShape = new _graphSelector2['default'](selector, action.NodesSelector ? 'node' : action.UsersSelector ? 'user' : 'idm');
                     }
                     filterShape.addTo(graph);
+                    cluster.embed(filterShape);
                     var _link = new _graphLink2['default'](crtInput, 'output', filterShape.id, 'input', hasData);
                     _link.addTo(graph);
                     crtInput = filterShape.id;
                     hasData = true;
                 }
-                var shape = new _graphAction2['default'](action, hasChain);
+                var shape = new _graphAction2['default'](descriptions, action, hasChain);
                 shape.addTo(graph);
+                if (cluster) {
+                    cluster.embed(shape);
+                }
                 var link = new _graphLink2['default'](crtInput, 'output', shape.id, 'input', hasData);
                 link.addTo(graph);
                 if (hasChain) {
-                    _this.chainActions(graph, action.ChainedActions, shape.id);
+                    _this2.chainActions(graph, action.ChainedActions, shape.id);
                 }
             });
         }
@@ -44247,6 +44274,12 @@ var JobGraph = (function (_React$Component) {
             if (!job || !job.Actions || !job.Actions.length) {
                 return { width: 0, height: 0 };
             }
+            // cluster trigger with filter: add cluster before the others
+            var cluster = undefined;
+            if (job.NodeEventFilter || job.UserEventFilter || job.IdmFilter) {
+                cluster = new _jointjs.shapes.basic.Rect(_graphConfigs.ClusterConfig);
+                cluster.addTo(this.graph);
+            }
 
             var shapeIn = new _graphJobInput2['default'](job);
             shapeIn.addTo(this.graph);
@@ -44255,6 +44288,7 @@ var JobGraph = (function (_React$Component) {
             var firstLinkHasData = !!job.EventNames;
 
             if (job.NodeEventFilter || job.UserEventFilter || job.IdmFilter) {
+
                 var filterType = undefined;
                 if (job.NodeEventFilter) {
                     filterType = 'node';
@@ -44265,6 +44299,9 @@ var JobGraph = (function (_React$Component) {
                 }
                 var filter = new _graphFilter2['default'](job.NodeEventFilter || job.UserEventFilter || job.IdmFilter, filterType);
                 filter.addTo(this.graph);
+
+                cluster.embed(shapeIn);
+                cluster.embed(filter);
 
                 var fLink = new _graphLink2['default'](actionsInput, 'output', filter.id, 'input', firstLinkHasData);
                 fLink.addTo(this.graph);
@@ -44282,14 +44319,55 @@ var JobGraph = (function (_React$Component) {
                 rankDir: "LR",
                 marginX: 40,
                 marginY: 40,
+                clusterPadding: 20,
                 dagre: _dagre2['default'],
                 graphlib: _graphlib2['default']
             });
         }
     }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var _this2 = this;
+        key: 'clearSelection',
+        value: function clearSelection() {
+            if (this._selection) {
+                this._selection.attr('rect/stroke', this._selectionStrokeOrigin);
+            }
+            this.setState({
+                selection: null,
+                selectionType: null
+            });
+        }
+    }, {
+        key: 'select',
+        value: function select(model) {
+            this._selection = model;
+            this._selectionStrokeOrigin = this._selection.attr('rect/stroke');
+            this._selection.attr('rect/stroke', _graphConfigs.Orange);
+            var s = {
+                position: model.position(),
+                size: model.size(),
+                scrollLeft: _reactDom2['default'].findDOMNode(this.refs.scroller).scrollLeft || 0
+            };
+            if (model instanceof _graphAction2['default']) {
+                s.selection = model.getJobsAction();
+                s.selectionType = 'action';
+            } else if (model instanceof _graphSelector2['default']) {
+                s.selection = model.getSelector();
+                s.selectionType = 'selector';
+            } else if (model instanceof _graphFilter2['default']) {
+                s.selection = model.getFilter();
+                s.selectionType = 'filter';
+            } else if (model instanceof _graphJobInput2['default'] && model.getInputType() === 'event') {
+                s.selection = model.getEventNames();
+                s.selectionType = 'events';
+            } else if (model instanceof _graphJobInput2['default'] && model.getInputType() === 'schedule') {
+                s.selection = model.getSchedule();
+                s.selectionType = 'schedule';
+            }
+            this.setState(s);
+        }
+    }, {
+        key: 'drawGraph',
+        value: function drawGraph() {
+            var _this3 = this;
 
             var _state = this.state;
             var width = _state.width;
@@ -44300,38 +44378,81 @@ var JobGraph = (function (_React$Component) {
                 width: width + 80,
                 height: height + 80,
                 model: this.graph,
-                highlighting: {
-                    'default': {
-                        name: 'stroke',
-                        options: {
-                            padding: 3
-                        }
-                    },
-                    connecting: {
-                        name: 'addClass',
-                        options: {
-                            className: 'highlight-connecting'
-                        }
-                    }
+                interactive: {
+                    addLinkFromMagnet: false,
+                    useLinkTools: false,
+                    elementMove: true
                 }
             });
-            this.paper.on('element:pointerdown', function (el) {
-                if (_this2._selection) {
-                    _this2._selection.attr('rect/stroke', _this2._selectionStrokeOrigin);
+            this.paper.on('element:pointerdown', function (el, event) {
+                console.log(el, event);
+                if (el.model instanceof _graphAction2['default'] || el.model instanceof _graphSelector2['default'] || el.model instanceof _graphFilter2['default'] || el.model instanceof _graphJobInput2['default']) {
+                    _this3.clearSelection();
+                    _this3.select(el.model);
                 }
-                _this2._selection = el.model;
-                _this2._selectionStrokeOrigin = _this2._selection.attr('rect/stroke');
-                _this2._selection.attr('rect/stroke', _graphConfigs.Orange);
             });
         }
     }, {
         key: 'render',
         value: function render() {
+            var _this4 = this;
+
+            var selBlock = undefined;
+            var _state2 = this.state;
+            var selection = _state2.selection;
+            var selectionType = _state2.selectionType;
+            var descriptions = _state2.descriptions;
+            var position = _state2.position;
+            var size = _state2.size;
+            var scrollLeft = _state2.scrollLeft;
+
+            var blockProps = {
+                sourcePosition: position,
+                sourceSize: size,
+                scrollLeft: scrollLeft,
+                onDismiss: function onDismiss() {
+                    _this4.clearSelection();
+                }
+            };
+            if (selectionType === 'action' && descriptions[selection.ID]) {
+                var desc = descriptions[selection.ID];
+                selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({ actionInfo: desc, action: selection }, blockProps));
+            } else if (selectionType === 'selector' || selectionType === 'filter') {
+                selBlock = _react2['default'].createElement(_builderQueryBuilder2['default'], _extends({ query: selection, queryType: selectionType }, blockProps));
+            } else if (selectionType === 'events') {
+                selBlock = _react2['default'].createElement(_builderTriggers.Events, _extends({ events: selection }, blockProps));
+            } else if (selectionType === 'schedule') {
+                selBlock = _react2['default'].createElement(_builderTriggers.Schedule, _extends({ schedule: selection }, blockProps));
+            }
+
+            var headerStyle = {
+                backgroundColor: 'whitesmoke',
+                borderBottom: '1px solid #e0e0e0',
+                height: 48,
+                color: '#9e9e9e',
+                fontSize: 12,
+                fontWeight: 500,
+                padding: '14px 24px'
+            };
 
             return _react2['default'].createElement(
-                'div',
-                { style: { width: '100%', overflowX: 'auto' } },
-                _react2['default'].createElement('div', { id: 'playground', ref: 'placeholder' }),
+                _materialUi.Paper,
+                { zDepth: 1, style: { margin: 20 } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: headerStyle },
+                    'Job Workflow - click on boxes to show details'
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { position: 'relative' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1, overflowX: 'auto' }, ref: 'scroller' },
+                        _react2['default'].createElement('div', { id: 'playground', ref: 'placeholder' })
+                    ),
+                    selBlock
+                ),
                 _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: style } })
             );
         }
@@ -44343,7 +44464,7 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./graph/Action":475,"./graph/Configs":476,"./graph/Filter":477,"./graph/JobInput":478,"./graph/Link":479,"./graph/Selector":480,"dagre":3,"graphlib":253,"jointjs":467,"react":"react","react-dom":"react-dom"}],473:[function(require,module,exports){
+},{"./builder/FormPanel":475,"./builder/QueryBuilder":479,"./builder/Triggers":480,"./graph/Action":482,"./graph/Configs":483,"./graph/Filter":484,"./graph/JobInput":485,"./graph/Link":486,"./graph/Selector":487,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],473:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -44494,49 +44615,6 @@ var JobSchedule = (function (_React$Component) {
             this.setState({ frequency: f, monthday: monthday, weekday: weekday, daytime: daytime, everyminutes: everyminutes });
         }
     }, {
-        key: 'readableString',
-        value: function readableString() {
-            var short = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-            var _state2 = this.state;
-            var frequency = _state2.frequency;
-            var monthday = _state2.monthday;
-            var weekday = _state2.weekday;
-            var daytime = _state2.daytime;
-            var everyminutes = _state2.everyminutes;
-
-            var dTRead = '0:00';
-            if (daytime) {
-                dTRead = moment(daytime).format('h:mm');
-            }
-            switch (frequency) {
-                case "manual":
-                    return this.T("trigger.manual");
-                case "monthly":
-                    if (short) {
-                        return this.T("schedule.monthly.short").replace('%1', monthday);
-                    } else {
-                        return this.T("schedule.monthly").replace('%1', monthday).replace('%2', dTRead);
-                    }
-                case "weekly":
-                    if (short) {
-                        return this.T("schedule.weekly.short").replace('%1', moment.weekdays()[weekday]);
-                    } else {
-                        return this.T("schedule.weekly").replace('%1', moment.weekdays()[weekday]).replace('%2', dTRead);
-                    }
-                case "daily":
-                    if (short) {
-                        return this.T("schedule.daily.short").replace('%1', dTRead);
-                    } else {
-                        return this.T("schedule.daily").replace('%1', dTRead);
-                    }
-                case "timely":
-                    var duration = moment.duration(everyminutes, 'minutes');
-                    return this.T("schedule.timely").replace('%1', (duration.hours() ? duration.hours() + 'h' : '') + (duration.minutes() ? duration.minutes() + 'mn' : ''));
-                default:
-                    return "Error";
-            }
-        }
-    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -44547,15 +44625,15 @@ var JobSchedule = (function (_React$Component) {
                 return _react2['default'].createElement(
                     'div',
                     null,
-                    this.readableString(true)
+                    JobSchedule.readableString(this.state, this.T, true)
                 );
             }
-            var _state3 = this.state;
-            var frequency = _state3.frequency;
-            var monthday = _state3.monthday;
-            var weekday = _state3.weekday;
-            var daytime = _state3.daytime;
-            var everyminutes = _state3.everyminutes;
+            var _state2 = this.state;
+            var frequency = _state2.frequency;
+            var monthday = _state2.monthday;
+            var weekday = _state2.weekday;
+            var daytime = _state2.daytime;
+            var everyminutes = _state2.everyminutes;
 
             var monthdays = [];
             var weekdays = moment.weekdays();
@@ -44565,7 +44643,7 @@ var JobSchedule = (function (_React$Component) {
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), label: this.readableString(true), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), label: JobSchedule.readableString(this.state, this.T, true), onTouchTap: function () {
                         _this2.setState({ open: true });
                     } }),
                 _react2['default'].createElement(
@@ -44590,7 +44668,7 @@ var JobSchedule = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'div',
                                 { style: { color: '#212121' } },
-                                this.readableString()
+                                JobSchedule.readableString(this.state, this.T, false)
                             ),
                             frequency !== 'manual' && _react2['default'].createElement(
                                 'div',
@@ -44758,6 +44836,48 @@ var JobSchedule = (function (_React$Component) {
                     break;
             }
             return 'R/' + moment(startDate).toISOString() + '/' + duration.toISOString();
+        }
+    }, {
+        key: 'readableString',
+        value: function readableString(state, T) {
+            var short = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+            var frequency = state.frequency;
+            var monthday = state.monthday;
+            var weekday = state.weekday;
+            var daytime = state.daytime;
+            var everyminutes = state.everyminutes;
+
+            var dTRead = '0:00';
+            if (daytime) {
+                dTRead = moment(daytime).format('h:mm');
+            }
+            switch (frequency) {
+                case "manual":
+                    return T("trigger.manual");
+                case "monthly":
+                    if (short) {
+                        return T("schedule.monthly.short").replace('%1', monthday);
+                    } else {
+                        return T("schedule.monthly").replace('%1', monthday).replace('%2', dTRead);
+                    }
+                case "weekly":
+                    if (short) {
+                        return T("schedule.weekly.short").replace('%1', moment.weekdays()[weekday]);
+                    } else {
+                        return T("schedule.weekly").replace('%1', moment.weekdays()[weekday]).replace('%2', dTRead);
+                    }
+                case "daily":
+                    if (short) {
+                        return T("schedule.daily.short").replace('%1', dTRead);
+                    } else {
+                        return T("schedule.daily").replace('%1', dTRead);
+                    }
+                case "timely":
+                    var duration = moment.duration(everyminutes, 'minutes');
+                    return T("schedule.timely").replace('%1', (duration.hours() ? duration.hours() + 'h' : '') + (duration.minutes() ? duration.minutes() + 'mn' : ''));
+                default:
+                    return "Error";
+            }
         }
     }]);
 
@@ -44931,6 +45051,852 @@ exports["default"] = TaskActivity;
 module.exports = exports["default"];
 
 },{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],475:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _styles = require('./styles');
+
+var PydioForm = _pydio2['default'].requireLib('form');
+
+var FormLoader = (function () {
+    function FormLoader() {
+        _classCallCheck(this, FormLoader);
+    }
+
+    _createClass(FormLoader, null, [{
+        key: 'loadAction',
+        value: function loadAction(actionName) {
+
+            if (FormLoader.FormsCache[actionName]) {
+                return Promise.resolve(FormLoader.FormsCache[actionName]);
+            }
+
+            var postBody = null;
+
+            // verify the required parameter 'serviceName' is set
+            if (actionName === undefined || actionName === null) {
+                throw new Error("Missing the required parameter 'serviceName' when calling configFormsDiscovery");
+            }
+            var pathParams = {
+                'ActionName': actionName
+            };
+            var queryParams = {};
+            var headerParams = {};
+            var formParams = {};
+
+            var authNames = [];
+            var contentTypes = ['application/json'];
+            var accepts = ['application/json'];
+            var returnType = "String";
+
+            return _pydioHttpApi2['default'].getRestClient().callApi('/config/scheduler/actions/{ActionName}', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType).then(function (responseAndData) {
+                var xmlString = responseAndData.data;
+                var domNode = _pydioUtilXml2['default'].parseXml(xmlString);
+                var parameters = PydioForm.Manager.parseParameters(domNode, "//param");
+                FormLoader.FormsCache[actionName] = parameters;
+                return parameters;
+            });
+        }
+    }]);
+
+    return FormLoader;
+})();
+
+FormLoader.FormsCache = {};
+
+var FormPanel = (function (_React$Component) {
+    _inherits(FormPanel, _React$Component);
+
+    function FormPanel(props) {
+        _classCallCheck(this, FormPanel);
+
+        _get(Object.getPrototypeOf(FormPanel.prototype), 'constructor', this).call(this, props);
+        this.state = {};
+        if (props.actionInfo.HasForm) {
+            this.loadForm(props.action.ID);
+        }
+    }
+
+    _createClass(FormPanel, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            if (nextProps.action.ID !== this.props.action.ID && nextProps.actionInfo.HasForm) {
+                this.loadForm(nextProps.action.ID);
+            }
+        }
+    }, {
+        key: 'loadForm',
+        value: function loadForm(actionID) {
+            var _this = this;
+
+            FormLoader.loadAction(actionID).then(function (params) {
+                _this.setState({ formParams: params });
+            });
+        }
+    }, {
+        key: 'onChange',
+        value: function onChange(values) {
+            console.log(values);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var actionInfo = _props.actionInfo;
+            var action = _props.action;
+            var onDismiss = _props.onDismiss;
+            var sourcePosition = _props.sourcePosition;
+            var sourceSize = _props.sourceSize;
+            var scrollLeft = _props.scrollLeft;
+            var formParams = this.state.formParams;
+
+            var values = {};
+            if (action.Parameters) {
+                values = action.Parameters;
+            }
+            var pos = (0, _styles.position)(300, sourceSize, sourcePosition, scrollLeft);
+            return _react2['default'].createElement(
+                _materialUi.Paper,
+                { style: _extends({}, _styles.styles.paper, pos), zDepth: 2 },
+                _react2['default'].createElement(
+                    'div',
+                    { style: _styles.styles.header },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        actionInfo.Icon && _react2['default'].createElement('span', { className: 'mdi mdi-' + actionInfo.Icon, style: { marginRight: 4 } }),
+                        actionInfo.Label
+                    ),
+                    _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
+                            onDismiss();
+                        }, style: _styles.styles.close })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _styles.styles.body },
+                    actionInfo.Description
+                ),
+                formParams && _react2['default'].createElement(
+                    'div',
+                    { style: { margin: -10 } },
+                    _react2['default'].createElement(PydioForm.FormPanel, {
+                        ref: 'formPanel',
+                        depth: -1,
+                        parameters: formParams,
+                        values: values,
+                        onChange: this.onChange.bind(this)
+                    })
+                )
+            );
+        }
+    }]);
+
+    return FormPanel;
+})(_react2['default'].Component);
+
+exports['default'] = FormPanel;
+module.exports = exports['default'];
+
+},{"./styles":481,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml","react":"react"}],476:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _jointjs = require('jointjs');
+
+var _graphConfigs = require("../graph/Configs");
+
+var Input = (function (_shapes$devs$Model) {
+    _inherits(Input, _shapes$devs$Model);
+
+    function Input(icon) {
+        _classCallCheck(this, Input);
+
+        var size = { width: 40, height: 40 };
+
+        _get(Object.getPrototypeOf(Input.prototype), 'constructor', this).call(this, {
+            size: _extends({}, size),
+            outPorts: ['output'],
+            markup: _graphConfigs.SimpleIconMarkup,
+            attrs: {
+                rect: _extends({}, size, _graphConfigs.WhiteRect),
+                icon: _extends({
+                    text: (0, _graphConfigs.IconToUnicode)(icon)
+                }, _graphConfigs.DarkIcon, {
+                    fill: icon === 'database' ? _graphConfigs.Orange : _graphConfigs.Blue,
+                    magnet: false
+                })
+            },
+            ports: _graphConfigs.PortsConfig
+        });
+    }
+
+    return Input;
+})(_jointjs.shapes.devs.Model);
+
+exports['default'] = Input;
+module.exports = exports['default'];
+
+},{"../graph/Configs":483,"jointjs":467}],477:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _jointjs = require('jointjs');
+
+var _graphConfigs = require("../graph/Configs");
+
+var Output = (function (_shapes$devs$Model) {
+    _inherits(Output, _shapes$devs$Model);
+
+    function Output(icon) {
+        _classCallCheck(this, Output);
+
+        var size = { width: 40, height: 40 };
+
+        _get(Object.getPrototypeOf(Output.prototype), 'constructor', this).call(this, {
+            size: _extends({}, size),
+            inPorts: ['input'],
+            markup: _graphConfigs.SimpleIconMarkup,
+            attrs: {
+                rect: _extends({}, size, _graphConfigs.WhiteRect),
+                icon: _extends({ text: (0, _graphConfigs.IconToUnicode)(icon) }, _graphConfigs.DarkIcon, { fill: _graphConfigs.Blue, magnet: false })
+            },
+            ports: _graphConfigs.PortsConfig
+        });
+    }
+
+    return Output;
+})(_jointjs.shapes.devs.Model);
+
+exports['default'] = Output;
+module.exports = exports['default'];
+
+},{"../graph/Configs":483,"jointjs":467}],478:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _jointjs = require('jointjs');
+
+var _graphConfigs = require("../graph/Configs");
+
+var Query = (function (_shapes$devs$Model) {
+    _inherits(Query, _shapes$devs$Model);
+
+    function Query(fieldName) {
+        var fieldValue = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+
+        _classCallCheck(this, Query);
+
+        var size = { width: 140, height: 40 };
+
+        var typeLabel = fieldName;
+        if (fieldValue) {
+            typeLabel = fieldName + ': ' + fieldValue;
+        }
+        if (typeLabel.length > 20) {
+            typeLabel = typeLabel.substr(0, 17) + '...';
+        }
+
+        _get(Object.getPrototypeOf(Query.prototype), 'constructor', this).call(this, {
+            size: _extends({}, size),
+            inPorts: ['input'],
+            outPorts: ['output'],
+            attrs: {
+                '.body': _extends({}, size, _graphConfigs.WhiteRect),
+                '.label': { text: typeLabel, magnet: false, refY: 2, fill: _graphConfigs.DarkGrey, 'text-anchor': 'middle', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500 }
+            },
+            ports: _graphConfigs.PortsConfig
+        });
+    }
+
+    return Query;
+})(_jointjs.shapes.devs.Model);
+
+exports['default'] = Query;
+module.exports = exports['default'];
+
+},{"../graph/Configs":483,"jointjs":467}],479:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _styles = require('./styles');
+
+var _materialUi = require('material-ui');
+
+var _jointjs = require('jointjs');
+
+var _dagre = require('dagre');
+
+var _dagre2 = _interopRequireDefault(_dagre);
+
+var _graphlib = require('graphlib');
+
+var _graphlib2 = _interopRequireDefault(_graphlib);
+
+var _Query = require("./Query");
+
+var _Query2 = _interopRequireDefault(_Query);
+
+var _graphLink = require("../graph/Link");
+
+var _graphLink2 = _interopRequireDefault(_graphLink);
+
+var _Input = require("./Input");
+
+var _Input2 = _interopRequireDefault(_Input);
+
+var _Output = require("./Output");
+
+var _Output2 = _interopRequireDefault(_Output);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var margin = 20;
+
+var QueryBuilder = (function (_React$Component) {
+    _inherits(QueryBuilder, _React$Component);
+
+    function QueryBuilder(props) {
+        _classCallCheck(this, QueryBuilder);
+
+        _get(Object.getPrototypeOf(QueryBuilder.prototype), 'constructor', this).call(this, props);
+        this.graph = new _jointjs.dia.Graph();
+        this.state = this.buildGraph();
+    }
+
+    _createClass(QueryBuilder, [{
+        key: 'detectTypes',
+        value: function detectTypes() {
+            var _props = this.props;
+            var query = _props.query;
+            var queryType = _props.queryType;
+
+            console.log(query);
+            var inputIcon = undefined,
+                outputIcon = undefined;
+            var objectType = 'node';
+            if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
+                objectType = 'node';
+            } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
+                objectType = 'user';
+                switch (query.Type) {
+                    case "User":
+                        objectType = 'user';
+                        break;
+                    case "Workspace":
+                        objectType = 'workspace';
+                        break;
+                    case "Role":
+                        objectType = 'role';
+                        break;
+                    case "Acl":
+                        objectType = 'acl';
+                        break;
+                    default:
+                        break;
+                }
+            } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
+                objectType = 'user';
+            }
+
+            if (queryType === 'selector') {
+                inputIcon = 'database';
+                switch (objectType) {
+                    case "node":
+                        outputIcon = 'file-multiple';
+                        break;
+                    case "user":
+                        outputIcon = 'account-multiple';
+                        break;
+                    case "role":
+                        outputIcon = 'account-card-details';
+                        break;
+                    case "workspace":
+                        outputIcon = 'folder-open';
+                        break;
+                    case "acl":
+                        outputIcon = 'format-list-checks';
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                switch (objectType) {
+                    case "node":
+                        inputIcon = 'file';
+                        outputIcon = 'file';
+                        break;
+                    case "user":
+                        inputIcon = 'account';
+                        outputIcon = 'account';
+                        break;
+                    case "role":
+                        inputIcon = 'account-card-details';
+                        outputIcon = 'account-card-details';
+                        break;
+                    case "workspace":
+                        inputIcon = 'folder-open';
+                        outputIcon = 'folder-open';
+                        break;
+                    case "acl":
+                        inputIcon = 'format-list-checks';
+                        outputIcon = 'format-list-checks';
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType };
+        }
+    }, {
+        key: 'buildGraph',
+        value: function buildGraph() {
+            var _this = this;
+
+            var query = this.props.query;
+
+            var _detectTypes = this.detectTypes();
+
+            var inputIcon = _detectTypes.inputIcon;
+            var outputIcon = _detectTypes.outputIcon;
+
+            var input = new _Input2['default'](inputIcon);
+            var output = new _Output2['default'](outputIcon);
+            input.addTo(this.graph);
+            output.addTo(this.graph);
+            if (query.All) {
+                var all = new _Query2['default']('Select All');
+                all.addTo(this.graph);
+                var link = new _graphLink2['default'](input.id, 'search', all.id, 'input');
+                link.addTo(this.graph);
+                var link2 = new _graphLink2['default'](all.id, 'output', output.id, 'input');
+                link2.addTo(this.graph);
+            } else if (query.Query && query.Query.SubQueries) {
+                query.Query.SubQueries.forEach(function (q) {
+                    console.log(JSON.stringify(q));
+                    Object.keys(q.value).forEach(function (key) {
+                        var field = new _Query2['default'](key, q.value[key]);
+                        field.addTo(_this.graph);
+                        var link = new _graphLink2['default'](input.id, 'search', field.id, 'input');
+                        link.addTo(_this.graph);
+                        var link2 = new _graphLink2['default'](field.id, 'output', output.id, 'input');
+                        link2.addTo(_this.graph);
+                    });
+                });
+            }
+            return _jointjs.layout.DirectedGraph.layout(this.graph, {
+                nodeSep: 20,
+                edgeSep: 20,
+                rankSep: 40,
+                rankDir: "LR",
+                marginX: margin,
+                marginY: margin,
+                dagre: _dagre2['default'],
+                graphlib: _graphlib2['default']
+            });
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _state = this.state;
+            var width = _state.width;
+            var height = _state.height;
+
+            this.paper = new _jointjs.dia.Paper({
+                el: _reactDom2['default'].findDOMNode(this.refs.graph),
+                width: width + margin * 2,
+                height: height + margin * 2,
+                model: this.graph,
+                interactive: {
+                    addLinkFromMagnet: false,
+                    useLinkTools: false,
+                    elementMove: true
+                }
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _props2 = this.props;
+            var onDismiss = _props2.onDismiss;
+            var sourcePosition = _props2.sourcePosition;
+            var sourceSize = _props2.sourceSize;
+            var scrollLeft = _props2.scrollLeft;
+            var queryType = this.props.queryType;
+            var width = this.state.width;
+
+            var _detectTypes2 = this.detectTypes();
+
+            var objectType = _detectTypes2.objectType;
+
+            var pos = (0, _styles.position)(width + margin * 3, sourceSize, sourcePosition, scrollLeft);
+
+            return _react2['default'].createElement(
+                _materialUi.Paper,
+                { style: _extends({}, _styles.styles.paper, pos), zDepth: 2 },
+                _react2['default'].createElement(
+                    'div',
+                    { style: _styles.styles.header },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        queryType === 'filter' ? 'Filter' : 'Select',
+                        ' ',
+                        objectType,
+                        queryType === 'filter' ? '' : 's'
+                    ),
+                    _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
+                            onDismiss();
+                        }, style: _styles.styles.close })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _styles.styles.body },
+                    _react2['default'].createElement('div', { ref: "graph", id: "graph" })
+                )
+            );
+        }
+    }]);
+
+    return QueryBuilder;
+})(_react2['default'].Component);
+
+exports['default'] = QueryBuilder;
+module.exports = exports['default'];
+
+},{"../graph/Link":486,"./Input":476,"./Output":477,"./Query":478,"./styles":481,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],480:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _styles = require('./styles');
+
+var _materialUi = require('material-ui');
+
+var _JobSchedule = require('../JobSchedule');
+
+var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
+
+var eventMessages = {
+    NODE_CHANGE: {
+        '0': 'trigger.create.node',
+        '1': 'trigger.read.node',
+        '2': 'trigger.update.path',
+        '3': 'trigger.update.content',
+        '4': 'trigger.update.metadata',
+        '5': 'trigger.delete.node'
+    },
+    IDM_CHANGE: {
+        USER: {
+            '0': 'trigger.create.user',
+            '1': 'trigger.read.user',
+            '2': 'trigger.update.user',
+            '3': 'trigger.delete.user',
+            '4': 'trigger.bind.user',
+            '5': 'trigger.logout.user'
+        },
+        // TODO I18N
+        ROLE: {
+            '0': 'Create Role',
+            '3': 'Delete Role'
+        },
+        WORKSPACE: {
+            '0': 'Create Workspace',
+            '3': 'Delete Workspace'
+        },
+        ACL: {
+            '0': 'Create Acl',
+            '3': 'Delete Acl'
+        }
+    }
+};
+
+var Schedule = (function (_React$Component) {
+    _inherits(Schedule, _React$Component);
+
+    function Schedule() {
+        _classCallCheck(this, Schedule);
+
+        _get(Object.getPrototypeOf(Schedule.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Schedule, [{
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var schedule = _props.schedule;
+            var onDismiss = _props.onDismiss;
+            var sourcePosition = _props.sourcePosition;
+            var sourceSize = _props.sourceSize;
+            var scrollLeft = _props.scrollLeft;
+
+            var pos = (0, _styles.position)(200, sourceSize, sourcePosition, scrollLeft);
+
+            var state = _JobSchedule2['default'].parseIso8601(schedule.Iso8601Schedule);
+            var scheduleString = _JobSchedule2['default'].readableString(state, Schedule.T);
+
+            return _react2['default'].createElement(
+                _materialUi.Paper,
+                { style: _extends({}, _styles.styles.paper, pos), zDepth: 2 },
+                _react2['default'].createElement(
+                    'div',
+                    { style: _styles.styles.header },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        'Programmed Schedule'
+                    ),
+                    _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
+                            onDismiss();
+                        }, style: _styles.styles.close })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _styles.styles.body },
+                    scheduleString
+                )
+            );
+        }
+    }], [{
+        key: 'T',
+        value: function T(id) {
+            return _pydio2['default'].getMessages()['ajxp_admin.scheduler.' + id] || id;
+        }
+    }]);
+
+    return Schedule;
+})(_react2['default'].Component);
+
+var Events = (function (_React$Component2) {
+    _inherits(Events, _React$Component2);
+
+    function Events() {
+        _classCallCheck(this, Events);
+
+        _get(Object.getPrototypeOf(Events.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Events, [{
+        key: 'render',
+        value: function render() {
+            var _props2 = this.props;
+            var events = _props2.events;
+            var onDismiss = _props2.onDismiss;
+            var sourcePosition = _props2.sourcePosition;
+            var sourceSize = _props2.sourceSize;
+            var scrollLeft = _props2.scrollLeft;
+
+            var pos = (0, _styles.position)(200, sourceSize, sourcePosition, scrollLeft);
+
+            return _react2['default'].createElement(
+                _materialUi.Paper,
+                { style: _extends({}, _styles.styles.paper, pos), zDepth: 2 },
+                _react2['default'].createElement(
+                    'div',
+                    { style: _styles.styles.header },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        'Events'
+                    ),
+                    _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
+                            onDismiss();
+                        }, style: _styles.styles.close })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: _styles.styles.body },
+                    events.map(function (e) {
+                        return _react2['default'].createElement(
+                            'div',
+                            null,
+                            Events.eventLabel(e, Events.T)
+                        );
+                    })
+                )
+            );
+        }
+    }], [{
+        key: 'eventLabel',
+        value: function eventLabel(e, T) {
+
+            var parts = e.split(':');
+            if (parts.length === 2 && eventMessages[parts[0]]) {
+                return T(eventMessages[parts[0]][parts[1]]);
+            } else if (parts.length === 3 && eventMessages[parts[0]] && eventMessages[parts[0]][parts[1]] && eventMessages[parts[0]][parts[1]][parts[2]]) {
+                return T(eventMessages[parts[0]][parts[1]][parts[2]]);
+            } else {
+                return e;
+            }
+        }
+    }, {
+        key: 'T',
+        value: function T(id) {
+            return _pydio2['default'].getMessages()['ajxp_admin.scheduler.' + id] || id;
+        }
+    }]);
+
+    return Events;
+})(_react2['default'].Component);
+
+exports.Schedule = Schedule;
+exports.Events = Events;
+
+},{"../JobSchedule":473,"./styles":481,"material-ui":"material-ui","pydio":"pydio","react":"react"}],481:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _graphConfigs = require("../graph/Configs");
+
+var styles = {
+    paper: {
+        position: 'absolute',
+        zIndex: 2,
+        border: '2px solid #ffcc8f', // + Orange,
+        borderRadius: 5
+    },
+    header: {
+        padding: 10,
+        fontSize: 15,
+        fontWeight: 500,
+        display: 'flex',
+        alignItems: 'center'
+    },
+    body: {
+        padding: 10
+    },
+    close: {
+        color: '#9e9e9e',
+        cursor: 'pointer'
+    }
+};
+
+function position(width, sourceSize, sourcePosition, scrollLeft) {
+
+    var top = undefined,
+        left = undefined;
+    left = sourcePosition.x + (sourceSize.width - width) / 2 - scrollLeft;
+    top = sourcePosition.y + sourceSize.height + 10;
+    return { top: top, left: left, width: width };
+}
+
+exports.styles = styles;
+exports.position = position;
+
+},{"../graph/Configs":483}],482:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -44954,11 +45920,21 @@ var _Configs = require("./Configs");
 var Action = (function (_shapes$devs$Model) {
     _inherits(Action, _shapes$devs$Model);
 
-    function Action(action, hasOutput) {
+    function Action(descriptions, action, hasOutput) {
         _classCallCheck(this, Action);
 
-        var parts = action.ID.split(".");
-        var aName = parts.pop();
+        var aName = undefined;
+        if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
+            aName = descriptions[action.ID].Label;
+        } else {
+            var parts = action.ID.split(".");
+            aName = parts.pop();
+        }
+
+        var iconCode = (0, _Configs.IconToUnicode)("chip");
+        if (descriptions && descriptions[action.ID] && descriptions[action.ID].Icon) {
+            iconCode = (0, _Configs.IconToUnicode)(descriptions[action.ID].Icon);
+        }
 
         var config = {
             size: _extends({}, _Configs.BoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
@@ -44966,7 +45942,7 @@ var Action = (function (_shapes$devs$Model) {
             markup: _Configs.TextIconMarkup,
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.BlueRect),
-                icon: _extends({ text: "" }, _Configs.LightIcon),
+                icon: _extends({ text: iconCode }, _Configs.LightIcon),
                 text: _extends({ text: aName, magnet: false }, _Configs.LightLabel)
             },
             ports: _Configs.PortsConfig
@@ -44998,7 +45974,7 @@ var Action = (function (_shapes$devs$Model) {
 exports["default"] = Action;
 module.exports = exports["default"];
 
-},{"./Configs":476,"jointjs":467}],476:[function(require,module,exports){
+},{"./Configs":483,"jointjs":467}],483:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45038,6 +46014,19 @@ var TextIconMarkup = [{
     selector: 'text'
 }];
 
+var SimpleIconMarkup = [{
+    tagName: 'rect',
+    selector: 'rect'
+}, {
+    tagName: 'text',
+    selector: 'icon'
+}];
+
+var ClusterConfig = {
+    size: { width: 420, height: 104 },
+    attrs: { rect: { width: 420, height: 104, rx: 5, ry: 5, fill: 'transparent', stroke: LightGrey, 'stroke-width': 2, strokeDasharray: '5,2' } }
+};
+
 var PortsConfig = {
     groups: {
         'in': {
@@ -45049,6 +46038,7 @@ var PortsConfig = {
                     r: 5
                 },
                 '.port-label': {
+                    display: 'none',
                     fill: White
                 }
             }
@@ -45062,12 +46052,40 @@ var PortsConfig = {
                     r: 5
                 },
                 '.port-label': {
+                    display: 'none',
                     fill: White
                 }
             }
         }
     }
 };
+
+var unicodesCache = {};
+
+/**
+ * @param iconName
+ * @return String unicode character for this mdi icon
+ * @constructor
+ */
+function IconToUnicode(iconName) {
+    if (unicodesCache[iconName]) {
+        return unicodesCache[iconName];
+    }
+    try {
+        var el = document.createElement('span');
+        el.className = 'mdi mdi-' + iconName;
+        el.style = 'visibility:hidden';
+        var body = document.getElementsByTagName('body').item(0);
+        body.appendChild(el);
+        var uCode = window.getComputedStyle(el, ':before').getPropertyValue('content');
+        body.removeChild(el);
+        unicodesCache[iconName] = uCode.replace(/"/g, '');
+        return unicodesCache[iconName];
+    } catch (e) {
+        console.warn('cannot find unicode for icon ' + iconName, 'Displaying Help icon', e);
+        return '';
+    }
+}
 
 var BlueRect = { fill: Blue, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': Blue, filter: dropShadow };
 var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
@@ -45078,7 +46096,9 @@ var DarkLabel = _extends({}, LightLabel, { fill: DarkGrey });
 var DarkIcon = _extends({}, LightIcon, { fill: Blue });
 
 exports.PortsConfig = PortsConfig;
+exports.ClusterConfig = ClusterConfig;
 exports.TextIconMarkup = TextIconMarkup;
+exports.SimpleIconMarkup = SimpleIconMarkup;
 exports.BoxSize = BoxSize;
 exports.BlueRect = BlueRect;
 exports.LightLabel = LightLabel;
@@ -45090,9 +46110,11 @@ exports.Blue = Blue;
 exports.Orange = Orange;
 exports.LightGrey = LightGrey;
 exports.Grey = Grey;
+exports.DarkGrey = DarkGrey;
 exports.Stale = Stale;
+exports.IconToUnicode = IconToUnicode;
 
-},{}],477:[function(require,module,exports){
+},{}],484:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45135,7 +46157,7 @@ var Filter = (function (_shapes$devs$Model) {
             markup: _Configs.TextIconMarkup,
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.WhiteRect),
-                icon: _extends({ text: '' }, _Configs.DarkIcon, { fill: _Configs.Orange, magnet: false }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)('filter-outline') }, _Configs.DarkIcon, { fill: _Configs.Orange, magnet: false }),
                 text: _extends({ text: 'Filter ' + typeLabel, magnet: false }, _Configs.DarkLabel)
             },
             ports: _Configs.PortsConfig
@@ -45163,7 +46185,7 @@ var Filter = (function (_shapes$devs$Model) {
 exports['default'] = Filter;
 module.exports = exports['default'];
 
-},{"./Configs":476,"jointjs":467}],478:[function(require,module,exports){
+},{"./Configs":483,"jointjs":467}],485:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45192,7 +46214,7 @@ var JobInput = (function (_shapes$devs$Model) {
 
         var label = 'Manual Trigger';
         // mdi-gesture-tap
-        var icon = '';
+        var icon = (0, _Configs.IconToUnicode)('gesture-tap');
         var type = 'manual';
         if (job.EventNames) {
             var parts = job.EventNames[0].split(":");
@@ -45205,13 +46227,13 @@ var JobInput = (function (_shapes$devs$Model) {
             }
             label = eventType + ' Events';
             // mdi-pulse
-            icon = '';
+            icon = (0, _Configs.IconToUnicode)('pulse');
             type = 'event';
         } else if (job.Schedule) {
             //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
             label = 'Schedule';
             // mdi-clock
-            icon = '';
+            icon = (0, _Configs.IconToUnicode)('clock');
             type = 'schedule';
         }
 
@@ -45263,7 +46285,7 @@ var JobInput = (function (_shapes$devs$Model) {
 exports['default'] = JobInput;
 module.exports = exports['default'];
 
-},{"./Configs":476,"jointjs":467}],479:[function(require,module,exports){
+},{"./Configs":483,"jointjs":467}],486:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45329,7 +46351,7 @@ var Link = (function (_shapes$devs$Link) {
 exports['default'] = Link;
 module.exports = exports['default'];
 
-},{"./Configs":476,"jointjs":467}],480:[function(require,module,exports){
+},{"./Configs":483,"jointjs":467}],487:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45372,7 +46394,7 @@ var Selector = (function (_shapes$devs$Model) {
             markup: _Configs.TextIconMarkup,
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.WhiteRect),
-                icon: _extends({ text: '' }, _Configs.DarkIcon, { fill: _Configs.Orange }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Orange }),
                 text: _extends({ text: 'Select ' + typeLabel, magnet: false }, _Configs.DarkLabel)
             },
             ports: _Configs.PortsConfig
@@ -45399,7 +46421,7 @@ var Selector = (function (_shapes$devs$Model) {
 exports['default'] = Selector;
 module.exports = exports['default'];
 
-},{"./Configs":476,"jointjs":467}],481:[function(require,module,exports){
+},{"./Configs":483,"jointjs":467}],488:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45432,4 +46454,4 @@ window.AdminScheduler = {
   Dashboard: _boardDashboard2['default']
 };
 
-},{"./board/Dashboard":470}]},{},[481]);
+},{"./board/Dashboard":470}]},{},[488]);

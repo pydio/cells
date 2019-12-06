@@ -1,5 +1,5 @@
 import {shapes} from 'jointjs'
-import {PortsConfig, WhiteRect, DarkLabel, TextIconMarkup, DarkIcon, BoxSize} from "./Configs";
+import {PortsConfig, WhiteRect, DarkLabel, TextIconMarkup, DarkIcon, BoxSize, IconToUnicode} from "./Configs";
 
 class JobInput extends shapes.devs.Model {
 
@@ -7,7 +7,7 @@ class JobInput extends shapes.devs.Model {
 
         let label = 'Manual Trigger';
         // mdi-gesture-tap
-        let icon = '\uF740';
+        let icon = IconToUnicode('gesture-tap');
         let type = 'manual';
         if(job.EventNames){
             const parts = job.EventNames[0].split(":");
@@ -20,13 +20,13 @@ class JobInput extends shapes.devs.Model {
             }
             label = eventType + ' Events';
             // mdi-pulse
-            icon = '\uF430';
+            icon = IconToUnicode('pulse');
             type = 'event';
         } else if(job.Schedule){
             //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
             label = 'Schedule';
             // mdi-clock
-            icon = '\uF150';
+            icon = IconToUnicode('clock');
             type = 'schedule';
         }
 

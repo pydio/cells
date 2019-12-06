@@ -186,9 +186,7 @@ class JobBoard extends React.Component {
                         />
                     </Paper>
                     <AdminComponents.SubHeader title={"Job Description"}/>
-                    <Paper style={{margin: 20}}>
-                        <JobGraph job={job}/>
-                    </Paper>
+                    <JobGraph job={job}/>
                     <AdminComponents.SubHeader
                         title={
                             <div style={{display:'flex', width:'100%', alignItems:'baseline'}}>

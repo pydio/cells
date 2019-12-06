@@ -30,6 +30,19 @@ const TextIconMarkup = [{
     selector: 'text'
 }];
 
+const SimpleIconMarkup = [{
+    tagName: 'rect',
+    selector: 'rect',
+}, {
+    tagName: 'text',
+    selector: 'icon'
+}];
+
+const ClusterConfig = {
+    size: {width: 420, height: 104},
+    attrs:{rect: {width: 420, height: 104, rx: 5, ry: 5, fill: 'transparent', stroke: LightGrey, 'stroke-width': 2, strokeDasharray: '5,2' }}
+};
+
 const PortsConfig = {
     groups: {
         'in': {
@@ -41,6 +54,7 @@ const PortsConfig = {
                     r:5
                 },
                 '.port-label': {
+                    display:'none',
                     fill: White
                 }
             }
@@ -54,12 +68,41 @@ const PortsConfig = {
                     r:5
                 },
                 '.port-label': {
+                    display:'none',
                     fill: White
                 }
             }
         }
     }
 };
+
+const unicodesCache = {};
+
+/**
+ * @param iconName
+ * @return String unicode character for this mdi icon
+ * @constructor
+ */
+function IconToUnicode(iconName){
+    if (unicodesCache[iconName]){
+        return unicodesCache[iconName];
+    }
+    try{
+        const el = document.createElement('span');
+        el.className = 'mdi mdi-' + iconName;
+        el.style = 'visibility:hidden';
+        const body = document.getElementsByTagName('body').item(0);
+        body.appendChild(el);
+        const uCode = window.getComputedStyle(el, ':before').getPropertyValue('content');
+        body.removeChild(el);
+        unicodesCache[iconName] = uCode.replace(/"/g, '');
+        return unicodesCache[iconName]
+    } catch (e) {
+        console.warn('cannot find unicode for icon ' + iconName, 'Displaying Help icon', e);
+        return '\uF625';
+    }
+}
+
 
 
 const BlueRect = {fill: Blue ,rx: 5,ry: 5, 'stroke-width':1,  'stroke': Blue, filter:dropShadow};
@@ -70,4 +113,5 @@ const LightLabel = { refY:'60%', refY2: 0, 'text-anchor':'middle', refX:'50%', '
 const DarkLabel = {...LightLabel, fill: DarkGrey};
 const DarkIcon = {...LightIcon, fill: Blue};
 
-export {PortsConfig, TextIconMarkup, BoxSize, BlueRect, LightLabel, LightIcon, DarkIcon, WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, Stale}
+export {PortsConfig, ClusterConfig, TextIconMarkup, SimpleIconMarkup, BoxSize, BlueRect, LightLabel, LightIcon, DarkIcon,
+    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, IconToUnicode}

@@ -37,6 +37,19 @@ var TextIconMarkup = [{
     selector: 'text'
 }];
 
+var SimpleIconMarkup = [{
+    tagName: 'rect',
+    selector: 'rect'
+}, {
+    tagName: 'text',
+    selector: 'icon'
+}];
+
+var ClusterConfig = {
+    size: { width: 420, height: 104 },
+    attrs: { rect: { width: 420, height: 104, rx: 5, ry: 5, fill: 'transparent', stroke: LightGrey, 'stroke-width': 2, strokeDasharray: '5,2' } }
+};
+
 var PortsConfig = {
     groups: {
         'in': {
@@ -48,6 +61,7 @@ var PortsConfig = {
                     r: 5
                 },
                 '.port-label': {
+                    display: 'none',
                     fill: White
                 }
             }
@@ -61,12 +75,40 @@ var PortsConfig = {
                     r: 5
                 },
                 '.port-label': {
+                    display: 'none',
                     fill: White
                 }
             }
         }
     }
 };
+
+var unicodesCache = {};
+
+/**
+ * @param iconName
+ * @return String unicode character for this mdi icon
+ * @constructor
+ */
+function IconToUnicode(iconName) {
+    if (unicodesCache[iconName]) {
+        return unicodesCache[iconName];
+    }
+    try {
+        var el = document.createElement('span');
+        el.className = 'mdi mdi-' + iconName;
+        el.style = 'visibility:hidden';
+        var body = document.getElementsByTagName('body').item(0);
+        body.appendChild(el);
+        var uCode = window.getComputedStyle(el, ':before').getPropertyValue('content');
+        body.removeChild(el);
+        unicodesCache[iconName] = uCode.replace(/"/g, '');
+        return unicodesCache[iconName];
+    } catch (e) {
+        console.warn('cannot find unicode for icon ' + iconName, 'Displaying Help icon', e);
+        return '';
+    }
+}
 
 var BlueRect = { fill: Blue, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': Blue, filter: dropShadow };
 var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
@@ -77,7 +119,9 @@ var DarkLabel = _extends({}, LightLabel, { fill: DarkGrey });
 var DarkIcon = _extends({}, LightIcon, { fill: Blue });
 
 exports.PortsConfig = PortsConfig;
+exports.ClusterConfig = ClusterConfig;
 exports.TextIconMarkup = TextIconMarkup;
+exports.SimpleIconMarkup = SimpleIconMarkup;
 exports.BoxSize = BoxSize;
 exports.BlueRect = BlueRect;
 exports.LightLabel = LightLabel;
@@ -89,4 +133,6 @@ exports.Blue = Blue;
 exports.Orange = Orange;
 exports.LightGrey = LightGrey;
 exports.Grey = Grey;
+exports.DarkGrey = DarkGrey;
 exports.Stale = Stale;
+exports.IconToUnicode = IconToUnicode;

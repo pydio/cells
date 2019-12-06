@@ -300,11 +300,7 @@ var JobBoard = (function (_React$Component) {
                         })
                     ),
                     _react2['default'].createElement(AdminComponents.SubHeader, { title: "Job Description" }),
-                    _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { style: { margin: 20 } },
-                        _react2['default'].createElement(_JobGraph2['default'], { job: job })
-                    ),
+                    _react2['default'].createElement(_JobGraph2['default'], { job: job }),
                     _react2['default'].createElement(AdminComponents.SubHeader, {
                         title: _react2['default'].createElement(
                             'div',

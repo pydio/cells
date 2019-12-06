@@ -2,9 +2,7 @@ import {shapes} from 'jointjs'
 import {
     PortsConfig,
     WhiteRect,
-    LightLabel,
-    Stale,
-    LightIcon,
+    IconToUnicode,
     TextIconMarkup,
     BoxSize,
     DarkIcon,
@@ -13,6 +11,7 @@ import {
 
 
 class Filter extends shapes.devs.Model{
+
     constructor(filterDefinition, filterType){
 
         let typeLabel = filterType;
@@ -31,7 +30,7 @@ class Filter extends shapes.devs.Model{
             markup: TextIconMarkup,
             attrs: {
                 rect: { ...BoxSize, ...WhiteRect},
-                icon: { text: '\uF233', ...DarkIcon, fill:Orange, magnet: false},
+                icon: { text: IconToUnicode('filter-outline'), ...DarkIcon, fill:Orange, magnet: false},
                 text: { text: 'Filter ' + typeLabel, magnet: false, ...DarkLabel}
             },
             ports: PortsConfig

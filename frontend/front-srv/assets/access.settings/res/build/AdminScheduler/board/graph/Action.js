@@ -21,11 +21,21 @@ var _Configs = require("./Configs");
 var Action = (function (_shapes$devs$Model) {
     _inherits(Action, _shapes$devs$Model);
 
-    function Action(action, hasOutput) {
+    function Action(descriptions, action, hasOutput) {
         _classCallCheck(this, Action);
 
-        var parts = action.ID.split(".");
-        var aName = parts.pop();
+        var aName = undefined;
+        if (descriptions && descriptions[action.ID] && descriptions[action.ID].Label) {
+            aName = descriptions[action.ID].Label;
+        } else {
+            var parts = action.ID.split(".");
+            aName = parts.pop();
+        }
+
+        var iconCode = (0, _Configs.IconToUnicode)("chip");
+        if (descriptions && descriptions[action.ID] && descriptions[action.ID].Icon) {
+            iconCode = (0, _Configs.IconToUnicode)(descriptions[action.ID].Icon);
+        }
 
         var config = {
             size: _extends({}, _Configs.BoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
@@ -33,7 +43,7 @@ var Action = (function (_shapes$devs$Model) {
             markup: _Configs.TextIconMarkup,
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.BlueRect),
-                icon: _extends({ text: "" }, _Configs.LightIcon),
+                icon: _extends({ text: iconCode }, _Configs.LightIcon),
                 text: _extends({ text: aName, magnet: false }, _Configs.LightLabel)
             },
             ports: _Configs.PortsConfig

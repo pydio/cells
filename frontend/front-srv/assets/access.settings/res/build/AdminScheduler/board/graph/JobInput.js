@@ -26,7 +26,7 @@ var JobInput = (function (_shapes$devs$Model) {
 
         var label = 'Manual Trigger';
         // mdi-gesture-tap
-        var icon = '';
+        var icon = (0, _Configs.IconToUnicode)('gesture-tap');
         var type = 'manual';
         if (job.EventNames) {
             var parts = job.EventNames[0].split(":");
@@ -39,13 +39,13 @@ var JobInput = (function (_shapes$devs$Model) {
             }
             label = eventType + ' Events';
             // mdi-pulse
-            icon = '';
+            icon = (0, _Configs.IconToUnicode)('pulse');
             type = 'event';
         } else if (job.Schedule) {
             //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
             label = 'Schedule';
             // mdi-clock
-            icon = '';
+            icon = (0, _Configs.IconToUnicode)('clock');
             type = 'schedule';
         }
 
