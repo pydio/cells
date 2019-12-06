@@ -2573,6 +2573,36 @@
 			"revisionTime": "2018-01-29T21:27:27Z"
 		},
 		{
+			"checksumSHA1": "JvJ6mGPbjOc3bM5hljbSiXhFjuU=",
+			"path": "github.com/mattn/anko/ast",
+			"revision": "fee836aff792213181594715e421ab48deedbbff",
+			"revisionTime": "2019-10-31T00:22:41Z"
+		},
+		{
+			"checksumSHA1": "asNLtbWaUlDB8Jo5coWdYKyg9Jo=",
+			"path": "github.com/mattn/anko/env",
+			"revision": "fee836aff792213181594715e421ab48deedbbff",
+			"revisionTime": "2019-10-31T00:22:41Z"
+		},
+		{
+			"checksumSHA1": "kSuNKZWVBbfS8n35CEP8xvIfhXo=",
+			"path": "github.com/mattn/anko/packages",
+			"revision": "fee836aff792213181594715e421ab48deedbbff",
+			"revisionTime": "2019-10-31T00:22:41Z"
+		},
+		{
+			"checksumSHA1": "D+KgFK8epzfLnUBfFiSoJlIzNfM=",
+			"path": "github.com/mattn/anko/parser",
+			"revision": "fee836aff792213181594715e421ab48deedbbff",
+			"revisionTime": "2019-10-31T00:22:41Z"
+		},
+		{
+			"checksumSHA1": "NnAhmR6Bhetz8IKJfBSCpyU7SqM=",
+			"path": "github.com/mattn/anko/vm",
+			"revision": "fee836aff792213181594715e421ab48deedbbff",
+			"revisionTime": "2019-10-31T00:22:41Z"
+		},
+		{
 			"checksumSHA1": "6wAWOVRtaH7hX48hmw9o7noyy5Q=",
 			"path": "github.com/mattn/go-colorable",
 			"revision": "2d111d6f532d6f3521539e229bc93ec1863cb5f0",
