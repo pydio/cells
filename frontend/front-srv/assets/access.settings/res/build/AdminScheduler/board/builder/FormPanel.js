@@ -4,8 +4,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -35,6 +33,8 @@ var _pydioUtilXml = require('pydio/util/xml');
 var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
 
 var _styles = require('./styles');
+
+var _actionsEditor = require("../actions/editor");
 
 var PydioForm = _pydio2['default'].requireLib('form');
 
@@ -92,7 +92,7 @@ var FormPanel = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(FormPanel.prototype), 'constructor', this).call(this, props);
         this.state = {};
-        if (props.actionInfo.HasForm) {
+        if (props.actionInfo && props.actionInfo.HasForm) {
             this.loadForm(props.action.ID);
         }
     }
@@ -100,7 +100,7 @@ var FormPanel = (function (_React$Component) {
     _createClass(FormPanel, [{
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.action.ID !== this.props.action.ID && nextProps.actionInfo.HasForm) {
+            if (nextProps.action.ID !== this.props.action.ID && nextProps.actionInfo && nextProps.actionInfo.HasForm) {
                 this.loadForm(nextProps.action.ID);
             }
         }
@@ -114,47 +114,82 @@ var FormPanel = (function (_React$Component) {
             });
         }
     }, {
-        key: 'onChange',
-        value: function onChange(values) {
+        key: 'onFormChange',
+        value: function onFormChange(values) {
             console.log(values);
+        }
+    }, {
+        key: 'actionPicker',
+        value: function actionPicker() {
+            var _this2 = this;
+
+            var _props = this.props;
+            var actions = _props.actions;
+            var onChange = _props.onChange;
+            var onDismiss = _props.onDismiss;
+            var newActionID = this.state.newActionID;
+
+            var options = Object.keys(actions).map(function (id) {
+                return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: actions[id].Label || actions[id].Name, value: id });
+            });
+            return _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(
+                    _materialUi.SelectField,
+                    {
+                        value: newActionID,
+                        onChange: function (ev, i, value) {
+                            _this2.setState({ newActionID: value });
+                        }
+                    },
+                    options
+                ),
+                _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "OK", disabled: !newActionID, onTouchTap: function () {
+                        var action = _this2.props.action;
+
+                        action.ID = newActionID;
+                        onChange(action);
+                        onDismiss();
+                    } })
+            );
         }
     }, {
         key: 'render',
         value: function render() {
-            var _props = this.props;
-            var actionInfo = _props.actionInfo;
-            var action = _props.action;
-            var onDismiss = _props.onDismiss;
-            var sourcePosition = _props.sourcePosition;
-            var sourceSize = _props.sourceSize;
-            var scrollLeft = _props.scrollLeft;
+            var _props2 = this.props;
+            var actionInfo = _props2.actionInfo;
+            var action = _props2.action;
+            var onDismiss = _props2.onDismiss;
             var formParams = this.state.formParams;
 
             var values = {};
             if (action.Parameters) {
                 values = action.Parameters;
             }
-            var pos = (0, _styles.position)(300, sourceSize, sourcePosition, scrollLeft);
+            var title = undefined,
+                description = undefined,
+                icon = undefined;
+            if (action.ID === _actionsEditor.JOB_ACTION_EMPTY) {
+                title = 'New action';
+                icon = 'chip';
+                description = this.actionPicker();
+            } else if (actionInfo) {
+                title = actionInfo.Label;
+                icon = actionInfo.Icon;
+                description = actionInfo.Description;
+            } else {
+                title = action.ID;
+                icon = 'chip';
+                description = '';
+            }
             return _react2['default'].createElement(
-                _materialUi.Paper,
-                { style: _extends({}, _styles.styles.paper, pos), zDepth: 2 },
+                _styles.RightPanel,
+                { title: title, icon: icon, onDismiss: onDismiss },
                 _react2['default'].createElement(
                     'div',
-                    { style: _styles.styles.header },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { flex: 1 } },
-                        actionInfo.Icon && _react2['default'].createElement('span', { className: 'mdi mdi-' + actionInfo.Icon, style: { marginRight: 4 } }),
-                        actionInfo.Label
-                    ),
-                    _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
-                            onDismiss();
-                        }, style: _styles.styles.close })
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: _styles.styles.body },
-                    actionInfo.Description
+                    { style: { padding: 10 } },
+                    description
                 ),
                 formParams && _react2['default'].createElement(
                     'div',
@@ -164,7 +199,7 @@ var FormPanel = (function (_React$Component) {
                         depth: -1,
                         parameters: formParams,
                         values: values,
-                        onChange: this.onChange.bind(this)
+                        onChange: this.onFormChange.bind(this)
                     })
                 )
             );

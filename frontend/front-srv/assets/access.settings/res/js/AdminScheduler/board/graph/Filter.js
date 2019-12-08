@@ -6,11 +6,16 @@ import {
     TextIconMarkup,
     BoxSize,
     DarkIcon,
-    Orange, DarkLabel
+    Orange, DarkLabel, LightGrey
 } from "./Configs";
+import {JobsNodesSelector} from 'pydio/http/rest-api';
 
 
 class Filter extends shapes.devs.Model{
+
+    static createEmptyNodesFilter(){
+        return new Filter(JobsNodesSelector.constructFromObject({}))
+    }
 
     constructor(filterDefinition, filterType){
 
@@ -39,6 +44,14 @@ class Filter extends shapes.devs.Model{
         this._jobModel = filterDefinition;
         this._filterType = filterType;
 
+    }
+
+    clearSelection(){
+        this.attr('rect/stroke', LightGrey);
+    }
+
+    select(){
+        this.attr('rect/stroke', Orange);
     }
 
     getFilterType(){

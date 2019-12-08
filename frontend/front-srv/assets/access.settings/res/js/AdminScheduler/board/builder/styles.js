@@ -1,11 +1,11 @@
-import {Blue, Orange} from "../graph/Configs";
+import React from 'react'
+import {Paper} from 'material-ui'
 
 const styles =  {
     paper: {
-        position: 'absolute',
-        zIndex:2,
-        border:'2px solid #ffcc8f',// + Orange,
-        borderRadius: 5,
+        borderLeft:'1px solid #e0e0e0',// + Orange,
+        width: 300,
+        height: '100%'
     },
     header : {
         padding: 10,
@@ -13,9 +13,6 @@ const styles =  {
         fontWeight: 500,
         display:'flex',
         alignItems: 'center',
-    },
-    body: {
-        padding: 10
     },
     close: {
         color: '#9e9e9e',
@@ -32,4 +29,22 @@ function position(width, sourceSize, sourcePosition, scrollLeft) {
 
 }
 
-export {styles, position}
+class RightPanel extends React.Component{
+    render(){
+        const {title, icon, onDismiss, children} = this.props;
+        return (
+            <Paper rounded={false} zDepth={0} style={styles.paper}>
+                <div style={styles.header}>
+                    {icon && <span className={'mdi mdi-' + icon} style={{marginRight: 4}}/>}
+                    <span style={{flex: 1}}>{title}</span>
+                    <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={styles.close}/>
+                </div>
+                <div style={styles.body}>
+                    {children}
+                </div>
+            </Paper>
+        );
+    }
+}
+
+export {styles, position, RightPanel}

@@ -50,6 +50,16 @@ var Selector = (function (_shapes$devs$Model) {
     }
 
     _createClass(Selector, [{
+        key: 'clearSelection',
+        value: function clearSelection() {
+            this.attr('rect/stroke', _Configs.LightGrey);
+        }
+    }, {
+        key: 'select',
+        value: function select() {
+            this.attr('rect/stroke', _Configs.Orange);
+        }
+    }, {
         key: 'getSelectorType',
         value: function getSelectorType() {
             return this._filterType;

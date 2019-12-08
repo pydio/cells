@@ -4,8 +4,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -209,7 +207,7 @@ var QueryBuilder = (function (_React$Component) {
 
             this.paper = new _jointjs.dia.Paper({
                 el: _reactDom2['default'].findDOMNode(this.refs.graph),
-                width: width + margin * 2,
+                width: 300,
                 height: height + margin * 2,
                 model: this.graph,
                 interactive: {
@@ -223,42 +221,24 @@ var QueryBuilder = (function (_React$Component) {
         key: 'render',
         value: function render() {
             var _props2 = this.props;
-            var onDismiss = _props2.onDismiss;
-            var sourcePosition = _props2.sourcePosition;
-            var sourceSize = _props2.sourceSize;
-            var scrollLeft = _props2.scrollLeft;
-            var queryType = this.props.queryType;
-            var width = this.state.width;
+            var queryType = _props2.queryType;
+            var style = _props2.style;
 
             var _detectTypes2 = this.detectTypes();
 
             var objectType = _detectTypes2.objectType;
 
-            var pos = (0, _styles.position)(width + margin * 3, sourceSize, sourcePosition, scrollLeft);
+            var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
 
             return _react2['default'].createElement(
-                _materialUi.Paper,
-                { style: _extends({}, _styles.styles.paper, pos), zDepth: 2 },
+                'div',
+                { style: style },
                 _react2['default'].createElement(
                     'div',
-                    { style: _styles.styles.header },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { flex: 1 } },
-                        queryType === 'filter' ? 'Filter' : 'Select',
-                        ' ',
-                        objectType,
-                        queryType === 'filter' ? '' : 's'
-                    ),
-                    _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
-                            onDismiss();
-                        }, style: _styles.styles.close })
+                    null,
+                    title
                 ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: _styles.styles.body },
-                    _react2['default'].createElement('div', { ref: "graph", id: "graph" })
-                )
+                _react2['default'].createElement('div', { ref: "graph", id: "graph" })
             );
         }
     }]);

@@ -1,6 +1,6 @@
 import React from 'react'
 import Pydio from 'pydio'
-import {styles, position} from './styles'
+import {styles, position, RightPanel} from './styles'
 import {Paper} from 'material-ui'
 import JobSchedule from '../JobSchedule'
 
@@ -45,22 +45,15 @@ class Schedule extends React.Component{
     }
 
     render() {
-        const {schedule, onDismiss, sourcePosition, sourceSize, scrollLeft} = this.props;
-        const pos = position(200, sourceSize, sourcePosition, scrollLeft);
+        const {schedule, onDismiss} = this.props;
 
         const state = JobSchedule.parseIso8601(schedule.Iso8601Schedule);
         const scheduleString = JobSchedule.readableString(state, Schedule.T);
 
         return (
-            <Paper style={{...styles.paper, ...pos}} zDepth={2}>
-                <div style={styles.header}>
-                    <div style={{flex: 1}}>Programmed Schedule</div>
-                    <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={styles.close}/>
-                </div>
-                <div style={styles.body}>
-                    {scheduleString}
-                </div>
-            </Paper>
+            <RightPanel title={"Scheduler"} onDismiss={onDismiss}>
+                {scheduleString}
+            </RightPanel>
         )
 
     }
@@ -88,19 +81,14 @@ class Events extends React.Component{
     }
 
     render() {
-        const {events, onDismiss, sourcePosition, sourceSize, scrollLeft} = this.props;
-        const pos = position(200, sourceSize, sourcePosition, scrollLeft);
+        const {events, onDismiss} = this.props;
 
         return (
-            <Paper style={{...styles.paper, ...pos}} zDepth={2}>
-                <div style={styles.header}>
-                    <div style={{flex: 1}}>Events</div>
-                    <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={styles.close}/>
-                </div>
-                <div style={styles.body}>
+            <RightPanel title={"Events"} onDismiss={onDismiss}>
+                <div style={{padding: 10}}>
                     {events.map(e => <div>{Events.eventLabel(e, Events.T)}</div>)}
                 </div>
-            </Paper>
+            </RightPanel>
         )
 
     }

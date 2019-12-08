@@ -1,5 +1,15 @@
 import {shapes} from 'jointjs'
-import {PortsConfig, WhiteRect, DarkLabel, TextIconMarkup, DarkIcon, BoxSize, Orange, IconToUnicode} from "./Configs";
+import {
+    PortsConfig,
+    WhiteRect,
+    DarkLabel,
+    TextIconMarkup,
+    DarkIcon,
+    BoxSize,
+    Orange,
+    IconToUnicode,
+    LightGrey
+} from "./Configs";
 
 
 class Selector extends shapes.devs.Model{
@@ -30,6 +40,14 @@ class Selector extends shapes.devs.Model{
         this._jobModel = filterDefinition;
         this._filterType = filterType;
 
+    }
+
+    clearSelection(){
+        this.attr('rect/stroke', LightGrey);
+    }
+
+    select(){
+        this.attr('rect/stroke', Orange);
     }
 
     getSelectorType(){

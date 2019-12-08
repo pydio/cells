@@ -18,8 +18,17 @@ var _jointjs = require('jointjs');
 
 var _Configs = require("./Configs");
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 var Filter = (function (_shapes$devs$Model) {
     _inherits(Filter, _shapes$devs$Model);
+
+    _createClass(Filter, null, [{
+        key: 'createEmptyNodesFilter',
+        value: function createEmptyNodesFilter() {
+            return new Filter(_pydioHttpRestApi.JobsNodesSelector.constructFromObject({}));
+        }
+    }]);
 
     function Filter(filterDefinition, filterType) {
         _classCallCheck(this, Filter);
@@ -51,6 +60,16 @@ var Filter = (function (_shapes$devs$Model) {
     }
 
     _createClass(Filter, [{
+        key: 'clearSelection',
+        value: function clearSelection() {
+            this.attr('rect/stroke', _Configs.LightGrey);
+        }
+    }, {
+        key: 'select',
+        value: function select() {
+            this.attr('rect/stroke', _Configs.Orange);
+        }
+    }, {
         key: 'getFilterType',
         value: function getFilterType() {
             return this._filterType;

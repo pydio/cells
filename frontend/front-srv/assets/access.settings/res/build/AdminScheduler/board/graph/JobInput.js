@@ -49,15 +49,22 @@ var JobInput = (function (_shapes$devs$Model) {
             type = 'schedule';
         }
 
+        var largeBoxWidth = 180;
+
         _get(Object.getPrototypeOf(JobInput.prototype), 'constructor', this).call(this, {
             size: _extends({}, _Configs.BoxSize),
             inPorts: [],
             outPorts: ['output'],
-            markup: _Configs.TextIconMarkup,
+            markup: _Configs.TextIconFilterMarkup,
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.WhiteRect),
                 icon: _extends({ text: icon }, _Configs.DarkIcon),
-                text: _extends({ text: label, magnet: false }, _Configs.DarkLabel)
+                text: _extends({ text: label, magnet: 'passive' }, _Configs.DarkLabel),
+                'separator': { display: 'none', x1: largeBoxWidth - 44, y1: 0, x2: largeBoxWidth - 44, y2: _Configs.BoxSize.height, stroke: _Configs.LightGrey, 'stroke-width': 1.5, 'stroke-dasharray': '3 3' },
+                'filter-rect': { display: 'none', fill: _Configs.Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
+                'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
+                'selector-rect': { display: 'none', fill: _Configs.Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:selector:pointerdown' },
+                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' })
             },
             ports: _Configs.PortsConfig
         });
@@ -68,9 +75,49 @@ var JobInput = (function (_shapes$devs$Model) {
         } else if (job.Schedule) {
             this._schedule = job.Schedule;
         }
+        if (job.NodeEventFilter || job.IdmFilter || job.UserEventFilter) {
+            this.setFilter(true);
+        }
+        if (job.NodesSelector || job.IdmSelector || job.UsersSelector) {
+            this.Selector(true);
+        }
     }
 
     _createClass(JobInput, [{
+        key: 'clearSelection',
+        value: function clearSelection() {
+            this.attr('rect/stroke', _Configs.LightGrey);
+            this.attr('filter-rect/stroke', 'transparent');
+            this.attr('selector-rect/stroke', 'transparent');
+        }
+    }, {
+        key: 'select',
+        value: function select() {
+            this.attr('rect/stroke', _Configs.Orange);
+        }
+    }, {
+        key: 'selectFilter',
+        value: function selectFilter() {
+            this.attr('filter-rect/stroke', _Configs.Orange);
+        }
+    }, {
+        key: 'selectSelector',
+        value: function selectSelector() {
+            this.attr('selector-rect/stroke', _Configs.Orange);
+        }
+    }, {
+        key: 'setFilter',
+        value: function setFilter(b) {
+            this._rightFilter = b;
+            (0, _Configs.positionFilters)(this, _Configs.BoxSize, this._rightFilter, this._rightSelector, 'right');
+        }
+    }, {
+        key: 'setSelector',
+        value: function setSelector(b) {
+            this._rightSelector = b;
+            (0, _Configs.positionFilters)(this, _Configs.BoxSize, this._rightFilter, this._rightSelector, 'right');
+        }
+    }, {
         key: 'getInputType',
         value: function getInputType() {
             return this._type;

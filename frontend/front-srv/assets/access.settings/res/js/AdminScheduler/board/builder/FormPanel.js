@@ -1,10 +1,11 @@
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper} from 'material-ui'
+import {Paper, MenuItem, SelectField, RaisedButton} from 'material-ui'
 import PydioApi from 'pydio/http/api';
 import XMLUtils from 'pydio/util/xml';
 const PydioForm = Pydio.requireLib('form');
-import {styles, position} from './styles'
+import {RightPanel} from './styles'
+import {JOB_ACTION_EMPTY} from "../actions/editor";
 
 class FormLoader {
 
@@ -55,13 +56,13 @@ class FormPanel extends React.Component {
     constructor(props){
         super(props);
         this.state = {};
-        if(props.actionInfo.HasForm){
+        if(props.actionInfo && props.actionInfo.HasForm){
             this.loadForm(props.action.ID);
         }
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.action.ID !== this.props.action.ID && nextProps.actionInfo.HasForm) {
+        if(nextProps.action.ID !== this.props.action.ID && nextProps.actionInfo && nextProps.actionInfo.HasForm) {
             this.loadForm(nextProps.action.ID);
         }
     }
@@ -72,41 +73,71 @@ class FormPanel extends React.Component {
         })
     }
 
-    onChange(values){
+    onFormChange(values){
         console.log(values);
+    }
+
+    actionPicker(){
+        const {actions, onChange, onDismiss} = this.props;
+        const {newActionID} = this.state;
+        const options = Object.keys(actions).map(id => {
+            return <MenuItem primaryText={actions[id].Label || actions[id].Name} value={id}/>
+        });
+        return (
+            <div>
+                <SelectField
+                    value={newActionID}
+                    onChange={(ev, i, value) => {
+                        this.setState({newActionID:value});
+                    }}
+                >{options}</SelectField>
+                <RaisedButton primary={true} label={"OK"} disabled={!newActionID} onTouchTap={() => {
+                    const {action} = this.props;
+                    action.ID = newActionID;
+                    onChange(action);
+                    onDismiss();
+                }}/>
+            </div>
+        )
     }
 
     render(){
 
-        const {actionInfo, action, onDismiss, sourcePosition, sourceSize, scrollLeft} = this.props;
+        const {actionInfo, action, onDismiss} = this.props;
         const {formParams} = this.state;
         let values = {};
         if(action.Parameters){
             values = action.Parameters;
         }
-        const pos = position(300, sourceSize, sourcePosition, scrollLeft);
+        let title, description, icon;
+        if(action.ID === JOB_ACTION_EMPTY){
+            title = 'New action';
+            icon = 'chip';
+            description = this.actionPicker();
+        } else if (actionInfo) {
+            title = actionInfo.Label;
+            icon = actionInfo.Icon;
+            description = actionInfo.Description;
+        } else {
+            title= action.ID;
+            icon = 'chip';
+            description = '';
+        }
         return (
-            <Paper style={{...styles.paper, ...pos}} zDepth={2}>
-                <div style={styles.header}>
-                    <div style={{flex: 1}}>
-                        {actionInfo.Icon && <span className={'mdi mdi-' + actionInfo.Icon} style={{marginRight: 4}}/>}
-                        {actionInfo.Label}
-                    </div>
-                    <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={styles.close}/>
-                </div>
-                <div style={styles.body}>{actionInfo.Description}</div>
+            <RightPanel title={title} icon={icon} onDismiss={onDismiss}>
+                <div style={{padding: 10}}>{description}</div>
                 {formParams &&
-                    <div style={{margin:-10}}>
-                        <PydioForm.FormPanel
-                            ref="formPanel"
-                            depth={-1}
-                            parameters={formParams}
-                            values={values}
-                            onChange={this.onChange.bind(this)}
-                        />
-                    </div>
+                <div style={{margin: -10}}>
+                    <PydioForm.FormPanel
+                        ref="formPanel"
+                        depth={-1}
+                        parameters={formParams}
+                        values={values}
+                        onChange={this.onFormChange.bind(this)}
+                    />
+                </div>
                 }
-            </Paper>
+            </RightPanel>
         )
     }
 }

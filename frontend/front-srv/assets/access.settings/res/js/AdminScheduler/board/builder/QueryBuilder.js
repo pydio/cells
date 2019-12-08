@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {styles, position} from './styles'
+import {styles, position, RightPanel} from './styles'
 import {Paper} from 'material-ui'
 import {dia, layout} from 'jointjs'
 import dagre from 'dagre'
@@ -146,7 +146,7 @@ class QueryBuilder extends React.Component {
         const {width, height} = this.state;
         this.paper = new dia.Paper({
             el: ReactDOM.findDOMNode(this.refs.graph),
-            width: width + margin*2,
+            width: 300,
             height: height + margin*2,
             model: this.graph,
             interactive: {
@@ -159,24 +159,15 @@ class QueryBuilder extends React.Component {
 
     render() {
 
-        const {onDismiss, sourcePosition, sourceSize, scrollLeft} = this.props;
-        const {queryType} = this.props;
-        const {width} = this.state;
+        const {queryType, style} = this.props;
         const {objectType} = this.detectTypes();
-        const pos = position(width + margin*3, sourceSize, sourcePosition, scrollLeft);
+        const title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' +  objectType + (queryType === 'filter' ? '' : 's');
 
         return (
-            <Paper style={{...styles.paper, ...pos}} zDepth={2}>
-                <div style={styles.header}>
-                    <div style={{flex: 1}}>
-                        {queryType === 'filter' ? 'Filter' : 'Select'} {objectType}{queryType === 'filter' ? '' : 's'}
-                    </div>
-                    <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={styles.close}/>
-                </div>
-                <div style={styles.body}>
-                    <div ref={"graph"} id={"graph"}></div>
-                </div>
-            </Paper>
+            <div style={style}>
+                <div>{title}</div>
+                <div ref={"graph"} id={"graph"}></div>
+            </div>
         );
     }
 
