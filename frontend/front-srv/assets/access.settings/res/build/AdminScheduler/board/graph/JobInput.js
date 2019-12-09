@@ -25,30 +25,7 @@ var JobInput = (function (_shapes$devs$Model) {
         _classCallCheck(this, JobInput);
 
         var label = 'Manual Trigger';
-        // mdi-gesture-tap
         var icon = (0, _Configs.IconToUnicode)('gesture-tap');
-        var type = 'manual';
-        if (job.EventNames) {
-            var parts = job.EventNames[0].split(":");
-            var eventType = parts.shift();
-            if (eventType === 'IDM_CHANGE') {
-                eventType = parts.shift().toLowerCase();
-                eventType = eventType.charAt(0).toUpperCase() + eventType.slice(1);
-            } else {
-                eventType = 'Node';
-            }
-            label = eventType + ' Events';
-            // mdi-pulse
-            icon = (0, _Configs.IconToUnicode)('pulse');
-            type = 'event';
-        } else if (job.Schedule) {
-            //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
-            label = 'Schedule';
-            // mdi-clock
-            icon = (0, _Configs.IconToUnicode)('clock');
-            type = 'schedule';
-        }
-
         var largeBoxWidth = 180;
 
         _get(Object.getPrototypeOf(JobInput.prototype), 'constructor', this).call(this, {
@@ -68,22 +45,47 @@ var JobInput = (function (_shapes$devs$Model) {
             },
             ports: _Configs.PortsConfig
         });
-
-        this._type = type;
-        if (job.EventNames) {
-            this._eventNames = job.EventNames;
-        } else if (job.Schedule) {
-            this._schedule = job.Schedule;
-        }
-        if (job.NodeEventFilter || job.IdmFilter || job.UserEventFilter) {
-            this.setFilter(true);
-        }
-        if (job.NodesSelector || job.IdmSelector || job.UsersSelector) {
-            this.Selector(true);
-        }
+        this.notifyJobModel(job);
     }
 
     _createClass(JobInput, [{
+        key: 'notifyJobModel',
+        value: function notifyJobModel(job) {
+            this.setFilter(false);
+            this.setSelector(false);
+            if (job.NodeEventFilter || job.IdmFilter || job.UserEventFilter) {
+                this.setFilter(true);
+            }
+            if (job.NodesSelector || job.IdmSelector || job.UsersSelector) {
+                this.setSelector(true);
+            }
+
+            var label = 'Manual Trigger';
+            var icon = (0, _Configs.IconToUnicode)('gesture-tap');
+            if (job.EventNames) {
+                var parts = job.EventNames[0].split(":");
+                var eventType = parts.shift();
+                if (eventType === 'IDM_CHANGE') {
+                    eventType = parts.shift().toLowerCase();
+                    eventType = eventType.charAt(0).toUpperCase() + eventType.slice(1);
+                } else {
+                    eventType = 'Node';
+                }
+                label = eventType + ' Events';
+                // mdi-pulse
+                icon = (0, _Configs.IconToUnicode)('pulse');
+            } else if (job.Schedule) {
+                //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
+                label = 'Schedule';
+                // mdi-clock
+                icon = (0, _Configs.IconToUnicode)('clock');
+            }
+
+            this.attr('icon/text', icon);
+            this.attr('text/text', label);
+            job.model = this;
+        }
+    }, {
         key: 'clearSelection',
         value: function clearSelection() {
             this.attr('rect/stroke', _Configs.LightGrey);
@@ -116,25 +118,6 @@ var JobInput = (function (_shapes$devs$Model) {
         value: function setSelector(b) {
             this._rightSelector = b;
             (0, _Configs.positionFilters)(this, _Configs.BoxSize, this._rightFilter, this._rightSelector, 'right');
-        }
-    }, {
-        key: 'getInputType',
-        value: function getInputType() {
-            return this._type;
-        }
-    }, {
-        key: 'getEventNames',
-        value: function getEventNames() {
-            return this._eventNames;
-        }
-
-        /**
-         * @return {JobsSchedule}
-         */
-    }, {
-        key: 'getSchedule',
-        value: function getSchedule() {
-            return this._schedule;
         }
     }]);
 

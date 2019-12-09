@@ -15,6 +15,7 @@ var Orange = '#ff9800';
 var Stale = '#607D8B';
 
 var BoxSize = { width: 150, height: 64 };
+var FilterBoxSize = { width: 64, height: 64 };
 
 var dropShadow = {
     name: 'dropShadow',
@@ -29,6 +30,17 @@ var dropShadow = {
 var TextIconMarkup = [{
     tagName: 'rect',
     selector: 'rect'
+}, {
+    tagName: 'text',
+    selector: 'icon'
+}, {
+    tagName: 'text',
+    selector: 'text'
+}];
+
+var RoundIconMarkup = [{
+    tagName: 'circle',
+    selector: 'circle'
 }, {
     tagName: 'text',
     selector: 'icon'
@@ -197,6 +209,8 @@ function positionFilters(model, originalBox, filter, selector) {
 var BlueRect = { fill: Blue, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': Blue, filter: dropShadow };
 var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
 
+var WhiteCircle = { fill: White, refX: '50%', refY: '50%', r: 32, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
+
 var LightIcon = { refY: 18, refY2: 0, 'text-anchor': 'middle', refX: '50%', fill: '#e3f2fd' };
 var LightLabel = { refY: '60%', refY2: 0, 'text-anchor': 'middle', refX: '50%', 'font-size': 15, fill: White, 'font-family': 'Roboto', 'font-weight': 500, magnet: false };
 var DarkLabel = _extends({}, LightLabel, { fill: DarkGrey });
@@ -206,8 +220,11 @@ exports.PortsConfig = PortsConfig;
 exports.ClusterConfig = ClusterConfig;
 exports.TextIconMarkup = TextIconMarkup;
 exports.TextIconFilterMarkup = TextIconFilterMarkup;
+exports.RoundIconMarkup = RoundIconMarkup;
 exports.SimpleIconMarkup = SimpleIconMarkup;
 exports.BoxSize = BoxSize;
+exports.FilterBoxSize = FilterBoxSize;
+exports.WhiteCircle = WhiteCircle;
 exports.BlueRect = BlueRect;
 exports.LightLabel = LightLabel;
 exports.LightIcon = LightIcon;

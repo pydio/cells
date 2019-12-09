@@ -44139,7 +44139,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x4, _x5, _x6) { var _again = true; _function: while (_again) { var object = _x4, property = _x5, receiver = _x6; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x4 = parent; _x5 = property; _x6 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -44181,8 +44181,6 @@ var _graphAction = require("./graph/Action");
 
 var _graphAction2 = _interopRequireDefault(_graphAction);
 
-var _graphConfigs = require("./graph/Configs");
-
 var _dagre = require('dagre');
 
 var _dagre2 = _interopRequireDefault(_dagre);
@@ -44201,10 +44199,6 @@ var _builderFormPanel = require("./builder/FormPanel");
 
 var _builderFormPanel2 = _interopRequireDefault(_builderFormPanel);
 
-var _builderQueryBuilder = require("./builder/QueryBuilder");
-
-var _builderQueryBuilder2 = _interopRequireDefault(_builderQueryBuilder);
-
 var _builderTriggers = require("./builder/Triggers");
 
 var _redux = require('redux');
@@ -44221,6 +44215,10 @@ var _builderFilters = require("./builder/Filters");
 
 var _builderFilters2 = _interopRequireDefault(_builderFilters);
 
+var _graphTemplates = require("./graph/Templates");
+
+var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
+
 var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n';
 
 var mapStateToProps = function mapStateToProps(state) {
@@ -44232,8 +44230,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     return {
         onToggleEdit: function onToggleEdit() {
             var on = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+            var layout = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
 
-            dispatch((0, _actionsEditor.toggleEditAction)(on));
+            dispatch((0, _actionsEditor.toggleEditAction)(on, layout));
         },
         onPaperBind: function onPaperBind(element, graph, events) {
             dispatch((0, _actionsEditor.bindPaperAction)(element, graph, events));
@@ -44252,6 +44251,21 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
         },
         onRemoveModel: function onRemoveModel(model, parentModel) {
             dispatch((0, _actionsEditor.removeModelAction)(model, parentModel));
+        },
+        onDropFilter: function onDropFilter(target, dropped, filterOrSelector, objectType) {
+            dispatch((0, _actionsEditor.dropFilterAction)(target, dropped, filterOrSelector, objectType));
+        },
+        onRemoveFilter: function onRemoveFilter(target, filter, filterOrSelector, objectType) {
+            dispatch((0, _actionsEditor.removeFilterAction)(target, filter, filterOrSelector, objectType));
+        },
+        onTriggerChange: function onTriggerChange(triggerType, triggerData) {
+            dispatch((0, _actionsEditor.changeTriggerAction)(triggerType, triggerData));
+        },
+        onSelectionClear: function onSelectionClear() {
+            dispatch((0, _actionsEditor.clearSelectionAction)());
+        },
+        onSelectionSet: function onSelectionSet(type, model) {
+            dispatch((0, _actionsEditor.setSelectionAction)(type, model));
         }
     };
 };
@@ -44290,7 +44304,6 @@ var JobGraph = (function (_React$Component) {
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
-                // Draw now!
                 _this3.setState({ descriptions: data.Actions }, function () {
                     _this3.graphFromJob();
                     _this3.drawGraph();
@@ -44311,23 +44324,6 @@ var JobGraph = (function (_React$Component) {
             actions.forEach(function (action) {
                 var crtInput = inputId;
                 var hasChain = action.ChainedActions && action.ChainedActions.length;
-                /*
-                const filter = action.NodesFilter || action.IdmFilter || action.UsersFilter;
-                const selector = action.NodesSelector || action.IdmSelector || action.UsersSelector;
-                if (filter || selector) {
-                    let filterShape;
-                    if(filter){
-                        filterShape = new Filter(filter, action.NodesFilter?'node':(action.UsersFilter?'user':'idm'));
-                    } else {
-                        filterShape = new Selector(selector, action.NodesSelector?'node':(action.UsersSelector?'user':'idm'));
-                    }
-                    filterShape.addTo(graph);
-                    const link = new Link(crtInput, 'output', filterShape.id, 'input', hasData);
-                    link.addTo(graph);
-                    crtInput = filterShape.id;
-                    hasData = true;
-                }
-                */
                 var shape = new _graphAction2['default'](descriptions, action, hasChain);
                 shape.addTo(graph);
                 var link = new _graphLink2['default'](crtInput, 'output', shape.id, 'input', hasData);
@@ -44353,41 +44349,27 @@ var JobGraph = (function (_React$Component) {
             var actionsInput = shapeIn.id;
             var firstLinkHasData = !!job.EventNames;
 
-            /*
-            if (job.NodeEventFilter || job.UserEventFilter || job.IdmFilter) {
-                 let filterType;
-                if(job.NodeEventFilter){
-                    filterType = 'node';
-                } else if (job.UserEventFilter) {
-                    filterType = 'user';
-                } else {
-                    filterType = 'idm';
-                }
-                const filter = new Filter(job.NodeEventFilter || job.UserEventFilter || job.IdmFilter, filterType);
-                filter.addTo(graph);
-                 const fLink = new Link(actionsInput, 'output', filter.id, 'input', firstLinkHasData);
-                fLink.addTo(graph);
-                 firstLinkHasData = true;
-                actionsInput = filter.id;
-            }
-            */
-
             this.chainActions(graph, job.Actions, actionsInput, firstLinkHasData);
         }
     }, {
         key: 'reLayout',
-        value: function reLayout() {
+        value: function reLayout(editMode) {
             var _state = this.state;
             var graph = _state.graph;
+            var paper = _state.paper;
             var onPaperResize = _state.onPaperResize;
 
             // Relayout graph and return bounding box
-            var bbox = _jointjs.layout.DirectedGraph.layout(graph, {
+            // Find JobInput and apply graph on this one ?
+            var inputs = graph.getCells().filter(function (c) {
+                return !c.isTemplate;
+            });
+            var bbox = _jointjs.layout.DirectedGraph.layout(inputs, {
                 nodeSep: 30,
                 edgeSep: 30,
                 rankSep: 80,
                 rankDir: "LR",
-                marginX: 40,
+                marginX: editMode ? 200 : 80,
                 marginY: 40,
                 clusterPadding: 20,
                 dagre: _dagre2['default'],
@@ -44395,7 +44377,15 @@ var JobGraph = (function (_React$Component) {
             });
             bbox.width += 80;
             bbox.height += 80;
-            onPaperResize(bbox.width, bbox.height);
+            if (editMode) {
+                bbox.height = 400;
+                bbox.width += 200;
+            }
+            if (paper) {
+                paper.setDimensions(bbox.width, bbox.height);
+            } else {
+                onPaperResize(bbox.width, bbox.height);
+            }
         }
     }, {
         key: 'clearSelection',
@@ -44408,7 +44398,6 @@ var JobGraph = (function (_React$Component) {
                 return c.clearSelection();
             });
             this.setState({
-                selection: null,
                 selectionType: null,
                 selectionModel: null
             });
@@ -44417,26 +44406,17 @@ var JobGraph = (function (_React$Component) {
         key: 'select',
         value: function select(model) {
             var s = {
-                selectionModel: model,
-                scrollLeft: _reactDom2['default'].findDOMNode(this.refs.scroller).scrollLeft || 0
+                selectionModel: model
             };
             if (model instanceof _graphAction2['default']) {
-                s.selection = model.getJobsAction();
                 s.selectionType = 'action';
             } else if (model instanceof _graphSelector2['default']) {
-                s.selection = model.getSelector();
                 s.selectionType = 'selector';
             } else if (model instanceof _graphFilter2['default']) {
-                s.selection = model.getFilter();
                 s.selectionType = 'filter';
-            } else if (model instanceof _graphJobInput2['default'] && model.getInputType() === 'event') {
-                s.selection = model.getEventNames();
-                s.selectionType = 'events';
-            } else if (model instanceof _graphJobInput2['default'] && model.getInputType() === 'schedule') {
-                s.selection = model.getSchedule();
-                s.selectionType = 'schedule';
+            } else if (model instanceof _graphJobInput2['default']) {
+                s.selectionType = 'trigger';
             }
-            //        model.attr('rect/stroke', Orange);
             this.setState(s);
         }
     }, {
@@ -44496,42 +44476,55 @@ var JobGraph = (function (_React$Component) {
             var onPaperBind = _state3.onPaperBind;
             var onAttachModel = _state3.onAttachModel;
             var onDetachModel = _state3.onDetachModel;
+            var onDropFilter = _state3.onDropFilter;
             var editMode = _state3.editMode;
 
             var _this = this;
+
+            var templates = new _graphTemplates2['default'](graph);
+            templates.addTo(graph);
+
             onPaperBind(_reactDom2['default'].findDOMNode(this.refs.placeholder), graph, {
                 'element:pointerdown': function elementPointerdown(elementView, event) {
                     event.data = elementView.model.position();
-                    if (_this.state.editMode) {
-                        var model = elementView.model;
+                    var model = elementView.model;
 
+                    if (_this.state.editMode && !model.isTemplate) {
                         if (model instanceof _graphAction2['default'] || model instanceof _graphSelector2['default'] || model instanceof _graphFilter2['default'] || model instanceof _graphJobInput2['default']) {
                             _this5.clearSelection();
                             model.select();
                             _this5.select(model);
                         }
+                    } else if (model.isTemplate && model !== templates) {
+                        // Start dragging new model and duplicate
+                        templates.replicate(model, graph);
+                        model.toFront();
                     }
                 },
                 'element:filter:pointerdown': function elementFilterPointerdown(elementView, event) {
+                    var model = elementView.model;
+
                     if (_this.state.editMode) {
                         _this5.clearSelection();
-                        elementView.model.selectFilter();
-                        if (elementView.model instanceof _graphJobInput2['default']) {
+                        model.selectFilter();
+                        if (model instanceof _graphJobInput2['default']) {
                             _this5.setState({ selectionModel: job, selectionType: 'filter' });
-                        } else if (elementView.model instanceof _graphAction2['default']) {
-                            _this5.setState({ selectionModel: elementView.model.getJobsAction(), selectionType: 'filter' });
+                        } else if (model instanceof _graphAction2['default']) {
+                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
                         }
                         event.stopPropagation();
                     }
                 },
                 'element:selector:pointerdown': function elementSelectorPointerdown(elementView, event) {
+                    var model = elementView.model;
+
                     if (_this.state.editMode) {
                         _this5.clearSelection();
-                        elementView.model.selectSelector();
-                        if (elementView.model instanceof _graphJobInput2['default']) {
+                        model.selectSelector();
+                        if (model instanceof _graphJobInput2['default']) {
                             _this5.setState({ selectionModel: job, selectionType: 'selector' });
-                        } else if (elementView.model instanceof _graphAction2['default']) {
-                            _this5.setState({ selectionModel: elementView.model.getJobsAction(), selectionType: 'selector' });
+                        } else if (model instanceof _graphAction2['default']) {
+                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
                         }
                         event.stopPropagation();
                     }
@@ -44551,12 +44544,31 @@ var JobGraph = (function (_React$Component) {
                         // elementAbove.position(evt.data.x, evt.data.y);
                         if (elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default']) {
                             if (elementAbove instanceof _graphFilter2['default']) {
-                                elementBelow.setFilter(true);
+                                if (elementBelow instanceof _graphJobInput2['default']) {
+                                    onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
+                                    _this.setState({ selectionModel: job, selectionType: 'filter' });
+                                } else if (elementBelow instanceof _graphAction2['default']) {
+                                    onDropFilter(elementBelow.getJobsAction(), elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
+                                    _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'filter' });
+                                }
+                                elementBelow.selectFilter();
                             } else {
-                                elementBelow.setSelector(true);
+                                if (elementBelow instanceof _graphJobInput2['default']) {
+                                    onDropFilter(job, elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
+                                    _this.setState({ selectionModel: job, selectionType: 'selector' });
+                                } else if (elementBelow instanceof _graphAction2['default']) {
+                                    onDropFilter(elementBelow.getJobsAction(), elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
+                                    _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'selector' });
+                                }
+                                elementBelow.selectSelector();
                             }
+
                             elementAbove.remove();
+                            return;
                         }
+                    }
+                    if (isFilter && elementAbove.isTemplate) {
+                        elementAbove.remove();
                     }
                 },
                 'element:pointermove': function elementPointermove(elementView, evt, x, y) {
@@ -44586,7 +44598,7 @@ var JobGraph = (function (_React$Component) {
                 },
                 'link:remove': removeLinkTool
             });
-            this.reLayout();
+            this.reLayout(editMode);
         }
     }, {
         key: 'deleteButton',
@@ -44614,12 +44626,12 @@ var JobGraph = (function (_React$Component) {
 
             var selBlock = undefined;
             var _state5 = this.state;
-            var selection = _state5.selection;
             var selectionType = _state5.selectionType;
             var descriptions = _state5.descriptions;
             var selectionModel = _state5.selectionModel;
-            var scrollLeft = _state5.scrollLeft;
+            var onTriggerChange = _state5.onTriggerChange;
             var createNewAction = _state5.createNewAction;
+            var onRemoveFilter = _state5.onRemoveFilter;
 
             // Redux store stuff - should be on props!
             var _state6 = this.state;
@@ -44635,32 +44647,34 @@ var JobGraph = (function (_React$Component) {
                     actions: descriptions,
                     action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: _actionsEditor.JOB_ACTION_EMPTY }),
                     onChange: function (newAction) {
-                        onEmptyModel(new _graphAction2['default'](descriptions, newAction));
+                        onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
                     },
+                    create: true,
                     onDismiss: function () {
                         _this6.setState({ createNewAction: false });
                     }
                 });
             } else if (selectionModel) {
                 if (selectionType === 'action') {
+                    var action = selectionModel.getJobsAction();
                     selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
                         actions: descriptions,
-                        actionInfo: descriptions[selection.ID],
-                        action: selection }, blockProps, {
+                        actionInfo: descriptions[action.ID],
+                        action: action }, blockProps, {
                         onChange: function (newAction) {
                             return console.log(newAction);
                         }
                     }));
                 } else if (selectionType === 'selector' || selectionType === 'filter') {
                     if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps));
+                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter }));
                     } else {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ action: selectionModel, type: selectionType }, blockProps));
+                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ action: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter }));
                     }
-                } else if (selectionType === 'events') {
-                    selBlock = _react2['default'].createElement(_builderTriggers.Events, _extends({ events: selection }, blockProps));
-                } else if (selectionType === 'schedule') {
-                    selBlock = _react2['default'].createElement(_builderTriggers.Schedule, _extends({ schedule: selection }, blockProps));
+                } else if (selectionType === 'trigger') {
+                    var job = this.state.job;
+
+                    selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: job }, blockProps, { onChange: onTriggerChange }));
                 }
             }
 
@@ -44686,23 +44700,17 @@ var JobGraph = (function (_React$Component) {
                         { style: { flex: 1, padding: '14px 24px' } },
                         'Job Workflow - click on boxes to show details'
                     ),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { disabled: !selection || selectionModel instanceof _graphJobInput2['default'], onTouchTap: function () {
+                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { disabled: !selectionModel || selectionModel instanceof _graphJobInput2['default'], onTouchTap: function () {
                             _this6.deleteButton();
                         }, label: "Remove" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this6.setState({ createNewAction: true });
                         }, label: "+ Action" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            onEmptyModel(_graphFilter2['default'].createEmptyNodesFilter());
-                        }, label: "+ Filter" }),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            onEmptyModel(new _graphSelector2['default']({}, 'node'));
-                        }, label: "+ Selector" }),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this6.reLayout();
+                            _this6.reLayout(editMode);
                         }, label: "Layout" }),
                     _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            return onToggleEdit(!editMode);
+                            return onToggleEdit(!editMode, _this6.reLayout.bind(_this6));
                         }, label: editMode ? 'Close' : 'Edit' })
                 ),
                 _react2['default'].createElement(
@@ -44730,7 +44738,7 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./actions/editor":476,"./builder/Filters":477,"./builder/FormPanel":478,"./builder/QueryBuilder":482,"./builder/Triggers":483,"./graph/Action":485,"./graph/Configs":486,"./graph/Filter":487,"./graph/JobInput":488,"./graph/Link":489,"./graph/Selector":490,"./reducers":493,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom","redux":"redux","redux-devtools-extension":470}],474:[function(require,module,exports){
+},{"./actions/editor":476,"./builder/Filters":477,"./builder/FormPanel":478,"./builder/Triggers":483,"./graph/Action":485,"./graph/Filter":487,"./graph/JobInput":488,"./graph/Link":489,"./graph/Selector":490,"./graph/Templates":491,"./reducers":494,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom","redux":"redux","redux-devtools-extension":470}],474:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45328,17 +45336,30 @@ exports.resizePaperAction = resizePaperAction;
 exports.emptyModelAction = emptyModelAction;
 exports.attachModelAction = attachModelAction;
 exports.detachModelAction = detachModelAction;
+exports.dropFilterAction = dropFilterAction;
+exports.removeFilterAction = removeFilterAction;
 exports.jobLoadedAction = jobLoadedAction;
 exports.removeModelAction = removeModelAction;
+exports.changeTriggerAction = changeTriggerAction;
+exports.setSelectionAction = setSelectionAction;
+exports.clearSelectionAction = clearSelectionAction;
 var TOGGLE_EDITOR_MODE = "editor:toggle-edit";
 exports.TOGGLE_EDITOR_MODE = TOGGLE_EDITOR_MODE;
 var BIND_PAPER_TO_DOM = "editor:bind-paper";
 exports.BIND_PAPER_TO_DOM = BIND_PAPER_TO_DOM;
 var JOB_LOADED = "job:loaded";
 exports.JOB_LOADED = JOB_LOADED;
+var SELECTION_CHANGE_ACTION = "selection:change";
+exports.SELECTION_CHANGE_ACTION = SELECTION_CHANGE_ACTION;
+var SELECTION_CLEAR_ACTION = "selection:clear";
+
+exports.SELECTION_CLEAR_ACTION = SELECTION_CLEAR_ACTION;
 var RESIZE_PAPER = "editor:resize-paper";
 
 exports.RESIZE_PAPER = RESIZE_PAPER;
+var JOB_SWITCH_TRIGGER = "trigger:switch";
+
+exports.JOB_SWITCH_TRIGGER = JOB_SWITCH_TRIGGER;
 var EMPTY_MODEL_ACTION = "model:create-empty";
 exports.EMPTY_MODEL_ACTION = EMPTY_MODEL_ACTION;
 var ATTACH_MODEL_ACTION = "model:attach";
@@ -45348,16 +45369,23 @@ exports.DETACH_MODEL_ACTION = DETACH_MODEL_ACTION;
 var REMOVE_MODEL_ACTION = "model:remove";
 
 exports.REMOVE_MODEL_ACTION = REMOVE_MODEL_ACTION;
+var DROP_FILTER_ACTION = "filter:drop";
+exports.DROP_FILTER_ACTION = DROP_FILTER_ACTION;
+var REMOVE_FILTER_ACTION = "filter:remove";
+
+exports.REMOVE_FILTER_ACTION = REMOVE_FILTER_ACTION;
 var JOB_ACTION_EMPTY = "EMPTY";
 
 exports.JOB_ACTION_EMPTY = JOB_ACTION_EMPTY;
 
 function toggleEditAction() {
     var on = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+    var layout = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
 
     return {
         type: TOGGLE_EDITOR_MODE,
-        edit: on
+        edit: on,
+        layout: layout
     };
 }
 
@@ -45404,6 +45432,26 @@ function detachModelAction(linkView) {
     };
 }
 
+function dropFilterAction(target, dropped, filterOrSelector, objectType) {
+    return {
+        type: DROP_FILTER_ACTION,
+        target: target,
+        dropped: dropped,
+        filterOrSelector: filterOrSelector,
+        objectType: objectType
+    };
+}
+
+function removeFilterAction(target, filter, filterOrSelector, objectType) {
+    return {
+        type: REMOVE_FILTER_ACTION,
+        target: target,
+        filter: filter,
+        filterOrSelector: filterOrSelector,
+        objectType: objectType
+    };
+}
+
 function jobLoadedAction(job) {
     return {
         type: JOB_LOADED,
@@ -45416,6 +45464,28 @@ function removeModelAction(model, parentModel) {
         type: REMOVE_MODEL_ACTION,
         model: model,
         parentModel: parentModel
+    };
+}
+
+function changeTriggerAction(triggerType, triggerData) {
+    return {
+        type: JOB_SWITCH_TRIGGER,
+        triggerType: triggerType,
+        triggerData: triggerData
+    };
+}
+
+function setSelectionAction(selectionType, selectionModel) {
+    return {
+        type: SELECTION_CHANGE_ACTION,
+        selectionType: selectionType,
+        selectionModel: selectionModel
+    };
+}
+
+function clearSelectionAction() {
+    return {
+        type: SELECTION_CLEAR_ACTION
     };
 }
 
@@ -45474,20 +45544,44 @@ var Filters = (function (_React$Component) {
             var action = _props.action;
             var type = _props.type;
             var onDismiss = _props.onDismiss;
+            var onRemoveFilter = _props.onRemoveFilter;
 
             var stack = keys[type][job ? 'job' : 'action'].map(function (key) {
                 return job ? job[key] : action[key];
             }).filter(function (c) {
                 return c;
             }).map(function (data) {
-                return _react2["default"].createElement(_QueryBuilder2["default"], { query: data, queryType: type, style: { borderBottom: '1px solid #e0e0e0' } });
+                return _react2["default"].createElement(_QueryBuilder2["default"], {
+                    query: data,
+                    queryType: type,
+                    style: { borderBottom: '1px solid #e0e0e0' },
+                    onRemoveFilter: function (modelType) {
+                        if (job) {
+                            onRemoveFilter(job, data, type, modelType);
+                        } else {
+                            onRemoveFilter(action, data, type, modelType);
+                        }
+                    }
+                });
             });
+
+            var title = undefined;
+            if (job) {
+                title = 'Input > ';
+            } else {
+                title = 'Action > ';
+            }
+            if (type === 'filter') {
+                title += ' Filters';
+            } else {
+                title += ' Selectors';
+            }
 
             return _react2["default"].createElement(
                 _styles.RightPanel,
                 {
                     onDismiss: onDismiss,
-                    title: type === 'filter' ? 'Filters' : 'Selectors',
+                    title: title,
                     icon: type === 'filter' ? 'filter' : 'magnify'
                 },
                 stack
@@ -45513,6 +45607,8 @@ var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_ag
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
@@ -45595,17 +45691,50 @@ var FormPanel = (function (_React$Component) {
         _classCallCheck(this, FormPanel);
 
         _get(Object.getPrototypeOf(FormPanel.prototype), 'constructor', this).call(this, props);
-        this.state = {};
-        if (props.actionInfo && props.actionInfo.HasForm) {
-            this.loadForm(props.action.ID);
-        }
+        var action = props.action;
+
+        this.state = {
+            action: action,
+            actionInfo: this.getActionInfo(action)
+        };
     }
 
     _createClass(FormPanel, [{
+        key: 'getActionInfo',
+        value: function getActionInfo(action) {
+            var actions = this.props.actions;
+
+            var actionInfo = undefined;
+            if (actions[action.ID]) {
+                actionInfo = actions[action.ID];
+                if (actionInfo.HasForm) {
+                    this.loadForm(action.ID);
+                }
+            } else if (action.ID === _actionsEditor.JOB_ACTION_EMPTY) {
+                actionInfo = {
+                    Name: _actionsEditor.JOB_ACTION_EMPTY,
+                    Label: 'Create Action',
+                    Icon: 'chip',
+                    Description: 'Pick an action'
+                };
+            } else {
+                actionInfo = {
+                    Name: action.ID,
+                    Label: action.ID,
+                    Icon: 'chip',
+                    Description: 'No description provided'
+                };
+            }
+            return actionInfo;
+        }
+    }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.action.ID !== this.props.action.ID && nextProps.actionInfo && nextProps.actionInfo.HasForm) {
-                this.loadForm(nextProps.action.ID);
+            if (nextProps.action !== this.state.action) {
+                this.setState({
+                    action: nextProps.action,
+                    actionInfo: this.getActionInfo(nextProps.action)
+                });
             }
         }
     }, {
@@ -45623,78 +45752,62 @@ var FormPanel = (function (_React$Component) {
             console.log(values);
         }
     }, {
+        key: 'onIdChange',
+        value: function onIdChange(id) {
+            var action = this.state.action;
+
+            action.ID = id;
+            // Refresh state
+            this.setState({
+                action: action,
+                actionInfo: this.getActionInfo(action)
+            });
+        }
+    }, {
         key: 'actionPicker',
         value: function actionPicker() {
             var _this2 = this;
 
-            var _props = this.props;
-            var actions = _props.actions;
-            var onChange = _props.onChange;
-            var onDismiss = _props.onDismiss;
-            var newActionID = this.state.newActionID;
+            var actions = this.props.actions;
+            var action = this.state.action;
 
             var options = Object.keys(actions).map(function (id) {
                 return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: actions[id].Label || actions[id].Name, value: id });
             });
             return _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(
-                    _materialUi.SelectField,
-                    {
-                        value: newActionID,
-                        onChange: function (ev, i, value) {
-                            _this2.setState({ newActionID: value });
-                        }
-                    },
-                    options
-                ),
-                _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "OK", disabled: !newActionID, onTouchTap: function () {
-                        var action = _this2.props.action;
-
-                        action.ID = newActionID;
-                        onChange(action);
-                        onDismiss();
-                    } })
+                _materialUi.SelectField,
+                {
+                    value: action.ID,
+                    onChange: function (ev, i, value) {
+                        _this2.onIdChange(value);
+                    }
+                },
+                [_react2['default'].createElement(_materialUi.MenuItem, { value: _actionsEditor.JOB_ACTION_EMPTY, primaryText: "Please pick an action" })].concat(_toConsumableArray(options))
             );
         }
     }, {
         key: 'render',
         value: function render() {
-            var _props2 = this.props;
-            var actionInfo = _props2.actionInfo;
-            var action = _props2.action;
-            var onDismiss = _props2.onDismiss;
-            var formParams = this.state.formParams;
+            var _props = this.props;
+            var onDismiss = _props.onDismiss;
+            var onChange = _props.onChange;
+            var create = _props.create;
+            var _state = this.state;
+            var actionInfo = _state.actionInfo;
+            var action = _state.action;
+            var formParams = _state.formParams;
 
-            var values = {};
-            if (action.Parameters) {
-                values = action.Parameters;
-            }
-            var title = undefined,
-                description = undefined,
-                icon = undefined;
-            if (action.ID === _actionsEditor.JOB_ACTION_EMPTY) {
-                title = 'New action';
-                icon = 'chip';
-                description = this.actionPicker();
-            } else if (actionInfo) {
-                title = actionInfo.Label;
-                icon = actionInfo.Icon;
-                description = actionInfo.Description;
-            } else {
-                title = action.ID;
-                icon = 'chip';
-                description = '';
-            }
+            var values = action.Parameters || {};
+
             return _react2['default'].createElement(
                 _styles.RightPanel,
-                { title: title, icon: icon, onDismiss: onDismiss },
+                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss },
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
-                    description
+                    actionInfo.Description
                 ),
+                create && this.actionPicker(),
                 formParams && _react2['default'].createElement(
                     'div',
                     { style: { margin: -10 } },
@@ -45705,6 +45818,18 @@ var FormPanel = (function (_React$Component) {
                         values: values,
                         onChange: this.onFormChange.bind(this)
                     })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.RaisedButton, {
+                        primary: true,
+                        label: "SAVE",
+                        disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY,
+                        onTouchTap: function () {
+                            onChange(action);
+                            onDismiss();
+                        } })
                 )
             );
         }
@@ -45891,8 +46016,6 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _styles = require('./styles');
-
 var _materialUi = require('material-ui');
 
 var _jointjs = require('jointjs');
@@ -45943,7 +46066,6 @@ var QueryBuilder = (function (_React$Component) {
             var query = _props.query;
             var queryType = _props.queryType;
 
-            console.log(query);
             var inputIcon = undefined,
                 outputIcon = undefined;
             var objectType = 'node';
@@ -46045,7 +46167,6 @@ var QueryBuilder = (function (_React$Component) {
                 link2.addTo(this.graph);
             } else if (query.Query && query.Query.SubQueries) {
                 query.Query.SubQueries.forEach(function (q) {
-                    console.log(JSON.stringify(q));
                     Object.keys(q.value).forEach(function (key) {
                         var field = new _Query2['default'](key, q.value[key]);
                         field.addTo(_this.graph);
@@ -46087,11 +46208,28 @@ var QueryBuilder = (function (_React$Component) {
             });
         }
     }, {
+        key: 'remove',
+        value: function remove() {
+            var _props2 = this.props;
+            var onRemoveFilter = _props2.onRemoveFilter;
+            var query = _props2.query;
+
+            var modelType = undefined;
+            if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
+                modelType = 'node';
+            } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
+                modelType = 'idm';
+            } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
+                modelType = 'user';
+            }
+            onRemoveFilter(modelType);
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _props2 = this.props;
-            var queryType = _props2.queryType;
-            var style = _props2.style;
+            var _props3 = this.props;
+            var queryType = _props3.queryType;
+            var style = _props3.style;
 
             var _detectTypes2 = this.detectTypes();
 
@@ -46107,7 +46245,8 @@ var QueryBuilder = (function (_React$Component) {
                     null,
                     title
                 ),
-                _react2['default'].createElement('div', { ref: "graph", id: "graph" })
+                _react2['default'].createElement('div', { ref: "graph", id: "graph" }),
+                _react2['default'].createElement(_materialUi.FlatButton, { label: "Remove", onTouchTap: this.remove.bind(this) })
             );
         }
     }]);
@@ -46118,7 +46257,7 @@ var QueryBuilder = (function (_React$Component) {
 exports['default'] = QueryBuilder;
 module.exports = exports['default'];
 
-},{"../graph/Link":489,"./Input":479,"./Output":480,"./Query":481,"./styles":484,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],483:[function(require,module,exports){
+},{"../graph/Link":489,"./Input":479,"./Output":480,"./Query":481,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],483:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46150,6 +46289,8 @@ var _materialUi = require('material-ui');
 var _JobSchedule = require('../JobSchedule');
 
 var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var eventMessages = {
     NODE_CHANGE: {
@@ -46205,8 +46346,8 @@ var Schedule = (function (_React$Component) {
             var scheduleString = _JobSchedule2['default'].readableString(state, Schedule.T);
 
             return _react2['default'].createElement(
-                _styles.RightPanel,
-                { title: "Scheduler", onDismiss: onDismiss },
+                'div',
+                null,
                 scheduleString
             );
         }
@@ -46237,19 +46378,15 @@ var Events = (function (_React$Component2) {
             var onDismiss = _props2.onDismiss;
 
             return _react2['default'].createElement(
-                _styles.RightPanel,
-                { title: "Events", onDismiss: onDismiss },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10 } },
-                    events.map(function (e) {
-                        return _react2['default'].createElement(
-                            'div',
-                            null,
-                            Events.eventLabel(e, Events.T)
-                        );
-                    })
-                )
+                'div',
+                { style: { padding: 10 } },
+                events.map(function (e) {
+                    return _react2['default'].createElement(
+                        'div',
+                        null,
+                        Events.eventLabel(e, Events.T)
+                    );
+                })
             );
         }
     }], [{
@@ -46275,10 +46412,78 @@ var Events = (function (_React$Component2) {
     return Events;
 })(_react2['default'].Component);
 
+var Triggers = (function (_React$Component3) {
+    _inherits(Triggers, _React$Component3);
+
+    function Triggers() {
+        _classCallCheck(this, Triggers);
+
+        _get(Object.getPrototypeOf(Triggers.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Triggers, [{
+        key: 'onSwitch',
+        value: function onSwitch(type) {
+            var onChange = this.props.onChange;
+
+            var data = null;
+            if (type === 'manual') {
+                data = [];
+            } else if (type === 'schedule') {
+                data = _pydioHttpRestApi.JobsSchedule.constructFromObject({ Iso8601Schedule: '' });
+            }
+            onChange(type, data);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this = this;
+
+            var _props3 = this.props;
+            var job = _props3.job;
+            var onDismiss = _props3.onDismiss;
+
+            var type = 'manual';
+            if (job.Schedule) {
+                type = 'schedule';
+            } else if (job.EventNames !== undefined) {
+                type = 'event';
+            }
+            return _react2['default'].createElement(
+                _styles.RightPanel,
+                { title: "Job Trigger", onDismiss: onDismiss },
+                _react2['default'].createElement(
+                    _materialUi.SelectField,
+                    { value: type, onChange: function (e, i, v) {
+                            return _this.onSwitch(v);
+                        } },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: "manual", primaryText: "Manual Trigger" }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: "schedule", primaryText: "Scheduled" }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: "event", primaryText: "Events" })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    type === 'schedule' && _react2['default'].createElement(Schedule, { schedule: job.Schedule }),
+                    type === 'event' && _react2['default'].createElement(Events, { events: job.EventNames || [] }),
+                    type === 'manual' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        'No parameters'
+                    )
+                )
+            );
+        }
+    }]);
+
+    return Triggers;
+})(_react2['default'].Component);
+
+exports.Triggers = Triggers;
 exports.Schedule = Schedule;
 exports.Events = Events;
 
-},{"../JobSchedule":474,"./styles":484,"material-ui":"material-ui","pydio":"pydio","react":"react"}],484:[function(require,module,exports){
+},{"../JobSchedule":474,"./styles":484,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],484:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46461,14 +46666,8 @@ var Action = (function (_shapes$devs$Model) {
         }
 
         _get(Object.getPrototypeOf(Action.prototype), "constructor", this).call(this, config);
-        if (action.NodesFilter || action.IdmFilter || action.UsersFilter) {
-            this.setFilter(true);
-        }
-        if (action.NodesSelector || action.IdmSelector || action.UsersSelector) {
-            this.setSelector(true);
-        }
         this._edit = edit;
-        this._jobModel = action;
+        this.notifyJobModel(action);
     }
 
     _createClass(Action, [{
@@ -46492,6 +46691,20 @@ var Action = (function (_shapes$devs$Model) {
         key: "selectSelector",
         value: function selectSelector() {
             this.attr('selector-rect/stroke', _Configs.Orange);
+        }
+    }, {
+        key: "notifyJobModel",
+        value: function notifyJobModel(action) {
+            this._jobModel = action;
+            this.setFilter(false);
+            this.setSelector(false);
+            if (action.NodesFilter || action.IdmFilter || action.UsersFilter) {
+                this.setFilter(true);
+            }
+            if (action.NodesSelector || action.IdmSelector || action.UsersSelector) {
+                this.setSelector(true);
+            }
+            action.model = this;
         }
     }, {
         key: "setFilter",
@@ -46554,6 +46767,7 @@ var Orange = '#ff9800';
 var Stale = '#607D8B';
 
 var BoxSize = { width: 150, height: 64 };
+var FilterBoxSize = { width: 64, height: 64 };
 
 var dropShadow = {
     name: 'dropShadow',
@@ -46568,6 +46782,17 @@ var dropShadow = {
 var TextIconMarkup = [{
     tagName: 'rect',
     selector: 'rect'
+}, {
+    tagName: 'text',
+    selector: 'icon'
+}, {
+    tagName: 'text',
+    selector: 'text'
+}];
+
+var RoundIconMarkup = [{
+    tagName: 'circle',
+    selector: 'circle'
 }, {
     tagName: 'text',
     selector: 'icon'
@@ -46736,6 +46961,8 @@ function positionFilters(model, originalBox, filter, selector) {
 var BlueRect = { fill: Blue, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': Blue, filter: dropShadow };
 var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
 
+var WhiteCircle = { fill: White, refX: '50%', refY: '50%', r: 32, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
+
 var LightIcon = { refY: 18, refY2: 0, 'text-anchor': 'middle', refX: '50%', fill: '#e3f2fd' };
 var LightLabel = { refY: '60%', refY2: 0, 'text-anchor': 'middle', refX: '50%', 'font-size': 15, fill: White, 'font-family': 'Roboto', 'font-weight': 500, magnet: false };
 var DarkLabel = _extends({}, LightLabel, { fill: DarkGrey });
@@ -46745,8 +46972,11 @@ exports.PortsConfig = PortsConfig;
 exports.ClusterConfig = ClusterConfig;
 exports.TextIconMarkup = TextIconMarkup;
 exports.TextIconFilterMarkup = TextIconFilterMarkup;
+exports.RoundIconMarkup = RoundIconMarkup;
 exports.SimpleIconMarkup = SimpleIconMarkup;
 exports.BoxSize = BoxSize;
+exports.FilterBoxSize = FilterBoxSize;
+exports.WhiteCircle = WhiteCircle;
 exports.BlueRect = BlueRect;
 exports.LightLabel = LightLabel;
 exports.LightIcon = LightIcon;
@@ -46788,13 +47018,6 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 var Filter = (function (_shapes$devs$Model) {
     _inherits(Filter, _shapes$devs$Model);
 
-    _createClass(Filter, null, [{
-        key: 'createEmptyNodesFilter',
-        value: function createEmptyNodesFilter() {
-            return new Filter(_pydioHttpRestApi.JobsNodesSelector.constructFromObject({}));
-        }
-    }]);
-
     function Filter(filterDefinition, filterType) {
         _classCallCheck(this, Filter);
 
@@ -46808,14 +47031,11 @@ var Filter = (function (_shapes$devs$Model) {
         }
 
         _get(Object.getPrototypeOf(Filter.prototype), 'constructor', this).call(this, {
-            size: _extends({}, _Configs.BoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
-            inPorts: ['input'],
-            outPorts: ['output'],
-            markup: _Configs.TextIconMarkup,
+            size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
+            markup: _Configs.RoundIconMarkup,
             attrs: {
-                rect: _extends({}, _Configs.BoxSize, _Configs.WhiteRect),
-                icon: _extends({ text: (0, _Configs.IconToUnicode)('filter-outline') }, _Configs.DarkIcon, { fill: _Configs.Orange, magnet: false }),
-                text: _extends({ text: 'Filter ' + typeLabel, magnet: false }, _Configs.DarkLabel)
+                icon: _extends({ text: (0, _Configs.IconToUnicode)('filter-outline') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                text: _extends({ text: typeLabel }, _Configs.DarkLabel, { 'font-size': 11 })
             },
             ports: _Configs.PortsConfig
         });
@@ -46880,30 +47100,7 @@ var JobInput = (function (_shapes$devs$Model) {
         _classCallCheck(this, JobInput);
 
         var label = 'Manual Trigger';
-        // mdi-gesture-tap
         var icon = (0, _Configs.IconToUnicode)('gesture-tap');
-        var type = 'manual';
-        if (job.EventNames) {
-            var parts = job.EventNames[0].split(":");
-            var eventType = parts.shift();
-            if (eventType === 'IDM_CHANGE') {
-                eventType = parts.shift().toLowerCase();
-                eventType = eventType.charAt(0).toUpperCase() + eventType.slice(1);
-            } else {
-                eventType = 'Node';
-            }
-            label = eventType + ' Events';
-            // mdi-pulse
-            icon = (0, _Configs.IconToUnicode)('pulse');
-            type = 'event';
-        } else if (job.Schedule) {
-            //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
-            label = 'Schedule';
-            // mdi-clock
-            icon = (0, _Configs.IconToUnicode)('clock');
-            type = 'schedule';
-        }
-
         var largeBoxWidth = 180;
 
         _get(Object.getPrototypeOf(JobInput.prototype), 'constructor', this).call(this, {
@@ -46923,22 +47120,47 @@ var JobInput = (function (_shapes$devs$Model) {
             },
             ports: _Configs.PortsConfig
         });
-
-        this._type = type;
-        if (job.EventNames) {
-            this._eventNames = job.EventNames;
-        } else if (job.Schedule) {
-            this._schedule = job.Schedule;
-        }
-        if (job.NodeEventFilter || job.IdmFilter || job.UserEventFilter) {
-            this.setFilter(true);
-        }
-        if (job.NodesSelector || job.IdmSelector || job.UsersSelector) {
-            this.Selector(true);
-        }
+        this.notifyJobModel(job);
     }
 
     _createClass(JobInput, [{
+        key: 'notifyJobModel',
+        value: function notifyJobModel(job) {
+            this.setFilter(false);
+            this.setSelector(false);
+            if (job.NodeEventFilter || job.IdmFilter || job.UserEventFilter) {
+                this.setFilter(true);
+            }
+            if (job.NodesSelector || job.IdmSelector || job.UsersSelector) {
+                this.setSelector(true);
+            }
+
+            var label = 'Manual Trigger';
+            var icon = (0, _Configs.IconToUnicode)('gesture-tap');
+            if (job.EventNames) {
+                var parts = job.EventNames[0].split(":");
+                var eventType = parts.shift();
+                if (eventType === 'IDM_CHANGE') {
+                    eventType = parts.shift().toLowerCase();
+                    eventType = eventType.charAt(0).toUpperCase() + eventType.slice(1);
+                } else {
+                    eventType = 'Node';
+                }
+                label = eventType + ' Events';
+                // mdi-pulse
+                icon = (0, _Configs.IconToUnicode)('pulse');
+            } else if (job.Schedule) {
+                //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
+                label = 'Schedule';
+                // mdi-clock
+                icon = (0, _Configs.IconToUnicode)('clock');
+            }
+
+            this.attr('icon/text', icon);
+            this.attr('text/text', label);
+            job.model = this;
+        }
+    }, {
         key: 'clearSelection',
         value: function clearSelection() {
             this.attr('rect/stroke', _Configs.LightGrey);
@@ -46971,25 +47193,6 @@ var JobInput = (function (_shapes$devs$Model) {
         value: function setSelector(b) {
             this._rightSelector = b;
             (0, _Configs.positionFilters)(this, _Configs.BoxSize, this._rightFilter, this._rightSelector, 'right');
-        }
-    }, {
-        key: 'getInputType',
-        value: function getInputType() {
-            return this._type;
-        }
-    }, {
-        key: 'getEventNames',
-        value: function getEventNames() {
-            return this._eventNames;
-        }
-
-        /**
-         * @return {JobsSchedule}
-         */
-    }, {
-        key: 'getSchedule',
-        value: function getSchedule() {
-            return this._schedule;
         }
     }]);
 
@@ -47102,14 +47305,11 @@ var Selector = (function (_shapes$devs$Model) {
         }
 
         _get(Object.getPrototypeOf(Selector.prototype), 'constructor', this).call(this, {
-            size: _extends({}, _Configs.BoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
-            inPorts: ['input'],
-            outPorts: ['output'],
-            markup: _Configs.TextIconMarkup,
+            size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
+            markup: _Configs.RoundIconMarkup,
             attrs: {
-                rect: _extends({}, _Configs.BoxSize, _Configs.WhiteRect),
-                icon: _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Orange }),
-                text: _extends({ text: 'Select ' + typeLabel, magnet: false }, _Configs.DarkLabel)
+                icon: _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                text: _extends({ text: typeLabel }, _Configs.DarkLabel, { magnet: 'passive', 'font-size': 11 })
             },
             ports: _Configs.PortsConfig
         });
@@ -47152,6 +47352,223 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _jointjs = require('jointjs');
+
+var _Filter = require("./Filter");
+
+var _Filter2 = _interopRequireDefault(_Filter);
+
+var _Configs = require("./Configs");
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _Selector = require("./Selector");
+
+var _Selector2 = _interopRequireDefault(_Selector);
+
+var Templates = (function (_shapes$standard$Path) {
+    _inherits(Templates, _shapes$standard$Path);
+
+    function Templates() {
+        _classCallCheck(this, Templates);
+
+        var bbox = { width: 128, height: '100%' };
+
+        _get(Object.getPrototypeOf(Templates.prototype), "constructor", this).call(this, {
+            markup: [{
+                tagName: 'rect',
+                selector: 'rect'
+            }, {
+                tagName: 'line',
+                selector: 'line'
+            }],
+            size: _extends({}, bbox),
+            attrs: {
+                rect: _extends({ refX: 0, refY: 0 }, bbox, { fill: '#fafafa', display: 'none' }),
+                line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none' }
+            }
+        });
+
+        this.isTemplate = true;
+    }
+
+    _createClass(Templates, [{
+        key: "show",
+        value: function show(graph) {
+
+            if (this._show) return;
+
+            this.attr('line/display', 'initial');
+            this.attr('rect/display', 'initial');
+
+            this.newNodesFilter(graph);
+            this.newUsersFilter(graph);
+            this.newWorkspacesFilter(graph);
+            this.newRolesFilter(graph);
+            this.newAclFilter(graph);
+
+            this.newNodesSelector(graph);
+            this.newUsersSelector(graph);
+            this.newWorkspacesSelector(graph);
+            this.newRolesSelector(graph);
+            this.newAclSelector(graph);
+
+            this._show = true;
+        }
+    }, {
+        key: "hide",
+        value: function hide(graph) {
+            if (!this._show) return;
+
+            this.attr('line/display', 'none');
+            this.attr('rect/display', 'none');
+
+            this.modelFilter.remove();
+            this.usersFilter.remove();
+            this.wsFilter.remove();
+            this.rolesFilter.remove();
+            this.aclFilter.remove();
+
+            this.modelSelector.remove();
+            this.usersSelector.remove();
+            this.wsSelector.remove();
+            this.rolesSelector.remove();
+            this.aclSelector.remove();
+
+            this._show = false;
+        }
+    }, {
+        key: "replicate",
+        value: function replicate(el, graph) {
+            if (el === this.modelFilter) {
+                this.newNodesFilter(graph);
+            } else if (el === this.usersFilter) {
+                this.newUsersFilter(graph);
+            } else if (el === this.wsFilter) {
+                this.newWorkspacesFilter(graph);
+            } else if (el === this.rolesFilter) {
+                this.newRolesFilter(graph);
+            } else if (el === this.aclFilter) {
+                this.newAclFilter(graph);
+            } else if (el === this.modelSelector) {
+                this.newNodesSelector(graph);
+            } else if (el === this.usersSelector) {
+                this.newUsersSelector(graph);
+            } else if (el === this.wsSelector) {
+                this.newWorkspacesSelector(graph);
+            } else if (el === this.rolesSelector) {
+                this.newRolesSelector(graph);
+            } else if (el === this.aclSelector) {
+                this.newAclSelector(graph);
+            }
+        }
+    }, {
+        key: "newNodesFilter",
+        value: function newNodesFilter(graph) {
+            this.modelFilter = new _Filter2["default"](_pydioHttpRestApi.JobsNodesSelector.constructFromObject({}));
+            this.modelFilter.position(0, 0);
+            this.modelFilter.isTemplate = true;
+            this.modelFilter.addTo(graph);
+        }
+    }, {
+        key: "newUsersFilter",
+        value: function newUsersFilter(graph) {
+            this.usersFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User' }), 'idm');
+            this.usersFilter.position(0, 64);
+            this.usersFilter.isTemplate = true;
+            this.usersFilter.addTo(graph);
+        }
+    }, {
+        key: "newWorkspacesFilter",
+        value: function newWorkspacesFilter(graph) {
+            this.wsFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace' }), 'idm');
+            this.wsFilter.position(0, 128);
+            this.wsFilter.isTemplate = true;
+            this.wsFilter.addTo(graph);
+        }
+    }, {
+        key: "newRolesFilter",
+        value: function newRolesFilter(graph) {
+            this.rolesFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role' }), 'idm');
+            this.rolesFilter.position(0, 192);
+            this.rolesFilter.isTemplate = true;
+            this.rolesFilter.addTo(graph);
+        }
+    }, {
+        key: "newAclFilter",
+        value: function newAclFilter(graph) {
+            this.aclFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl' }), 'idm');
+            this.aclFilter.position(0, 256);
+            this.aclFilter.isTemplate = true;
+            this.aclFilter.addTo(graph);
+        }
+    }, {
+        key: "newNodesSelector",
+        value: function newNodesSelector(graph) {
+            this.modelSelector = new _Selector2["default"](_pydioHttpRestApi.JobsNodesSelector.constructFromObject({ All: true }));
+            this.modelSelector.position(64, 0);
+            this.modelSelector.isTemplate = true;
+            this.modelSelector.addTo(graph);
+        }
+    }, {
+        key: "newUsersSelector",
+        value: function newUsersSelector(graph) {
+            this.usersSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User', All: true }), 'idm');
+            this.usersSelector.position(64, 64);
+            this.usersSelector.isTemplate = true;
+            this.usersSelector.addTo(graph);
+        }
+    }, {
+        key: "newWorkspacesSelector",
+        value: function newWorkspacesSelector(graph) {
+            this.wsSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace', All: true }), 'idm');
+            this.wsSelector.position(64, 128);
+            this.wsSelector.isTemplate = true;
+            this.wsSelector.addTo(graph);
+        }
+    }, {
+        key: "newRolesSelector",
+        value: function newRolesSelector(graph) {
+            this.rolesSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role', All: true }), 'idm');
+            this.rolesSelector.position(64, 192);
+            this.rolesSelector.isTemplate = true;
+            this.rolesSelector.addTo(graph);
+        }
+    }, {
+        key: "newAclSelector",
+        value: function newAclSelector(graph) {
+            this.aclSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl', All: true }), 'idm');
+            this.aclSelector.position(64, 256);
+            this.aclSelector.isTemplate = true;
+            this.aclSelector.addTo(graph);
+        }
+    }]);
+
+    return Templates;
+})(_jointjs.shapes.standard.Path);
+
+exports["default"] = Templates;
+module.exports = exports["default"];
+
+},{"./Configs":486,"./Filter":487,"./Selector":490,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],492:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
 var _actionsEditor = require("../actions/editor");
 
 function editor(state, action) {
@@ -47168,7 +47585,7 @@ function editor(state, action) {
 exports["default"] = editor;
 module.exports = exports["default"];
 
-},{"../actions/editor":476}],492:[function(require,module,exports){
+},{"../actions/editor":476}],493:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47187,34 +47604,44 @@ var _jointjs = require('jointjs');
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
+var _graphTemplates = require("../graph/Templates");
+
+var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
+
 function graphReducer(graph, action) {
     if (graph === undefined) {
         graph = new _jointjs.dia.Graph();
-        graph.on('remove', function (cell) {
-            console.log(cell);
-        });
     }
     switch (action.type) {
         case _actionsEditor.TOGGLE_EDITOR_MODE:
             graph.getCells().filter(function (a) {
                 return a.isElement();
             }).forEach(function (a) {
-                if (!action.edit) {
-                    // Not connected boxes on close
-                    console.log(a.graph.getConnectedLinks(a));
-                    if (a.graph.getConnectedLinks(a).length === 0) {
-                        a.remove();
-                        return;
+                if (a instanceof _graphTemplates2["default"]) {
+                    if (action.edit) {
+                        a.show(graph);
+                    } else {
+                        a.hide(graph);
                     }
+                    return;
                 }
                 if (a instanceof _graphAction2["default"]) {
                     a.toggleEdit();
                 }
+                if (!action.edit && !a.isTemplate) {
+                    if (a.graph.getConnectedLinks(a).length === 0) {
+                        a.remove();
+                    }
+                }
             });
+            if (action.layout) {
+                action.layout(action.edit);
+            }
             return graph;
         case _actionsEditor.EMPTY_MODEL_ACTION:
             var model = action.model;
 
+            model.position(140, 10);
             model.addTo(graph);
             return graph;
         default:
@@ -47225,7 +47652,7 @@ function graphReducer(graph, action) {
 exports["default"] = graphReducer;
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"../graph/Action":485,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],493:[function(require,module,exports){
+},{"../actions/editor":476,"../graph/Action":485,"../graph/Templates":491,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],494:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47262,7 +47689,7 @@ var allReducers = (0, _redux.combineReducers)({
 exports['default'] = allReducers;
 module.exports = exports['default'];
 
-},{"./editor":491,"./graph":492,"./job":494,"./paper":495,"redux":"redux"}],494:[function(require,module,exports){
+},{"./editor":492,"./graph":493,"./job":495,"./paper":496,"redux":"redux"}],495:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47284,14 +47711,6 @@ var _graphJobInput2 = _interopRequireDefault(_graphJobInput);
 var _graphAction = require("../graph/Action");
 
 var _graphAction2 = _interopRequireDefault(_graphAction);
-
-var _graphFilter = require("../graph/Filter");
-
-var _graphFilter2 = _interopRequireDefault(_graphFilter);
-
-var _graphSelector = require("../graph/Selector");
-
-var _graphSelector2 = _interopRequireDefault(_graphSelector);
 
 exports["default"] = function (job, action) {
     if (job === undefined) job = new _pydioHttpRestApi.JobsJob();
@@ -47321,24 +47740,149 @@ exports["default"] = function (job, action) {
                     var orig = parentAction.ChainedActions || [];
                     parentAction.ChainedActions = [].concat(_toConsumableArray(orig), [targetModel.getJobsAction()]);
                 }
-            } else if (targetModel instanceof _graphFilter2["default"] && sourceModel instanceof _graphJobInput2["default"]) {
-                switch (targetModel.getFilterType()) {
-                    case "user":
-                        job.UserEventFilter = targetModel.getFilter();
-                        break;
-                    case "idm":
-                        job.IdmFilter = targetModel.getFilter();
-                        break;
-                    default:
-                        // NODE
-                        job.NodeEventFilter = targetModel.getFilter();
-                        break;
+            }
+            return job;
+
+        case _actionsEditor.DROP_FILTER_ACTION:
+            var target = action.target,
+                dropped = action.dropped,
+                filterOrSelector = action.filterOrSelector,
+                objectType = action.objectType;
+
+            if (target === job) {
+                if (filterOrSelector === 'filter') {
+                    switch (objectType) {
+                        case "user":
+                            job.UserEventFilter = dropped;
+                            break;
+                        case "idm":
+                            job.IdmFilter = dropped;
+                            break;
+                        default:
+                            // NODE
+                            job.NodeEventFilter = dropped;
+                            break;
+                    }
+                } else if (filterOrSelector === 'selector') {
+                    switch (objectType) {
+                        case "user":
+                            job.UsersSelector = dropped;
+                            break;
+                        case "idm":
+                            job.IdmSelector = dropped;
+                            break;
+                        default:
+                            // NODE
+                            job.NodesSelector = dropped;
+                            break;
+                    }
                 }
-            } else if (targetModel instanceof _graphSelector2["default"]) {}
+            } else {
+                // Target is an action
+                if (filterOrSelector === 'filter') {
+                    switch (objectType) {
+                        case "user":
+                            target.UsersFilter = dropped;
+                            break;
+                        case "idm":
+                            target.IdmFilter = dropped;
+                            break;
+                        default:
+                            // NODE
+                            target.NodesFilter = dropped;
+                            break;
+                    }
+                } else if (filterOrSelector === 'selector') {
+                    switch (objectType) {
+                        case "user":
+                            target.UsersSelector = dropped;
+                            break;
+                        case "idm":
+                            target.IdmSelector = dropped;
+                            break;
+                        default:
+                            // NODE
+                            target.NodesSelector = dropped;
+                            break;
+                    }
+                }
+            }
+            if (target.model && target.model.notifyJobModel) {
+                // REFRESH GRAPH MODEL
+                target.model.notifyJobModel(target);
+            }
+            return job;
+
+        case _actionsEditor.REMOVE_FILTER_ACTION:
+
+            var removeTarget = action.target;
+            var removeFilterOrSelector = action.filterOrSelector;
+            var removeObjectType = action.objectType;
+            if (removeTarget === job) {
+                if (removeFilterOrSelector === 'filter') {
+                    switch (removeObjectType) {
+                        case "user":
+                            delete job.UserEventFilter;
+                            break;
+                        case "idm":
+                            delete job.IdmFilter;
+                            break;
+                        default:
+                            // NODE
+                            delete job.NodeEventFilter;
+                            break;
+                    }
+                } else if (removeFilterOrSelector === 'selector') {
+                    switch (removeObjectType) {
+                        case "user":
+                            delete job.UsersSelector;
+                            break;
+                        case "idm":
+                            delete job.IdmSelector;
+                            break;
+                        default:
+                            // NODE
+                            delete job.NodesSelector;
+                            break;
+                    }
+                }
+            } else {
+                // Target is an action
+                if (removeFilterOrSelector === 'filter') {
+                    switch (removeObjectType) {
+                        case "user":
+                            delete removeTarget.UsersFilter;
+                            break;
+                        case "idm":
+                            delete removeTarget.IdmFilter;
+                            break;
+                        default:
+                            // NODE
+                            delete removeTarget.NodesFilter;
+                            break;
+                    }
+                } else if (removeFilterOrSelector === 'selector') {
+                    switch (removeObjectType) {
+                        case "user":
+                            delete removeTarget.UsersSelector;
+                            break;
+                        case "idm":
+                            delete removeTarget.IdmSelector;
+                            break;
+                        default:
+                            // NODE
+                            delete removeTarget.NodesSelector;
+                            break;
+                    }
+                }
+            }
+            if (removeTarget.model && removeTarget.model.notifyJobModel) {
+                // REFRESH GRAPH MODEL
+                removeTarget.model.notifyJobModel(removeTarget);
+            }
             return job;
 
         case _actionsEditor.DETACH_MODEL_ACTION:
-            console.log(sourceModel, targetModel);
             var toolView = action.toolView;
 
             if (targetModel instanceof _graphAction2["default"]) {
@@ -47357,7 +47901,7 @@ exports["default"] = function (job, action) {
                         linkView.model.remove({ ui: true, tool: toolView.cid });
                     }
                 }
-            } else if (targetModel instanceof _graphFilter2["default"]) {}
+            }
             return job;
 
         case _actionsEditor.REMOVE_MODEL_ACTION:
@@ -47381,6 +47925,29 @@ exports["default"] = function (job, action) {
             }
             return job;
 
+        case _actionsEditor.JOB_SWITCH_TRIGGER:
+            var triggerType = action.triggerType,
+                triggerData = action.triggerData;
+
+            switch (triggerType) {
+                case "schedule":
+                    delete job.EventNames;
+                    job.Schedule = triggerData;
+                    break;
+                case "event":
+                    delete job.Schedule;
+                    job.EventNames = triggerData;
+                    break;
+                default:
+                    delete job.EventNames;
+                    delete job.Schedule;
+                    break;
+            }
+            if (job.model && job.model.notifyJobModel) {
+                job.model.notifyJobModel(job);
+            }
+            return job;
+
         default:
             return job;
     }
@@ -47388,7 +47955,7 @@ exports["default"] = function (job, action) {
 
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"../graph/Action":485,"../graph/Filter":487,"../graph/JobInput":488,"../graph/Selector":490,"pydio/http/rest-api":"pydio/http/rest-api"}],495:[function(require,module,exports){
+},{"../actions/editor":476,"../graph/Action":485,"../graph/JobInput":488,"pydio/http/rest-api":"pydio/http/rest-api"}],496:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47476,6 +48043,14 @@ function paperReducer(paper, action) {
                 addLinkFromMagnet: edit,
                 elementMove: edit
             });
+            if (edit) {
+                paper.setGridSize(16);
+                paper.drawGrid();
+                paper.showTools();
+            } else {
+                paper.clearGrid();
+                paper.hideTools();
+            }
             break;
         default:
             break;
@@ -47485,7 +48060,7 @@ function paperReducer(paper, action) {
 
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"../graph/Link":489,"jointjs":467}],496:[function(require,module,exports){
+},{"../actions/editor":476,"../graph/Link":489,"jointjs":467}],497:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -47518,4 +48093,4 @@ window.AdminScheduler = {
   Dashboard: _boardDashboard2['default']
 };
 
-},{"./board/Dashboard":471}]},{},[496]);
+},{"./board/Dashboard":471}]},{},[497]);

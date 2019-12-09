@@ -10,6 +10,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -91,17 +93,50 @@ var FormPanel = (function (_React$Component) {
         _classCallCheck(this, FormPanel);
 
         _get(Object.getPrototypeOf(FormPanel.prototype), 'constructor', this).call(this, props);
-        this.state = {};
-        if (props.actionInfo && props.actionInfo.HasForm) {
-            this.loadForm(props.action.ID);
-        }
+        var action = props.action;
+
+        this.state = {
+            action: action,
+            actionInfo: this.getActionInfo(action)
+        };
     }
 
     _createClass(FormPanel, [{
+        key: 'getActionInfo',
+        value: function getActionInfo(action) {
+            var actions = this.props.actions;
+
+            var actionInfo = undefined;
+            if (actions[action.ID]) {
+                actionInfo = actions[action.ID];
+                if (actionInfo.HasForm) {
+                    this.loadForm(action.ID);
+                }
+            } else if (action.ID === _actionsEditor.JOB_ACTION_EMPTY) {
+                actionInfo = {
+                    Name: _actionsEditor.JOB_ACTION_EMPTY,
+                    Label: 'Create Action',
+                    Icon: 'chip',
+                    Description: 'Pick an action'
+                };
+            } else {
+                actionInfo = {
+                    Name: action.ID,
+                    Label: action.ID,
+                    Icon: 'chip',
+                    Description: 'No description provided'
+                };
+            }
+            return actionInfo;
+        }
+    }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.action.ID !== this.props.action.ID && nextProps.actionInfo && nextProps.actionInfo.HasForm) {
-                this.loadForm(nextProps.action.ID);
+            if (nextProps.action !== this.state.action) {
+                this.setState({
+                    action: nextProps.action,
+                    actionInfo: this.getActionInfo(nextProps.action)
+                });
             }
         }
     }, {
@@ -119,78 +154,62 @@ var FormPanel = (function (_React$Component) {
             console.log(values);
         }
     }, {
+        key: 'onIdChange',
+        value: function onIdChange(id) {
+            var action = this.state.action;
+
+            action.ID = id;
+            // Refresh state
+            this.setState({
+                action: action,
+                actionInfo: this.getActionInfo(action)
+            });
+        }
+    }, {
         key: 'actionPicker',
         value: function actionPicker() {
             var _this2 = this;
 
-            var _props = this.props;
-            var actions = _props.actions;
-            var onChange = _props.onChange;
-            var onDismiss = _props.onDismiss;
-            var newActionID = this.state.newActionID;
+            var actions = this.props.actions;
+            var action = this.state.action;
 
             var options = Object.keys(actions).map(function (id) {
                 return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: actions[id].Label || actions[id].Name, value: id });
             });
             return _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(
-                    _materialUi.SelectField,
-                    {
-                        value: newActionID,
-                        onChange: function (ev, i, value) {
-                            _this2.setState({ newActionID: value });
-                        }
-                    },
-                    options
-                ),
-                _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "OK", disabled: !newActionID, onTouchTap: function () {
-                        var action = _this2.props.action;
-
-                        action.ID = newActionID;
-                        onChange(action);
-                        onDismiss();
-                    } })
+                _materialUi.SelectField,
+                {
+                    value: action.ID,
+                    onChange: function (ev, i, value) {
+                        _this2.onIdChange(value);
+                    }
+                },
+                [_react2['default'].createElement(_materialUi.MenuItem, { value: _actionsEditor.JOB_ACTION_EMPTY, primaryText: "Please pick an action" })].concat(_toConsumableArray(options))
             );
         }
     }, {
         key: 'render',
         value: function render() {
-            var _props2 = this.props;
-            var actionInfo = _props2.actionInfo;
-            var action = _props2.action;
-            var onDismiss = _props2.onDismiss;
-            var formParams = this.state.formParams;
+            var _props = this.props;
+            var onDismiss = _props.onDismiss;
+            var onChange = _props.onChange;
+            var create = _props.create;
+            var _state = this.state;
+            var actionInfo = _state.actionInfo;
+            var action = _state.action;
+            var formParams = _state.formParams;
 
-            var values = {};
-            if (action.Parameters) {
-                values = action.Parameters;
-            }
-            var title = undefined,
-                description = undefined,
-                icon = undefined;
-            if (action.ID === _actionsEditor.JOB_ACTION_EMPTY) {
-                title = 'New action';
-                icon = 'chip';
-                description = this.actionPicker();
-            } else if (actionInfo) {
-                title = actionInfo.Label;
-                icon = actionInfo.Icon;
-                description = actionInfo.Description;
-            } else {
-                title = action.ID;
-                icon = 'chip';
-                description = '';
-            }
+            var values = action.Parameters || {};
+
             return _react2['default'].createElement(
                 _styles.RightPanel,
-                { title: title, icon: icon, onDismiss: onDismiss },
+                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss },
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
-                    description
+                    actionInfo.Description
                 ),
+                create && this.actionPicker(),
                 formParams && _react2['default'].createElement(
                     'div',
                     { style: { margin: -10 } },
@@ -201,6 +220,18 @@ var FormPanel = (function (_React$Component) {
                         values: values,
                         onChange: this.onFormChange.bind(this)
                     })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.RaisedButton, {
+                        primary: true,
+                        label: "SAVE",
+                        disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY,
+                        onTouchTap: function () {
+                            onChange(action);
+                            onDismiss();
+                        } })
                 )
             );
         }

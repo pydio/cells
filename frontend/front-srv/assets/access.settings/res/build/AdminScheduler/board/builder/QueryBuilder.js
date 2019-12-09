@@ -22,8 +22,6 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _styles = require('./styles');
-
 var _materialUi = require('material-ui');
 
 var _jointjs = require('jointjs');
@@ -74,7 +72,6 @@ var QueryBuilder = (function (_React$Component) {
             var query = _props.query;
             var queryType = _props.queryType;
 
-            console.log(query);
             var inputIcon = undefined,
                 outputIcon = undefined;
             var objectType = 'node';
@@ -176,7 +173,6 @@ var QueryBuilder = (function (_React$Component) {
                 link2.addTo(this.graph);
             } else if (query.Query && query.Query.SubQueries) {
                 query.Query.SubQueries.forEach(function (q) {
-                    console.log(JSON.stringify(q));
                     Object.keys(q.value).forEach(function (key) {
                         var field = new _Query2['default'](key, q.value[key]);
                         field.addTo(_this.graph);
@@ -218,11 +214,28 @@ var QueryBuilder = (function (_React$Component) {
             });
         }
     }, {
+        key: 'remove',
+        value: function remove() {
+            var _props2 = this.props;
+            var onRemoveFilter = _props2.onRemoveFilter;
+            var query = _props2.query;
+
+            var modelType = undefined;
+            if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
+                modelType = 'node';
+            } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
+                modelType = 'idm';
+            } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
+                modelType = 'user';
+            }
+            onRemoveFilter(modelType);
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _props2 = this.props;
-            var queryType = _props2.queryType;
-            var style = _props2.style;
+            var _props3 = this.props;
+            var queryType = _props3.queryType;
+            var style = _props3.style;
 
             var _detectTypes2 = this.detectTypes();
 
@@ -238,7 +251,8 @@ var QueryBuilder = (function (_React$Component) {
                     null,
                     title
                 ),
-                _react2['default'].createElement('div', { ref: "graph", id: "graph" })
+                _react2['default'].createElement('div', { ref: "graph", id: "graph" }),
+                _react2['default'].createElement(_materialUi.FlatButton, { label: "Remove", onTouchTap: this.remove.bind(this) })
             );
         }
     }]);

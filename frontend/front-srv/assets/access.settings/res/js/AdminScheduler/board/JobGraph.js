@@ -3,30 +3,37 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import PydioApi from 'pydio/http/api'
 import {JobsJob, ConfigServiceApi, RestConfiguration, JobsAction} from 'pydio/http/rest-api'
-import {linkTools, dia, layout, shapes, g} from 'jointjs'
+import {linkTools, dia, layout, g} from 'jointjs'
 import JobInput from './graph/JobInput'
 import Filter from "./graph/Filter";
 import Link from "./graph/Link";
 import Action from "./graph/Action";
-import {ClusterConfig, Orange} from "./graph/Configs";
 import dagre from 'dagre'
 import graphlib from 'graphlib'
 import Selector from "./graph/Selector";
 import {Paper, FlatButton} from 'material-ui'
 import FormPanel from "./builder/FormPanel";
-import QueryBuilder from "./builder/QueryBuilder";
-import {Events, Schedule} from "./builder/Triggers";
+import {Triggers} from "./builder/Triggers";
 import {createStore} from 'redux'
 import allReducers from './reducers'
 import {
     attachModelAction,
     bindPaperAction,
-    emptyModelAction, detachModelAction, removeModelAction,
+    emptyModelAction,
+    detachModelAction,
+    removeModelAction,
     resizePaperAction,
-    toggleEditAction, JOB_ACTION_EMPTY
+    toggleEditAction,
+    JOB_ACTION_EMPTY,
+    dropFilterAction,
+    removeFilterAction,
+    changeTriggerAction,
+    clearSelectionAction,
+    setSelectionAction
 } from "./actions/editor";
 import { devToolsEnhancer } from 'redux-devtools-extension';
 import Filters from "./builder/Filters";
+import Templates from "./graph/Templates";
 
 
 const style = `
@@ -48,8 +55,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onToggleEdit : (on = true) => {
-            dispatch(toggleEditAction(on));
+        onToggleEdit : (on = true, layout = () =>{}) => {
+            dispatch(toggleEditAction(on, layout));
         },
         onPaperBind : (element, graph, events) => {
             dispatch(bindPaperAction(element, graph, events));
@@ -68,6 +75,21 @@ const mapDispatchToProps = dispatch => {
         },
         onRemoveModel : (model, parentModel) => {
             dispatch(removeModelAction(model, parentModel));
+        },
+        onDropFilter : (target, dropped, filterOrSelector, objectType) => {
+            dispatch(dropFilterAction(target, dropped, filterOrSelector, objectType))
+        },
+        onRemoveFilter : (target, filter, filterOrSelector, objectType) => {
+            dispatch(removeFilterAction(target, filter, filterOrSelector, objectType))
+        },
+        onTriggerChange : (triggerType, triggerData) => {
+            dispatch(changeTriggerAction(triggerType, triggerData));
+        },
+        onSelectionClear : () => {
+            dispatch(clearSelectionAction())
+        },
+        onSelectionSet : (type, model) => {
+            dispatch(setSelectionAction(type, model))
         }
     }
 };
@@ -95,7 +117,6 @@ class JobGraph extends React.Component {
     loadDescriptions() {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.schedulerActionsDiscovery().then(data => {
-            // Draw now!
             this.setState({descriptions: data.Actions}, () => {
                 this.graphFromJob();
                 this.drawGraph();
@@ -111,23 +132,6 @@ class JobGraph extends React.Component {
         actions.forEach(action => {
             let crtInput = inputId;
             const hasChain = (action.ChainedActions && action.ChainedActions.length);
-            /*
-            const filter = action.NodesFilter || action.IdmFilter || action.UsersFilter;
-            const selector = action.NodesSelector || action.IdmSelector || action.UsersSelector;
-            if (filter || selector) {
-                let filterShape;
-                if(filter){
-                    filterShape = new Filter(filter, action.NodesFilter?'node':(action.UsersFilter?'user':'idm'));
-                } else {
-                    filterShape = new Selector(selector, action.NodesSelector?'node':(action.UsersSelector?'user':'idm'));
-                }
-                filterShape.addTo(graph);
-                const link = new Link(crtInput, 'output', filterShape.id, 'input', hasData);
-                link.addTo(graph);
-                crtInput = filterShape.id;
-                hasData = true;
-            }
-            */
             const shape = new Action(descriptions, action, hasChain);
             shape.addTo(graph);
             const link = new Link(crtInput, 'output', shape.id, 'input', hasData);
@@ -153,40 +157,20 @@ class JobGraph extends React.Component {
         let actionsInput = shapeIn.id;
         let firstLinkHasData = !!job.EventNames;
 
-        /*
-        if (job.NodeEventFilter || job.UserEventFilter || job.IdmFilter) {
-
-            let filterType;
-            if(job.NodeEventFilter){
-                filterType = 'node';
-            } else if (job.UserEventFilter) {
-                filterType = 'user';
-            } else {
-                filterType = 'idm';
-            }
-            const filter = new Filter(job.NodeEventFilter || job.UserEventFilter || job.IdmFilter, filterType);
-            filter.addTo(graph);
-
-            const fLink = new Link(actionsInput, 'output', filter.id, 'input', firstLinkHasData);
-            fLink.addTo(graph);
-
-            firstLinkHasData = true;
-            actionsInput = filter.id;
-        }
-        */
-
         this.chainActions(graph, job.Actions, actionsInput, firstLinkHasData);
     }
 
-    reLayout(){
-        const {graph, onPaperResize} = this.state;
+    reLayout(editMode){
+        const {graph, paper, onPaperResize} = this.state;
         // Relayout graph and return bounding box
-        const bbox = layout.DirectedGraph.layout(graph, {
+        // Find JobInput and apply graph on this one ?
+        const inputs = graph.getCells().filter(c => !c.isTemplate);
+        const bbox = layout.DirectedGraph.layout(inputs, {
             nodeSep: 30,
             edgeSep: 30,
             rankSep: 80,
             rankDir: "LR",
-            marginX: 40,
+            marginX: editMode ? 200 : 80,
             marginY: 40,
             clusterPadding: 20,
             dagre,
@@ -194,14 +178,21 @@ class JobGraph extends React.Component {
         });
         bbox.width += 80;
         bbox.height+= 80;
-        onPaperResize(bbox.width, bbox.height);
+        if (editMode) {
+            bbox.height = 400;
+            bbox.width += 200;
+        }
+        if(paper){
+            paper.setDimensions(bbox.width, bbox.height);
+        } else {
+            onPaperResize(bbox.width, bbox.height);
+        }
     }
 
     clearSelection(){
         const {graph} = this.state;
         graph.getCells().filter(c => c.clearSelection).forEach(c => c.clearSelection());
         this.setState({
-            selection: null,
             selectionType: null,
             selectionModel: null
         });
@@ -210,25 +201,16 @@ class JobGraph extends React.Component {
     select(model){
         const s = {
             selectionModel: model,
-            scrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
         };
         if (model instanceof Action) {
-            s.selection = model.getJobsAction();
             s.selectionType = 'action';
         } else if (model instanceof Selector) {
-            s.selection = model.getSelector();
             s.selectionType = 'selector'
         } else if (model instanceof Filter) {
-            s.selection = model.getFilter();
             s.selectionType = 'filter'
-        } else if( model instanceof JobInput && model.getInputType() === 'event') {
-            s.selection = model.getEventNames();
-            s.selectionType = 'events';
-        } else if( model instanceof JobInput && model.getInputType() === 'schedule') {
-            s.selection = model.getSchedule();
-            s.selectionType = 'schedule';
+        } else if( model instanceof JobInput) {
+            s.selectionType = 'trigger';
         }
-//        model.attr('rect/stroke', Orange);
         this.setState(s);
     }
 
@@ -266,40 +248,50 @@ class JobGraph extends React.Component {
                 onDetachModel(linkView, toolView);
             }
         });
-        const {graph, job, onPaperBind, onAttachModel, onDetachModel, editMode} = this.state;
+        const {graph, job, onPaperBind, onAttachModel, onDetachModel, onDropFilter, editMode} = this.state;
         const _this = this;
+
+        const templates = new Templates(graph);
+        templates.addTo(graph);
+
         onPaperBind(ReactDOM.findDOMNode(this.refs.placeholder), graph, {
             'element:pointerdown': (elementView, event) => {
                 event.data = elementView.model.position();
-                if(_this.state.editMode){
-                    const {model} = elementView;
+                const {model} = elementView;
+                if(_this.state.editMode && !model.isTemplate){
                     if(model instanceof Action || model instanceof Selector || model instanceof Filter || model instanceof JobInput) {
                         this.clearSelection();
                         model.select();
                         this.select(model);
                     }
+                } else if(model.isTemplate && model !== templates){
+                    // Start dragging new model and duplicate
+                    templates.replicate(model, graph);
+                    model.toFront();
                 }
             },
             'element:filter:pointerdown': (elementView, event) => {
+                const {model} = elementView;
                 if(_this.state.editMode){
                     this.clearSelection();
-                    elementView.model.selectFilter();
-                    if(elementView.model instanceof JobInput){
+                    model.selectFilter();
+                    if(model instanceof JobInput){
                         this.setState({selectionModel: job, selectionType:'filter'})
-                    } else if(elementView.model instanceof Action){
-                        this.setState({selectionModel: elementView.model.getJobsAction(), selectionType:'filter'})
+                    } else if(model instanceof Action){
+                        this.setState({selectionModel: model.getJobsAction(), selectionType:'filter'})
                     }
                     event.stopPropagation();
                 }
             },
             'element:selector:pointerdown': (elementView, event) => {
+                const {model} = elementView;
                 if(_this.state.editMode){
                     this.clearSelection();
-                    elementView.model.selectSelector();
-                    if(elementView.model instanceof JobInput){
+                    model.selectSelector();
+                    if(model instanceof JobInput){
                         this.setState({selectionModel: job, selectionType:'selector'})
-                    } else if(elementView.model instanceof Action){
-                        this.setState({selectionModel: elementView.model.getJobsAction(), selectionType:'selector'})
+                    } else if(model instanceof Action){
+                        this.setState({selectionModel: model.getJobsAction(), selectionType:'selector'})
                     }
                     event.stopPropagation();
                 }
@@ -319,12 +311,31 @@ class JobGraph extends React.Component {
                     // elementAbove.position(evt.data.x, evt.data.y);
                     if(elementBelow instanceof JobInput || elementBelow instanceof Action) {
                         if(elementAbove instanceof Filter){
-                            elementBelow.setFilter(true);
+                            if(elementBelow instanceof JobInput){
+                                onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
+                                _this.setState({selectionModel: job, selectionType:'filter'});
+                            } else if(elementBelow instanceof Action){
+                                onDropFilter(elementBelow.getJobsAction(), elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
+                                _this.setState({selectionModel: elementBelow.getJobsAction(), selectionType:'filter'});
+                            }
+                            elementBelow.selectFilter();
                         } else {
-                            elementBelow.setSelector(true);
+                            if(elementBelow instanceof JobInput){
+                                onDropFilter(job, elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
+                                _this.setState({selectionModel: job, selectionType:'selector'});
+                            } else if(elementBelow instanceof Action){
+                                onDropFilter(elementBelow.getJobsAction(), elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
+                                _this.setState({selectionModel: elementBelow.getJobsAction(), selectionType:'selector'});
+                            }
+                            elementBelow.selectSelector();
                         }
+
                         elementAbove.remove();
+                        return;
                     }
+                }
+                if(isFilter && elementAbove.isTemplate){
+                    elementAbove.remove();
                 }
             },
             'element:pointermove': function (elementView, evt, x, y) {
@@ -354,7 +365,7 @@ class JobGraph extends React.Component {
             },
             'link:remove' : removeLinkTool
         });
-        this.reLayout();
+        this.reLayout(editMode);
     }
 
     deleteButton(){
@@ -373,7 +384,7 @@ class JobGraph extends React.Component {
     render() {
 
         let selBlock;
-        const {selection, selectionType, descriptions, selectionModel, scrollLeft, createNewAction} = this.state;
+        const {selectionType, descriptions, selectionModel, onTriggerChange, createNewAction, onRemoveFilter} = this.state;
         // Redux store stuff - should be on props!
         const {onToggleEdit, onEmptyModel, editMode} = this.state;
 
@@ -383,28 +394,29 @@ class JobGraph extends React.Component {
                 actions={descriptions}
                 action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
                 onChange={(newAction) => {
-                    onEmptyModel(new Action(descriptions, newAction));
+                    onEmptyModel(new Action(descriptions, newAction, true));
                 }}
+                create={true}
                 onDismiss={()=>{this.setState({createNewAction: false})}}
             />
         } else if(selectionModel){
             if(selectionType === 'action'){
+                const action = selectionModel.getJobsAction();
                 selBlock = <FormPanel
                     actions={descriptions}
-                    actionInfo={descriptions[selection.ID]}
-                    action={selection} {...blockProps}
+                    actionInfo={descriptions[action.ID]}
+                    action={action} {...blockProps}
                     onChange={(newAction) => console.log(newAction)}
                 />
             } else if(selectionType === 'selector' || selectionType === 'filter') {
                 if(selectionModel instanceof JobsJob){
-                    selBlock =  <Filters job={selectionModel} type={selectionType} {...blockProps} />
+                    selBlock =  <Filters job={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter}/>
                 } else {
-                    selBlock = <Filters action={selectionModel} type={selectionType} {...blockProps}/>
+                    selBlock = <Filters action={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter}/>
                 }
-            } else if(selectionType === 'events') {
-                selBlock = <Events events={selection} {...blockProps}/>
-            } else if(selectionType === 'schedule') {
-                selBlock = <Schedule schedule={selection} {...blockProps}/>
+            } else if(selectionType === 'trigger') {
+                const {job} = this.state;
+                selBlock = <Triggers job={job} {...blockProps} onChange={onTriggerChange}/>
             }
         }
 
@@ -423,12 +435,10 @@ class JobGraph extends React.Component {
             <Paper zDepth={1} style={{margin: 20}}>
                 <div style={headerStyle}>
                     <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow - click on boxes to show details</span>
-                    {editMode && <FlatButton disabled={!selection || selectionModel instanceof JobInput} onTouchTap={()=> {this.deleteButton()}} label={"Remove"}/>}
+                    {editMode && <FlatButton disabled={!selectionModel || selectionModel instanceof JobInput} onTouchTap={()=> {this.deleteButton()}} label={"Remove"}/>}
                     {editMode && <FlatButton onTouchTap={()=> {this.setState({createNewAction: true})}} label={"+ Action"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {onEmptyModel(Filter.createEmptyNodesFilter())}} label={"+ Filter"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {onEmptyModel(new Selector({}, 'node'));}} label={"+ Selector"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {this.reLayout()}} label={"Layout"}/>}
-                    <FlatButton onTouchTap={()=> onToggleEdit(!editMode)} label={editMode?'Close':'Edit'}/>
+                    {editMode && <FlatButton onTouchTap={()=> {this.reLayout(editMode)}} label={"Layout"}/>}
+                    <FlatButton onTouchTap={()=> onToggleEdit(!editMode, this.reLayout.bind(this))} label={editMode?'Close':'Edit'}/>
                 </div>
                 <div style={{position:'relative', display:'flex', minHeight:editMode?400:null}}>
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">

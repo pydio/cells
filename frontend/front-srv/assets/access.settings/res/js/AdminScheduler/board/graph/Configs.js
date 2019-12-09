@@ -8,6 +8,7 @@ const Orange= '#ff9800';
 const Stale = '#607D8B';
 
 const BoxSize = {width: 150, height: 64};
+const FilterBoxSize = {width: 64, height: 64};
 
 const dropShadow = {
     name: 'dropShadow',
@@ -22,6 +23,17 @@ const dropShadow = {
 const TextIconMarkup = [{
     tagName: 'rect',
     selector: 'rect',
+}, {
+    tagName: 'text',
+    selector: 'icon'
+}, {
+    tagName: 'text',
+    selector: 'text'
+}];
+
+const RoundIconMarkup = [{
+    tagName: 'circle',
+    selector: 'circle',
 }, {
     tagName: 'text',
     selector: 'icon'
@@ -192,10 +204,12 @@ function positionFilters(model, originalBox, filter, selector, anchor = 'left') 
 const BlueRect = {fill: Blue ,rx: 5,ry: 5, 'stroke-width':1,  'stroke': Blue, filter:dropShadow};
 const WhiteRect = {fill: White ,rx: 5,ry: 5, 'stroke-width':1,  'stroke': LightGrey, filter:dropShadow};
 
+const WhiteCircle={fill: White, refX: '50%', refY: '50%', r: 32, 'stroke-width':1, 'stroke': LightGrey, filter: dropShadow};
+
 const LightIcon = { refY:18, refY2: 0, 'text-anchor':'middle', refX:'50%', fill:'#e3f2fd'};
 const LightLabel = { refY:'60%', refY2: 0, 'text-anchor':'middle', refX:'50%', 'font-size': 15, fill:White, 'font-family':'Roboto', 'font-weight':500, magnet:false};
 const DarkLabel = {...LightLabel, fill: DarkGrey};
 const DarkIcon = {...LightIcon, fill: Blue};
 
-export {PortsConfig, ClusterConfig, TextIconMarkup, TextIconFilterMarkup, SimpleIconMarkup, BoxSize, BlueRect, LightLabel, LightIcon, DarkIcon,
+export {PortsConfig, ClusterConfig, TextIconMarkup, TextIconFilterMarkup, RoundIconMarkup, SimpleIconMarkup, BoxSize, FilterBoxSize, WhiteCircle, BlueRect, LightLabel, LightIcon, DarkIcon,
     WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, IconToUnicode, positionFilters}

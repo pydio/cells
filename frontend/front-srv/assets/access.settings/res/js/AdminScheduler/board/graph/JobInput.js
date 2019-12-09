@@ -18,30 +18,7 @@ class JobInput extends shapes.devs.Model {
     constructor(job){
 
         let label = 'Manual Trigger';
-        // mdi-gesture-tap
         let icon = IconToUnicode('gesture-tap');
-        let type = 'manual';
-        if(job.EventNames){
-            const parts = job.EventNames[0].split(":");
-            let eventType = parts.shift();
-            if(eventType === 'IDM_CHANGE') {
-                eventType = parts.shift().toLowerCase();
-                eventType = eventType.charAt(0).toUpperCase() + eventType.slice(1);
-            } else {
-                eventType = 'Node';
-            }
-            label = eventType + ' Events';
-            // mdi-pulse
-            icon = IconToUnicode('pulse');
-            type = 'event';
-        } else if(job.Schedule){
-            //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
-            label = 'Schedule';
-            // mdi-clock
-            icon = IconToUnicode('clock');
-            type = 'schedule';
-        }
-
         const largeBoxWidth = 180;
 
         super({
@@ -61,20 +38,46 @@ class JobInput extends shapes.devs.Model {
             },
             ports:PortsConfig
         });
+        this.notifyJobModel(job);
 
-        this._type = type;
-        if(job.EventNames){
-            this._eventNames = job.EventNames;
-        }else if(job.Schedule){
-            this._schedule = job.Schedule;
-        }
+    }
+
+    notifyJobModel(job){
+        this.setFilter(false);
+        this.setSelector(false);
         if(job.NodeEventFilter || job.IdmFilter || job.UserEventFilter){
             this.setFilter(true);
         }
         if(job.NodesSelector || job.IdmSelector || job.UsersSelector){
-            this.Selector(true);
+            this.setSelector(true);
         }
+
+        let label = 'Manual Trigger';
+        let icon = IconToUnicode('gesture-tap');
+        if(job.EventNames){
+            const parts = job.EventNames[0].split(":");
+            let eventType = parts.shift();
+            if(eventType === 'IDM_CHANGE') {
+                eventType = parts.shift().toLowerCase();
+                eventType = eventType.charAt(0).toUpperCase() + eventType.slice(1);
+            } else {
+                eventType = 'Node';
+            }
+            label = eventType + ' Events';
+            // mdi-pulse
+            icon = IconToUnicode('pulse');
+        } else if(job.Schedule){
+            //label = 'Schedule\n\n' + job.Schedule.Iso8601Schedule;
+            label = 'Schedule';
+            // mdi-clock
+            icon = IconToUnicode('clock');
+        }
+
+        this.attr('icon/text', icon);
+        this.attr('text/text', label);
+        job.model = this;
     }
+
 
     clearSelection(){
         this.attr('rect/stroke', LightGrey);
@@ -104,20 +107,6 @@ class JobInput extends shapes.devs.Model {
         positionFilters(this, BoxSize, this._rightFilter, this._rightSelector, 'right');
     }
 
-    getInputType() {
-        return this._type;
-    }
-
-    getEventNames(){
-        return this._eventNames;
-    }
-
-    /**
-     * @return {JobsSchedule}
-     */
-    getSchedule(){
-        return this._schedule;
-    }
 }
 
 export default JobInput

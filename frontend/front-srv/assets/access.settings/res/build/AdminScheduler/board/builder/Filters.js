@@ -52,20 +52,44 @@ var Filters = (function (_React$Component) {
             var action = _props.action;
             var type = _props.type;
             var onDismiss = _props.onDismiss;
+            var onRemoveFilter = _props.onRemoveFilter;
 
             var stack = keys[type][job ? 'job' : 'action'].map(function (key) {
                 return job ? job[key] : action[key];
             }).filter(function (c) {
                 return c;
             }).map(function (data) {
-                return _react2["default"].createElement(_QueryBuilder2["default"], { query: data, queryType: type, style: { borderBottom: '1px solid #e0e0e0' } });
+                return _react2["default"].createElement(_QueryBuilder2["default"], {
+                    query: data,
+                    queryType: type,
+                    style: { borderBottom: '1px solid #e0e0e0' },
+                    onRemoveFilter: function (modelType) {
+                        if (job) {
+                            onRemoveFilter(job, data, type, modelType);
+                        } else {
+                            onRemoveFilter(action, data, type, modelType);
+                        }
+                    }
+                });
             });
+
+            var title = undefined;
+            if (job) {
+                title = 'Input > ';
+            } else {
+                title = 'Action > ';
+            }
+            if (type === 'filter') {
+                title += ' Filters';
+            } else {
+                title += ' Selectors';
+            }
 
             return _react2["default"].createElement(
                 _styles.RightPanel,
                 {
                     onDismiss: onDismiss,
-                    title: type === 'filter' ? 'Filters' : 'Selectors',
+                    title: title,
                     icon: type === 'filter' ? 'filter' : 'magnify'
                 },
                 stack

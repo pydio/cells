@@ -55,15 +55,45 @@ class FormPanel extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {};
-        if(props.actionInfo && props.actionInfo.HasForm){
-            this.loadForm(props.action.ID);
+        const {action} = props;
+        this.state = {
+            action,
+            actionInfo: this.getActionInfo(action),
+        };
+    }
+
+    getActionInfo(action){
+        const {actions} = this.props;
+        let actionInfo;
+        if(actions[action.ID]) {
+            actionInfo = actions[action.ID];
+            if (actionInfo.HasForm) {
+                this.loadForm(action.ID);
+            }
+        } else if (action.ID === JOB_ACTION_EMPTY){
+            actionInfo = {
+                Name: JOB_ACTION_EMPTY,
+                Label: 'Create Action',
+                Icon: 'chip',
+                Description:'Pick an action'
+            }
+        } else {
+            actionInfo = {
+                Name: action.ID,
+                Label: action.ID,
+                Icon: 'chip',
+                Description:'No description provided'
+            }
         }
+        return actionInfo;
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.action.ID !== this.props.action.ID && nextProps.actionInfo && nextProps.actionInfo.HasForm) {
-            this.loadForm(nextProps.action.ID);
+        if(nextProps.action !== this.state.action) {
+            this.setState({
+                action: nextProps.action,
+                actionInfo: this.getActionInfo(nextProps.action)
+            })
         }
     }
 
@@ -77,55 +107,42 @@ class FormPanel extends React.Component {
         console.log(values);
     }
 
+    onIdChange(id){
+        const {action} = this.state;
+        action.ID = id;
+        // Refresh state
+        this.setState({
+            action,
+            actionInfo: this.getActionInfo(action)
+        })
+    }
+
     actionPicker(){
-        const {actions, onChange, onDismiss} = this.props;
-        const {newActionID} = this.state;
-        const options = Object.keys(actions).map(id => {
+        const {actions} = this.props;
+        const {action} = this.state;
+        let options = Object.keys(actions).map(id => {
             return <MenuItem primaryText={actions[id].Label || actions[id].Name} value={id}/>
         });
         return (
-            <div>
-                <SelectField
-                    value={newActionID}
-                    onChange={(ev, i, value) => {
-                        this.setState({newActionID:value});
-                    }}
-                >{options}</SelectField>
-                <RaisedButton primary={true} label={"OK"} disabled={!newActionID} onTouchTap={() => {
-                    const {action} = this.props;
-                    action.ID = newActionID;
-                    onChange(action);
-                    onDismiss();
-                }}/>
-            </div>
+            <SelectField
+                value={action.ID}
+                onChange={(ev, i, value) => {
+                    this.onIdChange(value);
+                }}
+            >{[<MenuItem value={JOB_ACTION_EMPTY} primaryText={"Please pick an action"}/>, ...options]}</SelectField>
         )
     }
 
     render(){
 
-        const {actionInfo, action, onDismiss} = this.props;
-        const {formParams} = this.state;
-        let values = {};
-        if(action.Parameters){
-            values = action.Parameters;
-        }
-        let title, description, icon;
-        if(action.ID === JOB_ACTION_EMPTY){
-            title = 'New action';
-            icon = 'chip';
-            description = this.actionPicker();
-        } else if (actionInfo) {
-            title = actionInfo.Label;
-            icon = actionInfo.Icon;
-            description = actionInfo.Description;
-        } else {
-            title= action.ID;
-            icon = 'chip';
-            description = '';
-        }
+        const {onDismiss, onChange, create} = this.props;
+        const {actionInfo, action, formParams} = this.state;
+        const values = action.Parameters || {};
+
         return (
-            <RightPanel title={title} icon={icon} onDismiss={onDismiss}>
-                <div style={{padding: 10}}>{description}</div>
+            <RightPanel title={actionInfo.Label} icon={actionInfo.Icon} onDismiss={onDismiss}>
+                <div style={{padding: 10}}>{actionInfo.Description}</div>
+                {create && this.actionPicker()}
                 {formParams &&
                 <div style={{margin: -10}}>
                     <PydioForm.FormPanel
@@ -137,6 +154,16 @@ class FormPanel extends React.Component {
                     />
                 </div>
                 }
+                <div>
+                    <RaisedButton
+                        primary={true}
+                        label={"SAVE"}
+                        disabled={action.ID === JOB_ACTION_EMPTY}
+                        onTouchTap={() => {
+                            onChange(action);
+                            onDismiss();
+                        }}/>
+                    </div>
             </RightPanel>
         )
     }

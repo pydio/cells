@@ -64,14 +64,8 @@ class Action extends shapes.devs.Model{
         }
 
         super(config);
-        if(action.NodesFilter || action.IdmFilter || action.UsersFilter){
-            this.setFilter(true)
-        }
-        if(action.NodesSelector || action.IdmSelector || action.UsersSelector) {
-            this.setSelector(true);
-        }
         this._edit = edit;
-        this._jobModel = action;
+        this.notifyJobModel(action);
     }
 
     clearSelection(){
@@ -90,6 +84,19 @@ class Action extends shapes.devs.Model{
 
     selectSelector(){
         this.attr('selector-rect/stroke', Orange);
+    }
+
+    notifyJobModel(action){
+        this._jobModel = action;
+        this.setFilter(false);
+        this.setSelector(false);
+        if(action.NodesFilter || action.IdmFilter || action.UsersFilter){
+            this.setFilter(true)
+        }
+        if(action.NodesSelector || action.IdmSelector || action.UsersSelector) {
+            this.setSelector(true);
+        }
+        action.model = this;
     }
 
     setFilter(b){

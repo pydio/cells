@@ -63,6 +63,14 @@ export default function paperReducer(paper = null, action) {
                 addLinkFromMagnet: edit,
                 elementMove: edit
             });
+            if(edit){
+                paper.setGridSize(16);
+                paper.drawGrid();
+                paper.showTools();
+            } else {
+                paper.clearGrid();
+                paper.hideTools();
+            }
             break;
         default:
             break;

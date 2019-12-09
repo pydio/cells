@@ -8,7 +8,7 @@ import {
     BoxSize,
     Orange,
     IconToUnicode,
-    LightGrey
+    LightGrey, FilterBoxSize, RoundIconMarkup, WhiteCircle
 } from "./Configs";
 
 
@@ -26,14 +26,11 @@ class Selector extends shapes.devs.Model{
         }
 
         super({
-            size: { ...BoxSize, fill: 'transparent' ,rx: 5,ry: 5, 'stroke-width':1.5,  'stroke': '#31d0c6' },
-            inPorts: ['input'],
-            outPorts: ['output'],
-            markup: TextIconMarkup,
+            size: { ...FilterBoxSize, fill: 'transparent' ,rx: 5,ry: 5, 'stroke-width':1.5,  'stroke': '#31d0c6' },
+            markup: RoundIconMarkup,
             attrs: {
-                rect: { ...BoxSize, ...WhiteRect },
-                icon: { text: IconToUnicode('magnify'), ...DarkIcon, fill: Orange},
-                text: { text: 'Select ' + typeLabel, magnet: false, ...DarkLabel}
+                icon: { text: IconToUnicode('magnify'), ...DarkIcon, fill: Orange, refY: 20},
+                text: { text: typeLabel, ...DarkLabel, magnet: 'passive', 'font-size': 11}
             },
             ports: PortsConfig
         });

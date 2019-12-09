@@ -30,6 +30,8 @@ var _JobSchedule = require('../JobSchedule');
 
 var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 var eventMessages = {
     NODE_CHANGE: {
         '0': 'trigger.create.node',
@@ -84,8 +86,8 @@ var Schedule = (function (_React$Component) {
             var scheduleString = _JobSchedule2['default'].readableString(state, Schedule.T);
 
             return _react2['default'].createElement(
-                _styles.RightPanel,
-                { title: "Scheduler", onDismiss: onDismiss },
+                'div',
+                null,
                 scheduleString
             );
         }
@@ -116,19 +118,15 @@ var Events = (function (_React$Component2) {
             var onDismiss = _props2.onDismiss;
 
             return _react2['default'].createElement(
-                _styles.RightPanel,
-                { title: "Events", onDismiss: onDismiss },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 10 } },
-                    events.map(function (e) {
-                        return _react2['default'].createElement(
-                            'div',
-                            null,
-                            Events.eventLabel(e, Events.T)
-                        );
-                    })
-                )
+                'div',
+                { style: { padding: 10 } },
+                events.map(function (e) {
+                    return _react2['default'].createElement(
+                        'div',
+                        null,
+                        Events.eventLabel(e, Events.T)
+                    );
+                })
             );
         }
     }], [{
@@ -154,5 +152,73 @@ var Events = (function (_React$Component2) {
     return Events;
 })(_react2['default'].Component);
 
+var Triggers = (function (_React$Component3) {
+    _inherits(Triggers, _React$Component3);
+
+    function Triggers() {
+        _classCallCheck(this, Triggers);
+
+        _get(Object.getPrototypeOf(Triggers.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Triggers, [{
+        key: 'onSwitch',
+        value: function onSwitch(type) {
+            var onChange = this.props.onChange;
+
+            var data = null;
+            if (type === 'manual') {
+                data = [];
+            } else if (type === 'schedule') {
+                data = _pydioHttpRestApi.JobsSchedule.constructFromObject({ Iso8601Schedule: '' });
+            }
+            onChange(type, data);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this = this;
+
+            var _props3 = this.props;
+            var job = _props3.job;
+            var onDismiss = _props3.onDismiss;
+
+            var type = 'manual';
+            if (job.Schedule) {
+                type = 'schedule';
+            } else if (job.EventNames !== undefined) {
+                type = 'event';
+            }
+            return _react2['default'].createElement(
+                _styles.RightPanel,
+                { title: "Job Trigger", onDismiss: onDismiss },
+                _react2['default'].createElement(
+                    _materialUi.SelectField,
+                    { value: type, onChange: function (e, i, v) {
+                            return _this.onSwitch(v);
+                        } },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: "manual", primaryText: "Manual Trigger" }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: "schedule", primaryText: "Scheduled" }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: "event", primaryText: "Events" })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    type === 'schedule' && _react2['default'].createElement(Schedule, { schedule: job.Schedule }),
+                    type === 'event' && _react2['default'].createElement(Events, { events: job.EventNames || [] }),
+                    type === 'manual' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        'No parameters'
+                    )
+                )
+            );
+        }
+    }]);
+
+    return Triggers;
+})(_react2['default'].Component);
+
+exports.Triggers = Triggers;
 exports.Schedule = Schedule;
 exports.Events = Events;

@@ -34,14 +34,11 @@ var Selector = (function (_shapes$devs$Model) {
         }
 
         _get(Object.getPrototypeOf(Selector.prototype), 'constructor', this).call(this, {
-            size: _extends({}, _Configs.BoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
-            inPorts: ['input'],
-            outPorts: ['output'],
-            markup: _Configs.TextIconMarkup,
+            size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
+            markup: _Configs.RoundIconMarkup,
             attrs: {
-                rect: _extends({}, _Configs.BoxSize, _Configs.WhiteRect),
-                icon: _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Orange }),
-                text: _extends({ text: 'Select ' + typeLabel, magnet: false }, _Configs.DarkLabel)
+                icon: _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                text: _extends({ text: typeLabel }, _Configs.DarkLabel, { magnet: 'passive', 'font-size': 11 })
             },
             ports: _Configs.PortsConfig
         });

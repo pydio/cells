@@ -1,8 +1,9 @@
 import React from 'react'
 import Pydio from 'pydio'
-import {styles, position, RightPanel} from './styles'
-import {Paper} from 'material-ui'
+import {RightPanel} from './styles'
+import {Paper, SelectField, MenuItem} from 'material-ui'
 import JobSchedule from '../JobSchedule'
+import {JobsSchedule} from 'pydio/http/rest-api'
 
 const eventMessages = {
     NODE_CHANGE:{
@@ -51,9 +52,7 @@ class Schedule extends React.Component{
         const scheduleString = JobSchedule.readableString(state, Schedule.T);
 
         return (
-            <RightPanel title={"Scheduler"} onDismiss={onDismiss}>
-                {scheduleString}
-            </RightPanel>
+            <div>{scheduleString}</div>
         )
 
     }
@@ -84,15 +83,52 @@ class Events extends React.Component{
         const {events, onDismiss} = this.props;
 
         return (
-            <RightPanel title={"Events"} onDismiss={onDismiss}>
-                <div style={{padding: 10}}>
-                    {events.map(e => <div>{Events.eventLabel(e, Events.T)}</div>)}
-                </div>
-            </RightPanel>
+            <div style={{padding: 10}}>
+                {events.map(e => <div>{Events.eventLabel(e, Events.T)}</div>)}
+            </div>
         )
 
     }
 
 }
 
-export {Schedule, Events}
+class Triggers extends React.Component {
+
+    onSwitch(type){
+        const {onChange} = this.props;
+        let data = null;
+        if(type === 'manual'){
+            data = [];
+        } else if(type === 'schedule') {
+            data = JobsSchedule.constructFromObject({Iso8601Schedule : ''});
+        }
+        onChange(type, data);
+    }
+
+    render() {
+        const {job, onDismiss} = this.props;
+        let type = 'manual';
+        if(job.Schedule){
+            type = 'schedule';
+        } else if (job.EventNames !== undefined) {
+            type = 'event'
+        }
+        return (
+            <RightPanel title={"Job Trigger"} onDismiss={onDismiss}>
+                <SelectField value={type} onChange={(e,i,v) => this.onSwitch(v)}>
+                    <MenuItem value={"manual"} primaryText={"Manual Trigger"}/>
+                    <MenuItem value={"schedule"} primaryText={"Scheduled"}/>
+                    <MenuItem value={"event"} primaryText={"Events"}/>
+                </SelectField>
+                <div>
+                    {type === 'schedule' && <Schedule schedule={job.Schedule}/>}
+                    {type === 'event' && <Events events={job.EventNames || []}/>}
+                    {type === 'manual' && <div>No parameters</div>}
+                </div>
+            </RightPanel>
+        )
+    }
+
+}
+
+export {Triggers, Schedule, Events}

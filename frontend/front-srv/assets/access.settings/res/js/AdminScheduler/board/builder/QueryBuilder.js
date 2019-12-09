@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {styles, position, RightPanel} from './styles'
-import {Paper} from 'material-ui'
+import {Paper, FlatButton} from 'material-ui'
 import {dia, layout} from 'jointjs'
 import dagre from 'dagre'
 import graphlib from 'graphlib'
@@ -23,7 +22,6 @@ class QueryBuilder extends React.Component {
 
     detectTypes(){
         const {query, queryType} = this.props;
-        console.log(query);
         let inputIcon, outputIcon;
         let objectType = 'node';
         if(query instanceof JobsNodesSelector) {
@@ -117,7 +115,6 @@ class QueryBuilder extends React.Component {
             link2.addTo(this.graph);
         } else if(query.Query && query.Query.SubQueries) {
             query.Query.SubQueries.forEach(q => {
-                console.log(JSON.stringify(q));
                 Object.keys(q.value).forEach(key => {
                     const field = new Query(key, q.value[key]);
                     field.addTo(this.graph);
@@ -157,6 +154,19 @@ class QueryBuilder extends React.Component {
         });
     }
 
+    remove(){
+        const {onRemoveFilter, query} = this.props;
+        let modelType;
+        if(query instanceof JobsNodesSelector){
+            modelType = 'node'
+        } else if(query instanceof JobsIdmSelector){
+            modelType = 'idm'
+        } else if(query instanceof JobsUsersSelector){
+            modelType = 'user'
+        }
+        onRemoveFilter(modelType);
+    }
+
     render() {
 
         const {queryType, style} = this.props;
@@ -167,6 +177,7 @@ class QueryBuilder extends React.Component {
             <div style={style}>
                 <div>{title}</div>
                 <div ref={"graph"} id={"graph"}></div>
+                <FlatButton label={"Remove"} onTouchTap={this.remove.bind(this)}/>
             </div>
         );
     }

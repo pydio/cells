@@ -1,9 +1,13 @@
-import {ATTACH_MODEL_ACTION, DETACH_MODEL_ACTION, JOB_LOADED, REMOVE_MODEL_ACTION} from "../actions/editor";
+import {
+    ATTACH_MODEL_ACTION,
+    DETACH_MODEL_ACTION,
+    DROP_FILTER_ACTION,
+    JOB_LOADED, JOB_SWITCH_TRIGGER, REMOVE_FILTER_ACTION,
+    REMOVE_MODEL_ACTION
+} from "../actions/editor";
 import {JobsJob} from 'pydio/http/rest-api';
 import JobInput from "../graph/JobInput";
 import Action from "../graph/Action";
-import Filter from "../graph/Filter";
-import Selector from "../graph/Selector";
 
 
 
@@ -32,25 +36,137 @@ export default function(job = new JobsJob(), action) {
                     const orig = parentAction.ChainedActions || [];
                     parentAction.ChainedActions = [...orig, targetModel.getJobsAction()];
                 }
-            } else if(targetModel instanceof Filter && sourceModel instanceof JobInput) {
-                switch (targetModel.getFilterType()) {
-                    case "user":
-                        job.UserEventFilter = targetModel.getFilter();
-                        break;
-                    case "idm":
-                        job.IdmFilter = targetModel.getFilter();
-                        break;
-                    default: // NODE
-                        job.NodeEventFilter = targetModel.getFilter();
-                        break;
-                }
-            } else if(targetModel instanceof Selector) {
+            }
+            return job;
 
+        case DROP_FILTER_ACTION:
+
+            const {target, dropped, filterOrSelector, objectType} = action;
+            if(target === job){
+                if(filterOrSelector === 'filter'){
+                    switch (objectType) {
+                        case "user":
+                            job.UserEventFilter = dropped;
+                            break;
+                        case "idm":
+                            job.IdmFilter = dropped;
+                            break;
+                        default: // NODE
+                            job.NodeEventFilter = dropped;
+                            break;
+                    }
+                } else if(filterOrSelector === 'selector') {
+                    switch (objectType) {
+                        case "user":
+                            job.UsersSelector = dropped;
+                            break;
+                        case "idm":
+                            job.IdmSelector = dropped;
+                            break;
+                        default: // NODE
+                            job.NodesSelector = dropped;
+                            break;
+                    }
+                }
+            } else {
+                // Target is an action
+                if(filterOrSelector === 'filter'){
+                    switch (objectType) {
+                        case "user":
+                            target.UsersFilter = dropped;
+                            break;
+                        case "idm":
+                            target.IdmFilter = dropped;
+                            break;
+                        default: // NODE
+                            target.NodesFilter = dropped;
+                            break;
+                    }
+                } else if(filterOrSelector === 'selector') {
+                    switch (objectType) {
+                        case "user":
+                            target.UsersSelector = dropped;
+                            break;
+                        case "idm":
+                            target.IdmSelector = dropped;
+                            break;
+                        default: // NODE
+                            target.NodesSelector = dropped;
+                            break;
+                    }
+                }
+            }
+            if(target.model && target.model.notifyJobModel){ // REFRESH GRAPH MODEL
+                target.model.notifyJobModel(target);
+            }
+            return job;
+
+        case REMOVE_FILTER_ACTION:
+
+            const removeTarget = action.target;
+            const removeFilterOrSelector = action.filterOrSelector;
+            const removeObjectType = action.objectType;
+            if(removeTarget === job){
+                if(removeFilterOrSelector === 'filter'){
+                    switch (removeObjectType) {
+                        case "user":
+                            delete job.UserEventFilter;
+                            break;
+                        case "idm":
+                            delete job.IdmFilter;
+                            break;
+                        default: // NODE
+                            delete job.NodeEventFilter;
+                            break;
+                    }
+                } else if(removeFilterOrSelector === 'selector') {
+                    switch (removeObjectType) {
+                        case "user":
+                            delete job.UsersSelector;
+                            break;
+                        case "idm":
+                            delete job.IdmSelector;
+                            break;
+                        default: // NODE
+                            delete job.NodesSelector;
+                            break;
+                    }
+                }
+            } else {
+                // Target is an action
+                if(removeFilterOrSelector === 'filter'){
+                    switch (removeObjectType) {
+                        case "user":
+                            delete removeTarget.UsersFilter;
+                            break;
+                        case "idm":
+                            delete removeTarget.IdmFilter;
+                            break;
+                        default: // NODE
+                            delete removeTarget.NodesFilter;
+                            break;
+                    }
+                } else if(removeFilterOrSelector === 'selector') {
+                    switch (removeObjectType) {
+                        case "user":
+                            delete removeTarget.UsersSelector;
+                            break;
+                        case "idm":
+                            delete removeTarget.IdmSelector;
+                            break;
+                        default: // NODE
+                            delete removeTarget.NodesSelector;
+                            break;
+                    }
+                }
+            }
+            if(removeTarget.model && removeTarget.model.notifyJobModel){ // REFRESH GRAPH MODEL
+                removeTarget.model.notifyJobModel(removeTarget);
             }
             return job;
 
         case DETACH_MODEL_ACTION:
-            console.log(sourceModel, targetModel);
+
             const {toolView} = action;
             if (targetModel instanceof Action) {
                 if(sourceModel instanceof  JobInput) {
@@ -68,10 +184,6 @@ export default function(job = new JobsJob(), action) {
                         linkView.model.remove({ ui: true, tool: toolView.cid });
                     }
                 }
-            } else if(targetModel instanceof Filter) {
-
-
-
             }
             return job;
 
@@ -91,6 +203,27 @@ export default function(job = new JobsJob(), action) {
                     }
                 }
                 model.remove();
+            }
+            return job;
+
+        case JOB_SWITCH_TRIGGER :
+            const {triggerType, triggerData} = action;
+            switch (triggerType) {
+                case "schedule":
+                    delete job.EventNames;
+                    job.Schedule = triggerData;
+                    break;
+                case "event":
+                    delete job.Schedule;
+                    job.EventNames = triggerData;
+                    break;
+                default:
+                    delete job.EventNames;
+                    delete job.Schedule;
+                    break;
+            }
+            if(job.model && job.model.notifyJobModel){
+                job.model.notifyJobModel(job);
             }
             return job;
 

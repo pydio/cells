@@ -6,16 +6,13 @@ import {
     TextIconMarkup,
     BoxSize,
     DarkIcon,
-    Orange, DarkLabel, LightGrey
+    Orange, DarkLabel, LightGrey, RoundIconMarkup, FilterBoxSize, WhiteCircle
 } from "./Configs";
-import {JobsNodesSelector} from 'pydio/http/rest-api';
+import {JobsNodesSelector, JobsIdmSelector, JobsUsersSelector} from 'pydio/http/rest-api';
 
 
 class Filter extends shapes.devs.Model{
 
-    static createEmptyNodesFilter(){
-        return new Filter(JobsNodesSelector.constructFromObject({}))
-    }
 
     constructor(filterDefinition, filterType){
 
@@ -29,14 +26,11 @@ class Filter extends shapes.devs.Model{
         }
 
         super({
-            size: { ...BoxSize, fill: 'transparent' ,rx: 5,ry: 5, 'stroke-width':1.5,  'stroke': '#31d0c6' },
-            inPorts: ['input'],
-            outPorts: ['output'],
-            markup: TextIconMarkup,
+            size: { ...FilterBoxSize, fill: 'transparent' ,rx: 5,ry: 5, 'stroke-width':1.5,  'stroke': '#31d0c6' },
+            markup: RoundIconMarkup,
             attrs: {
-                rect: { ...BoxSize, ...WhiteRect},
-                icon: { text: IconToUnicode('filter-outline'), ...DarkIcon, fill:Orange, magnet: false},
-                text: { text: 'Filter ' + typeLabel, magnet: false, ...DarkLabel}
+                icon: { text: IconToUnicode('filter-outline'), ...DarkIcon, fill:Orange, refY: 20},
+                text: { text: typeLabel, ...DarkLabel, 'font-size': 11}
             },
             ports: PortsConfig
         });
