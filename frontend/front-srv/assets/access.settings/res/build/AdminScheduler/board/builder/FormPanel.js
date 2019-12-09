@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -148,10 +148,72 @@ var FormPanel = (function (_React$Component) {
                 _this.setState({ formParams: params });
             });
         }
+
+        /**
+         * Convert standard json to map[string]string for Parameters field
+         * @param params
+         */
+    }, {
+        key: 'toStringString',
+        value: function toStringString() {
+            var params = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+            var map = {};
+            Object.keys(params).forEach(function (k) {
+                var value = params[k];
+                var v = undefined;
+                switch (typeof value) {
+                    case 'string':
+                        v = value;
+                        break;
+                    case 'number':
+                        v = '' + value;
+                        break;
+                    case 'boolean':
+                        v = value ? 'true' : 'false';
+                        break;
+                    default:
+                        v = '' + value;
+                }
+                map[k] = v;
+            });
+            return map;
+        }
+
+        /**
+         * Convert map[string]string to form usable parameters
+         * @param params
+         * @param map
+         */
+    }, {
+        key: 'fromStringString',
+        value: function fromStringString(params) {
+            var map = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+            if (!map) {
+                map = {};
+            }
+            var values = {};
+            params.forEach(function (p) {
+                if (map[p.name]) {
+                    if (p.type === 'boolean') {
+                        values[p.name] = map[p.name] === 'true';
+                    } else if (p.type === 'integer') {
+                        values[p.name] = parseInt(map[p.name]);
+                    } else {
+                        values[p.name] = map[p.name];
+                    }
+                }
+            });
+            return values;
+        }
     }, {
         key: 'onFormChange',
         value: function onFormChange(values) {
-            console.log(values);
+            var action = this.state.action;
+
+            action.Parameters = this.toStringString(values);
+            console.log(action.Parameters);
         }
     }, {
         key: 'onIdChange',
@@ -199,8 +261,6 @@ var FormPanel = (function (_React$Component) {
             var action = _state.action;
             var formParams = _state.formParams;
 
-            var values = action.Parameters || {};
-
             return _react2['default'].createElement(
                 _styles.RightPanel,
                 { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss },
@@ -217,7 +277,7 @@ var FormPanel = (function (_React$Component) {
                         ref: 'formPanel',
                         depth: -1,
                         parameters: formParams,
-                        values: values,
+                        values: this.fromStringString(formParams, action.Parameters),
                         onChange: this.onFormChange.bind(this)
                     })
                 ),

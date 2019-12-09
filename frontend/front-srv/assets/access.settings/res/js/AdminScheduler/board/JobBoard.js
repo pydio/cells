@@ -35,7 +35,7 @@ class JobBoard extends React.Component {
             mode:'log', // 'log' or 'selection'
             selectedRows: [],
             working: false,
-            taskLogs: null,
+            taskLogs: null
         }
     }
 
@@ -186,7 +186,7 @@ class JobBoard extends React.Component {
                         />
                     </Paper>
                     <AdminComponents.SubHeader title={"Job Description"}/>
-                    <JobGraph job={job}/>
+                    <JobGraph job={job} random={Math.random()}/>
                     <AdminComponents.SubHeader
                         title={
                             <div style={{display:'flex', width:'100%', alignItems:'baseline'}}>

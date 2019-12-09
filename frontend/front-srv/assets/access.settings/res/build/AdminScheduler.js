@@ -43769,7 +43769,7 @@ var Dashboard = _react2['default'].createClass({
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"./JobBoard":472,"./JobSchedule":474,"./builder/Triggers":483,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","react":"react"}],472:[function(require,module,exports){
+},{"./JobBoard":472,"./JobSchedule":474,"./builder/Triggers":484,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","react":"react"}],472:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -44072,7 +44072,7 @@ var JobBoard = (function (_React$Component) {
                         })
                     ),
                     _react2['default'].createElement(AdminComponents.SubHeader, { title: "Job Description" }),
-                    _react2['default'].createElement(_JobGraph2['default'], { job: job }),
+                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random() }),
                     _react2['default'].createElement(AdminComponents.SubHeader, {
                         title: _react2['default'].createElement(
                             'div',
@@ -44298,6 +44298,14 @@ var JobGraph = (function (_React$Component) {
             this.loadDescriptions();
         }
     }, {
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate(nextProps, nextState) {
+            if (nextProps.random !== this.props.random) {
+                return false;
+            }
+            return true;
+        }
+    }, {
         key: 'loadDescriptions',
         value: function loadDescriptions() {
             var _this3 = this;
@@ -44365,20 +44373,19 @@ var JobGraph = (function (_React$Component) {
                 return !c.isTemplate;
             });
             var bbox = _jointjs.layout.DirectedGraph.layout(inputs, {
-                nodeSep: 30,
-                edgeSep: 30,
-                rankSep: 80,
+                nodeSep: 48,
+                edgeSep: 48,
+                rankSep: 128,
                 rankDir: "LR",
-                marginX: editMode ? 200 : 80,
-                marginY: 40,
-                clusterPadding: 20,
+                marginX: editMode ? 160 : 32,
+                marginY: 32,
                 dagre: _dagre2['default'],
                 graphlib: _graphlib2['default']
             });
             bbox.width += 80;
             bbox.height += 80;
             if (editMode) {
-                bbox.height = 400;
+                bbox.height = Math.max(400, bbox.height);
                 bbox.width += 200;
             }
             if (paper) {
@@ -44528,6 +44535,9 @@ var JobGraph = (function (_React$Component) {
                         }
                         event.stopPropagation();
                     }
+                },
+                'element:nomove': function elementNomove(elementView, event) {
+                    event.stopPropagation();
                 },
                 'element:pointerup': function elementPointerup(elementView, evt, x, y) {
                     var elementAbove = elementView.model;
@@ -44738,7 +44748,7 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./actions/editor":476,"./builder/Filters":477,"./builder/FormPanel":478,"./builder/Triggers":483,"./graph/Action":485,"./graph/Filter":487,"./graph/JobInput":488,"./graph/Link":489,"./graph/Selector":490,"./graph/Templates":491,"./reducers":494,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom","redux":"redux","redux-devtools-extension":470}],474:[function(require,module,exports){
+},{"./actions/editor":476,"./builder/Filters":477,"./builder/FormPanel":478,"./builder/Triggers":484,"./graph/Action":486,"./graph/Filter":488,"./graph/JobInput":489,"./graph/Link":490,"./graph/Selector":491,"./graph/Templates":492,"./reducers":495,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom","redux":"redux","redux-devtools-extension":470}],474:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45595,14 +45605,14 @@ var Filters = (function (_React$Component) {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./QueryBuilder":482,"./styles":484,"react":"react"}],478:[function(require,module,exports){
+},{"./QueryBuilder":482,"./styles":485,"react":"react"}],478:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -45746,10 +45756,72 @@ var FormPanel = (function (_React$Component) {
                 _this.setState({ formParams: params });
             });
         }
+
+        /**
+         * Convert standard json to map[string]string for Parameters field
+         * @param params
+         */
+    }, {
+        key: 'toStringString',
+        value: function toStringString() {
+            var params = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+            var map = {};
+            Object.keys(params).forEach(function (k) {
+                var value = params[k];
+                var v = undefined;
+                switch (typeof value) {
+                    case 'string':
+                        v = value;
+                        break;
+                    case 'number':
+                        v = '' + value;
+                        break;
+                    case 'boolean':
+                        v = value ? 'true' : 'false';
+                        break;
+                    default:
+                        v = '' + value;
+                }
+                map[k] = v;
+            });
+            return map;
+        }
+
+        /**
+         * Convert map[string]string to form usable parameters
+         * @param params
+         * @param map
+         */
+    }, {
+        key: 'fromStringString',
+        value: function fromStringString(params) {
+            var map = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+            if (!map) {
+                map = {};
+            }
+            var values = {};
+            params.forEach(function (p) {
+                if (map[p.name]) {
+                    if (p.type === 'boolean') {
+                        values[p.name] = map[p.name] === 'true';
+                    } else if (p.type === 'integer') {
+                        values[p.name] = parseInt(map[p.name]);
+                    } else {
+                        values[p.name] = map[p.name];
+                    }
+                }
+            });
+            return values;
+        }
     }, {
         key: 'onFormChange',
         value: function onFormChange(values) {
-            console.log(values);
+            var action = this.state.action;
+
+            action.Parameters = this.toStringString(values);
+            console.log(action.Parameters);
         }
     }, {
         key: 'onIdChange',
@@ -45797,8 +45869,6 @@ var FormPanel = (function (_React$Component) {
             var action = _state.action;
             var formParams = _state.formParams;
 
-            var values = action.Parameters || {};
-
             return _react2['default'].createElement(
                 _styles.RightPanel,
                 { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss },
@@ -45815,7 +45885,7 @@ var FormPanel = (function (_React$Component) {
                         ref: 'formPanel',
                         depth: -1,
                         parameters: formParams,
-                        values: values,
+                        values: this.fromStringString(formParams, action.Parameters),
                         onChange: this.onFormChange.bind(this)
                     })
                 ),
@@ -45841,7 +45911,7 @@ var FormPanel = (function (_React$Component) {
 exports['default'] = FormPanel;
 module.exports = exports['default'];
 
-},{"../actions/editor":476,"./styles":484,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml","react":"react"}],479:[function(require,module,exports){
+},{"../actions/editor":476,"./styles":485,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml","react":"react"}],479:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45891,7 +45961,7 @@ var Input = (function (_shapes$devs$Model) {
 exports['default'] = Input;
 module.exports = exports['default'];
 
-},{"../graph/Configs":486,"jointjs":467}],480:[function(require,module,exports){
+},{"../graph/Configs":487,"jointjs":467}],480:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45936,7 +46006,7 @@ var Output = (function (_shapes$devs$Model) {
 exports['default'] = Output;
 module.exports = exports['default'];
 
-},{"../graph/Configs":486,"jointjs":467}],481:[function(require,module,exports){
+},{"../graph/Configs":487,"jointjs":467}],481:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45991,7 +46061,7 @@ var Query = (function (_shapes$devs$Model) {
 exports['default'] = Query;
 module.exports = exports['default'];
 
-},{"../graph/Configs":486,"jointjs":467}],482:[function(require,module,exports){
+},{"../graph/Configs":487,"jointjs":467}],482:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46257,7 +46327,379 @@ var QueryBuilder = (function (_React$Component) {
 exports['default'] = QueryBuilder;
 module.exports = exports['default'];
 
-},{"../graph/Link":489,"./Input":479,"./Output":480,"./Query":481,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],483:[function(require,module,exports){
+},{"../graph/Link":490,"./Input":479,"./Output":480,"./Query":481,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],483:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _materialUi = require('material-ui');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+
+var moment = _Pydio$requireLib.moment;
+
+var ScheduleForm = (function (_React$Component) {
+    _inherits(ScheduleForm, _React$Component);
+
+    function ScheduleForm(props) {
+        _classCallCheck(this, ScheduleForm);
+
+        _get(Object.getPrototypeOf(ScheduleForm.prototype), 'constructor', this).call(this, props);
+        var schedule = props.schedule;
+
+        if (schedule.Iso8601Schedule) {
+            this.state = ScheduleForm.parseIso8601(schedule.Iso8601Schedule);
+        } else {
+            this.state = { frequency: 'daily', daytime: new Date() };
+        }
+    }
+
+    _createClass(ScheduleForm, [{
+        key: 'onUpdate',
+        value: function onUpdate() {
+            var _props = this.props;
+            var schedule = _props.schedule;
+            var onChange = _props.onChange;
+
+            schedule.Iso8601Schedule = ScheduleForm.makeIso8601FromState(this.state);
+            onChange(schedule);
+        }
+    }, {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate(prevProps, prevState) {
+            if (prevState !== this.state) {
+                this.onUpdate();
+            }
+        }
+    }, {
+        key: 'T',
+        value: function T(id) {
+            return _pydio2['default'].getMessages()['ajxp_admin.scheduler.' + id] || id;
+        }
+    }, {
+        key: 'changeFrequency',
+        value: function changeFrequency(f) {
+            var _state = this.state;
+            var monthday = _state.monthday;
+            var weekday = _state.weekday;
+            var daytime = _state.daytime;
+            var everyminutes = _state.everyminutes;
+
+            if (monthday === undefined) {
+                monthday = 1;
+            }
+            if (weekday === undefined) {
+                weekday = 1;
+            }
+            if (daytime === undefined) {
+                daytime = moment();
+                daytime.year(2012);
+                daytime.hours(9);
+                daytime.minutes(0);
+                daytime = daytime.toDate();
+            }
+            if (everyminutes === undefined) {
+                everyminutes = 15;
+            }
+            this.setState({ frequency: f, monthday: monthday, weekday: weekday, daytime: daytime, everyminutes: everyminutes });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this = this;
+
+            var edit = this.props.edit;
+
+            if (!edit) {
+                return _react2['default'].createElement(
+                    'div',
+                    null,
+                    ScheduleForm.readableString(this.state, this.T, true)
+                );
+            }
+            var _state2 = this.state;
+            var frequency = _state2.frequency;
+            var monthday = _state2.monthday;
+            var weekday = _state2.weekday;
+            var daytime = _state2.daytime;
+            var everyminutes = _state2.everyminutes;
+
+            var monthdays = [];
+            var weekdays = moment.weekdays();
+            for (var i = 1; i < 30; i++) {
+                monthdays.push(i);
+            }
+            return _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { color: '#212121' } },
+                        ScheduleForm.readableString(this.state, this.T, false)
+                    ),
+                    frequency !== 'manual' && _react2['default'].createElement(
+                        'div',
+                        { style: { fontSize: 11, paddingTop: 5 } },
+                        'ISO8601: ',
+                        ScheduleForm.makeIso8601FromState(this.state)
+                    )
+                ),
+                _react2['default'].createElement(
+                    _materialUi.SelectField,
+                    {
+                        floatingLabelText: this.T('schedule.type'),
+                        value: frequency,
+                        onChange: function (e, i, val) {
+                            _this.changeFrequency(val);
+                        },
+                        fullWidth: true
+                    },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual', primaryText: this.T('schedule.type.manual') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'monthly', primaryText: this.T('schedule.type.monthly') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'weekly', primaryText: this.T('schedule.type.weekly') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'daily', primaryText: this.T('schedule.type.daily') }),
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'timely', primaryText: this.T('schedule.type.timely') })
+                ),
+                frequency === 'monthly' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(
+                        _materialUi.SelectField,
+                        {
+                            floatingLabelText: this.T('schedule.detail.monthday'),
+                            value: monthday,
+                            onChange: function (e, i, val) {
+                                _this.setState({ monthday: val });
+                            },
+                            fullWidth: true
+                        },
+                        monthdays.map(function (d) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: d, primaryText: d });
+                        })
+                    )
+                ),
+                frequency === 'weekly' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(
+                        _materialUi.SelectField,
+                        {
+                            floatingLabelText: this.T('schedule.detail.weekday'),
+                            value: weekday,
+                            onChange: function (e, i, val) {
+                                _this.setState({ weekday: val });
+                            },
+                            fullWidth: true
+                        },
+                        weekdays.map(function (d, i) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: i, primaryText: d });
+                        })
+                    )
+                ),
+                (frequency === 'daily' || frequency === 'monthly' || frequency === 'weekly') && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TimePicker, {
+                        format: 'ampm',
+                        minutesStep: 5,
+                        floatingLabelText: this.T('schedule.detail.daytime'),
+                        value: daytime,
+                        onChange: function (e, v) {
+                            _this.setState({ daytime: v });
+                        },
+                        fullWidth: true
+                    })
+                ),
+                frequency === 'timely' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.TextField, {
+                        floatingLabelText: this.T('schedule.detail.minutes'),
+                        value: everyminutes,
+                        type: "number",
+                        onChange: function (e, val) {
+                            _this.setState({ everyminutes: parseInt(val) });
+                        },
+                        fullWidth: true
+                    })
+                )
+            );
+        }
+    }], [{
+        key: 'parseIso8601',
+        value: function parseIso8601(value) {
+            if (value === '' || value.indexOf('/') === -1) {
+                return { frequency: 'manual' };
+            }
+
+            var _value$split = value.split('/');
+
+            var _value$split2 = _slicedToArray(_value$split, 3);
+
+            var R = _value$split2[0];
+            var d = _value$split2[1];
+            var i = _value$split2[2];
+
+            var startDate = new Date(d);
+            if (i === 'P1M') {
+                return { frequency: 'monthly', monthday: startDate.getDate(), daytime: startDate };
+            } else if (i === 'P7D') {
+                var m = moment(startDate);
+                return { frequency: 'weekly', weekday: m.day(), daytime: startDate };
+            } else if (i === 'PT24H' || i === 'P1D') {
+                return { frequency: 'daily', daytime: startDate };
+            } else {
+                var _d = moment.duration(i);
+                if (_d.isValid()) {
+                    var minutes = _d.minutes() + _d.hours() * 60;
+                    return { frequency: 'timely', everyminutes: minutes };
+                } else {
+                    return { error: 'Cannot parse value ' + value };
+                }
+            }
+        }
+    }, {
+        key: 'makeIso8601FromState',
+        value: function makeIso8601FromState(state) {
+            var frequency = state.frequency;
+            var monthday = state.monthday;
+            var weekday = state.weekday;
+            var daytime = state.daytime;
+            var everyminutes = state.everyminutes;
+
+            var startDate = new Date('2012-01-01T00:00:00.828696-07:00');
+            var duration = moment.duration(0);
+            switch (frequency) {
+                case "manual":
+                    return "";
+                case "monthly":
+                    if (daytime) {
+                        startDate.setTime(daytime.getTime());
+                    }
+                    startDate.setDate(monthday || 1);
+                    duration = moment.duration(1, 'months');
+                    break;
+                case "weekly":
+                    if (daytime) {
+                        startDate.setTime(daytime.getTime());
+                    }
+                    var m = moment(startDate);
+                    m.day(weekday === undefined ? 1 : weekday);
+                    startDate = m.toDate();
+                    duration = moment.duration(7, 'days');
+                    break;
+                case "daily":
+                    if (daytime) {
+                        startDate.setTime(daytime.getTime());
+                    }
+                    duration = moment.duration(24, 'hours');
+                    break;
+                case "timely":
+                    duration = moment.duration(everyminutes, 'minutes');
+                    break;
+                default:
+                    break;
+            }
+            return 'R/' + moment(startDate).toISOString() + '/' + duration.toISOString();
+        }
+    }, {
+        key: 'readableString',
+        value: function readableString(state, T) {
+            var short = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+            var frequency = state.frequency;
+            var monthday = state.monthday;
+            var weekday = state.weekday;
+            var daytime = state.daytime;
+            var everyminutes = state.everyminutes;
+
+            var dTRead = '0:00';
+            if (daytime) {
+                dTRead = moment(daytime).format('h:mm');
+            }
+            switch (frequency) {
+                case "manual":
+                    return T("trigger.manual");
+                case "monthly":
+                    if (short) {
+                        return T("schedule.monthly.short").replace('%1', monthday);
+                    } else {
+                        return T("schedule.monthly").replace('%1', monthday).replace('%2', dTRead);
+                    }
+                case "weekly":
+                    if (short) {
+                        return T("schedule.weekly.short").replace('%1', moment.weekdays()[weekday]);
+                    } else {
+                        return T("schedule.weekly").replace('%1', moment.weekdays()[weekday]).replace('%2', dTRead);
+                    }
+                case "daily":
+                    if (short) {
+                        return T("schedule.daily.short").replace('%1', dTRead);
+                    } else {
+                        return T("schedule.daily").replace('%1', dTRead);
+                    }
+                case "timely":
+                    var duration = moment.duration(everyminutes, 'minutes');
+                    return T("schedule.timely").replace('%1', (duration.hours() ? duration.hours() + 'h' : '') + (duration.minutes() ? duration.minutes() + 'mn' : ''));
+                default:
+                    return "Error";
+            }
+        }
+    }]);
+
+    return ScheduleForm;
+})(_react2['default'].Component);
+
+exports['default'] = ScheduleForm;
+module.exports = exports['default'];
+
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],484:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46266,9 +46708,11 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -46286,9 +46730,9 @@ var _styles = require('./styles');
 
 var _materialUi = require('material-ui');
 
-var _JobSchedule = require('../JobSchedule');
+var _ScheduleForm = require('./ScheduleForm');
 
-var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
+var _ScheduleForm2 = _interopRequireDefault(_ScheduleForm);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
@@ -46326,65 +46770,96 @@ var eventMessages = {
     }
 };
 
-var Schedule = (function (_React$Component) {
-    _inherits(Schedule, _React$Component);
+var Events = (function (_React$Component) {
+    _inherits(Events, _React$Component);
 
-    function Schedule() {
-        _classCallCheck(this, Schedule);
-
-        _get(Object.getPrototypeOf(Schedule.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(Schedule, [{
-        key: 'render',
-        value: function render() {
-            var _props = this.props;
-            var schedule = _props.schedule;
-            var onDismiss = _props.onDismiss;
-
-            var state = _JobSchedule2['default'].parseIso8601(schedule.Iso8601Schedule);
-            var scheduleString = _JobSchedule2['default'].readableString(state, Schedule.T);
-
-            return _react2['default'].createElement(
-                'div',
-                null,
-                scheduleString
-            );
-        }
-    }], [{
-        key: 'T',
-        value: function T(id) {
-            return _pydio2['default'].getMessages()['ajxp_admin.scheduler.' + id] || id;
-        }
-    }]);
-
-    return Schedule;
-})(_react2['default'].Component);
-
-var Events = (function (_React$Component2) {
-    _inherits(Events, _React$Component2);
-
-    function Events() {
+    function Events(props) {
         _classCallCheck(this, Events);
 
-        _get(Object.getPrototypeOf(Events.prototype), 'constructor', this).apply(this, arguments);
+        _get(Object.getPrototypeOf(Events.prototype), 'constructor', this).call(this, props);
+        this.state = { objEvents: this.toObject(props.events || []) };
     }
 
     _createClass(Events, [{
+        key: 'onChange',
+        value: function onChange() {
+            this.props.onChange(Object.keys(this.state.objEvents));
+        }
+    }, {
+        key: 'toObject',
+        value: function toObject() {
+            var ev = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+            var o = {};
+            ev.forEach(function (e) {
+                o[e] = e;
+            });
+            return o;
+        }
+    }, {
+        key: 'remove',
+        value: function remove(e) {
+            var objEvents = this.state.objEvents;
+
+            delete objEvents[e];
+            this.setState({ objEvents: objEvents }, this.onChange.bind(this));
+        }
+    }, {
+        key: 'add',
+        value: function add(e) {
+            var objEvents = this.state.objEvents;
+
+            objEvents[e] = e;
+            this.setState({ objEvents: objEvents }, this.onChange.bind(this));
+        }
+    }, {
+        key: 'flatStruct',
+        value: function flatStruct(s) {
+            var _this = this;
+
+            var pref = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+
+            var data = [];
+            Object.keys(s).forEach(function (k) {
+                var v = s[k];
+                if (typeof v === 'string') {
+                    data.push([].concat(_toConsumableArray(pref), [k]).join(':'));
+                } else {
+                    data.push.apply(data, _toConsumableArray(_this.flatStruct(v, [].concat(_toConsumableArray(pref), [k]))));
+                }
+            });
+            return data;
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _props2 = this.props;
-            var events = _props2.events;
-            var onDismiss = _props2.onDismiss;
+            var _this2 = this;
 
+            var objEvents = this.state.objEvents;
+
+            var flat = this.flatStruct(eventMessages);
             return _react2['default'].createElement(
                 'div',
                 { style: { padding: 10 } },
-                events.map(function (e) {
+                _react2['default'].createElement(
+                    _materialUi.SelectField,
+                    { value: -1, onChange: function (e, i, v) {
+                            _this2.add(v);
+                        } },
+                    _react2['default'].createElement(_materialUi.MenuItem, { value: -1, primaryText: "Add an event type..." }),
+                    flat.map(function (f) {
+                        return _react2['default'].createElement(_materialUi.MenuItem, { value: f, primaryText: Events.eventLabel(f, Events.T) });
+                    })
+                ),
+                Object.keys(objEvents).map(function (e) {
                     return _react2['default'].createElement(
                         'div',
                         null,
-                        Events.eventLabel(e, Events.T)
+                        Events.eventLabel(e, Events.T),
+                        ' - ',
+                        _react2['default'].createElement('span', { className: "mdi mdi-delete", onClick: function () {
+                                _this2.remove(e);
+                            } })
                     );
                 })
             );
@@ -46412,8 +46887,8 @@ var Events = (function (_React$Component2) {
     return Events;
 })(_react2['default'].Component);
 
-var Triggers = (function (_React$Component3) {
-    _inherits(Triggers, _React$Component3);
+var Triggers = (function (_React$Component2) {
+    _inherits(Triggers, _React$Component2);
 
     function Triggers() {
         _classCallCheck(this, Triggers);
@@ -46437,11 +46912,12 @@ var Triggers = (function (_React$Component3) {
     }, {
         key: 'render',
         value: function render() {
-            var _this = this;
+            var _this3 = this;
 
-            var _props3 = this.props;
-            var job = _props3.job;
-            var onDismiss = _props3.onDismiss;
+            var _props = this.props;
+            var job = _props.job;
+            var onDismiss = _props.onDismiss;
+            var onChange = _props.onChange;
 
             var type = 'manual';
             if (job.Schedule) {
@@ -46455,7 +46931,7 @@ var Triggers = (function (_React$Component3) {
                 _react2['default'].createElement(
                     _materialUi.SelectField,
                     { value: type, onChange: function (e, i, v) {
-                            return _this.onSwitch(v);
+                            return _this3.onSwitch(v);
                         } },
                     _react2['default'].createElement(_materialUi.MenuItem, { value: "manual", primaryText: "Manual Trigger" }),
                     _react2['default'].createElement(_materialUi.MenuItem, { value: "schedule", primaryText: "Scheduled" }),
@@ -46464,8 +46940,12 @@ var Triggers = (function (_React$Component3) {
                 _react2['default'].createElement(
                     'div',
                     null,
-                    type === 'schedule' && _react2['default'].createElement(Schedule, { schedule: job.Schedule }),
-                    type === 'event' && _react2['default'].createElement(Events, { events: job.EventNames || [] }),
+                    type === 'schedule' && _react2['default'].createElement(_ScheduleForm2['default'], { schedule: job.Schedule, onChange: function (newSched) {
+                            onChange('schedule', newSched);
+                        }, edit: true }),
+                    type === 'event' && _react2['default'].createElement(Events, { events: job.EventNames || [], onChange: function (newEv) {
+                            onChange('event', newEv);
+                        } }),
                     type === 'manual' && _react2['default'].createElement(
                         'div',
                         null,
@@ -46480,10 +46960,9 @@ var Triggers = (function (_React$Component3) {
 })(_react2['default'].Component);
 
 exports.Triggers = Triggers;
-exports.Schedule = Schedule;
 exports.Events = Events;
 
-},{"../JobSchedule":474,"./styles":484,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],484:[function(require,module,exports){
+},{"./ScheduleForm":483,"./styles":485,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],485:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46584,7 +47063,7 @@ exports.styles = styles;
 exports.position = position;
 exports.RightPanel = RightPanel;
 
-},{"material-ui":"material-ui","react":"react"}],485:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],486:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46749,7 +47228,7 @@ var Action = (function (_shapes$devs$Model) {
 exports["default"] = Action;
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"./Configs":486,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],486:[function(require,module,exports){
+},{"../actions/editor":476,"./Configs":487,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],487:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46992,7 +47471,7 @@ exports.Stale = Stale;
 exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
 
-},{}],487:[function(require,module,exports){
+},{}],488:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47072,7 +47551,7 @@ var Filter = (function (_shapes$devs$Model) {
 exports['default'] = Filter;
 module.exports = exports['default'];
 
-},{"./Configs":486,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],488:[function(require,module,exports){
+},{"./Configs":487,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],489:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47202,7 +47681,7 @@ var JobInput = (function (_shapes$devs$Model) {
 exports['default'] = JobInput;
 module.exports = exports['default'];
 
-},{"./Configs":486,"jointjs":467}],489:[function(require,module,exports){
+},{"./Configs":487,"jointjs":467}],490:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47268,7 +47747,7 @@ var Link = (function (_shapes$devs$Link) {
 exports['default'] = Link;
 module.exports = exports['default'];
 
-},{"./Configs":486,"jointjs":467}],490:[function(require,module,exports){
+},{"./Configs":487,"jointjs":467}],491:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47345,7 +47824,7 @@ var Selector = (function (_shapes$devs$Model) {
 exports['default'] = Selector;
 module.exports = exports['default'];
 
-},{"./Configs":486,"jointjs":467}],491:[function(require,module,exports){
+},{"./Configs":487,"jointjs":467}],492:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47396,11 +47875,12 @@ var Templates = (function (_shapes$standard$Path) {
             }],
             size: _extends({}, bbox),
             attrs: {
-                rect: _extends({ refX: 0, refY: 0 }, bbox, { fill: '#fafafa', display: 'none' }),
-                line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none' }
+                rect: _extends({ refX: 0, refY: 0 }, bbox, { fill: '#fafafa', display: 'none', cursor: 'default', event: 'element:nomove' }),
+                line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' }
             }
         });
 
+        this.isTemplatesContainer = true;
         this.isTemplate = true;
     }
 
@@ -47562,7 +48042,7 @@ var Templates = (function (_shapes$standard$Path) {
 exports["default"] = Templates;
 module.exports = exports["default"];
 
-},{"./Configs":486,"./Filter":487,"./Selector":490,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],492:[function(require,module,exports){
+},{"./Configs":487,"./Filter":488,"./Selector":491,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],493:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47585,7 +48065,7 @@ function editor(state, action) {
 exports["default"] = editor;
 module.exports = exports["default"];
 
-},{"../actions/editor":476}],493:[function(require,module,exports){
+},{"../actions/editor":476}],494:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47652,7 +48132,7 @@ function graphReducer(graph, action) {
 exports["default"] = graphReducer;
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"../graph/Action":485,"../graph/Templates":491,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],494:[function(require,module,exports){
+},{"../actions/editor":476,"../graph/Action":486,"../graph/Templates":492,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],495:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47689,7 +48169,7 @@ var allReducers = (0, _redux.combineReducers)({
 exports['default'] = allReducers;
 module.exports = exports['default'];
 
-},{"./editor":492,"./graph":493,"./job":495,"./paper":496,"redux":"redux"}],495:[function(require,module,exports){
+},{"./editor":493,"./graph":494,"./job":496,"./paper":497,"redux":"redux"}],496:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47955,7 +48435,7 @@ exports["default"] = function (job, action) {
 
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"../graph/Action":485,"../graph/JobInput":488,"pydio/http/rest-api":"pydio/http/rest-api"}],496:[function(require,module,exports){
+},{"../actions/editor":476,"../graph/Action":486,"../graph/JobInput":489,"pydio/http/rest-api":"pydio/http/rest-api"}],497:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -48060,7 +48540,7 @@ function paperReducer(paper, action) {
 
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"../graph/Link":489,"jointjs":467}],497:[function(require,module,exports){
+},{"../actions/editor":476,"../graph/Link":490,"jointjs":467}],498:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -48093,4 +48573,4 @@ window.AdminScheduler = {
   Dashboard: _boardDashboard2['default']
 };
 
-},{"./board/Dashboard":471}]},{},[497]);
+},{"./board/Dashboard":471}]},{},[498]);

@@ -114,6 +114,13 @@ class JobGraph extends React.Component {
         this.loadDescriptions();
     }
 
+    shouldComponentUpdate(nextProps, nextState){
+        if(nextProps.random !== this.props.random){
+            return false;
+        }
+        return true;
+    }
+
     loadDescriptions() {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.schedulerActionsDiscovery().then(data => {
@@ -166,20 +173,19 @@ class JobGraph extends React.Component {
         // Find JobInput and apply graph on this one ?
         const inputs = graph.getCells().filter(c => !c.isTemplate);
         const bbox = layout.DirectedGraph.layout(inputs, {
-            nodeSep: 30,
-            edgeSep: 30,
-            rankSep: 80,
+            nodeSep: 48,
+            edgeSep: 48,
+            rankSep: 128,
             rankDir: "LR",
-            marginX: editMode ? 200 : 80,
-            marginY: 40,
-            clusterPadding: 20,
+            marginX: editMode ? 160 : 32,
+            marginY: 32,
             dagre,
             graphlib
         });
         bbox.width += 80;
         bbox.height+= 80;
         if (editMode) {
-            bbox.height = 400;
+            bbox.height = Math.max(400, bbox.height);
             bbox.width += 200;
         }
         if(paper){
@@ -295,6 +301,9 @@ class JobGraph extends React.Component {
                     }
                     event.stopPropagation();
                 }
+            },
+            'element:nomove':(elementView, event) => {
+                event.stopPropagation();
             },
             'element:pointerup': function (elementView, evt, x, y) {
                 const elementAbove = elementView.model;

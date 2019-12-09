@@ -165,6 +165,14 @@ var JobGraph = (function (_React$Component) {
             this.loadDescriptions();
         }
     }, {
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate(nextProps, nextState) {
+            if (nextProps.random !== this.props.random) {
+                return false;
+            }
+            return true;
+        }
+    }, {
         key: 'loadDescriptions',
         value: function loadDescriptions() {
             var _this3 = this;
@@ -232,20 +240,19 @@ var JobGraph = (function (_React$Component) {
                 return !c.isTemplate;
             });
             var bbox = _jointjs.layout.DirectedGraph.layout(inputs, {
-                nodeSep: 30,
-                edgeSep: 30,
-                rankSep: 80,
+                nodeSep: 48,
+                edgeSep: 48,
+                rankSep: 128,
                 rankDir: "LR",
-                marginX: editMode ? 200 : 80,
-                marginY: 40,
-                clusterPadding: 20,
+                marginX: editMode ? 160 : 32,
+                marginY: 32,
                 dagre: _dagre2['default'],
                 graphlib: _graphlib2['default']
             });
             bbox.width += 80;
             bbox.height += 80;
             if (editMode) {
-                bbox.height = 400;
+                bbox.height = Math.max(400, bbox.height);
                 bbox.width += 200;
             }
             if (paper) {
@@ -395,6 +402,9 @@ var JobGraph = (function (_React$Component) {
                         }
                         event.stopPropagation();
                     }
+                },
+                'element:nomove': function elementNomove(elementView, event) {
+                    event.stopPropagation();
                 },
                 'element:pointerup': function elementPointerup(elementView, evt, x, y) {
                     var elementAbove = elementView.model;

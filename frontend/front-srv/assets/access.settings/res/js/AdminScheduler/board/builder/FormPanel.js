@@ -103,8 +103,61 @@ class FormPanel extends React.Component {
         })
     }
 
+    /**
+     * Convert standard json to map[string]string for Parameters field
+     * @param params
+     */
+    toStringString(params = {}){
+        const map = {};
+        Object.keys(params).forEach(k => {
+            const value = params[k];
+            let v;
+            switch (typeof value) {
+                case 'string':
+                   v = value;
+                   break;
+                case 'number':
+                    v = '' + value;
+                    break;
+                case 'boolean':
+                    v = value ? 'true' : 'false';
+                    break;
+                default:
+                    v = '' + value;
+            }
+            map[k] = v;
+        });
+        return map;
+    }
+
+    /**
+     * Convert map[string]string to form usable parameters
+     * @param params
+     * @param map
+     */
+    fromStringString(params, map = {}) {
+        if(!map){
+            map = {};
+        }
+        const values = {};
+        params.forEach(p => {
+            if(map[p.name]){
+                if(p.type === 'boolean') {
+                    values[p.name] = map[p.name] === 'true';
+                }else if(p.type === 'integer') {
+                    values[p.name] = parseInt(map[p.name])
+                } else {
+                    values[p.name] = map[p.name];
+                }
+            }
+        });
+        return values;
+    }
+
     onFormChange(values){
-        console.log(values);
+        const {action} = this.state;
+        action.Parameters = this.toStringString(values);
+        console.log(action.Parameters);
     }
 
     onIdChange(id){
@@ -137,7 +190,6 @@ class FormPanel extends React.Component {
 
         const {onDismiss, onChange, create} = this.props;
         const {actionInfo, action, formParams} = this.state;
-        const values = action.Parameters || {};
 
         return (
             <RightPanel title={actionInfo.Label} icon={actionInfo.Icon} onDismiss={onDismiss}>
@@ -149,7 +201,7 @@ class FormPanel extends React.Component {
                         ref="formPanel"
                         depth={-1}
                         parameters={formParams}
-                        values={values}
+                        values={this.fromStringString(formParams, action.Parameters)}
                         onChange={this.onFormChange.bind(this)}
                     />
                 </div>
@@ -163,7 +215,7 @@ class FormPanel extends React.Component {
                             onChange(action);
                             onDismiss();
                         }}/>
-                    </div>
+                </div>
             </RightPanel>
         )
     }

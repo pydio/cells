@@ -2,7 +2,7 @@ import React from 'react'
 import Pydio from 'pydio'
 import {RightPanel} from './styles'
 import {Paper, SelectField, MenuItem} from 'material-ui'
-import JobSchedule from '../JobSchedule'
+import ScheduleForm from './ScheduleForm'
 import {JobsSchedule} from 'pydio/http/rest-api'
 
 const eventMessages = {
@@ -39,28 +39,12 @@ const eventMessages = {
     }
 };
 
-class Schedule extends React.Component{
-
-    static T(id){
-        return Pydio.getMessages()['ajxp_admin.scheduler.' + id] || id;
-    }
-
-    render() {
-        const {schedule, onDismiss} = this.props;
-
-        const state = JobSchedule.parseIso8601(schedule.Iso8601Schedule);
-        const scheduleString = JobSchedule.readableString(state, Schedule.T);
-
-        return (
-            <div>{scheduleString}</div>
-        )
-
-    }
-
-}
-
 class Events extends React.Component{
 
+    constructor(props){
+        super(props);
+        this.state = {objEvents: this.toObject(props.events || [])};
+    }
 
     static eventLabel(e, T) {
 
@@ -79,12 +63,53 @@ class Events extends React.Component{
         return Pydio.getMessages()['ajxp_admin.scheduler.' + id] || id;
     }
 
-    render() {
-        const {events, onDismiss} = this.props;
+    onChange(){
+        this.props.onChange(Object.keys(this.state.objEvents));
+    }
 
+    toObject(ev = []){
+        const o = {};
+        ev.forEach(e => {o[e] = e});
+        return o;
+    }
+
+    remove(e){
+        const {objEvents} = this.state;
+        delete(objEvents[e]);
+        this.setState({objEvents}, this.onChange.bind(this));
+    }
+
+    add(e){
+        const {objEvents} = this.state;
+        objEvents[e] = e;
+        this.setState({objEvents}, this.onChange.bind(this));
+    }
+
+    flatStruct(s, pref = []) {
+        const data = [];
+        Object.keys(s).forEach((k) => {
+            const v = s[k];
+            if (typeof v === 'string') {
+                data.push([...pref, k].join(':'))
+            } else {
+                data.push(...this.flatStruct(v, [...pref, k]))
+            }
+        });
+        return data;
+    }
+
+    render() {
+        const {objEvents} = this.state;
+        const flat = this.flatStruct(eventMessages);
         return (
             <div style={{padding: 10}}>
-                {events.map(e => <div>{Events.eventLabel(e, Events.T)}</div>)}
+                <SelectField value={-1} onChange={(e,i,v) => {this.add(v)}}>
+                    <MenuItem value={-1} primaryText={"Add an event type..."}/>
+                    {flat.map(f => <MenuItem value={f} primaryText={Events.eventLabel(f, Events.T)}/>)}
+                </SelectField>
+                {Object.keys(objEvents).map(e =>
+                    <div>{Events.eventLabel(e, Events.T)} - <span className={"mdi mdi-delete"} onClick={() => {this.remove(e)}}/></div>
+                )}
             </div>
         )
 
@@ -106,7 +131,7 @@ class Triggers extends React.Component {
     }
 
     render() {
-        const {job, onDismiss} = this.props;
+        const {job, onDismiss, onChange} = this.props;
         let type = 'manual';
         if(job.Schedule){
             type = 'schedule';
@@ -121,8 +146,8 @@ class Triggers extends React.Component {
                     <MenuItem value={"event"} primaryText={"Events"}/>
                 </SelectField>
                 <div>
-                    {type === 'schedule' && <Schedule schedule={job.Schedule}/>}
-                    {type === 'event' && <Events events={job.EventNames || []}/>}
+                    {type === 'schedule' && <ScheduleForm schedule={job.Schedule} onChange={(newSched) => {onChange('schedule', newSched)}} edit={true}/>}
+                    {type === 'event' && <Events events={job.EventNames || []}  onChange={(newEv) => {onChange('event', newEv)}} />}
                     {type === 'manual' && <div>No parameters</div>}
                 </div>
             </RightPanel>
@@ -131,4 +156,4 @@ class Triggers extends React.Component {
 
 }
 
-export {Triggers, Schedule, Events}
+export {Triggers, Events}

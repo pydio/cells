@@ -48,11 +48,12 @@ var Templates = (function (_shapes$standard$Path) {
             }],
             size: _extends({}, bbox),
             attrs: {
-                rect: _extends({ refX: 0, refY: 0 }, bbox, { fill: '#fafafa', display: 'none' }),
-                line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none' }
+                rect: _extends({ refX: 0, refY: 0 }, bbox, { fill: '#fafafa', display: 'none', cursor: 'default', event: 'element:nomove' }),
+                line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' }
             }
         });
 
+        this.isTemplatesContainer = true;
         this.isTemplate = true;
     }
 
