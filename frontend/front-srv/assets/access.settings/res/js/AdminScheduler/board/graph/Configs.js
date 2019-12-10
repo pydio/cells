@@ -200,6 +200,24 @@ function positionFilters(model, originalBox, filter, selector, anchor = 'left') 
 }
 
 
+function linkAttr(hasData = true) {
+    let conn;
+    if (hasData){
+        conn = {
+            stroke: Blue,
+            targetMarker: {
+                'type': 'path',
+                'd': 'M 8 -4 0 0 8 4 z'
+            }
+        };
+    } else {
+        conn = {
+            stroke: Stale,
+        }
+    }
+    return {'.connection' : conn};
+}
+
 
 const BlueRect = {fill: Blue ,rx: 5,ry: 5, 'stroke-width':1,  'stroke': Blue, filter:dropShadow};
 const WhiteRect = {fill: White ,rx: 5,ry: 5, 'stroke-width':1,  'stroke': LightGrey, filter:dropShadow};
@@ -212,4 +230,4 @@ const DarkLabel = {...LightLabel, fill: DarkGrey};
 const DarkIcon = {...LightIcon, fill: Blue};
 
 export {PortsConfig, ClusterConfig, TextIconMarkup, TextIconFilterMarkup, RoundIconMarkup, SimpleIconMarkup, BoxSize, FilterBoxSize, WhiteCircle, BlueRect, LightLabel, LightIcon, DarkIcon,
-    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, IconToUnicode, positionFilters}
+    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, IconToUnicode, positionFilters, linkAttr}

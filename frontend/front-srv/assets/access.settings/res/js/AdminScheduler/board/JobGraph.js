@@ -34,6 +34,7 @@ import {
 import { devToolsEnhancer } from 'redux-devtools-extension';
 import Filters from "./builder/Filters";
 import Templates from "./graph/Templates";
+import {linkAttr} from "./graph/Configs";
 
 
 const style = `
@@ -364,8 +365,8 @@ class JobGraph extends React.Component {
                 }
             },
             'link:connect': (linkView, event) => {
-                //console.log('connect => link', linkView);
                 linkView.addTools(new dia.ToolsView({tools:[removeLinkTool()]}));
+                linkView.model.attr(linkAttr());
                 onAttachModel(linkView);
             },
             'link:disconnect':(linkView, event, elementView) => {

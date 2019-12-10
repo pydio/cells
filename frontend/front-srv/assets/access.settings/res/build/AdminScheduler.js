@@ -44219,6 +44219,8 @@ var _graphTemplates = require("./graph/Templates");
 
 var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
+var _graphConfigs = require("./graph/Configs");
+
 var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n';
 
 var mapStateToProps = function mapStateToProps(state) {
@@ -44598,8 +44600,8 @@ var JobGraph = (function (_React$Component) {
                     }
                 },
                 'link:connect': function linkConnect(linkView, event) {
-                    //console.log('connect => link', linkView);
                     linkView.addTools(new _jointjs.dia.ToolsView({ tools: [removeLinkTool()] }));
+                    linkView.model.attr((0, _graphConfigs.linkAttr)());
                     onAttachModel(linkView);
                 },
                 'link:disconnect': function linkDisconnect(linkView, event, elementView) {
@@ -44748,7 +44750,7 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./actions/editor":476,"./builder/Filters":477,"./builder/FormPanel":478,"./builder/Triggers":484,"./graph/Action":486,"./graph/Filter":488,"./graph/JobInput":489,"./graph/Link":490,"./graph/Selector":491,"./graph/Templates":492,"./reducers":495,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom","redux":"redux","redux-devtools-extension":470}],474:[function(require,module,exports){
+},{"./actions/editor":476,"./builder/Filters":477,"./builder/FormPanel":478,"./builder/Triggers":484,"./graph/Action":486,"./graph/Configs":487,"./graph/Filter":488,"./graph/JobInput":489,"./graph/Link":490,"./graph/Selector":491,"./graph/Templates":492,"./reducers":495,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom","redux":"redux","redux-devtools-extension":470}],474:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -47437,6 +47439,26 @@ function positionFilters(model, originalBox, filter, selector) {
     });
 }
 
+function linkAttr() {
+    var hasData = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+    var conn = undefined;
+    if (hasData) {
+        conn = {
+            stroke: Blue,
+            targetMarker: {
+                'type': 'path',
+                'd': 'M 8 -4 0 0 8 4 z'
+            }
+        };
+    } else {
+        conn = {
+            stroke: Stale
+        };
+    }
+    return { '.connection': conn };
+}
+
 var BlueRect = { fill: Blue, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': Blue, filter: dropShadow };
 var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
 
@@ -47470,6 +47492,7 @@ exports.DarkGrey = DarkGrey;
 exports.Stale = Stale;
 exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
+exports.linkAttr = linkAttr;
 
 },{}],488:[function(require,module,exports){
 'use strict';
@@ -47682,17 +47705,17 @@ exports['default'] = JobInput;
 module.exports = exports['default'];
 
 },{"./Configs":487,"jointjs":467}],490:[function(require,module,exports){
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _jointjs = require('jointjs');
 
@@ -47706,22 +47729,7 @@ var Link = (function (_shapes$devs$Link) {
 
         _classCallCheck(this, Link);
 
-        var attrs = undefined;
-        if (hasData) {
-            attrs = {
-                stroke: _Configs.Blue,
-                targetMarker: {
-                    'type': 'path',
-                    'd': 'M 8 -4 0 0 8 4 z'
-                }
-            };
-        } else {
-            attrs = {
-                stroke: _Configs.Stale
-            };
-        }
-
-        _get(Object.getPrototypeOf(Link.prototype), 'constructor', this).call(this, {
+        _get(Object.getPrototypeOf(Link.prototype), "constructor", this).call(this, {
             source: {
                 id: sourceId,
                 port: sourcePort
@@ -47730,22 +47738,20 @@ var Link = (function (_shapes$devs$Link) {
                 id: targetId,
                 port: targetPort
             },
-            attrs: {
-                '.connection': attrs
-            }
-            /*
-            connector:{
-                name:'smooth'
-            }
-            */
+            attrs: (0, _Configs.linkAttr)(hasData)
         });
     }
 
     return Link;
 })(_jointjs.shapes.devs.Link);
 
-exports['default'] = Link;
-module.exports = exports['default'];
+/*
+connector:{
+    name:'smooth'
+}
+*/
+exports["default"] = Link;
+module.exports = exports["default"];
 
 },{"./Configs":487,"jointjs":467}],491:[function(require,module,exports){
 'use strict';

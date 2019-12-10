@@ -206,6 +206,26 @@ function positionFilters(model, originalBox, filter, selector) {
     });
 }
 
+function linkAttr() {
+    var hasData = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+    var conn = undefined;
+    if (hasData) {
+        conn = {
+            stroke: Blue,
+            targetMarker: {
+                'type': 'path',
+                'd': 'M 8 -4 0 0 8 4 z'
+            }
+        };
+    } else {
+        conn = {
+            stroke: Stale
+        };
+    }
+    return { '.connection': conn };
+}
+
 var BlueRect = { fill: Blue, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': Blue, filter: dropShadow };
 var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
 
@@ -239,3 +259,4 @@ exports.DarkGrey = DarkGrey;
 exports.Stale = Stale;
 exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
+exports.linkAttr = linkAttr;
