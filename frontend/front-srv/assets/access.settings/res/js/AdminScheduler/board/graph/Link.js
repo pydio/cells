@@ -21,6 +21,7 @@ class Link extends shapes.devs.Link{
             }
             */
         });
+        this.attr('.link-tool/display', 'none');
     }
 
 

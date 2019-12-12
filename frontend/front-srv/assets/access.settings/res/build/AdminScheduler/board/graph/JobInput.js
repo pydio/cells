@@ -100,12 +100,12 @@ var JobInput = (function (_shapes$devs$Model) {
     }, {
         key: 'selectFilter',
         value: function selectFilter() {
-            this.attr('filter-rect/stroke', _Configs.Orange);
+            this.attr('filter-rect/stroke', _Configs.Blue);
         }
     }, {
         key: 'selectSelector',
         value: function selectSelector() {
-            this.attr('selector-rect/stroke', _Configs.Orange);
+            this.attr('selector-rect/stroke', _Configs.Blue);
         }
     }, {
         key: 'setFilter',

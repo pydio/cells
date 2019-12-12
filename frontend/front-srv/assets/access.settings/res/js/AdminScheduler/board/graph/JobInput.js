@@ -7,7 +7,7 @@ import {
     DarkIcon,
     BoxSize,
     IconToUnicode,
-    positionFilters, TextIconFilterMarkup, LightIcon, Orange, LightGrey
+    positionFilters, TextIconFilterMarkup, LightIcon, Orange, LightGrey, Blue
 } from "./Configs";
 
 class JobInput extends shapes.devs.Model {
@@ -90,11 +90,11 @@ class JobInput extends shapes.devs.Model {
     }
 
     selectFilter(){
-        this.attr('filter-rect/stroke', Orange);
+        this.attr('filter-rect/stroke', Blue);
     }
 
     selectSelector(){
-        this.attr('selector-rect/stroke', Orange);
+        this.attr('selector-rect/stroke', Blue);
     }
 
     setFilter(b){

@@ -44223,6 +44223,8 @@ var _graphConfigs = require("./graph/Configs");
 
 var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n';
 
+var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n';
+
 var mapStateToProps = function mapStateToProps(state) {
     console.log(state);
     return _extends({}, state);
@@ -44479,6 +44481,9 @@ var JobGraph = (function (_React$Component) {
                     }
                 });
             };
+            var targetArrowHead = function targetArrowHead() {
+                return new _jointjs.linkTools.TargetArrowhead({ focusOpacity: 0.5 });
+            };
             var _state3 = this.state;
             var graph = _state3.graph;
             var job = _state3.job;
@@ -44602,6 +44607,7 @@ var JobGraph = (function (_React$Component) {
                 'link:connect': function linkConnect(linkView, event) {
                     linkView.addTools(new _jointjs.dia.ToolsView({ tools: [removeLinkTool()] }));
                     linkView.model.attr((0, _graphConfigs.linkAttr)());
+                    linkView.model.attr('.link-tool/display', 'none');
                     onAttachModel(linkView);
                 },
                 'link:disconnect': function linkDisconnect(linkView, event, elementView) {
@@ -44741,7 +44747,7 @@ var JobGraph = (function (_React$Component) {
                         selBlock
                     )
                 ),
-                _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: style } })
+                _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: style + (editMode ? '' : readonlyStyle) } })
             );
         }
     }]);
@@ -48173,6 +48179,7 @@ function linkAttr() {
     if (hasData) {
         conn = {
             stroke: Blue,
+            'stroke-width': 2,
             targetMarker: {
                 'type': 'path',
                 'd': 'M 8 -4 0 0 8 4 z'
@@ -48180,7 +48187,8 @@ function linkAttr() {
         };
     } else {
         conn = {
-            stroke: Stale
+            stroke: Stale,
+            'stroke-width': 2
         };
     }
     return { '.connection': conn };
@@ -48404,12 +48412,12 @@ var JobInput = (function (_shapes$devs$Model) {
     }, {
         key: 'selectFilter',
         value: function selectFilter() {
-            this.attr('filter-rect/stroke', _Configs.Orange);
+            this.attr('filter-rect/stroke', _Configs.Blue);
         }
     }, {
         key: 'selectSelector',
         value: function selectSelector() {
-            this.attr('selector-rect/stroke', _Configs.Orange);
+            this.attr('selector-rect/stroke', _Configs.Blue);
         }
     }, {
         key: 'setFilter',
@@ -48432,17 +48440,17 @@ exports['default'] = JobInput;
 module.exports = exports['default'];
 
 },{"./Configs":491,"jointjs":467}],494:[function(require,module,exports){
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _jointjs = require('jointjs');
 
@@ -48456,7 +48464,7 @@ var Link = (function (_shapes$devs$Link) {
 
         _classCallCheck(this, Link);
 
-        _get(Object.getPrototypeOf(Link.prototype), "constructor", this).call(this, {
+        _get(Object.getPrototypeOf(Link.prototype), 'constructor', this).call(this, {
             source: {
                 id: sourceId,
                 port: sourcePort
@@ -48467,18 +48475,19 @@ var Link = (function (_shapes$devs$Link) {
             },
             attrs: (0, _Configs.linkAttr)(hasData)
         });
+        /*
+        connector:{
+            name:'smooth'
+        }
+        */
+        this.attr('.link-tool/display', 'none');
     }
 
     return Link;
 })(_jointjs.shapes.devs.Link);
 
-/*
-connector:{
-    name:'smooth'
-}
-*/
-exports["default"] = Link;
-module.exports = exports["default"];
+exports['default'] = Link;
+module.exports = exports['default'];
 
 },{"./Configs":491,"jointjs":467}],495:[function(require,module,exports){
 'use strict';
@@ -49233,6 +49242,7 @@ function paperReducer(paper, action) {
                 }).forEach(function (link) {
                     var linkView = link.findView(paper);
                     linkView.addTools(new _jointjs.dia.ToolsView({ tools: [action.events['link:remove']()] }));
+                    linkView.hideTools();
                 });
             }
             break;

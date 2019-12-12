@@ -62,6 +62,7 @@ function paperReducer(paper, action) {
                 }).forEach(function (link) {
                     var linkView = link.findView(paper);
                     linkView.addTools(new _jointjs.dia.ToolsView({ tools: [action.events['link:remove']()] }));
+                    linkView.hideTools();
                 });
             }
             break;

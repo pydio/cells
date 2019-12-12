@@ -42,6 +42,7 @@ export default function paperReducer(paper = null, action) {
                 action.graph.getCells().filter(c => c instanceof Link).forEach(link => {
                     const linkView = link.findView(paper);
                     linkView.addTools(new dia.ToolsView({tools:[action.events['link:remove']()]}));
+                    linkView.hideTools();
                 });
             }
             break;

@@ -90,6 +90,8 @@ var _graphConfigs = require("./graph/Configs");
 
 var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n';
 
+var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n';
+
 var mapStateToProps = function mapStateToProps(state) {
     console.log(state);
     return _extends({}, state);
@@ -346,6 +348,9 @@ var JobGraph = (function (_React$Component) {
                     }
                 });
             };
+            var targetArrowHead = function targetArrowHead() {
+                return new _jointjs.linkTools.TargetArrowhead({ focusOpacity: 0.5 });
+            };
             var _state3 = this.state;
             var graph = _state3.graph;
             var job = _state3.job;
@@ -469,6 +474,7 @@ var JobGraph = (function (_React$Component) {
                 'link:connect': function linkConnect(linkView, event) {
                     linkView.addTools(new _jointjs.dia.ToolsView({ tools: [removeLinkTool()] }));
                     linkView.model.attr((0, _graphConfigs.linkAttr)());
+                    linkView.model.attr('.link-tool/display', 'none');
                     onAttachModel(linkView);
                 },
                 'link:disconnect': function linkDisconnect(linkView, event, elementView) {
@@ -608,7 +614,7 @@ var JobGraph = (function (_React$Component) {
                         selBlock
                     )
                 ),
-                _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: style } })
+                _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: style + (editMode ? '' : readonlyStyle) } })
             );
         }
     }]);

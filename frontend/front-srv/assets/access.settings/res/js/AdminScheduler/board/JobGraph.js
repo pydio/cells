@@ -49,6 +49,12 @@ text[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] t
 }
 `;
 
+const readonlyStyle = `
+path.marker-arrowhead {
+    opacity: 0 !important;
+}
+`;
+
 const mapStateToProps = state => {
     console.log(state);
     return {...state}
@@ -255,6 +261,7 @@ class JobGraph extends React.Component {
                 onDetachModel(linkView, toolView);
             }
         });
+        const targetArrowHead = () => new linkTools.TargetArrowhead({focusOpacity:0.5});
         const {graph, job, onPaperBind, onAttachModel, onDetachModel, onDropFilter, editMode} = this.state;
         const _this = this;
 
@@ -367,6 +374,7 @@ class JobGraph extends React.Component {
             'link:connect': (linkView, event) => {
                 linkView.addTools(new dia.ToolsView({tools:[removeLinkTool()]}));
                 linkView.model.attr(linkAttr());
+                linkView.model.attr('.link-tool/display', 'none');
                 onAttachModel(linkView);
             },
             'link:disconnect':(linkView, event, elementView) => {
@@ -460,7 +468,7 @@ class JobGraph extends React.Component {
                         {selBlock}
                     </Paper>
                 </div>
-                <style type={"text/css"} dangerouslySetInnerHTML={{__html:style}}></style>
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:style + (editMode ? '' : readonlyStyle)}}></style>
             </Paper>
         );
     }
