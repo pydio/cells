@@ -32,10 +32,7 @@ function paperReducer(paper, action) {
                 width: 10,
                 height: 10,
                 linkPinning: false,
-                interactive: {
-                    addLinkFromMagnet: false,
-                    elementMove: false
-                },
+                interactive: false,
                 validateConnection: function validateConnection(cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
                     console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if (cellViewS === cellViewT) {
@@ -82,10 +79,14 @@ function paperReducer(paper, action) {
         case _actionsEditor.TOGGLE_EDITOR_MODE:
             var edit = action.edit;
 
-            paper.setInteractivity({
-                addLinkFromMagnet: edit,
-                elementMove: edit
-            });
+            if (edit) {
+                paper.setInteractivity({
+                    addLinkFromMagnet: edit,
+                    elementMove: edit
+                });
+            } else {
+                paper.setInteractivity(false);
+            }
             if (edit) {
                 paper.setGridSize(16);
                 paper.drawGrid();

@@ -2,6 +2,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import PydioApi from 'pydio/http/api'
+import DOMUtils from 'pydio/util/dom'
 import {JobsJob, ConfigServiceApi, RestConfiguration, JobsAction} from 'pydio/http/rest-api'
 import {linkTools, dia, layout, g} from 'jointjs'
 import JobInput from './graph/JobInput'
@@ -52,6 +53,9 @@ text[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] t
 const readonlyStyle = `
 path.marker-arrowhead {
     opacity: 0 !important;
+}
+.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){
+    cursor: default;
 }
 `;
 
@@ -119,6 +123,21 @@ class JobGraph extends React.Component {
 
     componentDidMount(){
         this.loadDescriptions();
+        this.boundingRef = ReactDOM.findDOMNode(this.refs.boundingBox);
+        this._resizer = ()=> {
+            const {editMode, paper} = this.state;
+            if(editMode && this.boundingRef){
+                const graphWidth = paper.model.getBBox().width + 80;
+                const paperHeight = paper.getArea().height;
+                const maxWidth = this.boundingRef.clientWidth;
+                paper.setDimensions(Math.max(graphWidth, maxWidth), paperHeight);
+            }
+        };
+        DOMUtils.observeWindowResize(this._resizer)
+    }
+
+    componentWillUnmount(){
+        DOMUtils.stopObservingWindowResize(this._resizer);
     }
 
     shouldComponentUpdate(nextProps, nextState){
@@ -192,8 +211,12 @@ class JobGraph extends React.Component {
         bbox.width += 80;
         bbox.height+= 80;
         if (editMode) {
-            bbox.height = Math.max(400, bbox.height);
+            bbox.height = Math.max(500, bbox.height);
             bbox.width += 200;
+            if(this.boundingRef){
+                const maxWidth = this.boundingRef.clientWidth;
+                bbox.width = Math.max(bbox.width, maxWidth);
+            }
         }
         if(paper){
             paper.setDimensions(bbox.width, bbox.height);
@@ -458,9 +481,12 @@ class JobGraph extends React.Component {
                     {editMode && <FlatButton disabled={!selectionModel || selectionModel instanceof JobInput} onTouchTap={()=> {this.deleteButton()}} label={"Remove"}/>}
                     {editMode && <FlatButton onTouchTap={()=> {this.setState({createNewAction: true})}} label={"+ Action"}/>}
                     {editMode && <FlatButton onTouchTap={()=> {this.reLayout(editMode)}} label={"Layout"}/>}
-                    <FlatButton onTouchTap={()=> onToggleEdit(!editMode, this.reLayout.bind(this))} label={editMode?'Close':'Edit'}/>
+                    <FlatButton onTouchTap={()=> {
+                        this.clearSelection();
+                        onToggleEdit(!editMode, this.reLayout.bind(this))
+                    }} label={editMode?'Close':'Edit'}/>
                 </div>
-                <div style={{position:'relative', display:'flex', minHeight:editMode?400:null}}>
+                <div style={{position:'relative', display:'flex', minHeight:editMode?500:null}} ref={"boundingBox"}>
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">
                         <div id="playground" ref="placeholder"></div>
                     </div>

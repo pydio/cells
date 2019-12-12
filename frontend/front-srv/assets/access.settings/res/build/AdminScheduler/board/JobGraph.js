@@ -28,6 +28,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _jointjs = require('jointjs');
@@ -90,7 +94,7 @@ var _graphConfigs = require("./graph/Configs");
 
 var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n';
 
-var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n';
+var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
 var mapStateToProps = function mapStateToProps(state) {
     console.log(state);
@@ -166,7 +170,28 @@ var JobGraph = (function (_React$Component) {
     _createClass(JobGraph, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
+            var _this3 = this;
+
             this.loadDescriptions();
+            this.boundingRef = _reactDom2['default'].findDOMNode(this.refs.boundingBox);
+            this._resizer = function () {
+                var _state = _this3.state;
+                var editMode = _state.editMode;
+                var paper = _state.paper;
+
+                if (editMode && _this3.boundingRef) {
+                    var graphWidth = paper.model.getBBox().width + 80;
+                    var paperHeight = paper.getArea().height;
+                    var maxWidth = _this3.boundingRef.clientWidth;
+                    paper.setDimensions(Math.max(graphWidth, maxWidth), paperHeight);
+                }
+            };
+            _pydioUtilDom2['default'].observeWindowResize(this._resizer);
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            _pydioUtilDom2['default'].stopObservingWindowResize(this._resizer);
         }
     }, {
         key: 'shouldComponentUpdate',
@@ -179,23 +204,23 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'loadDescriptions',
         value: function loadDescriptions() {
-            var _this3 = this;
+            var _this4 = this;
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
-                _this3.setState({ descriptions: data.Actions }, function () {
-                    _this3.graphFromJob();
-                    _this3.drawGraph();
+                _this4.setState({ descriptions: data.Actions }, function () {
+                    _this4.graphFromJob();
+                    _this4.drawGraph();
                 });
             })['catch'](function () {
-                _this3.graphFromJob();
-                _this3.drawGraph();
+                _this4.graphFromJob();
+                _this4.drawGraph();
             });
         }
     }, {
         key: 'chainActions',
         value: function chainActions(graph, actions, inputId) {
-            var _this4 = this;
+            var _this5 = this;
 
             var hasData = arguments.length <= 3 || arguments[3] === undefined ? true : arguments[3];
             var descriptions = this.state.descriptions;
@@ -208,7 +233,7 @@ var JobGraph = (function (_React$Component) {
                 var link = new _graphLink2['default'](crtInput, 'output', shape.id, 'input', hasData);
                 link.addTo(graph);
                 if (hasChain) {
-                    _this4.chainActions(graph, action.ChainedActions, shape.id);
+                    _this5.chainActions(graph, action.ChainedActions, shape.id);
                 }
             });
         }
@@ -233,10 +258,10 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'reLayout',
         value: function reLayout(editMode) {
-            var _state = this.state;
-            var graph = _state.graph;
-            var paper = _state.paper;
-            var onPaperResize = _state.onPaperResize;
+            var _state2 = this.state;
+            var graph = _state2.graph;
+            var paper = _state2.paper;
+            var onPaperResize = _state2.onPaperResize;
 
             // Relayout graph and return bounding box
             // Find JobInput and apply graph on this one ?
@@ -256,8 +281,12 @@ var JobGraph = (function (_React$Component) {
             bbox.width += 80;
             bbox.height += 80;
             if (editMode) {
-                bbox.height = Math.max(400, bbox.height);
+                bbox.height = Math.max(500, bbox.height);
                 bbox.width += 200;
+                if (this.boundingRef) {
+                    var maxWidth = this.boundingRef.clientWidth;
+                    bbox.width = Math.max(bbox.width, maxWidth);
+                }
             }
             if (paper) {
                 paper.setDimensions(bbox.width, bbox.height);
@@ -328,9 +357,9 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'clearHighlight',
         value: function clearHighlight() {
-            var _state2 = this.state;
-            var graph = _state2.graph;
-            var paper = _state2.paper;
+            var _state3 = this.state;
+            var graph = _state3.graph;
+            var paper = _state3.paper;
 
             graph.getCells().forEach(function (c) {
                 c.findView(paper).unhighlight();
@@ -339,7 +368,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'drawGraph',
         value: function drawGraph() {
-            var _this5 = this;
+            var _this6 = this;
 
             var removeLinkTool = function removeLinkTool() {
                 return new _jointjs.linkTools.Remove({
@@ -351,14 +380,14 @@ var JobGraph = (function (_React$Component) {
             var targetArrowHead = function targetArrowHead() {
                 return new _jointjs.linkTools.TargetArrowhead({ focusOpacity: 0.5 });
             };
-            var _state3 = this.state;
-            var graph = _state3.graph;
-            var job = _state3.job;
-            var onPaperBind = _state3.onPaperBind;
-            var onAttachModel = _state3.onAttachModel;
-            var onDetachModel = _state3.onDetachModel;
-            var onDropFilter = _state3.onDropFilter;
-            var editMode = _state3.editMode;
+            var _state4 = this.state;
+            var graph = _state4.graph;
+            var job = _state4.job;
+            var onPaperBind = _state4.onPaperBind;
+            var onAttachModel = _state4.onAttachModel;
+            var onDetachModel = _state4.onDetachModel;
+            var onDropFilter = _state4.onDropFilter;
+            var editMode = _state4.editMode;
 
             var _this = this;
 
@@ -372,9 +401,9 @@ var JobGraph = (function (_React$Component) {
 
                     if (_this.state.editMode && !model.isTemplate) {
                         if (model instanceof _graphAction2['default'] || model instanceof _graphSelector2['default'] || model instanceof _graphFilter2['default'] || model instanceof _graphJobInput2['default']) {
-                            _this5.clearSelection();
+                            _this6.clearSelection();
                             model.select();
-                            _this5.select(model);
+                            _this6.select(model);
                         }
                     } else if (model.isTemplate && model !== templates) {
                         // Start dragging new model and duplicate
@@ -386,12 +415,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this5.clearSelection();
+                        _this6.clearSelection();
                         model.selectFilter();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this5.setState({ selectionModel: job, selectionType: 'filter' });
+                            _this6.setState({ selectionModel: job, selectionType: 'filter' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
+                            _this6.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
                         }
                         event.stopPropagation();
                     }
@@ -400,12 +429,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this5.clearSelection();
+                        _this6.clearSelection();
                         model.selectSelector();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this5.setState({ selectionModel: job, selectionType: 'selector' });
+                            _this6.setState({ selectionModel: job, selectionType: 'selector' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this5.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
+                            _this6.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
                         }
                         event.stopPropagation();
                     }
@@ -488,11 +517,11 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'deleteButton',
         value: function deleteButton() {
-            var _state4 = this.state;
-            var selectionModel = _state4.selectionModel;
-            var paper = _state4.paper;
-            var graph = _state4.graph;
-            var onRemoveModel = _state4.onRemoveModel;
+            var _state5 = this.state;
+            var selectionModel = _state5.selectionModel;
+            var paper = _state5.paper;
+            var graph = _state5.graph;
+            var onRemoveModel = _state5.onRemoveModel;
 
             var parentModel = undefined;
             graph.getConnectedLinks(selectionModel).forEach(function (link) {
@@ -507,25 +536,25 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this7 = this;
 
             var selBlock = undefined;
-            var _state5 = this.state;
-            var selectionType = _state5.selectionType;
-            var descriptions = _state5.descriptions;
-            var selectionModel = _state5.selectionModel;
-            var onTriggerChange = _state5.onTriggerChange;
-            var createNewAction = _state5.createNewAction;
-            var onRemoveFilter = _state5.onRemoveFilter;
+            var _state6 = this.state;
+            var selectionType = _state6.selectionType;
+            var descriptions = _state6.descriptions;
+            var selectionModel = _state6.selectionModel;
+            var onTriggerChange = _state6.onTriggerChange;
+            var createNewAction = _state6.createNewAction;
+            var onRemoveFilter = _state6.onRemoveFilter;
 
             // Redux store stuff - should be on props!
-            var _state6 = this.state;
-            var onToggleEdit = _state6.onToggleEdit;
-            var onEmptyModel = _state6.onEmptyModel;
-            var editMode = _state6.editMode;
+            var _state7 = this.state;
+            var onToggleEdit = _state7.onToggleEdit;
+            var onEmptyModel = _state7.onEmptyModel;
+            var editMode = _state7.editMode;
 
             var blockProps = { onDismiss: function onDismiss() {
-                    _this6.clearSelection();
+                    _this7.clearSelection();
                 } };
             var rightWidth = 300;
             if (createNewAction) {
@@ -537,7 +566,7 @@ var JobGraph = (function (_React$Component) {
                     },
                     create: true,
                     onDismiss: function () {
-                        _this6.setState({ createNewAction: false });
+                        _this7.setState({ createNewAction: false });
                     }
                 });
             } else if (selectionModel) {
@@ -588,21 +617,22 @@ var JobGraph = (function (_React$Component) {
                         'Job Workflow - click on boxes to show details'
                     ),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { disabled: !selectionModel || selectionModel instanceof _graphJobInput2['default'], onTouchTap: function () {
-                            _this6.deleteButton();
+                            _this7.deleteButton();
                         }, label: "Remove" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this6.setState({ createNewAction: true });
+                            _this7.setState({ createNewAction: true });
                         }, label: "+ Action" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this6.reLayout(editMode);
+                            _this7.reLayout(editMode);
                         }, label: "Layout" }),
                     _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            return onToggleEdit(!editMode, _this6.reLayout.bind(_this6));
+                            _this7.clearSelection();
+                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
                         }, label: editMode ? 'Close' : 'Edit' })
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { position: 'relative', display: 'flex', minHeight: editMode ? 400 : null } },
+                    { style: { position: 'relative', display: 'flex', minHeight: editMode ? 500 : null }, ref: "boundingBox" },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1, overflowX: 'auto' }, ref: 'scroller' },

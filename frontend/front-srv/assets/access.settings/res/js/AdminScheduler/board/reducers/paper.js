@@ -16,10 +16,7 @@ export default function paperReducer(paper = null, action) {
                 width: 10,
                 height: 10,
                 linkPinning: false,
-                interactive: {
-                    addLinkFromMagnet: false,
-                    elementMove: false
-                },
+                interactive: false,
                 validateConnection: (cellViewS, magnetS, cellViewT, magnetT, end, linkView) => {
                     console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if(cellViewS === cellViewT) {
@@ -60,10 +57,14 @@ export default function paperReducer(paper = null, action) {
             break;
         case TOGGLE_EDITOR_MODE:
             const {edit} = action;
-            paper.setInteractivity({
-                addLinkFromMagnet: edit,
-                elementMove: edit
-            });
+            if(edit){
+                paper.setInteractivity({
+                    addLinkFromMagnet: edit,
+                    elementMove: edit
+                });
+            } else {
+                paper.setInteractivity(false);
+            }
             if(edit){
                 paper.setGridSize(16);
                 paper.drawGrid();
