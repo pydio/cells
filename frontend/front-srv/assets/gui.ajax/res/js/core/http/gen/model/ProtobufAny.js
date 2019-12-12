@@ -57,6 +57,8 @@ export default class ProtobufAny {
             Object.keys(data).forEach(k => {
                 if(k === '@type') {
                     obj.type_url = data[k];
+                } else if (k === 'SubQueries' && data[k].map) {
+                    obj.value[k] = data[k].map(d => ProtobufAny.constructFromObject(d));
                 } else {
                     obj.value[k] = data[k];
                 }

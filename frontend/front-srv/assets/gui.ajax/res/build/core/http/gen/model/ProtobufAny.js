@@ -62,19 +62,14 @@ var ProtobufAny = (function () {
             Object.keys(data).forEach(function (k) {
                 if (k === '@type') {
                     obj.type_url = data[k];
+                } else if (k === 'SubQueries' && data[k].map) {
+                    obj.value[k] = data[k].map(function (d) {
+                        return ProtobufAny.constructFromObject(d);
+                    });
                 } else {
                     obj.value[k] = data[k];
                 }
             });
-
-            /*
-            if (data.hasOwnProperty('@type')) {
-                obj['type_url'] = ApiClient.convertToType(data['@type'], 'String');
-            }
-            if (data.hasOwnProperty('value')) {
-                obj['value'] = ApiClient.convertToType(data['value'], 'Blob');
-            }
-            */
         }
         return obj;
     };
