@@ -26,6 +26,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/forms/protos"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/tree"
+
 	"github.com/pydio/cells/scheduler/actions"
 
 	"github.com/go-openapi/spec"
@@ -205,11 +210,51 @@ func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.R
 // SchedulerActionFormDiscovery sends an XML-serialized form for building parameters for a given action
 func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restful.Response) {
 	actionName := req.PathParameter("ActionName")
-	actionManager := actions.GetActionsManager()
-	form, err := actionManager.LoadActionForm(actionName)
-	if err != nil {
-		service.RestErrorDetect(req, rsp, err)
-		return
+	var form *forms.Form
+	if strings.HasPrefix(actionName, "proto:") {
+		protoName := strings.TrimPrefix(actionName, "proto:")
+		var asSwitch bool
+		if strings.HasPrefix(protoName, "switch:") {
+			asSwitch = true
+			protoName = strings.TrimPrefix(protoName, "switch:")
+		}
+		switch protoName {
+		case "idm.UserSingleQuery":
+			form = protos.GenerateProtoToForm(&idm.UserSingleQuery{}, asSwitch)
+		case "idm.RoleSingleQuery":
+			form = protos.GenerateProtoToForm(&idm.RoleSingleQuery{}, asSwitch)
+		case "idm.WorkspaceSingleQuery":
+			form = protos.GenerateProtoToForm(&idm.WorkspaceSingleQuery{}, asSwitch)
+		case "idm.ACLSingleQuery":
+			form = protos.GenerateProtoToForm(&idm.ACLSingleQuery{}, asSwitch)
+			// Patch Actions field manually
+			sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+			a := protos.GenerateProtoToForm(&idm.ACLAction{})
+			sw.Values = append(sw.Values, &forms.SwitchValue{
+				Name:  "Actions",
+				Value: "Actions",
+				Label: "Actions",
+				Fields: []forms.Field{&forms.ReplicableFields{
+					Id:          "Actions",
+					Title:       "Actions",
+					Description: "Acl Actions",
+					Fields:      a.Groups[0].Fields,
+				}},
+			})
+		case "tree.Query":
+			form = protos.GenerateProtoToForm(&tree.Query{}, asSwitch)
+		}
+	} else {
+		actionManager := actions.GetActionsManager()
+		var err error
+		form, err = actionManager.LoadActionForm(actionName)
+		if err != nil {
+			service.RestErrorDetect(req, rsp, err)
+			return
+		}
+	}
+	if form == nil {
+		service.RestError404(req, rsp, fmt.Errorf("cannot find form"))
 	}
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
 }
