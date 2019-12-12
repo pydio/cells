@@ -8,6 +8,8 @@ import {
 import {JobsJob} from 'pydio/http/rest-api';
 import JobInput from "../graph/JobInput";
 import Action from "../graph/Action";
+import JobGraph from "../JobGraph";
+import {linkAttr} from "../graph/Configs";
 
 
 
@@ -68,6 +70,10 @@ export default function(job = new JobsJob(), action) {
                             break;
                     }
                 }
+                const hasData = JobGraph.jobInputCreatesData(job);
+                job.model.graph.getConnectedLinks(job.model).forEach((link) => {
+                    link.attr(linkAttr(hasData));
+                });
             } else {
                 // Target is an action
                 if(filterOrSelector === 'filter'){
@@ -225,6 +231,10 @@ export default function(job = new JobsJob(), action) {
             if(job.model && job.model.notifyJobModel){
                 job.model.notifyJobModel(job);
             }
+            const hasData = JobGraph.jobInputCreatesData(job);
+            job.model.graph.getConnectedLinks(job.model).forEach((link) => {
+                link.attr(linkAttr(hasData));
+            });
             return job;
 
         default:

@@ -1,9 +1,11 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {RightPanel} from './styles'
-import {Paper, SelectField, MenuItem} from 'material-ui'
+import {Paper, List, ListItem, MenuItem, IconButton, FontIcon, Divider} from 'material-ui'
 import ScheduleForm from './ScheduleForm'
 import {JobsSchedule} from 'pydio/http/rest-api'
+import {LightGrey} from "../graph/Configs";
+const {ModernSelectField} = Pydio.requireLib('hoc');
 
 const eventMessages = {
     NODE_CHANGE:{
@@ -101,15 +103,24 @@ class Events extends React.Component{
     render() {
         const {objEvents} = this.state;
         const flat = this.flatStruct(eventMessages);
+        const list = [];
+        Object.keys(objEvents).forEach(e => {
+            list.push(<ListItem
+                key={e}
+                primaryText={Events.eventLabel(e, Events.T)}
+                rightIconButton={<IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:LightGrey}} onTouchTap={()=>{this.remove(e)}}/>}
+            />);
+            list.push(<Divider/>)
+        });
+        list.pop();
+
         return (
-            <div style={{padding: 10}}>
-                <SelectField value={-1} onChange={(e,i,v) => {this.add(v)}}>
+            <div>
+                <ModernSelectField fullWidth={true} value={-1} onChange={(e,i,v) => {this.add(v)}}>
                     <MenuItem value={-1} primaryText={"Add an event type..."}/>
                     {flat.map(f => <MenuItem value={f} primaryText={Events.eventLabel(f, Events.T)}/>)}
-                </SelectField>
-                {Object.keys(objEvents).map(e =>
-                    <div>{Events.eventLabel(e, Events.T)} - <span className={"mdi mdi-delete"} onClick={() => {this.remove(e)}}/></div>
-                )}
+                </ModernSelectField>
+                <List>{list}</List>
             </div>
         )
 
@@ -140,15 +151,16 @@ class Triggers extends React.Component {
         }
         return (
             <RightPanel title={"Job Trigger"} onDismiss={onDismiss}>
-                <SelectField value={type} onChange={(e,i,v) => this.onSwitch(v)}>
-                    <MenuItem value={"manual"} primaryText={"Manual Trigger"}/>
-                    <MenuItem value={"schedule"} primaryText={"Scheduled"}/>
-                    <MenuItem value={"event"} primaryText={"Events"}/>
-                </SelectField>
-                <div>
-                    {type === 'schedule' && <ScheduleForm schedule={job.Schedule} onChange={(newSched) => {onChange('schedule', newSched)}} edit={true}/>}
-                    {type === 'event' && <Events events={job.EventNames || []}  onChange={(newEv) => {onChange('event', newEv)}} />}
-                    {type === 'manual' && <div>No parameters</div>}
+                <div style={{padding: 10}}>
+                    <ModernSelectField fullWidth={true} value={type} onChange={(e,i,v) => this.onSwitch(v)}>
+                        <MenuItem value={"manual"} primaryText={"Manual Trigger"}/>
+                        <MenuItem value={"schedule"} primaryText={"Scheduled"}/>
+                        <MenuItem value={"event"} primaryText={"Events"}/>
+                    </ModernSelectField>
+                    <div>
+                        {type === 'schedule' && <ScheduleForm schedule={job.Schedule} onChange={(newSched) => {onChange('schedule', newSched)}} edit={true}/>}
+                        {type === 'event' && <Events events={job.EventNames || []}  onChange={(newEv) => {onChange('event', newEv)}} />}
+                    </div>
                 </div>
             </RightPanel>
         )

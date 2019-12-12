@@ -251,7 +251,7 @@ var JobGraph = (function (_React$Component) {
             shapeIn.addTo(graph);
 
             var actionsInput = shapeIn.id;
-            var firstLinkHasData = !!job.EventNames;
+            var firstLinkHasData = JobGraph.jobInputCreatesData(job);
 
             this.chainActions(graph, job.Actions, actionsInput, firstLinkHasData);
         }
@@ -316,12 +316,14 @@ var JobGraph = (function (_React$Component) {
                 selectionModel: model
             };
             if (model instanceof _graphAction2['default']) {
+                s.createNewAction = false;
                 s.selectionType = 'action';
             } else if (model instanceof _graphSelector2['default']) {
                 s.selectionType = 'selector';
             } else if (model instanceof _graphFilter2['default']) {
                 s.selectionType = 'filter';
             } else if (model instanceof _graphJobInput2['default']) {
+                s.createNewAction = false;
                 s.selectionType = 'trigger';
             }
             this.setState(s);
@@ -502,7 +504,7 @@ var JobGraph = (function (_React$Component) {
                 },
                 'link:connect': function linkConnect(linkView, event) {
                     linkView.addTools(new _jointjs.dia.ToolsView({ tools: [removeLinkTool()] }));
-                    linkView.model.attr((0, _graphConfigs.linkAttr)());
+                    linkView.model.attr((0, _graphConfigs.linkAttr)(JobGraph.jobInputCreatesData(job)));
                     linkView.model.attr('.link-tool/display', 'none');
                     onAttachModel(linkView);
                 },
@@ -571,15 +573,18 @@ var JobGraph = (function (_React$Component) {
                 });
             } else if (selectionModel) {
                 if (selectionType === 'action') {
-                    var action = selectionModel.getJobsAction();
-                    selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
-                        actions: descriptions,
-                        actionInfo: descriptions[action.ID],
-                        action: action }, blockProps, {
-                        onChange: function (newAction) {
-                            return console.log(newAction);
-                        }
-                    }));
+                    (function () {
+                        var action = selectionModel.getJobsAction();
+                        selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
+                            actions: descriptions,
+                            actionInfo: descriptions[action.ID],
+                            action: action }, blockProps, {
+                            onChange: function (newAction) {
+                                action.Parameters = newAction.Parameters;
+                                selectionModel.notifyJobModel(action);
+                            }
+                        }));
+                    })();
                 } else if (selectionType === 'selector' || selectionType === 'filter') {
                     rightWidth = 600;
                     if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
@@ -620,7 +625,7 @@ var JobGraph = (function (_React$Component) {
                             _this7.deleteButton();
                         }, label: "Remove" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.setState({ createNewAction: true });
+                            _this7.clearSelection();_this7.setState({ createNewAction: true });
                         }, label: "+ Action" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this7.reLayout(editMode);
@@ -640,12 +645,17 @@ var JobGraph = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0 } },
+                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0, height: 500 } },
                         selBlock
                     )
                 ),
                 _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: style + (editMode ? '' : readonlyStyle) } })
             );
+        }
+    }], [{
+        key: 'jobInputCreatesData',
+        value: function jobInputCreatesData(job) {
+            return job.EventNames !== undefined || !!job.IdmSelector || !!job.NodesSelector || !!job.UsersSelector;
         }
     }]);
 

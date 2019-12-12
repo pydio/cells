@@ -26,7 +26,10 @@ var styles = {
     paper: {
         borderLeft: '1px solid #e0e0e0', // + Orange,
         width: 300,
-        height: '100%'
+        height: '100%',
+        display: 'flex',
+        overflow: 'hidden',
+        flexDirection: 'column'
     },
     header: {
         padding: 10,
@@ -34,6 +37,10 @@ var styles = {
         fontWeight: 500,
         display: 'flex',
         alignItems: 'center'
+    },
+    body: {
+        flex: 1,
+        overflowY: 'auto'
     },
     close: {
         color: '#9e9e9e',
@@ -65,6 +72,8 @@ var RightPanel = (function (_React$Component) {
             var _props = this.props;
             var title = _props.title;
             var icon = _props.icon;
+            var onRevert = _props.onRevert;
+            var onSave = _props.onSave;
             var onDismiss = _props.onDismiss;
             var width = _props.width;
             var children = _props.children;
@@ -81,6 +90,12 @@ var RightPanel = (function (_React$Component) {
                         { style: { flex: 1 } },
                         title
                     ),
+                    onRevert && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: function () {
+                            onRevert();
+                        }, style: styles.close }),
+                    onSave && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: function () {
+                            onSave();
+                        }, style: styles.close }),
                     _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
                             onDismiss();
                         }, style: styles.close })

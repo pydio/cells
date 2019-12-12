@@ -15,6 +15,14 @@ var _graphLink = require("../graph/Link");
 
 var _graphLink2 = _interopRequireDefault(_graphLink);
 
+var _graphJobInput = require("../graph/JobInput");
+
+var _graphJobInput2 = _interopRequireDefault(_graphJobInput);
+
+var _graphAction = require("../graph/Action");
+
+var _graphAction2 = _interopRequireDefault(_graphAction);
+
 /**
  * @param paper {dia.Paper}
  * @param action
@@ -36,6 +44,15 @@ function paperReducer(paper, action) {
                 validateConnection: function validateConnection(cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
                     console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if (cellViewS === cellViewT) {
+                        return false;
+                    }
+                    if (!cellViewT.model instanceof _graphAction2["default"] || !cellViewT.model instanceof _graphJobInput2["default"]) {
+                        return false;
+                    }
+                    var hasInput = action.graph.getConnectedLinks(cellViewT.model).filter(function (link) {
+                        return link.getTargetCell() === cellViewT.model;
+                    }).length;
+                    if (hasInput) {
                         return false;
                     }
                     return true;

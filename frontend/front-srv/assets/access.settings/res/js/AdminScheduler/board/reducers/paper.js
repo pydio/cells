@@ -1,6 +1,8 @@
 import {BIND_PAPER_TO_DOM, EMPTY_MODEL_ACTION, RESIZE_PAPER, TOGGLE_EDITOR_MODE} from "../actions/editor";
 import {dia, linkTools} from 'jointjs'
 import Link from "../graph/Link";
+import JobInput from "../graph/JobInput";
+import Action from "../graph/Action"
 
 /**
  * @param paper {dia.Paper}
@@ -20,6 +22,13 @@ export default function paperReducer(paper = null, action) {
                 validateConnection: (cellViewS, magnetS, cellViewT, magnetT, end, linkView) => {
                     console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if(cellViewS === cellViewT) {
+                        return false;
+                    }
+                    if(!cellViewT.model instanceof Action || !cellViewT.model instanceof JobInput){
+                        return false;
+                    }
+                    const hasInput = action.graph.getConnectedLinks(cellViewT.model).filter(link => link.getTargetCell() === cellViewT.model).length;
+                    if(hasInput){
                         return false;
                     }
                     return true;

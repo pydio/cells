@@ -5,6 +5,9 @@ const PydioForm = Pydio.requireLib('form');
 import {RightPanel} from './styles'
 import {JOB_ACTION_EMPTY} from "../actions/editor";
 import FormLoader from './FormLoader'
+import {JobsJob, ConfigServiceApi, RestConfiguration, JobsAction} from 'pydio/http/rest-api'
+import {LightGrey} from "../graph/Configs";
+const {ModernSelectField} = Pydio.requireLib('hoc');
 
 class FormPanel extends React.Component {
 
@@ -12,7 +15,7 @@ class FormPanel extends React.Component {
         super(props);
         const {action} = props;
         this.state = {
-            action,
+            action: JobsAction.constructFromObject(JSON.parse(JSON.stringify(action))),
             actionInfo: this.getActionInfo(action),
         };
     }
@@ -44,10 +47,11 @@ class FormPanel extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.action !== this.state.action) {
+        if(nextProps.action !== this.state.action || nextProps.create !== this.props.create) {
             this.setState({
-                action: nextProps.action,
-                actionInfo: this.getActionInfo(nextProps.action)
+                action: JobsAction.constructFromObject(JSON.parse(JSON.stringify(nextProps.action))),
+                actionInfo: this.getActionInfo(nextProps.action),
+                formParams: null
             })
         }
     }
@@ -112,7 +116,7 @@ class FormPanel extends React.Component {
     onFormChange(values){
         const {action} = this.state;
         action.Parameters = this.toStringString(values);
-        console.log(action.Parameters);
+        this.setState({action, dirty: true});
     }
 
     onIdChange(id){
@@ -132,24 +136,46 @@ class FormPanel extends React.Component {
             return <MenuItem primaryText={actions[id].Label || actions[id].Name} value={id}/>
         });
         return (
-            <SelectField
+            <ModernSelectField
+                fullWidth={true}
                 value={action.ID}
                 onChange={(ev, i, value) => {
                     this.onIdChange(value);
                 }}
-            >{[<MenuItem value={JOB_ACTION_EMPTY} primaryText={"Please pick an action"}/>, ...options]}</SelectField>
+            >{[<MenuItem value={JOB_ACTION_EMPTY} primaryText={"Please pick an action"}/>, ...options]}
+            </ModernSelectField>
         )
+    }
+
+    save(){
+        const {onChange, onDismiss} = this.props;
+        const {action} = this.state;
+        onChange(action);
+        this.setState({dirty: false});
+        //onDismiss();
+    }
+
+    revert(){
+        const original = this.props.action;
+        this.setState({
+            action: JobsAction.constructFromObject(JSON.parse(JSON.stringify(original))),
+            dirty: false
+        })
     }
 
     render(){
 
-        const {onDismiss, onChange, create} = this.props;
-        const {actionInfo, action, formParams} = this.state;
-
+        const {onDismiss, create, height} = this.props;
+        const {actionInfo, action, formParams, dirty} = this.state;
+        let save, revert;
+        if(!create && formParams && dirty) {
+            save = () => this.save();
+            revert = () => this.revert();
+        }
         return (
-            <RightPanel title={actionInfo.Label} icon={actionInfo.Icon} onDismiss={onDismiss}>
+            <RightPanel title={actionInfo.Label} icon={actionInfo.Icon} onDismiss={onDismiss} onSave={save} onRevert={revert} height={this.props}>
                 <div style={{padding: 10}}>{actionInfo.Description}</div>
-                {create && this.actionPicker()}
+                {create && <div style={{padding: 10}}>{this.actionPicker()}</div>}
                 {formParams &&
                 <div style={{margin: -10}}>
                     <PydioForm.FormPanel
@@ -161,16 +187,17 @@ class FormPanel extends React.Component {
                     />
                 </div>
                 }
-                <div>
+                {create && <div style={{padding: 10, textAlign:'right'}}>
                     <RaisedButton
                         primary={true}
-                        label={"SAVE"}
+                        label={"Create Action"}
                         disabled={action.ID === JOB_ACTION_EMPTY}
-                        onTouchTap={() => {
-                            onChange(action);
-                            onDismiss();
-                        }}/>
+                        onTouchTap={() => {this.save(); onDismiss()}}/>
                 </div>
+                }
+                {!create && !formParams &&
+                    <div style={{padding: 10, color: LightGrey}}>No Parameters for this action</div>
+                }
             </RightPanel>
         )
     }

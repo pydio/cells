@@ -26,6 +26,8 @@ Object.defineProperty(exports, '__esModule', {
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -48,9 +50,17 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _materialUi = require('material-ui');
 
+var _graphConfigs = require("../graph/Configs");
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var moment = _Pydio$requireLib.moment;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
 
 var ScheduleForm = (function (_React$Component) {
     _inherits(ScheduleForm, _React$Component);
@@ -148,21 +158,21 @@ var ScheduleForm = (function (_React$Component) {
                 null,
                 _react2['default'].createElement(
                     'div',
-                    null,
+                    { style: { padding: '10px 0', textAlign: 'center' } },
                     _react2['default'].createElement(
                         'div',
-                        { style: { color: '#212121' } },
+                        { style: { color: _graphConfigs.Blue, fontSize: 15, fontWeight: 500 } },
                         ScheduleForm.readableString(this.state, this.T, false)
                     ),
                     frequency !== 'manual' && _react2['default'].createElement(
                         'div',
-                        { style: { fontSize: 11, paddingTop: 5 } },
+                        { style: { fontSize: 11, paddingTop: 5, color: _graphConfigs.LightGrey } },
                         'ISO8601: ',
                         ScheduleForm.makeIso8601FromState(this.state)
                     )
                 ),
                 _react2['default'].createElement(
-                    _materialUi.SelectField,
+                    ModernSelectField,
                     {
                         floatingLabelText: this.T('schedule.type'),
                         value: frequency,
@@ -171,7 +181,6 @@ var ScheduleForm = (function (_React$Component) {
                         },
                         fullWidth: true
                     },
-                    _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual', primaryText: this.T('schedule.type.manual') }),
                     _react2['default'].createElement(_materialUi.MenuItem, { value: 'monthly', primaryText: this.T('schedule.type.monthly') }),
                     _react2['default'].createElement(_materialUi.MenuItem, { value: 'weekly', primaryText: this.T('schedule.type.weekly') }),
                     _react2['default'].createElement(_materialUi.MenuItem, { value: 'daily', primaryText: this.T('schedule.type.daily') }),
@@ -181,7 +190,7 @@ var ScheduleForm = (function (_React$Component) {
                     'div',
                     null,
                     _react2['default'].createElement(
-                        _materialUi.SelectField,
+                        ModernSelectField,
                         {
                             floatingLabelText: this.T('schedule.detail.monthday'),
                             value: monthday,
@@ -199,7 +208,7 @@ var ScheduleForm = (function (_React$Component) {
                     'div',
                     null,
                     _react2['default'].createElement(
-                        _materialUi.SelectField,
+                        ModernSelectField,
                         {
                             floatingLabelText: this.T('schedule.detail.weekday'),
                             value: weekday,
@@ -216,21 +225,21 @@ var ScheduleForm = (function (_React$Component) {
                 (frequency === 'daily' || frequency === 'monthly' || frequency === 'weekly') && _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TimePicker, {
+                    _react2['default'].createElement(_materialUi.TimePicker, _extends({
                         format: 'ampm',
                         minutesStep: 5,
-                        floatingLabelText: this.T('schedule.detail.daytime'),
+                        hintText: this.T('schedule.detail.daytime'),
                         value: daytime,
                         onChange: function (e, v) {
                             _this.setState({ daytime: v });
                         },
                         fullWidth: true
-                    })
+                    }, ModernStyles.textField))
                 ),
                 frequency === 'timely' && _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, {
+                    _react2['default'].createElement(ModernTextField, {
                         floatingLabelText: this.T('schedule.detail.minutes'),
                         value: everyminutes,
                         type: "number",

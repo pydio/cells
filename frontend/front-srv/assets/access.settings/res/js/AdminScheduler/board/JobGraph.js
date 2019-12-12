@@ -176,6 +176,10 @@ class JobGraph extends React.Component {
 
     }
 
+    static jobInputCreatesData(job){
+        return (job.EventNames !== undefined) || !!job.IdmSelector || !!job.NodesSelector || !!job.UsersSelector;
+    }
+
     graphFromJob(){
         const {job} = this.props;
         const {graph} = this.state;
@@ -188,7 +192,7 @@ class JobGraph extends React.Component {
         shapeIn.addTo(graph);
 
         let actionsInput = shapeIn.id;
-        let firstLinkHasData = !!job.EventNames;
+        let firstLinkHasData = JobGraph.jobInputCreatesData(job);
 
         this.chainActions(graph, job.Actions, actionsInput, firstLinkHasData);
     }
@@ -239,12 +243,14 @@ class JobGraph extends React.Component {
             selectionModel: model,
         };
         if (model instanceof Action) {
+            s.createNewAction = false;
             s.selectionType = 'action';
         } else if (model instanceof Selector) {
             s.selectionType = 'selector'
         } else if (model instanceof Filter) {
             s.selectionType = 'filter'
         } else if( model instanceof JobInput) {
+            s.createNewAction = false;
             s.selectionType = 'trigger';
         }
         this.setState(s);
@@ -396,7 +402,7 @@ class JobGraph extends React.Component {
             },
             'link:connect': (linkView, event) => {
                 linkView.addTools(new dia.ToolsView({tools:[removeLinkTool()]}));
-                linkView.model.attr(linkAttr());
+                linkView.model.attr(linkAttr(JobGraph.jobInputCreatesData(job)));
                 linkView.model.attr('.link-tool/display', 'none');
                 onAttachModel(linkView);
             },
@@ -448,7 +454,10 @@ class JobGraph extends React.Component {
                     actions={descriptions}
                     actionInfo={descriptions[action.ID]}
                     action={action} {...blockProps}
-                    onChange={(newAction) => console.log(newAction)}
+                    onChange={(newAction) => {
+                        action.Parameters = newAction.Parameters;
+                        selectionModel.notifyJobModel(action);
+                    }}
                 />
             } else if(selectionType === 'selector' || selectionType === 'filter') {
                 rightWidth = 600;
@@ -479,7 +488,7 @@ class JobGraph extends React.Component {
                 <div style={headerStyle}>
                     <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow - click on boxes to show details</span>
                     {editMode && <FlatButton disabled={!selectionModel || selectionModel instanceof JobInput} onTouchTap={()=> {this.deleteButton()}} label={"Remove"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {this.setState({createNewAction: true})}} label={"+ Action"}/>}
+                    {editMode && <FlatButton onTouchTap={()=> {this.clearSelection(); this.setState({createNewAction: true})}} label={"+ Action"}/>}
                     {editMode && <FlatButton onTouchTap={()=> {this.reLayout(editMode)}} label={"Layout"}/>}
                     <FlatButton onTouchTap={()=> {
                         this.clearSelection();
@@ -490,7 +499,7 @@ class JobGraph extends React.Component {
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">
                         <div id="playground" ref="placeholder"></div>
                     </div>
-                    <Paper zDepth={0} style={{width: selBlock?rightWidth:0}}>
+                    <Paper zDepth={0} style={{width: selBlock?rightWidth:0, height: 500}}>
                         {selBlock}
                     </Paper>
                 </div>

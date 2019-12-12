@@ -215,6 +215,10 @@ function linkAttr(hasData = true) {
         conn = {
             stroke: Stale,
             'stroke-width': 2,
+            targetMarker: {
+                'type': 'path',
+                'd': 'M 8 -4 0 0 8 4 z'
+            }
         }
     }
     return {'.connection' : conn};

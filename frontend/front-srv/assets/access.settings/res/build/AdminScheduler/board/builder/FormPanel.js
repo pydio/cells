@@ -34,7 +34,15 @@ var _FormLoader = require('./FormLoader');
 
 var _FormLoader2 = _interopRequireDefault(_FormLoader);
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _graphConfigs = require("../graph/Configs");
+
 var PydioForm = _pydio2['default'].requireLib('form');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 
 var FormPanel = (function (_React$Component) {
     _inherits(FormPanel, _React$Component);
@@ -46,7 +54,7 @@ var FormPanel = (function (_React$Component) {
         var action = props.action;
 
         this.state = {
-            action: action,
+            action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(action))),
             actionInfo: this.getActionInfo(action)
         };
     }
@@ -82,10 +90,11 @@ var FormPanel = (function (_React$Component) {
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.action !== this.state.action) {
+            if (nextProps.action !== this.state.action || nextProps.create !== this.props.create) {
                 this.setState({
-                    action: nextProps.action,
-                    actionInfo: this.getActionInfo(nextProps.action)
+                    action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(nextProps.action))),
+                    actionInfo: this.getActionInfo(nextProps.action),
+                    formParams: null
                 });
             }
         }
@@ -163,7 +172,7 @@ var FormPanel = (function (_React$Component) {
             var action = this.state.action;
 
             action.Parameters = this.toStringString(values);
-            console.log(action.Parameters);
+            this.setState({ action: action, dirty: true });
         }
     }, {
         key: 'onIdChange',
@@ -189,8 +198,9 @@ var FormPanel = (function (_React$Component) {
                 return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: actions[id].Label || actions[id].Name, value: id });
             });
             return _react2['default'].createElement(
-                _materialUi.SelectField,
+                ModernSelectField,
                 {
+                    fullWidth: true,
                     value: action.ID,
                     onChange: function (ev, i, value) {
                         _this2.onIdChange(value);
@@ -200,26 +210,64 @@ var FormPanel = (function (_React$Component) {
             );
         }
     }, {
+        key: 'save',
+        value: function save() {
+            var _props = this.props;
+            var onChange = _props.onChange;
+            var onDismiss = _props.onDismiss;
+            var action = this.state.action;
+
+            onChange(action);
+            this.setState({ dirty: false });
+            //onDismiss();
+        }
+    }, {
+        key: 'revert',
+        value: function revert() {
+            var original = this.props.action;
+            this.setState({
+                action: _pydioHttpRestApi.JobsAction.constructFromObject(JSON.parse(JSON.stringify(original))),
+                dirty: false
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _props = this.props;
-            var onDismiss = _props.onDismiss;
-            var onChange = _props.onChange;
-            var create = _props.create;
+            var _this3 = this;
+
+            var _props2 = this.props;
+            var onDismiss = _props2.onDismiss;
+            var create = _props2.create;
+            var height = _props2.height;
             var _state = this.state;
             var actionInfo = _state.actionInfo;
             var action = _state.action;
             var formParams = _state.formParams;
+            var dirty = _state.dirty;
 
+            var save = undefined,
+                revert = undefined;
+            if (!create && formParams && dirty) {
+                save = function () {
+                    return _this3.save();
+                };
+                revert = function () {
+                    return _this3.revert();
+                };
+            }
             return _react2['default'].createElement(
                 _styles.RightPanel,
-                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss },
+                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss, onSave: save, onRevert: revert, height: this.props },
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
                     actionInfo.Description
                 ),
-                create && this.actionPicker(),
+                create && _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 10 } },
+                    this.actionPicker()
+                ),
                 formParams && _react2['default'].createElement(
                     'div',
                     { style: { margin: -10 } },
@@ -231,17 +279,21 @@ var FormPanel = (function (_React$Component) {
                         onChange: this.onFormChange.bind(this)
                     })
                 ),
-                _react2['default'].createElement(
+                create && _react2['default'].createElement(
                     'div',
-                    null,
+                    { style: { padding: 10, textAlign: 'right' } },
                     _react2['default'].createElement(_materialUi.RaisedButton, {
                         primary: true,
-                        label: "SAVE",
+                        label: "Create Action",
                         disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY,
                         onTouchTap: function () {
-                            onChange(action);
-                            onDismiss();
+                            _this3.save();onDismiss();
                         } })
+                ),
+                !create && !formParams && _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 10, color: _graphConfigs.LightGrey } },
+                    'No Parameters for this action'
                 )
             );
         }

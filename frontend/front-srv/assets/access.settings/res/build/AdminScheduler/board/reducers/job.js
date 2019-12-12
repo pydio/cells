@@ -20,6 +20,12 @@ var _graphAction = require("../graph/Action");
 
 var _graphAction2 = _interopRequireDefault(_graphAction);
 
+var _JobGraph = require("../JobGraph");
+
+var _JobGraph2 = _interopRequireDefault(_JobGraph);
+
+var _graphConfigs = require("../graph/Configs");
+
 exports["default"] = function (job, action) {
     if (job === undefined) job = new _pydioHttpRestApi.JobsJob();
 
@@ -58,33 +64,39 @@ exports["default"] = function (job, action) {
                 objectType = action.objectType;
 
             if (target === job) {
-                if (filterOrSelector === 'filter') {
-                    switch (objectType) {
-                        case "user":
-                            job.UserEventFilter = dropped;
-                            break;
-                        case "idm":
-                            job.IdmFilter = dropped;
-                            break;
-                        default:
-                            // NODE
-                            job.NodeEventFilter = dropped;
-                            break;
+                (function () {
+                    if (filterOrSelector === 'filter') {
+                        switch (objectType) {
+                            case "user":
+                                job.UserEventFilter = dropped;
+                                break;
+                            case "idm":
+                                job.IdmFilter = dropped;
+                                break;
+                            default:
+                                // NODE
+                                job.NodeEventFilter = dropped;
+                                break;
+                        }
+                    } else if (filterOrSelector === 'selector') {
+                        switch (objectType) {
+                            case "user":
+                                job.UsersSelector = dropped;
+                                break;
+                            case "idm":
+                                job.IdmSelector = dropped;
+                                break;
+                            default:
+                                // NODE
+                                job.NodesSelector = dropped;
+                                break;
+                        }
                     }
-                } else if (filterOrSelector === 'selector') {
-                    switch (objectType) {
-                        case "user":
-                            job.UsersSelector = dropped;
-                            break;
-                        case "idm":
-                            job.IdmSelector = dropped;
-                            break;
-                        default:
-                            // NODE
-                            job.NodesSelector = dropped;
-                            break;
-                    }
-                }
+                    var hasData = _JobGraph2["default"].jobInputCreatesData(job);
+                    job.model.graph.getConnectedLinks(job.model).forEach(function (link) {
+                        link.attr((0, _graphConfigs.linkAttr)(hasData));
+                    });
+                })();
             } else {
                 // Target is an action
                 if (filterOrSelector === 'filter') {
@@ -254,6 +266,10 @@ exports["default"] = function (job, action) {
             if (job.model && job.model.notifyJobModel) {
                 job.model.notifyJobModel(job);
             }
+            var hasData = _JobGraph2["default"].jobInputCreatesData(job);
+            job.model.graph.getConnectedLinks(job.model).forEach(function (link) {
+                link.attr((0, _graphConfigs.linkAttr)(hasData));
+            });
             return job;
 
         default:

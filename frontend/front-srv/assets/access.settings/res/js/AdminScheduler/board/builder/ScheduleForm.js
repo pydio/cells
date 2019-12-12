@@ -23,6 +23,8 @@ import Pydio from 'pydio'
 import {JobsJob} from 'pydio/http/rest-api'
 const {moment} = Pydio.requireLib('boot');
 import {Dialog, FlatButton, SelectField, MenuItem, TimePicker, TextField, FontIcon} from 'material-ui'
+import {Blue, LightGrey} from "../graph/Configs";
+const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 class ScheduleForm extends React.Component {
 
@@ -183,44 +185,43 @@ class ScheduleForm extends React.Component {
         }
         return (
             <div>
-                <div>
-                    <div style={{color: '#212121'}}>{ScheduleForm.readableString(this.state, this.T, false)}</div>
-                    {frequency !== 'manual' && <div style={{fontSize:11, paddingTop: 5}}>ISO8601: {ScheduleForm.makeIso8601FromState(this.state)}</div>}
+                <div style={{padding: '10px 0', textAlign:'center'}}>
+                    <div style={{color: Blue, fontSize: 15, fontWeight:500}}>{ScheduleForm.readableString(this.state, this.T, false)}</div>
+                    {frequency !== 'manual' && <div style={{fontSize:11, paddingTop: 5, color:LightGrey}}>ISO8601: {ScheduleForm.makeIso8601FromState(this.state)}</div>}
                 </div>
-                <SelectField
+                <ModernSelectField
                     floatingLabelText={this.T('schedule.type')}
                     value={frequency}
                     onChange={(e,i,val) => {this.changeFrequency(val)}}
                     fullWidth={true}
                 >
-                    <MenuItem value={'manual'} primaryText={this.T('schedule.type.manual')} />
                     <MenuItem value={'monthly'} primaryText={this.T('schedule.type.monthly')} />
                     <MenuItem value={'weekly'} primaryText={this.T('schedule.type.weekly')} />
                     <MenuItem value={'daily'} primaryText={this.T('schedule.type.daily')} />
                     <MenuItem value={'timely'} primaryText={this.T('schedule.type.timely')} />
-                </SelectField>
+                </ModernSelectField>
                 {frequency === 'monthly' &&
                 <div>
-                    <SelectField
+                    <ModernSelectField
                         floatingLabelText={this.T('schedule.detail.monthday')}
                         value={monthday}
                         onChange={(e,i,val)=>{this.setState({monthday:val})}}
                         fullWidth={true}
                     >
                         {monthdays.map(d => <MenuItem value={d} primaryText={d}/>)}
-                    </SelectField>
+                    </ModernSelectField>
                 </div>
                 }
                 {frequency === 'weekly' &&
                 <div>
-                    <SelectField
+                    <ModernSelectField
                         floatingLabelText={this.T('schedule.detail.weekday')}
                         value={weekday}
                         onChange={(e,i,val)=>{this.setState({weekday:val})}}
                         fullWidth={true}
                     >
                         {weekdays.map((d,i) => <MenuItem value={i} primaryText={d}/>)}
-                    </SelectField>
+                    </ModernSelectField>
                 </div>
                 }
                 {(frequency === 'daily' || frequency === 'monthly' || frequency === 'weekly') &&
@@ -228,16 +229,17 @@ class ScheduleForm extends React.Component {
                     <TimePicker
                         format="ampm"
                         minutesStep={5}
-                        floatingLabelText={this.T('schedule.detail.daytime')}
+                        hintText={this.T('schedule.detail.daytime')}
                         value={daytime}
                         onChange={(e,v) => {this.setState({daytime: v})}}
                         fullWidth={true}
+                        {...ModernStyles.textField}
                     />
                 </div>
                 }
                 {frequency === 'timely' &&
                 <div>
-                    <TextField
+                    <ModernTextField
                         floatingLabelText={this.T('schedule.detail.minutes')}
                         value={everyminutes}
                         type={"number"}

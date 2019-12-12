@@ -34,6 +34,12 @@ var _ScheduleForm2 = _interopRequireDefault(_ScheduleForm);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
+var _graphConfigs = require("../graph/Configs");
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+
 var eventMessages = {
     NODE_CHANGE: {
         '0': 'trigger.create.node',
@@ -136,12 +142,25 @@ var Events = (function (_React$Component) {
             var objEvents = this.state.objEvents;
 
             var flat = this.flatStruct(eventMessages);
+            var list = [];
+            Object.keys(objEvents).forEach(function (e) {
+                list.push(_react2['default'].createElement(_materialUi.ListItem, {
+                    key: e,
+                    primaryText: Events.eventLabel(e, Events.T),
+                    rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: _graphConfigs.LightGrey }, onTouchTap: function () {
+                            _this2.remove(e);
+                        } })
+                }));
+                list.push(_react2['default'].createElement(_materialUi.Divider, null));
+            });
+            list.pop();
+
             return _react2['default'].createElement(
                 'div',
-                { style: { padding: 10 } },
+                null,
                 _react2['default'].createElement(
-                    _materialUi.SelectField,
-                    { value: -1, onChange: function (e, i, v) {
+                    ModernSelectField,
+                    { fullWidth: true, value: -1, onChange: function (e, i, v) {
                             _this2.add(v);
                         } },
                     _react2['default'].createElement(_materialUi.MenuItem, { value: -1, primaryText: "Add an event type..." }),
@@ -149,17 +168,11 @@ var Events = (function (_React$Component) {
                         return _react2['default'].createElement(_materialUi.MenuItem, { value: f, primaryText: Events.eventLabel(f, Events.T) });
                     })
                 ),
-                Object.keys(objEvents).map(function (e) {
-                    return _react2['default'].createElement(
-                        'div',
-                        null,
-                        Events.eventLabel(e, Events.T),
-                        ' - ',
-                        _react2['default'].createElement('span', { className: "mdi mdi-delete", onClick: function () {
-                                _this2.remove(e);
-                            } })
-                    );
-                })
+                _react2['default'].createElement(
+                    _materialUi.List,
+                    null,
+                    list
+                )
             );
         }
     }], [{
@@ -227,27 +240,26 @@ var Triggers = (function (_React$Component2) {
                 _styles.RightPanel,
                 { title: "Job Trigger", onDismiss: onDismiss },
                 _react2['default'].createElement(
-                    _materialUi.SelectField,
-                    { value: type, onChange: function (e, i, v) {
-                            return _this3.onSwitch(v);
-                        } },
-                    _react2['default'].createElement(_materialUi.MenuItem, { value: "manual", primaryText: "Manual Trigger" }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { value: "schedule", primaryText: "Scheduled" }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { value: "event", primaryText: "Events" })
-                ),
-                _react2['default'].createElement(
                     'div',
-                    null,
-                    type === 'schedule' && _react2['default'].createElement(_ScheduleForm2['default'], { schedule: job.Schedule, onChange: function (newSched) {
-                            onChange('schedule', newSched);
-                        }, edit: true }),
-                    type === 'event' && _react2['default'].createElement(Events, { events: job.EventNames || [], onChange: function (newEv) {
-                            onChange('event', newEv);
-                        } }),
-                    type === 'manual' && _react2['default'].createElement(
+                    { style: { padding: 10 } },
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { fullWidth: true, value: type, onChange: function (e, i, v) {
+                                return _this3.onSwitch(v);
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "manual", primaryText: "Manual Trigger" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "schedule", primaryText: "Scheduled" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "event", primaryText: "Events" })
+                    ),
+                    _react2['default'].createElement(
                         'div',
                         null,
-                        'No parameters'
+                        type === 'schedule' && _react2['default'].createElement(_ScheduleForm2['default'], { schedule: job.Schedule, onChange: function (newSched) {
+                                onChange('schedule', newSched);
+                            }, edit: true }),
+                        type === 'event' && _react2['default'].createElement(Events, { events: job.EventNames || [], onChange: function (newEv) {
+                                onChange('event', newEv);
+                            } })
                     )
                 )
             );
