@@ -44225,7 +44225,7 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n';
+var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n';
 
 var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -45576,14 +45576,16 @@ var _QueryBuilder = require("./QueryBuilder");
 
 var _QueryBuilder2 = _interopRequireDefault(_QueryBuilder);
 
+var _pydioHttpRestApi = require("pydio/http/rest-api");
+
 var keys = {
     filter: {
-        job: ['NodeEventFilter', 'UserEventFilter', 'IdmFilter'],
-        action: ['NodesFilter', 'UsersFilter', 'IdmFilter']
+        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector },
+        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector }
     },
     selector: {
-        job: ['NodesSelector', 'UsersSelector', 'IdmSelector'],
-        action: ['NodesSelector', 'UsersSelector', 'IdmSelector']
+        job: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector },
+        action: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector }
     }
 };
 
@@ -45597,30 +45599,67 @@ var Filters = (function (_React$Component) {
     }
 
     _createClass(Filters, [{
-        key: "render",
-        value: function render() {
+        key: "removeFilter",
+        value: function removeFilter(data, type, modelType) {
             var _props = this.props;
             var job = _props.job;
             var action = _props.action;
-            var type = _props.type;
-            var onDismiss = _props.onDismiss;
             var onRemoveFilter = _props.onRemoveFilter;
+            var onDismiss = _props.onDismiss;
 
+            if (job) {
+                onRemoveFilter(job, data, type, modelType);
+            } else {
+                onRemoveFilter(action, data, type, modelType);
+            }
             var stack = keys[type][job ? 'job' : 'action'].map(function (key) {
                 return job ? job[key] : action[key];
             }).filter(function (c) {
                 return c;
-            }).map(function (data) {
+            });
+            if (!stack.length) {
+                onDismiss();
+            }
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            var _this = this;
+
+            var _props2 = this.props;
+            var job = _props2.job;
+            var action = _props2.action;
+            var type = _props2.type;
+            var onDismiss = _props2.onDismiss;
+
+            var target = job || action;
+            var types = keys[type][job ? 'job' : 'action'];
+            var stack = Object.keys(types).map(function (key) {
+                var data = job ? job[key] : action[key];
+                if (data) {
+                    return { key: key, data: data, constructor: types[key] };
+                } else {
+                    return null;
+                }
+            }).filter(function (c) {
+                return c;
+            }).map(function (_ref, index) {
+                var key = _ref.key;
+                var data = _ref.data;
+                var constructor = _ref.constructor;
+
                 return _react2["default"].createElement(_QueryBuilder2["default"], {
+                    cloner: function (d) {
+                        return constructor.constructFromObject(JSON.parse(JSON.stringify(d)));
+                    },
                     query: data,
                     queryType: type,
-                    style: { borderBottom: '1px solid #e0e0e0', width: '100%' },
+                    style: { borderBottom: '1px solid #e0e0e0', width: '100%', backgroundColor: '#FAFAFA', borderTop: index === 0 ? '1px solid #e0e0e0' : '' },
                     onRemoveFilter: function (modelType) {
-                        if (job) {
-                            onRemoveFilter(job, data, type, modelType);
-                        } else {
-                            onRemoveFilter(action, data, type, modelType);
-                        }
+                        _this.removeFilter(data, type, modelType);
+                    },
+                    onSave: function (newData) {
+                        target[key] = newData;
                     }
                 });
             });
@@ -45656,7 +45695,7 @@ var Filters = (function (_React$Component) {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./QueryBuilder":482,"./styles":489,"react":"react"}],478:[function(require,module,exports){
+},{"./QueryBuilder":482,"./styles":489,"pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],478:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46132,7 +46171,9 @@ var ProtoValue = (function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            var onDismiss = this.props.onDismiss;
+            var _props = this.props;
+            var onDismiss = _props.onDismiss;
+            var style = _props.style;
             var _state2 = this.state;
             var formParams = _state2.formParams;
             var _state2$formValues = _state2.formValues;
@@ -46141,7 +46182,7 @@ var ProtoValue = (function (_React$Component) {
             if (formParams) {
                 return _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1 },
+                    { zDepth: 2, style: _extends({ position: 'absolute', borderRadius: 10, zIndex: 10, border: '2px solid #fac684', width: 300 }, style) },
                     _react2['default'].createElement(PydioForm.FormPanel, {
                         depth: -1,
                         style: { margin: -10 },
@@ -46421,6 +46462,8 @@ var _ProtoValue = require("./ProtoValue");
 
 var _ProtoValue2 = _interopRequireDefault(_ProtoValue);
 
+var _styles = require("./styles");
+
 var margin = 20;
 
 var QueryBuilder = (function (_React$Component) {
@@ -46431,15 +46474,20 @@ var QueryBuilder = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(QueryBuilder.prototype), 'constructor', this).call(this, props);
         this.graph = new _jointjs.dia.Graph();
-        this.state = this.buildGraph();
+        var _props = this.props;
+        var cloner = _props.cloner;
+        var query = _props.query;
+
+        this.state = _extends({}, this.buildGraph(query), {
+            query: cloner(query),
+            cleanState: query
+        });
     }
 
     _createClass(QueryBuilder, [{
         key: 'detectTypes',
-        value: function detectTypes() {
-            var _props = this.props;
-            var query = _props.query;
-            var queryType = _props.queryType;
+        value: function detectTypes(query) {
+            var queryType = this.props.queryType;
 
             var inputIcon = undefined,
                 outputIcon = undefined,
@@ -46529,10 +46577,12 @@ var QueryBuilder = (function (_React$Component) {
         value: function redraw() {
             var _this = this;
 
+            var query = this.state.query;
+
             this.graph.getCells().forEach(function (c) {
                 return c.remove();
             });
-            var bbox = this.buildGraph();
+            var bbox = this.buildGraph(query);
             this.setState(bbox, function () {
                 _this.paper.setDimensions(bbox.width + margin * 2, bbox.height + margin * 2);
             });
@@ -46568,7 +46618,7 @@ var QueryBuilder = (function (_React$Component) {
             var sQ = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
             var root = false;
-            var query = this.props.query;
+            var query = this.state.query;
 
             if (sQ === null) {
                 if (!query.Query) {
@@ -46708,12 +46758,8 @@ var QueryBuilder = (function (_React$Component) {
         }
     }, {
         key: 'buildGraph',
-        value: function buildGraph() {
-            var query = this.props.query;
-
-            console.log(query);
-
-            var _detectTypes = this.detectTypes();
+        value: function buildGraph(query) {
+            var _detectTypes = this.detectTypes(query);
 
             var inputIcon = _detectTypes.inputIcon;
             var outputIcon = _detectTypes.outputIcon;
@@ -46774,26 +46820,36 @@ var QueryBuilder = (function (_React$Component) {
                 var query = elementView.model.query;
                 query.Operation = query.Operation === 'AND' ? 'OR' : 'AND';
                 _this5.redraw();
+                _this5.setDirty();
             });
             this.paper.on('cluster:add', function (elementView, evt) {
                 _this5.setState({
                     queryAddProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    aPosition: elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
             this.paper.on('cluster:split', function (elementView, evt) {
                 _this5.setState({
                     querySplitProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    aPosition: elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
             this.paper.on('root:add', function (elementView, evt) {
-                var query = _this5.props.query;
+                var query = _this5.state.query;
 
                 query.Query = _pydioHttpRestApi.ServiceQuery.constructFromObject({ SubQueries: [], Operation: 'OR' });
                 _this5.setState({
                     queryAddProto: query.Query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    aPosition: elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
             this.paper.on('query:select', function (elementView, evt) {
@@ -46803,7 +46859,13 @@ var QueryBuilder = (function (_React$Component) {
 
                 _this5.clearSelection();
                 elementView.model.select();
-                _this5.setState({ selectedProto: proto, selectedFieldName: fieldName });
+                _this5.setState({
+                    selectedProto: proto,
+                    selectedFieldName: fieldName,
+                    aPosition: elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
+                });
             });
             this.paper.on('cluster:delete', function (elementView) {
                 var query = elementView.model.query;
@@ -46811,6 +46873,7 @@ var QueryBuilder = (function (_React$Component) {
                 query.SubQueries = [];
                 _this5.pruneEmpty();
                 _this5.redraw();
+                _this5.setDirty();
             });
             this.paper.on('query:delete', function (elementView) {
                 var _elementView$model2 = elementView.model;
@@ -46823,6 +46886,7 @@ var QueryBuilder = (function (_React$Component) {
                 });
                 _this5.pruneEmpty();
                 _this5.redraw();
+                _this5.setDirty();
             });
         }
     }, {
@@ -46838,9 +46902,8 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'remove',
         value: function remove() {
-            var _props2 = this.props;
-            var onRemoveFilter = _props2.onRemoveFilter;
-            var query = _props2.query;
+            var onRemoveFilter = this.props.onRemoveFilter;
+            var query = this.state.query;
 
             var modelType = undefined;
             if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
@@ -46890,20 +46953,57 @@ var QueryBuilder = (function (_React$Component) {
                 querySplitProto.SubQueries = [newBranch1, newBranch2];
             }
             this.redraw();
+            this.setDirty();
+        }
+    }, {
+        key: 'setDirty',
+        value: function setDirty() {
+            this.setState({ dirty: true });
+        }
+    }, {
+        key: 'revert',
+        value: function revert() {
+            var _this6 = this;
+
+            var cloner = this.props.cloner;
+            var cleanState = this.state.cleanState;
+
+            this.setState({ dirty: false, query: cloner(cleanState) }, function () {
+                _this6.redraw();
+            });
+        }
+    }, {
+        key: 'save',
+        value: function save() {
+            var query = this.state.query;
+            var _props2 = this.props;
+            var onSave = _props2.onSave;
+            var cloner = _props2.cloner;
+
+            onSave(query);
+            this.setState({
+                dirty: false,
+                cleanState: cloner(query)
+            });
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this7 = this;
 
             var _props3 = this.props;
             var queryType = _props3.queryType;
             var style = _props3.style;
             var _state3 = this.state;
+            var query = _state3.query;
             var selectedProto = _state3.selectedProto;
             var selectedFieldName = _state3.selectedFieldName;
+            var dirty = _state3.dirty;
+            var aPosition = _state3.aPosition;
+            var aSize = _state3.aSize;
+            var aScrollLeft = _state3.aScrollLeft;
 
-            var _detectTypes2 = this.detectTypes();
+            var _detectTypes2 = this.detectTypes(query);
 
             var objectType = _detectTypes2.objectType;
             var singleQuery = _detectTypes2.singleQuery;
@@ -46912,15 +47012,32 @@ var QueryBuilder = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                { style: style },
+                { style: _extends({}, style, { position: 'relative' }) },
                 _react2['default'].createElement(
                     'div',
-                    null,
-                    title
+                    { style: { display: 'flex', fontSize: 15, padding: 10 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        title
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        null,
+                        dirty && _react2['default'].createElement('span', { className: "mdi mdi-undo", onClick: function () {
+                                _this7.revert();
+                            }, style: { color: '#9e9e9e', cursor: 'pointer' } }),
+                        dirty && _react2['default'].createElement('span', { className: "mdi mdi-content-save", onClick: function () {
+                                _this7.save();
+                            }, style: { color: '#9e9e9e', cursor: 'pointer' } }),
+                        _react2['default'].createElement('span', { className: "mdi mdi-delete", onClick: function () {
+                                _this7.remove();
+                            }, style: { color: '#9e9e9e', cursor: 'pointer' } })
+                    )
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { width: '100%', overflowX: 'auto' } },
+                    { style: { width: '100%', overflowX: 'auto' }, ref: "scroller" },
                     _react2['default'].createElement('div', { ref: "graph", id: "graph" })
                 ),
                 selectedProto && _react2['default'].createElement(_ProtoValue2['default'], {
@@ -46928,13 +47045,13 @@ var QueryBuilder = (function (_React$Component) {
                     singleQuery: singleQuery,
                     fieldName: selectedFieldName,
                     onChange: function (f, v, nP) {
-                        _this6.changeQueryValue(f, v, nP);
+                        _this7.changeQueryValue(f, v, nP);
                     },
                     onDismiss: function () {
-                        _this6.clearSelection();
-                    }
-                }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: "Remove", onTouchTap: this.remove.bind(this) })
+                        _this7.clearSelection();
+                    },
+                    style: (0, _styles.position)(300, aSize, aPosition, aScrollLeft, 40)
+                })
             );
         }
     }]);
@@ -46945,7 +47062,7 @@ var QueryBuilder = (function (_React$Component) {
 exports['default'] = QueryBuilder;
 module.exports = exports['default'];
 
-},{"../graph/Link":494,"./ProtoValue":480,"./Query":481,"./QueryCluster":483,"./QueryConnector":484,"./QueryInput":485,"./QueryOutput":486,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],483:[function(require,module,exports){
+},{"../graph/Link":494,"./ProtoValue":480,"./Query":481,"./QueryCluster":483,"./QueryConnector":484,"./QueryInput":485,"./QueryOutput":486,"./styles":489,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],483:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47818,7 +47935,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -47859,11 +47976,12 @@ var styles = {
 };
 
 function position(width, sourceSize, sourcePosition, scrollLeft) {
+    var topOffset = arguments.length <= 4 || arguments[4] === undefined ? 0 : arguments[4];
 
     var top = undefined,
         left = undefined;
     left = sourcePosition.x + (sourceSize.width - width) / 2 - scrollLeft;
-    top = sourcePosition.y + sourceSize.height + 10;
+    top = sourcePosition.y + sourceSize.height + 10 + topOffset;
     return { top: top, left: left, width: width };
 }
 

@@ -118,11 +118,11 @@ class ProtoValue extends React.Component {
     }
 
     render(){
-        const {onDismiss} = this.props;
+        const {onDismiss, style} = this.props;
         const {formParams, formValues = {}} = this.state;
         if(formParams){
             return (
-                <Paper zDepth={1}>
+                <Paper zDepth={2} style={{position:'absolute', borderRadius: 10, zIndex: 10, border:'2px solid #fac684', width: 300, ...style}}>
                     <PydioForm.FormPanel
                         depth={-1}
                         style={{margin: -10}}

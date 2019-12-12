@@ -66,6 +66,8 @@ var _ProtoValue = require("./ProtoValue");
 
 var _ProtoValue2 = _interopRequireDefault(_ProtoValue);
 
+var _styles = require("./styles");
+
 var margin = 20;
 
 var QueryBuilder = (function (_React$Component) {
@@ -76,15 +78,20 @@ var QueryBuilder = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(QueryBuilder.prototype), 'constructor', this).call(this, props);
         this.graph = new _jointjs.dia.Graph();
-        this.state = this.buildGraph();
+        var _props = this.props;
+        var cloner = _props.cloner;
+        var query = _props.query;
+
+        this.state = _extends({}, this.buildGraph(query), {
+            query: cloner(query),
+            cleanState: query
+        });
     }
 
     _createClass(QueryBuilder, [{
         key: 'detectTypes',
-        value: function detectTypes() {
-            var _props = this.props;
-            var query = _props.query;
-            var queryType = _props.queryType;
+        value: function detectTypes(query) {
+            var queryType = this.props.queryType;
 
             var inputIcon = undefined,
                 outputIcon = undefined,
@@ -174,10 +181,12 @@ var QueryBuilder = (function (_React$Component) {
         value: function redraw() {
             var _this = this;
 
+            var query = this.state.query;
+
             this.graph.getCells().forEach(function (c) {
                 return c.remove();
             });
-            var bbox = this.buildGraph();
+            var bbox = this.buildGraph(query);
             this.setState(bbox, function () {
                 _this.paper.setDimensions(bbox.width + margin * 2, bbox.height + margin * 2);
             });
@@ -213,7 +222,7 @@ var QueryBuilder = (function (_React$Component) {
             var sQ = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
             var root = false;
-            var query = this.props.query;
+            var query = this.state.query;
 
             if (sQ === null) {
                 if (!query.Query) {
@@ -353,12 +362,8 @@ var QueryBuilder = (function (_React$Component) {
         }
     }, {
         key: 'buildGraph',
-        value: function buildGraph() {
-            var query = this.props.query;
-
-            console.log(query);
-
-            var _detectTypes = this.detectTypes();
+        value: function buildGraph(query) {
+            var _detectTypes = this.detectTypes(query);
 
             var inputIcon = _detectTypes.inputIcon;
             var outputIcon = _detectTypes.outputIcon;
@@ -419,26 +424,36 @@ var QueryBuilder = (function (_React$Component) {
                 var query = elementView.model.query;
                 query.Operation = query.Operation === 'AND' ? 'OR' : 'AND';
                 _this5.redraw();
+                _this5.setDirty();
             });
             this.paper.on('cluster:add', function (elementView, evt) {
                 _this5.setState({
                     queryAddProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    aPosition: elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
             this.paper.on('cluster:split', function (elementView, evt) {
                 _this5.setState({
                     querySplitProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    aPosition: elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
             this.paper.on('root:add', function (elementView, evt) {
-                var query = _this5.props.query;
+                var query = _this5.state.query;
 
                 query.Query = _pydioHttpRestApi.ServiceQuery.constructFromObject({ SubQueries: [], Operation: 'OR' });
                 _this5.setState({
                     queryAddProto: query.Query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    aPosition: elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
             this.paper.on('query:select', function (elementView, evt) {
@@ -448,7 +463,13 @@ var QueryBuilder = (function (_React$Component) {
 
                 _this5.clearSelection();
                 elementView.model.select();
-                _this5.setState({ selectedProto: proto, selectedFieldName: fieldName });
+                _this5.setState({
+                    selectedProto: proto,
+                    selectedFieldName: fieldName,
+                    aPosition: elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
+                });
             });
             this.paper.on('cluster:delete', function (elementView) {
                 var query = elementView.model.query;
@@ -456,6 +477,7 @@ var QueryBuilder = (function (_React$Component) {
                 query.SubQueries = [];
                 _this5.pruneEmpty();
                 _this5.redraw();
+                _this5.setDirty();
             });
             this.paper.on('query:delete', function (elementView) {
                 var _elementView$model2 = elementView.model;
@@ -468,6 +490,7 @@ var QueryBuilder = (function (_React$Component) {
                 });
                 _this5.pruneEmpty();
                 _this5.redraw();
+                _this5.setDirty();
             });
         }
     }, {
@@ -483,9 +506,8 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'remove',
         value: function remove() {
-            var _props2 = this.props;
-            var onRemoveFilter = _props2.onRemoveFilter;
-            var query = _props2.query;
+            var onRemoveFilter = this.props.onRemoveFilter;
+            var query = this.state.query;
 
             var modelType = undefined;
             if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
@@ -535,20 +557,57 @@ var QueryBuilder = (function (_React$Component) {
                 querySplitProto.SubQueries = [newBranch1, newBranch2];
             }
             this.redraw();
+            this.setDirty();
+        }
+    }, {
+        key: 'setDirty',
+        value: function setDirty() {
+            this.setState({ dirty: true });
+        }
+    }, {
+        key: 'revert',
+        value: function revert() {
+            var _this6 = this;
+
+            var cloner = this.props.cloner;
+            var cleanState = this.state.cleanState;
+
+            this.setState({ dirty: false, query: cloner(cleanState) }, function () {
+                _this6.redraw();
+            });
+        }
+    }, {
+        key: 'save',
+        value: function save() {
+            var query = this.state.query;
+            var _props2 = this.props;
+            var onSave = _props2.onSave;
+            var cloner = _props2.cloner;
+
+            onSave(query);
+            this.setState({
+                dirty: false,
+                cleanState: cloner(query)
+            });
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this7 = this;
 
             var _props3 = this.props;
             var queryType = _props3.queryType;
             var style = _props3.style;
             var _state3 = this.state;
+            var query = _state3.query;
             var selectedProto = _state3.selectedProto;
             var selectedFieldName = _state3.selectedFieldName;
+            var dirty = _state3.dirty;
+            var aPosition = _state3.aPosition;
+            var aSize = _state3.aSize;
+            var aScrollLeft = _state3.aScrollLeft;
 
-            var _detectTypes2 = this.detectTypes();
+            var _detectTypes2 = this.detectTypes(query);
 
             var objectType = _detectTypes2.objectType;
             var singleQuery = _detectTypes2.singleQuery;
@@ -557,15 +616,32 @@ var QueryBuilder = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                { style: style },
+                { style: _extends({}, style, { position: 'relative' }) },
                 _react2['default'].createElement(
                     'div',
-                    null,
-                    title
+                    { style: { display: 'flex', fontSize: 15, padding: 10 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        title
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        null,
+                        dirty && _react2['default'].createElement('span', { className: "mdi mdi-undo", onClick: function () {
+                                _this7.revert();
+                            }, style: { color: '#9e9e9e', cursor: 'pointer' } }),
+                        dirty && _react2['default'].createElement('span', { className: "mdi mdi-content-save", onClick: function () {
+                                _this7.save();
+                            }, style: { color: '#9e9e9e', cursor: 'pointer' } }),
+                        _react2['default'].createElement('span', { className: "mdi mdi-delete", onClick: function () {
+                                _this7.remove();
+                            }, style: { color: '#9e9e9e', cursor: 'pointer' } })
+                    )
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { width: '100%', overflowX: 'auto' } },
+                    { style: { width: '100%', overflowX: 'auto' }, ref: "scroller" },
                     _react2['default'].createElement('div', { ref: "graph", id: "graph" })
                 ),
                 selectedProto && _react2['default'].createElement(_ProtoValue2['default'], {
@@ -573,13 +649,13 @@ var QueryBuilder = (function (_React$Component) {
                     singleQuery: singleQuery,
                     fieldName: selectedFieldName,
                     onChange: function (f, v, nP) {
-                        _this6.changeQueryValue(f, v, nP);
+                        _this7.changeQueryValue(f, v, nP);
                     },
                     onDismiss: function () {
-                        _this6.clearSelection();
-                    }
-                }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: "Remove", onTouchTap: this.remove.bind(this) })
+                        _this7.clearSelection();
+                    },
+                    style: (0, _styles.position)(300, aSize, aPosition, aScrollLeft, 40)
+                })
             );
         }
     }]);

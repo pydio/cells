@@ -89,7 +89,9 @@ var ProtoValue = (function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            var onDismiss = this.props.onDismiss;
+            var _props = this.props;
+            var onDismiss = _props.onDismiss;
+            var style = _props.style;
             var _state2 = this.state;
             var formParams = _state2.formParams;
             var _state2$formValues = _state2.formValues;
@@ -98,7 +100,7 @@ var ProtoValue = (function (_React$Component) {
             if (formParams) {
                 return _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1 },
+                    { zDepth: 2, style: _extends({ position: 'absolute', borderRadius: 10, zIndex: 10, border: '2px solid #fac684', width: 300 }, style) },
                     _react2['default'].createElement(PydioForm.FormPanel, {
                         depth: -1,
                         style: { margin: -10 },

@@ -48,6 +48,15 @@ text[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , te
 text[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{
     font-size: 18px;
 }
+.react-mui-context .pydio-form-panel{
+    padding-bottom: 0;
+}
+.react-mui-context .pydio-form-panel .form-legend{
+    display:none;
+}
+.react-mui-context .pydio-form-panel>.pydio-form-group{
+    margin: 12px;
+}
 `;
 
 const readonlyStyle = `

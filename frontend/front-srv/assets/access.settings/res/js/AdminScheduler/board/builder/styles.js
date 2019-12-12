@@ -27,11 +27,11 @@ const styles =  {
     }
 };
 
-function position(width, sourceSize, sourcePosition, scrollLeft) {
+function position(width, sourceSize, sourcePosition, scrollLeft, topOffset = 0) {
 
     let top, left;
     left = sourcePosition.x + (sourceSize.width - width) / 2 - scrollLeft;
-    top = sourcePosition.y + sourceSize.height + 10;
+    top = sourcePosition.y + sourceSize.height + 10 + topOffset;
     return {top, left, width};
 
 }

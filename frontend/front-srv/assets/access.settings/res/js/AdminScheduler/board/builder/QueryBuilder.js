@@ -12,6 +12,7 @@ import QueryCluster from "./QueryCluster";
 import QueryInput from "./QueryInput";
 import QueryOutput from "./QueryOutput";
 import ProtoValue from "./ProtoValue";
+import {position} from "./styles";
 
 const margin = 20;
 
@@ -20,11 +21,16 @@ class QueryBuilder extends React.Component {
     constructor(props){
         super(props);
         this.graph = new dia.Graph();
-        this.state = this.buildGraph();
+        const {cloner, query} = this.props;
+        this.state = {
+            ...this.buildGraph(query),
+            query: cloner(query),
+            cleanState: query,
+        };
     }
 
-    detectTypes(){
-        const {query, queryType} = this.props;
+    detectTypes(query){
+        const {queryType} = this.props;
         let inputIcon, outputIcon, singleQuery;
         let objectType = 'node';
         if(query instanceof JobsNodesSelector) {
@@ -109,8 +115,9 @@ class QueryBuilder extends React.Component {
     }
 
     redraw(){
+        const {query} = this.state;
         this.graph.getCells().forEach(c => c.remove());
-        const bbox = this.buildGraph();
+        const bbox = this.buildGraph(query);
         this.setState(bbox, () => {
             this.paper.setDimensions(bbox.width + margin*2, bbox.height + margin*2);
         });
@@ -138,7 +145,7 @@ class QueryBuilder extends React.Component {
 
     pruneEmpty(sQ = null) {
         let root = false;
-        const {query} = this.props;
+        const {query} = this.state;
         if(sQ === null){
             if(!query.Query){
                 return;
@@ -238,10 +245,8 @@ class QueryBuilder extends React.Component {
         }
     }
 
-    buildGraph(){
-        const {query} = this.props;
-        console.log(query);
-        const {inputIcon, outputIcon} = this.detectTypes();
+    buildGraph(query){
+        const {inputIcon, outputIcon} = this.detectTypes(query);
         const input = new QueryInput(inputIcon);
         const output = new QueryOutput(outputIcon);
         input.addTo(this.graph);
@@ -290,38 +295,55 @@ class QueryBuilder extends React.Component {
             const query = elementView.model.query;
             query.Operation = (query.Operation === 'AND' ? 'OR' : 'AND');
             this.redraw();
+            this.setDirty();
         });
         this.paper.on('cluster:add', (elementView, evt) => {
             this.setState({
                 queryAddProto: elementView.model.query,
-                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'})
+                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'}),
+                aPosition:elementView.model.position(),
+                aSize: elementView.model.size(),
+                aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
             });
         });
         this.paper.on('cluster:split', (elementView, evt) => {
             this.setState({
                 querySplitProto: elementView.model.query,
-                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'})
+                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'}),
+                aPosition:elementView.model.position(),
+                aSize: elementView.model.size(),
+                aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
             });
         });
         this.paper.on('root:add', (elementView, evt) => {
-            const {query} = this.props;
+            const {query} = this.state;
             query.Query = ServiceQuery.constructFromObject({SubQueries:[], Operation:'OR'});
             this.setState({
                 queryAddProto: query.Query,
-                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'})
+                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'}),
+                aPosition:elementView.model.position(),
+                aSize: elementView.model.size(),
+                aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
             });
         });
         this.paper.on('query:select', (elementView, evt) => {
             const {proto, fieldName} = elementView.model;
             this.clearSelection();
             elementView.model.select();
-            this.setState({selectedProto: proto, selectedFieldName: fieldName});
+            this.setState({
+                selectedProto: proto,
+                selectedFieldName: fieldName,
+                aPosition:elementView.model.position(),
+                aSize: elementView.model.size(),
+                aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
+            });
         });
         this.paper.on('cluster:delete', (elementView) => {
             const {query} = elementView.model;
             query.SubQueries = [];
             this.pruneEmpty();
             this.redraw();
+            this.setDirty();
         });
         this.paper.on('query:delete', (elementView) => {
             const {parentQuery, proto} = elementView.model;
@@ -329,6 +351,7 @@ class QueryBuilder extends React.Component {
             parentQuery.SubQueries = parentQuery.SubQueries.filter(q => q !== proto);
             this.pruneEmpty();
             this.redraw();
+            this.setDirty();
         })
     }
 
@@ -338,7 +361,8 @@ class QueryBuilder extends React.Component {
     }
 
     remove(){
-        const {onRemoveFilter, query} = this.props;
+        const {onRemoveFilter} = this.props;
+        const {query} = this.state;
         let modelType;
         if(query instanceof JobsNodesSelector){
             modelType = 'node'
@@ -382,19 +406,49 @@ class QueryBuilder extends React.Component {
             querySplitProto.SubQueries = [newBranch1, newBranch2];
         }
         this.redraw();
+        this.setDirty();
+    }
+
+    setDirty(){
+        this.setState({dirty: true});
+    }
+
+    revert(){
+        const {cloner} = this.props;
+        const {cleanState} = this.state;
+        this.setState({dirty: false, query: cloner(cleanState)}, () => {
+            this.redraw();
+        })
+    }
+
+    save(){
+        const {query} = this.state;
+        const {onSave, cloner} = this.props;
+        onSave(query);
+        this.setState({
+            dirty: false,
+            cleanState: cloner(query)
+        });
     }
 
     render() {
 
         const {queryType, style} = this.props;
-        const {selectedProto, selectedFieldName} = this.state;
-        const {objectType, singleQuery} = this.detectTypes();
+        const {query, selectedProto, selectedFieldName, dirty, aPosition, aSize, aScrollLeft} = this.state;
+        const {objectType, singleQuery} = this.detectTypes(query);
         const title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' +  objectType + (queryType === 'filter' ? '' : 's');
 
         return (
-            <div style={style}>
-                <div>{title}</div>
-                <div style={{width:'100%', overflowX:'auto'}}>
+            <div style={{...style, position:'relative'}}>
+                <div style={{display:'flex', fontSize: 15, padding: 10}}>
+                    <div style={{flex: 1}}>{title}</div>
+                    <div>
+                        {dirty && <span className={"mdi mdi-undo"} onClick={()=>{this.revert()}} style={{color: '#9e9e9e', cursor: 'pointer'}}/>}
+                        {dirty && <span className={"mdi mdi-content-save"} onClick={()=>{this.save()}} style={{color: '#9e9e9e', cursor: 'pointer'}}/>}
+                        <span className={"mdi mdi-delete"} onClick={()=>{this.remove()}} style={{color: '#9e9e9e', cursor: 'pointer'}}/>
+                    </div>
+                </div>
+                <div style={{width:'100%', overflowX:'auto'}} ref={"scroller"}>
                     <div ref={"graph"} id={"graph"}></div>
                 </div>
                 {selectedProto &&
@@ -404,9 +458,9 @@ class QueryBuilder extends React.Component {
                     fieldName={selectedFieldName}
                     onChange={(f,v,nP) => {this.changeQueryValue(f,v,nP)}}
                     onDismiss={()=>{this.clearSelection()}}
+                    style={position(300, aSize, aPosition, aScrollLeft, 40)}
                 />
                 }
-                <FlatButton label={"Remove"} onTouchTap={this.remove.bind(this)}/>
             </div>
         );
     }
