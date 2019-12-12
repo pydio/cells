@@ -6,7 +6,9 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -19,32 +21,62 @@ var _graphConfigs = require("../graph/Configs");
 var Query = (function (_shapes$devs$Model) {
     _inherits(Query, _shapes$devs$Model);
 
-    function Query(fieldName) {
-        var fieldValue = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+    function Query(proto, fieldName) {
+        var parentQuery = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+        var isNot = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
         _classCallCheck(this, Query);
 
         var size = { width: 140, height: 40 };
 
         var typeLabel = fieldName;
-        if (fieldValue) {
-            typeLabel = fieldName + ': ' + fieldValue;
+        if (proto) {
+            var fieldValue = proto.value[fieldName];
+            if (fieldValue) {
+                typeLabel = fieldName + ': ' + fieldValue;
+            }
         }
-        if (typeLabel.length > 20) {
-            typeLabel = typeLabel.substr(0, 17) + '...';
+        if (typeLabel.length > 17) {
+            typeLabel = typeLabel.substr(0, 14) + '...';
+        }
+        if (isNot) {
+            typeLabel = "[!] " + typeLabel;
         }
 
         _get(Object.getPrototypeOf(Query.prototype), 'constructor', this).call(this, {
             size: _extends({}, size),
             inPorts: ['input'],
             outPorts: ['output'],
+            markup: [{ tagName: 'rect', selector: 'body' }, { tagName: 'text', selector: 'label' }, { tagName: 'text', selector: 'remove' }],
             attrs: {
-                '.body': _extends({}, size, _graphConfigs.WhiteRect),
-                '.label': { text: typeLabel, magnet: false, refY: 2, fill: _graphConfigs.DarkGrey, 'text-anchor': 'middle', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500 }
+                'body': _extends({}, size, _graphConfigs.WhiteRect, { event: 'query:select' }),
+                'label': { text: typeLabel, magnet: false, refX: -10, refX2: '50%', refY: '50%', refY2: -8, fill: _graphConfigs.DarkGrey, 'text-anchor': 'middle', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500, event: 'query:select' },
+                'remove': { text: '-', magnet: false, refX: '100%', refX2: -20, refY: '50%', refY2: -8, cursor: 'pointer', event: 'query:delete', fill: _graphConfigs.DarkGrey, 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500 }
             },
             ports: _graphConfigs.PortsConfig
         });
+
+        if (!proto) {
+            this.attr('remove/text', '+');
+            this.attr('remove/event', 'root:add');
+        }
+
+        this.proto = proto;
+        this.fieldName = fieldName;
+        this.parentQuery = parentQuery;
     }
+
+    _createClass(Query, [{
+        key: 'select',
+        value: function select() {
+            this.attr('body/stroke', _graphConfigs.Orange);
+        }
+    }, {
+        key: 'deselect',
+        value: function deselect() {
+            this.attr('body/stroke', _graphConfigs.LightGrey);
+        }
+    }]);
 
     return Query;
 })(_jointjs.shapes.devs.Model);

@@ -4,9 +4,11 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -42,15 +44,27 @@ var _graphLink = require("../graph/Link");
 
 var _graphLink2 = _interopRequireDefault(_graphLink);
 
-var _Input = require("./Input");
-
-var _Input2 = _interopRequireDefault(_Input);
-
-var _Output = require("./Output");
-
-var _Output2 = _interopRequireDefault(_Output);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _QueryConnector = require("./QueryConnector");
+
+var _QueryConnector2 = _interopRequireDefault(_QueryConnector);
+
+var _QueryCluster = require("./QueryCluster");
+
+var _QueryCluster2 = _interopRequireDefault(_QueryCluster);
+
+var _QueryInput = require("./QueryInput");
+
+var _QueryInput2 = _interopRequireDefault(_QueryInput);
+
+var _QueryOutput = require("./QueryOutput");
+
+var _QueryOutput2 = _interopRequireDefault(_QueryOutput);
+
+var _ProtoValue = require("./ProtoValue");
+
+var _ProtoValue2 = _interopRequireDefault(_ProtoValue);
 
 var margin = 20;
 
@@ -73,30 +87,37 @@ var QueryBuilder = (function (_React$Component) {
             var queryType = _props.queryType;
 
             var inputIcon = undefined,
-                outputIcon = undefined;
+                outputIcon = undefined,
+                singleQuery = undefined;
             var objectType = 'node';
             if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
                 objectType = 'node';
+                singleQuery = 'tree.Query';
             } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
                 objectType = 'user';
                 switch (query.Type) {
                     case "User":
                         objectType = 'user';
+                        singleQuery = 'idm.UserSingleQuery';
                         break;
                     case "Workspace":
                         objectType = 'workspace';
+                        singleQuery = 'idm.WorkspaceSingleQuery';
                         break;
                     case "Role":
                         objectType = 'role';
+                        singleQuery = 'idm.RoleSingleQuery';
                         break;
                     case "Acl":
                         objectType = 'acl';
+                        singleQuery = 'idm.ACLSingleQuery';
                         break;
                     default:
                         break;
                 }
             } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
                 objectType = 'user';
+                singleQuery = 'idm.UserSingleQuery';
             }
 
             if (queryType === 'selector') {
@@ -146,42 +167,221 @@ var QueryBuilder = (function (_React$Component) {
                         break;
                 }
             }
-            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType };
+            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType, singleQuery: singleQuery };
+        }
+    }, {
+        key: 'redraw',
+        value: function redraw() {
+            var _this = this;
+
+            this.graph.getCells().forEach(function (c) {
+                return c.remove();
+            });
+            var bbox = this.buildGraph();
+            this.setState(bbox, function () {
+                _this.paper.setDimensions(bbox.width + margin * 2, bbox.height + margin * 2);
+            });
+        }
+    }, {
+        key: 'protoHasChildren',
+        value: function protoHasChildren(p) {
+            var _this2 = this;
+
+            if (!Object.keys(p).length) {
+                return false;
+            }
+            if (p.SubQueries === undefined) {
+                return true;
+            }
+            if (p.SubQueries !== undefined && !p.SubQueries.length) {
+                return false;
+            }
+            var has = true;
+            p.SubQueries.forEach(function (sub) {
+                var subHas = _this2.protoHasChildren(sub.value);
+                if (!subHas) {
+                    has = false;
+                }
+            });
+            return has;
+        }
+    }, {
+        key: 'pruneEmpty',
+        value: function pruneEmpty() {
+            var _this3 = this;
+
+            var sQ = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+            var root = false;
+            var query = this.props.query;
+
+            if (sQ === null) {
+                if (!query.Query) {
+                    return;
+                }
+                root = true;
+                sQ = query.Query;
+            }
+            if (sQ.SubQueries !== undefined) {
+                sQ.SubQueries.forEach(function (sub) {
+                    _this3.pruneEmpty(sub.value);
+                    if (!_this3.protoHasChildren(sub.value)) {
+                        sQ.SubQueries = sQ.SubQueries.filter(function (c) {
+                            return c !== sub;
+                        });
+                    }
+                });
+            }
+            if (root && sQ.SubQueries && sQ.SubQueries.length === 0) {
+                delete query.Query;
+                query.All = true;
+            }
+        }
+
+        /**
+         *
+         * @param graph
+         * @param input
+         * @param query
+         * @return Object
+         */
+    }, {
+        key: 'buildServiceQuery',
+        value: function buildServiceQuery(graph, input, query) {
+            var _this4 = this;
+
+            var _query$Operation = query.Operation;
+            var Operation = _query$Operation === undefined ? 'OR' : _query$Operation;
+            var SubQueries = query.SubQueries;
+
+            // Show cluster
+            var cluster = new _QueryCluster2['default'](query);
+            cluster.addTo(graph);
+            if (Operation === 'OR') {
+                var _ret = (function () {
+                    var output = undefined,
+                        connector = undefined;
+                    if (SubQueries.length > 1) {
+                        connector = new _QueryConnector2['default']();
+                        connector.addTo(graph);
+                        output = connector;
+                    }
+                    //const output = new QueryConnector();
+                    //output.addTo(graph);
+                    SubQueries.forEach(function (q) {
+                        if (q.type_url === 'type.googleapis.com/service.Query' && q.value.SubQueries) {
+                            var _buildServiceQuery = _this4.buildServiceQuery(graph, input, q.value);
+
+                            var subCluster = _buildServiceQuery.cluster;
+                            var last = _buildServiceQuery.last;
+
+                            cluster.embed(subCluster);
+                            if (last instanceof _QueryConnector2['default']) {
+                                cluster.embed(last);
+                            }
+                            if (connector) {
+                                var link2 = new _graphLink2['default'](last.id, last instanceof _QueryConnector2['default'] ? 'input' : 'output', connector.id, 'input');
+                                link2.addTo(_this4.graph);
+                            } else {
+                                output = last;
+                            }
+                        } else {
+                            (function () {
+                                var isNot = q.value.Not || q.value.not;
+                                Object.keys(q.value).filter(function (k) {
+                                    return k.toLowerCase() !== 'not';
+                                }).forEach(function (key) {
+                                    var field = new _Query2['default'](q, key, query, isNot);
+                                    field.addTo(_this4.graph);
+                                    var link = new _graphLink2['default'](input.id, input instanceof _QueryConnector2['default'] ? 'input' : 'output', field.id, 'input');
+                                    link.addTo(_this4.graph);
+                                    cluster.embed(field);
+                                    if (connector) {
+                                        var link2 = new _graphLink2['default'](field.id, 'output', connector.id, 'input');
+                                        link2.addTo(_this4.graph);
+                                    } else {
+                                        output = field;
+                                    }
+                                });
+                            })();
+                        }
+                    });
+                    return {
+                        v: { cluster: cluster, last: output }
+                    };
+                })();
+
+                if (typeof _ret === 'object') return _ret.v;
+            } else {
+                var _ret3 = (function () {
+                    var lastOp = input;
+                    SubQueries.forEach(function (q) {
+                        if (q.type_url === 'type.googleapis.com/service.Query' && q.value.SubQueries) {
+                            var _buildServiceQuery2 = _this4.buildServiceQuery(graph, lastOp, q.value);
+
+                            var subCluster = _buildServiceQuery2.cluster;
+                            var last = _buildServiceQuery2.last;
+
+                            lastOp = last;
+                            cluster.embed(subCluster);
+                            if (last instanceof _QueryConnector2['default']) {
+                                cluster.embed(last);
+                            }
+                        } else {
+                            (function () {
+                                var isNot = q.value.Not || q.value.not;
+                                Object.keys(q.value).filter(function (k) {
+                                    return k.toLowerCase() !== 'not';
+                                }).forEach(function (key) {
+                                    var field = new _Query2['default'](q, key, query, isNot);
+                                    field.addTo(_this4.graph);
+                                    var link = new _graphLink2['default'](lastOp.id, lastOp instanceof _QueryConnector2['default'] ? 'input' : 'output', field.id, 'input');
+                                    link.addTo(_this4.graph);
+                                    lastOp = field;
+                                    cluster.embed(field);
+                                });
+                            })();
+                        }
+                    });
+                    return {
+                        v: { cluster: cluster, last: lastOp }
+                    };
+                })();
+
+                if (typeof _ret3 === 'object') return _ret3.v;
+            }
         }
     }, {
         key: 'buildGraph',
         value: function buildGraph() {
-            var _this = this;
-
             var query = this.props.query;
+
+            console.log(query);
 
             var _detectTypes = this.detectTypes();
 
             var inputIcon = _detectTypes.inputIcon;
             var outputIcon = _detectTypes.outputIcon;
 
-            var input = new _Input2['default'](inputIcon);
-            var output = new _Output2['default'](outputIcon);
+            var input = new _QueryInput2['default'](inputIcon);
+            var output = new _QueryOutput2['default'](outputIcon);
             input.addTo(this.graph);
             output.addTo(this.graph);
-            if (query.All) {
-                var all = new _Query2['default']('Select All');
+            if (query.Query && query.Query.SubQueries && query.Query.SubQueries.length) {
+                var _buildServiceQuery3 = this.buildServiceQuery(this.graph, input, query.Query);
+
+                var cluster = _buildServiceQuery3.cluster;
+                var last = _buildServiceQuery3.last;
+
+                var link = new _graphLink2['default'](last.id, last instanceof _QueryConnector2['default'] ? 'input' : 'output', output.id, 'input');
+                link.addTo(this.graph);
+            } else {
+                var all = new _Query2['default'](null, 'Select All');
                 all.addTo(this.graph);
-                var link = new _graphLink2['default'](input.id, 'search', all.id, 'input');
+                var link = new _graphLink2['default'](input.id, 'output', all.id, 'input');
                 link.addTo(this.graph);
                 var link2 = new _graphLink2['default'](all.id, 'output', output.id, 'input');
                 link2.addTo(this.graph);
-            } else if (query.Query && query.Query.SubQueries) {
-                query.Query.SubQueries.forEach(function (q) {
-                    Object.keys(q.value).forEach(function (key) {
-                        var field = new _Query2['default'](key, q.value[key]);
-                        field.addTo(_this.graph);
-                        var link = new _graphLink2['default'](input.id, 'search', field.id, 'input');
-                        link.addTo(_this.graph);
-                        var link2 = new _graphLink2['default'](field.id, 'output', output.id, 'input');
-                        link2.addTo(_this.graph);
-                    });
-                });
             }
             return _jointjs.layout.DirectedGraph.layout(this.graph, {
                 nodeSep: 20,
@@ -190,6 +390,7 @@ var QueryBuilder = (function (_React$Component) {
                 rankDir: "LR",
                 marginX: margin,
                 marginY: margin,
+                clusterPadding: 24,
                 dagre: _dagre2['default'],
                 graphlib: _graphlib2['default']
             });
@@ -197,13 +398,15 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
+            var _this5 = this;
+
             var _state = this.state;
             var width = _state.width;
             var height = _state.height;
 
             this.paper = new _jointjs.dia.Paper({
                 el: _reactDom2['default'].findDOMNode(this.refs.graph),
-                width: 300,
+                width: width + margin * 2,
                 height: height + margin * 2,
                 model: this.graph,
                 interactive: {
@@ -211,6 +414,70 @@ var QueryBuilder = (function (_React$Component) {
                     useLinkTools: false,
                     elementMove: true
                 }
+            });
+            this.paper.on('cluster:type', function (elementView, evt) {
+                var query = elementView.model.query;
+                query.Operation = query.Operation === 'AND' ? 'OR' : 'AND';
+                _this5.redraw();
+            });
+            this.paper.on('cluster:add', function (elementView, evt) {
+                _this5.setState({
+                    queryAddProto: elementView.model.query,
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                });
+            });
+            this.paper.on('cluster:split', function (elementView, evt) {
+                _this5.setState({
+                    querySplitProto: elementView.model.query,
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                });
+            });
+            this.paper.on('root:add', function (elementView, evt) {
+                var query = _this5.props.query;
+
+                query.Query = _pydioHttpRestApi.ServiceQuery.constructFromObject({ SubQueries: [], Operation: 'OR' });
+                _this5.setState({
+                    queryAddProto: query.Query,
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' })
+                });
+            });
+            this.paper.on('query:select', function (elementView, evt) {
+                var _elementView$model = elementView.model;
+                var proto = _elementView$model.proto;
+                var fieldName = _elementView$model.fieldName;
+
+                _this5.clearSelection();
+                elementView.model.select();
+                _this5.setState({ selectedProto: proto, selectedFieldName: fieldName });
+            });
+            this.paper.on('cluster:delete', function (elementView) {
+                var query = elementView.model.query;
+
+                query.SubQueries = [];
+                _this5.pruneEmpty();
+                _this5.redraw();
+            });
+            this.paper.on('query:delete', function (elementView) {
+                var _elementView$model2 = elementView.model;
+                var parentQuery = _elementView$model2.parentQuery;
+                var proto = _elementView$model2.proto;
+
+                console.log(proto, parentQuery);
+                parentQuery.SubQueries = parentQuery.SubQueries.filter(function (q) {
+                    return q !== proto;
+                });
+                _this5.pruneEmpty();
+                _this5.redraw();
+            });
+        }
+    }, {
+        key: 'clearSelection',
+        value: function clearSelection() {
+            this.setState({ queryAddProto: null, querySplitProto: null, selectedProto: null, selectedFieldName: null });
+            this.graph.getCells().filter(function (c) {
+                return c instanceof _Query2['default'];
+            }).forEach(function (cell) {
+                return cell.deselect();
             });
         }
     }, {
@@ -231,15 +498,60 @@ var QueryBuilder = (function (_React$Component) {
             onRemoveFilter(modelType);
         }
     }, {
+        key: 'changeQueryValue',
+        value: function changeQueryValue(newField, newValue, notProps) {
+            var _state2 = this.state;
+            var selectedProto = _state2.selectedProto;
+            var selectedFieldName = _state2.selectedFieldName;
+            var queryAddProto = _state2.queryAddProto;
+            var querySplitProto = _state2.querySplitProto;
+
+            // Clean old values
+            if (selectedFieldName && newField !== selectedFieldName) {
+                delete selectedProto.value[selectedFieldName];
+            }
+            if (notProps) {
+                selectedProto.value = _extends({}, selectedProto.value, notProps);
+            } else {
+                if (selectedProto.value["Not"]) {
+                    delete selectedProto.value["Not"];
+                }
+                if (selectedProto.value["not"]) {
+                    delete selectedProto.value["not"];
+                }
+            }
+            selectedProto.value[newField] = newValue;
+            if (queryAddProto) {
+                if (!queryAddProto.SubQueries) {
+                    queryAddProto.SubQueries = [];
+                }
+                queryAddProto.SubQueries.push(selectedProto);
+            } else if (querySplitProto) {
+                // Create a new branch and move proto inside this branch
+                var newBranch1 = _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/service.Query', SubQueries: [], Operation: 'AND' });
+                var newBranch2 = _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/service.Query', SubQueries: [], Operation: querySplitProto.Operation });
+                newBranch1.value.SubQueries = [selectedProto];
+                newBranch2.value.SubQueries = querySplitProto.SubQueries;
+                querySplitProto.SubQueries = [newBranch1, newBranch2];
+            }
+            this.redraw();
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var _this6 = this;
+
             var _props3 = this.props;
             var queryType = _props3.queryType;
             var style = _props3.style;
+            var _state3 = this.state;
+            var selectedProto = _state3.selectedProto;
+            var selectedFieldName = _state3.selectedFieldName;
 
             var _detectTypes2 = this.detectTypes();
 
             var objectType = _detectTypes2.objectType;
+            var singleQuery = _detectTypes2.singleQuery;
 
             var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
 
@@ -251,7 +563,22 @@ var QueryBuilder = (function (_React$Component) {
                     null,
                     title
                 ),
-                _react2['default'].createElement('div', { ref: "graph", id: "graph" }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { width: '100%', overflowX: 'auto' } },
+                    _react2['default'].createElement('div', { ref: "graph", id: "graph" })
+                ),
+                selectedProto && _react2['default'].createElement(_ProtoValue2['default'], {
+                    proto: selectedProto,
+                    singleQuery: singleQuery,
+                    fieldName: selectedFieldName,
+                    onChange: function (f, v, nP) {
+                        _this6.changeQueryValue(f, v, nP);
+                    },
+                    onDismiss: function () {
+                        _this6.clearSelection();
+                    }
+                }),
                 _react2['default'].createElement(_materialUi.FlatButton, { label: "Remove", onTouchTap: this.remove.bind(this) })
             );
         }

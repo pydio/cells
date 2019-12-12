@@ -31,9 +31,9 @@ function position(width, sourceSize, sourcePosition, scrollLeft) {
 
 class RightPanel extends React.Component{
     render(){
-        const {title, icon, onDismiss, children} = this.props;
+        const {title, icon, onDismiss, width, children} = this.props;
         return (
-            <Paper rounded={false} zDepth={0} style={styles.paper}>
+            <Paper rounded={false} zDepth={0} style={{...styles.paper, width}}>
                 <div style={styles.header}>
                     {icon && <span className={'mdi mdi-' + icon} style={{marginRight: 4}}/>}
                     <span style={{flex: 1}}>{title}</span>

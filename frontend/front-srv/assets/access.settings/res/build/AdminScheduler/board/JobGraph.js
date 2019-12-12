@@ -521,6 +521,7 @@ var JobGraph = (function (_React$Component) {
             var blockProps = { onDismiss: function onDismiss() {
                     _this6.clearSelection();
                 } };
+            var rightWidth = 300;
             if (createNewAction) {
                 selBlock = _react2['default'].createElement(_builderFormPanel2['default'], {
                     actions: descriptions,
@@ -545,6 +546,7 @@ var JobGraph = (function (_React$Component) {
                         }
                     }));
                 } else if (selectionType === 'selector' || selectionType === 'filter') {
+                    rightWidth = 600;
                     if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
                         selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter }));
                     } else {
@@ -602,7 +604,7 @@ var JobGraph = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 0, style: { width: selBlock ? 300 : 0 } },
+                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0 } },
                         selBlock
                     )
                 ),

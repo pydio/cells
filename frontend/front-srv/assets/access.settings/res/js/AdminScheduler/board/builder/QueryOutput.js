@@ -8,7 +8,7 @@ import {
 } from "../graph/Configs";
 
 
-class Output extends shapes.devs.Model{
+class QueryOutput extends shapes.devs.Model{
 
     constructor(icon){
 
@@ -30,4 +30,4 @@ class Output extends shapes.devs.Model{
 
 }
 
-export default Output
+export default QueryOutput

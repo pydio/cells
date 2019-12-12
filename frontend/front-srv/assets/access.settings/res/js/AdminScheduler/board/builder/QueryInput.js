@@ -8,7 +8,7 @@ import {
 } from "../graph/Configs";
 
 
-class Input extends shapes.devs.Model{
+class QueryInput extends shapes.devs.Model{
 
     constructor(icon){
 
@@ -35,4 +35,4 @@ class Input extends shapes.devs.Model{
 
 }
 
-export default Input
+export default QueryInput

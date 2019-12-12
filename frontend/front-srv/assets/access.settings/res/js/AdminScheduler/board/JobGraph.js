@@ -399,6 +399,7 @@ class JobGraph extends React.Component {
         const {onToggleEdit, onEmptyModel, editMode} = this.state;
 
         let blockProps = {onDismiss: ()=>{this.clearSelection()}};
+        let rightWidth = 300;
         if(createNewAction) {
             selBlock = <FormPanel
                 actions={descriptions}
@@ -419,6 +420,7 @@ class JobGraph extends React.Component {
                     onChange={(newAction) => console.log(newAction)}
                 />
             } else if(selectionType === 'selector' || selectionType === 'filter') {
+                rightWidth = 600;
                 if(selectionModel instanceof JobsJob){
                     selBlock =  <Filters job={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter}/>
                 } else {
@@ -454,7 +456,7 @@ class JobGraph extends React.Component {
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">
                         <div id="playground" ref="placeholder"></div>
                     </div>
-                    <Paper zDepth={0} style={{width: selBlock?300:0}}>
+                    <Paper zDepth={0} style={{width: selBlock?rightWidth:0}}>
                         {selBlock}
                     </Paper>
                 </div>

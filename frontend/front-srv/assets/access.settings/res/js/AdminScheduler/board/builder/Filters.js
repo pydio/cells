@@ -22,7 +22,7 @@ export default class Filters extends React.Component {
         }).filter(c => c).map(data => <QueryBuilder
             query={data}
             queryType={type}
-            style={{borderBottom:'1px solid #e0e0e0'}}
+            style={{borderBottom:'1px solid #e0e0e0', width:'100%'}}
             onRemoveFilter={(modelType) => {
                 if(job){
                     onRemoveFilter(job, data, type, modelType);
@@ -46,6 +46,7 @@ export default class Filters extends React.Component {
 
         return (
             <RightPanel
+                width={600}
                 onDismiss={onDismiss}
                 title={title}
                 icon={type === 'filter' ? 'filter' : 'magnify'}

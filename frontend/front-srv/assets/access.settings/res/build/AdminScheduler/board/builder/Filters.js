@@ -62,7 +62,7 @@ var Filters = (function (_React$Component) {
                 return _react2["default"].createElement(_QueryBuilder2["default"], {
                     query: data,
                     queryType: type,
-                    style: { borderBottom: '1px solid #e0e0e0' },
+                    style: { borderBottom: '1px solid #e0e0e0', width: '100%' },
                     onRemoveFilter: function (modelType) {
                         if (job) {
                             onRemoveFilter(job, data, type, modelType);
@@ -88,6 +88,7 @@ var Filters = (function (_React$Component) {
             return _react2["default"].createElement(
                 _styles.RightPanel,
                 {
+                    width: 600,
                     onDismiss: onDismiss,
                     title: title,
                     icon: type === 'filter' ? 'filter' : 'magnify'
