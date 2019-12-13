@@ -16,11 +16,17 @@ class Query extends shapes.devs.Model{
         if(proto){
             const fieldValue = proto.value[fieldName];
             if (fieldValue) {
-                typeLabel = fieldName + (isNot?' != ':' = ') + fieldValue;
+                let value = fieldValue;
+                if (typeof fieldValue === "object"){
+                    value = JSON.stringify(fieldValue);
+                }
+                typeLabel = fieldName + (isNot?' != ':' = ') + value;
             }
         }
+        let truncated = undefined;
         if(typeLabel.length > 22) {
-            typeLabel = typeLabel.substr(0, 19) + '...'
+            truncated = typeLabel;
+            typeLabel = typeLabel.substr(0, 19) + '...';
         }
 
         super({
@@ -33,9 +39,19 @@ class Query extends shapes.devs.Model{
                 {tagName:'text', selector:'remove-icon'}
             ],
             attrs: {
-                'body': { ...size, ...WhiteRect, event:'query:select'},
-                'label': { text: typeLabel,  magnet: false, refX: 12, refY:'50%', refY2:-8, fill:DarkGrey, 'text-anchor':'left', 'font-size': 15, 'font-family':'Roboto', 'font-weight':500, event:'query:select'},
-                'remove-icon':{ text : IconToUnicode('delete'), magnet: false, refX:'100%', refX2: -28, refY: '50%', refY2: -6, cursor: 'pointer', event:'query:delete', fill: Destructive, 'font-size': 15, 'font-family':'Roboto', 'font-weight':500}
+                'body': { ...size, ...WhiteRect, event:'query:select', title:truncated},
+                'label': {
+                    text: typeLabel,  magnet: false, refX: 12, refY:'50%', refY2:-8,
+                    fill:DarkGrey, 'text-anchor':'left', 'font-size': 15, 'font-family':'Roboto', 'font-weight':500,
+                    event:'query:select',
+                    title:truncated
+                },
+                'remove-icon':{
+                    text : IconToUnicode('delete'), magnet: false, refX:'100%', refX2: -28, refY: '50%', refY2: -6,
+                    cursor: 'pointer',fill: Destructive, 'font-size': 15, 'font-family':'Roboto', 'font-weight':500,
+                    event:'query:delete',
+                    title: 'Remove condition'
+                }
             },
             ports: PortsConfig
         });

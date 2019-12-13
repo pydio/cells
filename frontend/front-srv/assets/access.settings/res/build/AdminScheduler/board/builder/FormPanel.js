@@ -270,7 +270,7 @@ var FormPanel = (function (_React$Component) {
                 ),
                 formParams && _react2['default'].createElement(
                     'div',
-                    { style: { margin: -10 } },
+                    null,
                     _react2['default'].createElement(PydioForm.FormPanel, {
                         ref: 'formPanel',
                         depth: -1,

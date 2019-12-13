@@ -45,10 +45,30 @@ class QueryCluster extends shapes.basic.Rect{
                 rect: {refWidth: '100%', refHeight: '100%', refY: 10, refHeight2: -20, rx: 5, ry: 5, fill: 'transparent', stroke: LightGrey, 'stroke-width': 2, strokeDasharray: '5,2', cursor:'default'},
                 'hover-rect':{refWidth:'100%', height: 20, refX: 0, refY: -10, fill: 'transparent'},
                 'type-label':{text: typeLabel, fill: LightGrey, refX: '-50%', refX2: 5, refY: '-50%', 'text-anchor':'left', cursor:'pointer', event:'cluster:type'},
-                'swap-icon':{text: IconToUnicode('swap-horizontal'), fill:Blue, refX: '-50%', refX2: typeLabel === 'AND' ? 35 : 25, refY: '-50%', 'text-anchor':'right', cursor:'pointer', event:'cluster:type'},
-                'remove-icon':{text: IconToUnicode('delete'), fill:Destructive, refX: '50%', refX2: -60, refY: '-50%', 'text-anchor':'right', cursor:'pointer', event:'cluster:delete'},
-                'split-icon':{text: IconToUnicode('call-split'), fill:Blue, refX: '50%', refX2: -40, refY: '-50%', 'text-anchor':'right', cursor:'pointer', event:'cluster:split'},
-                'add-icon':{text: IconToUnicode('plus-circle-outline'), fill:Blue, refX: '50%', refX2: -20, refY: '-50%', 'text-anchor':'right', cursor:'pointer', event:'cluster:add', title:'Add condition'},
+                'swap-icon':{
+                    text: IconToUnicode('swap-horizontal'),
+                    fill:Blue, refX: '-50%', refX2: typeLabel === 'AND' ? 35 : 25, refY: '-50%', 'text-anchor':'right', cursor:'pointer',
+                    event:'cluster:type',
+                    title: 'Swap between AND and OR'
+                },
+                'remove-icon':{
+                    text: IconToUnicode('delete'),
+                    fill:Destructive, refX: '50%', refX2: -60, refY: '-50%', 'text-anchor':'right', cursor:'pointer',
+                    event:'cluster:delete',
+                    title:'Remove whole branch'
+                },
+                'split-icon':{
+                    text: IconToUnicode('call-split'),
+                    fill:Blue, refX: '50%', refX2: -40, refY: '-50%', 'text-anchor':'right', cursor:'pointer',
+                    event:'cluster:split',
+                    title:'Create new conditional branch'
+                },
+                'add-icon':{
+                    text: IconToUnicode('plus-circle-outline'),
+                    fill:Blue, refX: '50%', refX2: -20, refY: '-50%', 'text-anchor':'right', cursor:'pointer',
+                    event:'cluster:add',
+                    title:'Add new condition'
+                },
             }
         });
 

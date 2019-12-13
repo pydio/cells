@@ -46056,7 +46056,7 @@ var FormPanel = (function (_React$Component) {
                 ),
                 formParams && _react2['default'].createElement(
                     'div',
-                    { style: { margin: -10 } },
+                    null,
                     _react2['default'].createElement(PydioForm.FormPanel, {
                         ref: 'formPanel',
                         depth: -1,
@@ -46366,21 +46366,21 @@ exports['default'] = ProtoValue;
 module.exports = exports['default'];
 
 },{"./FormLoader":478,"material-ui":"material-ui","pydio":"pydio","react":"react"}],481:[function(require,module,exports){
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _jointjs = require('jointjs');
 
@@ -46401,22 +46401,38 @@ var Query = (function (_shapes$devs$Model) {
         if (proto) {
             var fieldValue = proto.value[fieldName];
             if (fieldValue) {
-                typeLabel = fieldName + (isNot ? ' != ' : ' = ') + fieldValue;
+                var value = fieldValue;
+                if (typeof fieldValue === "object") {
+                    value = JSON.stringify(fieldValue);
+                }
+                typeLabel = fieldName + (isNot ? ' != ' : ' = ') + value;
             }
         }
+        var truncated = undefined;
         if (typeLabel.length > 22) {
+            truncated = typeLabel;
             typeLabel = typeLabel.substr(0, 19) + '...';
         }
 
-        _get(Object.getPrototypeOf(Query.prototype), 'constructor', this).call(this, {
+        _get(Object.getPrototypeOf(Query.prototype), "constructor", this).call(this, {
             size: _extends({}, size),
             inPorts: ['input'],
             outPorts: ['output'],
             markup: [{ tagName: 'rect', selector: 'body' }, { tagName: 'text', selector: 'label' }, { tagName: 'text', selector: 'remove-icon' }],
             attrs: {
-                'body': _extends({}, size, _graphConfigs.WhiteRect, { event: 'query:select' }),
-                'label': { text: typeLabel, magnet: false, refX: 12, refY: '50%', refY2: -8, fill: _graphConfigs.DarkGrey, 'text-anchor': 'left', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500, event: 'query:select' },
-                'remove-icon': { text: (0, _graphConfigs.IconToUnicode)('delete'), magnet: false, refX: '100%', refX2: -28, refY: '50%', refY2: -6, cursor: 'pointer', event: 'query:delete', fill: _graphConfigs.Destructive, 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500 }
+                'body': _extends({}, size, _graphConfigs.WhiteRect, { event: 'query:select', title: truncated }),
+                'label': {
+                    text: typeLabel, magnet: false, refX: 12, refY: '50%', refY2: -8,
+                    fill: _graphConfigs.DarkGrey, 'text-anchor': 'left', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500,
+                    event: 'query:select',
+                    title: truncated
+                },
+                'remove-icon': {
+                    text: (0, _graphConfigs.IconToUnicode)('delete'), magnet: false, refX: '100%', refX2: -28, refY: '50%', refY2: -6,
+                    cursor: 'pointer', fill: _graphConfigs.Destructive, 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500,
+                    event: 'query:delete',
+                    title: 'Remove condition'
+                }
             },
             ports: _graphConfigs.PortsConfig
         });
@@ -46435,17 +46451,17 @@ var Query = (function (_shapes$devs$Model) {
     }
 
     _createClass(Query, [{
-        key: 'select',
+        key: "select",
         value: function select() {
             this.attr('body/stroke', _graphConfigs.Orange);
         }
     }, {
-        key: 'deselect',
+        key: "deselect",
         value: function deselect() {
             this.attr('body/stroke', _graphConfigs.LightGrey);
         }
     }, {
-        key: 'hover',
+        key: "hover",
         value: function hover(value) {
             if (!this.proto) {
                 return;
@@ -46461,8 +46477,8 @@ var Query = (function (_shapes$devs$Model) {
     return Query;
 })(_jointjs.shapes.devs.Model);
 
-exports['default'] = Query;
-module.exports = exports['default'];
+exports["default"] = Query;
+module.exports = exports["default"];
 
 },{"../graph/Configs":491,"jointjs":467}],482:[function(require,module,exports){
 'use strict';
@@ -47280,10 +47296,30 @@ var QueryCluster = (function (_shapes$basic$Rect) {
                 rect: { refWidth: '100%', refHeight: '100%', refY: 10, refHeight2: -20, rx: 5, ry: 5, fill: 'transparent', stroke: _graphConfigs.LightGrey, 'stroke-width': 2, strokeDasharray: '5,2', cursor: 'default' },
                 'hover-rect': { refWidth: '100%', height: 20, refX: 0, refY: -10, fill: 'transparent' },
                 'type-label': { text: typeLabel, fill: _graphConfigs.LightGrey, refX: '-50%', refX2: 5, refY: '-50%', 'text-anchor': 'left', cursor: 'pointer', event: 'cluster:type' },
-                'swap-icon': { text: (0, _graphConfigs.IconToUnicode)('swap-horizontal'), fill: _graphConfigs.Blue, refX: '-50%', refX2: typeLabel === 'AND' ? 35 : 25, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:type' },
-                'remove-icon': { text: (0, _graphConfigs.IconToUnicode)('delete'), fill: _graphConfigs.Destructive, refX: '50%', refX2: -60, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:delete' },
-                'split-icon': { text: (0, _graphConfigs.IconToUnicode)('call-split'), fill: _graphConfigs.Blue, refX: '50%', refX2: -40, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:split' },
-                'add-icon': { text: (0, _graphConfigs.IconToUnicode)('plus-circle-outline'), fill: _graphConfigs.Blue, refX: '50%', refX2: -20, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:add', title: 'Add condition' }
+                'swap-icon': {
+                    text: (0, _graphConfigs.IconToUnicode)('swap-horizontal'),
+                    fill: _graphConfigs.Blue, refX: '-50%', refX2: typeLabel === 'AND' ? 35 : 25, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer',
+                    event: 'cluster:type',
+                    title: 'Swap between AND and OR'
+                },
+                'remove-icon': {
+                    text: (0, _graphConfigs.IconToUnicode)('delete'),
+                    fill: _graphConfigs.Destructive, refX: '50%', refX2: -60, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer',
+                    event: 'cluster:delete',
+                    title: 'Remove whole branch'
+                },
+                'split-icon': {
+                    text: (0, _graphConfigs.IconToUnicode)('call-split'),
+                    fill: _graphConfigs.Blue, refX: '50%', refX2: -40, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer',
+                    event: 'cluster:split',
+                    title: 'Create new conditional branch'
+                },
+                'add-icon': {
+                    text: (0, _graphConfigs.IconToUnicode)('plus-circle-outline'),
+                    fill: _graphConfigs.Blue, refX: '50%', refX2: -20, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer',
+                    event: 'cluster:add',
+                    title: 'Add new condition'
+                }
             }
         });
 

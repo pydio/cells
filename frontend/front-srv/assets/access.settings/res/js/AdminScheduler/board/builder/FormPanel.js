@@ -177,7 +177,7 @@ class FormPanel extends React.Component {
                 <div style={{padding: 10}}>{actionInfo.Description}</div>
                 {create && <div style={{padding: 10}}>{this.actionPicker()}</div>}
                 {formParams &&
-                <div style={{margin: -10}}>
+                <div>
                     <PydioForm.FormPanel
                         ref="formPanel"
                         depth={-1}
