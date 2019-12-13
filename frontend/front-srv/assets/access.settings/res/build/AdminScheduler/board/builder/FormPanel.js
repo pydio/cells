@@ -237,6 +237,7 @@ var FormPanel = (function (_React$Component) {
 
             var _props2 = this.props;
             var onDismiss = _props2.onDismiss;
+            var onRemove = _props2.onRemove;
             var create = _props2.create;
             var height = _props2.height;
             var _state = this.state;
@@ -257,7 +258,16 @@ var FormPanel = (function (_React$Component) {
             }
             return _react2['default'].createElement(
                 _styles.RightPanel,
-                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss, saveButtons: !!formParams, onSave: save, onRevert: revert, height: this.props },
+                {
+                    title: actionInfo.Label,
+                    icon: actionInfo.Icon,
+                    onDismiss: onDismiss,
+                    saveButtons: !!formParams,
+                    onSave: save,
+                    onRevert: revert,
+                    onRemove: onRemove,
+                    height: this.props
+                },
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },

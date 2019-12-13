@@ -34,7 +34,7 @@ function graphReducer(graph, action) {
             return graph;
         case EMPTY_MODEL_ACTION:
             const {model} = action;
-            model.position(140, 10);
+            model.position(160, 200);
             model.addTo(graph);
             return graph;
         default:

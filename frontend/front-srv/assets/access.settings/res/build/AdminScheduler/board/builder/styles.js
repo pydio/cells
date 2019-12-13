@@ -88,6 +88,7 @@ var RightPanel = (function (_React$Component) {
             var icon = _props.icon;
             var saveButtons = _props.saveButtons;
             var onRevert = _props.onRevert;
+            var onRemove = _props.onRemove;
             var onSave = _props.onSave;
             var onDismiss = _props.onDismiss;
             var width = _props.width;
@@ -111,6 +112,7 @@ var RightPanel = (function (_React$Component) {
                     ),
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: onRevert, style: bStyles }),
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: onSave, style: bStyles }),
+                    onRemove && _react2['default'].createElement('span', { className: 'mdi mdi-delete', onClick: onRemove, style: _extends({}, styles.button, styles['delete']) }),
                     _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
                             onDismiss();
                         }, style: _extends({}, styles.button, styles.close) })

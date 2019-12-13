@@ -271,7 +271,7 @@ var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightG
 var WhiteCircle = { fill: White, refX: '50%', refY: '50%', r: 32, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
 
 var LightIcon = { refY: 18, refY2: 0, 'text-anchor': 'middle', refX: '50%', fill: '#e3f2fd' };
-var LightLabel = { refY: '60%', refY2: 0, 'text-anchor': 'middle', refX: '50%', 'font-size': 15, fill: White, 'font-family': 'Roboto', 'font-weight': 500, magnet: false };
+var LightLabel = { refY: '60%', refY2: 0, 'text-anchor': 'middle', refX: '50%', 'font-size': 15, fill: White, 'font-family': 'Roboto', 'font-weight': 500, magnet: null };
 var DarkLabel = _extends({}, LightLabel, { fill: DarkGrey });
 var DarkIcon = _extends({}, LightIcon, { fill: Blue });
 

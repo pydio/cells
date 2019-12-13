@@ -165,7 +165,7 @@ class FormPanel extends React.Component {
 
     render(){
 
-        const {onDismiss, create, height} = this.props;
+        const {onDismiss, onRemove, create, height} = this.props;
         const {actionInfo, action, formParams, dirty} = this.state;
         let save, revert;
         if(!create && formParams && dirty) {
@@ -173,7 +173,16 @@ class FormPanel extends React.Component {
             revert = () => this.revert();
         }
         return (
-            <RightPanel title={actionInfo.Label} icon={actionInfo.Icon} onDismiss={onDismiss} saveButtons={!!formParams} onSave={save} onRevert={revert} height={this.props}>
+            <RightPanel
+                title={actionInfo.Label}
+                icon={actionInfo.Icon}
+                onDismiss={onDismiss}
+                saveButtons={!!formParams}
+                onSave={save}
+                onRevert={revert}
+                onRemove={onRemove}
+                height={this.props}
+            >
                 <div style={{padding: 10}}>{actionInfo.Description}</div>
                 {create && <div style={{padding: 10}}>{this.actionPicker()}</div>}
                 {formParams &&

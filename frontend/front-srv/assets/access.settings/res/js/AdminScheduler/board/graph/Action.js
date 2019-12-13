@@ -49,7 +49,7 @@ class Action extends shapes.devs.Model{
             attrs: {
                 rect: { ...BoxSize, ...BlueRect},
                 icon: {text: iconCode, ...LightIcon},
-                text: { text: aName , magnet: false, ...LightLabel},
+                text: { text: aName , ...LightLabel},
                 'separator': {display:'none', x1:44, y1:0, x2: 44, y2:BoxSize.height, stroke: 'white', 'stroke-width': 1.5, 'stroke-dasharray': '3 3'},
                 'filter-rect': {display:'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:filter:pointerdown'},
                 'filter-icon': {display:'none', text: IconToUnicode('filter'), ...LightIcon, fill: Orange, refX: 22, refY:'50%', refY2: -3, event:'element:filter:pointerdown'},

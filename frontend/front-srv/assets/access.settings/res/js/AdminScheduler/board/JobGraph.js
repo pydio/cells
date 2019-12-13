@@ -66,6 +66,9 @@ text[joint-selector="remove-icon"] tspan
 text[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{
     font-size: 14px;
 }
+.joint-tool circle {
+    fill: #ef534f;
+}
 .react-mui-context .pydio-form-panel{
     padding-bottom: 0;
 }
@@ -330,9 +333,9 @@ class JobGraph extends React.Component {
         const removeLinkTool = () => new linkTools.Remove({
             action:(evt, linkView, toolView) => {
                 onDetachModel(linkView, toolView);
-            }
+            },
+            distance: -40
         });
-        const targetArrowHead = () => new linkTools.TargetArrowhead({focusOpacity:0.5});
         const {graph, job, onPaperBind, onAttachModel, onDetachModel, onDropFilter, editMode} = this.state;
         const _this = this;
 
@@ -491,7 +494,10 @@ class JobGraph extends React.Component {
         return true;
     }
 
-    deleteButton(){
+    deleteAction(){
+        if(!window.confirm('Do you want to delete this action?')){
+            return;
+        }
         const {selectionModel, paper, graph, onRemoveModel} = this.state;
         let parentModel;
         graph.getConnectedLinks(selectionModel).forEach(link => {
@@ -530,6 +536,7 @@ class JobGraph extends React.Component {
                     actions={descriptions}
                     actionInfo={descriptions[action.ID]}
                     action={action} {...blockProps}
+                    onRemove={()=>{this.deleteAction()}}
                     onChange={(newAction) => {
                         action.Parameters = newAction.Parameters;
                         selectionModel.notifyJobModel(action);
@@ -557,19 +564,19 @@ class JobGraph extends React.Component {
             color: '#9e9e9e',
             fontSize: 12,
             fontWeight: 500,
+            paddingRight: 20
         };
 
         return (
             <Paper zDepth={1} style={{margin: 20}}>
                 <div style={headerStyle}>
+                    <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow - click on boxes to show details</span>
+                    {editMode && <FlatButton onTouchTap={()=> {this.clearSelection(); this.setState({createNewAction: true})}} label={"+ Action"}/>}
+                    {editMode && <FlatButton onTouchTap={()=> {this.reLayout(editMode)}} label={"Auto-Layout"}/>}
                     <FlatButton onTouchTap={()=> {
                         this.clearSelection();
                         onToggleEdit(!editMode, this.reLayout.bind(this))
                     }} label={editMode?'Close':'Edit'}/>
-                    <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow - click on boxes to show details</span>
-                    {editMode && <FlatButton disabled={!selectionModel || selectionModel instanceof JobInput} onTouchTap={()=> {this.deleteButton()}} label={"Remove"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {this.clearSelection(); this.setState({createNewAction: true})}} label={"+ Action"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {this.reLayout(editMode)}} label={"Layout"}/>}
                 </div>
                 <div style={{position:'relative', display:'flex', minHeight:editMode?500:null}} ref={"boundingBox"}>
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">

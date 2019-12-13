@@ -92,7 +92,7 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
 
 var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -381,11 +381,9 @@ var JobGraph = (function (_React$Component) {
                 return new _jointjs.linkTools.Remove({
                     action: function action(evt, linkView, toolView) {
                         onDetachModel(linkView, toolView);
-                    }
+                    },
+                    distance: -40
                 });
-            };
-            var targetArrowHead = function targetArrowHead() {
-                return new _jointjs.linkTools.TargetArrowhead({ focusOpacity: 0.5 });
             };
             var _state4 = this.state;
             var graph = _state4.graph;
@@ -566,8 +564,11 @@ var JobGraph = (function (_React$Component) {
             return true;
         }
     }, {
-        key: 'deleteButton',
-        value: function deleteButton() {
+        key: 'deleteAction',
+        value: function deleteAction() {
+            if (!window.confirm('Do you want to delete this action?')) {
+                return;
+            }
             var _state5 = this.state;
             var selectionModel = _state5.selectionModel;
             var paper = _state5.paper;
@@ -629,6 +630,9 @@ var JobGraph = (function (_React$Component) {
                             actions: descriptions,
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
+                            onRemove: function () {
+                                _this7.deleteAction();
+                            },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
                                 selectionModel.notifyJobModel(action);
@@ -657,7 +661,8 @@ var JobGraph = (function (_React$Component) {
                 height: 48,
                 color: '#9e9e9e',
                 fontSize: 12,
-                fontWeight: 500
+                fontWeight: 500,
+                paddingRight: 20
             };
 
             return _react2['default'].createElement(
@@ -666,24 +671,21 @@ var JobGraph = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: headerStyle },
-                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.clearSelection();
-                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
-                        }, label: editMode ? 'Close' : 'Edit' }),
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, padding: '14px 24px' } },
                         'Job Workflow - click on boxes to show details'
                     ),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { disabled: !selectionModel || selectionModel instanceof _graphJobInput2['default'], onTouchTap: function () {
-                            _this7.deleteButton();
-                        }, label: "Remove" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this7.clearSelection();_this7.setState({ createNewAction: true });
                         }, label: "+ Action" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this7.reLayout(editMode);
-                        }, label: "Layout" })
+                        }, label: "Auto-Layout" }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this7.clearSelection();
+                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
+                        }, label: editMode ? 'Close' : 'Edit' })
                 ),
                 _react2['default'].createElement(
                     'div',

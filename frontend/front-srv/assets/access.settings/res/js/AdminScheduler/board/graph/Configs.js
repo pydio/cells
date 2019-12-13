@@ -280,7 +280,7 @@ const WhiteRect = {fill: White ,rx: 5,ry: 5, 'stroke-width':1,  'stroke': LightG
 const WhiteCircle={fill: White, refX: '50%', refY: '50%', r: 32, 'stroke-width':1, 'stroke': LightGrey, filter: dropShadow};
 
 const LightIcon = { refY:18, refY2: 0, 'text-anchor':'middle', refX:'50%', fill:'#e3f2fd'};
-const LightLabel = { refY:'60%', refY2: 0, 'text-anchor':'middle', refX:'50%', 'font-size': 15, fill:White, 'font-family':'Roboto', 'font-weight':500, magnet:false};
+const LightLabel = { refY:'60%', refY2: 0, 'text-anchor':'middle', refX:'50%', 'font-size': 15, fill:White, 'font-family':'Roboto', 'font-weight':500, magnet:null};
 const DarkLabel = {...LightLabel, fill: DarkGrey};
 const DarkIcon = {...LightIcon, fill: Blue};
 

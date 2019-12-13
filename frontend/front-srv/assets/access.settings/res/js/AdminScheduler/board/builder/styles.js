@@ -51,7 +51,7 @@ function position(width, sourceSize, sourcePosition, scrollLeft, topOffset = 0) 
 
 class RightPanel extends React.Component{
     render(){
-        const {title, icon, saveButtons, onRevert, onSave, onDismiss, width, children} = this.props;
+        const {title, icon, saveButtons, onRevert, onRemove, onSave, onDismiss, width, children} = this.props;
         let bStyles = styles.button;
         if(saveButtons && !onSave){
             bStyles = {...bStyles, ...styles.disabled};
@@ -63,6 +63,7 @@ class RightPanel extends React.Component{
                     <span style={{flex: 1}}>{title}</span>
                     {saveButtons && <span className={'mdi mdi-undo'} onClick={onRevert} style={bStyles}/>}
                     {saveButtons && <span className={'mdi mdi-content-save'} onClick={onSave} style={bStyles}/>}
+                    {onRemove && <span className={'mdi mdi-delete'} onClick={onRemove} style={{...styles.button, ...styles.delete}}/>}
                     <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={{...styles.button, ...styles.close}}/>
                 </div>
                 <div style={styles.body}>

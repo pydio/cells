@@ -64,7 +64,7 @@ var Action = (function (_shapes$devs$Model) {
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.BlueRect),
                 icon: _extends({ text: iconCode }, _Configs.LightIcon),
-                text: _extends({ text: aName, magnet: false }, _Configs.LightLabel),
+                text: _extends({ text: aName }, _Configs.LightLabel),
                 'separator': { display: 'none', x1: 44, y1: 0, x2: 44, y2: _Configs.BoxSize.height, stroke: 'white', 'stroke-width': 1.5, 'stroke-dasharray': '3 3' },
                 'filter-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),

@@ -44225,7 +44225,7 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
 
 var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -44514,11 +44514,9 @@ var JobGraph = (function (_React$Component) {
                 return new _jointjs.linkTools.Remove({
                     action: function action(evt, linkView, toolView) {
                         onDetachModel(linkView, toolView);
-                    }
+                    },
+                    distance: -40
                 });
-            };
-            var targetArrowHead = function targetArrowHead() {
-                return new _jointjs.linkTools.TargetArrowhead({ focusOpacity: 0.5 });
             };
             var _state4 = this.state;
             var graph = _state4.graph;
@@ -44699,8 +44697,11 @@ var JobGraph = (function (_React$Component) {
             return true;
         }
     }, {
-        key: 'deleteButton',
-        value: function deleteButton() {
+        key: 'deleteAction',
+        value: function deleteAction() {
+            if (!window.confirm('Do you want to delete this action?')) {
+                return;
+            }
             var _state5 = this.state;
             var selectionModel = _state5.selectionModel;
             var paper = _state5.paper;
@@ -44762,6 +44763,9 @@ var JobGraph = (function (_React$Component) {
                             actions: descriptions,
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
+                            onRemove: function () {
+                                _this7.deleteAction();
+                            },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
                                 selectionModel.notifyJobModel(action);
@@ -44790,7 +44794,8 @@ var JobGraph = (function (_React$Component) {
                 height: 48,
                 color: '#9e9e9e',
                 fontSize: 12,
-                fontWeight: 500
+                fontWeight: 500,
+                paddingRight: 20
             };
 
             return _react2['default'].createElement(
@@ -44799,24 +44804,21 @@ var JobGraph = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: headerStyle },
-                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.clearSelection();
-                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
-                        }, label: editMode ? 'Close' : 'Edit' }),
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, padding: '14px 24px' } },
                         'Job Workflow - click on boxes to show details'
                     ),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { disabled: !selectionModel || selectionModel instanceof _graphJobInput2['default'], onTouchTap: function () {
-                            _this7.deleteButton();
-                        }, label: "Remove" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this7.clearSelection();_this7.setState({ createNewAction: true });
                         }, label: "+ Action" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this7.reLayout(editMode);
-                        }, label: "Layout" })
+                        }, label: "Auto-Layout" }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this7.clearSelection();
+                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
+                        }, label: editMode ? 'Close' : 'Edit' })
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -46051,6 +46053,7 @@ var FormPanel = (function (_React$Component) {
 
             var _props2 = this.props;
             var onDismiss = _props2.onDismiss;
+            var onRemove = _props2.onRemove;
             var create = _props2.create;
             var height = _props2.height;
             var _state = this.state;
@@ -46071,7 +46074,16 @@ var FormPanel = (function (_React$Component) {
             }
             return _react2['default'].createElement(
                 _styles.RightPanel,
-                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss, saveButtons: !!formParams, onSave: save, onRevert: revert, height: this.props },
+                {
+                    title: actionInfo.Label,
+                    icon: actionInfo.Icon,
+                    onDismiss: onDismiss,
+                    saveButtons: !!formParams,
+                    onSave: save,
+                    onRevert: revert,
+                    onRemove: onRemove,
+                    height: this.props
+                },
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
@@ -48276,6 +48288,7 @@ var RightPanel = (function (_React$Component) {
             var icon = _props.icon;
             var saveButtons = _props.saveButtons;
             var onRevert = _props.onRevert;
+            var onRemove = _props.onRemove;
             var onSave = _props.onSave;
             var onDismiss = _props.onDismiss;
             var width = _props.width;
@@ -48299,6 +48312,7 @@ var RightPanel = (function (_React$Component) {
                     ),
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: onRevert, style: bStyles }),
                     saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: onSave, style: bStyles }),
+                    onRemove && _react2['default'].createElement('span', { className: 'mdi mdi-delete', onClick: onRemove, style: _extends({}, styles.button, styles['delete']) }),
                     _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
                             onDismiss();
                         }, style: _extends({}, styles.button, styles.close) })
@@ -48386,7 +48400,7 @@ var Action = (function (_shapes$devs$Model) {
             attrs: {
                 rect: _extends({}, _Configs.BoxSize, _Configs.BlueRect),
                 icon: _extends({ text: iconCode }, _Configs.LightIcon),
-                text: _extends({ text: aName, magnet: false }, _Configs.LightLabel),
+                text: _extends({ text: aName }, _Configs.LightLabel),
                 'separator': { display: 'none', x1: 44, y1: 0, x2: 44, y2: _Configs.BoxSize.height, stroke: 'white', 'stroke-width': 1.5, 'stroke-dasharray': '3 3' },
                 'filter-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
@@ -48774,7 +48788,7 @@ var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightG
 var WhiteCircle = { fill: White, refX: '50%', refY: '50%', r: 32, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
 
 var LightIcon = { refY: 18, refY2: 0, 'text-anchor': 'middle', refX: '50%', fill: '#e3f2fd' };
-var LightLabel = { refY: '60%', refY2: 0, 'text-anchor': 'middle', refX: '50%', 'font-size': 15, fill: White, 'font-family': 'Roboto', 'font-weight': 500, magnet: false };
+var LightLabel = { refY: '60%', refY2: 0, 'text-anchor': 'middle', refX: '50%', 'font-size': 15, fill: White, 'font-family': 'Roboto', 'font-weight': 500, magnet: null };
 var DarkLabel = _extends({}, LightLabel, { fill: DarkGrey });
 var DarkIcon = _extends({}, LightIcon, { fill: Blue });
 
@@ -49487,7 +49501,7 @@ function graphReducer(graph, action) {
         case _actionsEditor.EMPTY_MODEL_ACTION:
             var model = action.model;
 
-            model.position(140, 10);
+            model.position(160, 200);
             model.addTo(graph);
             return graph;
         default:

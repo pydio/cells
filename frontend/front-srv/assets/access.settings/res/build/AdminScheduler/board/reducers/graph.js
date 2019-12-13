@@ -53,7 +53,7 @@ function graphReducer(graph, action) {
         case _actionsEditor.EMPTY_MODEL_ACTION:
             var model = action.model;
 
-            model.position(140, 10);
+            model.position(160, 200);
             model.addTo(graph);
             return graph;
         default:
