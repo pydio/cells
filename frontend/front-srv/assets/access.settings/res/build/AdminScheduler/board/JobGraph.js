@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x4, _x5, _x6) { var _again = true; _function: while (_again) { var object = _x4, property = _x5, receiver = _x6; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x4 = parent; _x5 = property; _x6 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -92,7 +92,7 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n';
+var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
 
 var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -293,10 +293,12 @@ var JobGraph = (function (_React$Component) {
             } else {
                 onPaperResize(bbox.width, bbox.height);
             }
+            this.setState({ bbox: bbox });
         }
     }, {
         key: 'clearSelection',
         value: function clearSelection() {
+            var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
             var graph = this.state.graph;
 
             graph.getCells().filter(function (c) {
@@ -307,7 +309,7 @@ var JobGraph = (function (_React$Component) {
             this.setState({
                 selectionType: null,
                 selectionModel: null
-            });
+            }, callback);
         }
     }, {
         key: 'select',
@@ -461,19 +463,27 @@ var JobGraph = (function (_React$Component) {
                             if (elementAbove instanceof _graphFilter2['default']) {
                                 if (elementBelow instanceof _graphJobInput2['default']) {
                                     onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
-                                    _this.setState({ selectionModel: job, selectionType: 'filter' });
+                                    _this.clearSelection(function () {
+                                        _this.setState({ selectionModel: job, selectionType: 'filter' });
+                                    });
                                 } else if (elementBelow instanceof _graphAction2['default']) {
                                     onDropFilter(elementBelow.getJobsAction(), elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
-                                    _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'filter' });
+                                    _this.clearSelection(function () {
+                                        _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'filter' });
+                                    });
                                 }
                                 elementBelow.selectFilter();
                             } else {
                                 if (elementBelow instanceof _graphJobInput2['default']) {
                                     onDropFilter(job, elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
-                                    _this.setState({ selectionModel: job, selectionType: 'selector' });
+                                    _this.clearSelection(function () {
+                                        _this.setState({ selectionModel: job, selectionType: 'selector' });
+                                    });
                                 } else if (elementBelow instanceof _graphAction2['default']) {
                                     onDropFilter(elementBelow.getJobsAction(), elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
-                                    _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'selector' });
+                                    _this.clearSelection(function () {
+                                        _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'selector' });
+                                    });
                                 }
                                 elementBelow.selectSelector();
                             }
@@ -542,6 +552,7 @@ var JobGraph = (function (_React$Component) {
 
             var selBlock = undefined;
             var _state6 = this.state;
+            var bbox = _state6.bbox;
             var selectionType = _state6.selectionType;
             var descriptions = _state6.descriptions;
             var selectionModel = _state6.selectionModel;
@@ -616,6 +627,10 @@ var JobGraph = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: headerStyle },
+                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this7.clearSelection();
+                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
+                        }, label: editMode ? 'Close' : 'Edit' }),
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, padding: '14px 24px' } },
@@ -629,11 +644,7 @@ var JobGraph = (function (_React$Component) {
                         }, label: "+ Action" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this7.reLayout(editMode);
-                        }, label: "Layout" }),
-                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.clearSelection();
-                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
-                        }, label: editMode ? 'Close' : 'Edit' })
+                        }, label: "Layout" })
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -645,7 +656,7 @@ var JobGraph = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0, height: 500 } },
+                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0, height: bbox ? bbox.height : 500 } },
                         selBlock
                     )
                 ),

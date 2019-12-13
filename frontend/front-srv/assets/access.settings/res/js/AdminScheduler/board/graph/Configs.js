@@ -6,6 +6,7 @@ const Grey = '#9e9e9e';
 const White = '#ffffff';
 const Orange= '#ff9800';
 const Stale = '#607D8B';
+const Destructive = '#ef534f';
 
 const BoxSize = {width: 150, height: 64};
 const FilterBoxSize = {width: 64, height: 64};
@@ -236,4 +237,4 @@ const DarkLabel = {...LightLabel, fill: DarkGrey};
 const DarkIcon = {...LightIcon, fill: Blue};
 
 export {PortsConfig, ClusterConfig, TextIconMarkup, TextIconFilterMarkup, RoundIconMarkup, SimpleIconMarkup, BoxSize, FilterBoxSize, WhiteCircle, BlueRect, LightLabel, LightIcon, DarkIcon,
-    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, IconToUnicode, positionFilters, linkAttr}
+    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, Destructive, IconToUnicode, positionFilters, linkAttr}

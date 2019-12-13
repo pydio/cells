@@ -13,6 +13,7 @@ var Grey = '#9e9e9e';
 var White = '#ffffff';
 var Orange = '#ff9800';
 var Stale = '#607D8B';
+var Destructive = '#ef534f';
 
 var BoxSize = { width: 150, height: 64 };
 var FilterBoxSize = { width: 64, height: 64 };
@@ -263,6 +264,7 @@ exports.LightGrey = LightGrey;
 exports.Grey = Grey;
 exports.DarkGrey = DarkGrey;
 exports.Stale = Stale;
+exports.Destructive = Destructive;
 exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
 exports.linkAttr = linkAttr;

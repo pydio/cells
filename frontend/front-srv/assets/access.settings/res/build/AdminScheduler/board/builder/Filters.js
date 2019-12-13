@@ -60,7 +60,8 @@ var Filters = (function (_React$Component) {
             } else {
                 onRemoveFilter(action, data, type, modelType);
             }
-            var stack = keys[type][job ? 'job' : 'action'].map(function (key) {
+            var types = keys[type][job ? 'job' : 'action'];
+            var stack = Object.keys(types).map(function (key) {
                 return job ? job[key] : action[key];
             }).filter(function (c) {
                 return c;

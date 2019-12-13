@@ -4,7 +4,7 @@ import {
     WhiteRect,
     IconToUnicode,
     DarkIcon,
-    Orange, SimpleIconMarkup, Blue
+    Orange, SimpleIconMarkup, Blue, BlueRect, LightIcon
 } from "../graph/Configs";
 
 
@@ -19,8 +19,8 @@ class QueryOutput extends shapes.devs.Model{
             inPorts: ['input'],
             markup: SimpleIconMarkup,
             attrs: {
-                rect: { ...size, ...WhiteRect},
-                icon: { text: IconToUnicode(icon), ...DarkIcon, fill:Blue, magnet: false},
+                rect: { ...size, ...BlueRect},
+                icon: { text: IconToUnicode(icon), ...LightIcon, fill:"white", magnet: false},
             },
             ports: PortsConfig
         });

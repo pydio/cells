@@ -29,8 +29,8 @@ var QueryOutput = (function (_shapes$devs$Model) {
             inPorts: ['input'],
             markup: _graphConfigs.SimpleIconMarkup,
             attrs: {
-                rect: _extends({}, size, _graphConfigs.WhiteRect),
-                icon: _extends({ text: (0, _graphConfigs.IconToUnicode)(icon) }, _graphConfigs.DarkIcon, { fill: _graphConfigs.Blue, magnet: false })
+                rect: _extends({}, size, _graphConfigs.BlueRect),
+                icon: _extends({ text: (0, _graphConfigs.IconToUnicode)(icon) }, _graphConfigs.LightIcon, { fill: "white", magnet: false })
             },
             ports: _graphConfigs.PortsConfig
         });

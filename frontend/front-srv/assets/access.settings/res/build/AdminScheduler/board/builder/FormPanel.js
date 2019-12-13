@@ -257,7 +257,7 @@ var FormPanel = (function (_React$Component) {
             }
             return _react2['default'].createElement(
                 _styles.RightPanel,
-                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss, onSave: save, onRevert: revert, height: this.props },
+                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss, saveButtons: !!formParams, onSave: save, onRevert: revert, height: this.props },
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
@@ -292,8 +292,8 @@ var FormPanel = (function (_React$Component) {
                 ),
                 !create && !formParams && _react2['default'].createElement(
                     'div',
-                    { style: { padding: 10, color: _graphConfigs.LightGrey } },
-                    'No Parameters for this action'
+                    { style: { padding: 10, color: '#9E9E9E' } },
+                    'There are no parameters for this action'
                 )
             );
         }

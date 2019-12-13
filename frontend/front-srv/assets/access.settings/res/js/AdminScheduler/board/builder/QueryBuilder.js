@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {Paper, FlatButton} from 'material-ui'
+import {Paper, FlatButton, Toggle} from 'material-ui'
 import {dia, layout, shapes} from 'jointjs'
 import dagre from 'dagre'
 import graphlib from 'graphlib'
@@ -12,7 +12,8 @@ import QueryCluster from "./QueryCluster";
 import QueryInput from "./QueryInput";
 import QueryOutput from "./QueryOutput";
 import ProtoValue from "./ProtoValue";
-import {position} from "./styles";
+import {position, styles} from "./styles";
+
 
 const margin = 20;
 
@@ -22,9 +23,10 @@ class QueryBuilder extends React.Component {
         super(props);
         this.graph = new dia.Graph();
         const {cloner, query} = this.props;
+        const qCopy = cloner(query);
         this.state = {
-            ...this.buildGraph(query),
-            query: cloner(query),
+            ...this.buildGraph(qCopy),
+            query: qCopy,
             cleanState: query,
         };
     }
@@ -65,12 +67,13 @@ class QueryBuilder extends React.Component {
 
         if(queryType === 'selector') {
             inputIcon = 'database';
+            const multiple = query.Collect || false;
             switch (objectType) {
                 case "node":
-                    outputIcon = 'file-multiple';
+                    outputIcon = multiple ? 'file-multiple' : 'file';
                     break;
                 case "user":
-                    outputIcon = 'account-multiple';
+                    outputIcon = multiple ? 'account-multiple' : 'account';
                     break;
                 case "role":
                     outputIcon = 'account-card-details';
@@ -246,11 +249,12 @@ class QueryBuilder extends React.Component {
     }
 
     buildGraph(query){
+        const {queryType} = this.props;
         const {inputIcon, outputIcon} = this.detectTypes(query);
         const input = new QueryInput(inputIcon);
-        const output = new QueryOutput(outputIcon);
         input.addTo(this.graph);
-        output.addTo(this.graph);
+        const output = this.buildSpreadOutput(query, queryType, outputIcon);
+//        output.addTo(this.graph);
         if(query.Query && query.Query.SubQueries && query.Query.SubQueries.length) {
             const {cluster, last} = this.buildServiceQuery(this.graph, input, query.Query);
             const link = new Link(last.id, last instanceof QueryConnector ? 'input' : 'output', output.id, 'input');
@@ -277,6 +281,24 @@ class QueryBuilder extends React.Component {
 
     }
 
+    buildSpreadOutput(query, queryType, icon){
+        if(queryType === 'selector' && !query.Collect){
+            const output = new QueryConnector();
+            output.addTo(this.graph);
+            for(let i = 0; i < 3; i++){
+                const spread = new QueryOutput("chip");
+                spread.addTo(this.graph);
+                const link = new Link(output.id, "input", spread.id, "input");
+                link.addTo(this.graph);
+            }
+            return output;
+        } else {
+            const output = new QueryOutput("chip");
+            output.addTo(this.graph);
+            return output;
+        }
+    }
+
     componentDidMount(){
 
         const {width, height} = this.state;
@@ -288,7 +310,7 @@ class QueryBuilder extends React.Component {
             interactive: {
                 addLinkFromMagnet: false,
                 useLinkTools: false,
-                elementMove: true
+                elementMove: false
             }
         });
         this.paper.on('cluster:type', (elementView, evt) => {
@@ -298,18 +320,20 @@ class QueryBuilder extends React.Component {
             this.setDirty();
         });
         this.paper.on('cluster:add', (elementView, evt) => {
+            const {singleQuery} = this.detectTypes(this.state.query);
             this.setState({
                 queryAddProto: elementView.model.query,
-                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'}),
+                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/' + singleQuery}),
                 aPosition:elementView.model.position(),
                 aSize: elementView.model.size(),
                 aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
             });
         });
         this.paper.on('cluster:split', (elementView, evt) => {
+            const {singleQuery} = this.detectTypes(this.state.query);
             this.setState({
                 querySplitProto: elementView.model.query,
-                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'}),
+                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/' + singleQuery}),
                 aPosition:elementView.model.position(),
                 aSize: elementView.model.size(),
                 aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
@@ -317,10 +341,11 @@ class QueryBuilder extends React.Component {
         });
         this.paper.on('root:add', (elementView, evt) => {
             const {query} = this.state;
+            const {singleQuery} = this.detectTypes(query);
             query.Query = ServiceQuery.constructFromObject({SubQueries:[], Operation:'OR'});
             this.setState({
                 queryAddProto: query.Query,
-                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/idm.RoleSingleQuery'}),
+                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/' + singleQuery}),
                 aPosition:elementView.model.position(),
                 aSize: elementView.model.size(),
                 aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
@@ -338,7 +363,11 @@ class QueryBuilder extends React.Component {
                 aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
             });
         });
-        this.paper.on('cluster:delete', (elementView) => {
+        this.paper.on('cluster:delete', (elementView, evt) => {
+            evt.stopPropagation();
+            if(!window.confirm('Remove whole branch?')){
+                return;
+            }
             const {query} = elementView.model;
             query.SubQueries = [];
             this.pruneEmpty();
@@ -346,12 +375,32 @@ class QueryBuilder extends React.Component {
             this.setDirty();
         });
         this.paper.on('query:delete', (elementView) => {
+            if(!window.confirm('Remove this condition?')){
+                return;
+            }
             const {parentQuery, proto} = elementView.model;
-            console.log(proto, parentQuery);
             parentQuery.SubQueries = parentQuery.SubQueries.filter(q => q !== proto);
             this.pruneEmpty();
             this.redraw();
             this.setDirty();
+        });
+        this.paper.on('element:mouseenter', (elementView)=>{
+            if(elementView.model instanceof Query || elementView.model instanceof QueryCluster){
+                elementView.model.hover(true);
+                /*
+                // Hover parent cluster
+                if(elementView.model instanceof Query){
+                    if(elementView.model.getParentCell() !== null && elementView.model.getParentCell() instanceof QueryCluster){
+                        elementView.model.getParentCell().hover(true);
+                    }
+                }
+                */
+            }
+        });
+        this.paper.on('element:mouseleave', (elementView)=>{
+            if(elementView.model instanceof Query || elementView.model instanceof QueryCluster){
+                elementView.model.hover(false);
+            }
         })
     }
 
@@ -361,6 +410,9 @@ class QueryBuilder extends React.Component {
     }
 
     remove(){
+        if(!window.confirm('Are you sure you want to remove this filter?')){
+            return;
+        }
         const {onRemoveFilter} = this.props;
         const {query} = this.state;
         let modelType;
@@ -382,7 +434,10 @@ class QueryBuilder extends React.Component {
             delete selectedProto.value[selectedFieldName];
         }
         if(notProps) {
-            selectedProto.value = {...selectedProto.value, ...notProps};
+            //selectedProto.value = {...selectedProto.value, ...notProps};
+            Object.keys(notProps).forEach(k => {
+                selectedProto.value[k] = notProps[k];
+            })
         } else {
             if(selectedProto.value["Not"]) {
                 delete selectedProto.value["Not"];
@@ -405,8 +460,15 @@ class QueryBuilder extends React.Component {
             newBranch2.value.SubQueries = querySplitProto.SubQueries;
             querySplitProto.SubQueries = [newBranch1, newBranch2];
         }
-        this.redraw();
         this.setDirty();
+        this.redraw();
+    }
+
+    toggleCollect(value){
+        const {query} = this.state;
+        query.Collect = value;
+        this.setDirty();
+        this.redraw();
     }
 
     setDirty(){
@@ -438,19 +500,36 @@ class QueryBuilder extends React.Component {
         const {objectType, singleQuery} = this.detectTypes(query);
         const title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' +  objectType + (queryType === 'filter' ? '' : 's');
 
+        let bStyles = {...styles.button};
+        if(!dirty){
+            bStyles = {...bStyles, ...styles.disabled};
+        }
+
         return (
             <div style={{...style, position:'relative'}}>
                 <div style={{display:'flex', fontSize: 15, padding: 10}}>
                     <div style={{flex: 1}}>{title}</div>
                     <div>
-                        {dirty && <span className={"mdi mdi-undo"} onClick={()=>{this.revert()}} style={{color: '#9e9e9e', cursor: 'pointer'}}/>}
-                        {dirty && <span className={"mdi mdi-content-save"} onClick={()=>{this.save()}} style={{color: '#9e9e9e', cursor: 'pointer'}}/>}
-                        <span className={"mdi mdi-delete"} onClick={()=>{this.remove()}} style={{color: '#9e9e9e', cursor: 'pointer'}}/>
+                        <span className={"mdi mdi-undo"} onClick={dirty?()=>{this.revert()}:()=>{}} style={bStyles}/>
+                        <span className={"mdi mdi-content-save"} onClick={dirty?()=>{this.save()}:()=>{}} style={bStyles}/>
+                        <span className={"mdi mdi-delete"} onClick={()=>{this.remove()}} style={{...styles.button, ...styles.delete}}/>
                     </div>
                 </div>
                 <div style={{width:'100%', overflowX:'auto'}} ref={"scroller"}>
                     <div ref={"graph"} id={"graph"}></div>
                 </div>
+                {queryType === "selector" &&
+                <div style={{padding:'0 6px 2px'}}>
+                    <Toggle
+                        toggled={query.Collect}
+                        onToggle={(e,v)=>{this.toggleCollect(v)}}
+                        labelPosition={"right"}
+                        fullWidth={true}
+                        label={query.Collect ? "Trigger one action with all results" : "Trigger one action per result"}
+                        style={{padding: '7px 5px 4px',fontSize: 15}}
+                    />
+                </div>
+                }
                 {selectedProto &&
                 <ProtoValue
                     proto={selectedProto}

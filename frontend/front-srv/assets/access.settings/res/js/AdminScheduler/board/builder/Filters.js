@@ -23,7 +23,8 @@ export default class Filters extends React.Component {
         } else {
             onRemoveFilter(action, data, type, modelType);
         }
-        const stack = keys[type][job?'job':'action'].map(key => {
+        const types =  keys[type][job?'job':'action'];
+        const stack = Object.keys(types).map(key => {
             return job?job[key]:action[key]
         }).filter(c => c);
         if(!stack.length){

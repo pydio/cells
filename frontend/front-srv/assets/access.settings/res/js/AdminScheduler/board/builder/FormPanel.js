@@ -173,7 +173,7 @@ class FormPanel extends React.Component {
             revert = () => this.revert();
         }
         return (
-            <RightPanel title={actionInfo.Label} icon={actionInfo.Icon} onDismiss={onDismiss} onSave={save} onRevert={revert} height={this.props}>
+            <RightPanel title={actionInfo.Label} icon={actionInfo.Icon} onDismiss={onDismiss} saveButtons={!!formParams} onSave={save} onRevert={revert} height={this.props}>
                 <div style={{padding: 10}}>{actionInfo.Description}</div>
                 {create && <div style={{padding: 10}}>{this.actionPicker()}</div>}
                 {formParams &&
@@ -196,7 +196,7 @@ class FormPanel extends React.Component {
                 </div>
                 }
                 {!create && !formParams &&
-                    <div style={{padding: 10, color: LightGrey}}>No Parameters for this action</div>
+                    <div style={{padding: 10, color: '#9E9E9E'}}>There are no parameters for this action</div>
                 }
             </RightPanel>
         )

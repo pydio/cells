@@ -39,13 +39,26 @@ import {linkAttr} from "./graph/Configs";
 
 
 const style = `
-text[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {
+text[joint-selector="icon"] tspan, 
+text[joint-selector="filter-icon"] tspan, 
+text[joint-selector="selector-icon"] tspan,
+text[joint-selector="add-icon"] tspan,
+text[joint-selector="swap-icon"] tspan,
+text[joint-selector="split-icon"] tspan,
+text[joint-selector="remove-icon"] tspan
+{
     font: normal normal normal 24px/1 "Material Design Icons";
     font-size: 24px;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
 }
-text[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{
+text[joint-selector="filter-icon"] tspan, 
+text[joint-selector="selector-icon"] tspan, 
+text[joint-selector="swap-icon"] tspan, 
+text[joint-selector="add-icon"] tspan, 
+text[joint-selector="split-icon"] tspan, 
+text[joint-selector="remove-icon"] tspan
+{
     font-size: 18px;
 }
 .react-mui-context .pydio-form-panel{
@@ -56,6 +69,17 @@ text[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] t
 }
 .react-mui-context .pydio-form-panel>.pydio-form-group{
     margin: 12px;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar {
+    display: flex;
+    align-items: center;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{
+    display: none;
+}
+.react-mui-context .pydio-form-panel .replicable-field .replicable-group{
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 `;
 
@@ -236,15 +260,16 @@ class JobGraph extends React.Component {
         } else {
             onPaperResize(bbox.width, bbox.height);
         }
+        this.setState({bbox});
     }
 
-    clearSelection(){
+    clearSelection(callback = ()=>{}){
         const {graph} = this.state;
         graph.getCells().filter(c => c.clearSelection).forEach(c => c.clearSelection());
         this.setState({
             selectionType: null,
             selectionModel: null
-        });
+        }, callback);
     }
 
     select(model){
@@ -368,19 +393,19 @@ class JobGraph extends React.Component {
                         if(elementAbove instanceof Filter){
                             if(elementBelow instanceof JobInput){
                                 onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
-                                _this.setState({selectionModel: job, selectionType:'filter'});
+                                _this.clearSelection(()=>{_this.setState({selectionModel: job, selectionType:'filter'});});
                             } else if(elementBelow instanceof Action){
                                 onDropFilter(elementBelow.getJobsAction(), elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
-                                _this.setState({selectionModel: elementBelow.getJobsAction(), selectionType:'filter'});
+                                _this.clearSelection(()=>{_this.setState({selectionModel: elementBelow.getJobsAction(), selectionType:'filter'});});
                             }
                             elementBelow.selectFilter();
                         } else {
                             if(elementBelow instanceof JobInput){
                                 onDropFilter(job, elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
-                                _this.setState({selectionModel: job, selectionType:'selector'});
+                                _this.clearSelection(()=>{_this.setState({selectionModel: job, selectionType:'selector'});});
                             } else if(elementBelow instanceof Action){
                                 onDropFilter(elementBelow.getJobsAction(), elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
-                                _this.setState({selectionModel: elementBelow.getJobsAction(), selectionType:'selector'});
+                                _this.clearSelection(()=>{_this.setState({selectionModel: elementBelow.getJobsAction(), selectionType:'selector'});});
                             }
                             elementBelow.selectSelector();
                         }
@@ -440,7 +465,7 @@ class JobGraph extends React.Component {
     render() {
 
         let selBlock;
-        const {selectionType, descriptions, selectionModel, onTriggerChange, createNewAction, onRemoveFilter} = this.state;
+        const {bbox, selectionType, descriptions, selectionModel, onTriggerChange, createNewAction, onRemoveFilter} = this.state;
         // Redux store stuff - should be on props!
         const {onToggleEdit, onEmptyModel, editMode} = this.state;
 
@@ -495,20 +520,20 @@ class JobGraph extends React.Component {
         return (
             <Paper zDepth={1} style={{margin: 20}}>
                 <div style={headerStyle}>
-                    <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow - click on boxes to show details</span>
-                    {editMode && <FlatButton disabled={!selectionModel || selectionModel instanceof JobInput} onTouchTap={()=> {this.deleteButton()}} label={"Remove"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {this.clearSelection(); this.setState({createNewAction: true})}} label={"+ Action"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {this.reLayout(editMode)}} label={"Layout"}/>}
                     <FlatButton onTouchTap={()=> {
                         this.clearSelection();
                         onToggleEdit(!editMode, this.reLayout.bind(this))
                     }} label={editMode?'Close':'Edit'}/>
+                    <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow - click on boxes to show details</span>
+                    {editMode && <FlatButton disabled={!selectionModel || selectionModel instanceof JobInput} onTouchTap={()=> {this.deleteButton()}} label={"Remove"}/>}
+                    {editMode && <FlatButton onTouchTap={()=> {this.clearSelection(); this.setState({createNewAction: true})}} label={"+ Action"}/>}
+                    {editMode && <FlatButton onTouchTap={()=> {this.reLayout(editMode)}} label={"Layout"}/>}
                 </div>
                 <div style={{position:'relative', display:'flex', minHeight:editMode?500:null}} ref={"boundingBox"}>
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">
                         <div id="playground" ref="placeholder"></div>
                     </div>
-                    <Paper zDepth={0} style={{width: selBlock?rightWidth:0, height: 500}}>
+                    <Paper zDepth={0} style={{width: selBlock?rightWidth:0, height: (bbox?bbox.height:500)}}>
                         {selBlock}
                     </Paper>
                 </div>

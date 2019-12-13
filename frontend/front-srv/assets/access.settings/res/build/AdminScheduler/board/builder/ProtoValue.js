@@ -47,16 +47,24 @@ var ProtoValue = (function (_React$Component) {
 
         _FormLoader2['default'].loadAction("proto:switch:" + singleQuery).then(function (params) {
             var formValues = {};
+            var isNot = false;
             if (props.fieldName) {
                 var notProps = {};
                 if (props.proto.value["Not"]) {
                     notProps["Not"] = true;
+                    isNot = true;
                 } else if (props.proto.value["not"]) {
                     notProps["not"] = true;
+                    isNot = true;
                 }
                 formValues = ProtoValue.protoValueToFormValues(params, props.fieldName, props.proto.value[props.fieldName], notProps);
             }
-            _this.setState({ formParams: ProtoValue.filterNot(params), formValues: formValues });
+            _this.setState({
+                formParams: ProtoValue.filterNot(params),
+                hasNot: ProtoValue.hasNot(params),
+                formValues: formValues,
+                isNot: isNot
+            });
         });
     }
 
@@ -74,12 +82,20 @@ var ProtoValue = (function (_React$Component) {
             var _state = this.state;
             var formParams = _state.formParams;
             var formValues = _state.formValues;
+            var isNot = _state.isNot;
+            var hasNot = _state.hasNot;
+
+            var notProps = null;
+            if (hasNot && isNot) {
+                notProps = {};
+                notProps[hasNot] = true;
+            }
+            console.log(notProps);
 
             var _ProtoValue$formValuesToProtoValue = ProtoValue.formValuesToProtoValue(formParams, formValues);
 
             var fieldName = _ProtoValue$formValuesToProtoValue.fieldName;
             var value = _ProtoValue$formValuesToProtoValue.value;
-            var notProps = _ProtoValue$formValuesToProtoValue.notProps;
 
             this.props.onChange(fieldName, value, notProps);
             this.props.onDismiss();
@@ -96,6 +112,8 @@ var ProtoValue = (function (_React$Component) {
             var formParams = _state2.formParams;
             var _state2$formValues = _state2.formValues;
             var formValues = _state2$formValues === undefined ? {} : _state2$formValues;
+            var hasNot = _state2.hasNot;
+            var isNot = _state2.isNot;
 
             if (formParams) {
                 return _react2['default'].createElement(
@@ -110,10 +128,23 @@ var ProtoValue = (function (_React$Component) {
                     }),
                     _react2['default'].createElement(
                         'div',
-                        { style: { textAlign: 'right' } },
+                        { style: { display: 'flex', borderTop: '2px solid #fac684', borderRadius: '0 0 10px 10px' } },
+                        _react2['default'].createElement(
+                            'span',
+                            { style: { flex: 1 } },
+                            hasNot && _react2['default'].createElement(_materialUi.Toggle, {
+                                toggled: isNot,
+                                onToggle: function (e, v) {
+                                    _this2.setState({ isNot: v });
+                                },
+                                style: { padding: '7px 5px 4px', fontSize: 15, minWidth: 128 },
+                                labelPosition: "right",
+                                label: isNot ? "not equals" : "equals"
+                            })
+                        ),
                         _react2['default'].createElement(_materialUi.FlatButton, { label: "Ok", onTouchTap: function () {
                                 return _this2.onSubmit();
-                            } }),
+                            }, primary: true }),
                         _react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: onDismiss })
                     )
                 );
@@ -126,27 +157,43 @@ var ProtoValue = (function (_React$Component) {
             }
         }
     }], [{
+        key: 'hasNot',
+        value: function hasNot(params) {
+            var notParams = params.filter(function (p) {
+                return p.group_switch_label === 'Not' && p.name === '@value';
+            });
+            if (notParams.length) {
+                return notParams[0].group_switch_value;
+            } else {
+                return null;
+            }
+        }
+    }, {
         key: 'filterNot',
         value: function filterNot(params) {
             return params.filter(function (p) {
-                return !(p.group_switch_label === 'Not' && p.name === '@value');
-            }).map(function (p) {
-                if (p.group_switch_label === 'Not') {
-                    delete p.group_switch_label;
-                    delete p.group_switch_value;
-                    delete p.group_switch_name;
+                return !(p.group_switch_label === 'Not');
+            });
+            /*
+            return params.filter(p => !(p.group_switch_label === 'Not' && p.name === '@value')).map(p => {
+                if(p.group_switch_label === 'Not'){
+                    delete(p.group_switch_label);
+                    delete(p.group_switch_value);
+                    delete(p.group_switch_name);
                 }
                 return p;
-            });
+            })
+            */
         }
     }, {
         key: 'protoValueToFormValues',
         value: function protoValueToFormValues(params, fieldName, value, notProps) {
-            var data = _extends({
+            var data = {
                 fieldname: {
                     '@value': fieldName
                 }
-            }, notProps);
+            };
+            //...notProps
             data.fieldname[fieldName] = value;
             var repParams = params.filter(function (p) {
                 return p.group_switch_value === fieldName && p.replicationGroup && p.name !== '@value';

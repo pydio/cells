@@ -21,9 +21,22 @@ const styles =  {
         flex: 1,
         overflowY: 'auto'
     },
+    button: {
+        fontSize: 20,
+        marginLeft: 10,
+        cursor: 'pointer',
+        color: '#2196f3',
+    },
+    delete: {
+        color: "#ef5350"
+    },
     close: {
         color: '#9e9e9e',
-        cursor: 'pointer'
+    },
+    disabled:{
+        color: '#9e9e9e',
+        opacity: 0.3,
+        cursor: 'default'
     }
 };
 
@@ -38,15 +51,19 @@ function position(width, sourceSize, sourcePosition, scrollLeft, topOffset = 0) 
 
 class RightPanel extends React.Component{
     render(){
-        const {title, icon, onRevert, onSave, onDismiss, width, children} = this.props;
+        const {title, icon, saveButtons, onRevert, onSave, onDismiss, width, children} = this.props;
+        let bStyles = styles.button;
+        if(saveButtons && !onSave){
+            bStyles = {...bStyles, ...styles.disabled};
+        }
         return (
             <Paper rounded={false} zDepth={0} style={{...styles.paper, width}}>
                 <div style={styles.header}>
                     {icon && <span className={'mdi mdi-' + icon} style={{marginRight: 4}}/>}
                     <span style={{flex: 1}}>{title}</span>
-                    {onRevert && <span className={'mdi mdi-undo'} onClick={()=>{onRevert()}} style={styles.close}/>}
-                    {onSave && <span className={'mdi mdi-content-save'} onClick={()=>{onSave()}} style={styles.close}/>}
-                    <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={styles.close}/>
+                    {saveButtons && <span className={'mdi mdi-undo'} onClick={onRevert} style={bStyles}/>}
+                    {saveButtons && <span className={'mdi mdi-content-save'} onClick={onSave} style={bStyles}/>}
+                    <span className={'mdi mdi-close'} onClick={()=>{onDismiss()}} style={{...styles.button, ...styles.close}}/>
                 </div>
                 <div style={styles.body}>
                     {children}

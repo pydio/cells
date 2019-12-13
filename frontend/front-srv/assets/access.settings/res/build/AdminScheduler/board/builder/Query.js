@@ -27,38 +27,38 @@ var Query = (function (_shapes$devs$Model) {
 
         _classCallCheck(this, Query);
 
-        var size = { width: 140, height: 40 };
+        var size = { width: 180, height: 40 };
 
         var typeLabel = fieldName;
         if (proto) {
             var fieldValue = proto.value[fieldName];
             if (fieldValue) {
-                typeLabel = fieldName + ': ' + fieldValue;
+                typeLabel = fieldName + (isNot ? ' != ' : ' = ') + fieldValue;
             }
         }
-        if (typeLabel.length > 17) {
-            typeLabel = typeLabel.substr(0, 14) + '...';
-        }
-        if (isNot) {
-            typeLabel = "[!] " + typeLabel;
+        if (typeLabel.length > 22) {
+            typeLabel = typeLabel.substr(0, 19) + '...';
         }
 
         _get(Object.getPrototypeOf(Query.prototype), 'constructor', this).call(this, {
             size: _extends({}, size),
             inPorts: ['input'],
             outPorts: ['output'],
-            markup: [{ tagName: 'rect', selector: 'body' }, { tagName: 'text', selector: 'label' }, { tagName: 'text', selector: 'remove' }],
+            markup: [{ tagName: 'rect', selector: 'body' }, { tagName: 'text', selector: 'label' }, { tagName: 'text', selector: 'remove-icon' }],
             attrs: {
                 'body': _extends({}, size, _graphConfigs.WhiteRect, { event: 'query:select' }),
-                'label': { text: typeLabel, magnet: false, refX: -10, refX2: '50%', refY: '50%', refY2: -8, fill: _graphConfigs.DarkGrey, 'text-anchor': 'middle', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500, event: 'query:select' },
-                'remove': { text: '-', magnet: false, refX: '100%', refX2: -20, refY: '50%', refY2: -8, cursor: 'pointer', event: 'query:delete', fill: _graphConfigs.DarkGrey, 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500 }
+                'label': { text: typeLabel, magnet: false, refX: 12, refY: '50%', refY2: -8, fill: _graphConfigs.DarkGrey, 'text-anchor': 'left', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500, event: 'query:select' },
+                'remove-icon': { text: (0, _graphConfigs.IconToUnicode)('delete'), magnet: false, refX: '100%', refX2: -28, refY: '50%', refY2: -6, cursor: 'pointer', event: 'query:delete', fill: _graphConfigs.Destructive, 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500 }
             },
             ports: _graphConfigs.PortsConfig
         });
 
         if (!proto) {
-            this.attr('remove/text', '+');
-            this.attr('remove/event', 'root:add');
+            this.attr('remove-icon/text', (0, _graphConfigs.IconToUnicode)('plus-circle-outline'));
+            this.attr('remove-icon/fill', _graphConfigs.Blue);
+            this.attr('remove-icon/event', 'root:add');
+        } else {
+            this.attr('remove-icon/opacity', 0);
         }
 
         this.proto = proto;
@@ -75,6 +75,18 @@ var Query = (function (_shapes$devs$Model) {
         key: 'deselect',
         value: function deselect() {
             this.attr('body/stroke', _graphConfigs.LightGrey);
+        }
+    }, {
+        key: 'hover',
+        value: function hover(value) {
+            if (!this.proto) {
+                return;
+            }
+            if (value) {
+                this.attr('remove-icon/opacity', 1);
+            } else {
+                this.attr('remove-icon/opacity', 0);
+            }
         }
     }]);
 

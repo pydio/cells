@@ -42,9 +42,22 @@ var styles = {
         flex: 1,
         overflowY: 'auto'
     },
+    button: {
+        fontSize: 20,
+        marginLeft: 10,
+        cursor: 'pointer',
+        color: '#2196f3'
+    },
+    'delete': {
+        color: "#ef5350"
+    },
     close: {
+        color: '#9e9e9e'
+    },
+    disabled: {
         color: '#9e9e9e',
-        cursor: 'pointer'
+        opacity: 0.3,
+        cursor: 'default'
     }
 };
 
@@ -73,12 +86,17 @@ var RightPanel = (function (_React$Component) {
             var _props = this.props;
             var title = _props.title;
             var icon = _props.icon;
+            var saveButtons = _props.saveButtons;
             var onRevert = _props.onRevert;
             var onSave = _props.onSave;
             var onDismiss = _props.onDismiss;
             var width = _props.width;
             var children = _props.children;
 
+            var bStyles = styles.button;
+            if (saveButtons && !onSave) {
+                bStyles = _extends({}, bStyles, styles.disabled);
+            }
             return _react2['default'].createElement(
                 _materialUi.Paper,
                 { rounded: false, zDepth: 0, style: _extends({}, styles.paper, { width: width }) },
@@ -91,15 +109,11 @@ var RightPanel = (function (_React$Component) {
                         { style: { flex: 1 } },
                         title
                     ),
-                    onRevert && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: function () {
-                            onRevert();
-                        }, style: styles.close }),
-                    onSave && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: function () {
-                            onSave();
-                        }, style: styles.close }),
+                    saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: onRevert, style: bStyles }),
+                    saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: onSave, style: bStyles }),
                     _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
                             onDismiss();
-                        }, style: styles.close })
+                        }, style: _extends({}, styles.button, styles.close) })
                 ),
                 _react2['default'].createElement(
                     'div',

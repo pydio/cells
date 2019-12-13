@@ -82,8 +82,9 @@ var QueryBuilder = (function (_React$Component) {
         var cloner = _props.cloner;
         var query = _props.query;
 
-        this.state = _extends({}, this.buildGraph(query), {
-            query: cloner(query),
+        var qCopy = cloner(query);
+        this.state = _extends({}, this.buildGraph(qCopy), {
+            query: qCopy,
             cleanState: query
         });
     }
@@ -129,12 +130,13 @@ var QueryBuilder = (function (_React$Component) {
 
             if (queryType === 'selector') {
                 inputIcon = 'database';
+                var multiple = query.Collect || false;
                 switch (objectType) {
                     case "node":
-                        outputIcon = 'file-multiple';
+                        outputIcon = multiple ? 'file-multiple' : 'file';
                         break;
                     case "user":
-                        outputIcon = 'account-multiple';
+                        outputIcon = multiple ? 'account-multiple' : 'account';
                         break;
                     case "role":
                         outputIcon = 'account-card-details';
@@ -363,15 +365,17 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'buildGraph',
         value: function buildGraph(query) {
+            var queryType = this.props.queryType;
+
             var _detectTypes = this.detectTypes(query);
 
             var inputIcon = _detectTypes.inputIcon;
             var outputIcon = _detectTypes.outputIcon;
 
             var input = new _QueryInput2['default'](inputIcon);
-            var output = new _QueryOutput2['default'](outputIcon);
             input.addTo(this.graph);
-            output.addTo(this.graph);
+            var output = this.buildSpreadOutput(query, queryType, outputIcon);
+            //        output.addTo(this.graph);
             if (query.Query && query.Query.SubQueries && query.Query.SubQueries.length) {
                 var _buildServiceQuery3 = this.buildServiceQuery(this.graph, input, query.Query);
 
@@ -401,6 +405,25 @@ var QueryBuilder = (function (_React$Component) {
             });
         }
     }, {
+        key: 'buildSpreadOutput',
+        value: function buildSpreadOutput(query, queryType, icon) {
+            if (queryType === 'selector' && !query.Collect) {
+                var output = new _QueryConnector2['default']();
+                output.addTo(this.graph);
+                for (var i = 0; i < 3; i++) {
+                    var spread = new _QueryOutput2['default']("chip");
+                    spread.addTo(this.graph);
+                    var link = new _graphLink2['default'](output.id, "input", spread.id, "input");
+                    link.addTo(this.graph);
+                }
+                return output;
+            } else {
+                var output = new _QueryOutput2['default']("chip");
+                output.addTo(this.graph);
+                return output;
+            }
+        }
+    }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
             var _this5 = this;
@@ -417,7 +440,7 @@ var QueryBuilder = (function (_React$Component) {
                 interactive: {
                     addLinkFromMagnet: false,
                     useLinkTools: false,
-                    elementMove: true
+                    elementMove: false
                 }
             });
             this.paper.on('cluster:type', function (elementView, evt) {
@@ -427,18 +450,26 @@ var QueryBuilder = (function (_React$Component) {
                 _this5.setDirty();
             });
             this.paper.on('cluster:add', function (elementView, evt) {
+                var _detectTypes2 = _this5.detectTypes(_this5.state.query);
+
+                var singleQuery = _detectTypes2.singleQuery;
+
                 _this5.setState({
                     queryAddProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
                     aPosition: elementView.model.position(),
                     aSize: elementView.model.size(),
                     aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
             this.paper.on('cluster:split', function (elementView, evt) {
+                var _detectTypes3 = _this5.detectTypes(_this5.state.query);
+
+                var singleQuery = _detectTypes3.singleQuery;
+
                 _this5.setState({
                     querySplitProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
                     aPosition: elementView.model.position(),
                     aSize: elementView.model.size(),
                     aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
@@ -447,10 +478,14 @@ var QueryBuilder = (function (_React$Component) {
             this.paper.on('root:add', function (elementView, evt) {
                 var query = _this5.state.query;
 
+                var _detectTypes4 = _this5.detectTypes(query);
+
+                var singleQuery = _detectTypes4.singleQuery;
+
                 query.Query = _pydioHttpRestApi.ServiceQuery.constructFromObject({ SubQueries: [], Operation: 'OR' });
                 _this5.setState({
                     queryAddProto: query.Query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
                     aPosition: elementView.model.position(),
                     aSize: elementView.model.size(),
                     aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
@@ -471,7 +506,11 @@ var QueryBuilder = (function (_React$Component) {
                     aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
-            this.paper.on('cluster:delete', function (elementView) {
+            this.paper.on('cluster:delete', function (elementView, evt) {
+                evt.stopPropagation();
+                if (!window.confirm('Remove whole branch?')) {
+                    return;
+                }
                 var query = elementView.model.query;
 
                 query.SubQueries = [];
@@ -480,17 +519,37 @@ var QueryBuilder = (function (_React$Component) {
                 _this5.setDirty();
             });
             this.paper.on('query:delete', function (elementView) {
+                if (!window.confirm('Remove this condition?')) {
+                    return;
+                }
                 var _elementView$model2 = elementView.model;
                 var parentQuery = _elementView$model2.parentQuery;
                 var proto = _elementView$model2.proto;
 
-                console.log(proto, parentQuery);
                 parentQuery.SubQueries = parentQuery.SubQueries.filter(function (q) {
                     return q !== proto;
                 });
                 _this5.pruneEmpty();
                 _this5.redraw();
                 _this5.setDirty();
+            });
+            this.paper.on('element:mouseenter', function (elementView) {
+                if (elementView.model instanceof _Query2['default'] || elementView.model instanceof _QueryCluster2['default']) {
+                    elementView.model.hover(true);
+                    /*
+                    // Hover parent cluster
+                    if(elementView.model instanceof Query){
+                        if(elementView.model.getParentCell() !== null && elementView.model.getParentCell() instanceof QueryCluster){
+                            elementView.model.getParentCell().hover(true);
+                        }
+                    }
+                    */
+                }
+            });
+            this.paper.on('element:mouseleave', function (elementView) {
+                if (elementView.model instanceof _Query2['default'] || elementView.model instanceof _QueryCluster2['default']) {
+                    elementView.model.hover(false);
+                }
             });
         }
     }, {
@@ -506,6 +565,9 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'remove',
         value: function remove() {
+            if (!window.confirm('Are you sure you want to remove this filter?')) {
+                return;
+            }
             var onRemoveFilter = this.props.onRemoveFilter;
             var query = this.state.query;
 
@@ -533,7 +595,10 @@ var QueryBuilder = (function (_React$Component) {
                 delete selectedProto.value[selectedFieldName];
             }
             if (notProps) {
-                selectedProto.value = _extends({}, selectedProto.value, notProps);
+                //selectedProto.value = {...selectedProto.value, ...notProps};
+                Object.keys(notProps).forEach(function (k) {
+                    selectedProto.value[k] = notProps[k];
+                });
             } else {
                 if (selectedProto.value["Not"]) {
                     delete selectedProto.value["Not"];
@@ -556,8 +621,17 @@ var QueryBuilder = (function (_React$Component) {
                 newBranch2.value.SubQueries = querySplitProto.SubQueries;
                 querySplitProto.SubQueries = [newBranch1, newBranch2];
             }
-            this.redraw();
             this.setDirty();
+            this.redraw();
+        }
+    }, {
+        key: 'toggleCollect',
+        value: function toggleCollect(value) {
+            var query = this.state.query;
+
+            query.Collect = value;
+            this.setDirty();
+            this.redraw();
         }
     }, {
         key: 'setDirty',
@@ -607,12 +681,17 @@ var QueryBuilder = (function (_React$Component) {
             var aSize = _state3.aSize;
             var aScrollLeft = _state3.aScrollLeft;
 
-            var _detectTypes2 = this.detectTypes(query);
+            var _detectTypes5 = this.detectTypes(query);
 
-            var objectType = _detectTypes2.objectType;
-            var singleQuery = _detectTypes2.singleQuery;
+            var objectType = _detectTypes5.objectType;
+            var singleQuery = _detectTypes5.singleQuery;
 
             var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
+
+            var bStyles = _extends({}, _styles.styles.button);
+            if (!dirty) {
+                bStyles = _extends({}, bStyles, _styles.styles.disabled);
+            }
 
             return _react2['default'].createElement(
                 'div',
@@ -628,21 +707,35 @@ var QueryBuilder = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         null,
-                        dirty && _react2['default'].createElement('span', { className: "mdi mdi-undo", onClick: function () {
+                        _react2['default'].createElement('span', { className: "mdi mdi-undo", onClick: dirty ? function () {
                                 _this7.revert();
-                            }, style: { color: '#9e9e9e', cursor: 'pointer' } }),
-                        dirty && _react2['default'].createElement('span', { className: "mdi mdi-content-save", onClick: function () {
+                            } : function () {}, style: bStyles }),
+                        _react2['default'].createElement('span', { className: "mdi mdi-content-save", onClick: dirty ? function () {
                                 _this7.save();
-                            }, style: { color: '#9e9e9e', cursor: 'pointer' } }),
+                            } : function () {}, style: bStyles }),
                         _react2['default'].createElement('span', { className: "mdi mdi-delete", onClick: function () {
                                 _this7.remove();
-                            }, style: { color: '#9e9e9e', cursor: 'pointer' } })
+                            }, style: _extends({}, _styles.styles.button, _styles.styles['delete']) })
                     )
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { width: '100%', overflowX: 'auto' }, ref: "scroller" },
                     _react2['default'].createElement('div', { ref: "graph", id: "graph" })
+                ),
+                queryType === "selector" && _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '0 6px 2px' } },
+                    _react2['default'].createElement(_materialUi.Toggle, {
+                        toggled: query.Collect,
+                        onToggle: function (e, v) {
+                            _this7.toggleCollect(v);
+                        },
+                        labelPosition: "right",
+                        fullWidth: true,
+                        label: query.Collect ? "Trigger one action with all results" : "Trigger one action per result",
+                        style: { padding: '7px 5px 4px', fontSize: 15 }
+                    })
                 ),
                 selectedProto && _react2['default'].createElement(_ProtoValue2['default'], {
                     proto: selectedProto,

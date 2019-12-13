@@ -44139,7 +44139,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x4, _x5, _x6) { var _again = true; _function: while (_again) { var object = _x4, property = _x5, receiver = _x6; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x4 = parent; _x5 = property; _x6 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -44225,7 +44225,7 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, text[joint-selector="filter-icon"] tspan , text[joint-selector="selector-icon"] tspan {\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, text[joint-selector="selector-icon"] tspan{\n    font-size: 18px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n';
+var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
 
 var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -44426,10 +44426,12 @@ var JobGraph = (function (_React$Component) {
             } else {
                 onPaperResize(bbox.width, bbox.height);
             }
+            this.setState({ bbox: bbox });
         }
     }, {
         key: 'clearSelection',
         value: function clearSelection() {
+            var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
             var graph = this.state.graph;
 
             graph.getCells().filter(function (c) {
@@ -44440,7 +44442,7 @@ var JobGraph = (function (_React$Component) {
             this.setState({
                 selectionType: null,
                 selectionModel: null
-            });
+            }, callback);
         }
     }, {
         key: 'select',
@@ -44594,19 +44596,27 @@ var JobGraph = (function (_React$Component) {
                             if (elementAbove instanceof _graphFilter2['default']) {
                                 if (elementBelow instanceof _graphJobInput2['default']) {
                                     onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
-                                    _this.setState({ selectionModel: job, selectionType: 'filter' });
+                                    _this.clearSelection(function () {
+                                        _this.setState({ selectionModel: job, selectionType: 'filter' });
+                                    });
                                 } else if (elementBelow instanceof _graphAction2['default']) {
                                     onDropFilter(elementBelow.getJobsAction(), elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
-                                    _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'filter' });
+                                    _this.clearSelection(function () {
+                                        _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'filter' });
+                                    });
                                 }
                                 elementBelow.selectFilter();
                             } else {
                                 if (elementBelow instanceof _graphJobInput2['default']) {
                                     onDropFilter(job, elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
-                                    _this.setState({ selectionModel: job, selectionType: 'selector' });
+                                    _this.clearSelection(function () {
+                                        _this.setState({ selectionModel: job, selectionType: 'selector' });
+                                    });
                                 } else if (elementBelow instanceof _graphAction2['default']) {
                                     onDropFilter(elementBelow.getJobsAction(), elementAbove.getSelector(), 'selector', elementAbove.getSelectorType());
-                                    _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'selector' });
+                                    _this.clearSelection(function () {
+                                        _this.setState({ selectionModel: elementBelow.getJobsAction(), selectionType: 'selector' });
+                                    });
                                 }
                                 elementBelow.selectSelector();
                             }
@@ -44675,6 +44685,7 @@ var JobGraph = (function (_React$Component) {
 
             var selBlock = undefined;
             var _state6 = this.state;
+            var bbox = _state6.bbox;
             var selectionType = _state6.selectionType;
             var descriptions = _state6.descriptions;
             var selectionModel = _state6.selectionModel;
@@ -44749,6 +44760,10 @@ var JobGraph = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: headerStyle },
+                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this7.clearSelection();
+                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
+                        }, label: editMode ? 'Close' : 'Edit' }),
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, padding: '14px 24px' } },
@@ -44762,11 +44777,7 @@ var JobGraph = (function (_React$Component) {
                         }, label: "+ Action" }),
                     editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
                             _this7.reLayout(editMode);
-                        }, label: "Layout" }),
-                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.clearSelection();
-                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
-                        }, label: editMode ? 'Close' : 'Edit' })
+                        }, label: "Layout" })
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -44778,7 +44789,7 @@ var JobGraph = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0, height: 500 } },
+                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0, height: bbox ? bbox.height : 500 } },
                         selBlock
                     )
                 ),
@@ -45612,7 +45623,8 @@ var Filters = (function (_React$Component) {
             } else {
                 onRemoveFilter(action, data, type, modelType);
             }
-            var stack = keys[type][job ? 'job' : 'action'].map(function (key) {
+            var types = keys[type][job ? 'job' : 'action'];
+            var stack = Object.keys(types).map(function (key) {
                 return job ? job[key] : action[key];
             }).filter(function (c) {
                 return c;
@@ -46031,7 +46043,7 @@ var FormPanel = (function (_React$Component) {
             }
             return _react2['default'].createElement(
                 _styles.RightPanel,
-                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss, onSave: save, onRevert: revert, height: this.props },
+                { title: actionInfo.Label, icon: actionInfo.Icon, onDismiss: onDismiss, saveButtons: !!formParams, onSave: save, onRevert: revert, height: this.props },
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 10 } },
@@ -46066,8 +46078,8 @@ var FormPanel = (function (_React$Component) {
                 ),
                 !create && !formParams && _react2['default'].createElement(
                     'div',
-                    { style: { padding: 10, color: _graphConfigs.LightGrey } },
-                    'No Parameters for this action'
+                    { style: { padding: 10, color: '#9E9E9E' } },
+                    'There are no parameters for this action'
                 )
             );
         }
@@ -46129,16 +46141,24 @@ var ProtoValue = (function (_React$Component) {
 
         _FormLoader2['default'].loadAction("proto:switch:" + singleQuery).then(function (params) {
             var formValues = {};
+            var isNot = false;
             if (props.fieldName) {
                 var notProps = {};
                 if (props.proto.value["Not"]) {
                     notProps["Not"] = true;
+                    isNot = true;
                 } else if (props.proto.value["not"]) {
                     notProps["not"] = true;
+                    isNot = true;
                 }
                 formValues = ProtoValue.protoValueToFormValues(params, props.fieldName, props.proto.value[props.fieldName], notProps);
             }
-            _this.setState({ formParams: ProtoValue.filterNot(params), formValues: formValues });
+            _this.setState({
+                formParams: ProtoValue.filterNot(params),
+                hasNot: ProtoValue.hasNot(params),
+                formValues: formValues,
+                isNot: isNot
+            });
         });
     }
 
@@ -46156,12 +46176,20 @@ var ProtoValue = (function (_React$Component) {
             var _state = this.state;
             var formParams = _state.formParams;
             var formValues = _state.formValues;
+            var isNot = _state.isNot;
+            var hasNot = _state.hasNot;
+
+            var notProps = null;
+            if (hasNot && isNot) {
+                notProps = {};
+                notProps[hasNot] = true;
+            }
+            console.log(notProps);
 
             var _ProtoValue$formValuesToProtoValue = ProtoValue.formValuesToProtoValue(formParams, formValues);
 
             var fieldName = _ProtoValue$formValuesToProtoValue.fieldName;
             var value = _ProtoValue$formValuesToProtoValue.value;
-            var notProps = _ProtoValue$formValuesToProtoValue.notProps;
 
             this.props.onChange(fieldName, value, notProps);
             this.props.onDismiss();
@@ -46178,6 +46206,8 @@ var ProtoValue = (function (_React$Component) {
             var formParams = _state2.formParams;
             var _state2$formValues = _state2.formValues;
             var formValues = _state2$formValues === undefined ? {} : _state2$formValues;
+            var hasNot = _state2.hasNot;
+            var isNot = _state2.isNot;
 
             if (formParams) {
                 return _react2['default'].createElement(
@@ -46192,10 +46222,23 @@ var ProtoValue = (function (_React$Component) {
                     }),
                     _react2['default'].createElement(
                         'div',
-                        { style: { textAlign: 'right' } },
+                        { style: { display: 'flex', borderTop: '2px solid #fac684', borderRadius: '0 0 10px 10px' } },
+                        _react2['default'].createElement(
+                            'span',
+                            { style: { flex: 1 } },
+                            hasNot && _react2['default'].createElement(_materialUi.Toggle, {
+                                toggled: isNot,
+                                onToggle: function (e, v) {
+                                    _this2.setState({ isNot: v });
+                                },
+                                style: { padding: '7px 5px 4px', fontSize: 15, minWidth: 128 },
+                                labelPosition: "right",
+                                label: isNot ? "not equals" : "equals"
+                            })
+                        ),
                         _react2['default'].createElement(_materialUi.FlatButton, { label: "Ok", onTouchTap: function () {
                                 return _this2.onSubmit();
-                            } }),
+                            }, primary: true }),
                         _react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: onDismiss })
                     )
                 );
@@ -46208,27 +46251,43 @@ var ProtoValue = (function (_React$Component) {
             }
         }
     }], [{
+        key: 'hasNot',
+        value: function hasNot(params) {
+            var notParams = params.filter(function (p) {
+                return p.group_switch_label === 'Not' && p.name === '@value';
+            });
+            if (notParams.length) {
+                return notParams[0].group_switch_value;
+            } else {
+                return null;
+            }
+        }
+    }, {
         key: 'filterNot',
         value: function filterNot(params) {
             return params.filter(function (p) {
-                return !(p.group_switch_label === 'Not' && p.name === '@value');
-            }).map(function (p) {
-                if (p.group_switch_label === 'Not') {
-                    delete p.group_switch_label;
-                    delete p.group_switch_value;
-                    delete p.group_switch_name;
+                return !(p.group_switch_label === 'Not');
+            });
+            /*
+            return params.filter(p => !(p.group_switch_label === 'Not' && p.name === '@value')).map(p => {
+                if(p.group_switch_label === 'Not'){
+                    delete(p.group_switch_label);
+                    delete(p.group_switch_value);
+                    delete(p.group_switch_name);
                 }
                 return p;
-            });
+            })
+            */
         }
     }, {
         key: 'protoValueToFormValues',
         value: function protoValueToFormValues(params, fieldName, value, notProps) {
-            var data = _extends({
+            var data = {
                 fieldname: {
                     '@value': fieldName
                 }
-            }, notProps);
+            };
+            //...notProps
             data.fieldname[fieldName] = value;
             var repParams = params.filter(function (p) {
                 return p.group_switch_value === fieldName && p.replicationGroup && p.name !== '@value';
@@ -46336,38 +46395,38 @@ var Query = (function (_shapes$devs$Model) {
 
         _classCallCheck(this, Query);
 
-        var size = { width: 140, height: 40 };
+        var size = { width: 180, height: 40 };
 
         var typeLabel = fieldName;
         if (proto) {
             var fieldValue = proto.value[fieldName];
             if (fieldValue) {
-                typeLabel = fieldName + ': ' + fieldValue;
+                typeLabel = fieldName + (isNot ? ' != ' : ' = ') + fieldValue;
             }
         }
-        if (typeLabel.length > 17) {
-            typeLabel = typeLabel.substr(0, 14) + '...';
-        }
-        if (isNot) {
-            typeLabel = "[!] " + typeLabel;
+        if (typeLabel.length > 22) {
+            typeLabel = typeLabel.substr(0, 19) + '...';
         }
 
         _get(Object.getPrototypeOf(Query.prototype), 'constructor', this).call(this, {
             size: _extends({}, size),
             inPorts: ['input'],
             outPorts: ['output'],
-            markup: [{ tagName: 'rect', selector: 'body' }, { tagName: 'text', selector: 'label' }, { tagName: 'text', selector: 'remove' }],
+            markup: [{ tagName: 'rect', selector: 'body' }, { tagName: 'text', selector: 'label' }, { tagName: 'text', selector: 'remove-icon' }],
             attrs: {
                 'body': _extends({}, size, _graphConfigs.WhiteRect, { event: 'query:select' }),
-                'label': { text: typeLabel, magnet: false, refX: -10, refX2: '50%', refY: '50%', refY2: -8, fill: _graphConfigs.DarkGrey, 'text-anchor': 'middle', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500, event: 'query:select' },
-                'remove': { text: '-', magnet: false, refX: '100%', refX2: -20, refY: '50%', refY2: -8, cursor: 'pointer', event: 'query:delete', fill: _graphConfigs.DarkGrey, 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500 }
+                'label': { text: typeLabel, magnet: false, refX: 12, refY: '50%', refY2: -8, fill: _graphConfigs.DarkGrey, 'text-anchor': 'left', 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500, event: 'query:select' },
+                'remove-icon': { text: (0, _graphConfigs.IconToUnicode)('delete'), magnet: false, refX: '100%', refX2: -28, refY: '50%', refY2: -6, cursor: 'pointer', event: 'query:delete', fill: _graphConfigs.Destructive, 'font-size': 15, 'font-family': 'Roboto', 'font-weight': 500 }
             },
             ports: _graphConfigs.PortsConfig
         });
 
         if (!proto) {
-            this.attr('remove/text', '+');
-            this.attr('remove/event', 'root:add');
+            this.attr('remove-icon/text', (0, _graphConfigs.IconToUnicode)('plus-circle-outline'));
+            this.attr('remove-icon/fill', _graphConfigs.Blue);
+            this.attr('remove-icon/event', 'root:add');
+        } else {
+            this.attr('remove-icon/opacity', 0);
         }
 
         this.proto = proto;
@@ -46384,6 +46443,18 @@ var Query = (function (_shapes$devs$Model) {
         key: 'deselect',
         value: function deselect() {
             this.attr('body/stroke', _graphConfigs.LightGrey);
+        }
+    }, {
+        key: 'hover',
+        value: function hover(value) {
+            if (!this.proto) {
+                return;
+            }
+            if (value) {
+                this.attr('remove-icon/opacity', 1);
+            } else {
+                this.attr('remove-icon/opacity', 0);
+            }
         }
     }]);
 
@@ -46478,8 +46549,9 @@ var QueryBuilder = (function (_React$Component) {
         var cloner = _props.cloner;
         var query = _props.query;
 
-        this.state = _extends({}, this.buildGraph(query), {
-            query: cloner(query),
+        var qCopy = cloner(query);
+        this.state = _extends({}, this.buildGraph(qCopy), {
+            query: qCopy,
             cleanState: query
         });
     }
@@ -46525,12 +46597,13 @@ var QueryBuilder = (function (_React$Component) {
 
             if (queryType === 'selector') {
                 inputIcon = 'database';
+                var multiple = query.Collect || false;
                 switch (objectType) {
                     case "node":
-                        outputIcon = 'file-multiple';
+                        outputIcon = multiple ? 'file-multiple' : 'file';
                         break;
                     case "user":
-                        outputIcon = 'account-multiple';
+                        outputIcon = multiple ? 'account-multiple' : 'account';
                         break;
                     case "role":
                         outputIcon = 'account-card-details';
@@ -46759,15 +46832,17 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'buildGraph',
         value: function buildGraph(query) {
+            var queryType = this.props.queryType;
+
             var _detectTypes = this.detectTypes(query);
 
             var inputIcon = _detectTypes.inputIcon;
             var outputIcon = _detectTypes.outputIcon;
 
             var input = new _QueryInput2['default'](inputIcon);
-            var output = new _QueryOutput2['default'](outputIcon);
             input.addTo(this.graph);
-            output.addTo(this.graph);
+            var output = this.buildSpreadOutput(query, queryType, outputIcon);
+            //        output.addTo(this.graph);
             if (query.Query && query.Query.SubQueries && query.Query.SubQueries.length) {
                 var _buildServiceQuery3 = this.buildServiceQuery(this.graph, input, query.Query);
 
@@ -46797,6 +46872,25 @@ var QueryBuilder = (function (_React$Component) {
             });
         }
     }, {
+        key: 'buildSpreadOutput',
+        value: function buildSpreadOutput(query, queryType, icon) {
+            if (queryType === 'selector' && !query.Collect) {
+                var output = new _QueryConnector2['default']();
+                output.addTo(this.graph);
+                for (var i = 0; i < 3; i++) {
+                    var spread = new _QueryOutput2['default']("chip");
+                    spread.addTo(this.graph);
+                    var link = new _graphLink2['default'](output.id, "input", spread.id, "input");
+                    link.addTo(this.graph);
+                }
+                return output;
+            } else {
+                var output = new _QueryOutput2['default']("chip");
+                output.addTo(this.graph);
+                return output;
+            }
+        }
+    }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
             var _this5 = this;
@@ -46813,7 +46907,7 @@ var QueryBuilder = (function (_React$Component) {
                 interactive: {
                     addLinkFromMagnet: false,
                     useLinkTools: false,
-                    elementMove: true
+                    elementMove: false
                 }
             });
             this.paper.on('cluster:type', function (elementView, evt) {
@@ -46823,18 +46917,26 @@ var QueryBuilder = (function (_React$Component) {
                 _this5.setDirty();
             });
             this.paper.on('cluster:add', function (elementView, evt) {
+                var _detectTypes2 = _this5.detectTypes(_this5.state.query);
+
+                var singleQuery = _detectTypes2.singleQuery;
+
                 _this5.setState({
                     queryAddProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
                     aPosition: elementView.model.position(),
                     aSize: elementView.model.size(),
                     aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
             this.paper.on('cluster:split', function (elementView, evt) {
+                var _detectTypes3 = _this5.detectTypes(_this5.state.query);
+
+                var singleQuery = _detectTypes3.singleQuery;
+
                 _this5.setState({
                     querySplitProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
                     aPosition: elementView.model.position(),
                     aSize: elementView.model.size(),
                     aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
@@ -46843,10 +46945,14 @@ var QueryBuilder = (function (_React$Component) {
             this.paper.on('root:add', function (elementView, evt) {
                 var query = _this5.state.query;
 
+                var _detectTypes4 = _this5.detectTypes(query);
+
+                var singleQuery = _detectTypes4.singleQuery;
+
                 query.Query = _pydioHttpRestApi.ServiceQuery.constructFromObject({ SubQueries: [], Operation: 'OR' });
                 _this5.setState({
                     queryAddProto: query.Query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/idm.RoleSingleQuery' }),
+                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
                     aPosition: elementView.model.position(),
                     aSize: elementView.model.size(),
                     aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
@@ -46867,7 +46973,11 @@ var QueryBuilder = (function (_React$Component) {
                     aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                 });
             });
-            this.paper.on('cluster:delete', function (elementView) {
+            this.paper.on('cluster:delete', function (elementView, evt) {
+                evt.stopPropagation();
+                if (!window.confirm('Remove whole branch?')) {
+                    return;
+                }
                 var query = elementView.model.query;
 
                 query.SubQueries = [];
@@ -46876,17 +46986,37 @@ var QueryBuilder = (function (_React$Component) {
                 _this5.setDirty();
             });
             this.paper.on('query:delete', function (elementView) {
+                if (!window.confirm('Remove this condition?')) {
+                    return;
+                }
                 var _elementView$model2 = elementView.model;
                 var parentQuery = _elementView$model2.parentQuery;
                 var proto = _elementView$model2.proto;
 
-                console.log(proto, parentQuery);
                 parentQuery.SubQueries = parentQuery.SubQueries.filter(function (q) {
                     return q !== proto;
                 });
                 _this5.pruneEmpty();
                 _this5.redraw();
                 _this5.setDirty();
+            });
+            this.paper.on('element:mouseenter', function (elementView) {
+                if (elementView.model instanceof _Query2['default'] || elementView.model instanceof _QueryCluster2['default']) {
+                    elementView.model.hover(true);
+                    /*
+                    // Hover parent cluster
+                    if(elementView.model instanceof Query){
+                        if(elementView.model.getParentCell() !== null && elementView.model.getParentCell() instanceof QueryCluster){
+                            elementView.model.getParentCell().hover(true);
+                        }
+                    }
+                    */
+                }
+            });
+            this.paper.on('element:mouseleave', function (elementView) {
+                if (elementView.model instanceof _Query2['default'] || elementView.model instanceof _QueryCluster2['default']) {
+                    elementView.model.hover(false);
+                }
             });
         }
     }, {
@@ -46902,6 +47032,9 @@ var QueryBuilder = (function (_React$Component) {
     }, {
         key: 'remove',
         value: function remove() {
+            if (!window.confirm('Are you sure you want to remove this filter?')) {
+                return;
+            }
             var onRemoveFilter = this.props.onRemoveFilter;
             var query = this.state.query;
 
@@ -46929,7 +47062,10 @@ var QueryBuilder = (function (_React$Component) {
                 delete selectedProto.value[selectedFieldName];
             }
             if (notProps) {
-                selectedProto.value = _extends({}, selectedProto.value, notProps);
+                //selectedProto.value = {...selectedProto.value, ...notProps};
+                Object.keys(notProps).forEach(function (k) {
+                    selectedProto.value[k] = notProps[k];
+                });
             } else {
                 if (selectedProto.value["Not"]) {
                     delete selectedProto.value["Not"];
@@ -46952,8 +47088,17 @@ var QueryBuilder = (function (_React$Component) {
                 newBranch2.value.SubQueries = querySplitProto.SubQueries;
                 querySplitProto.SubQueries = [newBranch1, newBranch2];
             }
-            this.redraw();
             this.setDirty();
+            this.redraw();
+        }
+    }, {
+        key: 'toggleCollect',
+        value: function toggleCollect(value) {
+            var query = this.state.query;
+
+            query.Collect = value;
+            this.setDirty();
+            this.redraw();
         }
     }, {
         key: 'setDirty',
@@ -47003,12 +47148,17 @@ var QueryBuilder = (function (_React$Component) {
             var aSize = _state3.aSize;
             var aScrollLeft = _state3.aScrollLeft;
 
-            var _detectTypes2 = this.detectTypes(query);
+            var _detectTypes5 = this.detectTypes(query);
 
-            var objectType = _detectTypes2.objectType;
-            var singleQuery = _detectTypes2.singleQuery;
+            var objectType = _detectTypes5.objectType;
+            var singleQuery = _detectTypes5.singleQuery;
 
             var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
+
+            var bStyles = _extends({}, _styles.styles.button);
+            if (!dirty) {
+                bStyles = _extends({}, bStyles, _styles.styles.disabled);
+            }
 
             return _react2['default'].createElement(
                 'div',
@@ -47024,21 +47174,35 @@ var QueryBuilder = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         null,
-                        dirty && _react2['default'].createElement('span', { className: "mdi mdi-undo", onClick: function () {
+                        _react2['default'].createElement('span', { className: "mdi mdi-undo", onClick: dirty ? function () {
                                 _this7.revert();
-                            }, style: { color: '#9e9e9e', cursor: 'pointer' } }),
-                        dirty && _react2['default'].createElement('span', { className: "mdi mdi-content-save", onClick: function () {
+                            } : function () {}, style: bStyles }),
+                        _react2['default'].createElement('span', { className: "mdi mdi-content-save", onClick: dirty ? function () {
                                 _this7.save();
-                            }, style: { color: '#9e9e9e', cursor: 'pointer' } }),
+                            } : function () {}, style: bStyles }),
                         _react2['default'].createElement('span', { className: "mdi mdi-delete", onClick: function () {
                                 _this7.remove();
-                            }, style: { color: '#9e9e9e', cursor: 'pointer' } })
+                            }, style: _extends({}, _styles.styles.button, _styles.styles['delete']) })
                     )
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { width: '100%', overflowX: 'auto' }, ref: "scroller" },
                     _react2['default'].createElement('div', { ref: "graph", id: "graph" })
+                ),
+                queryType === "selector" && _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '0 6px 2px' } },
+                    _react2['default'].createElement(_materialUi.Toggle, {
+                        toggled: query.Collect,
+                        onToggle: function (e, v) {
+                            _this7.toggleCollect(v);
+                        },
+                        labelPosition: "right",
+                        fullWidth: true,
+                        label: query.Collect ? "Trigger one action with all results" : "Trigger one action per result",
+                        style: { padding: '7px 5px 4px', fontSize: 15 }
+                    })
                 ),
                 selectedProto && _react2['default'].createElement(_ProtoValue2['default'], {
                     proto: selectedProto,
@@ -47069,6 +47233,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -47092,24 +47258,32 @@ var QueryCluster = (function (_shapes$basic$Rect) {
                 tagName: 'rect',
                 selector: 'rect'
             }, {
+                tagName: 'rect',
+                selector: 'hover-rect'
+            }, {
                 tagName: 'text',
                 selector: 'type-label'
             }, {
                 tagName: 'text',
-                selector: 'add-button'
+                selector: 'swap-icon'
             }, {
                 tagName: 'text',
-                selector: 'remove-button'
+                selector: 'add-icon'
             }, {
                 tagName: 'text',
-                selector: 'split-button'
+                selector: 'remove-icon'
+            }, {
+                tagName: 'text',
+                selector: 'split-icon'
             }],
             attrs: {
                 rect: { refWidth: '100%', refHeight: '100%', refY: 10, refHeight2: -20, rx: 5, ry: 5, fill: 'transparent', stroke: _graphConfigs.LightGrey, 'stroke-width': 2, strokeDasharray: '5,2', cursor: 'default' },
+                'hover-rect': { refWidth: '100%', height: 20, refX: 0, refY: -10, fill: 'transparent' },
                 'type-label': { text: typeLabel, fill: _graphConfigs.LightGrey, refX: '-50%', refX2: 5, refY: '-50%', 'text-anchor': 'left', cursor: 'pointer', event: 'cluster:type' },
-                'add-button': { text: '+', fill: _graphConfigs.LightGrey, refX: '50%', refX2: -25, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:add' },
-                'remove-button': { text: '-', fill: _graphConfigs.LightGrey, refX: '50%', refX2: -15, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:delete' },
-                'split-button': { text: '||', fill: _graphConfigs.LightGrey, refX: '50%', refX2: -5, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:split' }
+                'swap-icon': { text: (0, _graphConfigs.IconToUnicode)('swap-horizontal'), fill: _graphConfigs.Blue, refX: '-50%', refX2: typeLabel === 'AND' ? 35 : 25, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:type' },
+                'remove-icon': { text: (0, _graphConfigs.IconToUnicode)('delete'), fill: _graphConfigs.Destructive, refX: '50%', refX2: -60, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:delete' },
+                'split-icon': { text: (0, _graphConfigs.IconToUnicode)('call-split'), fill: _graphConfigs.Blue, refX: '50%', refX2: -40, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:split' },
+                'add-icon': { text: (0, _graphConfigs.IconToUnicode)('plus-circle-outline'), fill: _graphConfigs.Blue, refX: '50%', refX2: -20, refY: '-50%', 'text-anchor': 'right', cursor: 'pointer', event: 'cluster:add', title: 'Add condition' }
             }
         });
 
@@ -47117,8 +47291,31 @@ var QueryCluster = (function (_shapes$basic$Rect) {
 
         if (this.query.SubQueries.length === 1) {
             this.attr('type-label/display', 'none');
+            this.attr('swap-icon/display', 'none');
         }
+        this.hover(false);
     }
+
+    _createClass(QueryCluster, [{
+        key: 'hover',
+        value: function hover(value) {
+            if (value) {
+                this.attr('remove-icon/opacity', 1);
+                this.attr('add-icon/opacity', 1);
+                this.attr('swap-icon/opacity', 1);
+                this.attr('split-icon/opacity', 1);
+                this.attr('rect/stroke', _graphConfigs.Grey);
+                this.attr('type-label/fill', _graphConfigs.Grey);
+            } else {
+                this.attr('remove-icon/opacity', 0);
+                this.attr('swap-icon/opacity', 0);
+                this.attr('add-icon/opacity', 0);
+                this.attr('split-icon/opacity', 0);
+                this.attr('rect/stroke', _graphConfigs.LightGrey);
+                this.attr('type-label/fill', _graphConfigs.LightGrey);
+            }
+        }
+    }]);
 
     return QueryCluster;
 })(_jointjs.shapes.basic.Rect);
@@ -47255,8 +47452,8 @@ var QueryOutput = (function (_shapes$devs$Model) {
             inPorts: ['input'],
             markup: _graphConfigs.SimpleIconMarkup,
             attrs: {
-                rect: _extends({}, size, _graphConfigs.WhiteRect),
-                icon: _extends({ text: (0, _graphConfigs.IconToUnicode)(icon) }, _graphConfigs.DarkIcon, { fill: _graphConfigs.Blue, magnet: false })
+                rect: _extends({}, size, _graphConfigs.BlueRect),
+                icon: _extends({ text: (0, _graphConfigs.IconToUnicode)(icon) }, _graphConfigs.LightIcon, { fill: "white", magnet: false })
             },
             ports: _graphConfigs.PortsConfig
         });
@@ -47969,9 +48166,22 @@ var styles = {
         flex: 1,
         overflowY: 'auto'
     },
+    button: {
+        fontSize: 20,
+        marginLeft: 10,
+        cursor: 'pointer',
+        color: '#2196f3'
+    },
+    'delete': {
+        color: "#ef5350"
+    },
     close: {
+        color: '#9e9e9e'
+    },
+    disabled: {
         color: '#9e9e9e',
-        cursor: 'pointer'
+        opacity: 0.3,
+        cursor: 'default'
     }
 };
 
@@ -48000,12 +48210,17 @@ var RightPanel = (function (_React$Component) {
             var _props = this.props;
             var title = _props.title;
             var icon = _props.icon;
+            var saveButtons = _props.saveButtons;
             var onRevert = _props.onRevert;
             var onSave = _props.onSave;
             var onDismiss = _props.onDismiss;
             var width = _props.width;
             var children = _props.children;
 
+            var bStyles = styles.button;
+            if (saveButtons && !onSave) {
+                bStyles = _extends({}, bStyles, styles.disabled);
+            }
             return _react2['default'].createElement(
                 _materialUi.Paper,
                 { rounded: false, zDepth: 0, style: _extends({}, styles.paper, { width: width }) },
@@ -48018,15 +48233,11 @@ var RightPanel = (function (_React$Component) {
                         { style: { flex: 1 } },
                         title
                     ),
-                    onRevert && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: function () {
-                            onRevert();
-                        }, style: styles.close }),
-                    onSave && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: function () {
-                            onSave();
-                        }, style: styles.close }),
+                    saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-undo', onClick: onRevert, style: bStyles }),
+                    saveButtons && _react2['default'].createElement('span', { className: 'mdi mdi-content-save', onClick: onSave, style: bStyles }),
                     _react2['default'].createElement('span', { className: 'mdi mdi-close', onClick: function () {
                             onDismiss();
-                        }, style: styles.close })
+                        }, style: _extends({}, styles.button, styles.close) })
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -48225,6 +48436,7 @@ var Grey = '#9e9e9e';
 var White = '#ffffff';
 var Orange = '#ff9800';
 var Stale = '#607D8B';
+var Destructive = '#ef534f';
 
 var BoxSize = { width: 150, height: 64 };
 var FilterBoxSize = { width: 64, height: 64 };
@@ -48475,6 +48687,7 @@ exports.LightGrey = LightGrey;
 exports.Grey = Grey;
 exports.DarkGrey = DarkGrey;
 exports.Stale = Stale;
+exports.Destructive = Destructive;
 exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
 exports.linkAttr = linkAttr;

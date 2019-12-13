@@ -1,9 +1,8 @@
 import React from 'react'
-import {Paper, FlatButton} from 'material-ui'
+import {Paper, FlatButton, Toggle} from 'material-ui'
 import FormLoader from "./FormLoader";
 import Pydio from 'pydio'
 const PydioForm = Pydio.requireLib('form');
-
 
 class ProtoValue extends React.Component {
 
@@ -14,20 +13,39 @@ class ProtoValue extends React.Component {
         const {singleQuery}  = this.props;
         FormLoader.loadAction("proto:switch:" + singleQuery).then(params => {
             let formValues = {};
+            let isNot = false;
             if(props.fieldName){
                 let notProps = {};
                 if(props.proto.value["Not"]){
-                    notProps["Not"] = true
+                    notProps["Not"] = true;
+                    isNot = true;
                 } else if(props.proto.value["not"]){
                     notProps["not"] = true;
+                    isNot = true;
                 }
                 formValues = ProtoValue.protoValueToFormValues(params, props.fieldName, props.proto.value[props.fieldName], notProps);
             }
-            this.setState({formParams: ProtoValue.filterNot(params), formValues});
+            this.setState({
+                formParams: ProtoValue.filterNot(params),
+                hasNot: ProtoValue.hasNot(params),
+                formValues,
+                isNot,
+            });
         })
     }
 
+    static hasNot(params){
+        const notParams = params.filter(p => p.group_switch_label === 'Not' && p.name === '@value');
+        if(notParams.length){
+            return notParams[0].group_switch_value;
+        } else {
+            return null;
+        }
+    }
+
     static filterNot(params){
+        return params.filter(p => !(p.group_switch_label === 'Not'))
+        /*
         return params.filter(p => !(p.group_switch_label === 'Not' && p.name === '@value')).map(p => {
             if(p.group_switch_label === 'Not'){
                 delete(p.group_switch_label);
@@ -36,6 +54,7 @@ class ProtoValue extends React.Component {
             }
             return p;
         })
+        */
     }
 
     static protoValueToFormValues(params, fieldName, value, notProps){
@@ -43,7 +62,7 @@ class ProtoValue extends React.Component {
             fieldname: {
                 '@value': fieldName,
             },
-            ...notProps
+            //...notProps
         };
         data.fieldname[fieldName] = value;
         const repParams = params.filter(p => p.group_switch_value === fieldName && p.replicationGroup && p.name !== '@value');
@@ -111,15 +130,21 @@ class ProtoValue extends React.Component {
     }
 
     onSubmit(){
-        const {formParams, formValues} = this.state;
-        const {fieldName, value, notProps} = ProtoValue.formValuesToProtoValue(formParams, formValues);
+        const {formParams, formValues, isNot, hasNot} = this.state;
+        let notProps = null;
+        if(hasNot && isNot){
+            notProps = {};
+            notProps[hasNot] = true;
+        }
+        console.log(notProps);
+        const {fieldName, value} = ProtoValue.formValuesToProtoValue(formParams, formValues);
         this.props.onChange(fieldName, value, notProps);
         this.props.onDismiss();
     }
 
     render(){
         const {onDismiss, style} = this.props;
-        const {formParams, formValues = {}} = this.state;
+        const {formParams, formValues = {}, hasNot, isNot} = this.state;
         if(formParams){
             return (
                 <Paper zDepth={2} style={{position:'absolute', borderRadius: 10, zIndex: 10, border:'2px solid #fac684', width: 300, ...style}}>
@@ -130,8 +155,18 @@ class ProtoValue extends React.Component {
                         values={formValues}
                         onChange={this.onFormChange.bind(this)}
                     />
-                    <div style={{textAlign:'right'}}>
-                        <FlatButton label={"Ok"} onTouchTap={() => this.onSubmit()}/>
+                    <div style={{display:'flex', borderTop: '2px solid #fac684', borderRadius: '0 0 10px 10px'}}>
+                        <span style={{flex: 1}}>
+                            {hasNot &&
+                            <Toggle
+                                toggled={isNot}
+                                onToggle={(e,v)=>{this.setState({isNot:v})}}
+                                style={{padding: '7px 5px 4px',fontSize: 15, minWidth:128}}
+                                labelPosition={"right"}
+                                label={isNot?"not equals":"equals"}
+                            />}
+                        </span>
+                        <FlatButton label={"Ok"} onTouchTap={() => this.onSubmit()} primary={true}/>
                         <FlatButton label={"Cancel"} onTouchTap={onDismiss}/>
                     </div>
                 </Paper>
