@@ -41,7 +41,8 @@ var JobInput = (function (_shapes$devs$Model) {
                 'filter-rect': { display: 'none', fill: _Configs.Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
                 'selector-rect': { display: 'none', fill: _Configs.Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:selector:pointerdown' },
-                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' })
+                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' }),
+                'legend': { display: 'none', fill: _Configs.Grey, refX: '50%', refY: '120%', 'font-weight': 500, 'text-anchor': 'middle', textWrap: { width: -10, height: '50%' } }
             },
             ports: _Configs.PortsConfig
         });
@@ -100,12 +101,16 @@ var JobInput = (function (_shapes$devs$Model) {
     }, {
         key: 'selectFilter',
         value: function selectFilter() {
-            this.attr('filter-rect/stroke', _Configs.Blue);
+            this.attr('filter-rect/stroke', _Configs.DarkGrey);
+            this.attr('filter-rect/stroke-width', 2);
+            this.attr('filter-rect/stroke-dasharray', '3px 2px');
         }
     }, {
         key: 'selectSelector',
         value: function selectSelector() {
-            this.attr('selector-rect/stroke', _Configs.Blue);
+            this.attr('selector-rect/stroke', _Configs.DarkGrey);
+            this.attr('selector-rect/stroke-width', 2);
+            this.attr('selector-rect/stroke-dasharray', '3px 2px');
         }
     }, {
         key: 'setFilter',
@@ -118,6 +123,17 @@ var JobInput = (function (_shapes$devs$Model) {
         value: function setSelector(b) {
             this._rightSelector = b;
             (0, _Configs.positionFilters)(this, _Configs.BoxSize, this._rightFilter, this._rightSelector, 'right');
+        }
+    }, {
+        key: 'showLegend',
+        value: function showLegend(legendText) {
+            this.attr('legend/display', 'block');
+            this.attr('legend/textWrap/text', legendText);
+        }
+    }, {
+        key: 'hideLegend',
+        value: function hideLegend() {
+            this.attr('legend/display', 'none');
         }
     }]);
 

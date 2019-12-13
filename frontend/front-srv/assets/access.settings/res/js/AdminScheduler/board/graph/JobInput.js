@@ -7,7 +7,7 @@ import {
     DarkIcon,
     BoxSize,
     IconToUnicode,
-    positionFilters, TextIconFilterMarkup, LightIcon, Orange, LightGrey, Blue
+    positionFilters, TextIconFilterMarkup, LightIcon, Orange, LightGrey, Blue, Grey, DarkGrey
 } from "./Configs";
 
 class JobInput extends shapes.devs.Model {
@@ -34,7 +34,8 @@ class JobInput extends shapes.devs.Model {
                 'filter-rect': {display:'none', fill: Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:filter:pointerdown'},
                 'filter-icon': {display:'none', text: IconToUnicode('filter'), ...LightIcon, fill: 'white', refX: largeBoxWidth - 22, refY:'50%', refY2: -3, event:'element:filter:pointerdown'},
                 'selector-rect': {display:'none', fill: Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:selector:pointerdown'},
-                'selector-icon': {display:'none', text: IconToUnicode('magnify'), ...LightIcon, fill: 'white', refX: largeBoxWidth - 22, refY:'50%', refY2: -3, event:'element:selector:pointerdown'}
+                'selector-icon': {display:'none', text: IconToUnicode('magnify'), ...LightIcon, fill: 'white', refX: largeBoxWidth - 22, refY:'50%', refY2: -3, event:'element:selector:pointerdown'},
+                'legend':{display: 'none', fill: Grey, refX: '50%', refY: '120%', 'font-weight':500, 'text-anchor': 'middle', textWrap: {width: -10, height: '50%'}}
             },
             ports:PortsConfig
         });
@@ -90,11 +91,15 @@ class JobInput extends shapes.devs.Model {
     }
 
     selectFilter(){
-        this.attr('filter-rect/stroke', Blue);
+        this.attr('filter-rect/stroke', DarkGrey);
+        this.attr('filter-rect/stroke-width', 2);
+        this.attr('filter-rect/stroke-dasharray', '3px 2px');
     }
 
     selectSelector(){
-        this.attr('selector-rect/stroke', Blue);
+        this.attr('selector-rect/stroke', DarkGrey);
+        this.attr('selector-rect/stroke-width', 2);
+        this.attr('selector-rect/stroke-dasharray', '3px 2px');
     }
 
     setFilter(b){
@@ -105,6 +110,16 @@ class JobInput extends shapes.devs.Model {
     setSelector(b){
         this._rightSelector = b;
         positionFilters(this, BoxSize, this._rightFilter, this._rightSelector, 'right');
+    }
+
+
+    showLegend(legendText){
+        this.attr('legend/display', 'block');
+        this.attr('legend/textWrap/text',legendText);
+    }
+
+    hideLegend(){
+        this.attr('legend/display', 'none');
     }
 
 }

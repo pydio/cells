@@ -92,7 +92,7 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
 
 var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -367,6 +367,9 @@ var JobGraph = (function (_React$Component) {
 
             graph.getCells().forEach(function (c) {
                 c.findView(paper).unhighlight();
+                if (c.hideLegend) {
+                    c.hideLegend();
+                }
             });
         }
     }, {
@@ -459,7 +462,7 @@ var JobGraph = (function (_React$Component) {
                     if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
                         // Move the element to the position before dragging.
                         // elementAbove.position(evt.data.x, evt.data.y);
-                        if (elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default']) {
+                        if (_this.isDroppable(elementAbove, elementBelow)) {
                             if (elementAbove instanceof _graphFilter2['default']) {
                                 if (elementBelow instanceof _graphJobInput2['default']) {
                                     onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
@@ -490,6 +493,8 @@ var JobGraph = (function (_React$Component) {
 
                             elementAbove.remove();
                             return;
+                        } else {
+                            _this.clearHighlight();
                         }
                     }
                     if (isFilter && elementAbove.isTemplate) {
@@ -507,7 +512,7 @@ var JobGraph = (function (_React$Component) {
                     // If the two elements are connected already, don't
                     // connect them again (this is application-specific though).
                     if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                        if (elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default']) {
+                        if (_this.isDroppable(elementAbove, elementBelow)) {
                             elementBelow.findView(this).highlight();
                         }
                     }
@@ -525,6 +530,40 @@ var JobGraph = (function (_React$Component) {
                 'link:remove': removeLinkTool
             });
             this.reLayout(editMode);
+        }
+    }, {
+        key: 'isDroppable',
+        value: function isDroppable(elementAbove, elementBelow) {
+            if (!(elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default'])) {
+                return false;
+            }
+            var job = this.state.job;
+
+            var dropFromType = elementAbove instanceof _graphFilter2['default'] ? "filter" : "selector";
+            var dropOn = elementBelow instanceof _graphJobInput2['default'] ? "job" : "action";
+            var dropFromProto = elementAbove instanceof _graphFilter2['default'] ? elementAbove.getFilter() : elementAbove.getSelector();
+            var dropOnProto = elementBelow instanceof _graphAction2['default'] ? elementBelow.getJobsAction() : job;
+            var keySet = _graphConfigs.AllowedKeys.target[dropOn][dropFromType].filter(function (o) {
+                return dropFromProto instanceof o.type;
+            });
+            // Check if the targetProto already has a similar key
+            if (keySet.length) {
+                var targetKey = keySet[0].key;
+                if (dropOnProto[targetKey]) {
+                    if (elementBelow.showLegend) {
+                        elementBelow.showLegend('Already has ' + targetKey);
+                    }
+                    return false;
+                }
+            }
+            // Finally do not add filters on non-event based JobInput
+            if (dropFromType === 'filter' && dropOn === 'job' && job.EventNames === undefined) {
+                if (elementBelow.showLegend) {
+                    elementBelow.showLegend('Cannot add filter on non event-based trigger');
+                }
+                return false;
+            }
+            return true;
         }
     }, {
         key: 'deleteButton',

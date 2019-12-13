@@ -44225,7 +44225,7 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
 
 var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -44500,6 +44500,9 @@ var JobGraph = (function (_React$Component) {
 
             graph.getCells().forEach(function (c) {
                 c.findView(paper).unhighlight();
+                if (c.hideLegend) {
+                    c.hideLegend();
+                }
             });
         }
     }, {
@@ -44592,7 +44595,7 @@ var JobGraph = (function (_React$Component) {
                     if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
                         // Move the element to the position before dragging.
                         // elementAbove.position(evt.data.x, evt.data.y);
-                        if (elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default']) {
+                        if (_this.isDroppable(elementAbove, elementBelow)) {
                             if (elementAbove instanceof _graphFilter2['default']) {
                                 if (elementBelow instanceof _graphJobInput2['default']) {
                                     onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
@@ -44623,6 +44626,8 @@ var JobGraph = (function (_React$Component) {
 
                             elementAbove.remove();
                             return;
+                        } else {
+                            _this.clearHighlight();
                         }
                     }
                     if (isFilter && elementAbove.isTemplate) {
@@ -44640,7 +44645,7 @@ var JobGraph = (function (_React$Component) {
                     // If the two elements are connected already, don't
                     // connect them again (this is application-specific though).
                     if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                        if (elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default']) {
+                        if (_this.isDroppable(elementAbove, elementBelow)) {
                             elementBelow.findView(this).highlight();
                         }
                     }
@@ -44658,6 +44663,40 @@ var JobGraph = (function (_React$Component) {
                 'link:remove': removeLinkTool
             });
             this.reLayout(editMode);
+        }
+    }, {
+        key: 'isDroppable',
+        value: function isDroppable(elementAbove, elementBelow) {
+            if (!(elementBelow instanceof _graphJobInput2['default'] || elementBelow instanceof _graphAction2['default'])) {
+                return false;
+            }
+            var job = this.state.job;
+
+            var dropFromType = elementAbove instanceof _graphFilter2['default'] ? "filter" : "selector";
+            var dropOn = elementBelow instanceof _graphJobInput2['default'] ? "job" : "action";
+            var dropFromProto = elementAbove instanceof _graphFilter2['default'] ? elementAbove.getFilter() : elementAbove.getSelector();
+            var dropOnProto = elementBelow instanceof _graphAction2['default'] ? elementBelow.getJobsAction() : job;
+            var keySet = _graphConfigs.AllowedKeys.target[dropOn][dropFromType].filter(function (o) {
+                return dropFromProto instanceof o.type;
+            });
+            // Check if the targetProto already has a similar key
+            if (keySet.length) {
+                var targetKey = keySet[0].key;
+                if (dropOnProto[targetKey]) {
+                    if (elementBelow.showLegend) {
+                        elementBelow.showLegend('Already has ' + targetKey);
+                    }
+                    return false;
+                }
+            }
+            // Finally do not add filters on non-event based JobInput
+            if (dropFromType === 'filter' && dropOn === 'job' && job.EventNames === undefined) {
+                if (elementBelow.showLegend) {
+                    elementBelow.showLegend('Cannot add filter on non event-based trigger');
+                }
+                return false;
+            }
+            return true;
         }
     }, {
         key: 'deleteButton',
@@ -45587,18 +45626,7 @@ var _QueryBuilder = require("./QueryBuilder");
 
 var _QueryBuilder2 = _interopRequireDefault(_QueryBuilder);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
-
-var keys = {
-    filter: {
-        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector },
-        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector }
-    },
-    selector: {
-        job: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector },
-        action: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector }
-    }
-};
+var _graphConfigs = require("../graph/Configs");
 
 var Filters = (function (_React$Component) {
     _inherits(Filters, _React$Component);
@@ -45623,7 +45651,7 @@ var Filters = (function (_React$Component) {
             } else {
                 onRemoveFilter(action, data, type, modelType);
             }
-            var types = keys[type][job ? 'job' : 'action'];
+            var types = _graphConfigs.AllowedKeys[type][job ? 'job' : 'action'];
             var stack = Object.keys(types).map(function (key) {
                 return job ? job[key] : action[key];
             }).filter(function (c) {
@@ -45645,7 +45673,7 @@ var Filters = (function (_React$Component) {
             var onDismiss = _props2.onDismiss;
 
             var target = job || action;
-            var types = keys[type][job ? 'job' : 'action'];
+            var types = _graphConfigs.AllowedKeys[type][job ? 'job' : 'action'];
             var stack = Object.keys(types).map(function (key) {
                 var data = job ? job[key] : action[key];
                 if (data) {
@@ -45707,7 +45735,7 @@ var Filters = (function (_React$Component) {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./QueryBuilder":482,"./styles":489,"pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],478:[function(require,module,exports){
+},{"../graph/Configs":491,"./QueryBuilder":482,"./styles":489,"react":"react"}],478:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48363,7 +48391,8 @@ var Action = (function (_shapes$devs$Model) {
                 'filter-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
                 'selector-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:selector:pointerdown' },
-                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' })
+                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' }),
+                'legend': { display: 'none', fill: _Configs.Grey, refX: '50%', refY: '110%', 'text-anchor': 'middle' }
             },
             ports: _Configs.PortsConfig
         };
@@ -48392,12 +48421,16 @@ var Action = (function (_shapes$devs$Model) {
     }, {
         key: "selectFilter",
         value: function selectFilter() {
-            this.attr('filter-rect/stroke', _Configs.Orange);
+            this.attr('filter-rect/stroke', _Configs.DarkGrey);
+            this.attr('filter-rect/stroke-width', 2);
+            this.attr('filter-rect/stroke-dasharray', '3px 2px');
         }
     }, {
         key: "selectSelector",
         value: function selectSelector() {
-            this.attr('selector-rect/stroke', _Configs.Orange);
+            this.attr('selector-rect/stroke', _Configs.DarkGrey);
+            this.attr('selector-rect/stroke-width', 2);
+            this.attr('selector-rect/stroke-dasharray', '3px 2px');
         }
     }, {
         key: "notifyJobModel",
@@ -48438,6 +48471,17 @@ var Action = (function (_shapes$devs$Model) {
                 }
             }
         }
+    }, {
+        key: "showLegend",
+        value: function showLegend(legendText) {
+            this.attr('legend/display', 'block');
+            this.attr('legend/text', legendText);
+        }
+    }, {
+        key: "hideLegend",
+        value: function hideLegend() {
+            this.attr('legend/display', 'none');
+        }
 
         /**
          *
@@ -48464,6 +48508,8 @@ Object.defineProperty(exports, '__esModule', {
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var Blue = '#2196f3';
 var DarkGrey = '#424242';
@@ -48506,6 +48552,12 @@ var RoundIconMarkup = [{
     selector: 'icon'
 }, {
     tagName: 'text',
+    selector: 'type-icon-outline'
+}, {
+    tagName: 'text',
+    selector: 'type-icon'
+}, {
+    tagName: 'text',
     selector: 'text'
 }];
 
@@ -48533,6 +48585,9 @@ var TextIconFilterMarkup = [{
 }, {
     tagName: 'text',
     selector: 'selector-icon'
+}, {
+    tagName: 'text',
+    selector: 'legend'
 }];
 
 var SimpleIconMarkup = [{
@@ -48692,6 +48747,27 @@ function linkAttr() {
     return { '.connection': conn };
 }
 
+var AllowedKeys = {
+    filter: {
+        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector },
+        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector }
+    },
+    selector: {
+        job: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector },
+        action: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector }
+    },
+    target: {
+        job: {
+            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodeEventFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UserEventFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }],
+            selector: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesSelector' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersSelector' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmSelector' }]
+        },
+        action: {
+            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }],
+            selector: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesSelector' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersSelector' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmSelector' }]
+        }
+    }
+};
+
 var BlueRect = { fill: Blue, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': Blue, filter: dropShadow };
 var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
 
@@ -48727,8 +48803,9 @@ exports.Destructive = Destructive;
 exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
 exports.linkAttr = linkAttr;
+exports.AllowedKeys = AllowedKeys;
 
-},{}],492:[function(require,module,exports){
+},{"pydio/http/rest-api":"pydio/http/rest-api"}],492:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48758,10 +48835,24 @@ var Filter = (function (_shapes$devs$Model) {
         _classCallCheck(this, Filter);
 
         var typeLabel = filterType;
+        var typeIcon = "file";
         if (filterType === 'idm') {
             typeLabel = filterDefinition.Type;
+            switch (filterDefinition.Type) {
+                case "User":
+                    typeIcon = 'account';break;
+                case "Role":
+                    typeIcon = 'account-card-details';break;
+                case "Workspace":
+                    typeIcon = 'folder-open';break;
+                case "Acl":
+                    typeIcon = 'format-list-checks';break;
+                default:
+                    break;
+            }
         } else if (filterType === 'user') {
             typeLabel = 'User';
+            typeIcon = "account";
         } else {
             typeLabel = 'Node';
         }
@@ -48770,8 +48861,10 @@ var Filter = (function (_shapes$devs$Model) {
             size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
             markup: _Configs.RoundIconMarkup,
             attrs: {
-                icon: _extends({ text: (0, _Configs.IconToUnicode)('filter-outline') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
-                text: _extends({ text: typeLabel }, _Configs.DarkLabel, { 'font-size': 11 })
+                icon: _extends({ text: (0, _Configs.IconToUnicode)(typeIcon) }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                text: _extends({ text: typeLabel }, _Configs.DarkLabel, { 'font-size': 11 }),
+                'type-icon-outline': _extends({ text: (0, _Configs.IconToUnicode)('filter') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22, stroke: "#fafafa", 'stroke-width': 4 }),
+                'type-icon': _extends({ text: (0, _Configs.IconToUnicode)('filter') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22 })
             },
             ports: _Configs.PortsConfig
         });
@@ -48852,7 +48945,8 @@ var JobInput = (function (_shapes$devs$Model) {
                 'filter-rect': { display: 'none', fill: _Configs.Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
                 'selector-rect': { display: 'none', fill: _Configs.Orange, refX: largeBoxWidth - 34, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:selector:pointerdown' },
-                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' })
+                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: 'white', refX: largeBoxWidth - 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' }),
+                'legend': { display: 'none', fill: _Configs.Grey, refX: '50%', refY: '120%', 'font-weight': 500, 'text-anchor': 'middle', textWrap: { width: -10, height: '50%' } }
             },
             ports: _Configs.PortsConfig
         });
@@ -48911,12 +49005,16 @@ var JobInput = (function (_shapes$devs$Model) {
     }, {
         key: 'selectFilter',
         value: function selectFilter() {
-            this.attr('filter-rect/stroke', _Configs.Blue);
+            this.attr('filter-rect/stroke', _Configs.DarkGrey);
+            this.attr('filter-rect/stroke-width', 2);
+            this.attr('filter-rect/stroke-dasharray', '3px 2px');
         }
     }, {
         key: 'selectSelector',
         value: function selectSelector() {
-            this.attr('selector-rect/stroke', _Configs.Blue);
+            this.attr('selector-rect/stroke', _Configs.DarkGrey);
+            this.attr('selector-rect/stroke-width', 2);
+            this.attr('selector-rect/stroke-dasharray', '3px 2px');
         }
     }, {
         key: 'setFilter',
@@ -48929,6 +49027,17 @@ var JobInput = (function (_shapes$devs$Model) {
         value: function setSelector(b) {
             this._rightSelector = b;
             (0, _Configs.positionFilters)(this, _Configs.BoxSize, this._rightFilter, this._rightSelector, 'right');
+        }
+    }, {
+        key: 'showLegend',
+        value: function showLegend(legendText) {
+            this.attr('legend/display', 'block');
+            this.attr('legend/textWrap/text', legendText);
+        }
+    }, {
+        key: 'hideLegend',
+        value: function hideLegend() {
+            this.attr('legend/display', 'none');
         }
     }]);
 
@@ -49016,10 +49125,24 @@ var Selector = (function (_shapes$devs$Model) {
         _classCallCheck(this, Selector);
 
         var typeLabel = filterType;
+        var typeIcon = 'file';
         if (filterType === 'idm') {
             typeLabel = filterDefinition.Type + 's';
+            switch (filterDefinition.Type) {
+                case "User":
+                    typeIcon = 'account';break;
+                case "Role":
+                    typeIcon = 'account-card-details';break;
+                case "Workspace":
+                    typeIcon = 'folder-open';break;
+                case "Acl":
+                    typeIcon = 'format-list-checks';break;
+                default:
+                    break;
+            }
         } else if (filterType === 'user') {
             typeLabel = 'Users';
+            typeIcon = 'account';
         } else {
             typeLabel = 'Nodes';
         }
@@ -49028,7 +49151,9 @@ var Selector = (function (_shapes$devs$Model) {
             size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
             markup: _Configs.RoundIconMarkup,
             attrs: {
-                icon: _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)(typeIcon) }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                'type-icon-outline': _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22, stroke: "#fafafa", 'stroke-width': 4 }),
+                'type-icon': _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22 }),
                 text: _extends({ text: typeLabel }, _Configs.DarkLabel, { magnet: 'passive', 'font-size': 11 })
             },
             ports: _Configs.PortsConfig
@@ -49476,73 +49601,24 @@ exports["default"] = function (job, action) {
                 filterOrSelector = action.filterOrSelector,
                 objectType = action.objectType;
 
-            if (target === job) {
-                (function () {
-                    if (filterOrSelector === 'filter') {
-                        switch (objectType) {
-                            case "user":
-                                job.UserEventFilter = dropped;
-                                break;
-                            case "idm":
-                                job.IdmFilter = dropped;
-                                break;
-                            default:
-                                // NODE
-                                job.NodeEventFilter = dropped;
-                                break;
-                        }
-                    } else if (filterOrSelector === 'selector') {
-                        switch (objectType) {
-                            case "user":
-                                job.UsersSelector = dropped;
-                                break;
-                            case "idm":
-                                job.IdmSelector = dropped;
-                                break;
-                            default:
-                                // NODE
-                                job.NodesSelector = dropped;
-                                break;
-                        }
-                    }
-                    var hasData = _JobGraph2["default"].jobInputCreatesData(job);
-                    job.model.graph.getConnectedLinks(job.model).forEach(function (link) {
-                        link.attr((0, _graphConfigs.linkAttr)(hasData));
-                    });
-                })();
-            } else {
-                // Target is an action
-                if (filterOrSelector === 'filter') {
-                    switch (objectType) {
-                        case "user":
-                            target.UsersFilter = dropped;
-                            break;
-                        case "idm":
-                            target.IdmFilter = dropped;
-                            break;
-                        default:
-                            // NODE
-                            target.NodesFilter = dropped;
-                            break;
-                    }
-                } else if (filterOrSelector === 'selector') {
-                    switch (objectType) {
-                        case "user":
-                            target.UsersSelector = dropped;
-                            break;
-                        case "idm":
-                            target.IdmSelector = dropped;
-                            break;
-                        default:
-                            // NODE
-                            target.NodesSelector = dropped;
-                            break;
-                    }
+            var dropOn = target instanceof _pydioHttpRestApi.JobsJob ? "job" : "action";
+            var keySet = _graphConfigs.AllowedKeys.target[dropOn][filterOrSelector].filter(function (o) {
+                return dropped instanceof o.type;
+            });
+            if (keySet.length) {
+                target[keySet[0].key] = dropped;
+                if (target instanceof _pydioHttpRestApi.JobsJob) {
+                    (function () {
+                        var hasData = _JobGraph2["default"].jobInputCreatesData(target);
+                        target.model.graph.getConnectedLinks(target.model).forEach(function (link) {
+                            link.attr((0, _graphConfigs.linkAttr)(hasData));
+                        });
+                    })();
                 }
-            }
-            if (target.model && target.model.notifyJobModel) {
-                // REFRESH GRAPH MODEL
-                target.model.notifyJobModel(target);
+                if (target.model && target.model.notifyJobModel) {
+                    // REFRESH GRAPH MODEL
+                    target.model.notifyJobModel(target);
+                }
             }
             return job;
 
@@ -49552,33 +49628,39 @@ exports["default"] = function (job, action) {
             var removeFilterOrSelector = action.filterOrSelector;
             var removeObjectType = action.objectType;
             if (removeTarget === job) {
-                if (removeFilterOrSelector === 'filter') {
-                    switch (removeObjectType) {
-                        case "user":
-                            delete job.UserEventFilter;
-                            break;
-                        case "idm":
-                            delete job.IdmFilter;
-                            break;
-                        default:
-                            // NODE
-                            delete job.NodeEventFilter;
-                            break;
+                (function () {
+                    if (removeFilterOrSelector === 'filter') {
+                        switch (removeObjectType) {
+                            case "user":
+                                delete job.UserEventFilter;
+                                break;
+                            case "idm":
+                                delete job.IdmFilter;
+                                break;
+                            default:
+                                // NODE
+                                delete job.NodeEventFilter;
+                                break;
+                        }
+                    } else if (removeFilterOrSelector === 'selector') {
+                        switch (removeObjectType) {
+                            case "user":
+                                delete job.UsersSelector;
+                                break;
+                            case "idm":
+                                delete job.IdmSelector;
+                                break;
+                            default:
+                                // NODE
+                                delete job.NodesSelector;
+                                break;
+                        }
                     }
-                } else if (removeFilterOrSelector === 'selector') {
-                    switch (removeObjectType) {
-                        case "user":
-                            delete job.UsersSelector;
-                            break;
-                        case "idm":
-                            delete job.IdmSelector;
-                            break;
-                        default:
-                            // NODE
-                            delete job.NodesSelector;
-                            break;
-                    }
-                }
+                    var hasData = _JobGraph2["default"].jobInputCreatesData(removeTarget);
+                    removeTarget.model.graph.getConnectedLinks(removeTarget.model).forEach(function (link) {
+                        link.attr((0, _graphConfigs.linkAttr)(hasData));
+                    });
+                })();
             } else {
                 // Target is an action
                 if (removeFilterOrSelector === 'filter') {

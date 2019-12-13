@@ -35,11 +35,13 @@ import {
 import { devToolsEnhancer } from 'redux-devtools-extension';
 import Filters from "./builder/Filters";
 import Templates from "./graph/Templates";
-import {linkAttr} from "./graph/Configs";
+import {AllowedKeys, linkAttr} from "./graph/Configs";
 
 
 const style = `
 text[joint-selector="icon"] tspan, 
+text[joint-selector="type-icon"] tspan, 
+text[joint-selector="type-icon-outline"] tspan, 
 text[joint-selector="filter-icon"] tspan, 
 text[joint-selector="selector-icon"] tspan,
 text[joint-selector="add-icon"] tspan,
@@ -60,6 +62,9 @@ text[joint-selector="split-icon"] tspan,
 text[joint-selector="remove-icon"] tspan
 {
     font-size: 18px;
+}
+text[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{
+    font-size: 14px;
 }
 .react-mui-context .pydio-form-panel{
     padding-bottom: 0;
@@ -314,6 +319,9 @@ class JobGraph extends React.Component {
         const {graph, paper} = this.state;
         graph.getCells().forEach(c => {
             c.findView(paper).unhighlight();
+            if(c.hideLegend){
+                c.hideLegend();
+            }
         })
     }
 
@@ -389,7 +397,7 @@ class JobGraph extends React.Component {
                 if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
                     // Move the element to the position before dragging.
                     // elementAbove.position(evt.data.x, evt.data.y);
-                    if(elementBelow instanceof JobInput || elementBelow instanceof Action) {
+                    if(_this.isDroppable(elementAbove, elementBelow)) {
                         if(elementAbove instanceof Filter){
                             if(elementBelow instanceof JobInput){
                                 onDropFilter(job, elementAbove.getFilter(), 'filter', elementAbove.getFilterType());
@@ -412,6 +420,8 @@ class JobGraph extends React.Component {
 
                         elementAbove.remove();
                         return;
+                    } else {
+                        _this.clearHighlight();
                     }
                 }
                 if(isFilter && elementAbove.isTemplate){
@@ -429,7 +439,7 @@ class JobGraph extends React.Component {
                 // If the two elements are connected already, don't
                 // connect them again (this is application-specific though).
                 if (isFilter && elementBelow && graph.getNeighbors(elementBelow).indexOf(elementAbove) === -1) {
-                    if(elementBelow instanceof JobInput || elementBelow instanceof Action) {
+                    if(_this.isDroppable(elementAbove, elementBelow)) {
                         elementBelow.findView(this).highlight();
                     }
                 }
@@ -447,6 +457,38 @@ class JobGraph extends React.Component {
             'link:remove' : removeLinkTool
         });
         this.reLayout(editMode);
+    }
+
+    isDroppable(elementAbove, elementBelow){
+        if (!(elementBelow instanceof JobInput || elementBelow instanceof Action)){
+            return false;
+        }
+        const {job} = this.state;
+        const dropFromType = elementAbove instanceof Filter ? "filter" : "selector";
+        const dropOn = elementBelow instanceof JobInput ? "job" : "action";
+        const dropFromProto = elementAbove instanceof Filter ? elementAbove.getFilter() : elementAbove.getSelector();
+        const dropOnProto = elementBelow instanceof Action ? elementBelow.getJobsAction() : job;
+        const keySet = AllowedKeys.target[dropOn][dropFromType].filter(o => {
+            return dropFromProto instanceof o.type
+        });
+        // Check if the targetProto already has a similar key
+        if(keySet.length){
+            const targetKey = keySet[0].key;
+            if(dropOnProto[targetKey]){
+                if(elementBelow.showLegend){
+                    elementBelow.showLegend('Already has ' + targetKey);
+                }
+                return false;
+            }
+        }
+        // Finally do not add filters on non-event based JobInput
+        if(dropFromType === 'filter' && dropOn === 'job' && job.EventNames === undefined){
+            if(elementBelow.showLegend){
+                elementBelow.showLegend('Cannot add filter on non event-based trigger');
+            }
+            return false
+        }
+        return true;
     }
 
     deleteButton(){

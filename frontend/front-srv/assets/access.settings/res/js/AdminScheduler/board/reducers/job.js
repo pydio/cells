@@ -9,7 +9,7 @@ import {JobsJob} from 'pydio/http/rest-api';
 import JobInput from "../graph/JobInput";
 import Action from "../graph/Action";
 import JobGraph from "../JobGraph";
-import {linkAttr} from "../graph/Configs";
+import {AllowedKeys, linkAttr} from "../graph/Configs";
 
 
 
@@ -44,66 +44,22 @@ export default function(job = new JobsJob(), action) {
         case DROP_FILTER_ACTION:
 
             const {target, dropped, filterOrSelector, objectType} = action;
-            if(target === job){
-                if(filterOrSelector === 'filter'){
-                    switch (objectType) {
-                        case "user":
-                            job.UserEventFilter = dropped;
-                            break;
-                        case "idm":
-                            job.IdmFilter = dropped;
-                            break;
-                        default: // NODE
-                            job.NodeEventFilter = dropped;
-                            break;
-                    }
-                } else if(filterOrSelector === 'selector') {
-                    switch (objectType) {
-                        case "user":
-                            job.UsersSelector = dropped;
-                            break;
-                        case "idm":
-                            job.IdmSelector = dropped;
-                            break;
-                        default: // NODE
-                            job.NodesSelector = dropped;
-                            break;
-                    }
+
+            const dropOn = target instanceof JobsJob ? "job" : "action";
+            const keySet = AllowedKeys.target[dropOn][filterOrSelector].filter(o => {
+                return dropped instanceof o.type
+            });
+            if(keySet.length){
+                target[keySet[0].key] = dropped;
+                if(target instanceof JobsJob){
+                    const hasData = JobGraph.jobInputCreatesData(target);
+                    target.model.graph.getConnectedLinks(target.model).forEach((link) => {
+                        link.attr(linkAttr(hasData));
+                    });
                 }
-                const hasData = JobGraph.jobInputCreatesData(job);
-                job.model.graph.getConnectedLinks(job.model).forEach((link) => {
-                    link.attr(linkAttr(hasData));
-                });
-            } else {
-                // Target is an action
-                if(filterOrSelector === 'filter'){
-                    switch (objectType) {
-                        case "user":
-                            target.UsersFilter = dropped;
-                            break;
-                        case "idm":
-                            target.IdmFilter = dropped;
-                            break;
-                        default: // NODE
-                            target.NodesFilter = dropped;
-                            break;
-                    }
-                } else if(filterOrSelector === 'selector') {
-                    switch (objectType) {
-                        case "user":
-                            target.UsersSelector = dropped;
-                            break;
-                        case "idm":
-                            target.IdmSelector = dropped;
-                            break;
-                        default: // NODE
-                            target.NodesSelector = dropped;
-                            break;
-                    }
+                if(target.model && target.model.notifyJobModel){ // REFRESH GRAPH MODEL
+                    target.model.notifyJobModel(target);
                 }
-            }
-            if(target.model && target.model.notifyJobModel){ // REFRESH GRAPH MODEL
-                target.model.notifyJobModel(target);
             }
             return job;
 
@@ -138,6 +94,10 @@ export default function(job = new JobsJob(), action) {
                             break;
                     }
                 }
+                const hasData = JobGraph.jobInputCreatesData(removeTarget);
+                removeTarget.model.graph.getConnectedLinks(removeTarget.model).forEach((link) => {
+                    link.attr(linkAttr(hasData));
+                });
             } else {
                 // Target is an action
                 if(removeFilterOrSelector === 'filter'){

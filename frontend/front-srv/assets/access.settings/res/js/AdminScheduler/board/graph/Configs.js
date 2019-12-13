@@ -1,3 +1,4 @@
+import {JobsNodesSelector, JobsUsersSelector, JobsIdmSelector} from 'pydio/http/rest-api'
 
 const Blue = '#2196f3';
 const DarkGrey = '#424242';
@@ -38,6 +39,12 @@ const RoundIconMarkup = [{
 }, {
     tagName: 'text',
     selector: 'icon'
+},{
+    tagName: 'text',
+    selector: 'type-icon-outline'
+}, {
+    tagName: 'text',
+    selector: 'type-icon'
 }, {
     tagName: 'text',
     selector: 'text'
@@ -67,6 +74,9 @@ const TextIconFilterMarkup = [{
 }, {
     tagName: 'text',
     selector: 'selector-icon'
+}, {
+    tagName: 'text',
+    selector: 'legend'
 }];
 
 const SimpleIconMarkup = [{
@@ -225,6 +235,44 @@ function linkAttr(hasData = true) {
     return {'.connection' : conn};
 }
 
+const AllowedKeys = {
+    filter: {
+        job: {'NodeEventFilter':JobsNodesSelector, 'UserEventFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector},
+        action:{'NodesFilter': JobsNodesSelector, 'UsersFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector}
+    },
+    selector: {
+        job: {'NodesSelector': JobsNodesSelector, 'UsersSelector': JobsUsersSelector, 'IdmSelector': JobsIdmSelector},
+        action: {'NodesSelector': JobsNodesSelector, 'UsersSelector': JobsUsersSelector, 'IdmSelector': JobsIdmSelector},
+    },
+    target: {
+        job: {
+            filter: [
+                {type: JobsNodesSelector, key: 'NodeEventFilter', },
+                {type: JobsUsersSelector, key: 'UserEventFilter'},
+                {type: JobsIdmSelector, key: 'IdmFilter'}
+            ],
+            selector: [
+                {type: JobsNodesSelector, key: 'NodesSelector'},
+                {type: JobsUsersSelector, key: 'UsersSelector'},
+                {type: JobsIdmSelector, key: 'IdmSelector'}
+            ],
+        },
+        action: {
+            filter: [
+                {type: JobsNodesSelector, key: 'NodesFilter'},
+                {type: JobsUsersSelector, key: 'UsersFilter'},
+                {type: JobsIdmSelector, key: 'IdmFilter'}
+            ],
+            selector: [
+                {type: JobsNodesSelector, key: 'NodesSelector'},
+                {type: JobsUsersSelector, key: 'UsersSelector'},
+                {type: JobsIdmSelector, key: 'IdmSelector'}
+            ],
+        }
+    }
+};
+
+
 
 const BlueRect = {fill: Blue ,rx: 5,ry: 5, 'stroke-width':1,  'stroke': Blue, filter:dropShadow};
 const WhiteRect = {fill: White ,rx: 5,ry: 5, 'stroke-width':1,  'stroke': LightGrey, filter:dropShadow};
@@ -237,4 +285,4 @@ const DarkLabel = {...LightLabel, fill: DarkGrey};
 const DarkIcon = {...LightIcon, fill: Blue};
 
 export {PortsConfig, ClusterConfig, TextIconMarkup, TextIconFilterMarkup, RoundIconMarkup, SimpleIconMarkup, BoxSize, FilterBoxSize, WhiteCircle, BlueRect, LightLabel, LightIcon, DarkIcon,
-    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, Destructive, IconToUnicode, positionFilters, linkAttr}
+    WhiteRect, DarkLabel, Blue, Orange, LightGrey, Grey, DarkGrey, Stale, Destructive, IconToUnicode, positionFilters, linkAttr, AllowedKeys}

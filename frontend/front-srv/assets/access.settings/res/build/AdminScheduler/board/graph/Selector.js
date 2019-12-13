@@ -25,10 +25,24 @@ var Selector = (function (_shapes$devs$Model) {
         _classCallCheck(this, Selector);
 
         var typeLabel = filterType;
+        var typeIcon = 'file';
         if (filterType === 'idm') {
             typeLabel = filterDefinition.Type + 's';
+            switch (filterDefinition.Type) {
+                case "User":
+                    typeIcon = 'account';break;
+                case "Role":
+                    typeIcon = 'account-card-details';break;
+                case "Workspace":
+                    typeIcon = 'folder-open';break;
+                case "Acl":
+                    typeIcon = 'format-list-checks';break;
+                default:
+                    break;
+            }
         } else if (filterType === 'user') {
             typeLabel = 'Users';
+            typeIcon = 'account';
         } else {
             typeLabel = 'Nodes';
         }
@@ -37,7 +51,9 @@ var Selector = (function (_shapes$devs$Model) {
             size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
             markup: _Configs.RoundIconMarkup,
             attrs: {
-                icon: _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                icon: _extends({ text: (0, _Configs.IconToUnicode)(typeIcon) }, _Configs.DarkIcon, { fill: _Configs.Orange, refY: 20 }),
+                'type-icon-outline': _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22, stroke: "#fafafa", 'stroke-width': 4 }),
+                'type-icon': _extends({ text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.DarkIcon, { fill: _Configs.Blue, refX: 40, refY: 22 }),
                 text: _extends({ text: typeLabel }, _Configs.DarkLabel, { magnet: 'passive', 'font-size': 11 })
             },
             ports: _Configs.PortsConfig

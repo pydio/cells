@@ -6,7 +6,7 @@ import {
     LightIcon,
     BoxSize,
     IconToUnicode,
-    TextIconFilterMarkup, Orange, positionFilters, Blue
+    TextIconFilterMarkup, Orange, positionFilters, Blue, Grey, DarkGrey
 } from "./Configs";
 import {JOB_ACTION_EMPTY} from "../actions/editor";
 import {JobsAction} from 'pydio/http/rest-api';
@@ -54,7 +54,8 @@ class Action extends shapes.devs.Model{
                 'filter-rect': {display:'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:filter:pointerdown'},
                 'filter-icon': {display:'none', text: IconToUnicode('filter'), ...LightIcon, fill: Orange, refX: 22, refY:'50%', refY2: -3, event:'element:filter:pointerdown'},
                 'selector-rect': {display:'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry:12, event:'element:selector:pointerdown'},
-                'selector-icon': {display:'none', text: IconToUnicode('magnify'), ...LightIcon, fill: Orange, refX: 22, refY:'50%', refY2: -3, event:'element:selector:pointerdown'}
+                'selector-icon': {display:'none', text: IconToUnicode('magnify'), ...LightIcon, fill: Orange, refX: 22, refY:'50%', refY2: -3, event:'element:selector:pointerdown'},
+                'legend':{display: 'none', fill: Grey, refX: '50%', refY: '110%', 'text-anchor': 'middle'}
             },
             ports:PortsConfig
         };
@@ -79,11 +80,15 @@ class Action extends shapes.devs.Model{
     }
 
     selectFilter(){
-        this.attr('filter-rect/stroke', Orange);
+        this.attr('filter-rect/stroke', DarkGrey);
+        this.attr('filter-rect/stroke-width', 2);
+        this.attr('filter-rect/stroke-dasharray', '3px 2px');
     }
 
     selectSelector(){
-        this.attr('selector-rect/stroke', Orange);
+        this.attr('selector-rect/stroke', DarkGrey);
+        this.attr('selector-rect/stroke-width', 2);
+        this.attr('selector-rect/stroke-dasharray', '3px 2px');
     }
 
     notifyJobModel(action){
@@ -119,6 +124,15 @@ class Action extends shapes.devs.Model{
                 this.removeOutPort('output')
             }
         }
+    }
+
+    showLegend(legendText){
+        this.attr('legend/display', 'block');
+        this.attr('legend/text', legendText);
+    }
+
+    hideLegend(){
+        this.attr('legend/display', 'none');
     }
 
     /**

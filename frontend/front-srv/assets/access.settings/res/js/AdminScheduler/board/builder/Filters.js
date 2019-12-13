@@ -1,18 +1,7 @@
 import React from 'react'
 import {RightPanel} from "./styles";
 import QueryBuilder from "./QueryBuilder";
-import {JobsNodesSelector,JobsUsersSelector,JobsIdmSelector} from "pydio/http/rest-api";
-
-const keys = {
-    filter: {
-        job: {'NodeEventFilter':JobsNodesSelector, 'UserEventFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector},
-        action:{'NodesFilter': JobsNodesSelector, 'UsersFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector}
-    },
-    selector: {
-        job: {'NodesSelector': JobsNodesSelector, 'UsersSelector': JobsUsersSelector, 'IdmSelector': JobsIdmSelector},
-        action: {'NodesSelector': JobsNodesSelector, 'UsersSelector': JobsUsersSelector, 'IdmSelector': JobsIdmSelector},
-    }
-};
+import {AllowedKeys} from "../graph/Configs";
 
 export default class Filters extends React.Component {
 
@@ -23,7 +12,7 @@ export default class Filters extends React.Component {
         } else {
             onRemoveFilter(action, data, type, modelType);
         }
-        const types =  keys[type][job?'job':'action'];
+        const types =  AllowedKeys[type][job?'job':'action'];
         const stack = Object.keys(types).map(key => {
             return job?job[key]:action[key]
         }).filter(c => c);
@@ -36,7 +25,7 @@ export default class Filters extends React.Component {
         const {job, action, type, onDismiss} = this.props;
 
         const target = job || action;
-        const types = keys[type][job?'job':'action'];
+        const types = AllowedKeys[type][job?'job':'action'];
         const stack = Object.keys(types).map(key => {
             const data = job?job[key]:action[key];
             if(data){

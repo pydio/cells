@@ -6,6 +6,8 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 var Blue = '#2196f3';
 var DarkGrey = '#424242';
 var LightGrey = '#e0e0e0';
@@ -47,6 +49,12 @@ var RoundIconMarkup = [{
     selector: 'icon'
 }, {
     tagName: 'text',
+    selector: 'type-icon-outline'
+}, {
+    tagName: 'text',
+    selector: 'type-icon'
+}, {
+    tagName: 'text',
     selector: 'text'
 }];
 
@@ -74,6 +82,9 @@ var TextIconFilterMarkup = [{
 }, {
     tagName: 'text',
     selector: 'selector-icon'
+}, {
+    tagName: 'text',
+    selector: 'legend'
 }];
 
 var SimpleIconMarkup = [{
@@ -233,6 +244,27 @@ function linkAttr() {
     return { '.connection': conn };
 }
 
+var AllowedKeys = {
+    filter: {
+        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector },
+        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector }
+    },
+    selector: {
+        job: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector },
+        action: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector }
+    },
+    target: {
+        job: {
+            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodeEventFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UserEventFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }],
+            selector: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesSelector' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersSelector' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmSelector' }]
+        },
+        action: {
+            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }],
+            selector: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesSelector' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersSelector' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmSelector' }]
+        }
+    }
+};
+
 var BlueRect = { fill: Blue, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': Blue, filter: dropShadow };
 var WhiteRect = { fill: White, rx: 5, ry: 5, 'stroke-width': 1, 'stroke': LightGrey, filter: dropShadow };
 
@@ -268,3 +300,4 @@ exports.Destructive = Destructive;
 exports.IconToUnicode = IconToUnicode;
 exports.positionFilters = positionFilters;
 exports.linkAttr = linkAttr;
+exports.AllowedKeys = AllowedKeys;

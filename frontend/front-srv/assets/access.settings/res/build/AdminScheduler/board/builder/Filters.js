@@ -24,18 +24,7 @@ var _QueryBuilder = require("./QueryBuilder");
 
 var _QueryBuilder2 = _interopRequireDefault(_QueryBuilder);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
-
-var keys = {
-    filter: {
-        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector },
-        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector }
-    },
-    selector: {
-        job: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector },
-        action: { 'NodesSelector': _pydioHttpRestApi.JobsNodesSelector, 'UsersSelector': _pydioHttpRestApi.JobsUsersSelector, 'IdmSelector': _pydioHttpRestApi.JobsIdmSelector }
-    }
-};
+var _graphConfigs = require("../graph/Configs");
 
 var Filters = (function (_React$Component) {
     _inherits(Filters, _React$Component);
@@ -60,7 +49,7 @@ var Filters = (function (_React$Component) {
             } else {
                 onRemoveFilter(action, data, type, modelType);
             }
-            var types = keys[type][job ? 'job' : 'action'];
+            var types = _graphConfigs.AllowedKeys[type][job ? 'job' : 'action'];
             var stack = Object.keys(types).map(function (key) {
                 return job ? job[key] : action[key];
             }).filter(function (c) {
@@ -82,7 +71,7 @@ var Filters = (function (_React$Component) {
             var onDismiss = _props2.onDismiss;
 
             var target = job || action;
-            var types = keys[type][job ? 'job' : 'action'];
+            var types = _graphConfigs.AllowedKeys[type][job ? 'job' : 'action'];
             var stack = Object.keys(types).map(function (key) {
                 var data = job ? job[key] : action[key];
                 if (data) {

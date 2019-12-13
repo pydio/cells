@@ -69,7 +69,8 @@ var Action = (function (_shapes$devs$Model) {
                 'filter-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:filter:pointerdown' },
                 'filter-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('filter') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:filter:pointerdown' }),
                 'selector-rect': { display: 'none', fill: 'white', refX: 10, refY: '50%', refY2: -12, width: 24, height: 24, rx: 12, ry: 12, event: 'element:selector:pointerdown' },
-                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' })
+                'selector-icon': _extends({ display: 'none', text: (0, _Configs.IconToUnicode)('magnify') }, _Configs.LightIcon, { fill: _Configs.Orange, refX: 22, refY: '50%', refY2: -3, event: 'element:selector:pointerdown' }),
+                'legend': { display: 'none', fill: _Configs.Grey, refX: '50%', refY: '110%', 'text-anchor': 'middle' }
             },
             ports: _Configs.PortsConfig
         };
@@ -98,12 +99,16 @@ var Action = (function (_shapes$devs$Model) {
     }, {
         key: "selectFilter",
         value: function selectFilter() {
-            this.attr('filter-rect/stroke', _Configs.Orange);
+            this.attr('filter-rect/stroke', _Configs.DarkGrey);
+            this.attr('filter-rect/stroke-width', 2);
+            this.attr('filter-rect/stroke-dasharray', '3px 2px');
         }
     }, {
         key: "selectSelector",
         value: function selectSelector() {
-            this.attr('selector-rect/stroke', _Configs.Orange);
+            this.attr('selector-rect/stroke', _Configs.DarkGrey);
+            this.attr('selector-rect/stroke-width', 2);
+            this.attr('selector-rect/stroke-dasharray', '3px 2px');
         }
     }, {
         key: "notifyJobModel",
@@ -143,6 +148,17 @@ var Action = (function (_shapes$devs$Model) {
                     this.removeOutPort('output');
                 }
             }
+        }
+    }, {
+        key: "showLegend",
+        value: function showLegend(legendText) {
+            this.attr('legend/display', 'block');
+            this.attr('legend/text', legendText);
+        }
+    }, {
+        key: "hideLegend",
+        value: function hideLegend() {
+            this.attr('legend/display', 'none');
         }
 
         /**
