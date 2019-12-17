@@ -34,7 +34,7 @@ import (
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/transport"
 
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 var (

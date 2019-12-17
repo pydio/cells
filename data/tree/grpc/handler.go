@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 	"time"
@@ -392,8 +393,12 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 				break
 			}
 
-			if err != nil {
+			if err == io.EOF || err == io.ErrUnexpectedEOF {
 				break
+			}
+
+			if err != nil {
+				return err
 			}
 
 			if offset > 0 && offset > *cursorIndex {
@@ -410,6 +415,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, req *tree.ListNodes
 			}
 		}
 
+		return nil
 	}
 
 	return errors.NotFound(node.GetPath(), "Not found")

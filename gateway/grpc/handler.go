@@ -97,10 +97,14 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 		return e
 	}
 	defer st.Close()
+
 	for {
 		r, e := st.Recv()
-		if e != nil {
+		if e == io.EOF || e == io.ErrUnexpectedEOF {
 			break
+		}
+		if e != nil {
+			return e
 		}
 		stream.Send(r)
 	}

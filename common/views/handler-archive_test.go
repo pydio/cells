@@ -24,6 +24,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"sync"
 	"testing"
 
 	"github.com/pydio/cells/common"
@@ -51,6 +52,32 @@ func (m *mockSelectionProvider) getSelectionByUuid(ctx context.Context, selectio
 func (m *mockSelectionProvider) deleteSelectionByUuid(ctx context.Context, selectionUuid string) {
 	// Do NOT actually delete, or mockSelectionProvider cannot be reused for further testing
 	//delete(m.sel, selectionUuid)
+}
+
+func TestArchiveHandler_WrappingStreamer(t *testing.T) {
+	s := NewWrappingStreamer()
+
+	wg := &sync.WaitGroup{}
+	go func() {
+		wg.Add(1)
+		defer s.Close()
+		defer wg.Done()
+
+		for {
+			_, err := s.Recv()
+			if err == io.EOF {
+				break
+			}
+		}
+	}()
+
+	Convey("Test Read Normal Node", t, func() {
+		err := s.Send(&tree.ListNodesResponse{Node: &tree.Node{Path: "path/folder/file", Type: tree.NodeType_LEAF, Size: 10}})
+		So(err, ShouldBeNil)
+	})
+
+	s.Close()
+	wg.Wait()
 }
 
 func TestArchiveHandler_ReadNode(t *testing.T) {
