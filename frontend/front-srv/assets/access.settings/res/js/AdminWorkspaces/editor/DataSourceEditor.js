@@ -312,6 +312,24 @@ class DataSourceEditor extends React.Component{
                                 </div>
                             }
                             <DataSourceBucketSelector dataSource={model} hintText={m('storage.s3.bucket')}/>
+                            <div style={{...styles.legend, paddingTop: 40}}>{m('storage.s3.legend.tags')}</div>
+                            <div style={{display:'flex'}}>
+                                <div style={{flex:1, marginRight: 5}}>
+                                    <ModernTextField
+                                        fullWidth={true}
+                                        hintText={m('storage.s3.bucketsTags')}
+                                        value={model.StorageConfiguration.bucketsTags || ''}
+                                        onChange={(e,v)=>{model.StorageConfiguration.bucketsTags = v;}}/>
+                                </div>
+                                <div style={{flex:1, marginLeft: 5}}>
+                                    <ModernTextField
+                                        disabled={true}
+                                        fullWidth={true}
+                                        hintText={m('storage.s3.objectsTags') + ' (not implemented yet)'}
+                                        value={model.StorageConfiguration.objectsTags || ''}
+                                        onChange={(e,v)=>{model.StorageConfiguration.objectsTags = v;}}/>
+                                </div>
+                            </div>
                         </div>
                     }
                     {model.StorageType === 'AZURE' &&

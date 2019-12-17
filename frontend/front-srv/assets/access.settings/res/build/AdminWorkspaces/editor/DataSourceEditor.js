@@ -513,7 +513,39 @@ var DataSourceEditor = (function (_React$Component) {
                                     model.StorageConfiguration.customRegion = v;
                                 } })
                         ),
-                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') })
+                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.legend, { paddingTop: 40 }) },
+                            m('storage.s3.legend.tags')
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginRight: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    fullWidth: true,
+                                    hintText: m('storage.s3.bucketsTags'),
+                                    value: model.StorageConfiguration.bucketsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.bucketsTags = v;
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginLeft: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    disabled: true,
+                                    fullWidth: true,
+                                    hintText: m('storage.s3.objectsTags') + ' (not implemented yet)',
+                                    value: model.StorageConfiguration.objectsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.objectsTags = v;
+                                    } })
+                            )
+                        )
                     ),
                     model.StorageType === 'AZURE' && _react2['default'].createElement(
                         'div',
