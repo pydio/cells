@@ -21,10 +21,7 @@
 package s3
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"io"
 	"log"
 	"sync"
 	"testing"
@@ -35,92 +32,6 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/minio-go"
 )
-
-type MinioClientMock struct {
-	objects map[string]minio.ObjectInfo
-}
-
-func (c *MinioClientMock) ListBuckets() (bb []minio.BucketInfo, e error) {
-	return
-}
-
-func (c *MinioClientMock) ListBucketsWithContext(ctx context.Context) (bb []minio.BucketInfo, e error) {
-	return
-}
-
-func (c *MinioClientMock) BucketExists(string) (bool, error) {
-	return true, nil
-}
-
-func (c *MinioClientMock) StatObject(bucket string, path string, opts minio.StatObjectOptions) (minio.ObjectInfo, error) {
-	obj, ok := c.objects[path]
-	if ok {
-		return obj, nil
-	} else {
-		return minio.ObjectInfo{}, errors.New("Path " + path + " does not exists")
-	}
-}
-
-func (c *MinioClientMock) RemoveObject(bucket string, path string) error {
-	return nil
-}
-
-func (c *MinioClientMock) PutObject(bucket string, path string, reader io.Reader, size int64, opts minio.PutObjectOptions) (n int64, err error) {
-	buf := &bytes.Buffer{}
-	nRead, err := io.Copy(buf, reader)
-	if err != nil {
-		return 0, err
-	}
-	return nRead, nil
-}
-
-func (c *MinioClientMock) GetObject(bucket string, path string, opts minio.GetObjectOptions) (object *minio.Object, err error) {
-	object = &minio.Object{}
-	return object, errors.New("Object is not mockable, cannot emulate GetObject")
-}
-
-func (c *MinioClientMock) ListObjectsV2(bucketName, objectPrefix string, recursive bool, doneCh <-chan struct{}) <-chan minio.ObjectInfo {
-	out := make(chan minio.ObjectInfo, 1)
-	go func() {
-		defer close(out)
-		for _, info := range c.objects {
-			out <- info
-		}
-	}()
-	return out
-}
-
-func (c *MinioClientMock) CopyObject(dest minio.DestinationInfo, source minio.SourceInfo) error {
-	return nil
-}
-
-func (c *MinioClientMock) ListenBucketNotification(bucketName, prefix, suffix string, events []string, doneCh <-chan struct{}) <-chan minio.NotificationInfo {
-	out := make(chan minio.NotificationInfo)
-	return out
-}
-
-func (c *MinioClientMock) GetBucketTagging(string) ([]minio.Tag, error) {
-	return []minio.Tag{}, nil
-}
-
-func NewS3Mock() *Client {
-	mock := &MinioClientMock{
-		objects: make(map[string]minio.ObjectInfo),
-	}
-	mock.objects["file"] = minio.ObjectInfo{
-		Key:  "file",
-		ETag: "filemd5",
-	}
-	mock.objects["folder/"+common.PYDIO_SYNC_HIDDEN_FILE_META] = minio.ObjectInfo{
-		Key: "folder/" + common.PYDIO_SYNC_HIDDEN_FILE_META,
-	}
-	client := &Client{
-		Mc:       mock,
-		Bucket:   "bucket",
-		RootPath: "",
-	}
-	return client
-}
 
 func TestStat(t *testing.T) {
 	Convey("Test Stat file", t, func() {

@@ -93,6 +93,8 @@ func (t *TreeNode) QueueOperation(op Operation) {
 				last.DataOperation = op
 			case OpConflict:
 				last.Conflict = op
+			case OpDeleteMeta, OpCreateMeta, OpUpdateMeta:
+				last.DataOperation = op
 			}
 		} else if c, o := crtParent.children[childPath]; o {
 			crtParent = c

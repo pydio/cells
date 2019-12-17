@@ -248,8 +248,11 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	}
 
 	close(opsFinished)
-	// Wait that all is done
+	// Wait that all parallel operations are done
 	<-done
+
+	// Now that all files are created, we can process metadata operations
+	patch.WalkOperations([]merger.OperationType{merger.OpCreateMeta, merger.OpUpdateMeta, merger.OpDeleteMeta}, serialWalker)
 
 	if pE, h := patch.HasErrors(); !h && !pr.SkipTargetChecks {
 		if err := patch.Validate(ctx); err != nil {
@@ -374,6 +377,24 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 		complete = "Deleted " + nS
 		error = "Error while deleting " + nS
 		fields = append(fields, zap.String("path", op.GetRefPath()))
+	case merger.OpCreateMeta:
+		cb = pr.processMetadata
+		progress = "Creating metadata"
+		complete = "Created metadata"
+		error = "Error while creating metadata"
+		fields = append(fields, zap.String("namespace", op.GetNode().GetUuid()))
+	case merger.OpDeleteMeta:
+		cb = pr.processMetadata
+		progress = "Removing metadata"
+		complete = "Removed metadata"
+		error = "Error while removing metadata"
+		fields = append(fields, zap.String("namespace", op.GetNode().GetUuid()))
+	case merger.OpUpdateMeta:
+		cb = pr.processMetadata
+		progress = "Updating metadata"
+		complete = "Updated metadata"
+		error = "Error while updating metadata"
+		fields = append(fields, zap.String("namespace", op.GetNode().GetUuid()))
 	}
 	fields = append(fields, zap.String("target", op.Target().GetEndpointInfo().URI))
 	return

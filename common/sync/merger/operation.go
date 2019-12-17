@@ -280,6 +280,8 @@ func (o *patchOperation) String() string {
 		return "Delete" + dir
 	case OpRefreshUuid:
 		return "RefreshUuid" + dir
+	case OpCreateMeta, OpUpdateMeta, OpDeleteMeta:
+		return o.OpType.String() + dir
 	default:
 		return "UnknownType" + dir
 	}
