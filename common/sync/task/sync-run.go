@@ -50,10 +50,12 @@ func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, 
 
 		if e := s.runBi(ctx, bb, dryRun, force, rootsInfo); e != nil || dryRun {
 			bb.Done(bb)
+
 			return bb, e
 		} else {
 			s.patchChan <- bb
 		}
+
 		return bb, e
 
 	} else {
