@@ -69,6 +69,7 @@ var Filters = (function (_React$Component) {
             var action = _props2.action;
             var type = _props2.type;
             var onDismiss = _props2.onDismiss;
+            var onSave = _props2.onSave;
 
             var target = job || action;
             var types = _graphConfigs.AllowedKeys[type][job ? 'job' : 'action'];
@@ -98,6 +99,7 @@ var Filters = (function (_React$Component) {
                     },
                     onSave: function (newData) {
                         target[key] = newData;
+                        onSave();
                     }
                 });
             });

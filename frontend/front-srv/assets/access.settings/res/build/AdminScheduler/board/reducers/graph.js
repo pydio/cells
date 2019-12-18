@@ -20,6 +20,10 @@ var _graphTemplates = require("../graph/Templates");
 
 var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
+var _graphJobInput = require("../graph/JobInput");
+
+var _graphJobInput2 = _interopRequireDefault(_graphJobInput);
+
 function graphReducer(graph, action) {
     if (graph === undefined) {
         graph = new _jointjs.dia.Graph();
@@ -40,7 +44,7 @@ function graphReducer(graph, action) {
                 if (a instanceof _graphAction2["default"]) {
                     a.toggleEdit();
                 }
-                if (!action.edit && !a.isTemplate) {
+                if (!action.edit && !a.isTemplate && !a instanceof _graphJobInput2["default"]) {
                     if (a.graph.getConnectedLinks(a).length === 0) {
                         a.remove();
                     }

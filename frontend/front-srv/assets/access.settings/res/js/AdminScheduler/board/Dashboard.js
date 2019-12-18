@@ -27,6 +27,8 @@ import JobBoard from './JobBoard'
 import JobSchedule from './JobSchedule'
 import debounce from 'lodash.debounce'
 import {Events} from './builder/Triggers'
+import {JobsJob} from 'pydio/http/rest-api';
+import uuid from 'uuid4'
 
 const Dashboard = React.createClass({
 
@@ -227,24 +229,40 @@ const Dashboard = React.createClass({
             },
         ];
 
-        const {result, loading, selectJob} = this.state;
+        const {result, loading, selectJob, createJob} = this.state;
         if(selectJob && result && result.Jobs){
             const found = result.Jobs.filter((j) => j.ID === selectJob);
             if(found.length){
-                return <JobBoard pydio={pydio} job={found[0]} jobsEditable={jobsEditable} onRequestClose={()=>this.setState({selectJob: null})}/>;
+                return <JobBoard pydio={pydio} job={found[0]} jobsEditable={jobsEditable} onSave={()=>{this.load(true)}} onRequestClose={()=>this.setState({selectJob: null})}/>;
             }
+        } else if(createJob) {
+            return <JobBoard pydio={pydio} job={createJob} create={true} jobsEditable={jobsEditable} onSave={()=>{this.load(true)}} onRequestClose={()=>this.setState({createJob: null})}/>;
         }
         let {system, other} = this.extractRowsInfo(result ? result.Jobs : [], m);
         system.sort((a,b) => {
             return a.TriggerValue === b.TriggerValue ? 0 : (a.TriggerValue > b.TriggerValue ? 1 : -1 );
         });
+        const actions = [];
+        if (jobsEditable) {
+            actions.push(<FlatButton label={"+ Job"} onTouchTap={() => {
+                const label = window.prompt("Provide a label for this job");
+                if(label){
+                    const newJob = JobsJob.constructFromObject({
+                        ID: uuid(),
+                        Label: label,
+                        Actions:[],
+                    });
+                    this.setState({createJob: newJob});
+                }
+            }}/>)
+        }
 
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
                 <AdminComponents.Header
                     title={m('title')}
                     icon="mdi mdi-timetable"
-                    actions={[]}
+                    actions={actions}
                     reloadAction={this.load.bind(this)}
                     loading={loading}
                 />

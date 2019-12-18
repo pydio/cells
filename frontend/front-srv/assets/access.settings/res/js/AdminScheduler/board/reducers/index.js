@@ -1,4 +1,4 @@
-import editor from './editor'
+import editor, {dirty, original} from './editor'
 import graphReducer from './graph'
 import paperReducer from "./paper";
 import jobReducer from './job';
@@ -8,7 +8,9 @@ const allReducers = combineReducers({
     editMode: editor,
     graph: graphReducer,
     paper: paperReducer,
-    job: jobReducer
+    job: jobReducer,
+    dirty: dirty,
+    original,
 });
 
 export default allReducers

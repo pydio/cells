@@ -1,7 +1,7 @@
 import {
     ATTACH_MODEL_ACTION,
     DETACH_MODEL_ACTION,
-    DROP_FILTER_ACTION,
+    DROP_FILTER_ACTION, EDITOR_REVERT,
     JOB_LOADED, JOB_SWITCH_TRIGGER, REMOVE_FILTER_ACTION,
     REMOVE_MODEL_ACTION
 } from "../actions/editor";
@@ -196,6 +196,9 @@ export default function(job = new JobsJob(), action) {
                 link.attr(linkAttr(hasData));
             });
             return job;
+
+        case EDITOR_REVERT:
+            return JobsJob.constructFromObject(JSON.parse(JSON.stringify(action.original)));
 
         default:
             return job

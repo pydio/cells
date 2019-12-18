@@ -16,8 +16,21 @@ exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
 exports.setSelectionAction = setSelectionAction;
 exports.clearSelectionAction = clearSelectionAction;
+exports.setDirtyAction = setDirtyAction;
+exports.saveSuccessAction = saveSuccessAction;
+exports.saveErrorAction = saveErrorAction;
+exports.revertAction = revertAction;
 var TOGGLE_EDITOR_MODE = "editor:toggle-edit";
 exports.TOGGLE_EDITOR_MODE = TOGGLE_EDITOR_MODE;
+var EDITOR_SET_DIRTY = "editor:set-dirty";
+exports.EDITOR_SET_DIRTY = EDITOR_SET_DIRTY;
+var EDITOR_SAVE_SUCCESS = "editor:save";
+exports.EDITOR_SAVE_SUCCESS = EDITOR_SAVE_SUCCESS;
+var EDITOR_SAVE_ERROR = "editor:save";
+exports.EDITOR_SAVE_ERROR = EDITOR_SAVE_ERROR;
+var EDITOR_REVERT = "editor:revert";
+
+exports.EDITOR_REVERT = EDITOR_REVERT;
 var BIND_PAPER_TO_DOM = "editor:bind-paper";
 exports.BIND_PAPER_TO_DOM = BIND_PAPER_TO_DOM;
 var JOB_LOADED = "job:loaded";
@@ -159,5 +172,34 @@ function setSelectionAction(selectionType, selectionModel) {
 function clearSelectionAction() {
     return {
         type: SELECTION_CLEAR_ACTION
+    };
+}
+
+function setDirtyAction() {
+    var dirty = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+    return {
+        type: EDITOR_SET_DIRTY,
+        dirty: dirty
+    };
+}
+
+function saveSuccessAction(job) {
+    return {
+        type: EDITOR_SAVE_SUCCESS,
+        job: job
+    };
+}
+
+function saveErrorAction(job) {
+    return {
+        type: EDITOR_SAVE_ERROR,
+        job: job
+    };
+}
+
+function revertAction(original) {
+    return {
+        type: EDITOR_REVERT, original: original
     };
 }

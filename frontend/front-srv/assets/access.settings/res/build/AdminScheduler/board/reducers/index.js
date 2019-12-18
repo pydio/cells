@@ -28,7 +28,9 @@ var allReducers = (0, _redux.combineReducers)({
     editMode: _editor2['default'],
     graph: _graph2['default'],
     paper: _paper2['default'],
-    job: _job2['default']
+    job: _job2['default'],
+    dirty: _editor.dirty,
+    original: _editor.original
 });
 
 exports['default'] = allReducers;

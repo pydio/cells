@@ -52,6 +52,12 @@ var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
 var _builderTriggers = require('./builder/Triggers');
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _uuid4 = require('uuid4');
+
+var _uuid42 = _interopRequireDefault(_uuid4);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
 var JobsStore = _Pydio$requireLib.JobsStore;
@@ -312,16 +318,25 @@ var Dashboard = _react2['default'].createClass({
         var result = _state2.result;
         var loading = _state2.loading;
         var selectJob = _state2.selectJob;
+        var createJob = _state2.createJob;
 
         if (selectJob && result && result.Jobs) {
             var found = result.Jobs.filter(function (j) {
                 return j.ID === selectJob;
             });
             if (found.length) {
-                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onRequestClose: function () {
+                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onSave: function () {
+                        _this5.load(true);
+                    }, onRequestClose: function () {
                         return _this5.setState({ selectJob: null });
                     } });
             }
+        } else if (createJob) {
+            return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: createJob, create: true, jobsEditable: jobsEditable, onSave: function () {
+                    _this5.load(true);
+                }, onRequestClose: function () {
+                    return _this5.setState({ createJob: null });
+                } });
         }
 
         var _extractRowsInfo = this.extractRowsInfo(result ? result.Jobs : [], m);
@@ -332,6 +347,20 @@ var Dashboard = _react2['default'].createClass({
         system.sort(function (a, b) {
             return a.TriggerValue === b.TriggerValue ? 0 : a.TriggerValue > b.TriggerValue ? 1 : -1;
         });
+        var actions = [];
+        if (jobsEditable) {
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "+ Job", onTouchTap: function () {
+                    var label = window.prompt("Provide a label for this job");
+                    if (label) {
+                        var newJob = _pydioHttpRestApi.JobsJob.constructFromObject({
+                            ID: (0, _uuid42['default'])(),
+                            Label: label,
+                            Actions: []
+                        });
+                        _this5.setState({ createJob: newJob });
+                    }
+                } }));
+        }
 
         return _react2['default'].createElement(
             'div',
@@ -339,7 +368,7 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.Header, {
                 title: m('title'),
                 icon: 'mdi mdi-timetable',
-                actions: [],
+                actions: actions,
                 reloadAction: this.load.bind(this),
                 loading: loading
             }),

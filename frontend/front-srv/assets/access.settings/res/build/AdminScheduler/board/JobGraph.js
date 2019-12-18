@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -74,13 +74,15 @@ var _builderTriggers = require("./builder/Triggers");
 
 var _redux = require('redux');
 
+var _reduxThunk = require('redux-thunk');
+
+var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
+
 var _reducers = require('./reducers');
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
 var _actionsEditor = require("./actions/editor");
-
-var _reduxDevtoolsExtension = require('redux-devtools-extension');
 
 var _builderFilters = require("./builder/Filters");
 
@@ -109,6 +111,11 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
             dispatch((0, _actionsEditor.toggleEditAction)(on, layout));
         },
+        onSetDirty: function onSetDirty() {
+            var dirty = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+            dispatch((0, _actionsEditor.setDirtyAction)(dirty));
+        },
         onPaperBind: function onPaperBind(element, graph, events) {
             dispatch((0, _actionsEditor.bindPaperAction)(element, graph, events));
         },
@@ -119,28 +126,79 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             dispatch((0, _actionsEditor.emptyModelAction)(model));
         },
         onAttachModel: function onAttachModel(link) {
-            dispatch((0, _actionsEditor.attachModelAction)(link));
+            dispatch(function (d) {
+                d((0, _actionsEditor.attachModelAction)(link));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onDetachModel: function onDetachModel(linkView, toolView, originalTarget) {
-            dispatch((0, _actionsEditor.detachModelAction)(linkView, toolView, originalTarget));
+            dispatch(function (d) {
+                d((0, _actionsEditor.detachModelAction)(linkView, toolView, originalTarget));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onRemoveModel: function onRemoveModel(model, parentModel) {
-            dispatch((0, _actionsEditor.removeModelAction)(model, parentModel));
+            dispatch(function (d) {
+                d((0, _actionsEditor.removeModelAction)(model, parentModel));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onDropFilter: function onDropFilter(target, dropped, filterOrSelector, objectType) {
-            dispatch((0, _actionsEditor.dropFilterAction)(target, dropped, filterOrSelector, objectType));
+            dispatch(function (d) {
+                d((0, _actionsEditor.dropFilterAction)(target, dropped, filterOrSelector, objectType));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onRemoveFilter: function onRemoveFilter(target, filter, filterOrSelector, objectType) {
-            dispatch((0, _actionsEditor.removeFilterAction)(target, filter, filterOrSelector, objectType));
+            dispatch(function (d) {
+                d((0, _actionsEditor.removeFilterAction)(target, filter, filterOrSelector, objectType));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onTriggerChange: function onTriggerChange(triggerType, triggerData) {
-            dispatch((0, _actionsEditor.changeTriggerAction)(triggerType, triggerData));
+            dispatch(function (d) {
+                d((0, _actionsEditor.changeTriggerAction)(triggerType, triggerData));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onSelectionClear: function onSelectionClear() {
             dispatch((0, _actionsEditor.clearSelectionAction)());
         },
         onSelectionSet: function onSelectionSet(type, model) {
             dispatch((0, _actionsEditor.setSelectionAction)(type, model));
+        },
+        onRevert: function onRevert(original, callback) {
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.revertAction)(original));
+                d((0, _actionsEditor.setDirtyAction)(false));
+
+                var _getState = getState();
+
+                var job = _getState.job;
+
+                callback(job);
+            });
+        },
+        onSave: function onSave(job) {
+            dispatch(function (d) {
+                ResourcesManager.loadClass('EnterpriseSDK').then(function (sdk) {
+                    var SchedulerServiceApi = sdk.SchedulerServiceApi;
+                    var JobsPutJobRequest = sdk.JobsPutJobRequest;
+
+                    var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    var req = new JobsPutJobRequest();
+                    // Clone and remove tasks
+                    req.Job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+                    if (req.Job.Tasks !== undefined) {
+                        delete req.Job.Tasks;
+                    }
+                    return api.putJob(req);
+                }).then(function () {
+                    d((0, _actionsEditor.saveSuccessAction)(job));
+                })['catch'](function (e) {
+                    d((0, _actionsEditor.saveErrorAction)(job));
+                });
+            });
         }
     };
 };
@@ -158,7 +216,9 @@ var JobGraph = (function (_React$Component) {
         _classCallCheck(this, JobGraph);
 
         _get(Object.getPrototypeOf(JobGraph.prototype), 'constructor', this).call(this, props);
-        this.store = (0, _redux.createStore)(_reducers2['default'], { job: props.job });
+        var job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
+        var original = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
+        this.store = (0, _redux.createStore)(_reducers2['default'], { job: job, original: original }, (0, _redux.applyMiddleware)(_reduxThunk2['default']));
         this.state = storeStateToState(this.store);
         this.store.subscribe(function () {
             _this2.setState(storeStateToState(_this2.store));
@@ -196,10 +256,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'shouldComponentUpdate',
         value: function shouldComponentUpdate(nextProps, nextState) {
-            if (nextProps.random !== this.props.random) {
-                return false;
-            }
-            return true;
+            return nextProps.random === this.props.random;
         }
     }, {
         key: 'loadDescriptions',
@@ -209,11 +266,11 @@ var JobGraph = (function (_React$Component) {
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
                 _this4.setState({ descriptions: data.Actions }, function () {
-                    _this4.graphFromJob();
+                    _this4.graphFromJob(_this4.state.job);
                     _this4.drawGraph();
                 });
             })['catch'](function () {
-                _this4.graphFromJob();
+                _this4.graphFromJob(_this4.state.job);
                 _this4.drawGraph();
             });
         }
@@ -239,16 +296,21 @@ var JobGraph = (function (_React$Component) {
         }
     }, {
         key: 'graphFromJob',
-        value: function graphFromJob() {
-            var job = this.props.job;
+        value: function graphFromJob(job) {
             var graph = this.state.graph;
+
+            graph.getCells().filter(function (c) {
+                return !c.isTemplate;
+            }).forEach(function (c) {
+                return c.remove();
+            });
+
+            var shapeIn = new _graphJobInput2['default'](job);
+            shapeIn.addTo(graph);
 
             if (!job || !job.Actions || !job.Actions.length) {
                 return;
             }
-
-            var shapeIn = new _graphJobInput2['default'](job);
-            shapeIn.addTo(graph);
 
             var actionsInput = shapeIn.id;
             var firstLinkHasData = JobGraph.jobInputCreatesData(job);
@@ -258,6 +320,8 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'reLayout',
         value: function reLayout(editMode) {
+            var _this6 = this;
+
             var _state2 = this.state;
             var graph = _state2.graph;
             var paper = _state2.paper;
@@ -290,6 +354,15 @@ var JobGraph = (function (_React$Component) {
             }
             if (paper) {
                 paper.setDimensions(bbox.width, bbox.height);
+                graph.getLinks().forEach(function (l) {
+                    var linkView = l.findView(paper);
+                    if (!linkView.hasTools()) {
+                        linkView.addTools(new _jointjs.dia.ToolsView({ tools: [_this6.createLinkTool()] }));
+                        if (!editMode) {
+                            linkView.hideTools();
+                        }
+                    }
+                });
             } else {
                 onPaperResize(bbox.width, bbox.height);
             }
@@ -373,18 +446,22 @@ var JobGraph = (function (_React$Component) {
             });
         }
     }, {
+        key: 'createLinkTool',
+        value: function createLinkTool() {
+            var onDetachModel = this.state.onDetachModel;
+
+            return new _jointjs.linkTools.Remove({
+                action: function action(evt, linkView, toolView) {
+                    onDetachModel(linkView, toolView);
+                },
+                distance: -40
+            });
+        }
+    }, {
         key: 'drawGraph',
         value: function drawGraph() {
-            var _this6 = this;
+            var _this7 = this;
 
-            var removeLinkTool = function removeLinkTool() {
-                return new _jointjs.linkTools.Remove({
-                    action: function action(evt, linkView, toolView) {
-                        onDetachModel(linkView, toolView);
-                    },
-                    distance: -40
-                });
-            };
             var _state4 = this.state;
             var graph = _state4.graph;
             var job = _state4.job;
@@ -394,6 +471,9 @@ var JobGraph = (function (_React$Component) {
             var onDropFilter = _state4.onDropFilter;
             var editMode = _state4.editMode;
 
+            var removeLinkTool = function removeLinkTool() {
+                return _this7.createLinkTool();
+            };
             var _this = this;
 
             var templates = new _graphTemplates2['default'](graph);
@@ -406,9 +486,9 @@ var JobGraph = (function (_React$Component) {
 
                     if (_this.state.editMode && !model.isTemplate) {
                         if (model instanceof _graphAction2['default'] || model instanceof _graphSelector2['default'] || model instanceof _graphFilter2['default'] || model instanceof _graphJobInput2['default']) {
-                            _this6.clearSelection();
+                            _this7.clearSelection();
                             model.select();
-                            _this6.select(model);
+                            _this7.select(model);
                         }
                     } else if (model.isTemplate && model !== templates) {
                         // Start dragging new model and duplicate
@@ -420,12 +500,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this6.clearSelection();
+                        _this7.clearSelection();
                         model.selectFilter();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this6.setState({ selectionModel: job, selectionType: 'filter' });
+                            _this7.setState({ selectionModel: job, selectionType: 'filter' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this6.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
+                            _this7.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
                         }
                         event.stopPropagation();
                     }
@@ -434,12 +514,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this6.clearSelection();
+                        _this7.clearSelection();
                         model.selectSelector();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this6.setState({ selectionModel: job, selectionType: 'selector' });
+                            _this7.setState({ selectionModel: job, selectionType: 'selector' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this6.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
+                            _this7.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
                         }
                         event.stopPropagation();
                     }
@@ -525,7 +605,16 @@ var JobGraph = (function (_React$Component) {
                     //console.log('disconnect => remove linkView from original', elementView);
                     onDetachModel(linkView, null, elementView);
                 },
-                'link:remove': removeLinkTool
+                'link:remove': removeLinkTool,
+                'button:create-action': function buttonCreateAction(elView, evt) {
+                    evt.stopPropagation();
+                    _this7.clearSelection();
+                    _this7.setState({ createNewAction: true });
+                },
+                'button:reflow': function buttonReflow(elView, evt) {
+                    evt.stopPropagation();
+                    _this7.reLayout(_this7.state.editMode);
+                }
             });
             this.reLayout(editMode);
         }
@@ -586,28 +675,43 @@ var JobGraph = (function (_React$Component) {
             this.clearSelection();
         }
     }, {
+        key: 'toggleEdit',
+        value: function toggleEdit() {
+            var _state6 = this.state;
+            var onToggleEdit = _state6.onToggleEdit;
+            var editMode = _state6.editMode;
+
+            this.clearSelection();
+            onToggleEdit(!editMode, this.reLayout.bind(this));
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this7 = this;
+            var _this8 = this;
 
             var selBlock = undefined;
-            var _state6 = this.state;
-            var bbox = _state6.bbox;
-            var selectionType = _state6.selectionType;
-            var descriptions = _state6.descriptions;
-            var selectionModel = _state6.selectionModel;
-            var onTriggerChange = _state6.onTriggerChange;
-            var createNewAction = _state6.createNewAction;
-            var onRemoveFilter = _state6.onRemoveFilter;
-
-            // Redux store stuff - should be on props!
+            var _props = this.props;
+            var jobsEditable = _props.jobsEditable;
+            var create = _props.create;
             var _state7 = this.state;
-            var onToggleEdit = _state7.onToggleEdit;
             var onEmptyModel = _state7.onEmptyModel;
             var editMode = _state7.editMode;
+            var bbox = _state7.bbox;
+            var selectionType = _state7.selectionType;
+            var descriptions = _state7.descriptions;
+            var selectionModel = _state7.selectionModel;
+            var onTriggerChange = _state7.onTriggerChange;
+            var createNewAction = _state7.createNewAction;
+            var onRemoveFilter = _state7.onRemoveFilter;
+            var dirty = _state7.dirty;
+            var onSetDirty = _state7.onSetDirty;
+            var onRevert = _state7.onRevert;
+            var onSave = _state7.onSave;
+            var original = _state7.original;
+            var job = _state7.job;
 
             var blockProps = { onDismiss: function onDismiss() {
-                    _this7.clearSelection();
+                    _this8.clearSelection();
                 } };
             var rightWidth = 300;
             if (createNewAction) {
@@ -619,7 +723,7 @@ var JobGraph = (function (_React$Component) {
                     },
                     create: true,
                     onDismiss: function () {
-                        _this7.setState({ createNewAction: false });
+                        _this8.setState({ createNewAction: false });
                     }
                 });
             } else if (selectionModel) {
@@ -631,38 +735,51 @@ var JobGraph = (function (_React$Component) {
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
                             onRemove: function () {
-                                _this7.deleteAction();
+                                _this8.deleteAction();
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
                                 selectionModel.notifyJobModel(action);
+                                onSetDirty(true);
                             }
                         }));
                     })();
                 } else if (selectionType === 'selector' || selectionType === 'filter') {
                     rightWidth = 600;
                     if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter }));
+                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter, onSave: function () {
+                                onSetDirty(true);
+                            } }));
                     } else {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ action: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter }));
+                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ action: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter, onSave: function () {
+                                onSetDirty(true);
+                            } }));
                     }
                 } else if (selectionType === 'trigger') {
-                    var job = this.state.job;
+                    var _job = this.state.job;
 
-                    selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: job }, blockProps, { onChange: onTriggerChange }));
+                    selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: _job }, blockProps, { onChange: onTriggerChange }));
                 }
             }
 
-            var headerStyle = {
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: 'whitesmoke',
-                borderBottom: '1px solid #e0e0e0',
-                height: 48,
-                color: '#9e9e9e',
-                fontSize: 12,
-                fontWeight: 500,
-                paddingRight: 20
+            var st = {
+                header: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    backgroundColor: editMode ? '#424242' : 'whitesmoke',
+                    borderBottom: '1px solid #e0e0e0',
+                    height: 48,
+                    color: editMode ? '#eeeeee' : '#9e9e9e',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    paddingRight: 12
+                },
+                icon: {
+                    color: editMode ? '#eeeeee' : '#9e9e9e'
+                },
+                disabled: {
+                    color: 'rgba(255,255,255,0.3)'
+                }
             };
 
             return _react2['default'].createElement(
@@ -670,22 +787,28 @@ var JobGraph = (function (_React$Component) {
                 { zDepth: 1, style: { margin: 20 } },
                 _react2['default'].createElement(
                     'div',
-                    { style: headerStyle },
+                    { style: st.header },
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, padding: '14px 24px' } },
-                        'Job Workflow - click on boxes to show details'
+                        'Job Workflow ',
+                        jobsEditable && editMode && _react2['default'].createElement(
+                            'span',
+                            null,
+                            '- Select boxes to edit details.'
+                        )
                     ),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.clearSelection();_this7.setState({ createNewAction: true });
-                        }, label: "+ Action" }),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.reLayout(editMode);
-                        }, label: "Auto-Layout" }),
-                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.clearSelection();
-                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
-                        }, label: editMode ? 'Close' : 'Edit' })
+                    jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                            onSave(job);
+                        }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
+                    jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                            onRevert(original, function (j) {
+                                _this8.graphFromJob(j);_this8.reLayout(editMode);
+                            });
+                        }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
+                    jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                            _this8.toggleEdit();
+                        }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
                 _react2['default'].createElement(
                     'div',

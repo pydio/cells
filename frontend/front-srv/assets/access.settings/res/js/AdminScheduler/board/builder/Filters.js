@@ -22,7 +22,7 @@ export default class Filters extends React.Component {
     }
 
     render(){
-        const {job, action, type, onDismiss} = this.props;
+        const {job, action, type, onDismiss, onSave} = this.props;
 
         const target = job || action;
         const types = AllowedKeys[type][job?'job':'action'];
@@ -43,6 +43,7 @@ export default class Filters extends React.Component {
                     onRemoveFilter={(modelType) => { this.removeFilter(data, type, modelType) }}
                     onSave={(newData) => {
                         target[key] = newData;
+                        onSave();
                     }}
                 />
             );

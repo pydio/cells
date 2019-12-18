@@ -3,6 +3,7 @@ import Action from "../graph/Action";
 import {dia, shapes} from 'jointjs'
 import {JobsAction} from "pydio/http/rest-api";
 import Templates from "../graph/Templates";
+import JobInput from "../graph/JobInput";
 
 function graphReducer(graph, action) {
     if(graph === undefined){
@@ -22,7 +23,7 @@ function graphReducer(graph, action) {
                 if(a instanceof Action){
                     a.toggleEdit();
                 }
-                if(!action.edit && !a.isTemplate) {
+                if(!action.edit && !a.isTemplate && !a instanceof JobInput) {
                     if(a.graph.getConnectedLinks(a).length === 0) {
                         a.remove();
                     }

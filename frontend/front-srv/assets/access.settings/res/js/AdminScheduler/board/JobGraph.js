@@ -12,10 +12,11 @@ import Action from "./graph/Action";
 import dagre from 'dagre'
 import graphlib from 'graphlib'
 import Selector from "./graph/Selector";
-import {Paper, FlatButton} from 'material-ui'
+import {Paper, FlatButton, FontIcon, IconButton} from 'material-ui'
 import FormPanel from "./builder/FormPanel";
 import {Triggers} from "./builder/Triggers";
-import {createStore} from 'redux'
+import {createStore, applyMiddleware} from 'redux'
+import thunk from 'redux-thunk'
 import allReducers from './reducers'
 import {
     attachModelAction,
@@ -30,9 +31,8 @@ import {
     removeFilterAction,
     changeTriggerAction,
     clearSelectionAction,
-    setSelectionAction
+    setSelectionAction, setDirtyAction, saveSuccessAction, saveErrorAction, revertAction
 } from "./actions/editor";
-import { devToolsEnhancer } from 'redux-devtools-extension';
 import Filters from "./builder/Filters";
 import Templates from "./graph/Templates";
 import {AllowedKeys, linkAttr} from "./graph/Configs";
@@ -110,6 +110,9 @@ const mapDispatchToProps = dispatch => {
         onToggleEdit : (on = true, layout = () =>{}) => {
             dispatch(toggleEditAction(on, layout));
         },
+        onSetDirty:(dirty = true) => {
+            dispatch(setDirtyAction(dirty));
+        },
         onPaperBind : (element, graph, events) => {
             dispatch(bindPaperAction(element, graph, events));
         },
@@ -120,29 +123,74 @@ const mapDispatchToProps = dispatch => {
             dispatch(emptyModelAction(model))
         },
         onAttachModel : ( link ) => {
-            dispatch(attachModelAction(link));
+            dispatch((d) => {
+                d(attachModelAction(link));
+                d(setDirtyAction(true));
+            });
         },
         onDetachModel : ( linkView, toolView, originalTarget ) => {
-            dispatch(detachModelAction(linkView, toolView, originalTarget ));
+            dispatch((d) => {
+                d(detachModelAction(linkView, toolView, originalTarget ));
+                d(setDirtyAction(true));
+            });
         },
         onRemoveModel : (model, parentModel) => {
-            dispatch(removeModelAction(model, parentModel));
+            dispatch((d) => {
+                d(removeModelAction(model, parentModel));
+                d(setDirtyAction(true));
+            });
         },
         onDropFilter : (target, dropped, filterOrSelector, objectType) => {
-            dispatch(dropFilterAction(target, dropped, filterOrSelector, objectType))
+            dispatch((d) => {
+                d(dropFilterAction(target, dropped, filterOrSelector, objectType));
+                d(setDirtyAction(true));
+            });
         },
         onRemoveFilter : (target, filter, filterOrSelector, objectType) => {
-            dispatch(removeFilterAction(target, filter, filterOrSelector, objectType))
+            dispatch((d) => {
+                d(removeFilterAction(target, filter, filterOrSelector, objectType));
+                d(setDirtyAction(true));
+            });
         },
         onTriggerChange : (triggerType, triggerData) => {
-            dispatch(changeTriggerAction(triggerType, triggerData));
+            dispatch((d) => {
+                d(changeTriggerAction(triggerType, triggerData));
+                d(setDirtyAction(true));
+            });
         },
         onSelectionClear : () => {
             dispatch(clearSelectionAction())
         },
         onSelectionSet : (type, model) => {
             dispatch(setSelectionAction(type, model))
-        }
+        },
+        onRevert: (original, callback) => {
+            dispatch((d, getState)=> {
+                d(revertAction(original));
+                d(setDirtyAction(false));
+                const {job} = getState();
+                callback(job);
+            });
+        },
+        onSave : (job) => {
+            dispatch((d) => {
+                ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+                    const {SchedulerServiceApi, JobsPutJobRequest} = sdk;
+                    const api = new SchedulerServiceApi(PydioApi.getRestClient());
+                    const req = new JobsPutJobRequest();
+                    // Clone and remove tasks
+                    req.Job = JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+                    if(req.Job.Tasks !== undefined){
+                        delete req.Job.Tasks;
+                    }
+                    return api.putJob(req);
+                }).then(() => {
+                    d(saveSuccessAction(job));
+                }).catch(e => {
+                    d(saveErrorAction(job));
+                });
+            });
+        },
     }
 };
 
@@ -155,7 +203,9 @@ class JobGraph extends React.Component {
 
     constructor(props){
         super(props);
-        this.store = createStore(allReducers, {job: props.job});
+        const job = JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
+        const original = JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
+        this.store = createStore(allReducers, {job, original}, applyMiddleware(thunk));
         this.state = storeStateToState(this.store);
         this.store.subscribe(() => {
             this.setState(storeStateToState(this.store));
@@ -182,21 +232,18 @@ class JobGraph extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState){
-        if(nextProps.random !== this.props.random){
-            return false;
-        }
-        return true;
+        return nextProps.random === this.props.random;
     }
 
     loadDescriptions() {
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.schedulerActionsDiscovery().then(data => {
             this.setState({descriptions: data.Actions}, () => {
-                this.graphFromJob();
+                this.graphFromJob(this.state.job);
                 this.drawGraph();
             });
         }).catch(() => {
-            this.graphFromJob();
+            this.graphFromJob(this.state.job);
             this.drawGraph();
         })
     }
@@ -221,16 +268,17 @@ class JobGraph extends React.Component {
         return (job.EventNames !== undefined) || !!job.IdmSelector || !!job.NodesSelector || !!job.UsersSelector;
     }
 
-    graphFromJob(){
-        const {job} = this.props;
+    graphFromJob(job){
         const {graph} = this.state;
+
+        graph.getCells().filter(c => !c.isTemplate).forEach(c => c.remove());
+
+        const shapeIn = new JobInput(job);
+        shapeIn.addTo(graph);
 
         if(!job || !job.Actions || !job.Actions.length){
             return;
         }
-
-        const shapeIn = new JobInput(job);
-        shapeIn.addTo(graph);
 
         let actionsInput = shapeIn.id;
         let firstLinkHasData = JobGraph.jobInputCreatesData(job);
@@ -265,6 +313,15 @@ class JobGraph extends React.Component {
         }
         if(paper){
             paper.setDimensions(bbox.width, bbox.height);
+            graph.getLinks().forEach(l => {
+                const linkView = l.findView(paper);
+                if(!linkView.hasTools()){
+                    linkView.addTools(new dia.ToolsView({tools:[this.createLinkTool()]}));
+                    if(!editMode){
+                        linkView.hideTools();
+                    }
+                }
+            })
         } else {
             onPaperResize(bbox.width, bbox.height);
         }
@@ -328,15 +385,20 @@ class JobGraph extends React.Component {
         })
     }
 
-    drawGraph() {
-
-        const removeLinkTool = () => new linkTools.Remove({
+    createLinkTool(){
+        const {onDetachModel} = this.state;
+        return new linkTools.Remove({
             action:(evt, linkView, toolView) => {
                 onDetachModel(linkView, toolView);
             },
             distance: -40
-        });
+        })
+    }
+
+    drawGraph() {
+
         const {graph, job, onPaperBind, onAttachModel, onDetachModel, onDropFilter, editMode} = this.state;
+        const removeLinkTool = () => this.createLinkTool();
         const _this = this;
 
         const templates = new Templates(graph);
@@ -457,7 +519,16 @@ class JobGraph extends React.Component {
                 //console.log('disconnect => remove linkView from original', elementView);
                 onDetachModel(linkView, null, elementView);
             },
-            'link:remove' : removeLinkTool
+            'link:remove' : removeLinkTool,
+            'button:create-action':(elView, evt) => {
+                evt.stopPropagation();
+                this.clearSelection();
+                this.setState({createNewAction: true});
+            },
+            'button:reflow':(elView, evt) => {
+                evt.stopPropagation();
+                this.reLayout(this.state.editMode);
+            }
         });
         this.reLayout(editMode);
     }
@@ -510,12 +581,18 @@ class JobGraph extends React.Component {
         this.clearSelection();
     }
 
+    toggleEdit(){
+        const {onToggleEdit, editMode} = this.state;
+        this.clearSelection();
+        onToggleEdit(!editMode, this.reLayout.bind(this));
+    }
+
     render() {
 
         let selBlock;
-        const {bbox, selectionType, descriptions, selectionModel, onTriggerChange, createNewAction, onRemoveFilter} = this.state;
-        // Redux store stuff - should be on props!
-        const {onToggleEdit, onEmptyModel, editMode} = this.state;
+        const {jobsEditable, create} = this.props;
+        const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange, createNewAction,
+            onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job} = this.state;
 
         let blockProps = {onDismiss: ()=>{this.clearSelection()}};
         let rightWidth = 300;
@@ -540,14 +617,15 @@ class JobGraph extends React.Component {
                     onChange={(newAction) => {
                         action.Parameters = newAction.Parameters;
                         selectionModel.notifyJobModel(action);
+                        onSetDirty(true);
                     }}
                 />
             } else if(selectionType === 'selector' || selectionType === 'filter') {
                 rightWidth = 600;
                 if(selectionModel instanceof JobsJob){
-                    selBlock =  <Filters job={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter}/>
+                    selBlock =  <Filters job={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter} onSave={()=>{onSetDirty(true)}}/>
                 } else {
-                    selBlock = <Filters action={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter}/>
+                    selBlock = <Filters action={selectionModel} type={selectionType} {...blockProps} onRemoveFilter={onRemoveFilter} onSave={()=>{onSetDirty(true)}}/>
                 }
             } else if(selectionType === 'trigger') {
                 const {job} = this.state;
@@ -555,28 +633,33 @@ class JobGraph extends React.Component {
             }
         }
 
-        const headerStyle = {
-            display:'flex',
-            alignItems:'center',
-            backgroundColor: 'whitesmoke',
-            borderBottom: '1px solid #e0e0e0',
-            height: 48,
-            color: '#9e9e9e',
-            fontSize: 12,
-            fontWeight: 500,
-            paddingRight: 20
+        const st = {
+            header: {
+                display:'flex',
+                alignItems:'center',
+                backgroundColor: editMode ? '#424242' : 'whitesmoke',
+                borderBottom: '1px solid #e0e0e0',
+                height: 48,
+                color: editMode ? '#eeeeee' : '#9e9e9e',
+                fontSize: 12,
+                fontWeight: 500,
+                paddingRight: 12
+            },
+            icon: {
+                color: editMode ? '#eeeeee' : '#9e9e9e'
+            },
+            disabled : {
+                color: 'rgba(255,255,255,0.3)'
+            }
         };
 
         return (
             <Paper zDepth={1} style={{margin: 20}}>
-                <div style={headerStyle}>
-                    <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow - click on boxes to show details</span>
-                    {editMode && <FlatButton onTouchTap={()=> {this.clearSelection(); this.setState({createNewAction: true})}} label={"+ Action"}/>}
-                    {editMode && <FlatButton onTouchTap={()=> {this.reLayout(editMode)}} label={"Auto-Layout"}/>}
-                    <FlatButton onTouchTap={()=> {
-                        this.clearSelection();
-                        onToggleEdit(!editMode, this.reLayout.bind(this))
-                    }} label={editMode?'Close':'Edit'}/>
+                <div style={st.header}>
+                    <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow {jobsEditable && editMode && <span>- Select boxes to edit details.</span>}</span>
+                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}
+                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onRevert(original, (j)=>{this.graphFromJob(j); this.reLayout(editMode);})}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
+                    {jobsEditable && <IconButton onTouchTap={()=> {this.toggleEdit()}} tooltip={editMode?'Close':'Edit'} iconClassName={editMode ? "mdi mdi-close" : "mdi mdi-pencil"} iconStyle={st.icon} />}
                 </div>
                 <div style={{position:'relative', display:'flex', minHeight:editMode?500:null}} ref={"boundingBox"}>
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">

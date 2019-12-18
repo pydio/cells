@@ -1,4 +1,9 @@
 export const TOGGLE_EDITOR_MODE = "editor:toggle-edit";
+export const EDITOR_SET_DIRTY = "editor:set-dirty";
+export const EDITOR_SAVE_SUCCESS = "editor:save";
+export const EDITOR_SAVE_ERROR = "editor:save";
+export const EDITOR_REVERT = "editor:revert";
+
 export const BIND_PAPER_TO_DOM = "editor:bind-paper";
 export const JOB_LOADED = "job:loaded";
 export const SELECTION_CHANGE_ACTION = "selection:change";
@@ -120,5 +125,32 @@ export function setSelectionAction(selectionType, selectionModel) {
 export function clearSelectionAction(){
     return {
         type: SELECTION_CLEAR_ACTION
+    }
+}
+
+export function setDirtyAction(dirty = true) {
+    return {
+        type: EDITOR_SET_DIRTY,
+        dirty: dirty
+    }
+}
+
+export function saveSuccessAction(job) {
+    return {
+        type: EDITOR_SAVE_SUCCESS,
+        job: job
+    }
+}
+
+export function saveErrorAction(job) {
+    return {
+        type: EDITOR_SAVE_ERROR,
+        job: job
+    }
+}
+
+export function revertAction(original) {
+    return {
+        type: EDITOR_REVERT, original
     }
 }

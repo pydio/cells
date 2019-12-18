@@ -43356,28 +43356,89 @@ return jQuery;
 } );
 
 },{}],470:[function(require,module,exports){
-"use strict";
-
-var compose = require('redux').compose;
+'use strict';
 
 exports.__esModule = true;
-exports.composeWithDevTools = (
-  typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ :
-    function() {
-      if (arguments.length === 0) return undefined;
-      if (typeof arguments[0] === 'object') return compose;
-      return compose.apply(null, arguments);
+function createThunkMiddleware(extraArgument) {
+  return function (_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+    return function (next) {
+      return function (action) {
+        if (typeof action === 'function') {
+          return action(dispatch, getState, extraArgument);
+        }
+
+        return next(action);
+      };
+    };
+  };
+}
+
+var thunk = createThunkMiddleware();
+thunk.withExtraArgument = createThunkMiddleware;
+
+exports['default'] = thunk;
+},{}],471:[function(require,module,exports){
+(function() {
+  function getBytes() {
+    try {
+      // Modern Browser
+      return Array.from(
+        (window.crypto || window.msCrypto).getRandomValues(new Uint8Array(16))
+      );
+    } catch (error) {
+      // Legacy Browser, fallback to Math.random
+      var ret = [];
+      while (ret.length < 16) ret.push((Math.random() * 256) & 0xff);
+      return ret;
     }
-);
+  }
 
-exports.devToolsEnhancer = (
-  typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION__ ?
-    window.__REDUX_DEVTOOLS_EXTENSION__ :
-    function() { return function(noop) { return noop; } }
-);
+  function m(v) {
+    v = v.toString(16);
+    if (v.length < 2) v = "0" + v;
+    return v;
+  }
 
-},{"redux":"redux"}],471:[function(require,module,exports){
+  function genUUID() {
+    var rnd = getBytes();
+    rnd[6] = (rnd[6] & 0x0f) | 0x40;
+    rnd[8] = (rnd[8] & 0x3f) | 0x80;
+    rnd = rnd
+      .map(m)
+      .join("")
+      .match(/(.{8})(.{4})(.{4})(.{4})(.{12})/);
+    rnd.shift();
+    return rnd.join("-");
+  }
+
+  var uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  function isUUID(uuid) {
+    return uuidPattern.test(uuid);
+  }
+
+  genUUID.valid = isUUID;
+
+  // global
+  if (window) {
+    window.uuid4 = genUUID;
+  }
+
+  // Node-style CJS
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = genUUID;
+  }
+
+  // AMD - legacy
+  if (typeof define === "function" && define.amd) {
+    define([], function() {
+      return genUUID;
+    });
+  }
+})();
+
+},{}],472:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -43431,6 +43492,12 @@ var _lodashDebounce = require('lodash.debounce');
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
 var _builderTriggers = require('./builder/Triggers');
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _uuid4 = require('uuid4');
+
+var _uuid42 = _interopRequireDefault(_uuid4);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
@@ -43692,16 +43759,25 @@ var Dashboard = _react2['default'].createClass({
         var result = _state2.result;
         var loading = _state2.loading;
         var selectJob = _state2.selectJob;
+        var createJob = _state2.createJob;
 
         if (selectJob && result && result.Jobs) {
             var found = result.Jobs.filter(function (j) {
                 return j.ID === selectJob;
             });
             if (found.length) {
-                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onRequestClose: function () {
+                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onSave: function () {
+                        _this5.load(true);
+                    }, onRequestClose: function () {
                         return _this5.setState({ selectJob: null });
                     } });
             }
+        } else if (createJob) {
+            return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: createJob, create: true, jobsEditable: jobsEditable, onSave: function () {
+                    _this5.load(true);
+                }, onRequestClose: function () {
+                    return _this5.setState({ createJob: null });
+                } });
         }
 
         var _extractRowsInfo = this.extractRowsInfo(result ? result.Jobs : [], m);
@@ -43712,6 +43788,20 @@ var Dashboard = _react2['default'].createClass({
         system.sort(function (a, b) {
             return a.TriggerValue === b.TriggerValue ? 0 : a.TriggerValue > b.TriggerValue ? 1 : -1;
         });
+        var actions = [];
+        if (jobsEditable) {
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "+ Job", onTouchTap: function () {
+                    var label = window.prompt("Provide a label for this job");
+                    if (label) {
+                        var newJob = _pydioHttpRestApi.JobsJob.constructFromObject({
+                            ID: (0, _uuid42['default'])(),
+                            Label: label,
+                            Actions: []
+                        });
+                        _this5.setState({ createJob: newJob });
+                    }
+                } }));
+        }
 
         return _react2['default'].createElement(
             'div',
@@ -43719,7 +43809,7 @@ var Dashboard = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.Header, {
                 title: m('title'),
                 icon: 'mdi mdi-timetable',
-                actions: [],
+                actions: actions,
                 reloadAction: this.load.bind(this),
                 loading: loading
             }),
@@ -43769,7 +43859,7 @@ var Dashboard = _react2['default'].createClass({
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"./JobBoard":472,"./JobSchedule":474,"./builder/Triggers":488,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","react":"react"}],472:[function(require,module,exports){
+},{"./JobBoard":473,"./JobSchedule":475,"./builder/Triggers":489,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":471}],473:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -43947,6 +44037,7 @@ var JobBoard = (function (_React$Component) {
             var _props = this.props;
             var pydio = _props.pydio;
             var jobsEditable = _props.jobsEditable;
+            var create = _props.create;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -43986,22 +44077,21 @@ var JobBoard = (function (_React$Component) {
             });
 
             var actions = [];
-            if (!job.EventNames) {
-                if (jobsEditable) {
-                    actions.push(_react2['default'].createElement(_JobSchedule2['default'], { job: job, edit: true, onUpdate: function () {} }));
+            if (!create) {
+                if (!job.EventNames) {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
+                            JobsStore.getInstance().controlJob(job, 'RunOnce');
+                        } }));
                 }
-                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play" }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
-                        JobsStore.getInstance().controlJob(job, 'RunOnce');
-                    } }));
-            }
-            if (job.Inactive) {
-                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline" }), label: m('task.action.enable'), primary: true, onTouchTap: function () {
-                        JobsStore.getInstance().controlJob(job, 'Active');
-                    } }));
-            } else {
-                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline" }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
-                        JobsStore.getInstance().controlJob(job, 'Inactive');
-                    } }));
+                if (job.Inactive) {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline" }), label: m('task.action.enable'), primary: true, onTouchTap: function () {
+                            JobsStore.getInstance().controlJob(job, 'Active');
+                        } }));
+                } else {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline" }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
+                            JobsStore.getInstance().controlJob(job, 'Inactive');
+                        } }));
+                }
             }
             var running = tasks.filter(function (t) {
                 return runningStatus.indexOf(t.Status) !== -1;
@@ -44053,70 +44143,73 @@ var JobBoard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, overflowY: 'auto' } },
-                    _react2['default'].createElement(AdminComponents.SubHeader, {
-                        title: m('tasks.running')
-                    }),
-                    _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { style: { margin: 20 } },
-                        _react2['default'].createElement(MaterialTable, {
-                            data: running,
-                            columns: keys,
-                            showCheckboxes: false,
-                            emptyStateString: m('tasks.running.empty'),
-                            onSelectRows: function (rows) {
-                                if (rows.length === 1 && running.length) {
-                                    _this3.setState({ taskLogs: rows[0] });
-                                }
-                            }
-                        })
-                    ),
-                    _react2['default'].createElement(AdminComponents.SubHeader, { title: "Job Description" }),
-                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random() }),
-                    _react2['default'].createElement(AdminComponents.SubHeader, {
-                        title: _react2['default'].createElement(
-                            'div',
-                            { style: { display: 'flex', width: '100%', alignItems: 'baseline' } },
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { flex: 1 } },
-                                m('tasks.history')
-                            ),
-                            mode === 'selection' && selectedRows.length > 1 && _react2['default'].createElement(
-                                'div',
-                                { style: { lineHeight: 'initial' } },
-                                _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { lineHeight: 'initial', marginLeft: 5 } },
-                                _react2['default'].createElement(_materialUi.FlatButton, { label: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
-                                        _this3.setState({ mode: mode === 'selection' ? 'log' : 'selection' });
-                                    }, disabled: working })
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { lineHeight: 'initial', marginLeft: 5 } },
-                                _react2['default'].createElement(_materialUi.FlatButton, { label: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
-                            )
-                        )
-                    }),
-                    _react2['default'].createElement(
-                        _materialUi.Paper,
-                        { style: { margin: 20 } },
-                        _react2['default'].createElement(MaterialTable, {
-                            data: other,
-                            columns: keys,
-                            showCheckboxes: mode === 'selection',
-                            onSelectRows: this.onSelectTaskRows.bind(this),
-                            emptyStateString: m('tasks.history.empty'),
-                            selectedRows: selectedRows,
-                            deselectOnClickAway: true
+                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable }),
+                    !create && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(AdminComponents.SubHeader, {
+                            title: m('tasks.running')
                         }),
-                        more && _react2['default'].createElement(
-                            'div',
-                            { style: { padding: 20, borderTop: '1px solid #eee' } },
-                            m('tasks.history.more').replace('%s', more)
+                        _react2['default'].createElement(
+                            _materialUi.Paper,
+                            { style: { margin: 20 } },
+                            _react2['default'].createElement(MaterialTable, {
+                                data: running,
+                                columns: keys,
+                                showCheckboxes: false,
+                                emptyStateString: m('tasks.running.empty'),
+                                onSelectRows: function (rows) {
+                                    if (rows.length === 1 && running.length) {
+                                        _this3.setState({ taskLogs: rows[0] });
+                                    }
+                                }
+                            })
+                        ),
+                        _react2['default'].createElement(AdminComponents.SubHeader, {
+                            title: _react2['default'].createElement(
+                                'div',
+                                { style: { display: 'flex', width: '100%', alignItems: 'baseline' } },
+                                _react2['default'].createElement(
+                                    'div',
+                                    { style: { flex: 1 } },
+                                    m('tasks.history')
+                                ),
+                                mode === 'selection' && selectedRows.length > 1 && _react2['default'].createElement(
+                                    'div',
+                                    { style: { lineHeight: 'initial' } },
+                                    _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
+                                ),
+                                _react2['default'].createElement(
+                                    'div',
+                                    { style: { lineHeight: 'initial', marginLeft: 5 } },
+                                    _react2['default'].createElement(_materialUi.FlatButton, { label: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
+                                            _this3.setState({ mode: mode === 'selection' ? 'log' : 'selection' });
+                                        }, disabled: working })
+                                ),
+                                _react2['default'].createElement(
+                                    'div',
+                                    { style: { lineHeight: 'initial', marginLeft: 5 } },
+                                    _react2['default'].createElement(_materialUi.FlatButton, { label: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
+                                )
+                            )
+                        }),
+                        _react2['default'].createElement(
+                            _materialUi.Paper,
+                            { style: { margin: 20 } },
+                            _react2['default'].createElement(MaterialTable, {
+                                data: other,
+                                columns: keys,
+                                showCheckboxes: mode === 'selection',
+                                onSelectRows: this.onSelectTaskRows.bind(this),
+                                emptyStateString: m('tasks.history.empty'),
+                                selectedRows: selectedRows,
+                                deselectOnClickAway: true
+                            }),
+                            more && _react2['default'].createElement(
+                                'div',
+                                { style: { padding: 20, borderTop: '1px solid #eee' } },
+                                m('tasks.history.more').replace('%s', more)
+                            )
                         )
                     )
                 )
@@ -44130,7 +44223,7 @@ var JobBoard = (function (_React$Component) {
 exports['default'] = JobBoard;
 module.exports = exports['default'];
 
-},{"./JobGraph":473,"./JobSchedule":474,"./TaskActivity":475,"material-ui":"material-ui","pydio":"pydio","react":"react"}],473:[function(require,module,exports){
+},{"./JobGraph":474,"./JobSchedule":475,"./TaskActivity":476,"material-ui":"material-ui","pydio":"pydio","react":"react"}],474:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -44139,7 +44232,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -44207,13 +44300,15 @@ var _builderTriggers = require("./builder/Triggers");
 
 var _redux = require('redux');
 
+var _reduxThunk = require('redux-thunk');
+
+var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
+
 var _reducers = require('./reducers');
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
 var _actionsEditor = require("./actions/editor");
-
-var _reduxDevtoolsExtension = require('redux-devtools-extension');
 
 var _builderFilters = require("./builder/Filters");
 
@@ -44242,6 +44337,11 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
             dispatch((0, _actionsEditor.toggleEditAction)(on, layout));
         },
+        onSetDirty: function onSetDirty() {
+            var dirty = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+            dispatch((0, _actionsEditor.setDirtyAction)(dirty));
+        },
         onPaperBind: function onPaperBind(element, graph, events) {
             dispatch((0, _actionsEditor.bindPaperAction)(element, graph, events));
         },
@@ -44252,28 +44352,79 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             dispatch((0, _actionsEditor.emptyModelAction)(model));
         },
         onAttachModel: function onAttachModel(link) {
-            dispatch((0, _actionsEditor.attachModelAction)(link));
+            dispatch(function (d) {
+                d((0, _actionsEditor.attachModelAction)(link));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onDetachModel: function onDetachModel(linkView, toolView, originalTarget) {
-            dispatch((0, _actionsEditor.detachModelAction)(linkView, toolView, originalTarget));
+            dispatch(function (d) {
+                d((0, _actionsEditor.detachModelAction)(linkView, toolView, originalTarget));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onRemoveModel: function onRemoveModel(model, parentModel) {
-            dispatch((0, _actionsEditor.removeModelAction)(model, parentModel));
+            dispatch(function (d) {
+                d((0, _actionsEditor.removeModelAction)(model, parentModel));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onDropFilter: function onDropFilter(target, dropped, filterOrSelector, objectType) {
-            dispatch((0, _actionsEditor.dropFilterAction)(target, dropped, filterOrSelector, objectType));
+            dispatch(function (d) {
+                d((0, _actionsEditor.dropFilterAction)(target, dropped, filterOrSelector, objectType));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onRemoveFilter: function onRemoveFilter(target, filter, filterOrSelector, objectType) {
-            dispatch((0, _actionsEditor.removeFilterAction)(target, filter, filterOrSelector, objectType));
+            dispatch(function (d) {
+                d((0, _actionsEditor.removeFilterAction)(target, filter, filterOrSelector, objectType));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onTriggerChange: function onTriggerChange(triggerType, triggerData) {
-            dispatch((0, _actionsEditor.changeTriggerAction)(triggerType, triggerData));
+            dispatch(function (d) {
+                d((0, _actionsEditor.changeTriggerAction)(triggerType, triggerData));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
         },
         onSelectionClear: function onSelectionClear() {
             dispatch((0, _actionsEditor.clearSelectionAction)());
         },
         onSelectionSet: function onSelectionSet(type, model) {
             dispatch((0, _actionsEditor.setSelectionAction)(type, model));
+        },
+        onRevert: function onRevert(original, callback) {
+            dispatch(function (d, getState) {
+                d((0, _actionsEditor.revertAction)(original));
+                d((0, _actionsEditor.setDirtyAction)(false));
+
+                var _getState = getState();
+
+                var job = _getState.job;
+
+                callback(job);
+            });
+        },
+        onSave: function onSave(job) {
+            dispatch(function (d) {
+                ResourcesManager.loadClass('EnterpriseSDK').then(function (sdk) {
+                    var SchedulerServiceApi = sdk.SchedulerServiceApi;
+                    var JobsPutJobRequest = sdk.JobsPutJobRequest;
+
+                    var api = new SchedulerServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    var req = new JobsPutJobRequest();
+                    // Clone and remove tasks
+                    req.Job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(job)));
+                    if (req.Job.Tasks !== undefined) {
+                        delete req.Job.Tasks;
+                    }
+                    return api.putJob(req);
+                }).then(function () {
+                    d((0, _actionsEditor.saveSuccessAction)(job));
+                })['catch'](function (e) {
+                    d((0, _actionsEditor.saveErrorAction)(job));
+                });
+            });
         }
     };
 };
@@ -44291,7 +44442,9 @@ var JobGraph = (function (_React$Component) {
         _classCallCheck(this, JobGraph);
 
         _get(Object.getPrototypeOf(JobGraph.prototype), 'constructor', this).call(this, props);
-        this.store = (0, _redux.createStore)(_reducers2['default'], { job: props.job });
+        var job = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
+        var original = _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(props.job)));
+        this.store = (0, _redux.createStore)(_reducers2['default'], { job: job, original: original }, (0, _redux.applyMiddleware)(_reduxThunk2['default']));
         this.state = storeStateToState(this.store);
         this.store.subscribe(function () {
             _this2.setState(storeStateToState(_this2.store));
@@ -44329,10 +44482,7 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'shouldComponentUpdate',
         value: function shouldComponentUpdate(nextProps, nextState) {
-            if (nextProps.random !== this.props.random) {
-                return false;
-            }
-            return true;
+            return nextProps.random === this.props.random;
         }
     }, {
         key: 'loadDescriptions',
@@ -44342,11 +44492,11 @@ var JobGraph = (function (_React$Component) {
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.schedulerActionsDiscovery().then(function (data) {
                 _this4.setState({ descriptions: data.Actions }, function () {
-                    _this4.graphFromJob();
+                    _this4.graphFromJob(_this4.state.job);
                     _this4.drawGraph();
                 });
             })['catch'](function () {
-                _this4.graphFromJob();
+                _this4.graphFromJob(_this4.state.job);
                 _this4.drawGraph();
             });
         }
@@ -44372,16 +44522,21 @@ var JobGraph = (function (_React$Component) {
         }
     }, {
         key: 'graphFromJob',
-        value: function graphFromJob() {
-            var job = this.props.job;
+        value: function graphFromJob(job) {
             var graph = this.state.graph;
+
+            graph.getCells().filter(function (c) {
+                return !c.isTemplate;
+            }).forEach(function (c) {
+                return c.remove();
+            });
+
+            var shapeIn = new _graphJobInput2['default'](job);
+            shapeIn.addTo(graph);
 
             if (!job || !job.Actions || !job.Actions.length) {
                 return;
             }
-
-            var shapeIn = new _graphJobInput2['default'](job);
-            shapeIn.addTo(graph);
 
             var actionsInput = shapeIn.id;
             var firstLinkHasData = JobGraph.jobInputCreatesData(job);
@@ -44391,6 +44546,8 @@ var JobGraph = (function (_React$Component) {
     }, {
         key: 'reLayout',
         value: function reLayout(editMode) {
+            var _this6 = this;
+
             var _state2 = this.state;
             var graph = _state2.graph;
             var paper = _state2.paper;
@@ -44423,6 +44580,15 @@ var JobGraph = (function (_React$Component) {
             }
             if (paper) {
                 paper.setDimensions(bbox.width, bbox.height);
+                graph.getLinks().forEach(function (l) {
+                    var linkView = l.findView(paper);
+                    if (!linkView.hasTools()) {
+                        linkView.addTools(new _jointjs.dia.ToolsView({ tools: [_this6.createLinkTool()] }));
+                        if (!editMode) {
+                            linkView.hideTools();
+                        }
+                    }
+                });
             } else {
                 onPaperResize(bbox.width, bbox.height);
             }
@@ -44506,18 +44672,22 @@ var JobGraph = (function (_React$Component) {
             });
         }
     }, {
+        key: 'createLinkTool',
+        value: function createLinkTool() {
+            var onDetachModel = this.state.onDetachModel;
+
+            return new _jointjs.linkTools.Remove({
+                action: function action(evt, linkView, toolView) {
+                    onDetachModel(linkView, toolView);
+                },
+                distance: -40
+            });
+        }
+    }, {
         key: 'drawGraph',
         value: function drawGraph() {
-            var _this6 = this;
+            var _this7 = this;
 
-            var removeLinkTool = function removeLinkTool() {
-                return new _jointjs.linkTools.Remove({
-                    action: function action(evt, linkView, toolView) {
-                        onDetachModel(linkView, toolView);
-                    },
-                    distance: -40
-                });
-            };
             var _state4 = this.state;
             var graph = _state4.graph;
             var job = _state4.job;
@@ -44527,6 +44697,9 @@ var JobGraph = (function (_React$Component) {
             var onDropFilter = _state4.onDropFilter;
             var editMode = _state4.editMode;
 
+            var removeLinkTool = function removeLinkTool() {
+                return _this7.createLinkTool();
+            };
             var _this = this;
 
             var templates = new _graphTemplates2['default'](graph);
@@ -44539,9 +44712,9 @@ var JobGraph = (function (_React$Component) {
 
                     if (_this.state.editMode && !model.isTemplate) {
                         if (model instanceof _graphAction2['default'] || model instanceof _graphSelector2['default'] || model instanceof _graphFilter2['default'] || model instanceof _graphJobInput2['default']) {
-                            _this6.clearSelection();
+                            _this7.clearSelection();
                             model.select();
-                            _this6.select(model);
+                            _this7.select(model);
                         }
                     } else if (model.isTemplate && model !== templates) {
                         // Start dragging new model and duplicate
@@ -44553,12 +44726,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this6.clearSelection();
+                        _this7.clearSelection();
                         model.selectFilter();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this6.setState({ selectionModel: job, selectionType: 'filter' });
+                            _this7.setState({ selectionModel: job, selectionType: 'filter' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this6.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
+                            _this7.setState({ selectionModel: model.getJobsAction(), selectionType: 'filter' });
                         }
                         event.stopPropagation();
                     }
@@ -44567,12 +44740,12 @@ var JobGraph = (function (_React$Component) {
                     var model = elementView.model;
 
                     if (_this.state.editMode) {
-                        _this6.clearSelection();
+                        _this7.clearSelection();
                         model.selectSelector();
                         if (model instanceof _graphJobInput2['default']) {
-                            _this6.setState({ selectionModel: job, selectionType: 'selector' });
+                            _this7.setState({ selectionModel: job, selectionType: 'selector' });
                         } else if (model instanceof _graphAction2['default']) {
-                            _this6.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
+                            _this7.setState({ selectionModel: model.getJobsAction(), selectionType: 'selector' });
                         }
                         event.stopPropagation();
                     }
@@ -44658,7 +44831,16 @@ var JobGraph = (function (_React$Component) {
                     //console.log('disconnect => remove linkView from original', elementView);
                     onDetachModel(linkView, null, elementView);
                 },
-                'link:remove': removeLinkTool
+                'link:remove': removeLinkTool,
+                'button:create-action': function buttonCreateAction(elView, evt) {
+                    evt.stopPropagation();
+                    _this7.clearSelection();
+                    _this7.setState({ createNewAction: true });
+                },
+                'button:reflow': function buttonReflow(elView, evt) {
+                    evt.stopPropagation();
+                    _this7.reLayout(_this7.state.editMode);
+                }
             });
             this.reLayout(editMode);
         }
@@ -44719,28 +44901,43 @@ var JobGraph = (function (_React$Component) {
             this.clearSelection();
         }
     }, {
+        key: 'toggleEdit',
+        value: function toggleEdit() {
+            var _state6 = this.state;
+            var onToggleEdit = _state6.onToggleEdit;
+            var editMode = _state6.editMode;
+
+            this.clearSelection();
+            onToggleEdit(!editMode, this.reLayout.bind(this));
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this7 = this;
+            var _this8 = this;
 
             var selBlock = undefined;
-            var _state6 = this.state;
-            var bbox = _state6.bbox;
-            var selectionType = _state6.selectionType;
-            var descriptions = _state6.descriptions;
-            var selectionModel = _state6.selectionModel;
-            var onTriggerChange = _state6.onTriggerChange;
-            var createNewAction = _state6.createNewAction;
-            var onRemoveFilter = _state6.onRemoveFilter;
-
-            // Redux store stuff - should be on props!
+            var _props = this.props;
+            var jobsEditable = _props.jobsEditable;
+            var create = _props.create;
             var _state7 = this.state;
-            var onToggleEdit = _state7.onToggleEdit;
             var onEmptyModel = _state7.onEmptyModel;
             var editMode = _state7.editMode;
+            var bbox = _state7.bbox;
+            var selectionType = _state7.selectionType;
+            var descriptions = _state7.descriptions;
+            var selectionModel = _state7.selectionModel;
+            var onTriggerChange = _state7.onTriggerChange;
+            var createNewAction = _state7.createNewAction;
+            var onRemoveFilter = _state7.onRemoveFilter;
+            var dirty = _state7.dirty;
+            var onSetDirty = _state7.onSetDirty;
+            var onRevert = _state7.onRevert;
+            var onSave = _state7.onSave;
+            var original = _state7.original;
+            var job = _state7.job;
 
             var blockProps = { onDismiss: function onDismiss() {
-                    _this7.clearSelection();
+                    _this8.clearSelection();
                 } };
             var rightWidth = 300;
             if (createNewAction) {
@@ -44752,7 +44949,7 @@ var JobGraph = (function (_React$Component) {
                     },
                     create: true,
                     onDismiss: function () {
-                        _this7.setState({ createNewAction: false });
+                        _this8.setState({ createNewAction: false });
                     }
                 });
             } else if (selectionModel) {
@@ -44764,38 +44961,51 @@ var JobGraph = (function (_React$Component) {
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
                             onRemove: function () {
-                                _this7.deleteAction();
+                                _this8.deleteAction();
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
                                 selectionModel.notifyJobModel(action);
+                                onSetDirty(true);
                             }
                         }));
                     })();
                 } else if (selectionType === 'selector' || selectionType === 'filter') {
                     rightWidth = 600;
                     if (selectionModel instanceof _pydioHttpRestApi.JobsJob) {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter }));
+                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ job: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter, onSave: function () {
+                                onSetDirty(true);
+                            } }));
                     } else {
-                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ action: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter }));
+                        selBlock = _react2['default'].createElement(_builderFilters2['default'], _extends({ action: selectionModel, type: selectionType }, blockProps, { onRemoveFilter: onRemoveFilter, onSave: function () {
+                                onSetDirty(true);
+                            } }));
                     }
                 } else if (selectionType === 'trigger') {
-                    var job = this.state.job;
+                    var _job = this.state.job;
 
-                    selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: job }, blockProps, { onChange: onTriggerChange }));
+                    selBlock = _react2['default'].createElement(_builderTriggers.Triggers, _extends({ job: _job }, blockProps, { onChange: onTriggerChange }));
                 }
             }
 
-            var headerStyle = {
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: 'whitesmoke',
-                borderBottom: '1px solid #e0e0e0',
-                height: 48,
-                color: '#9e9e9e',
-                fontSize: 12,
-                fontWeight: 500,
-                paddingRight: 20
+            var st = {
+                header: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    backgroundColor: editMode ? '#424242' : 'whitesmoke',
+                    borderBottom: '1px solid #e0e0e0',
+                    height: 48,
+                    color: editMode ? '#eeeeee' : '#9e9e9e',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    paddingRight: 12
+                },
+                icon: {
+                    color: editMode ? '#eeeeee' : '#9e9e9e'
+                },
+                disabled: {
+                    color: 'rgba(255,255,255,0.3)'
+                }
             };
 
             return _react2['default'].createElement(
@@ -44803,22 +45013,28 @@ var JobGraph = (function (_React$Component) {
                 { zDepth: 1, style: { margin: 20 } },
                 _react2['default'].createElement(
                     'div',
-                    { style: headerStyle },
+                    { style: st.header },
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, padding: '14px 24px' } },
-                        'Job Workflow - click on boxes to show details'
+                        'Job Workflow ',
+                        jobsEditable && editMode && _react2['default'].createElement(
+                            'span',
+                            null,
+                            '- Select boxes to edit details.'
+                        )
                     ),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.clearSelection();_this7.setState({ createNewAction: true });
-                        }, label: "+ Action" }),
-                    editMode && _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.reLayout(editMode);
-                        }, label: "Auto-Layout" }),
-                    _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
-                            _this7.clearSelection();
-                            onToggleEdit(!editMode, _this7.reLayout.bind(_this7));
-                        }, label: editMode ? 'Close' : 'Edit' })
+                    jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                            onSave(job);
+                        }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
+                    jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                            onRevert(original, function (j) {
+                                _this8.graphFromJob(j);_this8.reLayout(editMode);
+                            });
+                        }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
+                    jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                            _this8.toggleEdit();
+                        }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -44850,7 +45066,7 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./actions/editor":476,"./builder/Filters":477,"./builder/FormPanel":479,"./builder/Triggers":488,"./graph/Action":490,"./graph/Configs":491,"./graph/Filter":492,"./graph/JobInput":493,"./graph/Link":494,"./graph/Selector":495,"./graph/Templates":496,"./reducers":499,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-devtools-extension":470}],474:[function(require,module,exports){
+},{"./actions/editor":477,"./builder/Filters":478,"./builder/FormPanel":480,"./builder/Triggers":489,"./graph/Action":491,"./graph/Configs":492,"./graph/Filter":493,"./graph/JobInput":494,"./graph/Link":495,"./graph/Selector":496,"./graph/Templates":497,"./reducers":500,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":470}],475:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45273,7 +45489,7 @@ var JobSchedule = (function (_React$Component) {
 exports['default'] = JobSchedule;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],475:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],476:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45436,7 +45652,7 @@ var TaskActivity = (function (_React$Component) {
 exports["default"] = TaskActivity;
 module.exports = exports["default"];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],476:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],477:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45455,8 +45671,21 @@ exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
 exports.setSelectionAction = setSelectionAction;
 exports.clearSelectionAction = clearSelectionAction;
+exports.setDirtyAction = setDirtyAction;
+exports.saveSuccessAction = saveSuccessAction;
+exports.saveErrorAction = saveErrorAction;
+exports.revertAction = revertAction;
 var TOGGLE_EDITOR_MODE = "editor:toggle-edit";
 exports.TOGGLE_EDITOR_MODE = TOGGLE_EDITOR_MODE;
+var EDITOR_SET_DIRTY = "editor:set-dirty";
+exports.EDITOR_SET_DIRTY = EDITOR_SET_DIRTY;
+var EDITOR_SAVE_SUCCESS = "editor:save";
+exports.EDITOR_SAVE_SUCCESS = EDITOR_SAVE_SUCCESS;
+var EDITOR_SAVE_ERROR = "editor:save";
+exports.EDITOR_SAVE_ERROR = EDITOR_SAVE_ERROR;
+var EDITOR_REVERT = "editor:revert";
+
+exports.EDITOR_REVERT = EDITOR_REVERT;
 var BIND_PAPER_TO_DOM = "editor:bind-paper";
 exports.BIND_PAPER_TO_DOM = BIND_PAPER_TO_DOM;
 var JOB_LOADED = "job:loaded";
@@ -45601,7 +45830,36 @@ function clearSelectionAction() {
     };
 }
 
-},{}],477:[function(require,module,exports){
+function setDirtyAction() {
+    var dirty = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+    return {
+        type: EDITOR_SET_DIRTY,
+        dirty: dirty
+    };
+}
+
+function saveSuccessAction(job) {
+    return {
+        type: EDITOR_SAVE_SUCCESS,
+        job: job
+    };
+}
+
+function saveErrorAction(job) {
+    return {
+        type: EDITOR_SAVE_ERROR,
+        job: job
+    };
+}
+
+function revertAction(original) {
+    return {
+        type: EDITOR_REVERT, original: original
+    };
+}
+
+},{}],478:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45673,6 +45931,7 @@ var Filters = (function (_React$Component) {
             var action = _props2.action;
             var type = _props2.type;
             var onDismiss = _props2.onDismiss;
+            var onSave = _props2.onSave;
 
             var target = job || action;
             var types = _graphConfigs.AllowedKeys[type][job ? 'job' : 'action'];
@@ -45702,6 +45961,7 @@ var Filters = (function (_React$Component) {
                     },
                     onSave: function (newData) {
                         target[key] = newData;
+                        onSave();
                     }
                 });
             });
@@ -45737,7 +45997,7 @@ var Filters = (function (_React$Component) {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"../graph/Configs":491,"./QueryBuilder":482,"./styles":489,"react":"react"}],478:[function(require,module,exports){
+},{"../graph/Configs":492,"./QueryBuilder":483,"./styles":490,"react":"react"}],479:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -45813,7 +46073,7 @@ FormLoader.FormsCache = {};
 exports['default'] = FormLoader;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml"}],479:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/xml":"pydio/util/xml"}],480:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46131,7 +46391,7 @@ var FormPanel = (function (_React$Component) {
 exports['default'] = FormPanel;
 module.exports = exports['default'];
 
-},{"../actions/editor":476,"../graph/Configs":491,"./FormLoader":478,"./styles":489,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],480:[function(require,module,exports){
+},{"../actions/editor":477,"../graph/Configs":492,"./FormLoader":479,"./styles":490,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],481:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -46405,7 +46665,7 @@ var ProtoValue = (function (_React$Component) {
 exports['default'] = ProtoValue;
 module.exports = exports['default'];
 
-},{"./FormLoader":478,"material-ui":"material-ui","pydio":"pydio","react":"react"}],481:[function(require,module,exports){
+},{"./FormLoader":479,"material-ui":"material-ui","pydio":"pydio","react":"react"}],482:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -46520,7 +46780,7 @@ var Query = (function (_shapes$devs$Model) {
 exports["default"] = Query;
 module.exports = exports["default"];
 
-},{"../graph/Configs":491,"jointjs":467}],482:[function(require,module,exports){
+},{"../graph/Configs":492,"jointjs":467}],483:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47282,7 +47542,7 @@ var QueryBuilder = (function (_React$Component) {
 exports['default'] = QueryBuilder;
 module.exports = exports['default'];
 
-},{"../graph/Link":494,"./ProtoValue":480,"./Query":481,"./QueryCluster":483,"./QueryConnector":484,"./QueryInput":485,"./QueryOutput":486,"./styles":489,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],483:[function(require,module,exports){
+},{"../graph/Link":495,"./ProtoValue":481,"./Query":482,"./QueryCluster":484,"./QueryConnector":485,"./QueryInput":486,"./QueryOutput":487,"./styles":490,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-dom":"react-dom"}],484:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47399,7 +47659,7 @@ var QueryCluster = (function (_shapes$basic$Rect) {
 exports['default'] = QueryCluster;
 module.exports = exports['default'];
 
-},{"../graph/Configs":491,"jointjs":467}],484:[function(require,module,exports){
+},{"../graph/Configs":492,"jointjs":467}],485:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47446,7 +47706,7 @@ var QueryConnector = (function (_shapes$devs$Model) {
 exports['default'] = QueryConnector;
 module.exports = exports['default'];
 
-},{"../graph/Configs":491,"jointjs":467}],485:[function(require,module,exports){
+},{"../graph/Configs":492,"jointjs":467}],486:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47496,7 +47756,7 @@ var QueryInput = (function (_shapes$devs$Model) {
 exports['default'] = QueryInput;
 module.exports = exports['default'];
 
-},{"../graph/Configs":491,"jointjs":467}],486:[function(require,module,exports){
+},{"../graph/Configs":492,"jointjs":467}],487:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -47541,7 +47801,7 @@ var QueryOutput = (function (_shapes$devs$Model) {
 exports['default'] = QueryOutput;
 module.exports = exports['default'];
 
-},{"../graph/Configs":491,"jointjs":467}],487:[function(require,module,exports){
+},{"../graph/Configs":492,"jointjs":467}],488:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -47922,7 +48182,7 @@ var ScheduleForm = (function (_React$Component) {
 exports['default'] = ScheduleForm;
 module.exports = exports['default'];
 
-},{"../graph/Configs":491,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],488:[function(require,module,exports){
+},{"../graph/Configs":492,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],489:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48197,7 +48457,7 @@ var Triggers = (function (_React$Component2) {
 exports.Triggers = Triggers;
 exports.Events = Events;
 
-},{"../graph/Configs":491,"./ScheduleForm":487,"./styles":489,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],489:[function(require,module,exports){
+},{"../graph/Configs":492,"./ScheduleForm":488,"./styles":490,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],490:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48333,7 +48593,7 @@ exports.styles = styles;
 exports.position = position;
 exports.RightPanel = RightPanel;
 
-},{"material-ui":"material-ui","react":"react"}],490:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],491:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -48514,7 +48774,7 @@ var Action = (function (_shapes$devs$Model) {
 exports["default"] = Action;
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"./Configs":491,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],491:[function(require,module,exports){
+},{"../actions/editor":477,"./Configs":492,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],492:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48819,7 +49079,7 @@ exports.positionFilters = positionFilters;
 exports.linkAttr = linkAttr;
 exports.AllowedKeys = AllowedKeys;
 
-},{"pydio/http/rest-api":"pydio/http/rest-api"}],492:[function(require,module,exports){
+},{"pydio/http/rest-api":"pydio/http/rest-api"}],493:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48915,7 +49175,7 @@ var Filter = (function (_shapes$devs$Model) {
 exports['default'] = Filter;
 module.exports = exports['default'];
 
-},{"./Configs":491,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],493:[function(require,module,exports){
+},{"./Configs":492,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],494:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49061,7 +49321,7 @@ var JobInput = (function (_shapes$devs$Model) {
 exports['default'] = JobInput;
 module.exports = exports['default'];
 
-},{"./Configs":491,"jointjs":467}],494:[function(require,module,exports){
+},{"./Configs":492,"jointjs":467}],495:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49111,7 +49371,7 @@ var Link = (function (_shapes$devs$Link) {
 exports['default'] = Link;
 module.exports = exports['default'];
 
-},{"./Configs":491,"jointjs":467}],495:[function(require,module,exports){
+},{"./Configs":492,"jointjs":467}],496:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49204,7 +49464,7 @@ var Selector = (function (_shapes$devs$Model) {
 exports['default'] = Selector;
 module.exports = exports['default'];
 
-},{"./Configs":491,"jointjs":467}],496:[function(require,module,exports){
+},{"./Configs":492,"jointjs":467}],497:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49246,54 +49506,75 @@ var Templates = (function (_shapes$standard$Path) {
         var bbox = { width: 128, height: '100%' };
 
         _get(Object.getPrototypeOf(Templates.prototype), "constructor", this).call(this, {
-            markup: [{
-                tagName: 'rect',
-                selector: 'rect'
-            }, {
-                tagName: 'line',
-                selector: 'line'
-            }],
+            markup: [{ tagName: 'rect', selector: 'rect' }, { tagName: 'line', selector: 'line' }, { tagName: 'line', selector: 'separator' }, { tagName: 'rect', selector: 'action-button' }, { tagName: 'text', selector: 'action-text' }, { tagName: 'rect', selector: 'reflow-button' }, { tagName: 'text', selector: 'reflow-text' }, { tagName: 'text', selector: 'filters-legend' }],
             size: _extends({}, bbox),
             attrs: {
                 rect: _extends({ refX: 0, refY: 0 }, bbox, { fill: '#fafafa', display: 'none', cursor: 'default', event: 'element:nomove' }),
-                line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' }
+                line: { x1: bbox.width, y1: 0, x2: bbox.width, y2: bbox.height, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' },
+                separator: { x1: 0, y1: 112, x2: bbox.width, y2: 112, stroke: _Configs.LightGrey, 'stroke-width': 1, display: 'none', event: 'element:nomove' },
+                'action-button': { x: 16, y: 16, height: 32, width: bbox.width - 32, fill: '#fafafa', stroke: _Configs.Blue, 'stroke-width': 2, rx: 2, ry: 2, cursor: 'pointer', display: 'none', event: 'button:create-action' },
+                'action-text': { refX: '50%', y: 36, text: 'Create Action', 'cursor': 'pointer', fill: _Configs.Blue, 'text-anchor': 'middle', 'font-weight': 500, display: 'none', event: 'button:create-action' },
+                'reflow-button': { x: 16, y: 64, height: 32, width: bbox.width - 32, fill: '#fafafa', stroke: _Configs.Grey, 'stroke-width': 2, rx: 2, ry: 2, cursor: 'pointer', display: 'none', event: 'button:reflow' },
+                'reflow-text': { refX: '50%', y: 85, title: 'Reflow graph layout automatically', text: 'Redraw', 'cursor': 'pointer', fill: _Configs.Grey, 'text-anchor': 'middle', 'font-weight': 500, display: 'none', event: 'button:reflow' },
+                'filters-legend': { text: 'Filters/Selectors', x: 8, y: 132, width: bbox.width - 16, fill: _Configs.LightGrey, 'font-weight': 500, 'text-anchor': 'left', display: 'none', cursor: 'default', event: 'element:nomove' }
             }
         });
 
         this.isTemplatesContainer = true;
         this.isTemplate = true;
+        this.toggleableComponents = ['line', 'rect', 'separator', 'action-button', 'action-text', 'reflow-button', 'reflow-text', 'filters-legend'];
     }
 
     _createClass(Templates, [{
         key: "show",
         value: function show(graph) {
+            var _this = this;
 
-            if (this._show) return;
+            if (this._show) {
+                return;
+            }
 
-            this.attr('line/display', 'initial');
-            this.attr('rect/display', 'initial');
+            this.toggleableComponents.forEach(function (comp) {
+                _this.attr(comp + '/display', 'initial');
+            });
 
-            this.newNodesFilter(graph);
-            this.newUsersFilter(graph);
-            this.newWorkspacesFilter(graph);
-            this.newRolesFilter(graph);
-            this.newAclFilter(graph);
-
-            this.newNodesSelector(graph);
-            this.newUsersSelector(graph);
-            this.newWorkspacesSelector(graph);
-            this.newRolesSelector(graph);
-            this.newAclSelector(graph);
+            var start = 140;
+            var y = start;
+            this.newNodesFilter(graph, y);
+            y += 64;
+            this.newUsersFilter(graph, y);
+            y += 64;
+            this.newWorkspacesFilter(graph, y);
+            y += 64;
+            this.newRolesFilter(graph, y);
+            y += 64;
+            this.newAclFilter(graph, y);
+            // Reset Y
+            y = start;
+            this.newNodesSelector(graph, y);
+            y += 64;
+            this.newUsersSelector(graph, y);
+            y += 64;
+            this.newWorkspacesSelector(graph, y);
+            y += 64;
+            this.newRolesSelector(graph, y);
+            y += 64;
+            this.newAclSelector(graph, y);
 
             this._show = true;
         }
     }, {
         key: "hide",
         value: function hide(graph) {
-            if (!this._show) return;
+            var _this2 = this;
 
-            this.attr('line/display', 'none');
-            this.attr('rect/display', 'none');
+            if (!this._show) {
+                return;
+            }
+
+            this.toggleableComponents.forEach(function (comp) {
+                _this2.attr(comp + '/display', 'none');
+            });
 
             this.modelFilter.remove();
             this.usersFilter.remove();
@@ -49313,104 +49594,104 @@ var Templates = (function (_shapes$standard$Path) {
         key: "replicate",
         value: function replicate(el, graph) {
             if (el === this.modelFilter) {
-                this.newNodesFilter(graph);
+                this.newNodesFilter(graph, el.position().y);
             } else if (el === this.usersFilter) {
-                this.newUsersFilter(graph);
+                this.newUsersFilter(graph, el.position().y);
             } else if (el === this.wsFilter) {
-                this.newWorkspacesFilter(graph);
+                this.newWorkspacesFilter(graph, el.position().y);
             } else if (el === this.rolesFilter) {
-                this.newRolesFilter(graph);
+                this.newRolesFilter(graph, el.position().y);
             } else if (el === this.aclFilter) {
-                this.newAclFilter(graph);
+                this.newAclFilter(graph, el.position().y);
             } else if (el === this.modelSelector) {
-                this.newNodesSelector(graph);
+                this.newNodesSelector(graph, el.position().y);
             } else if (el === this.usersSelector) {
-                this.newUsersSelector(graph);
+                this.newUsersSelector(graph, el.position().y);
             } else if (el === this.wsSelector) {
-                this.newWorkspacesSelector(graph);
+                this.newWorkspacesSelector(graph, el.position().y);
             } else if (el === this.rolesSelector) {
-                this.newRolesSelector(graph);
+                this.newRolesSelector(graph, el.position().y);
             } else if (el === this.aclSelector) {
-                this.newAclSelector(graph);
+                this.newAclSelector(graph, el.position().y);
             }
         }
     }, {
         key: "newNodesFilter",
-        value: function newNodesFilter(graph) {
+        value: function newNodesFilter(graph, y) {
             this.modelFilter = new _Filter2["default"](_pydioHttpRestApi.JobsNodesSelector.constructFromObject({}));
-            this.modelFilter.position(0, 0);
+            this.modelFilter.position(0, y);
             this.modelFilter.isTemplate = true;
             this.modelFilter.addTo(graph);
         }
     }, {
         key: "newUsersFilter",
-        value: function newUsersFilter(graph) {
+        value: function newUsersFilter(graph, y) {
             this.usersFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User' }), 'idm');
-            this.usersFilter.position(0, 64);
+            this.usersFilter.position(0, y);
             this.usersFilter.isTemplate = true;
             this.usersFilter.addTo(graph);
         }
     }, {
         key: "newWorkspacesFilter",
-        value: function newWorkspacesFilter(graph) {
+        value: function newWorkspacesFilter(graph, y) {
             this.wsFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace' }), 'idm');
-            this.wsFilter.position(0, 128);
+            this.wsFilter.position(0, y);
             this.wsFilter.isTemplate = true;
             this.wsFilter.addTo(graph);
         }
     }, {
         key: "newRolesFilter",
-        value: function newRolesFilter(graph) {
+        value: function newRolesFilter(graph, y) {
             this.rolesFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role' }), 'idm');
-            this.rolesFilter.position(0, 192);
+            this.rolesFilter.position(0, y);
             this.rolesFilter.isTemplate = true;
             this.rolesFilter.addTo(graph);
         }
     }, {
         key: "newAclFilter",
-        value: function newAclFilter(graph) {
+        value: function newAclFilter(graph, y) {
             this.aclFilter = new _Filter2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl' }), 'idm');
-            this.aclFilter.position(0, 256);
+            this.aclFilter.position(0, y);
             this.aclFilter.isTemplate = true;
             this.aclFilter.addTo(graph);
         }
     }, {
         key: "newNodesSelector",
-        value: function newNodesSelector(graph) {
+        value: function newNodesSelector(graph, y) {
             this.modelSelector = new _Selector2["default"](_pydioHttpRestApi.JobsNodesSelector.constructFromObject({ All: true }));
-            this.modelSelector.position(64, 0);
+            this.modelSelector.position(64, y);
             this.modelSelector.isTemplate = true;
             this.modelSelector.addTo(graph);
         }
     }, {
         key: "newUsersSelector",
-        value: function newUsersSelector(graph) {
+        value: function newUsersSelector(graph, y) {
             this.usersSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'User', All: true }), 'idm');
-            this.usersSelector.position(64, 64);
+            this.usersSelector.position(64, y);
             this.usersSelector.isTemplate = true;
             this.usersSelector.addTo(graph);
         }
     }, {
         key: "newWorkspacesSelector",
-        value: function newWorkspacesSelector(graph) {
+        value: function newWorkspacesSelector(graph, y) {
             this.wsSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Workspace', All: true }), 'idm');
-            this.wsSelector.position(64, 128);
+            this.wsSelector.position(64, y);
             this.wsSelector.isTemplate = true;
             this.wsSelector.addTo(graph);
         }
     }, {
         key: "newRolesSelector",
-        value: function newRolesSelector(graph) {
+        value: function newRolesSelector(graph, y) {
             this.rolesSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Role', All: true }), 'idm');
-            this.rolesSelector.position(64, 192);
+            this.rolesSelector.position(64, y);
             this.rolesSelector.isTemplate = true;
             this.rolesSelector.addTo(graph);
         }
     }, {
         key: "newAclSelector",
-        value: function newAclSelector(graph) {
+        value: function newAclSelector(graph, y) {
             this.aclSelector = new _Selector2["default"](_pydioHttpRestApi.JobsIdmSelector.constructFromObject({ Type: 'Acl', All: true }), 'idm');
-            this.aclSelector.position(64, 256);
+            this.aclSelector.position(64, y);
             this.aclSelector.isTemplate = true;
             this.aclSelector.addTo(graph);
         }
@@ -49422,14 +49703,18 @@ var Templates = (function (_shapes$standard$Path) {
 exports["default"] = Templates;
 module.exports = exports["default"];
 
-},{"./Configs":491,"./Filter":492,"./Selector":495,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],497:[function(require,module,exports){
+},{"./Configs":492,"./Filter":493,"./Selector":496,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],498:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.dirty = dirty;
+exports.original = original;
 
 var _actionsEditor = require("../actions/editor");
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
 
 function editor(state, action) {
     if (state === undefined) state = false;
@@ -49442,10 +49727,35 @@ function editor(state, action) {
     }
 }
 
-exports["default"] = editor;
-module.exports = exports["default"];
+function dirty(state, action) {
+    if (state === undefined) state = false;
 
-},{"../actions/editor":476}],498:[function(require,module,exports){
+    switch (action.type) {
+        case _actionsEditor.EDITOR_SET_DIRTY:
+            return action.dirty;
+        case _actionsEditor.EDITOR_SAVE_SUCCESS:
+            return false;
+        case _actionsEditor.EDITOR_SAVE_ERROR:
+            return true;
+        default:
+            return state;
+    }
+}
+
+function original(state, action) {
+    if (state === undefined) state = null;
+
+    switch (action.type) {
+        case _actionsEditor.EDITOR_SAVE_SUCCESS:
+            return _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(action.job)));
+        default:
+            return state;
+    }
+}
+
+exports["default"] = editor;
+
+},{"../actions/editor":477,"pydio/http/rest-api":"pydio/http/rest-api"}],499:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49468,6 +49778,10 @@ var _graphTemplates = require("../graph/Templates");
 
 var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
+var _graphJobInput = require("../graph/JobInput");
+
+var _graphJobInput2 = _interopRequireDefault(_graphJobInput);
+
 function graphReducer(graph, action) {
     if (graph === undefined) {
         graph = new _jointjs.dia.Graph();
@@ -49488,7 +49802,7 @@ function graphReducer(graph, action) {
                 if (a instanceof _graphAction2["default"]) {
                     a.toggleEdit();
                 }
-                if (!action.edit && !a.isTemplate) {
+                if (!action.edit && !a.isTemplate && !a instanceof _graphJobInput2["default"]) {
                     if (a.graph.getConnectedLinks(a).length === 0) {
                         a.remove();
                     }
@@ -49512,7 +49826,7 @@ function graphReducer(graph, action) {
 exports["default"] = graphReducer;
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"../graph/Action":490,"../graph/Templates":496,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],499:[function(require,module,exports){
+},{"../actions/editor":477,"../graph/Action":491,"../graph/JobInput":494,"../graph/Templates":497,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],500:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49543,13 +49857,15 @@ var allReducers = (0, _redux.combineReducers)({
     editMode: _editor2['default'],
     graph: _graph2['default'],
     paper: _paper2['default'],
-    job: _job2['default']
+    job: _job2['default'],
+    dirty: _editor.dirty,
+    original: _editor.original
 });
 
 exports['default'] = allReducers;
 module.exports = exports['default'];
 
-},{"./editor":497,"./graph":498,"./job":500,"./paper":501,"redux":"redux"}],500:[function(require,module,exports){
+},{"./editor":498,"./graph":499,"./job":501,"./paper":502,"redux":"redux"}],501:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49781,6 +50097,9 @@ exports["default"] = function (job, action) {
             });
             return job;
 
+        case _actionsEditor.EDITOR_REVERT:
+            return _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(action.original)));
+
         default:
             return job;
     }
@@ -49788,7 +50107,7 @@ exports["default"] = function (job, action) {
 
 module.exports = exports["default"];
 
-},{"../JobGraph":473,"../actions/editor":476,"../graph/Action":490,"../graph/Configs":491,"../graph/JobInput":493,"pydio/http/rest-api":"pydio/http/rest-api"}],501:[function(require,module,exports){
+},{"../JobGraph":474,"../actions/editor":477,"../graph/Action":491,"../graph/Configs":492,"../graph/JobInput":494,"pydio/http/rest-api":"pydio/http/rest-api"}],502:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -49912,7 +50231,7 @@ function paperReducer(paper, action) {
 
 module.exports = exports["default"];
 
-},{"../actions/editor":476,"../graph/Action":490,"../graph/JobInput":493,"../graph/Link":494,"jointjs":467}],502:[function(require,module,exports){
+},{"../actions/editor":477,"../graph/Action":491,"../graph/JobInput":494,"../graph/Link":495,"jointjs":467}],503:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -49945,4 +50264,4 @@ window.AdminScheduler = {
   Dashboard: _boardDashboard2['default']
 };
 
-},{"./board/Dashboard":471}]},{},[502]);
+},{"./board/Dashboard":472}]},{},[503]);

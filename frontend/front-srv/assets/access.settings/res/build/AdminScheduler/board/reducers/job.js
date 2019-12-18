@@ -229,6 +229,9 @@ exports["default"] = function (job, action) {
             });
             return job;
 
+        case _actionsEditor.EDITOR_REVERT:
+            return _pydioHttpRestApi.JobsJob.constructFromObject(JSON.parse(JSON.stringify(action.original)));
+
         default:
             return job;
     }
