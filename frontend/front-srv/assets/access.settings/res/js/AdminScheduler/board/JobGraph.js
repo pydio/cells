@@ -545,15 +545,16 @@ class JobGraph extends React.Component {
         const keySet = AllowedKeys.target[dropOn][dropFromType].filter(o => {
             return dropFromProto instanceof o.type
         });
+        if(!keySet.length) {
+            return false;
+        }
         // Check if the targetProto already has a similar key
-        if(keySet.length){
-            const targetKey = keySet[0].key;
-            if(dropOnProto[targetKey]){
-                if(elementBelow.showLegend){
-                    elementBelow.showLegend('Already has ' + targetKey);
-                }
-                return false;
+        const targetKey = keySet[0].key;
+        if(dropOnProto[targetKey]){
+            if(elementBelow.showLegend){
+                elementBelow.showLegend('Already has ' + targetKey);
             }
+            return false;
         }
         // Finally do not add filters on non-event based JobInput
         if(dropFromType === 'filter' && dropOn === 'job' && job.EventNames === undefined){

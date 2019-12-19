@@ -355,6 +355,7 @@ var Dashboard = _react2['default'].createClass({
                         var newJob = _pydioHttpRestApi.JobsJob.constructFromObject({
                             ID: (0, _uuid42['default'])(),
                             Label: label,
+                            Owner: 'pydio.system.user',
                             Actions: []
                         });
                         _this5.setState({ createJob: newJob });

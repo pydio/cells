@@ -203,7 +203,7 @@ var QuickLinks = (function (_Component) {
                 links,
                 React.createElement('span', { style: { flex: 1 } }),
                 React.createElement(IconButton, {
-                    onTouchTap: this.editor.bind(this),
+                    onTouchTap: this.toggleEdit.bind(this),
                     iconClassName: this.state.edit ? 'icon-ok' : 'mdi mdi-pencil',
                     secondary: this.state.edit,
                     iconStyle: { color: "#9e9e9e" }

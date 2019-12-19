@@ -14,7 +14,8 @@ const eventMessages = {
         '2':'trigger.update.path',
         '3':'trigger.update.content',
         '4':'trigger.update.metadata',
-        '5':'trigger.delete.node'
+        '5':'trigger.delete.node',
+        '6':'trigger.update.user-metadata'
     },
     IDM_CHANGE: {
         USER : {

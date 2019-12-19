@@ -22,12 +22,14 @@ package jobs
 
 import (
 	"context"
+	"go.uber.org/zap"
 	"path"
 	"strings"
 
+	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/search/query"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/protobuf/ptypes"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -103,7 +105,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, objects ch
 			log.Logger(ctx).Debug("Search Request with query received Node", resp.Node.ZapPath())
 			objects <- resp.Node
 		}
-		log.Logger(ctx).Debug("Finished Search Request with query", zap.Any("q", q))
+		log.Logger(ctx).Info("Finished Search Request with query", zap.Any("q", q))
 	}
 	return nil
 }
@@ -118,7 +120,7 @@ func (n *NodesSelector) Filter(input ActionMessage) ActionMessage {
 		return input
 	}
 
-	newNodes := []*tree.Node{}
+	var newNodes []*tree.Node
 
 	for _, node := range input.Nodes {
 
@@ -129,7 +131,8 @@ func (n *NodesSelector) Filter(input ActionMessage) ActionMessage {
 		}
 		if n.Query != nil && len(n.Query.SubQueries) > 0 {
 			// Parse only first level for the moment
-			results := []bool{}
+			// TODO : WE MAY HAVE TO RELOAD NODE CORE PROPERTIES AND/OR METADATA
+			var results []bool
 			for _, q := range n.Query.SubQueries {
 				singleQuery := &tree.Query{}
 				e := ptypes.UnmarshalAny(q, singleQuery)
@@ -223,5 +226,95 @@ func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool
 		}
 	}
 
+	// Bleve-style query string
+	if len(q.FreeString) > 0 {
+		if qu, e := getBleveQuery(q.FreeString); e == nil {
+			b := getMemBleveIndex()
+			iNode := tree.NewMemIndexableNode(node)
+			if e := b.Index(node.Uuid, iNode); e == nil {
+				log.Logger(context.Background()).Debug("Indexed node, now performing request", zap.Any("node", iNode), zap.Any("q", qu))
+				defer b.Delete(node.Uuid)
+			} else {
+				log.Logger(context.Background()).Error("Cannot index node", zap.Any("node", iNode), zap.Error(e))
+				return false
+			}
+			req := bleve.NewSearchRequest(qu)
+			req.Size = 1
+			if r, e := b.Search(req); e == nil {
+				log.Logger(context.Background()).Info("In-memory bleve filter received result", zap.Any("r.Total", r.Total))
+				return r.Total > 0
+			} else {
+				log.Logger(context.Background()).Error("Cannot search on in-memory bleve index - Discarding event node", zap.Error(e))
+				return false
+			}
+		} else {
+			log.Logger(context.Background()).Error("Cannot parse FreeString query (bleve-style) - Discarding event node", zap.Error(e))
+			return false
+		}
+	}
+
 	return true
+}
+
+var (
+	memBleveIndex bleve.Index
+	freeStringCache map[string]query.Query
+)
+
+func getBleveQuery(freeString string) (query.Query, error) {
+	if freeStringCache == nil {
+		freeStringCache = make(map[string]query.Query)
+	}
+	if q, ok := freeStringCache[freeString]; ok {
+		return q, nil
+	}
+	q := query.NewQueryStringQuery(freeString)
+	if qu, e := q.Parse(); e == nil {
+		freeStringCache[freeString] = qu
+		return qu, nil
+	}else{
+		return nil, e
+	}
+}
+
+func getMemBleveIndex() bleve.Index {
+	if memBleveIndex != nil {
+		return memBleveIndex
+	}
+	mapping := bleve.NewIndexMapping()
+	nodeMapping := bleve.NewDocumentMapping()
+	mapping.AddDocumentMapping("node", nodeMapping)
+
+	// Path to keyword
+	pathFieldMapping := bleve.NewTextFieldMapping()
+	pathFieldMapping.Analyzer = "keyword"
+	nodeMapping.AddFieldMappingsAt("Path", pathFieldMapping)
+
+	// Node type to keyword
+	nodeType := bleve.NewTextFieldMapping()
+	nodeType.Analyzer = "keyword"
+	nodeMapping.AddFieldMappingsAt("NodeType", nodeType)
+
+	// Extension to keyword
+	extType := bleve.NewTextFieldMapping()
+	extType.Analyzer = "keyword"
+	nodeMapping.AddFieldMappingsAt("Extension", extType)
+
+	// Modification Time as Date
+	modifTime := bleve.NewDateTimeFieldMapping()
+	nodeMapping.AddFieldMappingsAt("ModifTime", modifTime)
+
+	// GeoPoint
+	geoPosition := bleve.NewGeoPointFieldMapping()
+	nodeMapping.AddFieldMappingsAt("GeoPoint", geoPosition)
+
+	// Text Content
+	textContent := bleve.NewTextFieldMapping()
+	textContent.Analyzer = "en" // See detect_lang in the blevesearch/blevex package?
+	textContent.Store = false
+	textContent.IncludeInAll = false
+	nodeMapping.AddFieldMappingsAt("TextContent", textContent)
+
+	memBleveIndex, _ = bleve.NewMemOnly(mapping)
+	return memBleveIndex
 }

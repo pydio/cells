@@ -1676,6 +1676,9 @@
   "scheduler.trigger.update.metadata":{
     "other": "Update Metadata"
   },
+  "scheduler.trigger.update.user-metadata":{
+    "other": "Update User Metadata"
+  },
   "scheduler.trigger.delete.node":{
     "other": "Delete Node"
   },

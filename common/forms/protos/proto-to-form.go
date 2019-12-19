@@ -43,7 +43,7 @@ func GenerateProtoToForm(msg proto.Message, asSwitch ...bool) *forms.Form {
 			})
 		}
 	}
-	if len(asSwitch) > 0 {
+	if len(asSwitch) > 0 && asSwitch[0] {
 		// return a unique switch
 		g.Fields = []forms.Field{sw}
 	}

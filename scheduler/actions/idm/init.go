@@ -29,12 +29,4 @@ func init() {
 		return &CleanUserDataAction{}
 	})
 
-	manager.Register(StoreActionName, func() actions.ConcreteAction {
-		return &StoreAction{}
-	})
-
-	manager.Register(DeleteActionName, func() actions.ConcreteAction {
-		return &DeleteAction{}
-	})
-
 }

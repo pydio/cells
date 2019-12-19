@@ -250,6 +250,7 @@ const Dashboard = React.createClass({
                     const newJob = JobsJob.constructFromObject({
                         ID: uuid(),
                         Label: label,
+                        Owner: 'pydio.system.user',
                         Actions:[],
                     });
                     this.setState({createJob: newJob});

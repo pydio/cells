@@ -34,10 +34,14 @@ class QueryBuilder extends React.Component {
     detectTypes(query){
         const {queryType} = this.props;
         let inputIcon, outputIcon, singleQuery;
+        let uniqueSingleOnly = false;
         let objectType = 'node';
         if(query instanceof JobsNodesSelector) {
             objectType = 'node';
-            singleQuery = 'tree.Query'
+            singleQuery = 'tree.Query';
+            if(queryType === 'selector'){
+                uniqueSingleOnly = true;
+            }
         } else if(query instanceof JobsIdmSelector) {
             objectType = 'user';
             switch (query.Type) {
@@ -114,7 +118,7 @@ class QueryBuilder extends React.Component {
             }
 
         }
-        return {inputIcon, outputIcon, objectType, singleQuery};
+        return {inputIcon, outputIcon, objectType, singleQuery, uniqueSingleOnly};
     }
 
     redraw(){
@@ -330,19 +334,21 @@ class QueryBuilder extends React.Component {
             });
         });
         this.paper.on('cluster:split', (elementView, evt) => {
-            const {singleQuery} = this.detectTypes(this.state.query);
-            this.setState({
-                querySplitProto: elementView.model.query,
-                selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/' + singleQuery}),
-                aPosition:elementView.model.position(),
-                aSize: elementView.model.size(),
-                aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
-            });
+            const {singleQuery, uniqueSingleOnly} = this.detectTypes(this.state.query);
+            if(!uniqueSingleOnly) { // Cannot split tree.Query
+                this.setState({
+                    querySplitProto: elementView.model.query,
+                    selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/' + singleQuery}),
+                    aPosition:elementView.model.position(),
+                    aSize: elementView.model.size(),
+                    aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
+                });
+            }
         });
         this.paper.on('root:add', (elementView, evt) => {
             const {query} = this.state;
-            const {singleQuery} = this.detectTypes(query);
-            query.Query = ServiceQuery.constructFromObject({SubQueries:[], Operation:'OR'});
+            const {singleQuery, uniqueSingleOnly} = this.detectTypes(query);
+            query.Query = ServiceQuery.constructFromObject({SubQueries:[], Operation:uniqueSingleOnly?'AND':'OR'});
             this.setState({
                 queryAddProto: query.Query,
                 selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/' + singleQuery}),
@@ -378,8 +384,16 @@ class QueryBuilder extends React.Component {
             if(!window.confirm('Remove this condition?')){
                 return;
             }
+            const {singleQuery, uniqueSingleOnly} = this.detectTypes(this.state.query);
             const {parentQuery, proto} = elementView.model;
-            parentQuery.SubQueries = parentQuery.SubQueries.filter(q => q !== proto);
+            if(uniqueSingleOnly) {
+                // Remove key from first SubQuery
+                const {fieldName} = elementView.model;
+                delete proto.value[fieldName]
+            } else {
+                // Remove single Query
+                parentQuery.SubQueries = parentQuery.SubQueries.filter(q => q !== proto);
+            }
             this.pruneEmpty();
             this.redraw();
             this.setDirty();
@@ -429,6 +443,7 @@ class QueryBuilder extends React.Component {
     changeQueryValue(newField, newValue, notProps){
 
         const {selectedProto, selectedFieldName, queryAddProto, querySplitProto} = this.state;
+        const {uniqueSingleOnly} = this.detectTypes(this.state.query);
         // Clean old values
         if(selectedFieldName && newField !== selectedFieldName){
             delete selectedProto.value[selectedFieldName];
@@ -451,7 +466,13 @@ class QueryBuilder extends React.Component {
             if(!queryAddProto.SubQueries) {
                 queryAddProto.SubQueries = [];
             }
-            queryAddProto.SubQueries.push(selectedProto);
+            if(uniqueSingleOnly && queryAddProto.SubQueries.length) {
+                let values = queryAddProto.SubQueries[0].value;
+                values = {...values, ...selectedProto.value};
+                queryAddProto.SubQueries[0].value = values;
+            } else {
+                queryAddProto.SubQueries.push(selectedProto);
+            }
         } else if(querySplitProto){
             // Create a new branch and move proto inside this branch
             const newBranch1 = ProtobufAny.constructFromObject({'@type':'type.googleapis.com/service.Query', SubQueries:[], Operation:'AND'});

@@ -241,7 +241,7 @@ const AllowedKeys = {
         action:{'NodesFilter': JobsNodesSelector, 'UsersFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector}
     },
     selector: {
-        job: {'NodesSelector': JobsNodesSelector, 'UsersSelector': JobsUsersSelector, 'IdmSelector': JobsIdmSelector},
+        job: {},
         action: {'NodesSelector': JobsNodesSelector, 'UsersSelector': JobsUsersSelector, 'IdmSelector': JobsIdmSelector},
     },
     target: {
@@ -251,11 +251,7 @@ const AllowedKeys = {
                 {type: JobsUsersSelector, key: 'UserEventFilter'},
                 {type: JobsIdmSelector, key: 'IdmFilter'}
             ],
-            selector: [
-                {type: JobsNodesSelector, key: 'NodesSelector'},
-                {type: JobsUsersSelector, key: 'UsersSelector'},
-                {type: JobsIdmSelector, key: 'IdmSelector'}
-            ],
+            selector: [],
         },
         action: {
             filter: [

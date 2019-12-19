@@ -97,10 +97,14 @@ var QueryBuilder = (function (_React$Component) {
             var inputIcon = undefined,
                 outputIcon = undefined,
                 singleQuery = undefined;
+            var uniqueSingleOnly = false;
             var objectType = 'node';
             if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
                 objectType = 'node';
                 singleQuery = 'tree.Query';
+                if (queryType === 'selector') {
+                    uniqueSingleOnly = true;
+                }
             } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
                 objectType = 'user';
                 switch (query.Type) {
@@ -176,7 +180,7 @@ var QueryBuilder = (function (_React$Component) {
                         break;
                 }
             }
-            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType, singleQuery: singleQuery };
+            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType, singleQuery: singleQuery, uniqueSingleOnly: uniqueSingleOnly };
         }
     }, {
         key: 'redraw',
@@ -466,14 +470,18 @@ var QueryBuilder = (function (_React$Component) {
                 var _detectTypes3 = _this5.detectTypes(_this5.state.query);
 
                 var singleQuery = _detectTypes3.singleQuery;
+                var uniqueSingleOnly = _detectTypes3.uniqueSingleOnly;
 
-                _this5.setState({
-                    querySplitProto: elementView.model.query,
-                    selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
-                    aPosition: elementView.model.position(),
-                    aSize: elementView.model.size(),
-                    aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
-                });
+                if (!uniqueSingleOnly) {
+                    // Cannot split tree.Query
+                    _this5.setState({
+                        querySplitProto: elementView.model.query,
+                        selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
+                        aPosition: elementView.model.position(),
+                        aSize: elementView.model.size(),
+                        aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
+                    });
+                }
             });
             this.paper.on('root:add', function (elementView, evt) {
                 var query = _this5.state.query;
@@ -481,8 +489,9 @@ var QueryBuilder = (function (_React$Component) {
                 var _detectTypes4 = _this5.detectTypes(query);
 
                 var singleQuery = _detectTypes4.singleQuery;
+                var uniqueSingleOnly = _detectTypes4.uniqueSingleOnly;
 
-                query.Query = _pydioHttpRestApi.ServiceQuery.constructFromObject({ SubQueries: [], Operation: 'OR' });
+                query.Query = _pydioHttpRestApi.ServiceQuery.constructFromObject({ SubQueries: [], Operation: uniqueSingleOnly ? 'AND' : 'OR' });
                 _this5.setState({
                     queryAddProto: query.Query,
                     selectedProto: _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/' + singleQuery }),
@@ -522,13 +531,26 @@ var QueryBuilder = (function (_React$Component) {
                 if (!window.confirm('Remove this condition?')) {
                     return;
                 }
+
+                var _detectTypes5 = _this5.detectTypes(_this5.state.query);
+
+                var singleQuery = _detectTypes5.singleQuery;
+                var uniqueSingleOnly = _detectTypes5.uniqueSingleOnly;
                 var _elementView$model2 = elementView.model;
                 var parentQuery = _elementView$model2.parentQuery;
                 var proto = _elementView$model2.proto;
 
-                parentQuery.SubQueries = parentQuery.SubQueries.filter(function (q) {
-                    return q !== proto;
-                });
+                if (uniqueSingleOnly) {
+                    // Remove key from first SubQuery
+                    var fieldName = elementView.model.fieldName;
+
+                    delete proto.value[fieldName];
+                } else {
+                    // Remove single Query
+                    parentQuery.SubQueries = parentQuery.SubQueries.filter(function (q) {
+                        return q !== proto;
+                    });
+                }
                 _this5.pruneEmpty();
                 _this5.redraw();
                 _this5.setDirty();
@@ -590,6 +612,10 @@ var QueryBuilder = (function (_React$Component) {
             var queryAddProto = _state2.queryAddProto;
             var querySplitProto = _state2.querySplitProto;
 
+            var _detectTypes6 = this.detectTypes(this.state.query);
+
+            var uniqueSingleOnly = _detectTypes6.uniqueSingleOnly;
+
             // Clean old values
             if (selectedFieldName && newField !== selectedFieldName) {
                 delete selectedProto.value[selectedFieldName];
@@ -612,7 +638,13 @@ var QueryBuilder = (function (_React$Component) {
                 if (!queryAddProto.SubQueries) {
                     queryAddProto.SubQueries = [];
                 }
-                queryAddProto.SubQueries.push(selectedProto);
+                if (uniqueSingleOnly && queryAddProto.SubQueries.length) {
+                    var values = queryAddProto.SubQueries[0].value;
+                    values = _extends({}, values, selectedProto.value);
+                    queryAddProto.SubQueries[0].value = values;
+                } else {
+                    queryAddProto.SubQueries.push(selectedProto);
+                }
             } else if (querySplitProto) {
                 // Create a new branch and move proto inside this branch
                 var newBranch1 = _pydioHttpRestApi.ProtobufAny.constructFromObject({ '@type': 'type.googleapis.com/service.Query', SubQueries: [], Operation: 'AND' });
@@ -681,10 +713,10 @@ var QueryBuilder = (function (_React$Component) {
             var aSize = _state3.aSize;
             var aScrollLeft = _state3.aScrollLeft;
 
-            var _detectTypes5 = this.detectTypes(query);
+            var _detectTypes7 = this.detectTypes(query);
 
-            var objectType = _detectTypes5.objectType;
-            var singleQuery = _detectTypes5.singleQuery;
+            var objectType = _detectTypes7.objectType;
+            var singleQuery = _detectTypes7.singleQuery;
 
             var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
 

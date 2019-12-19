@@ -87,10 +87,10 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 	// Filter Size
 	if q.MaxSize > 0 || q.MinSize > 0 {
 		var sizeParts []string
-		if q.MinDate > 0 {
+		if q.MinSize > 0 {
 			sizeParts = append(sizeParts, fmt.Sprintf(">=%d", q.MinSize))
 		}
-		if q.MaxDate > 0 {
+		if q.MaxSize > 0 {
 			sizeParts = append(sizeParts, fmt.Sprintf("<=%d", q.MaxSize))
 		}
 		listReq.Node.SetMeta("size", sizeParts)
@@ -107,13 +107,13 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 		listReq.Node.SetMeta("grep", strings.Join(greps, "|"))
 	}
 
-	log.Logger(ctx).Debug("Sending ListNodeRequest", zap.Any("req", listReq))
 	for _, p := range q.PathPrefix {
 		listReq.Node.Path = p
 		streamer := &StreamConverter{
 			ctx:     ctx,
 			wrapped: stream,
 		}
+		log.Logger(ctx).Info("Tree.Search - sending ListNodeRequest", zap.Any("req", listReq))
 		e := s.ListNodes(ctx, listReq, streamer)
 		if e != nil {
 			return e
