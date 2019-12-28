@@ -64,6 +64,8 @@ message FrontSessionResponse{
     string Trigger = 3;
     // Additional data for the trigger
     map<string,string> TriggerInfo = 4;
+
+    string RedirectTo = 5;
 }
 
 message FrontAuthRequest {

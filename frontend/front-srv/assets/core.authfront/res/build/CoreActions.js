@@ -48,6 +48,10 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
 var pydio = window.pydio;
 
 var LanguagePicker = function LanguagePicker() {
@@ -95,22 +99,61 @@ var LoginDialogMixin = {
         } else {
             login = this.refs.login.getValue();
         }
-        restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(function (r) {
-            if (r.data && r.data.Trigger) {
-                return;
-            }
 
-            _this.dismiss();
-        })['catch'](function (e) {
-            if (e.response && e.response.body) {
-                _this.setState({ errorId: e.response.body.Title });
-            } else if (e.response && e.response.text) {
-                _this.setState({ errorId: e.response.text });
-            } else if (e.message) {
-                _this.setState({ errorId: e.message });
-            } else {
-                _this.setState({ errorId: 'Login failed!' });
-            }
+        restClient.sessionLogin().then(function () {
+            restClient.jwtFromCredentials(login, _this.refs.password.getValue()).then(function (response) {
+                fetch(response.data.RedirectTo, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (response) {
+                    var body = {
+                        grant_scope: response.requested_scope,
+                        grant_access_token_audience: response.requested_access_token_audience
+                    };
+
+                    fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + _queryString2['default'].stringify({ consent_challenge: response.challenge }), {
+                        method: 'PUT',
+                        body: JSON.stringify(body),
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(function (response) {
+                        return response.json();
+                    }).then(function (response) {
+                        if (window.sessionStorage.getItem("fullRedirect")) {
+                            window.location.href = response.redirect_to;
+                        } else {
+                            // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                            fetch(response.redirect_to, {
+                                method: 'GET',
+                                headers: { 'Accept': 'application/json' }
+                            }).then(function (response) {
+                                return response.json();
+                            }).then(function (response) {
+                                _pydioHttpApi2['default'].getRestClient().sessionLoginCallback(response).then(function () {
+                                    pydio.loadXmlRegistry(null, null, null);
+                                });
+                            });
+                        }
+                    });
+                });
+
+                if (response.data && response.data.Trigger) {
+                    return;
+                }
+
+                _this.dismiss();
+            })['catch'](function (e) {
+                if (e.response && e.response.body) {
+                    _this.setState({ errorId: e.response.body.Title });
+                } else if (e.response && e.response.text) {
+                    _this.setState({ errorId: e.response.text });
+                } else if (e.message) {
+                    _this.setState({ errorId: e.message });
+                } else {
+                    _this.setState({ errorId: 'Login failed!' });
+                }
+            });
         });
     }
 };

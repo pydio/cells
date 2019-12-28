@@ -18,21 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-
-import browserHistory from 'react-router/lib/browserHistory'
+const PydioApi = require('pydio/http/api')
+import browserHistory from 'react-router/lib/browserHistory';
+import qs from 'query-string';
 
 const LoginRouterWrapper = (pydio) => {
     const LoginRouter = (props) => {
-        if (pydio.user) {
-            browserHistory.replace("/")
-            return null
-        }
+        if (pydio.user) browserHistory.replace("/")
 
-        pydio.observeOnce('user_logged', (u) => {
-            browserHistory.replace('/')
-        })
-
-        localStorage.removeItem("loginOrigin")
+        pydio.observeOnce('user_logged', () => browserHistory.replace("/"))
     
         return (
             <div>

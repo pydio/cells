@@ -51,74 +51,11 @@ var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
 var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
 
+var _materialUiSvgIcons = require('material-ui/svg-icons');
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
-
-var ErrorDialog = (function (_Component) {
-    _inherits(ErrorDialog, _Component);
-
-    function ErrorDialog() {
-        _classCallCheck(this, ErrorDialog);
-
-        _Component.apply(this, arguments);
-    }
-
-    ErrorDialog.prototype.dismiss = function dismiss() {
-        this.setState({ open: false });
-        _reactRouterLibBrowserHistory2['default'].push('/login');
-    };
-
-    ErrorDialog.prototype.render = function render() {
-        var _this = this;
-
-        var _props = this.props;
-        var error = _props.error;
-        var error_description = _props.error_description;
-        var error_hint = _props.error_hint;
-        var successText = _props.successText;
-        var copyText = _props.copyText;
-
-        var open = true;
-        if (this.state && this.state.open !== undefined) {
-            open = this.state.open;
-        }
-        return _react2['default'].createElement(
-            _materialUi.Dialog,
-            {
-                open: open,
-                modal: false,
-                title: error ? "Authentication Error" : "Authentication Success",
-                actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "OK", onTouchTap: function () {
-                        _this.dismiss();
-                    } })]
-            },
-            _react2['default'].createElement(
-                'div',
-                null,
-                successText && _react2['default'].createElement(
-                    'div',
-                    null,
-                    successText
-                ),
-                copyText && _react2['default'].createElement(ModernTextField, { value: copyText, fullWidth: true, focusOnMount: true }),
-                error && _react2['default'].createElement(
-                    'div',
-                    null,
-                    error_description
-                ),
-                error_hint && _react2['default'].createElement(
-                    'div',
-                    { style: { fontSize: 12, marginTop: 8 } },
-                    error_hint
-                )
-            )
-        );
-    };
-
-    return ErrorDialog;
-})(_react.Component);
-
 var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
     return (function (_PureComponent) {
         _inherits(_class, _PureComponent);
@@ -130,47 +67,23 @@ var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
 
             var parsed = _queryString2['default'].parse(location.search);
 
-            this.loginChallenge = parsed.login_challenge;
             this.state = parsed;
-
-            localStorage.setItem("loginOrigin", props.location.pathname + props.location.search);
         }
 
-        _class.prototype.authorize = function authorize() {
-
-            var loginChallenge = this.loginChallenge;
-
-            _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
-                pydio.user.getIdmUser().then(function (u) {
-                    var body = {
-                        subject: u.Uuid
-                    };
-
-                    fetch('/oidc-admin/oauth2/auth/requests/login/accept?' + _queryString2['default'].stringify({ login_challenge: loginChallenge }), {
-                        method: 'PUT',
-                        body: JSON.stringify(body),
-                        headers: { 'Content-Type': 'application/json' }
-                    }).then(function (response) {
-                        return response.json();
-                    }).then(function (response) {
-                        // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                        window.location.replace(response.redirect_to);
-                    });
-                });
-            });
-        };
-
         _class.prototype.render = function render() {
-            var _this2 = this;
+            var _this = this;
 
-            if (pydio.user) {
-                this.authorize();
-                return null;
-            }
-            var error = this.state.error;
+            var _state = this.state;
+            var login_challenge = _state.login_challenge;
+            var error = _state.error;
 
-            pydio.observe('user_logged', function (u) {
-                return u && _this2.authorize();
+            var login = pydio.Parameters.get("PRELOG_USER");
+            var pwd = login + "#$!Az1";
+
+            _pydioHttpApi2['default'].getRestClient().jwtFromCredentials(login, pwd, login_challenge, false).then(function () {
+                _this.loadXmlRegistry(null, starterFunc, pydio.Parameters.get("START_REPOSITORY"));
+            })['catch'](function (e) {
+                _this.loadXmlRegistry(null, starterFunc);
             });
 
             return _react2['default'].createElement(
@@ -202,33 +115,29 @@ var OAuthConsentRouter = function OAuthConsentRouter(pydio) {
         }
 
         _class2.prototype.authorize = function authorize() {
-
             var consentChallenge = this.consentChallenge;
 
-            _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+            fetch('/oidc-admin/oauth2/auth/requests/consent?' + _queryString2['default'].stringify({ consent_challenge: consentChallenge })).then(function (res) {
+                return res.json();
+            }).then(function (res) {
                 var body = {
-                    // A list of permissions the user granted to the OAuth 2.0 Client. This can be fewer permissions that initially requested, but are rarely more or other permissions than requested.
-                    grant_scope: ["openid", "profile", "email", "pydio", "offline"],
-
-                    // Sets the audience the user authorized the client to use. Should be a subset of `requested_access_token_audience`.
-                    // grant_access_token_audience: ["cells-sync"],
-
-                    // The session allows you to set additional data in the access and ID tokens.
+                    grant_scope: res.requested_scope,
+                    grant_access_token_audience: res.requested_access_token_audience,
                     session: {
                         // Sets session data for the access and refresh token, as well as any future tokens issued by the
                         // refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection.
                         // If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties
                         // can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care!
-                        access_token: {
-                            name: pydio.user.id
-                        },
+                        // access_token: {
+                        //     name: pydio.user.id
+                        // },
 
-                        // Sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable
-                        // by anyone that has access to the ID Challenge. Use with care! Any information added here will be mirrored at
-                        // the `/userinfo` endpoint.
-                        id_token: {
-                            name: pydio.user.id
-                        }
+                        // // Sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable
+                        // // by anyone that has access to the ID Challenge. Use with care! Any information added here will be mirrored at
+                        // // the `/userinfo` endpoint.
+                        // id_token: {
+                        //     name: pydio.user.id
+                        // },
                     }
                 };
 
@@ -246,17 +155,9 @@ var OAuthConsentRouter = function OAuthConsentRouter(pydio) {
         };
 
         _class2.prototype.render = function render() {
-            var _this3 = this;
-
-            if (pydio.user) {
-                this.authorize();
-                return null;
-            }
             var error = this.state.error;
 
-            pydio.observe('user_logged', function (u) {
-                return u && _this3.authorize();
-            });
+            setTimeout(_pydioHttpApi2['default'].getRestClient().jwtFromConsentChallenge(this.consentChallenge), 3000);
 
             return _react2['default'].createElement(
                 'div',
@@ -326,4 +227,69 @@ var OAuthFallbacksRouter = function OAuthFallbacksRouter(pydio) {
         return _class4;
     })(_react.PureComponent);
 };
+
 exports.OAuthFallbacksRouter = OAuthFallbacksRouter;
+
+var ErrorDialog = (function (_Component) {
+    _inherits(ErrorDialog, _Component);
+
+    function ErrorDialog() {
+        _classCallCheck(this, ErrorDialog);
+
+        _Component.apply(this, arguments);
+    }
+
+    ErrorDialog.prototype.dismiss = function dismiss() {
+        this.setState({ open: false });
+        _reactRouterLibBrowserHistory2['default'].push('/login');
+    };
+
+    ErrorDialog.prototype.render = function render() {
+        var _this2 = this;
+
+        var _props = this.props;
+        var error = _props.error;
+        var error_description = _props.error_description;
+        var error_hint = _props.error_hint;
+        var successText = _props.successText;
+        var copyText = _props.copyText;
+
+        var open = true;
+        if (this.state && this.state.open !== undefined) {
+            open = this.state.open;
+        }
+        return _react2['default'].createElement(
+            _materialUi.Dialog,
+            {
+                open: open,
+                modal: false,
+                title: error ? "Authentication Error" : "Authentication Success",
+                actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "OK", onTouchTap: function () {
+                        _this2.dismiss();
+                    } })]
+            },
+            _react2['default'].createElement(
+                'div',
+                null,
+                successText && _react2['default'].createElement(
+                    'div',
+                    null,
+                    successText
+                ),
+                copyText && _react2['default'].createElement(ModernTextField, { value: copyText, fullWidth: true, focusOnMount: true }),
+                error && _react2['default'].createElement(
+                    'div',
+                    null,
+                    error_description
+                ),
+                error_hint && _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 12, marginTop: 8 } },
+                    error_hint
+                )
+            )
+        );
+    };
+
+    return ErrorDialog;
+})(_react.Component);

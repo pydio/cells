@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/index"
 	"github.com/pydio/cells/common/utils/mtree"
@@ -115,6 +115,8 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 		log.Logger(context.Background()).Error("Cannot unmarshal", zap.Any("v", val), zap.Error(err))
 		return nil, false
 	}
+
+	fmt.Println(q)
 
 	if q.Uuid != "" {
 		expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.uuid", q.Uuid))

@@ -93,7 +93,7 @@ func RegisterDexProvider(c common.ConfigValues) {
 			ClientSecret: c.Secret,
 			Endpoint:     oidcProvider.Endpoint(),
 			RedirectURL:  externalURL + "/login/callback",
-			Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+			Scopes:       []string{oidc.ScopeOpenID, "profile", "email", "pydio"},
 		}
 		p.passwordCredentialsTokenVerifier = oidcProvider.Verifier(&oidc.Config{SkipClientIDCheck: true, SkipNonceCheck: true})
 

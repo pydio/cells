@@ -84,6 +84,10 @@ var _modelEmptyNodeProvider = require("./model/EmptyNodeProvider");
 
 var _modelEmptyNodeProvider2 = _interopRequireDefault(_modelEmptyNodeProvider);
 
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
 /**
  * This is the main class for launching the whole framework,
  * with or without a UI.
@@ -238,26 +242,52 @@ var Pydio = (function (_Observable) {
             }
         });
 
-        var starterFunc = (function () {
-            var _this3 = this;
-
+        var starterFunc = function starterFunc() {
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], function () {
-                _this3.UI = new window.PydioReactUI.Builder(_this3);
-                _this3.UI.initTemplates();
-                _this3.fire("registry_loaded", _this3.Registry.getXML());
-                _this3.fire('loaded');
+                _this2.UI = new window.PydioReactUI.Builder(_this2);
+                _this2.UI.initTemplates();
+
+                _this2.fire("registry_loaded", _this2.Registry.getXML());
+                _this2.fire('loaded');
                 //setTimeout(() => { this.fire('loaded'); }, 200);
             });
-        }).bind(this);
+        };
 
         // Prelogged user
         if (this.Parameters.has("PRELOG_USER") && !this.user) {
-            var login = this.Parameters.get("PRELOG_USER");
-            var pwd = login + "#$!Az1";
-            _httpPydioApi2['default'].getRestClient().jwtFromCredentials(login, pwd, false).then(function () {
-                _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
-            })['catch'](function (e) {
-                _this2.loadXmlRegistry(null, starterFunc);
+            _httpPydioApi2['default'].getRestClient().sessionLogin().then(function (response) {
+                var login = _this2.Parameters.get("PRELOG_USER");
+                var pwd = login + "#$!Az1";
+
+                _httpPydioApi2['default'].getRestClient().jwtFromCredentials(login, pwd, false).then(function (response) {
+                    fetch(response.data.RedirectTo).then(function (response) {
+                        return response.json();
+                    }).then(function (response) {
+                        var body = {
+                            grant_scope: response.requested_scope,
+                            grant_access_token_audience: response.requested_access_token_audience
+                        };
+
+                        fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + _queryString2['default'].stringify({ consent_challenge: response.challenge }), {
+                            method: 'PUT',
+                            body: JSON.stringify(body),
+                            headers: { 'Content-Type': 'application/json' }
+                        }).then(function (response) {
+                            return response.json();
+                        }).then(function (response) {
+                            // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                            fetch(response.redirect_to).then(function (response) {
+                                return response.json();
+                            }).then(function (response) {
+                                _httpPydioApi2['default'].getRestClient().sessionLoginCallback(response).then(function (u) {
+                                    _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
+                                })['catch'](function (e) {
+                                    _this2.loadXmlRegistry(null, starterFunc);
+                                });
+                            });
+                        });
+                    });
+                });
             });
         } else {
             _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
@@ -314,7 +344,7 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.loadActiveRepository = function loadActiveRepository() {
-        var _this4 = this;
+        var _this3 = this;
 
         if (this.user === null) {
             var _repositoryObject = new _modelRepository2['default'](null);
@@ -331,10 +361,10 @@ var Pydio = (function (_Observable) {
         if (!repositoryObject) {
             if (this.user.lock) {
                 (function () {
-                    _this4.Controller.loadActionsFromRegistry(_this4.getXmlRegistry());
-                    var lock = _this4.user.lock.split(",").shift();
+                    _this3.Controller.loadActionsFromRegistry(_this3.getXmlRegistry());
+                    var lock = _this3.user.lock.split(",").shift();
                     window.setTimeout(function () {
-                        _this4.Controller.fireAction(lock);
+                        _this3.Controller.fireAction(lock);
                     }, 150);
                 })();
             } else {
@@ -363,18 +393,18 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.reloadRepositoriesList = function reloadRepositoriesList() {
-        var _this5 = this;
+        var _this4 = this;
 
         if (!this.user) return;
         this.observeOnce("registry_part_loaded", function (data) {
             if (data !== "user/repositories") return;
-            _this5.updateUser(_this5.Registry.parseUser());
-            if (_this5.user.getRepositoriesList().size === 0) {
-                _this5.loadXmlRegistry(); // User maybe locket out Reload full registry now!
+            _this4.updateUser(_this4.Registry.parseUser());
+            if (_this4.user.getRepositoriesList().size === 0) {
+                _this4.loadXmlRegistry(); // User maybe locket out Reload full registry now!
             }
-            _this5.fire("repository_list_refreshed", {
-                list: _this5.user.getRepositoriesList(),
-                active: _this5.user.getActiveRepository()
+            _this4.fire("repository_list_refreshed", {
+                list: _this4.user.getRepositoriesList(),
+                active: _this4.user.getActiveRepository()
             });
         });
         this.loadXmlRegistry("user/repositories");
@@ -386,7 +416,7 @@ var Pydio = (function (_Observable) {
      */
 
     Pydio.prototype.loadRepository = function loadRepository(repository) {
-        var _this6 = this;
+        var _this5 = this;
 
         if (this.repositoryId != null && this.repositoryId === repository.getId()) {
             _langLogger2['default'].debug('Repository already loaded, do nothing');
@@ -421,8 +451,8 @@ var Pydio = (function (_Observable) {
         var firstLoadObs = function firstLoadObs() {};
         if (initLoadRep) {
             firstLoadObs = function () {
-                _this6.goTo(initLoadRep);
-                _this6._initLoadRep = null;
+                _this5.goTo(initLoadRep);
+                _this5._initLoadRep = null;
             };
         }
 

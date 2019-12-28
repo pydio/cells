@@ -76,6 +76,10 @@ var _LogoutRouter = require('./LogoutRouter');
 
 var _LogoutRouter2 = _interopRequireDefault(_LogoutRouter);
 
+var _LogoutCallbackRouter = require('./LogoutCallbackRouter');
+
+var _LogoutCallbackRouter2 = _interopRequireDefault(_LogoutCallbackRouter);
+
 function getRoutes(pydio) {
     return React.createElement(
         _reactRouterDom.Switch,
@@ -93,6 +97,7 @@ function getRoutes(pydio) {
             React.createElement(_reactRouterLibRoute2['default'], { path: 'login', component: _OAuthRouter.OAuthLoginRouter(pydio) }),
             React.createElement(_reactRouterLibRoute2['default'], { path: 'consent', component: _OAuthRouter.OAuthConsentRouter(pydio) }),
             React.createElement(_reactRouterLibRoute2['default'], { path: 'oob', component: _OAuthRouter.OAuthOOBRouter(pydio) }),
+            React.createElement(_reactRouterLibRoute2['default'], { path: 'logout/callback', component: _LogoutCallbackRouter2['default'](pydio) }),
             React.createElement(_reactRouterLibRoute2['default'], { path: 'fallbacks/error', component: _OAuthRouter.OAuthFallbacksRouter(pydio) })
         ),
         React.createElement(

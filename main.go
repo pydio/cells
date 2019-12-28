@@ -72,9 +72,12 @@ import (
 	_ "github.com/pydio/cells/data/search/rest"
 	_ "github.com/pydio/cells/idm/acl/grpc"
 	_ "github.com/pydio/cells/idm/acl/rest"
+
 	_ "github.com/pydio/cells/idm/auth/grpc"
 	_ "github.com/pydio/cells/idm/auth/rest"
-	_ "github.com/pydio/cells/idm/auth/web"
+
+	// _ "github.com/pydio/cells/idm/auth/web"
+	_ "github.com/pydio/cells/idm/authory/web"
 	_ "github.com/pydio/cells/idm/graph/rest"
 	_ "github.com/pydio/cells/idm/key/grpc"
 	_ "github.com/pydio/cells/idm/meta/grpc"

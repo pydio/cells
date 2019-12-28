@@ -52,6 +52,7 @@
     "redux": "*",
     "redux-oidc": "^3.1.2",
     "reselect": "^4.0.0",
+    "simple-oauth2": "^3.1.0",
     "superagent": "^3.8.2",
     "systemjs": "^0.20.11",
     "uuid4": "1.1.4",

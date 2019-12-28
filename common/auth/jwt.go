@@ -111,11 +111,18 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 	var user *idm.User
 	var uE error
 
-	if claims.Name != "" {
+	// Search by subject
+	if claims.Subject != "" {
+		if u, err := permissions.SearchUniqueUser(ctx, "", claims.Subject); err == nil {
+			user = u
+
+		}
+	} else if claims.Name != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, claims.Name, ""); err == nil {
 			user = u
 		}
 	}
+
 	if user == nil {
 		if u, err := permissions.SearchUniqueUser(ctx, claims.Email, ""); err == nil {
 			user = u
@@ -153,6 +160,7 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 		roles = append(roles, role.Uuid)
 	}
 
+	claims.Name = user.Login
 	claims.DisplayName = displayName
 	claims.Profile = profile
 	claims.Roles = strings.Join(roles, ",")
@@ -207,6 +215,7 @@ func (j *JWTVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token,
 		if err == nil {
 			break
 		}
+
 	}
 
 	if err != nil {

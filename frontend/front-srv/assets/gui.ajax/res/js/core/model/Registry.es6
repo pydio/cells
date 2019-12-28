@@ -98,7 +98,7 @@ export default class Registry{
                 }
                 response.text().then((text) => {
                     this._registry = XMLUtils.parseXml(text).documentElement;
-                
+
                     if (completeFunc) {
                         completeFunc(this._registry);
                     } else {

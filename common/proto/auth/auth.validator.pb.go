@@ -45,3 +45,9 @@ func (this *VerifyTokenRequest) Validate() error {
 func (this *VerifyTokenResponse) Validate() error {
 	return nil
 }
+func (this *ExchangeRequest) Validate() error {
+	return nil
+}
+func (this *ExchangeResponse) Validate() error {
+	return nil
+}

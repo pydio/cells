@@ -24,31 +24,32 @@ const PydioApi = require('pydio/http/api')
 const queryString = require('query-string');
 
 const LoginCallbackRouterWrapper = (pydio) => {
-    const LoginCallbackRouter = (props) => {
-        const params = queryString.parse(props.location.search);
+    return class extends React.PureComponent {
+        // const params = queryString.parse(props.location.search);
 
-        const redirect = () => {
-            const loginOrigin = localStorage.getItem("loginOrigin")
+        // const redirect = () => {
+        //     const loginOrigin = localStorage.getItem("loginOrigin")
 
-            if (loginOrigin) {
-                localStorage.removeItem("loginOrigin")
-                browserHistory.replace(loginOrigin)
-            } else {
+        //     if (loginOrigin) {
+        //         localStorage.removeItem("loginOrigin")
+        //         browserHistory.replace(loginOrigin)
+        //     } else {
+        //         browserHistory.replace("/")
+        //     }
+        // }
+
+        // pydio.observeOnce('user_logged', () => redirect())
+        render() {
+            PydioApi.getRestClient().sessionLoginCallback().then(() => {
                 browserHistory.replace("/")
-            }
+                pydio.loadXmlRegistry(null, null, null)
+
+            })
+
+            return <div></div>
         }
-
-        pydio.observeOnce('user_logged', () => redirect());
-
-        PydioApi.getRestClient().jwtFromAuthorizationCode(params.code)
-            .then((res) => res.data && res.data.JWT && !pydio.user && pydio.Registry.load())
-            .catch(e => browserHistory.push("/login"))
-
-
-        return <div></div>
     }
 
-    return LoginCallbackRouter;
 }
 
 export default LoginCallbackRouterWrapper

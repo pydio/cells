@@ -28,18 +28,19 @@ import (
 	"github.com/ory/fosite"
 	"github.com/ory/hydra/oauth2"
 
-	proto "github.com/pydio/cells/common/proto/auth"
+	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/idm/oauth"
 )
 
-type AuthTokenVerifierHandler struct{}
+// Handler for the plugin
+type Handler struct{}
 
-func NewAuthTokenVerifierHandler() (proto.AuthTokenVerifierHandler, error) {
-	return &AuthTokenVerifierHandler{}, nil
-}
+var (
+	_ auth.AuthTokenVerifierHandler = (*Handler)(nil)
+)
 
 // Verify checks if the token is valid for hydra
-func (h *AuthTokenVerifierHandler) Verify(ctx context.Context, in *proto.VerifyTokenRequest, out *proto.VerifyTokenResponse) error {
+func (h *Handler) Verify(ctx context.Context, in *auth.VerifyTokenRequest, out *auth.VerifyTokenResponse) error {
 	session := oauth2.NewSession("")
 
 	tokenType, ar, err := oauth.GetRegistry().OAuth2Provider().IntrospectToken(ctx, in.GetToken(), fosite.AccessToken, session)
