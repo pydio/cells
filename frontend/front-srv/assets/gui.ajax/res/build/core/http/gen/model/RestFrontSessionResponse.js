@@ -43,6 +43,7 @@ var RestFrontSessionResponse = (function () {
         this.ExpireTime = undefined;
         this.Trigger = undefined;
         this.TriggerInfo = undefined;
+        this.RedirectTo = undefined;
     }
 
     /**
@@ -69,6 +70,9 @@ var RestFrontSessionResponse = (function () {
             if (data.hasOwnProperty('TriggerInfo')) {
                 obj['TriggerInfo'] = _ApiClient2['default'].convertToType(data['TriggerInfo'], { 'String': 'String' });
             }
+            if (data.hasOwnProperty('RedirectTo')) {
+                obj['RedirectTo'] = _ApiClient2['default'].convertToType(data['RedirectTo'], 'String');
+            }
         }
         return obj;
     };
@@ -92,4 +96,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Object.<String, String>} TriggerInfo
+*/
+
+/**
+* @member {String} RedirectTo
 */

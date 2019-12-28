@@ -46,6 +46,7 @@ var BasePluginsBox = frontend.PluginBox{
 		"action.user",
 		"auth.pydio",
 		"authfront.session_login",
+		"authfront.oauth",
 		"conf.pydio",
 		"core.activitystreams",
 		"core.auth",
@@ -85,7 +86,10 @@ func init() {
 
 		frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
 		frontend.RegisterPluginModifier(modifiers.MobileRegModifier)
+		frontend.RegisterPluginModifier(modifiers.FilterActionLogin)
 		frontend.WrapAuthMiddleware(modifiers.LoginPasswordAuth)
+		frontend.WrapAuthMiddleware(modifiers.AuthorizationCodeAuth)
+		frontend.WrapAuthMiddleware(modifiers.ConsentAuth)
 
 		s := service.NewService(
 			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),

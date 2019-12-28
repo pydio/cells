@@ -14,12 +14,14 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/hydra"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
@@ -33,30 +35,53 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return middleware(req, rsp, in, out, session)
 		}
 
+		challenge := in.AuthInfo["challenge"]
+		login := in.AuthInfo["login"]
+		password := in.AuthInfo["password"]
+
+		// Need to check if we should skip that ...
+		// resp, err := hydra.GetLogin(challenge)
+		// if err != nil {
+		// 	return err
+		// }
+
 		// Nonce is being set somewhere else
-		nonce, ok := session.Values["nonce"]
-		if !ok {
-			nonce = uuid.New()
-		}
+		// nonce, ok := session.Values["nonce"]
+		// if !ok {
+		// 	nonce = uuid.New()
+		// }
 
-		respMap, err := GrantTypeAccess(req.Request.Context(), nonce.(string), "", in.AuthInfo["login"], in.AuthInfo["password"], false)
-		if err != nil {
+		c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		if resp, err := c.BindUser(req.Request.Context(), &idm.BindUserRequest{UserName: login, Password: password}); err != nil {
 			return err
+		} else {
+			resp, err := hydra.AcceptLogin(challenge, struct {
+				Subject string
+			}{
+				resp.GetUser().Uuid,
+			})
+			if err != nil {
+				return err
+			}
+
+			out.RedirectTo = resp.RedirectTo
+
+			return nil
 		}
-		token := respMap["id_token"].(string)
-		expiry := respMap["expires_in"].(float64)
-		refreshToken := respMap["refresh_token"].(string)
 
-		session.Values["jwt"] = token
-		session.Values["refresh_token"] = refreshToken
-		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
-		session.Values["nonce"] = nonce
+		// token := respMap["id_token"].(string)
+		// expiry := respMap["expires_in"].(float64)
+		// refreshToken := respMap["refresh_token"].(string)
 
-		out.JWT = token
-		out.ExpireTime = int32(expiry)
+		// session.Values["jwt"] = token
+		// session.Values["refresh_token"] = refreshToken
+		// session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
+		// session.Values["nonce"] = nonce
+
+		// out.JWT = token
+		// out.ExpireTime = int32(expiry)
 
 		return middleware(req, rsp, in, out, session)
-
 	}
 }
 

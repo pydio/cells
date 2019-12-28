@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+
+package auth;
+
+message OAuth2ClientConfig {
+    string ClientID = 1 [json_name="client_id"];
+    string Name = 2  [json_name="client_name"];
+    string Secret = 3 [json_name="client_secret"];
+    repeated string RedirectURIs = 4 [json_name="redirect_uris"];
+    repeated string GrantTypes = 5 [json_name="grant_types"];
+	repeated string ResponseTypes = 6 [json_name="response_types"];
+    string Scope = 7 [json_name="scope"];
+    repeated string Audience = 8 [json_name="audience"];
+    
+    // Owner string `json:"owner"`
+	// PolicyURI string `json:"policy_uri"`
+	// AllowedCORSOrigins []string `json:"allowed_cors_origins"`
+	// TermsOfServiceURI string `json:"tos_uri"`
+	// ClientURI string `json:"client_uri"`
+	// LogoURI string `json:"logo_uri"`
+	// Contacts []string `json:"contacts"`
+	// SecretExpiresAt int `json:"client_secret_expires_at"`
+	// SubjectType string `json:"subject_type"`
+	// SectorIdentifierURI string `json:"sector_identifier_uri,omitempty"`
+	// JSONWebKeysURI string `json:"jwks_uri,omitempty"`
+	// JSONWebKeys *jose.JSONWebKeySet `json:"jwks,omitempty"`
+	// TokenEndpointAuthMethod string `json:"token_endpoint_auth_method,omitempty"`
+	// RequestURIs []string `json:"request_uris,omitempty"`
+	// RequestObjectSigningAlgorithm string `json:"request_object_signing_alg,omitempty"`
+	// UserinfoSignedResponseAlg string `json:"userinfo_signed_response_alg,omitempty"`
+	// CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// FrontChannelLogoutURI string `json:"frontchannel_logout_uri,omitempty"`
+	// FrontChannelLogoutSessionRequired bool `json:"frontchannel_logout_session_required,omitempty"`
+	// PostLogoutRedirectURIs []string `json:"post_logout_redirect_uris,omitempty"`
+	// BackChannelLogoutURI string `json:"backchannel_logout_uri,omitempty"`
+	// BackChannelLogoutSessionRequired bool `json:"backchannel_logout_session_required,omitempty"`
+}
+
+message OAuth2ConnectorCollection {
+    repeated auth.OAuth2ConnectorConfig connectors = 1;
+}
+
+message OAuth2ConnectorConfig {
+	string id = 1 [json_name="id"];
+	string type = 2 [json_name="type"];
+	string name = 3 [json_name="name"];
+	repeated OAuth2MappingRule mappingRules = 4;
+	google.protobuf.Value config = 5; 
+	// oneof config {
+	// 	OAuth2ConnectorPydioConfig configpydio=5;
+	// 	OAuth2ConnectorOIDCConfig configoidc=6;
+	// 	OAuth2ConnectorSAMLConfig configsaml=7;
+	// 	OAuth2ConnectorBitbucketConfig configbitbucket= 8;
+	// 	OAuth2ConnectorGithubConfig configgithub = 9;
+	// 	OAuth2ConnectorGitlabConfig configgitlab = 10;
+	// 	OAuth2ConnectorLinkedinConfig configlinkedin = 11;
+	// 	OAuth2ConnectorMicrosoftConfig configmicrosoft = 12;
+	// }
+}
+
+message OAuth2MappingRule {
+	string LeftAttribute = 1;
+	string RuleString = 2;
+	string RightAttribute = 3;
+}
+
+message OAuth2ConnectorPydioConfig {
+	message Connector {
+		int32 id = 1;
+		string name = 2;
+		string type = 3;
+	}
+	repeated Connector pydioconnectors = 1 [json_name="pydioconnectors"];
+}
+
+message OAuth2ConnectorOIDCConfig {
+	string issuer = 1;
+	string clientID = 2;
+	string clientSecret = 3;
+	string redirectURI = 4;
+	bool basicAuthUnsupported = 5;
+	repeated string hostedDomains = 6;
+	repeated string scopes = 7;
+	bool insecureSkipEmailVerified = 8;
+	bool getUserInfo = 9;
+	string userIDKey = 10;
+	string userNameKey = 11;
+}
+
+message OAuth2ConnectorSAMLConfig {
+	string ssoURL = 1;
+	string ca = 2;
+	string redirectURI = 3;
+	string usernameAttr = 4;
+	string emailAttr = 5;
+	string groupsAttr = 6;
+	string caData = 7;
+	bool insecureSkipSignatureValidation = 8;
+	string entityIssuer = 9;
+	string ssoIssuer = 10;
+	string groupsDelim = 11;
+	string nameIDPolicyFormat = 12;
+}
+
+message OAuth2ConnectorBitbucketConfig {
+	string clientID = 1;
+	string clientSecret = 2;
+	string redirectURI = 3;
+	repeated string teams = 4;
+}
+
+message OAuth2ConnectorGithubConfig {
+	string clientID = 1;
+	string clientSecret = 2;
+	string redirectURI = 3;
+	repeated OAuth2ConnectorGithubConfigOrg orgs = 4;
+	bool loadAllGroups = 5;
+	string teamNameField = 6;
+	bool useLoginAsID = 7;
+
+	// For GitHub enterprise
+	string hostName = 8;
+	string rootCA = 9;
+}
+
+message OAuth2ConnectorGithubConfigOrg {
+	string name = 1;
+	repeated string teams = 2;
+}
+
+message OAuth2ConnectorGitlabConfig {
+	string baseURL = 1;
+	string clientID = 2;
+	string clientSecret = 3;
+	string redirectURI = 4;
+	repeated string groups = 5;
+	bool userLoginAsID = 6;
+}
+
+message OAuth2ConnectorLinkedinConfig {
+	string clientID = 1;
+	string clientSecret = 2;
+	string redirectURI = 3;
+}
+
+message OAuth2ConnectorMicrosoftConfig {
+	string clientID = 1;
+	string clientSecret = 2;
+	string redirectURI = 3;
+	string tenant = 4;
+	repeated string groups = 5;
+	bool onlySecurityGroups = 6;
+	string groupNameFormat = 7;
+	bool useGroupsAsWhitelist = 8;
+}

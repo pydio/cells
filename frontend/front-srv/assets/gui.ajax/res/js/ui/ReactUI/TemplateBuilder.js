@@ -50,7 +50,6 @@ Template = compose (
 class TemplateBuilder extends React.Component {
 
     render() {
-
         let {pydio, containerId, bgStyle} = this.props;
 
         let components = [];

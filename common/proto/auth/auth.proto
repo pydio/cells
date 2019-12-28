@@ -2,7 +2,12 @@ syntax = "proto3";
 
 package auth;
 
-//SERVICES
+message Token {
+    string Value = 1;           // The token to be invalidated
+    string AdditionalInfo = 2;  // Other info that initiates the revokation
+}
+
+// AuthTokenRevoker
 service AuthTokenRevoker {
     // Look for an invalid token entry in the store that match the current one
     rpc MatchInvalid (MatchInvalidTokenRequest) returns (MatchInvalidTokenResponse) {};
@@ -14,19 +19,9 @@ service AuthTokenRevoker {
     rpc PruneTokens (PruneTokensRequest) returns (PruneTokensResponse) {};
 }
 
-service AuthTokenVerifier {
-    // Verifies a token and returns claims
-    rpc Verify (VerifyTokenRequest) returns (VerifyTokenResponse) {};
-}
-
 enum State {
     NO_MATCH = 0;
     REVOKED = 1;
-}
-
-message Token {
-    string Value = 1;           // The token to be invalidated
-    string AdditionalInfo = 2;  // Other info that initiates the revokation
 }
 
 message MatchInvalidTokenRequest {
@@ -54,6 +49,12 @@ message PruneTokensResponse {
     repeated string tokens = 1;
 }
 
+// AuthTokenVerifier
+service AuthTokenVerifier {
+    // Verifies a token and returns claims
+    rpc Verify (VerifyTokenRequest) returns (VerifyTokenResponse) {};
+}
+
 message VerifyTokenRequest {
     string Token = 1;
 }
@@ -61,4 +62,20 @@ message VerifyTokenRequest {
 message VerifyTokenResponse {
     bool Success = 1;
     bytes Data = 2;
+}
+
+service AuthCodeExchanger {
+    rpc Exchange(ExchangeRequest) returns (ExchangeResponse) {};
+}
+
+message ExchangeRequest {
+    string Code = 1 [json_name="code"];
+    string CodeVerifier = 2 [json_name="code_verifier"];
+}
+
+message ExchangeResponse {
+    string AccessToken = 1 [json_name="access_token"];
+    string TokenType = 2 [json_name="token_type"];
+    string RefreshToken = 3 [json_name="refresh_token"];
+    string Expiry = 4 [json_name="expiry"];
 }

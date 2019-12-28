@@ -24,6 +24,9 @@ import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon,
 import PydioApi from "pydio/http/api";
 import {TokenServiceApi, RestResetPasswordRequest} from "pydio/http/rest-api";
 
+
+import qs from 'query-string'
+
 let pydio = window.pydio;
 
 const LanguagePicker = () => {
@@ -68,23 +71,60 @@ let LoginDialogMixin = {
         }else{
             login = this.refs.login.getValue();
         }
-        restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(r => {
-            if (r.data && r.data.Trigger){
-                return;
-            }
 
-            this.dismiss();
-        }).catch(e => {
-            if (e.response && e.response.body) {
-                this.setState({errorId: e.response.body.Title});
-            } else if (e.response && e.response.text) {
-                this.setState({errorId: e.response.text});
-            } else if(e.message){
-                this.setState({errorId: e.message});
-            } else {
-                this.setState({errorId: 'Login failed!'})
-            }
-        });
+        restClient.sessionLogin().then(() => {
+            restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(response => {
+                fetch(response.data.RedirectTo, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                }).then((response) => response.json()).then((response) => {
+                    const body = {
+                        grant_scope: response.requested_scope,
+                        grant_access_token_audience: response.requested_access_token_audience,
+                    };
+                    
+                    fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + qs.stringify({ consent_challenge: response.challenge }), {
+                        method: 'PUT',
+                        body: JSON.stringify(body),
+                        headers: { 'Content-Type': 'application/json' }
+                    }).
+                    then(function (response) {
+                        return response.json()
+                    }).
+                    then(function (response) {
+                        if (window.sessionStorage.getItem("fullRedirect")) {
+                            window.location.href = response.redirect_to
+                        } else {
+                            // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                            fetch(response.redirect_to, {
+                                method: 'GET',
+                                headers: { 'Accept': 'application/json' }
+                            }).then((response) => response.json()).then((response) => {
+                                PydioApi.getRestClient().sessionLoginCallback(response).then(() => {
+                                    pydio.loadXmlRegistry(null, null, null)
+                                })
+                            })
+                        }
+                    })
+                })
+
+                if (response.data && response.data.Trigger){
+                return;
+                }
+
+                this.dismiss();
+            }).catch(e => {
+                if (e.response && e.response.body) {
+                    this.setState({errorId: e.response.body.Title});
+                } else if (e.response && e.response.text) {
+                    this.setState({errorId: e.response.text});
+                } else if(e.message){
+                    this.setState({errorId: e.message});
+                } else {
+                    this.setState({errorId: 'Login failed!'})
+                }
+            });
+        })
     }
 };
 

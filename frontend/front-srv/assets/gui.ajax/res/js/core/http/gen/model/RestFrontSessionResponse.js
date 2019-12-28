@@ -68,6 +68,9 @@ export default class RestFrontSessionResponse {
             if (data.hasOwnProperty('TriggerInfo')) {
                 obj['TriggerInfo'] = ApiClient.convertToType(data['TriggerInfo'], {'String': 'String'});
             }
+            if (data.hasOwnProperty('RedirectTo')) {
+                obj['RedirectTo'] = ApiClient.convertToType(data['RedirectTo'], 'String');
+            }
         }
         return obj;
     }
@@ -88,6 +91,10 @@ export default class RestFrontSessionResponse {
     * @member {Object.<String, String>} TriggerInfo
     */
     TriggerInfo = undefined;
+    /**
+    * @member {String} RedirectTo
+    */
+    RedirectTo = undefined;
 
 
 

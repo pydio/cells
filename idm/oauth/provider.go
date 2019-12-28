@@ -177,7 +177,7 @@ func (v *Provider) GetSystemSecret() []byte {
 }
 
 func (v *Provider) LogoutRedirectURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("logoutRedirectURL", "/oauth2/fallbacks/logout/callback"))
+	u, _ := url.Parse(v.r + v.urls.String("logoutRedirectURL", "/oauth2/logout/callback"))
 	return u
 }
 
@@ -187,7 +187,7 @@ func (v *Provider) LoginURL() *url.URL {
 }
 
 func (v *Provider) LogoutURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("logoutURL", "/oauth2/fallbacks/logout"))
+	u, _ := url.Parse(v.r + v.urls.String("logoutURL", "/oauth2/logout"))
 	return u
 }
 
@@ -202,12 +202,12 @@ func (v *Provider) ErrorURL() *url.URL {
 }
 
 func (v *Provider) PublicURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("publicURL", "/oidc"))
+	u, _ := url.Parse(v.r + v.urls.String("publicURL", "/oidc/"))
 	return u
 }
 
 func (v *Provider) IssuerURL() *url.URL {
-	u, _ := url.Parse(v.r + v.urls.String("issuerURL", "/oidc"))
+	u, _ := url.Parse(v.r + v.urls.String("issuerURL", "/oidc/"))
 	return u
 }
 

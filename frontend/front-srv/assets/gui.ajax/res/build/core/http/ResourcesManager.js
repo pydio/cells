@@ -419,7 +419,9 @@ var ResourcesManager = (function () {
     };
 
     ResourcesManager.loadClassesAndApply = function loadClassesAndApply(classNames, callbackFunc) {
-        if (!ResourcesManager.__configsParsed) {
+        var autoload = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
+
+        if (autoload && !ResourcesManager.__configsParsed) {
             ResourcesManager.loadAutoLoadResources();
         }
         Promise.all(classNames.map(function (c) {

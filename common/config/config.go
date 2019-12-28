@@ -313,8 +313,10 @@ func (c Map) Scan(val interface{}) error {
 
 	switch v := val.(type) {
 	case proto.Message:
+		fmt.Println("Based on json ", jsonStr)
 		err = (&jsonpb.Unmarshaler{AllowUnknownFields: true}).Unmarshal(bytes.NewReader(jsonStr), v)
 	default:
+		fmt.Println("Not a proto message Based on json ", jsonStr)
 		err = json.Unmarshal(jsonStr, v)
 	}
 

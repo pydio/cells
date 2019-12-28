@@ -30,8 +30,7 @@ var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrows
 
 var LogoutRouterWrapper = function LogoutRouterWrapper(pydio) {
     var LogoutRouter = function LogoutRouter(props) {
-
-        _reactRouterLibBrowserHistory2["default"].push("/login");
+        _reactRouterLibBrowserHistory2["default"].replace("/login");
 
         return React.createElement("div", null);
     };

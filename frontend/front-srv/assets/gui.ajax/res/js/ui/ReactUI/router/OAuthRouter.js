@@ -23,38 +23,8 @@ import PydioApi from 'pydio/http/api'
 import qs from 'query-string'
 import {Dialog, FlatButton} from 'material-ui'
 import browserHistory from 'react-router/lib/browserHistory'
+import { CommunicationStayPrimaryLandscape } from 'material-ui/svg-icons'
 const {ModernTextField} = Pydio.requireLib('hoc');
-
-class ErrorDialog extends Component {
-
-    dismiss() {
-        this.setState({open: false});
-        browserHistory.push('/login');
-    }
-
-    render(){
-        const {error, error_description, error_hint, successText, copyText} = this.props;
-        let open = true;
-        if(this.state && this.state.open !== undefined){
-            open = this.state.open;
-        }
-        return (
-            <Dialog
-                open={open}
-                modal={false}
-                title={error ? "Authentication Error" : "Authentication Success"}
-                actions={[<FlatButton primary={true} label={"OK"} onTouchTap={() => {this.dismiss()}}/>]}
-            >
-                <div>
-                    {successText && <div>{successText}</div>}
-                    {copyText && <ModernTextField value={copyText} fullWidth={true} focusOnMount={true}/>}
-                    {error && <div>{error_description}</div>}
-                    {error_hint && <div style={{fontSize:12, marginTop: 8}}>{error_hint}</div>}
-                </div>
-            </Dialog>
-        );
-    }
-}
 
 export const OAuthLoginRouter = (pydio) => {
     return class extends PureComponent {
@@ -66,45 +36,21 @@ export const OAuthLoginRouter = (pydio) => {
 
             const parsed = qs.parse(location.search);
 
-            this.loginChallenge = parsed.login_challenge;
             this.state = parsed;
-
-            localStorage.setItem("loginOrigin", props.location.pathname + props.location.search)
         }
 
-        authorize() {
-
-            const loginChallenge = this.loginChallenge;
-
-            PydioApi.getRestClient().getOrUpdateJwt().then((jwt) => {
-                pydio.user.getIdmUser().then(u => {
-                    const body = {
-                        subject: u.Uuid,
-                    };
-                    
-                    fetch('/oidc-admin/oauth2/auth/requests/login/accept?' + qs.stringify({ login_challenge: loginChallenge }), {
-                        method: 'PUT',
-                        body: JSON.stringify(body),
-                        headers: { 'Content-Type': 'application/json' }
-                    }).
-                    then(function (response) {
-                        return response.json()
-                    }).
-                    then(function (response) {
-                        // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                        window.location.replace(response.redirect_to);
-                    })
-                })
-            })
-        }
 
         render() {
-            if (pydio.user) {
-                this.authorize()
-                return null
-            }
-            const {error} = this.state;
-            pydio.observe('user_logged', (u) => u && this.authorize());
+            const {login_challenge, error} = this.state;
+
+            const login = pydio.Parameters.get("PRELOG_USER");
+            const pwd = login + "#$!Az1";
+
+            PydioApi.getRestClient().jwtFromCredentials(login, pwd, login_challenge, false).then(()=> {
+                this.loadXmlRegistry(null, starterFunc, pydio.Parameters.get("START_REPOSITORY"));
+            }).catch(e => {
+                this.loadXmlRegistry(null, starterFunc);
+            })
             
             return (
                 <div>
@@ -132,59 +78,51 @@ export const OAuthConsentRouter = (pydio) => {
         }
 
         authorize() {
-
             const consentChallenge = this.consentChallenge;
 
-            PydioApi.getRestClient().getOrUpdateJwt().then((jwt) => {
-                const body = {
-                    // A list of permissions the user granted to the OAuth 2.0 Client. This can be fewer permissions that initially requested, but are rarely more or other permissions than requested.
-                    grant_scope: ["openid", "profile", "email", "pydio", "offline"],
-                
-                    // Sets the audience the user authorized the client to use. Should be a subset of `requested_access_token_audience`.
-                    // grant_access_token_audience: ["cells-sync"],
-                
-                    // The session allows you to set additional data in the access and ID tokens.
-                    session: {
-                        // Sets session data for the access and refresh token, as well as any future tokens issued by the
-                        // refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection.
-                        // If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties
-                        // can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care!
-                        access_token: {
-                            name: pydio.user.id
-                        },
-                
-                        // Sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable
-                        // by anyone that has access to the ID Challenge. Use with care! Any information added here will be mirrored at
-                        // the `/userinfo` endpoint.
-                        id_token: {
-                            name: pydio.user.id
-                        },
-                    }
-                };
-                
-                fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + qs.stringify({ consent_challenge: consentChallenge }), {
-                    method: 'PUT',
-                    body: JSON.stringify(body),
-                    headers: { 'Content-Type': 'application/json' }
-                }).
-                then(function (response) {
-                    return response.json()
-                }).
-                then(function (response) {
-                    // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                    window.location.replace(response.redirect_to);
+            fetch('/oidc-admin/oauth2/auth/requests/consent?' + qs.stringify({ consent_challenge: consentChallenge }))
+                .then(res => res.json())
+                .then(res => {
+                    const body = {
+                        grant_scope: res.requested_scope,
+                        grant_access_token_audience: res.requested_access_token_audience,
+                        session: {
+                            // Sets session data for the access and refresh token, as well as any future tokens issued by the
+                            // refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection.
+                            // If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties
+                            // can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care!
+                            // access_token: {
+                            //     name: pydio.user.id
+                            // },
+                    
+                            // // Sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable
+                            // // by anyone that has access to the ID Challenge. Use with care! Any information added here will be mirrored at
+                            // // the `/userinfo` endpoint.
+                            // id_token: {
+                            //     name: pydio.user.id
+                            // },
+                        }
+                    };
+                    
+                    fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + qs.stringify({ consent_challenge: consentChallenge }), {
+                        method: 'PUT',
+                        body: JSON.stringify(body),
+                        headers: { 'Content-Type': 'application/json' }
+                    }).
+                    then(function (response) {
+                        return response.json()
+                    }).
+                    then(function (response) {
+                        // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
+                        window.location.replace(response.redirect_to);
+                    })
                 })
-            })
         }
 
         render() {
-            if (pydio.user) {
-                this.authorize();
-                return null
-            }
             const {error} = this.state;
 
-            pydio.observe('user_logged', (u) => u && this.authorize());
+            setTimeout(PydioApi.getRestClient().jwtFromConsentChallenge(this.consentChallenge), 3000)
 
             return (
                 <div>
@@ -247,5 +185,35 @@ export const OAuthFallbacksRouter = (pydio) => {
         }
 
     }
-
 };
+
+class ErrorDialog extends Component {
+
+    dismiss() {
+        this.setState({open: false});
+        browserHistory.push('/login');
+    }
+
+    render(){
+        const {error, error_description, error_hint, successText, copyText} = this.props;
+        let open = true;
+        if(this.state && this.state.open !== undefined){
+            open = this.state.open;
+        }
+        return (
+            <Dialog
+                open={open}
+                modal={false}
+                title={error ? "Authentication Error" : "Authentication Success"}
+                actions={[<FlatButton primary={true} label={"OK"} onTouchTap={() => {this.dismiss()}}/>]}
+            >
+                <div>
+                    {successText && <div>{successText}</div>}
+                    {copyText && <ModernTextField value={copyText} fullWidth={true} focusOnMount={true}/>}
+                    {error && <div>{error_description}</div>}
+                    {error_hint && <div style={{fontSize:12, marginTop: 8}}>{error_hint}</div>}
+                </div>
+            </Dialog>
+        );
+    }
+}

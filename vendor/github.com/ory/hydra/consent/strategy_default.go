@@ -715,14 +715,20 @@ func (s *DefaultStrategy) issueLogoutVerifier(w http.ResponseWriter, r *http.Req
 	// - RP initiated logout
 	// - OP initiated logout
 
+	fmt.Println("HERE 1")
+
 	// Per default, we're redirecting to the global redirect URL. This is assuming that we're not an RP-initiated
 	// logout flow.
 	redir := s.c.LogoutRedirectURL().String()
+
+	fmt.Println("HERE 2")
 
 	// The hint must be set if it's an RP-initiated logout flow.
 	hint := r.URL.Query().Get("id_token_hint")
 	state := r.URL.Query().Get("state")
 	requestedRedir := r.URL.Query().Get("post_logout_redirect_uri")
+
+	fmt.Println("HERE 3")
 
 	if len(hint) == 0 {
 		// hint is not set, so this is an OP initiated logout
@@ -766,10 +772,14 @@ func (s *DefaultStrategy) issueLogoutVerifier(w http.ResponseWriter, r *http.Req
 		return nil, errors.WithStack(ErrAbortOAuth2Request)
 	}
 
+	fmt.Println("HERE 4")
+
 	claims, err := s.getIDTokenHintClaims(r.Context(), hint)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("HERE 5")
 
 	mksi := mapx.KeyStringToInterface(claims)
 	if !claims.VerifyIssuer(s.c.IssuerURL().String(), true) {
@@ -784,6 +794,8 @@ func (s *DefaultStrategy) issueLogoutVerifier(w http.ResponseWriter, r *http.Req
 		)
 	}
 
+	fmt.Println("HERE 6")
+
 	now := time.Now().UTC().Unix()
 	if !claims.VerifyIssuedAt(now, true) {
 		return nil, errors.WithStack(fosite.ErrInvalidRequest.
@@ -797,10 +809,14 @@ func (s *DefaultStrategy) issueLogoutVerifier(w http.ResponseWriter, r *http.Req
 		)
 	}
 
+	fmt.Println("HERE 7")
+
 	hintSid := mapx.GetStringDefault(mksi, "sid", "")
 	if len(hintSid) == 0 {
 		return nil, errors.WithStack(fosite.ErrInvalidRequest.WithHint("Logout failed because query parameter id_token_hint is missing sid claim"))
 	}
+
+	fmt.Println("HERE 8")
 
 	// It doesn't really make sense to use the subject value from the ID Token because it might be obfuscated.
 	if hintSub := mapx.GetStringDefault(mksi, "sub", ""); len(hintSub) == 0 {
@@ -831,6 +847,8 @@ func (s *DefaultStrategy) issueLogoutVerifier(w http.ResponseWriter, r *http.Req
 			WithHint("Logout failed because none of the listed audiences is a registered OAuth 2.0 Client"))
 	}
 
+	fmt.Println("HERE 9")
+
 	if len(requestedRedir) > 0 {
 		var f *url.URL
 		for _, w := range cl.PostLogoutRedirectURIs {
@@ -855,6 +873,8 @@ func (s *DefaultStrategy) issueLogoutVerifier(w http.ResponseWriter, r *http.Req
 		}).String()
 	}
 
+	fmt.Println("HERE 10 ", hintSid)
+
 	// We do not really want to verify if the user (from id token hint) has a session here because it doesn't really matter.
 	// Instead, we'll check this when we're actually revoking the cookie!
 	session, err := s.r.ConsentManager().GetRememberedLoginSession(r.Context(), hintSid)
@@ -866,6 +886,8 @@ func (s *DefaultStrategy) issueLogoutVerifier(w http.ResponseWriter, r *http.Req
 	} else if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("HERE 11")
 
 	challenge := uuid.New()
 	if err := s.r.ConsentManager().CreateLogoutRequest(r.Context(), &LogoutRequest{
@@ -882,6 +904,8 @@ func (s *DefaultStrategy) issueLogoutVerifier(w http.ResponseWriter, r *http.Req
 	}); err != nil {
 		return nil, err
 	}
+
+	fmt.Println("WE ARE GERE ", s.c.LogoutURL())
 
 	http.Redirect(w, r, urlx.SetQuery(s.c.LogoutURL(), url.Values{"logout_challenge": {challenge}}).String(), http.StatusFound)
 	return nil, errors.WithStack(ErrAbortOAuth2Request)
@@ -938,6 +962,7 @@ func (s *DefaultStrategy) completeLogout(w http.ResponseWriter, r *http.Request)
 func (s *DefaultStrategy) HandleOpenIDConnectLogout(w http.ResponseWriter, r *http.Request) (*LogoutResult, error) {
 	verifier := r.URL.Query().Get("logout_verifier")
 	if verifier == "" {
+		fmt.Println("No verifier")
 		return s.issueLogoutVerifier(w, r)
 	}
 

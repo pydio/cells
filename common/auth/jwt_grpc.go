@@ -23,6 +23,7 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite/token/jwt"
@@ -59,6 +60,7 @@ func (c *grpcprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, 
 
 	cli := auth.NewAuthTokenVerifierClient(c.service, defaults.NewClient())
 
+	fmt.Println(rawIDToken)
 	resp, err := cli.Verify(ctx, &auth.VerifyTokenRequest{
 		Token: rawIDToken,
 	})

@@ -23,6 +23,7 @@ package websocket
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -115,6 +116,7 @@ func (w *WebsocketHandler) InitHandlers(serviceCtx context.Context) {
 			}
 			ctx := context.Background()
 			verifier := auth.DefaultJWTVerifier()
+			fmt.Println("JWT IS ", msg.JWT)
 			_, claims, e := verifier.Verify(ctx, msg.JWT)
 			if e != nil {
 				log.Logger(serviceCtx).Error("invalid jwt received from websocket connection")

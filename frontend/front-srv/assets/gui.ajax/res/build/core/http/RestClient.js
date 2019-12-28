@@ -68,6 +68,18 @@ var _IdmApi = require('./IdmApi');
 
 var _IdmApi2 = _interopRequireDefault(_IdmApi);
 
+var _RedirectNavigator = require('./RedirectNavigator');
+
+var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
+
+var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
+
+var _oidcClient = require('oidc-client');
+
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
 // Override parseDate method to support ISO8601 cross-browser
 
 var _require = require('./gen/index');
@@ -96,6 +108,20 @@ var JwtApiClient = (function (_ApiClient) {
         this.pydio = pydioObject;
         pydioObject.observe('beforeApply-logout', function () {
             _PydioApi2['default'].JWT_DATA = null;
+        });
+
+        var url = this.pydio.Parameters.get("FRONTEND_URL");
+        this.userManager = new _oidcClient.UserManager({
+            authority: url + '/oidc',
+            client_id: 'cells-frontend',
+            redirect_uri: url + '/auth/dex/callback',
+            post_logout_redirect_uri: url + '/auth/dex/logout',
+            response_type: 'code',
+            scope: 'openid email profile pydio offline',
+            loadUserInfo: false,
+            automaticSilentRenew: false,
+            redirectNavigator: new _RedirectNavigator.RedirectNavigator(window.sessionStorage),
+            userStore: new _oidcClient.WebStorageStateStore({ store: window.sessionStorage })
         });
     }
 
@@ -126,6 +152,26 @@ var JwtApiClient = (function (_ApiClient) {
         };
     };
 
+    JwtApiClient.prototype.sessionLogin = function sessionLogin() {
+        var parsed = _queryString2['default'].parse(window.location.search);
+        if (parsed.login_challenge) {
+            window.sessionStorage.challenge = parsed.login_challenge;
+            window.sessionStorage.fullRedirect = true;
+            return Promise.resolve();
+        }
+        return this.userManager.signinRedirect();
+    };
+
+    JwtApiClient.prototype.sessionLoginCallback = function sessionLoginCallback(response) {
+        var url = response ? "/auth/dex/callback?" + _queryString2['default'].stringify(response) : null;
+        return this.userManager.signinRedirectCallback(url).then(function (u) {
+            _PydioApi2['default'].JWT_DATA = {
+                jwt: u.access_token,
+                expirationTime: u.expires_at
+            };
+        });
+    };
+
     /**
      * Call session endpoint for destroying session
      */
@@ -133,14 +179,17 @@ var JwtApiClient = (function (_ApiClient) {
     JwtApiClient.prototype.sessionLogout = function sessionLogout() {
         var _this = this;
 
-        var api = new _genApiFrontendServiceApi2['default'](this);
-        var request = new _genModelRestFrontSessionRequest2['default']();
-
-        request.Logout = true;
-        return this.jwtEndpoint(request).then(function (response) {
-            _PydioApi2['default'].JWT_DATA = null;
-            _this.pydio.loadXmlRegistry();
+        return this.userManager.signoutRedirect().then(function () {
+            return _this.pydio.loadXmlRegistry(null, null, null);
         });
+    };
+
+    /**
+     * Call session endpoint callback for destroying session
+     */
+
+    JwtApiClient.prototype.sessionLogoutCallback = function sessionLogoutCallback() {
+        return this.userManager.signoutRedirectCallback();
     };
 
     /**
@@ -176,7 +225,13 @@ var JwtApiClient = (function (_ApiClient) {
     JwtApiClient.prototype.jwtFromCredentials = function jwtFromCredentials(login, password) {
         var reloadRegistry = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
 
-        return this.jwtWithAuthInfo({ login: login, password: password, type: "credentials" }, reloadRegistry);
+        return this.jwtWithAuthInfo({ login: login, password: password, challenge: window.sessionStorage.challenge, type: "credentials" }, reloadRegistry);
+    };
+
+    JwtApiClient.prototype.jwtFromConsentChallenge = function jwtFromConsentChallenge(challenge) {
+        var reloadRegistry = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
+        return this.jwtWithAuthInfo({ challenge: challenge, type: "consent" }, reloadRegistry);
     };
 
     JwtApiClient.prototype.jwtWithAuthInfo = function jwtWithAuthInfo(authInfo) {
@@ -213,43 +268,50 @@ var JwtApiClient = (function (_ApiClient) {
     JwtApiClient.prototype.getOrUpdateJwt = function getOrUpdateJwt() {
         var _this3 = this;
 
-        var now = Math.floor(Date.now() / 1000);
-        if (_PydioApi2['default'].JWT_DATA && _PydioApi2['default'].JWT_DATA['jwt'] && _PydioApi2['default'].JWT_DATA['expirationTime'] >= now) {
-            return Promise.resolve(_PydioApi2['default'].JWT_DATA['jwt']);
-        }
-
-        if (_PydioApi2['default'].ResolvingJwt) {
-            return _PydioApi2['default'].ResolvingJwt;
-        }
-
-        _PydioApi2['default'].ResolvingJwt = new Promise(function (resolve) {
-
-            // Try to load JWT from session
-            _this3.jwtEndpoint(new _genModelRestFrontSessionRequest2['default']()).then(function (response) {
-                if (response.data && response.data.JWT) {
-                    JwtApiClient.storeJwtLocally(response.data);
-                    resolve(response.data.JWT);
-                } else if (response.data && response.data.Trigger) {
-                    _this3.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
-                    resolve('');
-                } else {
-                    _PydioApi2['default'].JWT_DATA = null;
-                    resolve('');
-                }
-                _PydioApi2['default'].ResolvingJwt = null;
-            })['catch'](function (e) {
-                if (e.response && e.response.status === 401) {
-                    _this3.pydio.getController().fireAction('logout');
-                    _PydioApi2['default'].ResolvingJwt = null;
-                    throw e;
-                }
-                _PydioApi2['default'].JWT_DATA = null;
-                resolve('');
-                _PydioApi2['default'].ResolvingJwt = null;
+        return new Promise(function (resolve) {
+            _this3.userManager.getUser().then(function (u) {
+                return u && resolve(u.access_token) || resolve('');
             });
         });
 
-        return _PydioApi2['default'].ResolvingJwt;
+        // const now = Math.floor(Date.now() / 1000);
+        // if(PydioApi.JWT_DATA && PydioApi.JWT_DATA['jwt'] && PydioApi.JWT_DATA['expirationTime'] >= now) {
+        //     return Promise.resolve(PydioApi.JWT_DATA['jwt']);
+        // }
+
+        // if(PydioApi.ResolvingJwt) {
+        //     return PydioApi.ResolvingJwt;
+        // }
+
+        // PydioApi.ResolvingJwt = new Promise((resolve) => {
+
+        //     // Try to load JWT from session
+        //     this.jwtEndpoint(new RestFrontSessionRequest()).then(response => {
+        //         if(response.data && response.data.JWT){
+        //             JwtApiClient.storeJwtLocally(response.data);
+        //             resolve(response.data.JWT)
+        //         } else if (response.data && response.data.Trigger) {
+        //             this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+        //             resolve('');
+        //         }  else {
+        //             PydioApi.JWT_DATA = null;
+        //             resolve('');
+        //         }
+        //         PydioApi.ResolvingJwt = null;
+        //     }).catch(e => {
+        //         if(e.response && e.response.status === 401) {
+        //             this.pydio.getController().fireAction('logout');
+        //             PydioApi.ResolvingJwt = null;
+        //             throw e;
+        //         }
+        //         PydioApi.JWT_DATA = null;
+        //         resolve('');
+        //         PydioApi.ResolvingJwt = null;
+        //     });
+
+        // });
+
+        // return PydioApi.ResolvingJwt;
     };
 
     /**

@@ -7,6 +7,7 @@ Package auth is a generated protocol buffer package.
 It is generated from these files:
 	auth.proto
 	ldap.proto
+	oauth.proto
 
 It has these top-level messages:
 	Token
@@ -18,10 +19,25 @@ It has these top-level messages:
 	PruneTokensResponse
 	VerifyTokenRequest
 	VerifyTokenResponse
+	ExchangeRequest
+	ExchangeResponse
 	LdapSearchFilter
 	LdapMapping
 	LdapMemberOfMapping
 	LdapServerConfig
+	OAuth2ClientConfig
+	OAuth2ConnectorCollection
+	OAuth2ConnectorConfig
+	OAuth2MappingRule
+	OAuth2ConnectorPydioConfig
+	OAuth2ConnectorOIDCConfig
+	OAuth2ConnectorSAMLConfig
+	OAuth2ConnectorBitbucketConfig
+	OAuth2ConnectorGithubConfig
+	OAuth2ConnectorGithubConfigOrg
+	OAuth2ConnectorGitlabConfig
+	OAuth2ConnectorLinkedinConfig
+	OAuth2ConnectorMicrosoftConfig
 */
 package auth
 
@@ -193,4 +209,56 @@ type AuthTokenVerifier struct {
 
 func (h *AuthTokenVerifier) Verify(ctx context.Context, in *VerifyTokenRequest, out *VerifyTokenResponse) error {
 	return h.AuthTokenVerifierHandler.Verify(ctx, in, out)
+}
+
+// Client API for AuthCodeExchanger service
+
+type AuthCodeExchangerClient interface {
+	Exchange(ctx context.Context, in *ExchangeRequest, opts ...client.CallOption) (*ExchangeResponse, error)
+}
+
+type authCodeExchangerClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewAuthCodeExchangerClient(serviceName string, c client.Client) AuthCodeExchangerClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &authCodeExchangerClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *authCodeExchangerClient) Exchange(ctx context.Context, in *ExchangeRequest, opts ...client.CallOption) (*ExchangeResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "AuthCodeExchanger.Exchange", in)
+	out := new(ExchangeResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for AuthCodeExchanger service
+
+type AuthCodeExchangerHandler interface {
+	Exchange(context.Context, *ExchangeRequest, *ExchangeResponse) error
+}
+
+func RegisterAuthCodeExchangerHandler(s server.Server, hdlr AuthCodeExchangerHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&AuthCodeExchanger{hdlr}, opts...))
+}
+
+type AuthCodeExchanger struct {
+	AuthCodeExchangerHandler
+}
+
+func (h *AuthCodeExchanger) Exchange(ctx context.Context, in *ExchangeRequest, out *ExchangeResponse) error {
+	return h.AuthCodeExchangerHandler.Exchange(ctx, in, out)
 }

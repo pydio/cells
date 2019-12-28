@@ -24,12 +24,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
 	"github.com/ory/hydra/oauth2"
-
-	"github.com/pydio/cells/common/auth/claim"
 )
 
 type oryprovider struct {
@@ -53,7 +52,9 @@ func (p *oryprovider) GetType() ProviderType {
 }
 
 func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
+
 	session := oauth2.NewSession("")
+
 	tokenType, ar, err := c.oauth2Provider.IntrospectToken(ctx, rawIDToken, fosite.AccessToken, session)
 	if err != nil {
 		return nil, err
@@ -68,16 +69,20 @@ func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, e
 
 func (t *orytoken) Claims(v interface{}) error {
 
-	sub, err := (&claim.IDTokenSubject{
-		ConnId: "pydioory",
-		UserId: t.claims.Subject,
-	}).Encode()
+	// fmt.Println("Subject is ", t.claims.Subject)
 
-	if err != nil {
-		return err
-	}
+	// sub, err := (&claim.IDTokenSubject{
+	// 	ConnId: "pydioory",
+	// 	UserId: t.claims.Subject,
+	// }).Encode()
 
-	t.claims.Subject = string(sub)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// t.claims.Subject = string(sub)
+
+	fmt.Println(t.claims.ToMap())
 
 	data, err := json.Marshal(t.claims.ToMap())
 	if err != nil {

@@ -44,12 +44,7 @@ func init() {
 			service.Description("OAuth Provider"),
 			service.WithStorage(oauth.NewDAO),
 			service.WithMicro(func(m micro.Service) error {
-				h, err := NewAuthTokenVerifierHandler()
-				if err != nil {
-					return err
-				}
-
-				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, h)
+				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, &Handler{})
 
 				return nil
 			}),

@@ -32,6 +32,7 @@ import {OAuthLoginRouter, OAuthConsentRouter, OAuthOOBRouter, OAuthFallbacksRout
 import LoginRouter from './LoginRouter';
 import LoginCallbackRouter from './LoginCallbackRouter';
 import LogoutRouter from './LogoutRouter';
+import LogoutCallbackRouter from './LogoutCallbackRouter';
 
 function getRoutes(pydio){
     return (
@@ -45,6 +46,7 @@ function getRoutes(pydio){
                 <Route path="login" component={OAuthLoginRouter(pydio)} />
                 <Route path="consent" component={OAuthConsentRouter(pydio)} />
                 <Route path="oob" component={OAuthOOBRouter(pydio)}/>
+                <Route path="logout/callback" component={LogoutCallbackRouter(pydio)} />
                 <Route path="fallbacks/error" component={OAuthFallbacksRouter(pydio)}/>
             </Route>
             <Route path="/" component={MainRouter(pydio)}>
