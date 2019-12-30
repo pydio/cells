@@ -50,13 +50,13 @@ var _TaskActivity = require('./TaskActivity');
 
 var _TaskActivity2 = _interopRequireDefault(_TaskActivity);
 
-var _JobSchedule = require('./JobSchedule');
-
-var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
-
 var _JobGraph = require("./JobGraph");
 
 var _JobGraph2 = _interopRequireDefault(_JobGraph);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
@@ -168,14 +168,48 @@ var JobBoard = (function (_React$Component) {
             });
         }
     }, {
+        key: 'deleteJob',
+        value: function deleteJob() {
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var job = _props.job;
+            var create = _props.create;
+            var onRequestClose = _props.onRequestClose;
+
+            if (create) {
+                return;
+            }
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
+            };
+            if (!window.confirm(m('job.delete.confirm'))) {
+                return;
+            }
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(PydioApi.getRestClient());
+                return api.deleteJob(job.ID);
+            }).then(function () {
+                onRequestClose(true);
+            })['catch'](function (e) {});
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this3 = this;
 
-            var _props = this.props;
-            var pydio = _props.pydio;
-            var jobsEditable = _props.jobsEditable;
-            var create = _props.create;
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var jobsEditable = _props2.jobsEditable;
+            var create = _props2.create;
+            var job = _props2.job;
+            var onRequestClose = _props2.onRequestClose;
+            var _state = this.state;
+            var selectedRows = _state.selectedRows;
+            var working = _state.working;
+            var mode = _state.mode;
+            var taskLogs = _state.taskLogs;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -194,16 +228,6 @@ var JobBoard = (function (_React$Component) {
                         return row.StatusMessage;
                     }
                 } }, { name: 'Actions', label: '', style: { textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
-
-            var _props2 = this.props;
-            var job = _props2.job;
-            var onRequestClose = _props2.onRequestClose;
-            var _state = this.state;
-            var selectedRows = _state.selectedRows;
-            var working = _state.working;
-            var mode = _state.mode;
-            var taskLogs = _state.taskLogs;
-
             var tasks = job.Tasks || [];
             var runningStatus = ['Running', 'Paused'];
 
@@ -228,6 +252,11 @@ var JobBoard = (function (_React$Component) {
                 } else {
                     actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline" }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
                             JobsStore.getInstance().controlJob(job, 'Inactive');
+                        } }));
+                }
+                if (jobsEditable) {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete" }), label: m('job.delete'), primary: true, onTouchTap: function () {
+                            _this3.deleteJob();
                         } }));
                 }
             }
@@ -281,7 +310,7 @@ var JobBoard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, overflowY: 'auto' } },
-                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable }),
+                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable, create: create }),
                     !create && _react2['default'].createElement(
                         'div',
                         null,

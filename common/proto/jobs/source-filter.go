@@ -24,12 +24,10 @@ import (
 	"strings"
 
 	"github.com/micro/protobuf/ptypes"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
 	service "github.com/pydio/cells/common/service/proto"
 )
 
-func (n *SourceFilter) Filter(input ActionMessage) ActionMessage {
+func (n *SourceFilter) Filter(input ActionMessage) (ActionMessage, bool) {
 
 	results := []bool{}
 
@@ -56,16 +54,18 @@ func (n *SourceFilter) Filter(input ActionMessage) ActionMessage {
 		}
 
 	}
-
+	/*
 	if !service.ReduceQueryBooleans(results, n.Query.Operation) {
 		output := input
-		// Filter out all future message actions
+		// Filter out all future message actions?
 		output.Nodes = []*tree.Node{}
 		output.Users = []*idm.User{}
-		return output
+		return output, false
 	}
-
-	return input
+	*/
+	// Copy and return
+	output := input
+	return output, service.ReduceQueryBooleans(results, n.Query.Operation)
 }
 
 func (n *SourceFilter) filterOutput(query *service.ActionOutputQuery, output *ActionOutput) bool {

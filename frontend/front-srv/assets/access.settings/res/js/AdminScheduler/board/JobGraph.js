@@ -1,8 +1,10 @@
 
 import React from 'react'
+import Pydio from 'pydio'
 import ReactDOM from 'react-dom'
 import PydioApi from 'pydio/http/api'
 import DOMUtils from 'pydio/util/dom'
+import ResourcesManager from 'pydio/http/resources-manager'
 import {JobsJob, ConfigServiceApi, RestConfiguration, JobsAction} from 'pydio/http/rest-api'
 import {linkTools, dia, layout, g} from 'jointjs'
 import JobInput from './graph/JobInput'
@@ -31,74 +33,13 @@ import {
     removeFilterAction,
     changeTriggerAction,
     clearSelectionAction,
-    setSelectionAction, setDirtyAction, saveSuccessAction, saveErrorAction, revertAction
+    setSelectionAction, setDirtyAction, saveSuccessAction, saveErrorAction, revertAction, updateLabelAction
 } from "./actions/editor";
 import Filters from "./builder/Filters";
 import Templates from "./graph/Templates";
 import {AllowedKeys, linkAttr} from "./graph/Configs";
-
-
-const style = `
-text[joint-selector="icon"] tspan, 
-text[joint-selector="type-icon"] tspan, 
-text[joint-selector="type-icon-outline"] tspan, 
-text[joint-selector="filter-icon"] tspan, 
-text[joint-selector="selector-icon"] tspan,
-text[joint-selector="add-icon"] tspan,
-text[joint-selector="swap-icon"] tspan,
-text[joint-selector="split-icon"] tspan,
-text[joint-selector="remove-icon"] tspan
-{
-    font: normal normal normal 24px/1 "Material Design Icons";
-    font-size: 24px;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-}
-text[joint-selector="filter-icon"] tspan, 
-text[joint-selector="selector-icon"] tspan, 
-text[joint-selector="swap-icon"] tspan, 
-text[joint-selector="add-icon"] tspan, 
-text[joint-selector="split-icon"] tspan, 
-text[joint-selector="remove-icon"] tspan
-{
-    font-size: 18px;
-}
-text[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{
-    font-size: 14px;
-}
-.joint-tool circle {
-    fill: #ef534f;
-}
-.react-mui-context .pydio-form-panel{
-    padding-bottom: 0;
-}
-.react-mui-context .pydio-form-panel .form-legend{
-    display:none;
-}
-.react-mui-context .pydio-form-panel>.pydio-form-group{
-    margin: 12px;
-}
-.react-mui-context .pydio-form-panel .replicable-field .title-bar {
-    display: flex;
-    align-items: center;
-}
-.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{
-    display: none;
-}
-.react-mui-context .pydio-form-panel .replicable-field .replicable-group{
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-`;
-
-const readonlyStyle = `
-path.marker-arrowhead {
-    opacity: 0 !important;
-}
-.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){
-    cursor: default;
-}
-`;
+const {ModernTextField} = Pydio.requireLib('hoc');
+import {getCssStyle} from "./builder/styles";
 
 const mapStateToProps = state => {
     console.log(state);
@@ -155,6 +96,12 @@ const mapDispatchToProps = dispatch => {
         onTriggerChange : (triggerType, triggerData) => {
             dispatch((d) => {
                 d(changeTriggerAction(triggerType, triggerData));
+                d(setDirtyAction(true));
+            });
+        },
+        onLabelChange : (newLabel) => {
+            dispatch((d) => {
+                d(updateLabelAction(newLabel));
                 d(setDirtyAction(true));
             });
         },
@@ -224,7 +171,13 @@ class JobGraph extends React.Component {
                 paper.setDimensions(Math.max(graphWidth, maxWidth), paperHeight);
             }
         };
-        DOMUtils.observeWindowResize(this._resizer)
+        DOMUtils.observeWindowResize(this._resizer);
+        window.setTimeout(()=>{
+            const {create} = this.props;
+            if(create){
+                this.toggleEdit();
+            }
+        }, 500)
     }
 
     componentWillUnmount(){
@@ -592,7 +545,7 @@ class JobGraph extends React.Component {
 
         let selBlock;
         const {jobsEditable, create} = this.props;
-        const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange, createNewAction,
+        const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange, onLabelChange, createNewAction,
             onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job} = this.state;
 
         let blockProps = {onDismiss: ()=>{this.clearSelection()}};
@@ -654,10 +607,19 @@ class JobGraph extends React.Component {
             }
         };
 
+        let header = <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow</span>
+        if(jobsEditable && editMode) {
+            header = (
+                <span style={{flex: 1, padding: '0 6px'}}>
+                    <ModernTextField value={job.Label} onChange={(e,v)=>{onLabelChange(v)}} inputStyle={{color: 'white'}}/>
+                </span>
+            );
+        }
+
         return (
             <Paper zDepth={1} style={{margin: 20}}>
                 <div style={st.header}>
-                    <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow {jobsEditable && editMode && <span>- Select boxes to edit details.</span>}</span>
+                    {header}
                     {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}
                     {jobsEditable && dirty && <IconButton onTouchTap={()=> {onRevert(original, (j)=>{this.graphFromJob(j); this.reLayout(editMode);})}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
                     {jobsEditable && <IconButton onTouchTap={()=> {this.toggleEdit()}} tooltip={editMode?'Close':'Edit'} iconClassName={editMode ? "mdi mdi-close" : "mdi mdi-pencil"} iconStyle={st.icon} />}
@@ -670,7 +632,7 @@ class JobGraph extends React.Component {
                         {selBlock}
                     </Paper>
                 </div>
-                <style type={"text/css"} dangerouslySetInnerHTML={{__html:style + (editMode ? '' : readonlyStyle)}}></style>
+                {getCssStyle(editMode)}
             </Paper>
         );
     }

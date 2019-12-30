@@ -8,7 +8,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -129,6 +129,17 @@ var RightPanel = (function (_React$Component) {
     return RightPanel;
 })(_react2['default'].Component);
 
+var cssStyle = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+
+var cssReadonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
+
+function getCssStyle() {
+    var editMode = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+    return _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: cssStyle + (editMode ? '' : cssReadonlyStyle) } });
+}
+
 exports.styles = styles;
 exports.position = position;
 exports.RightPanel = RightPanel;
+exports.getCssStyle = getCssStyle;

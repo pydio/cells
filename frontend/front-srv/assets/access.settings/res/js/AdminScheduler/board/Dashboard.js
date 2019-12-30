@@ -107,10 +107,6 @@ const Dashboard = React.createClass({
         }
     },
 
-    showTaskCreator(){
-
-    },
-
     extractRowsInfo(jobs, m){
 
 
@@ -233,7 +229,12 @@ const Dashboard = React.createClass({
         if(selectJob && result && result.Jobs){
             const found = result.Jobs.filter((j) => j.ID === selectJob);
             if(found.length){
-                return <JobBoard pydio={pydio} job={found[0]} jobsEditable={jobsEditable} onSave={()=>{this.load(true)}} onRequestClose={()=>this.setState({selectJob: null})}/>;
+                return <JobBoard pydio={pydio} job={found[0]} jobsEditable={jobsEditable} onSave={()=>{this.load(true)}} onRequestClose={(refresh)=>{
+                    this.setState({selectJob: null});
+                    if(refresh){
+                        this.load();
+                    }
+                }}/>;
             }
         } else if(createJob) {
             return <JobBoard pydio={pydio} job={createJob} create={true} jobsEditable={jobsEditable} onSave={()=>{this.load(true)}} onRequestClose={()=>this.setState({createJob: null})}/>;

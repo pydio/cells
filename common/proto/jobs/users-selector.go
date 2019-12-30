@@ -85,6 +85,6 @@ func (m *UsersSelector) Select(client client.Client, ctx context.Context, object
 }
 
 // Filter is not implemented. Use IdmSelector object instead
-func (n *UsersSelector) Filter(input ActionMessage) ActionMessage {
-	return input
+func (n *UsersSelector) Filter(input ActionMessage) (ActionMessage, bool) {
+	return input, true
 }

@@ -74,4 +74,71 @@ class RightPanel extends React.Component{
     }
 }
 
-export {styles, position, RightPanel}
+const cssStyle = `
+text[joint-selector="icon"] tspan, 
+text[joint-selector="type-icon"] tspan, 
+text[joint-selector="type-icon-outline"] tspan, 
+text[joint-selector="filter-icon"] tspan, 
+text[joint-selector="selector-icon"] tspan,
+text[joint-selector="add-icon"] tspan,
+text[joint-selector="swap-icon"] tspan,
+text[joint-selector="split-icon"] tspan,
+text[joint-selector="remove-icon"] tspan
+{
+    font: normal normal normal 24px/1 "Material Design Icons";
+    font-size: 24px;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+}
+text[joint-selector="filter-icon"] tspan, 
+text[joint-selector="selector-icon"] tspan, 
+text[joint-selector="swap-icon"] tspan, 
+text[joint-selector="add-icon"] tspan, 
+text[joint-selector="split-icon"] tspan, 
+text[joint-selector="remove-icon"] tspan
+{
+    font-size: 18px;
+}
+text[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{
+    font-size: 14px;
+}
+.joint-tool circle {
+    fill: #ef534f;
+}
+.react-mui-context .pydio-form-panel{
+    padding-bottom: 0;
+}
+.react-mui-context .pydio-form-panel .form-legend{
+    display:none;
+}
+.react-mui-context .pydio-form-panel>.pydio-form-group{
+    margin: 12px;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar {
+    display: flex;
+    align-items: center;
+}
+.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{
+    display: none;
+}
+.react-mui-context .pydio-form-panel .replicable-field .replicable-group{
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+`;
+
+const cssReadonlyStyle = `
+path.marker-arrowhead {
+    opacity: 0 !important;
+}
+.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){
+    cursor: default;
+}
+`;
+
+function getCssStyle(editMode = false) {
+    return <style type={"text/css"} dangerouslySetInnerHTML={{__html:cssStyle + (editMode ? '' : cssReadonlyStyle)}}></style>
+}
+
+
+export {styles, position, RightPanel, getCssStyle}

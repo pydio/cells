@@ -1,5 +1,5 @@
-@import "../../node_modules/jointjs/css/layout.css";
-@import "../../node_modules/jointjs/css/themes/material.css";
+@import "scheduler/layout.css";
+@import "scheduler/material.css";
 /*
 Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibles/colors.less
 */

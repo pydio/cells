@@ -34,6 +34,8 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/proto/tree"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
@@ -48,8 +50,9 @@ var (
 
 // WGetAction performs a wget command with the provided URL
 type WGetAction struct {
-	Router    *views.Router
-	SourceUrl *url.URL
+	Router     *views.Router
+	SourceUrl  *url.URL
+	targetPath string
 }
 
 func (w *WGetAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -59,12 +62,33 @@ func (w *WGetAction) GetDescription(lang ...string) actions.ActionDescription {
 		Icon:            "download",
 		Description:     "Download a remote file or binary, equivalent to wget commmand",
 		SummaryTemplate: "",
-		HasForm:         false,
+		HasForm:         true,
 	}
 }
 
 func (w *WGetAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "url",
+					Type:        forms.ParamString,
+					Label:       "url",
+					Description: "Source URL to download from",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "targetPath",
+					Type:        forms.ParamString,
+					Label:       "targetPath",
+					Description: "TargetPath to download in",
+					Mandatory:   true,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns the unique identifier of this action
@@ -74,6 +98,9 @@ func (w *WGetAction) GetName() string {
 
 // Init passes parameters
 func (w *WGetAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+	if action.Parameters["targetPath"] != "" {
+		w.targetPath = action.Parameters["targetPath"]
+	}
 	if urlParam, ok := action.Parameters["url"]; ok {
 		var e error
 		w.SourceUrl, e = url.Parse(urlParam)
@@ -91,11 +118,21 @@ func (w *WGetAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) 
 func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	log.Logger(ctx).Info("WGET: " + w.SourceUrl.String())
-	if len(input.Nodes) == 0 {
-		log.Logger(ctx).Info("IGNORE WGET: " + w.SourceUrl.String())
-		return input.WithIgnore(), nil
+	//if len(input.Nodes) == 0 {
+	//	//log.Logger(ctx).Info("IGNORE WGET: " + w.SourceUrl.String())
+	//	//return input.WithIgnore(), nil
+	//	//input.Nodes
+	//}
+
+	var targetNode *tree.Node
+	targetNode = new(tree.Node)
+	if w.targetPath != "" {
+		basename := filepath.Base(w.SourceUrl.Path)
+		targetNode.Path = filepath.Join(w.targetPath, basename)
+	} else {
+		targetNode = input.Nodes[0]
 	}
-	targetNode := input.Nodes[0]
+
 	httpResponse, err := http.Get(w.SourceUrl.String())
 	if err != nil {
 		return input.WithError(err), err
@@ -118,13 +155,20 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		return input.WithError(er), err
 	}
 	last := time.Now().Sub(start)
-	log, _ := json.Marshal(map[string]interface{}{
+	jsonBody, _ := json.Marshal(map[string]interface{}{
 		"Size": written,
 		"Time": last,
 	})
+	request := &tree.ReadNodeRequest{Node: &tree.Node{Path: targetNode.Path}}
+	resp, err := w.Router.ReadNode(ctx, request)
+	if err != nil {
+		log.Logger(ctx).Error("Cannot read node", zap.Error(err))
+	}
+
+	input.Nodes = append(input.Nodes, resp.Node)
 	input.AppendOutput(&jobs.ActionOutput{
 		Success:  true,
-		JsonBody: log,
+		JsonBody: jsonBody,
 	})
 	return input, nil
 }

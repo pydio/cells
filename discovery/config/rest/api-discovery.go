@@ -227,20 +227,29 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			form = protos.GenerateProtoToForm(&idm.WorkspaceSingleQuery{}, asSwitch)
 		case "idm.ACLSingleQuery":
 			form = protos.GenerateProtoToForm(&idm.ACLSingleQuery{}, asSwitch)
-			// Patch Actions field manually
-			sw := form.Groups[0].Fields[0].(*forms.SwitchField)
 			a := protos.GenerateProtoToForm(&idm.ACLAction{})
-			sw.Values = append(sw.Values, &forms.SwitchValue{
-				Name:  "Actions",
-				Value: "Actions",
-				Label: "Actions",
-				Fields: []forms.Field{&forms.ReplicableFields{
+			if asSwitch{
+				// Patch Actions field manually
+				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+				sw.Values = append(sw.Values, &forms.SwitchValue{
+					Name:  "Actions",
+					Value: "Actions",
+					Label: "Actions",
+					Fields: []forms.Field{&forms.ReplicableFields{
+						Id:          "Actions",
+						Title:       "Actions",
+						Description: "Acl Actions",
+						Fields:      a.Groups[0].Fields,
+					}},
+				})
+			} else {
+				form.Groups[0].Fields = append(form.Groups[0].Fields, &forms.ReplicableFields{
 					Id:          "Actions",
 					Title:       "Actions",
 					Description: "Acl Actions",
 					Fields:      a.Groups[0].Fields,
-				}},
-			})
+				})
+			}
 		case "tree.Query":
 			form = protos.GenerateProtoToForm(&tree.Query{}, asSwitch)
 		}

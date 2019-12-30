@@ -336,20 +336,14 @@ func (s *Subscriber) jobLevelFilterPass(event *tree.NodeChangeEvent, filter *job
 		return true // Ignore
 	}
 	input := jobs.ActionMessage{Nodes: []*tree.Node{refNode}}
-	output := filter.Filter(input)
-	if output.Nodes == nil || len(output.Nodes) == 0 {
-		return false
-	}
-	return true
+	_, pass := filter.Filter(input)
+	return pass
 }
 
 // Test filter and return false if all input IDM slots are empty
 func (s *Subscriber) jobLevelIdmFilterPass(input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
-	output := filter.Filter(input)
-	if len(output.Users) == 0 && len(output.Roles) == 0 && len(output.Workspaces) == 0 && len(output.Acls) == 0 {
-		return false
-	}
-	return true
+	_, pass := filter.Filter(input)
+	return pass
 }
 
 func createMessageFromEvent(event interface{}) jobs.ActionMessage {

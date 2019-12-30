@@ -44,10 +44,10 @@ func (l *LogInputAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 func (l *LogInputAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 	// Log all inputs
 	if len(input.Nodes) > 0 {
-		log.Logger(ctx).Info("Input has node(s)", zap.Int("total", len(input.Nodes)), input.Nodes[0].Zap())
+		log.Logger(ctx).Info("Input has node(s)", zap.Int("total", len(input.Nodes)), input.Nodes[0].ZapUuid(), input.Nodes[0].ZapPath())
 	}
 	if len(input.Users) > 0 {
-		log.Logger(ctx).Info("Input has user(s)", zap.Int("total", len(input.Users)), input.Users[0].Zap())
+		log.Logger(ctx).Info("Input has user(s)", zap.Int("total", len(input.Users)), input.Users[0].ZapUuid(), input.Users[0].ZapLogin())
 	}
 	if len(input.Roles) > 0 {
 		log.Logger(ctx).Info("Input has role(s)", zap.Int("total", len(input.Roles)), input.Roles[0].Zap())

@@ -32,5 +32,5 @@ type InputSelector interface {
 }
 
 type InputFilter interface {
-	Filter(input ActionMessage) ActionMessage
+	Filter(input ActionMessage) (ActionMessage, bool)
 }

@@ -129,22 +129,24 @@ func (m *IdmSelector) Select(client client.Client, ctx context.Context, objects 
 }
 
 // Filter IDM objects by a query
-func (m *IdmSelector) Filter(input ActionMessage) ActionMessage {
+func (m *IdmSelector) Filter(input ActionMessage) (ActionMessage, bool) {
 
-	if m.All {
-		return input
+	if m.All && (m.Query == nil || len(m.Query.SubQueries) == 0) {
+		return input, true
 	}
 	var matchers []idm.Matcher
+	var pass bool
+
 	switch m.Type {
 	case IdmSelectorType_User:
 		if len(input.Users) == 0 {
-			return input
+			return input, false // break!
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.UserSingleQuery{}
 			if e := ptypes.UnmarshalAny(an, target); e != nil {
 				input.Users = []*idm.User{}
-				return input
+				return input, false
 			} else {
 				matchers = append(matchers, target)
 			}
@@ -156,15 +158,17 @@ func (m *IdmSelector) Filter(input ActionMessage) ActionMessage {
 			}
 		}
 		input.Users = uu
+		pass = len(input.Users) > 0
+
 	case IdmSelectorType_Role:
 		if len(input.Roles) == 0 {
-			return input
+			return input, false
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.RoleSingleQuery{}
 			if e := ptypes.UnmarshalAny(an, target); e != nil {
 				input.Roles = []*idm.Role{}
-				return input
+				return input, false
 			} else {
 				matchers = append(matchers, target)
 			}
@@ -176,15 +180,17 @@ func (m *IdmSelector) Filter(input ActionMessage) ActionMessage {
 			}
 		}
 		input.Roles = rr
+		pass = len(input.Roles) > 0
+
 	case IdmSelectorType_Workspace:
 		if len(input.Workspaces) == 0 {
-			return input
+			return input, false
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.WorkspaceSingleQuery{}
 			if e := ptypes.UnmarshalAny(an, target); e != nil {
 				input.Workspaces = []*idm.Workspace{}
-				return input
+				return input, false
 			} else {
 				matchers = append(matchers, target)
 			}
@@ -196,15 +202,17 @@ func (m *IdmSelector) Filter(input ActionMessage) ActionMessage {
 			}
 		}
 		input.Workspaces = ww
+		pass = len(input.Workspaces) > 0
+
 	case IdmSelectorType_Acl:
 		if len(input.Acls) == 0 {
-			return input
+			return input, false
 		}
 		for _, an := range m.Query.SubQueries {
 			target := &idm.ACLSingleQuery{}
 			if e := ptypes.UnmarshalAny(an, target); e != nil {
 				input.Acls = []*idm.ACL{}
-				return input
+				return input, false
 			} else {
 				matchers = append(matchers, target)
 			}
@@ -216,11 +224,13 @@ func (m *IdmSelector) Filter(input ActionMessage) ActionMessage {
 			}
 		}
 		input.Acls = aa
+		pass = len(input.Acls) > 0
+
 	default:
 		break
 	}
 
-	return input
+	return input, pass
 }
 
 func (m *IdmSelector) matchQueries(object interface{}, matchers []idm.Matcher) bool {

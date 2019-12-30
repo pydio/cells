@@ -43603,8 +43603,6 @@ var Dashboard = _react2['default'].createClass({
         }
     },
 
-    showTaskCreator: function showTaskCreator() {},
-
     extractRowsInfo: function extractRowsInfo(jobs, m) {
 
         var system = [];
@@ -43768,8 +43766,11 @@ var Dashboard = _react2['default'].createClass({
             if (found.length) {
                 return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onSave: function () {
                         _this5.load(true);
-                    }, onRequestClose: function () {
-                        return _this5.setState({ selectJob: null });
+                    }, onRequestClose: function (refresh) {
+                        _this5.setState({ selectJob: null });
+                        if (refresh) {
+                            _this5.load();
+                        }
                     } });
             }
         } else if (createJob) {
@@ -43913,13 +43914,13 @@ var _TaskActivity = require('./TaskActivity');
 
 var _TaskActivity2 = _interopRequireDefault(_TaskActivity);
 
-var _JobSchedule = require('./JobSchedule');
-
-var _JobSchedule2 = _interopRequireDefault(_JobSchedule);
-
 var _JobGraph = require("./JobGraph");
 
 var _JobGraph2 = _interopRequireDefault(_JobGraph);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib("boot");
 
@@ -44031,14 +44032,48 @@ var JobBoard = (function (_React$Component) {
             });
         }
     }, {
+        key: 'deleteJob',
+        value: function deleteJob() {
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var job = _props.job;
+            var create = _props.create;
+            var onRequestClose = _props.onRequestClose;
+
+            if (create) {
+                return;
+            }
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
+            };
+            if (!window.confirm(m('job.delete.confirm'))) {
+                return;
+            }
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var SchedulerServiceApi = sdk.SchedulerServiceApi;
+
+                var api = new SchedulerServiceApi(PydioApi.getRestClient());
+                return api.deleteJob(job.ID);
+            }).then(function () {
+                onRequestClose(true);
+            })['catch'](function (e) {});
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this3 = this;
 
-            var _props = this.props;
-            var pydio = _props.pydio;
-            var jobsEditable = _props.jobsEditable;
-            var create = _props.create;
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var jobsEditable = _props2.jobsEditable;
+            var create = _props2.create;
+            var job = _props2.job;
+            var onRequestClose = _props2.onRequestClose;
+            var _state = this.state;
+            var selectedRows = _state.selectedRows;
+            var working = _state.working;
+            var mode = _state.mode;
+            var taskLogs = _state.taskLogs;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -44057,16 +44092,6 @@ var JobBoard = (function (_React$Component) {
                         return row.StatusMessage;
                     }
                 } }, { name: 'Actions', label: '', style: { textAlign: 'right' }, renderCell: this.renderActions.bind(this) }];
-
-            var _props2 = this.props;
-            var job = _props2.job;
-            var onRequestClose = _props2.onRequestClose;
-            var _state = this.state;
-            var selectedRows = _state.selectedRows;
-            var working = _state.working;
-            var mode = _state.mode;
-            var taskLogs = _state.taskLogs;
-
             var tasks = job.Tasks || [];
             var runningStatus = ['Running', 'Paused'];
 
@@ -44091,6 +44116,11 @@ var JobBoard = (function (_React$Component) {
                 } else {
                     actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline" }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
                             JobsStore.getInstance().controlJob(job, 'Inactive');
+                        } }));
+                }
+                if (jobsEditable) {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete" }), label: m('job.delete'), primary: true, onTouchTap: function () {
+                            _this3.deleteJob();
                         } }));
                 }
             }
@@ -44144,7 +44174,7 @@ var JobBoard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, overflowY: 'auto' } },
-                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable }),
+                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable, create: create }),
                     !create && _react2['default'].createElement(
                         'div',
                         null,
@@ -44224,7 +44254,7 @@ var JobBoard = (function (_React$Component) {
 exports['default'] = JobBoard;
 module.exports = exports['default'];
 
-},{"./JobGraph":474,"./JobSchedule":475,"./TaskActivity":476,"material-ui":"material-ui","pydio":"pydio","react":"react"}],474:[function(require,module,exports){
+},{"./JobGraph":474,"./TaskActivity":476,"material-ui":"material-ui","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],474:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -44247,6 +44277,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
@@ -44258,6 +44292,10 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
@@ -44321,9 +44359,11 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+var _builderStyles = require("./builder/styles");
 
-var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var mapStateToProps = function mapStateToProps(state) {
     console.log(state);
@@ -44388,6 +44428,12 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.setDirtyAction)(true));
             });
         },
+        onLabelChange: function onLabelChange(newLabel) {
+            dispatch(function (d) {
+                d((0, _actionsEditor.updateLabelAction)(newLabel));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
+        },
         onSelectionClear: function onSelectionClear() {
             dispatch((0, _actionsEditor.clearSelectionAction)());
         },
@@ -44408,7 +44454,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
         },
         onSave: function onSave(job) {
             dispatch(function (d) {
-                ResourcesManager.loadClass('EnterpriseSDK').then(function (sdk) {
+                _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                     var SchedulerServiceApi = sdk.SchedulerServiceApi;
                     var JobsPutJobRequest = sdk.JobsPutJobRequest;
 
@@ -44474,6 +44520,13 @@ var JobGraph = (function (_React$Component) {
                 }
             };
             _pydioUtilDom2['default'].observeWindowResize(this._resizer);
+            window.setTimeout(function () {
+                var create = _this3.props.create;
+
+                if (create) {
+                    _this3.toggleEdit();
+                }
+            }, 500);
         }
     }, {
         key: 'componentWillUnmount',
@@ -44929,6 +44982,7 @@ var JobGraph = (function (_React$Component) {
             var descriptions = _state7.descriptions;
             var selectionModel = _state7.selectionModel;
             var onTriggerChange = _state7.onTriggerChange;
+            var onLabelChange = _state7.onLabelChange;
             var createNewAction = _state7.createNewAction;
             var onRemoveFilter = _state7.onRemoveFilter;
             var dirty = _state7.dirty;
@@ -45010,22 +45064,28 @@ var JobGraph = (function (_React$Component) {
                 }
             };
 
+            var header = _react2['default'].createElement(
+                'span',
+                { style: { flex: 1, padding: '14px 24px' } },
+                'Job Workflow'
+            );
+            if (jobsEditable && editMode) {
+                header = _react2['default'].createElement(
+                    'span',
+                    { style: { flex: 1, padding: '0 6px' } },
+                    _react2['default'].createElement(ModernTextField, { value: job.Label, onChange: function (e, v) {
+                            onLabelChange(v);
+                        }, inputStyle: { color: 'white' } })
+                );
+            }
+
             return _react2['default'].createElement(
                 _materialUi.Paper,
                 { zDepth: 1, style: { margin: 20 } },
                 _react2['default'].createElement(
                     'div',
                     { style: st.header },
-                    _react2['default'].createElement(
-                        'span',
-                        { style: { flex: 1, padding: '14px 24px' } },
-                        'Job Workflow ',
-                        jobsEditable && editMode && _react2['default'].createElement(
-                            'span',
-                            null,
-                            '- Select boxes to edit details.'
-                        )
-                    ),
+                    header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             onSave(job);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
@@ -45052,7 +45112,7 @@ var JobGraph = (function (_React$Component) {
                         selBlock
                     )
                 ),
-                _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: style + (editMode ? '' : readonlyStyle) } })
+                (0, _builderStyles.getCssStyle)(editMode)
             );
         }
     }], [{
@@ -45068,7 +45128,7 @@ var JobGraph = (function (_React$Component) {
 exports['default'] = JobGraph;
 module.exports = exports['default'];
 
-},{"./actions/editor":477,"./builder/Filters":478,"./builder/FormPanel":480,"./builder/Triggers":489,"./graph/Action":491,"./graph/Configs":492,"./graph/Filter":493,"./graph/JobInput":494,"./graph/Link":495,"./graph/Selector":496,"./graph/Templates":497,"./reducers":500,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":470}],475:[function(require,module,exports){
+},{"./actions/editor":477,"./builder/Filters":478,"./builder/FormPanel":480,"./builder/Triggers":489,"./builder/styles":490,"./graph/Action":491,"./graph/Configs":492,"./graph/Filter":493,"./graph/JobInput":494,"./graph/Link":495,"./graph/Selector":496,"./graph/Templates":497,"./reducers":500,"dagre":3,"graphlib":253,"jointjs":467,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/dom":"pydio/util/dom","react":"react","react-dom":"react-dom","redux":"redux","redux-thunk":470}],475:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -45671,6 +45731,7 @@ exports.removeFilterAction = removeFilterAction;
 exports.jobLoadedAction = jobLoadedAction;
 exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
+exports.updateLabelAction = updateLabelAction;
 exports.setSelectionAction = setSelectionAction;
 exports.clearSelectionAction = clearSelectionAction;
 exports.setDirtyAction = setDirtyAction;
@@ -45701,8 +45762,10 @@ var RESIZE_PAPER = "editor:resize-paper";
 
 exports.RESIZE_PAPER = RESIZE_PAPER;
 var JOB_SWITCH_TRIGGER = "trigger:switch";
-
 exports.JOB_SWITCH_TRIGGER = JOB_SWITCH_TRIGGER;
+var JOB_UPDATE_LABEL = "job:label";
+
+exports.JOB_UPDATE_LABEL = JOB_UPDATE_LABEL;
 var EMPTY_MODEL_ACTION = "model:create-empty";
 exports.EMPTY_MODEL_ACTION = EMPTY_MODEL_ACTION;
 var ATTACH_MODEL_ACTION = "model:attach";
@@ -45815,6 +45878,13 @@ function changeTriggerAction(triggerType, triggerData) {
         type: JOB_SWITCH_TRIGGER,
         triggerType: triggerType,
         triggerData: triggerData
+    };
+}
+
+function updateLabelAction(newLabel) {
+    return {
+        type: JOB_UPDATE_LABEL,
+        label: newLabel
     };
 }
 
@@ -46891,11 +46961,11 @@ var QueryBuilder = (function (_React$Component) {
                     uniqueSingleOnly = true;
                 }
             } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
-                objectType = 'user';
                 switch (query.Type) {
                     case "User":
                         objectType = 'user';
                         singleQuery = 'idm.UserSingleQuery';
+                        uniqueSingleOnly = true;
                         break;
                     case "Workspace":
                         objectType = 'workspace';
@@ -46910,6 +46980,9 @@ var QueryBuilder = (function (_React$Component) {
                         singleQuery = 'idm.ACLSingleQuery';
                         break;
                     default:
+                        objectType = 'user';
+                        singleQuery = 'idm.UserSingleQuery';
+                        uniqueSingleOnly = true;
                         break;
                 }
             } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
@@ -47255,9 +47328,8 @@ var QueryBuilder = (function (_React$Component) {
                 var _detectTypes3 = _this5.detectTypes(_this5.state.query);
 
                 var singleQuery = _detectTypes3.singleQuery;
-                var uniqueSingleOnly = _detectTypes3.uniqueSingleOnly;
 
-                if (!uniqueSingleOnly) {
+                if (singleQuery !== 'tree.Query') {
                     // Cannot split tree.Query
                     _this5.setState({
                         querySplitProto: elementView.model.query,
@@ -47266,6 +47338,8 @@ var QueryBuilder = (function (_React$Component) {
                         aSize: elementView.model.size(),
                         aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                     });
+                } else {
+                    window.alert('Node filters do not support multiple conditions yet');
                 }
             });
             this.paper.on('root:add', function (elementView, evt) {
@@ -47319,7 +47393,6 @@ var QueryBuilder = (function (_React$Component) {
 
                 var _detectTypes5 = _this5.detectTypes(_this5.state.query);
 
-                var singleQuery = _detectTypes5.singleQuery;
                 var uniqueSingleOnly = _detectTypes5.uniqueSingleOnly;
                 var _elementView$model2 = elementView.model;
                 var parentQuery = _elementView$model2.parentQuery;
@@ -48503,7 +48576,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -48624,9 +48697,20 @@ var RightPanel = (function (_React$Component) {
     return RightPanel;
 })(_react2['default'].Component);
 
+var cssStyle = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+
+var cssReadonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
+
+function getCssStyle() {
+    var editMode = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+    return _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: cssStyle + (editMode ? '' : cssReadonlyStyle) } });
+}
+
 exports.styles = styles;
 exports.position = position;
 exports.RightPanel = RightPanel;
+exports.getCssStyle = getCssStyle;
 
 },{"material-ui":"material-ui","react":"react"}],491:[function(require,module,exports){
 "use strict";
@@ -49947,6 +50031,10 @@ exports["default"] = function (job, action) {
     switch (action.type) {
         case _actionsEditor.JOB_LOADED:
             return action.job;
+
+        case _actionsEditor.JOB_UPDATE_LABEL:
+            job.Label = action.label;
+            return job;
 
         case _actionsEditor.ATTACH_MODEL_ACTION:
             if (targetModel instanceof _graphAction2["default"]) {

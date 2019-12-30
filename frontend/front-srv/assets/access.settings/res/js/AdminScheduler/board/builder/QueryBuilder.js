@@ -43,11 +43,11 @@ class QueryBuilder extends React.Component {
                 uniqueSingleOnly = true;
             }
         } else if(query instanceof JobsIdmSelector) {
-            objectType = 'user';
             switch (query.Type) {
                 case "User":
                     objectType = 'user';
                     singleQuery = 'idm.UserSingleQuery';
+                    uniqueSingleOnly = true;
                     break;
                 case "Workspace":
                     objectType = 'workspace';
@@ -62,6 +62,9 @@ class QueryBuilder extends React.Component {
                     singleQuery = 'idm.ACLSingleQuery';
                     break;
                 default:
+                    objectType = 'user';
+                    singleQuery = 'idm.UserSingleQuery';
+                    uniqueSingleOnly = true;
                     break;
             }
         } else if (query instanceof JobsUsersSelector) {
@@ -334,8 +337,8 @@ class QueryBuilder extends React.Component {
             });
         });
         this.paper.on('cluster:split', (elementView, evt) => {
-            const {singleQuery, uniqueSingleOnly} = this.detectTypes(this.state.query);
-            if(!uniqueSingleOnly) { // Cannot split tree.Query
+            const {singleQuery} = this.detectTypes(this.state.query);
+            if(singleQuery !== 'tree.Query') { // Cannot split tree.Query
                 this.setState({
                     querySplitProto: elementView.model.query,
                     selectedProto: ProtobufAny.constructFromObject({'@type':'type.googleapis.com/' + singleQuery}),
@@ -343,6 +346,8 @@ class QueryBuilder extends React.Component {
                     aSize: elementView.model.size(),
                     aScrollLeft: ReactDOM.findDOMNode(this.refs.scroller).scrollLeft || 0
                 });
+            } else {
+                window.alert('Node filters do not support multiple conditions yet')
             }
         });
         this.paper.on('root:add', (elementView, evt) => {
@@ -384,7 +389,7 @@ class QueryBuilder extends React.Component {
             if(!window.confirm('Remove this condition?')){
                 return;
             }
-            const {singleQuery, uniqueSingleOnly} = this.detectTypes(this.state.query);
+            const {uniqueSingleOnly} = this.detectTypes(this.state.query);
             const {parentQuery, proto} = elementView.model;
             if(uniqueSingleOnly) {
                 // Remove key from first SubQuery

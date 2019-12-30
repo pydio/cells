@@ -1661,6 +1661,12 @@
   "scheduler.job.trigger":{
     "other": "Trigger"
   },
+  "scheduler.job.delete":{
+    "other": "Delete"
+  },
+  "scheduler.job.delete.confirm":{
+    "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
+  },
   "scheduler.trigger.create.node":{
     "other": "Create Node"
   },

@@ -35,7 +35,11 @@ import (
 
 func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx context.Context, output chan ActionMessage, done chan bool) {
 
-	startMessage = a.ApplyFilters(startMessage)
+	startMessage, pass := a.ApplyFilters(startMessage)
+	if !pass {
+		done <- true
+		return
+	}
 	if a.HasSelectors() {
 		a.ResolveSelectors(startMessage, c, ctx, output, done)
 	} else {
@@ -62,20 +66,21 @@ func (a *Action) getSelectors() []InputSelector {
 	return selectors
 }
 
-func (a *Action) ApplyFilters(input ActionMessage) ActionMessage {
+func (a *Action) ApplyFilters(input ActionMessage) (ActionMessage, bool) {
+	passThrough := true
 	if a.NodesFilter != nil {
-		input = a.NodesFilter.Filter(input)
+		input, passThrough = a.NodesFilter.Filter(input)
 	}
-	if a.IdmSelector != nil {
-		input = a.IdmSelector.Filter(input)
+	if a.IdmFilter != nil {
+		input, passThrough = a.IdmFilter.Filter(input)
 	}
 	if a.UsersFilter != nil {
-		input = a.UsersFilter.Filter(input)
+		input, passThrough = a.UsersFilter.Filter(input)
 	}
 	if a.SourceFilter != nil {
-		input = a.SourceFilter.Filter(input)
+		input, passThrough = a.SourceFilter.Filter(input)
 	}
-	return input
+	return input, passThrough
 }
 
 func (a *Action) ResolveSelectors(startMessage ActionMessage, cl client.Client, ctx context.Context, output chan ActionMessage, done chan bool) {

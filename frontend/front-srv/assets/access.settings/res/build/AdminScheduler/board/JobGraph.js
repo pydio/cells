@@ -20,6 +20,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
@@ -31,6 +35,10 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
@@ -94,9 +102,11 @@ var _graphTemplates2 = _interopRequireDefault(_graphTemplates);
 
 var _graphConfigs = require("./graph/Configs");
 
-var style = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+var _builderStyles = require("./builder/styles");
 
-var readonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var mapStateToProps = function mapStateToProps(state) {
     console.log(state);
@@ -161,6 +171,12 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.setDirtyAction)(true));
             });
         },
+        onLabelChange: function onLabelChange(newLabel) {
+            dispatch(function (d) {
+                d((0, _actionsEditor.updateLabelAction)(newLabel));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
+        },
         onSelectionClear: function onSelectionClear() {
             dispatch((0, _actionsEditor.clearSelectionAction)());
         },
@@ -181,7 +197,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
         },
         onSave: function onSave(job) {
             dispatch(function (d) {
-                ResourcesManager.loadClass('EnterpriseSDK').then(function (sdk) {
+                _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                     var SchedulerServiceApi = sdk.SchedulerServiceApi;
                     var JobsPutJobRequest = sdk.JobsPutJobRequest;
 
@@ -247,6 +263,13 @@ var JobGraph = (function (_React$Component) {
                 }
             };
             _pydioUtilDom2['default'].observeWindowResize(this._resizer);
+            window.setTimeout(function () {
+                var create = _this3.props.create;
+
+                if (create) {
+                    _this3.toggleEdit();
+                }
+            }, 500);
         }
     }, {
         key: 'componentWillUnmount',
@@ -702,6 +725,7 @@ var JobGraph = (function (_React$Component) {
             var descriptions = _state7.descriptions;
             var selectionModel = _state7.selectionModel;
             var onTriggerChange = _state7.onTriggerChange;
+            var onLabelChange = _state7.onLabelChange;
             var createNewAction = _state7.createNewAction;
             var onRemoveFilter = _state7.onRemoveFilter;
             var dirty = _state7.dirty;
@@ -783,22 +807,28 @@ var JobGraph = (function (_React$Component) {
                 }
             };
 
+            var header = _react2['default'].createElement(
+                'span',
+                { style: { flex: 1, padding: '14px 24px' } },
+                'Job Workflow'
+            );
+            if (jobsEditable && editMode) {
+                header = _react2['default'].createElement(
+                    'span',
+                    { style: { flex: 1, padding: '0 6px' } },
+                    _react2['default'].createElement(ModernTextField, { value: job.Label, onChange: function (e, v) {
+                            onLabelChange(v);
+                        }, inputStyle: { color: 'white' } })
+                );
+            }
+
             return _react2['default'].createElement(
                 _materialUi.Paper,
                 { zDepth: 1, style: { margin: 20 } },
                 _react2['default'].createElement(
                     'div',
                     { style: st.header },
-                    _react2['default'].createElement(
-                        'span',
-                        { style: { flex: 1, padding: '14px 24px' } },
-                        'Job Workflow ',
-                        jobsEditable && editMode && _react2['default'].createElement(
-                            'span',
-                            null,
-                            '- Select boxes to edit details.'
-                        )
-                    ),
+                    header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             onSave(job);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
@@ -825,7 +855,7 @@ var JobGraph = (function (_React$Component) {
                         selBlock
                     )
                 ),
-                _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: style + (editMode ? '' : readonlyStyle) } })
+                (0, _builderStyles.getCssStyle)(editMode)
             );
         }
     }], [{

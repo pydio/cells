@@ -24,8 +24,8 @@ import {IconButton, FontIcon, FlatButton, RaisedButton, Paper, Dialog, Divider} 
 const {JobsStore, SingleJobProgress} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
 import TaskActivity from './TaskActivity'
-import JobSchedule from './JobSchedule'
 import JobGraph from "./JobGraph";
+import ResourcesManager from 'pydio/http/resources-manager'
 
 class JobBoard extends React.Component {
 
@@ -100,9 +100,31 @@ class JobBoard extends React.Component {
         })
     }
 
+    deleteJob(){
+        const {pydio, job, create, onRequestClose} = this.props;
+        if(create) {
+            return
+        }
+        const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
+        if(!window.confirm(m('job.delete.confirm'))){
+            return
+        }
+        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+            const {SchedulerServiceApi} = sdk;
+            const api = new SchedulerServiceApi(PydioApi.getRestClient());
+            return api.deleteJob(job.ID);
+        }).then(()=> {
+            onRequestClose(true);
+        }).catch((e) => {
+
+        })
+    }
+
     render(){
 
-        const {pydio, jobsEditable, create} = this.props;
+        const {pydio, jobsEditable, create, job, onRequestClose} = this.props;
+        const {selectedRows, working, mode, taskLogs} = this.state;
+
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
         const keys = [
@@ -121,9 +143,6 @@ class JobBoard extends React.Component {
             }},
             {name:'Actions', label:'', style:{textAlign:'right'}, renderCell:this.renderActions.bind(this)}
         ];
-
-        const {job, onRequestClose} = this.props;
-        const {selectedRows, working, mode, taskLogs} = this.state;
         const tasks = job.Tasks || [];
         const runningStatus = ['Running', 'Paused'];
 
@@ -143,6 +162,9 @@ class JobBoard extends React.Component {
                 actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"}/>} label={m('task.action.enable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} />);
             } else {
                 actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"}/>} label={m('task.action.disable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} />);
+            }
+            if(jobsEditable) {
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-delete"}/>}  label={m('job.delete')} primary={true} onTouchTap={()=>{this.deleteJob()}}/>)
             }
         }
         const running = tasks.filter((t) => {return runningStatus.indexOf(t.Status) !== -1});
@@ -172,7 +194,7 @@ class JobBoard extends React.Component {
                     loading={working}
                 />
                 <div style={{flex:1, overflowY: 'auto'}}>
-                    <JobGraph job={job} random={Math.random()} jobsEditable={jobsEditable}/>
+                    <JobGraph job={job} random={Math.random()} jobsEditable={jobsEditable} create={create}/>
                     {!create &&
                     <div>
                         <AdminComponents.SubHeader

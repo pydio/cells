@@ -110,14 +110,14 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, objects ch
 	return nil
 }
 
-func (n *NodesSelector) Filter(input ActionMessage) ActionMessage {
+func (n *NodesSelector) Filter(input ActionMessage) (ActionMessage, bool) {
 
 	if len(input.Nodes) == 0 {
-		return input
+		return input, false
 	}
 
 	if n.All {
-		return input
+		return input, true
 	}
 
 	var newNodes []*tree.Node
@@ -151,7 +151,7 @@ func (n *NodesSelector) Filter(input ActionMessage) ActionMessage {
 	}
 	output := input
 	output.Nodes = newNodes
-	return output
+	return output, len(newNodes) > 0
 
 }
 

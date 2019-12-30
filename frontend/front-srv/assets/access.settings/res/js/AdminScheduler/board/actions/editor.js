@@ -12,6 +12,7 @@ export const SELECTION_CLEAR_ACTION = "selection:clear";
 export const RESIZE_PAPER = "editor:resize-paper";
 
 export const JOB_SWITCH_TRIGGER = "trigger:switch";
+export const JOB_UPDATE_LABEL = "job:label";
 
 export const EMPTY_MODEL_ACTION = "model:create-empty";
 export const ATTACH_MODEL_ACTION = "model:attach";
@@ -111,6 +112,13 @@ export function changeTriggerAction(triggerType, triggerData){
         type: JOB_SWITCH_TRIGGER,
         triggerType,
         triggerData
+    }
+}
+
+export function updateLabelAction(newLabel){
+    return {
+        type: JOB_UPDATE_LABEL,
+        label: newLabel,
     }
 }
 

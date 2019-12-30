@@ -14,6 +14,7 @@ exports.removeFilterAction = removeFilterAction;
 exports.jobLoadedAction = jobLoadedAction;
 exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
+exports.updateLabelAction = updateLabelAction;
 exports.setSelectionAction = setSelectionAction;
 exports.clearSelectionAction = clearSelectionAction;
 exports.setDirtyAction = setDirtyAction;
@@ -44,8 +45,10 @@ var RESIZE_PAPER = "editor:resize-paper";
 
 exports.RESIZE_PAPER = RESIZE_PAPER;
 var JOB_SWITCH_TRIGGER = "trigger:switch";
-
 exports.JOB_SWITCH_TRIGGER = JOB_SWITCH_TRIGGER;
+var JOB_UPDATE_LABEL = "job:label";
+
+exports.JOB_UPDATE_LABEL = JOB_UPDATE_LABEL;
 var EMPTY_MODEL_ACTION = "model:create-empty";
 exports.EMPTY_MODEL_ACTION = EMPTY_MODEL_ACTION;
 var ATTACH_MODEL_ACTION = "model:attach";
@@ -158,6 +161,13 @@ function changeTriggerAction(triggerType, triggerData) {
         type: JOB_SWITCH_TRIGGER,
         triggerType: triggerType,
         triggerData: triggerData
+    };
+}
+
+function updateLabelAction(newLabel) {
+    return {
+        type: JOB_UPDATE_LABEL,
+        label: newLabel
     };
 }
 

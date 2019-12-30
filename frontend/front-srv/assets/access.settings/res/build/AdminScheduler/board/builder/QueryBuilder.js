@@ -106,11 +106,11 @@ var QueryBuilder = (function (_React$Component) {
                     uniqueSingleOnly = true;
                 }
             } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
-                objectType = 'user';
                 switch (query.Type) {
                     case "User":
                         objectType = 'user';
                         singleQuery = 'idm.UserSingleQuery';
+                        uniqueSingleOnly = true;
                         break;
                     case "Workspace":
                         objectType = 'workspace';
@@ -125,6 +125,9 @@ var QueryBuilder = (function (_React$Component) {
                         singleQuery = 'idm.ACLSingleQuery';
                         break;
                     default:
+                        objectType = 'user';
+                        singleQuery = 'idm.UserSingleQuery';
+                        uniqueSingleOnly = true;
                         break;
                 }
             } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
@@ -470,9 +473,8 @@ var QueryBuilder = (function (_React$Component) {
                 var _detectTypes3 = _this5.detectTypes(_this5.state.query);
 
                 var singleQuery = _detectTypes3.singleQuery;
-                var uniqueSingleOnly = _detectTypes3.uniqueSingleOnly;
 
-                if (!uniqueSingleOnly) {
+                if (singleQuery !== 'tree.Query') {
                     // Cannot split tree.Query
                     _this5.setState({
                         querySplitProto: elementView.model.query,
@@ -481,6 +483,8 @@ var QueryBuilder = (function (_React$Component) {
                         aSize: elementView.model.size(),
                         aScrollLeft: _reactDom2['default'].findDOMNode(_this5.refs.scroller).scrollLeft || 0
                     });
+                } else {
+                    window.alert('Node filters do not support multiple conditions yet');
                 }
             });
             this.paper.on('root:add', function (elementView, evt) {
@@ -534,7 +538,6 @@ var QueryBuilder = (function (_React$Component) {
 
                 var _detectTypes5 = _this5.detectTypes(_this5.state.query);
 
-                var singleQuery = _detectTypes5.singleQuery;
                 var uniqueSingleOnly = _detectTypes5.uniqueSingleOnly;
                 var _elementView$model2 = elementView.model;
                 var parentQuery = _elementView$model2.parentQuery;

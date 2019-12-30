@@ -53,12 +53,40 @@ func (ex *ExtractAction) GetDescription(lang ...string) actions.ActionDescriptio
 		Icon:            "package-up",
 		Description:     "Extract files and folders from a Zip, Tar or Tar.gz archive",
 		SummaryTemplate: "",
-		HasForm:         false,
+		HasForm:         true,
 	}
 }
 
 func (ex *ExtractAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "format",
+					Type:        forms.ParamSelect,
+					Label:       "Archive format",
+					Description: "The format of the archive",
+					Default:     "",
+					Mandatory:   true,
+					Editable:    true,
+					ChoicePresetList: []map[string]string{
+						{zipFormat: "Zip"},
+						{tarFormat: "Tar"},
+						{tarGzFormat: "TarGz"},
+					},
+				},
+				&forms.FormField{
+					Name:        "target",
+					Type:        "string",
+					Label:       "Archive path",
+					Description: "FullPath to the new archive",
+					Default:     "",
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 // GetName returns this action unique identifier
