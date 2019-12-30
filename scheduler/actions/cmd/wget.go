@@ -164,9 +164,10 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	resp, err := w.Router.ReadNode(ctx, request)
 	if err != nil {
 		log.Logger(ctx).Error("Cannot read node", zap.Error(err))
+	} else {
+		input.Nodes = append(input.Nodes, resp.Node)
 	}
 
-	input.Nodes = append(input.Nodes, resp.Node)
 	input.AppendOutput(&jobs.ActionOutput{
 		Success:  true,
 		JsonBody: jsonBody,

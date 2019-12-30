@@ -44,27 +44,27 @@ func TestNodesSelector_Filter(t *testing.T) {
 
 		n := &NodesSelector{} // Empty Node
 		input := ActionMessage{Nodes: []*tree.Node{&tree.Node{Path: "test"}}}
-		output := n.Filter(input)
+		output, _ := n.Filter(input)
 		So(output, ShouldResemble, input)
 
 		n = &NodesSelector{} // Empty Filter
-		output = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
+		output, _ = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes[0], ShouldResemble, node)
 
 		n = &NodesSelector{All: true} // All : True
-		output = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
+		output, _ = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes[0], ShouldResemble, node)
 
 		n = &NodesSelector{Pathes: []string{
 			"/root/node/filename.jpg",
 		}}
-		output = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
+		output, _ = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes[0], ShouldResemble, node)
 
 		n = &NodesSelector{Pathes: []string{
 			"/root/other/filename.jpg",
 		}}
-		output = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
+		output, _ = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes, ShouldBeEmpty)
 
 	})
@@ -85,7 +85,7 @@ func TestNodesSelector_Filter(t *testing.T) {
 				SubQueries: []*any.Any{marshalled},
 			},
 		}
-		output := n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
+		output, _ := n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes[0], ShouldResemble, node)
 
 	})
@@ -110,7 +110,7 @@ func TestNodesSelector_Filter(t *testing.T) {
 		input := ActionMessage{
 			Nodes: []*tree.Node{node},
 		}
-		output := n.Filter(ActionMessage{
+		output, _ := n.Filter(ActionMessage{
 			Nodes: []*tree.Node{node},
 		})
 
@@ -141,7 +141,7 @@ func TestNodesSelector_Filter(t *testing.T) {
 				Operation:  service.OperationType_AND,
 			},
 		}
-		output := n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
+		output, _ := n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes[0], ShouldResemble, node)
 
 		// One condition is false
@@ -154,12 +154,12 @@ func TestNodesSelector_Filter(t *testing.T) {
 		marshalled3, _ := ptypes.MarshalAny(q3)
 
 		n.Query.SubQueries = []*any.Any{marshalled, marshalled3}
-		output = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
+		output, _ = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes, ShouldBeEmpty)
 
 		// Switch to OR
 		n.Query.Operation = service.OperationType_OR
-		output = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
+		output, _ = n.Filter(ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes, ShouldNotBeNil)
 
 	})
