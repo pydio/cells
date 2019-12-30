@@ -51,12 +51,15 @@ type SnapshotAction struct {
 
 func (c *SnapshotAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              snapshotActionName,
-		Label:           "Snapshot",
-		Icon:            "file-tree",
-		Description:     "Generate a JSON snapshot of the index, starting at a given path",
-		SummaryTemplate: "",
-		HasForm:         true,
+		ID:                snapshotActionName,
+		Label:             "Snapshot",
+		Icon:              "file-tree",
+		Category:          actions.ActionCategoryTree,
+		Description:       "Generate a JSON snapshot of the index, starting at a given path",
+		InputDescription:  "Single-selection of root to browse for building the snapshot",
+		OutputDescription: "Empty output",
+		SummaryTemplate:   "",
+		HasForm:           true,
 	}
 }
 

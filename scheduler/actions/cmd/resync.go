@@ -48,8 +48,9 @@ func (c *ResyncAction) GetDescription(lang ...string) actions.ActionDescription 
 	return actions.ActionDescription{
 		ID:              resyncActionName,
 		Label:           "Resynchronize",
+		Category:        actions.ActionCategoryCmd,
 		Icon:            "reload",
-		Description:     "Trigger sync command on a SyncProvider microservice endpoint",
+		Description:     "Trigger a Resync command on a SyncProvider microservice endpoint",
 		SummaryTemplate: "",
 		HasForm:         true,
 	}

@@ -52,12 +52,14 @@ type DeleteAction struct {
 
 func (c *DeleteAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              deleteActionName,
-		Label:           "Delete files",
-		Icon:            "delete-forever",
-		Description:     "Recursively delete files or folders passed in input",
-		SummaryTemplate: "",
-		HasForm:         true,
+		ID:               deleteActionName,
+		Label:            "Delete files",
+		Category:         actions.ActionCategoryTree,
+		Icon:             "delete-forever",
+		Description:      "Recursively delete files or folders passed in input",
+		InputDescription: "Single-selection of file or folder to delete. Folders are deleted recursively",
+		SummaryTemplate:  "",
+		HasForm:          true,
 	}
 }
 
@@ -69,7 +71,7 @@ func (c *DeleteAction) GetParametersForm() *forms.Form {
 					Name:        "childrenOnly",
 					Type:        "boolean",
 					Label:       "Children Only",
-					Description: "Delete only the children items from the input nodes",
+					Description: "Delete only the children items from the input node",
 					Default:     false,
 					Mandatory:   false,
 					Editable:    true,

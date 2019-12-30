@@ -23,6 +23,7 @@ func (l *LogInputAction) GetDescription(lang ...string) actions.ActionDescriptio
 		ID:              LogInputActionName,
 		Label:           "Log Inputs",
 		Icon:            "format-list-bulleted",
+		Category:        actions.ActionCategoryScheduler,
 		Description:     "For debug purpose, log all action inputs and pass them along to next action",
 		SummaryTemplate: "",
 		HasForm:         false,

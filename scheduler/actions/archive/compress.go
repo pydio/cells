@@ -59,12 +59,15 @@ type CompressAction struct {
 
 func (c *CompressAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              compressActionName,
-		Label:           "Create Archive",
-		Icon:            "package-down",
-		Description:     "Create a Zip, Tar or Tar.gz archive from the input nodes selection",
-		SummaryTemplate: "",
-		HasForm:         true,
+		ID:                compressActionName,
+		Category:          actions.ActionCategoryArchives,
+		Label:             "Create Archive",
+		Icon:              "package-down",
+		Description:       "Create a Zip, Tar or Tar.gz archive from the input",
+		InputDescription:  "Selection of node(s). Folders will be recursively walked through.",
+		OutputDescription: "One single node pointing to the created archive file.",
+		SummaryTemplate:   "",
+		HasForm:           true,
 	}
 }
 

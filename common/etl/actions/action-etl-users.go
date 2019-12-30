@@ -25,16 +25,46 @@ type SyncUsersAction struct {
 func (c *SyncUsersAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              SyncUsersActionName,
-		Label:           "Sync Directories",
+		Category:        actions.ActionCategoryETL,
+		Label:           "Sync. Directories",
 		Icon:            "account-convert",
 		Description:     "Synchronize external directories with Cells database",
 		SummaryTemplate: "",
-		HasForm:         false,
+		HasForm:         true,
 	}
 }
 
 func (c *SyncUsersAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "left",
+					Type:        forms.ParamString,
+					Label:       "Left store",
+					Description: "Type of left users store",
+				},
+				&forms.FormField{
+					Name:        "right",
+					Type:        forms.ParamString,
+					Label:       "Right store",
+					Description: "Type of right users store",
+				},
+				&forms.FormField{
+					Name:        "splitUserRoles",
+					Type:        forms.ParamString,
+					Label:       "Split users and roles",
+					Description: "Sequentially import users then roles",
+				},
+				&forms.FormField{
+					Name:        "cellAdmin",
+					Type:        forms.ParamString,
+					Label:       "Cells admin",
+					Description: "Login of cells administrator",
+				},
+			},
+		},
+	}}
 }
 
 type ConnectorConfigs struct {

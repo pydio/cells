@@ -46158,8 +46158,6 @@ var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_a
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -46183,8 +46181,6 @@ var _FormLoader = require('./FormLoader');
 var _FormLoader2 = _interopRequireDefault(_FormLoader);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
-
-var _graphConfigs = require("../graph/Configs");
 
 var PydioForm = _pydio2['default'].requireLib('form');
 
@@ -46342,8 +46338,30 @@ var FormPanel = (function (_React$Component) {
             var actions = this.props.actions;
             var action = this.state.action;
 
-            var options = Object.keys(actions).map(function (id) {
-                return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: actions[id].Label || actions[id].Name, value: id });
+            // Group by categories and sort
+            var categs = {};
+            Object.keys(actions).forEach(function (id) {
+                var c = actions[id].Category || 'No category';
+                if (!categs[c]) {
+                    categs[c] = [];
+                }
+                categs[c].push(actions[id]);
+            });
+            var options = [];
+            var cKeys = Object.keys(categs);
+            cKeys.sort();
+            cKeys.forEach(function (c) {
+                options.push(_react2['default'].createElement(
+                    _materialUi.Subheader,
+                    null,
+                    c
+                ));
+                categs[c].sort(function (a, b) {
+                    return a.Label > b.Label ? 1 : -1;
+                });
+                categs[c].forEach(function (a) {
+                    options.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: a.Label || a.Name, value: a.Name }));
+                });
             });
             return _react2['default'].createElement(
                 ModernSelectField,
@@ -46354,7 +46372,7 @@ var FormPanel = (function (_React$Component) {
                         _this2.onIdChange(value);
                     }
                 },
-                [_react2['default'].createElement(_materialUi.MenuItem, { value: _actionsEditor.JOB_ACTION_EMPTY, primaryText: "Please pick an action" })].concat(_toConsumableArray(options))
+                [_react2['default'].createElement(_materialUi.MenuItem, { value: _actionsEditor.JOB_ACTION_EMPTY, primaryText: "Please pick an action" })].concat(options)
             );
         }
     }, {
@@ -46463,7 +46481,7 @@ var FormPanel = (function (_React$Component) {
 exports['default'] = FormPanel;
 module.exports = exports['default'];
 
-},{"../actions/editor":477,"../graph/Configs":492,"./FormLoader":479,"./styles":490,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],481:[function(require,module,exports){
+},{"../actions/editor":477,"./FormLoader":479,"./styles":490,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],481:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

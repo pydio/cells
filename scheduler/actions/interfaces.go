@@ -36,13 +36,28 @@ import (
 
 type Concrete func() ConcreteAction
 
+const (
+	ActionCategoryTree      = "Files/Folders Operations"
+	ActionCategoryPutGet    = "Upload/Download to External Servers"
+	ActionCategoryCmd       = "Atomic Commands and Scripts"
+	ActionCategoryIDM       = "Identity Management"
+	ActionCategoryETL       = "Extract/Load/Transform"
+	ActionCategoryMedia     = "Media Processing"
+	ActionCategoryArchives  = "Archives Operations"
+	ActionCategoryNotify    = "Notifications and Emails"
+	ActionCategoryScheduler = "Scheduler Tools / Internals"
+)
+
 type ActionDescription struct {
-	ID              string
-	Label           string
-	Icon            string
-	Description     string
-	SummaryTemplate string
-	HasForm         bool
+	ID                string
+	Label             string
+	Icon              string
+	Description       string
+	Category          string
+	InputDescription  string
+	OutputDescription string
+	SummaryTemplate   string
+	HasForm           bool
 }
 
 // ConcreteAction is the base interface for pydio actions. All actions must implement this interface.

@@ -48,12 +48,15 @@ type ExtractAction struct {
 
 func (ex *ExtractAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              extractActionName,
-		Label:           "Extract Archive",
-		Icon:            "package-up",
-		Description:     "Extract files and folders from a Zip, Tar or Tar.gz archive",
-		SummaryTemplate: "",
-		HasForm:         true,
+		ID:                extractActionName,
+		Label:             "Extract Archive",
+		Icon:              "package-up",
+		Category:          actions.ActionCategoryArchives,
+		Description:       "Extract files and folders from a Zip, Tar or Tar.gz archive",
+		SummaryTemplate:   "",
+		HasForm:           true,
+		InputDescription:  "Single-node selection pointing to an archive to extract",
+		OutputDescription: "One node pointing to the parent folder where all files where extracted.",
 	}
 }
 

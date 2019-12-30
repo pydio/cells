@@ -58,6 +58,7 @@ func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescripti
 		ID:              fakeUserCreationActionName,
 		Label:           "Fake Users",
 		Icon:            "account-multiple-plus",
+		Category:        actions.ActionCategoryIDM,
 		Description:     "For debugging purpose, create many users using a remote API for generating names",
 		SummaryTemplate: "",
 		HasForm:         false,

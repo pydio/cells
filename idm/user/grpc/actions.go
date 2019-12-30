@@ -35,14 +35,28 @@ func (a *DeleteUsersAction) GetDescription(lang ...string) actions.ActionDescrip
 		ID:              DeleteUsersActionName,
 		Label:           "Remove Users",
 		Icon:            "account-off",
-		Description:     "Batch-delete users and groups",
+		Description:     "Batch-delete users and groups, based on login or group path. Use one of the parameters.",
 		SummaryTemplate: "",
-		HasForm:         false,
+		Category:        actions.ActionCategoryIDM,
+		HasForm:         true,
 	}
 }
 
 func (a *DeleteUsersAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{{Fields: []forms.Field{
+		&forms.FormField{
+			Name:        "login",
+			Type:        forms.ParamString,
+			Label:       "Login",
+			Description: "Specific user login",
+		},
+		&forms.FormField{
+			Name:        "groupPath",
+			Type:        forms.ParamString,
+			Label:       "groupPath",
+			Description: "Path to group (all users and groups will be deleted)",
+		},
+	}}}}
 }
 
 func (a *DeleteUsersAction) GetName() string {

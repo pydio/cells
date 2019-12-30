@@ -1,12 +1,11 @@
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper, MenuItem, SelectField, RaisedButton} from 'material-ui'
+import {Paper, MenuItem, SelectField, RaisedButton, Subheader} from 'material-ui'
 const PydioForm = Pydio.requireLib('form');
 import {RightPanel} from './styles'
 import {JOB_ACTION_EMPTY} from "../actions/editor";
 import FormLoader from './FormLoader'
 import {JobsJob, ConfigServiceApi, RestConfiguration, JobsAction} from 'pydio/http/rest-api'
-import {LightGrey} from "../graph/Configs";
 const {ModernSelectField} = Pydio.requireLib('hoc');
 
 class FormPanel extends React.Component {
@@ -132,8 +131,24 @@ class FormPanel extends React.Component {
     actionPicker(){
         const {actions} = this.props;
         const {action} = this.state;
-        let options = Object.keys(actions).map(id => {
-            return <MenuItem primaryText={actions[id].Label || actions[id].Name} value={id}/>
+        // Group by categories and sort
+        const categs = {};
+        Object.keys(actions).forEach(id => {
+            const c = actions[id].Category || 'No category';
+            if(!categs[c]){
+                categs[c] = [];
+            }
+            categs[c].push(actions[id]);
+        });
+        let options = [];
+        const cKeys = Object.keys(categs);
+        cKeys.sort();
+        cKeys.forEach(c => {
+            options.push(<Subheader>{c}</Subheader>);
+            categs[c].sort((a,b) => {return a.Label > b.Label ? 1 : -1 });
+            categs[c].forEach(a => {
+                options.push(<MenuItem primaryText={a.Label || a.Name} value={a.Name}/>)
+            })
         });
         return (
             <ModernSelectField

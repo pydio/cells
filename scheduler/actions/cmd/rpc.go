@@ -49,6 +49,7 @@ func (c *RpcAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              rpcActionName,
 		Label:           "gRPC Request",
+		Category:        actions.ActionCategoryCmd,
 		Icon:            "code-braces",
 		Description:     "Perform a valid JSON-encoded call to any micro-service",
 		SummaryTemplate: "",

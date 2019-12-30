@@ -69,15 +69,36 @@ func (c *ShellAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              shellActionName,
 		Label:           "Shell Command",
+		Category:        actions.ActionCategoryCmd,
 		Icon:            "console",
-		Description:     "Perform a console command on the underlying server",
+		Description:     "Perform a console command on the underlying server. If applied to a Cells file, data will be temporarily copied on the server file system to be processed.",
 		SummaryTemplate: "",
-		HasForm:         false,
+		HasForm:         true,
 	}
 }
 
 func (c *ShellAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{{Fields: []forms.Field{
+		&forms.FormField{
+			Name:        "cmd",
+			Type:        forms.ParamString,
+			Label:       "Shell Command",
+			Description: "Command to be called on server OS",
+			Mandatory:   true,
+		},
+		&forms.FormField{
+			Name:        "parameters",
+			Type:        forms.ParamString,
+			Label:       "Parameters",
+			Description: "List of space separated parameters to append to the command",
+		},
+		&forms.FormField{
+			Name:        "inputTempFile",
+			Type:        forms.ParamBool,
+			Label:       "Use temporary folder",
+			Description: "Use a temporary folder to store file before applying command",
+		},
+	}}}}
 }
 
 // Unique identifier

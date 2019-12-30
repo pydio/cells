@@ -58,6 +58,7 @@ type WGetAction struct {
 func (w *WGetAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              wgetActionName,
+		Category:        actions.ActionCategoryPutGet,
 		Label:           "Http Get",
 		Icon:            "download",
 		Description:     "Download a remote file or binary, equivalent to wget commmand",

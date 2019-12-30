@@ -56,12 +56,15 @@ type MailDigestAction struct {
 
 func (m *MailDigestAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              digestActionName,
-		Label:           "Email Digest",
-		Icon:            "email",
-		Description:     "Compute a summary of last notifications and send to user",
-		SummaryTemplate: "",
-		HasForm:         false,
+		ID:                digestActionName,
+		Label:             "Email Digest",
+		Icon:              "email",
+		Category:          actions.ActionCategoryNotify,
+		InputDescription:  "Single-selection of one user",
+		OutputDescription: "Returns unchanged input",
+		Description:       "Compute a summary of last notifications and send to user",
+		SummaryTemplate:   "",
+		HasForm:           false,
 	}
 }
 

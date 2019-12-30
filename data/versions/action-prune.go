@@ -50,6 +50,7 @@ func (c *PruneVersionsAction) GetDescription(lang ...string) actions.ActionDescr
 		ID:              pruneVersionsActionName,
 		Label:           "Prune Versions",
 		Icon:            "delete-sweep",
+		Category:        actions.ActionCategoryTree,
 		Description:     "Apply versioning policies to keep only a limited number of versions.",
 		SummaryTemplate: "",
 		HasForm:         false,

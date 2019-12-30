@@ -48,6 +48,7 @@ func (f *FakeAction) GetDescription(lang ...string) actions.ActionDescription {
 		ID:              fakeActionName,
 		Label:           "Fake Action",
 		Icon:            "clock-end",
+		Category:        actions.ActionCategoryScheduler,
 		Description:     "This action simulates a long-running process with progress",
 		SummaryTemplate: "",
 		HasForm:         true,

@@ -44,12 +44,15 @@ type MetaAction struct {
 
 func (c *MetaAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              metaActionName,
-		Label:           "Update Meta",
-		Icon:            "tag-multiple",
-		Description:     "Update metadata on files or folders passed in input",
-		SummaryTemplate: "",
-		HasForm:         true,
+		ID:                metaActionName,
+		Label:             "Update Meta",
+		Icon:              "tag-multiple",
+		Category:          actions.ActionCategoryTree,
+		Description:       "Update metadata on files or folders passed in input",
+		InputDescription:  "Multiple selection of files or folders",
+		OutputDescription: "Updated selection of files or folders",
+		SummaryTemplate:   "",
+		HasForm:           true,
 	}
 }
 
@@ -103,11 +106,12 @@ func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	}
 
 	// Update Metadata
-	input.Nodes[0].SetMeta(c.MetaNamespace, c.MetaValue)
-
-	_, err := c.Client.UpdateNode(ctx, &tree.UpdateNodeRequest{From: input.Nodes[0], To: input.Nodes[0]})
-	if err != nil {
-		return input.WithError(err), err
+	for _, n := range input.Nodes {
+		n.SetMeta(c.MetaNamespace, c.MetaValue)
+		_, err := c.Client.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n})
+		if err != nil {
+			return input.WithError(err), err
+		}
 	}
 
 	input.AppendOutput(&jobs.ActionOutput{Success: true})

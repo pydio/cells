@@ -53,7 +53,8 @@ func (a *ArchiveAction) GetDescription(lang ...string) actions.ActionDescription
 		ID:              archiveActionName,
 		Label:           "Archive Changes",
 		Icon:            "zip-box",
-		Description:     "Archive all changes into an alternative table",
+		Description:     "Archive all changes into an alternative table (legacy action)",
+		Category:        actions.ActionCategoryScheduler,
 		SummaryTemplate: "",
 		HasForm:         false,
 	}

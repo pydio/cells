@@ -59,12 +59,15 @@ type CopyMoveAction struct {
 
 func (c *CopyMoveAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              copyMoveActionName,
-		Label:           "Copy/Move",
-		Icon:            "folder-move",
-		Description:     "Recursively copy or move files or folders passed in input",
-		SummaryTemplate: "",
-		HasForm:         true,
+		ID:                copyMoveActionName,
+		Label:             "Copy/Move",
+		Icon:              "folder-move",
+		Category:          actions.ActionCategoryTree,
+		Description:       "Recursively copy or move files or folders passed in input",
+		InputDescription:  "Single-selection of a file or a folder to process",
+		OutputDescription: "The processed file or folder at its new location",
+		SummaryTemplate:   "",
+		HasForm:           true,
 	}
 }
 
@@ -208,7 +211,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		output = output.WithError(e)
 		return output, e
 	} else {
-		output = output.WithNodes(sourceNode, targetNode)
+		output = output.WithNode(targetNode)
 		output.AppendOutput(&jobs.ActionOutput{
 			Success: true,
 		})

@@ -84,6 +84,7 @@ func (c *PruneTokensAction) GetDescription(lang ...string) actions.ActionDescrip
 		ID:              pruneTokensActionName,
 		Label:           "Prune tokens",
 		Icon:            "delete-sweep",
+		Category:        actions.ActionCategoryIDM,
 		Description:     "Delete expired and revoked token from internal registry",
 		SummaryTemplate: "",
 		HasForm:         false,

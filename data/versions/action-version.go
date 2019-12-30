@@ -45,12 +45,14 @@ type VersionAction struct{}
 
 func (c *VersionAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              versionActionName,
-		Label:           "File versioning",
-		Icon:            "content-copy",
-		Description:     "Create a copy of file on each content change",
-		SummaryTemplate: "",
-		HasForm:         false,
+		ID:               versionActionName,
+		Label:            "File versioning",
+		Icon:             "content-copy",
+		Category:         actions.ActionCategoryTree,
+		Description:      "Create a copy of file on each content change",
+		SummaryTemplate:  "",
+		HasForm:          false,
+		InputDescription: "Single node from event",
 	}
 }
 

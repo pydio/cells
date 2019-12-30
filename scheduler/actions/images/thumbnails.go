@@ -86,12 +86,15 @@ type ThumbnailExtractor struct {
 
 func (t *ThumbnailExtractor) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
-		ID:              thumbnailsActionName,
-		Label:           "Create Thumbs",
-		Icon:            "image-filter",
-		Description:     "Create thumbnails on image creation/modification",
-		SummaryTemplate: "",
-		HasForm:         true,
+		ID:                thumbnailsActionName,
+		Label:             "Create Thumbs",
+		Icon:              "image-filter",
+		Description:       "Create thumbnails on image creation/modification",
+		SummaryTemplate:   "",
+		HasForm:           true,
+		Category:          actions.ActionCategoryMedia,
+		InputDescription:  "Single-selection of file. Temporary and zero-bytes will be ignored",
+		OutputDescription: "Input file with updated metadata",
 	}
 }
 

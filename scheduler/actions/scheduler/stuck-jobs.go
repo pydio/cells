@@ -45,6 +45,7 @@ func (c *PruneJobsAction) GetDescription(lang ...string) actions.ActionDescripti
 		ID:              pruneJobsActionName,
 		Label:           "Prune Jobs",
 		Icon:            "delete-sweep",
+		Category:        actions.ActionCategoryScheduler,
 		Description:     "Delete finished scheduler jobs marked as AutoClean",
 		SummaryTemplate: "",
 		HasForm:         false,

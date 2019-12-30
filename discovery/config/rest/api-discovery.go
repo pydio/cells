@@ -196,12 +196,15 @@ func (s *Handler) SchedulerActionsDiscovery(req *restful.Request, rsp *restful.R
 	}
 	for name, a := range allActions {
 		response.Actions[name] = &rest.ActionDescription{
-			Name:            a.ID,
-			Icon:            a.Icon,
-			Label:           a.Label,
-			Description:     a.Description,
-			SummaryTemplate: a.SummaryTemplate,
-			HasForm:         a.HasForm,
+			Name:              a.ID,
+			Icon:              a.Icon,
+			Label:             a.Label,
+			Description:       a.Description,
+			SummaryTemplate:   a.SummaryTemplate,
+			Category:          a.Category,
+			InputDescription:  a.InputDescription,
+			OutputDescription: a.OutputDescription,
+			HasForm:           a.HasForm,
 		}
 	}
 	rsp.WriteEntity(response)
@@ -228,7 +231,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 		case "idm.ACLSingleQuery":
 			form = protos.GenerateProtoToForm(&idm.ACLSingleQuery{}, asSwitch)
 			a := protos.GenerateProtoToForm(&idm.ACLAction{})
-			if asSwitch{
+			if asSwitch {
 				// Patch Actions field manually
 				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
 				sw.Values = append(sw.Values, &forms.SwitchValue{

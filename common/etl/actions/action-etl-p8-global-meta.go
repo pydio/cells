@@ -8,6 +8,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/pydio/cells/common/etl/stores/pydio8"
 
 	"github.com/golang/protobuf/ptypes"
@@ -44,6 +46,22 @@ type MigrateGlobalMetaAction struct {
 var (
 	MigrateGlobalMetaName = "actions.etl.p8-global-meta"
 )
+
+func (c *MigrateGlobalMetaAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              MigrateGlobalMetaName,
+		Label:           "Global meta from P8",
+		Icon:            "",
+		Description:     "Pydio 8 migration specific task (do not use manually).",
+		Category:        actions.ActionCategoryETL,
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *MigrateGlobalMetaAction) GetParametersForm() *forms.Form {
+	return nil
+}
 
 // Unique identifier
 func (c *MigrateGlobalMetaAction) GetName() string {
