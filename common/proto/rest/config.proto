@@ -146,6 +146,12 @@ message ActionDescription{
     string SummaryTemplate = 5;
     // Whether this action has a form or not
     bool HasForm = 6;
+    // User-defined category to organize actions list
+    string Category = 7;
+    // Additional description for expected inputs
+    string InputDescription = 8;
+    // Additional description describing the action output
+    string OutputDescription = 9;
 }
 
 message SchedulerActionsRequest{}

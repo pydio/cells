@@ -45,6 +45,9 @@ var RestActionDescription = (function () {
         this.Description = undefined;
         this.SummaryTemplate = undefined;
         this.HasForm = undefined;
+        this.Category = undefined;
+        this.InputDescription = undefined;
+        this.OutputDescription = undefined;
     }
 
     /**
@@ -77,6 +80,15 @@ var RestActionDescription = (function () {
             if (data.hasOwnProperty('HasForm')) {
                 obj['HasForm'] = _ApiClient2['default'].convertToType(data['HasForm'], 'Boolean');
             }
+            if (data.hasOwnProperty('Category')) {
+                obj['Category'] = _ApiClient2['default'].convertToType(data['Category'], 'String');
+            }
+            if (data.hasOwnProperty('InputDescription')) {
+                obj['InputDescription'] = _ApiClient2['default'].convertToType(data['InputDescription'], 'String');
+            }
+            if (data.hasOwnProperty('OutputDescription')) {
+                obj['OutputDescription'] = _ApiClient2['default'].convertToType(data['OutputDescription'], 'String');
+            }
         }
         return obj;
     };
@@ -108,4 +120,16 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} HasForm
+*/
+
+/**
+* @member {String} Category
+*/
+
+/**
+* @member {String} InputDescription
+*/
+
+/**
+* @member {String} OutputDescription
 */

@@ -4625,10 +4625,29 @@
             "returns": null
           },
           {
+            "name": "jobInputCreatesData",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "graphFromJob",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
             "returns": null
           },
           {
@@ -4647,7 +4666,12 @@
             "name": "clearSelection",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "callback",
+                "type": null
+              }
+            ],
             "returns": null
           },
           {
@@ -4702,6 +4726,13 @@
             "returns": null
           },
           {
+            "name": "createLinkTool",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "drawGraph",
             "docblock": null,
             "modifiers": [],
@@ -4709,7 +4740,30 @@
             "returns": null
           },
           {
-            "name": "deleteButton",
+            "name": "isDroppable",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "elementAbove",
+                "type": null
+              },
+              {
+                "name": "elementBelow",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "deleteAction",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toggleEdit",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -4831,7 +4885,28 @@
       {
         "description": "",
         "displayName": "Filters",
-        "methods": []
+        "methods": [
+          {
+            "name": "removeFilter",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "data",
+                "type": null
+              },
+              {
+                "name": "type",
+                "type": null
+              },
+              {
+                "name": "modelType",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
       }
     ],
     "AdminScheduler/board/builder/FormPanel.js": [
@@ -4926,6 +5001,141 @@
             "modifiers": [],
             "params": [],
             "returns": null
+          },
+          {
+            "name": "save",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "revert",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminScheduler/board/builder/ProtoValue.js": [
+      {
+        "description": "",
+        "displayName": "ProtoValue",
+        "methods": [
+          {
+            "name": "hasNot",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "filterNot",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "protoValueToFormValues",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              },
+              {
+                "name": "fieldName",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              },
+              {
+                "name": "notProps",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "formValuesToProtoValue",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              },
+              {
+                "name": "values",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "replicatedValue",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "params",
+                "type": null
+              },
+              {
+                "name": "jsonObject",
+                "type": null
+              },
+              {
+                "name": "fieldName",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onFormChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValues",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onSubmit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ]
       }
@@ -4939,12 +5149,48 @@
             "name": "detectTypes",
             "docblock": null,
             "modifiers": [],
+            "params": [
+              {
+                "name": "query",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "redraw",
+            "docblock": null,
+            "modifiers": [],
             "params": [],
             "returns": null
           },
           {
+            "name": "protoHasChildren",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "p",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "pruneEmpty",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "sQ",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "buildServiceQuery",
-            "docblock": "@param graph\n@param input\n@param query\n@return output element",
+            "docblock": "@param graph\n@param input\n@param query\n@return Object",
             "modifiers": [],
             "params": [
               {
@@ -4964,7 +5210,7 @@
               }
             ],
             "returns": {
-              "description": "output element",
+              "description": "Object",
               "type": null
             },
             "description": null
@@ -4973,11 +5219,96 @@
             "name": "buildGraph",
             "docblock": null,
             "modifiers": [],
+            "params": [
+              {
+                "name": "query",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "buildSpreadOutput",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "query",
+                "type": null
+              },
+              {
+                "name": "queryType",
+                "type": null
+              },
+              {
+                "name": "icon",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "clearSelection",
+            "docblock": null,
+            "modifiers": [],
             "params": [],
             "returns": null
           },
           {
             "name": "remove",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "changeQueryValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newField",
+                "type": null
+              },
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "notProps",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "toggleCollect",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "setDirty",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "revert",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "save",
             "docblock": null,
             "modifiers": [],
             "params": [],

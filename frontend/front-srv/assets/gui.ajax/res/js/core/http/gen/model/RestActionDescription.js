@@ -74,6 +74,15 @@ export default class RestActionDescription {
             if (data.hasOwnProperty('HasForm')) {
                 obj['HasForm'] = ApiClient.convertToType(data['HasForm'], 'Boolean');
             }
+            if (data.hasOwnProperty('Category')) {
+                obj['Category'] = ApiClient.convertToType(data['Category'], 'String');
+            }
+            if (data.hasOwnProperty('InputDescription')) {
+                obj['InputDescription'] = ApiClient.convertToType(data['InputDescription'], 'String');
+            }
+            if (data.hasOwnProperty('OutputDescription')) {
+                obj['OutputDescription'] = ApiClient.convertToType(data['OutputDescription'], 'String');
+            }
         }
         return obj;
     }
@@ -102,6 +111,18 @@ export default class RestActionDescription {
     * @member {Boolean} HasForm
     */
     HasForm = undefined;
+    /**
+    * @member {String} Category
+    */
+    Category = undefined;
+    /**
+    * @member {String} InputDescription
+    */
+    InputDescription = undefined;
+    /**
+    * @member {String} OutputDescription
+    */
+    OutputDescription = undefined;
 
 
 

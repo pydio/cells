@@ -5572,6 +5572,18 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Whether this action has a form or not"
+        },
+        "Category": {
+          "type": "string",
+          "title": "User-defined category to organize actions list"
+        },
+        "InputDescription": {
+          "type": "string",
+          "title": "Additional description for expected inputs"
+        },
+        "OutputDescription": {
+          "type": "string",
+          "title": "Additional description describing the action output"
         }
       }
     },
