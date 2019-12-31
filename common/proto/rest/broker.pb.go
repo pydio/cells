@@ -74,6 +74,8 @@ It has these top-level messages:
 	SettingsMenuRequest
 	SettingsEntryMeta
 	SettingsEntry
+	SettingsAccess
+	SettingsAccessRestPolicy
 	SettingsSection
 	SettingsMenuResponse
 	FrontStateRequest

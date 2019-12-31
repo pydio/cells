@@ -33,6 +33,7 @@ const AuthenticationPluginsDashboard = React.createClass({
             displaySmall={true}
             openRightPane={this.props.openRightPane}
             closeRightPane={this.props.closeRightPane}
+            accessByName={this.props.accessByName}
         />;
         return (
             <PluginEditor

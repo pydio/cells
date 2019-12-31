@@ -59,6 +59,7 @@ exports['default'] = _react2['default'].createClass({
         openEditor: _react2['default'].PropTypes.func.isRequired,
         openRightPane: _react2['default'].PropTypes.func.isRequired,
         closeRightPane: _react2['default'].PropTypes.func.isRequired,
+        accessByName: _react2['default'].PropTypes.func.isRequired,
         advanced: _react2['default'].PropTypes.boolean
     },
 
@@ -109,6 +110,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var advanced = _props.advanced;
+        var accessByName = _props.accessByName;
 
         var editorData = {
             COMPONENT: editor,
@@ -161,11 +163,21 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
+        var _props3 = this.props;
+        var pydio = _props3.pydio;
+        var dataModel = _props3.dataModel;
+        var rootNode = _props3.rootNode;
+        var advanced = _props3.advanced;
+        var currentNode = _props3.currentNode;
+        var accessByName = _props3.accessByName;
+
         var buttons = [];
-        var icon = undefined;
-        var title = this.props.currentNode.getLabel();
-        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.3'), onTouchTap: this.showWorkspaceCreator }));
-        icon = 'mdi mdi-folder-open';
+        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, {
+            primary: true,
+            label: this.context.getMessage('ws.3'),
+            onTouchTap: this.showWorkspaceCreator,
+            disabled: !accessByName('Create')
+        }));
 
         return _react2['default'].createElement(
             'div',
@@ -174,8 +186,8 @@ exports['default'] = _react2['default'].createClass({
                 'div',
                 { className: 'vertical-layout', style: { width: '100%' } },
                 _react2['default'].createElement(AdminComponents.Header, {
-                    title: title,
-                    icon: icon,
+                    title: currentNode.getLabel(),
+                    icon: 'mdi mdi-folder-open',
                     actions: buttons,
                     reloadAction: this.reloadWorkspaceList,
                     loading: this.state.loading
@@ -189,12 +201,12 @@ exports['default'] = _react2['default'].createClass({
                         { zDepth: 1, style: { margin: 16 } },
                         _react2['default'].createElement(_WorkspaceList2['default'], {
                             ref: 'workspacesList',
-                            pydio: this.props.pydio,
-                            dataModel: this.props.dataModel,
-                            rootNode: this.props.rootNode,
-                            currentNode: this.props.currentNode,
+                            pydio: pydio,
+                            dataModel: dataModel,
+                            rootNode: rootNode,
+                            currentNode: currentNode,
                             openSelection: this.openWorkspace,
-                            advanced: this.props.advanced
+                            advanced: advanced
                         })
                     )
                 )

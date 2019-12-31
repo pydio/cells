@@ -182,6 +182,8 @@ import RestSearchRoleRequest from './model/RestSearchRoleRequest';
 import RestSearchUserRequest from './model/RestSearchUserRequest';
 import RestSearchWorkspaceRequest from './model/RestSearchWorkspaceRequest';
 import RestServiceCollection from './model/RestServiceCollection';
+import RestSettingsAccess from './model/RestSettingsAccess';
+import RestSettingsAccessRestPolicy from './model/RestSettingsAccessRestPolicy';
 import RestSettingsEntry from './model/RestSettingsEntry';
 import RestSettingsEntryMeta from './model/RestSettingsEntryMeta';
 import RestSettingsMenuResponse from './model/RestSettingsMenuResponse';
@@ -1306,6 +1308,18 @@ export {
      * @property {module:model/RestServiceCollection}
      */
     RestServiceCollection,
+
+    /**
+     * The RestSettingsAccess model constructor.
+     * @property {module:model/RestSettingsAccess}
+     */
+    RestSettingsAccess,
+
+    /**
+     * The RestSettingsAccessRestPolicy model constructor.
+     * @property {module:model/RestSettingsAccessRestPolicy}
+     */
+    RestSettingsAccessRestPolicy,
 
     /**
      * The RestSettingsEntry model constructor.

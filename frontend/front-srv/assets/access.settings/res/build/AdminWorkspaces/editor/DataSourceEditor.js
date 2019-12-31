@@ -238,6 +238,7 @@ var DataSourceEditor = (function (_React$Component) {
             var _props = this.props;
             var storageTypes = _props.storageTypes;
             var pydio = _props.pydio;
+            var readonly = _props.readonly;
             var _state3 = this.state;
             var model = _state3.model;
             var create = _state3.create;
@@ -250,14 +251,16 @@ var DataSourceEditor = (function (_React$Component) {
             var m = _state3.m;
 
             var titleActionBarButtons = [];
-            if (!create) {
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
-                    _this6.resetForm();
-                }, !this.state.dirty));
+            if (!readonly) {
+                if (!create) {
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                        _this6.resetForm();
+                    }, !this.state.dirty));
+                }
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                    _this6.saveSource();
+                }, !observable.isValid() || !this.state.dirty));
             }
-            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
-                _this6.saveSource();
-            }, !observable.isValid() || !this.state.dirty));
 
             var leftNav = _react2['default'].createElement(
                 'div',
@@ -330,7 +333,7 @@ var DataSourceEditor = (function (_React$Component) {
                         )
                     )
                 ),
-                !create && _react2['default'].createElement(
+                !create && !readonly && _react2['default'].createElement(
                     'div',
                     null,
                     _react2['default'].createElement(_materialUi.Divider, null),

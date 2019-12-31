@@ -76,13 +76,15 @@ var CoreAndPluginsDashboard = (function (_React$Component) {
             var pluginsList = _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, {
                 displaySmall: true,
                 filterType: type,
+                accessByName: this.props.accessByName,
                 title: this.props.rootNode.getLabel()
             }));
             return _react2['default'].createElement(_PluginEditor2['default'], {
                 currentNode: this.props.currentNode,
                 pydio: this.props.pydio,
                 pluginId: pluginId,
-                additionalPanes: { top: [], bottom: [pluginsList] }
+                additionalPanes: { top: [], bottom: [pluginsList] },
+                accessByName: this.props.accessByName
             });
         }
     }]);

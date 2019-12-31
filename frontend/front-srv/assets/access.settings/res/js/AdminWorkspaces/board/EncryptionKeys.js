@@ -143,7 +143,7 @@ class EncryptionKeys extends React.Component{
     render(){
 
         const {keys, showDialog, showImportKey, showExportKey, exportedKey, showCreateKey, m} = this.state;
-        const {pydio} = this.props;
+        const {pydio, accessByName} = this.props;
 
         const columns = [
             {name:'Label', label: m('key.label'), style:{width:'30%', fontSize:15}, headerStyle:{width:'30%'}},
@@ -151,6 +151,9 @@ class EncryptionKeys extends React.Component{
             {name:'Owner', label: m('key.owner'), hideSmall:true},
             {name:'CreationDate', label: m('key.created'), hideSmall:true, renderCell:(row) => new Date(row.CreationDate*1000).toUTCString()},
             {name:'Actions', label:'', style:{width:170, textAlign:'right', overflow:'visible'}, headerStyle:{width:170}, renderCell:(row => {
+                if(!accessByName('CreateEncryption')){
+                    return null;
+                }
                 return (
                     <div>
                         <IconButton tooltip={m('key.import')} tooltipPosition={"right"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-import"} onTouchTap={() => {this.setState({showDialog: true, showImportKey:row})}} onClick={e=>e.stopPropagation()}/>
@@ -236,10 +239,12 @@ class EncryptionKeys extends React.Component{
                 >
                     {dialogContent}
                 </Dialog>
-                <div style={{textAlign:'right', paddingBottom: 16}}>
-                    <RaisedButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} style={{marginLeft: 16}}/>
-                    <RaisedButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} style={{marginLeft: 16}}/>
-                </div>
+                {accessByName('CreateEncryption') &&
+                    <div style={{textAlign:'right', paddingBottom: 16}}>
+                        <RaisedButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} style={{marginLeft: 16}}/>
+                        <RaisedButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} style={{marginLeft: 16}}/>
+                    </div>
+                }
                 <Paper zDepth={1}>
                     <MaterialTable
                         data={keys}

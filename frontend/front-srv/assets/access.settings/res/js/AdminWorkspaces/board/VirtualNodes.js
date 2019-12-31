@@ -75,16 +75,16 @@ class VirtualNodes extends React.Component{
     };
 
     render(){
-        const {readonly, pydio} = this.props;
+        const {readonly, pydio, accessByName} = this.props;
         const {nodes, dataSources, nodesLoaded, dataSourcesLoaded} = this.state;
         const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
         let vNodes = [];
         nodes.map((node) => {
-            vNodes.push(<NodeCard dataSources={dataSources} node={node} reloadList={this.reload.bind(this)} readonly={readonly}/>);
+            vNodes.push(<NodeCard dataSources={dataSources} node={node} reloadList={this.reload.bind(this)} readonly={readonly || !accessByName('Create')}/>);
         });
 
         let headerActions = [];
-        if(!readonly){
+        if(!readonly && accessByName('Create')){
             headerActions.push(<FlatButton primary={true} label={m('create')} onTouchTap={this.handleTouchTap.bind(this)}/>);
         }
 
@@ -117,7 +117,7 @@ class VirtualNodes extends React.Component{
                     <div style={{padding: 20, paddingBottom: 0}}>
                         {m('legend.1')}
                         <br/>
-                        {!readonly &&
+                        {!readonly && accessByName('Create') &&
                             <span>{m('legend.2')}</span>
                         }
 

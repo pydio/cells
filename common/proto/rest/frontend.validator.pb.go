@@ -25,6 +25,20 @@ func (this *SettingsEntry) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Metadata", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *SettingsAccess) Validate() error {
+	for _, item := range this.Policies {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Policies", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *SettingsAccessRestPolicy) Validate() error {
 	return nil
 }
 func (this *SettingsSection) Validate() error {

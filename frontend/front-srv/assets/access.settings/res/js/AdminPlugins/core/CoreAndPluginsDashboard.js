@@ -38,6 +38,7 @@ class CoreAndPluginsDashboard extends React.Component{
             {...this.props}
             displaySmall={true}
             filterType={type}
+            accessByName={this.props.accessByName}
             title={this.props.rootNode.getLabel()}
         />;
         return (
@@ -46,6 +47,7 @@ class CoreAndPluginsDashboard extends React.Component{
                 pydio={this.props.pydio}
                 pluginId={pluginId}
                 additionalPanes={{top:[], bottom:[pluginsList]}}
+                accessByName={this.props.accessByName}
             />
         );
     }

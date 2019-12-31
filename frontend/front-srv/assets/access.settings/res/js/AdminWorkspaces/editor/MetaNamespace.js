@@ -150,7 +150,7 @@ class MetaNamespace extends React.Component{
     }
 
     render(){
-        const {create, namespaces, pydio} = this.props;
+        const {create, namespaces, pydio, readonly} = this.props;
         const {namespace, m} = this.state;
         let title;
         if(namespace.Label){
@@ -196,9 +196,9 @@ class MetaNamespace extends React.Component{
 
         const actions = [
             <FlatButton primary={true} label={pydio.MessageHash['54']} onTouchTap={this.props.onRequestClose}/>,
-            <FlatButton primary={true} disabled={invalid} label={"Save"} onTouchTap={() => {this.save()}}/>,
+            <FlatButton primary={true} disabled={invalid || readonly} label={"Save"} onTouchTap={() => {this.save()}}/>,
         ];
-        if(type === 'tags'){
+        if(type === 'tags' && !readonly){
             actions.unshift(<FlatButton primary={false} label={m('editor.tags.reset')} onTouchTap={()=>{
                 const api = new UserMetaServiceApi(PydioApi.getRestClient());
                 api.deleteUserMetaTags(namespace.Namespace, "*").then(() => {
@@ -237,12 +237,14 @@ class MetaNamespace extends React.Component{
                     onChange={(e,v) => {namespace.Label = v; this.setState({namespace})}}
                     fullWidth={true}
                     errorText={labelError}
+                    disabled={readonly}
                 />
                 <div style={styles.section}>{m('type')}</div>
                 <ModernSelectField
                     hintText={m('type')}
                     value={type}
                     onChange={(e,i,v) => this.updateType(v)}
+                    disabled={readonly}
                     fullWidth={true}>
                     {Object.keys(Metadata.MetaTypes).map(k => {
                         return <MenuItem value={k} primaryText={Metadata.MetaTypes[k]}/>
@@ -252,13 +254,13 @@ class MetaNamespace extends React.Component{
 
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
                 <div style={{padding:'6px 0 10px'}}>
-                    <Toggle label={m('toggle.index')} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}} {...ModernStyles.toggleField}/>
+                    <Toggle label={m('toggle.index')} disabled={readonly} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}} {...ModernStyles.toggleField}/>
                 </div>
                 <div style={{padding:'6px 0 10px'}}>
-                    <Toggle label={m('toggle.read')} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}} {...ModernStyles.toggleField}/>
+                    <Toggle label={m('toggle.read')} disabled={readonly} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}} {...ModernStyles.toggleField}/>
                 </div>
                 <div style={{padding:'6px 0 10px'}}>
-                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}} {...ModernStyles.toggleField}/>
+                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead || readonly} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}} {...ModernStyles.toggleField}/>
                 </div>
 
                 <div style={styles.section}>{m('order')}</div>
@@ -268,6 +270,7 @@ class MetaNamespace extends React.Component{
                     onChange={(e,v) => {namespace.Order = parseInt(v); this.setState({namespace})}}
                     fullWidth={true}
                     type={"number"}
+                    readOnly={readonly}
                 />
             </Dialog>
 

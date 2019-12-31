@@ -99,13 +99,15 @@ class DataSourcesBoard extends React.Component {
             return;
         }
         const dataSource = dataSources[0];
-        this.props.openRightPane({
+        const {openRightPane, accessByName, pydio, storageTypes} = this.props;
+        openRightPane({
             COMPONENT:DataSourceEditor,
             PROPS:{
                 ref:"editor",
-                pydio:this.props.pydio,
+                pydio:pydio,
                 dataSource:dataSource,
-                storageTypes:this.props.storageTypes,
+                storageTypes:storageTypes,
+                readonly:!accessByName('CreateDatasource'),
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
             }
@@ -174,14 +176,15 @@ class DataSourcesBoard extends React.Component {
         }else{
             versionPolicy = versionPolicies[0];
         }
-        this.props.openRightPane({
+        const {openRightPane, pydio, versioningReadonly, accessByName} = this.props;
+        openRightPane({
             COMPONENT:VersionPolicyEditor,
             PROPS:{
                 ref:"editor",
                 versionPolicy:versionPolicy,
                 create: create,
-                pydio: this.props.pydio,
-                readonly: this.props.versioningReadonly,
+                pydio: pydio,
+                readonly: versioningReadonly || !accessByName('CreateVersioning'),
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
             }
@@ -208,7 +211,7 @@ class DataSourcesBoard extends React.Component {
         dataSources.sort(LangUtils.arraySorter('Name'));
         versioningPolicies.sort(LangUtils.arraySorter('Name'));
 
-        const {currentNode, pydio, versioningReadonly} = this.props;
+        const {currentNode, pydio, versioningReadonly, accessByName} = this.props;
         const dsColumns = [
             {name:'Name', label:m('name'), style:{fontSize: 15, width: '20%'}, headerStyle:{width: '20%'}},
             {name:'Status', label:m('status'), renderCell:(row)=>{
@@ -245,10 +248,11 @@ class DataSourcesBoard extends React.Component {
         ];
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
-        let buttons = [
-            <FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)}/>,
-        ];
-        if(!versioningReadonly){
+        let buttons = [];
+        if(accessByName('CreateDatasource')){
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)}/>)
+        }
+        if(!versioningReadonly && accessByName('CreateVersioning')){
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}}/>)
         }
         const policiesColumns = [
@@ -295,7 +299,7 @@ class DataSourcesBoard extends React.Component {
                         </Paper>
 
                         <AdminComponents.SubHeader  title={m('board.enc.title')} legend={m('board.enc.legend')}/>
-                        <EncryptionKeys pydio={pydio} ref={"encKeys"}/>
+                        <EncryptionKeys pydio={pydio} ref={"encKeys"} accessByName={accessByName}/>
 
                     </div>
 

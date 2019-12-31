@@ -6790,6 +6790,28 @@ var SwaggerJson = `{
         }
       }
     },
+    "restSettingsAccess": {
+      "type": "object",
+      "properties": {
+        "Policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restSettingsAccessRestPolicy"
+          }
+        }
+      }
+    },
+    "restSettingsAccessRestPolicy": {
+      "type": "object",
+      "properties": {
+        "Action": {
+          "type": "string"
+        },
+        "Resource": {
+          "type": "string"
+        }
+      }
+    },
     "restSettingsEntry": {
       "type": "object",
       "properties": {
@@ -6810,6 +6832,12 @@ var SwaggerJson = `{
         },
         "Metadata": {
           "$ref": "#/definitions/restSettingsEntryMeta"
+        },
+        "Accesses": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/restSettingsAccess"
+          }
         }
       }
     },

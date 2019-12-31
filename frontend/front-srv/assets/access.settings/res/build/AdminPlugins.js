@@ -53885,7 +53885,8 @@ var AuthenticationPluginsDashboard = React.createClass({
             filterType: "authfront",
             displaySmall: true,
             openRightPane: this.props.openRightPane,
-            closeRightPane: this.props.closeRightPane
+            closeRightPane: this.props.closeRightPane,
+            accessByName: this.props.accessByName
         });
         return React.createElement(_corePluginEditor2['default'], _extends({}, this.props, {
             pluginId: "core.auth",
@@ -53978,13 +53979,15 @@ var CoreAndPluginsDashboard = (function (_React$Component) {
             var pluginsList = _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, {
                 displaySmall: true,
                 filterType: type,
+                accessByName: this.props.accessByName,
                 title: this.props.rootNode.getLabel()
             }));
             return _react2['default'].createElement(_PluginEditor2['default'], {
                 currentNode: this.props.currentNode,
                 pydio: this.props.pydio,
                 pluginId: pluginId,
-                additionalPanes: { top: [], bottom: [pluginsList] }
+                additionalPanes: { top: [], bottom: [pluginsList] },
+                accessByName: this.props.accessByName
             });
         }
     }]);
@@ -54302,7 +54305,8 @@ var PluginEditor = _react2['default'].createClass({
         onBeforeSave: _react2['default'].PropTypes.func,
         onAfterSave: _react2['default'].PropTypes.func,
         onRevert: _react2['default'].PropTypes.func,
-        onDirtyChange: _react2['default'].PropTypes.func
+        onDirtyChange: _react2['default'].PropTypes.func,
+        accessByName: _react2['default'].PropTypes.func
     },
 
     loadPluginData: function loadPluginData(plugId) {
@@ -54488,6 +54492,7 @@ var PluginEditor = _react2['default'].createClass({
         var closeEditor = _props.closeEditor;
         var additionalPanes = _props.additionalPanes;
         var currentNode = _props.currentNode;
+        var accessByName = _props.accessByName;
         var docAsAdditionalPane = _props.docAsAdditionalPane;
         var onHeaderChange = _props.onHeaderChange;
         var _state = this.state;
@@ -54527,13 +54532,25 @@ var PluginEditor = _react2['default'].createClass({
             scrollingClassName = ' main-pane-scrolled';
         }
         var actions = [];
-        if (!closeEditor) {
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
-        } else {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo", iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty, tooltip: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty, tooltip: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' }, tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
+        if (accessByName('Create')) {
+            if (closeEditor) {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo",
+                    iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty,
+                    tooltip: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save",
+                    iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty,
+                    tooltip: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' },
+                    tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
+            } else {
+                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'),
+                    onTouchTap: this.revert }));
+                actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'),
+                    onTouchTap: this.save }));
+            }
+        } else if (closeEditor) {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' },
+                tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
         }
 
         var titleLabel = undefined,
@@ -54556,7 +54573,7 @@ var PluginEditor = _react2['default'].createClass({
                 parameters: this.state.parameters,
                 values: this.state.values,
                 onChange: this.onChange,
-                disabled: false,
+                disabled: !accessByName('Create'),
                 additionalPanes: addPanes,
                 tabs: this.props.tabs,
                 setHelperData: this.showHelper,
@@ -54658,7 +54675,8 @@ var PluginsList = React.createClass({
                     pluginId: rows[0].id,
                     docAsAdditionalPane: true,
                     className: "vertical edit-plugin-inpane",
-                    closeEditor: this.props.closeRightPane
+                    closeEditor: this.props.closeRightPane,
+                    accessByName: this.props.accessByName
                 },
                 CHILDREN: null
             });
@@ -54705,6 +54723,7 @@ var PluginsList = React.createClass({
         var _props2 = this.props;
         var displaySmall = _props2.displaySmall;
         var pydio = _props2.pydio;
+        var accessByName = _props2.accessByName;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
@@ -54719,7 +54738,7 @@ var PluginsList = React.createClass({
                 onClick: function (e) {
                     return e.stopPropagation();
                 },
-                disabled: row.xmlNode.getAttribute("enabled") === "always"
+                disabled: row.xmlNode.getAttribute("enabled") === "always" || !accessByName('Create')
             });
         };
         var renderEditButton = function renderEditButton(row) {
@@ -54934,6 +54953,7 @@ var PluginEditor = _react2['default'].createClass({
         var style = _props.style;
         var rootNode = _props.rootNode;
         var tabs = _props.tabs;
+        var accessByName = _props.accessByName;
         var _state = this.state;
         var documentation = _state.documentation;
         var pluginId = _state.pluginId;
@@ -54984,8 +55004,10 @@ var PluginEditor = _react2['default'].createClass({
             scrollingClassName = ' main-pane-scrolled';
         }
         var actions = [];
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+        if (accessByName('Create')) {
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+        }
         actions.push(closeButton);
 
         var icon = rootNode.getMetadata().get('icon_class');
@@ -55185,6 +55207,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
             var _state = this.state;
             var parameters = _state.parameters;
             var values = _state.values;
+            var accessByName = this.props.accessByName;
 
             if (!parameters) {
                 return null;
@@ -55194,6 +55217,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
                 ref: 'formPanel',
                 parameters: parameters,
                 values: values,
+                disabled: !accessByName('Create'),
                 onChange: this.onChange.bind(this)
             }));
         }
@@ -56030,6 +56054,7 @@ var UpdaterDashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var list = null;
+        var accessByName = this.props.accessByName;
         var _state2 = this.state;
         var packages = _state2.packages;
         var check = _state2.check;
@@ -56054,7 +56079,7 @@ var UpdaterDashboard = _react2['default'].createClass({
 
         var buttons = [];
         if (packages) {
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { disabled: check < 0 || updateApplied, secondary: true, label: this.context.getMessage('start.update', 'updater'), onTouchTap: this.performUpgrade }));
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { disabled: check < 0 || updateApplied || !accessByName('Create'), secondary: true, label: this.context.getMessage('start.update', 'updater'), onTouchTap: this.performUpgrade }));
             var items = [];
 
             var _loop = function (index) {
@@ -56062,7 +56087,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                 items.push(_react2['default'].createElement(_materialUi.ListItem, {
                     leftCheckbox: _react2['default'].createElement(_materialUi.Checkbox, { key: p, onCheck: function (e, v) {
                             return _this3.onCheckStateChange(index, v, p);
-                        }, checked: check >= index, disabled: updateApplied || check > index }),
+                        }, checked: check >= index, disabled: updateApplied || check > index || !accessByName('Create') }),
                     primaryText: p.PackageName + ' ' + p.Version,
                     secondaryText: p.Label + ' - ' + moment(new Date(p.ReleaseDate * 1000)).fromNow()
                 }));
@@ -56220,6 +56245,7 @@ var UpdaterDashboard = _react2['default'].createClass({
                     className: "row-flex",
                     serviceName: "pydio.grpc.update",
                     ref: "serviceConfigs",
+                    disabled: !accessByName('Create'),
                     onDirtyChange: function (d) {
                         return _this3.setState({ dirty: d });
                     }

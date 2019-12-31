@@ -133,7 +133,7 @@ const PluginEditor = React.createClass({
 
     render: function(){
 
-        const {additionalPanes, closeEditor, docAsAdditionalPane, className, style, rootNode, tabs} = this.props;
+        const {additionalPanes, closeEditor, docAsAdditionalPane, className, style, rootNode, tabs, accessByName} = this.props;
         const {documentation, pluginId, docOpen, mainPaneScrolled, dirty, parameters, values, helperData} = this.state;
 
         let addPanes = {top:[], bottom:[]};
@@ -171,8 +171,10 @@ const PluginEditor = React.createClass({
             scrollingClassName = ' main-pane-scrolled';
         }
         let actions = [];
-        actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
-        actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
+        if(accessByName('Create')){
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
+        }
         actions.push(closeButton);
 
 

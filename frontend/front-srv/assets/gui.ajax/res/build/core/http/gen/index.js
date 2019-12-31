@@ -697,6 +697,14 @@ var _modelRestServiceCollection = require('./model/RestServiceCollection');
 
 var _modelRestServiceCollection2 = _interopRequireDefault(_modelRestServiceCollection);
 
+var _modelRestSettingsAccess = require('./model/RestSettingsAccess');
+
+var _modelRestSettingsAccess2 = _interopRequireDefault(_modelRestSettingsAccess);
+
+var _modelRestSettingsAccessRestPolicy = require('./model/RestSettingsAccessRestPolicy');
+
+var _modelRestSettingsAccessRestPolicy2 = _interopRequireDefault(_modelRestSettingsAccessRestPolicy);
+
 var _modelRestSettingsEntry = require('./model/RestSettingsEntry');
 
 var _modelRestSettingsEntry2 = _interopRequireDefault(_modelRestSettingsEntry);
@@ -2201,6 +2209,20 @@ exports.
  * @property {module:model/RestServiceCollection}
  */
 RestServiceCollection = _modelRestServiceCollection2['default'];
+exports.
+
+/**
+ * The RestSettingsAccess model constructor.
+ * @property {module:model/RestSettingsAccess}
+ */
+RestSettingsAccess = _modelRestSettingsAccess2['default'];
+exports.
+
+/**
+ * The RestSettingsAccessRestPolicy model constructor.
+ * @property {module:model/RestSettingsAccessRestPolicy}
+ */
+RestSettingsAccessRestPolicy = _modelRestSettingsAccessRestPolicy2['default'];
 exports.
 
 /**

@@ -130,12 +130,15 @@ var MetadataBoard = (function (_React$Component) {
                 selectedNamespace = this.emptyNs();
             }
             namespaces.sort(function (a, b) {
-                if (a.Order === b.Order) return 0;
-                return a.Order > b.Order ? 1 : -1;
+                var a0 = a.Order || 0;
+                var b0 = b.Order || 0;
+                if (a0 === b0) return 0;
+                return a0 > b0 ? 1 : -1;
             });
             var _props = this.props;
             var currentNode = _props.currentNode;
             var pydio = _props.pydio;
+            var accessByName = _props.accessByName;
 
             var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, hideSmall: true, renderCell: function renderCell(row) {
                     return row.Order || '0';
@@ -149,6 +152,9 @@ var MetadataBoard = (function (_React$Component) {
                     var data = JSON.parse(def);
                     return _modelMetadata2['default'].MetaTypes[data.type] || data.type;
                 } }, { name: 'actions', label: '', style: { width: 100 }, headerStyle: { width: 100 }, renderCell: function renderCell(row) {
+                    if (!accessByName('Create')) {
+                        return null;
+                    }
                     return _react2['default'].createElement(_materialUi.IconButton, {
                         iconClassName: 'mdi mdi-delete',
                         onTouchTap: function () {
@@ -162,9 +168,12 @@ var MetadataBoard = (function (_React$Component) {
                 } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
-            var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('namespace.add'), onTouchTap: function () {
-                    _this3.create();
-                } })];
+            var buttons = [];
+            if (accessByName('Create')) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('namespace.add'), onTouchTap: function () {
+                        _this3.create();
+                    } }));
+            }
 
             return _react2['default'].createElement(
                 'div',
@@ -180,7 +189,8 @@ var MetadataBoard = (function (_React$Component) {
                     reloadList: function () {
                         return _this3.load();
                     },
-                    namespaces: namespaces
+                    namespaces: namespaces,
+                    readonly: !accessByName('Create')
                 }),
                 _react2['default'].createElement(
                     'div',

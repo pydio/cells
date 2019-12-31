@@ -48,7 +48,8 @@ const PluginEditor = React.createClass({
         onBeforeSave:React.PropTypes.func,
         onAfterSave:React.PropTypes.func,
         onRevert:React.PropTypes.func,
-        onDirtyChange:React.PropTypes.func
+        onDirtyChange:React.PropTypes.func,
+        accessByName:React.PropTypes.func
     },
 
 
@@ -224,7 +225,7 @@ const PluginEditor = React.createClass({
 
     render(){
 
-        const {closeEditor, additionalPanes, currentNode, docAsAdditionalPane, onHeaderChange} = this.props;
+        const {closeEditor, additionalPanes, currentNode, accessByName, docAsAdditionalPane, onHeaderChange} = this.props;
         const {dirty, mainPaneScrolled, label, documentation} = this.state;
 
         let addPanes = {top:[], bottom:[]};
@@ -254,13 +255,25 @@ const PluginEditor = React.createClass({
             scrollingClassName = ' main-pane-scrolled';
         }
         let actions = [];
-        if(!closeEditor){
-            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
-            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
-        } else {
-            actions.push(<IconButton iconClassName={"mdi mdi-undo"} iconStyle={{color:dirty?'white':'rgba(255,255,255,.5)'}} disabled={!dirty} tooltip={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
-            actions.push(<IconButton iconClassName={"mdi mdi-content-save"} iconStyle={{color:dirty?'white':'rgba(255,255,255,.5)'}} disabled={!dirty} tooltip={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
-            actions.push(<IconButton iconClassName={"mdi mdi-close"} iconStyle={{color:'white'}} tooltip={this.context.getMessage('86','')} onTouchTap={closeEditor}/>);
+        if(accessByName('Create')){
+            if (closeEditor) {
+                actions.push(<IconButton iconClassName={"mdi mdi-undo"}
+                                         iconStyle={{color: dirty ? 'white' : 'rgba(255,255,255,.5)'}} disabled={!dirty}
+                                         tooltip={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
+                actions.push(<IconButton iconClassName={"mdi mdi-content-save"}
+                                         iconStyle={{color: dirty ? 'white' : 'rgba(255,255,255,.5)'}} disabled={!dirty}
+                                         tooltip={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
+                actions.push(<IconButton iconClassName={"mdi mdi-close"} iconStyle={{color: 'white'}}
+                                         tooltip={this.context.getMessage('86', '')} onTouchTap={closeEditor}/>);
+            } else {
+                actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')}
+                                         onTouchTap={this.revert}/>);
+                actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')}
+                                         onTouchTap={this.save}/>);
+            }
+        } else if(closeEditor){
+            actions.push(<IconButton iconClassName={"mdi mdi-close"} iconStyle={{color: 'white'}}
+                                     tooltip={this.context.getMessage('86', '')} onTouchTap={closeEditor}/>);
         }
 
         let titleLabel, titleIcon;
@@ -281,7 +294,7 @@ const PluginEditor = React.createClass({
                     parameters={this.state.parameters}
                     values={this.state.values}
                     onChange={this.onChange}
-                    disabled={false}
+                    disabled={!accessByName('Create')}
                     additionalPanes={addPanes}
                     tabs={this.props.tabs}
                     setHelperData={this.showHelper}

@@ -1688,6 +1688,13 @@
             "required": true,
             "description": ""
           },
+          "accessByName": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
           "openEditor": {
             "type": {
               "name": "func"
@@ -4029,6 +4036,13 @@
             },
             "required": false,
             "description": ""
+          },
+          "accessByName": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
           }
         }
       }
@@ -4510,13 +4524,6 @@
             "returns": null
           },
           {
-            "name": "showTaskCreator",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
             "name": "extractRowsInfo",
             "docblock": null,
             "modifiers": [],
@@ -4580,6 +4587,13 @@
           },
           {
             "name": "deleteAll",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "deleteJob",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -5528,6 +5542,11 @@
         "description": "",
         "displayName": "RightPanel",
         "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "getCssStyle",
+        "methods": []
       }
     ],
     "AdminServices/board/Dashboard.js": [
@@ -6259,6 +6278,13 @@
             "description": ""
           },
           "closeRightPane": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "accessByName": {
             "type": {
               "name": "func"
             },
@@ -25513,6 +25539,98 @@
               }
             },
             "description": "Constructs a <code>RestServiceCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestSettingsAccess.js": [
+      {
+        "description": "The RestSettingsAccess model module.\n@module model/RestSettingsAccess\n@version 1.0",
+        "displayName": "RestSettingsAccess",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestSettingsAccess</code>.\n@alias module:model/RestSettingsAccess\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestSettingsAccess</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestSettingsAccess</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestSettingsAccess} obj Optional instance to populate.\n@return {module:model/RestSettingsAccess} The populated <code>RestSettingsAccess</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestSettingsAccess"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestSettingsAccess</code> instance.",
+              "type": {
+                "name": "module:model/RestSettingsAccess"
+              }
+            },
+            "description": "Constructs a <code>RestSettingsAccess</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestSettingsAccessRestPolicy.js": [
+      {
+        "description": "The RestSettingsAccessRestPolicy model module.\n@module model/RestSettingsAccessRestPolicy\n@version 1.0",
+        "displayName": "RestSettingsAccessRestPolicy",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestSettingsAccessRestPolicy</code>.\n@alias module:model/RestSettingsAccessRestPolicy\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestSettingsAccessRestPolicy</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestSettingsAccessRestPolicy</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestSettingsAccessRestPolicy} obj Optional instance to populate.\n@return {module:model/RestSettingsAccessRestPolicy} The populated <code>RestSettingsAccessRestPolicy</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestSettingsAccessRestPolicy"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestSettingsAccessRestPolicy</code> instance.",
+              "type": {
+                "name": "module:model/RestSettingsAccessRestPolicy"
+              }
+            },
+            "description": "Constructs a <code>RestSettingsAccessRestPolicy</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

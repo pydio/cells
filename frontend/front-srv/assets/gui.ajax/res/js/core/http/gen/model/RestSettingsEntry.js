@@ -13,6 +13,7 @@
 
 
 import ApiClient from '../ApiClient';
+import RestSettingsAccess from './RestSettingsAccess';
 import RestSettingsEntryMeta from './RestSettingsEntryMeta';
 
 
@@ -75,6 +76,9 @@ export default class RestSettingsEntry {
             if (data.hasOwnProperty('Metadata')) {
                 obj['Metadata'] = RestSettingsEntryMeta.constructFromObject(data['Metadata']);
             }
+            if (data.hasOwnProperty('Accesses')) {
+                obj['Accesses'] = ApiClient.convertToType(data['Accesses'], {'String': RestSettingsAccess});
+            }
         }
         return obj;
     }
@@ -103,6 +107,10 @@ export default class RestSettingsEntry {
     * @member {module:model/RestSettingsEntryMeta} Metadata
     */
     Metadata = undefined;
+    /**
+    * @member {Object.<String, module:model/RestSettingsAccess>} Accesses
+    */
+    Accesses = undefined;
 
 
 

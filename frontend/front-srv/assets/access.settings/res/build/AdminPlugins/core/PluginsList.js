@@ -81,7 +81,8 @@ var PluginsList = React.createClass({
                     pluginId: rows[0].id,
                     docAsAdditionalPane: true,
                     className: "vertical edit-plugin-inpane",
-                    closeEditor: this.props.closeRightPane
+                    closeEditor: this.props.closeRightPane,
+                    accessByName: this.props.accessByName
                 },
                 CHILDREN: null
             });
@@ -128,6 +129,7 @@ var PluginsList = React.createClass({
         var _props2 = this.props;
         var displaySmall = _props2.displaySmall;
         var pydio = _props2.pydio;
+        var accessByName = _props2.accessByName;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
@@ -142,7 +144,7 @@ var PluginsList = React.createClass({
                 onClick: function (e) {
                     return e.stopPropagation();
                 },
-                disabled: row.xmlNode.getAttribute("enabled") === "always"
+                disabled: row.xmlNode.getAttribute("enabled") === "always" || !accessByName('Create')
             });
         };
         var renderEditButton = function renderEditButton(row) {
