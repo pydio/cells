@@ -72,6 +72,10 @@ func init() {
 					TargetVersion: service.ValidVersion("1.4.2"),
 					Up:            Upgrade142,
 				},
+				{
+					TargetVersion: service.ValidVersion("2.0.3"),
+					Up:            Upgrade203,
+				},
 			}),
 			service.WithMicro(func(m micro.Service) error {
 				handler := new(Handler)
@@ -299,6 +303,47 @@ func Upgrade142(ctx context.Context) error {
 				Actions: []string{"DELETE", "PUT", "PATCH"},
 				Effect:  ladon.DenyAccess,
 			}))
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
+			}
+		}
+	}
+	return nil
+}
+
+func Upgrade203(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(policy.DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.Uuid == "rest-apis-default-accesses" {
+			for _, p := range group.Policies {
+				if p.Id == "user-default-policy" {
+					var newRes []string
+					for _, r := range p.Resources {
+						if r == "rest:/tree/<.*>" {
+							newRes = append(newRes,
+								"rest:/tree/create",
+								"rest:/tree/delete",
+								"rest:/tree/restore",
+								"rest:/tree/selection",
+								"rest:/tree/stat/<.+>",
+								"rest:/tree/stats",
+							)
+						} else {
+							newRes = append(newRes, r)
+						}
+					}
+					p.Resources = newRes
+				}
+			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
 				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
 			} else {
