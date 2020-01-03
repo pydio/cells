@@ -166,6 +166,7 @@ var UserInfo = (function (_React$Component) {
                         }
                     }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
+                        profile: idmUser.Attributes ? idmUser.Attributes['profile'] : '',
                         roles: idmUser.Roles,
                         addRole: function (r) {
                             return user.addRole(r);

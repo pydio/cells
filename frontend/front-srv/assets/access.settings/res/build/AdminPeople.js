@@ -1313,7 +1313,7 @@ var RolesDashboard = _react2['default'].createClass({
             color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
-        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80, textOverflow: 'none' }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
                         _this4.deleteAction(row.roleId);
                     }, onClick: function (e) {
@@ -3392,7 +3392,7 @@ var RoleInfo = (function (_React$Component) {
             }
 
             // Load role parameters
-            var params = [{ "name": "roleId", label: this.getPydioRoleMessage('31'), "type": "string", readonly: true }, { "name": "roleLabel", label: this.getPydioRoleMessage('32'), "type": "string" }, { "name": "applies", label: this.getPydioRoleMessage('33'), "type": "select", multiple: true, choices: 'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous' }, { "name": "roleForceOverride", label: "Always Override", "type": "boolean" }].concat(_toConsumableArray(parameters));
+            var params = [{ "name": "roleId", label: this.getPydioRoleMessage('31'), "type": "string", readonly: true, description: this.getPydioRoleMessage('role.id.description') }, { "name": "roleLabel", label: this.getPydioRoleMessage('32'), "type": "string", description: this.getPydioRoleMessage('role.label.description') }, { "name": "applies", label: this.getPydioRoleMessage('33'), "type": "select", multiple: true, choices: 'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous', description: this.getPydioRoleMessage('role.autoapply.description') }, { "name": "roleForceOverride", label: "Always Override", "type": "boolean", description: this.getPydioRoleMessage('role.override.description') }].concat(_toConsumableArray(parameters));
 
             var values = { applies: [] };
             if (role) {
@@ -3731,6 +3731,7 @@ var UserInfo = (function (_React$Component) {
                         }
                     }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
+                        profile: idmUser.Attributes ? idmUser.Attributes['profile'] : '',
                         roles: idmUser.Roles,
                         addRole: function (r) {
                             return user.addRole(r);
@@ -5805,6 +5806,7 @@ exports['default'] = _react2['default'].createClass({
     mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
 
     propTypes: {
+        profile: _react2['default'].PropTypes.string,
         roles: _react2['default'].PropTypes.array,
         addRole: _react2['default'].PropTypes.func,
         removeRole: _react2['default'].PropTypes.func,
@@ -5854,6 +5856,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var roles = _props.roles;
         var loadingMessage = _props.loadingMessage;
+        var profile = _props.profile;
         var availableRoles = this.state.availableRoles;
 
         roles.map((function (r) {
@@ -5871,7 +5874,12 @@ exports['default'] = _react2['default'].createClass({
                     label += ' [' + ctx.getMessage('19') + ']';
                 } // always overrides
                 */
-                manual.push({ payload: r.Uuid, text: r.Label });
+                console.log(r);
+                if (r.AutoApplies && r.AutoApplies.indexOf(profile) !== -1) {
+                    groups.push(r.Label + ' [auto]');
+                } else {
+                    manual.push({ payload: r.Uuid, text: r.Label });
+                }
             }
         }).bind(this));
 

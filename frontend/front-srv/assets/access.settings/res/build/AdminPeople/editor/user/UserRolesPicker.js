@@ -45,6 +45,7 @@ exports['default'] = _react2['default'].createClass({
     mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
 
     propTypes: {
+        profile: _react2['default'].PropTypes.string,
         roles: _react2['default'].PropTypes.array,
         addRole: _react2['default'].PropTypes.func,
         removeRole: _react2['default'].PropTypes.func,
@@ -94,6 +95,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var roles = _props.roles;
         var loadingMessage = _props.loadingMessage;
+        var profile = _props.profile;
         var availableRoles = this.state.availableRoles;
 
         roles.map((function (r) {
@@ -111,7 +113,12 @@ exports['default'] = _react2['default'].createClass({
                     label += ' [' + ctx.getMessage('19') + ']';
                 } // always overrides
                 */
-                manual.push({ payload: r.Uuid, text: r.Label });
+                console.log(r);
+                if (r.AutoApplies && r.AutoApplies.indexOf(profile) !== -1) {
+                    groups.push(r.Label + ' [auto]');
+                } else {
+                    manual.push({ payload: r.Uuid, text: r.Label });
+                }
             }
         }).bind(this));
 
