@@ -73,8 +73,8 @@ func init() {
 					Up:            Upgrade142,
 				},
 				{
-					TargetVersion: service.ValidVersion("2.0.3"),
-					Up:            Upgrade203,
+					TargetVersion: service.ValidVersion("2.0.2"),
+					Up:            Upgrade202,
 				},
 			}),
 			service.WithMicro(func(m micro.Service) error {
@@ -313,7 +313,7 @@ func Upgrade142(ctx context.Context) error {
 	return nil
 }
 
-func Upgrade203(ctx context.Context) error {
+func Upgrade202(ctx context.Context) error {
 	dao := servicecontext.GetDAO(ctx).(policy.DAO)
 	if dao == nil {
 		return fmt.Errorf("cannot find DAO for policies initialization")
