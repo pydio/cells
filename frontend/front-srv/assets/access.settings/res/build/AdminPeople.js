@@ -330,7 +330,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(newProps) {
-        if (!this.state.searchResultData) {
+        if (!this.state.searchResultData && newProps.currentNode && newProps.currentNode.getPath().indexOf('/idm/users') === 0) {
             this.setState({
                 currentNode: newProps.currentNode,
                 dataModel: newProps.dataModel
