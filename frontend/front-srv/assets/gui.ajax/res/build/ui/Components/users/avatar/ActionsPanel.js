@@ -150,9 +150,9 @@ var ActionsPanel = (function (_React$Component) {
         var actions = [];
         var resourceType = undefined,
             resourceId = undefined;
-        if (user && user.hasEmail) {
+        if (user && user.IdmUser && user.IdmUser.Attributes && (user.IdmUser.Attributes['hasEmail'] || user.IdmUser.Attributes['email'])) {
             actions.push({ key: 'message', label: getMessage(598), icon: 'email', callback: this.openMailer.bind(this) });
-            usermails[user.id] = PydioUsers.User.fromObject(user);
+            usermails[user.IdmUser.Login] = user.IdmUser;
         }
         if (team) {
             resourceType = 'team';
@@ -235,10 +235,13 @@ var ActionsPanel = (function (_React$Component) {
                     this.state.mailerLibLoaded && React.createElement(AsyncComponent, {
                         namespace: 'PydioMailer',
                         componentName: 'Pane',
+                        pydio: _pydio2['default'].getInstance(),
                         zDepth: 0,
                         panelTitle: getMessage(598),
                         uniqueUserStyle: true,
                         users: usermails,
+                        templateId: "DM",
+                        templateData: { "From": _pydio2['default'].getInstance().user.getPreference('displayName') || _pydio2['default'].getInstance().user.id },
                         onDismiss: function () {
                             _this2.setState({ showMailer: false });
                         },

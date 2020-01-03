@@ -5869,12 +5869,6 @@ exports['default'] = _react2['default'].createClass({
             } else if (r.UserRole) {
                 users.push(ctx.getMessage('user.27', 'ajxp_admin'));
             } else {
-                /*
-                if(rolesDetails[r].sticky) {
-                    label += ' [' + ctx.getMessage('19') + ']';
-                } // always overrides
-                */
-                console.log(r);
                 if (r.AutoApplies && r.AutoApplies.indexOf(profile) !== -1) {
                     groups.push(r.Label + ' [auto]');
                 } else {
