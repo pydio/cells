@@ -533,3 +533,7 @@ func CheckContentLock(ctx context.Context, node *tree.Node) error {
 	}
 	return nil
 }
+
+func ForceClearUserCache(login string) {
+	usersCache.Delete(login)
+}

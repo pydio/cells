@@ -565,6 +565,10 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
+	if !u.IsGroup {
+		permissions.ForceClearUserCache(u.Login)
+	}
+
 	// Reload user fully
 	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: u.Uuid})
 	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
@@ -627,7 +631,6 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			}
 		}()
 	}
-
 }
 
 // PutRoles updates an existing user with the passed list of roles.
@@ -691,6 +694,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 			zap.Any("Roles", u.Roles),
 		)
 		rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
+		permissions.ForceClearUserCache(response.User.GetLogin())
 	}
 }
 
