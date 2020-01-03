@@ -158,9 +158,10 @@ var UsersList = (function (_React$Component) {
             stylesProps.titleColor = 'rgba(0,0,0,0.54)';
             stylesProps.titleFontsize = 14;
             stylesProps.titleFontWeight = 500;
-            stylesProps.titlePadding = '10px 16px';
+            stylesProps.titlePadding = '10px 6px 10px 16px';
             stylesProps.button.border = '0';
             stylesProps.icon.color = muiTheme.palette.primary1Color;
+            stylesProps.icon.opacity = 0.73;
         }
         var searchProps = {
             style: { flex: 1, minWidth: 110 }
@@ -268,11 +269,12 @@ var UsersList = (function (_React$Component) {
                 touchTap = function (e) {
                     e.stopPropagation();_this2.props.onFolderClicked(item);
                 };
-                if (mode === 'selector' && !item._notSelectable) {
+                if (mode === 'selector' && !item._notSelectable && !this.props.usersOnly) {
                     rightIconButton = _react2['default'].createElement(_materialUi.IconButton, {
                         iconClassName: "mdi mdi-account-multiple-plus",
-                        tooltip: "Select this group",
-                        tooltipPosition: 'bottom-left',
+                        tooltip: getMessage('addressbook.pick.group'),
+                        tooltipPosition: 'top-left',
+                        iconStyle: { color: 'rgba(0,0,0,0.33)' },
                         onTouchTap: function () {
                             _this2.props.onItemClicked(item);
                         }
@@ -282,7 +284,7 @@ var UsersList = (function (_React$Component) {
                 rightIconButton = _react2['default'].createElement(_materialUi.IconButton, {
                     iconClassName: "mdi mdi-delete",
                     tooltip: getMessage(257),
-                    tooltipPosition: 'bottom-left',
+                    tooltipPosition: 'top-left',
                     iconStyle: { color: 'rgba(0,0,0,0.13)', hoverColor: 'rgba(0,0,0,0.53)' },
                     onTouchTap: function () {
                         _this2.props.onDeleteAction(_this2.props.item, [item]);
@@ -368,7 +370,7 @@ var UsersList = (function (_React$Component) {
             mode === 'selector' && enableSearch && bookColumn && _react2['default'].createElement(_SearchForm2['default'], {
                 searchLabel: this.props.searchLabel,
                 onSearch: this.props.onSearch,
-                style: { padding: '0 20px', minWidth: null, borderTop: '1px solid #e0e0e0' },
+                style: { padding: '0 20px', minWidth: null, borderTop: '1px solid #e0e0e0', backgroundColor: 'white' },
                 underlineShow: false
             })
         );

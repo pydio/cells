@@ -400,7 +400,7 @@ let AddressBook = React.createClass({
                         zDepth={2}
                     >
                         <div style={{width: 320, height: 420, ...popoverContainerStyle}}>
-                            <WrappedAddressBook {...this.props} mode="selector" />
+                            <WrappedAddressBook {...this.props} mode="selector" style={{height:420}} />
                         </div>
                     </Popover>
                 </span>
@@ -515,6 +515,7 @@ let AddressBook = React.createClass({
                     onTouchTap={this.state.rightPaneItem ? () => { this.setState({rightPaneItem:null}) } : null}
                     actionsPanel={topActionsPanel}
                     actionsForCell={this.props.actionsForCell}
+                    usersOnly={this.props.usersOnly}
                     {...otherProps}
                 />);
 

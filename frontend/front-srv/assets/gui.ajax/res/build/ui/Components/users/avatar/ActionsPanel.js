@@ -212,7 +212,7 @@ var ActionsPanel = (function (_React$Component) {
                     React.createElement(_addressbookAddressBook2['default'], {
                         mode: 'selector',
                         pydio: this.props.pydio,
-                        loaderStyle: { width: 320, height: 420 },
+                        loaderStyle: { width: 320, height: 320 },
                         onItemSelected: this.props.team ? this.onUserSelected.bind(this) : this.onTeamSelected.bind(this),
                         teamsOnly: !this.props.team,
                         usersOnly: !!this.props.team
