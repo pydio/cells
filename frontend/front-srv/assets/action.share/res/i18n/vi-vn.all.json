@@ -42,25 +42,25 @@
     "other": "Chia sẻ cái này"
   },
   "110b": {
-    "other": "Share"
+    "other": "Chia sẻ"
   },
   "111": {
-    "other": "Share this page with other people"
+    "other": "Chia sẻ trang này với những người khác"
   },
   "112": {
-    "other": "Share this page"
+    "other": "Chia sẻ trang này"
   },
   "113": {
-    "other": "As New Workspace"
+    "other": "Workspace mới"
   },
   "114": {
-    "other": "Share this folder with internal users"
+    "other": "Chia sẻ thư mục này với users nội bộ"
   },
   "115": {
-    "other": "As Web link"
+    "other": "Liên kết web"
   },
   "116": {
-    "other": "Publish folder content as a minisite"
+    "other": "Xuất bản nội dung thư mục dưới dạng một minisite"
   },
   "117": {
     "other": "As private minisite"
@@ -72,7 +72,7 @@
     "other": "Download link"
   },
   "12": {
-    "other": "Password"
+    "other": "Mật khẩu"
   },
   "120": {
     "other": "Simple download page"
@@ -84,34 +84,34 @@
     "other": "Create a public URL"
   },
   "123": {
-    "other": "Selection as minisite"
+    "other": "Lựa chọn là minisite"
   },
   "124": {
-    "other": "Publish current selection"
+    "other": "Xuất bản lựa chọn hiện tại"
   },
   "125": {
-    "other": "Edit Share"
+    "other": "Chỉnh sửa chia sẻ"
   },
   "126": {
     "other": "Edit/stop already configured sharing"
   },
   "127": {
-    "other": "Migrate legacy"
+    "other": "Cập nhật từ những phiên bản cũ"
   },
   "128": {
-    "other": "Migrate legacy shares"
+    "other": "Cập nhật những chia sẻ được tạo ra ở phiên bản cũ"
   },
   "129": {
-    "other": "Copy URL"
+    "other": "Sao chép URL"
   },
   "13": {
-    "other": "Yes"
+    "other": "Đồng ý"
   },
   "130": {
     "other": "Copy URL to your clipboard"
   },
   "131": {
-    "other": "No shared files or folders yet."
+    "other": "Không có tập tin hoặc thư mục chia sẻ nào."
   },
   "132": {
     "other": "Workspace"
@@ -120,13 +120,13 @@
     "other": "As a public link"
   },
   "134": {
-    "other": "As a workspace"
+    "other": "Workspace mới"
   },
   "135": {
-    "other": "Folder will appear as a minisite in the user browser"
+    "other": "Thư mục sẽ xuất hiện dưới dạng một minisite trong trình duyệt user"
   },
   "136": {
-    "other": "Folder content will appear as a new workspace for the application users"
+    "other": "Nội dung thư mục sẽ xuất hiện dưới dạng workspace mới cho users ứng dụng"
   },
   "137": {
     "other": "Share selected file via a public link"
@@ -144,7 +144,7 @@
     "other": "You have shared this folder as a workspace with application users, but it is currently inactive (expired)."
   },
   "14": {
-    "other": "No"
+    "other": "Không"
   },
   "140": {
     "other": "You have shared this file via a public link"
@@ -153,10 +153,10 @@
     "other": "You have shared this file via a public link, but it is currently inactive (expired)."
   },
   "141": {
-    "other": "Change parameters"
+    "other": "Thay đổi tham số"
   },
   "142": {
-    "other": "Hide parameters"
+    "other": "Ẩn tham số"
   },
   "143": {
     "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd>to copy the link"
@@ -165,7 +165,7 @@
     "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> to copy the link"
   },
   "145": {
-    "other": "Description"
+    "other": "Mô tả"
   },
   "146": {
     "other": "Will be displayed to the shared users"

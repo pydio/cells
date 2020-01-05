@@ -164,17 +164,47 @@
   "ds.editor.storage.s3.bucket": {
     "other": "Nom du Bucket"
   },
+  "ds.editor.storage.s3.endpoint.amazon": {
+    "other": "Amazon S3"
+  },
+  "ds.editor.storage.s3.endpoint.custom": {
+    "other": "Stockage compatible S3"
+  },
   "ds.editor.storage.s3.endpoint": {
     "other": "URL de stockage personnalisée"
   },
   "ds.editor.storage.s3.endpoint.hint": {
     "other": "Laissez vide pour Amazon S3"
   },
+  "ds.editor.storage.s3.region": {
+    "other": "Région d'API S3"
+  },
   "ds.editor.storage.s3.path": {
     "other": "Chemin interne"
   },
   "ds.editor.storage.s3.secret": {
     "other": "Clé Secret S3"
+  },
+  "ds.editor.storage.buckets.legend": {
+    "other": "Sélectionnez un ou plusieurs container"
+  },
+  "ds.editor.storage.buckets.reload": {
+    "other": "Recharger les containers"
+  },
+  "ds.editor.storage.buckets.regexp": {
+    "other": "Utiliser une expression régulière"
+  },
+  "ds.editor.storage.buckets.regexp.hint": {
+    "other": "Expression régulière"
+  },
+  "ds.editor.storage.buckets.cont.nokeys": {
+    "other": "Configurer le stockage pour charger les containers"
+  },
+  "ds.editor.storage.buckets.cont.loading": {
+    "other": "Chargement des containers accessibles"
+  },
+  "ds.editor.storage.buckets.cont.empty": {
+    "other": "Aucun container trouvé"
   },
   "ds.editor.title": {
     "other": "Datasource %s"

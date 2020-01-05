@@ -28,5 +28,8 @@
   },
   "sender.error": {
     "other": "Impossible d'envoyer l'email !"
+  },
+  "entries.ignored": {
+    "other": "Attention, certains destinataires ont été ignorés, seuls les utilisateurs ayant renseigné une adresse email peuvent recevoir des invitations. Les équipes et les groupes ne sont pas traités non plus."
   }
 }

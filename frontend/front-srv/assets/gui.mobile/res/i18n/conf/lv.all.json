@@ -28,5 +28,11 @@
   },
   "Template extending gui.ajax for small screen terminals.": {
     "other": "Šablona paplašinājums gui.ajax priekš maza ekrāna izmēra termināliem."
+  },
+  "Disable this feature": {
+    "other": "Disable this feature"
+  },
+  "Do not display a smart banner when opening web interface on a mobile terminal.": {
+    "other": "Do not display a smart banner when opening web interface on a mobile terminal."
   }
 }

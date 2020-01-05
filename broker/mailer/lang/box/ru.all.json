@@ -41,6 +41,12 @@
   "Mail.Digest.Intros": {
     "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
   },
+  "Mail.DM.Subject": {
+    "other": "{{.TplData.From}} sent you a message!"
+  },
+  "Mail.DM.Intros": {
+    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+  },
   "Mail.Welcome.Subject": {
     "other": "Welcome on {{.Configs.Title}}"
   },
