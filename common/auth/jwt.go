@@ -221,7 +221,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 
 	idToken, err := j.verifyTokenWithRetry(ctx, rawIDToken, false)
 	if err != nil {
-		log.Logger(ctx).Error("error retrieving token", zap.String("token", rawIDToken), zap.Error(err))
+		log.Logger(ctx).Debug("error verifying token", zap.String("token", rawIDToken), zap.Error(err))
 		return ctx, claim.Claims{}, err
 	}
 
@@ -231,7 +231,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 	})
 
 	if err != nil {
-		log.Logger(ctx).Error("verify", zap.Error(err))
+		log.Logger(ctx).Error("error matching token in auth-token service", zap.Error(err))
 		return ctx, claim.Claims{}, err
 	}
 
