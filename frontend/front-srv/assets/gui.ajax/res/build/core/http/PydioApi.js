@@ -108,11 +108,9 @@ var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
     ManagedMultipart.prototype.uploadPart = function uploadPart(chunk, partNumber) {
         var _this = this;
 
-        console.debug('Refreshing JWT?', chunk, partNumber);
         // Make sure to reupdate JWT after long uploads
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
             // Update accessKeyId
-            console.log('[upload] Setting JWT on service credentials', jwt);
             _this.service.config.credentials.accessKeyId = jwt;
             _AWS$S3$ManagedUpload.prototype.uploadPart.call(_this, chunk, partNumber);
         });
@@ -121,10 +119,8 @@ var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
     ManagedMultipart.prototype.finishMultiPart = function finishMultiPart() {
         var _this2 = this;
 
-        console.log('Refreshing JWT before finishMultiPart');
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
             // Update accessKeyId
-            console.log('[finish] Setting JWT on service credentials', jwt);
             _this2.service.config.credentials.accessKeyId = jwt;
             _AWS$S3$ManagedUpload.prototype.finishMultiPart.call(_this2);
         });
@@ -133,10 +129,8 @@ var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
     ManagedMultipart.prototype.abort = function abort() {
         var _this3 = this;
 
-        console.log('Refreshing JWT before abort');
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
             // Update accessKeyId
-            console.log('[abort] Setting JWT on service credentials', jwt);
             _this3.service.config.credentials.accessKeyId = jwt;
             _AWS$S3$ManagedUpload.prototype.abort.call(_this3);
         });
