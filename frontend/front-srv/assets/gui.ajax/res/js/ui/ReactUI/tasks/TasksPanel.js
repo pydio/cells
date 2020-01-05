@@ -153,6 +153,7 @@ class TasksPanel extends React.Component{
                 ...styles.panel,
                 height: 40,
                 cursor: 'pointer',
+                overflowY: 'hidden'
             };
             styles.innerPane = {
                 display: 'none',
