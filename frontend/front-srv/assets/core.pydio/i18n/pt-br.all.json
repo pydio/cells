@@ -2281,5 +2281,8 @@
   },
   "user.unknown": {
     "other": "Unknown"
+  },
+  "addressbook.pick.group": {
+    "other": "Select group"
   }
 }
