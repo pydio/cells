@@ -4004,10 +4004,10 @@
 			"revisionTime": "2019-09-28T13:35:20Z"
 		},
 		{
-			"checksumSHA1": "ridVDIl6ZSCyqOLuWGFieFEStGo=",
+			"checksumSHA1": "IU1YvJRiqWV/rY2D0US4P3JUNnI=",
 			"path": "github.com/pydio/minio-go",
-			"revision": "0fbb9a68369a69541bbe2d74943c063b213e93b6",
-			"revisionTime": "2019-06-05T22:47:49Z"
+			"revision": "e0f251c0e2a6a90039a99de23aac5d3d9e833366",
+			"revisionTime": "2019-12-03T19:20:47Z"
 		},
 		{
 			"checksumSHA1": "1mh2M8Un4aI+Xydn3VIQLMUZPrg=",
