@@ -265,7 +265,12 @@ func (m *MultiBucketClient) ComputeChecksum(node *tree.Node) (err error) {
 	}
 	patched := node.Clone()
 	patched.Path = i
-	return c.ComputeChecksum(patched)
+	if e := c.ComputeChecksum(patched); e != nil {
+		return e
+	} else {
+		node.Etag = patched.Etag
+		return nil
+	}
 }
 
 func (m *MultiBucketClient) UpdateNodeUuid(ctx context.Context, node *tree.Node) (n *tree.Node, err error) {
