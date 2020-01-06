@@ -168,7 +168,7 @@
     "other": "Amazon S3"
   },
   "ds.editor.storage.s3.endpoint.custom": {
-    "other": "S3-Compatible Storage"
+    "other": "S3 kompatibler Speicher"
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "Benutzerdefinierte Endpunkt-URL"
@@ -186,25 +186,25 @@
     "other": "S3 Api Secret"
   },
   "ds.editor.storage.buckets.legend": {
-    "other": "Select one or more buckets"
+    "other": "Wählen Sie eine oder mehrere Buckets aus"
   },
   "ds.editor.storage.buckets.reload": {
-    "other": "Reload buckets"
+    "other": "Buckets neu laden"
   },
   "ds.editor.storage.buckets.regexp": {
-    "other": "Use regular expression"
+    "other": "Verwenden Sie reguläre Ausdrücke"
   },
   "ds.editor.storage.buckets.regexp.hint": {
-    "other": "Regular expression"
+    "other": "Regulärer Ausdruck"
   },
   "ds.editor.storage.buckets.cont.nokeys": {
-    "other": "Setup storage to load buckets"
+    "other": "Richten Sie den Speicher zum Laden von Buckets ein"
   },
   "ds.editor.storage.buckets.cont.loading": {
-    "other": "Loading accessible buckets"
+    "other": "Laden zugänglicher Buckets"
   },
   "ds.editor.storage.buckets.cont.empty": {
-    "other": "No buckets found"
+    "other": "Kein Bucket gefunden"
   },
   "ds.editor.title": {
     "other": "Datenquelle %s"
