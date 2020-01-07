@@ -2,6 +2,9 @@ package scheduler
 
 import (
 	"context"
+	"fmt"
+	"go.uber.org/zap/zapcore"
+	"strings"
 
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
@@ -16,22 +19,68 @@ var (
 	LogInputActionName = "actions.test.log-input"
 )
 
-type LogInputAction struct{}
+type LogInputAction struct {
+	intLog bool
+	taskLog bool
+	msg string
+	debug bool
+}
 
 func (l *LogInputAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              LogInputActionName,
-		Label:           "Log Inputs",
-		Icon:            "format-list-bulleted",
+		Label:           "Pass-through",
+		Icon:            "transfer",
 		Category:        actions.ActionCategoryScheduler,
-		Description:     "For debug purpose, log all action inputs and pass them along to next action",
+		Description:     "Blank action for appending selections or filtering, or just logging the current content of the input message.",
 		SummaryTemplate: "",
-		HasForm:         false,
+		HasForm:         true,
 	}
 }
 
 func (l *LogInputAction) GetParametersForm() *forms.Form {
-	return nil
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "internalLogger",
+					Type:        forms.ParamBool,
+					Label:       "Internal Logger",
+					Description: "Log in application logs",
+					Default:     true,
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "taskLogger",
+					Type:        forms.ParamBool,
+					Label:       "Task Logger",
+					Description: "Log in Task Logger",
+					Default:     true,
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "debug",
+					Type:        forms.ParamBool,
+					Label:       "Use DEBUG level (info by default)",
+					Description: "Use DEBUG level (info by default)",
+					Default:     false,
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "message",
+					Type:        forms.ParamTextarea,
+					Label:       "Message",
+					Description: "Create custom message",
+					Default:     nil,
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
 }
 
 func (l *LogInputAction) GetName() string {
@@ -39,28 +88,73 @@ func (l *LogInputAction) GetName() string {
 }
 
 func (l *LogInputAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+	if action.Parameters["taskLogger"] == "true" {
+		l.taskLog = true
+	}
+	if action.Parameters["internalLogger"] == "true" {
+		l.intLog = true
+	}
+	if action.Parameters["debug"] == "true" {
+		l.debug = true
+	}
+	if m, ok := action.Parameters["message"]; ok && len(m) > 0 {
+		l.msg = m
+	}
 	return nil
 }
 
 func (l *LogInputAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
-	// Log all inputs
-	if len(input.Nodes) > 0 {
-		log.Logger(ctx).Info("Input has node(s)", zap.Int("total", len(input.Nodes)), input.Nodes[0].ZapUuid(), input.Nodes[0].ZapPath())
+
+	if !l.taskLog || !l.intLog {
+		return input.WithIgnore(), nil
 	}
-	if len(input.Users) > 0 {
-		log.Logger(ctx).Info("Input has user(s)", zap.Int("total", len(input.Users)), input.Users[0].ZapUuid(), input.Users[0].ZapLogin())
+
+	msg := l.msg
+	var ff []zapcore.Field
+	if msg != "" {
+		msg = jobs.EvaluateFieldStr(ctx, input, msg)
+	} else {
+		var mm []string
+		if len(input.Nodes) > 0 {
+			mm = append(mm, fmt.Sprintf("%d nodes", len(input.Nodes)))
+			ff = append(ff, zap.Int("total", len(input.Nodes)), input.Nodes[0].ZapUuid(), input.Nodes[0].ZapPath())
+		}
+		if len(input.Users) > 0 {
+			mm = append(mm, fmt.Sprintf("%d users", len(input.Users)))
+			ff = append(ff, zap.Int("total", len(input.Users)), input.Users[0].ZapUuid(), input.Users[0].ZapLogin())
+		}
+		if len(input.Roles) > 0 {
+			mm = append(mm, fmt.Sprintf("%d roles", len(input.Roles)))
+			ff = append(ff, zap.Int("total", len(input.Roles)), input.Roles[0].Zap())
+		}
+		if len(input.Workspaces) > 0 {
+			mm = append(mm, fmt.Sprintf("%d workspaces", len(input.Workspaces)))
+			ff = append(ff, zap.Int("total", len(input.Workspaces)), input.Workspaces[0].Zap())
+		}
+		if len(input.Acls) > 0 {
+			mm = append(mm, fmt.Sprintf("%d acls", len(input.Acls)))
+			ff = append(ff, zap.Int("total", len(input.Acls)), input.Acls[0].Zap())
+		}
+		if len(input.Activities) > 0 {
+			mm = append(mm, fmt.Sprintf("%d activities", len(input.Activities)))
+			ff = append(ff, zap.Int("total", len(input.Activities)), zap.Any("first", input.Activities[0]))
+		}
+		msg = strings.Join(mm, ", ")
 	}
-	if len(input.Roles) > 0 {
-		log.Logger(ctx).Info("Input has role(s)", zap.Int("total", len(input.Roles)), input.Roles[0].Zap())
+	if l.intLog {
+		if l.debug {
+			log.Logger(ctx).Debug(msg, ff...)
+		} else {
+			log.Logger(ctx).Info(msg, ff...)
+		}
 	}
-	if len(input.Workspaces) > 0 {
-		log.Logger(ctx).Info("Input has workspace(s)", zap.Int("total", len(input.Workspaces)), input.Workspaces[0].Zap())
+	if l.taskLog {
+		if l.debug {
+			log.TasksLogger(ctx).Debug(msg, ff...)
+		} else {
+			log.TasksLogger(ctx).Info(msg, ff...)
+		}
 	}
-	if len(input.Acls) > 0 {
-		log.Logger(ctx).Info("Input has acl(s)", zap.Int("total", len(input.Acls)), input.Acls[0].Zap())
-	}
-	if len(input.Activities) > 0 {
-		log.Logger(ctx).Info("Input has activity(ies)", zap.Int("total", len(input.Activities)))
-	}
+
 	return input, nil
 }

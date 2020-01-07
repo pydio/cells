@@ -17,8 +17,6 @@ message NodesSelector {
     bool All = 1;
     // Preset list of node pathes
     repeated string Pathes = 2;
-    // Preset set of nodes
-    repeated tree.Node Nodes = 3;
     // Query to apply to select users (or filter a given node passed by event)
     service.Query Query = 4;
     // Wether to trigger one action per node or one action

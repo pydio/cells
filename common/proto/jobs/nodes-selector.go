@@ -22,6 +22,8 @@ package jobs
 
 import (
 	"context"
+	"github.com/golang/protobuf/proto"
+	"github.com/pydio/cells/common/registry"
 	"go.uber.org/zap"
 	"path"
 	"strings"
@@ -60,25 +62,36 @@ func (n *NodesSelector) MultipleSelection() bool {
 
 /* ENRICH NodesSelector METHODS */
 
-func (n *NodesSelector) Select(cl client.Client, ctx context.Context, objects chan interface{}, done chan bool) error {
+func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
 		done <- true
 	}()
-	if len(n.Pathes) > 0 {
-		for _, p := range n.Pathes {
+	selector := n.evaluatedClone(ctx, input)
+	if len(selector.Pathes) > 0 {
+		for _, p := range selector.Pathes {
 			objects <- &tree.Node{
 				Path: p,
 			}
 		}
 	} else {
 		q := &tree.Query{}
-		if n.Query == nil || n.Query.SubQueries == nil || len(n.Query.SubQueries) == 0 {
+		if selector.Query == nil || selector.Query.SubQueries == nil || len(selector.Query.SubQueries) == 0 {
 			return nil
 		}
 
-		e := ptypes.UnmarshalAny(n.Query.SubQueries[0], q)
+		e := ptypes.UnmarshalAny(selector.Query.SubQueries[0], q)
 		if e != nil {
 			return e
+		}
+		// If paths are preset, just load nodes and do not go further
+		if len(q.PresetPaths) > 0 {
+			sCli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_TREE))
+			for _, p := range q.PresetPaths {
+				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node:&tree.Node{Path:p}}); e == nil {
+					objects <- r.GetNode()
+				}
+			}
+			return nil
 		}
 		// For simple/quick requests
 		sName := common.SERVICE_TREE
@@ -110,13 +123,13 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, objects ch
 	return nil
 }
 
-func (n *NodesSelector) Filter(input ActionMessage) (ActionMessage, bool) {
+func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
 
 	if len(input.Nodes) == 0 {
 		return input, false
 	}
-
-	if n.All {
+	selector := n.evaluatedClone(ctx, input)
+	if selector.All {
 		return input, true
 	}
 
@@ -124,25 +137,29 @@ func (n *NodesSelector) Filter(input ActionMessage) (ActionMessage, bool) {
 
 	for _, node := range input.Nodes {
 
-		if len(n.Pathes) > 0 {
-			if !contains(n.Pathes, node.Path, false, false) {
+		if len(selector.Pathes) > 0 {
+			if !contains(selector.Pathes, node.Path, false, false) {
 				continue
 			}
 		}
-		if n.Query != nil && len(n.Query.SubQueries) > 0 {
+		if selector.Query != nil && len(selector.Query.SubQueries) > 0 {
 			// Parse only first level for the moment
 			// TODO : WE MAY HAVE TO RELOAD NODE CORE PROPERTIES AND/OR METADATA
 			var results []bool
-			for _, q := range n.Query.SubQueries {
+			for _, q := range selector.Query.SubQueries {
 				singleQuery := &tree.Query{}
 				e := ptypes.UnmarshalAny(q, singleQuery)
 				if e != nil {
 					// LOG ERROR!
 					continue
 				}
-				results = append(results, n.evaluateSingleQuery(singleQuery, node))
+				res := selector.evaluateSingleQuery(singleQuery, node)
+				if singleQuery.Not {
+					res = !res
+				}
+				results = append(results, res)
 			}
-			if !service.ReduceQueryBooleans(results, n.Query.Operation) {
+			if !service.ReduceQueryBooleans(results, selector.Query.Operation) {
 				continue
 			}
 		}
@@ -156,6 +173,12 @@ func (n *NodesSelector) Filter(input ActionMessage) (ActionMessage, bool) {
 }
 
 func (n *NodesSelector) evaluateSingleQuery(q *tree.Query, node *tree.Node) bool {
+
+	if len(q.PresetPaths) > 0 {
+		if !contains(q.PresetPaths, node.Path, false, false) {
+			return false
+		}
+	}
 
 	if len(q.PathPrefix) > 0 {
 		if !contains(q.PathPrefix, node.Path, true, false) {
@@ -317,4 +340,29 @@ func getMemBleveIndex() bleve.Index {
 
 	memBleveIndex, _ = bleve.NewMemOnly(mapping)
 	return memBleveIndex
+}
+
+func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage) *NodesSelector {
+	if len(GetFieldEvaluators()) == 0 {
+		return n
+	}
+	c := proto.Clone(n).(*NodesSelector)
+	for i, p := range c.Pathes {
+		c.Pathes[i] = EvaluateFieldStr(ctx, input, p)
+	}
+	if c.Query != nil && len(c.Query.SubQueries) > 0 {
+		for i, q := range c.Query.SubQueries {
+			singleQuery := &tree.Query{}
+			if e := ptypes.UnmarshalAny(q, singleQuery); e != nil {
+				continue
+			}
+			singleQuery.FileName = EvaluateFieldStr(ctx, input, singleQuery.FileName)
+			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.FreeString)
+			singleQuery.FreeString = EvaluateFieldStr(ctx, input, singleQuery.Extension)
+			singleQuery.PathPrefix = EvaluateFieldStrSlice(ctx, input, singleQuery.PathPrefix)
+			singleQuery.PresetPaths = EvaluateFieldStrSlice(ctx, input, singleQuery.PresetPaths)
+			c.Query.SubQueries[i], _ = ptypes.MarshalAny(singleQuery)
+		}
+	}
+	return c
 }

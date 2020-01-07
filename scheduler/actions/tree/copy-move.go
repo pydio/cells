@@ -182,7 +182,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Default(), true))
 
 	targetNode := &tree.Node{
-		Path: c.TargetPlaceholder,
+		Path: jobs.EvaluateFieldStr(ctx, input, c.TargetPlaceholder),
 	}
 	if c.TargetIsParent {
 		targetNode.Path = path.Join(targetNode.Path, path.Base(sourceNode.Path))

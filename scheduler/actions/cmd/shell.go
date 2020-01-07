@@ -218,7 +218,7 @@ func (c *ShellAction) Run(ctx context.Context, channels *actions.RunnableChannel
 
 	}
 
-	params := c.CmdParameters
+	params := jobs.EvaluateFieldStrSlice(ctx, input, c.CmdParameters)
 
 	if len(tempFileIn) > 0 || len(tempFileOut) > 0 {
 		oldNew := []string{}

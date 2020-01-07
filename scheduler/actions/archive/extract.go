@@ -125,7 +125,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if format == "" {
 		format = strings.TrimLeft(ext, ".")
 	}
-	targetName := ex.TargetName
+	targetName := jobs.EvaluateFieldStr(ctx, input, ex.TargetName)
 	if targetName == "" {
 		base := strings.TrimSuffix(filepath.Base(archiveNode.Path), ext)
 		targetName = computeTargetName(ctx, ex.Router, filepath.Dir(archiveNode.Path), base)

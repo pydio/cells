@@ -82,7 +82,7 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 		if q.MaxDate > 0 {
 			dateParts = append(dateParts, fmt.Sprintf("<=%d", q.MaxDate))
 		}
-		listReq.Node.SetMeta("time", dateParts)
+		listReq.Node.SetMeta(tree.MetaFilterTime, dateParts)
 	}
 	// Filter Size
 	if q.MaxSize > 0 || q.MinSize > 0 {
@@ -93,18 +93,43 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 		if q.MaxSize > 0 {
 			sizeParts = append(sizeParts, fmt.Sprintf("<=%d", q.MaxSize))
 		}
-		listReq.Node.SetMeta("size", sizeParts)
+		listReq.Node.SetMeta(tree.MetaFilterTime, sizeParts)
 	}
 	// Grep Filename
 	if q.FileName != "" {
-		listReq.Node.SetMeta("grep", "^"+q.FileName+"$")
+		g := strings.Trim(q.FileName, "*")
+		var left, right, or bool
+		if !strings.HasPrefix(q.FileName, "*") {
+			g = "^" + g
+			left = true
+		}
+		if !strings.HasSuffix(q.FileName, "*") {
+			g = g + "$"
+			right = true
+		}
+		if strings.Contains(q.FileName, "|") {
+			g = q.FileName
+			or = true
+		}
+		if !left || !right || or {
+			g = "(?i)" + g // Make case insensitive
+		}
+ 		if q.Not {
+			listReq.Node.SetMeta(tree.MetaFilterNoGrep, g)
+		} else {
+			listReq.Node.SetMeta(tree.MetaFilterGrep, g)
+		}
 	} else if q.Extension != "" {
 		ext := strings.Split(q.Extension, "|")
 		var greps []string
 		for _, x := range ext {
 			greps = append(greps, x+"$")
 		}
-		listReq.Node.SetMeta("grep", strings.Join(greps, "|"))
+		if q.Not {
+			listReq.Node.SetMeta(tree.MetaFilterNoGrep, strings.Join(greps, "|"))
+		} else {
+			listReq.Node.SetMeta(tree.MetaFilterGrep, strings.Join(greps, "|"))
+		}
 	}
 
 	for _, p := range q.PathPrefix {

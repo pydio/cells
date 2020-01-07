@@ -28,6 +28,13 @@ import (
 	"time"
 )
 
+const (
+	MetaFilterGrep = "grep"
+	MetaFilterNoGrep = "no-grep"
+	MetaFilterTime = "time"
+	MetaFilterSize = "size"
+)
+
 var (
 	metaIntRegexp = regexp.MustCompile(`([<>])(=?)([0-9]+)`)
 )
@@ -43,6 +50,7 @@ type MetaFilter struct {
 	reqNode *Node
 
 	grep     *regexp.Regexp
+	negativeGrep *regexp.Regexp
 	intComps []cmp
 }
 
@@ -51,14 +59,19 @@ func NewMetaFilter(node *Node) *MetaFilter {
 }
 
 func (m *MetaFilter) Parse() bool {
-	if m.reqNode.GetStringMeta("grep") != "" {
-		if g, e := regexp.Compile(m.reqNode.GetStringMeta("grep")); e == nil {
+	if m.reqNode.GetStringMeta(MetaFilterGrep) != "" {
+		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterGrep)); e == nil {
 			m.grep = g
 		}
 	}
-	m.parseIntExpr("time")
-	m.parseIntExpr("size")
-	return m.grep != nil || len(m.intComps) > 0
+	if m.reqNode.GetStringMeta(MetaFilterNoGrep) != "" {
+		if g, e := regexp.Compile(m.reqNode.GetStringMeta(MetaFilterNoGrep)); e == nil {
+			m.negativeGrep = g
+		}
+	}
+	m.parseIntExpr(MetaFilterTime)
+	m.parseIntExpr(MetaFilterSize)
+	return m.grep != nil || m.negativeGrep != nil || len(m.intComps) > 0
 }
 
 func (m *MetaFilter) parseIntExpr(meta string) bool {
@@ -87,11 +100,14 @@ func (m *MetaFilter) Match(name string, n *Node) bool {
 	if m.grep != nil && !m.grep.MatchString(name) {
 		return false
 	}
+	if m.negativeGrep != nil && m.negativeGrep.MatchString(name) {
+		return false
+	}
 	for _, c := range m.intComps {
 		var ref int64
-		if c.field == "time" {
+		if c.field == MetaFilterTime {
 			ref = n.MTime
-		} else if c.field == "size" {
+		} else if c.field == MetaFilterSize {
 			ref = n.Size
 		}
 		match := false

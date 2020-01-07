@@ -153,7 +153,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		base = path.Base(nodes[0].Path)
 	}
 	if c.TargetName != "" {
-		dir, base = path.Split(c.TargetName)
+		dir, base = path.Split(jobs.EvaluateFieldStr(ctx, input, c.TargetName))
 		if c.Date != "" {
 			base = strings.Join([]string{base, c.Date}, "-")
 		}

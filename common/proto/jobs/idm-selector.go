@@ -22,6 +22,7 @@ package jobs
 
 import (
 	"context"
+	"github.com/golang/protobuf/proto"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -37,7 +38,7 @@ func (m *IdmSelector) MultipleSelection() bool {
 }
 
 // Select IDM Objects by a given query
-func (m *IdmSelector) Select(client client.Client, ctx context.Context, objects chan interface{}, done chan bool) error {
+func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 
 	defer func() {
 		done <- true
@@ -45,7 +46,7 @@ func (m *IdmSelector) Select(client client.Client, ctx context.Context, objects 
 	// Push Claims in Context to impersonate this user
 	var query *service.Query
 	if m.Query != nil {
-		query = m.Query
+		query = m.cloneEvaluated(ctx, input, m.Query)
 	} else if m.All {
 		query = &service.Query{SubQueries: []*any.Any{}}
 	}
@@ -54,7 +55,7 @@ func (m *IdmSelector) Select(client client.Client, ctx context.Context, objects 
 	}
 	switch m.Type {
 	case IdmSelectorType_User:
-		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, client)
+		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, cl)
 		s, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 		if e != nil {
 			return e
@@ -71,7 +72,7 @@ func (m *IdmSelector) Select(client client.Client, ctx context.Context, objects 
 			objects <- resp.User
 		}
 	case IdmSelectorType_Role:
-		roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, client)
+		roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, cl)
 		if s, e := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{Query: query}); e != nil {
 			return e
 		} else {
@@ -88,7 +89,7 @@ func (m *IdmSelector) Select(client client.Client, ctx context.Context, objects 
 			}
 		}
 	case IdmSelectorType_Workspace:
-		wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, client)
+		wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, cl)
 		if s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query}); e != nil {
 			return e
 		} else {
@@ -105,7 +106,7 @@ func (m *IdmSelector) Select(client client.Client, ctx context.Context, objects 
 			}
 		}
 	case IdmSelectorType_Acl:
-		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, client)
+		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, cl)
 		if s, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: query}); e != nil {
 			return e
 		} else {
@@ -129,7 +130,7 @@ func (m *IdmSelector) Select(client client.Client, ctx context.Context, objects 
 }
 
 // Filter IDM objects by a query
-func (m *IdmSelector) Filter(input ActionMessage) (ActionMessage, bool) {
+func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
 
 	if m.All && (m.Query == nil || len(m.Query.SubQueries) == 0) {
 		return input, true
@@ -148,7 +149,7 @@ func (m *IdmSelector) Filter(input ActionMessage) (ActionMessage, bool) {
 				input.Users = []*idm.User{}
 				return input, false
 			} else {
-				matchers = append(matchers, target)
+				matchers = append(matchers, m.evaluate(ctx, input, target))
 			}
 		}
 		var uu []*idm.User
@@ -170,7 +171,7 @@ func (m *IdmSelector) Filter(input ActionMessage) (ActionMessage, bool) {
 				input.Roles = []*idm.Role{}
 				return input, false
 			} else {
-				matchers = append(matchers, target)
+				matchers = append(matchers, m.evaluate(ctx, input, target))
 			}
 		}
 		var rr []*idm.Role
@@ -192,7 +193,7 @@ func (m *IdmSelector) Filter(input ActionMessage) (ActionMessage, bool) {
 				input.Workspaces = []*idm.Workspace{}
 				return input, false
 			} else {
-				matchers = append(matchers, target)
+				matchers = append(matchers, m.evaluate(ctx, input, target))
 			}
 		}
 		var ww []*idm.Workspace
@@ -214,7 +215,7 @@ func (m *IdmSelector) Filter(input ActionMessage) (ActionMessage, bool) {
 				input.Acls = []*idm.ACL{}
 				return input, false
 			} else {
-				matchers = append(matchers, target)
+				matchers = append(matchers, m.evaluate(ctx, input, target))
 			}
 		}
 		var aa []*idm.ACL
@@ -239,4 +240,60 @@ func (m *IdmSelector) matchQueries(object interface{}, matchers []idm.Matcher) b
 		bb = append(bb, matcher.Matches(object))
 	}
 	return service.ReduceQueryBooleans(bb, m.Query.Operation)
+}
+
+func (m *IdmSelector) cloneEvaluated(ctx context.Context, input ActionMessage, query *service.Query) *service.Query {
+	if len(GetFieldEvaluators()) == 0 {
+		return query
+	}
+	q := proto.Clone(m.Query).(*service.Query)
+	for i, sub := range q.SubQueries {
+		u := &idm.UserSingleQuery{}
+		r := &idm.RoleSingleQuery{}
+		ws := &idm.WorkspaceSingleQuery{}
+		a := &idm.ACLSingleQuery{}
+		if e:= ptypes.UnmarshalAny(sub, ws); e == nil {
+			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, ws).(*idm.WorkspaceSingleQuery))
+		} else if e:= ptypes.UnmarshalAny(sub, r); e == nil {
+			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, r).(*idm.RoleSingleQuery))
+		}else if e:= ptypes.UnmarshalAny(sub, u); e == nil {
+			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, u).(*idm.UserSingleQuery))
+		}else if e:= ptypes.UnmarshalAny(sub, a); e == nil {
+			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, a).(*idm.ACLSingleQuery))
+		}
+	}
+	return q
+}
+
+func (m *IdmSelector) evaluate(ctx context.Context, input ActionMessage, singleQuery interface{}) idm.Matcher {
+	if uQ, o := singleQuery.(*idm.UserSingleQuery); o {
+		uQ.Uuid = EvaluateFieldStr(ctx, input, uQ.Uuid)
+		uQ.Login = EvaluateFieldStr(ctx, input, uQ.Login)
+		uQ.AttributeValue = EvaluateFieldStr(ctx, input, uQ.AttributeValue)
+		uQ.AttributeName = EvaluateFieldStr(ctx, input, uQ.AttributeName)
+		uQ.HasRole = EvaluateFieldStr(ctx, input, uQ.HasRole)
+		uQ.FullPath = EvaluateFieldStr(ctx, input, uQ.FullPath)
+		uQ.GroupPath = EvaluateFieldStr(ctx, input, uQ.GroupPath)
+		return uQ
+	} else if rQ, o := singleQuery.(*idm.RoleSingleQuery); o {
+		rQ.Uuid = EvaluateFieldStrSlice(ctx, input, rQ.Uuid)
+		rQ.Label = EvaluateFieldStr(ctx, input, rQ.Label)
+		return rQ
+	} else if wQ, o := singleQuery.(*idm.WorkspaceSingleQuery); o {
+		wQ.Label = EvaluateFieldStr(ctx, input, wQ.Label)
+		wQ.Uuid = EvaluateFieldStr(ctx, input, wQ.Uuid)
+		wQ.Description = EvaluateFieldStr(ctx, input, wQ.Description)
+		wQ.Slug = EvaluateFieldStr(ctx, input, wQ.Slug)
+		return wQ
+	} else if aQ, o := singleQuery.(*idm.ACLSingleQuery); o {
+		aQ.NodeIDs = EvaluateFieldStrSlice(ctx, input, aQ.NodeIDs)
+		aQ.WorkspaceIDs = EvaluateFieldStrSlice(ctx, input, aQ.WorkspaceIDs)
+		aQ.RoleIDs = EvaluateFieldStrSlice(ctx, input, aQ.RoleIDs)
+		for _, ac := range aQ.Actions {
+			ac.Name = EvaluateFieldStr(ctx, input, ac.Name)
+			ac.Value = EvaluateFieldStr(ctx, input, ac.Value)
+		}
+		return aQ
+	}
+	return singleQuery.(idm.Matcher)
 }

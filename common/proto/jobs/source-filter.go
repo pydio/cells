@@ -21,13 +21,14 @@
 package jobs
 
 import (
+	"context"
 	"strings"
 
 	"github.com/micro/protobuf/ptypes"
 	service "github.com/pydio/cells/common/service/proto"
 )
 
-func (n *SourceFilter) Filter(input ActionMessage) (ActionMessage, bool) {
+func (n *SourceFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
 
 	results := []bool{}
 

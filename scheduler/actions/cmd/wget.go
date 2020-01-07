@@ -129,7 +129,7 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	targetNode = new(tree.Node)
 	if w.targetPath != "" {
 		basename := filepath.Base(w.SourceUrl.Path)
-		targetNode.Path = filepath.Join(w.targetPath, basename)
+		targetNode.Path = filepath.Join(jobs.EvaluateFieldStr(ctx, input, w.targetPath), basename)
 	} else {
 		targetNode = input.Nodes[0]
 	}

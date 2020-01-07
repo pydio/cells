@@ -281,7 +281,7 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if jobData.Inactive {
 			continue
 		}
-		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(event, jobData.NodeEventFilter) {
+		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(ctx, event, jobData.NodeEventFilter) {
 			continue
 		}
 		for _, eName := range jobData.EventNames {
@@ -310,7 +310,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 		if jobData.Inactive {
 			continue
 		}
-		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(createMessageFromEvent(event), jobData.IdmFilter) {
+		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(ctx, createMessageFromEvent(event), jobData.IdmFilter) {
 			continue
 		}
 		for _, eName := range jobData.EventNames {
@@ -325,7 +325,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 }
 
 // Check if a node must go through jobs at all (if there is a NodesSelector at the job level)
-func (s *Subscriber) jobLevelFilterPass(event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
+func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
 	var refNode *tree.Node
 	if event.Target != nil {
 		refNode = event.Target
@@ -336,13 +336,13 @@ func (s *Subscriber) jobLevelFilterPass(event *tree.NodeChangeEvent, filter *job
 		return true // Ignore
 	}
 	input := jobs.ActionMessage{Nodes: []*tree.Node{refNode}}
-	_, pass := filter.Filter(input)
+	_, pass := filter.Filter(ctx, input)
 	return pass
 }
 
 // Test filter and return false if all input IDM slots are empty
-func (s *Subscriber) jobLevelIdmFilterPass(input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
-	_, pass := filter.Filter(input)
+func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
+	_, pass := filter.Filter(ctx, input)
 	return pass
 }
 

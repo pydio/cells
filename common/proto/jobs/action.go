@@ -35,7 +35,7 @@ import (
 
 func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx context.Context, output chan ActionMessage, done chan bool) {
 
-	startMessage, pass := a.ApplyFilters(startMessage)
+	startMessage, pass := a.ApplyFilters(ctx, startMessage)
 	if !pass {
 		done <- true
 		return
@@ -66,19 +66,19 @@ func (a *Action) getSelectors() []InputSelector {
 	return selectors
 }
 
-func (a *Action) ApplyFilters(input ActionMessage) (ActionMessage, bool) {
+func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
 	passThrough := true
 	if a.NodesFilter != nil {
-		input, passThrough = a.NodesFilter.Filter(input)
+		input, passThrough = a.NodesFilter.Filter(ctx, input)
 	}
 	if a.IdmFilter != nil {
-		input, passThrough = a.IdmFilter.Filter(input)
+		input, passThrough = a.IdmFilter.Filter(ctx, input)
 	}
 	if a.UsersFilter != nil {
-		input, passThrough = a.UsersFilter.Filter(input)
+		input, passThrough = a.UsersFilter.Filter(ctx, input)
 	}
 	if a.SourceFilter != nil {
-		input, passThrough = a.SourceFilter.Filter(input)
+		input, passThrough = a.SourceFilter.Filter(ctx, input)
 	}
 	return input, passThrough
 }
@@ -157,7 +157,7 @@ func (a *Action) FanOutSelector(cl client.Client, ctx context.Context, selector 
 			}
 		}
 	}()
-	go selector.Select(cl, ctx, wire, selectDone)
+	go selector.Select(cl, ctx, input, wire, selectDone)
 
 }
 
@@ -197,7 +197,7 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 			}
 		}
 	}()
-	go selector.Select(cl, ctx, wire, selectDone)
+	go selector.Select(cl, ctx, input, wire, selectDone)
 	wg.Wait()
 
 	input = input.WithNodes(nodes...)

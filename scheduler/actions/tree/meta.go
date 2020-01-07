@@ -39,7 +39,7 @@ var (
 type MetaAction struct {
 	Client        tree.NodeReceiverClient
 	MetaNamespace string
-	MetaValue     interface{}
+	MetaValue     string
 }
 
 func (c *MetaAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -107,7 +107,7 @@ func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels
 
 	// Update Metadata
 	for _, n := range input.Nodes {
-		n.SetMeta(c.MetaNamespace, c.MetaValue)
+		n.SetMeta(jobs.EvaluateFieldStr(ctx, input, c.MetaNamespace), jobs.EvaluateFieldStr(ctx, input, c.MetaValue))
 		_, err := c.Client.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n})
 		if err != nil {
 			return input.WithError(err), err

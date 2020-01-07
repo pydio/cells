@@ -19,13 +19,6 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *NodesSelector) Validate() error {
-	for _, item := range this.Nodes {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Nodes", err)
-			}
-		}
-	}
 	if this.Query != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)

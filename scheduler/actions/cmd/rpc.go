@@ -42,7 +42,7 @@ type RpcAction struct {
 	Client      client.Client
 	ServiceName string
 	MethodName  string
-	JsonRequest interface{}
+	JsonRequest string
 }
 
 func (c *RpcAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -109,7 +109,7 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 		var jsonData interface{}
 		e := json.Unmarshal([]byte(jsonParams), &jsonData)
 		if e == nil {
-			c.JsonRequest = jsonData
+			c.JsonRequest = jsonParams
 		}
 	}
 	return nil
@@ -118,7 +118,10 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 // Run the actual action code
 func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	req := c.Client.NewJsonRequest(c.ServiceName, c.MethodName, c.JsonRequest)
+	var jsonParams interface{}
+	json.Unmarshal([]byte(jobs.EvaluateFieldStr(ctx, input, c.JsonRequest)), &jsonParams)
+
+	req := c.Client.NewJsonRequest(c.ServiceName, c.MethodName, &jsonParams)
 	var response json.RawMessage
 	e := c.Client.Call(ctx, req, &response)
 	if e != nil {

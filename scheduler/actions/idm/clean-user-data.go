@@ -35,7 +35,7 @@ func (c *CleanUserDataAction) GetDescription(lang ...string) actions.ActionDescr
 }
 
 func (c *CleanUserDataAction) GetParametersForm() *forms.Form {
-	panic("implement me")
+	return nil
 }
 
 func (c *CleanUserDataAction) GetName() string {
