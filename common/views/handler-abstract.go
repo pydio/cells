@@ -28,9 +28,10 @@ import (
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
+	"github.com/pydio/minio-go"
+
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/minio-go"
 )
 
 type ContextWrapper func(ctx context.Context) (context.Context, error)
@@ -195,4 +196,8 @@ func (a *AbstractHandler) MultipartListObjectParts(ctx context.Context, target *
 		return minio.ListObjectPartsResult{}, err
 	}
 	return a.next.MultipartListObjectParts(ctx, target, uploadID, partNumberMarker, maxParts)
+}
+
+func (a *AbstractHandler) ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilter) error {
+	return fmt.Errorf("not.implemented")
 }
