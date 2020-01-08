@@ -26,6 +26,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/pborman/uuid"
@@ -50,7 +51,7 @@ type Client struct {
 func (i *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "index://" + i.dsName,
+		URI: "index://" + i.dsName,
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
 	}
