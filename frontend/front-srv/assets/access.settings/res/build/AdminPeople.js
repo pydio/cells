@@ -291,6 +291,7 @@ var Dashboard = _react2['default'].createClass({
         dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
         rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
+        accessByName: _react2['default'].PropTypes.func.isRequired,
         openEditor: _react2['default'].PropTypes.func.isRequired
     },
 
@@ -513,8 +514,11 @@ var Dashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var mime = node.getAjxpMime();
+        if (node.getMetadata().has('IdmUser') && !node.getMetadata().get("IdmUser").PoliciesContextEditable) {
+            return _react2['default'].createElement('div', null);
+        }
         var iconStyle = {
-            color: 'rgba(0,0,0,0.43)',
+            color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
         var disabledStyle = {
@@ -589,9 +593,15 @@ var Dashboard = _react2['default'].createClass({
     render: function render() {
         var _this5 = this;
 
+        var _props3 = this.props;
+        var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
+        var rootNode = _props3.rootNode;
+        var pydio = _props3.pydio;
+
         var fontIconStyle = {
             style: {
-                backgroundColor: this.props.muiTheme.palette.accent2Color,
+                backgroundColor: muiTheme.palette.accent2Color,
                 borderRadius: '50%',
                 width: 36,
                 height: 36,
@@ -627,7 +637,10 @@ var Dashboard = _react2['default'].createClass({
             className: "media-small-hide"
         });
 
-        var headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
+        var headerButtons = [];
+        if (accessByName('Create')) {
+            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
+        }
 
         var groupHeaderStyle = {
             height: 48,
@@ -653,7 +666,7 @@ var Dashboard = _react2['default'].createClass({
             profileFilter = currentNode.getMetadata().get('userProfileFilter');
         }
 
-        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color;
+        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : muiTheme.palette.accent1Color;
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
@@ -700,7 +713,7 @@ var Dashboard = _react2['default'].createClass({
                         _react2['default'].createElement(PydioComponents.DNDTreeView, {
                             showRoot: true,
                             rootLabel: this.context.getMessage("user.5"),
-                            node: this.props.rootNode,
+                            node: rootNode,
                             dataModel: this.props.dataModel,
                             className: 'users-groups-tree',
                             paddingOffset: 10
@@ -712,7 +725,7 @@ var Dashboard = _react2['default'].createClass({
                     { zDepth: 0, className: 'layout-fill vertical-layout people-list' },
                     _react2['default'].createElement(PydioComponents.SimpleList, {
                         ref: 'mainlist',
-                        pydio: this.props.pydio,
+                        pydio: pydio,
                         node: currentNode,
                         dataModel: dataModel,
                         openEditor: this.openRoleEditor,
@@ -726,7 +739,7 @@ var Dashboard = _react2['default'].createClass({
                         elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES,
                         hideToolbar: false,
                         toolbarStyle: { backgroundColor: '#f5f5f5', height: 48, borderBottom: '1px solid #e4e4e4' },
-                        multipleActions: [this.props.pydio.Controller.getActionByName('delete')],
+                        multipleActions: [pydio.Controller.getActionByName('delete')],
                         additionalActions: filterIcon,
                         filterNodes: this.filterNodes.bind(this)
                     })
@@ -1314,11 +1327,15 @@ var RolesDashboard = _react2['default'].createClass({
             fontSize: 20
         };
         var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80, textOverflow: 'none' }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                        _this4.deleteAction(row.roleId);
-                    }, onClick: function (e) {
-                        e.stopPropagation();
-                    }, iconStyle: iconStyle });
+                if (row.role.PoliciesContextEditable) {
+                    return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
+                            _this4.deleteAction(row.roleId);
+                        }, onClick: function (e) {
+                            e.stopPropagation();
+                        }, iconStyle: iconStyle });
+                } else {
+                    return null;
+                }
             } }];
         var data = this.computeTableData(searchRoleString);
 
