@@ -2,7 +2,7 @@ import {
     ATTACH_MODEL_ACTION,
     DETACH_MODEL_ACTION,
     DROP_FILTER_ACTION, EDITOR_REVERT,
-    JOB_LOADED, JOB_SWITCH_TRIGGER, JOB_UPDATE_LABEL, REMOVE_FILTER_ACTION,
+    JOB_LOADED, JOB_SWITCH_TRIGGER, JOB_UPDATE_LABEL, JOB_UPDATE_PROPERTY, REMOVE_FILTER_ACTION,
     REMOVE_MODEL_ACTION
 } from "../actions/editor";
 import {JobsJob} from 'pydio/http/rest-api';
@@ -31,6 +31,10 @@ export default function(job = new JobsJob(), action) {
 
         case JOB_UPDATE_LABEL:
             job.Label = action.label;
+            return job;
+
+        case JOB_UPDATE_PROPERTY:
+            job[action.propertyName] = action.propertyValue;
             return job;
 
         case ATTACH_MODEL_ACTION:

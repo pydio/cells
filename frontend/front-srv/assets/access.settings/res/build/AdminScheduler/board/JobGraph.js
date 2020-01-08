@@ -6,7 +6,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x7, _x8, _x9) { var _again = true; _function: while (_again) { var object = _x7, property = _x8, receiver = _x9; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x7 = parent; _x8 = property; _x9 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -109,7 +109,7 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var mapStateToProps = function mapStateToProps(state) {
-    console.log(state);
+    console.debug(state);
     return _extends({}, state);
 };
 
@@ -177,6 +177,12 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.setDirtyAction)(true));
             });
         },
+        onJobPropertyChange: function onJobPropertyChange(name, value) {
+            dispatch(function (d) {
+                d((0, _actionsEditor.updateJobPropertyAction)(name, value));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
+        },
         onSelectionClear: function onSelectionClear() {
             dispatch((0, _actionsEditor.clearSelectionAction)());
         },
@@ -196,6 +202,8 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             });
         },
         onSave: function onSave(job) {
+            var onJobSave = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
             dispatch(function (d) {
                 _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                     var SchedulerServiceApi = sdk.SchedulerServiceApi;
@@ -211,6 +219,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                     return api.putJob(req);
                 }).then(function () {
                     d((0, _actionsEditor.saveSuccessAction)(job));
+                    if (onJobSave) {
+                        onJobSave(job);
+                    }
                 })['catch'](function (e) {
                     d((0, _actionsEditor.saveErrorAction)(job));
                 });
@@ -404,7 +415,8 @@ var JobGraph = (function (_React$Component) {
             });
             this.setState({
                 selectionType: null,
-                selectionModel: null
+                selectionModel: null,
+                fPanelWidthOffset: 0
             }, callback);
         }
     }, {
@@ -726,6 +738,7 @@ var JobGraph = (function (_React$Component) {
             var selectionModel = _state7.selectionModel;
             var onTriggerChange = _state7.onTriggerChange;
             var onLabelChange = _state7.onLabelChange;
+            var onJobPropertyChange = _state7.onJobPropertyChange;
             var createNewAction = _state7.createNewAction;
             var onRemoveFilter = _state7.onRemoveFilter;
             var dirty = _state7.dirty;
@@ -735,25 +748,31 @@ var JobGraph = (function (_React$Component) {
             var original = _state7.original;
             var job = _state7.job;
 
+            var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
+
             var blockProps = { onDismiss: function onDismiss() {
                     _this8.clearSelection();
                 } };
             var rightWidth = 300;
+            var showOffsetButton = undefined;
             if (createNewAction) {
+                showOffsetButton = true;
                 selBlock = _react2['default'].createElement(_builderFormPanel2['default'], {
                     actions: descriptions,
                     action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: _actionsEditor.JOB_ACTION_EMPTY }),
                     onChange: function (newAction) {
                         onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
+                        _this8.reLayout(true);
                     },
                     create: true,
                     onDismiss: function () {
-                        _this8.setState({ createNewAction: false });
+                        _this8.setState({ createNewAction: false, fPanelWidthOffset: 0 });
                     }
                 });
             } else if (selectionModel) {
                 if (selectionType === 'action') {
                     (function () {
+                        showOffsetButton = true;
                         var action = selectionModel.getJobsAction();
                         selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
                             actions: descriptions,
@@ -812,6 +831,7 @@ var JobGraph = (function (_React$Component) {
                 { style: { flex: 1, padding: '14px 24px' } },
                 'Job Workflow'
             );
+            var footer = undefined;
             if (jobsEditable && editMode) {
                 header = _react2['default'].createElement(
                     'span',
@@ -819,6 +839,22 @@ var JobGraph = (function (_React$Component) {
                     _react2['default'].createElement(ModernTextField, { value: job.Label, onChange: function (e, v) {
                             onLabelChange(v);
                         }, inputStyle: { color: 'white' } })
+                );
+                footer = _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', backgroundColor: '#f5f5f5', borderTop: '1px solid #e0e0e0' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', alignItems: 'center', padding: '0 16px' } },
+                        'Max. Parallel Tasks : ',
+                        _react2['default'].createElement(ModernTextField, { style: { width: 60 }, value: job.MaxConcurrency, onChange: function (e, v) {
+                                onJobPropertyChange('MaxConcurrency', parseInt(v));
+                            }, type: "number" })
+                    ),
+                    _react2['default'].createElement(_materialUi.Checkbox, { style: { width: 200 }, checked: job.AutoStart, onCheck: function (e, v) {
+                            onJobPropertyChange('AutoStart', v);
+                        }, label: "Run-On-Save" }),
+                    _react2['default'].createElement('span', { style: { flex: 1 } })
                 );
             }
 
@@ -830,7 +866,7 @@ var JobGraph = (function (_React$Component) {
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job);
+                            onSave(job, _this8.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             onRevert(original, function (j) {
@@ -851,10 +887,17 @@ var JobGraph = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0, height: bbox ? bbox.height : 500 } },
-                        selBlock
+                        { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : 500, position: 'relative' } },
+                        selBlock,
+                        showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
+                                _this8.setState({ fPanelWidthOffset: 300 });
+                            } }),
+                        showOffsetButton && fPanelWidthOffset === 300 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-right right-panel-expand-button", onClick: function () {
+                                _this8.setState({ fPanelWidthOffset: 0 });
+                            } })
                     )
                 ),
+                footer,
                 (0, _builderStyles.getCssStyle)(editMode)
             );
         }

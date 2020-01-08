@@ -58,6 +58,18 @@ class FormPanel extends React.Component {
     loadForm(actionID){
         FormLoader.loadAction(actionID).then((params) => {
             this.setState({formParams: params});
+            const {create} = this.props;
+            if(create){
+                const defaults = {};
+                params.forEach(p => {
+                    if(p.default) {
+                        defaults[p.name] = p.default;
+                    }
+                });
+                if(Object.keys(defaults).length){
+                    this.onFormChange(defaults);
+                }
+            }
         })
     }
 
@@ -118,13 +130,21 @@ class FormPanel extends React.Component {
         this.setState({action, dirty: true});
     }
 
+    onValidStatusChange(valid, failing){
+        this.setState({valid});
+    }
+
     onIdChange(id){
         const {action} = this.state;
         action.ID = id;
         // Refresh state
+        const newActionInfo = this.getActionInfo(action);
+        if(!newActionInfo.HasForm){
+            this.setState({formParams: null, valid: true});
+        }
         this.setState({
             action,
-            actionInfo: this.getActionInfo(action)
+            actionInfo: newActionInfo
         })
     }
 
@@ -180,12 +200,47 @@ class FormPanel extends React.Component {
 
     render(){
 
-        const {onDismiss, onRemove, create, height} = this.props;
-        const {actionInfo, action, formParams, dirty} = this.state;
+        const {onDismiss, onRemove, create} = this.props;
+        const {actionInfo, action, formParams, dirty, valid} = this.state;
         let save, revert;
-        if(!create && formParams && dirty) {
+        if(!create && formParams && dirty && valid) {
             save = () => this.save();
             revert = () => this.revert();
+        }
+        let form;
+        if(formParams && formParams.length && formParams[0].type === 'textarea' && formParams[0].choices==='json:content-type:text/go'){
+            //Switch to CodeMirror component
+            let value = '';
+            if(action.Parameters && action.Parameters[formParams[0].name]){
+                value = action.Parameters[formParams[0].name];
+            }
+            form= (
+                <div style={{border: '1px solid #e0e0e0', margin: '0 10px', borderRadius: 3}}>
+                    <AdminComponents.CodeMirrorField
+                        value={value}
+                        onChange={(e, v) => {
+                            const values = {};
+                            values[formParams[0].name] = v;
+                            this.onFormChange(values);
+                            this.setState({valid: !!v});
+                        }}
+                    />
+                </div>
+            );
+        } else if (formParams) {
+            form = (
+                <div>
+                    <PydioForm.FormPanel
+                        ref="formPanel"
+                        depth={-1}
+                        parameters={formParams}
+                        values={this.fromStringString(formParams, action.Parameters)}
+                        onChange={this.onFormChange.bind(this)}
+                        onValidStatusChange={this.onValidStatusChange.bind(this)}
+                    />
+                </div>
+            )
+
         }
         return (
             <RightPanel
@@ -196,26 +251,15 @@ class FormPanel extends React.Component {
                 onSave={save}
                 onRevert={revert}
                 onRemove={onRemove}
-                height={this.props}
             >
                 <div style={{padding: 10}}>{actionInfo.Description}</div>
                 {create && <div style={{padding: 10}}>{this.actionPicker()}</div>}
-                {formParams &&
-                <div>
-                    <PydioForm.FormPanel
-                        ref="formPanel"
-                        depth={-1}
-                        parameters={formParams}
-                        values={this.fromStringString(formParams, action.Parameters)}
-                        onChange={this.onFormChange.bind(this)}
-                    />
-                </div>
-                }
+                {form}
                 {create && <div style={{padding: 10, textAlign:'right'}}>
                     <RaisedButton
                         primary={true}
                         label={"Create Action"}
-                        disabled={action.ID === JOB_ACTION_EMPTY}
+                        disabled={action.ID === JOB_ACTION_EMPTY || !valid}
                         onTouchTap={() => {this.save(); onDismiss()}}/>
                 </div>
                 }

@@ -35,7 +35,9 @@ class JobBoard extends React.Component {
             mode:'log', // 'log' or 'selection'
             selectedRows: [],
             working: false,
-            taskLogs: null
+            taskLogs: null,
+            job: props.job,
+            create: props.create
         }
     }
 
@@ -83,7 +85,7 @@ class JobBoard extends React.Component {
 
     deleteSelection(){
         const {selectedRows} = this.state;
-        const {job} = this.props;
+        const {job} = this.state;
         const store = JobsStore.getInstance();
         this.setState({working: true});
         store.deleteTasks(job.ID, selectedRows).then(()=>{
@@ -93,7 +95,7 @@ class JobBoard extends React.Component {
 
     deleteAll(){
         this.setState({working: true});
-        const {job} = this.props;
+        const {job} = this.state;
         const store = JobsStore.getInstance();
         store.deleteAllTasksForJob(job.ID).then(() => {
             this.setState({working: false});
@@ -101,7 +103,8 @@ class JobBoard extends React.Component {
     }
 
     deleteJob(){
-        const {pydio, job, create, onRequestClose} = this.props;
+        const {pydio, onRequestClose} = this.props;
+        const {job, create} = this.state;
         if(create) {
             return
         }
@@ -120,10 +123,14 @@ class JobBoard extends React.Component {
         })
     }
 
+    onJobSave(job){
+        this.setState({job: job, create: false});
+    }
+
     render(){
 
-        const {pydio, jobsEditable, create, job, onRequestClose} = this.props;
-        const {selectedRows, working, mode, taskLogs} = this.state;
+        const {pydio, jobsEditable, onRequestClose} = this.props;
+        const {selectedRows, working, mode, taskLogs, create, job} = this.state;
 
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
@@ -194,21 +201,25 @@ class JobBoard extends React.Component {
                     loading={working}
                 />
                 <div style={{flex:1, overflowY: 'auto'}}>
-                    <JobGraph job={job} random={Math.random()} jobsEditable={jobsEditable} create={create}/>
+                    <JobGraph job={job} random={Math.random()} jobsEditable={jobsEditable} create={create} onJobSave={this.onJobSave.bind(this)}/>
                     {!create &&
                     <div>
-                        <AdminComponents.SubHeader
-                            title={m('tasks.running')}
-                        />
+                        {running.length > 0 &&  <AdminComponents.SubHeader title={m('tasks.running')} />}
+                        {running.length > 0 &&
                         <Paper style={{margin: 20}}>
                             <MaterialTable
                                 data={running}
                                 columns={keys}
                                 showCheckboxes={false}
                                 emptyStateString={m('tasks.running.empty')}
-                                onSelectRows={(rows) => { if(rows.length === 1 && running.length){ this.setState({taskLogs: rows[0]}); }}}
+                                onSelectRows={(rows) => {
+                                    if (rows.length === 1 && running.length) {
+                                        this.setState({taskLogs: rows[0]});
+                                    }
+                                }}
                             />
                         </Paper>
+                        }
                         <AdminComponents.SubHeader
                             title={
                                 <div style={{display:'flex', width:'100%', alignItems:'baseline'}}>

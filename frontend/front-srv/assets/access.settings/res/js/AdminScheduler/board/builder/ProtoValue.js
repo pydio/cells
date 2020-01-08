@@ -125,7 +125,7 @@ class ProtoValue extends React.Component {
 
     onFormChange(newValues){
         const {formParams} = this.state;
-        console.log(ProtoValue.formValuesToProtoValue(formParams, newValues));
+        console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues));
         this.setState({formValues: newValues});
     }
 
@@ -136,7 +136,7 @@ class ProtoValue extends React.Component {
             notProps = {};
             notProps[hasNot] = true;
         }
-        console.log(notProps);
+        //console.log(notProps);
         const {fieldName, value} = ProtoValue.formValuesToProtoValue(formParams, formValues);
         this.props.onChange(fieldName, value, notProps);
         this.props.onDismiss();

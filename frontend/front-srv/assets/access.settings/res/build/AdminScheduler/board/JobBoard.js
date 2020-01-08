@@ -78,7 +78,9 @@ var JobBoard = (function (_React$Component) {
             mode: 'log', // 'log' or 'selection'
             selectedRows: [],
             working: false,
-            taskLogs: null
+            taskLogs: null,
+            job: props.job,
+            create: props.create
         };
     }
 
@@ -146,7 +148,7 @@ var JobBoard = (function (_React$Component) {
             var _this = this;
 
             var selectedRows = this.state.selectedRows;
-            var job = this.props.job;
+            var job = this.state.job;
 
             var store = JobsStore.getInstance();
             this.setState({ working: true });
@@ -160,7 +162,7 @@ var JobBoard = (function (_React$Component) {
             var _this2 = this;
 
             this.setState({ working: true });
-            var job = this.props.job;
+            var job = this.state.job;
 
             var store = JobsStore.getInstance();
             store.deleteAllTasksForJob(job.ID).then(function () {
@@ -172,9 +174,10 @@ var JobBoard = (function (_React$Component) {
         value: function deleteJob() {
             var _props = this.props;
             var pydio = _props.pydio;
-            var job = _props.job;
-            var create = _props.create;
             var onRequestClose = _props.onRequestClose;
+            var _state = this.state;
+            var job = _state.job;
+            var create = _state.create;
 
             if (create) {
                 return;
@@ -195,6 +198,11 @@ var JobBoard = (function (_React$Component) {
             })['catch'](function (e) {});
         }
     }, {
+        key: 'onJobSave',
+        value: function onJobSave(job) {
+            this.setState({ job: job, create: false });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this3 = this;
@@ -202,14 +210,14 @@ var JobBoard = (function (_React$Component) {
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var jobsEditable = _props2.jobsEditable;
-            var create = _props2.create;
-            var job = _props2.job;
             var onRequestClose = _props2.onRequestClose;
-            var _state = this.state;
-            var selectedRows = _state.selectedRows;
-            var working = _state.working;
-            var mode = _state.mode;
-            var taskLogs = _state.taskLogs;
+            var _state2 = this.state;
+            var selectedRows = _state2.selectedRows;
+            var working = _state2.working;
+            var mode = _state2.mode;
+            var taskLogs = _state2.taskLogs;
+            var create = _state2.create;
+            var job = _state2.job;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -310,14 +318,12 @@ var JobBoard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, overflowY: 'auto' } },
-                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable, create: create }),
+                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable, create: create, onJobSave: this.onJobSave.bind(this) }),
                     !create && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(AdminComponents.SubHeader, {
-                            title: m('tasks.running')
-                        }),
-                        _react2['default'].createElement(
+                        running.length > 0 && _react2['default'].createElement(AdminComponents.SubHeader, { title: m('tasks.running') }),
+                        running.length > 0 && _react2['default'].createElement(
                             _materialUi.Paper,
                             { style: { margin: 20 } },
                             _react2['default'].createElement(MaterialTable, {

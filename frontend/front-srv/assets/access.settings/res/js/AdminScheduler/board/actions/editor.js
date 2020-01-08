@@ -13,6 +13,7 @@ export const RESIZE_PAPER = "editor:resize-paper";
 
 export const JOB_SWITCH_TRIGGER = "trigger:switch";
 export const JOB_UPDATE_LABEL = "job:label";
+export const JOB_UPDATE_PROPERTY = "job:property";
 
 export const EMPTY_MODEL_ACTION = "model:create-empty";
 export const ATTACH_MODEL_ACTION = "model:attach";
@@ -119,6 +120,14 @@ export function updateLabelAction(newLabel){
     return {
         type: JOB_UPDATE_LABEL,
         label: newLabel,
+    }
+}
+
+export function updateJobPropertyAction(propertyName, propertyValue) {
+    return {
+        type: JOB_UPDATE_PROPERTY,
+        propertyName,
+        propertyValue
     }
 }
 

@@ -43508,6 +43508,10 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib2.MaterialTable;
 
+var _Pydio$requireLib3 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib3.ModernTextField;
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -43671,18 +43675,27 @@ var Dashboard = _react2['default'].createClass({
 
             if (job.Schedule) {
                 data.Trigger = _react2['default'].createElement(_JobSchedule2['default'], { job: job }); // m('trigger.periodic');
-                data.TriggerValue = 1;
+                data.SortValue = '0-' + job.Label;
             } else if (job.EventNames) {
-                data.TriggerValue = 2;
-                data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(function (e) {
-                    return _builderTriggers.Events.eventLabel(e, m);
-                }).join(', ');
-            } else if (job.AutoStart) {
-                data.Trigger = m('trigger.manual');
-                data.TriggerValue = 0;
+                data.SortValue = '1-' + job.Label;
+                data.Trigger = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement('span', { className: "mdi mdi-pulse", title: m('trigger.events'), style: { color: '#4caf50' } }),
+                    ' ',
+                    job.EventNames.map(function (e) {
+                        return _builderTriggers.Events.eventLabel(e, m);
+                    }).join(', ')
+                );
             } else {
-                data.Trigger = '-';
-                data.TriggerValue = 3;
+                data.Trigger = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement('span', { className: "mdi mdi-gesture-tap", style: { color: '#607d8b' } }),
+                    ' ',
+                    m('trigger.manual')
+                );
+                data.SortValue = '2-' + job.Label;
             }
             if (job.Inactive) {
                 data.Label = _react2['default'].createElement(
@@ -43693,6 +43706,27 @@ var Dashboard = _react2['default'].createClass({
                     '] ',
                     data.Label
                 );
+                data.Trigger = _react2['default'].createElement(
+                    'span',
+                    { style: { opacity: 0.43 } },
+                    data.Trigger
+                );
+                data.TaskStartTime = _react2['default'].createElement(
+                    'span',
+                    { style: { opacity: 0.43 } },
+                    data.TaskStartTime
+                );
+                data.TaskEndTime = _react2['default'].createElement(
+                    'span',
+                    { style: { opacity: 0.43 } },
+                    data.TaskEndTime
+                );
+                data.TaskStatus = _react2['default'].createElement(
+                    'span',
+                    { style: { opacity: 0.43 } },
+                    data.TaskStatus
+                );
+                data.SortValue = '3-' + job.Label;
             }
 
             if (job.Owner === 'pydio.system.user') {
@@ -43703,6 +43737,18 @@ var Dashboard = _react2['default'].createClass({
         });
 
         return { system: system, other: other };
+    },
+
+    jobPrompted: function jobPrompted() {
+        var newJobLabel = this.state.newJobLabel;
+
+        var newJob = _pydioHttpRestApi.JobsJob.constructFromObject({
+            ID: (0, _uuid42['default'])(),
+            Label: newJobLabel,
+            Owner: 'pydio.system.user',
+            Actions: []
+        });
+        this.setState({ createJob: newJob, promptJob: false, newJobLabel: '' });
     },
 
     render: function render() {
@@ -43719,19 +43765,13 @@ var Dashboard = _react2['default'].createClass({
         var keys = [{
             name: 'Label',
             label: m('job.label'),
-            style: { width: '35%', fontSize: 15 },
-            headerStyle: { width: '35%' }
-        }, {
-            name: 'Owner',
-            label: m('job.owner'),
-            style: { width: '15%' },
-            headerStyle: { width: '15%' },
-            hideSmall: true
+            style: { width: '40%', fontSize: 15 },
+            headerStyle: { width: '40%' }
         }, {
             name: 'Trigger',
             label: m('job.trigger'),
-            style: { width: '15%' },
-            headerStyle: { width: '15%' },
+            style: { width: '20%' },
+            headerStyle: { width: '20%' },
             hideSmall: true
         }, {
             name: 'TaskEndTime',
@@ -43753,11 +43793,23 @@ var Dashboard = _react2['default'].createClass({
             }
         }];
 
+        var userKeys = [].concat(keys);
+        // Replace Trigger by Owner
+        userKeys[1] = {
+            name: 'Owner',
+            label: m('job.owner'),
+            style: { width: '15%' },
+            headerStyle: { width: '15%' },
+            hideSmall: true
+        };
+
         var _state2 = this.state;
         var result = _state2.result;
         var loading = _state2.loading;
         var selectJob = _state2.selectJob;
         var createJob = _state2.createJob;
+        var promptJob = _state2.promptJob;
+        var newJobLabel = _state2.newJobLabel;
 
         if (selectJob && result && result.Jobs) {
             var found = result.Jobs.filter(function (j) {
@@ -43787,27 +43839,49 @@ var Dashboard = _react2['default'].createClass({
         var other = _extractRowsInfo.other;
 
         system.sort(function (a, b) {
-            return a.TriggerValue === b.TriggerValue ? 0 : a.TriggerValue > b.TriggerValue ? 1 : -1;
+            return a.SortValue === b.SortValue ? 0 : a.SortValue > b.SortValue ? 1 : -1;
         });
         var actions = [];
         if (jobsEditable) {
             actions.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "+ Job", onTouchTap: function () {
-                    var label = window.prompt("Provide a label for this job");
-                    if (label) {
-                        var newJob = _pydioHttpRestApi.JobsJob.constructFromObject({
-                            ID: (0, _uuid42['default'])(),
-                            Label: label,
-                            Owner: 'pydio.system.user',
-                            Actions: []
-                        });
-                        _this5.setState({ createJob: newJob });
-                    }
+                    _this5.setState({ promptJob: true });
                 } }));
         }
 
         return _react2['default'].createElement(
             'div',
             { style: { height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' } },
+            _react2['default'].createElement(
+                _materialUi.Dialog,
+                {
+                    title: "Create a new Job",
+                    onRequestClose: function () {
+                        _this5.setState({ promptJob: false });
+                    },
+                    open: promptJob,
+                    contentStyle: { width: 300 },
+                    actions: [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                            _this5.setState({ promptJob: false });
+                        }, label: "Cancel" }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, onTouchTap: function () {
+                            _this5.jobPrompted();
+                        }, disabled: !newJobLabel, label: "Create" })]
+                },
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(ModernTextField, {
+                        fullWidth: true,
+                        hintText: "New Job Label",
+                        value: newJobLabel,
+                        onChange: function (e, v) {
+                            _this5.setState({ newJobLabel: v });
+                        },
+                        onKeyPress: function (e) {
+                            if (e.Key === 'Enter') _this5.jobPrompted();
+                        }
+                    })
+                )
+            ),
             _react2['default'].createElement(AdminComponents.Header, {
                 title: m('title'),
                 icon: 'mdi mdi-timetable',
@@ -43844,7 +43918,7 @@ var Dashboard = _react2['default'].createClass({
                     { style: { margin: 20 } },
                     _react2['default'].createElement(MaterialTable, {
                         data: other,
-                        columns: keys,
+                        columns: userKeys,
                         onSelectRows: function (rows) {
                             _this5.selectRows(rows);
                         },
@@ -43942,7 +44016,9 @@ var JobBoard = (function (_React$Component) {
             mode: 'log', // 'log' or 'selection'
             selectedRows: [],
             working: false,
-            taskLogs: null
+            taskLogs: null,
+            job: props.job,
+            create: props.create
         };
     }
 
@@ -44010,7 +44086,7 @@ var JobBoard = (function (_React$Component) {
             var _this = this;
 
             var selectedRows = this.state.selectedRows;
-            var job = this.props.job;
+            var job = this.state.job;
 
             var store = JobsStore.getInstance();
             this.setState({ working: true });
@@ -44024,7 +44100,7 @@ var JobBoard = (function (_React$Component) {
             var _this2 = this;
 
             this.setState({ working: true });
-            var job = this.props.job;
+            var job = this.state.job;
 
             var store = JobsStore.getInstance();
             store.deleteAllTasksForJob(job.ID).then(function () {
@@ -44036,9 +44112,10 @@ var JobBoard = (function (_React$Component) {
         value: function deleteJob() {
             var _props = this.props;
             var pydio = _props.pydio;
-            var job = _props.job;
-            var create = _props.create;
             var onRequestClose = _props.onRequestClose;
+            var _state = this.state;
+            var job = _state.job;
+            var create = _state.create;
 
             if (create) {
                 return;
@@ -44059,6 +44136,11 @@ var JobBoard = (function (_React$Component) {
             })['catch'](function (e) {});
         }
     }, {
+        key: 'onJobSave',
+        value: function onJobSave(job) {
+            this.setState({ job: job, create: false });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this3 = this;
@@ -44066,14 +44148,14 @@ var JobBoard = (function (_React$Component) {
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var jobsEditable = _props2.jobsEditable;
-            var create = _props2.create;
-            var job = _props2.job;
             var onRequestClose = _props2.onRequestClose;
-            var _state = this.state;
-            var selectedRows = _state.selectedRows;
-            var working = _state.working;
-            var mode = _state.mode;
-            var taskLogs = _state.taskLogs;
+            var _state2 = this.state;
+            var selectedRows = _state2.selectedRows;
+            var working = _state2.working;
+            var mode = _state2.mode;
+            var taskLogs = _state2.taskLogs;
+            var create = _state2.create;
+            var job = _state2.job;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -44174,14 +44256,12 @@ var JobBoard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, overflowY: 'auto' } },
-                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable, create: create }),
+                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable, create: create, onJobSave: this.onJobSave.bind(this) }),
                     !create && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(AdminComponents.SubHeader, {
-                            title: m('tasks.running')
-                        }),
-                        _react2['default'].createElement(
+                        running.length > 0 && _react2['default'].createElement(AdminComponents.SubHeader, { title: m('tasks.running') }),
+                        running.length > 0 && _react2['default'].createElement(
                             _materialUi.Paper,
                             { style: { margin: 20 } },
                             _react2['default'].createElement(MaterialTable, {
@@ -44263,7 +44343,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x7, _x8, _x9) { var _again = true; _function: while (_again) { var object = _x7, property = _x8, receiver = _x9; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x7 = parent; _x8 = property; _x9 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -44366,7 +44446,7 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
 var mapStateToProps = function mapStateToProps(state) {
-    console.log(state);
+    console.debug(state);
     return _extends({}, state);
 };
 
@@ -44434,6 +44514,12 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                 d((0, _actionsEditor.setDirtyAction)(true));
             });
         },
+        onJobPropertyChange: function onJobPropertyChange(name, value) {
+            dispatch(function (d) {
+                d((0, _actionsEditor.updateJobPropertyAction)(name, value));
+                d((0, _actionsEditor.setDirtyAction)(true));
+            });
+        },
         onSelectionClear: function onSelectionClear() {
             dispatch((0, _actionsEditor.clearSelectionAction)());
         },
@@ -44453,6 +44539,8 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
             });
         },
         onSave: function onSave(job) {
+            var onJobSave = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
             dispatch(function (d) {
                 _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                     var SchedulerServiceApi = sdk.SchedulerServiceApi;
@@ -44468,6 +44556,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
                     return api.putJob(req);
                 }).then(function () {
                     d((0, _actionsEditor.saveSuccessAction)(job));
+                    if (onJobSave) {
+                        onJobSave(job);
+                    }
                 })['catch'](function (e) {
                     d((0, _actionsEditor.saveErrorAction)(job));
                 });
@@ -44661,7 +44752,8 @@ var JobGraph = (function (_React$Component) {
             });
             this.setState({
                 selectionType: null,
-                selectionModel: null
+                selectionModel: null,
+                fPanelWidthOffset: 0
             }, callback);
         }
     }, {
@@ -44983,6 +45075,7 @@ var JobGraph = (function (_React$Component) {
             var selectionModel = _state7.selectionModel;
             var onTriggerChange = _state7.onTriggerChange;
             var onLabelChange = _state7.onLabelChange;
+            var onJobPropertyChange = _state7.onJobPropertyChange;
             var createNewAction = _state7.createNewAction;
             var onRemoveFilter = _state7.onRemoveFilter;
             var dirty = _state7.dirty;
@@ -44992,25 +45085,31 @@ var JobGraph = (function (_React$Component) {
             var original = _state7.original;
             var job = _state7.job;
 
+            var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
+
             var blockProps = { onDismiss: function onDismiss() {
                     _this8.clearSelection();
                 } };
             var rightWidth = 300;
+            var showOffsetButton = undefined;
             if (createNewAction) {
+                showOffsetButton = true;
                 selBlock = _react2['default'].createElement(_builderFormPanel2['default'], {
                     actions: descriptions,
                     action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: _actionsEditor.JOB_ACTION_EMPTY }),
                     onChange: function (newAction) {
                         onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
+                        _this8.reLayout(true);
                     },
                     create: true,
                     onDismiss: function () {
-                        _this8.setState({ createNewAction: false });
+                        _this8.setState({ createNewAction: false, fPanelWidthOffset: 0 });
                     }
                 });
             } else if (selectionModel) {
                 if (selectionType === 'action') {
                     (function () {
+                        showOffsetButton = true;
                         var action = selectionModel.getJobsAction();
                         selBlock = _react2['default'].createElement(_builderFormPanel2['default'], _extends({
                             actions: descriptions,
@@ -45069,6 +45168,7 @@ var JobGraph = (function (_React$Component) {
                 { style: { flex: 1, padding: '14px 24px' } },
                 'Job Workflow'
             );
+            var footer = undefined;
             if (jobsEditable && editMode) {
                 header = _react2['default'].createElement(
                     'span',
@@ -45076,6 +45176,22 @@ var JobGraph = (function (_React$Component) {
                     _react2['default'].createElement(ModernTextField, { value: job.Label, onChange: function (e, v) {
                             onLabelChange(v);
                         }, inputStyle: { color: 'white' } })
+                );
+                footer = _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', backgroundColor: '#f5f5f5', borderTop: '1px solid #e0e0e0' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', alignItems: 'center', padding: '0 16px' } },
+                        'Max. Parallel Tasks : ',
+                        _react2['default'].createElement(ModernTextField, { style: { width: 60 }, value: job.MaxConcurrency, onChange: function (e, v) {
+                                onJobPropertyChange('MaxConcurrency', parseInt(v));
+                            }, type: "number" })
+                    ),
+                    _react2['default'].createElement(_materialUi.Checkbox, { style: { width: 200 }, checked: job.AutoStart, onCheck: function (e, v) {
+                            onJobPropertyChange('AutoStart', v);
+                        }, label: "Run-On-Save" }),
+                    _react2['default'].createElement('span', { style: { flex: 1 } })
                 );
             }
 
@@ -45087,7 +45203,7 @@ var JobGraph = (function (_React$Component) {
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job);
+                            onSave(job, _this8.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             onRevert(original, function (j) {
@@ -45108,10 +45224,17 @@ var JobGraph = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 0, style: { width: selBlock ? rightWidth : 0, height: bbox ? bbox.height : 500 } },
-                        selBlock
+                        { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : 500, position: 'relative' } },
+                        selBlock,
+                        showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
+                                _this8.setState({ fPanelWidthOffset: 300 });
+                            } }),
+                        showOffsetButton && fPanelWidthOffset === 300 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-right right-panel-expand-button", onClick: function () {
+                                _this8.setState({ fPanelWidthOffset: 0 });
+                            } })
                     )
                 ),
+                footer,
                 (0, _builderStyles.getCssStyle)(editMode)
             );
         }
@@ -45289,6 +45412,8 @@ var JobSchedule = (function (_React$Component) {
                 return _react2['default'].createElement(
                     'div',
                     null,
+                    _react2['default'].createElement('span', { className: "mdi mdi-timer", style: { color: 'rgb(33, 150, 243)' } }),
+                    ' ',
                     JobSchedule.readableString(this.state, this.T, true)
                 );
             }
@@ -45732,6 +45857,7 @@ exports.jobLoadedAction = jobLoadedAction;
 exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
 exports.updateLabelAction = updateLabelAction;
+exports.updateJobPropertyAction = updateJobPropertyAction;
 exports.setSelectionAction = setSelectionAction;
 exports.clearSelectionAction = clearSelectionAction;
 exports.setDirtyAction = setDirtyAction;
@@ -45764,8 +45890,10 @@ exports.RESIZE_PAPER = RESIZE_PAPER;
 var JOB_SWITCH_TRIGGER = "trigger:switch";
 exports.JOB_SWITCH_TRIGGER = JOB_SWITCH_TRIGGER;
 var JOB_UPDATE_LABEL = "job:label";
-
 exports.JOB_UPDATE_LABEL = JOB_UPDATE_LABEL;
+var JOB_UPDATE_PROPERTY = "job:property";
+
+exports.JOB_UPDATE_PROPERTY = JOB_UPDATE_PROPERTY;
 var EMPTY_MODEL_ACTION = "model:create-empty";
 exports.EMPTY_MODEL_ACTION = EMPTY_MODEL_ACTION;
 var ATTACH_MODEL_ACTION = "model:attach";
@@ -45885,6 +46013,14 @@ function updateLabelAction(newLabel) {
     return {
         type: JOB_UPDATE_LABEL,
         label: newLabel
+    };
+}
+
+function updateJobPropertyAction(propertyName, propertyValue) {
+    return {
+        type: JOB_UPDATE_PROPERTY,
+        propertyName: propertyName,
+        propertyValue: propertyValue
     };
 }
 
@@ -46249,6 +46385,21 @@ var FormPanel = (function (_React$Component) {
 
             _FormLoader2['default'].loadAction(actionID).then(function (params) {
                 _this.setState({ formParams: params });
+                var create = _this.props.create;
+
+                if (create) {
+                    (function () {
+                        var defaults = {};
+                        params.forEach(function (p) {
+                            if (p['default']) {
+                                defaults[p.name] = p['default'];
+                            }
+                        });
+                        if (Object.keys(defaults).length) {
+                            _this.onFormChange(defaults);
+                        }
+                    })();
+                }
             });
         }
 
@@ -46319,15 +46470,24 @@ var FormPanel = (function (_React$Component) {
             this.setState({ action: action, dirty: true });
         }
     }, {
+        key: 'onValidStatusChange',
+        value: function onValidStatusChange(valid, failing) {
+            this.setState({ valid: valid });
+        }
+    }, {
         key: 'onIdChange',
         value: function onIdChange(id) {
             var action = this.state.action;
 
             action.ID = id;
             // Refresh state
+            var newActionInfo = this.getActionInfo(action);
+            if (!newActionInfo.HasForm) {
+                this.setState({ formParams: null, valid: true });
+            }
             this.setState({
                 action: action,
-                actionInfo: this.getActionInfo(action)
+                actionInfo: newActionInfo
             });
         }
     }, {
@@ -46405,22 +46565,56 @@ var FormPanel = (function (_React$Component) {
             var onDismiss = _props2.onDismiss;
             var onRemove = _props2.onRemove;
             var create = _props2.create;
-            var height = _props2.height;
             var _state = this.state;
             var actionInfo = _state.actionInfo;
             var action = _state.action;
             var formParams = _state.formParams;
             var dirty = _state.dirty;
+            var valid = _state.valid;
 
             var save = undefined,
                 revert = undefined;
-            if (!create && formParams && dirty) {
+            if (!create && formParams && dirty && valid) {
                 save = function () {
                     return _this3.save();
                 };
                 revert = function () {
                     return _this3.revert();
                 };
+            }
+            var form = undefined;
+            if (formParams && formParams.length && formParams[0].type === 'textarea' && formParams[0].choices === 'json:content-type:text/go') {
+                //Switch to CodeMirror component
+                var value = '';
+                if (action.Parameters && action.Parameters[formParams[0].name]) {
+                    value = action.Parameters[formParams[0].name];
+                }
+                form = _react2['default'].createElement(
+                    'div',
+                    { style: { border: '1px solid #e0e0e0', margin: '0 10px', borderRadius: 3 } },
+                    _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                        value: value,
+                        onChange: function (e, v) {
+                            var values = {};
+                            values[formParams[0].name] = v;
+                            _this3.onFormChange(values);
+                            _this3.setState({ valid: !!v });
+                        }
+                    })
+                );
+            } else if (formParams) {
+                form = _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(PydioForm.FormPanel, {
+                        ref: 'formPanel',
+                        depth: -1,
+                        parameters: formParams,
+                        values: this.fromStringString(formParams, action.Parameters),
+                        onChange: this.onFormChange.bind(this),
+                        onValidStatusChange: this.onValidStatusChange.bind(this)
+                    })
+                );
             }
             return _react2['default'].createElement(
                 _styles.RightPanel,
@@ -46431,8 +46625,7 @@ var FormPanel = (function (_React$Component) {
                     saveButtons: !!formParams,
                     onSave: save,
                     onRevert: revert,
-                    onRemove: onRemove,
-                    height: this.props
+                    onRemove: onRemove
                 },
                 _react2['default'].createElement(
                     'div',
@@ -46444,24 +46637,14 @@ var FormPanel = (function (_React$Component) {
                     { style: { padding: 10 } },
                     this.actionPicker()
                 ),
-                formParams && _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(PydioForm.FormPanel, {
-                        ref: 'formPanel',
-                        depth: -1,
-                        parameters: formParams,
-                        values: this.fromStringString(formParams, action.Parameters),
-                        onChange: this.onFormChange.bind(this)
-                    })
-                ),
+                form,
                 create && _react2['default'].createElement(
                     'div',
                     { style: { padding: 10, textAlign: 'right' } },
                     _react2['default'].createElement(_materialUi.RaisedButton, {
                         primary: true,
                         label: "Create Action",
-                        disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY,
+                        disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY || !valid,
                         onTouchTap: function () {
                             _this3.save();onDismiss();
                         } })
@@ -46557,7 +46740,7 @@ var ProtoValue = (function (_React$Component) {
         value: function onFormChange(newValues) {
             var formParams = this.state.formParams;
 
-            console.log(ProtoValue.formValuesToProtoValue(formParams, newValues));
+            console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues));
             this.setState({ formValues: newValues });
         }
     }, {
@@ -46574,7 +46757,7 @@ var ProtoValue = (function (_React$Component) {
                 notProps = {};
                 notProps[hasNot] = true;
             }
-            console.log(notProps);
+            //console.log(notProps);
 
             var _ProtoValue$formValuesToProtoValue = ProtoValue.formValuesToProtoValue(formParams, formValues);
 
@@ -48715,7 +48898,7 @@ var RightPanel = (function (_React$Component) {
     return RightPanel;
 })(_react2['default'].Component);
 
-var cssStyle = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n';
+var cssStyle = '\ntext[joint-selector="icon"] tspan, \ntext[joint-selector="type-icon"] tspan, \ntext[joint-selector="type-icon-outline"] tspan, \ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan,\ntext[joint-selector="add-icon"] tspan,\ntext[joint-selector="swap-icon"] tspan,\ntext[joint-selector="split-icon"] tspan,\ntext[joint-selector="remove-icon"] tspan\n{\n    font: normal normal normal 24px/1 "Material Design Icons";\n    font-size: 24px;\n    text-rendering: auto;\n    -webkit-font-smoothing: antialiased;\n}\ntext[joint-selector="filter-icon"] tspan, \ntext[joint-selector="selector-icon"] tspan, \ntext[joint-selector="swap-icon"] tspan, \ntext[joint-selector="add-icon"] tspan, \ntext[joint-selector="split-icon"] tspan, \ntext[joint-selector="remove-icon"] tspan\n{\n    font-size: 18px;\n}\ntext[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"] tspan{\n    font-size: 14px;\n}\n.joint-tool circle {\n    fill: #ef534f;\n}\n.react-mui-context .pydio-form-panel{\n    padding-bottom: 0;\n}\n.react-mui-context .pydio-form-panel .form-legend{\n    display:none;\n}\n.react-mui-context .pydio-form-panel>.pydio-form-group{\n    margin: 12px;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar {\n    display: flex;\n    align-items: center;\n}\n.react-mui-context .pydio-form-panel .replicable-field .title-bar .legend{\n    display: none;\n}\n.react-mui-context .pydio-form-panel .replicable-field .replicable-group{\n    margin-bottom: 0;\n    padding-bottom: 0;\n}\n.right-panel-expand-button{\n    position: absolute;\n    bottom: 7px;\n    left: -9px;\n    cursor: pointer;\n    display: block;\n    background-color: #f5f5f5;\n    width: 20px;\n    height: 20px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    border-radius: 50%;\n    border: 1px solid #e0e0e0;\n    font-size: 18px;\n}\n';
 
 var cssReadonlyStyle = '\npath.marker-arrowhead {\n    opacity: 0 !important;\n}\n.joint-element, .marker-arrowheads, [magnet=true]:not(.joint-element){\n    cursor: default;\n}\n';
 
@@ -50054,6 +50237,10 @@ exports["default"] = function (job, action) {
             job.Label = action.label;
             return job;
 
+        case _actionsEditor.JOB_UPDATE_PROPERTY:
+            job[action.propertyName] = action.propertyValue;
+            return job;
+
         case _actionsEditor.ATTACH_MODEL_ACTION:
             if (targetModel instanceof _graphAction2["default"]) {
                 if (sourceModel instanceof _graphJobInput2["default"]) {
@@ -50293,7 +50480,7 @@ function paperReducer(paper, action) {
                 linkPinning: false,
                 interactive: false,
                 validateConnection: function validateConnection(cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
-                    console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
+                    //console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if (cellViewS === cellViewT) {
                         return false;
                     }

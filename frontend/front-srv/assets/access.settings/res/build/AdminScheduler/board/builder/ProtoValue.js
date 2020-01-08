@@ -73,7 +73,7 @@ var ProtoValue = (function (_React$Component) {
         value: function onFormChange(newValues) {
             var formParams = this.state.formParams;
 
-            console.log(ProtoValue.formValuesToProtoValue(formParams, newValues));
+            console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues));
             this.setState({ formValues: newValues });
         }
     }, {
@@ -90,7 +90,7 @@ var ProtoValue = (function (_React$Component) {
                 notProps = {};
                 notProps[hasNot] = true;
             }
-            console.log(notProps);
+            //console.log(notProps);
 
             var _ProtoValue$formValuesToProtoValue = ProtoValue.formValuesToProtoValue(formParams, formValues);
 

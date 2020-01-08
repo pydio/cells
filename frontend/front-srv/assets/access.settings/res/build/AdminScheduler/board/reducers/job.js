@@ -49,6 +49,10 @@ exports["default"] = function (job, action) {
             job.Label = action.label;
             return job;
 
+        case _actionsEditor.JOB_UPDATE_PROPERTY:
+            job[action.propertyName] = action.propertyValue;
+            return job;
+
         case _actionsEditor.ATTACH_MODEL_ACTION:
             if (targetModel instanceof _graphAction2["default"]) {
                 if (sourceModel instanceof _graphJobInput2["default"]) {

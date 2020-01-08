@@ -15,6 +15,7 @@ exports.jobLoadedAction = jobLoadedAction;
 exports.removeModelAction = removeModelAction;
 exports.changeTriggerAction = changeTriggerAction;
 exports.updateLabelAction = updateLabelAction;
+exports.updateJobPropertyAction = updateJobPropertyAction;
 exports.setSelectionAction = setSelectionAction;
 exports.clearSelectionAction = clearSelectionAction;
 exports.setDirtyAction = setDirtyAction;
@@ -47,8 +48,10 @@ exports.RESIZE_PAPER = RESIZE_PAPER;
 var JOB_SWITCH_TRIGGER = "trigger:switch";
 exports.JOB_SWITCH_TRIGGER = JOB_SWITCH_TRIGGER;
 var JOB_UPDATE_LABEL = "job:label";
-
 exports.JOB_UPDATE_LABEL = JOB_UPDATE_LABEL;
+var JOB_UPDATE_PROPERTY = "job:property";
+
+exports.JOB_UPDATE_PROPERTY = JOB_UPDATE_PROPERTY;
 var EMPTY_MODEL_ACTION = "model:create-empty";
 exports.EMPTY_MODEL_ACTION = EMPTY_MODEL_ACTION;
 var ATTACH_MODEL_ACTION = "model:attach";
@@ -168,6 +171,14 @@ function updateLabelAction(newLabel) {
     return {
         type: JOB_UPDATE_LABEL,
         label: newLabel
+    };
+}
+
+function updateJobPropertyAction(propertyName, propertyValue) {
+    return {
+        type: JOB_UPDATE_PROPERTY,
+        propertyName: propertyName,
+        propertyValue: propertyValue
     };
 }
 

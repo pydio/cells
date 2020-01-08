@@ -125,6 +125,22 @@ text[joint-selector="type-icon"] tspan, text[joint-selector="type-icon-outline"]
     margin-bottom: 0;
     padding-bottom: 0;
 }
+.right-panel-expand-button{
+    position: absolute;
+    bottom: 7px;
+    left: -9px;
+    cursor: pointer;
+    display: block;
+    background-color: #f5f5f5;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid #e0e0e0;
+    font-size: 18px;
+}
 `;
 
 const cssReadonlyStyle = `

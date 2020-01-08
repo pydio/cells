@@ -101,6 +101,21 @@ var FormPanel = (function (_React$Component) {
 
             _FormLoader2['default'].loadAction(actionID).then(function (params) {
                 _this.setState({ formParams: params });
+                var create = _this.props.create;
+
+                if (create) {
+                    (function () {
+                        var defaults = {};
+                        params.forEach(function (p) {
+                            if (p['default']) {
+                                defaults[p.name] = p['default'];
+                            }
+                        });
+                        if (Object.keys(defaults).length) {
+                            _this.onFormChange(defaults);
+                        }
+                    })();
+                }
             });
         }
 
@@ -171,15 +186,24 @@ var FormPanel = (function (_React$Component) {
             this.setState({ action: action, dirty: true });
         }
     }, {
+        key: 'onValidStatusChange',
+        value: function onValidStatusChange(valid, failing) {
+            this.setState({ valid: valid });
+        }
+    }, {
         key: 'onIdChange',
         value: function onIdChange(id) {
             var action = this.state.action;
 
             action.ID = id;
             // Refresh state
+            var newActionInfo = this.getActionInfo(action);
+            if (!newActionInfo.HasForm) {
+                this.setState({ formParams: null, valid: true });
+            }
             this.setState({
                 action: action,
-                actionInfo: this.getActionInfo(action)
+                actionInfo: newActionInfo
             });
         }
     }, {
@@ -257,22 +281,56 @@ var FormPanel = (function (_React$Component) {
             var onDismiss = _props2.onDismiss;
             var onRemove = _props2.onRemove;
             var create = _props2.create;
-            var height = _props2.height;
             var _state = this.state;
             var actionInfo = _state.actionInfo;
             var action = _state.action;
             var formParams = _state.formParams;
             var dirty = _state.dirty;
+            var valid = _state.valid;
 
             var save = undefined,
                 revert = undefined;
-            if (!create && formParams && dirty) {
+            if (!create && formParams && dirty && valid) {
                 save = function () {
                     return _this3.save();
                 };
                 revert = function () {
                     return _this3.revert();
                 };
+            }
+            var form = undefined;
+            if (formParams && formParams.length && formParams[0].type === 'textarea' && formParams[0].choices === 'json:content-type:text/go') {
+                //Switch to CodeMirror component
+                var value = '';
+                if (action.Parameters && action.Parameters[formParams[0].name]) {
+                    value = action.Parameters[formParams[0].name];
+                }
+                form = _react2['default'].createElement(
+                    'div',
+                    { style: { border: '1px solid #e0e0e0', margin: '0 10px', borderRadius: 3 } },
+                    _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                        value: value,
+                        onChange: function (e, v) {
+                            var values = {};
+                            values[formParams[0].name] = v;
+                            _this3.onFormChange(values);
+                            _this3.setState({ valid: !!v });
+                        }
+                    })
+                );
+            } else if (formParams) {
+                form = _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(PydioForm.FormPanel, {
+                        ref: 'formPanel',
+                        depth: -1,
+                        parameters: formParams,
+                        values: this.fromStringString(formParams, action.Parameters),
+                        onChange: this.onFormChange.bind(this),
+                        onValidStatusChange: this.onValidStatusChange.bind(this)
+                    })
+                );
             }
             return _react2['default'].createElement(
                 _styles.RightPanel,
@@ -283,8 +341,7 @@ var FormPanel = (function (_React$Component) {
                     saveButtons: !!formParams,
                     onSave: save,
                     onRevert: revert,
-                    onRemove: onRemove,
-                    height: this.props
+                    onRemove: onRemove
                 },
                 _react2['default'].createElement(
                     'div',
@@ -296,24 +353,14 @@ var FormPanel = (function (_React$Component) {
                     { style: { padding: 10 } },
                     this.actionPicker()
                 ),
-                formParams && _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(PydioForm.FormPanel, {
-                        ref: 'formPanel',
-                        depth: -1,
-                        parameters: formParams,
-                        values: this.fromStringString(formParams, action.Parameters),
-                        onChange: this.onFormChange.bind(this)
-                    })
-                ),
+                form,
                 create && _react2['default'].createElement(
                     'div',
                     { style: { padding: 10, textAlign: 'right' } },
                     _react2['default'].createElement(_materialUi.RaisedButton, {
                         primary: true,
                         label: "Create Action",
-                        disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY,
+                        disabled: action.ID === _actionsEditor.JOB_ACTION_EMPTY || !valid,
                         onTouchTap: function () {
                             _this3.save();onDismiss();
                         } })

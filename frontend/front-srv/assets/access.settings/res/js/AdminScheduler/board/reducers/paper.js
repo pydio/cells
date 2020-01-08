@@ -20,7 +20,7 @@ export default function paperReducer(paper = null, action) {
                 linkPinning: false,
                 interactive: false,
                 validateConnection: (cellViewS, magnetS, cellViewT, magnetT, end, linkView) => {
-                    console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
+                    //console.log(cellViewS, magnetS.attr, cellViewT, magnetT, end);
                     if(cellViewS === cellViewT) {
                         return false;
                     }

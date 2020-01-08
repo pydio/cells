@@ -14,7 +14,7 @@ import Action from "./graph/Action";
 import dagre from 'dagre'
 import graphlib from 'graphlib'
 import Selector from "./graph/Selector";
-import {Paper, FlatButton, FontIcon, IconButton} from 'material-ui'
+import {Paper, FlatButton, FontIcon, IconButton, Checkbox} from 'material-ui'
 import FormPanel from "./builder/FormPanel";
 import {Triggers} from "./builder/Triggers";
 import {createStore, applyMiddleware} from 'redux'
@@ -33,7 +33,13 @@ import {
     removeFilterAction,
     changeTriggerAction,
     clearSelectionAction,
-    setSelectionAction, setDirtyAction, saveSuccessAction, saveErrorAction, revertAction, updateLabelAction
+    setSelectionAction,
+    setDirtyAction,
+    saveSuccessAction,
+    saveErrorAction,
+    revertAction,
+    updateLabelAction,
+    updateJobPropertyAction
 } from "./actions/editor";
 import Filters from "./builder/Filters";
 import Templates from "./graph/Templates";
@@ -42,7 +48,7 @@ const {ModernTextField} = Pydio.requireLib('hoc');
 import {getCssStyle} from "./builder/styles";
 
 const mapStateToProps = state => {
-    console.log(state);
+    console.debug(state);
     return {...state}
 };
 
@@ -105,6 +111,12 @@ const mapDispatchToProps = dispatch => {
                 d(setDirtyAction(true));
             });
         },
+        onJobPropertyChange : (name, value) => {
+            dispatch((d) => {
+                d(updateJobPropertyAction(name, value));
+                d(setDirtyAction(true));
+            });
+        },
         onSelectionClear : () => {
             dispatch(clearSelectionAction())
         },
@@ -119,7 +131,7 @@ const mapDispatchToProps = dispatch => {
                 callback(job);
             });
         },
-        onSave : (job) => {
+        onSave : (job, onJobSave = null) => {
             dispatch((d) => {
                 ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
                     const {SchedulerServiceApi, JobsPutJobRequest} = sdk;
@@ -133,6 +145,9 @@ const mapDispatchToProps = dispatch => {
                     return api.putJob(req);
                 }).then(() => {
                     d(saveSuccessAction(job));
+                    if(onJobSave){
+                        onJobSave(job);
+                    }
                 }).catch(e => {
                     d(saveErrorAction(job));
                 });
@@ -286,7 +301,8 @@ class JobGraph extends React.Component {
         graph.getCells().filter(c => c.clearSelection).forEach(c => c.clearSelection());
         this.setState({
             selectionType: null,
-            selectionModel: null
+            selectionModel: null,
+            fPanelWidthOffset: 0
         }, callback);
     }
 
@@ -545,23 +561,28 @@ class JobGraph extends React.Component {
 
         let selBlock;
         const {jobsEditable, create} = this.props;
-        const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange, onLabelChange, createNewAction,
+        const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange, onLabelChange, onJobPropertyChange, createNewAction,
             onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job} = this.state;
+        let fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
         let blockProps = {onDismiss: ()=>{this.clearSelection()}};
         let rightWidth = 300;
+        let showOffsetButton;
         if(createNewAction) {
+            showOffsetButton = true
             selBlock = <FormPanel
                 actions={descriptions}
                 action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
                 onChange={(newAction) => {
                     onEmptyModel(new Action(descriptions, newAction, true));
+                    this.reLayout(true);
                 }}
                 create={true}
-                onDismiss={()=>{this.setState({createNewAction: false})}}
+                onDismiss={()=>{this.setState({createNewAction: false, fPanelWidthOffset: 0})}}
             />
         } else if(selectionModel){
             if(selectionType === 'action'){
+                showOffsetButton = true;
                 const action = selectionModel.getJobsAction();
                 selBlock = <FormPanel
                     actions={descriptions}
@@ -608,11 +629,21 @@ class JobGraph extends React.Component {
         };
 
         let header = <span style={{flex: 1, padding: '14px 24px'}}>Job Workflow</span>
+        let footer;
         if(jobsEditable && editMode) {
             header = (
                 <span style={{flex: 1, padding: '0 6px'}}>
                     <ModernTextField value={job.Label} onChange={(e,v)=>{onLabelChange(v)}} inputStyle={{color: 'white'}}/>
                 </span>
+            );
+            footer = (
+                <div style={{display:'flex',alignItems: 'center',backgroundColor: '#f5f5f5', borderTop: '1px solid #e0e0e0'}}>
+                    <div style={{display:'flex',alignItems: 'center', padding: '0 16px'}}>
+                        Max. Parallel Tasks : <ModernTextField style={{width:60}} value={job.MaxConcurrency} onChange={(e,v)=>{onJobPropertyChange('MaxConcurrency', parseInt(v))}} type={"number"}/>
+                    </div>
+                    <Checkbox style={{width:200}} checked={job.AutoStart} onCheck={(e,v) => {onJobPropertyChange('AutoStart', v)}} label={"Run-On-Save"}/>
+                    <span style={{flex: 1}}></span>
+                </div>
             );
         }
 
@@ -620,7 +651,7 @@ class JobGraph extends React.Component {
             <Paper zDepth={1} style={{margin: 20}}>
                 <div style={st.header}>
                     {header}
-                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}
+                    {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job, this.props.onJobSave)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}
                     {jobsEditable && dirty && <IconButton onTouchTap={()=> {onRevert(original, (j)=>{this.graphFromJob(j); this.reLayout(editMode);})}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
                     {jobsEditable && <IconButton onTouchTap={()=> {this.toggleEdit()}} tooltip={editMode?'Close':'Edit'} iconClassName={editMode ? "mdi mdi-close" : "mdi mdi-pencil"} iconStyle={st.icon} />}
                 </div>
@@ -628,10 +659,17 @@ class JobGraph extends React.Component {
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">
                         <div id="playground" ref="placeholder"></div>
                     </div>
-                    <Paper zDepth={0} style={{width: selBlock?rightWidth:0, height: (bbox?bbox.height:500)}}>
+                    <Paper zDepth={0} style={{width: selBlock?(rightWidth + fPanelWidthOffset):0, height: (bbox?bbox.height:500), position:'relative'}}>
                         {selBlock}
+                        {showOffsetButton && fPanelWidthOffset === 0 &&
+                            <span className={"mdi mdi-chevron-left right-panel-expand-button"} onClick={() => {this.setState({fPanelWidthOffset:300})}}/>
+                        }
+                        {showOffsetButton && fPanelWidthOffset === 300 &&
+                            <span className={"mdi mdi-chevron-right right-panel-expand-button"} onClick={() => {this.setState({fPanelWidthOffset:0})}}/>
+                        }
                     </Paper>
                 </div>
+                {footer}
                 {getCssStyle(editMode)}
             </Paper>
         );
