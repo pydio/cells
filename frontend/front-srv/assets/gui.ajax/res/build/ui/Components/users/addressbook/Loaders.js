@@ -152,7 +152,7 @@ var Loaders = (function () {
                 return {
                     _parent: entry,
                     id: idmUser.Uuid,
-                    label: idmUser.GroupLabel,
+                    label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.GroupLabel,
                     type: 'group',
                     icon: 'mdi mdi-account-multiple',
                     childrenLoader: entry.childrenLoader ? Loaders.loadGroups : null,

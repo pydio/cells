@@ -23,10 +23,14 @@ package rest
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/url"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/pydio/cells/common/config"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -415,17 +419,31 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	}); err != nil {
 		return jobUuids, err
 	}
-
+	var whiteList, blackList []string
+	wl := config.Get("frontend", "plugin", "uploader.http", "REMOTE_UPLOAD_WHITELIST").String("")
+	bl := config.Get("frontend", "plugin", "uploader.http", "REMOTE_UPLOAD_BLACKLIST").String("")
+	if wl != "" {
+		whiteList = strings.Split(wl, ",")
+	}
+	if bl != "" {
+		blackList = strings.Split(bl, ",")
+	}
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
-	for _, url := range urls {
-
+	for _, u := range urls {
+		parsed, e := url.Parse(u)
+		if e != nil {
+			return nil, e
+		}
+		if (len(whiteList) > 0 && !hostListCheck(whiteList, parsed)) || (len(blackList) > 0 && hostListCheck(blackList, parsed)) {
+			return nil, fmt.Errorf("hostname %s is not allowed", parsed.Hostname())
+		}
 		jobUuid := "wget-" + uuid.New()
 		jobUuids = append(jobUuids, jobUuid)
 
 		var params = map[string]string{
-			"url": url,
+			"url": u,
 		}
-		cleanUrl := strings.Split(url, "?")[0]
+		cleanUrl := strings.Split(u, "?")[0]
 		cleanUrl = strings.Split(cleanUrl, "#")[0]
 		basename := filepath.Base(cleanUrl)
 		if basename == "" {
@@ -510,4 +528,15 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 	} else {
 		return "", er
 	}
+}
+
+// hostListCheck check if url hostname is in string
+func hostListCheck(list []string, u *url.URL) bool {
+	h := u.Hostname()
+	for _, l := range list {
+		if strings.TrimSpace(l) == h {
+			return true
+		}
+	}
+	return false
 }

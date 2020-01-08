@@ -95,6 +95,7 @@ func NewStandardRouter(options RouterOptions) *Router {
 	handlers = append(handlers, &Executor{})
 
 	pool := NewClientsPool(options.WatchRegistry)
+
 	return NewRouter(pool, handlers)
 }
 
@@ -169,6 +170,7 @@ func (v *Router) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter,
 
 func (v *Router) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 	h := v.handlers[0]
+
 	return h.ReadNode(ctx, in, opts...)
 }
 

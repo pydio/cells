@@ -152,21 +152,34 @@ class ShareHelper {
         const {templateId, templateData} = ShareHelper.prepareEmail(node, null, cellModel);
         const mail = new MailerMail();
         const api = new MailerServiceApi(PydioApi.getRestClient());
-        mail.To = Object.keys(targetUsers).map(k => {
+        mail.To = [];
+        let ignored = 0;
+        Object.keys(targetUsers).map(k => {
             const u = targetUsers[k];
             const to = new MailerUser();
-            if(u.IdmUser){
+            if(u.IdmUser && u.IdmUser.Login && u.IdmUser.Attributes && (u.IdmUser.Attributes['hasEmail'] || u.IdmUser.Attributes['email'])){
                 to.Uuid = u.IdmUser.Login;
+                mail.To.push(to);
             } else {
-                to.Uuid = u.id;
+               ignored++
             }
             return to;
         });
-        mail.TemplateId = templateId;
-        mail.TemplateData = templateData;
-        api.send(mail).then(() => {
-            callback();
-        });
+        const messages = Pydio.getInstance().MessageHash;
+        if(mail.To.length){
+            mail.TemplateId = templateId;
+            mail.TemplateData = templateData;
+            api.send(mail).then(() => {
+                callback();
+            });
+            let msg = messages['core.mailer.1'].replace('%s', mail.To.length);
+            if (ignored > 0) {
+                msg += ' ' + messages['core.mailer.entries.ignored'];
+            }
+            Pydio.getInstance().UI.displayMessage('SUCCESS', msg)
+        } else {
+            Pydio.getInstance().UI.displayMessage('ERROR', messages['core.mailer.entries.ignored']);
+        }
     }
 
     /**

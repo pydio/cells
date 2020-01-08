@@ -53,6 +53,7 @@ class ActionButton extends Component{
                 onTouchTap={this.props.callback || this.props.onTouchTap}
                 iconClassName={"mdi mdi-" + this.props.mdiIcon}
                 tooltip={this.props.getMessage(this.props.messageId, this.props.messageCoreNamespace?'': undefined)}
+                tooltipPosition={this.props.tooltipPosition}
             />
         );
 

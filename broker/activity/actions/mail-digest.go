@@ -22,6 +22,7 @@ package actions
 
 import (
 	"context"
+	"strings"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -147,6 +148,12 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		return input.WithError(err), err
 	}
 
+	md := render.Markdown(digest, activity.SummaryPointOfView_GENERIC, lang)
+	if strings.TrimSpace(md) == "" {
+		log.Logger(ctx).Warn("Computed digest is empty, this is not expected (probably an unsupported AS2.ObjectType).", zap.Any("collection", collection))
+		return input.WithIgnore(), nil
+	}
+
 	user := &mailer.User{
 		Uuid:     userObject.Uuid,
 		Address:  email,
@@ -160,7 +167,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	_, err = m.mailerClient.SendMail(ctx, &mailer.SendMailRequest{
 		Mail: &mailer.Mail{
 			TemplateId:      "Digest",
-			ContentMarkdown: render.Markdown(digest, activity.SummaryPointOfView_GENERIC, lang),
+			ContentMarkdown: md,
 			To:              []*mailer.User{user},
 		},
 	})

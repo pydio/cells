@@ -58,6 +58,14 @@ message ListNodesResponse {
     Node Node = 1;
 }
 
+message WrappingStreamerResponse {
+    oneof Data {
+        ListNodesResponse ListNodesResponse = 1;
+        NodeChangeEvent NodeChangeEvent = 2;
+    }
+    string Error = 3;
+}
+
 // ==========================================================
 // * Node Receiver
 // ==========================================================

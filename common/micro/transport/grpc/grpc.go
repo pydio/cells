@@ -4,7 +4,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/transport/grpc"
-	"github.com/pydio/cells/common/micro"
+	defaults "github.com/pydio/cells/common/micro"
 )
 
 var t = grpc.NewTransport()

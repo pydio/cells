@@ -50,7 +50,7 @@ type Client struct {
 func (i *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "index://" + i.dsName,
+		URI:                   "index://" + i.dsName,
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
 	}
@@ -80,17 +80,12 @@ func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	defer responseClient.Close()
 	for {
 		response, rErr := responseClient.Recv()
-		if rErr != nil || response == nil {
+		if rErr == io.EOF || rErr == io.ErrUnexpectedEOF || (rErr == nil && response == nil) {
 			break
 		}
-		/*
-			if rErr == io.EOF || (rErr == nil && response == nil) {
-				break
-			}
-			if rErr != nil {
-				return rErr
-			}
-		*/
+		if rErr != nil {
+			return rErr
+		}
 		response.Node.Path = strings.TrimLeft(response.Node.Path, "/")
 		if !response.Node.IsLeaf() {
 			response.Node.Etag = "-1"

@@ -117,6 +117,11 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, e)
 		return
 	}
+	if len(input.Nodes) == 0 {
+		service.RestError500(req, resp, fmt.Errorf("please provide at least one node to create"))
+		return
+	}
+
 	ctx := req.Request.Context()
 	output := &rest.NodesCollection{}
 
@@ -126,6 +131,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 	var folderPaths []string
 	folderChecks := make(map[string]string)
 	if len(input.Nodes) > 1 {
+		input.Nodes = h.deduplicateByPath(input.Nodes)
 		session = uuid.New()
 	}
 	for i, n := range input.Nodes {
@@ -231,7 +237,14 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	if e := req.ReadEntity(&input); e != nil {
 		service.RestError500(req, resp, e)
 		return
+	} else if len(input.Nodes) == 0 {
+		service.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
+		return
 	}
+	if len(input.Nodes) > 1 {
+		input.Nodes = h.deduplicateByPath(input.Nodes)
+	}
+
 	ctx := req.Request.Context()
 	username, _ := permissions.FindUserNameInContext(ctx)
 	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
@@ -403,6 +416,12 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 	if e := req.ReadEntity(&input); e != nil {
 		service.RestError500(req, resp, e)
 		return
+	} else if len(input.Nodes) == 0 {
+		service.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
+		return
+	}
+	if len(input.Nodes) > 1 {
+		input.Nodes = h.deduplicateByPath(input.Nodes)
 	}
 	ctx := req.Request.Context()
 	username, _ := permissions.FindUserNameInContext(ctx)
@@ -436,6 +455,12 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	if e := req.ReadEntity(&input); e != nil {
 		service.RestError500(req, resp, e)
 		return
+	} else if len(input.Nodes) == 0 {
+		service.RestError500(req, resp, fmt.Errorf("please provide at least one node"))
+		return
+	}
+	if len(input.Nodes) > 1 {
+		input.Nodes = h.deduplicateByPath(input.Nodes)
 	}
 	output := &rest.RestoreNodesResponse{}
 	ctx := req.Request.Context()
@@ -584,5 +609,22 @@ func (h *Handler) StatAdminTree(req *restful.Request, resp *restful.Response) {
 
 	response.Node = response.Node.WithoutReservedMetas()
 	resp.WriteEntity(response)
+
+}
+
+// deduplicateByPath takes a slice of nodes and make sure there are no duplicates based on their path
+func (h *Handler) deduplicateByPath(nn []*tree.Node) (out []*tree.Node) {
+
+	seen := make(map[string]struct{}, len(nn))
+	j := 0
+	for _, n := range nn {
+		if _, ok := seen[n.Path]; ok {
+			continue
+		}
+		seen[n.Path] = struct{}{}
+		nn[j] = n
+		j++
+	}
+	return nn[:j]
 
 }

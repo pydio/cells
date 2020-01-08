@@ -291,7 +291,6 @@ var Dashboard = _react2['default'].createClass({
         dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
         rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        accessByName: _react2['default'].PropTypes.func.isRequired,
         openEditor: _react2['default'].PropTypes.func.isRequired
     },
 
@@ -331,7 +330,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(newProps) {
-        if (!this.state.searchResultData) {
+        if (!this.state.searchResultData && newProps.currentNode && newProps.currentNode.getPath().indexOf('/idm/users') === 0) {
             this.setState({
                 currentNode: newProps.currentNode,
                 dataModel: newProps.dataModel
@@ -514,11 +513,8 @@ var Dashboard = _react2['default'].createClass({
         var _this3 = this;
 
         var mime = node.getAjxpMime();
-        if (node.getMetadata().has('IdmUser') && !node.getMetadata().get("IdmUser").PoliciesContextEditable) {
-            return _react2['default'].createElement('div', null);
-        }
         var iconStyle = {
-            color: 'rgba(0,0,0,0.3)',
+            color: 'rgba(0,0,0,0.43)',
             fontSize: 20
         };
         var disabledStyle = {
@@ -593,15 +589,9 @@ var Dashboard = _react2['default'].createClass({
     render: function render() {
         var _this5 = this;
 
-        var _props3 = this.props;
-        var accessByName = _props3.accessByName;
-        var muiTheme = _props3.muiTheme;
-        var rootNode = _props3.rootNode;
-        var pydio = _props3.pydio;
-
         var fontIconStyle = {
             style: {
-                backgroundColor: muiTheme.palette.accent2Color,
+                backgroundColor: this.props.muiTheme.palette.accent2Color,
                 borderRadius: '50%',
                 width: 36,
                 height: 36,
@@ -637,10 +627,7 @@ var Dashboard = _react2['default'].createClass({
             className: "media-small-hide"
         });
 
-        var headerButtons = [];
-        if (accessByName('Create')) {
-            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
-        }
+        var headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
 
         var groupHeaderStyle = {
             height: 48,
@@ -666,7 +653,7 @@ var Dashboard = _react2['default'].createClass({
             profileFilter = currentNode.getMetadata().get('userProfileFilter');
         }
 
-        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : muiTheme.palette.accent1Color;
+        var iconColor = profileFilter === '' ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color;
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
@@ -713,7 +700,7 @@ var Dashboard = _react2['default'].createClass({
                         _react2['default'].createElement(PydioComponents.DNDTreeView, {
                             showRoot: true,
                             rootLabel: this.context.getMessage("user.5"),
-                            node: rootNode,
+                            node: this.props.rootNode,
                             dataModel: this.props.dataModel,
                             className: 'users-groups-tree',
                             paddingOffset: 10
@@ -725,7 +712,7 @@ var Dashboard = _react2['default'].createClass({
                     { zDepth: 0, className: 'layout-fill vertical-layout people-list' },
                     _react2['default'].createElement(PydioComponents.SimpleList, {
                         ref: 'mainlist',
-                        pydio: pydio,
+                        pydio: this.props.pydio,
                         node: currentNode,
                         dataModel: dataModel,
                         openEditor: this.openRoleEditor,
@@ -739,7 +726,7 @@ var Dashboard = _react2['default'].createClass({
                         elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES,
                         hideToolbar: false,
                         toolbarStyle: { backgroundColor: '#f5f5f5', height: 48, borderBottom: '1px solid #e4e4e4' },
-                        multipleActions: [pydio.Controller.getActionByName('delete')],
+                        multipleActions: [this.props.pydio.Controller.getActionByName('delete')],
                         additionalActions: filterIcon,
                         filterNodes: this.filterNodes.bind(this)
                     })
@@ -1327,15 +1314,11 @@ var RolesDashboard = _react2['default'].createClass({
             fontSize: 20
         };
         var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80, textOverflow: 'none' }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                if (row.role.PoliciesContextEditable) {
-                    return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                            _this4.deleteAction(row.roleId);
-                        }, onClick: function (e) {
-                            e.stopPropagation();
-                        }, iconStyle: iconStyle });
-                } else {
-                    return null;
-                }
+                return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
+                        _this4.deleteAction(row.roleId);
+                    }, onClick: function (e) {
+                        e.stopPropagation();
+                    }, iconStyle: iconStyle });
             } }];
         var data = this.computeTableData(searchRoleString);
 
@@ -3409,7 +3392,7 @@ var RoleInfo = (function (_React$Component) {
             }
 
             // Load role parameters
-            var params = [{ "name": "roleId", label: this.getPydioRoleMessage('31'), "type": "string", readonly: true }, { "name": "roleLabel", label: this.getPydioRoleMessage('32'), "type": "string" }, { "name": "applies", label: this.getPydioRoleMessage('33'), "type": "select", multiple: true, choices: 'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous' }, { "name": "roleForceOverride", label: "Always Override", "type": "boolean" }].concat(_toConsumableArray(parameters));
+            var params = [{ "name": "roleId", label: this.getPydioRoleMessage('31'), "type": "string", readonly: true, description: this.getPydioRoleMessage('role.id.description') }, { "name": "roleLabel", label: this.getPydioRoleMessage('32'), "type": "string", description: this.getPydioRoleMessage('role.label.description') }, { "name": "applies", label: this.getPydioRoleMessage('33'), "type": "select", multiple: true, choices: 'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous', description: this.getPydioRoleMessage('role.autoapply.description') }, { "name": "roleForceOverride", label: "Always Override", "type": "boolean", description: this.getPydioRoleMessage('role.override.description') }].concat(_toConsumableArray(parameters));
 
             var values = { applies: [] };
             if (role) {
@@ -3748,6 +3731,7 @@ var UserInfo = (function (_React$Component) {
                         }
                     }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
+                        profile: idmUser.Attributes ? idmUser.Attributes['profile'] : '',
                         roles: idmUser.Roles,
                         addRole: function (r) {
                             return user.addRole(r);
@@ -5822,6 +5806,7 @@ exports['default'] = _react2['default'].createClass({
     mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
 
     propTypes: {
+        profile: _react2['default'].PropTypes.string,
         roles: _react2['default'].PropTypes.array,
         addRole: _react2['default'].PropTypes.func,
         removeRole: _react2['default'].PropTypes.func,
@@ -5871,6 +5856,7 @@ exports['default'] = _react2['default'].createClass({
         var _props = this.props;
         var roles = _props.roles;
         var loadingMessage = _props.loadingMessage;
+        var profile = _props.profile;
         var availableRoles = this.state.availableRoles;
 
         roles.map((function (r) {
@@ -5883,12 +5869,11 @@ exports['default'] = _react2['default'].createClass({
             } else if (r.UserRole) {
                 users.push(ctx.getMessage('user.27', 'ajxp_admin'));
             } else {
-                /*
-                if(rolesDetails[r].sticky) {
-                    label += ' [' + ctx.getMessage('19') + ']';
-                } // always overrides
-                */
-                manual.push({ payload: r.Uuid, text: r.Label });
+                if (r.AutoApplies && r.AutoApplies.indexOf(profile) !== -1) {
+                    groups.push(r.Label + ' [auto]');
+                } else {
+                    manual.push({ payload: r.Uuid, text: r.Label });
+                }
             }
         }).bind(this));
 

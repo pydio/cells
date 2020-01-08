@@ -98,9 +98,10 @@ class UsersList extends React.Component{
             stylesProps.titleColor = 'rgba(0,0,0,0.54)';
             stylesProps.titleFontsize = 14;
             stylesProps.titleFontWeight = 500;
-            stylesProps.titlePadding = '10px 16px';
+            stylesProps.titlePadding = '10px 6px 10px 16px';
             stylesProps.button.border = '0';
             stylesProps.icon.color = muiTheme.palette.primary1Color;
+            stylesProps.icon.opacity = 0.73
         }
         let searchProps = {
             style:{flex:1, minWidth: 110},
@@ -188,12 +189,13 @@ class UsersList extends React.Component{
             let touchTap = (e)=>{e.stopPropagation(); this.props.onItemClicked(item)};
             if(folders.indexOf(item) > -1 && this.props.onFolderClicked){
                 touchTap = (e)=>{e.stopPropagation(); this.props.onFolderClicked(item) };
-                if(mode === 'selector' && !item._notSelectable){
+                if(mode === 'selector' && !item._notSelectable && !this.props.usersOnly){
                     rightIconButton = (
                         <IconButton
                             iconClassName={"mdi mdi-account-multiple-plus"}
-                            tooltip={"Select this group"}
-                            tooltipPosition="bottom-left"
+                            tooltip={getMessage('addressbook.pick.group')}
+                            tooltipPosition="top-left"
+                            iconStyle={{color: 'rgba(0,0,0,0.33)'}}
                             onTouchTap={()=>{this.props.onItemClicked(item)}}
                         />
                     );
@@ -203,7 +205,7 @@ class UsersList extends React.Component{
                     <IconButton
                         iconClassName={"mdi mdi-delete"}
                         tooltip={getMessage(257)}
-                        tooltipPosition="bottom-left"
+                        tooltipPosition="top-left"
                         iconStyle={{color: 'rgba(0,0,0,0.13)', hoverColor:'rgba(0,0,0,0.53)'}}
                         onTouchTap={()=>{this.props.onDeleteAction(this.props.item, [item])}}
                     />
@@ -279,7 +281,7 @@ class UsersList extends React.Component{
                     <SearchForm
                         searchLabel={this.props.searchLabel}
                         onSearch={this.props.onSearch}
-                        style={{padding:'0 20px', minWidth:null, borderTop:'1px solid #e0e0e0'}}
+                        style={{padding:'0 20px', minWidth:null, borderTop:'1px solid #e0e0e0', backgroundColor:'white'}}
                         underlineShow={false}
                     />
                 }

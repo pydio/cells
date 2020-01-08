@@ -154,7 +154,7 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 	defer s.Close()
 	for {
 		resp, e := s.Recv()
-		if e == io.EOF || (e == nil && resp == nil) {
+		if e == io.EOF || e == io.ErrUnexpectedEOF || (e == nil && resp == nil) {
 			break
 		}
 		if e != nil {

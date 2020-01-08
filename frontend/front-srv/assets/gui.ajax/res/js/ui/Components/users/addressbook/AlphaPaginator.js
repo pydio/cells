@@ -26,6 +26,7 @@ import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 
 import {SelectField, MenuItem} from 'material-ui';
+const {ModernSelectField} = Pydio.requireLib('hoc');
 
 /**
  * Alphabet and pages generator to give a first-letter-based pagination
@@ -50,7 +51,7 @@ class AlphaPaginator extends Component{
 
             paginator = (
                 <MuiThemeProvider muiTheme={getMuiTheme({zIndex:{layer: 3000, popover:3001}})}>
-                    <SelectField
+                    <ModernSelectField
                         floatingLabelText={getMessage(331)}
                         style={{width: 60}}
                         dropDownMenuProps={{anchorOrigin:{vertical:'center', horizontal:'right'}}}
@@ -61,7 +62,7 @@ class AlphaPaginator extends Component{
                         {pages.map((p) => {
                             return <MenuItem value={p} key={p} primaryText={p+1}/>
                         })}
-                    </SelectField>
+                    </ModernSelectField>
                 </MuiThemeProvider>
             );
 
@@ -71,21 +72,19 @@ class AlphaPaginator extends Component{
 
         return (
             <div style={{...style, display:'flex', paddingRight: 8, alignItems:'center'}}>
-                <div style={{flex:1}}>{getMessage(249, '')}</div>
+                <div style={{flex:1, height: 10}}>{getMessage(249, '')}</div>
                 {paginator}
                 <MuiThemeProvider muiTheme={getMuiTheme({zIndex:{layer: 3000, popover:3001}})}>
-                    <SelectField
+                    <ModernSelectField
                         floatingLabelText={getMessage(625)}
-                        style={{width: 60, marginLeft: 20}}
+                        style={{width: 60, marginLeft: 8}}
                         dropDownMenuProps={{anchorOrigin:{vertical:'center', horizontal:'right'}}}
                         fullWidth={true}
                         value={currentPage}
                         onChange={(e,i,v) => { paginatorCallback(v) }}
                     >
-                        {letters.map((l) => {
-                            return <MenuItem value={l} key={l} primaryText={l === -1 ? getMessage(597, '') : l}/>
-                        })}
-                    </SelectField>
+                        {letters.map((l) =>  <MenuItem value={l} key={l} primaryText={l === -1 ? getMessage(597, '') : l}/> )}
+                    </ModernSelectField>
                 </MuiThemeProvider>
             </div>
         );

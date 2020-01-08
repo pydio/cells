@@ -28,6 +28,7 @@ export default React.createClass({
     mixins:[RoleMessagesConsumerMixin],
 
     propTypes: {
+        profile:React.PropTypes.string,
         roles:React.PropTypes.array,
         addRole:React.PropTypes.func,
         removeRole:React.PropTypes.func,
@@ -67,7 +68,7 @@ export default React.createClass({
 
         let groups=[], manual=[], users=[];
         const ctx = this.context;
-        const {roles, loadingMessage} = this.props;
+        const {roles, loadingMessage, profile} = this.props;
         const {availableRoles} = this.state;
 
         roles.map(function(r){
@@ -80,12 +81,11 @@ export default React.createClass({
             }else if(r.UserRole){
                 users.push(ctx.getMessage('user.27', 'ajxp_admin'));
             }else{
-                /*
-                if(rolesDetails[r].sticky) {
-                    label += ' [' + ctx.getMessage('19') + ']';
-                } // always overrides
-                */
-                manual.push({payload:r.Uuid, text:r.Label});
+                if(r.AutoApplies && r.AutoApplies.indexOf(profile) !== -1){
+                    groups.push(r.Label + ' [auto]');
+                } else {
+                    manual.push({payload:r.Uuid, text:r.Label});
+                }
             }
         }.bind(this));
 

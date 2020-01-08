@@ -54,10 +54,10 @@ class RoleInfo extends React.Component {
 
         // Load role parameters
         const params = [
-            {"name":"roleId", label:this.getPydioRoleMessage('31'),"type":"string", readonly:true},
-            {"name":"roleLabel", label:this.getPydioRoleMessage('32'),"type":"string"},
-            {"name":"applies", label:this.getPydioRoleMessage('33'),"type":"select", multiple:true, choices:'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous'},
-            {"name":"roleForceOverride", label:"Always Override","type":"boolean"},
+            {"name":"roleId", label:this.getPydioRoleMessage('31'),"type":"string", readonly:true, description:this.getPydioRoleMessage('role.id.description')},
+            {"name":"roleLabel", label:this.getPydioRoleMessage('32'),"type":"string", description: this.getPydioRoleMessage('role.label.description')},
+            {"name":"applies", label:this.getPydioRoleMessage('33'),"type":"select", multiple:true, choices:'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous', description:this.getPydioRoleMessage('role.autoapply.description')},
+            {"name":"roleForceOverride", label:"Always Override","type":"boolean", description:this.getPydioRoleMessage('role.override.description')},
             ...parameters
         ];
 

@@ -31,15 +31,19 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _ShareContextConsumer = require('../ShareContextConsumer');
-
-var _ShareContextConsumer2 = _interopRequireDefault(_ShareContextConsumer);
-
-var _materialUi = require('material-ui');
-
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioUtilPass = require('pydio/util/pass');
+
+var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
+
+var _materialUi = require('material-ui');
+
+var _ShareContextConsumer = require('../ShareContextConsumer');
+
+var _ShareContextConsumer2 = _interopRequireDefault(_ShareContextConsumer);
 
 var _LinkModel = require('./LinkModel');
 
@@ -48,10 +52,6 @@ var _LinkModel2 = _interopRequireDefault(_LinkModel);
 var _mainShareHelper = require('../main/ShareHelper');
 
 var _mainShareHelper2 = _interopRequireDefault(_mainShareHelper);
-
-var _pydioUtilPass = require('pydio/util/pass');
-
-var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('form');
 
