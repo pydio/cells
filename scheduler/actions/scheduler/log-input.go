@@ -3,8 +3,9 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap/zapcore"
 	"strings"
+
+	"go.uber.org/zap/zapcore"
 
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
@@ -20,10 +21,10 @@ var (
 )
 
 type LogInputAction struct {
-	intLog bool
+	intLog  bool
 	taskLog bool
-	msg string
-	debug bool
+	msg     string
+	debug   bool
 }
 
 func (l *LogInputAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -105,7 +106,7 @@ func (l *LogInputAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 
 func (l *LogInputAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	if !l.taskLog || !l.intLog {
+	if !l.taskLog && !l.intLog {
 		return input.WithIgnore(), nil
 	}
 
