@@ -199,5 +199,5 @@ func (a *AbstractHandler) MultipartListObjectParts(ctx context.Context, target *
 }
 
 func (a *AbstractHandler) ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilter) error {
-	return fmt.Errorf("not.implemented")
+	return handlerListNodesWithCallback(a, ctx, request, callback, ignoreCbError, filters...)
 }

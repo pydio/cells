@@ -230,5 +230,5 @@ func (h *HandlerMock) StreamChanges(ctx context.Context, in *tree.StreamChangesR
 }
 
 func (h *HandlerMock) ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilter) error {
-	return fmt.Errorf("not.implemented")
+	return handlerListNodesWithCallback(h, ctx, request, callback, ignoreCbError, filters...)
 }
