@@ -44023,8 +44023,12 @@ var JobBoard = (function (_React$Component) {
     }
 
     _createClass(JobBoard, [{
-        key: 'runOnce',
-        value: function runOnce() {}
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            if (nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+                this.setState({ job: nextProps.job });
+            }
+        }
     }, {
         key: 'renderActions',
         value: function renderActions(row) {

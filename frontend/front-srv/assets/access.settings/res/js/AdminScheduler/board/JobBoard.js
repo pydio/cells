@@ -41,8 +41,10 @@ class JobBoard extends React.Component {
         }
     }
 
-    runOnce(){
-
+    componentWillReceiveProps(nextProps){
+        if(nextProps.job && nextProps.job.Tasks !== this.props.job.Tasks) {
+            this.setState({job: nextProps.job});
+        }
     }
 
     renderActions(row){
