@@ -11,7 +11,9 @@ It has these top-level messages:
 	NodesSelector
 	IdmSelector
 	UsersSelector
-	SourceFilter
+	ActionOutputFilter
+	ContextMetaFilter
+	ContextMetaSingleQuery
 	Schedule
 	Action
 	Job
@@ -39,6 +41,7 @@ It has these top-level messages:
 	ActionLog
 	JobTriggerEvent
 	ActionOutput
+	ActionOutputSingleQuery
 	ActionMessage
 */
 package jobs

@@ -26,6 +26,12 @@ import (
 	"strings"
 	"time"
 
+	servicecontext "github.com/pydio/cells/common/service/context"
+
+	"github.com/ory/ladon"
+
+	"github.com/pydio/cells/common/proto/jobs"
+
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/forms/protos"
 	"github.com/pydio/cells/common/proto/idm"
@@ -255,6 +261,48 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			}
 		case "tree.Query":
 			form = protos.GenerateProtoToForm(&tree.Query{}, asSwitch)
+		case "jobs.ActionOutputSingleQuery":
+			form = protos.GenerateProtoToForm(&jobs.ActionOutputSingleQuery{}, asSwitch)
+		case "jobs.ContextMetaSingleQuery":
+			form = protos.GenerateProtoToForm(&jobs.ContextMetaSingleQuery{}, asSwitch)
+			// Select Choices
+			selectChoices := []map[string]string{
+				{servicecontext.HttpMetaRemoteAddress: servicecontext.HttpMetaRemoteAddress},
+				{servicecontext.HttpMetaUserAgent: servicecontext.HttpMetaUserAgent},
+				{servicecontext.HttpMetaContentType: servicecontext.HttpMetaContentType},
+				{servicecontext.HttpMetaProtocol: servicecontext.HttpMetaProtocol},
+				{servicecontext.HttpMetaRequestMethod: servicecontext.HttpMetaRequestMethod},
+				{servicecontext.HttpMetaRequestURI: servicecontext.HttpMetaRequestURI},
+				{servicecontext.HttpMetaCookiesString: servicecontext.HttpMetaCookiesString},
+				//{servicecontext.ClientTime: servicecontext.ClientTime},
+				{servicecontext.ServerTime: servicecontext.ServerTime},
+			}
+			// Add SwitchField for PolicyCondition
+			condField := &forms.SwitchField{
+				Name:        "Condition",
+				Label:       "Condition",
+				Description: "Condition",
+			}
+			for name, f := range ladon.ConditionFactories {
+				condition := f()
+				condForm := protos.GenerateProtoToForm(condition, false)
+				condField.Values = append(condField.Values, &forms.SwitchValue{
+					Name:   name,
+					Value:  name,
+					Label:  name,
+					Fields: condForm.Groups[0].Fields,
+				})
+			}
+			if asSwitch {
+				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+				sw.Values[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+				sw.Values[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+				sw.Values[0].Fields = append(sw.Values[0].Fields, condField)
+			} else {
+				form.Groups[0].Fields[0].(*forms.FormField).Type = forms.ParamSelect
+				form.Groups[0].Fields[0].(*forms.FormField).ChoicePresetList = selectChoices
+				form.Groups[0].Fields = append(form.Groups[0].Fields, condField)
+			}
 		}
 	} else {
 		actionManager := actions.GetActionsManager()

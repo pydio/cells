@@ -49,10 +49,26 @@ func (this *UsersSelector) Validate() error {
 	}
 	return nil
 }
-func (this *SourceFilter) Validate() error {
+func (this *ActionOutputFilter) Validate() error {
 	if this.Query != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
+func (this *ContextMetaFilter) Validate() error {
+	if this.Query != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
+func (this *ContextMetaSingleQuery) Validate() error {
+	if this.Condition != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Condition); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Condition", err)
 		}
 	}
 	return nil
@@ -91,9 +107,14 @@ func (this *Action) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("IdmFilter", err)
 		}
 	}
-	if this.SourceFilter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SourceFilter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("SourceFilter", err)
+	if this.ActionOutputFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ActionOutputFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ActionOutputFilter", err)
+		}
+	}
+	if this.ContextMetaFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ContextMetaFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ContextMetaFilter", err)
 		}
 	}
 	// Validation of proto3 map<> fields is unsupported.
@@ -139,6 +160,11 @@ func (this *Job) Validate() error {
 	if this.IdmFilter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.IdmFilter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("IdmFilter", err)
+		}
+	}
+	if this.ContextMetaFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ContextMetaFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ContextMetaFilter", err)
 		}
 	}
 	return nil
@@ -290,6 +316,9 @@ func (this *JobTriggerEvent) Validate() error {
 	return nil
 }
 func (this *ActionOutput) Validate() error {
+	return nil
+}
+func (this *ActionOutputSingleQuery) Validate() error {
 	return nil
 }
 func (this *ActionMessage) Validate() error {

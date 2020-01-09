@@ -57,9 +57,24 @@ message UsersSelector {
     bool Collect = 5;
 }
 
-message SourceFilter {
-    // Can be built with SourceSingleQuery or ActionOutputQuery
+// ActionOutputFilter can be used to filter last message output
+message ActionOutputFilter {
+    // Query built from ActionOutputSingleQuery
     service.Query Query = 1;
+}
+
+// PolicyContextFilter can be used to filter request metadata
+message ContextMetaFilter {
+    // Can be built with ContextMetaSingleQuery
+    service.Query Query = 1;
+}
+
+// ContextMetaSingleQuery uses idm.PolicyCondition
+message ContextMetaSingleQuery {
+    // Condition applies to FieldName
+    string FieldName = 1;
+    // PolicyCondition
+    idm.PolicyCondition Condition = 2;
 }
 
 message Schedule {
@@ -89,8 +104,10 @@ message Action {
     // Idm objects filter
     IdmSelector IdmFilter = 10;
 
-    // Source filter
-    SourceFilter SourceFilter = 6;
+    // Previous action output filter
+    ActionOutputFilter ActionOutputFilter = 6;
+    // Metadata policy-based filter
+    ContextMetaFilter ContextMetaFilter = 11;
 
     // Defined parameters for this action
     map<string, string> Parameters = 7;
@@ -142,7 +159,8 @@ message Job {
     UsersSelector UserEventFilter = 16;
     // Idm objects filter
     IdmSelector IdmFilter = 17;
-
+    // Event Context Filter
+    ContextMetaFilter ContextMetaFilter = 18;
 }
 
 // Events sent by the JobService when CRUD'ing a Job configuration
@@ -346,26 +364,75 @@ message JobTriggerEvent {
 // Standard output of an action. Success value is required
 // other are optional
 message ActionOutput {
+    // True if action succeeded
     bool Success = 1;
+    // Arbitrary bytes sequence
     bytes RawBody = 2;
+    // Arbitrary string
     string StringBody = 3;
+    // Arbitrary JSON-encoded bytes
     bytes JsonBody = 4;
+    // Error
     string ErrorString = 5;
+    // If action was returned WithIgnore()
     bool Ignored = 6;
+    // Time taken to run the action
     int32 Time = 7;
 }
+
+// ActionOutputSingleQuery provides a unitary query to filter ActionOutput messages
+message ActionOutputSingleQuery {
+    // Check if ActionOutput has success
+    bool IsSuccess = 1;
+
+    // Occurrence of string in StringBody or JsonBody (as string)
+    string StringBodyRegexp = 2;
+    // StringBody or JsonBody size bigger than
+    int32 StringBodySizeGreaterThan = 3;
+    // StringBody or JsonBody size smaller than
+    int32 StringBodySizeSmallerThan = 4;
+
+    // Exact match of StringBody or JsonBody (as string)
+    string JsonBodyRegexp = 5;
+    // Check existence of key in json body
+    string JsonBodyHasKey = 6;
+    // StringBody or JsonBody size bigger than
+    int32 JsonBodySizeGreaterThan = 7;
+    // StringBody or JsonBody size smaller than
+    int32 JsonBodySizeSmallerThan = 8;
+
+    // Time taken greater than
+    int32 TaskTimeGt = 9;
+    // Time taken shorter than
+    int32 TaskTimeLt = 10;
+
+    // Check occurrence on error string
+    string ErrorStringRegexp = 11;
+
+    // Invert condition
+    bool Not = 12;
+}
+
 
 // Message passed along from one action to another, main properties
 // are modified by the various actions.
 // OutputChain is being stacked up when passing through actions
 message ActionMessage {
+    // Initial event that triggered the Job
     google.protobuf.Any Event = 1;
+    // One or more Node
     repeated tree.Node Nodes = 2;
+    // One or more User
     repeated idm.User Users = 3;
+    // One or more Role
     repeated idm.Role Roles = 6;
+    // One or more Workspace
     repeated idm.Workspace Workspaces = 7;
+    // One or more ACL
     repeated idm.ACL Acls = 8;
+    // One or more Activity
     repeated activity.Object Activities = 4;
+    // Stack of ActionOutput messages appended by all previous actions
     repeated ActionOutput OutputChain = 5;
 }
 

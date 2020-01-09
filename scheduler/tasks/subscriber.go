@@ -281,6 +281,9 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if jobData.Inactive {
 			continue
 		}
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
+			continue
+		}
 		if jobData.NodeEventFilter != nil && !s.jobLevelFilterPass(ctx, event, jobData.NodeEventFilter) {
 			continue
 		}
@@ -308,6 +311,9 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 
 	for jobId, jobData := range s.JobsDefinitions {
 		if jobData.Inactive {
+			continue
+		}
+		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(ctx, jobData.ContextMetaFilter) {
 			continue
 		}
 		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(ctx, createMessageFromEvent(event), jobData.IdmFilter) {
@@ -343,6 +349,12 @@ func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeCha
 // Test filter and return false if all input IDM slots are empty
 func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
 	_, pass := filter.Filter(ctx, input)
+	return pass
+}
+
+// Test filter and return false if context is filtered out
+func (s *Subscriber) jobLevelContextFilterPass(ctx context.Context, filter *jobs.ContextMetaFilter) bool {
+	_, pass := filter.Filter(ctx, jobs.ActionMessage{})
 	return pass
 }
 

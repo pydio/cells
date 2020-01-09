@@ -77,8 +77,11 @@ func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (ActionM
 	if a.UsersFilter != nil {
 		input, passThrough = a.UsersFilter.Filter(ctx, input)
 	}
-	if a.SourceFilter != nil {
-		input, passThrough = a.SourceFilter.Filter(ctx, input)
+	if a.ActionOutputFilter != nil {
+		input, passThrough = a.ActionOutputFilter.Filter(ctx, input)
+	}
+	if a.ContextMetaFilter != nil {
+		input, passThrough = a.ContextMetaFilter.Filter(ctx, input)
 	}
 	return input, passThrough
 }

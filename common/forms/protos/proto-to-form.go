@@ -9,9 +9,12 @@ import (
 	"github.com/pydio/cells/common/forms"
 )
 
-func GenerateProtoToForm(msg proto.Message, asSwitch ...bool) *forms.Form {
+func GenerateProtoToForm(msg interface{}, asSwitch ...bool) *forms.Form {
 	s := reflect.ValueOf(msg).Elem()
-	props := proto.GetProperties(s.Type())
+	var structProperties *proto.StructProperties
+	if _, ok := msg.(proto.Message); ok {
+		structProperties = proto.GetProperties(s.Type())
+	}
 	g := &forms.Group{}
 
 	sw := &forms.SwitchField{
@@ -32,8 +35,11 @@ func GenerateProtoToForm(msg proto.Message, asSwitch ...bool) *forms.Form {
 			}
 			fieldName = jsonTag[:commaIdx]
 		}
-
-		if field := fieldForValue(fieldName, value.Kind(), value.Type(), props.Prop[i]); field != nil {
+		var pp *proto.Properties
+		if structProperties != nil {
+			pp = structProperties.Prop[i]
+		}
+		if field := fieldForValue(fieldName, value.Kind(), value.Type(), pp); field != nil {
 			g.Fields = append(g.Fields, field)
 			sw.Values = append(sw.Values, &forms.SwitchValue{
 				Name:   fieldName,
