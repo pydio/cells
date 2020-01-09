@@ -80,7 +80,9 @@ import JobsAction from './model/JobsAction';
 import JobsActionLog from './model/JobsActionLog';
 import JobsActionMessage from './model/JobsActionMessage';
 import JobsActionOutput from './model/JobsActionOutput';
+import JobsActionOutputFilter from './model/JobsActionOutputFilter';
 import JobsCommand from './model/JobsCommand';
+import JobsContextMetaFilter from './model/JobsContextMetaFilter';
 import JobsCtrlCommand from './model/JobsCtrlCommand';
 import JobsCtrlCommandResponse from './model/JobsCtrlCommandResponse';
 import JobsDeleteTasksRequest from './model/JobsDeleteTasksRequest';
@@ -91,7 +93,6 @@ import JobsJob from './model/JobsJob';
 import JobsListJobsRequest from './model/JobsListJobsRequest';
 import JobsNodesSelector from './model/JobsNodesSelector';
 import JobsSchedule from './model/JobsSchedule';
-import JobsSourceFilter from './model/JobsSourceFilter';
 import JobsTask from './model/JobsTask';
 import JobsTaskStatus from './model/JobsTaskStatus';
 import JobsUsersSelector from './model/JobsUsersSelector';
@@ -698,10 +699,22 @@ export {
     JobsActionOutput,
 
     /**
+     * The JobsActionOutputFilter model constructor.
+     * @property {module:model/JobsActionOutputFilter}
+     */
+    JobsActionOutputFilter,
+
+    /**
      * The JobsCommand model constructor.
      * @property {module:model/JobsCommand}
      */
     JobsCommand,
+
+    /**
+     * The JobsContextMetaFilter model constructor.
+     * @property {module:model/JobsContextMetaFilter}
+     */
+    JobsContextMetaFilter,
 
     /**
      * The JobsCtrlCommand model constructor.
@@ -762,12 +775,6 @@ export {
      * @property {module:model/JobsSchedule}
      */
     JobsSchedule,
-
-    /**
-     * The JobsSourceFilter model constructor.
-     * @property {module:model/JobsSourceFilter}
-     */
-    JobsSourceFilter,
 
     /**
      * The JobsTask model constructor.

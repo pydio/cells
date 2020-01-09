@@ -85,6 +85,9 @@ export default function(job = new JobsJob(), action) {
                         case "idm":
                             delete job.IdmFilter;
                             break;
+                        case "context":
+                            delete job.ContextMetaFilter;
+                            break;
                         default: // NODE
                             delete job.NodeEventFilter;
                             break;
@@ -115,6 +118,12 @@ export default function(job = new JobsJob(), action) {
                             break;
                         case "idm":
                             delete removeTarget.IdmFilter;
+                            break;
+                        case "context":
+                            delete removeTarget.ContextMetaFilter;
+                            break;
+                        case "output":
+                            delete removeTarget.ActionOutputFilter;
                             break;
                         default: // NODE
                             delete removeTarget.NodesFilter;

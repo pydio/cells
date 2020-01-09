@@ -246,8 +246,8 @@ function linkAttr() {
 
 var AllowedKeys = {
     filter: {
-        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector },
-        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector }
+        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector, 'ContextMetaFilter': _pydioHttpRestApi.JobsContextMetaFilter },
+        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector, 'ContextMetaFilter': _pydioHttpRestApi.JobsContextMetaFilter, 'ActionOutputFilter': _pydioHttpRestApi.JobsActionOutputFilter }
     },
     selector: {
         job: {},
@@ -255,11 +255,11 @@ var AllowedKeys = {
     },
     target: {
         job: {
-            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodeEventFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UserEventFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }],
+            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodeEventFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UserEventFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }, { type: _pydioHttpRestApi.JobsContextMetaFilter, key: 'ContextMetaFilter' }],
             selector: []
         },
         action: {
-            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }],
+            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }, { type: _pydioHttpRestApi.JobsContextMetaFilter, key: 'ContextMetaFilter' }, { type: _pydioHttpRestApi.JobsActionOutputFilter, key: 'ActionOutputFilter' }],
             selector: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesSelector' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersSelector' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmSelector' }]
         }
     }

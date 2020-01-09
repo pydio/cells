@@ -8,22 +8,26 @@ class ProtoValue extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {fieldName: props.fieldName};
-        // load params
-        const {singleQuery}  = this.props;
-        FormLoader.loadAction("proto:switch:" + singleQuery).then(params => {
+        const {singleQuery, isSwitch, fieldName, proto}  = this.props;
+        this.state = {
+            fieldName: props.fieldName,
+        };
+        FormLoader.loadAction('proto:' + (isSwitch ? 'switch:' : '') + singleQuery).then(params => {
             let formValues = {};
             let isNot = false;
-            if(props.fieldName){
+            if(isSwitch && fieldName){
                 let notProps = {};
-                if(props.proto.value["Not"]){
+                if(proto.value["Not"]){
                     notProps["Not"] = true;
                     isNot = true;
-                } else if(props.proto.value["not"]){
+                } else if(proto.value["not"]){
                     notProps["not"] = true;
                     isNot = true;
                 }
-                formValues = ProtoValue.protoValueToFormValues(params, props.fieldName, props.proto.value[props.fieldName], notProps);
+                formValues = ProtoValue.protoValueToFormValues(params, fieldName, proto.value[fieldName], notProps);
+            } else {
+                console.log(props);
+                formValues = PydioForm.Manager.JsonToSlashes(proto); // TODO
             }
             this.setState({
                 formParams: ProtoValue.filterNot(params),
@@ -125,20 +129,26 @@ class ProtoValue extends React.Component {
 
     onFormChange(newValues){
         const {formParams} = this.state;
-        console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues));
+        const {isSwitch} = this.props;
+        //console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues, isSwitch));
         this.setState({formValues: newValues});
     }
 
     onSubmit(){
+        const {isSwitch} = this.props;
         const {formParams, formValues, isNot, hasNot} = this.state;
         let notProps = null;
         if(hasNot && isNot){
             notProps = {};
             notProps[hasNot] = true;
         }
-        //console.log(notProps);
-        const {fieldName, value} = ProtoValue.formValuesToProtoValue(formParams, formValues);
-        this.props.onChange(fieldName, value, notProps);
+        if(isSwitch){
+            const {fieldName, value} = ProtoValue.formValuesToProtoValue(formParams, formValues);
+            this.props.onChange(fieldName, value, notProps);
+        } else {
+            const values = PydioForm.Manager.SlashesToJson(formValues);
+            this.props.onChange('', values, null);
+        }
         this.props.onDismiss();
     }
 

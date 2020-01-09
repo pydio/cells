@@ -1,7 +1,7 @@
 import {shapes} from 'jointjs'
 import Filter from "./Filter";
-import {Blue, DarkGrey, Grey, LightGrey} from "./Configs";
-import {JobsNodesSelector, JobsIdmSelector, JobsUsersSelector} from 'pydio/http/rest-api';
+import {Blue, Grey, LightGrey} from "./Configs";
+import {JobsNodesSelector, JobsIdmSelector, JobsUsersSelector, JobsContextMetaFilter, JobsActionOutputFilter} from 'pydio/http/rest-api';
 import Selector from "./Selector";
 
 
@@ -63,6 +63,11 @@ class Templates extends shapes.standard.Path{
         this.newRolesFilter(graph, y);
         y += 64;
         this.newAclFilter(graph, y);
+        y += 64;
+        this.newActionOutputFilter(graph, y);
+        y += 64;
+        this.newContextMetaFilter(graph, y);
+
         // Reset Y
         y = start;
         this.newNodesSelector(graph, y);
@@ -93,6 +98,8 @@ class Templates extends shapes.standard.Path{
         this.wsFilter.remove();
         this.rolesFilter.remove();
         this.aclFilter.remove();
+        this.contextMetaFilter.remove();
+        this.actionOutputFilter.remove();
 
         this.modelSelector.remove();
         this.usersSelector.remove();
@@ -112,6 +119,10 @@ class Templates extends shapes.standard.Path{
             this.newWorkspacesFilter(graph, el.position().y);
         } else if (el === this.rolesFilter){
             this.newRolesFilter(graph, el.position().y);
+        } else if (el === this.contextMetaFilter){
+            this.newContextMetaFilter(graph, el.position().y);
+        } else if (el === this.actionOutputFilter){
+            this.newActionOutputFilter(graph, el.position().y);
         } else if (el === this.aclFilter){
             this.newAclFilter(graph, el.position().y);
         } else if(el === this.modelSelector){
@@ -195,6 +206,20 @@ class Templates extends shapes.standard.Path{
         this.aclSelector.position(64, y);
         this.aclSelector.isTemplate = true;
         this.aclSelector.addTo(graph);
+    }
+
+    newContextMetaFilter(graph, y) {
+        this.contextMetaFilter = new Filter(JobsContextMetaFilter.constructFromObject({}),'context');
+        this.contextMetaFilter.position(0, y);
+        this.contextMetaFilter.isTemplate = true;
+        this.contextMetaFilter.addTo(graph);
+    }
+
+    newActionOutputFilter(graph, y) {
+        this.actionOutputFilter = new Filter(JobsActionOutputFilter.constructFromObject({}),'output');
+        this.actionOutputFilter.position(0, y);
+        this.actionOutputFilter.isTemplate = true;
+        this.actionOutputFilter.addTo(graph);
     }
 
 }

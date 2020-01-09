@@ -1,4 +1,4 @@
-import {JobsNodesSelector, JobsUsersSelector, JobsIdmSelector} from 'pydio/http/rest-api'
+import {JobsNodesSelector, JobsUsersSelector, JobsIdmSelector, JobsActionOutputFilter, JobsContextMetaFilter} from 'pydio/http/rest-api'
 
 const Blue = '#2196f3';
 const DarkGrey = '#424242';
@@ -237,8 +237,8 @@ function linkAttr(hasData = true) {
 
 const AllowedKeys = {
     filter: {
-        job: {'NodeEventFilter':JobsNodesSelector, 'UserEventFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector},
-        action:{'NodesFilter': JobsNodesSelector, 'UsersFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector}
+        job: {'NodeEventFilter':JobsNodesSelector, 'UserEventFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector, 'ContextMetaFilter': JobsContextMetaFilter},
+        action:{'NodesFilter': JobsNodesSelector, 'UsersFilter': JobsUsersSelector, 'IdmFilter': JobsIdmSelector, 'ContextMetaFilter': JobsContextMetaFilter, 'ActionOutputFilter': JobsActionOutputFilter}
     },
     selector: {
         job: {},
@@ -249,7 +249,8 @@ const AllowedKeys = {
             filter: [
                 {type: JobsNodesSelector, key: 'NodeEventFilter', },
                 {type: JobsUsersSelector, key: 'UserEventFilter'},
-                {type: JobsIdmSelector, key: 'IdmFilter'}
+                {type: JobsIdmSelector, key: 'IdmFilter'},
+                {type: JobsContextMetaFilter, key: 'ContextMetaFilter'}
             ],
             selector: [],
         },
@@ -257,7 +258,9 @@ const AllowedKeys = {
             filter: [
                 {type: JobsNodesSelector, key: 'NodesFilter'},
                 {type: JobsUsersSelector, key: 'UsersFilter'},
-                {type: JobsIdmSelector, key: 'IdmFilter'}
+                {type: JobsIdmSelector, key: 'IdmFilter'},
+                {type: JobsContextMetaFilter, key: 'ContextMetaFilter'},
+                {type: JobsActionOutputFilter, key: 'ActionOutputFilter'}
             ],
             selector: [
                 {type: JobsNodesSelector, key: 'NodesSelector'},

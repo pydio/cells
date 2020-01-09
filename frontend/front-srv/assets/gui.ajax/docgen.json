@@ -4545,6 +4545,13 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "jobPrompted",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ]
       }
@@ -4604,6 +4611,18 @@
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          },
+          {
+            "name": "onJobSave",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ]
@@ -4999,6 +5018,22 @@
             "params": [
               {
                 "name": "values",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onValidStatusChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "valid",
+                "type": null
+              },
+              {
+                "name": "failing",
                 "type": null
               }
             ],
@@ -21054,6 +21089,52 @@
         ]
       }
     ],
+    "core/http/gen/model/JobsActionOutputFilter.js": [
+      {
+        "description": "The JobsActionOutputFilter model module.\n@module model/JobsActionOutputFilter\n@version 1.0",
+        "displayName": "JobsActionOutputFilter",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>JobsActionOutputFilter</code>.\n@alias module:model/JobsActionOutputFilter\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>JobsActionOutputFilter</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>JobsActionOutputFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsActionOutputFilter} obj Optional instance to populate.\n@return {module:model/JobsActionOutputFilter} The populated <code>JobsActionOutputFilter</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/JobsActionOutputFilter"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>JobsActionOutputFilter</code> instance.",
+              "type": {
+                "name": "module:model/JobsActionOutputFilter"
+              }
+            },
+            "description": "Constructs a <code>JobsActionOutputFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/JobsCommand.js": [
       {
         "description": "Enum class JobsCommand.\n@enum {}\n@readonly",
@@ -21077,6 +21158,52 @@
               }
             },
             "description": "Returns a <code>JobsCommand</code> enum value from a Javascript object name."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/JobsContextMetaFilter.js": [
+      {
+        "description": "The JobsContextMetaFilter model module.\n@module model/JobsContextMetaFilter\n@version 1.0",
+        "displayName": "JobsContextMetaFilter",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>JobsContextMetaFilter</code>.\n@alias module:model/JobsContextMetaFilter\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>JobsContextMetaFilter</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>JobsContextMetaFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsContextMetaFilter} obj Optional instance to populate.\n@return {module:model/JobsContextMetaFilter} The populated <code>JobsContextMetaFilter</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/JobsContextMetaFilter"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>JobsContextMetaFilter</code> instance.",
+              "type": {
+                "name": "module:model/JobsContextMetaFilter"
+              }
+            },
+            "description": "Constructs a <code>JobsContextMetaFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -21518,52 +21645,6 @@
               }
             },
             "description": "Constructs a <code>JobsSchedule</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/JobsSourceFilter.js": [
-      {
-        "description": "The JobsSourceFilter model module.\n@module model/JobsSourceFilter\n@version 1.0",
-        "displayName": "JobsSourceFilter",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>JobsSourceFilter</code>.\n@alias module:model/JobsSourceFilter\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>JobsSourceFilter</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>JobsSourceFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/JobsSourceFilter} obj Optional instance to populate.\n@return {module:model/JobsSourceFilter} The populated <code>JobsSourceFilter</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/JobsSourceFilter"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>JobsSourceFilter</code> instance.",
-              "type": {
-                "name": "module:model/JobsSourceFilter"
-              }
-            },
-            "description": "Constructs a <code>JobsSourceFilter</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

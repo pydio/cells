@@ -41,23 +41,31 @@ var ProtoValue = (function (_React$Component) {
         _classCallCheck(this, ProtoValue);
 
         _get(Object.getPrototypeOf(ProtoValue.prototype), 'constructor', this).call(this, props);
-        this.state = { fieldName: props.fieldName };
-        // load params
-        var singleQuery = this.props.singleQuery;
+        var _props = this.props;
+        var singleQuery = _props.singleQuery;
+        var isSwitch = _props.isSwitch;
+        var fieldName = _props.fieldName;
+        var proto = _props.proto;
 
-        _FormLoader2['default'].loadAction("proto:switch:" + singleQuery).then(function (params) {
+        this.state = {
+            fieldName: props.fieldName
+        };
+        _FormLoader2['default'].loadAction('proto:' + (isSwitch ? 'switch:' : '') + singleQuery).then(function (params) {
             var formValues = {};
             var isNot = false;
-            if (props.fieldName) {
+            if (isSwitch && fieldName) {
                 var notProps = {};
-                if (props.proto.value["Not"]) {
+                if (proto.value["Not"]) {
                     notProps["Not"] = true;
                     isNot = true;
-                } else if (props.proto.value["not"]) {
+                } else if (proto.value["not"]) {
                     notProps["not"] = true;
                     isNot = true;
                 }
-                formValues = ProtoValue.protoValueToFormValues(params, props.fieldName, props.proto.value[props.fieldName], notProps);
+                formValues = ProtoValue.protoValueToFormValues(params, fieldName, proto.value[fieldName], notProps);
+            } else {
+                console.log(props);
+                formValues = PydioForm.Manager.JsonToSlashes(proto); // TODO
             }
             _this.setState({
                 formParams: ProtoValue.filterNot(params),
@@ -72,13 +80,15 @@ var ProtoValue = (function (_React$Component) {
         key: 'onFormChange',
         value: function onFormChange(newValues) {
             var formParams = this.state.formParams;
+            var isSwitch = this.props.isSwitch;
 
-            console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues));
+            //console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues, isSwitch));
             this.setState({ formValues: newValues });
         }
     }, {
         key: 'onSubmit',
         value: function onSubmit() {
+            var isSwitch = this.props.isSwitch;
             var _state = this.state;
             var formParams = _state.formParams;
             var formValues = _state.formValues;
@@ -90,14 +100,17 @@ var ProtoValue = (function (_React$Component) {
                 notProps = {};
                 notProps[hasNot] = true;
             }
-            //console.log(notProps);
+            if (isSwitch) {
+                var _ProtoValue$formValuesToProtoValue = ProtoValue.formValuesToProtoValue(formParams, formValues);
 
-            var _ProtoValue$formValuesToProtoValue = ProtoValue.formValuesToProtoValue(formParams, formValues);
+                var fieldName = _ProtoValue$formValuesToProtoValue.fieldName;
+                var value = _ProtoValue$formValuesToProtoValue.value;
 
-            var fieldName = _ProtoValue$formValuesToProtoValue.fieldName;
-            var value = _ProtoValue$formValuesToProtoValue.value;
-
-            this.props.onChange(fieldName, value, notProps);
+                this.props.onChange(fieldName, value, notProps);
+            } else {
+                var values = PydioForm.Manager.SlashesToJson(formValues);
+                this.props.onChange('', values, null);
+            }
             this.props.onDismiss();
         }
     }, {
@@ -105,9 +118,9 @@ var ProtoValue = (function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            var _props = this.props;
-            var onDismiss = _props.onDismiss;
-            var style = _props.style;
+            var _props2 = this.props;
+            var onDismiss = _props2.onDismiss;
+            var style = _props2.style;
             var _state2 = this.state;
             var formParams = _state2.formParams;
             var _state2$formValues = _state2.formValues;

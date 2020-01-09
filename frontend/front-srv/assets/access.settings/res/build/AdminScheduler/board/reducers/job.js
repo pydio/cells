@@ -107,6 +107,9 @@ exports["default"] = function (job, action) {
                             case "idm":
                                 delete job.IdmFilter;
                                 break;
+                            case "context":
+                                delete job.ContextMetaFilter;
+                                break;
                             default:
                                 // NODE
                                 delete job.NodeEventFilter;
@@ -140,6 +143,12 @@ exports["default"] = function (job, action) {
                             break;
                         case "idm":
                             delete removeTarget.IdmFilter;
+                            break;
+                        case "context":
+                            delete removeTarget.ContextMetaFilter;
+                            break;
+                        case "output":
+                            delete removeTarget.ActionOutputFilter;
                             break;
                         default:
                             // NODE

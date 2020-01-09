@@ -6,7 +6,7 @@ import dagre from 'dagre'
 import graphlib from 'graphlib'
 import Query from "./Query";
 import Link from "../graph/Link";
-import {ServiceQuery, JobsNodesSelector, JobsIdmSelector, JobsUsersSelector, ProtobufAny} from 'pydio/http/rest-api';
+import {ServiceQuery, JobsNodesSelector, JobsIdmSelector, JobsUsersSelector, ProtobufAny, JobsContextMetaFilter, JobsActionOutputFilter} from 'pydio/http/rest-api';
 import QueryConnector from "./QueryConnector";
 import QueryCluster from "./QueryCluster";
 import QueryInput from "./QueryInput";
@@ -70,6 +70,16 @@ class QueryBuilder extends React.Component {
         } else if (query instanceof JobsUsersSelector) {
             objectType = 'user';
             singleQuery = 'idm.UserSingleQuery';
+        } else if (query instanceof JobsContextMetaFilter){
+            objectType = 'context';
+            singleQuery = 'jobs.ContextMetaSingleQuery'
+        } else if (query instanceof JobsActionOutputFilter){
+            objectType = 'output';
+            singleQuery = 'jobs.ActionOutputSingleQuery'
+        }
+        let modelType = objectType;
+        if(query instanceof JobsIdmSelector) {
+            modelType = 'idm'; // Generic Type
         }
 
         if(queryType === 'selector') {
@@ -116,12 +126,20 @@ class QueryBuilder extends React.Component {
                     inputIcon = 'format-list-checks';
                     outputIcon = 'format-list-checks';
                     break;
+                case "context":
+                    inputIcon = 'tag';
+                    outputIcon = 'tag';
+                    break;
+                case "output":
+                    inputIcon = 'message';
+                    outputIcon = 'message';
+                    break;
                 default:
                     break;
             }
 
         }
-        return {inputIcon, outputIcon, objectType, singleQuery, uniqueSingleOnly};
+        return {inputIcon, outputIcon, objectType, singleQuery, uniqueSingleOnly, modelType};
     }
 
     redraw(){
@@ -196,16 +214,14 @@ class QueryBuilder extends React.Component {
                 connector.addTo(graph);
                 output = connector;
             }
-            //const output = new QueryConnector();
-            //output.addTo(graph);
             SubQueries.forEach(q => {
-                if(q.type_url === 'type.googleapis.com/service.Query' && q.value.SubQueries){
+                if(q.type_url === 'type.googleapis.com/service.Query' && q.value.SubQueries) {
                     const {cluster: subCluster, last} = this.buildServiceQuery(graph, input, q.value);
                     cluster.embed(subCluster);
-                    if(last instanceof QueryConnector){
+                    if (last instanceof QueryConnector) {
                         cluster.embed(last);
                     }
-                    if(connector){
+                    if (connector) {
                         const link2 = new Link(last.id, last instanceof QueryConnector ? 'input' : 'output', connector.id, 'input');
                         link2.addTo(this.graph);
                     } else {
@@ -213,7 +229,15 @@ class QueryBuilder extends React.Component {
                     }
                 } else {
                     const isNot = q.value.Not || q.value.not;
-                    Object.keys(q.value).filter(k => k.toLowerCase() !== 'not').forEach(key => {
+                    let components;
+                    if(q.type_url === 'type.googleapis.com/jobs.ContextMetaSingleQuery') {
+                        // Use value as one query block
+                        components = ['value'];
+                    } else {
+                        // Spread each value keys as one query block
+                        components = Object.keys(q.value).filter(k => k.toLowerCase() !== 'not');
+                    }
+                    components.forEach(key => {
                         const field = new Query(q, key, query, isNot);
                         field.addTo(this.graph);
                         const link = new Link(input.id, input instanceof QueryConnector ? 'input' : 'output', field.id, 'input');
@@ -241,7 +265,15 @@ class QueryBuilder extends React.Component {
                     }
                 } else {
                     const isNot = q.value.Not || q.value.not;
-                    Object.keys(q.value).filter(k => k.toLowerCase() !== 'not').forEach(key => {
+                    let components;
+                    if(q.type_url === 'type.googleapis.com/jobs.ContextMetaSingleQuery') {
+                        // Use value as one query block
+                        components = ['value'];
+                    } else {
+                        // Spread each value keys as one query block
+                        components = Object.keys(q.value).filter(k => k.toLowerCase() !== 'not');
+                    }
+                    components.forEach(key => {
                         const field = new Query(q, key, query, isNot);
                         field.addTo(this.graph);
                         const link = new Link(lastOp.id, lastOp instanceof QueryConnector ? 'input' : 'output', field.id, 'input');
@@ -261,7 +293,6 @@ class QueryBuilder extends React.Component {
         const input = new QueryInput(inputIcon);
         input.addTo(this.graph);
         const output = this.buildSpreadOutput(query, queryType, outputIcon);
-//        output.addTo(this.graph);
         if(query.Query && query.Query.SubQueries && query.Query.SubQueries.length) {
             const {cluster, last} = this.buildServiceQuery(this.graph, input, query.Query);
             const link = new Link(last.id, last instanceof QueryConnector ? 'input' : 'output', output.id, 'input');
@@ -434,39 +465,63 @@ class QueryBuilder extends React.Component {
         }
         const {onRemoveFilter} = this.props;
         const {query} = this.state;
-        let modelType;
-        if(query instanceof JobsNodesSelector){
-            modelType = 'node'
-        } else if(query instanceof JobsIdmSelector){
-            modelType = 'idm'
-        } else if(query instanceof JobsUsersSelector){
-            modelType = 'user'
-        }
+        const {modelType} = this.detectTypes(query);
         onRemoveFilter(modelType);
+    }
+
+    static FormToContextMetaSingleQuery(values){
+        const {Condition = {}, FieldName} = values;
+        const condType = Condition['@value'];
+        delete Condition['@value'];
+        const condOptions = JSON.stringify(Condition);
+        return {
+            FieldName,
+            Condition: {
+                type: condType,
+                jsonOptions: condOptions
+            }
+        };
+    }
+
+    static ContextMetaSingleQueryToForm(proto) {
+        const {Condition = {}, FieldName} = proto.value;
+        const {type, jsonOptions = "{}"} = Condition;
+        const otherValues = JSON.parse(jsonOptions);
+        return {
+            FieldName,
+            Condition : {
+                '@value' : type,
+                ...otherValues
+            }
+        };
     }
 
     changeQueryValue(newField, newValue, notProps){
 
         const {selectedProto, selectedFieldName, queryAddProto, querySplitProto} = this.state;
-        const {uniqueSingleOnly} = this.detectTypes(this.state.query);
-        // Clean old values
-        if(selectedFieldName && newField !== selectedFieldName){
-            delete selectedProto.value[selectedFieldName];
-        }
-        if(notProps) {
-            //selectedProto.value = {...selectedProto.value, ...notProps};
-            Object.keys(notProps).forEach(k => {
-                selectedProto.value[k] = notProps[k];
-            })
+        const {uniqueSingleOnly, singleQuery} = this.detectTypes(this.state.query);
+        if(singleQuery === 'jobs.ContextMetaSingleQuery') {
+            selectedProto.value = QueryBuilder.FormToContextMetaSingleQuery(newValue);
         } else {
-            if(selectedProto.value["Not"]) {
-                delete selectedProto.value["Not"];
+            // Clean old values
+            if(selectedFieldName && newField !== selectedFieldName){
+                delete selectedProto.value[selectedFieldName];
             }
-            if (selectedProto.value["not"]) {
-                delete selectedProto.value["not"];
+            if(notProps) {
+                //selectedProto.value = {...selectedProto.value, ...notProps};
+                Object.keys(notProps).forEach(k => {
+                    selectedProto.value[k] = notProps[k];
+                })
+            } else {
+                if(selectedProto.value["Not"]) {
+                    delete selectedProto.value["Not"];
+                }
+                if (selectedProto.value["not"]) {
+                    delete selectedProto.value["not"];
+                }
             }
+            selectedProto.value[newField] = newValue;
         }
-        selectedProto.value[newField] = newValue;
         if(queryAddProto){
             if(!queryAddProto.SubQueries) {
                 queryAddProto.SubQueries = [];
@@ -558,8 +613,9 @@ class QueryBuilder extends React.Component {
                 }
                 {selectedProto &&
                 <ProtoValue
-                    proto={selectedProto}
+                    proto={singleQuery === "jobs.ContextMetaSingleQuery" ? QueryBuilder.ContextMetaSingleQueryToForm(selectedProto) :selectedProto}
                     singleQuery={singleQuery}
+                    isSwitch={singleQuery !== "jobs.ContextMetaSingleQuery"}
                     fieldName={selectedFieldName}
                     onChange={(f,v,nP) => {this.changeQueryValue(f,v,nP)}}
                     onDismiss={()=>{this.clearSelection()}}

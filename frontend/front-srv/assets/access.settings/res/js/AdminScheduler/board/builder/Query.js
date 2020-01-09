@@ -21,6 +21,8 @@ class Query extends shapes.devs.Model{
                     value = JSON.stringify(fieldValue);
                 }
                 typeLabel = fieldName + (isNot?' != ':' = ') + value;
+            } else if(fieldName === 'value') {
+                typeLabel = JSON.stringify(proto.value);
             }
         }
         let truncated = undefined;

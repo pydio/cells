@@ -46,7 +46,7 @@ class JobInput extends shapes.devs.Model {
     notifyJobModel(job){
         this.setFilter(false);
         this.setSelector(false);
-        if(job.NodeEventFilter || job.IdmFilter || job.UserEventFilter){
+        if(job.NodeEventFilter || job.IdmFilter || job.UserEventFilter || job.ContextMetaFilter){
             this.setFilter(true);
         }
         if(job.NodesSelector || job.IdmSelector || job.UsersSelector){

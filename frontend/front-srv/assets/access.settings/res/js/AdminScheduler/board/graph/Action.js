@@ -95,7 +95,7 @@ class Action extends shapes.devs.Model{
         this._jobModel = action;
         this.setFilter(false);
         this.setSelector(false);
-        if(action.NodesFilter || action.IdmFilter || action.UsersFilter){
+        if(action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter){
             this.setFilter(true)
         }
         if(action.NodesSelector || action.IdmSelector || action.UsersSelector) {

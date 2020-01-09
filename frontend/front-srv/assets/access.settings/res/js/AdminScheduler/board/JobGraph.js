@@ -52,6 +52,8 @@ const mapStateToProps = state => {
     return {...state}
 };
 
+const editWindowHeight = 600;
+
 const mapDispatchToProps = dispatch => {
     return {
         onToggleEdit : (on = true, layout = () =>{}) => {
@@ -272,7 +274,7 @@ class JobGraph extends React.Component {
         bbox.width += 80;
         bbox.height+= 80;
         if (editMode) {
-            bbox.height = Math.max(500, bbox.height);
+            bbox.height = Math.max(editWindowHeight, bbox.height);
             bbox.width += 200;
             if(this.boundingRef){
                 const maxWidth = this.boundingRef.clientWidth;
@@ -655,11 +657,11 @@ class JobGraph extends React.Component {
                     {jobsEditable && dirty && <IconButton onTouchTap={()=> {onRevert(original, (j)=>{this.graphFromJob(j); this.reLayout(editMode);})}} tooltip={'Revert'} iconClassName={"mdi mdi-undo"} iconStyle={st.icon} />}
                     {jobsEditable && <IconButton onTouchTap={()=> {this.toggleEdit()}} tooltip={editMode?'Close':'Edit'} iconClassName={editMode ? "mdi mdi-close" : "mdi mdi-pencil"} iconStyle={st.icon} />}
                 </div>
-                <div style={{position:'relative', display:'flex', minHeight:editMode?500:null}} ref={"boundingBox"}>
+                <div style={{position:'relative', display:'flex', minHeight:editMode?editWindowHeight:null}} ref={"boundingBox"}>
                     <div style={{flex: 1, overflowX: 'auto'}} ref="scroller">
                         <div id="playground" ref="placeholder"></div>
                     </div>
-                    <Paper zDepth={0} style={{width: selBlock?(rightWidth + fPanelWidthOffset):0, height: (bbox?bbox.height:500), position:'relative'}}>
+                    <Paper zDepth={0} style={{width: selBlock?(rightWidth + fPanelWidthOffset):0, height: (bbox?bbox.height:editWindowHeight), position:'relative'}}>
                         {selBlock}
                         {showOffsetButton && fPanelWidthOffset === 0 &&
                             <span className={"mdi mdi-chevron-left right-panel-expand-button"} onClick={() => {this.setState({fPanelWidthOffset:300})}}/>

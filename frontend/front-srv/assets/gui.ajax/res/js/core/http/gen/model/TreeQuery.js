@@ -58,6 +58,9 @@ export default class TreeQuery {
             
             
 
+            if (data.hasOwnProperty('PresetPaths')) {
+                obj['PresetPaths'] = ApiClient.convertToType(data['PresetPaths'], ['String']);
+            }
             if (data.hasOwnProperty('PathPrefix')) {
                 obj['PathPrefix'] = ApiClient.convertToType(data['PathPrefix'], ['String']);
             }
@@ -94,10 +97,17 @@ export default class TreeQuery {
             if (data.hasOwnProperty('PathDepth')) {
                 obj['PathDepth'] = ApiClient.convertToType(data['PathDepth'], 'Number');
             }
+            if (data.hasOwnProperty('Not')) {
+                obj['Not'] = ApiClient.convertToType(data['Not'], 'Boolean');
+            }
         }
         return obj;
     }
 
+    /**
+    * @member {Array.<String>} PresetPaths
+    */
+    PresetPaths = undefined;
     /**
     * @member {Array.<String>} PathPrefix
     */
@@ -146,6 +156,10 @@ export default class TreeQuery {
     * @member {Number} PathDepth
     */
     PathDepth = undefined;
+    /**
+    * @member {Boolean} Not
+    */
+    Not = undefined;
 
 
 

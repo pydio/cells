@@ -289,9 +289,17 @@ var _modelJobsActionOutput = require('./model/JobsActionOutput');
 
 var _modelJobsActionOutput2 = _interopRequireDefault(_modelJobsActionOutput);
 
+var _modelJobsActionOutputFilter = require('./model/JobsActionOutputFilter');
+
+var _modelJobsActionOutputFilter2 = _interopRequireDefault(_modelJobsActionOutputFilter);
+
 var _modelJobsCommand = require('./model/JobsCommand');
 
 var _modelJobsCommand2 = _interopRequireDefault(_modelJobsCommand);
+
+var _modelJobsContextMetaFilter = require('./model/JobsContextMetaFilter');
+
+var _modelJobsContextMetaFilter2 = _interopRequireDefault(_modelJobsContextMetaFilter);
 
 var _modelJobsCtrlCommand = require('./model/JobsCtrlCommand');
 
@@ -332,10 +340,6 @@ var _modelJobsNodesSelector2 = _interopRequireDefault(_modelJobsNodesSelector);
 var _modelJobsSchedule = require('./model/JobsSchedule');
 
 var _modelJobsSchedule2 = _interopRequireDefault(_modelJobsSchedule);
-
-var _modelJobsSourceFilter = require('./model/JobsSourceFilter');
-
-var _modelJobsSourceFilter2 = _interopRequireDefault(_modelJobsSourceFilter);
 
 var _modelJobsTask = require('./model/JobsTask');
 
@@ -1498,10 +1502,24 @@ JobsActionOutput = _modelJobsActionOutput2['default'];
 exports.
 
 /**
+ * The JobsActionOutputFilter model constructor.
+ * @property {module:model/JobsActionOutputFilter}
+ */
+JobsActionOutputFilter = _modelJobsActionOutputFilter2['default'];
+exports.
+
+/**
  * The JobsCommand model constructor.
  * @property {module:model/JobsCommand}
  */
 JobsCommand = _modelJobsCommand2['default'];
+exports.
+
+/**
+ * The JobsContextMetaFilter model constructor.
+ * @property {module:model/JobsContextMetaFilter}
+ */
+JobsContextMetaFilter = _modelJobsContextMetaFilter2['default'];
 exports.
 
 /**
@@ -1572,13 +1590,6 @@ exports.
  * @property {module:model/JobsSchedule}
  */
 JobsSchedule = _modelJobsSchedule2['default'];
-exports.
-
-/**
- * The JobsSourceFilter model constructor.
- * @property {module:model/JobsSourceFilter}
- */
-JobsSourceFilter = _modelJobsSourceFilter2['default'];
 exports.
 
 /**

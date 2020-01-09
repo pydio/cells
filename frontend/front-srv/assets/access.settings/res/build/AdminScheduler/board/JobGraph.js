@@ -113,6 +113,8 @@ var mapStateToProps = function mapStateToProps(state) {
     return _extends({}, state);
 };
 
+var editWindowHeight = 600;
+
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     return {
         onToggleEdit: function onToggleEdit() {
@@ -379,7 +381,7 @@ var JobGraph = (function (_React$Component) {
             bbox.width += 80;
             bbox.height += 80;
             if (editMode) {
-                bbox.height = Math.max(500, bbox.height);
+                bbox.height = Math.max(editWindowHeight, bbox.height);
                 bbox.width += 200;
                 if (this.boundingRef) {
                     var maxWidth = this.boundingRef.clientWidth;
@@ -879,7 +881,7 @@ var JobGraph = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { position: 'relative', display: 'flex', minHeight: editMode ? 500 : null }, ref: "boundingBox" },
+                    { style: { position: 'relative', display: 'flex', minHeight: editMode ? editWindowHeight : null }, ref: "boundingBox" },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1, overflowX: 'auto' }, ref: 'scroller' },
@@ -887,7 +889,7 @@ var JobGraph = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : 500, position: 'relative' } },
+                        { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : editWindowHeight, position: 'relative' } },
                         selBlock,
                         showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
                                 _this8.setState({ fPanelWidthOffset: 300 });

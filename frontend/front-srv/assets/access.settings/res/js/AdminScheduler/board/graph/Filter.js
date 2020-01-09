@@ -1,14 +1,10 @@
 import {shapes} from 'jointjs'
 import {
     PortsConfig,
-    WhiteRect,
     IconToUnicode,
-    TextIconMarkup,
-    BoxSize,
     DarkIcon,
     Orange, Blue, DarkLabel, LightGrey, RoundIconMarkup, FilterBoxSize, WhiteCircle
 } from "./Configs";
-import {JobsNodesSelector, JobsIdmSelector, JobsUsersSelector} from 'pydio/http/rest-api';
 
 
 class Filter extends shapes.devs.Model{
@@ -35,6 +31,12 @@ class Filter extends shapes.devs.Model{
         } else if(filterType === 'user') {
             typeLabel = 'User';
             typeIcon = "account";
+        } else if(filterType === 'context') {
+            typeLabel = 'Request';
+            typeIcon = 'tag';
+        } else if(filterType === 'output') {
+            typeLabel = 'Output';
+            typeIcon = 'message';
         } else {
             typeLabel = 'Node'
         }

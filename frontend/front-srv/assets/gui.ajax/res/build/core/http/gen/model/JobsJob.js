@@ -27,6 +27,10 @@ var _JobsAction = require('./JobsAction');
 
 var _JobsAction2 = _interopRequireDefault(_JobsAction);
 
+var _JobsContextMetaFilter = require('./JobsContextMetaFilter');
+
+var _JobsContextMetaFilter2 = _interopRequireDefault(_JobsContextMetaFilter);
+
 var _JobsIdmSelector = require('./JobsIdmSelector');
 
 var _JobsIdmSelector2 = _interopRequireDefault(_JobsIdmSelector);
@@ -79,6 +83,7 @@ var JobsJob = (function () {
         this.NodeEventFilter = undefined;
         this.UserEventFilter = undefined;
         this.IdmFilter = undefined;
+        this.ContextMetaFilter = undefined;
     }
 
     /**
@@ -140,6 +145,9 @@ var JobsJob = (function () {
             }
             if (data.hasOwnProperty('IdmFilter')) {
                 obj['IdmFilter'] = _JobsIdmSelector2['default'].constructFromObject(data['IdmFilter']);
+            }
+            if (data.hasOwnProperty('ContextMetaFilter')) {
+                obj['ContextMetaFilter'] = _JobsContextMetaFilter2['default'].constructFromObject(data['ContextMetaFilter']);
             }
         }
         return obj;
@@ -212,4 +220,8 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/JobsIdmSelector} IdmFilter
+*/
+
+/**
+* @member {module:model/JobsContextMetaFilter} ContextMetaFilter
 */

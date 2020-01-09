@@ -13,9 +13,10 @@
 
 
 import ApiClient from '../ApiClient';
+import JobsActionOutputFilter from './JobsActionOutputFilter';
+import JobsContextMetaFilter from './JobsContextMetaFilter';
 import JobsIdmSelector from './JobsIdmSelector';
 import JobsNodesSelector from './JobsNodesSelector';
-import JobsSourceFilter from './JobsSourceFilter';
 import JobsUsersSelector from './JobsUsersSelector';
 
 
@@ -81,8 +82,11 @@ export default class JobsAction {
             if (data.hasOwnProperty('IdmFilter')) {
                 obj['IdmFilter'] = JobsIdmSelector.constructFromObject(data['IdmFilter']);
             }
-            if (data.hasOwnProperty('SourceFilter')) {
-                obj['SourceFilter'] = JobsSourceFilter.constructFromObject(data['SourceFilter']);
+            if (data.hasOwnProperty('ActionOutputFilter')) {
+                obj['ActionOutputFilter'] = JobsActionOutputFilter.constructFromObject(data['ActionOutputFilter']);
+            }
+            if (data.hasOwnProperty('ContextMetaFilter')) {
+                obj['ContextMetaFilter'] = JobsContextMetaFilter.constructFromObject(data['ContextMetaFilter']);
             }
             if (data.hasOwnProperty('Parameters')) {
                 obj['Parameters'] = ApiClient.convertToType(data['Parameters'], {'String': 'String'});
@@ -123,9 +127,13 @@ export default class JobsAction {
     */
     IdmFilter = undefined;
     /**
-    * @member {module:model/JobsSourceFilter} SourceFilter
+    * @member {module:model/JobsActionOutputFilter} ActionOutputFilter
     */
-    SourceFilter = undefined;
+    ActionOutputFilter = undefined;
+    /**
+    * @member {module:model/JobsContextMetaFilter} ContextMetaFilter
+    */
+    ContextMetaFilter = undefined;
     /**
     * @member {Object.<String, String>} Parameters
     */

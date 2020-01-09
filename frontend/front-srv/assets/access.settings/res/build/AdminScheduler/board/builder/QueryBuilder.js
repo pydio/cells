@@ -133,6 +133,16 @@ var QueryBuilder = (function (_React$Component) {
             } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
                 objectType = 'user';
                 singleQuery = 'idm.UserSingleQuery';
+            } else if (query instanceof _pydioHttpRestApi.JobsContextMetaFilter) {
+                objectType = 'context';
+                singleQuery = 'jobs.ContextMetaSingleQuery';
+            } else if (query instanceof _pydioHttpRestApi.JobsActionOutputFilter) {
+                objectType = 'output';
+                singleQuery = 'jobs.ActionOutputSingleQuery';
+            }
+            var modelType = objectType;
+            if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
+                modelType = 'idm'; // Generic Type
             }
 
             if (queryType === 'selector') {
@@ -179,11 +189,19 @@ var QueryBuilder = (function (_React$Component) {
                         inputIcon = 'format-list-checks';
                         outputIcon = 'format-list-checks';
                         break;
+                    case "context":
+                        inputIcon = 'tag';
+                        outputIcon = 'tag';
+                        break;
+                    case "output":
+                        inputIcon = 'message';
+                        outputIcon = 'message';
+                        break;
                     default:
                         break;
                 }
             }
-            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType, singleQuery: singleQuery, uniqueSingleOnly: uniqueSingleOnly };
+            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType, singleQuery: singleQuery, uniqueSingleOnly: uniqueSingleOnly, modelType: modelType };
         }
     }, {
         key: 'redraw',
@@ -284,8 +302,6 @@ var QueryBuilder = (function (_React$Component) {
                         connector.addTo(graph);
                         output = connector;
                     }
-                    //const output = new QueryConnector();
-                    //output.addTo(graph);
                     SubQueries.forEach(function (q) {
                         if (q.type_url === 'type.googleapis.com/service.Query' && q.value.SubQueries) {
                             var _buildServiceQuery = _this4.buildServiceQuery(graph, input, q.value);
@@ -306,9 +322,17 @@ var QueryBuilder = (function (_React$Component) {
                         } else {
                             (function () {
                                 var isNot = q.value.Not || q.value.not;
-                                Object.keys(q.value).filter(function (k) {
-                                    return k.toLowerCase() !== 'not';
-                                }).forEach(function (key) {
+                                var components = undefined;
+                                if (q.type_url === 'type.googleapis.com/jobs.ContextMetaSingleQuery') {
+                                    // Use value as one query block
+                                    components = ['value'];
+                                } else {
+                                    // Spread each value keys as one query block
+                                    components = Object.keys(q.value).filter(function (k) {
+                                        return k.toLowerCase() !== 'not';
+                                    });
+                                }
+                                components.forEach(function (key) {
                                     var field = new _Query2['default'](q, key, query, isNot);
                                     field.addTo(_this4.graph);
                                     var link = new _graphLink2['default'](input.id, input instanceof _QueryConnector2['default'] ? 'input' : 'output', field.id, 'input');
@@ -348,9 +372,17 @@ var QueryBuilder = (function (_React$Component) {
                         } else {
                             (function () {
                                 var isNot = q.value.Not || q.value.not;
-                                Object.keys(q.value).filter(function (k) {
-                                    return k.toLowerCase() !== 'not';
-                                }).forEach(function (key) {
+                                var components = undefined;
+                                if (q.type_url === 'type.googleapis.com/jobs.ContextMetaSingleQuery') {
+                                    // Use value as one query block
+                                    components = ['value'];
+                                } else {
+                                    // Spread each value keys as one query block
+                                    components = Object.keys(q.value).filter(function (k) {
+                                        return k.toLowerCase() !== 'not';
+                                    });
+                                }
+                                components.forEach(function (key) {
                                     var field = new _Query2['default'](q, key, query, isNot);
                                     field.addTo(_this4.graph);
                                     var link = new _graphLink2['default'](lastOp.id, lastOp instanceof _QueryConnector2['default'] ? 'input' : 'output', field.id, 'input');
@@ -382,7 +414,6 @@ var QueryBuilder = (function (_React$Component) {
             var input = new _QueryInput2['default'](inputIcon);
             input.addTo(this.graph);
             var output = this.buildSpreadOutput(query, queryType, outputIcon);
-            //        output.addTo(this.graph);
             if (query.Query && query.Query.SubQueries && query.Query.SubQueries.length) {
                 var _buildServiceQuery3 = this.buildServiceQuery(this.graph, input, query.Query);
 
@@ -596,14 +627,10 @@ var QueryBuilder = (function (_React$Component) {
             var onRemoveFilter = this.props.onRemoveFilter;
             var query = this.state.query;
 
-            var modelType = undefined;
-            if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
-                modelType = 'node';
-            } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
-                modelType = 'idm';
-            } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
-                modelType = 'user';
-            }
+            var _detectTypes6 = this.detectTypes(query);
+
+            var modelType = _detectTypes6.modelType;
+
             onRemoveFilter(modelType);
         }
     }, {
@@ -615,28 +642,33 @@ var QueryBuilder = (function (_React$Component) {
             var queryAddProto = _state2.queryAddProto;
             var querySplitProto = _state2.querySplitProto;
 
-            var _detectTypes6 = this.detectTypes(this.state.query);
+            var _detectTypes7 = this.detectTypes(this.state.query);
 
-            var uniqueSingleOnly = _detectTypes6.uniqueSingleOnly;
+            var uniqueSingleOnly = _detectTypes7.uniqueSingleOnly;
+            var singleQuery = _detectTypes7.singleQuery;
 
-            // Clean old values
-            if (selectedFieldName && newField !== selectedFieldName) {
-                delete selectedProto.value[selectedFieldName];
-            }
-            if (notProps) {
-                //selectedProto.value = {...selectedProto.value, ...notProps};
-                Object.keys(notProps).forEach(function (k) {
-                    selectedProto.value[k] = notProps[k];
-                });
+            if (singleQuery === 'jobs.ContextMetaSingleQuery') {
+                selectedProto.value = QueryBuilder.FormToContextMetaSingleQuery(newValue);
             } else {
-                if (selectedProto.value["Not"]) {
-                    delete selectedProto.value["Not"];
+                // Clean old values
+                if (selectedFieldName && newField !== selectedFieldName) {
+                    delete selectedProto.value[selectedFieldName];
                 }
-                if (selectedProto.value["not"]) {
-                    delete selectedProto.value["not"];
+                if (notProps) {
+                    //selectedProto.value = {...selectedProto.value, ...notProps};
+                    Object.keys(notProps).forEach(function (k) {
+                        selectedProto.value[k] = notProps[k];
+                    });
+                } else {
+                    if (selectedProto.value["Not"]) {
+                        delete selectedProto.value["Not"];
+                    }
+                    if (selectedProto.value["not"]) {
+                        delete selectedProto.value["not"];
+                    }
                 }
+                selectedProto.value[newField] = newValue;
             }
-            selectedProto.value[newField] = newValue;
             if (queryAddProto) {
                 if (!queryAddProto.SubQueries) {
                     queryAddProto.SubQueries = [];
@@ -716,10 +748,10 @@ var QueryBuilder = (function (_React$Component) {
             var aSize = _state3.aSize;
             var aScrollLeft = _state3.aScrollLeft;
 
-            var _detectTypes7 = this.detectTypes(query);
+            var _detectTypes8 = this.detectTypes(query);
 
-            var objectType = _detectTypes7.objectType;
-            var singleQuery = _detectTypes7.singleQuery;
+            var objectType = _detectTypes8.objectType;
+            var singleQuery = _detectTypes8.singleQuery;
 
             var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
 
@@ -773,8 +805,9 @@ var QueryBuilder = (function (_React$Component) {
                     })
                 ),
                 selectedProto && _react2['default'].createElement(_ProtoValue2['default'], {
-                    proto: selectedProto,
+                    proto: singleQuery === "jobs.ContextMetaSingleQuery" ? QueryBuilder.ContextMetaSingleQueryToForm(selectedProto) : selectedProto,
                     singleQuery: singleQuery,
+                    isSwitch: singleQuery !== "jobs.ContextMetaSingleQuery",
                     fieldName: selectedFieldName,
                     onChange: function (f, v, nP) {
                         _this7.changeQueryValue(f, v, nP);
@@ -785,6 +818,43 @@ var QueryBuilder = (function (_React$Component) {
                     style: (0, _styles.position)(300, aSize, aPosition, aScrollLeft, 40)
                 })
             );
+        }
+    }], [{
+        key: 'FormToContextMetaSingleQuery',
+        value: function FormToContextMetaSingleQuery(values) {
+            var _values$Condition = values.Condition;
+            var Condition = _values$Condition === undefined ? {} : _values$Condition;
+            var FieldName = values.FieldName;
+
+            var condType = Condition['@value'];
+            delete Condition['@value'];
+            var condOptions = JSON.stringify(Condition);
+            return {
+                FieldName: FieldName,
+                Condition: {
+                    type: condType,
+                    jsonOptions: condOptions
+                }
+            };
+        }
+    }, {
+        key: 'ContextMetaSingleQueryToForm',
+        value: function ContextMetaSingleQueryToForm(proto) {
+            var _proto$value = proto.value;
+            var _proto$value$Condition = _proto$value.Condition;
+            var Condition = _proto$value$Condition === undefined ? {} : _proto$value$Condition;
+            var FieldName = _proto$value.FieldName;
+            var type = Condition.type;
+            var _Condition$jsonOptions = Condition.jsonOptions;
+            var jsonOptions = _Condition$jsonOptions === undefined ? "{}" : _Condition$jsonOptions;
+
+            var otherValues = JSON.parse(jsonOptions);
+            return {
+                FieldName: FieldName,
+                Condition: _extends({
+                    '@value': type
+                }, otherValues)
+            };
         }
     }]);
 

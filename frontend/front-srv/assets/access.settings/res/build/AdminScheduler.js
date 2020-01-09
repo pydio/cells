@@ -44450,6 +44450,8 @@ var mapStateToProps = function mapStateToProps(state) {
     return _extends({}, state);
 };
 
+var editWindowHeight = 600;
+
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     return {
         onToggleEdit: function onToggleEdit() {
@@ -44716,7 +44718,7 @@ var JobGraph = (function (_React$Component) {
             bbox.width += 80;
             bbox.height += 80;
             if (editMode) {
-                bbox.height = Math.max(500, bbox.height);
+                bbox.height = Math.max(editWindowHeight, bbox.height);
                 bbox.width += 200;
                 if (this.boundingRef) {
                     var maxWidth = this.boundingRef.clientWidth;
@@ -45216,7 +45218,7 @@ var JobGraph = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { position: 'relative', display: 'flex', minHeight: editMode ? 500 : null }, ref: "boundingBox" },
+                    { style: { position: 'relative', display: 'flex', minHeight: editMode ? editWindowHeight : null }, ref: "boundingBox" },
                     _react2['default'].createElement(
                         'div',
                         { style: { flex: 1, overflowX: 'auto' }, ref: 'scroller' },
@@ -45224,7 +45226,7 @@ var JobGraph = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
-                        { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : 500, position: 'relative' } },
+                        { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : editWindowHeight, position: 'relative' } },
                         selBlock,
                         showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
                                 _this8.setState({ fPanelWidthOffset: 300 });
@@ -46708,23 +46710,31 @@ var ProtoValue = (function (_React$Component) {
         _classCallCheck(this, ProtoValue);
 
         _get(Object.getPrototypeOf(ProtoValue.prototype), 'constructor', this).call(this, props);
-        this.state = { fieldName: props.fieldName };
-        // load params
-        var singleQuery = this.props.singleQuery;
+        var _props = this.props;
+        var singleQuery = _props.singleQuery;
+        var isSwitch = _props.isSwitch;
+        var fieldName = _props.fieldName;
+        var proto = _props.proto;
 
-        _FormLoader2['default'].loadAction("proto:switch:" + singleQuery).then(function (params) {
+        this.state = {
+            fieldName: props.fieldName
+        };
+        _FormLoader2['default'].loadAction('proto:' + (isSwitch ? 'switch:' : '') + singleQuery).then(function (params) {
             var formValues = {};
             var isNot = false;
-            if (props.fieldName) {
+            if (isSwitch && fieldName) {
                 var notProps = {};
-                if (props.proto.value["Not"]) {
+                if (proto.value["Not"]) {
                     notProps["Not"] = true;
                     isNot = true;
-                } else if (props.proto.value["not"]) {
+                } else if (proto.value["not"]) {
                     notProps["not"] = true;
                     isNot = true;
                 }
-                formValues = ProtoValue.protoValueToFormValues(params, props.fieldName, props.proto.value[props.fieldName], notProps);
+                formValues = ProtoValue.protoValueToFormValues(params, fieldName, proto.value[fieldName], notProps);
+            } else {
+                console.log(props);
+                formValues = PydioForm.Manager.JsonToSlashes(proto); // TODO
             }
             _this.setState({
                 formParams: ProtoValue.filterNot(params),
@@ -46739,13 +46749,15 @@ var ProtoValue = (function (_React$Component) {
         key: 'onFormChange',
         value: function onFormChange(newValues) {
             var formParams = this.state.formParams;
+            var isSwitch = this.props.isSwitch;
 
-            console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues));
+            //console.debug(ProtoValue.formValuesToProtoValue(formParams, newValues, isSwitch));
             this.setState({ formValues: newValues });
         }
     }, {
         key: 'onSubmit',
         value: function onSubmit() {
+            var isSwitch = this.props.isSwitch;
             var _state = this.state;
             var formParams = _state.formParams;
             var formValues = _state.formValues;
@@ -46757,14 +46769,17 @@ var ProtoValue = (function (_React$Component) {
                 notProps = {};
                 notProps[hasNot] = true;
             }
-            //console.log(notProps);
+            if (isSwitch) {
+                var _ProtoValue$formValuesToProtoValue = ProtoValue.formValuesToProtoValue(formParams, formValues);
 
-            var _ProtoValue$formValuesToProtoValue = ProtoValue.formValuesToProtoValue(formParams, formValues);
+                var fieldName = _ProtoValue$formValuesToProtoValue.fieldName;
+                var value = _ProtoValue$formValuesToProtoValue.value;
 
-            var fieldName = _ProtoValue$formValuesToProtoValue.fieldName;
-            var value = _ProtoValue$formValuesToProtoValue.value;
-
-            this.props.onChange(fieldName, value, notProps);
+                this.props.onChange(fieldName, value, notProps);
+            } else {
+                var values = PydioForm.Manager.SlashesToJson(formValues);
+                this.props.onChange('', values, null);
+            }
             this.props.onDismiss();
         }
     }, {
@@ -46772,9 +46787,9 @@ var ProtoValue = (function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            var _props = this.props;
-            var onDismiss = _props.onDismiss;
-            var style = _props.style;
+            var _props2 = this.props;
+            var onDismiss = _props2.onDismiss;
+            var style = _props2.style;
             var _state2 = this.state;
             var formParams = _state2.formParams;
             var _state2$formValues = _state2.formValues;
@@ -46979,6 +46994,8 @@ var Query = (function (_shapes$devs$Model) {
                     value = JSON.stringify(fieldValue);
                 }
                 typeLabel = fieldName + (isNot ? ' != ' : ' = ') + value;
+            } else if (fieldName === 'value') {
+                typeLabel = JSON.stringify(proto.value);
             }
         }
         var truncated = undefined;
@@ -47189,6 +47206,16 @@ var QueryBuilder = (function (_React$Component) {
             } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
                 objectType = 'user';
                 singleQuery = 'idm.UserSingleQuery';
+            } else if (query instanceof _pydioHttpRestApi.JobsContextMetaFilter) {
+                objectType = 'context';
+                singleQuery = 'jobs.ContextMetaSingleQuery';
+            } else if (query instanceof _pydioHttpRestApi.JobsActionOutputFilter) {
+                objectType = 'output';
+                singleQuery = 'jobs.ActionOutputSingleQuery';
+            }
+            var modelType = objectType;
+            if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
+                modelType = 'idm'; // Generic Type
             }
 
             if (queryType === 'selector') {
@@ -47235,11 +47262,19 @@ var QueryBuilder = (function (_React$Component) {
                         inputIcon = 'format-list-checks';
                         outputIcon = 'format-list-checks';
                         break;
+                    case "context":
+                        inputIcon = 'tag';
+                        outputIcon = 'tag';
+                        break;
+                    case "output":
+                        inputIcon = 'message';
+                        outputIcon = 'message';
+                        break;
                     default:
                         break;
                 }
             }
-            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType, singleQuery: singleQuery, uniqueSingleOnly: uniqueSingleOnly };
+            return { inputIcon: inputIcon, outputIcon: outputIcon, objectType: objectType, singleQuery: singleQuery, uniqueSingleOnly: uniqueSingleOnly, modelType: modelType };
         }
     }, {
         key: 'redraw',
@@ -47340,8 +47375,6 @@ var QueryBuilder = (function (_React$Component) {
                         connector.addTo(graph);
                         output = connector;
                     }
-                    //const output = new QueryConnector();
-                    //output.addTo(graph);
                     SubQueries.forEach(function (q) {
                         if (q.type_url === 'type.googleapis.com/service.Query' && q.value.SubQueries) {
                             var _buildServiceQuery = _this4.buildServiceQuery(graph, input, q.value);
@@ -47362,9 +47395,17 @@ var QueryBuilder = (function (_React$Component) {
                         } else {
                             (function () {
                                 var isNot = q.value.Not || q.value.not;
-                                Object.keys(q.value).filter(function (k) {
-                                    return k.toLowerCase() !== 'not';
-                                }).forEach(function (key) {
+                                var components = undefined;
+                                if (q.type_url === 'type.googleapis.com/jobs.ContextMetaSingleQuery') {
+                                    // Use value as one query block
+                                    components = ['value'];
+                                } else {
+                                    // Spread each value keys as one query block
+                                    components = Object.keys(q.value).filter(function (k) {
+                                        return k.toLowerCase() !== 'not';
+                                    });
+                                }
+                                components.forEach(function (key) {
                                     var field = new _Query2['default'](q, key, query, isNot);
                                     field.addTo(_this4.graph);
                                     var link = new _graphLink2['default'](input.id, input instanceof _QueryConnector2['default'] ? 'input' : 'output', field.id, 'input');
@@ -47404,9 +47445,17 @@ var QueryBuilder = (function (_React$Component) {
                         } else {
                             (function () {
                                 var isNot = q.value.Not || q.value.not;
-                                Object.keys(q.value).filter(function (k) {
-                                    return k.toLowerCase() !== 'not';
-                                }).forEach(function (key) {
+                                var components = undefined;
+                                if (q.type_url === 'type.googleapis.com/jobs.ContextMetaSingleQuery') {
+                                    // Use value as one query block
+                                    components = ['value'];
+                                } else {
+                                    // Spread each value keys as one query block
+                                    components = Object.keys(q.value).filter(function (k) {
+                                        return k.toLowerCase() !== 'not';
+                                    });
+                                }
+                                components.forEach(function (key) {
                                     var field = new _Query2['default'](q, key, query, isNot);
                                     field.addTo(_this4.graph);
                                     var link = new _graphLink2['default'](lastOp.id, lastOp instanceof _QueryConnector2['default'] ? 'input' : 'output', field.id, 'input');
@@ -47438,7 +47487,6 @@ var QueryBuilder = (function (_React$Component) {
             var input = new _QueryInput2['default'](inputIcon);
             input.addTo(this.graph);
             var output = this.buildSpreadOutput(query, queryType, outputIcon);
-            //        output.addTo(this.graph);
             if (query.Query && query.Query.SubQueries && query.Query.SubQueries.length) {
                 var _buildServiceQuery3 = this.buildServiceQuery(this.graph, input, query.Query);
 
@@ -47652,14 +47700,10 @@ var QueryBuilder = (function (_React$Component) {
             var onRemoveFilter = this.props.onRemoveFilter;
             var query = this.state.query;
 
-            var modelType = undefined;
-            if (query instanceof _pydioHttpRestApi.JobsNodesSelector) {
-                modelType = 'node';
-            } else if (query instanceof _pydioHttpRestApi.JobsIdmSelector) {
-                modelType = 'idm';
-            } else if (query instanceof _pydioHttpRestApi.JobsUsersSelector) {
-                modelType = 'user';
-            }
+            var _detectTypes6 = this.detectTypes(query);
+
+            var modelType = _detectTypes6.modelType;
+
             onRemoveFilter(modelType);
         }
     }, {
@@ -47671,28 +47715,33 @@ var QueryBuilder = (function (_React$Component) {
             var queryAddProto = _state2.queryAddProto;
             var querySplitProto = _state2.querySplitProto;
 
-            var _detectTypes6 = this.detectTypes(this.state.query);
+            var _detectTypes7 = this.detectTypes(this.state.query);
 
-            var uniqueSingleOnly = _detectTypes6.uniqueSingleOnly;
+            var uniqueSingleOnly = _detectTypes7.uniqueSingleOnly;
+            var singleQuery = _detectTypes7.singleQuery;
 
-            // Clean old values
-            if (selectedFieldName && newField !== selectedFieldName) {
-                delete selectedProto.value[selectedFieldName];
-            }
-            if (notProps) {
-                //selectedProto.value = {...selectedProto.value, ...notProps};
-                Object.keys(notProps).forEach(function (k) {
-                    selectedProto.value[k] = notProps[k];
-                });
+            if (singleQuery === 'jobs.ContextMetaSingleQuery') {
+                selectedProto.value = QueryBuilder.FormToContextMetaSingleQuery(newValue);
             } else {
-                if (selectedProto.value["Not"]) {
-                    delete selectedProto.value["Not"];
+                // Clean old values
+                if (selectedFieldName && newField !== selectedFieldName) {
+                    delete selectedProto.value[selectedFieldName];
                 }
-                if (selectedProto.value["not"]) {
-                    delete selectedProto.value["not"];
+                if (notProps) {
+                    //selectedProto.value = {...selectedProto.value, ...notProps};
+                    Object.keys(notProps).forEach(function (k) {
+                        selectedProto.value[k] = notProps[k];
+                    });
+                } else {
+                    if (selectedProto.value["Not"]) {
+                        delete selectedProto.value["Not"];
+                    }
+                    if (selectedProto.value["not"]) {
+                        delete selectedProto.value["not"];
+                    }
                 }
+                selectedProto.value[newField] = newValue;
             }
-            selectedProto.value[newField] = newValue;
             if (queryAddProto) {
                 if (!queryAddProto.SubQueries) {
                     queryAddProto.SubQueries = [];
@@ -47772,10 +47821,10 @@ var QueryBuilder = (function (_React$Component) {
             var aSize = _state3.aSize;
             var aScrollLeft = _state3.aScrollLeft;
 
-            var _detectTypes7 = this.detectTypes(query);
+            var _detectTypes8 = this.detectTypes(query);
 
-            var objectType = _detectTypes7.objectType;
-            var singleQuery = _detectTypes7.singleQuery;
+            var objectType = _detectTypes8.objectType;
+            var singleQuery = _detectTypes8.singleQuery;
 
             var title = (queryType === 'filter' ? 'Filter' : 'Select') + ' ' + objectType + (queryType === 'filter' ? '' : 's');
 
@@ -47829,8 +47878,9 @@ var QueryBuilder = (function (_React$Component) {
                     })
                 ),
                 selectedProto && _react2['default'].createElement(_ProtoValue2['default'], {
-                    proto: selectedProto,
+                    proto: singleQuery === "jobs.ContextMetaSingleQuery" ? QueryBuilder.ContextMetaSingleQueryToForm(selectedProto) : selectedProto,
                     singleQuery: singleQuery,
+                    isSwitch: singleQuery !== "jobs.ContextMetaSingleQuery",
                     fieldName: selectedFieldName,
                     onChange: function (f, v, nP) {
                         _this7.changeQueryValue(f, v, nP);
@@ -47841,6 +47891,43 @@ var QueryBuilder = (function (_React$Component) {
                     style: (0, _styles.position)(300, aSize, aPosition, aScrollLeft, 40)
                 })
             );
+        }
+    }], [{
+        key: 'FormToContextMetaSingleQuery',
+        value: function FormToContextMetaSingleQuery(values) {
+            var _values$Condition = values.Condition;
+            var Condition = _values$Condition === undefined ? {} : _values$Condition;
+            var FieldName = values.FieldName;
+
+            var condType = Condition['@value'];
+            delete Condition['@value'];
+            var condOptions = JSON.stringify(Condition);
+            return {
+                FieldName: FieldName,
+                Condition: {
+                    type: condType,
+                    jsonOptions: condOptions
+                }
+            };
+        }
+    }, {
+        key: 'ContextMetaSingleQueryToForm',
+        value: function ContextMetaSingleQueryToForm(proto) {
+            var _proto$value = proto.value;
+            var _proto$value$Condition = _proto$value.Condition;
+            var Condition = _proto$value$Condition === undefined ? {} : _proto$value$Condition;
+            var FieldName = _proto$value.FieldName;
+            var type = Condition.type;
+            var _Condition$jsonOptions = Condition.jsonOptions;
+            var jsonOptions = _Condition$jsonOptions === undefined ? "{}" : _Condition$jsonOptions;
+
+            var otherValues = JSON.parse(jsonOptions);
+            return {
+                FieldName: FieldName,
+                Condition: _extends({
+                    '@value': type
+                }, otherValues)
+            };
         }
     }]);
 
@@ -49032,7 +49119,7 @@ var Action = (function (_shapes$devs$Model) {
             this._jobModel = action;
             this.setFilter(false);
             this.setSelector(false);
-            if (action.NodesFilter || action.IdmFilter || action.UsersFilter) {
+            if (action.NodesFilter || action.IdmFilter || action.UsersFilter || action.ContextMetaFilter || action.ActionOutputFilter) {
                 this.setFilter(true);
             }
             if (action.NodesSelector || action.IdmSelector || action.UsersSelector) {
@@ -49343,8 +49430,8 @@ function linkAttr() {
 
 var AllowedKeys = {
     filter: {
-        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector },
-        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector }
+        job: { 'NodeEventFilter': _pydioHttpRestApi.JobsNodesSelector, 'UserEventFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector, 'ContextMetaFilter': _pydioHttpRestApi.JobsContextMetaFilter },
+        action: { 'NodesFilter': _pydioHttpRestApi.JobsNodesSelector, 'UsersFilter': _pydioHttpRestApi.JobsUsersSelector, 'IdmFilter': _pydioHttpRestApi.JobsIdmSelector, 'ContextMetaFilter': _pydioHttpRestApi.JobsContextMetaFilter, 'ActionOutputFilter': _pydioHttpRestApi.JobsActionOutputFilter }
     },
     selector: {
         job: {},
@@ -49352,11 +49439,11 @@ var AllowedKeys = {
     },
     target: {
         job: {
-            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodeEventFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UserEventFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }],
+            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodeEventFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UserEventFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }, { type: _pydioHttpRestApi.JobsContextMetaFilter, key: 'ContextMetaFilter' }],
             selector: []
         },
         action: {
-            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }],
+            filter: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesFilter' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersFilter' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmFilter' }, { type: _pydioHttpRestApi.JobsContextMetaFilter, key: 'ContextMetaFilter' }, { type: _pydioHttpRestApi.JobsActionOutputFilter, key: 'ActionOutputFilter' }],
             selector: [{ type: _pydioHttpRestApi.JobsNodesSelector, key: 'NodesSelector' }, { type: _pydioHttpRestApi.JobsUsersSelector, key: 'UsersSelector' }, { type: _pydioHttpRestApi.JobsIdmSelector, key: 'IdmSelector' }]
         }
     }
@@ -49400,27 +49487,25 @@ exports.linkAttr = linkAttr;
 exports.AllowedKeys = AllowedKeys;
 
 },{"pydio/http/rest-api":"pydio/http/rest-api"}],493:[function(require,module,exports){
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _jointjs = require('jointjs');
 
 var _Configs = require("./Configs");
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var Filter = (function (_shapes$devs$Model) {
     _inherits(Filter, _shapes$devs$Model);
@@ -49447,11 +49532,17 @@ var Filter = (function (_shapes$devs$Model) {
         } else if (filterType === 'user') {
             typeLabel = 'User';
             typeIcon = "account";
+        } else if (filterType === 'context') {
+            typeLabel = 'Request';
+            typeIcon = 'tag';
+        } else if (filterType === 'output') {
+            typeLabel = 'Output';
+            typeIcon = 'message';
         } else {
             typeLabel = 'Node';
         }
 
-        _get(Object.getPrototypeOf(Filter.prototype), 'constructor', this).call(this, {
+        _get(Object.getPrototypeOf(Filter.prototype), "constructor", this).call(this, {
             size: _extends({}, _Configs.FilterBoxSize, { fill: 'transparent', rx: 5, ry: 5, 'stroke-width': 1.5, 'stroke': '#31d0c6' }),
             markup: _Configs.RoundIconMarkup,
             attrs: {
@@ -49468,22 +49559,22 @@ var Filter = (function (_shapes$devs$Model) {
     }
 
     _createClass(Filter, [{
-        key: 'clearSelection',
+        key: "clearSelection",
         value: function clearSelection() {
             this.attr('rect/stroke', _Configs.LightGrey);
         }
     }, {
-        key: 'select',
+        key: "select",
         value: function select() {
             this.attr('rect/stroke', _Configs.Orange);
         }
     }, {
-        key: 'getFilterType',
+        key: "getFilterType",
         value: function getFilterType() {
             return this._filterType;
         }
     }, {
-        key: 'getFilter',
+        key: "getFilter",
         value: function getFilter() {
             return this._jobModel;
         }
@@ -49492,10 +49583,10 @@ var Filter = (function (_shapes$devs$Model) {
     return Filter;
 })(_jointjs.shapes.devs.Model);
 
-exports['default'] = Filter;
-module.exports = exports['default'];
+exports["default"] = Filter;
+module.exports = exports["default"];
 
-},{"./Configs":492,"jointjs":467,"pydio/http/rest-api":"pydio/http/rest-api"}],494:[function(require,module,exports){
+},{"./Configs":492,"jointjs":467}],494:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -49552,7 +49643,7 @@ var JobInput = (function (_shapes$devs$Model) {
         value: function notifyJobModel(job) {
             this.setFilter(false);
             this.setSelector(false);
-            if (job.NodeEventFilter || job.IdmFilter || job.UserEventFilter) {
+            if (job.NodeEventFilter || job.IdmFilter || job.UserEventFilter || job.ContextMetaFilter) {
                 this.setFilter(true);
             }
             if (job.NodesSelector || job.IdmSelector || job.UsersSelector) {
@@ -49869,6 +49960,11 @@ var Templates = (function (_shapes$standard$Path) {
             this.newRolesFilter(graph, y);
             y += 64;
             this.newAclFilter(graph, y);
+            y += 64;
+            this.newActionOutputFilter(graph, y);
+            y += 64;
+            this.newContextMetaFilter(graph, y);
+
             // Reset Y
             y = start;
             this.newNodesSelector(graph, y);
@@ -49901,6 +49997,8 @@ var Templates = (function (_shapes$standard$Path) {
             this.wsFilter.remove();
             this.rolesFilter.remove();
             this.aclFilter.remove();
+            this.contextMetaFilter.remove();
+            this.actionOutputFilter.remove();
 
             this.modelSelector.remove();
             this.usersSelector.remove();
@@ -49921,6 +50019,10 @@ var Templates = (function (_shapes$standard$Path) {
                 this.newWorkspacesFilter(graph, el.position().y);
             } else if (el === this.rolesFilter) {
                 this.newRolesFilter(graph, el.position().y);
+            } else if (el === this.contextMetaFilter) {
+                this.newContextMetaFilter(graph, el.position().y);
+            } else if (el === this.actionOutputFilter) {
+                this.newActionOutputFilter(graph, el.position().y);
             } else if (el === this.aclFilter) {
                 this.newAclFilter(graph, el.position().y);
             } else if (el === this.modelSelector) {
@@ -50014,6 +50116,22 @@ var Templates = (function (_shapes$standard$Path) {
             this.aclSelector.position(64, y);
             this.aclSelector.isTemplate = true;
             this.aclSelector.addTo(graph);
+        }
+    }, {
+        key: "newContextMetaFilter",
+        value: function newContextMetaFilter(graph, y) {
+            this.contextMetaFilter = new _Filter2["default"](_pydioHttpRestApi.JobsContextMetaFilter.constructFromObject({}), 'context');
+            this.contextMetaFilter.position(0, y);
+            this.contextMetaFilter.isTemplate = true;
+            this.contextMetaFilter.addTo(graph);
+        }
+    }, {
+        key: "newActionOutputFilter",
+        value: function newActionOutputFilter(graph, y) {
+            this.actionOutputFilter = new _Filter2["default"](_pydioHttpRestApi.JobsActionOutputFilter.constructFromObject({}), 'output');
+            this.actionOutputFilter.position(0, y);
+            this.actionOutputFilter.isTemplate = true;
+            this.actionOutputFilter.addTo(graph);
         }
     }]);
 
@@ -50295,6 +50413,9 @@ exports["default"] = function (job, action) {
                             case "idm":
                                 delete job.IdmFilter;
                                 break;
+                            case "context":
+                                delete job.ContextMetaFilter;
+                                break;
                             default:
                                 // NODE
                                 delete job.NodeEventFilter;
@@ -50328,6 +50449,12 @@ exports["default"] = function (job, action) {
                             break;
                         case "idm":
                             delete removeTarget.IdmFilter;
+                            break;
+                        case "context":
+                            delete removeTarget.ContextMetaFilter;
+                            break;
+                        case "output":
+                            delete removeTarget.ActionOutputFilter;
                             break;
                         default:
                             // NODE
