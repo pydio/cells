@@ -39,6 +39,48 @@ func (this *PruneTokensRequest) Validate() error {
 func (this *PruneTokensResponse) Validate() error {
 	return nil
 }
+func (this *GetLoginRequest) Validate() error {
+	return nil
+}
+func (this *GetLoginResponse) Validate() error {
+	return nil
+}
+func (this *CreateLoginRequest) Validate() error {
+	return nil
+}
+func (this *CreateLoginResponse) Validate() error {
+	return nil
+}
+func (this *AcceptLoginRequest) Validate() error {
+	return nil
+}
+func (this *AcceptLoginResponse) Validate() error {
+	return nil
+}
+func (this *GetConsentRequest) Validate() error {
+	return nil
+}
+func (this *GetConsentResponse) Validate() error {
+	return nil
+}
+func (this *CreateConsentRequest) Validate() error {
+	return nil
+}
+func (this *CreateConsentResponse) Validate() error {
+	return nil
+}
+func (this *AcceptConsentRequest) Validate() error {
+	return nil
+}
+func (this *AcceptConsentResponse) Validate() error {
+	return nil
+}
+func (this *CreateAuthCodeRequest) Validate() error {
+	return nil
+}
+func (this *CreateAuthCodeResponse) Validate() error {
+	return nil
+}
 func (this *VerifyTokenRequest) Validate() error {
 	return nil
 }
@@ -49,5 +91,11 @@ func (this *ExchangeRequest) Validate() error {
 	return nil
 }
 func (this *ExchangeResponse) Validate() error {
+	return nil
+}
+func (this *RefreshTokenRequest) Validate() error {
+	return nil
+}
+func (this *RefreshTokenResponse) Validate() error {
 	return nil
 }

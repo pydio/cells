@@ -25,25 +25,12 @@ const queryString = require('query-string');
 
 const LoginCallbackRouterWrapper = (pydio) => {
     return class extends React.PureComponent {
-        // const params = queryString.parse(props.location.search);
-
-        // const redirect = () => {
-        //     const loginOrigin = localStorage.getItem("loginOrigin")
-
-        //     if (loginOrigin) {
-        //         localStorage.removeItem("loginOrigin")
-        //         browserHistory.replace(loginOrigin)
-        //     } else {
-        //         browserHistory.replace("/")
-        //     }
-        // }
-
-        // pydio.observeOnce('user_logged', () => redirect())
         render() {
-            PydioApi.getRestClient().sessionLoginCallback().then(() => {
+            const values = queryString.parse(this.props.location.search)
+
+            PydioApi.getRestClient().sessionLoginWithAuthCode(values.code).then(() => {
                 browserHistory.replace("/")
                 pydio.loadXmlRegistry(null, null, null)
-
             })
 
             return <div></div>

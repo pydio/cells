@@ -412,6 +412,8 @@ class PydioApi{
         }
 
         const resolver = (jwt, cb) => {
+
+            
             let cacheKey = node.getMetadata().get('uuid') + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
             if(cType){
                cacheKey += "#" + cType;
@@ -431,6 +433,7 @@ class PydioApi{
             const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
             const signed = s3.getSignedUrl('getObject', params);
             const output = signed + '&pydio_jwt=' + jwt;
+
             cb(output);
 
             lscache.set(cacheKey, output, 120);

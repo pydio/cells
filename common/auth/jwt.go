@@ -205,6 +205,7 @@ func (j *JWTVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token,
 	var err error
 
 	for _, provider := range providers {
+
 		exch, ok := provider.(Exchanger)
 		if !ok {
 			continue

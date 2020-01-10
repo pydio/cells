@@ -36,7 +36,7 @@ export default class TreeServiceApi {
     * Constructs a new TreeServiceApi. 
     * @alias module:api/TreeServiceApi
     * @class
-    * @param {module:ApiClient} apiClient Optional API client implementation to use,
+    * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
     * default to {@link module:ApiClient#instance} if unspecified.
     */
     constructor(apiClient) {

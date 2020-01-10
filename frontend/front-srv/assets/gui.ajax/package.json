@@ -21,7 +21,7 @@
     "material-ui": "^0.17.0",
     "md5": "^2.2.1",
     "moment": "^2.19.1",
-    "oidc-client": "^1.7.1",
+    "oidc-client": "^1.10.1",
     "qrcode.react": "0.6.1",
     "react": "15.4.2",
     "react-addons-css-transition-group": "^15.4.2",

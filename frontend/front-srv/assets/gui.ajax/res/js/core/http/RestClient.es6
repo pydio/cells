@@ -22,20 +22,12 @@ import PydioApi from './PydioApi'
 import Pydio from 'pydio'
 const {ApiClient} = require('./gen/index');
 import moment from 'moment'
+import qs from 'query-string'
 import JobsServiceApi from "./gen/api/JobsServiceApi";
 import RestUserJobRequest from "./gen/model/RestUserJobRequest";
-import FrontendServiceApi from "./gen/api/FrontendServiceApi";
-import RestFrontAuthRequest from './gen/model/RestFrontAuthRequest';
 import RestFrontSessionRequest from "./gen/model/RestFrontSessionRequest";
 import RestFrontSessionResponse from "./gen/model/RestFrontSessionResponse";
 import IdmApi from './IdmApi'
-import {RedirectNavigator} from './RedirectNavigator'
-
-import browserHistory from 'react-router/lib/browserHistory'
-import { UserManager, WebStorageStateStore } from 'oidc-client';
-
-
-import qs from 'query-string'
 
 // Override parseDate method to support ISO8601 cross-browser
 ApiClient.parseDate = function (str) {
@@ -43,9 +35,7 @@ ApiClient.parseDate = function (str) {
 };
 
 // Override callApi Method
-class JwtApiClient extends ApiClient{
-
-    userManager;
+class RestClient extends ApiClient{
 
     /**
      *
@@ -59,20 +49,6 @@ class JwtApiClient extends ApiClient{
         pydioObject.observe('beforeApply-logout', ()=>{
             PydioApi.JWT_DATA = null;
         });
-
-        const url = this.pydio.Parameters.get("FRONTEND_URL")
-        this.userManager = new UserManager({
-            authority: url + '/oidc',
-            client_id: 'cells-frontend',
-            redirect_uri: url + '/auth/dex/callback',
-            post_logout_redirect_uri: url + '/auth/dex/logout',
-            response_type: 'code',
-            scope: 'openid email profile pydio offline',
-            loadUserInfo: false,
-            automaticSilentRenew: false,
-            redirectNavigator: new RedirectNavigator(window.sessionStorage),
-            userStore: new WebStorageStateStore({ store: window.sessionStorage }),
-        })
     }
 
     /**
@@ -97,82 +73,36 @@ class JwtApiClient extends ApiClient{
      *
      * @param frontJwtResponse {RestFrontSessionResponse}
      */
-    static storeJwtLocally(frontJwtResponse){
-        const now = Math.floor(Date.now() / 1000);
-        PydioApi.JWT_DATA = {
-            jwt: frontJwtResponse.JWT,
-            expirationTime: now + frontJwtResponse.ExpireTime
-        };
+    static get() {
+        return JSON.parse(window.sessionStorage.getItem("token"))
     }
 
-    sessionLogin(){
-        const parsed = qs.parse(window.location.search)
-        if (parsed.login_challenge) {
-            window.sessionStorage.challenge = parsed.login_challenge
-            window.sessionStorage.fullRedirect = true
-            return Promise.resolve()
-        }
-        return this.userManager.signinRedirect()
+    static store(token){
+        window.sessionStorage.setItem("token", JSON.stringify(token))
     }
 
-    sessionLoginCallback(response){
-        const url = response ? "/auth/dex/callback?" + qs.stringify(response) : null
-        return this.userManager.signinRedirectCallback(url).then(u => {
-            PydioApi.JWT_DATA = {
-                jwt: u.access_token,
-                expirationTime: u.expires_at
-            }
-        })
+    static remove() {
+        window.sessionStorage.removeItem("token")
     }
 
-    /**
-     * Call session endpoint for destroying session
-     */
-    sessionLogout(){
-        return this.userManager.signoutRedirect().then(() => this.pydio.loadXmlRegistry(null, null, null))
+    getCurrentChallenge() {
+        return qs.parse(window.location.search).login_challenge
     }
 
-    /**
-     * Call session endpoint callback for destroying session
-     */
-    sessionLogoutCallback(){
-        return this.userManager.signoutRedirectCallback()
+    sessionLoginWithCredentials(login, password){
+        return this.jwtWithAuthInfo({login, password, challenge: this.getCurrentChallenge(), type:"credentials"})
     }
 
-    /**
-     * Call session endpoint for destroying session
-     */
-    sessionAuth(requestID){
-        const api = new FrontendServiceApi(this);
-        const request = new RestFrontAuthRequest();
-        request.RequestID = requestID;
-
-        return api.frontAuth(request)
-    }
-
-    /**
-     * Create AuthInfo request with type "authorization_code"
-     * @param code string
-     * @return {Promise<any>}
-     */
-    jwtFromAuthorizationCode(code) {
+    sessionLoginWithAuthCode(code) {
         return this.jwtWithAuthInfo({code, type:"authorization_code"}, false);
     }
 
-
-    /**
-     * Create AuthInfo request with type "credentials"
-     * @param login string
-     * @param password string
-     * @param reloadRegistry bool
-     * @return {Promise<any>}
-     */
-    jwtFromCredentials(login, password, reloadRegistry = true) {
-        return this.jwtWithAuthInfo({login, password, challenge: window.sessionStorage.challenge, type:"credentials"}, reloadRegistry)
+    sessionRefresh(){
+        return this.jwtWithAuthInfo({type: "refresh"});
     }
 
-    jwtFromConsentChallenge(challenge, reloadRegistry = true) {
-        return this.jwtWithAuthInfo({challenge, type:"consent"}, reloadRegistry)
+    sessionLogout(){
+        return this.jwtWithAuthInfo({type: "logout"});
     }
 
     jwtWithAuthInfo(authInfo, reloadRegistry = true) {
@@ -180,73 +110,52 @@ class JwtApiClient extends ApiClient{
         request.AuthInfo = authInfo;
         return this.jwtEndpoint(request)
             .then(response => {
-                if(response.data && response.data.JWT) {
-                    JwtApiClient.storeJwtLocally(response.data);
-
-                    if (reloadRegistry) {
-                        let targetRepository = null;
-                        if (this.pydio.Parameters.has('START_REPOSITORY')) {
-                            targetRepository = this.pydio.Parameters.get("START_REPOSITORY");
-                            }
-                        this.pydio.loadXmlRegistry(null, null, targetRepository);
-                    }
+                if (response.data && response.data.Token) {
+                    RestClient.store(response.data.Token);
+                } else if (response.data && response.data.RedirectTo) {
+                    window.location.href = response.data.RedirectTo
                 } else if (response.data && response.data.Trigger) {
                     this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+                }  else if (request.AuthInfo.type === "logout") {
+                    RestClient.remove()
                 } else {
-                    PydioApi.JWT_DATA = null;
+                    throw "no user found"
                 }
-                return response;
+            }).catch(e => {
+                this.pydio.getController().fireAction('logout');
+                RestClient.remove()
+                return Promise.reject()
             });
+    }
+
+    getAuthToken() {
+        const token = RestClient.get()
+        const now = Math.floor(Date.now() / 1000);
+
+        if (!token) {
+            return Promise.reject("no token")
+        }
+
+        if (token.ExpiresAt >= now + 5) {
+            return Promise.resolve(token.AccessToken)
+        }
+
+        if (!RestClient._updating) {
+            RestClient._updating = this.sessionRefresh()
+        }
+
+        return RestClient._updating.then(() => {
+            RestClient._updating = null
+            return this.getAuthToken()
+        }).catch(() => RestClient._updating = null)
     }
 
     /**
      * @return {Promise}
      */
     getOrUpdateJwt(){
-        return new Promise((resolve) => {
-            this.userManager.getUser().then(u => u && resolve(u.access_token) || resolve(''))
-        })
-
-        // const now = Math.floor(Date.now() / 1000);
-        // if(PydioApi.JWT_DATA && PydioApi.JWT_DATA['jwt'] && PydioApi.JWT_DATA['expirationTime'] >= now) {
-        //     return Promise.resolve(PydioApi.JWT_DATA['jwt']);
-        // }
-
-        // if(PydioApi.ResolvingJwt) {
-        //     return PydioApi.ResolvingJwt;
-        // }
-
-        // PydioApi.ResolvingJwt = new Promise((resolve) => {
-
-        //     // Try to load JWT from session
-        //     this.jwtEndpoint(new RestFrontSessionRequest()).then(response => {
-        //         if(response.data && response.data.JWT){
-        //             JwtApiClient.storeJwtLocally(response.data);
-        //             resolve(response.data.JWT)
-        //         } else if (response.data && response.data.Trigger) {
-        //             this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
-        //             resolve('');
-        //         }  else {
-        //             PydioApi.JWT_DATA = null;
-        //             resolve('');
-        //         }
-        //         PydioApi.ResolvingJwt = null;
-        //     }).catch(e => {
-        //         if(e.response && e.response.status === 401) {
-        //             this.pydio.getController().fireAction('logout');
-        //             PydioApi.ResolvingJwt = null;
-        //             throw e;
-        //         }
-        //         PydioApi.JWT_DATA = null;
-        //         resolve('');
-        //         PydioApi.ResolvingJwt = null;
-        //     });
-
-        // });
-
-        // return PydioApi.ResolvingJwt;
+        return this.getAuthToken().then(token => token)
     }
-
 
     /**
      * Invokes the REST service using the supplied settings and parameters.
@@ -272,29 +181,20 @@ class JwtApiClient extends ApiClient{
             headerParams["X-Pydio-Language"] = this.pydio.user.getPreference("lang");
         }
 
-        return new Promise((resolve, reject) => {
-
-            this.getOrUpdateJwt().then((jwt) => {
-                let authNames = [];
-                if(jwt){
-                    authNames.push('oauth2');
-                    this.authentications = {'oauth2': {type:'oauth2', accessToken: jwt}};
-                }
-                const p = super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
-                p.then((response) => {
-                    resolve(response);
-                }).catch((reason) => {
-                    this.handleError(reason);
-                    reject(reason);
-                })
-            }).catch((reason) =>{
-                this.handleError(reason);
-                reject(reason);
-            });
-
+        return this.getOrUpdateJwt().then((jwt) => {
+            let authNames = [];
+            if (jwt){
+                authNames.push('oauth2');
+                this.authentications = {'oauth2': {type:'oauth2', accessToken: jwt}};
+            }
+            return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
+        })
+        .then((response) => response)
+        .catch((reason) =>{
+            console.log(rea)
+            this.handleError(reason);
+            return Promise.reject(reason);
         });
-
-
     }
 
     handleError(reason) {
@@ -343,4 +243,4 @@ class JwtApiClient extends ApiClient{
 
 }
 
-export {JwtApiClient as default}
+export {RestClient as default}

@@ -772,11 +772,23 @@ service FrontendService {
             get: "/frontend/plugins/{Lang}"
         };
     }
-    // Handle JWT
+    // Retrieve session info
+    rpc FrontSessionGet(FrontSessionGetRequest) returns (FrontSessionGetResponse) {
+        option (google.api.http) = {
+            get: "/frontend/session"
+        };
+    }
+    // Handle Session POST
     rpc FrontSession(FrontSessionRequest) returns (FrontSessionResponse) {
         option (google.api.http) = {
             post: "/frontend/session"
             body: "*"
+        };
+    }
+    // Remove Session
+    rpc FronSessionDel(FrontSessionDelRequest) returns (FrontSessionDelResponse) {
+        option (google.api.http) = {
+            delete: "/frontend/session"
         };
     }
     // Generic endpoint that can be implemented by 2FA systems for enrollment

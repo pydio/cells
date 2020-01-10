@@ -20,7 +20,6 @@
 
 const PydioApi = require('pydio/http/api')
 import browserHistory from 'react-router/lib/browserHistory';
-import qs from 'query-string';
 
 const LoginRouterWrapper = (pydio) => {
     const LoginRouter = (props) => {

@@ -22,6 +22,7 @@ import PydioApi from '../http/PydioApi'
 import User from './User'
 import Logger from '../lang/Logger'
 import ResourcesManager from '../http/ResourcesManager'
+import qs from 'query-string';
 
 export default class Registry{
 
@@ -62,55 +63,53 @@ export default class Registry{
         if(this._globalLoading) {
             return;
         }
+
+        const {user, Parameters} = this._pydioObject;
+        const params = qs.parse('')
+
+        if (user) {
+            params.ws = user.getActiveRepository()
+            params.lang = user.getPreference('lang')
+        }
+
+        if (repositoryId) {
+            params.ws = repositoryId
+        }
+
+        const url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state';
+
         this._pydioObject.fire("registry_loading")
         this._globalLoading = true;
-        PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-            const {user, Parameters} = this._pydioObject;
-            let url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state/';
-            let headers = {};
-
-            if(jwt){
-                headers = {Authorization: 'Bearer ' + jwt};
-                if (user || repositoryId) {
-                    url += '?ws=' + (repositoryId ? repositoryId : user.getActiveRepository())
-                }
-            }
-            if(Parameters.has('MINISITE')) {
-                headers["X-Pydio-Minisite"] = Parameters.get('MINISITE')
-            }
-            if (user && user.getPreference('lang')){
-                const lang = user.getPreference('lang');
-                if (url.indexOf('?') > 0) {
-                    url += '&lang=' + lang;
-                } else {
-                    url += '?lang=' + lang;
-                }
-            }
-            window.fetch(url, {
-                method:'GET',
-                credentials:'same-origin',
-                headers:headers,
-            }).then((response) => {
+        PydioApi.getRestClient().getOrUpdateJwt()
+            .then(jwt => {
+                return fetch(url + '?' + qs.stringify(params), {
+                    method:'GET',
+                    credentials:'same-origin',
+                    headers: {
+                        "Authorization": 'Bearer ' + jwt,
+                        "X-Pydio-Minisite": Parameters.get('MINISITE'),
+                    },
+                })
+            })
+            .catch(() => {
+                return fetch(url)
+            })
+            .then((response) => response.text())
+            .then((txt) => {
                 this._globalLoading = false;
-                if (response.status !== 200) {
-                    this._pydioObject.getController().fireAction("login")
-                    return
-                }
-                response.text().then((text) => {
-                    this._registry = XMLUtils.parseXml(text).documentElement;
 
-                    if (completeFunc) {
-                        completeFunc(this._registry);
-                    } else {
-                        this._pydioObject.fire("registry_loaded", this._registry);
-                    }
-                });
-            }).catch(e=> {
+                this._registry = XMLUtils.parseXml(txt).documentElement;
+
+                if (completeFunc) {
+                    completeFunc(this._registry);
+                } else {
+                    this._pydioObject.fire("registry_loaded", this._registry);
+                }
+            })
+            .catch(e=> {
+                this._pydioObject.getController().fireAction("login")
                 this._globalLoading = false;
             });
-
-        })
-
     }
 
     /**

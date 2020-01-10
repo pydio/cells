@@ -23,6 +23,10 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _RestToken = require('./RestToken');
+
+var _RestToken2 = _interopRequireDefault(_RestToken);
+
 /**
 * The RestFrontSessionResponse model module.
 * @module model/RestFrontSessionResponse
@@ -39,8 +43,7 @@ var RestFrontSessionResponse = (function () {
     function RestFrontSessionResponse() {
         _classCallCheck(this, RestFrontSessionResponse);
 
-        this.JWT = undefined;
-        this.ExpireTime = undefined;
+        this.Token = undefined;
         this.Trigger = undefined;
         this.TriggerInfo = undefined;
         this.RedirectTo = undefined;
@@ -58,11 +61,8 @@ var RestFrontSessionResponse = (function () {
         if (data) {
             obj = obj || new RestFrontSessionResponse();
 
-            if (data.hasOwnProperty('JWT')) {
-                obj['JWT'] = _ApiClient2['default'].convertToType(data['JWT'], 'String');
-            }
-            if (data.hasOwnProperty('ExpireTime')) {
-                obj['ExpireTime'] = _ApiClient2['default'].convertToType(data['ExpireTime'], 'Number');
+            if (data.hasOwnProperty('Token')) {
+                obj['Token'] = _RestToken2['default'].constructFromObject(data['Token']);
             }
             if (data.hasOwnProperty('Trigger')) {
                 obj['Trigger'] = _ApiClient2['default'].convertToType(data['Trigger'], 'String');
@@ -78,17 +78,13 @@ var RestFrontSessionResponse = (function () {
     };
 
     /**
-    * @member {String} JWT
+    * @member {module:model/RestToken} Token
     */
     return RestFrontSessionResponse;
 })();
 
 exports['default'] = RestFrontSessionResponse;
 module.exports = exports['default'];
-
-/**
-* @member {Number} ExpireTime
-*/
 
 /**
 * @member {String} Trigger

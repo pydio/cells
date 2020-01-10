@@ -24,7 +24,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
@@ -51,11 +50,11 @@ func (p *oryprovider) GetType() ProviderType {
 	return ProviderTypeOry
 }
 
-func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
+func (c *oryprovider) Verify(ctx context.Context, accessToken string) (IDToken, error) {
 
 	session := oauth2.NewSession("")
 
-	tokenType, ar, err := c.oauth2Provider.IntrospectToken(ctx, rawIDToken, fosite.AccessToken, session)
+	tokenType, ar, err := c.oauth2Provider.IntrospectToken(ctx, accessToken, fosite.AccessToken, session)
 	if err != nil {
 		return nil, err
 	}
@@ -68,21 +67,6 @@ func (c *oryprovider) Verify(ctx context.Context, rawIDToken string) (IDToken, e
 }
 
 func (t *orytoken) Claims(v interface{}) error {
-
-	// fmt.Println("Subject is ", t.claims.Subject)
-
-	// sub, err := (&claim.IDTokenSubject{
-	// 	ConnId: "pydioory",
-	// 	UserId: t.claims.Subject,
-	// }).Encode()
-
-	// if err != nil {
-	// 	return err
-	// }
-
-	// t.claims.Subject = string(sub)
-
-	fmt.Println(t.claims.ToMap())
 
 	data, err := json.Marshal(t.claims.ToMap())
 	if err != nil {

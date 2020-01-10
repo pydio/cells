@@ -48,6 +48,18 @@ message FrontMessagesResponse{
     map<string,string> Messages = 1;
 }
 
+message Token {
+    string AccessToken = 1;
+    string IDToken = 2;
+    string RefreshToken = 3;
+    string ExpiresAt = 4;
+}
+message FrontSessionGetRequest {}
+
+message FrontSessionGetResponse {
+    Token Token = 1;
+}
+
 message FrontSessionRequest{
     // Time reference for computing jwt expiry
     int32 ClientTime = 1;
@@ -56,17 +68,20 @@ message FrontSessionRequest{
     // Kill session now
     bool Logout = 3;
 }
-message FrontSessionResponse{
-    string JWT = 1;
-    int32 ExpireTime = 2;
+message FrontSessionResponse {
+    Token Token = 1;
 
     // Trigger a specific Auth step
-    string Trigger = 3;
+    string Trigger = 2;
     // Additional data for the trigger
-    map<string,string> TriggerInfo = 4;
+    map<string,string> TriggerInfo = 3;
 
-    string RedirectTo = 5;
+    string RedirectTo = 4;
 }
+
+message FrontSessionDelRequest {}
+
+message FrontSessionDelResponse {}
 
 message FrontAuthRequest {
     string RequestID = 1;

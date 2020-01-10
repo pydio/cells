@@ -13,6 +13,7 @@
 
 
 import ApiClient from '../ApiClient';
+import RestToken from './RestToken';
 
 
 
@@ -56,11 +57,8 @@ export default class RestFrontSessionResponse {
             
             
 
-            if (data.hasOwnProperty('JWT')) {
-                obj['JWT'] = ApiClient.convertToType(data['JWT'], 'String');
-            }
-            if (data.hasOwnProperty('ExpireTime')) {
-                obj['ExpireTime'] = ApiClient.convertToType(data['ExpireTime'], 'Number');
+            if (data.hasOwnProperty('Token')) {
+                obj['Token'] = RestToken.constructFromObject(data['Token']);
             }
             if (data.hasOwnProperty('Trigger')) {
                 obj['Trigger'] = ApiClient.convertToType(data['Trigger'], 'String');
@@ -76,13 +74,9 @@ export default class RestFrontSessionResponse {
     }
 
     /**
-    * @member {String} JWT
+    * @member {module:model/RestToken} Token
     */
-    JWT = undefined;
-    /**
-    * @member {Number} ExpireTime
-    */
-    ExpireTime = undefined;
+    Token = undefined;
     /**
     * @member {String} Trigger
     */

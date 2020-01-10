@@ -509,6 +509,14 @@ var _modelRestFrontPluginsResponse = require('./model/RestFrontPluginsResponse')
 
 var _modelRestFrontPluginsResponse2 = _interopRequireDefault(_modelRestFrontPluginsResponse);
 
+var _modelRestFrontSessionDelResponse = require('./model/RestFrontSessionDelResponse');
+
+var _modelRestFrontSessionDelResponse2 = _interopRequireDefault(_modelRestFrontSessionDelResponse);
+
+var _modelRestFrontSessionGetResponse = require('./model/RestFrontSessionGetResponse');
+
+var _modelRestFrontSessionGetResponse2 = _interopRequireDefault(_modelRestFrontSessionGetResponse);
+
 var _modelRestFrontSessionRequest = require('./model/RestFrontSessionRequest');
 
 var _modelRestFrontSessionRequest2 = _interopRequireDefault(_modelRestFrontSessionRequest);
@@ -716,6 +724,10 @@ var _modelRestTemplate2 = _interopRequireDefault(_modelRestTemplate);
 var _modelRestTemplateNode = require('./model/RestTemplateNode');
 
 var _modelRestTemplateNode2 = _interopRequireDefault(_modelRestTemplateNode);
+
+var _modelRestToken = require('./model/RestToken');
+
+var _modelRestToken2 = _interopRequireDefault(_modelRestToken);
 
 var _modelRestUpdateSharePoliciesRequest = require('./model/RestUpdateSharePoliciesRequest');
 
@@ -1855,6 +1867,20 @@ RestFrontPluginsResponse = _modelRestFrontPluginsResponse2['default'];
 exports.
 
 /**
+ * The RestFrontSessionDelResponse model constructor.
+ * @property {module:model/RestFrontSessionDelResponse}
+ */
+RestFrontSessionDelResponse = _modelRestFrontSessionDelResponse2['default'];
+exports.
+
+/**
+ * The RestFrontSessionGetResponse model constructor.
+ * @property {module:model/RestFrontSessionGetResponse}
+ */
+RestFrontSessionGetResponse = _modelRestFrontSessionGetResponse2['default'];
+exports.
+
+/**
  * The RestFrontSessionRequest model constructor.
  * @property {module:model/RestFrontSessionRequest}
  */
@@ -2216,6 +2242,13 @@ exports.
  * @property {module:model/RestTemplateNode}
  */
 RestTemplateNode = _modelRestTemplateNode2['default'];
+exports.
+
+/**
+ * The RestToken model constructor.
+ * @property {module:model/RestToken}
+ */
+RestToken = _modelRestToken2['default'];
 exports.
 
 /**

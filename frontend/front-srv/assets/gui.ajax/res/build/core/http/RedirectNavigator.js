@@ -32,13 +32,6 @@ var RedirectNavigator = (function () {
                 return reject(new Error("No url provided"));
             }
 
-            // const [url, query] = params.url.split('?')
-            // const data = qs.parse(query)
-            // data.format = 'json'
-
-            // console.log(url, data, url + '?' + qs.stringify(data))
-            console.log("Redirecting to ", params.url);
-
             fetch(params.url, {
                 method: "GET",
                 headers: {
@@ -48,7 +41,6 @@ var RedirectNavigator = (function () {
                 return response.json();
             }).then(function (response) {
                 _this.store.setItem("challenge", response.challenge);
-                _this.store.removeItem("fullRedirect");
 
                 resolve();
             })["catch"](function (e) {

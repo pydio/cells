@@ -173,60 +173,36 @@ class Pydio extends Observable{
         });
 
         const starterFunc = () => {
+            console.log("Starter func")
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], () => {
                 this.UI = new window.PydioReactUI.Builder(this);
                 this.UI.initTemplates();
 
                 this.fire("registry_loaded", this.Registry.getXML());
-                this.fire('loaded');
-                //setTimeout(() => { this.fire('loaded'); }, 200);
+                // this.fire('loaded');
+                setTimeout(() => { this.fire('loaded'); }, 200);
             });
         };
 
         // Prelogged user
         if(this.Parameters.has("PRELOG_USER") && !this.user) {
-            PydioApi.getRestClient().sessionLogin().then((response) => {
-                const login = this.Parameters.get("PRELOG_USER");
-                const pwd = login + "#$!Az1";
+            const login = this.Parameters.get("PRELOG_USER");
+            const pwd = login + "#$!Az1";
 
-                PydioApi.getRestClient().jwtFromCredentials(login, pwd, false).then((response) => {
-                    fetch(response.data.RedirectTo).then((response) => response.json()).then((response) => {
-                        const body = {
-                            grant_scope: response.requested_scope,
-                            grant_access_token_audience: response.requested_access_token_audience,
-                        };
-                    
-                        fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + qs.stringify({ consent_challenge: response.challenge }), {
-                            method: 'PUT',
-                            body: JSON.stringify(body),
-                            headers: { 'Content-Type': 'application/json' }
-                        })
-                        .then((response) => response.json())
-                        .then((response) => {
-                            // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                            fetch(response.redirect_to).then((response) => response.json()).then((response) => {
-                                PydioApi.getRestClient().sessionLoginCallback(response).then(u => {
-                                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
-                                }).catch(e => {
-                                    this.loadXmlRegistry(null, starterFunc);
-                                })
-                            })
-                        })
-                    })
-                })
-            })
+            PydioApi.getRestClient().sessionLoginWithCredentials(login, pwd)
+                .then(() => this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY")))
         } else {
-            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-                if(jwt || !this.Parameters.has('PRELOADED_REGISTRY')) {
-                    // There is a jwt
-                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
-                } else {
+            PydioApi.getRestClient().getOrUpdateJwt().
+                then(jwt => {
+                    // Logged in
+                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"))
+                }).
+                catch(() => {
                     // Not logged, used prefeteched registry to speed up login screen
                     this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
                     this.Parameters.delete("PRELOADED_REGISTRY");
                     starterFunc();
-                }
-            });
+                })
         }
 
         this.observe("server_message", (xml) => {

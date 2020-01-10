@@ -17,10 +17,26 @@ It has these top-level messages:
 	RevokeTokenResponse
 	PruneTokensRequest
 	PruneTokensResponse
+	GetLoginRequest
+	GetLoginResponse
+	CreateLoginRequest
+	CreateLoginResponse
+	AcceptLoginRequest
+	AcceptLoginResponse
+	GetConsentRequest
+	GetConsentResponse
+	CreateConsentRequest
+	CreateConsentResponse
+	AcceptConsentRequest
+	AcceptConsentResponse
+	CreateAuthCodeRequest
+	CreateAuthCodeResponse
 	VerifyTokenRequest
 	VerifyTokenResponse
 	ExchangeRequest
 	ExchangeResponse
+	RefreshTokenRequest
+	RefreshTokenResponse
 	LdapSearchFilter
 	LdapMapping
 	LdapMemberOfMapping
@@ -157,6 +173,226 @@ func (h *AuthTokenRevoker) PruneTokens(ctx context.Context, in *PruneTokensReque
 	return h.AuthTokenRevokerHandler.PruneTokens(ctx, in, out)
 }
 
+// Client API for LoginProvider service
+
+type LoginProviderClient interface {
+	GetLogin(ctx context.Context, in *GetLoginRequest, opts ...client.CallOption) (*GetLoginResponse, error)
+	CreateLogin(ctx context.Context, in *CreateLoginRequest, opts ...client.CallOption) (*CreateLoginResponse, error)
+	AcceptLogin(ctx context.Context, in *AcceptLoginRequest, opts ...client.CallOption) (*AcceptLoginResponse, error)
+}
+
+type loginProviderClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewLoginProviderClient(serviceName string, c client.Client) LoginProviderClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &loginProviderClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *loginProviderClient) GetLogin(ctx context.Context, in *GetLoginRequest, opts ...client.CallOption) (*GetLoginResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "LoginProvider.GetLogin", in)
+	out := new(GetLoginResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loginProviderClient) CreateLogin(ctx context.Context, in *CreateLoginRequest, opts ...client.CallOption) (*CreateLoginResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "LoginProvider.CreateLogin", in)
+	out := new(CreateLoginResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loginProviderClient) AcceptLogin(ctx context.Context, in *AcceptLoginRequest, opts ...client.CallOption) (*AcceptLoginResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "LoginProvider.AcceptLogin", in)
+	out := new(AcceptLoginResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for LoginProvider service
+
+type LoginProviderHandler interface {
+	GetLogin(context.Context, *GetLoginRequest, *GetLoginResponse) error
+	CreateLogin(context.Context, *CreateLoginRequest, *CreateLoginResponse) error
+	AcceptLogin(context.Context, *AcceptLoginRequest, *AcceptLoginResponse) error
+}
+
+func RegisterLoginProviderHandler(s server.Server, hdlr LoginProviderHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&LoginProvider{hdlr}, opts...))
+}
+
+type LoginProvider struct {
+	LoginProviderHandler
+}
+
+func (h *LoginProvider) GetLogin(ctx context.Context, in *GetLoginRequest, out *GetLoginResponse) error {
+	return h.LoginProviderHandler.GetLogin(ctx, in, out)
+}
+
+func (h *LoginProvider) CreateLogin(ctx context.Context, in *CreateLoginRequest, out *CreateLoginResponse) error {
+	return h.LoginProviderHandler.CreateLogin(ctx, in, out)
+}
+
+func (h *LoginProvider) AcceptLogin(ctx context.Context, in *AcceptLoginRequest, out *AcceptLoginResponse) error {
+	return h.LoginProviderHandler.AcceptLogin(ctx, in, out)
+}
+
+// Client API for ConsentProvider service
+
+type ConsentProviderClient interface {
+	GetConsent(ctx context.Context, in *GetConsentRequest, opts ...client.CallOption) (*GetConsentResponse, error)
+	CreateConsent(ctx context.Context, in *CreateConsentRequest, opts ...client.CallOption) (*CreateConsentResponse, error)
+	AcceptConsent(ctx context.Context, in *AcceptConsentRequest, opts ...client.CallOption) (*AcceptConsentResponse, error)
+}
+
+type consentProviderClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewConsentProviderClient(serviceName string, c client.Client) ConsentProviderClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &consentProviderClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *consentProviderClient) GetConsent(ctx context.Context, in *GetConsentRequest, opts ...client.CallOption) (*GetConsentResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConsentProvider.GetConsent", in)
+	out := new(GetConsentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentProviderClient) CreateConsent(ctx context.Context, in *CreateConsentRequest, opts ...client.CallOption) (*CreateConsentResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConsentProvider.CreateConsent", in)
+	out := new(CreateConsentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentProviderClient) AcceptConsent(ctx context.Context, in *AcceptConsentRequest, opts ...client.CallOption) (*AcceptConsentResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConsentProvider.AcceptConsent", in)
+	out := new(AcceptConsentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for ConsentProvider service
+
+type ConsentProviderHandler interface {
+	GetConsent(context.Context, *GetConsentRequest, *GetConsentResponse) error
+	CreateConsent(context.Context, *CreateConsentRequest, *CreateConsentResponse) error
+	AcceptConsent(context.Context, *AcceptConsentRequest, *AcceptConsentResponse) error
+}
+
+func RegisterConsentProviderHandler(s server.Server, hdlr ConsentProviderHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&ConsentProvider{hdlr}, opts...))
+}
+
+type ConsentProvider struct {
+	ConsentProviderHandler
+}
+
+func (h *ConsentProvider) GetConsent(ctx context.Context, in *GetConsentRequest, out *GetConsentResponse) error {
+	return h.ConsentProviderHandler.GetConsent(ctx, in, out)
+}
+
+func (h *ConsentProvider) CreateConsent(ctx context.Context, in *CreateConsentRequest, out *CreateConsentResponse) error {
+	return h.ConsentProviderHandler.CreateConsent(ctx, in, out)
+}
+
+func (h *ConsentProvider) AcceptConsent(ctx context.Context, in *AcceptConsentRequest, out *AcceptConsentResponse) error {
+	return h.ConsentProviderHandler.AcceptConsent(ctx, in, out)
+}
+
+// Client API for AuthCodeProvider service
+
+type AuthCodeProviderClient interface {
+	CreateAuthCode(ctx context.Context, in *CreateAuthCodeRequest, opts ...client.CallOption) (*CreateAuthCodeResponse, error)
+}
+
+type authCodeProviderClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewAuthCodeProviderClient(serviceName string, c client.Client) AuthCodeProviderClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &authCodeProviderClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *authCodeProviderClient) CreateAuthCode(ctx context.Context, in *CreateAuthCodeRequest, opts ...client.CallOption) (*CreateAuthCodeResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "AuthCodeProvider.CreateAuthCode", in)
+	out := new(CreateAuthCodeResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for AuthCodeProvider service
+
+type AuthCodeProviderHandler interface {
+	CreateAuthCode(context.Context, *CreateAuthCodeRequest, *CreateAuthCodeResponse) error
+}
+
+func RegisterAuthCodeProviderHandler(s server.Server, hdlr AuthCodeProviderHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&AuthCodeProvider{hdlr}, opts...))
+}
+
+type AuthCodeProvider struct {
+	AuthCodeProviderHandler
+}
+
+func (h *AuthCodeProvider) CreateAuthCode(ctx context.Context, in *CreateAuthCodeRequest, out *CreateAuthCodeResponse) error {
+	return h.AuthCodeProviderHandler.CreateAuthCode(ctx, in, out)
+}
+
 // Client API for AuthTokenVerifier service
 
 type AuthTokenVerifierClient interface {
@@ -261,4 +497,56 @@ type AuthCodeExchanger struct {
 
 func (h *AuthCodeExchanger) Exchange(ctx context.Context, in *ExchangeRequest, out *ExchangeResponse) error {
 	return h.AuthCodeExchangerHandler.Exchange(ctx, in, out)
+}
+
+// Client API for AuthTokenRefresher service
+
+type AuthTokenRefresherClient interface {
+	Refresh(ctx context.Context, in *RefreshTokenRequest, opts ...client.CallOption) (*RefreshTokenResponse, error)
+}
+
+type authTokenRefresherClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewAuthTokenRefresherClient(serviceName string, c client.Client) AuthTokenRefresherClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "auth"
+	}
+	return &authTokenRefresherClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *authTokenRefresherClient) Refresh(ctx context.Context, in *RefreshTokenRequest, opts ...client.CallOption) (*RefreshTokenResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "AuthTokenRefresher.Refresh", in)
+	out := new(RefreshTokenResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for AuthTokenRefresher service
+
+type AuthTokenRefresherHandler interface {
+	Refresh(context.Context, *RefreshTokenRequest, *RefreshTokenResponse) error
+}
+
+func RegisterAuthTokenRefresherHandler(s server.Server, hdlr AuthTokenRefresherHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&AuthTokenRefresher{hdlr}, opts...))
+}
+
+type AuthTokenRefresher struct {
+	AuthTokenRefresherHandler
+}
+
+func (h *AuthTokenRefresher) Refresh(ctx context.Context, in *RefreshTokenRequest, out *RefreshTokenResponse) error {
+	return h.AuthTokenRefresherHandler.Refresh(ctx, in, out)
 }

@@ -1231,8 +1231,38 @@ var SwaggerJson = `{
       }
     },
     "/frontend/session": {
+      "get": {
+        "summary": "Retrieve session info",
+        "operationId": "FrontSessionGet",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontSessionGetResponse"
+            }
+          }
+        },
+        "tags": [
+          "FrontendService"
+        ]
+      },
+      "delete": {
+        "summary": "Remove Session",
+        "operationId": "FronSessionDel",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontSessionDelResponse"
+            }
+          }
+        },
+        "tags": [
+          "FrontendService"
+        ]
+      },
       "post": {
-        "summary": "Handle JWT",
+        "summary": "Handle Session POST",
         "operationId": "FrontSession",
         "responses": {
           "200": {
@@ -5407,7 +5437,7 @@ var SwaggerJson = `{
       "properties": {
         "type_url": {
           "type": "string",
-          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
         },
         "value": {
           "type": "string",
@@ -5858,6 +5888,17 @@ var SwaggerJson = `{
     "restFrontPluginsResponse": {
       "type": "object"
     },
+    "restFrontSessionDelResponse": {
+      "type": "object"
+    },
+    "restFrontSessionGetResponse": {
+      "type": "object",
+      "properties": {
+        "Token": {
+          "$ref": "#/definitions/restToken"
+        }
+      }
+    },
     "restFrontSessionRequest": {
       "type": "object",
       "properties": {
@@ -5883,12 +5924,8 @@ var SwaggerJson = `{
     "restFrontSessionResponse": {
       "type": "object",
       "properties": {
-        "JWT": {
-          "type": "string"
-        },
-        "ExpireTime": {
-          "type": "integer",
-          "format": "int32"
+        "Token": {
+          "$ref": "#/definitions/restToken"
         },
         "Trigger": {
           "type": "string",
@@ -6892,6 +6929,23 @@ var SwaggerJson = `{
         }
       },
       "title": "A template node is representing a file or a folder"
+    },
+    "restToken": {
+      "type": "object",
+      "properties": {
+        "AccessToken": {
+          "type": "string"
+        },
+        "IDToken": {
+          "type": "string"
+        },
+        "RefreshToken": {
+          "type": "string"
+        },
+        "ExpiresAt": {
+          "type": "string"
+        }
+      }
     },
     "restUpdateSharePoliciesRequest": {
       "type": "object",

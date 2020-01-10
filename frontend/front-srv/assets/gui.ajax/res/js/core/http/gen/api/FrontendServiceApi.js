@@ -20,6 +20,8 @@ import RestFrontEnrollAuthRequest from '../model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from '../model/RestFrontEnrollAuthResponse';
 import RestFrontMessagesResponse from '../model/RestFrontMessagesResponse';
 import RestFrontPluginsResponse from '../model/RestFrontPluginsResponse';
+import RestFrontSessionDelResponse from '../model/RestFrontSessionDelResponse';
+import RestFrontSessionGetResponse from '../model/RestFrontSessionGetResponse';
 import RestFrontSessionRequest from '../model/RestFrontSessionRequest';
 import RestFrontSessionResponse from '../model/RestFrontSessionResponse';
 import RestFrontStateResponse from '../model/RestFrontStateResponse';
@@ -36,13 +38,54 @@ export default class FrontendServiceApi {
     * Constructs a new FrontendServiceApi. 
     * @alias module:api/FrontendServiceApi
     * @class
-    * @param {module:ApiClient} apiClient Optional API client implementation to use,
+    * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
     * default to {@link module:ApiClient#instance} if unspecified.
     */
     constructor(apiClient) {
         this.apiClient = apiClient || ApiClient.instance;
     }
 
+
+
+    /**
+     * Remove Session
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionDelResponse} and HTTP response
+     */
+    fronSessionDelWithHttpInfo() {
+      let postBody = null;
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestFrontSessionDelResponse;
+
+      return this.apiClient.callApi(
+        '/frontend/session', 'DELETE',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Remove Session
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionDelResponse}
+     */
+    fronSessionDel() {
+      return this.fronSessionDelWithHttpInfo()
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
 
 
     /**
@@ -354,7 +397,7 @@ export default class FrontendServiceApi {
 
 
     /**
-     * Handle JWT
+     * Handle Session POST
      * @param {module:model/RestFrontSessionRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response
      */
@@ -389,12 +432,53 @@ export default class FrontendServiceApi {
     }
 
     /**
-     * Handle JWT
+     * Handle Session POST
      * @param {module:model/RestFrontSessionRequest} body 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}
      */
     frontSession(body) {
       return this.frontSessionWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Retrieve session info
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionGetResponse} and HTTP response
+     */
+    frontSessionGetWithHttpInfo() {
+      let postBody = null;
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestFrontSessionGetResponse;
+
+      return this.apiClient.callApi(
+        '/frontend/session', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Retrieve session info
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionGetResponse}
+     */
+    frontSessionGet() {
+      return this.frontSessionGetWithHttpInfo()
         .then(function(response_and_data) {
           return response_and_data.data;
         });

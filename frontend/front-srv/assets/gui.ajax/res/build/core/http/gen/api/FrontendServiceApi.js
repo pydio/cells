@@ -51,6 +51,14 @@ var _modelRestFrontPluginsResponse = require('../model/RestFrontPluginsResponse'
 
 var _modelRestFrontPluginsResponse2 = _interopRequireDefault(_modelRestFrontPluginsResponse);
 
+var _modelRestFrontSessionDelResponse = require('../model/RestFrontSessionDelResponse');
+
+var _modelRestFrontSessionDelResponse2 = _interopRequireDefault(_modelRestFrontSessionDelResponse);
+
+var _modelRestFrontSessionGetResponse = require('../model/RestFrontSessionGetResponse');
+
+var _modelRestFrontSessionGetResponse2 = _interopRequireDefault(_modelRestFrontSessionGetResponse);
+
 var _modelRestFrontSessionRequest = require('../model/RestFrontSessionRequest');
 
 var _modelRestFrontSessionRequest2 = _interopRequireDefault(_modelRestFrontSessionRequest);
@@ -79,7 +87,7 @@ var FrontendServiceApi = (function () {
   * Constructs a new FrontendServiceApi. 
   * @alias module:api/FrontendServiceApi
   * @class
-  * @param {module:ApiClient} apiClient Optional API client implementation to use,
+  * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
   * default to {@link module:ApiClient#instance} if unspecified.
   */
 
@@ -88,6 +96,38 @@ var FrontendServiceApi = (function () {
 
     this.apiClient = apiClient || _ApiClient2['default'].instance;
   }
+
+  /**
+   * Remove Session
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionDelResponse} and HTTP response
+   */
+
+  FrontendServiceApi.prototype.fronSessionDelWithHttpInfo = function fronSessionDelWithHttpInfo() {
+    var postBody = null;
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestFrontSessionDelResponse2['default'];
+
+    return this.apiClient.callApi('/frontend/session', 'DELETE', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Remove Session
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionDelResponse}
+   */
+
+  FrontendServiceApi.prototype.fronSessionDel = function fronSessionDel() {
+    return this.fronSessionDelWithHttpInfo().then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
 
   /**
    * Add some data to the initial set of parameters loaded by the frontend
@@ -348,7 +388,7 @@ var FrontendServiceApi = (function () {
   };
 
   /**
-   * Handle JWT
+   * Handle Session POST
    * @param {module:model/RestFrontSessionRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response
    */
@@ -375,13 +415,45 @@ var FrontendServiceApi = (function () {
   };
 
   /**
-   * Handle JWT
+   * Handle Session POST
    * @param {module:model/RestFrontSessionRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}
    */
 
   FrontendServiceApi.prototype.frontSession = function frontSession(body) {
     return this.frontSessionWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Retrieve session info
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionGetResponse} and HTTP response
+   */
+
+  FrontendServiceApi.prototype.frontSessionGetWithHttpInfo = function frontSessionGetWithHttpInfo() {
+    var postBody = null;
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestFrontSessionGetResponse2['default'];
+
+    return this.apiClient.callApi('/frontend/session', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Retrieve session info
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionGetResponse}
+   */
+
+  FrontendServiceApi.prototype.frontSessionGet = function frontSessionGet() {
+    return this.frontSessionGetWithHttpInfo().then(function (response_and_data) {
       return response_and_data.data;
     });
   };

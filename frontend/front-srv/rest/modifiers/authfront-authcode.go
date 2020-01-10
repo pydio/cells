@@ -5,27 +5,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
-
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/utils/permissions"
-
-	"go.uber.org/zap"
+	"strconv"
 
 	"github.com/emicklei/go-restful"
 	"github.com/gorilla/sessions"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
+	"go.uber.org/zap"
+	"golang.org/x/oauth2"
 
 	"github.com/pydio/cells/common"
 	commonauth "github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/frontend"
-
 	serviceproto "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/permissions"
 )
 
 func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
@@ -36,65 +34,35 @@ func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMidd
 			return middleware(req, rsp, in, out, session)
 		}
 
-		respMap, err := jwtFromAuthCode(in.AuthInfo["code"])
-
+		token, err := tokenFromAuthCode(in.AuthInfo["code"])
 		if err != nil {
 			return err
 		}
 
-		var token string = ""
-		if t, ok := respMap["id_token"]; ok {
-			if tt, ok := t.(string); ok {
-				token = tt
-			}
-		}
-
-		var expiry float64 = 0
-		if e, ok := respMap["expires_in"]; ok {
-			if ee, ok := e.(float64); ok {
-				expiry = ee
-			}
-		}
-
-		var refreshToken string = ""
-		if t, ok := respMap["refresh_token"]; ok {
-			if tt, ok := t.(string); ok {
-				refreshToken = tt
-			}
-		}
-
-		session.Values["jwt"] = token
-		session.Values["refresh_token"] = refreshToken
-		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
-
-		out.JWT = token
-		out.ExpireTime = int32(expiry)
+		session.Values["access_token"] = token.AccessToken
+		session.Values["id_token"] = token.Extra("id_token")
+		session.Values["refresh_token"] = token.RefreshToken
+		session.Values["expires_at"] = strconv.Itoa(int(token.Expiry.Unix()))
 
 		return middleware(req, rsp, in, out, session)
 	}
 }
 
-func jwtFromAuthCode(code string) (map[string]interface{}, error) {
+func tokenFromAuthCode(code string) (*oauth2.Token, error) {
 
 	ctx := context.Background()
-
-	values := make(map[string]interface{})
 
 	// Verify state and errors.
 	token, err := commonauth.DefaultJWTVerifier().Exchange(ctx, code)
 	if err != nil {
-		log.Error("")
 		// handle error
 		return nil, fmt.Errorf("Could not exchange code")
 	}
 
-	rawIDToken, ok := token.Extra("id_token").(string)
-	if !ok {
-		return nil, fmt.Errorf("Could not get id_token")
-	}
+	fmt.Println("Token is ", token)
 
 	// Parse and verify ID Token payload.
-	if _, c, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {
+	if _, c, err := commonauth.DefaultJWTVerifier().Verify(ctx, token.AccessToken); err != nil {
 
 		e := errors.Parse(err.Error())
 		if e.Code == http.StatusNotFound {
@@ -139,7 +107,7 @@ func jwtFromAuthCode(code string) (map[string]interface{}, error) {
 				return nil, errors.InternalServerError("cannot.create.user", err.Error())
 			}
 
-			if _, _, err := commonauth.DefaultJWTVerifier().Verify(ctx, rawIDToken); err != nil {
+			if _, _, err := commonauth.DefaultJWTVerifier().Verify(ctx, token.AccessToken); err != nil {
 				return nil, err
 			}
 		} else {
@@ -147,11 +115,7 @@ func jwtFromAuthCode(code string) (map[string]interface{}, error) {
 		}
 	}
 
-	values["id_token"] = rawIDToken
-	values["expires_in"] = token.Extra("expires_in")
-	values["refresh_token"] = token.Extra("refresh_token")
-
-	return values, err
+	return token, err
 }
 
 func createNewUser(inputUser *idm.User) error {

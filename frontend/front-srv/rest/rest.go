@@ -42,7 +42,6 @@ import (
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/frontend/front-srv/rest/modifiers"
 )
 
 type FrontendHandler struct{}
@@ -75,6 +74,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		service.RestError500(req, rsp, e)
 		return
 	}
+
 	user.LoadActiveWorkspace(req.QueryParameter("ws"))
 	lang := user.LoadActiveLanguage(req.QueryParameter("lang"))
 
@@ -136,6 +136,30 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	rsp.WriteAsXml(plugins)
 }
 
+func (a *FrontendHandler) FrontSessionGet(req *restful.Request, rsp *restful.Response) {
+	sessionName := "pydio"
+	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
+		sessionName = sessionName + "-" + h
+	}
+
+	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
+	if err != nil && session == nil {
+		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
+		return
+	}
+
+	response := &rest.FrontSessionGetResponse{}
+	if len(session.Values) > 0 {
+		response.Token = &rest.Token{
+			AccessToken: session.Values["access_token"].(string),
+			IDToken:     session.Values["id_token"].(string),
+			ExpiresAt:   session.Values["expires_at"].(string),
+		}
+	}
+
+	rsp.WriteEntity(response)
+}
+
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
 
 	var loginRequest rest.FrontSessionRequest
@@ -143,34 +167,26 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		service.RestError500(req, rsp, e)
 		return
 	}
+
 	ctx := req.Request.Context()
 	if loginRequest.AuthInfo == nil {
 		loginRequest.AuthInfo = map[string]string{}
 	}
+
 	sessionName := "pydio"
 	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
 		sessionName = sessionName + "-" + h
 	}
+
 	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
 	if err != nil && session == nil {
 		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		return
 	}
+
 	response := &rest.FrontSessionResponse{}
 
-	// Special case for Logout
-	if loginRequest.Logout {
-		if _, ok := session.Values["jwt"]; ok {
-			session.Values = make(map[interface{}]interface{})
-			session.Options.MaxAge = 0
-			session.Save(req.Request, rsp.ResponseWriter)
-		}
-		rsp.WriteEntity(&rest.FrontSessionResponse{})
-		return
-	}
-
 	if len(loginRequest.AuthInfo) == 0 {
-
 		if trigger, ok := session.Values["trigger"]; ok {
 			tInfo := map[string]string{}
 			if info, o := session.Values["triggerInfo"]; o {
@@ -180,23 +196,9 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 				Trigger:     trigger.(string),
 				TriggerInfo: tInfo,
 			}
-		} else {
-			jwt, expireTime, e := modifiers.JwtFromSession(ctx, session)
-			if e != nil {
-				service.RestError401(req, rsp, e)
-				return
-			}
-			response = &rest.FrontSessionResponse{
-				JWT:        jwt,
-				ExpireTime: expireTime,
-			}
 		}
-		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
-			log.Logger(ctx).Error("Error saving session", zap.Error(e))
-		}
-		rsp.WriteEntity(response)
-		return
 
+		return
 	}
 
 	if e := frontend.ApplyAuthMiddlewares(req, rsp, &loginRequest, response, session); e != nil {
@@ -207,11 +209,39 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		return
 	}
 
+	if len(session.Values) > 0 {
+		response.Token = &rest.Token{
+			AccessToken: session.Values["access_token"].(string),
+			IDToken:     session.Values["id_token"].(string),
+			ExpiresAt:   session.Values["expires_at"].(string),
+		}
+	}
+
 	if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
 		log.Logger(ctx).Error("Error saving session", zap.Error(e))
 	}
 
 	rsp.WriteEntity(response)
+}
+
+func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) {
+
+	sessionName := "pydio"
+	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
+		sessionName = sessionName + "-" + h
+	}
+
+	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
+	if err != nil && session == nil {
+		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
+		return
+	}
+
+	session.Values = make(map[interface{}]interface{})
+	session.Options.MaxAge = -1
+	session.Save(req.Request, rsp.ResponseWriter)
+
+	rsp.WriteEntity(nil)
 }
 
 // Generic endpoint that can be handled by specific 2FA plugins
@@ -278,7 +308,6 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 		if strings.Contains(binaryUuid, ".") {
 			extension = strings.Split(binaryUuid, ".")[1]
 		}
-
 	}
 
 	if readNode != nil {
@@ -297,7 +326,6 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 		}
 		readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension)
 	}
-
 }
 
 // FrontPutBinary receives an upload to store a binary.

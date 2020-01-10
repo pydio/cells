@@ -71,12 +71,37 @@ func (this *FrontMessagesResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *Token) Validate() error {
+	return nil
+}
+func (this *FrontSessionGetRequest) Validate() error {
+	return nil
+}
+func (this *FrontSessionGetResponse) Validate() error {
+	if this.Token != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Token); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Token", err)
+		}
+	}
+	return nil
+}
 func (this *FrontSessionRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *FrontSessionResponse) Validate() error {
+	if this.Token != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Token); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Token", err)
+		}
+	}
 	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *FrontSessionDelRequest) Validate() error {
+	return nil
+}
+func (this *FrontSessionDelResponse) Validate() error {
 	return nil
 }
 func (this *FrontAuthRequest) Validate() error {

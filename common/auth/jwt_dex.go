@@ -22,7 +22,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -52,7 +51,6 @@ func RegisterDexProvider(c common.ConfigValues) {
 
 	err := c.Scan(&m)
 	if err != nil {
-		fmt.Println("Error scanning provider", err)
 		return
 	}
 

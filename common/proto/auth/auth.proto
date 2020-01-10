@@ -49,6 +49,87 @@ message PruneTokensResponse {
     repeated string tokens = 1;
 }
 
+service LoginProvider {
+    rpc GetLogin    (GetLoginRequest) returns (GetLoginResponse) {};
+    rpc CreateLogin (CreateLoginRequest) returns (CreateLoginResponse) {};
+    rpc AcceptLogin (AcceptLoginRequest) returns (AcceptLoginResponse) {};
+}
+
+message GetLoginRequest {
+    string Challenge = 1;
+}
+
+message GetLoginResponse {
+    string Challenge = 1;
+    string Subject = 2;
+    string SessionID = 3;
+    string RequestURL = 4;
+}
+
+message CreateLoginRequest {}
+
+message CreateLoginResponse {
+    string Challenge = 1;
+    string Verifier = 2;
+}
+
+message AcceptLoginRequest {
+    string Challenge = 1;
+    string Verifier = 2;
+    string Subject = 3;
+}
+
+message AcceptLoginResponse {}
+
+service ConsentProvider {
+    rpc GetConsent    (GetConsentRequest) returns (GetConsentResponse) {};
+    rpc CreateConsent (CreateConsentRequest) returns (CreateConsentResponse) {};
+    rpc AcceptConsent (AcceptConsentRequest) returns (AcceptConsentResponse) {};
+}
+
+message GetConsentRequest {
+    string Challenge = 1;
+}
+
+message GetConsentResponse {
+    string Challenge = 1;
+    string LoginSessionID = 2;
+    string SubjectIdentifier = 3;
+    string Subject = 4;
+    string ClientID = 5;
+}
+
+message CreateConsentRequest {
+    string LoginChallenge = 1;
+}
+
+message CreateConsentResponse {
+    string Challenge = 1;
+}
+
+message AcceptConsentRequest {
+    string Challenge = 1;
+}
+
+message AcceptConsentResponse {
+}
+
+service AuthCodeProvider {
+    rpc CreateAuthCode (CreateAuthCodeRequest) returns (CreateAuthCodeResponse) {};
+}
+
+message CreateAuthCodeRequest {
+    string ConsentChallenge = 1;
+    string LoginSessionID = 2;
+    string SubjectIdentifier = 3;
+    string Subject = 4;
+    string ClientID = 5;
+}
+
+message CreateAuthCodeResponse {
+    string Code = 1;
+}
+
 // AuthTokenVerifier
 service AuthTokenVerifier {
     // Verifies a token and returns claims
@@ -75,7 +156,22 @@ message ExchangeRequest {
 
 message ExchangeResponse {
     string AccessToken = 1 [json_name="access_token"];
-    string TokenType = 2 [json_name="token_type"];
+    string IDToken = 2 [json_name="id_token"];
     string RefreshToken = 3 [json_name="refresh_token"];
-    string Expiry = 4 [json_name="expiry"];
+    int64 Expiry = 4 [json_name="expiry"];
+}
+
+service AuthTokenRefresher {
+    rpc Refresh(RefreshTokenRequest) returns (RefreshTokenResponse) {};
+}
+
+message RefreshTokenRequest {
+    string RefreshToken = 1;
+}
+
+message RefreshTokenResponse {
+    string AccessToken = 1 [json_name="access_token"];
+    string IDToken = 2 [json_name="id_token"];
+    string RefreshToken = 3 [json_name="refresh_token"];
+    int64 Expiry = 4 [json_name="expiry"];
 }
