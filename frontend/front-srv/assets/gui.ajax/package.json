@@ -22,7 +22,7 @@
     "material-ui-legacy": "git://github.com/pydio/material-ui.git#dc3704bc50e90e2b899c25e206f161de25e8a59d",
     "md5": "^2.2.1",
     "moment": "^2.19.1",
-    "oidc-client": "^1.7.1",
+    "oidc-client": "^1.10.1",
     "qrcode.react": "0.6.1",
     "react": "15.4.2",
     "react-addons-css-transition-group": "^15.4.2",

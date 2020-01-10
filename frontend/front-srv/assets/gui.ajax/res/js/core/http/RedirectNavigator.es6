@@ -16,13 +16,6 @@ export class RedirectNavigator{
                 return reject(new Error("No url provided"));
             }
 
-            // const [url, query] = params.url.split('?')
-            // const data = qs.parse(query)
-            // data.format = 'json'
-
-            // console.log(url, data, url + '?' + qs.stringify(data))
-            console.log("Redirecting to ", params.url)
-
             fetch(params.url, {
                 method: "GET",
                 headers: {
@@ -30,7 +23,6 @@ export class RedirectNavigator{
                 }
             }).then(response => response.json()).then(response => {
                 this.store.setItem("challenge", response.challenge)
-                this.store.removeItem("fullRedirect")
                 
                 resolve()
             }).catch(e => resolve())

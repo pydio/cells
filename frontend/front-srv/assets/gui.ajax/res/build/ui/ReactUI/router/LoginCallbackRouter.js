@@ -45,23 +45,10 @@ var LoginCallbackRouterWrapper = function LoginCallbackRouterWrapper(pydio) {
             _React$PureComponent.apply(this, arguments);
         }
 
-        // const params = queryString.parse(props.location.search);
-
-        // const redirect = () => {
-        //     const loginOrigin = localStorage.getItem("loginOrigin")
-
-        //     if (loginOrigin) {
-        //         localStorage.removeItem("loginOrigin")
-        //         browserHistory.replace(loginOrigin)
-        //     } else {
-        //         browserHistory.replace("/")
-        //     }
-        // }
-
-        // pydio.observeOnce('user_logged', () => redirect())
-
         _class.prototype.render = function render() {
-            PydioApi.getRestClient().sessionLoginCallback().then(function () {
+            var values = queryString.parse(this.props.location.search);
+
+            PydioApi.getRestClient().sessionLoginWithAuthCode(values.code).then(function () {
                 _reactRouterLibBrowserHistory2['default'].replace("/");
                 pydio.loadXmlRegistry(null, null, null);
             });

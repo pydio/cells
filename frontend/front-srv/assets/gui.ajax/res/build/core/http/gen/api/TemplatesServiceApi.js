@@ -39,7 +39,7 @@ var TemplatesServiceApi = (function () {
   * Constructs a new TemplatesServiceApi. 
   * @alias module:api/TemplatesServiceApi
   * @class
-  * @param {module:ApiClient} apiClient Optional API client implementation to use,
+  * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
   * default to {@link module:ApiClient#instance} if unspecified.
   */
 

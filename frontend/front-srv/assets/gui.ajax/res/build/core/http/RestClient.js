@@ -40,6 +40,10 @@ var _moment = require('moment');
 
 var _moment2 = _interopRequireDefault(_moment);
 
+var _queryString = require('query-string');
+
+var _queryString2 = _interopRequireDefault(_queryString);
+
 var _genApiJobsServiceApi = require("./gen/api/JobsServiceApi");
 
 var _genApiJobsServiceApi2 = _interopRequireDefault(_genApiJobsServiceApi);
@@ -47,14 +51,6 @@ var _genApiJobsServiceApi2 = _interopRequireDefault(_genApiJobsServiceApi);
 var _genModelRestUserJobRequest = require("./gen/model/RestUserJobRequest");
 
 var _genModelRestUserJobRequest2 = _interopRequireDefault(_genModelRestUserJobRequest);
-
-var _genApiFrontendServiceApi = require("./gen/api/FrontendServiceApi");
-
-var _genApiFrontendServiceApi2 = _interopRequireDefault(_genApiFrontendServiceApi);
-
-var _genModelRestFrontAuthRequest = require('./gen/model/RestFrontAuthRequest');
-
-var _genModelRestFrontAuthRequest2 = _interopRequireDefault(_genModelRestFrontAuthRequest);
 
 var _genModelRestFrontSessionRequest = require("./gen/model/RestFrontSessionRequest");
 
@@ -68,18 +64,6 @@ var _IdmApi = require('./IdmApi');
 
 var _IdmApi2 = _interopRequireDefault(_IdmApi);
 
-var _RedirectNavigator = require('./RedirectNavigator');
-
-var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
-
-var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
-
-var _oidcClient = require('oidc-client');
-
-var _queryString = require('query-string');
-
-var _queryString2 = _interopRequireDefault(_queryString);
-
 // Override parseDate method to support ISO8601 cross-browser
 
 var _require = require('./gen/index');
@@ -91,16 +75,16 @@ ApiClient.parseDate = function (str) {
 
 // Override callApi Method
 
-var JwtApiClient = (function (_ApiClient) {
-    _inherits(JwtApiClient, _ApiClient);
+var RestClient = (function (_ApiClient) {
+    _inherits(RestClient, _ApiClient);
 
     /**
      *
      * @param pydioObject {Pydio}
      */
 
-    function JwtApiClient(pydioObject) {
-        _classCallCheck(this, JwtApiClient);
+    function RestClient(pydioObject) {
+        _classCallCheck(this, RestClient);
 
         _ApiClient.call(this);
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
@@ -108,20 +92,6 @@ var JwtApiClient = (function (_ApiClient) {
         this.pydio = pydioObject;
         pydioObject.observe('beforeApply-logout', function () {
             _PydioApi2['default'].JWT_DATA = null;
-        });
-
-        var url = this.pydio.Parameters.get("FRONTEND_URL");
-        this.userManager = new _oidcClient.UserManager({
-            authority: url + '/oidc',
-            client_id: 'cells-frontend',
-            redirect_uri: url + '/auth/dex/callback',
-            post_logout_redirect_uri: url + '/auth/dex/logout',
-            response_type: 'code',
-            scope: 'openid email profile pydio offline',
-            loadUserInfo: false,
-            automaticSilentRenew: false,
-            redirectNavigator: new _RedirectNavigator.RedirectNavigator(window.sessionStorage),
-            userStore: new _oidcClient.WebStorageStateStore({ store: window.sessionStorage })
         });
     }
 
@@ -131,7 +101,7 @@ var JwtApiClient = (function (_ApiClient) {
      * @return {Promise}
      */
 
-    JwtApiClient.prototype.jwtEndpoint = function jwtEndpoint(request) {
+    RestClient.prototype.jwtEndpoint = function jwtEndpoint(request) {
         var headers = null;
         if (this.pydio.Parameters.has('MINISITE')) {
             headers = { "X-Pydio-Minisite": this.pydio.Parameters.get('MINISITE') };
@@ -144,120 +114,87 @@ var JwtApiClient = (function (_ApiClient) {
      * @param frontJwtResponse {RestFrontSessionResponse}
      */
 
-    JwtApiClient.storeJwtLocally = function storeJwtLocally(frontJwtResponse) {
-        var now = Math.floor(Date.now() / 1000);
-        _PydioApi2['default'].JWT_DATA = {
-            jwt: frontJwtResponse.JWT,
-            expirationTime: now + frontJwtResponse.ExpireTime
-        };
+    RestClient.get = function get() {
+        return JSON.parse(window.sessionStorage.getItem("token"));
     };
 
-    JwtApiClient.prototype.sessionLogin = function sessionLogin() {
-        var parsed = _queryString2['default'].parse(window.location.search);
-        if (parsed.login_challenge) {
-            window.sessionStorage.challenge = parsed.login_challenge;
-            window.sessionStorage.fullRedirect = true;
-            return Promise.resolve();
-        }
-        return this.userManager.signinRedirect();
+    RestClient.store = function store(token) {
+        window.sessionStorage.setItem("token", JSON.stringify(token));
     };
 
-    JwtApiClient.prototype.sessionLoginCallback = function sessionLoginCallback(response) {
-        var url = response ? "/auth/dex/callback?" + _queryString2['default'].stringify(response) : null;
-        return this.userManager.signinRedirectCallback(url).then(function (u) {
-            _PydioApi2['default'].JWT_DATA = {
-                jwt: u.access_token,
-                expirationTime: u.expires_at
-            };
-        });
+    RestClient.remove = function remove() {
+        window.sessionStorage.removeItem("token");
     };
 
-    /**
-     * Call session endpoint for destroying session
-     */
-
-    JwtApiClient.prototype.sessionLogout = function sessionLogout() {
-        var _this = this;
-
-        return this.userManager.signoutRedirect().then(function () {
-            return _this.pydio.loadXmlRegistry(null, null, null);
-        });
+    RestClient.prototype.getCurrentChallenge = function getCurrentChallenge() {
+        return _queryString2['default'].parse(window.location.search).login_challenge;
     };
 
-    /**
-     * Call session endpoint callback for destroying session
-     */
-
-    JwtApiClient.prototype.sessionLogoutCallback = function sessionLogoutCallback() {
-        return this.userManager.signoutRedirectCallback();
+    RestClient.prototype.sessionLoginWithCredentials = function sessionLoginWithCredentials(login, password) {
+        return this.jwtWithAuthInfo({ login: login, password: password, challenge: this.getCurrentChallenge(), type: "credentials" });
     };
 
-    /**
-     * Call session endpoint for destroying session
-     */
-
-    JwtApiClient.prototype.sessionAuth = function sessionAuth(requestID) {
-        var api = new _genApiFrontendServiceApi2['default'](this);
-        var request = new _genModelRestFrontAuthRequest2['default']();
-        request.RequestID = requestID;
-
-        return api.frontAuth(request);
-    };
-
-    /**
-     * Create AuthInfo request with type "authorization_code"
-     * @param code string
-     * @return {Promise<any>}
-     */
-
-    JwtApiClient.prototype.jwtFromAuthorizationCode = function jwtFromAuthorizationCode(code) {
+    RestClient.prototype.sessionLoginWithAuthCode = function sessionLoginWithAuthCode(code) {
         return this.jwtWithAuthInfo({ code: code, type: "authorization_code" }, false);
     };
 
-    /**
-     * Create AuthInfo request with type "credentials"
-     * @param login string
-     * @param password string
-     * @param reloadRegistry bool
-     * @return {Promise<any>}
-     */
-
-    JwtApiClient.prototype.jwtFromCredentials = function jwtFromCredentials(login, password) {
-        var reloadRegistry = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
-
-        return this.jwtWithAuthInfo({ login: login, password: password, challenge: window.sessionStorage.challenge, type: "credentials" }, reloadRegistry);
+    RestClient.prototype.sessionRefresh = function sessionRefresh() {
+        return this.jwtWithAuthInfo({ type: "refresh" });
     };
 
-    JwtApiClient.prototype.jwtFromConsentChallenge = function jwtFromConsentChallenge(challenge) {
-        var reloadRegistry = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
-
-        return this.jwtWithAuthInfo({ challenge: challenge, type: "consent" }, reloadRegistry);
+    RestClient.prototype.sessionLogout = function sessionLogout() {
+        return this.jwtWithAuthInfo({ type: "logout" });
     };
 
-    JwtApiClient.prototype.jwtWithAuthInfo = function jwtWithAuthInfo(authInfo) {
-        var _this2 = this;
+    RestClient.prototype.jwtWithAuthInfo = function jwtWithAuthInfo(authInfo) {
+        var _this = this;
 
         var reloadRegistry = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 
         var request = new _genModelRestFrontSessionRequest2['default']();
         request.AuthInfo = authInfo;
         return this.jwtEndpoint(request).then(function (response) {
-            if (response.data && response.data.JWT) {
-                JwtApiClient.storeJwtLocally(response.data);
-
-                if (reloadRegistry) {
-                    var targetRepository = null;
-                    if (_this2.pydio.Parameters.has('START_REPOSITORY')) {
-                        targetRepository = _this2.pydio.Parameters.get("START_REPOSITORY");
-                    }
-                    _this2.pydio.loadXmlRegistry(null, null, targetRepository);
-                }
+            if (response.data && response.data.Token) {
+                RestClient.store(response.data.Token);
+            } else if (response.data && response.data.RedirectTo) {
+                window.location.href = response.data.RedirectTo;
             } else if (response.data && response.data.Trigger) {
-                _this2.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+                _this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+            } else if (request.AuthInfo.type === "logout") {
+                RestClient.remove();
             } else {
-                _PydioApi2['default'].JWT_DATA = null;
+                throw "no user found";
             }
-            return response;
+        })['catch'](function (e) {
+            _this.pydio.getController().fireAction('logout');
+            RestClient.remove();
+            return Promise.reject();
+        });
+    };
+
+    RestClient.prototype.getAuthToken = function getAuthToken() {
+        var _this2 = this;
+
+        var token = RestClient.get();
+        var now = Math.floor(Date.now() / 1000);
+
+        if (!token) {
+            return Promise.reject("no token");
+        }
+
+        if (token.ExpiresAt >= now + 5) {
+            return Promise.resolve(token.AccessToken);
+        }
+
+        if (!RestClient._updating) {
+            RestClient._updating = this.sessionRefresh();
+        }
+
+        return RestClient._updating.then(function () {
+            RestClient._updating = null;
+            return _this2.getAuthToken();
+        })['catch'](function () {
+            return RestClient._updating = null;
         });
     };
 
@@ -265,53 +202,10 @@ var JwtApiClient = (function (_ApiClient) {
      * @return {Promise}
      */
 
-    JwtApiClient.prototype.getOrUpdateJwt = function getOrUpdateJwt() {
-        var _this3 = this;
-
-        return new Promise(function (resolve) {
-            _this3.userManager.getUser().then(function (u) {
-                return u && resolve(u.access_token) || resolve('');
-            });
+    RestClient.prototype.getOrUpdateJwt = function getOrUpdateJwt() {
+        return this.getAuthToken().then(function (token) {
+            return token;
         });
-
-        // const now = Math.floor(Date.now() / 1000);
-        // if(PydioApi.JWT_DATA && PydioApi.JWT_DATA['jwt'] && PydioApi.JWT_DATA['expirationTime'] >= now) {
-        //     return Promise.resolve(PydioApi.JWT_DATA['jwt']);
-        // }
-
-        // if(PydioApi.ResolvingJwt) {
-        //     return PydioApi.ResolvingJwt;
-        // }
-
-        // PydioApi.ResolvingJwt = new Promise((resolve) => {
-
-        //     // Try to load JWT from session
-        //     this.jwtEndpoint(new RestFrontSessionRequest()).then(response => {
-        //         if(response.data && response.data.JWT){
-        //             JwtApiClient.storeJwtLocally(response.data);
-        //             resolve(response.data.JWT)
-        //         } else if (response.data && response.data.Trigger) {
-        //             this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
-        //             resolve('');
-        //         }  else {
-        //             PydioApi.JWT_DATA = null;
-        //             resolve('');
-        //         }
-        //         PydioApi.ResolvingJwt = null;
-        //     }).catch(e => {
-        //         if(e.response && e.response.status === 401) {
-        //             this.pydio.getController().fireAction('logout');
-        //             PydioApi.ResolvingJwt = null;
-        //             throw e;
-        //         }
-        //         PydioApi.JWT_DATA = null;
-        //         resolve('');
-        //         PydioApi.ResolvingJwt = null;
-        //     });
-
-        // });
-
-        // return PydioApi.ResolvingJwt;
     };
 
     /**
@@ -331,36 +225,30 @@ var JwtApiClient = (function (_ApiClient) {
      * @returns {Promise} A {@link https://www.promisejs.org/|Promise} object.
      */
 
-    JwtApiClient.prototype.callApi = function callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType) {
-        var _this4 = this;
+    RestClient.prototype.callApi = function callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType) {
+        var _this3 = this;
 
         if (this.pydio.user && this.pydio.user.getPreference("lang")) {
             headerParams["X-Pydio-Language"] = this.pydio.user.getPreference("lang");
         }
 
-        return new Promise(function (resolve, reject) {
-
-            _this4.getOrUpdateJwt().then(function (jwt) {
-                var authNames = [];
-                if (jwt) {
-                    authNames.push('oauth2');
-                    _this4.authentications = { 'oauth2': { type: 'oauth2', accessToken: jwt } };
-                }
-                var p = _ApiClient.prototype.callApi.call(_this4, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
-                p.then(function (response) {
-                    resolve(response);
-                })['catch'](function (reason) {
-                    _this4.handleError(reason);
-                    reject(reason);
-                });
-            })['catch'](function (reason) {
-                _this4.handleError(reason);
-                reject(reason);
-            });
+        return this.getOrUpdateJwt().then(function (jwt) {
+            var authNames = [];
+            if (jwt) {
+                authNames.push('oauth2');
+                _this3.authentications = { 'oauth2': { type: 'oauth2', accessToken: jwt } };
+            }
+            return _ApiClient.prototype.callApi.call(_this3, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
+        }).then(function (response) {
+            return response;
+        })['catch'](function (reason) {
+            console.log(rea);
+            _this3.handleError(reason);
+            return Promise.reject(reason);
         });
     };
 
-    JwtApiClient.prototype.handleError = function handleError(reason) {
+    RestClient.prototype.handleError = function handleError(reason) {
         var msg = reason.message;
         if (reason.response && reason.response.body) {
             msg = reason.response.body;
@@ -390,7 +278,7 @@ var JwtApiClient = (function (_ApiClient) {
      * @return {Promise}
      */
 
-    JwtApiClient.prototype.userJob = function userJob(name, parameters) {
+    RestClient.prototype.userJob = function userJob(name, parameters) {
         var api = new _genApiJobsServiceApi2['default'](this);
         var request = new _genModelRestUserJobRequest2['default']();
         request.JobName = name;
@@ -402,12 +290,12 @@ var JwtApiClient = (function (_ApiClient) {
      * @return {IdmApi}
      */
 
-    JwtApiClient.prototype.getIdmApi = function getIdmApi() {
+    RestClient.prototype.getIdmApi = function getIdmApi() {
         return new _IdmApi2['default'](this);
     };
 
-    return JwtApiClient;
+    return RestClient;
 })(ApiClient);
 
-exports['default'] = JwtApiClient;
+exports['default'] = RestClient;
 module.exports = exports['default'];

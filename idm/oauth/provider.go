@@ -120,7 +120,7 @@ func (v *Provider) ConsentRequestMaxAge() time.Duration {
 }
 
 func (v *Provider) AccessTokenLifespan() time.Duration {
-	return v.v.Duration("accessTokenLifespan", "1h")
+	return v.v.Duration("accessTokenLifespan", "10s")
 }
 
 func (v *Provider) RefreshTokenLifespan() time.Duration {

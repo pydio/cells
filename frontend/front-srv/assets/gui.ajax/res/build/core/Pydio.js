@@ -243,63 +243,36 @@ var Pydio = (function (_Observable) {
         });
 
         var starterFunc = function starterFunc() {
+            console.log("Starter func");
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], function () {
                 _this2.UI = new window.PydioReactUI.Builder(_this2);
                 _this2.UI.initTemplates();
 
                 _this2.fire("registry_loaded", _this2.Registry.getXML());
-                _this2.fire('loaded');
-                //setTimeout(() => { this.fire('loaded'); }, 200);
+                // this.fire('loaded');
+                setTimeout(function () {
+                    _this2.fire('loaded');
+                }, 200);
             });
         };
 
         // Prelogged user
         if (this.Parameters.has("PRELOG_USER") && !this.user) {
-            _httpPydioApi2['default'].getRestClient().sessionLogin().then(function (response) {
-                var login = _this2.Parameters.get("PRELOG_USER");
-                var pwd = login + "#$!Az1";
+            var login = this.Parameters.get("PRELOG_USER");
+            var pwd = login + "#$!Az1";
 
-                _httpPydioApi2['default'].getRestClient().jwtFromCredentials(login, pwd, false).then(function (response) {
-                    fetch(response.data.RedirectTo).then(function (response) {
-                        return response.json();
-                    }).then(function (response) {
-                        var body = {
-                            grant_scope: response.requested_scope,
-                            grant_access_token_audience: response.requested_access_token_audience
-                        };
-
-                        fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + _queryString2['default'].stringify({ consent_challenge: response.challenge }), {
-                            method: 'PUT',
-                            body: JSON.stringify(body),
-                            headers: { 'Content-Type': 'application/json' }
-                        }).then(function (response) {
-                            return response.json();
-                        }).then(function (response) {
-                            // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                            fetch(response.redirect_to).then(function (response) {
-                                return response.json();
-                            }).then(function (response) {
-                                _httpPydioApi2['default'].getRestClient().sessionLoginCallback(response).then(function (u) {
-                                    _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
-                                })['catch'](function (e) {
-                                    _this2.loadXmlRegistry(null, starterFunc);
-                                });
-                            });
-                        });
-                    });
-                });
+            _httpPydioApi2['default'].getRestClient().sessionLoginWithCredentials(login, pwd).then(function () {
+                return _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
             });
         } else {
             _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
-                if (jwt || !_this2.Parameters.has('PRELOADED_REGISTRY')) {
-                    // There is a jwt
-                    _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
-                } else {
-                    // Not logged, used prefeteched registry to speed up login screen
-                    _this2.Registry.loadFromString(_this2.Parameters.get("PRELOADED_REGISTRY"));
-                    _this2.Parameters['delete']("PRELOADED_REGISTRY");
-                    starterFunc();
-                }
+                // Logged in
+                _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
+            })['catch'](function () {
+                // Not logged, used prefeteched registry to speed up login screen
+                _this2.Registry.loadFromString(_this2.Parameters.get("PRELOADED_REGISTRY"));
+                _this2.Parameters['delete']("PRELOADED_REGISTRY");
+                starterFunc();
             });
         }
 

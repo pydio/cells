@@ -30,7 +30,7 @@ export default class TokenServiceApi {
     * Constructs a new TokenServiceApi. 
     * @alias module:api/TokenServiceApi
     * @class
-    * @param {module:ApiClient} apiClient Optional API client implementation to use,
+    * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
     * default to {@link module:ApiClient#instance} if unspecified.
     */
     constructor(apiClient) {

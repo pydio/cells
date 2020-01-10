@@ -28,10 +28,6 @@ var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
 var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
 
-var _queryString = require('query-string');
-
-var _queryString2 = _interopRequireDefault(_queryString);
-
 var PydioApi = require('pydio/http/api');
 
 var LoginRouterWrapper = function LoginRouterWrapper(pydio) {

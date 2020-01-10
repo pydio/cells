@@ -86,10 +86,10 @@ func init() {
 
 		frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
 		frontend.RegisterPluginModifier(modifiers.MobileRegModifier)
-		frontend.RegisterPluginModifier(modifiers.FilterActionLogin)
 		frontend.WrapAuthMiddleware(modifiers.LoginPasswordAuth)
 		frontend.WrapAuthMiddleware(modifiers.AuthorizationCodeAuth)
-		frontend.WrapAuthMiddleware(modifiers.ConsentAuth)
+		frontend.WrapAuthMiddleware(modifiers.LogoutAuth)
+		frontend.WrapAuthMiddleware(modifiers.RefreshAuth)
 
 		s := service.NewService(
 			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),

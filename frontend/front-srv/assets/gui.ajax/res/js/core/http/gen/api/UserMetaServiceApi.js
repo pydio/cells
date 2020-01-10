@@ -38,7 +38,7 @@ export default class UserMetaServiceApi {
     * Constructs a new UserMetaServiceApi. 
     * @alias module:api/UserMetaServiceApi
     * @class
-    * @param {module:ApiClient} apiClient Optional API client implementation to use,
+    * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
     * default to {@link module:ApiClient#instance} if unspecified.
     */
     constructor(apiClient) {

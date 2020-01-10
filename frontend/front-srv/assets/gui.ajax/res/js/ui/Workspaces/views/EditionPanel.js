@@ -37,6 +37,8 @@ class EditionPanel extends React.Component {
         this._nodesRemoveObserver = (index) => this._handleNodeRemoved(index);
         this._titlesObserver = () => this.forceUpdate()
 
+        console.log("Component is mounted")
+
         OpenNodesModel.getInstance().observe("update", this._updateObserver);
         OpenNodesModel.getInstance().observe("nodePushed", this._nodesModelObserver);
         OpenNodesModel.getInstance().observe("nodeRemovedAtIndex", this._nodesRemoveObserver);
@@ -67,6 +69,8 @@ class EditionPanel extends React.Component {
         const {pydio, tabCreate, editorModify, editorSetActiveTab} = this.props;
 
         const {node = {}, editorData} = object;
+
+        console.log("Editor node is ", node)
 
         pydio.Registry.loadEditorResources(
             editorData.resourcesManager,

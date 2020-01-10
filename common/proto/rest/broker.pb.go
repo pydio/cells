@@ -77,8 +77,13 @@ It has these top-level messages:
 	FrontPluginsResponse
 	FrontMessagesRequest
 	FrontMessagesResponse
+	Token
+	FrontSessionGetRequest
+	FrontSessionGetResponse
 	FrontSessionRequest
 	FrontSessionResponse
+	FrontSessionDelRequest
+	FrontSessionDelResponse
 	FrontAuthRequest
 	FrontAuthResponse
 	FrontEnrollAuthRequest

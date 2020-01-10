@@ -69,6 +69,8 @@ var EditionPanel = (function (_React$Component) {
             return _this.forceUpdate();
         };
 
+        console.log("Component is mounted");
+
         _OpenNodesModel2['default'].getInstance().observe("update", this._updateObserver);
         _OpenNodesModel2['default'].getInstance().observe("nodePushed", this._nodesModelObserver);
         _OpenNodesModel2['default'].getInstance().observe("nodeRemovedAtIndex", this._nodesRemoveObserver);
@@ -104,6 +106,8 @@ var EditionPanel = (function (_React$Component) {
         var _object$node = object.node;
         var node = _object$node === undefined ? {} : _object$node;
         var editorData = object.editorData;
+
+        console.log("Editor node is ", node);
 
         pydio.Registry.loadEditorResources(editorData.resourcesManager, function () {
             var tabId = tabCreate({

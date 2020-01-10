@@ -135,6 +135,8 @@ import RestFrontEnrollAuthRequest from './model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from './model/RestFrontEnrollAuthResponse';
 import RestFrontMessagesResponse from './model/RestFrontMessagesResponse';
 import RestFrontPluginsResponse from './model/RestFrontPluginsResponse';
+import RestFrontSessionDelResponse from './model/RestFrontSessionDelResponse';
+import RestFrontSessionGetResponse from './model/RestFrontSessionGetResponse';
 import RestFrontSessionRequest from './model/RestFrontSessionRequest';
 import RestFrontSessionResponse from './model/RestFrontSessionResponse';
 import RestFrontStateResponse from './model/RestFrontStateResponse';
@@ -187,6 +189,7 @@ import RestShareLinkTargetUser from './model/RestShareLinkTargetUser';
 import RestSubscriptionsCollection from './model/RestSubscriptionsCollection';
 import RestTemplate from './model/RestTemplate';
 import RestTemplateNode from './model/RestTemplateNode';
+import RestToken from './model/RestToken';
 import RestUpdateSharePoliciesRequest from './model/RestUpdateSharePoliciesRequest';
 import RestUpdateSharePoliciesResponse from './model/RestUpdateSharePoliciesResponse';
 import RestUserBookmarksRequest from './model/RestUserBookmarksRequest';
@@ -1021,6 +1024,18 @@ export {
     RestFrontPluginsResponse,
 
     /**
+     * The RestFrontSessionDelResponse model constructor.
+     * @property {module:model/RestFrontSessionDelResponse}
+     */
+    RestFrontSessionDelResponse,
+
+    /**
+     * The RestFrontSessionGetResponse model constructor.
+     * @property {module:model/RestFrontSessionGetResponse}
+     */
+    RestFrontSessionGetResponse,
+
+    /**
      * The RestFrontSessionRequest model constructor.
      * @property {module:model/RestFrontSessionRequest}
      */
@@ -1331,6 +1346,12 @@ export {
      * @property {module:model/RestTemplateNode}
      */
     RestTemplateNode,
+
+    /**
+     * The RestToken model constructor.
+     * @property {module:model/RestToken}
+     */
+    RestToken,
 
     /**
      * The RestUpdateSharePoliciesRequest model constructor.
