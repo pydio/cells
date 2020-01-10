@@ -246,15 +246,31 @@ const Dashboard = React.createClass({
         if(selectJob && result && result.Jobs){
             const found = result.Jobs.filter((j) => j.ID === selectJob);
             if(found.length){
-                return <JobBoard pydio={pydio} job={found[0]} jobsEditable={jobsEditable} onSave={()=>{this.load(true)}} onRequestClose={(refresh)=>{
-                    this.setState({selectJob: null});
-                    if(refresh){
-                        this.load();
-                    }
-                }}/>;
+                return (
+                    <JobBoard
+                        pydio={pydio}
+                        job={found[0]}
+                        jobsEditable={jobsEditable}
+                        onSave={()=>{this.load(true)}}
+                        onRequestClose={(refresh)=>{
+                            this.setState({selectJob: null});
+                            if(refresh){
+                                this.load();
+                            }
+                        }}
+                    />);
             }
         } else if(createJob) {
-            return <JobBoard pydio={pydio} job={createJob} create={true} jobsEditable={jobsEditable} onSave={()=>{this.load(true)}} onRequestClose={()=>this.setState({createJob: null})}/>;
+            return (
+                <JobBoard
+                    pydio={pydio}
+                    job={createJob}
+                    create={true}
+                    jobsEditable={jobsEditable}
+                    onSave={()=>{this.load(true)}}
+                    onRequestClose={()=>this.setState({createJob: null})}
+                />
+            );
         }
         let {system, other} = this.extractRowsInfo(result ? result.Jobs : [], m);
         system.sort((a,b) => {

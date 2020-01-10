@@ -375,21 +375,34 @@ var Dashboard = _react2['default'].createClass({
                 return j.ID === selectJob;
             });
             if (found.length) {
-                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], jobsEditable: jobsEditable, onSave: function () {
+                return _react2['default'].createElement(_JobBoard2['default'], {
+                    pydio: pydio,
+                    job: found[0],
+                    jobsEditable: jobsEditable,
+                    onSave: function () {
                         _this5.load(true);
-                    }, onRequestClose: function (refresh) {
+                    },
+                    onRequestClose: function (refresh) {
                         _this5.setState({ selectJob: null });
                         if (refresh) {
                             _this5.load();
                         }
-                    } });
+                    }
+                });
             }
         } else if (createJob) {
-            return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: createJob, create: true, jobsEditable: jobsEditable, onSave: function () {
+            return _react2['default'].createElement(_JobBoard2['default'], {
+                pydio: pydio,
+                job: createJob,
+                create: true,
+                jobsEditable: jobsEditable,
+                onSave: function () {
                     _this5.load(true);
-                }, onRequestClose: function () {
+                },
+                onRequestClose: function () {
                     return _this5.setState({ createJob: null });
-                } });
+                }
+            });
         }
 
         var _extractRowsInfo = this.extractRowsInfo(result ? result.Jobs : [], m);

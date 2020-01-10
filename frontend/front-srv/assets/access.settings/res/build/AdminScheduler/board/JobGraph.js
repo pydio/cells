@@ -723,37 +723,97 @@ var JobGraph = (function (_React$Component) {
             onToggleEdit(!editMode, this.reLayout.bind(this));
         }
     }, {
+        key: 'cleanJsonActions',
+        value: function cleanJsonActions(actions) {
+            var _this8 = this;
+
+            actions.forEach(function (a) {
+                if (a.model) {
+                    delete a.model;
+                }
+                if (a.ChainedActions) {
+                    _this8.cleanJsonActions(a.ChainedActions);
+                }
+            });
+        }
+    }, {
+        key: 'computeJSON',
+        value: function computeJSON() {
+            var _state7 = this.state;
+            var jsonJob = _state7.jsonJob;
+            var job = _state7.job;
+
+            var j = jsonJob ? jsonJob : job;
+            var cleanJsonStruct = JSON.parse(JSON.stringify(j));
+            delete cleanJsonStruct['Tasks'];
+            delete cleanJsonStruct['model'];
+            if (cleanJsonStruct.Actions) {
+                this.cleanJsonActions(cleanJsonStruct.Actions);
+            }
+            return JSON.stringify(cleanJsonStruct, null, 2);
+        }
+    }, {
+        key: 'updateJSON',
+        value: function updateJSON(newValue) {
+            var job = this.state.job;
+
+            var valid = undefined;
+            try {
+                var j = JSON.parse(newValue);
+                if (j) {
+                    valid = _pydioHttpRestApi.JobsJob.constructFromObject(j);
+                }
+                valid.ID = job.ID; // Keep ID
+            } catch (e) {}
+            if (valid) {
+                this.setState({ jsonJob: valid, jsonJobInvalid: false });
+            } else {
+                this.setState({ jsonJobInvalid: true });
+            }
+        }
+    }, {
+        key: 'saveJSON',
+        value: function saveJSON() {
+            var _state8 = this.state;
+            var jsonJob = _state8.jsonJob;
+            var onSave = _state8.onSave;
+
+            onSave(jsonJob, this.props.onJsonSave);
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this8 = this;
+            var _this9 = this;
 
             var selBlock = undefined;
             var _props = this.props;
             var jobsEditable = _props.jobsEditable;
             var create = _props.create;
-            var _state7 = this.state;
-            var onEmptyModel = _state7.onEmptyModel;
-            var editMode = _state7.editMode;
-            var bbox = _state7.bbox;
-            var selectionType = _state7.selectionType;
-            var descriptions = _state7.descriptions;
-            var selectionModel = _state7.selectionModel;
-            var onTriggerChange = _state7.onTriggerChange;
-            var onLabelChange = _state7.onLabelChange;
-            var onJobPropertyChange = _state7.onJobPropertyChange;
-            var createNewAction = _state7.createNewAction;
-            var onRemoveFilter = _state7.onRemoveFilter;
-            var dirty = _state7.dirty;
-            var onSetDirty = _state7.onSetDirty;
-            var onRevert = _state7.onRevert;
-            var onSave = _state7.onSave;
-            var original = _state7.original;
-            var job = _state7.job;
+            var _state9 = this.state;
+            var onEmptyModel = _state9.onEmptyModel;
+            var editMode = _state9.editMode;
+            var bbox = _state9.bbox;
+            var selectionType = _state9.selectionType;
+            var descriptions = _state9.descriptions;
+            var selectionModel = _state9.selectionModel;
+            var onTriggerChange = _state9.onTriggerChange;
+            var onLabelChange = _state9.onLabelChange;
+            var onJobPropertyChange = _state9.onJobPropertyChange;
+            var createNewAction = _state9.createNewAction;
+            var onRemoveFilter = _state9.onRemoveFilter;
+            var dirty = _state9.dirty;
+            var onSetDirty = _state9.onSetDirty;
+            var onRevert = _state9.onRevert;
+            var onSave = _state9.onSave;
+            var original = _state9.original;
+            var job = _state9.job;
+            var showJsonDialog = _state9.showJsonDialog;
+            var jsonJobInvalid = _state9.jsonJobInvalid;
 
             var fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
             var blockProps = { onDismiss: function onDismiss() {
-                    _this8.clearSelection();
+                    _this9.clearSelection();
                 } };
             var rightWidth = 300;
             var showOffsetButton = undefined;
@@ -764,11 +824,11 @@ var JobGraph = (function (_React$Component) {
                     action: _pydioHttpRestApi.JobsAction.constructFromObject({ ID: _actionsEditor.JOB_ACTION_EMPTY }),
                     onChange: function (newAction) {
                         onEmptyModel(new _graphAction2['default'](descriptions, newAction, true));
-                        _this8.reLayout(true);
+                        _this9.reLayout(true);
                     },
                     create: true,
                     onDismiss: function () {
-                        _this8.setState({ createNewAction: false, fPanelWidthOffset: 0 });
+                        _this9.setState({ createNewAction: false, fPanelWidthOffset: 0 });
                     }
                 });
             } else if (selectionModel) {
@@ -781,7 +841,7 @@ var JobGraph = (function (_React$Component) {
                             actionInfo: descriptions[action.ID],
                             action: action }, blockProps, {
                             onRemove: function () {
-                                _this8.deleteAction();
+                                _this9.deleteAction();
                             },
                             onChange: function (newAction) {
                                 action.Parameters = newAction.Parameters;
@@ -856,7 +916,10 @@ var JobGraph = (function (_React$Component) {
                     _react2['default'].createElement(_materialUi.Checkbox, { style: { width: 200 }, checked: job.AutoStart, onCheck: function (e, v) {
                             onJobPropertyChange('AutoStart', v);
                         }, label: "Run-On-Save" }),
-                    _react2['default'].createElement('span', { style: { flex: 1 } })
+                    _react2['default'].createElement('span', { style: { flex: 1 } }),
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-json", onTouchTap: function () {
+                            _this9.setState({ showJsonDialog: true });
+                        }, tooltip: "Import/Export JSON", tooltipPosition: "top-left" })
                 );
             }
 
@@ -864,19 +927,47 @@ var JobGraph = (function (_React$Component) {
                 _materialUi.Paper,
                 { zDepth: 1, style: { margin: 20 } },
                 _react2['default'].createElement(
+                    _materialUi.Dialog,
+                    {
+                        title: "Import/Export JSON",
+                        onRequestClose: function () {
+                            _this9.setState({ showJsonDialog: false });
+                        },
+                        open: showJsonDialog,
+                        autoDetectWindowHeight: true,
+                        autoScrollBodyContent: true,
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                                _this9.setState({ showJsonDialog: false });
+                            }, label: "Cancel" }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, onTouchTap: function () {
+                                _this9.saveJSON();
+                            }, disabled: jsonJobInvalid, label: "Save" })]
+                    },
+                    _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                            value: this.computeJSON(),
+                            onChange: function (e, v) {
+                                _this9.updateJSON(v);
+                            },
+                            mode: "json"
+                        })
+                    )
+                ),
+                _react2['default'].createElement(
                     'div',
                     { style: st.header },
                     header,
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            onSave(job, _this8.props.onJobSave);
+                            onSave(job, _this9.props.onJobSave);
                         }, tooltip: 'Save', iconClassName: "mdi mdi-content-save", iconStyle: st.icon }),
                     jobsEditable && dirty && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                             onRevert(original, function (j) {
-                                _this8.graphFromJob(j);_this8.reLayout(editMode);
+                                _this9.graphFromJob(j);_this9.reLayout(editMode);
                             });
                         }, tooltip: 'Revert', iconClassName: "mdi mdi-undo", iconStyle: st.icon }),
                     jobsEditable && _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
-                            _this8.toggleEdit();
+                            _this9.toggleEdit();
                         }, tooltip: editMode ? 'Close' : 'Edit', iconClassName: editMode ? "mdi mdi-close" : "mdi mdi-pencil", iconStyle: st.icon })
                 ),
                 _react2['default'].createElement(
@@ -892,10 +983,10 @@ var JobGraph = (function (_React$Component) {
                         { zDepth: 0, style: { width: selBlock ? rightWidth + fPanelWidthOffset : 0, height: bbox ? bbox.height : editWindowHeight, position: 'relative' } },
                         selBlock,
                         showOffsetButton && fPanelWidthOffset === 0 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-left right-panel-expand-button", onClick: function () {
-                                _this8.setState({ fPanelWidthOffset: 300 });
+                                _this9.setState({ fPanelWidthOffset: 300 });
                             } }),
                         showOffsetButton && fPanelWidthOffset === 300 && _react2['default'].createElement('span', { className: "mdi mdi-chevron-right right-panel-expand-button", onClick: function () {
-                                _this8.setState({ fPanelWidthOffset: 0 });
+                                _this9.setState({ fPanelWidthOffset: 0 });
                             } })
                     )
                 ),

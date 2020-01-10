@@ -14,7 +14,7 @@ import Action from "./graph/Action";
 import dagre from 'dagre'
 import graphlib from 'graphlib'
 import Selector from "./graph/Selector";
-import {Paper, FlatButton, FontIcon, IconButton, Checkbox} from 'material-ui'
+import {Paper, FlatButton, FontIcon, IconButton, Checkbox, Dialog} from 'material-ui'
 import FormPanel from "./builder/FormPanel";
 import {Triggers} from "./builder/Triggers";
 import {createStore, applyMiddleware} from 'redux'
@@ -559,19 +559,64 @@ class JobGraph extends React.Component {
         onToggleEdit(!editMode, this.reLayout.bind(this));
     }
 
+    cleanJsonActions(actions){
+        actions.forEach(a => {
+            if(a.model){
+                delete a.model;
+            }
+            if(a.ChainedActions){
+                this.cleanJsonActions(a.ChainedActions);
+            }
+        })
+    }
+
+    computeJSON(){
+        const {jsonJob, job} = this.state;
+        const j = jsonJob ? jsonJob : job;
+        const cleanJsonStruct = JSON.parse(JSON.stringify(j));
+        delete cleanJsonStruct['Tasks'];
+        delete cleanJsonStruct['model'];
+        if(cleanJsonStruct.Actions){
+            this.cleanJsonActions(cleanJsonStruct.Actions);
+        }
+        return JSON.stringify(cleanJsonStruct, null, 2);
+    }
+
+    updateJSON(newValue){
+        const {job} = this.state;
+        let valid;
+        try {
+            const j = JSON.parse(newValue);
+            if(j){
+                valid = JobsJob.constructFromObject(j);
+            }
+            valid.ID = job.ID; // Keep ID
+        } catch(e){}
+        if(valid){
+            this.setState({jsonJob: valid, jsonJobInvalid: false});
+        } else {
+            this.setState({jsonJobInvalid: true});
+        }
+    }
+
+    saveJSON(){
+        const {jsonJob, onSave} = this.state;
+        onSave(jsonJob, this.props.onJsonSave);
+    }
+
     render() {
 
         let selBlock;
         const {jobsEditable, create} = this.props;
         const {onEmptyModel, editMode, bbox, selectionType, descriptions, selectionModel, onTriggerChange, onLabelChange, onJobPropertyChange, createNewAction,
-            onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job} = this.state;
+            onRemoveFilter, dirty, onSetDirty, onRevert, onSave, original, job, showJsonDialog, jsonJobInvalid} = this.state;
         let fPanelWidthOffset = this.state.fPanelWidthOffset || 0;
 
         let blockProps = {onDismiss: ()=>{this.clearSelection()}};
         let rightWidth = 300;
         let showOffsetButton;
         if(createNewAction) {
-            showOffsetButton = true
+            showOffsetButton = true;
             selBlock = <FormPanel
                 actions={descriptions}
                 action={JobsAction.constructFromObject({ID:JOB_ACTION_EMPTY})}
@@ -645,12 +690,34 @@ class JobGraph extends React.Component {
                     </div>
                     <Checkbox style={{width:200}} checked={job.AutoStart} onCheck={(e,v) => {onJobPropertyChange('AutoStart', v)}} label={"Run-On-Save"}/>
                     <span style={{flex: 1}}></span>
+                    <IconButton iconClassName={"mdi mdi-json"} onTouchTap={()=>{this.setState({showJsonDialog: true})}} tooltip={"Import/Export JSON"} tooltipPosition={"top-left"}/>
                 </div>
             );
         }
 
         return (
             <Paper zDepth={1} style={{margin: 20}}>
+                <Dialog
+                    title={"Import/Export JSON"}
+                    onRequestClose={()=>{this.setState({showJsonDialog: false})}}
+                    open={showJsonDialog}
+                    autoDetectWindowHeight={true}
+                    autoScrollBodyContent={true}
+                    actions={[
+                        <FlatButton onTouchTap={() => {this.setState({showJsonDialog:false})}} label={"Cancel"}/>,
+                        <FlatButton primary={true} onTouchTap={()=>{this.saveJSON()}} disabled={jsonJobInvalid} label={"Save"}/>
+                    ]}
+                >
+                    <div>
+                        <AdminComponents.CodeMirrorField
+                            value={this.computeJSON()}
+                            onChange={(e, v) => {
+                                this.updateJSON(v);
+                            }}
+                            mode={"json"}
+                        />
+                    </div>
+                </Dialog>
                 <div style={st.header}>
                     {header}
                     {jobsEditable && dirty && <IconButton onTouchTap={()=> {onSave(job, this.props.onJobSave)}} tooltip={'Save'} iconClassName={"mdi mdi-content-save"} iconStyle={st.icon} />}

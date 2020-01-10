@@ -207,9 +207,19 @@ var JobBoard = (function (_React$Component) {
             this.setState({ job: job, create: false });
         }
     }, {
+        key: 'onJsonSave',
+        value: function onJsonSave(job) {
+            var _this3 = this;
+
+            // Artificial redraw : go null and back to job
+            this.setState({ job: null, create: false }, function () {
+                _this3.setState({ job: job });
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var _props2 = this.props;
             var pydio = _props2.pydio;
@@ -222,6 +232,10 @@ var JobBoard = (function (_React$Component) {
             var taskLogs = _state2.taskLogs;
             var create = _state2.create;
             var job = _state2.job;
+
+            if (!job) {
+                return null;
+            }
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
@@ -268,7 +282,7 @@ var JobBoard = (function (_React$Component) {
                 }
                 if (jobsEditable) {
                     actions.push(_react2['default'].createElement(_materialUi.FlatButton, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-delete" }), label: m('job.delete'), primary: true, onTouchTap: function () {
-                            _this3.deleteJob();
+                            _this4.deleteJob();
                         } }));
                 }
             }
@@ -292,7 +306,7 @@ var JobBoard = (function (_React$Component) {
                     {
                         title: job.Label + (taskLogs ? ' - ' + taskLogs.ID.substr(0, 8) : ''),
                         onRequestClose: function () {
-                            _this3.setState({ taskLogs: null });
+                            _this4.setState({ taskLogs: null });
                         },
                         open: taskLogs !== null,
                         autoScrollBodyContent: true,
@@ -322,7 +336,14 @@ var JobBoard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, overflowY: 'auto' } },
-                    _react2['default'].createElement(_JobGraph2['default'], { job: job, random: Math.random(), jobsEditable: jobsEditable, create: create, onJobSave: this.onJobSave.bind(this) }),
+                    _react2['default'].createElement(_JobGraph2['default'], {
+                        job: job,
+                        random: Math.random(),
+                        jobsEditable: jobsEditable,
+                        create: create,
+                        onJobSave: this.onJobSave.bind(this),
+                        onJsonSave: this.onJsonSave.bind(this)
+                    }),
                     !create && _react2['default'].createElement(
                         'div',
                         null,
@@ -337,7 +358,7 @@ var JobBoard = (function (_React$Component) {
                                 emptyStateString: m('tasks.running.empty'),
                                 onSelectRows: function (rows) {
                                     if (rows.length === 1 && running.length) {
-                                        _this3.setState({ taskLogs: rows[0] });
+                                        _this4.setState({ taskLogs: rows[0] });
                                     }
                                 }
                             })
@@ -360,7 +381,7 @@ var JobBoard = (function (_React$Component) {
                                     'div',
                                     { style: { lineHeight: 'initial', marginLeft: 5 } },
                                     _react2['default'].createElement(_materialUi.FlatButton, { label: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
-                                            _this3.setState({ mode: mode === 'selection' ? 'log' : 'selection' });
+                                            _this4.setState({ mode: mode === 'selection' ? 'log' : 'selection' });
                                         }, disabled: working })
                                 ),
                                 _react2['default'].createElement(

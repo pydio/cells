@@ -129,10 +129,21 @@ class JobBoard extends React.Component {
         this.setState({job: job, create: false});
     }
 
+    onJsonSave(job){
+        // Artificial redraw : go null and back to job
+        this.setState({job: null, create:false}, ()=>{
+            this.setState({job: job});
+        });
+    }
+
     render(){
 
         const {pydio, jobsEditable, onRequestClose} = this.props;
         const {selectedRows, working, mode, taskLogs, create, job} = this.state;
+
+        if(!job){
+            return null;
+        }
 
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
@@ -203,7 +214,14 @@ class JobBoard extends React.Component {
                     loading={working}
                 />
                 <div style={{flex:1, overflowY: 'auto'}}>
-                    <JobGraph job={job} random={Math.random()} jobsEditable={jobsEditable} create={create} onJobSave={this.onJobSave.bind(this)}/>
+                    <JobGraph
+                        job={job}
+                        random={Math.random()}
+                        jobsEditable={jobsEditable}
+                        create={create}
+                        onJobSave={this.onJobSave.bind(this)}
+                        onJsonSave={this.onJsonSave.bind(this)}
+                    />
                     {!create &&
                     <div>
                         {running.length > 0 &&  <AdminComponents.SubHeader title={m('tasks.running')} />}
