@@ -110,13 +110,13 @@ class RestClient extends ApiClient{
         request.AuthInfo = authInfo;
         return this.jwtEndpoint(request)
             .then(response => {
-                if (response.data && response.data.Token) {
-                    RestClient.store(response.data.Token);
-                } else if (response.data && response.data.RedirectTo) {
+                if (response.data && response.data.RedirectTo) {
                     window.location.href = response.data.RedirectTo
                 } else if (response.data && response.data.Trigger) {
                     this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
-                }  else if (request.AuthInfo.type === "logout") {
+                } else if (response.data && response.data.Token) {
+                    RestClient.store(response.data.Token);
+                } else if (request.AuthInfo.type === "logout") {
                     RestClient.remove()
                 } else {
                     throw "no user found"
@@ -191,7 +191,6 @@ class RestClient extends ApiClient{
         })
         .then((response) => response)
         .catch((reason) =>{
-            console.log(rea)
             this.handleError(reason);
             return Promise.reject(reason);
         });

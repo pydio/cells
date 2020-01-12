@@ -87,6 +87,7 @@ func init() {
 		frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
 		frontend.RegisterPluginModifier(modifiers.MobileRegModifier)
 		frontend.WrapAuthMiddleware(modifiers.LoginPasswordAuth)
+		frontend.WrapAuthMiddleware(modifiers.LoginExternalAuth)
 		frontend.WrapAuthMiddleware(modifiers.AuthorizationCodeAuth)
 		frontend.WrapAuthMiddleware(modifiers.LogoutAuth)
 		frontend.WrapAuthMiddleware(modifiers.RefreshAuth)
