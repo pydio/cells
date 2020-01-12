@@ -154,12 +154,12 @@ var RestClient = (function (_ApiClient) {
         var request = new _genModelRestFrontSessionRequest2['default']();
         request.AuthInfo = authInfo;
         return this.jwtEndpoint(request).then(function (response) {
-            if (response.data && response.data.Token) {
-                RestClient.store(response.data.Token);
-            } else if (response.data && response.data.RedirectTo) {
+            if (response.data && response.data.RedirectTo) {
                 window.location.href = response.data.RedirectTo;
             } else if (response.data && response.data.Trigger) {
                 _this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+            } else if (response.data && response.data.Token) {
+                RestClient.store(response.data.Token);
             } else if (request.AuthInfo.type === "logout") {
                 RestClient.remove();
             } else {
@@ -242,7 +242,6 @@ var RestClient = (function (_ApiClient) {
         }).then(function (response) {
             return response;
         })['catch'](function (reason) {
-            console.log(rea);
             _this3.handleError(reason);
             return Promise.reject(reason);
         });

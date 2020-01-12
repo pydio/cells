@@ -51,8 +51,6 @@ var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
 var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
 
-var _materialUiSvgIcons = require('material-ui/svg-icons');
-
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
@@ -71,20 +69,11 @@ var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
         }
 
         _class.prototype.render = function render() {
-            var _this = this;
-
             var _state = this.state;
             var login_challenge = _state.login_challenge;
             var error = _state.error;
 
-            var login = pydio.Parameters.get("PRELOG_USER");
-            var pwd = login + "#$!Az1";
-
-            _pydioHttpApi2['default'].getRestClient().jwtFromCredentials(login, pwd, login_challenge, false).then(function () {
-                _this.loadXmlRegistry(null, starterFunc, pydio.Parameters.get("START_REPOSITORY"));
-            })['catch'](function (e) {
-                _this.loadXmlRegistry(null, starterFunc);
-            });
+            _pydioHttpApi2['default'].getRestClient().jwtWithAuthInfo({ type: "external", challenge: login_challenge });
 
             return _react2['default'].createElement(
                 'div',
@@ -99,7 +88,7 @@ var OAuthLoginRouter = function OAuthLoginRouter(pydio) {
 };
 
 exports.OAuthLoginRouter = OAuthLoginRouter;
-var OAuthConsentRouter = function OAuthConsentRouter(pydio) {
+var OAuthOOBRouter = function OAuthOOBRouter(pydio) {
     return (function (_PureComponent2) {
         _inherits(_class2, _PureComponent2);
 
@@ -107,84 +96,11 @@ var OAuthConsentRouter = function OAuthConsentRouter(pydio) {
             _classCallCheck(this, _class2);
 
             _PureComponent2.call(this, props);
-
-            var parsed = _queryString2['default'].parse(location.search);
-
-            this.consentChallenge = parsed.consent_challenge;
-            this.state = parsed;
-        }
-
-        _class2.prototype.authorize = function authorize() {
-            var consentChallenge = this.consentChallenge;
-
-            fetch('/oidc-admin/oauth2/auth/requests/consent?' + _queryString2['default'].stringify({ consent_challenge: consentChallenge })).then(function (res) {
-                return res.json();
-            }).then(function (res) {
-                var body = {
-                    grant_scope: res.requested_scope,
-                    grant_access_token_audience: res.requested_access_token_audience,
-                    session: {
-                        // Sets session data for the access and refresh token, as well as any future tokens issued by the
-                        // refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection.
-                        // If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties
-                        // can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care!
-                        // access_token: {
-                        //     name: pydio.user.id
-                        // },
-
-                        // // Sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable
-                        // // by anyone that has access to the ID Challenge. Use with care! Any information added here will be mirrored at
-                        // // the `/userinfo` endpoint.
-                        // id_token: {
-                        //     name: pydio.user.id
-                        // },
-                    }
-                };
-
-                fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + _queryString2['default'].stringify({ consent_challenge: consentChallenge }), {
-                    method: 'PUT',
-                    body: JSON.stringify(body),
-                    headers: { 'Content-Type': 'application/json' }
-                }).then(function (response) {
-                    return response.json();
-                }).then(function (response) {
-                    // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                    window.location.replace(response.redirect_to);
-                });
-            });
-        };
-
-        _class2.prototype.render = function render() {
-            var error = this.state.error;
-
-            setTimeout(_pydioHttpApi2['default'].getRestClient().jwtFromConsentChallenge(this.consentChallenge), 3000);
-
-            return _react2['default'].createElement(
-                'div',
-                null,
-                error && _react2['default'].createElement(ErrorDialog, this.state),
-                this.props.children
-            );
-        };
-
-        return _class2;
-    })(_react.PureComponent);
-};
-
-exports.OAuthConsentRouter = OAuthConsentRouter;
-var OAuthOOBRouter = function OAuthOOBRouter(pydio) {
-    return (function (_PureComponent3) {
-        _inherits(_class3, _PureComponent3);
-
-        function _class3(props) {
-            _classCallCheck(this, _class3);
-
-            _PureComponent3.call(this, props);
             var parsed = _queryString2['default'].parse(location.search);
             this.state = _extends({}, parsed);
         }
 
-        _class3.prototype.render = function render() {
+        _class2.prototype.render = function render() {
             var code = this.state.code;
 
             return _react2['default'].createElement(
@@ -198,24 +114,24 @@ var OAuthOOBRouter = function OAuthOOBRouter(pydio) {
             );
         };
 
-        return _class3;
+        return _class2;
     })(_react.PureComponent);
 };
 
 exports.OAuthOOBRouter = OAuthOOBRouter;
 var OAuthFallbacksRouter = function OAuthFallbacksRouter(pydio) {
-    return (function (_PureComponent4) {
-        _inherits(_class4, _PureComponent4);
+    return (function (_PureComponent3) {
+        _inherits(_class3, _PureComponent3);
 
-        function _class4(props) {
-            _classCallCheck(this, _class4);
+        function _class3(props) {
+            _classCallCheck(this, _class3);
 
-            _PureComponent4.call(this, props);
+            _PureComponent3.call(this, props);
             var parsed = _queryString2['default'].parse(location.search);
             this.state = _extends({}, parsed);
         }
 
-        _class4.prototype.render = function render() {
+        _class3.prototype.render = function render() {
             return _react2['default'].createElement(
                 'div',
                 null,
@@ -224,7 +140,7 @@ var OAuthFallbacksRouter = function OAuthFallbacksRouter(pydio) {
             );
         };
 
-        return _class4;
+        return _class3;
     })(_react.PureComponent);
 };
 
@@ -245,7 +161,7 @@ var ErrorDialog = (function (_Component) {
     };
 
     ErrorDialog.prototype.render = function render() {
-        var _this2 = this;
+        var _this = this;
 
         var _props = this.props;
         var error = _props.error;
@@ -265,7 +181,7 @@ var ErrorDialog = (function (_Component) {
                 modal: false,
                 title: error ? "Authentication Error" : "Authentication Success",
                 actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "OK", onTouchTap: function () {
-                        _this2.dismiss();
+                        _this.dismiss();
                     } })]
             },
             _react2['default'].createElement(

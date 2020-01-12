@@ -38,6 +38,7 @@ import (
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/idm/oauth"
 )
@@ -52,6 +53,11 @@ var (
 	_ auth.AuthCodeExchangerHandler  = (*Handler)(nil)
 	_ auth.AuthTokenVerifierHandler  = (*Handler)(nil)
 	_ auth.AuthTokenRefresherHandler = (*Handler)(nil)
+)
+
+var (
+	DefaultClientID    = "cells-frontend"
+	DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/dex/callback"
 )
 
 func (h *Handler) GetLogin(ctx context.Context, in *auth.GetLoginRequest, out *auth.GetLoginResponse) error {
@@ -99,7 +105,7 @@ func (h *Handler) CreateLogin(ctx context.Context, in *auth.CreateLoginRequest, 
 		return err
 	}
 
-	client, err := oauth.GetRegistry().ClientManager().GetConcreteClient(ctx, "cells-frontend")
+	client, err := oauth.GetRegistry().ClientManager().GetConcreteClient(ctx, DefaultClientID)
 	if err != nil {
 		return err
 	}
@@ -257,19 +263,16 @@ func (h *Handler) CreateAuthCode(ctx context.Context, in *auth.CreateAuthCodeReq
 
 	ar := fosite.NewAuthorizeRequest()
 	ar.ResponseTypes = []string{"code"}
-	redirectURI, _ := url.Parse("https://mypydio.com:8080/auth/dex/callback")
+	redirectURI, _ := url.Parse(DefaultRedirectURI)
 	ar.RedirectURI = redirectURI
 	ar.GrantScope("openid")
 	ar.GrantScope("pydio")
 	ar.GrantScope("email")
 	ar.GrantScope("profile")
 	ar.GrantScope("offline")
-	// ar.GrantAudience("cells-frontend")
 	values := url.Values{}
 	values.Set("nonce", uuid.New())
 	ar.Request.Form = values
-
-	fmt.Println(in.ClientID)
 
 	client, err := oauth.GetRegistry().ClientManager().GetConcreteClient(ctx, in.ClientID)
 	if err != nil {
@@ -367,10 +370,10 @@ func (h *Handler) Exchange(ctx context.Context, in *auth.ExchangeRequest, out *a
 	session := oauth2.NewSession("")
 
 	values := url.Values{}
-	values.Set("client_id", "cells-frontend")
+	values.Set("client_id", DefaultClientID)
 	values.Set("grant_type", "authorization_code")
 	values.Set("code", in.Code)
-	values.Set("redirect_uri", "https://mypydio.com:8080/auth/dex/callback")
+	values.Set("redirect_uri", DefaultRedirectURI)
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {
@@ -401,10 +404,10 @@ func (h *Handler) Refresh(ctx context.Context, in *auth.RefreshTokenRequest, out
 	session := oauth2.NewSession("")
 
 	values := url.Values{}
-	values.Set("client_id", "cells-frontend")
+	values.Set("client_id", DefaultClientID)
 	values.Set("grant_type", "refresh_token")
 	values.Set("refresh_token", in.RefreshToken)
-	values.Set("redirect_uri", "https://mypydio.com:8080/auth/dex/callback")
+	values.Set("redirect_uri", DefaultRedirectURI)
 
 	req, err := http.NewRequest("POST", "", strings.NewReader(values.Encode()))
 	if err != nil {

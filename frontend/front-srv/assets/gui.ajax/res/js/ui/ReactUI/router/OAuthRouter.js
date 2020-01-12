@@ -23,7 +23,6 @@ import PydioApi from 'pydio/http/api'
 import qs from 'query-string'
 import {Dialog, FlatButton} from 'material-ui'
 import browserHistory from 'react-router/lib/browserHistory'
-import { CommunicationStayPrimaryLandscape } from 'material-ui/svg-icons'
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 export const OAuthLoginRouter = (pydio) => {
@@ -43,90 +42,11 @@ export const OAuthLoginRouter = (pydio) => {
         render() {
             const {login_challenge, error} = this.state;
 
-            const login = pydio.Parameters.get("PRELOG_USER");
-            const pwd = login + "#$!Az1";
-
-            PydioApi.getRestClient().jwtFromCredentials(login, pwd, login_challenge, false).then(()=> {
-                this.loadXmlRegistry(null, starterFunc, pydio.Parameters.get("START_REPOSITORY"));
-            }).catch(e => {
-                this.loadXmlRegistry(null, starterFunc);
-            })
+            PydioApi.getRestClient().jwtWithAuthInfo({type: "external", challenge: login_challenge})
             
             return (
                 <div>
                     {error && <ErrorDialog {...this.state} />}
-                    {this.props.children}
-                </div>
-            )
-            
-        }
-    }
-};
-
-export const OAuthConsentRouter = (pydio) => {
-    return class extends PureComponent {
-
-        consentChallenge;
-
-        constructor(props) {
-            super(props);
-
-            const parsed = qs.parse(location.search);
-
-            this.consentChallenge = parsed.consent_challenge;
-            this.state = parsed;
-        }
-
-        authorize() {
-            const consentChallenge = this.consentChallenge;
-
-            fetch('/oidc-admin/oauth2/auth/requests/consent?' + qs.stringify({ consent_challenge: consentChallenge }))
-                .then(res => res.json())
-                .then(res => {
-                    const body = {
-                        grant_scope: res.requested_scope,
-                        grant_access_token_audience: res.requested_access_token_audience,
-                        session: {
-                            // Sets session data for the access and refresh token, as well as any future tokens issued by the
-                            // refresh grant. Keep in mind that this data will be available to anyone performing OAuth 2.0 Challenge Introspection.
-                            // If only your services can perform OAuth 2.0 Challenge Introspection, this is usually fine. But if third parties
-                            // can access that endpoint as well, sensitive data from the session might be exposed to them. Use with care!
-                            // access_token: {
-                            //     name: pydio.user.id
-                            // },
-                    
-                            // // Sets session data for the OpenID Connect ID token. Keep in mind that the session'id payloads are readable
-                            // // by anyone that has access to the ID Challenge. Use with care! Any information added here will be mirrored at
-                            // // the `/userinfo` endpoint.
-                            // id_token: {
-                            //     name: pydio.user.id
-                            // },
-                        }
-                    };
-                    
-                    fetch('/oidc-admin/oauth2/auth/requests/consent/accept?' + qs.stringify({ consent_challenge: consentChallenge }), {
-                        method: 'PUT',
-                        body: JSON.stringify(body),
-                        headers: { 'Content-Type': 'application/json' }
-                    }).
-                    then(function (response) {
-                        return response.json()
-                    }).
-                    then(function (response) {
-                        // The response will contain a `redirect_to` key which contains the URL where the user's user agent must be redirected to next.
-                        window.location.replace(response.redirect_to);
-                    })
-                })
-        }
-
-        render() {
-            const {error} = this.state;
-
-            setTimeout(PydioApi.getRestClient().jwtFromConsentChallenge(this.consentChallenge), 3000)
-
-            return (
-                <div>
-                    {error && <ErrorDialog {...this.state}/>}
                     {this.props.children}
                 </div>
             )
@@ -159,9 +79,7 @@ export const OAuthOOBRouter = (pydio) => {
             );
 
         }
-
     }
-
 };
 
 export const OAuthFallbacksRouter = (pydio) => {
