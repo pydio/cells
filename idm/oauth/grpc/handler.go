@@ -57,7 +57,7 @@ var (
 
 var (
 	DefaultClientID    = "cells-frontend"
-	DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/dex/callback"
+	DefaultRedirectURI = config.Get("defaults", "url").String("") + "/auth/callback"
 )
 
 func (h *Handler) GetLogin(ctx context.Context, in *auth.GetLoginRequest, out *auth.GetLoginResponse) error {

@@ -170,6 +170,22 @@ var SampleConfig = `{
 				}
 			},
 			"staticClients": [
+                {
+					"client_id": "cells-frontend",
+					"client_name": "CellsFrontend Application",
+					"grant_types": [
+						"authorization_code", 
+						"refresh_token"
+					],
+					"redirect_uris": [
+						"http://EXTERNAL_HOST/auth/callback"
+                    ],
+                    "post_logout_redirect_uris": [
+                        "http://EXTERNAL_HOST/auth/logout"
+                    ],
+					"response_types": ["code", "token", "id_token"],
+					"scope": "openid email profile pydio offline"
+				},
 				{
 					"client_id": "cells-sync",
 					"client_name": "CellsSync Application",

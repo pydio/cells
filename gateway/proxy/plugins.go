@@ -61,7 +61,7 @@ var (
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /auth/dex {{.Dex | urls}} {
+	proxy /auth {{.Auth | urls}} {
 		insecure_skip_verify
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
@@ -187,7 +187,7 @@ http://{{.HTTPRedirectSource.Host}} {
 		Bind         string
 		ExternalHost string
 		Micro        string
-		Dex          string
+		Auth         string
 		OAuth        string
 		Gateway      string
 		WebSocket    string
@@ -208,7 +208,7 @@ http://{{.HTTPRedirectSource.Host}} {
 		PluginPathes    []string
 	}{
 		Micro:        common.SERVICE_MICRO_API,
-		Dex:          common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
+		Auth:         common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
 		OAuth:        common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH,
 		Gateway:      common.SERVICE_GATEWAY_DATA,
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
