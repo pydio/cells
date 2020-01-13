@@ -14,6 +14,7 @@ import (
 	"github.com/pydio/cells/common/service/frontend"
 )
 
+// LoginExternalAuth allows users having a valid Cells session to create an authorization code directly
 func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
 		if a, ok := in.AuthInfo["type"]; !ok || a != "external" { // Ignore this middleware
@@ -31,8 +32,6 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return middleware(req, rsp, in, out, session)
 		}
 
-		fmt.Println("Access token ", accessToken)
-
 		_, claims, err := auth.DefaultJWTVerifier().Verify(req.Request.Context(), accessToken.(string))
 		if err != nil {
 			return err
@@ -42,8 +41,6 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		if err != nil {
 			return err
 		}
-
-		fmt.Println("Access token ", claims.Subject)
 
 		if _, err := hydra.AcceptLogin(loginChallenge, claims.Subject); err != nil {
 			return err

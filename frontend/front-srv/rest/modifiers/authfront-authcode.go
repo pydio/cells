@@ -26,6 +26,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+// AuthorizationCodeAuth allows users having a valid AuthCode to register a session
 func AuthorizationCodeAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
 
 	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
