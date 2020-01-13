@@ -48,47 +48,6 @@ func init() {
 			}}),
 			service.WithMicro(func(m micro.Service) error {
 
-				// INIT DEX CONFIG
-				// ctx := m.Options().Context
-				// conf := servicecontext.GetConfig(ctx)
-
-				// log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
-
-				// var c auth.Config
-				// err := configDex.Scan(&c)
-				// if err != nil {
-				// 	return fmt.Errorf("error parsing config file %s: %v", configDex, err)
-				// }
-
-				// driver, dsn := conf.Database("dsn")
-
-				// switch driver {
-				// case "mysql":
-				// 	sqlConfig := new(sql.MySQL)
-				// 	sqlConfig.DSN = dsn
-				// 	c.Storage.Config = sqlConfig
-				// case "sqlite3":
-				// 	sqlConfig := new(sql.SQLite3)
-				// 	sqlConfig.File = dsn
-				// }
-
-				// if config.Get("cert", "http", "ssl").Bool(false) {
-				// 	log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
-				// 	certFile := config.Get("cert", "http", "certFile").String("")
-				// 	keyFile := config.Get("cert", "http", "keyFile").String("")
-				// 	c.Web.HTTPS = c.Web.HTTP
-				// 	c.Web.HTTP = ""
-				// 	c.Web.TLSCert = certFile
-				// 	c.Web.TLSKey = keyFile
-
-				// 	if config.Get("cert", "http", "self").Bool(false) {
-				// 		ips, _ := net.GetAvailableIPs()
-				// 		for _, ip := range ips {
-				// 			c.Web.AllowedOrigins = append(c.Web.AllowedOrigins, ip.String())
-				// 		}
-				// 	}
-				// }
-
 				tokenRevokerHandler, err := NewAuthTokenRevokerHandler()
 				if err != nil {
 					return err
