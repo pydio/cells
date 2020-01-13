@@ -78,6 +78,16 @@ func setDefaultConfig(config *Config) (bool, error) {
 		"http://localhost:3000/servers/callback", // SYNC UX DEBUG PORT
 		"http://localhost:[3636-3666]/servers/callback",
 	}
+	external := config.Get("defaults", "url").String("")
+	oAuthFrontendConfig := map[string]interface{}{
+		"client_id":                 "cells-frontend",
+		"client_name":               "CellsFrontend Application",
+		"grant_types":               []string{"authorization_code", "refresh_token"},
+		"redirect_uris":             []string{external + "/auth/callback"},
+		"post_logout_redirect_uris": []string{external + "/auth/logout"},
+		"response_types":            []string{"code", "token", "id_token"},
+		"scope":                     "openid email profile pydio offline",
+	}
 	oAuthSyncConfig := map[string]interface{}{
 		"client_id":      "cells-sync",
 		"client_name":    "CellsSync Application",
@@ -86,7 +96,7 @@ func setDefaultConfig(config *Config) (bool, error) {
 		"response_types": []string{"code", "token", "id_token"},
 		"scope":          "openid email profile pydio offline",
 	}
-	external := config.Get("defaults", "url").String("")
+
 	oAuthCecConfig := map[string]interface{}{
 		"client_id":   "cells-client",
 		"client_name": "Cells Client CLI Tool",
@@ -117,6 +127,7 @@ func setDefaultConfig(config *Config) (bool, error) {
 		},
 		"services/" + oauthSrv + "/secret": string(secret),
 		"services/" + oauthSrv + "/staticClients": []map[string]interface{}{
+			oAuthFrontendConfig,
 			oAuthSyncConfig,
 			oAuthCecConfig,
 			oAuthMobileConfig,
@@ -187,12 +198,29 @@ func forceDefaultConfig(config *Config) (bool, error) {
 		}
 	}
 
+	external := config.Get("defaults", "url").String("")
+	oAuthFrontendConfig := map[string]interface{}{
+		"client_id":                 "cells-frontend",
+		"client_name":               "CellsFrontend Application",
+		"grant_types":               []string{"authorization_code", "refresh_token"},
+		"redirect_uris":             []string{external + "/auth/callback"},
+		"post_logout_redirect_uris": []string{external + "/auth/logout"},
+		"response_types":            []string{"code", "token", "id_token"},
+		"scope":                     "openid email profile pydio offline",
+	}
+
 	// Special case for srvUrl/oauth2/oob url
 	statics := config.Get("services", oauthSrv, "staticClients")
 	var data []map[string]interface{}
 	if err := statics.Scan(&data); err == nil {
 		var saveStatics bool
+		var addCellsFrontend = true
 		for _, static := range data {
+			if clientID, ok := static["client_id"].(string); addCellsFrontend && ok {
+				if clientID == "cells-frontend" {
+					addCellsFrontend = false
+				}
+			}
 			if redirs, ok := static["redirect_uris"].([]interface{}); ok {
 				var newRedirs []string
 				for _, redir := range redirs {
@@ -206,8 +234,12 @@ func forceDefaultConfig(config *Config) (bool, error) {
 				static["redirect_uris"] = newRedirs
 			}
 		}
+		if addCellsFrontend {
+			data = append([]map[string]interface{}{oAuthFrontendConfig}, data...)
+			saveStatics = true
+		}
 		if saveStatics {
-			fmt.Println("[Configs] Upgrading: updating out-of-band redirect URI")
+			fmt.Println("[Configs] Upgrading: updating staticClients")
 			config.Set(data, "services", oauthSrv, "staticClients")
 			save = true
 		}
