@@ -61,19 +61,7 @@ var (
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /auth {{.Auth | urls}} {
-		insecure_skip_verify
-		header_upstream Host {host}
-		header_upstream X-Real-IP {remote}
-		header_upstream X-Forwarded-Proto {scheme}
-	}
 	proxy /oidc {{.OAuth | urls}} {
-		insecure_skip_verify
-		header_upstream Host {host}
-		header_upstream X-Real-IP {remote}
-		header_upstream X-Forwarded-Proto {scheme}
-	}
-	proxy /oidc-admin/oauth2/auth/requests {{.OAuth | urls}} {
 		insecure_skip_verify
 		header_upstream Host {host}
 		header_upstream X-Real-IP {remote}
@@ -153,9 +141,7 @@ var (
 	
 	rewrite {
 		if {path} not_starts_with "/a/"
-		if {path} not_starts_with "/auth/"
 		if {path} not_starts_with "/oidc/"
-		if {path} not_starts_with "/oidc-admin/oauth2/auth/requests/"
 		if {path} not_starts_with "/io"
 		if {path} not_starts_with "/data"
 		if {path} not_starts_with "/ws/"
@@ -187,7 +173,6 @@ http://{{.HTTPRedirectSource.Host}} {
 		Bind         string
 		ExternalHost string
 		Micro        string
-		Auth         string
 		OAuth        string
 		Gateway      string
 		WebSocket    string
@@ -208,7 +193,6 @@ http://{{.HTTPRedirectSource.Host}} {
 		PluginPathes    []string
 	}{
 		Micro:        common.SERVICE_MICRO_API,
-		Auth:         common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
 		OAuth:        common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_OAUTH,
 		Gateway:      common.SERVICE_GATEWAY_DATA,
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
