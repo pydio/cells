@@ -124,7 +124,8 @@ class RestClient extends ApiClient{
             }).catch(e => {
                 this.pydio.getController().fireAction('logout');
                 RestClient.remove()
-                return Promise.reject()
+                
+                throw e
             });
     }
 

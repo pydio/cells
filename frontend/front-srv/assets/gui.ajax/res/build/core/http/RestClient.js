@@ -168,7 +168,8 @@ var RestClient = (function (_ApiClient) {
         })['catch'](function (e) {
             _this.pydio.getController().fireAction('logout');
             RestClient.remove();
-            return Promise.reject();
+
+            throw e;
         });
     };
 
