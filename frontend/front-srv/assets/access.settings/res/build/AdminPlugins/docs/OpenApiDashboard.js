@@ -54,14 +54,38 @@ var OpenApiDashboard = (function (_React$Component) {
         _classCallCheck(this, OpenApiDashboard);
 
         _get(Object.getPrototypeOf(OpenApiDashboard.prototype), 'constructor', this).call(this, props);
-        var restEndpoint = props.pydio.Parameters.get("ENDPOINT_REST_API");
-        this.state = { specUrl: restEndpoint + '/config/discovery/openapi' };
+        this.state = {};
     }
 
     _createClass(OpenApiDashboard, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this = this;
+
+            var pydio = this.props.pydio;
+
+            var restEndpoint = pydio.Parameters.get("ENDPOINT_REST_API");
+            _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (token) {
+                _this.setState({
+                    bearerToken: token,
+                    specUrl: restEndpoint + '/config/discovery/openapi'
+                });
+            });
+        }
+    }, {
+        key: 'requestInterceptor',
+        value: function requestInterceptor(request) {
+            // Allow developers to set a bearertoken since
+            var bearerToken = this.state.bearerToken;
+
+            request.headers.Authorization = 'Bearer ' + bearerToken;
+            return request;
+        }
+    }, {
         key: 'render',
         value: function render() {
             var pydio = this.props.pydio;
+            var specUrl = this.state.specUrl;
 
             return _react2['default'].createElement(
                 'div',
@@ -84,21 +108,13 @@ var OpenApiDashboard = (function (_React$Component) {
                     _react2['default'].createElement(
                         _materialUi.Paper,
                         { zDepth: 1, style: { margin: 16, paddingBottom: 1 } },
-                        _react2['default'].createElement(_swaggerUiReact2['default'], {
-                            url: this.state.specUrl,
-                            requestInterceptor: OpenApiDashboard.requestInterceptor
+                        specUrl && _react2['default'].createElement(_swaggerUiReact2['default'], {
+                            url: specUrl,
+                            requestInterceptor: this.requestInterceptor.bind(this)
                         })
                     )
                 )
             );
-        }
-    }], [{
-        key: 'requestInterceptor',
-        value: function requestInterceptor(request) {
-            // Allow developers to set a bearertoken since
-            var bearerToken = _pydioHttpApi2['default'].JWT_DATA.jwt;
-            request.headers.Authorization = 'Bearer ' + bearerToken;
-            return request;
         }
     }]);
 

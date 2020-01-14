@@ -46,9 +46,6 @@ class RestClient extends ApiClient{
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;
-        pydioObject.observe('beforeApply-logout', ()=>{
-            PydioApi.JWT_DATA = null;
-        });
     }
 
     /**

@@ -27,19 +27,30 @@ class OpenApiDashboard extends React.Component {
 
     constructor(props){
         super(props);
-        const restEndpoint = props.pydio.Parameters.get("ENDPOINT_REST_API");
-        this.state = { specUrl: restEndpoint + '/config/discovery/openapi' };
+        this.state = {}
     }
 
-    static requestInterceptor(request) {
+    componentDidMount(){
+        const {pydio} = this.props;
+        const restEndpoint = pydio.Parameters.get("ENDPOINT_REST_API");
+        PydioApi.getRestClient().getOrUpdateJwt().then((token) => {
+            this.setState({
+                bearerToken : token,
+                specUrl: restEndpoint + '/config/discovery/openapi'
+            })
+        })
+    }
+
+    requestInterceptor(request) {
         // Allow developers to set a bearertoken since
-        const bearerToken = PydioApi.JWT_DATA.jwt;
+        const {bearerToken} = this.state;
         request.headers.Authorization = `Bearer ${bearerToken}`;
         return request;
     };
 
     render(){
         const {pydio} = this.props;
+        const {specUrl} = this.state;
 
         return(
             <div className={"main-layout-nav-to-stack vertical-layout"}>
@@ -53,10 +64,12 @@ class OpenApiDashboard extends React.Component {
                         <span style={{cursor:'pointer'}} className={"mdi mdi-open-in-new"} onClick={()=>{open('https://pydio.com/en/docs/administration-guides')}}/>
                     </div>
                     <Paper zDepth={1} style={{margin:16, paddingBottom: 1}}>
-                        <SwaggerUI
-                            url={this.state.specUrl}
-                            requestInterceptor={OpenApiDashboard.requestInterceptor}
-                        />
+                        {specUrl &&
+                            <SwaggerUI
+                                url={specUrl}
+                                requestInterceptor={this.requestInterceptor.bind(this)}
+                            />
+                        }
                     </Paper>
                 </div>
             </div>
