@@ -1,7 +1,31 @@
-# Changes between v2.0.1 and v2.0.2-dev.20191219
+# Changes between v2.0.1 and v2.0.2
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.0.1...v2.0.2-dev.20191219)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.0.1...v2.0.2)
 
+- [#181ea3f](https://github.com/pydio/cells/commit/181ea3f7f56769e81df4cc0f156482a3b553da62): Add missing German messages
+- [#0bddfbd](https://github.com/pydio/cells/commit/0bddfbdd1e52de2a8ef00564733d2e7d43d402f0): Add missing German messages
+- [#7c7f08f](https://github.com/pydio/cells/commit/7c7f08f4d530be069064f05ce29bad5620f0ff20): Lower log level for invalid token
+- [#6ca7a5a](https://github.com/pydio/cells/commit/6ca7a5a563d8d2813d5d2b5f4a9a723520d8e453): Update minio-go
+- [#1439e47](https://github.com/pydio/cells/commit/1439e47f9e7ceeea6ed399373ba1e48f1e3ab303): Fix ComputeChecksum on multi-bucket client
+- [#8cd383e](https://github.com/pydio/cells/commit/8cd383e0b289063cc7f67964ec2a31f66e90a876): Built version of PydioApi
+- [#2454610](https://github.com/pydio/cells/commit/24546107c0cd63b321c3186790e95a11099c98b2): Rest treeService: add checks for empty nodes slice or duplicate nodes
+- [#b4336cf](https://github.com/pydio/cells/commit/b4336cf5079c647078a42178d54b500fa953c8ad): Fix body positioning Fix task panel showing scroller when folded Additional jwt check on Multipart abort/complete operations
+- [#7783ec7](https://github.com/pydio/cells/commit/7783ec7c65b37a681adf7a3dcd9222678395a192): Merge pull request from pydio-i18n/master
+- [#f32f06e](https://github.com/pydio/cells/commit/f32f06e2f53540ef5d0fdbe4df36b586f82940a7): New Crowdin translations
+- [#f2945d5](https://github.com/pydio/cells/commit/f2945d5b5811e349ca4ebee964ade17cede126a8): Do not set flag level_readonly on virtual root for public links, it can prevent edition even if allowed.
+- [#c97fff0](https://github.com/pydio/cells/commit/c97fff08788a84d3f83d9bf3c873c3b866c6a94f): Support Share activity in user Digest. Could create empty emails for notifications digests
+- [#cf5b53f](https://github.com/pydio/cells/commit/cf5b53fc30c37fc2431dd9e66992050c6313a302): Handle remote dl lists
+- [#508b92c](https://github.com/pydio/cells/commit/508b92cd3319c67e4c868c8431f171141655d820): Disable remote dl by default and add black/white lists
+- [#4def6c3](https://github.com/pydio/cells/commit/4def6c3857a4f6db4bc9fdf4947f33f35ef5accd): Roles Picker forgotten log Mailer : re-enable direct message and skip no-email users, teams and groups
+- [#6f31473](https://github.com/pydio/cells/commit/6f314733f65fcef938a973feebc43f8dd8f250cf): New DM email template
+- [#37d6256](https://github.com/pydio/cells/commit/37d625678bc53303ae66d9e9bd1f7cf88e8f25f6): Additional check to avoid empty digest
+- [#d34c64b](https://github.com/pydio/cells/commit/d34c64bb8b3cd5fe1aa1933b13d848be45eba572): Improve role panel - Prevent removing auto-applied roles in user panel.
+- [#af633fc](https://github.com/pydio/cells/commit/af633fcc53421ae7c2944063e71c5ed5c78a305f): Fix upgrade version
+- [#3d3cde0](https://github.com/pydio/cells/commit/3d3cde03705dd042f348879cc9e91905b4fa1eb6): Force clear user cache in permissions package on update, otherwise the user teams are not real-time refreshed
+- [#a0eadff](https://github.com/pydio/cells/commit/a0eadff6f6b11dc812ac5c87041f133340973ad9): Fix various UX glitches on AddressBook
+- [#2209013](https://github.com/pydio/cells/commit/22090135a87bdfe12f4d704faf26362591652f55): People Dashboard: do not refresh state on exit
+- [#a0188b3](https://github.com/pydio/cells/commit/a0188b34117b3be864f894ed6a63a193894c6f5e): Expand rest policies on tree endpoint
+- [#b9c88ef](https://github.com/pydio/cells/commit/b9c88ef45622a65ebd9f34982d0156a9e2218a4d): Release v2.0.2-dev.20191219
 - [#240790a](https://github.com/pydio/cells/commit/240790a22dc084875ccd93df35e8a07bef500928): Cosmetic changes
 - [#a48eaa5](https://github.com/pydio/cells/commit/a48eaa5aa30f8262c1067d99d3cdd2de58a88c51): Add a parameter to disable gui.mobile banner
 - [#25f71b2](https://github.com/pydio/cells/commit/25f71b27eb0042db556ef2b449ff11658e3a8fb5): Fix default value check
