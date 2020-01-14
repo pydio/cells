@@ -75,10 +75,12 @@ class MetadataBoard extends React.Component{
             selectedNamespace = this.emptyNs();
         }
         namespaces.sort((a,b) => {
-            if (a.Order === b.Order) return 0;
-            return a.Order > b.Order ? 1 : -1;
+            const a0 = a.Order || 0;
+            const b0 = b.Order || 0;
+            if (a0 === b0) return 0;
+            return a0 > b0 ? 1 : -1;
         });
-        const {currentNode, pydio} = this.props;
+        const {currentNode, pydio, accessByName} = this.props;
         const columns = [
             {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}, hideSmall:true, renderCell:row => {
                 return row.Order || '0';
@@ -97,6 +99,9 @@ class MetadataBoard extends React.Component{
                 return Metadata.MetaTypes[data.type] || data.type;
             })},
             {name:'actions', label: '', style:{width:100}, headerStyle:{width:100}, renderCell:(row =>{
+                if(!accessByName('Create')){
+                    return null;
+                }
                 return <IconButton
                     iconClassName="mdi mdi-delete"
                     onTouchTap={() => {this.deleteNs(row)}}
@@ -108,9 +113,10 @@ class MetadataBoard extends React.Component{
         ];
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
-        const buttons = [
-            <FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}}/>,
-        ];
+        let buttons = [];
+        if(accessByName('Create')){
+            buttons.push(<FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}}/>);
+        }
 
         return (
 
@@ -123,6 +129,7 @@ class MetadataBoard extends React.Component{
                     onRequestClose={() => this.close()}
                     reloadList={() => this.load()}
                     namespaces={namespaces}
+                    readonly={!accessByName('Create')}
                 />
                 <div className="vertical-layout" style={{width:'100%'}}>
                     <AdminComponents.Header

@@ -22,6 +22,9 @@ package actions
 
 import (
 	"sync"
+
+	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/common/forms"
 )
 
 var (
@@ -57,4 +60,36 @@ func (m *ActionsManager) ActionById(actionId string) (ConcreteAction, bool) {
 		return nil, false
 	}
 	return generator(), true
+}
+
+// DescribeActions provides a list of all registered actions
+func (m *ActionsManager) DescribeActions(languages ...string) map[string]ActionDescription {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	data := map[string]ActionDescription{}
+	for a, gen := range m.registeredActions {
+		action := gen()
+		if descProvider, ok := action.(DescriptionProviderAction); ok {
+			//desc.Label = labelProvider.GetLabel(languages...)
+			data[a] = descProvider.GetDescription(languages...)
+		} else {
+			data[a] = ActionDescription{
+				ID: a,
+			}
+		}
+	}
+	return data
+}
+
+// LoadActionForm tries to load a forms.Form object that can be serialized for frontend
+func (m *ActionsManager) LoadActionForm(actionID string) (*forms.Form, error) {
+	if action, ok := m.ActionById(actionID); ok {
+		if desc, ok := action.(DescriptionProviderAction); ok {
+			form := desc.GetParametersForm()
+			if form != nil {
+				return form, nil
+			}
+		}
+	}
+	return nil, errors.NotFound("action.not.found", "cannot find action with ID %s", actionID)
 }

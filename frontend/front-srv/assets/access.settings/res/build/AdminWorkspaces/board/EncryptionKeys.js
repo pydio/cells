@@ -206,11 +206,16 @@ var EncryptionKeys = (function (_React$Component) {
             var exportedKey = _state.exportedKey;
             var showCreateKey = _state.showCreateKey;
             var m = _state.m;
-            var pydio = this.props.pydio;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var accessByName = _props.accessByName;
 
             var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id'), hideSmall: true }, { name: 'Owner', label: m('key.owner'), hideSmall: true }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
                 } }, { name: 'Actions', label: '', style: { width: 170, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: 170 }, renderCell: function renderCell(row) {
+                    if (!accessByName('CreateEncryption')) {
+                        return null;
+                    }
                     return _react2['default'].createElement(
                         'div',
                         null,
@@ -313,7 +318,7 @@ var EncryptionKeys = (function (_React$Component) {
                     },
                     dialogContent
                 ),
-                _react2['default'].createElement(
+                accessByName('CreateEncryption') && _react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right', paddingBottom: 16 } },
                     _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.import'), onTouchTap: function () {

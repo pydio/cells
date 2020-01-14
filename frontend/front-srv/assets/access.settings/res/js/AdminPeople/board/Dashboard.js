@@ -38,6 +38,7 @@ let Dashboard = React.createClass({
         dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
         rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
         currentNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
+        accessByName:React.PropTypes.func.isRequired,
         openEditor:React.PropTypes.func.isRequired
     },
 
@@ -74,7 +75,7 @@ let Dashboard = React.createClass({
     },
 
     componentWillReceiveProps(newProps){
-        if(!this.state.searchResultData){
+        if(!this.state.searchResultData && newProps.currentNode && newProps.currentNode.getPath().indexOf('/idm/users') === 0){
             this.setState({
                 currentNode:newProps.currentNode,
                 dataModel:newProps.dataModel
@@ -242,8 +243,11 @@ let Dashboard = React.createClass({
 
     renderNodeActions(node){
         const mime = node.getAjxpMime();
+        if(node.getMetadata().has('IdmUser') && !node.getMetadata().get("IdmUser").PoliciesContextEditable) {
+            return <div></div>;
+        }
         const iconStyle = {
-            color: 'rgba(0,0,0,0.43)',
+            color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
         const disabledStyle = {
@@ -294,9 +298,11 @@ let Dashboard = React.createClass({
 
     render(){
 
+        const {accessByName, muiTheme, rootNode, pydio} = this.props;
+
         const fontIconStyle = {
             style : {
-                backgroundColor: this.props.muiTheme.palette.accent2Color,
+                backgroundColor: muiTheme.palette.accent2Color,
                 borderRadius: '50%',
                 width: 36,
                 height: 36,
@@ -330,10 +336,13 @@ let Dashboard = React.createClass({
             />
         );
 
-        const headerButtons = [
-            <FlatButton primary={true} label={this.context.getMessage("user.1")} onTouchTap={this.createUserAction}/>,
-            <FlatButton primary={true} label={this.context.getMessage("user.2")} onTouchTap={this.createGroupAction}/>,
-        ];
+        let headerButtons = [];
+        if(accessByName('Create')){
+            headerButtons = [
+                <FlatButton primary={true} label={this.context.getMessage("user.1")} onTouchTap={this.createUserAction}/>,
+                <FlatButton primary={true} label={this.context.getMessage("user.2")} onTouchTap={this.createGroupAction}/>,
+            ];
+        }
 
         const groupHeaderStyle = {
             height: 48,
@@ -359,7 +368,7 @@ let Dashboard = React.createClass({
             profileFilter = currentNode.getMetadata().get('userProfileFilter');
         }
 
-        const iconColor = (profileFilter === '' ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color);
+        const iconColor = (profileFilter === '' ? 'rgba(0,0,0,0.4)' : muiTheme.palette.accent1Color);
         const filterIcon = (
             <IconMenu
                 iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:iconColor}} iconClassName={"mdi mdi-filter-variant"} tooltip={this.context.getMessage('user.filter.tooltip')} tooltipPosition={"bottom-left"}/>}
@@ -395,7 +404,7 @@ let Dashboard = React.createClass({
                             <PydioComponents.DNDTreeView
                                 showRoot={true}
                                 rootLabel={this.context.getMessage("user.5")}
-                                node={this.props.rootNode}
+                                node={rootNode}
                                 dataModel={this.props.dataModel}
                                 className="users-groups-tree"
                                 paddingOffset={10}
@@ -405,7 +414,7 @@ let Dashboard = React.createClass({
                     <div zDepth={0} className="layout-fill vertical-layout people-list">
                         <PydioComponents.SimpleList
                             ref="mainlist"
-                            pydio={this.props.pydio}
+                            pydio={pydio}
                             node={currentNode}
                             dataModel={dataModel}
                             openEditor={this.openRoleEditor}
@@ -419,7 +428,7 @@ let Dashboard = React.createClass({
                             elementHeight={PydioComponents.SimpleList.HEIGHT_TWO_LINES}
                             hideToolbar={false}
                             toolbarStyle={{backgroundColor: '#f5f5f5', height:48, borderBottom: '1px solid #e4e4e4'}}
-                            multipleActions={[this.props.pydio.Controller.getActionByName('delete')]}
+                            multipleActions={[pydio.Controller.getActionByName('delete')]}
                             additionalActions={filterIcon}
                             filterNodes={this.filterNodes.bind(this)}
                         />

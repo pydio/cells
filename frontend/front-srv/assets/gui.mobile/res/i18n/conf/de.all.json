@@ -28,5 +28,11 @@
   },
   "Template extending gui.ajax for small screen terminals.": {
     "other": "Erweitert die Ansicht im Browser um eine Vorlage für mobile Geräte mit kleiner Auflösung."
+  },
+  "Disable this feature": {
+    "other": "Feature deaktivieren"
+  },
+  "Do not display a smart banner when opening web interface on a mobile terminal.": {
+    "other": "Beim Öffnen der Webschnittstelle auf einem mobilen Terminal keinen Smart Banner anzeigen."
   }
 }

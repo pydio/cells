@@ -19,6 +19,16 @@ message SettingsEntry {
     string Manager = 4 [json_name="MANAGER"];
     string Alias = 5 [json_name="ALIAS"];
     SettingsEntryMeta Metadata = 6 [json_name="METADATA"];
+    map<string,SettingsAccess> Accesses = 7;
+}
+
+message SettingsAccess {
+    repeated SettingsAccessRestPolicy Policies = 2;
+}
+
+message SettingsAccessRestPolicy {
+    string Action = 2;
+    string Resource = 3;
 }
 
 message SettingsSection {

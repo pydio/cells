@@ -119,6 +119,14 @@ var _modelRestOpenApiResponse = require('../model/RestOpenApiResponse');
 
 var _modelRestOpenApiResponse2 = _interopRequireDefault(_modelRestOpenApiResponse);
 
+var _modelRestSchedulerActionFormResponse = require('../model/RestSchedulerActionFormResponse');
+
+var _modelRestSchedulerActionFormResponse2 = _interopRequireDefault(_modelRestSchedulerActionFormResponse);
+
+var _modelRestSchedulerActionsResponse = require('../model/RestSchedulerActionsResponse');
+
+var _modelRestSchedulerActionsResponse2 = _interopRequireDefault(_modelRestSchedulerActionsResponse);
+
 var _modelRestServiceCollection = require('../model/RestServiceCollection');
 
 var _modelRestServiceCollection2 = _interopRequireDefault(_modelRestServiceCollection);
@@ -1142,6 +1150,79 @@ var ConfigServiceApi = (function () {
 
   ConfigServiceApi.prototype.putDataSource = function putDataSource(name, body) {
     return this.putDataSourceWithHttpInfo(name, body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Publish scheduler action XML form for building screens in frontend
+   * @param {String} actionName 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionFormResponse} and HTTP response
+   */
+
+  ConfigServiceApi.prototype.schedulerActionFormDiscoveryWithHttpInfo = function schedulerActionFormDiscoveryWithHttpInfo(actionName) {
+    var postBody = null;
+
+    // verify the required parameter 'actionName' is set
+    if (actionName === undefined || actionName === null) {
+      throw new Error("Missing the required parameter 'actionName' when calling schedulerActionFormDiscovery");
+    }
+
+    var pathParams = {
+      'ActionName': actionName
+    };
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestSchedulerActionFormResponse2['default'];
+
+    return this.apiClient.callApi('/config/scheduler/actions/{ActionName}', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Publish scheduler action XML form for building screens in frontend
+   * @param {String} actionName 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionFormResponse}
+   */
+
+  ConfigServiceApi.prototype.schedulerActionFormDiscovery = function schedulerActionFormDiscovery(actionName) {
+    return this.schedulerActionFormDiscoveryWithHttpInfo(actionName).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Publish scheduler registered actions
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestSchedulerActionsResponse} and HTTP response
+   */
+
+  ConfigServiceApi.prototype.schedulerActionsDiscoveryWithHttpInfo = function schedulerActionsDiscoveryWithHttpInfo() {
+    var postBody = null;
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestSchedulerActionsResponse2['default'];
+
+    return this.apiClient.callApi('/config/scheduler/actions', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Publish scheduler registered actions
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestSchedulerActionsResponse}
+   */
+
+  ConfigServiceApi.prototype.schedulerActionsDiscovery = function schedulerActionsDiscovery() {
+    return this.schedulerActionsDiscoveryWithHttpInfo().then(function (response_and_data) {
       return response_and_data.data;
     });
   };

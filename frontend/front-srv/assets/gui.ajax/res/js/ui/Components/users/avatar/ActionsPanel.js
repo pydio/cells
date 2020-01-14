@@ -103,9 +103,9 @@ class ActionsPanel extends React.Component{
         let usermails = {};
         let actions = [];
         let resourceType, resourceId;
-        if(user && user.hasEmail){
+        if(user && user.IdmUser && user.IdmUser.Attributes && (user.IdmUser.Attributes['hasEmail'] || user.IdmUser.Attributes['email'] )){
             actions.push({key:'message', label:getMessage(598), icon:'email', callback: this.openMailer.bind(this)});
-            usermails[user.id] = PydioUsers.User.fromObject(user);
+            usermails[user.IdmUser.Login] = user.IdmUser;
         }
         if(team){
             resourceType = 'team';
@@ -158,7 +158,7 @@ class ActionsPanel extends React.Component{
                         <AddressBook
                             mode="selector"
                             pydio={this.props.pydio}
-                            loaderStyle={{width: 320, height: 420}}
+                            loaderStyle={{width: 320, height: 320}}
                             onItemSelected={this.props.team ? this.onUserSelected.bind(this) : this.onTeamSelected.bind(this)}
                             teamsOnly={!this.props.team}
                             usersOnly={!!this.props.team}
@@ -178,10 +178,13 @@ class ActionsPanel extends React.Component{
                         <AsyncComponent
                             namespace="PydioMailer"
                             componentName="Pane"
+                            pydio={Pydio.getInstance()}
                             zDepth={0}
                             panelTitle={getMessage(598)}
                             uniqueUserStyle={true}
                             users={usermails}
+                            templateId={"DM"}
+                            templateData={{"From": Pydio.getInstance().user.getPreference('displayName') || Pydio.getInstance().user.id}}
                             onDismiss={() => {this.setState({showMailer: false})}}
                             onFieldFocus={this.props.otherPopoverMouseOver}
                         />}

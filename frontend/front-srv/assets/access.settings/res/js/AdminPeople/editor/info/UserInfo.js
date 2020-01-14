@@ -100,6 +100,7 @@ class UserInfo extends React.Component {
             }
             rolesPicker = (
                 <UserRolesPicker
+                    profile={idmUser.Attributes?idmUser.Attributes['profile']:''}
                     roles={idmUser.Roles}
                     addRole={(r) => user.addRole(r)}
                     removeRole={(r) => user.removeRole(r)}

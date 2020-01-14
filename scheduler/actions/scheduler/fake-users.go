@@ -35,6 +35,7 @@ import (
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -50,6 +51,22 @@ var (
 type FakeUsersAction struct {
 	prefix string
 	number int64
+}
+
+func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              fakeUserCreationActionName,
+		Label:           "Fake Users",
+		Icon:            "account-multiple-plus",
+		Category:        actions.ActionCategoryIDM,
+		Description:     "For debugging purpose, create many users using a remote API for generating names",
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (f *FakeUsersAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns this action unique identifier

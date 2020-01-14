@@ -18,35 +18,36 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require("pydio");
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _menuIconButtonMenu = require('../menu/IconButtonMenu');
 
 var _menuIconButtonMenu2 = _interopRequireDefault(_menuIconButtonMenu);
 
-var React = require('react');
-var Pydio = require('pydio');
-
-var _Pydio$requireLib = Pydio.requireLib('boot');
+var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 
-var _require = require('material-ui-legacy');
-
-var ToolbarGroup = _require.ToolbarGroup;
-
-var SortColumns = React.createClass({
-    displayName: 'SortColumns',
+var SortColumns = _react2["default"].createClass({
+    displayName: "SortColumns",
 
     propTypes: {
-        tableKeys: React.PropTypes.object.isRequired,
-        columnClicked: React.PropTypes.func,
-        sortingInfo: React.PropTypes.object,
-        displayMode: React.PropTypes.string
+        tableKeys: _react2["default"].PropTypes.object.isRequired,
+        columnClicked: _react2["default"].PropTypes.func,
+        sortingInfo: _react2["default"].PropTypes.object,
+        displayMode: _react2["default"].PropTypes.string
     },
 
     onMenuClicked: function onMenuClicked(object) {
@@ -74,7 +75,7 @@ var SortColumns = React.createClass({
         };
 
         var _loop = function (key) {
-            if (!_this.props.tableKeys.hasOwnProperty(key)) return 'continue';
+            if (!_this.props.tableKeys.hasOwnProperty(key)) return "continue";
             var data = _this.props.tableKeys[key];
             var style = data['width'] ? { width: data['width'] } : null;
             var icon = undefined;
@@ -102,8 +103,8 @@ var SortColumns = React.createClass({
                     icon_class: icon || (data['sortType'] === 'number' ? 'mdi mdi-sort-numeric' : 'mdi mdi-sort-alphabetical') // '__INSET__'
                 });
             } else {
-                    items.push(React.createElement(
-                        'span',
+                    items.push(_react2["default"].createElement(
+                        "span",
                         {
                             key: key,
                             className: className,
@@ -120,7 +121,7 @@ var SortColumns = React.createClass({
         for (var key in this.props.tableKeys) {
             var _ret = _loop(key);
 
-            if (_ret === 'continue') continue;
+            if (_ret === "continue") continue;
         }
         return items;
     },
@@ -165,17 +166,17 @@ var SortColumns = React.createClass({
         if (this.props.displayMode === 'hidden') {
             return null;
         } else if (this.props.displayMode === 'menu') {
-            return React.createElement(_menuIconButtonMenu2['default'], { buttonTitle: 'Sort by...', buttonClassName: 'mdi mdi-sort-descending', menuItems: this.getColumnsItems('menu', this.props.pydio.getController()), onMenuClicked: this.onMenuClicked });
+            return _react2["default"].createElement(_menuIconButtonMenu2["default"], { buttonTitle: "Sort by...", buttonClassName: "mdi mdi-sort-descending", menuItems: this.getColumnsItems('menu', this.props.pydio.getController()), onMenuClicked: this.onMenuClicked });
         } else {
-            return React.createElement(
-                ToolbarGroup,
-                { float: 'left' },
+            return _react2["default"].createElement(
+                "div",
+                { className: "mui-toolbar-group mui-left" },
                 this.getColumnsItems('header', this.props.pydio.getController())
             );
         }
     }
 });
 
-exports['default'] = SortColumns = PydioContextConsumer(SortColumns);
-exports['default'] = SortColumns;
-module.exports = exports['default'];
+exports["default"] = SortColumns = PydioContextConsumer(SortColumns);
+exports["default"] = SortColumns;
+module.exports = exports["default"];

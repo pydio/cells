@@ -172,5 +172,17 @@
   },
   "last_update": {
     "other": "Zuletzt aktualisiert"
+  },
+  "role.id.description": {
+    "other": "Eindeutige ID dieser Rolle (kann nicht geändert werden)."
+  },
+  "role.label.description": {
+    "other": "Menschlich lesbare Bezeichnung."
+  },
+  "role.autoapply.description": {
+    "other": "Die Rolle wird immer auf Benutzer mit diesem Profil(n) angewendet."
+  },
+  "role.override.description": {
+    "other": "Die Rolle wird immer nach anderen Rollen angewandt, mit Ausnahme der Benutzerrolle, die immer noch vorherrscht."
   }
 }

@@ -81,7 +81,7 @@ class Pydio extends Observable{
         if(!this.Parameters.has('START_REPOSITORY')){
             const uri = window.location.href.
                 replace(parameters.get('FRONTEND_URL'), '').
-                replace(window.location.search, '')
+                replace(window.location.search, '');
 
             const loadUriParts = LangUtils.trim(uri, '/').split('/');
             if(loadUriParts.length){

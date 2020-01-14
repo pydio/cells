@@ -102,9 +102,6 @@ input {
 *::-moz-focus-inner {
   border: none;
 }
-.no_select_bg::-moz-selection {
-  background: transparent;
-}
 .no_select_bg::selection {
   background: transparent;
 }
@@ -2412,6 +2409,7 @@ body,
       flex-direction: column;
   -ms-flex: 1;
       flex: 1;
+  max-height: 100%;
 }
 #orbit_content {
   -webkit-font-smoothing: antialiased;

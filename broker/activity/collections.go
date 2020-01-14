@@ -101,6 +101,9 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 					}
 					wsColl.Items = append(wsColl.Items, filteredActivity)
 				}
+			} else if ac.Type == activity.ObjectType_Share && ac.Object.Id == workspace.UUID {
+				wsColl := getOrCreateWorkspaceCollection(workspace, grouped)
+				wsColl.Items = append(wsColl.Items, ac)
 			}
 		}
 	}
@@ -124,7 +127,11 @@ func getOrCreateWorkspaceCollection(workspace *idm.Workspace, grouped map[string
 		return wsColl
 	}
 	wsColl := createObject()
-	wsColl.Type = activity.ObjectType_Workspace
+	if workspace.Scope == idm.WorkspaceScope_ADMIN {
+		wsColl.Type = activity.ObjectType_Workspace
+	} else {
+		wsColl.Type = activity.ObjectType_Cell
+	}
 	wsColl.Id = workspace.UUID
 	wsColl.Name = workspace.Label
 	grouped[workspace.UUID] = wsColl

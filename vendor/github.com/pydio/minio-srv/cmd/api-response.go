@@ -269,6 +269,21 @@ type PostResponse struct {
 	Location string
 }
 
+// Response for GetBucketTagging request
+type BucketTaggingResponse struct{
+	xml.Name `xml:"Tagging"`
+	TagSet TagSet
+}
+// Map of tags
+type TagSet struct{
+	Tag []Tag
+}
+// Key/Value container for bucket tags
+type Tag struct {
+	Key string
+	Value string
+}
+
 // returns "https" if the tls boolean is true, "http" otherwise.
 func getURLScheme(tls bool) string {
 	if tls {

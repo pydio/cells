@@ -21,7 +21,7 @@
 const React = require('react')
 const {muiThemeable} = require('material-ui/styles')
 import Color from 'color'
-import {CircularProgress, Popover} from 'material-ui'
+import {CircularProgress, Popover, Dialog} from 'material-ui'
 import { DragSource, DropTarget, flow } from 'react-dnd';
 import DOMUtils from 'pydio/util/dom'
 
@@ -66,10 +66,6 @@ const Confirm = React.createClass({
         mode        : React.PropTypes.oneOf(['new_share','reject_accepted'])
     },
 
-    componentDidMount () {
-        this.refs.dialog.show()
-    },
-
     render () {
         let messages = this.props.pydio.MessageHash,
             messageTitle = messages[545],
@@ -91,9 +87,9 @@ const Confirm = React.createClass({
             messageBody = messageBody.replace(new RegExp(key), this.props.replacements[key]);
         }
 
+        // TODO Retest this component as Dialog replace legacy materialui dialog
         return <div className='react-mui-context' style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'transparent'}}>
-            <ReactMUI.Dialog
-                ref="dialog"
+            <Dialog
                 title={messageTitle}
                 actions={actions}
                 modal={false}
@@ -102,7 +98,7 @@ const Confirm = React.createClass({
                 open={true}
             >
                 {messageBody}
-            </ReactMUI.Dialog>
+            </Dialog>
         </div>
     }
 });

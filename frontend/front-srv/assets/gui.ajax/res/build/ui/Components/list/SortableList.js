@@ -18,11 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var _utilDND = require('../util/DND');
+
+var _materialUi = require('material-ui');
 
 /***************************/
 /* REACT DND SORTABLE LIST
@@ -52,18 +60,18 @@ var sortableItemTarget = {
 
 };
 
-var sortableItem = React.createClass({
-    displayName: "sortableItem",
+var sortableItem = _react2['default'].createClass({
+    displayName: 'sortableItem',
 
     propTypes: {
-        connectDragSource: React.PropTypes.func.isRequired,
-        connectDropTarget: React.PropTypes.func.isRequired,
-        isDragging: React.PropTypes.bool.isRequired,
-        id: React.PropTypes.any.isRequired,
-        label: React.PropTypes.string.isRequired,
-        switchItems: React.PropTypes.func.isRequired,
-        removable: React.PropTypes.bool,
-        onRemove: React.PropTypes.func
+        connectDragSource: _react2['default'].PropTypes.func.isRequired,
+        connectDropTarget: _react2['default'].PropTypes.func.isRequired,
+        isDragging: _react2['default'].PropTypes.bool.isRequired,
+        id: _react2['default'].PropTypes.any.isRequired,
+        label: _react2['default'].PropTypes.string.isRequired,
+        switchItems: _react2['default'].PropTypes.func.isRequired,
+        removable: _react2['default'].PropTypes.bool,
+        onRemove: _react2['default'].PropTypes.func
     },
 
     removeClicked: function removeClicked() {
@@ -82,20 +90,20 @@ var sortableItem = React.createClass({
 
         var remove;
         if (this.props.removable) {
-            remove = React.createElement("span", { className: "button mdi mdi-close", onClick: this.removeClicked });
+            remove = _react2['default'].createElement('span', { className: 'button mdi mdi-close', onClick: this.removeClicked });
         }
-        return React.createElement(
-            ReactMUI.Paper,
+        return _react2['default'].createElement(
+            _materialUi.Paper,
             {
                 ref: function (instance) {
                     connectDropTarget(ReactDOM.findDOMNode(instance));
                     connectDragSource(ReactDOM.findDOMNode(instance));
                 },
                 zDepth: 1,
-                style: { opacity: isDragging ? 0 : 1 }
+                style: { opacity: isDragging ? 0 : 1, margin: '8px 0' }
             },
-            React.createElement(
-                "div",
+            _react2['default'].createElement(
+                'div',
                 { className: this.props.className },
                 this.props.label,
                 remove
@@ -104,19 +112,19 @@ var sortableItem = React.createClass({
     }
 });
 
-var NonDraggableListItem = React.createClass({
-    displayName: "NonDraggableListItem",
+var NonDraggableListItem = _react2['default'].createClass({
+    displayName: 'NonDraggableListItem',
 
     render: function render() {
         var remove;
         if (this.props.removable) {
-            remove = React.createElement("span", { className: "button mdi mdi-close", onClick: this.removeClicked });
+            remove = _react2['default'].createElement('span', { className: 'button mdi mdi-close', onClick: this.removeClicked });
         }
-        return React.createElement(
-            ReactMUI.Paper,
-            { zDepth: 1 },
-            React.createElement(
-                "div",
+        return _react2['default'].createElement(
+            _materialUi.Paper,
+            { zDepth: 1, style: { margin: '8px 0' } },
+            _react2['default'].createElement(
+                'div',
                 { className: this.props.className },
                 this.props.label,
                 remove
@@ -132,16 +140,16 @@ if (window.ReactDND) {
     DraggableListItem = NonDraggableListItem;
 }
 
-var SortableList = React.createClass({
-    displayName: "SortableList",
+var SortableList = _react2['default'].createClass({
+    displayName: 'SortableList',
 
     propTypes: {
-        values: React.PropTypes.array.isRequired,
-        onOrderUpdated: React.PropTypes.func,
-        removable: React.PropTypes.bool,
-        onRemove: React.PropTypes.func,
-        className: React.PropTypes.string,
-        itemClassName: React.PropTypes.string
+        values: _react2['default'].PropTypes.array.isRequired,
+        onOrderUpdated: _react2['default'].PropTypes.func,
+        removable: _react2['default'].PropTypes.bool,
+        onRemove: _react2['default'].PropTypes.func,
+        className: _react2['default'].PropTypes.string,
+        itemClassName: _react2['default'].PropTypes.string
     },
 
     getInitialState: function getInitialState() {
@@ -193,11 +201,11 @@ var SortableList = React.createClass({
 
     render: function render() {
         var switchItems = this.switchItems;
-        return React.createElement(
-            "div",
+        return _react2['default'].createElement(
+            'div',
             { className: this.props.className },
             this.state.values.map((function (item) {
-                return React.createElement(DraggableListItem, {
+                return _react2['default'].createElement(DraggableListItem, {
                     id: item.payload,
                     key: item.payload,
                     label: item.text,
@@ -212,5 +220,5 @@ var SortableList = React.createClass({
     }
 });
 
-exports["default"] = SortableList;
-module.exports = exports["default"];
+exports['default'] = SortableList;
+module.exports = exports['default'];

@@ -21,6 +21,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/pydio/minio-go"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -1354,4 +1355,8 @@ func (fs *FSObjects) IsEncryptionSupported() bool {
 // IsCompressionSupported returns whether compression is applicable for this layer.
 func (fs *FSObjects) IsCompressionSupported() bool {
 	return true
+}
+
+func (fs *FSObjects) GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error){
+	return nil, minio.ErrAPINotSupported("tagging not supported")
 }

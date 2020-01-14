@@ -72,6 +72,8 @@ var TeamCreationForm = (function (_Component) {
     };
 
     TeamCreationForm.prototype.render = function render() {
+        var _this = this;
+
         var getMessage = this.props.getMessage;
 
         return React.createElement(
@@ -90,7 +92,12 @@ var TeamCreationForm = (function (_Component) {
                     floatingLabelText: getMessage(578),
                     value: this.state.value,
                     onChange: this.onChange.bind(this),
-                    fullWidth: true
+                    fullWidth: true,
+                    onKeyPress: function (ev) {
+                        if (ev.key === 'Enter') {
+                            _this.submitCreationForm();
+                        }
+                    }
                 })
             ),
             React.createElement(

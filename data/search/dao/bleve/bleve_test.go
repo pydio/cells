@@ -149,7 +149,7 @@ func TestMakeIndexableNode(t *testing.T) {
 		node.SetMeta("name", "node.txt")
 
 		b := NewBatch(BatchOptions{})
-		indexNode := &IndexableNode{Node: *node}
+		indexNode := &tree.IndexableNode{Node: *node}
 		e := b.LoadIndexableNode(indexNode, nil)
 		So(e, ShouldBeNil)
 		So(indexNode.NodeType, ShouldEqual, "file")

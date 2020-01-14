@@ -35,7 +35,11 @@ import (
 
 func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx context.Context, output chan ActionMessage, done chan bool) {
 
-	startMessage = a.ApplyFilters(startMessage)
+	startMessage, pass := a.ApplyFilters(ctx, startMessage)
+	if !pass {
+		done <- true
+		return
+	}
 	if a.HasSelectors() {
 		a.ResolveSelectors(startMessage, c, ctx, output, done)
 	} else {
@@ -49,9 +53,12 @@ func (a *Action) HasSelectors() bool {
 }
 
 func (a *Action) getSelectors() []InputSelector {
-	selectors := []InputSelector{}
+	var selectors []InputSelector
 	if a.NodesSelector != nil {
 		selectors = append(selectors, a.NodesSelector)
+	}
+	if a.IdmSelector != nil {
+		selectors = append(selectors, a.IdmSelector)
 	}
 	if a.UsersSelector != nil {
 		selectors = append(selectors, a.UsersSelector)
@@ -59,17 +66,24 @@ func (a *Action) getSelectors() []InputSelector {
 	return selectors
 }
 
-func (a *Action) ApplyFilters(input ActionMessage) ActionMessage {
+func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
+	passThrough := true
 	if a.NodesFilter != nil {
-		input = a.NodesFilter.Filter(input)
+		input, passThrough = a.NodesFilter.Filter(ctx, input)
+	}
+	if a.IdmFilter != nil {
+		input, passThrough = a.IdmFilter.Filter(ctx, input)
 	}
 	if a.UsersFilter != nil {
-		input = a.UsersFilter.Filter(input)
+		input, passThrough = a.UsersFilter.Filter(ctx, input)
 	}
-	if a.SourceFilter != nil {
-		input = a.SourceFilter.Filter(input)
+	if a.ActionOutputFilter != nil {
+		input, passThrough = a.ActionOutputFilter.Filter(ctx, input)
 	}
-	return input
+	if a.ContextMetaFilter != nil {
+		input, passThrough = a.ContextMetaFilter.Filter(ctx, input)
+	}
+	return input, passThrough
 }
 
 func (a *Action) ResolveSelectors(startMessage ActionMessage, cl client.Client, ctx context.Context, output chan ActionMessage, done chan bool) {
@@ -115,29 +129,29 @@ func (a *Action) FanToNext(cl client.Client, ctx context.Context, index int, inp
 func (a *Action) FanOutSelector(cl client.Client, ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool) {
 
 	// If multiple selectors, we have to apply them sequentially
-	outputType := ""
-	if _, ok := selector.(*NodesSelector); ok {
-		outputType = "node"
-	} else if _, ok := selector.(*UsersSelector); ok {
-		outputType = "user"
-	}
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
 	go func() {
 		for {
 			select {
 			case object := <-wire:
-				if outputType == "node" {
-					nodeP := object.(*tree.Node)
-					node := tree.Node(*nodeP)
+				if nodeP, o := object.(*tree.Node); o {
+					node := *nodeP // copy
 					input = input.WithNode(&node)
-					output <- input
-				} else if outputType == "user" {
-					userP := object.(*idm.User)
-					user := idm.User(*userP)
+				} else if userP, oU := object.(*idm.User); oU {
+					user := *userP
 					input = input.WithUser(&user)
-					output <- input
+				} else if roleP, oR := object.(*idm.Role); oR {
+					role := *roleP
+					input = input.WithRole(&role)
+				} else if wsP, oW := object.(*idm.Workspace); oW {
+					ws := *wsP
+					input = input.WithWorkspace(&ws)
+				} else if aclP, oA := object.(*idm.ACL); oA {
+					acl := *aclP
+					input = input.WithAcl(&acl)
 				}
+				output <- input
 			case <-selectDone:
 				close(wire)
 				close(selectDone)
@@ -146,21 +160,19 @@ func (a *Action) FanOutSelector(cl client.Client, ctx context.Context, selector 
 			}
 		}
 	}()
-	go selector.Select(cl, ctx, wire, selectDone)
+	go selector.Select(cl, ctx, input, wire, selectDone)
 
 }
 
 func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool) {
 
 	// If multiple selectors, we have to apply them sequentially
-	outputType := ""
-	nodes := []*tree.Node{}
-	users := []*idm.User{}
-	if _, ok := selector.(*NodesSelector); ok {
-		outputType = "node"
-	} else if _, ok := selector.(*UsersSelector); ok {
-		outputType = "user"
-	}
+	var nodes []*tree.Node
+	var users []*idm.User
+	var roles []*idm.Role
+	var workspaces []*idm.Workspace
+	var acls []*idm.ACL
+
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
 	wg := &sync.WaitGroup{}
@@ -170,12 +182,16 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 		for {
 			select {
 			case object := <-wire:
-				if outputType == "node" {
-					nodeP := object.(*tree.Node)
-					nodes = append(nodes, nodeP)
-				} else if outputType == "user" {
-					userP := object.(*idm.User)
-					users = append(users, userP)
+				if node, o := object.(*tree.Node); o {
+					nodes = append(nodes, node)
+				} else if user, oU := object.(*idm.User); oU {
+					users = append(users, user)
+				} else if role, oR := object.(*idm.Role); oR {
+					roles = append(roles, role)
+				} else if ws, oW := object.(*idm.Workspace); oW {
+					workspaces = append(workspaces, ws)
+				} else if acl, oA := object.(*idm.ACL); oA {
+					acls = append(acls, acl)
 				}
 			case <-selectDone:
 				close(wire)
@@ -184,14 +200,14 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 			}
 		}
 	}()
-	go selector.Select(cl, ctx, wire, selectDone)
+	go selector.Select(cl, ctx, input, wire, selectDone)
 	wg.Wait()
 
-	if outputType == "node" {
-		input = input.WithNodes(nodes...)
-	} else if outputType == "user" {
-		input = input.WithUsers(users...)
-	}
+	input = input.WithNodes(nodes...)
+	input = input.WithRoles(roles...)
+	input = input.WithWorkspaces(workspaces...)
+	input = input.WithAcls(acls...)
+	input = input.WithUsers(users...)
 	output <- input
 	done <- true
 }

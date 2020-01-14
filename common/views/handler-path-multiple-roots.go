@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -192,7 +193,9 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 		}
 		fakeNode.SetMeta(common.META_NAMESPACE_NODENAME, branch.Workspace.Label)
 		fakeNode.SetMeta(common.META_FLAG_VIRTUAL_ROOT, "true")
-		fakeNode.SetMeta(common.META_FLAG_LEVEL_READONLY, "true")
+		if branch.Workspace.Scope != idm.WorkspaceScope_LINK {
+			fakeNode.SetMeta(common.META_FLAG_LEVEL_READONLY, "true")
+		}
 		return &tree.ReadNodeResponse{Success: true, Node: fakeNode}, nil
 	}
 	return m.AbstractBranchFilter.ReadNode(ctx, in, opts...)

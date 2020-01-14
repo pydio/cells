@@ -3,6 +3,8 @@ package idm
 import (
 	"context"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/micro/go-micro/client"
 
 	"github.com/pydio/cells/common/log"
@@ -17,6 +19,23 @@ var (
 )
 
 type CleanUserDataAction struct {
+}
+
+func (c *CleanUserDataAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:               cleanUserDataName,
+		Label:            "User-data clean up",
+		Icon:             "account",
+		Description:      "Clean user data on deletion. Personal resources are moved to folder suffixed with the user UUID.",
+		Category:         actions.ActionCategoryIDM,
+		InputDescription: "Single-selection of one user, provided by the delete user event.",
+		SummaryTemplate:  "",
+		HasForm:          false,
+	}
+}
+
+func (c *CleanUserDataAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 func (c *CleanUserDataAction) GetName() string {

@@ -34,6 +34,7 @@ package views
 import (
 	"context"
 	"io"
+	"strings"
 
 	"go.uber.org/zap/zapcore"
 
@@ -41,11 +42,13 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/pydio/minio-go"
+
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/minio-go"
 )
 
 const (
@@ -112,6 +115,9 @@ type (
 type NodeFilter func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error)
 type NodesCallback func(inputFilter NodeFilter, outputFilter NodeFilter) error
 
+type WalkFunc func(ctx context.Context, node *tree.Node, err error) error
+type WalkFilter func(ctx context.Context, node *tree.Node) bool
+
 type Handler interface {
 	tree.NodeProviderClient
 	tree.NodeReceiverClient
@@ -128,6 +134,7 @@ type Handler interface {
 	MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (minio.ListObjectPartsResult, error)
 
 	ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error
+	ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilter) error
 
 	SetNextHandler(h Handler)
 	SetClientsPool(p *ClientsPool)
@@ -217,4 +224,8 @@ func WithBucketName(s LoadedSource, bucket string) LoadedSource {
 
 func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return encoder.AddObject("DataSource", &s.DataSource)
+}
+
+func WalkFilterSkipPydioHiddenFile(ctx context.Context, node *tree.Node) bool {
+	return !strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META)
 }

@@ -51,6 +51,7 @@ type ObjectLayer interface {
 	// Bucket operations.
 	MakeBucketWithLocation(ctx context.Context, bucket string, location string) error
 	GetBucketInfo(ctx context.Context, bucket string) (bucketInfo BucketInfo, err error)
+	GetBucketTagging(ctx context.Context, bucket string) (bucketTags map[string]string, err error)
 	ListBuckets(ctx context.Context) (buckets []BucketInfo, err error)
 	DeleteBucket(ctx context.Context, bucket string) error
 	ListObjects(ctx context.Context, bucket, prefix, marker, delimiter string, maxKeys int) (result ListObjectsInfo, err error)

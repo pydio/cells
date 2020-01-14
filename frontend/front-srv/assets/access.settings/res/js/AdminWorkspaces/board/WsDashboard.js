@@ -37,6 +37,7 @@ export default React.createClass({
         openEditor:React.PropTypes.func.isRequired,
         openRightPane:React.PropTypes.func.isRequired,
         closeRightPane:React.PropTypes.func.isRequired,
+        accessByName:React.PropTypes.func.isRequired,
         advanced:React.PropTypes.boolean,
     },
 
@@ -79,7 +80,7 @@ export default React.createClass({
         if(editorNode){
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
         }
-        const {pydio, advanced} = this.props;
+        const {pydio, advanced, accessByName} = this.props;
         const editorData = {
             COMPONENT:editor,
             PROPS:{
@@ -123,19 +124,23 @@ export default React.createClass({
     },
 
     render(){
+        const {pydio, dataModel, rootNode, advanced, currentNode, accessByName} = this.props;
         let buttons = [];
-        let icon;
-        const title = this.props.currentNode.getLabel();
-        buttons.push(<FlatButton primary={true} label={this.context.getMessage('ws.3')} onTouchTap={this.showWorkspaceCreator}/>);
-        icon = 'mdi mdi-folder-open';
+        buttons.push(
+            <FlatButton
+                primary={true}
+                label={this.context.getMessage('ws.3')}
+                onTouchTap={this.showWorkspaceCreator}
+                disabled={!accessByName('Create')}
+            />);
 
         return (
 
             <div className="main-layout-nav-to-stack workspaces-board">
                 <div className="vertical-layout" style={{width:'100%'}}>
                     <AdminComponents.Header
-                        title={title}
-                        icon={icon}
+                        title={currentNode.getLabel()}
+                        icon={'mdi mdi-folder-open'}
                         actions={buttons}
                         reloadAction={this.reloadWorkspaceList}
                         loading={this.state.loading}
@@ -145,12 +150,12 @@ export default React.createClass({
                         <Paper zDepth={1} style={{margin: 16}}>
                             <WorkspaceList
                                 ref="workspacesList"
-                                pydio={this.props.pydio}
-                                dataModel={this.props.dataModel}
-                                rootNode={this.props.rootNode}
-                                currentNode={this.props.currentNode}
+                                pydio={pydio}
+                                dataModel={dataModel}
+                                rootNode={rootNode}
+                                currentNode={currentNode}
                                 openSelection={this.openWorkspace}
-                                advanced={this.props.advanced}
+                                advanced={advanced}
                             />
                         </Paper>
                     </div>

@@ -53,16 +53,17 @@ export default class ProtobufAny {
         if (data) {
             obj = obj || new ProtobufAny();
 
-            
-            
-            
+            obj.value = {};
+            Object.keys(data).forEach(k => {
+                if(k === '@type') {
+                    obj.type_url = data[k];
+                } else if (k === 'SubQueries' && data[k].map) {
+                    obj.value[k] = data[k].map(d => ProtobufAny.constructFromObject(d));
+                } else {
+                    obj.value[k] = data[k];
+                }
+            });
 
-            if (data.hasOwnProperty('type_url')) {
-                obj['type_url'] = ApiClient.convertToType(data['type_url'], 'String');
-            }
-            if (data.hasOwnProperty('value')) {
-                obj['value'] = ApiClient.convertToType(data['value'], 'Blob');
-            }
         }
         return obj;
     }
@@ -79,8 +80,16 @@ export default class ProtobufAny {
     value = undefined;
 
 
-
-
+    /**
+     * Overrides standard serialization function
+     */
+    toJSON(){
+        // Expand this.value keys to a unique array
+        return {
+            '@type': this.type_url,
+            ...this.value
+        };
+    }
 
 
 

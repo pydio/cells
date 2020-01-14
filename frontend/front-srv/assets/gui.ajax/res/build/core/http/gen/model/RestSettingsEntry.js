@@ -23,6 +23,10 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _RestSettingsAccess = require('./RestSettingsAccess');
+
+var _RestSettingsAccess2 = _interopRequireDefault(_RestSettingsAccess);
+
 var _RestSettingsEntryMeta = require('./RestSettingsEntryMeta');
 
 var _RestSettingsEntryMeta2 = _interopRequireDefault(_RestSettingsEntryMeta);
@@ -49,6 +53,7 @@ var RestSettingsEntry = (function () {
         this.Manager = undefined;
         this.Alias = undefined;
         this.Metadata = undefined;
+        this.Accesses = undefined;
     }
 
     /**
@@ -81,6 +86,9 @@ var RestSettingsEntry = (function () {
             if (data.hasOwnProperty('Metadata')) {
                 obj['Metadata'] = _RestSettingsEntryMeta2['default'].constructFromObject(data['Metadata']);
             }
+            if (data.hasOwnProperty('Accesses')) {
+                obj['Accesses'] = _ApiClient2['default'].convertToType(data['Accesses'], { 'String': _RestSettingsAccess2['default'] });
+            }
         }
         return obj;
     };
@@ -112,4 +120,8 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/RestSettingsEntryMeta} Metadata
+*/
+
+/**
+* @member {Object.<String, module:model/RestSettingsAccess>} Accesses
 */

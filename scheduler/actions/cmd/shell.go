@@ -35,11 +35,16 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
+)
+
+var (
+	shellActionName = "actions.cmd.shell"
 )
 
 type ShellAction struct {
@@ -60,9 +65,41 @@ type ShellAction struct {
 	ResultPlaceHolder string
 }
 
-var (
-	shellActionName = "actions.cmd.shell"
-)
+func (c *ShellAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              shellActionName,
+		Label:           "Shell Command",
+		Category:        actions.ActionCategoryCmd,
+		Icon:            "console",
+		Description:     "Perform a console command on the underlying server. If applied to a Cells file, data will be temporarily copied on the server file system to be processed.",
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (c *ShellAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{{Fields: []forms.Field{
+		&forms.FormField{
+			Name:        "cmd",
+			Type:        forms.ParamString,
+			Label:       "Shell Command",
+			Description: "Command to be called on server OS",
+			Mandatory:   true,
+		},
+		&forms.FormField{
+			Name:        "parameters",
+			Type:        forms.ParamString,
+			Label:       "Parameters",
+			Description: "List of space separated parameters to append to the command",
+		},
+		&forms.FormField{
+			Name:        "inputTempFile",
+			Type:        forms.ParamBool,
+			Label:       "Use temporary folder",
+			Description: "Use a temporary folder to store file before applying command",
+		},
+	}}}}
+}
 
 // Unique identifier
 func (c *ShellAction) GetName() string {
@@ -181,7 +218,7 @@ func (c *ShellAction) Run(ctx context.Context, channels *actions.RunnableChannel
 
 	}
 
-	params := c.CmdParameters
+	params := jobs.EvaluateFieldStrSlice(ctx, input, c.CmdParameters)
 
 	if len(tempFileIn) > 0 || len(tempFileOut) > 0 {
 		oldNew := []string{}

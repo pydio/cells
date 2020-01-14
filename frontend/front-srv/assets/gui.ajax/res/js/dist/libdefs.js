@@ -62,7 +62,6 @@ const LibRequires = [ // modules we want to require and export
     'react-addons-pure-render-mixin',
     'react-addons-css-transition-group',
     'react-addons-update',
-    'material-ui-legacy',
     'material-ui',
     'material-ui/styles',
     'color',

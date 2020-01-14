@@ -21,16 +21,25 @@
 'use strict';
 
 exports.__esModule = true;
-exports['default'] = React.createClass({
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+exports['default'] = _react2['default'].createClass({
     displayName: 'LabelWithTip',
 
     propTypes: {
-        label: React.PropTypes.string,
-        labelElement: React.PropTypes.object,
-        tooltip: React.PropTypes.string,
-        tooltipClassName: React.PropTypes.string,
-        className: React.PropTypes.string,
-        style: React.PropTypes.object
+        label: _react2['default'].PropTypes.string,
+        labelElement: _react2['default'].PropTypes.object,
+        tooltip: _react2['default'].PropTypes.string,
+        tooltipClassName: _react2['default'].PropTypes.string,
+        className: _react2['default'].PropTypes.string,
+        style: _react2['default'].PropTypes.object
     },
 
     getInitialState: function getInitialState() {
@@ -56,7 +65,7 @@ exports['default'] = React.createClass({
             }
             var label = undefined;
             if (this.props.label) {
-                label = React.createElement(
+                label = _react2['default'].createElement(
                     'span',
                     { className: 'ellipsis-label' },
                     this.props.label
@@ -66,16 +75,16 @@ exports['default'] = React.createClass({
             }
             var style = this.props.style || { position: 'relative' };
 
-            return React.createElement(
+            return _react2['default'].createElement(
                 'span',
                 { onMouseEnter: this.show, onMouseLeave: this.hide, style: style, className: this.props.className },
                 label,
                 this.props.children,
-                React.createElement(ReactMUI.Tooltip, { label: this.props.tooltip, style: tooltipStyle, className: this.props.tooltipClassName, show: this.state.show })
+                _react2['default'].createElement('div', { label: this.props.tooltip, style: _extends({}, tooltipStyle, { display: this.state.show ? 'block' : 'none' }), className: this.props.tooltipClassName })
             );
         } else {
             if (this.props.label) {
-                return React.createElement(
+                return _react2['default'].createElement(
                     'span',
                     null,
                     this.props.label
@@ -83,7 +92,7 @@ exports['default'] = React.createClass({
             } else if (this.props.labelElement) {
                 return this.props.labelElement;
             } else {
-                return React.createElement(
+                return _react2['default'].createElement(
                     'span',
                     null,
                     this.props.children

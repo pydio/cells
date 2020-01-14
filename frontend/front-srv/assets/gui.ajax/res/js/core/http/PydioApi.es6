@@ -61,6 +61,22 @@ class ManagedMultipart extends AWS.S3.ManagedUpload{
         });
     }
 
+    finishMultiPart(){
+        PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+            // Update accessKeyId
+            this.service.config.credentials.accessKeyId = jwt;
+            super.finishMultiPart();
+        });
+    }
+
+    abort(){
+        PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+            // Update accessKeyId
+            this.service.config.credentials.accessKeyId = jwt;
+            super.abort();
+        });
+    }
+
 }
 
 /**

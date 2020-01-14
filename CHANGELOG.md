@@ -1,17 +1,47 @@
-# Changes between v2.0.0 and v2.0.1
+# Changes between v2.0.1 and v2.0.2
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.0.0...v2.0.1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.0.1...v2.0.2)
 
-- [#ae3d02c](https://github.com/pydio/cells/commit/ae3d02ca14b9d97fb9675d1df9cb5c5143838996): Fixing logout redirection
-- [#570f03f](https://github.com/pydio/cells/commit/570f03f778800698663122b55ed93c37592b23bb): Sending uuid for ory claims
-- [#f945f52](https://github.com/pydio/cells/commit/f945f526af0a2eba3b0225daaae742a9beb674f7): Fixing ory claims
-- [#751afaa](https://github.com/pydio/cells/commit/751afaa98055cd73dd9c6716bc9988bea053064b): Fix broken API if datasource StorageConfiguration is empty
-- [#073d9a2](https://github.com/pydio/cells/commit/073d9a277557f74904b0552069d1389206d00c93): Regenerate swagger
-- [#a1a9284](https://github.com/pydio/cells/commit/a1a9284dbbefa1d8083527e915ad724da25d3f70): Regenerate JS
-- [#4488e16](https://github.com/pydio/cells/commit/4488e16402ef9727be8531e8412d18039765e2c7): Fix UuidRouter and AppearsIn contents
-- [#394b9c5](https://github.com/pydio/cells/commit/394b9c5a6b66a53339d802e38fee3d8506c7bf75): Make XGo image used for build configurable
-- [#99d8a11](https://github.com/pydio/cells/commit/99d8a11a2cb7f8ce8bb78d6e283830a510042394): Fix for sync client
-- [#20ded8d](https://github.com/pydio/cells/commit/20ded8d60d4c9e5aa3cf409a6e8d5517ab4e0a6f): DynamicRegistry : keep reference to internal detectService error for better user error reporting
-- [#32f1df2](https://github.com/pydio/cells/commit/32f1df23319891b337975ad6cf358bebee86308e): Remote endpoint: error propagation for FlushSession and FinishSession
-- [#b8f0521](https://github.com/pydio/cells/commit/b8f0521a097f82c2ea325c694254b19c23ba070b): Better description
-- [#6489436](https://github.com/pydio/cells/commit/6489436c5c742d7912a566cd373ea36cf6fc48a5): Update README.md
+- [#181ea3f](https://github.com/pydio/cells/commit/181ea3f7f56769e81df4cc0f156482a3b553da62): Add missing German messages
+- [#0bddfbd](https://github.com/pydio/cells/commit/0bddfbdd1e52de2a8ef00564733d2e7d43d402f0): Add missing German messages
+- [#7c7f08f](https://github.com/pydio/cells/commit/7c7f08f4d530be069064f05ce29bad5620f0ff20): Lower log level for invalid token
+- [#6ca7a5a](https://github.com/pydio/cells/commit/6ca7a5a563d8d2813d5d2b5f4a9a723520d8e453): Update minio-go
+- [#1439e47](https://github.com/pydio/cells/commit/1439e47f9e7ceeea6ed399373ba1e48f1e3ab303): Fix ComputeChecksum on multi-bucket client
+- [#8cd383e](https://github.com/pydio/cells/commit/8cd383e0b289063cc7f67964ec2a31f66e90a876): Built version of PydioApi
+- [#2454610](https://github.com/pydio/cells/commit/24546107c0cd63b321c3186790e95a11099c98b2): Rest treeService: add checks for empty nodes slice or duplicate nodes
+- [#b4336cf](https://github.com/pydio/cells/commit/b4336cf5079c647078a42178d54b500fa953c8ad): Fix body positioning Fix task panel showing scroller when folded Additional jwt check on Multipart abort/complete operations
+- [#7783ec7](https://github.com/pydio/cells/commit/7783ec7c65b37a681adf7a3dcd9222678395a192): Merge pull request from pydio-i18n/master
+- [#f32f06e](https://github.com/pydio/cells/commit/f32f06e2f53540ef5d0fdbe4df36b586f82940a7): New Crowdin translations
+- [#f2945d5](https://github.com/pydio/cells/commit/f2945d5b5811e349ca4ebee964ade17cede126a8): Do not set flag level_readonly on virtual root for public links, it can prevent edition even if allowed.
+- [#c97fff0](https://github.com/pydio/cells/commit/c97fff08788a84d3f83d9bf3c873c3b866c6a94f): Support Share activity in user Digest. Could create empty emails for notifications digests
+- [#cf5b53f](https://github.com/pydio/cells/commit/cf5b53fc30c37fc2431dd9e66992050c6313a302): Handle remote dl lists
+- [#508b92c](https://github.com/pydio/cells/commit/508b92cd3319c67e4c868c8431f171141655d820): Disable remote dl by default and add black/white lists
+- [#4def6c3](https://github.com/pydio/cells/commit/4def6c3857a4f6db4bc9fdf4947f33f35ef5accd): Roles Picker forgotten log Mailer : re-enable direct message and skip no-email users, teams and groups
+- [#6f31473](https://github.com/pydio/cells/commit/6f314733f65fcef938a973feebc43f8dd8f250cf): New DM email template
+- [#37d6256](https://github.com/pydio/cells/commit/37d625678bc53303ae66d9e9bd1f7cf88e8f25f6): Additional check to avoid empty digest
+- [#d34c64b](https://github.com/pydio/cells/commit/d34c64bb8b3cd5fe1aa1933b13d848be45eba572): Improve role panel - Prevent removing auto-applied roles in user panel.
+- [#af633fc](https://github.com/pydio/cells/commit/af633fcc53421ae7c2944063e71c5ed5c78a305f): Fix upgrade version
+- [#3d3cde0](https://github.com/pydio/cells/commit/3d3cde03705dd042f348879cc9e91905b4fa1eb6): Force clear user cache in permissions package on update, otherwise the user teams are not real-time refreshed
+- [#a0eadff](https://github.com/pydio/cells/commit/a0eadff6f6b11dc812ac5c87041f133340973ad9): Fix various UX glitches on AddressBook
+- [#2209013](https://github.com/pydio/cells/commit/22090135a87bdfe12f4d704faf26362591652f55): People Dashboard: do not refresh state on exit
+- [#a0188b3](https://github.com/pydio/cells/commit/a0188b34117b3be864f894ed6a63a193894c6f5e): Expand rest policies on tree endpoint
+- [#b9c88ef](https://github.com/pydio/cells/commit/b9c88ef45622a65ebd9f34982d0156a9e2218a4d): Release v2.0.2-dev.20191219
+- [#240790a](https://github.com/pydio/cells/commit/240790a22dc084875ccd93df35e8a07bef500928): Cosmetic changes
+- [#a48eaa5](https://github.com/pydio/cells/commit/a48eaa5aa30f8262c1067d99d3cdd2de58a88c51): Add a parameter to disable gui.mobile banner
+- [#25f71b2](https://github.com/pydio/cells/commit/25f71b27eb0042db556ef2b449ff11658e3a8fb5): Fix default value check
+- [#e024f53](https://github.com/pydio/cells/commit/e024f53a9b02be84b1be7284fb186697f8c89080): Added auto completion command.
+- [#7b022a0](https://github.com/pydio/cells/commit/7b022a00657a3de74e4bfc40fa4791aaf0f888ca): Fixing errors not found
+- [#cfce6a6](https://github.com/pydio/cells/commit/cfce6a6a557f58ee17ff66bcb743257580dbc593): Using protobuf for passing streams
+- [#5a7ca20](https://github.com/pydio/cells/commit/5a7ca20c57786e9abd39d3422e3886dc16e8daf5): Error handling in router
+- [#ccea7d0](https://github.com/pydio/cells/commit/ccea7d07c69def0031e86be6238a65502e8cb742): Handling new error
+- [#c73aed9](https://github.com/pydio/cells/commit/c73aed9f68cf04545c6a34085c93940b911e10ba): Fixing random failed diff in cells sync
+- [#2d38afc](https://github.com/pydio/cells/commit/2d38afc15d3c008a67d4bee07375374c61adfd3b): Remove legacy lib
+- [#c3444ec](https://github.com/pydio/cells/commit/c3444ec3fe093e9720de8f5c1ac5a071afefaec8): Fixing sync random delete for the index endpoint
+- [#a6f5dab](https://github.com/pydio/cells/commit/a6f5dabd3e22c5fd02b90f4a2c47505e00d1e4b8): Reset value on toggle
+- [#06c3dc7](https://github.com/pydio/cells/commit/06c3dc750186df6bafb85cbab29da7ceca06e2b6): Loading buckets: use region if necessary
+- [#764d965](https://github.com/pydio/cells/commit/764d9653a110d14957debf46ea91e5dcda41862c): Update minio-go
+- [#da9ad64](https://github.com/pydio/cells/commit/da9ad647f5e389ed9eee25329c6c1a43935b15ab): initial selection
+- [#3180c3c](https://github.com/pydio/cells/commit/3180c3c7c7bd53b20c0580d22b6f02cf0cb2e82c): Remove log
+- [#4b4f5bc](https://github.com/pydio/cells/commit/4b4f5bc173b79069fe8de43a3cdb577d17c8051e): Finalize s3 datasource editor and i18n
+- [#b77d1a9](https://github.com/pydio/cells/commit/b77d1a90261aa0231fe90c7beffc521d2995a8fb): Wip for managing multiple buckets in s3 datasource editor
+- [#0828ee7](https://github.com/pydio/cells/commit/0828ee79a50bddeb758e6e8e0cd2ea0a602401ae): Support for multiple buckets in s3 : create a wrapped s3.Client and adapt handler-path-datasource

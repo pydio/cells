@@ -210,6 +210,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 			if resp.User.IsGroup {
 				u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
 				u.Roles = permissions.GetRolesForUser(ctx, u, true)
+				u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
 				response.Groups = append(response.Groups, u)
 			} else {
 				u.Roles = permissions.GetRolesForUser(ctx, u, false)
@@ -565,6 +566,10 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
+	if !u.IsGroup {
+		permissions.ForceClearUserCache(u.Login)
+	}
+
 	// Reload user fully
 	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: u.Uuid})
 	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
@@ -627,7 +632,6 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			}
 		}()
 	}
-
 }
 
 // PutRoles updates an existing user with the passed list of roles.
@@ -691,6 +695,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 			zap.Any("Roles", u.Roles),
 		)
 		rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
+		permissions.ForceClearUserCache(response.User.GetLogin())
 	}
 }
 

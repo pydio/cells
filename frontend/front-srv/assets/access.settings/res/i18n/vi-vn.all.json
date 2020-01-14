@@ -207,13 +207,13 @@
     "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
   },
   "162": {
-    "other": "You are not authorized to update user %s"
+    "other": "Bạn không được phép cập nhật user %s"
   },
   "163": {
     "other": "Roles reordered for user %s"
   },
   "164": {
-    "other": "Successfully updated roles"
+    "other": "Cập nhật roles thành công"
   },
   "165": {
     "other": "Successfully saved user preferences"
@@ -222,34 +222,34 @@
     "other": "Successfully set lock (%1) on user (%2)"
   },
   "167": {
-    "other": "Successfully unlocked user (%s)"
+    "other": "Mở khóa user (%s) thành công"
   },
   "168": {
     "other": "%1 users were moved to group %2"
   },
   "169": {
-    "other": "No users were moved, there must have been something wrong!"
+    "other": "Không có user nào đã di chuyển, hình như có gì chưa đúng!"
   },
   "17": {
-    "other": "Date"
+    "other": "Ngày"
   },
   "170": {
-    "other": "Enable %1 (%2)"
+    "other": "Bật %1 (%2)"
   },
   "171": {
     "other": "Import Users (Enterprise only)"
   },
   "172": {
-    "other": "Services"
+    "other": "Danh sách services"
   },
   "173": {
-    "other": "Pydio Backend Services and their running status"
+    "other": "Thông tin về các dịch vụ backend của Pydio"
   },
   "174": {
     "other": "Identity Management"
   },
   "175": {
-    "other": "Data Management"
+    "other": "Quản lý dữ liệu"
   },
   "176": {
     "other": "Security Policies"
@@ -264,73 +264,73 @@
     "other": "Level"
   },
   "2": {
-    "other": "People"
+    "other": "Thành viên"
   },
   "20": {
     "other": "User"
   },
   "21": {
-    "other": "Action"
+    "other": "Hành động"
   },
   "22": {
     "other": "Params"
   },
   "22a": {
-    "other": "More info"
+    "other": "Thông tin chi tiết"
   },
   "23": {
-    "other": "Test Name"
+    "other": "Tên dùng để test"
   },
   "24": {
-    "other": "Test Data"
+    "other": "Dữ liệu dùng để test"
   },
   "25": {
     "other": "Workspaces Access"
   },
   "26": {
-    "other": "Modify Password"
+    "other": "Thay đổi mật khẩu"
   },
   "27": {
-    "other": "Admin Right"
+    "other": "Quyền quản trị"
   },
   "28": {
-    "other": "User has admin rights?"
+    "other": "User có quyền quản trị?"
   },
   "29": {
     "other": "Read"
   },
   "2b": {
-    "other": "Data Management"
+    "other": "Quản lý dữ liệu"
   },
   "3": {
     "other": "Workspaces"
   },
   "30": {
-    "other": "Write"
+    "other": "Ghi"
   },
   "32": {
-    "other": "Access Driver"
+    "other": "Access Drivers"
   },
   "33": {
-    "other": "Loading..."
+    "other": "Đang tải..."
   },
   "34": {
-    "other": "Are you sure you want to delete this user? This operation is not reversible!"
+    "other": "Bạn có chắc chắn muốn xóa user này? Hoạt động này là không thể đảo ngược!"
   },
   "35": {
-    "other": "Are you sure you want to delete this workspace? This operation is not reversible!"
+    "other": "Bạn có chắc chắn muốn xóa user này? Hoạt động này là không thể đảo ngược!"
   },
   "36": {
-    "other": "Mandatory fields are missing!"
+    "other": "Bạn chưa điền các thông tin bắt buộc!"
   },
   "37": {
-    "other": "Warning, password and confirmation differ!"
+    "other": "Chú ý, mật khẩu và chuỗi xác nhận khác nhau!"
   },
   "38": {
-    "other": "Please fill the login field!"
+    "other": "Xin vui lòng nhập tên truy cập!"
   },
   "39": {
-    "other": "Please fill both password fields!"
+    "other": "Vui lòng điền cả hai trường mật khẩu!"
   },
   "3b": {
     "other": "Storage"
@@ -342,7 +342,7 @@
     "other": "Logs"
   },
   "40": {
-    "other": "Please check the box to confirm!"
+    "other": "Vui lòng kiểm tra thư để xác nhận!"
   },
   "41": {
     "other": "Datasource Nodes"

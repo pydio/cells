@@ -264,12 +264,13 @@ exports['default'] = _react2['default'].createClass({
                             style: { position: 'absolute', top: -20, left: 10 }
                         }));
                     } else if (renderingType === 'button-icon') {
-                        actions.push(_react2['default'].createElement(ReactMUI.FlatButton, {
+                        actions.push(_react2['default'].createElement(_materialUi.FlatButton, {
                             key: actionName,
                             className: id,
                             onTouchTap: click,
                             label: menuTitle,
-                            labelStyle: buttonStyle
+                            labelStyle: buttonStyle,
+                            style: flatButtonStyle
                         }));
                     } else if (renderingType === 'button') {
                         actions.push(_react2['default'].createElement(_materialUi.FlatButton, {

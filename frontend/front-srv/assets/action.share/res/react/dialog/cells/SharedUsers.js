@@ -92,13 +92,13 @@ let SharedUsers = React.createClass({
         let actionLinks = [];
         const aclsLength = Object.keys(this.props.cellAcls).length;
         if(aclsLength && !this.props.isReadonly() && !this.props.readonly){
-            actionLinks.push(<ActionButton key="clear" callback={this.clearAllUsers} mdiIcon="delete" messageId="180"/>)
+            actionLinks.push(<ActionButton key="clear" callback={this.clearAllUsers} tooltipPosition={"top-center"} mdiIcon="delete" messageId="180"/>)
         }
         if(aclsLength && this.props.sendInvitations){
-            actionLinks.push(<ActionButton key="invite" callback={this.sendInvitationToAllUsers} mdiIcon="email-outline" messageId="45"/>)
+            actionLinks.push(<ActionButton key="invite" callback={this.sendInvitationToAllUsers} tooltipPosition={"top-center"} mdiIcon="email-outline" messageId="45"/>)
         }
         if(this.props.saveSelectionAsTeam && aclsLength > 1 && !this.props.isReadonly() && !this.props.readonly){
-            actionLinks.push(<ActionButton key="team" callback={this.props.saveSelectionAsTeam} mdiIcon="account-multiple-plus" messageId="509" messageCoreNamespace={true}/>)
+            actionLinks.push(<ActionButton key="team" callback={this.props.saveSelectionAsTeam} mdiIcon="account-multiple-plus" tooltipPosition={"top-center"}  messageId="509" messageCoreNamespace={true}/>)
         }
         let rwHeader, usersInput;
         if(userEntries.length){

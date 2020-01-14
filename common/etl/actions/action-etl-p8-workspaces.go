@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
@@ -29,6 +31,51 @@ var (
 // Unique identifier
 func (c *SyncWorkspacesAction) GetName() string {
 	return SyncWorkspacesActionName
+}
+
+func (c *SyncWorkspacesAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              SyncWorkspacesActionName,
+		Label:           "Sync. workspaces",
+		Icon:            "",
+		Description:     "Diff and merge workspaces from stores",
+		Category:        actions.ActionCategoryETL,
+		SummaryTemplate: "",
+		HasForm:         true,
+	}
+}
+
+func (c *SyncWorkspacesAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "left",
+					Type:        forms.ParamString,
+					Label:       "Left store",
+					Description: "Type of left users store",
+				},
+				&forms.FormField{
+					Name:        "right",
+					Type:        forms.ParamString,
+					Label:       "Right store",
+					Description: "Type of right users store",
+				},
+				&forms.FormField{
+					Name:        "splitUserRoles",
+					Type:        forms.ParamString,
+					Label:       "Split users and roles",
+					Description: "Sequentially import users then roles",
+				},
+				&forms.FormField{
+					Name:        "cellAdmin",
+					Type:        forms.ParamString,
+					Label:       "Cells admin",
+					Description: "Login of cells administrator",
+				},
+			},
+		},
+	}}
 }
 
 // Pass parameters

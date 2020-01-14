@@ -27,12 +27,9 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/protobuf/proto"
-	"github.com/micro/protobuf/ptypes"
 	"github.com/pborman/uuid"
 
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/scheduler/actions"
@@ -70,7 +67,7 @@ func NewTaskFromEvent(ctx context.Context, job *jobs.Job, event interface{}) *Ta
 		},
 	}
 	t.lock = &sync.RWMutex{}
-	t.initialMessage = t.createMessage(event)
+	t.initialMessage = createMessageFromEvent(event)
 	return t
 }
 
@@ -177,40 +174,6 @@ func (t *Task) GlobalError(e error) {
 			ErrorString: e.Error(),
 		}}},
 	})
-}
-
-func (t *Task) createMessage(event interface{}) jobs.ActionMessage {
-	initialInput := jobs.ActionMessage{}
-
-	if nodeChange, ok := event.(*tree.NodeChangeEvent); ok {
-		any, _ := ptypes.MarshalAny(nodeChange)
-		initialInput.Event = any
-		if nodeChange.Target != nil {
-
-			initialInput = initialInput.WithNode(nodeChange.Target)
-
-		} else if nodeChange.Source != nil {
-
-			initialInput = initialInput.WithNode(nodeChange.Source)
-
-		}
-
-	} else if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
-
-		any, _ := ptypes.MarshalAny(triggerEvent)
-		initialInput.Event = any
-
-	} else if userEvent, ok := event.(*idm.ChangeEvent); ok {
-
-		any, _ := ptypes.MarshalAny(userEvent)
-		initialInput.Event = any
-		if userEvent.User != nil {
-			initialInput = initialInput.WithUser(userEvent.User)
-		}
-
-	}
-
-	return initialInput
 }
 
 func (t *Task) EnqueueRunnables(c client.Client, output chan Runnable) {

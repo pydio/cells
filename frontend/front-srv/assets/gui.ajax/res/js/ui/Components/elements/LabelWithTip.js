@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+
 export default React.createClass({
 
     propTypes: {
@@ -58,8 +60,8 @@ export default React.createClass({
                 <span onMouseEnter={this.show} onMouseLeave={this.hide} style={style} className={this.props.className}>
                         {label}
                     {this.props.children}
-                    <ReactMUI.Tooltip label={this.props.tooltip} style={tooltipStyle} className={this.props.tooltipClassName} show={this.state.show}/>
-                    </span>
+                    <div label={this.props.tooltip} style={{...tooltipStyle,display:this.state.show?'block':'none'}} className={this.props.tooltipClassName}/>
+                </span>
             );
         }else{
             if(this.props.label) {

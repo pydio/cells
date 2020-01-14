@@ -1,3 +1,5 @@
+@import "scheduler/layout.css";
+@import "scheduler/material.css";
 /*
 Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibles/colors.less
 */

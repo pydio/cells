@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
@@ -40,6 +41,10 @@ import (
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 	"github.com/pydio/cells/scheduler/lang"
+)
+
+var (
+	copyMoveActionName = "actions.tree.copymove"
 )
 
 type CopyMoveAction struct {
@@ -52,9 +57,75 @@ type CopyMoveAction struct {
 	TargetIsParent    bool
 }
 
-var (
-	copyMoveActionName = "actions.tree.copymove"
-)
+func (c *CopyMoveAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                copyMoveActionName,
+		Label:             "Copy/Move",
+		Icon:              "folder-move",
+		Category:          actions.ActionCategoryTree,
+		Description:       "Recursively copy or move files or folders passed in input",
+		InputDescription:  "Single-selection of a file or a folder to process",
+		OutputDescription: "The processed file or folder at its new location",
+		SummaryTemplate:   "",
+		HasForm:           true,
+	}
+}
+
+func (c *CopyMoveAction) GetParametersForm() *forms.Form {
+	return &forms.Form{Groups: []*forms.Group{
+		{
+			Fields: []forms.Field{
+				&forms.FormField{
+					Name:        "type",
+					Type:        "select",
+					Label:       "Operation Type",
+					Description: "Copy or move",
+					Mandatory:   true,
+					Editable:    true,
+					ChoicePresetList: []map[string]string{
+						{"copy": "Copy"},
+						{"move": "Move"},
+					},
+				},
+				&forms.FormField{
+					Name:        "recursive",
+					Type:        "boolean",
+					Label:       "Recursive",
+					Description: "Apply recursively on folders",
+					Default:     true,
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "target",
+					Type:        "string",
+					Label:       "Destination",
+					Description: "Where to copy or move original files",
+					Mandatory:   true,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "targetParent",
+					Type:        "boolean",
+					Label:       "Parent Folder",
+					Description: "If set to true, the files are created inside the target folder, otherwise the destination should point to full path of target",
+					Default:     true,
+					Mandatory:   false,
+					Editable:    true,
+				},
+				&forms.FormField{
+					Name:        "create",
+					Type:        "boolean",
+					Label:       "Create",
+					Description: "Whether to automatically create the destination folder or not",
+					Default:     true,
+					Mandatory:   false,
+					Editable:    true,
+				},
+			},
+		},
+	}}
+}
 
 // GetName returns this action unique identifier
 func (c *CopyMoveAction) GetName() string {
@@ -111,7 +182,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Default(), true))
 
 	targetNode := &tree.Node{
-		Path: c.TargetPlaceholder,
+		Path: jobs.EvaluateFieldStr(ctx, input, c.TargetPlaceholder),
 	}
 	if c.TargetIsParent {
 		targetNode.Path = path.Join(targetNode.Path, path.Base(sourceNode.Path))
@@ -140,7 +211,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		output = output.WithError(e)
 		return output, e
 	} else {
-		output = output.WithNodes(sourceNode, targetNode)
+		output = output.WithNode(targetNode)
 		output.AppendOutput(&jobs.ActionOutput{
 			Success: true,
 		})

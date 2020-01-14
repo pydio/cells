@@ -185,36 +185,12 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	response := &rest.FrontSessionResponse{}
-
-	if len(loginRequest.AuthInfo) == 0 {
-		if trigger, ok := session.Values["trigger"]; ok {
-			tInfo := map[string]string{}
-			if info, o := session.Values["triggerInfo"]; o {
-				tInfo = info.(map[string]string)
-			}
-			response = &rest.FrontSessionResponse{
-				Trigger:     trigger.(string),
-				TriggerInfo: tInfo,
-			}
-		}
-
-		return
-	}
-
 	if e := frontend.ApplyAuthMiddlewares(req, rsp, &loginRequest, response, session); e != nil {
 		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
 			log.Logger(ctx).Error("Error saving session", zap.Error(e))
 		}
 		service.RestError401(req, rsp, e)
 		return
-	}
-
-	if len(session.Values) > 0 {
-		response.Token = &rest.Token{
-			AccessToken: session.Values["access_token"].(string),
-			IDToken:     session.Values["id_token"].(string),
-			ExpiresAt:   session.Values["expires_at"].(string),
-		}
 	}
 
 	if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {

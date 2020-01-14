@@ -53,7 +53,8 @@ const PluginsList = React.createClass({
                     pluginId:rows[0].id,
                     docAsAdditionalPane:true,
                     className:"vertical edit-plugin-inpane",
-                    closeEditor:this.props.closeRightPane
+                    closeEditor:this.props.closeRightPane,
+                    accessByName:this.props.accessByName
                 },
                 CHILDREN:null
             });
@@ -97,7 +98,7 @@ const PluginsList = React.createClass({
 
     render(){
 
-        const {displaySmall, pydio} = this.props;
+        const {displaySmall, pydio, accessByName} = this.props;
         const m = (id) => pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
         let columns;
         const renderEnabled = (row) => {
@@ -105,7 +106,7 @@ const PluginsList = React.createClass({
                 toggled={row.xmlNode.getAttribute("enabled") !== "false"}
                 onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
                 onClick={(e)=> e.stopPropagation()}
-                disabled={row.xmlNode.getAttribute("enabled") === "always"}
+                disabled={row.xmlNode.getAttribute("enabled") === "always" || !accessByName('Create')}
             />);
         };
         const renderEditButton = (row) => {

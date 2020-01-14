@@ -68,7 +68,7 @@ func promptURLs(proxyConfig *install.ProxyConfig, includeTLS bool) (e error) {
 	if !includeTLS {
 		// TLS not included by default, still ask the user if he wants to change it
 		promptTls := p.Prompt{Label: "Do you want to change your TLS config as well? [y/N] ", Default: ""}
-		if val, e1 := promptTls.Run(); e1 == nil && (val == "Y" || val == "y" || val == "") {
+		if val, e1 := promptTls.Run(); e1 == nil && (val == "Y" || val == "y") {
 			includeTLS = true
 		}
 	}

@@ -19,7 +19,6 @@
     "lodash.debounce": "^4.0.8",
     "lscache": "^1.3.0",
     "material-ui": "^0.17.0",
-    "material-ui-legacy": "git://github.com/pydio/material-ui.git#dc3704bc50e90e2b899c25e206f161de25e8a59d",
     "md5": "^2.2.1",
     "moment": "^2.19.1",
     "oidc-client": "^1.10.1",

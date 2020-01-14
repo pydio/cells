@@ -19,11 +19,11 @@
  */
 
 
-const React = require('react')
-const Pydio = require('pydio')
-const {PydioContextConsumer} = Pydio.requireLib('boot')
-const {ToolbarGroup} = require('material-ui-legacy')
+import React from "react";
+import Pydio from "pydio";
+const {PydioContextConsumer} = Pydio.requireLib('boot');
 import IconButtonMenu from '../menu/IconButtonMenu'
+
 
 let SortColumns = React.createClass({
 
@@ -143,12 +143,12 @@ let SortColumns = React.createClass({
             );
         }else{
             return (
-                <ToolbarGroup float="left">{this.getColumnsItems('header', this.props.pydio.getController())}</ToolbarGroup>
+                <div className={"mui-toolbar-group mui-left"}>{this.getColumnsItems('header', this.props.pydio.getController())}</div>
             );
         }
 
     }
 });
 
-SortColumns = PydioContextConsumer(SortColumns)
+SortColumns = PydioContextConsumer(SortColumns);
 export {SortColumns as default}

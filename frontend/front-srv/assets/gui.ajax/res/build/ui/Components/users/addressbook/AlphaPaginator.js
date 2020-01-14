@@ -44,6 +44,10 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+
 /**
  * Alphabet and pages generator to give a first-letter-based pagination
  */
@@ -85,7 +89,7 @@ var AlphaPaginator = (function (_Component) {
                     _materialUi.MuiThemeProvider,
                     { muiTheme: _materialUiStyles.getMuiTheme({ zIndex: { layer: 3000, popover: 3001 } }) },
                     React.createElement(
-                        _materialUi.SelectField,
+                        ModernSelectField,
                         {
                             floatingLabelText: getMessage(331),
                             style: { width: 60 },
@@ -111,7 +115,7 @@ var AlphaPaginator = (function (_Component) {
             { style: _extends({}, style, { display: 'flex', paddingRight: 8, alignItems: 'center' }) },
             React.createElement(
                 'div',
-                { style: { flex: 1 } },
+                { style: { flex: 1, height: 10 } },
                 getMessage(249, '')
             ),
             paginator,
@@ -119,10 +123,10 @@ var AlphaPaginator = (function (_Component) {
                 _materialUi.MuiThemeProvider,
                 { muiTheme: _materialUiStyles.getMuiTheme({ zIndex: { layer: 3000, popover: 3001 } }) },
                 React.createElement(
-                    _materialUi.SelectField,
+                    ModernSelectField,
                     {
                         floatingLabelText: getMessage(625),
-                        style: { width: 60, marginLeft: 20 },
+                        style: { width: 60, marginLeft: 8 },
                         dropDownMenuProps: { anchorOrigin: { vertical: 'center', horizontal: 'right' } },
                         fullWidth: true,
                         value: currentPage,

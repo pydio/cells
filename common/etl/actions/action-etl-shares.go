@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pydio/cells/common/forms"
+
 	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common/etl"
 	"github.com/pydio/cells/common/log"
@@ -44,6 +46,22 @@ var (
 // Unique identifier
 func (c *SyncSharesAction) GetName() string {
 	return SyncSharesActionName
+}
+
+func (c *SyncSharesAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:              SyncSharesActionName,
+		Label:           "Sync. Shares",
+		Icon:            "",
+		Description:     "Diff and merge shares from two stores.",
+		Category:        actions.ActionCategoryETL,
+		SummaryTemplate: "",
+		HasForm:         false,
+	}
+}
+
+func (c *SyncSharesAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // Pass parameters

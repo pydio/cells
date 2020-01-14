@@ -85,10 +85,17 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 			return err
 		}
 
-		session.Values["access_token"] = token.AccessToken
-		session.Values["id_token"] = token.Extra("id_token")
+		// Do not show the refresh token here
+		out.Token = &rest.Token{
+			AccessToken: token.AccessToken,
+			IDToken:     token.Extra("id_token").(string),
+			ExpiresAt:   strconv.Itoa(int(token.Expiry.Unix())),
+		}
+
+		session.Values["access_token"] = out.GetToken().GetAccessToken()
+		session.Values["id_token"] = out.GetToken().GetIDToken()
+		session.Values["expires_at"] = out.GetToken().GetExpiresAt()
 		session.Values["refresh_token"] = token.RefreshToken
-		session.Values["expires_at"] = strconv.Itoa(int(token.Expiry.Unix()))
 
 		return middleware(req, rsp, in, out, session)
 	}

@@ -22,6 +22,7 @@ package actions
 
 import (
 	"context"
+	"strings"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -32,6 +33,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
@@ -51,6 +53,24 @@ type MailDigestAction struct {
 	userClient     idm.UserServiceClient
 	dryRun         bool
 	dryMail        string
+}
+
+func (m *MailDigestAction) GetDescription(lang ...string) actions.ActionDescription {
+	return actions.ActionDescription{
+		ID:                digestActionName,
+		Label:             "Email Digest",
+		Icon:              "email",
+		Category:          actions.ActionCategoryNotify,
+		InputDescription:  "Single-selection of one user",
+		OutputDescription: "Returns unchanged input",
+		Description:       "Compute a summary of last notifications and send to user",
+		SummaryTemplate:   "",
+		HasForm:           false,
+	}
+}
+
+func (m *MailDigestAction) GetParametersForm() *forms.Form {
+	return nil
 }
 
 // GetName returns the Unique Identifier of the MailDigestAction.
@@ -128,6 +148,12 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		return input.WithError(err), err
 	}
 
+	md := render.Markdown(digest, activity.SummaryPointOfView_GENERIC, lang)
+	if strings.TrimSpace(md) == "" {
+		log.Logger(ctx).Warn("Computed digest is empty, this is not expected (probably an unsupported AS2.ObjectType).", zap.Any("collection", collection))
+		return input.WithIgnore(), nil
+	}
+
 	user := &mailer.User{
 		Uuid:     userObject.Uuid,
 		Address:  email,
@@ -141,7 +167,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	_, err = m.mailerClient.SendMail(ctx, &mailer.SendMailRequest{
 		Mail: &mailer.Mail{
 			TemplateId:      "Digest",
-			ContentMarkdown: render.Markdown(digest, activity.SummaryPointOfView_GENERIC, lang),
+			ContentMarkdown: md,
 			To:              []*mailer.User{user},
 		},
 	})

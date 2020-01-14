@@ -198,6 +198,18 @@ service ConfigService {
             get: "/config/discovery/forms/{ServiceName}"
         };
     }
+    // Publish scheduler registered actions
+    rpc SchedulerActionsDiscovery(SchedulerActionsRequest) returns (SchedulerActionsResponse) {
+        option (google.api.http) = {
+            get: "/config/scheduler/actions"
+        };
+    }
+    // Publish scheduler action XML form for building screens in frontend
+    rpc SchedulerActionFormDiscovery(SchedulerActionFormRequest) returns (SchedulerActionFormResponse) {
+        option (google.api.http) = {
+            get: "/config/scheduler/actions/{ActionName}"
+        };
+    }
 }
 
 // Roles Management

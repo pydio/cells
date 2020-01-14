@@ -58,6 +58,9 @@ class TeamCreationForm extends Component{
                         value={this.state.value}
                         onChange={this.onChange.bind(this)}
                         fullWidth={true}
+                        onKeyPress={(ev) => {if(ev.key==='Enter'){
+                            this.submitCreationForm();
+                        }}}
                     />
                 </div>
                 <div>

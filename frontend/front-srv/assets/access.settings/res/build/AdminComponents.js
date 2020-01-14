@@ -16841,7 +16841,11 @@ var AdminDashboard = _react2['default'].createClass({
             openEditor: this.openEditor,
             openRightPane: this.openRightPane,
             closeRightPane: this.closeRightPane
-        }, additionalProps));
+        }, additionalProps, {
+            accessByName: function (permissionName) {
+                return !additionalProps.accesses || additionalProps.accesses[permissionName] === true;
+            }
+        }));
     },
 
     backToHome: function backToHome() {

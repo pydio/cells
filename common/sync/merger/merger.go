@@ -42,6 +42,7 @@ const (
 	ConflictPathOperation
 	ConflictMoveSameSource
 	ConflictMoveSameTarget
+	ConflictMetaChanged
 )
 
 type OperationDirection int
@@ -65,6 +66,9 @@ const (
 	OpRefreshUuid
 	OpConflict
 	OpUnknown
+	OpDeleteMeta
+	OpCreateMeta
+	OpUpdateMeta
 )
 
 // String gives a string representation of this integer type
@@ -84,6 +88,12 @@ func (t OperationType) String() string {
 		return "Delete"
 	case OpRefreshUuid:
 		return "RefreshUuid"
+	case OpUpdateMeta:
+		return "UpdateMetadata"
+	case OpCreateMeta:
+		return "CreateMetadata"
+	case OpDeleteMeta:
+		return "DeleteMetadata"
 	}
 	return ""
 }

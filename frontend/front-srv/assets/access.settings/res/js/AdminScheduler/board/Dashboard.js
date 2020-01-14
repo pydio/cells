@@ -19,35 +19,21 @@
  */
 
 import React from 'react'
-import {IconMenu, Divider, IconButton, MenuItem, FlatButton, Paper} from 'material-ui'
+import {IconMenu, Divider, IconButton, MenuItem, FlatButton, Paper, Dialog} from 'material-ui'
 import Pydio from 'pydio'
 const {JobsStore, moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
+const {ModernTextField} = Pydio.requireLib('hoc');
 import JobBoard from './JobBoard'
 import JobSchedule from './JobSchedule'
 import debounce from 'lodash.debounce'
+import {Events} from './builder/Triggers'
+import {JobsJob} from 'pydio/http/rest-api';
+import uuid from 'uuid4'
 
 const Dashboard = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
-
-    nodeEventsNames: {
-        '0':'trigger.create.node',
-        '1':'trigger.read.node',
-        '2':'trigger.update.path',
-        '3':'trigger.update.content',
-        '4':'trigger.update.metadata',
-        '5':'trigger.delete.node'
-    },
-
-    userEventsNames: {
-        '0': 'trigger.create.user',
-        '1': 'trigger.read.user',
-        '2': 'trigger.update.user',
-        '3': 'trigger.delete.user',
-        '4': 'trigger.bind.user',
-        '5': 'trigger.logout.user'
-    },
 
     getInitialState(){
         return {
@@ -122,10 +108,6 @@ const Dashboard = React.createClass({
         }
     },
 
-    showTaskCreator(){
-
-    },
-
     extractRowsInfo(jobs, m){
 
 
@@ -173,27 +155,21 @@ const Dashboard = React.createClass({
 
             if(job.Schedule) {
                 data.Trigger = <JobSchedule job={job}/>;// m('trigger.periodic');
-                data.TriggerValue = 1;
+                data.SortValue = '0-' + job.Label;
             } else if(job.EventNames) {
-                data.TriggerValue = 2;
-                data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(e => {
-                    if(e.indexOf('NODE_CHANGE:') === 0) {
-                        return m(this.nodeEventsNames[e.replace('NODE_CHANGE:', '')]);
-                    } else if(e.indexOf('IDM_CHANGE:USER:') === 0) {
-                        return m(this.userEventsNames[e.replace('IDM_CHANGE:USER:', '')]);
-                    }else {
-                        return e;
-                    }
-                }).join(', ');
-            } else if(job.AutoStart) {
-                data.Trigger = m('trigger.manual');
-                data.TriggerValue = 0;
+                data.SortValue = '1-' + job.Label;
+                data.Trigger = <span><span className={"mdi mdi-pulse"} title={m('trigger.events')} style={{color:'#4caf50'}}/> {job.EventNames.map(e => Events.eventLabel(e, m)).join(', ')}</span>;
             } else {
-                data.Trigger = '-';
-                data.TriggerValue = 3;
+                data.Trigger = <span><span className={"mdi mdi-gesture-tap"} style={{color:'#607d8b'}}/> {m('trigger.manual')}</span>;
+                data.SortValue = '2-' + job.Label;
             }
             if (job.Inactive) {
                 data.Label = <span style={{color: 'rgba(0,0,0,0.43)'}}>[{m('job.disabled')}] {data.Label}</span>;
+                data.Trigger = <span style={{opacity: 0.43}}>{data.Trigger}</span>;
+                data.TaskStartTime = <span style={{opacity: 0.43}}>{data.TaskStartTime}</span>;
+                data.TaskEndTime = <span style={{opacity: 0.43}}>{data.TaskEndTime}</span>;
+                data.TaskStatus = <span style={{opacity: 0.43}}>{data.TaskStatus}</span>;
+                data.SortValue = '3-' + job.Label;
             }
 
             if (job.Owner === 'pydio.system.user') {
@@ -207,6 +183,17 @@ const Dashboard = React.createClass({
         return {system, other};
     },
 
+    jobPrompted(){
+        const {newJobLabel} = this.state;
+        const newJob = JobsJob.constructFromObject({
+            ID: uuid(),
+            Label: newJobLabel,
+            Owner: 'pydio.system.user',
+            Actions:[],
+        });
+        this.setState({createJob: newJob, promptJob: false, newJobLabel : ''});
+    },
+
     render(){
 
         const {pydio, jobsEditable} = this.props;
@@ -216,21 +203,14 @@ const Dashboard = React.createClass({
             {
                 name:'Label',
                 label:m('job.label'),
-                style:{width:'35%', fontSize: 15},
-                headerStyle:{width:'35%'},
-            },
-            {
-                name:'Owner',
-                label:m('job.owner'),
-                style:{width:'15%'},
-                headerStyle:{width:'15%'},
-                hideSmall: true
+                style:{width:'40%', fontSize: 15},
+                headerStyle:{width:'40%'},
             },
             {
                 name:'Trigger',
                 label:m('job.trigger'),
-                style:{width:'15%'},
-                headerStyle:{width:'15%'},
+                style:{width:'20%'},
+                headerStyle:{width:'20%'},
                 hideSmall: true
             },
             {
@@ -252,24 +232,84 @@ const Dashboard = React.createClass({
             },
         ];
 
-        const {result, loading, selectJob} = this.state;
+        const userKeys = [...keys];
+        // Replace Trigger by Owner
+        userKeys[1] = {
+            name:'Owner',
+            label:m('job.owner'),
+            style:{width:'15%'},
+            headerStyle:{width:'15%'},
+            hideSmall: true
+        };
+
+        const {result, loading, selectJob, createJob, promptJob, newJobLabel} = this.state;
         if(selectJob && result && result.Jobs){
             const found = result.Jobs.filter((j) => j.ID === selectJob);
             if(found.length){
-                return <JobBoard pydio={pydio} job={found[0]} jobsEditable={jobsEditable} onRequestClose={()=>this.setState({selectJob: null})}/>;
+                return (
+                    <JobBoard
+                        pydio={pydio}
+                        job={found[0]}
+                        jobsEditable={jobsEditable}
+                        onSave={()=>{this.load(true)}}
+                        onRequestClose={(refresh)=>{
+                            this.setState({selectJob: null});
+                            if(refresh){
+                                this.load();
+                            }
+                        }}
+                    />);
             }
+        } else if(createJob) {
+            return (
+                <JobBoard
+                    pydio={pydio}
+                    job={createJob}
+                    create={true}
+                    jobsEditable={jobsEditable}
+                    onSave={()=>{this.load(true)}}
+                    onRequestClose={()=>this.setState({createJob: null})}
+                />
+            );
         }
         let {system, other} = this.extractRowsInfo(result ? result.Jobs : [], m);
         system.sort((a,b) => {
-            return a.TriggerValue === b.TriggerValue ? 0 : (a.TriggerValue > b.TriggerValue ? 1 : -1 );
+            return a.SortValue === b.SortValue ? 0 : (a.SortValue > b.SortValue ? 1 : -1 );
         });
+        const actions = [];
+        if (jobsEditable) {
+            actions.push(<FlatButton label={"+ Job"} onTouchTap={() => {
+                this.setState({promptJob: true});
+            }}/>)
+        }
 
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
+                <Dialog
+                    title={"Create a new Job"}
+                    onRequestClose={()=>{this.setState({promptJob: false})}}
+                    open={promptJob}
+                    contentStyle={{width: 300}}
+                    actions={[
+                        <FlatButton onTouchTap={() => {this.setState({promptJob:false})}} label={"Cancel"}/>,
+                        <FlatButton primary={true} onTouchTap={()=>{this.jobPrompted()}} disabled={!newJobLabel} label={"Create"}/>
+                    ]}
+                >
+                    <div>
+                        <ModernTextField
+                            fullWidth={true}
+                            hintText={"New Job Label"}
+                            value={newJobLabel}
+                            onChange={(e,v)=>{this.setState({newJobLabel:v})}}
+                            onKeyPress={(e) => {if(e.Key === 'Enter') this.jobPrompted()}}
+                        />
+                    </div>
+                </Dialog>
+
                 <AdminComponents.Header
                     title={m('title')}
                     icon="mdi mdi-timetable"
-                    actions={[]}
+                    actions={actions}
                     reloadAction={this.load.bind(this)}
                     loading={loading}
                 />
@@ -294,7 +334,7 @@ const Dashboard = React.createClass({
                     <Paper style={{margin: 20}}>
                         <MaterialTable
                             data={other}
-                            columns={keys}
+                            columns={userKeys}
                             onSelectRows={(rows)=>{this.selectRows(rows)}}
                             showCheckboxes={false}
                             emptyStateString={m('users.empty')}

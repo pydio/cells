@@ -468,7 +468,7 @@ var AddressBook = _react2['default'].createClass({
                     _react2['default'].createElement(
                         'div',
                         { style: _extends({ width: 320, height: 420 }, popoverContainerStyle) },
-                        _react2['default'].createElement(WrappedAddressBook, _extends({}, this.props, { mode: 'selector' }))
+                        _react2['default'].createElement(WrappedAddressBook, _extends({}, this.props, { mode: 'selector', style: { height: 420 } }))
                     )
                 )
             );
@@ -587,7 +587,8 @@ var AddressBook = _react2['default'].createClass({
                     _this5.setState({ rightPaneItem: null });
                 } : null,
                 actionsPanel: topActionsPanel,
-                actionsForCell: this.props.actionsForCell
+                actionsForCell: this.props.actionsForCell,
+                usersOnly: this.props.usersOnly
             }, otherProps));
         }
         var rightPanelStyle = _extends({}, leftColumnStyle, {

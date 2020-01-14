@@ -247,6 +247,9 @@ let AdminDashboard = React.createClass({
                 openRightPane={this.openRightPane}
                 closeRightPane={this.closeRightPane}
                 {...additionalProps}
+                accessByName={(permissionName) => {
+                    return (!additionalProps.accesses || additionalProps.accesses[permissionName] === true);
+                }}
             />);
     },
 

@@ -28,5 +28,8 @@
   },
   "sender.error": {
     "other": "E-Mail konnte nicht gesendet werden!"
+  },
+  "entries.ignored": {
+    "other": "Achtung, einige Einträge wurden ignoriert. Nur Benutzer, die ihre E-Mail-Adresse richtig eingestellt haben, erhalten Einladungen. Teams und Gruppen werden ebenfalls nicht bearbeitet."
   }
 }

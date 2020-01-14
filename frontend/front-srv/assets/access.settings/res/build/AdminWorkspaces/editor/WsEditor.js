@@ -179,19 +179,22 @@ var WsEditor = (function (_React$Component) {
             var mS = function mS(id) {
                 return pydio.MessageHash['settings.' + id] || id;
             };
+            var readonly = !workspace.PoliciesContextEditable;
 
             var buttons = [];
-            if (!container.create) {
+            if (!container.create && !readonly) {
                 buttons.push(PaperEditorLayout.actionButton(m('plugins.6'), "mdi mdi-undo", function () {
                     _this4.revert();
                 }, !container.isDirty()));
             }
-            buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", function () {
-                _this4.save();
-            }, saving || !(container.isDirty() && container.isValid())));
+            if (!readonly) {
+                buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", function () {
+                    _this4.save();
+                }, saving || !(container.isDirty() && container.isValid())));
+            }
 
             var delButton = undefined;
-            if (!container.create) {
+            if (!container.create && !readonly) {
                 delButton = _react2['default'].createElement(
                     'div',
                     { style: { padding: 16, textAlign: 'center' } },

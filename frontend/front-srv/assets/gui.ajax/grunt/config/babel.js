@@ -21,17 +21,6 @@ module.exports = function(grunt, options){
                 }
             ]
         },
-        materialui: {
-            files: [
-                {
-                    mode: {loose: false},
-                    expand: true,
-                    cwd: 'node_modules/material-ui-legacy/src/',
-                    src: ['**/*.js', '**/*.jsx'],
-                    dest: 'node_modules/material-ui-legacy/lib/',
-                    ext: '.js'
-                }]
-        },
         lib:{
             options: {
                 optional: ['es7.decorators'],

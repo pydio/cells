@@ -901,6 +901,48 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/config/scheduler/actions": {
+      "get": {
+        "summary": "Publish scheduler registered actions",
+        "operationId": "SchedulerActionsDiscovery",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restSchedulerActionsResponse"
+            }
+          }
+        },
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
+    "/config/scheduler/actions/{ActionName}": {
+      "get": {
+        "summary": "Publish scheduler action XML form for building screens in frontend",
+        "operationId": "SchedulerActionFormDiscovery",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restSchedulerActionFormResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ActionName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
     "/config/versioning": {
       "get": {
         "summary": "List all defined versioning policies",
@@ -4632,7 +4674,7 @@ var SwaggerJson = `{
         },
         "UsersSelector": {
           "$ref": "#/definitions/jobsUsersSelector",
-          "title": "Users Selector"
+          "title": "Users Selector (deprecated in favor of IdmSelector)"
         },
         "NodesFilter": {
           "$ref": "#/definitions/jobsNodesSelector",
@@ -4640,11 +4682,23 @@ var SwaggerJson = `{
         },
         "UsersFilter": {
           "$ref": "#/definitions/jobsUsersSelector",
-          "title": "User Filter"
+          "title": "User Filter (deprecated in favor of IdmSelector)"
         },
-        "SourceFilter": {
-          "$ref": "#/definitions/jobsSourceFilter",
-          "title": "Source filter"
+        "IdmSelector": {
+          "$ref": "#/definitions/jobsIdmSelector",
+          "title": "Idm objects collector"
+        },
+        "IdmFilter": {
+          "$ref": "#/definitions/jobsIdmSelector",
+          "title": "Idm objects filter"
+        },
+        "ActionOutputFilter": {
+          "$ref": "#/definitions/jobsActionOutputFilter",
+          "title": "Previous action output filter"
+        },
+        "ContextMetaFilter": {
+          "$ref": "#/definitions/jobsContextMetaFilter",
+          "title": "Metadata policy-based filter"
         },
         "Parameters": {
           "type": "object",
@@ -4680,31 +4734,57 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "Event": {
-          "$ref": "#/definitions/protobufAny"
+          "$ref": "#/definitions/protobufAny",
+          "title": "Initial event that triggered the Job"
         },
         "Nodes": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/treeNode"
-          }
+          },
+          "title": "One or more Node"
         },
         "Users": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/idmUser"
-          }
+          },
+          "title": "One or more User"
+        },
+        "Roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/idmRole"
+          },
+          "title": "One or more Role"
+        },
+        "Workspaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/idmWorkspace"
+          },
+          "title": "One or more Workspace"
+        },
+        "Acls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/idmACL"
+          },
+          "title": "One or more ACL"
         },
         "Activities": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/activityObject"
-          }
+          },
+          "title": "One or more Activity"
         },
         "OutputChain": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/jobsActionOutput"
-          }
+          },
+          "title": "Stack of ActionOutput messages appended by all previous actions"
         }
       },
       "title": "Message passed along from one action to another, main properties\nare modified by the various actions.\nOutputChain is being stacked up when passing through actions"
@@ -4714,32 +4794,49 @@ var SwaggerJson = `{
       "properties": {
         "Success": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "True if action succeeded"
         },
         "RawBody": {
           "type": "string",
-          "format": "byte"
+          "format": "byte",
+          "title": "Arbitrary bytes sequence"
         },
         "StringBody": {
-          "type": "string"
+          "type": "string",
+          "title": "Arbitrary string"
         },
         "JsonBody": {
           "type": "string",
-          "format": "byte"
+          "format": "byte",
+          "title": "Arbitrary JSON-encoded bytes"
         },
         "ErrorString": {
-          "type": "string"
+          "type": "string",
+          "title": "Error"
         },
         "Ignored": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "If action was returned WithIgnore()"
         },
         "Time": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Time taken to run the action"
         }
       },
       "title": "Standard output of an action. Success value is required\nother are optional"
+    },
+    "jobsActionOutputFilter": {
+      "type": "object",
+      "properties": {
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Query built from ActionOutputSingleQuery"
+        }
+      },
+      "title": "ActionOutputFilter can be used to filter last message output"
     },
     "jobsCommand": {
       "type": "string",
@@ -4754,6 +4851,16 @@ var SwaggerJson = `{
         "Active"
       ],
       "default": "None"
+    },
+    "jobsContextMetaFilter": {
+      "type": "object",
+      "properties": {
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Can be built with ContextMetaSingleQuery"
+        }
+      },
+      "title": "PolicyContextFilter can be used to filter request metadata"
     },
     "jobsCtrlCommand": {
       "type": "object",
@@ -4822,6 +4929,41 @@ var SwaggerJson = `{
           }
         }
       }
+    },
+    "jobsIdmSelector": {
+      "type": "object",
+      "properties": {
+        "Type": {
+          "$ref": "#/definitions/jobsIdmSelectorType",
+          "title": "Type of objects to look for"
+        },
+        "All": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Load all objects"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Serialized search query"
+        },
+        "Collect": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Pass a slice of objects to one action, or trigger all actions in parallel"
+        }
+      },
+      "title": "Generic container for select/filter idm objects"
+    },
+    "jobsIdmSelectorType": {
+      "type": "string",
+      "enum": [
+        "User",
+        "Role",
+        "Workspace",
+        "Acl"
+      ],
+      "default": "User",
+      "title": "Possible values for IdmSelector.Type"
     },
     "jobsJob": {
       "type": "object",
@@ -4896,10 +5038,20 @@ var SwaggerJson = `{
           "title": "Filled with currently running tasks"
         },
         "NodeEventFilter": {
-          "$ref": "#/definitions/jobsNodesSelector"
+          "$ref": "#/definitions/jobsNodesSelector",
+          "title": "Filter out specific events"
         },
         "UserEventFilter": {
-          "$ref": "#/definitions/jobsUsersSelector"
+          "$ref": "#/definitions/jobsUsersSelector",
+          "title": "Deprecated in favor of more generic IdmSelector"
+        },
+        "IdmFilter": {
+          "$ref": "#/definitions/jobsIdmSelector",
+          "title": "Idm objects filter"
+        },
+        "ContextMetaFilter": {
+          "$ref": "#/definitions/jobsContextMetaFilter",
+          "title": "Event Context Filter"
         }
       }
     },
@@ -4958,13 +5110,6 @@ var SwaggerJson = `{
           },
           "title": "Preset list of node pathes"
         },
-        "Nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/treeNode"
-          },
-          "title": "Preset set of nodes"
-        },
         "Query": {
           "$ref": "#/definitions/serviceQuery",
           "title": "Query to apply to select users (or filter a given node passed by event)"
@@ -4987,15 +5132,6 @@ var SwaggerJson = `{
         "Iso8601MinDelta": {
           "type": "string",
           "title": "Minimum time between two runs"
-        }
-      }
-    },
-    "jobsSourceFilter": {
-      "type": "object",
-      "properties": {
-        "Query": {
-          "$ref": "#/definitions/serviceQuery",
-          "title": "Can be built with SourceSingleQuery or ActionOutputQuery"
         }
       }
     },
@@ -5094,7 +5230,8 @@ var SwaggerJson = `{
           "format": "boolean",
           "title": "Wether to trigger one action per user or one action\nwith all user as a selection"
         }
-      }
+      },
+      "title": "Select or filter users - should be replaced by more generic IdmSelector"
     },
     "logListLogRequest": {
       "type": "object",
@@ -5437,7 +5574,7 @@ var SwaggerJson = `{
       "properties": {
         "type_url": {
           "type": "string",
-          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
         },
         "value": {
           "type": "string",
@@ -5464,6 +5601,48 @@ var SwaggerJson = `{
         }
       },
       "title": "Response for search request"
+    },
+    "restActionDescription": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string",
+          "title": "Unique name of the action"
+        },
+        "Icon": {
+          "type": "string",
+          "title": "Mdi reference name for displaying icon"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Human-readable label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Long description and help text"
+        },
+        "SummaryTemplate": {
+          "type": "string",
+          "title": "Template for building a short summary of the action configuration"
+        },
+        "HasForm": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Whether this action has a form or not"
+        },
+        "Category": {
+          "type": "string",
+          "title": "User-defined category to organize actions list"
+        },
+        "InputDescription": {
+          "type": "string",
+          "title": "Additional description for expected inputs"
+        },
+        "OutputDescription": {
+          "type": "string",
+          "title": "Additional description describing the action output"
+        }
+      }
     },
     "restBackgroundJobResult": {
       "type": "object",
@@ -6473,6 +6652,21 @@ var SwaggerJson = `{
       },
       "title": "Roles Collection"
     },
+    "restSchedulerActionFormResponse": {
+      "type": "object"
+    },
+    "restSchedulerActionsResponse": {
+      "type": "object",
+      "properties": {
+        "Actions": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/restActionDescription"
+          },
+          "title": "List of all registered actions"
+        }
+      }
+    },
     "restSearchACLRequest": {
       "type": "object",
       "properties": {
@@ -6663,6 +6857,28 @@ var SwaggerJson = `{
         }
       }
     },
+    "restSettingsAccess": {
+      "type": "object",
+      "properties": {
+        "Policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restSettingsAccessRestPolicy"
+          }
+        }
+      }
+    },
+    "restSettingsAccessRestPolicy": {
+      "type": "object",
+      "properties": {
+        "Action": {
+          "type": "string"
+        },
+        "Resource": {
+          "type": "string"
+        }
+      }
+    },
     "restSettingsEntry": {
       "type": "object",
       "properties": {
@@ -6683,6 +6899,12 @@ var SwaggerJson = `{
         },
         "Metadata": {
           "$ref": "#/definitions/restSettingsEntryMeta"
+        },
+        "Accesses": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/restSettingsAccess"
+          }
         }
       }
     },
@@ -7420,6 +7642,13 @@ var SwaggerJson = `{
     "treeQuery": {
       "type": "object",
       "properties": {
+        "PresetPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Preset list of nodes - used for NodesSelector, not for search engines"
+        },
         "PathPrefix": {
           "type": "array",
           "items": {
@@ -7468,6 +7697,16 @@ var SwaggerJson = `{
         "GeoQuery": {
           "$ref": "#/definitions/treeGeoQuery",
           "title": "Search geographically"
+        },
+        "PathDepth": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Limit to a given level of the tree - can be used in filters"
+        },
+        "Not": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Negate this query"
         }
       },
       "title": "Search Queries"

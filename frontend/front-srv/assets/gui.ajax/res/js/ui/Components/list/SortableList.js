@@ -18,8 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-
+import React from 'react'
 import {Types, collect, collectDrop} from '../util/DND'
+import {Paper} from 'material-ui'
 
 /***************************/
 /* REACT DND SORTABLE LIST
@@ -81,19 +82,19 @@ var sortableItem = React.createClass({
             remove = <span className="button mdi mdi-close" onClick={this.removeClicked}></span>
         }
         return (
-            <ReactMUI.Paper
+            <Paper
                 ref={instance => {
                         connectDropTarget(ReactDOM.findDOMNode(instance));
                         connectDragSource(ReactDOM.findDOMNode(instance));
                     }}
                 zDepth={1}
-                style={{opacity:isDragging?0:1}}
+                style={{opacity:isDragging?0:1, margin: '8px 0'}}
             >
                 <div className={this.props.className}>
                     {this.props.label}
                     {remove}
                 </div>
-            </ReactMUI.Paper>
+            </Paper>
         );
     }
 });
@@ -105,12 +106,12 @@ var NonDraggableListItem = React.createClass({
             remove = <span className="button mdi mdi-close" onClick={this.removeClicked}></span>
         }
         return (
-            <ReactMUI.Paper zDepth={1}>
+            <Paper zDepth={1} style={{margin: '8px 0'}}>
                 <div className={this.props.className}>
                     {this.props.label}
                     {remove}
                 </div>
-            </ReactMUI.Paper>
+            </Paper>
         );
     }
 });

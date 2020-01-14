@@ -129,7 +129,7 @@ func getDefaultJobs() []*jobs.Job {
 		MaxConcurrency:    5,
 		TasksSilentUpdate: true,
 		EventNames: []string{
-			jobs.IdmChangeEventName(jobs.IdmEventObjectUser, idm.ChangeEventType_DELETE),
+			jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_DELETE),
 		},
 		Actions: []*jobs.Action{
 			{
