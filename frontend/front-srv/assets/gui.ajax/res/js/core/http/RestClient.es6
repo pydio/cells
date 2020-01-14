@@ -114,6 +114,7 @@ class RestClient extends ApiClient{
                     window.location.href = response.data.RedirectTo
                 } else if (response.data && response.data.Trigger) {
                     this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+                    this.pydio.getController().fire("user_action_triggered");
                 } else if (response.data && response.data.Token) {
                     RestClient.store(response.data.Token);
                 } else if (request.AuthInfo.type === "logout") {
@@ -182,14 +183,13 @@ class RestClient extends ApiClient{
             headerParams["X-Pydio-Language"] = this.pydio.user.getPreference("lang");
         }
 
-        return this.getOrUpdateJwt().then((jwt) => {
-            let authNames = [];
-            if (jwt){
-                authNames.push('oauth2');
-                this.authentications = {'oauth2': {type:'oauth2', accessToken: jwt}};
-            }
+        return this.getOrUpdateJwt().then((accessToken) => {
+            const authNames = ['oauth2']
+            this.authentications = {'oauth2': {type:'oauth2', accessToken: accessToken}};
+            
             return super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType);
         })
+        .catch(() => super.callApi(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType))
         .then((response) => response)
         .catch((reason) =>{
             this.handleError(reason);

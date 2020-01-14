@@ -3110,6 +3110,13 @@
           }
         ],
         "props": {
+          "profile": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
           "roles": {
             "type": {
               "name": "array"
@@ -10242,6 +10249,20 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "finishMultiPart",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "abort",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ],
         "require": "const PydioApi = require('pydio/http/api')"
@@ -11534,6 +11555,10 @@
               {
                 "name": "callbackFunc",
                 "type": null
+              },
+              {
+                "name": "autoload",
+                "type": null
               }
             ],
             "returns": null
@@ -11613,7 +11638,7 @@
     "core/http/RestClient.es6": [
       {
         "description": "",
-        "displayName": "JwtApiClient",
+        "displayName": "RestClient",
         "methods": [
           {
             "name": "constructor",
@@ -11649,88 +11674,86 @@
             "description": null
           },
           {
-            "name": "storeJwtLocally",
+            "name": "get",
             "docblock": "@param frontJwtResponse {RestFrontSessionResponse}",
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null,
+            "description": null
+          },
+          {
+            "name": "store",
+            "docblock": null,
             "modifiers": [
               "static"
             ],
             "params": [
               {
-                "name": "frontJwtResponse",
-                "description": "{RestFrontSessionResponse}",
+                "name": "token",
                 "type": null
               }
             ],
-            "returns": null,
-            "description": null
+            "returns": null
           },
           {
-            "name": "sessionLogout",
-            "docblock": "Call session endpoint for destroying session",
+            "name": "remove",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getCurrentChallenge",
+            "docblock": null,
             "modifiers": [],
             "params": [],
-            "returns": null,
-            "description": "Call session endpoint for destroying session"
+            "returns": null
           },
           {
-            "name": "sessionAuth",
-            "docblock": "Call session endpoint for destroying session",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "requestID"
-              }
-            ],
-            "returns": null,
-            "description": "Call session endpoint for destroying session"
-          },
-          {
-            "name": "jwtFromAuthorizationCode",
-            "docblock": "Create AuthInfo request with type \"authorization_code\"\n@param code string\n@return {Promise<any>}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "code",
-                "description": "string",
-                "type": null
-              }
-            ],
-            "returns": {
-              "description": null,
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Create AuthInfo request with type \"authorization_code\""
-          },
-          {
-            "name": "jwtFromCredentials",
-            "docblock": "Create AuthInfo request with type \"credentials\"\n@param login string\n@param password string\n@param reloadRegistry bool\n@return {Promise<any>}",
+            "name": "sessionLoginWithCredentials",
+            "docblock": null,
             "modifiers": [],
             "params": [
               {
                 "name": "login",
-                "description": "string",
                 "type": null
               },
               {
                 "name": "password",
-                "description": "string",
-                "type": null
-              },
-              {
-                "name": "reloadRegistry",
-                "description": "bool",
                 "type": null
               }
             ],
-            "returns": {
-              "description": null,
-              "type": {
-                "name": "Promise"
+            "returns": null
+          },
+          {
+            "name": "sessionLoginWithAuthCode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "code",
+                "type": null
               }
-            },
-            "description": "Create AuthInfo request with type \"credentials\""
+            ],
+            "returns": null
+          },
+          {
+            "name": "sessionRefresh",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "sessionLogout",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           },
           {
             "name": "jwtWithAuthInfo",
@@ -11746,6 +11769,13 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "getAuthToken",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           },
           {
@@ -12393,15 +12423,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ACLServiceApi. \n@alias module:api/ACLServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ACLServiceApi. \n@alias module:api/ACLServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -12543,15 +12569,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ActivityServiceApi. \n@alias module:api/ActivityServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ActivityServiceApi. \n@alias module:api/ActivityServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -12693,15 +12715,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new AdminTreeServiceApi. \n@alias module:api/AdminTreeServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new AdminTreeServiceApi. \n@alias module:api/AdminTreeServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -12801,15 +12819,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ConfigServiceApi. \n@alias module:api/ConfigServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ConfigServiceApi. \n@alias module:api/ConfigServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -13811,19 +13825,41 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new FrontendServiceApi. \n@alias module:api/FrontendServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new FrontendServiceApi. \n@alias module:api/FrontendServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
             "description": "Constructs a new FrontendServiceApi."
+          },
+          {
+            "name": "fronSessionDelWithHttpInfo",
+            "docblock": "Remove Session\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionDelResponse} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionDelResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Remove Session"
+          },
+          {
+            "name": "fronSessionDel",
+            "docblock": "Remove Session\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionDelResponse}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionDelResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Remove Session"
           },
           {
             "name": "frontBootConfWithHttpInfo",
@@ -14105,7 +14141,7 @@
           },
           {
             "name": "frontSessionWithHttpInfo",
-            "docblock": "Handle JWT\n@param {module:model/RestFrontSessionRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response",
+            "docblock": "Handle Session POST\n@param {module:model/RestFrontSessionRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionResponse} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -14122,11 +14158,11 @@
                 "name": "Promise"
               }
             },
-            "description": "Handle JWT"
+            "description": "Handle Session POST"
           },
           {
             "name": "frontSession",
-            "docblock": "Handle JWT\n@param {module:model/RestFrontSessionRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}",
+            "docblock": "Handle Session POST\n@param {module:model/RestFrontSessionRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionResponse}",
             "modifiers": [],
             "params": [
               {
@@ -14143,7 +14179,33 @@
                 "name": "Promise"
               }
             },
-            "description": "Handle JWT"
+            "description": "Handle Session POST"
+          },
+          {
+            "name": "frontSessionGetWithHttpInfo",
+            "docblock": "Retrieve session info\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionGetResponse} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontSessionGetResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Retrieve session info"
+          },
+          {
+            "name": "frontSessionGet",
+            "docblock": "Retrieve session info\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionGetResponse}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontSessionGetResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Retrieve session info"
           },
           {
             "name": "frontStateWithHttpInfo",
@@ -14207,15 +14269,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new GraphServiceApi. \n@alias module:api/GraphServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new GraphServiceApi. \n@alias module:api/GraphServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -14315,15 +14373,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new InstallServiceApi. \n@alias module:api/InstallServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new InstallServiceApi. \n@alias module:api/InstallServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -14475,15 +14529,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new JobsServiceApi. \n@alias module:api/JobsServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new JobsServiceApi. \n@alias module:api/JobsServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -14723,15 +14773,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new LogServiceApi. \n@alias module:api/LogServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new LogServiceApi. \n@alias module:api/LogServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -14789,15 +14835,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new MailerServiceApi. \n@alias module:api/MailerServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new MailerServiceApi. \n@alias module:api/MailerServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -14855,15 +14897,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new MetaServiceApi. \n@alias module:api/MetaServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new MetaServiceApi. \n@alias module:api/MetaServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15089,15 +15127,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new PolicyServiceApi. \n@alias module:api/PolicyServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new PolicyServiceApi. \n@alias module:api/PolicyServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15155,15 +15189,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new RoleServiceApi. \n@alias module:api/RoleServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new RoleServiceApi. \n@alias module:api/RoleServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15375,15 +15405,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new SearchServiceApi. \n@alias module:api/SearchServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new SearchServiceApi. \n@alias module:api/SearchServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15441,15 +15467,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new ShareServiceApi. \n@alias module:api/ShareServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new ShareServiceApi. \n@alias module:api/ShareServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15801,15 +15823,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TemplatesServiceApi. \n@alias module:api/TemplatesServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TemplatesServiceApi. \n@alias module:api/TemplatesServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -15851,15 +15869,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TokenServiceApi. \n@alias module:api/TokenServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TokenServiceApi. \n@alias module:api/TokenServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16001,15 +16015,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new TreeServiceApi. \n@alias module:api/TreeServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new TreeServiceApi. \n@alias module:api/TreeServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16277,15 +16287,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UpdateServiceApi. \n@alias module:api/UpdateServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UpdateServiceApi. \n@alias module:api/UpdateServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16399,15 +16405,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UserMetaServiceApi. \n@alias module:api/UserMetaServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UserMetaServiceApi. \n@alias module:api/UserMetaServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -16771,15 +16773,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new UserServiceApi. \n@alias module:api/UserServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new UserServiceApi. \n@alias module:api/UserServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -17047,15 +17045,11 @@
         "methods": [
           {
             "name": "constructor",
-            "docblock": "Constructs a new WorkspaceServiceApi. \n@alias module:api/WorkspaceServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "docblock": "Constructs a new WorkspaceServiceApi. \n@alias module:api/WorkspaceServiceApi\n@class\n@param {module:ApiClient} [apiClient] Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
             "modifiers": [],
             "params": [
               {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
+                "name": "apiClient"
               }
             ],
             "returns": null,
@@ -22455,6 +22449,98 @@
         ]
       }
     ],
+    "core/http/gen/model/RestFrontSessionDelResponse.js": [
+      {
+        "description": "The RestFrontSessionDelResponse model module.\n@module model/RestFrontSessionDelResponse\n@version 1.0",
+        "displayName": "RestFrontSessionDelResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontSessionDelResponse</code>.\n@alias module:model/RestFrontSessionDelResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontSessionDelResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontSessionDelResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontSessionDelResponse} obj Optional instance to populate.\n@return {module:model/RestFrontSessionDelResponse} The populated <code>RestFrontSessionDelResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontSessionDelResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontSessionDelResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontSessionDelResponse"
+              }
+            },
+            "description": "Constructs a <code>RestFrontSessionDelResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestFrontSessionGetResponse.js": [
+      {
+        "description": "The RestFrontSessionGetResponse model module.\n@module model/RestFrontSessionGetResponse\n@version 1.0",
+        "displayName": "RestFrontSessionGetResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontSessionGetResponse</code>.\n@alias module:model/RestFrontSessionGetResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontSessionGetResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontSessionGetResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontSessionGetResponse} obj Optional instance to populate.\n@return {module:model/RestFrontSessionGetResponse} The populated <code>RestFrontSessionGetResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontSessionGetResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontSessionGetResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontSessionGetResponse"
+              }
+            },
+            "description": "Constructs a <code>RestFrontSessionGetResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestFrontSessionRequest.js": [
       {
         "description": "The RestFrontSessionRequest model module.\n@module model/RestFrontSessionRequest\n@version 1.0",
@@ -24824,6 +24910,52 @@
               }
             },
             "description": "Constructs a <code>RestTemplateNode</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestToken.js": [
+      {
+        "description": "The RestToken model module.\n@module model/RestToken\n@version 1.0",
+        "displayName": "RestToken",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestToken</code>.\n@alias module:model/RestToken\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestToken</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestToken</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestToken} obj Optional instance to populate.\n@return {module:model/RestToken} The populated <code>RestToken</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestToken"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestToken</code> instance.",
+              "type": {
+                "name": "module:model/RestToken"
+              }
+            },
+            "description": "Constructs a <code>RestToken</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

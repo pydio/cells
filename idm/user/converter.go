@@ -116,8 +116,6 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 		return nil, false
 	}
 
-	fmt.Println(q)
-
 	if q.Uuid != "" {
 		expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.uuid", q.Uuid))
 	}
