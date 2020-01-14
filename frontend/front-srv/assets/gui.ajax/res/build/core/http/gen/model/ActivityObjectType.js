@@ -85,6 +85,8 @@ var ActivityObjectType = (function () {
         this.Travel = "Travel";
         this.Undo = "Undo";
         this.Update = "Update";
+        this.UpdateComment = "UpdateComment";
+        this.UpdateMeta = "UpdateMeta";
         this.View = "View";
         this.Workspace = "Workspace";
         this.Digest = "Digest";
@@ -366,6 +368,16 @@ module.exports = exports["default"];
 
 /**
  * value: "Update"
+ * @const
+ */
+
+/**
+ * value: "UpdateComment"
+ * @const
+ */
+
+/**
+ * value: "UpdateMeta"
  * @const
  */
 

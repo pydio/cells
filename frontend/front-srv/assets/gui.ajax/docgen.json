@@ -3110,6 +3110,13 @@
           }
         ],
         "props": {
+          "profile": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
           "roles": {
             "type": {
               "name": "array"
@@ -10241,6 +10248,20 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "finishMultiPart",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "abort",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           }
         ],

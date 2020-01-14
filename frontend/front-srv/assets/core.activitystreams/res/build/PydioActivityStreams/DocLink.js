@@ -247,6 +247,9 @@ var DocLink = (function (_React$Component2) {
             var activity = _props.activity;
             var children = _props.children;
 
+            if (!activity.object.name) {
+                activity.object.name = '';
+            }
             var nodes = nodesFromObject(activity.object, pydio);
 
             var onClick = undefined,

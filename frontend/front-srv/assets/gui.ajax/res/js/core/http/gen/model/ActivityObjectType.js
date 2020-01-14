@@ -387,6 +387,20 @@ export default class ActivityObjectType {
 
     
         /**
+         * value: "UpdateComment"
+         * @const
+         */
+        UpdateComment = "UpdateComment";
+
+    
+        /**
+         * value: "UpdateMeta"
+         * @const
+         */
+        UpdateMeta = "UpdateMeta";
+
+    
+        /**
          * value: "View"
          * @const
          */
