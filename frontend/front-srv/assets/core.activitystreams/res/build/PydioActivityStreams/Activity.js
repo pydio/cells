@@ -259,6 +259,14 @@ var Activity = (function (_React$Component2) {
                     className = "pencil";
                     title = "Modified";
                     break;
+                case "UpdateMeta":
+                    className = "tag-multiple";
+                    title = "Modified";
+                    break;
+                case "UpdateComment":
+                    className = "message-outline";
+                    title = "Commented";
+                    break;
                 case "Read":
                     className = "eye";
                     title = "Accessed";

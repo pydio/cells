@@ -23,6 +23,7 @@ package chat
 import (
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 
 	bolt "github.com/etcd-io/bbolt"
 	"github.com/micro/go-micro/errors"
@@ -213,6 +214,40 @@ func (h *boltdbimpl) ListRooms(request *chat.ListRoomsRequest) (rooms []*chat.Ch
 
 	return rooms, e
 }
+
+func (h *boltdbimpl) RoomByUuid(byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
+
+	var foundRoom chat.ChatRoom
+	var found bool
+	e := h.DB().View(func(tx *bolt.Tx) error {
+		bucket, _ := h.getRoomsBucket(tx, false, byType, "")
+		c := bucket.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			if v != nil {
+				continue
+			}
+			subBucket := bucket.Bucket(k)
+			r := subBucket.Get([]byte(roomUUID))
+			if r != nil {
+				err := json.Unmarshal(r, &foundRoom)
+				if err != nil {
+					return err
+				}
+				found = true
+				break
+			}
+		}
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+	if !found {
+		return nil, fmt.Errorf("room %s not found", roomUUID)
+	}
+	return &foundRoom, nil
+}
+
 func (h *boltdbimpl) ListMessages(request *chat.ListMessagesRequest) (messages []*chat.ChatMessage, e error) {
 
 	e = h.DB().View(func(tx *bolt.Tx) error {

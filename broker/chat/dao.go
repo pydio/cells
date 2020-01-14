@@ -32,6 +32,7 @@ type DAO interface {
 	PutRoom(room *chat.ChatRoom) (*chat.ChatRoom, error)
 	DeleteRoom(room *chat.ChatRoom) (bool, error)
 	ListRooms(request *chat.ListRoomsRequest) ([]*chat.ChatRoom, error)
+	RoomByUuid(byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error)
 	ListMessages(request *chat.ListMessagesRequest) ([]*chat.ChatMessage, error)
 	PostMessage(request *chat.ChatMessage) (*chat.ChatMessage, error)
 	DeleteMessage(message *chat.ChatMessage) error

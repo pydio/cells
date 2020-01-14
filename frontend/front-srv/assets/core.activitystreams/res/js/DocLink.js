@@ -166,6 +166,9 @@ class DocLink extends React.Component{
     render(){
 
         const {pydio, activity, children} = this.props;
+        if (!activity.object.name) {
+            activity.object.name = '';
+        }
         const nodes = nodesFromObject(activity.object, pydio);
 
         let onClick, onMouseOver, onMouseOut, popover;

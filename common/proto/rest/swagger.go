@@ -3376,6 +3376,8 @@ var SwaggerJson = `{
         "Travel",
         "Undo",
         "Update",
+        "UpdateComment",
+        "UpdateMeta",
         "View",
         "Workspace",
         "Digest",

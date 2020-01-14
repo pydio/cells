@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -61,20 +62,20 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
 	namespaces, _ := dao.GetNamespaceDao().List()
 	var nodeUuids []string
-	for _, metadata := range request.MetaDatas {
-		h.clearCacheForNode(metadata.NodeUuid)
+	for _, metaData := range request.MetaDatas {
+		h.clearCacheForNode(metaData.NodeUuid)
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// ADD / UPDATE
-			if newMeta, _, err := dao.Set(metadata); err == nil {
-				nodeUuids = append(nodeUuids, metadata.NodeUuid)
+			if newMeta, _, err := dao.Set(metaData); err == nil {
+				nodeUuids = append(nodeUuids, metaData.NodeUuid)
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 			} else {
 				return err
 			}
 		} else {
 			// DELETE
-			if err := dao.Del(metadata); err == nil {
-				nodeUuids = append(nodeUuids, metadata.NodeUuid)
+			if err := dao.Del(metaData); err == nil {
+				nodeUuids = append(nodeUuids, metaData.NodeUuid)
 			} else {
 				return err
 			}
@@ -84,6 +85,13 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
 	go func() {
 		bgCtx := context.Background()
+		if ctxMeta, ok := metadata.FromContext(ctx); ok {
+			newM := make(map[string]string)
+			for k, v := range ctxMeta {
+				newM[k] = v
+			}
+			bgCtx = metadata.NewContext(bgCtx, newM)
+		}
 
 		for _, nodeId := range nodeUuids {
 			// Reload node & Reload Metas
