@@ -40,10 +40,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/hashicorp/go-version"
-
 	"github.com/golang/protobuf/jsonpb"
+	"github.com/hashicorp/go-version"
 	update2 "github.com/inconshreveable/go-update"
+	"github.com/kardianos/osext"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
@@ -52,6 +52,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/update"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/utils/filesystem"
 	"github.com/pydio/cells/common/utils/net"
 )
 
@@ -205,8 +206,17 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			errorChan <- err
 			return
 		}
-		dataDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_UPDATE)
-		oldPath := filepath.Join(dataDir, "revision-"+common.BuildStamp)
+
+		// Write previous version inside the same folder
+		if targetPath == "" {
+			exe, er := osext.Executable()
+			if er != nil {
+				errorChan <- err
+				return
+			}
+			targetPath = exe
+		}
+		backupFile := targetPath + "-rev-" + common.BuildStamp
 
 		reader := net.BodyWithProgressMonitor(resp, pgChan, nil)
 
@@ -214,7 +224,7 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			Checksum:    checksum,
 			Signature:   signature,
 			TargetPath:  targetPath,
-			OldSavePath: oldPath,
+			OldSavePath: backupFile,
 			Hash:        crypto.SHA256,
 			PublicKey:   &pubKey,
 			Verifier:    update2.NewRSAVerifier(),
@@ -222,6 +232,14 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 		if er != nil {
 			errorChan <- er
 		}
+
+		// Now try to move previous version to the services folder. Do not break on error, just Warn in the logs.
+		dataDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_UPDATE)
+		backupPath := filepath.Join(dataDir, filepath.Base(backupFile))
+		if err := filesystem.SafeRenameFile(backupFile, backupPath); err != nil {
+			log.Logger(ctx).Warn("Update successfully applied but previous binary could not be moved to backup folder", zap.Error(err))
+		}
+
 		return
 	}
 
