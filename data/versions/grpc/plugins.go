@@ -81,7 +81,8 @@ func init() {
 				tree.RegisterNodeVersionerHandler(m.Options().Server, engine)
 
 				jobsClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
-				ctx, _ := context.WithTimeout(m.Options().Context, time.Second*1)
+				ctx, cancel := context.WithTimeout(m.Options().Context, time.Second*1)
+				defer cancel()
 				for _, j := range getDefaultJobs() {
 					if _, err := jobsClient.GetJob(m.Options().Context, &jobs.GetJobRequest{JobID: j.ID}); err != nil {
 						jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j})

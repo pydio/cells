@@ -33,35 +33,35 @@ type NodeChangeEventWithInfo struct {
 
 // NodeEventsBatcher buffers events with same node.uuid and flatten them into one where possible
 type NodeEventsBatcher struct {
-	uuid    string
-	timeout time.Duration
-	buffer  []*tree.NodeChangeEvent
-	in      chan *tree.NodeChangeEvent
-	out     chan *NodeChangeEventWithInfo
-	done    chan string
+	uuid   string
+	buffer []*tree.NodeChangeEvent
+	in     chan *tree.NodeChangeEvent
+	out    chan *NodeChangeEventWithInfo
+	done   chan string
+	closed bool
 }
 
 // NewEventsBatcher creates a new NodeEventsBatcher
 func NewEventsBatcher(timeout time.Duration, uuid string, out chan *NodeChangeEventWithInfo, done chan string) *NodeEventsBatcher {
 	b := &NodeEventsBatcher{
-		timeout: timeout,
-		uuid:    uuid,
-		in:      make(chan *tree.NodeChangeEvent),
-		out:     out,
-		done:    done,
+		uuid: uuid,
+		in:   make(chan *tree.NodeChangeEvent),
+		out:  out,
+		done: done,
 	}
 
 	go func() {
+		defer close(b.in)
 		for {
 			select {
 			case e := <-b.in:
 				b.buffer = append(b.buffer, e)
 			case <-time.After(timeout):
 				b.Flush()
+				b.closed = true
 				return
 			}
 		}
-
 	}()
 
 	return b

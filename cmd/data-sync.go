@@ -58,7 +58,8 @@ $> ./cells data sync --service=pydio.grpc.search --path=/
 			cmd.Println("Please provide at least a datasource name or a service name!")
 		}
 		client := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
-		c, _ := context.WithTimeout(context.Background(), 30*time.Minute)
+		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+		defer cancel()
 		c = context2.WithUserNameMetadata(c, common.PYDIO_SYSTEM_USERNAME)
 		resp, err := client.TriggerResync(c, &sync.ResyncRequest{Path: syncPath})
 		if err != nil {

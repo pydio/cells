@@ -138,7 +138,7 @@ func (w *WebsocketHandler) InitHandlers(serviceCtx context.Context) {
 func (w *WebsocketHandler) getBatcherForUuid(uuid string) *NodeEventsBatcher {
 	var batcher *NodeEventsBatcher
 	w.batcherLock.Lock()
-	if b, ok := w.batchers[uuid]; ok {
+	if b, ok := w.batchers[uuid]; ok && !b.closed {
 		batcher = b
 	} else {
 		batcher = NewEventsBatcher(1*time.Second, uuid, w.dispatcher, w.done)
